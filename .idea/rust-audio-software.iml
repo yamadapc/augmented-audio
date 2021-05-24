@@ -2,10 +2,12 @@
 <module type="CPP_MODULE" version="4">
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/oscillator/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/test-plugin-host/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tremolo-plugin/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/test-plugin-host/target" />
       <excludeFolder url="file://$MODULE_DIR$/tremolo-plugin/target" />
+      <excludeFolder url="file://$MODULE_DIR$/oscillator/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -21,24 +21,24 @@ fn initialize_main_loop() {
         .default_input_config()
         .expect("Expected default input configuration");
     match config.sample_format() {
-        SampleFormat::I16 => run_main_loop::<i16>(&output_device, &config.into()),
-        SampleFormat::U16 => run_main_loop::<u16>(&output_device, &config.into()),
-        SampleFormat::F32 => run_main_loop::<f32>(&output_device, &config.into()),
+        SampleFormat::F32 => run_main_loop(&output_device, &config.into()),
+        _ => {
+            panic!("What's going on")
+        }
     }
 }
 
-fn run_main_loop<T>(device: &cpal::Device, config: &cpal::StreamConfig)
-where
-    T: cpal::Sample,
-{
+fn run_main_loop(device: &cpal::Device, config: &cpal::StreamConfig) {
     let sample_rate = config.sample_rate.0 as f32;
     let channels = config.channels as usize;
 
     // Produce a sinusoid of maximum amplitude.
-    let mut sample_clock = 0f32;
+    // let mut sample_clock = 0f32;
+    let mut oscillator =
+        oscillator::Oscillator::new_with_sample_rate(sample_rate, |phase: f32| phase.sin());
     let mut next_value = move || {
-        sample_clock = (sample_clock + 1.0) % sample_rate;
-        (sample_clock * 440.0 * 2.0 * std::f32::consts::PI / sample_rate).sin()
+        oscillator.set_frequency(oscillator.get_frequency() * 1.000001);
+        oscillator.next()
     };
 
     let err_fn = |err| eprintln!("an error occurred on stream: {}", err);
@@ -46,7 +46,7 @@ where
     let stream = device
         .build_output_stream(
             config,
-            move |data: &mut [T], _: &cpal::OutputCallbackInfo| {
+            move |data: &mut [f32], _: &cpal::OutputCallbackInfo| {
                 write_data(data, channels, &mut next_value)
             },
             err_fn,
@@ -55,7 +55,7 @@ where
 
     stream.play().expect("Failed to play output stream");
 
-    std::thread::sleep(std::time::Duration::from_millis(1000));
+    std::thread::sleep(std::time::Duration::from_millis(5000));
 }
 
 fn write_data<T>(output: &mut [T], channels: usize, next_sample: &mut dyn FnMut() -> f32)

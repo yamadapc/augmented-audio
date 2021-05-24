@@ -1,5 +1,4 @@
-use vst::host::{Host, PluginLoader};
-use vst::plugin::Plugin;
+use vst::host::Host;
 
 #[allow(dead_code)]
 pub struct SampleHost;
@@ -9,4 +8,3 @@ impl Host for SampleHost {
         println!("Parameter {} had its value changed to {}", index, value);
     }
 }
-
