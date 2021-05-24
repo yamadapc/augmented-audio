@@ -99,6 +99,7 @@ where
         + std::ops::AddAssign
         + std::ops::Mul<Output = T>,
 {
+    /// Process a single sample & update the oscillator phase.
     pub fn next(&mut self) -> T {
         let two_pi = T::get_pi() * T::from(&2.0);
         let radial_phase = self.phase * self.frequency * two_pi;
@@ -108,6 +109,7 @@ where
     }
 }
 
+/// Trait for numeric types that have an associated PI constant
 pub trait HasPI {
     fn get_pi() -> Self;
 }
