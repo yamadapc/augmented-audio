@@ -8,3 +8,6 @@ edition = "2018"
 
 [dependencies]
 cpal = "0.13.3"
+
+[dev-dependencies]
+plotters = "0.3.1"

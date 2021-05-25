@@ -11,12 +11,12 @@ pub fn square_generator(phase: f32) -> f32 {
     static LIMIT: f32 = 0.5;
 
     if (phase % 1.0) < LIMIT {
-        0.0
+        -1.0
     } else {
         1.0
     }
 }
 
 pub fn saw_generator(phase: f32) -> f32 {
-    1.0 - (phase % 1.0)
+    (1.0 - (phase % 1.0)) * 2.0 - 1.0
 }

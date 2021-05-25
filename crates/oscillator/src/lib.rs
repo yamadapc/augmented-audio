@@ -103,25 +103,61 @@ where
     }
 }
 
-/// Trait for numeric types that have an associated PI constant
-pub trait HasPI {
-    fn get_pi() -> Self;
-}
+#[cfg(test)]
+mod test {
+    use super::*;
+    use plotters::prelude::*;
+    use std::path::Path;
 
-impl HasPI for f32 {
-    fn get_pi() -> Self {
-        std::f32::consts::PI
+    static DEFAULT_SAMPLE_RATE: f32 = 44100.0;
+
+    #[test]
+    fn test_generate_plots() {
+        let mut oscillator = Oscillator::sine(DEFAULT_SAMPLE_RATE);
+        generate_plot(&mut oscillator, "sine-wave");
+        let mut oscillator =
+            Oscillator::new_with_sample_rate(DEFAULT_SAMPLE_RATE, generators::square_generator);
+        generate_plot(&mut oscillator, "square-wave");
+        let mut oscillator =
+            Oscillator::new_with_sample_rate(DEFAULT_SAMPLE_RATE, generators::saw_generator);
+        generate_plot(&mut oscillator, "saw-wave");
     }
-}
 
-impl HasPI for i32 {
-    fn get_pi() -> Self {
-        std::f32::consts::PI as i32
-    }
-}
+    fn generate_plot(oscillator: &mut Oscillator<f32>, plot_name: &str) {
+        let filename = Path::new(file!());
+        let sine_wave_filename = filename.with_file_name(format!(
+            "{}--{}.svg",
+            filename.file_name().unwrap().to_str().unwrap(),
+            plot_name
+        ));
+        let sine_wave_filename = sine_wave_filename.as_path();
+        oscillator.set_frequency(440.0);
 
-impl HasPI for u32 {
-    fn get_pi() -> Self {
-        std::f32::consts::PI as u32
+        let mut output_buffer = Vec::new();
+        let mut current_seconds = 0.0;
+        for _i in 0..440 {
+            let sample = oscillator.next();
+            current_seconds += 1.0 / 44100.0; // increment time past since last sample
+            output_buffer.push((current_seconds, sample));
+        }
+
+        let svg_backend = SVGBackend::new(sine_wave_filename, (1000, 1000));
+        let drawing_area = svg_backend.into_drawing_area();
+        drawing_area.fill(&WHITE).unwrap();
+
+        let mut chart = ChartBuilder::on(&drawing_area)
+            .caption("Sine oscillator", ("sans-serif", 20))
+            .set_label_area_size(LabelAreaPosition::Left, 40)
+            .set_label_area_size(LabelAreaPosition::Bottom, 40)
+            .build_cartesian_2d(0.0..current_seconds, -1.2..1.2)
+            .unwrap();
+        chart.configure_mesh().draw().unwrap();
+
+        chart
+            .draw_series(LineSeries::new(
+                output_buffer.iter().map(|(x, y)| (*x, *y as f64)),
+                &RED,
+            ))
+            .unwrap();
     }
 }
