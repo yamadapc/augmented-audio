@@ -5,11 +5,15 @@ extern crate vst;
 extern crate cocoa;
 #[macro_use]
 extern crate objc;
+extern crate darwin_webkit;
 extern crate oscillator;
 
 use cocoa::appkit::{NSView, NSWindow, NSWindowStyleMask};
-use cocoa::base::id;
+use cocoa::base::{id, YES};
 use cocoa::foundation::{NSPoint, NSRect, NSSize};
+use darwin_webkit::helpers::dwk_webview::{string_from_nsstring, DarwinWKWebView};
+use darwin_webkit::webkit::wk_script_message_handler::WKScriptMessage;
+use objc::runtime::BOOL;
 use oscillator::Oscillator;
 use plugin_parameter::{ParameterStore, PluginParameterImpl};
 use std::ffi::c_void;
@@ -137,11 +141,63 @@ impl Plugin for TremoloPlugin {
 
 struct TremoloEditor {
     parameters: Arc<ParameterStore>,
+    webview: Option<DarwinWKWebView>,
 }
 
 impl TremoloEditor {
     pub fn new(parameters: Arc<ParameterStore>) -> Self {
-        TremoloEditor { parameters }
+        TremoloEditor {
+            parameters,
+            webview: None,
+        }
+    }
+
+    unsafe fn initialize_webview(&mut self, parent: *mut c_void) -> Option<bool> {
+        let origin = NSPoint::new(0.0, 0.0);
+        let size = NSSize::new(500.0, 500.0);
+        let frame = NSRect::new(origin, size);
+        let webview = darwin_webkit::helpers::dwk_webview::DarwinWKWebView::new(frame);
+        let parent_id = parent as id;
+
+        // TODO - this is only for development
+        webview.load_url("http://localhost:3000");
+        parent_id.addSubview_(webview.get_native_handle());
+
+        let window_id: id = msg_send![parent_id, window];
+        window_id.setStyleMask_(
+            NSWindowStyleMask::NSTitledWindowMask
+                | NSWindowStyleMask::NSResizableWindowMask
+                | NSWindowStyleMask::NSClosableWindowMask,
+        );
+        window_id.setMinSize_(size);
+        self.webview = Some(webview);
+
+        let mut self_ptr: *mut Self = self;
+        let on_message_ptr = Box::into_raw(Box::new(|_, wk_script_message| {
+            (*self_ptr).on_message(wk_script_message);
+        }));
+        let webview = self.webview.as_mut().unwrap();
+        webview.add_message_handler("editor", on_message_ptr);
+
+        Some(true)
+    }
+
+    unsafe fn on_message(&mut self, wk_script_message: id) {
+        // https://developer.apple.com/documentation/webkit/wkscriptmessage/1417901-body?language=objc
+        // Allowed types are NSNumber, NSString, NSDate, NSArray, NSDictionary, and NSNull.
+        let body = wk_script_message.body();
+
+        // only support string for simplicity
+        let string_class = class!(NSString);
+        let is_string: BOOL = msg_send![body, isKindOfClass: string_class];
+        if is_string == YES {
+            let str = string_from_nsstring(body);
+            println!("Got message from JavaScript {}", str.as_ref().unwrap());
+            self.webview
+                .as_ref()
+                .unwrap()
+                .evaluate_javascript("alert('got message')");
+        }
     }
 }
 
@@ -155,32 +211,15 @@ impl Editor for TremoloEditor {
     }
 
     fn open(&mut self, parent: *mut c_void) -> bool {
-        let run = || -> Option<bool> {
-            unsafe {
-                let origin = NSPoint::new(0.0, 0.0);
-                let size = NSSize::new(500.0, 500.0);
-                let frame = NSRect::new(origin, size);
-                let webview = darwin_webkit::helpers::dwk_webview::DarwinWKWebView::new(frame);
-                let parent_id = parent as id;
-                webview.load_html_string("<h1>Hello world</h1>", "http://localhost");
-                parent_id.addSubview_(webview.get_native_handle());
+        unsafe { self.initialize_webview(parent).unwrap_or(false) }
+    }
 
-                let window_id: id = msg_send![parent_id, window];
-                window_id.setStyleMask_(
-                    NSWindowStyleMask::NSTitledWindowMask
-                        | NSWindowStyleMask::NSResizableWindowMask
-                        | NSWindowStyleMask::NSClosableWindowMask,
-                );
-                window_id.setMinSize_(size);
-
-                Some(true)
-            }
-        };
-        run().unwrap_or(false)
+    fn close(&mut self) {
+        self.webview = None
     }
 
     fn is_open(&mut self) -> bool {
-        todo!()
+        self.webview.is_some()
     }
 }
 
