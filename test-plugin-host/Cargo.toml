@@ -9,4 +9,5 @@ edition = "2018"
 [dependencies]
 vst = "0.2.1"
 cpal = "0.13.3"
+clap = "2.33.3"
 oscillator = { path = "../oscillator" }

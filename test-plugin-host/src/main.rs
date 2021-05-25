@@ -1,8 +1,10 @@
 mod host;
+mod options;
 
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::SampleFormat;
 use std::env;
+use std::error::Error;
 use std::path::Path;
 use std::process;
 use std::sync::{Arc, Mutex};
@@ -66,6 +68,30 @@ where
 }
 
 fn main() {
+    let matches = clap::App::new("test-plugin-host")
+        .version("0.0.1")
+        .author("Pedro Tacla Yamada <tacla.yamada@gmail.com>")
+        .about("Test audio plugins")
+        .arg(clap::Arg::from_usage(
+            "-p, --plugin=[PLUGIN_PATH] 'An audio-plugin to load'",
+        ))
+        .arg(clap::Arg::from_usage(
+            "-i, --input=[INPUT_PATH] 'An audio file to process'",
+        ))
+        .arg(clap::Arg::from_usage(
+            "-o, --output=[OUTPUT_PATH] 'An audio file to create'",
+        ))
+        .arg(clap::Arg::from_usage(
+            "--playback 'Will output audio to an audio device'",
+        ))
+        .subcommand(clap::App::new("list-devices").about("Lists audio devices"))
+        .get_matches();
+
+    if matches.is_present("list-devices") {
+        run_list_devices();
+        return;
+    }
+
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         println!("usage: simple_host path/to/vst");
@@ -116,4 +142,46 @@ fn main() {
     // Close the instance. This is not necessary as the instance is shut down when
     // it is dropped as it goes out of scope.
     // drop(instance);
+}
+
+fn run_list_devices() {
+    let hosts = cpal::available_hosts();
+    hosts
+        .iter()
+        .for_each(|host_id| match print_host_devices(host_id) {
+            Err(_) => {
+                println!("Error listing devices for host {}", host_id.name());
+            }
+            _ => {}
+        });
+}
+
+fn print_host_devices(host_id: &cpal::HostId) -> Result<(), Box<dyn Error>> {
+    let host = cpal::host_from_id(*host_id)?;
+
+    for device in host.input_devices()? {
+        let name = device.name()?;
+        let config = device.default_input_config()?;
+        let num_channels = config.channels();
+        println!(
+            "{} (INPUT): {} - channels={}",
+            host.id().name(),
+            name,
+            num_channels
+        );
+    }
+
+    for device in host.output_devices()? {
+        let name = device.name()?;
+        let config = device.default_output_config()?;
+        let num_channels = config.channels();
+        println!(
+            "{} (OUTPUT): {} - channels={}",
+            host.id().name(),
+            name,
+            num_channels
+        );
+    }
+
+    Ok(())
 }

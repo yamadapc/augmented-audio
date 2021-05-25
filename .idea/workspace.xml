@@ -15,8 +15,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/oscillator/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test-plugin-host/src/options/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test-plugin-host/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/test-plugin-host/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test-plugin-host/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/test-plugin-host/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,7 +120,7 @@
       <option name="presentableId" value="Default" />
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
-      <workItem from="1621925668351" duration="3518000" />
+      <workItem from="1621925668351" duration="4580000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
@@ -127,7 +129,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621929093173</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Update with README">
+      <created>1621929239671</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1621929239671</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -135,7 +144,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Update with oscillator module" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update with oscillator module" />
+    <MESSAGE value="Update with README" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update with README" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
