@@ -1,9 +1,10 @@
 pub mod generators;
 
 /// Calculate the phase step increment between samples.
+///
+/// This is the fraction of a period which will go through each sample tick
 fn get_phase_step(sample_rate: f32, frequency: f32) -> f32 {
-    let inverse_sample_rate = 1.0 / sample_rate;
-    inverse_sample_rate * (frequency / 2.0)
+    frequency / sample_rate
 }
 
 pub struct Oscillator<T>

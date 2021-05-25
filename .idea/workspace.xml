@@ -16,28 +16,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/rust-audio-software.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rust-audio-software.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oscillator/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/Cargo.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oscillator/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oscillator/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oscillator/src/generators/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/src/generators/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/oscillator/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/src/commands/list_devices.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/list_devices.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/src/commands/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/src/commands/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/src/commands/options/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/options/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/src/host/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/host/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-plugin-host/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tremolo-plugin/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tremolo-plugin/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tremolo-plugin/build.sh" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/build.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tremolo-plugin/osx_bundle.sh" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/osx_bundle.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +69,7 @@
       <recent name="$PROJECT_DIR$/test-plugin-host/src/commands" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test test::test_generate_plots">
+  <component name="RunManager" selected="Cargo.Test lib::test">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -113,6 +93,21 @@
     <configuration name="Run test-plugin-host" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="run --package test-plugin-host --bin test-plugin-host ../tremolo-plugin/target/debug/libtas_v2.dylib" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/test-plugin-host" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test lib::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package oscillator --lib test" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/oscillator" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -160,9 +155,11 @@
       <item itemvalue="Cargo.Run test-plugin-host (1)" />
       <item itemvalue="Cargo.Test test::test_generate_sine_wave_plot" />
       <item itemvalue="Cargo.Test test::test_generate_plots" />
+      <item itemvalue="Cargo.Test lib::test" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test lib::test" />
         <item itemvalue="Cargo.Test test::test_generate_plots" />
         <item itemvalue="Cargo.Test test::test_generate_sine_wave_plot" />
         <item itemvalue="Cargo.Run test-plugin-host (1)" />
@@ -185,7 +182,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="692000" />
+      <workItem from="1621939465069" duration="1312000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
