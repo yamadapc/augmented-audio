@@ -6,6 +6,9 @@ authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
 [dependencies]
 vst = { git = "https://github.com/rustaudio/vst-rs" }
 oscillator = { path = "../oscillator" }
+cocoa = "0.18.4"
+objc = "0.2.7"
+darwin-webkit = "0.1.3"
 
 [lib]
 name = "tas_v2"

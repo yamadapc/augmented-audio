@@ -2,12 +2,18 @@ mod plugin_parameter;
 
 #[macro_use]
 extern crate vst;
+extern crate cocoa;
 extern crate oscillator;
 
+use cocoa::appkit::{NSView, NSWindow, NSWindowStyleMask};
+use cocoa::base::id;
+use cocoa::foundation::{NSPoint, NSRect, NSSize};
 use oscillator::Oscillator;
 use plugin_parameter::{ParameterStore, PluginParameterImpl};
+use std::ffi::c_void;
 use std::sync::{Arc, Mutex};
 use vst::buffer::AudioBuffer;
+use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 
 static RATE_PARAMETER_ID: &str = "rate";
@@ -120,6 +126,54 @@ impl Plugin for TremoloPlugin {
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         self.parameters.clone()
+    }
+
+    fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
+        Some(Box::new(TremoloEditor::new(self.parameters.clone())))
+    }
+}
+
+struct TremoloEditor {
+    parameters: Arc<ParameterStore>,
+}
+
+impl TremoloEditor {
+    pub fn new(parameters: Arc<ParameterStore>) -> Self {
+        TremoloEditor { parameters }
+    }
+}
+
+impl Editor for TremoloEditor {
+    fn size(&self) -> (i32, i32) {
+        (500, 500)
+    }
+
+    fn position(&self) -> (i32, i32) {
+        (0, 0)
+    }
+
+    fn open(&mut self, parent: *mut c_void) -> bool {
+        let run = || -> Option<bool> {
+            unsafe {
+                let origin = NSPoint::new(0.0, 0.0);
+                let size = NSSize::new(500.0, 500.0);
+                let frame = NSRect::new(origin, size);
+                let webview = darwin_webkit::helpers::dwk_webview::DarwinWKWebView::new(frame);
+                let parent_id = parent as id;
+                webview.load_html_string("<h1>Hello world</h1>", "http://localhost");
+                parent_id.setStyleMask_(
+                    NSWindowStyleMask::NSResizableWindowMask
+                        & NSWindowStyleMask::NSClosableWindowMask,
+                );
+                parent_id.addSubview_(webview.get_native_handle());
+                Some(true)
+            }
+        };
+        run().unwrap_or(false)
+    }
+
+    fn is_open(&mut self) -> bool {
+        todo!()
     }
 }
 
