@@ -41,8 +41,11 @@ unsafe fn run_main_loop(
 ) {
     let sample_rate = config.sample_rate.0 as f32;
     let channels = config.channels as usize;
+
+    plugin_instance.suspend();
     plugin_instance.set_sample_rate(sample_rate);
-    plugin_instance.start_process();
+    plugin_instance.resume();
+
     let mut plugin_ref = UnsafePluginRef(Arc::new(Mutex::new(plugin_instance)));
 
     let mut oscillator = oscillator::Oscillator::sine(sample_rate);
