@@ -32,14 +32,9 @@ fn run_main_loop(device: &cpal::Device, config: &cpal::StreamConfig) {
     let sample_rate = config.sample_rate.0 as f32;
     let channels = config.channels as usize;
 
-    // Produce a sinusoid of maximum amplitude.
-    // let mut sample_clock = 0f32;
-    let mut oscillator =
-        oscillator::Oscillator::new_with_sample_rate(sample_rate, |phase: f32| phase.sin());
-    let mut next_value = move || {
-        oscillator.set_frequency(oscillator.get_frequency() * 1.000001);
-        oscillator.next()
-    };
+    let mut oscillator = oscillator::Oscillator::sine(sample_rate);
+    oscillator.set_frequency(440.0);
+    let mut next_value = move || oscillator.next();
 
     let err_fn = |err| eprintln!("an error occurred on stream: {}", err);
 
@@ -63,8 +58,8 @@ where
     T: cpal::Sample,
 {
     for frame in output.chunks_mut(channels) {
-        let value: T = cpal::Sample::from::<f32>(&next_sample());
         for sample in frame.iter_mut() {
+            let value: T = cpal::Sample::from::<f32>(&next_sample());
             *sample = value;
         }
     }

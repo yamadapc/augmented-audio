@@ -1,53 +1,47 @@
+pub mod generators;
+
 /// Calculate the phase step increment between samples.
-fn get_phase_step<T>(sample_rate: f32) -> T
-where
-    T: HasPI
-        + cpal::Sample
-        + std::ops::Div<Output = T>
-        + std::ops::AddAssign
-        + std::ops::Mul<Output = T>,
-{
-    T::from(&1.0) / T::from(&sample_rate)
+fn get_phase_step(sample_rate: f32, frequency: f32) -> f32 {
+    let inverse_sample_rate = 1.0 / sample_rate;
+    inverse_sample_rate * (frequency / 2.0)
 }
 
 pub struct Oscillator<T>
 where
-    T: HasPI
-        + cpal::Sample
-        + std::ops::Div<Output = T>
-        + std::ops::AddAssign
-        + std::ops::Mul<Output = T>,
+    T: cpal::Sample,
 {
     /// The sample rate to output with
     sample_rate: f32,
     /// A function from `phase` to `sample`
     generator_fn: fn(T) -> T,
     /// The oscillator frequency
-    frequency: T,
+    frequency: f32,
     /// Current phase of the oscillator
-    phase: T,
-    /// Calculated current phase step between samples
-    phase_step_per_sample: T,
+    phase: f32,
+    phase_step: f32,
+}
+
+impl Oscillator<f32> {
+    /// Construct a sine generator
+    pub fn sine(sample_rate: f32) -> Oscillator<f32> {
+        Oscillator::new_with_sample_rate(sample_rate, generators::sine_generator)
+    }
 }
 
 impl<T> Oscillator<T>
 where
-    T: HasPI
-        + cpal::Sample
-        + std::ops::Div<Output = T>
-        + std::ops::AddAssign
-        + std::ops::Mul<Output = T>,
+    T: cpal::Sample,
 {
     /// Construct a new oscillator with a given sample rate
     pub fn new_with_sample_rate(sample_rate: f32, generator_fn: fn(T) -> T) -> Self {
-        let frequency = T::from(&440.);
-        let phase_step_per_sample = get_phase_step(sample_rate);
+        let frequency = 440.;
+        let phase_step = get_phase_step(sample_rate, frequency);
         Oscillator {
             sample_rate,
             generator_fn,
             frequency,
-            phase: T::from(&0.),
-            phase_step_per_sample,
+            phase: 0.,
+            phase_step,
         }
     }
 
@@ -59,11 +53,7 @@ where
 
 impl<T> Oscillator<T>
 where
-    T: HasPI
-        + cpal::Sample
-        + std::ops::Div<Output = T>
-        + std::ops::AddAssign
-        + std::ops::Mul<Output = T>,
+    T: cpal::Sample,
 {
     /// Set the sample rate
     pub fn set_sample_rate(&mut self, sample_rate: f32) {
@@ -73,39 +63,37 @@ where
 
 impl<T> Oscillator<T>
 where
-    T: HasPI
-        + cpal::Sample
-        + std::ops::Div<Output = T>
-        + std::ops::AddAssign
-        + std::ops::Mul<Output = T>,
+    T: cpal::Sample,
 {
     /// Get the oscillator frequency
-    pub fn get_frequency(&self) -> T {
+    pub fn get_frequency(&self) -> f32 {
         self.frequency
     }
 
     /// Set the oscillator frequency
-    pub fn set_frequency(&mut self, frequency: T) {
+    pub fn set_frequency(&mut self, frequency: f32) {
         self.frequency = frequency;
-        self.phase_step_per_sample = get_phase_step(self.sample_rate);
+        self.phase_step = get_phase_step(self.sample_rate, self.frequency);
     }
 }
 
 impl<T> Oscillator<T>
 where
-    T: HasPI
-        + cpal::Sample
-        + std::ops::Div<Output = T>
-        + std::ops::AddAssign
-        + std::ops::Mul<Output = T>,
+    T: cpal::Sample,
 {
     /// Process a single sample & update the oscillator phase.
     pub fn next(&mut self) -> T {
-        let two_pi = T::get_pi() * T::from(&2.0);
-        let radial_phase = self.phase * self.frequency * two_pi;
-        let sample = (self.generator_fn)(radial_phase);
-        self.phase += self.phase_step_per_sample;
-        sample
+        if self.phase >= 1.0 {
+            self.phase -= 1.0
+        }
+
+        // User provided function from phase to a sample
+        let sample = (self.generator_fn)(T::from(&self.phase));
+
+        // Increment phase with pre-calculated step.
+        self.phase += self.phase_step;
+
+        T::from(&sample)
     }
 }
 
