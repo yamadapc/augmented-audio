@@ -58,6 +58,7 @@ where
     /// Set the sample rate
     pub fn set_sample_rate(&mut self, sample_rate: f32) {
         self.sample_rate = sample_rate;
+        self.phase_step = get_phase_step(self.sample_rate, self.frequency);
     }
 }
 
@@ -83,16 +84,21 @@ where
 {
     /// Process a single sample & update the oscillator phase.
     pub fn next(&mut self) -> T {
-        if self.phase >= 1.0 {
-            self.phase -= 1.0
-        }
+        let result = self.get();
+        self.tick();
+        result
+    }
 
+    pub fn tick(&mut self) {
+        self.phase += self.phase_step;
+        if self.phase >= 1.0 {
+            self.phase -= 1.0;
+        }
+    }
+
+    pub fn get(&self) -> T {
         // User provided function from phase to a sample
         let sample = (self.generator_fn)(T::from(&self.phase));
-
-        // Increment phase with pre-calculated step.
-        self.phase += self.phase_step;
-
         T::from(&sample)
     }
 }
