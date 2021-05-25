@@ -1,5 +1,13 @@
 # rust-audio-software
 In this repository I'll push some experiments trying to use Rust for audio programming.
 
-I'm not an expert by any means, however I've some experience with JUCE and I'd very much like a
-similar tool that does not require C++.
+## oscillator
+Basic oscillator implementation.
+
+## test-plugin-host
+Basic WIP test host.
+
+Currently, is starting the `cpal` audio-thread & instancing a plugin in it.
+
+## tremolo-plugin
+Incomplete tremolo VST.
