@@ -9,7 +9,7 @@ fn example() {
     let initial_value = 440.0;
     let smoothing_duration = Duration::of_secs(1);
     // set an initial state, sample rate & interpolation duration
-    let value = smooth_value::SmoothValue::new(sample_rate, smoothing_duration, initial_value);
+    let value = smooth_value::InterpolatedValue::new(sample_rate, smoothing_duration, initial_value);
     // set a target
     value.set(880.0);
 
