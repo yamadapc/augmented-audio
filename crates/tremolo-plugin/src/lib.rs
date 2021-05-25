@@ -3,6 +3,8 @@ mod plugin_parameter;
 #[macro_use]
 extern crate vst;
 extern crate cocoa;
+#[macro_use]
+extern crate objc;
 extern crate oscillator;
 
 use cocoa::appkit::{NSView, NSWindow, NSWindowStyleMask};
@@ -161,11 +163,16 @@ impl Editor for TremoloEditor {
                 let webview = darwin_webkit::helpers::dwk_webview::DarwinWKWebView::new(frame);
                 let parent_id = parent as id;
                 webview.load_html_string("<h1>Hello world</h1>", "http://localhost");
-                parent_id.setStyleMask_(
-                    NSWindowStyleMask::NSResizableWindowMask
-                        & NSWindowStyleMask::NSClosableWindowMask,
-                );
                 parent_id.addSubview_(webview.get_native_handle());
+
+                let window_id: id = msg_send![parent_id, window];
+                window_id.setStyleMask_(
+                    NSWindowStyleMask::NSTitledWindowMask
+                        | NSWindowStyleMask::NSResizableWindowMask
+                        | NSWindowStyleMask::NSClosableWindowMask,
+                );
+                window_id.setMinSize_(size);
+
                 Some(true)
             }
         };
