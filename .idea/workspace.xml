@@ -13,11 +13,14 @@
     <cargoProject FILE="$PROJECT_DIR$/tremolo-plugin/Cargo.toml" />
     <cargoProject FILE="$PROJECT_DIR$/oscillator/Cargo.toml" />
     <cargoProject FILE="$PROJECT_DIR$/crates/oscillator/Cargo.toml" />
+    <cargoProject FILE="$PROJECT_DIR$/crates/smooth_value/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/crates/smooth_value/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crates/tremolo-plugin/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/rust-audio-software.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rust-audio-software.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,25 +72,10 @@
       <recent name="$PROJECT_DIR$/test-plugin-host/src/commands" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test lib::test">
+  <component name="RunManager" selected="Cargo.Test lib">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Run test-plugin-host (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="run --package test-plugin-host --bin test-plugin-host" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/test-plugin-host" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <envs />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
     <configuration name="Run test-plugin-host" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
@@ -105,9 +93,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test lib::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package oscillator --lib test" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/oscillator" />
+    <configuration name="Test lib" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package smooth_value --lib &quot;&quot;" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -120,9 +108,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test test::test_generate_plots" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package oscillator --lib test::test_generate_plots -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/oscillator" />
+    <configuration name="Test lib::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package smooth_value --lib tests" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -135,9 +123,39 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test test::test_generate_sine_wave_plot" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package oscillator --lib test::test_generate_sine_wave_plot -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/oscillator" />
+    <configuration name="Test tests::test_interpolation_can_be_interupted" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package smooth_value --lib tests::test_interpolation_can_be_interupted -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test tests::test_interpolation_works" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package smooth_value --lib tests::test_interpolation_works -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test tests::test_smoothing_samples" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package smooth_value --lib tests::test_smoothing_samples -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -152,17 +170,19 @@
     </configuration>
     <list>
       <item itemvalue="Cargo.Run test-plugin-host" />
-      <item itemvalue="Cargo.Run test-plugin-host (1)" />
-      <item itemvalue="Cargo.Test test::test_generate_sine_wave_plot" />
-      <item itemvalue="Cargo.Test test::test_generate_plots" />
-      <item itemvalue="Cargo.Test lib::test" />
+      <item itemvalue="Cargo.Test tests::test_interpolation_works" />
+      <item itemvalue="Cargo.Test tests::test_smoothing_samples" />
+      <item itemvalue="Cargo.Test lib::tests" />
+      <item itemvalue="Cargo.Test tests::test_interpolation_can_be_interupted" />
+      <item itemvalue="Cargo.Test lib" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Test lib::test" />
-        <item itemvalue="Cargo.Test test::test_generate_plots" />
-        <item itemvalue="Cargo.Test test::test_generate_sine_wave_plot" />
-        <item itemvalue="Cargo.Run test-plugin-host (1)" />
+        <item itemvalue="Cargo.Test lib" />
+        <item itemvalue="Cargo.Test lib::tests" />
+        <item itemvalue="Cargo.Test tests::test_interpolation_can_be_interupted" />
+        <item itemvalue="Cargo.Test tests::test_interpolation_works" />
+        <item itemvalue="Cargo.Test tests::test_smoothing_samples" />
       </list>
     </recent_temporary>
   </component>
@@ -182,7 +202,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="1312000" />
+      <workItem from="1621939465069" duration="3919000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
@@ -205,7 +225,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621937754156</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Fix oscillator implementation">
+      <created>1621940803760</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1621940803760</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -215,7 +242,8 @@
     <MESSAGE value="Update with oscillator module" />
     <MESSAGE value="Update with README" />
     <MESSAGE value="Updates" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updates" />
+    <MESSAGE value="Fix oscillator implementation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix oscillator implementation" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
