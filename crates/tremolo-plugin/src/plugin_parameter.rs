@@ -110,6 +110,14 @@ impl ParameterStore {
         let parameter_id = inner.parameter_ids.get(index as usize)?;
         Some(inner.parameters.get(parameter_id)?.clone())
     }
+
+    pub fn get_num_parameters(&self) -> i32 {
+        let run = || -> Option<i32> {
+            let inner = self.inner.lock().ok()?;
+            Some(inner.parameter_ids.len() as i32)
+        };
+        run().unwrap_or(0)
+    }
 }
 
 impl PluginParameters for ParameterStore {
