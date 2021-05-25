@@ -1,19 +1,36 @@
+mod plugin_parameter;
+
 #[macro_use]
 extern crate vst;
 extern crate oscillator;
 
 use oscillator::Oscillator;
+use plugin_parameter::ParameterStore;
+use std::sync::Arc;
 use vst::buffer::AudioBuffer;
-use vst::plugin::{Category, HostCallback, Info, Plugin};
+use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
+
+struct TremoloParameters {}
+
+impl PluginParameters for TremoloParameters {}
 
 struct TremoloPlugin {
+    parameters: Arc<ParameterStore>,
     oscillator_left: Oscillator<f32>,
     oscillator_right: Oscillator<f32>,
+}
+
+impl TremoloPlugin {
+    fn build_parameters() -> ParameterStore {
+        let store = ParameterStore::new();
+        store
+    }
 }
 
 impl Plugin for TremoloPlugin {
     fn new(_host: HostCallback) -> Self {
         TremoloPlugin {
+            parameters: Arc::new(TremoloPlugin::build_parameters()),
             oscillator_left: Oscillator::new_with_sample_rate(
                 44100.,
                 oscillator::generators::square_generator,
@@ -77,6 +94,10 @@ impl Plugin for TremoloPlugin {
                 output_samples[sample_index] = volume * input_samples[sample_index];
             }
         }
+    }
+
+    fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
+        self.parameters.clone()
     }
 }
 

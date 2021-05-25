@@ -14,10 +14,14 @@
     <cargoProject FILE="$PROJECT_DIR$/oscillator/Cargo.toml" />
     <cargoProject FILE="$PROJECT_DIR$/crates/oscillator/Cargo.toml" />
     <cargoProject FILE="$PROJECT_DIR$/crates/smooth_value/Cargo.toml" />
+    <cargoProject FILE="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" />
+    <cargoProject FILE="$PROJECT_DIR$/crates/test-plugin-host/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/crates/smooth_value/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/crates/smooth_value/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/plugin_parameter.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +73,7 @@
       <recent name="$PROJECT_DIR$/test-plugin-host/src/commands" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test lib">
+  <component name="RunManager" selected="Cargo.Test plugin_parameter">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -90,9 +94,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test lib" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package smooth_value --lib &quot;&quot;" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
+    <configuration name="Test plugin_parameter" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package tas_v2 --lib plugin_parameter" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -105,9 +109,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test lib::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package smooth_value --lib tests" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
+    <configuration name="Test plugin_parameter::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package tas_v2 --lib plugin_parameter::test" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -120,9 +124,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test tests::test_interpolation_can_be_interupted" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package smooth_value --lib tests::test_interpolation_can_be_interupted -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
+    <configuration name="Test plugin_parameter::test::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package tas_v2 --lib plugin_parameter::test::test -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -135,9 +139,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test tests::test_interpolation_works" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package smooth_value --lib tests::test_interpolation_works -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
+    <configuration name="Test plugin_parameter::test::test_creating_and_adding_parameters" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package tas_v2 --lib plugin_parameter::test::test_creating_and_adding_parameters -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -150,9 +154,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test tests::test_smoothing_samples" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package smooth_value --lib tests::test_smoothing_samples -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/smooth_value" />
+    <configuration name="Test plugin_parameter::test::test_parameter_fields" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package tas_v2 --lib plugin_parameter::test::test_parameter_fields -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -167,19 +171,19 @@
     </configuration>
     <list>
       <item itemvalue="Cargo.Run test-plugin-host" />
-      <item itemvalue="Cargo.Test tests::test_interpolation_works" />
-      <item itemvalue="Cargo.Test tests::test_smoothing_samples" />
-      <item itemvalue="Cargo.Test lib::tests" />
-      <item itemvalue="Cargo.Test tests::test_interpolation_can_be_interupted" />
-      <item itemvalue="Cargo.Test lib" />
+      <item itemvalue="Cargo.Test plugin_parameter::test::test" />
+      <item itemvalue="Cargo.Test plugin_parameter::test" />
+      <item itemvalue="Cargo.Test plugin_parameter::test::test_creating_and_adding_parameters" />
+      <item itemvalue="Cargo.Test plugin_parameter::test::test_parameter_fields" />
+      <item itemvalue="Cargo.Test plugin_parameter" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Test lib" />
-        <item itemvalue="Cargo.Test lib::tests" />
-        <item itemvalue="Cargo.Test tests::test_interpolation_can_be_interupted" />
-        <item itemvalue="Cargo.Test tests::test_interpolation_works" />
-        <item itemvalue="Cargo.Test tests::test_smoothing_samples" />
+        <item itemvalue="Cargo.Test plugin_parameter" />
+        <item itemvalue="Cargo.Test plugin_parameter::test::test_parameter_fields" />
+        <item itemvalue="Cargo.Test plugin_parameter::test::test_creating_and_adding_parameters" />
+        <item itemvalue="Cargo.Test plugin_parameter::test" />
+        <item itemvalue="Cargo.Test plugin_parameter::test::test" />
       </list>
     </recent_temporary>
   </component>
@@ -199,7 +203,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="3957000" />
+      <workItem from="1621939465069" duration="7371000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
@@ -236,7 +240,14 @@
       <option name="project" value="LOCAL" />
       <updated>1621943420508</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Fix README">
+      <created>1621943439724</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1621943439724</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -248,7 +259,8 @@
     <MESSAGE value="Updates" />
     <MESSAGE value="Fix oscillator implementation" />
     <MESSAGE value="Implement linear interpolation wrapper" />
-    <option name="LAST_COMMIT_MESSAGE" value="Implement linear interpolation wrapper" />
+    <MESSAGE value="Fix README" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix README" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
