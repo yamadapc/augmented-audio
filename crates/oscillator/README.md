@@ -9,6 +9,6 @@ fn example() {
         move |phase: f32| phase.sin()
     );
     osc.set_frequency(40.0);  // set freq. in Hz
-    let _sample = osc.next(); // tick the oscillator forward
+    let _sample = osc.next_sample(); // tick the oscillator forward
 }
 ```

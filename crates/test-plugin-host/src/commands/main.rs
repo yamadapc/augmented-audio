@@ -50,7 +50,7 @@ unsafe fn run_main_loop(
 
     let mut oscillator = oscillator::Oscillator::sine(sample_rate);
     oscillator.set_frequency(440.0);
-    let mut next_value = move || oscillator.next();
+    let mut next_value = move || oscillator.next_sample();
 
     let err_fn = |err| eprintln!("an error occurred on stream: {}", err);
 

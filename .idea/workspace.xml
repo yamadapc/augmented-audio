@@ -16,11 +16,21 @@
     <cargoProject FILE="$PROJECT_DIR$/crates/smooth_value/Cargo.toml" />
     <cargoProject FILE="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" />
     <cargoProject FILE="$PROJECT_DIR$/crates/test-plugin-host/Cargo.toml" />
+    <cargoProject FILE="$PROJECT_DIR$/crates/wisual-logger/Cargo.toml" />
+    <cargoProject FILE="$PROJECT_DIR$/crates/plugin-bundler/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/mod.rs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/rust-audio-software.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rust-audio-software.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/oscillator/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,9 +43,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Rust File" />
         <option value="TypeScript File" />
         <option value="package.json" />
+        <option value="Rust File" />
       </list>
     </option>
   </component>
@@ -66,7 +76,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/packages/webview-transport/src" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/packages/logger" />
     <property name="nodejs.jest.jest_package" value="$PROJECT_DIR$/packages/logger/node_modules/jest" />
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_package_manager_path" value="yarn" />
@@ -76,6 +86,8 @@
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/packages/logger" />
+      <recent name="$PROJECT_DIR$/packages" />
       <recent name="$PROJECT_DIR$/packages/webview-transport/src" />
       <recent name="$PROJECT_DIR$/packages/webview-transport" />
     </key>
@@ -84,7 +96,7 @@
       <recent name="$PROJECT_DIR$/test-plugin-host/src/commands" />
     </key>
   </component>
-  <component name="RunManager" selected="Jest.index.test.tsx">
+  <component name="RunManager" selected="Cargo.Test plugin_parameter">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -185,8 +197,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Jest.index.test.tsx" />
         <item itemvalue="Cargo.Test plugin_parameter" />
+        <item itemvalue="Jest.index.test.tsx" />
         <item itemvalue="Cargo.Test plugin_parameter::test::test_parameter_fields" />
         <item itemvalue="Cargo.Test plugin_parameter::test::test_creating_and_adding_parameters" />
         <item itemvalue="Cargo.Test plugin_parameter::test" />
@@ -209,7 +221,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="19688000" />
+      <workItem from="1621939465069" duration="20654000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>

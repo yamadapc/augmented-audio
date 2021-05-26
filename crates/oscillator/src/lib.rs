@@ -84,7 +84,7 @@ where
     T: cpal::Sample,
 {
     /// Process a single sample & update the oscillator phase.
-    pub fn next(&mut self) -> T {
+    pub fn next_sample(&mut self) -> T {
         let result = self.get();
         self.tick();
         result
@@ -137,7 +137,7 @@ mod test {
         let mut output_buffer = Vec::new();
         let mut current_seconds = 0.0;
         for _i in 0..440 {
-            let sample = oscillator.next();
+            let sample = oscillator.next_sample();
             current_seconds += 1.0 / 44100.0; // increment time past since last sample
             output_buffer.push((current_seconds, sample));
         }
