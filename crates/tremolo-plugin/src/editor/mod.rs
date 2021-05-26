@@ -5,7 +5,7 @@ use darwin_webkit::helpers::dwk_webview::{string_from_nsstring, DarwinWKWebView}
 use darwin_webkit::webkit::wk_script_message_handler::{make_new_handler, WKScriptMessage};
 use darwin_webkit::webkit::WKUserContentController;
 use log::info;
-use objc::runtime::{Object, BOOL, NO, YES};
+use objc::runtime::{Object, BOOL, YES};
 use plugin_parameter::ParameterStore;
 use std::ffi::c_void;
 use std::sync::Arc;

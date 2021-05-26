@@ -22,8 +22,10 @@
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/plugin_parameter.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/plugin_parameter.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +91,7 @@
       <recent name="$PROJECT_DIR$/test-plugin-host/src/commands" />
     </key>
   </component>
-  <component name="RunManager" selected="GDB Remote Debug.ddd">
+  <component name="RunManager" selected="Cargo.Test plugin_parameter::test">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -149,8 +151,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test plugin_parameter::test::test_creating_and_adding_parameters" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package tas_v2 --lib plugin_parameter::test::test_creating_and_adding_parameters -- --exact" />
+    <configuration name="Test plugin_parameter::test::test_float_is_atomic" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package tas_v2 --lib plugin_parameter::test::test_float_is_atomic -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
@@ -192,19 +194,19 @@
     <list>
       <item itemvalue="Cargo.Run test-plugin-host" />
       <item itemvalue="Cargo.Test plugin_parameter::test" />
-      <item itemvalue="Cargo.Test plugin_parameter::test::test_creating_and_adding_parameters" />
       <item itemvalue="Cargo.Test plugin_parameter::test::test_parameter_fields" />
       <item itemvalue="Cargo.Test plugin_parameter" />
       <item itemvalue="GDB Remote Debug.ddd" />
       <item itemvalue="Jest.index.test.tsx" />
+      <item itemvalue="Cargo.Test plugin_parameter::test::test_float_is_atomic" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test plugin_parameter::test" />
+        <item itemvalue="Cargo.Test plugin_parameter::test::test_float_is_atomic" />
         <item itemvalue="Cargo.Test plugin_parameter" />
         <item itemvalue="Jest.index.test.tsx" />
         <item itemvalue="Cargo.Test plugin_parameter::test::test_parameter_fields" />
-        <item itemvalue="Cargo.Test plugin_parameter::test::test_creating_and_adding_parameters" />
-        <item itemvalue="Cargo.Test plugin_parameter::test" />
       </list>
     </recent_temporary>
   </component>
@@ -224,7 +226,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="23082000" />
+      <workItem from="1621939465069" duration="25288000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
