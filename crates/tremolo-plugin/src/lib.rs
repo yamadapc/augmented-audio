@@ -2,6 +2,8 @@ mod editor;
 mod plugin_parameter;
 
 #[macro_use]
+extern crate log;
+#[macro_use]
 extern crate vst;
 extern crate cocoa;
 #[macro_use]
