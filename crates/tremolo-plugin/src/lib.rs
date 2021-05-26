@@ -10,6 +10,7 @@ extern crate objc;
 extern crate crossbeam;
 extern crate darwin_webkit;
 extern crate oscillator;
+extern crate serde;
 
 use oscillator::Oscillator;
 use plugin_parameter::{ParameterStore, PluginParameterImpl};
