@@ -21,6 +21,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -87,7 +89,16 @@
       <recent name="$PROJECT_DIR$/test-plugin-host/src/commands" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test plugin_parameter">
+  <component name="RunManager" selected="GDB Remote Debug.ddd">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ddd" type="CLion_Remote" version="1" remoteCommand="" symbolFile="" sysroot="">
+      <debugger kind="GDB" isBundled="true" />
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -184,6 +195,7 @@
       <item itemvalue="Cargo.Test plugin_parameter::test::test_creating_and_adding_parameters" />
       <item itemvalue="Cargo.Test plugin_parameter::test::test_parameter_fields" />
       <item itemvalue="Cargo.Test plugin_parameter" />
+      <item itemvalue="GDB Remote Debug.ddd" />
       <item itemvalue="Jest.index.test.tsx" />
     </list>
     <recent_temporary>
@@ -212,7 +224,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="20911000" />
+      <workItem from="1621939465069" duration="23082000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>

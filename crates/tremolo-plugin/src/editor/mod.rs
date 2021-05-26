@@ -5,7 +5,7 @@ use darwin_webkit::helpers::dwk_webview::{string_from_nsstring, DarwinWKWebView}
 use darwin_webkit::webkit::wk_script_message_handler::{make_new_handler, WKScriptMessage};
 use darwin_webkit::webkit::WKUserContentController;
 use log::info;
-use objc::runtime::{BOOL, YES};
+use objc::runtime::{Object, BOOL, NO, YES};
 use plugin_parameter::ParameterStore;
 use std::ffi::c_void;
 use std::sync::Arc;
@@ -37,9 +37,9 @@ impl TremoloEditor {
         let (ns_size, webview) = self.create_webview();
         TremoloEditor::attach_to_parent(parent, ns_size, &webview);
 
-        self.attach_message_handler();
         webview.load_url("http://127.0.0.1:3000");
         self.webview = Some(webview);
+        self.attach_message_handler();
 
         Some(true)
     }
@@ -87,6 +87,10 @@ impl TremoloEditor {
                 | NSWindowStyleMask::NSResizableWindowMask
                 | NSWindowStyleMask::NSClosableWindowMask,
         );
+
+        let webview_id = webview.get_native_handle();
+        pin_to_parent(parent_id, webview_id);
+
         window_id.setMinSize_(ns_size);
     }
 
@@ -129,4 +133,27 @@ impl Editor for TremoloEditor {
     fn is_open(&mut self) -> bool {
         self.webview.is_some()
     }
+}
+
+/// Pin one NSView to a parent NSView so it'll resize to fit it
+unsafe fn pin_to_parent(parent_id: *mut Object, webview_id: *mut Object) {
+    // let _: () = msg_send![webview_id, setTranslatesAutoresizingMaskIntoConstraints: NO];
+    let anchors = vec![
+        sel!(leftAnchor),
+        sel!(rightAnchor),
+        sel!(topAnchor),
+        sel!(bottomAnchor),
+    ];
+
+    for anchor in anchors {
+        let parent_anchor = objc::__send_message(parent_id, anchor, ()).unwrap();
+        let target_anchor = objc::__send_message(webview_id, anchor, ()).unwrap();
+        pin_anchors(parent_anchor, target_anchor);
+    }
+}
+
+/// Pins two NSAnchors
+unsafe fn pin_anchors(parent: id, target: id) {
+    let constraint: id = msg_send![parent, constraintEqualToAnchor: target];
+    let _: () = msg_send![constraint, setActive: YES];
 }
