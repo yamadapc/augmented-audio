@@ -9,15 +9,45 @@ extern crate cocoa;
 extern crate objc;
 extern crate crossbeam;
 extern crate darwin_webkit;
+extern crate log4rs;
 extern crate oscillator;
+extern crate proc_macro;
 extern crate serde;
 
+use log::info;
+use log::LevelFilter;
+use log4rs::append::file::FileAppender;
+use log4rs::config::{Appender, Root};
+use log4rs::encode::pattern::PatternEncoder;
+use log4rs::Config;
 use oscillator::Oscillator;
 use plugin_parameter::{ParameterStore, PluginParameterImpl};
 use std::sync::Arc;
 use vst::buffer::AudioBuffer;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
+
+fn configure_logging() -> Option<()> {
+    let home_path = dirs::home_dir()?;
+    let log_dir = home_path.join(".ruas");
+    std::fs::create_dir_all(log_dir.clone());
+    let log_path = log_dir.join("tremolo-plugin.log");
+    let logfile = FileAppender::builder()
+        .encoder(Box::new(PatternEncoder::new(
+            "{d} [{l}] {M}:{L} - {m} - tid:{T}:{t} pid:{P}\n",
+        )))
+        .build(log_path)
+        .ok()?;
+
+    let config = Config::builder()
+        .appender(Appender::builder().build("logfile", Box::new(logfile)))
+        .build(Root::builder().appender("logfile").build(LevelFilter::Info))
+        .ok()?;
+
+    log4rs::init_config(config).ok()?;
+
+    Some(())
+}
 
 static RATE_PARAMETER_ID: &str = "rate";
 static DEPTH_PARAMETER_ID: &str = "depth";
@@ -49,6 +79,8 @@ impl TremoloPlugin {
 
 impl Plugin for TremoloPlugin {
     fn new(_host: HostCallback) -> Self {
+        configure_logging();
+
         TremoloPlugin {
             parameters: Arc::new(TremoloPlugin::build_parameters()),
             oscillator_left: Oscillator::new_with_sample_rate(
@@ -74,7 +106,7 @@ impl Plugin for TremoloPlugin {
     }
 
     fn set_sample_rate(&mut self, rate: f32) {
-        println!("TremoloPlugin - set_sample_rate");
+        info!("TremoloPlugin::set_sample_rate");
         self.oscillator_left.set_sample_rate(rate);
         self.oscillator_right.set_sample_rate(rate);
         self.oscillator_left.set_frequency(0.1);
@@ -83,7 +115,7 @@ impl Plugin for TremoloPlugin {
 
     // TODO - why isn't this called?
     fn start_process(&mut self) {
-        println!("TremoloPlugin - start_process");
+        info!("TremoloPlugin::start_process");
         self.oscillator_left.set_frequency(0.1);
         self.oscillator_right.set_frequency(0.1);
     }

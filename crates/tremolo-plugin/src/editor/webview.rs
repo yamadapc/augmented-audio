@@ -1,10 +1,10 @@
-use cocoa::appkit::{NSView, NSWindow, NSWindowStyleMask};
-use cocoa::base::{id, nil, YES};
-use cocoa::foundation::{NSPoint, NSRect, NSSize, NSString};
+use cocoa::appkit::{NSLayoutConstraint, NSView, NSWindow, NSWindowStyleMask};
+use cocoa::base::{id, nil, NO, YES};
+use cocoa::foundation::{NSArray, NSPoint, NSRect, NSSize, NSString};
 use darwin_webkit::helpers::dwk_webview::{string_from_nsstring, DarwinWKWebView};
 use darwin_webkit::webkit::wk_script_message_handler::{make_new_handler, WKScriptMessage};
 use darwin_webkit::webkit::WKUserContentController;
-use log::info;
+use log::{error, info};
 use objc::runtime::BOOL;
 use serde::Serialize;
 use std::error::Error;
@@ -31,12 +31,15 @@ impl WebviewHolder {
     }
 
     pub unsafe fn initialize(&mut self, parent: *mut c_void) {
+        info!("WebviewHolder::initialize - Attaching to parent NSView");
         self.attach_to_parent(parent);
 
-        // TODO - this should be read from somewhere
-        self.webview.load_url("http://127.0.0.1:3000");
-
+        info!("WebviewHolder::initialize - Setting-up message handler");
         self.attach_message_handler();
+
+        // TODO - this should be read from somewhere
+        info!("WebviewHolder::initialize - Loading app URL");
+        self.webview.load_url("http://127.0.0.1:3000");
     }
 
     pub unsafe fn attach_to_parent(&mut self, parent: *mut c_void) {
@@ -52,7 +55,8 @@ impl WebviewHolder {
         let webview_id = self.webview.get_native_handle();
         pin_to_parent(parent_id, webview_id);
 
-        let ns_size = msg_send![webview_id, frame];
+        let ns_rect: NSRect = NSView::frame(webview_id);
+        let ns_size = ns_rect.size;
         window_id.setMinSize_(ns_size);
     }
 
@@ -81,21 +85,33 @@ impl WebviewHolder {
     }
 
     unsafe fn on_message(&mut self, wk_script_message: id) {
-        // https://developer.apple.com/documentation/webkit/wkscriptmessage/1417901-body?language=objc
-        // Allowed types are NSNumber, NSString, NSDate, NSArray, NSDictionary, and NSNull.
-        let body = wk_script_message.body();
+        let run = || -> Result<(), &str> {
+            // https://developer.apple.com/documentation/webkit/wkscriptmessage/1417901-body?language=objc
+            // Allowed types are NSNumber, NSString, NSDate, NSArray, NSDictionary, and NSNull.
+            let body = wk_script_message.body();
 
-        // only support string for simplicity
-        let string_class = class!(NSString);
-        let is_string: BOOL = msg_send![body, isKindOfClass: string_class];
-        if is_string == YES {
-            let str = string_from_nsstring(body);
-            info!("Got message from JavaScript {}", str.as_ref().unwrap());
+            // only support string for simplicity
+            let string_class = class!(NSString);
+            let is_string: BOOL = msg_send![body, isKindOfClass: string_class];
+            if is_string == YES {
+                let str = string_from_nsstring(body);
+                let str = str.as_ref().ok_or("Failed to get message ref")?;
+                info!("Got message from JavaScript {}", str);
 
-            self.on_message_callback.map(|cb| {
-                cb(str.as_ref().unwrap().to_string());
-            });
-        }
+                self.on_message_callback
+                    .map(|cb| {
+                        cb(str.clone());
+                    })
+                    .ok_or("No callback provided")?;
+
+                Ok(())
+            } else {
+                Err("Message wasn't a string")
+            }
+        };
+        run().map_err(|err| {
+            error!("Message handling failed: {}", err);
+        });
     }
 }
 
@@ -126,23 +142,58 @@ impl WebviewHolder {
 
 /// Pin one NSView to a parent NSView so it'll resize to fit it
 unsafe fn pin_to_parent(parent_id: id, webview_id: id) {
-    // let _: () = msg_send![webview_id, setTranslatesAutoresizingMaskIntoConstraints: NO];
-    let anchors = vec![
-        sel!(leftAnchor),
-        sel!(rightAnchor),
-        sel!(topAnchor),
-        sel!(bottomAnchor),
-    ];
+    let _: () = msg_send![webview_id, setTranslatesAutoresizingMaskIntoConstraints: NO];
 
-    for anchor in anchors {
-        let parent_anchor = objc::__send_message(parent_id, anchor, ()).unwrap();
-        let target_anchor = objc::__send_message(webview_id, anchor, ()).unwrap();
-        pin_anchors(parent_anchor, target_anchor);
+    let mut constraints: Vec<id> = vec![];
+
+    {
+        let parent_anchor: id = msg_send![parent_id, leftAnchor];
+        let target_anchor: id = msg_send![webview_id, leftAnchor];
+        let constraint: id =
+            msg_send![parent_anchor, constraintEqualToAnchor: target_anchor constant: 0.0];
+        constraints.push(constraint)
     }
+    {
+        let parent_anchor: id = msg_send![parent_id, rightAnchor];
+        let target_anchor: id = msg_send![webview_id, rightAnchor];
+        let constraint: id =
+            msg_send![parent_anchor, constraintEqualToAnchor: target_anchor constant: 0.0];
+        constraints.push(constraint)
+    }
+    {
+        let parent_anchor: id = msg_send![parent_id, topAnchor];
+        let target_anchor: id = msg_send![webview_id, topAnchor];
+        let constraint: id =
+            msg_send![parent_anchor, constraintEqualToAnchor: target_anchor constant: 0.0];
+        constraints.push(constraint)
+    }
+    {
+        let parent_anchor: id = msg_send![parent_id, bottomAnchor];
+        let target_anchor: id = msg_send![webview_id, bottomAnchor];
+        let constraint: id =
+            msg_send![parent_anchor, constraintEqualToAnchor: target_anchor constant: 0.0];
+        constraints.push(constraint)
+    }
+
+    let bundle = NSArray::arrayWithObjects(nil, &constraints);
+    NSLayoutConstraint::activateConstraints(nil, bundle);
 }
 
-/// Pins two NSAnchors
-unsafe fn pin_anchors(parent: id, target: id) {
-    let constraint: id = msg_send![parent, constraintEqualToAnchor: target];
-    let _: () = msg_send![constraint, setActive: YES];
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    // Activating constraints in a test will panic.
+    #[test]
+    fn test_pin_to_parent() {
+        unsafe {
+            let origin = NSPoint::new(0.0, 0.0);
+            let size = NSSize::new(500.0, 500.0);
+            let frame = NSRect::new(origin, size);
+            let _parent_view = NSView::initWithFrame_(NSView::alloc(nil), frame);
+            let _child_view = NSView::initWithFrame_(NSView::alloc(nil), frame);
+
+            // pin_to_parent(parent_view, child_view, false);
+        }
+    }
 }
