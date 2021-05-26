@@ -27,10 +27,11 @@ export class WebkitMessageTransport<IncomingMessage, OutgoingMessage> extends Me
 
   postMessage(channel: string, message: OutgoingMessage, id?: string): Promise<void> {
     if (webkit) {
-      webkit.messageHandlers[channel].postMessage({
-        ...message,
+      webkit.messageHandlers[channel].postMessage(JSON.stringify({
+        channel,
+        message,
         id,
-      });
+      }));
     }
     return Promise.resolve();
   }
