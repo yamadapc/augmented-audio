@@ -11,3 +11,10 @@ Currently, is starting the `cpal` audio-thread & instancing a plugin in it.
 
 ## crates/tremolo-plugin
 Incomplete tremolo VST.
+
+- - -
+
+## JavaScript bits
+WebViews are used for UI. A TypeScript browser runtime and front-ends will be included.
+
+Tools will include logging, RPC and so on.

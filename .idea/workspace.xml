@@ -19,17 +19,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/packages/webview-transport/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/webview-transport/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/DefaultMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/DefaultMessageTransport.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/MessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/MessageTransport.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/WebKitMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/WebKitMessageTransport.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/WebSocketsMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/WebSocketsMessageTransport.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/webview-transport/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -218,7 +209,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="19029000" />
+      <workItem from="1621939465069" duration="19688000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
