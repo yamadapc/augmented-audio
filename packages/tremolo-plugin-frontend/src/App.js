@@ -4,9 +4,13 @@ import {useEffect} from "react";
 
 function App() {
   useEffect(() => {
-    window.webkit.messageHandlers.editor.postMessage(JSON.stringify({
-      message: 'hello world',
-    }));
+    try {
+      window.webkit.messageHandlers.editor.postMessage(JSON.stringify({
+        message: 'hello world',
+      }));
+    } catch (err) {
+      console.error(err)
+    }
   }, []);
 
   return (

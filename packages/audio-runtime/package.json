@@ -1,0 +1,9 @@
+{
+  "name": "@ruas/audio-runtime",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "^4.2.4"
+  }
+}

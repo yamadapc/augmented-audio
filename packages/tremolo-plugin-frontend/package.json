@@ -1,5 +1,5 @@
 {
-  "name": "tremolo-plugin-frontend",
+  "name": "@ruas/tremolo-plugin-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {

@@ -1,0 +1,9 @@
+{
+  "name": "@wisual/webview-transport",
+  "version": "1.0.0",
+  "dependencies": {},
+  "devDependencies": {
+    "tsyringe": "^4.5.0",
+    "typescript": "^4.2.4"
+  }
+}
