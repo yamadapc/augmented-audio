@@ -21,16 +21,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/mod.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/rust-audio-software.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rust-audio-software.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/build-and-test-rust.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/oscillator/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/webview-transport/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/smooth_value/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/crates/smooth_value/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/smooth_value/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/smooth_value/src/lib.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -221,7 +215,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="20654000" />
+      <workItem from="1621939465069" duration="20857000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>

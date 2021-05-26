@@ -70,7 +70,7 @@ impl InterpolatedValue {
     }
 
     /// Get the current value and tick the internal state
-    pub fn next(&mut self) -> f32 {
+    pub fn next_sample(&mut self) -> f32 {
         let value = self.get();
         self.tick();
         value
@@ -179,7 +179,7 @@ mod tests {
         value.set(100.0);
 
         for _ in 0..50000 {
-            let new_value = value.next();
+            let new_value = value.next_sample();
             assert!(new_value <= 100.0)
         }
         assert_approx_equals(value.get(), 100.0);

@@ -14,7 +14,7 @@ fn example() {
     value.set(880.0);
 
     // do this for each sample...
-    let _freq = value.next();
+    let _freq = value.next_sample();
     // it'll take 1s for the value to reach the target
 }
 ```
