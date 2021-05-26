@@ -6,7 +6,7 @@ import { LoggerFactory } from "@wisual/logger";
 const webkit: any = global.webkit;
 
 @singleton()
-export class WebkitMessageTransport extends MessageTransport {
+export class WebkitMessageTransport<IncomingMessage, OutgoingMessage> extends MessageTransport<IncomingMessage, OutgoingMessage> {
   private logger = LoggerFactory.getLogger("WebkitMessageTransport");
 
   getId(): string {
@@ -25,7 +25,7 @@ export class WebkitMessageTransport extends MessageTransport {
     return !!webkit;
   }
 
-  postMessage(channel: string, message: any, id?: string): Promise<void> {
+  postMessage(channel: string, message: OutgoingMessage, id?: string): Promise<void> {
     if (webkit) {
       webkit.messageHandlers[channel].postMessage({
         ...message,
@@ -35,7 +35,7 @@ export class WebkitMessageTransport extends MessageTransport {
     return Promise.resolve();
   }
 
-  onMessage = (msg: any) => {
+  onMessage = (msg: IncomingMessage) => {
     this.emitter.emit("message", msg);
   };
 }

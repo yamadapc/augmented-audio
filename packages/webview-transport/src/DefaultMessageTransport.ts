@@ -1,17 +1,14 @@
 import { inject, singleton } from "tsyringe";
 import { MessageTransport } from "./MessageTransport";
-import { LoggerFactory } from "@wisual/logger";
 import { WebSocketsMessageTransport } from "./WebSocketsMessageTransport";
 import { WebkitMessageTransport } from "./WebKitMessageTransport";
-import { OutgoingMessage } from "../protocol";
 
 /**
  * MessageTransport that forwards messages onto WebSockets or WebKit depending on WebKit being available.
  */
 @singleton()
-export class DefaultMessageTransport extends MessageTransport {
-  private transport: MessageTransport;
-  private logger = LoggerFactory.getLogger("DefaultMessageTransport");
+export class DefaultMessageTransport<IncomingMessage, OutgoingMessage> extends MessageTransport<IncomingMessage, OutgoingMessage> {
+  private transport: MessageTransport<IncomingMessage, OutgoingMessage>;
 
   getId(): string {
     return `DefaultMessageTransport@${this.transport.getId()}`;
@@ -19,9 +16,9 @@ export class DefaultMessageTransport extends MessageTransport {
 
   constructor(
     @inject(WebSocketsMessageTransport)
-    webSocketsMessageTransport: WebSocketsMessageTransport,
+    webSocketsMessageTransport: WebSocketsMessageTransport<IncomingMessage, OutgoingMessage>,
     @inject(WebkitMessageTransport)
-    webKitMessageTransport: WebkitMessageTransport
+    webKitMessageTransport: WebkitMessageTransport<IncomingMessage, OutgoingMessage>
   ) {
     super();
     this.transport = webKitMessageTransport.isAvailable()

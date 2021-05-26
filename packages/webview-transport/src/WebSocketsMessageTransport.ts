@@ -3,10 +3,9 @@ import WebSocket from "isomorphic-ws";
 import { MessageTransport } from "./MessageTransport";
 import { LoggerFactory } from "@wisual/logger";
 import { delay } from "./util";
-import { OutgoingMessage } from "../protocol";
 
 @singleton()
-export class WebSocketsMessageTransport extends MessageTransport {
+export class WebSocketsMessageTransport<IncomingMessage, OutgoingMessage> extends MessageTransport<IncomingMessage, OutgoingMessage> {
   private connection: null | WebSocket = null;
   private logger = LoggerFactory.getLogger("WebSocketsMessageTransport");
   private connectedPromise: Promise<void> | null = null;

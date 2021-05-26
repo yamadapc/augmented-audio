@@ -1,7 +1,6 @@
 import { EventEmitter } from "events";
-import { InputMessageWrapper, OutgoingMessage } from "../protocol";
 
-export abstract class MessageTransport {
+export abstract class MessageTransport<IncomingMessage, OutgoingMessage> {
   protected emitter = new EventEmitter();
 
   abstract setup(): void;
@@ -12,11 +11,11 @@ export abstract class MessageTransport {
   ): Promise<void>;
   abstract getId(): string;
 
-  addMessageListener(fn: (msg: InputMessageWrapper) => void): void {
+  addMessageListener(fn: (msg: IncomingMessage) => void): void {
     this.emitter.addListener("message", fn);
   }
 
-  removeMessageListener(fn: (msg: InputMessageWrapper) => void): void {
+  removeMessageListener(fn: (msg: IncomingMessage) => void): void {
     this.emitter.removeListener("message", fn);
   }
 }

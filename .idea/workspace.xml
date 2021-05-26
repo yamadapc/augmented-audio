@@ -19,8 +19,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/packages/webview-transport/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/DefaultMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/DefaultMessageTransport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/MessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/MessageTransport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/WebKitMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/WebKitMessageTransport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/WebSocketsMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/WebSocketsMessageTransport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +43,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Rust File" />
+        <option value="TypeScript File" />
+        <option value="package.json" />
       </list>
     </option>
   </component>
@@ -52,6 +63,7 @@
     <option name="directoryName" value="f0r3hz9i" />
   </component>
   <component name="ProjectId" id="1syUphANFhGzRXyKEonVq9QvWs2" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -63,17 +75,25 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="cidr.known.project.marker" value="true" />
-    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/packages/webview-transport/src" />
+    <property name="nodejs.jest.jest_package" value="$PROJECT_DIR$/packages/logger/node_modules/jest" />
+    <property name="nodejs_interpreter_path" value="node" />
+    <property name="nodejs_package_manager_path" value="yarn" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="settings.editor.selected.configurable" value="language.rust.rustfmt" />
+    <property name="settings.editor.selected.configurable" value="settings.nodejs" />
+    <property name="ts.external.directory.path" value="$PROJECT_DIR$/packages/audio-runtime/node_modules/typescript/lib" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/packages/webview-transport/src" />
+      <recent name="$PROJECT_DIR$/packages/webview-transport" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/crates" />
       <recent name="$PROJECT_DIR$/test-plugin-host/src/commands" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test plugin_parameter">
+  <component name="RunManager" selected="Jest.index.test.tsx">
     <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -124,21 +144,6 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test plugin_parameter::test::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package tas_v2 --lib plugin_parameter::test::test -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <envs />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Test plugin_parameter::test::test_creating_and_adding_parameters" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="test --package tas_v2 --lib plugin_parameter::test::test_creating_and_adding_parameters -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
@@ -169,21 +174,31 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="index.test.tsx" type="JavaScriptTestRunnerJest" temporary="true" nameIsGenerated="true">
+      <node-interpreter value="project" />
+      <node-options value="" />
+      <jest-package value="$PROJECT_DIR$/packages/logger/node_modules/jest" />
+      <working-dir value="$PROJECT_DIR$/packages/logger" />
+      <envs />
+      <scope-kind value="TEST_FILE" />
+      <test-file value="$PROJECT_DIR$/packages/logger/src/index.test.tsx" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Cargo.Run test-plugin-host" />
-      <item itemvalue="Cargo.Test plugin_parameter::test::test" />
       <item itemvalue="Cargo.Test plugin_parameter::test" />
       <item itemvalue="Cargo.Test plugin_parameter::test::test_creating_and_adding_parameters" />
       <item itemvalue="Cargo.Test plugin_parameter::test::test_parameter_fields" />
       <item itemvalue="Cargo.Test plugin_parameter" />
+      <item itemvalue="Jest.index.test.tsx" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Jest.index.test.tsx" />
         <item itemvalue="Cargo.Test plugin_parameter" />
         <item itemvalue="Cargo.Test plugin_parameter::test::test_parameter_fields" />
         <item itemvalue="Cargo.Test plugin_parameter::test::test_creating_and_adding_parameters" />
         <item itemvalue="Cargo.Test plugin_parameter::test" />
-        <item itemvalue="Cargo.Test plugin_parameter::test::test" />
       </list>
     </recent_temporary>
   </component>
@@ -203,7 +218,7 @@
       <updated>1621844508088</updated>
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
-      <workItem from="1621939465069" duration="13411000" />
+      <workItem from="1621939465069" duration="19029000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>

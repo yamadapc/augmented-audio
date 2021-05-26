@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "CI=1 lerna run build",
+    "test": "CI=1 lerna run test"
   },
   "keywords": [],
   "author": "",
