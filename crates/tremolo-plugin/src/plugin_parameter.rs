@@ -85,8 +85,13 @@ struct ParameterStoreInner {
 ///
 /// Uses `RwLock` and atomics internally.
 ///
-/// Modifying parameter values or adding/removing parameters will lock. Setting parameter values as
-/// well as reading them will be lock-free.
+/// Modifying parameter values or adding/removing parameters will lock the store for all threads.
+/// Setting parameter values as well as reading them will not lock as long as there isn't a writer
+/// adding/removing parameters.
+///
+/// The parameters themselves wrap an atomic value & otherwise immutable fields.
+///
+/// I should validate that this is sound.
 pub struct ParameterStore {
     inner: RwLock<ParameterStoreInner>,
 }
