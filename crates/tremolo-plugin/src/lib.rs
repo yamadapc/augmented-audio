@@ -7,7 +7,7 @@ extern crate vst;
 extern crate cocoa;
 #[macro_use]
 extern crate objc;
-extern crate atomic;
+extern crate crossbeam;
 extern crate darwin_webkit;
 extern crate oscillator;
 
@@ -35,22 +35,12 @@ impl TremoloPlugin {
     fn build_parameters() -> ParameterStore {
         let mut store = ParameterStore::new();
         store.add_parameter(
-            String::from(RATE_PARAMETER_ID),
-            Arc::new(PluginParameterImpl::new_with(
-                String::from("Rate"),
-                String::from("Hz"),
-                0.1,
-                true,
-            )),
+            RATE_PARAMETER_ID,
+            Arc::new(PluginParameterImpl::new_with("Rate", "Hz", 0.1, true)),
         );
         store.add_parameter(
-            String::from(DEPTH_PARAMETER_ID),
-            Arc::new(PluginParameterImpl::new_with(
-                String::from("Depth"),
-                String::from(""),
-                1.0,
-                true,
-            )),
+            DEPTH_PARAMETER_ID,
+            Arc::new(PluginParameterImpl::new_with("Depth", "", 1.0, true)),
         );
         store
     }

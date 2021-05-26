@@ -1,4 +1,3 @@
-use atomic::Ordering;
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 use vst::plugin::PluginParameters;
@@ -19,7 +18,7 @@ pub struct PluginParameterImpl {
     ///
     /// Not all platforms will support this. This will not work properly depending on whether the
     /// CPU supports atomic f32 instructions.
-    value: atomic::Atomic<f32>,
+    value: crossbeam::atomic::AtomicCell<f32>,
     name: String,
     label: String,
     can_be_automated: bool,
@@ -29,22 +28,17 @@ unsafe impl Send for PluginParameterImpl {}
 unsafe impl Sync for PluginParameterImpl {}
 
 impl PluginParameterImpl {
-    pub fn new_with(name: String, label: String, value: f32, can_be_automated: bool) -> Self {
+    pub fn new_with(name: &str, label: &str, value: f32, can_be_automated: bool) -> Self {
         PluginParameterImpl {
-            value: atomic::Atomic::new(value),
-            name,
-            label,
+            value: crossbeam::atomic::AtomicCell::new(value),
+            name: String::from(name),
+            label: String::from(label),
             can_be_automated,
         }
     }
 
-    pub fn new(name: String, label: String) -> Self {
-        PluginParameterImpl {
-            value: atomic::Atomic::new(0.0),
-            name,
-            label,
-            can_be_automated: false,
-        }
+    pub fn new(name: &str, label: &str) -> Self {
+        PluginParameterImpl::new_with(name, label, 0.0, true)
     }
 }
 
@@ -58,15 +52,15 @@ impl PluginParameter for PluginParameterImpl {
     }
 
     fn text(&self) -> String {
-        format!("{}", self.value.load(Ordering::Relaxed))
+        format!("{}", self.value.load())
     }
 
     fn value(&self) -> f32 {
-        self.value.load(Ordering::Relaxed)
+        self.value.load()
     }
 
     fn set_value(&self, value: f32) {
-        self.value.store(value, Ordering::Relaxed)
+        self.value.store(value)
     }
 
     fn can_be_automated(&self) -> bool {
@@ -115,14 +109,19 @@ impl ParameterStore {
         }
     }
 
-    pub fn add_parameter(&mut self, id: ParameterId, parameter: Arc<dyn PluginParameter>) {
+    pub fn add_parameter(&mut self, id: &str, parameter: Arc<dyn PluginParameter>) {
         if let Ok(mut inner) = self.inner.write() {
-            inner.parameter_ids.push(id.clone());
-            inner.parameters.insert(id, parameter);
+            inner.parameter_ids.push(id.to_string());
+            inner.parameters.insert(id.to_string(), parameter);
         }
     }
 
-    pub fn find_parameter(&self, index: i32) -> Option<Arc<dyn PluginParameter>> {
+    pub fn find_parameter(&self, parameter_id: &str) -> Option<Arc<dyn PluginParameter>> {
+        let inner = self.inner.read().ok()?;
+        Some(inner.parameters.get(parameter_id)?.clone())
+    }
+
+    pub fn find_parameter_by_index(&self, index: i32) -> Option<Arc<dyn PluginParameter>> {
         let inner = self.inner.read().ok()?;
         let parameter_id = inner.parameter_ids.get(index as usize)?;
         Some(inner.parameters.get(parameter_id)?.clone())
@@ -140,7 +139,7 @@ impl ParameterStore {
 impl PluginParameters for ParameterStore {
     fn get_parameter_label(&self, index: i32) -> String {
         let run = move || -> Option<String> {
-            let parameter = self.find_parameter(index)?;
+            let parameter = self.find_parameter_by_index(index)?;
             Some(parameter.label())
         };
         run().unwrap_or("Unknown".to_string())
@@ -148,7 +147,7 @@ impl PluginParameters for ParameterStore {
 
     fn get_parameter_text(&self, index: i32) -> String {
         let run = move || -> Option<String> {
-            let parameter = self.find_parameter(index)?;
+            let parameter = self.find_parameter_by_index(index)?;
             Some(parameter.text())
         };
         run().unwrap_or("Unknown".to_string())
@@ -156,7 +155,7 @@ impl PluginParameters for ParameterStore {
 
     fn get_parameter_name(&self, index: i32) -> String {
         let run = move || -> Option<String> {
-            let parameter = self.find_parameter(index)?;
+            let parameter = self.find_parameter_by_index(index)?;
             Some(parameter.name())
         };
         run().unwrap_or("Unknown".to_string())
@@ -164,7 +163,7 @@ impl PluginParameters for ParameterStore {
 
     fn get_parameter(&self, index: i32) -> f32 {
         let run = move || -> Option<f32> {
-            let parameter = self.find_parameter(index)?;
+            let parameter = self.find_parameter_by_index(index)?;
             Some(parameter.value())
         };
         run().unwrap_or(0.0)
@@ -172,7 +171,7 @@ impl PluginParameters for ParameterStore {
 
     fn set_parameter(&self, index: i32, value: f32) {
         let run = move || -> Option<()> {
-            let parameter = self.find_parameter(index)?;
+            let parameter = self.find_parameter_by_index(index)?;
             parameter.set_value(value);
             Some(())
         };
@@ -181,7 +180,7 @@ impl PluginParameters for ParameterStore {
 
     fn can_be_automated(&self, index: i32) -> bool {
         let run = move || -> Option<bool> {
-            let parameter = self.find_parameter(index)?;
+            let parameter = self.find_parameter_by_index(index)?;
             Some(parameter.can_be_automated())
         };
         run().unwrap_or(false)
@@ -195,38 +194,50 @@ mod test {
     #[test]
     fn test_creating_and_adding_parameters() {
         let mut parameter_store = ParameterStore::new();
-        let parameter = Arc::new(PluginParameterImpl::new(
-            "Test parameter".to_string(),
-            "label".to_string(),
-        ));
-        parameter_store.add_parameter("test".to_string(), parameter);
+        let parameter = Arc::new(PluginParameterImpl::new("Test parameter", "label"));
+        parameter_store.add_parameter("test", parameter);
 
         let first_parameter_name = parameter_store.get_parameter_name(0);
-        assert_eq!(first_parameter_name, "Test parameter".to_string());
+        assert_eq!(first_parameter_name, "Test parameter");
     }
 
     #[test]
     fn test_parameter_fields() {
         let mut parameter_store = ParameterStore::new();
         let parameter = Arc::new(PluginParameterImpl::new_with(
-            "Test parameter".to_string(),
-            "label".to_string(),
+            "Test parameter",
+            "label",
             10.0,
             true,
         ));
-        parameter_store.add_parameter("test".to_string(), parameter);
+        parameter_store.add_parameter("test", parameter);
 
-        assert_eq!(
-            parameter_store.get_parameter_name(0),
-            "Test parameter".to_string()
-        );
-        assert_eq!(parameter_store.get_parameter_label(0), "label".to_string());
-        assert_eq!(parameter_store.get_parameter_text(0), "10".to_string());
+        assert_eq!(parameter_store.get_parameter_name(0), "Test parameter");
+        assert_eq!(parameter_store.get_parameter_label(0), "label");
+        assert_eq!(parameter_store.get_parameter_text(0), "10");
         assert_eq!(parameter_store.get_parameter(0), 10.0);
     }
 
     #[test]
+    fn test_parameter_set_and_get() {
+        let mut parameter_store = ParameterStore::new();
+        let parameter = Arc::new(PluginParameterImpl::new_with(
+            "Test parameter",
+            "label",
+            10.0,
+            true,
+        ));
+        parameter_store.add_parameter("test", parameter);
+
+        let parameter = parameter_store.find_parameter("test");
+        let parameter = parameter.expect("Parameter is missing");
+        assert_eq!(parameter.value(), 10.0);
+        parameter.set_value(20.0);
+        assert_eq!(parameter.value(), 20.0);
+    }
+
+    #[test]
     fn test_float_is_atomic() {
-        assert!(atomic::Atomic::<f32>::is_lock_free());
+        assert!(crossbeam::atomic::AtomicCell::<f32>::is_lock_free());
     }
 }
