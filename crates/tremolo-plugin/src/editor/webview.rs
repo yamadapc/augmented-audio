@@ -2,9 +2,7 @@ use cocoa::appkit::{NSLayoutConstraint, NSView, NSWindow, NSWindowStyleMask};
 use cocoa::base::{id, nil, NO, YES};
 use cocoa::foundation::{NSArray, NSPoint, NSRect, NSSize, NSString};
 use darwin_webkit::helpers::dwk_webview::{string_from_nsstring, DarwinWKWebView};
-use darwin_webkit::webkit::wk_script_message_handler::{
-    WKScriptMessage, WKScriptMessageHandlerBridge,
-};
+use darwin_webkit::webkit::wk_script_message_handler::WKScriptMessage;
 use darwin_webkit::webkit::WKUserContentController;
 use log::{error, info};
 use objc::declare::ClassDecl;
@@ -45,13 +43,13 @@ pub unsafe fn make_new_handler<T>(
 
     let class = Class::get(name).unwrap();
     let instance: id = msg_send![class, alloc];
-    let mut instance: id = msg_send![instance, init];
+    let instance: id = msg_send![instance, init];
     info!(
         "make_new_handler - Creating class instance this={:?}",
         instance
     );
     {
-        let mut instance = instance.as_mut().unwrap();
+        let instance = instance.as_mut().unwrap();
         instance.set_ivar("instance_ptr", func as *mut c_void);
         instance.set_ivar("internal_data", data as *mut c_void);
     }
@@ -197,9 +195,10 @@ impl WebviewHolder {
                 Err("Message wasn't a string")
             }
         };
-        run().map_err(|err| {
+
+        if let Err(err) = run() {
             error!("Message handling failed: {}", err);
-        });
+        }
     }
 }
 
@@ -292,7 +291,7 @@ mod test {
         struct Test {
             value: f32,
             other: Option<f32>,
-        };
+        }
 
         unsafe {
             static mut CALLED_WITH: *const c_void = null::<c_void>();

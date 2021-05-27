@@ -13,6 +13,7 @@ extern crate log4rs;
 extern crate oscillator;
 extern crate proc_macro;
 extern crate serde;
+extern crate tungstenite;
 
 use log::info;
 use log::LevelFilter;
@@ -30,7 +31,7 @@ use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 fn configure_logging() -> Option<()> {
     let home_path = dirs::home_dir()?;
     let log_dir = home_path.join(".ruas");
-    std::fs::create_dir_all(log_dir.clone());
+    std::fs::create_dir_all(log_dir.clone()).ok()?;
     let log_path = log_dir.join("tremolo-plugin.log");
     let logfile = FileAppender::builder()
         .encoder(Box::new(PatternEncoder::new(

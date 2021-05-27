@@ -5,7 +5,10 @@ import { LoggerFactory } from "@wisual/logger";
 import { delay } from "./util";
 
 @singleton()
-export class WebSocketsMessageTransport<IncomingMessage, OutgoingMessage> extends MessageTransport<IncomingMessage, OutgoingMessage> {
+export class WebSocketsMessageTransport<
+  IncomingMessage,
+  OutgoingMessage
+> extends MessageTransport<IncomingMessage, OutgoingMessage> {
   private connection: null | WebSocket = null;
   private logger = LoggerFactory.getLogger("WebSocketsMessageTransport");
   private connectedPromise: Promise<void> | null = null;

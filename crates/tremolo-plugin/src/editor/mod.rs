@@ -1,5 +1,9 @@
+mod protocol;
+mod transport;
 mod webview;
 
+use editor::protocol::{ClientMessage, ServerMessage};
+use editor::transport::{WebSocketsTransport, WebviewTransport};
 use editor::webview::WebviewHolder;
 use plugin_parameter::ParameterStore;
 use std::ffi::c_void;
@@ -9,6 +13,7 @@ use vst::editor::Editor;
 pub struct TremoloEditor {
     parameters: Arc<ParameterStore>,
     webview: Option<WebviewHolder>,
+    transport: Box<dyn WebviewTransport<ServerMessage, ClientMessage>>,
 }
 
 impl TremoloEditor {
@@ -16,6 +21,8 @@ impl TremoloEditor {
         TremoloEditor {
             parameters,
             webview: None,
+            // TODO - WebSockets is just for development
+            transport: Box::new(WebSocketsTransport::new_with_addr("localhost:9510")),
         }
     }
 
@@ -26,9 +33,13 @@ impl TremoloEditor {
             return Some(true);
         }
 
-        let mut webview = WebviewHolder::new(self.size());
+        let webview = WebviewHolder::new(self.size());
         self.webview = Some(webview);
         self.webview.as_mut().unwrap().initialize(parent);
+
+        if let Err(err) = self.transport.start() {
+            log::error!("Failed to start transport {}", err);
+        }
 
         Some(true)
     }
