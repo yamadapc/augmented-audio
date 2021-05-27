@@ -1,6 +1,6 @@
 .RotaryControl {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   max-width: 100px;
   height: 80px;
   justify-content: center;
@@ -8,14 +8,19 @@
   margin: 0 5px;
   color: white;
   cursor: pointer;
+  padding-right: 20px;
   position: relative;
   user-select: none;
 }
 
 .RotaryControl label {
-  position: absolute;
-  bottom: 15px;
-  right: -10px;
+  position: relative;
+  bottom: -14px;
+  right: 20px;
+}
+
+.RotaryControl svg {
+  margin-right: 5px;
 }
 
 .RotaryControl .RotaryControl__Circle .RotaryControl__Circle__Background {

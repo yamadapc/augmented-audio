@@ -3,13 +3,12 @@ import { useEffect, useRef, useState } from "react";
 
 const TWO_PI = 2 * Math.PI;
 
-export function RotaryControl() {
+export function RotaryControl({ name }) {
   const props = {
-    name: "Left Rate",
     initialValue: 0.4,
   };
 
-  const { name, initialValue } = props;
+  const { initialValue } = props;
 
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
