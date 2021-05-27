@@ -10,5 +10,7 @@ edition = "2018"
 vst = "0.2.1"
 cpal = "0.13.3"
 clap = "2.33.3"
+tao = "0.2.6"
+log = "0.4.14"
 oscillator = { path = "../oscillator" }
 num-traits = "0.2.14"

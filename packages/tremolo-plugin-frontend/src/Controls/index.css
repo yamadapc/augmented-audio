@@ -1,0 +1,16 @@
+.Controls {
+  display: flex;
+  flex-direction: column;
+}
+
+.Box {
+  flex: 1;
+  flex-direction: row;
+  display: flex;
+  margin-top: 5px;
+  background: #2c2c2c;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 80px;
+}

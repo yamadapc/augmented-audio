@@ -74,6 +74,10 @@ where
 
     /// Set the oscillator frequency
     pub fn set_frequency(&mut self, frequency: f32) {
+        if frequency == self.frequency {
+            return;
+        }
+
         self.frequency = frequency;
         self.phase_step = get_phase_step(self.sample_rate, self.frequency);
     }

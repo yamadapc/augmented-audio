@@ -1,0 +1,43 @@
+.RotaryControl {
+  display: flex;
+  flex-direction: column;
+  max-width: 100px;
+  height: 80px;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px;
+  color: white;
+  cursor: pointer;
+  position: relative;
+  user-select: none;
+}
+
+.RotaryControl label {
+  position: absolute;
+  bottom: 15px;
+  right: -10px;
+}
+
+.RotaryControl .RotaryControl__Circle .RotaryControl__Circle__Background {
+  transform-origin: 50% 50%;
+  transform: rotate(90deg);
+  fill: none;
+  stroke: #181818;
+}
+
+.RotaryControl .RotaryControl__Circle .RotaryControl__Circle__Value {
+  stroke: #21aaf8;
+  stroke-width: 7px;
+  fill: transparent;
+}
+
+.RotaryControl .RotaryControl__Circle .RotaryControl__Circle__Knob {
+  transition: scale ease-in-out 0.2s;
+  stroke: #cdcdcd;
+  stroke-width: 2px;
+  fill: white;
+}
+
+.RotaryControl input {
+  width: 100%;
+}
