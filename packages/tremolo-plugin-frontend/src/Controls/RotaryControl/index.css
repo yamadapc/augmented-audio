@@ -7,7 +7,6 @@
   align-items: center;
   margin: 0 5px;
   color: white;
-  cursor: pointer;
   padding-right: 20px;
   position: relative;
   user-select: none;
@@ -21,6 +20,7 @@
 
 .RotaryControl svg {
   margin-right: 5px;
+  cursor: all-scroll;
 }
 
 .RotaryControl .RotaryControl__Circle .RotaryControl__Circle__Background {

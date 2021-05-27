@@ -2,10 +2,13 @@ import "./index.css";
 import Regl from "regl";
 import { useEffect, useRef } from "react";
 
-const NUM_VERTICES = 100;
+const NUM_VERTICES = 1000;
 
 export default function HudPanel() {
   const canvasContainerRef = useRef(null);
+  const reglRef = useRef(null);
+  const stopped = useRef(false);
+
   useEffect(() => {
     if (!canvasContainerRef.current) {
       return;
@@ -14,6 +17,7 @@ export default function HudPanel() {
     const regl = Regl({
       container: canvasContainerRef.current,
     });
+    reglRef.current = regl;
 
     const range = (c) => {
       const r = [];
@@ -75,6 +79,10 @@ export default function HudPanel() {
     ]);
 
     regl.frame(({ time }) => {
+      if (stopped.current) {
+        return;
+      }
+
       // clear contents of the drawing buffer
       regl.clear({
         color: [0, 0, 0, 1],
@@ -82,7 +90,7 @@ export default function HudPanel() {
       });
 
       drawTriangle({
-        color: [33 / 255, 170, (Math.sin(time * 0.1) * 20 + 230) / 255, 1],
+        color: [33 / 255, 170 / 255, 230 / 255, 1],
         position: vertices,
         time,
       });
@@ -99,6 +107,26 @@ export default function HudPanel() {
         ref={canvasContainerRef}
         style={{ height: window.innerHeight - 180 }}
       />
+
+      <button
+        onClick={() => {
+          stopped.current = !stopped.current;
+        }}
+        style={{
+          backgroundColor: "#333",
+          color: "white",
+          borderRadius: 2,
+          padding: 5,
+          textTransform: "lowercase",
+          lineHeight: 1,
+          border: "solid 1px #666",
+          position: "absolute",
+          top: 10,
+          left: 10,
+        }}
+      >
+        Start / Stop
+      </button>
     </div>
   );
 }
