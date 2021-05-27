@@ -2,14 +2,57 @@ use cocoa::appkit::{NSLayoutConstraint, NSView, NSWindow, NSWindowStyleMask};
 use cocoa::base::{id, nil, NO, YES};
 use cocoa::foundation::{NSArray, NSPoint, NSRect, NSSize, NSString};
 use darwin_webkit::helpers::dwk_webview::{string_from_nsstring, DarwinWKWebView};
-use darwin_webkit::webkit::wk_script_message_handler::{make_new_handler, WKScriptMessage};
+use darwin_webkit::webkit::wk_script_message_handler::{
+    WKScriptMessage, WKScriptMessageHandlerBridge,
+};
 use darwin_webkit::webkit::WKUserContentController;
 use log::{error, info};
-use objc::runtime::BOOL;
+use objc::declare::ClassDecl;
+use objc::runtime::{Class, Object, Sel, BOOL};
 use serde::Serialize;
 use std::error::Error;
 use std::ffi::c_void;
 use std::time::Instant;
+
+extern "C" fn call_ptr<Func, T>(this: &mut Object, _sel: Sel, controller: id, message: id)
+where
+    Func: FnMut(*mut T, id, id),
+{
+    unsafe {
+        let instance_ptr: *mut c_void = *this.get_ivar("instance_ptr");
+        let instance_ptr: *mut Func = instance_ptr as *mut Func;
+        let data: *mut c_void = *this.get_ivar("data");
+        let data: *mut T = data as *mut T;
+        (*instance_ptr)(data, controller, message);
+    }
+}
+
+pub unsafe fn make_new_handler<Func, T>(name: &str, func: *mut Func, data: *mut T) -> id
+where
+    Func: FnMut(*mut T, id, id),
+{
+    let superclass = class!(NSObject);
+    let mut decl = ClassDecl::new(name, superclass).unwrap();
+
+    decl.add_ivar::<*const c_void>("instance_ptr");
+    decl.add_ivar::<*const c_void>("data");
+    decl.add_method::<extern "C" fn(&mut Object, Sel, id, id)>(
+        sel!(userContentController:didReceiveScriptMessage:),
+        call_ptr::<Func, T>,
+    );
+    decl.register();
+
+    let class = Class::get(name).unwrap();
+    let instance: id = msg_send![class, alloc];
+    let mut instance: id = msg_send![instance, init];
+    {
+        let mut instance = instance.as_mut().unwrap();
+        instance.set_ivar("instance_ptr", func as *mut c_void);
+        instance.set_ivar("data", data as *mut c_void);
+    }
+
+    instance
+}
 
 pub struct WebviewHolder {
     webview: DarwinWKWebView,
@@ -61,10 +104,10 @@ impl WebviewHolder {
     }
 
     unsafe fn attach_message_handler(&mut self) {
-        let self_ptr: *mut Self = self;
-        let on_message_ptr = Box::into_raw(Box::new(move |_, wk_script_message| {
-            (*self_ptr).on_message(wk_script_message);
-        }));
+        let on_message_ptr =
+            Box::into_raw(Box::new(|self_ptr: *mut Self, _, wk_script_message| {
+                (*self_ptr).on_message(wk_script_message);
+            }));
         let name = "editor";
 
         // This creates a new objective-c class for the message handler
@@ -76,6 +119,7 @@ impl WebviewHolder {
             )
             .as_str(),
             on_message_ptr,
+            self,
         );
 
         let name = NSString::alloc(nil).init_str(name);
@@ -96,7 +140,11 @@ impl WebviewHolder {
             if is_string == YES {
                 let str = string_from_nsstring(body);
                 let str = str.as_ref().ok_or("Failed to get message ref")?;
-                info!("Got message from JavaScript {}", str);
+                info!(
+                    "Got message from JavaScript message='{}' - has_callback={}",
+                    str,
+                    self.on_message_callback.is_some()
+                );
 
                 self.on_message_callback
                     .map(|cb| {

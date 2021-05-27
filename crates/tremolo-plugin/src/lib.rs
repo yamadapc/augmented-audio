@@ -80,6 +80,7 @@ impl TremoloPlugin {
 impl Plugin for TremoloPlugin {
     fn new(_host: HostCallback) -> Self {
         configure_logging();
+        info!("TremoloPlugin - Started");
 
         TremoloPlugin {
             parameters: Arc::new(TremoloPlugin::build_parameters()),
