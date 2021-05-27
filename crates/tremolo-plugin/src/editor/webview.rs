@@ -12,51 +12,86 @@ use objc::runtime::{Class, Object, Sel, BOOL};
 use serde::Serialize;
 use std::error::Error;
 use std::ffi::c_void;
-use std::time::Instant;
 
-extern "C" fn call_ptr<Func, T>(this: &mut Object, _sel: Sel, controller: id, message: id)
-where
-    Func: FnMut(*mut T, id, id),
-{
+extern "C" fn call_ptr(this: &Object, _sel: Sel, controller: id, message: id) {
     unsafe {
         let instance_ptr: *mut c_void = *this.get_ivar("instance_ptr");
-        let instance_ptr: *mut Func = instance_ptr as *mut Func;
-        let data: *mut c_void = *this.get_ivar("data");
-        let data: *mut T = data as *mut T;
-        (*instance_ptr)(data, controller, message);
+        let instance_ptr =
+            std::mem::transmute::<*mut c_void, extern "C" fn(*mut c_void, id, id)>(instance_ptr);
+        let data: *mut c_void = *this.get_ivar("internal_data");
+        let data: *mut c_void = data as *mut c_void;
+        info!(
+            "call_ptr - Received callback this={:?} data={:?} instance={:?}",
+            this, data, instance_ptr as *mut c_void
+        );
+        instance_ptr(data, controller, message);
     }
 }
 
-pub unsafe fn make_new_handler<Func, T>(name: &str, func: *mut Func, data: *mut T) -> id
-where
-    Func: FnMut(*mut T, id, id),
-{
-    let superclass = class!(NSObject);
-    let mut decl = ClassDecl::new(name, superclass).unwrap();
+extern "C" fn on_message_ptr(self_ptr: *mut c_void, _: id, wk_script_message: id) {
+    unsafe {
+        let self_ref: &mut WebviewHolder = std::mem::transmute(self_ptr as *mut WebviewHolder);
+        self_ref.on_message(wk_script_message);
+    }
+}
 
-    decl.add_ivar::<*const c_void>("instance_ptr");
-    decl.add_ivar::<*const c_void>("data");
-    decl.add_method::<extern "C" fn(&mut Object, Sel, id, id)>(
-        sel!(userContentController:didReceiveScriptMessage:),
-        call_ptr::<Func, T>,
-    );
-    decl.register();
+pub unsafe fn make_new_handler<T>(
+    name: &str,
+    func: extern "C" fn(*mut T, id, id),
+    data: *mut T,
+) -> id {
+    make_class_decl(name);
 
     let class = Class::get(name).unwrap();
     let instance: id = msg_send![class, alloc];
     let mut instance: id = msg_send![instance, init];
+    info!(
+        "make_new_handler - Creating class instance this={:?}",
+        instance
+    );
     {
         let mut instance = instance.as_mut().unwrap();
         instance.set_ivar("instance_ptr", func as *mut c_void);
-        instance.set_ivar("data", data as *mut c_void);
+        instance.set_ivar("internal_data", data as *mut c_void);
     }
 
+    info!(
+        "make_new_handler - Registering callback this={:?} data={:?} instance={:?}",
+        instance, data as *mut c_void, func as *mut c_void
+    );
+
     instance
+}
+
+static mut HAS_REGISTERED_HANDLER_CLASS: bool = false;
+
+unsafe fn make_class_decl(name: &str) {
+    if HAS_REGISTERED_HANDLER_CLASS {
+        return;
+    }
+
+    info!("make_new_handler - Creating class decl name={}", name);
+    let superclass = class!(NSObject);
+    let mut decl = ClassDecl::new(name, superclass).unwrap();
+    decl.add_ivar::<*const c_void>("instance_ptr");
+    decl.add_ivar::<*const c_void>("internal_data");
+    decl.add_method::<extern "C" fn(&Object, Sel, id, id)>(
+        sel!(userContentController:didReceiveScriptMessage:),
+        call_ptr,
+    );
+    decl.register();
+    HAS_REGISTERED_HANDLER_CLASS = true;
 }
 
 pub struct WebviewHolder {
     webview: DarwinWKWebView,
     on_message_callback: Option<fn(msg: String)>,
+}
+
+impl Drop for WebviewHolder {
+    fn drop(&mut self) {
+        info!("WebviewHolder::drop");
+    }
 }
 
 impl WebviewHolder {
@@ -104,22 +139,17 @@ impl WebviewHolder {
     }
 
     unsafe fn attach_message_handler(&mut self) {
-        let on_message_ptr =
-            Box::into_raw(Box::new(|self_ptr: *mut Self, _, wk_script_message| {
-                (*self_ptr).on_message(wk_script_message);
-            }));
+        info!(
+            "WebviewHolder::attach_message_handler has_callback={}",
+            self.on_message_callback.is_some()
+        );
         let name = "editor";
 
         // This creates a new objective-c class for the message handler
         let handler = make_new_handler(
-            format!(
-                "DWKHandler_{}__{}",
-                name,
-                Instant::now().elapsed().as_micros()
-            )
-            .as_str(),
+            format!("DWKHandler_{}", name).as_str(),
             on_message_ptr,
-            self,
+            self as *mut WebviewHolder as *mut c_void,
         );
 
         let name = NSString::alloc(nil).init_str(name);
@@ -141,9 +171,10 @@ impl WebviewHolder {
                 let str = string_from_nsstring(body);
                 let str = str.as_ref().ok_or("Failed to get message ref")?;
                 info!(
-                    "Got message from JavaScript message='{}' - has_callback={}",
+                    "Got message from JavaScript message='{}' - has_callback={} self={:?}",
                     str,
-                    self.on_message_callback.is_some()
+                    self.on_message_callback.is_some(),
+                    self as *const WebviewHolder as *const c_void,
                 );
 
                 self.on_message_callback
@@ -230,6 +261,21 @@ unsafe fn pin_to_parent(parent_id: id, webview_id: id) {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_ptr_dance() {
+        unsafe {
+            struct Test {
+                field: f32,
+            }
+
+            let mut t = Test { field: 0.21 };
+            let t_ref = &mut t;
+            let t_ptr = t_ref as *mut Test as *mut c_void;
+            let t_ref2 = &mut *(t_ptr as *mut Test);
+            assert_eq!(t_ref2.field, 0.21)
+        }
+    }
 
     // Activating constraints in a test will panic.
     #[test]
