@@ -34,24 +34,34 @@ export default function HudPanel() {
         }
       `,
 
+      // .map((x) => [
+      //   0.1 + 2 * (Math.sin(x / NUM_VERTICES)) - 1.0,
+      //   0.9 * Math.sin((time * 4) + (x / NUM_VERTICES) * 3 * 2 * Math.PI),
+      // ]),
+
       vert: `
         precision mediump float;
         attribute vec2 position;
+        uniform float time;
+
         void main() {
-          gl_Position = vec4(position.x, position.y, 0, 1);
+          gl_Position = vec4(
+            (position.x - 0.5) * 1.9,
+            0.8 * sin(time * 5. + position.x * 30.),
+            0,
+            1
+          );
         }
       `,
 
-      // Here we define the vertex attributes for the above shader
       attributes: {
-        // regl.buffer creates a new array buffer object
         position: regl.prop("position"),
-        // regl automatically infers sane defaults for the vertex attribute pointers
       },
 
       uniforms: {
         // This defines the color of the triangle to be a dynamic variable
         color: regl.prop("color"),
+        time: regl.prop("time"),
       },
 
       // This tells regl the number of vertices to draw in this command
@@ -59,7 +69,12 @@ export default function HudPanel() {
       primitive: "line strip",
     });
 
-    regl.frame(({ time, viewportWidth }) => {
+    const vertices = range(NUM_VERTICES).map((x) => [
+      x / NUM_VERTICES,
+      x / NUM_VERTICES,
+    ]);
+
+    regl.frame(({ time }) => {
       // clear contents of the drawing buffer
       regl.clear({
         color: [0, 0, 0, 1],
@@ -67,16 +82,9 @@ export default function HudPanel() {
       });
 
       drawTriangle({
-        color: [
-          33 / 255,
-          170,
-          (Math.sin(time * 0.1) * 20 + 230) / 255,
-          1,
-        ],
-        position: range(NUM_VERTICES).map((x) => [
-          0.1 + 2 * (Math.sin(x / NUM_VERTICES)) - 1.0,
-          0.9 * Math.sin((time * 4) + (x / NUM_VERTICES) * 3 * 2 * Math.PI),
-        ]),
+        color: [33 / 255, 170, (Math.sin(time * 0.1) * 20 + 230) / 255, 1],
+        position: vertices,
+        time,
       });
     });
 
