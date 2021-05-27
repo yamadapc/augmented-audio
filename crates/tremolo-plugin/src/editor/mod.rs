@@ -44,7 +44,12 @@ impl Editor for TremoloEditor {
     }
 
     fn open(&mut self, parent: *mut c_void) -> bool {
+        log::info!("Editor::open");
         unsafe { self.initialize_webview(parent).unwrap_or(false) }
+    }
+
+    fn close(&mut self) {
+        log::info!("Editor::close");
     }
 
     fn is_open(&mut self) -> bool {

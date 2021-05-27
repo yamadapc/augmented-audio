@@ -16,10 +16,12 @@ use std::ffi::c_void;
 extern "C" fn call_ptr(this: &Object, _sel: Sel, controller: id, message: id) {
     unsafe {
         let instance_ptr: *mut c_void = *this.get_ivar("instance_ptr");
-        let instance_ptr =
-            std::mem::transmute::<*mut c_void, extern "C" fn(*mut c_void, id, id)>(instance_ptr);
-        let data: *mut c_void = *this.get_ivar("internal_data");
-        let data: *mut c_void = data as *mut c_void;
+        let instance_ptr = std::mem::transmute::<
+            *mut c_void,
+            unsafe extern "C" fn(*mut c_void, id, id),
+        >(instance_ptr);
+        let data: &*mut c_void = this.get_ivar("internal_data");
+        let data: *mut c_void = (*data) as *mut c_void;
         info!(
             "call_ptr - Received callback this={:?} data={:?} instance={:?}",
             this, data, instance_ptr as *mut c_void
@@ -30,14 +32,14 @@ extern "C" fn call_ptr(this: &Object, _sel: Sel, controller: id, message: id) {
 
 extern "C" fn on_message_ptr(self_ptr: *mut c_void, _: id, wk_script_message: id) {
     unsafe {
-        let self_ref: &mut WebviewHolder = std::mem::transmute(self_ptr as *mut WebviewHolder);
+        let self_ref: &mut WebviewHolder = &mut *(self_ptr as *mut WebviewHolder);
         self_ref.on_message(wk_script_message);
     }
 }
 
 pub unsafe fn make_new_handler<T>(
     name: &str,
-    func: extern "C" fn(*mut T, id, id),
+    func: unsafe extern "C" fn(*mut T, id, id),
     data: *mut T,
 ) -> id {
     make_class_decl(name);
@@ -86,6 +88,7 @@ unsafe fn make_class_decl(name: &str) {
 pub struct WebviewHolder {
     webview: DarwinWKWebView,
     on_message_callback: Option<fn(msg: String)>,
+    id: i32,
 }
 
 impl Drop for WebviewHolder {
@@ -105,6 +108,7 @@ impl WebviewHolder {
         WebviewHolder {
             webview,
             on_message_callback: None,
+            id: 1234,
         }
     }
 
@@ -114,6 +118,8 @@ impl WebviewHolder {
 
         info!("WebviewHolder::initialize - Setting-up message handler");
         self.attach_message_handler();
+
+        assert_eq!(self.on_message_callback.is_some(), false);
 
         // TODO - this should be read from somewhere
         info!("WebviewHolder::initialize - Loading app URL");
@@ -140,8 +146,9 @@ impl WebviewHolder {
 
     unsafe fn attach_message_handler(&mut self) {
         info!(
-            "WebviewHolder::attach_message_handler has_callback={}",
-            self.on_message_callback.is_some()
+            "WebviewHolder::attach_message_handler has_callback={} id={}",
+            self.on_message_callback.is_some(),
+            self.id,
         );
         let name = "editor";
 
@@ -171,10 +178,12 @@ impl WebviewHolder {
                 let str = string_from_nsstring(body);
                 let str = str.as_ref().ok_or("Failed to get message ref")?;
                 info!(
-                    "Got message from JavaScript message='{}' - has_callback={} self={:?}",
+                    "Got message from JavaScript message='{}' - has_callback={} self={:?} webview={:?} id={}",
                     str,
                     self.on_message_callback.is_some(),
                     self as *const WebviewHolder as *const c_void,
+                    self.webview.get_native_handle(),
+                    self.id
                 );
 
                 self.on_message_callback
@@ -261,6 +270,7 @@ unsafe fn pin_to_parent(parent_id: id, webview_id: id) {
 #[cfg(test)]
 mod test {
     use super::*;
+    use std::ptr::null;
 
     #[test]
     fn test_ptr_dance() {
@@ -274,6 +284,36 @@ mod test {
             let t_ptr = t_ref as *mut Test as *mut c_void;
             let t_ref2 = &mut *(t_ptr as *mut Test);
             assert_eq!(t_ref2.field, 0.21)
+        }
+    }
+
+    #[test]
+    fn test_make_new_handler() {
+        struct Test {
+            value: f32,
+            other: Option<f32>,
+        };
+
+        unsafe {
+            static mut CALLED_WITH: *const c_void = null::<c_void>();
+            unsafe extern "C" fn on_message(self_ptr: *mut c_void, _: id, _: id) {
+                CALLED_WITH = self_ptr;
+            }
+
+            let mut test = Test {
+                value: 0.32,
+                other: None,
+            };
+            let data = (&mut test) as *mut Test as *mut c_void;
+            let handler = make_new_handler("test", on_message, data);
+
+            let _: () = msg_send![handler, userContentController:nil didReceiveScriptMessage: nil];
+            assert_ne!(CALLED_WITH, null());
+            assert_eq!(CALLED_WITH, data);
+
+            let data_called_with: &mut Test = &mut *(CALLED_WITH as *mut Test);
+            assert_eq!(data_called_with.value, 0.32);
+            assert_eq!(data_called_with.other, None);
         }
     }
 
