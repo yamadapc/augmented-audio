@@ -105,11 +105,13 @@ impl WebSocketsTransport {
     fn send_message(&self, msg: MessageWrapper<ServerMessageInner>) -> Result<(), Box<dyn Error>> {
         let lock = self.connections.lock().unwrap();
 
+        let serialized_message = serde_json::to_string(&msg)?;
+        log::info!("Broadcasting message: {}", serialized_message);
+
         for connection in lock.deref() {
-            let serialized_message = serde_json::to_string(&msg)?;
             let mut websocket = connection.websocket.lock().unwrap();
 
-            websocket.write_message(tungstenite::Message::Text(serialized_message))?;
+            websocket.write_message(tungstenite::Message::Text(serialized_message.clone()))?;
         }
 
         Ok(())
@@ -153,6 +155,24 @@ impl WebSocketsTransport {
                 }
             }
         }));
+
+        // TODO - manage writer thread properly - maybe don't use threads :D
+        // clean-up this mess
+        let output_receiver = self.outputs.1.clone();
+        let connections = self.connections.clone();
+        thread::spawn(move || loop {
+            loop {
+                let msg = output_receiver.recv().unwrap();
+                let lock = connections.lock().unwrap();
+                let serialized_message = serde_json::to_string(&msg).unwrap();
+                log::info!("Broadcasting message: {}", serialized_message);
+
+                for connection in lock.deref() {
+                    let mut websocket = connection.websocket.lock().unwrap();
+                    websocket.write_message(tungstenite::Message::Text(serialized_message.clone()));
+                }
+            }
+        });
     }
 }
 
@@ -174,6 +194,7 @@ impl WebSocketConnection {
         let thread_id = thread::spawn(move || {
             Self::run_loop(websocket_thread_copy, input_sender, running_thread_copy);
         });
+
         Ok(WebSocketConnection {
             thread_id,
             running,
@@ -193,10 +214,20 @@ impl WebSocketConnection {
                 }
             }
 
+            let mut websocket = websocket.lock().unwrap();
+            let message = websocket.read_message();
+            if message.is_err() {
+                log::error!("Reading message from socket failed. Connection will be dropped");
+                websocket.close(None).unwrap();
+                // TODO - the connections vector needs to be updated
+                return;
+            }
+            let message = message.unwrap();
+
             let run = || -> Result<(), Box<dyn Error>> {
-                let message = websocket.lock().unwrap().read_message()?;
                 let text = message.into_text()?;
 
+                log::info!("WebSocketConnection - Received message {}", text);
                 let client_message: MessageWrapper<ClientMessageInner> =
                     serde_json::from_str(&text)?;
                 input_sender.send(client_message)?;
@@ -205,7 +236,7 @@ impl WebSocketConnection {
 
             match run() {
                 Err(err) => {
-                    log::error!("WebSocketConnection Error - {}", err)
+                    log::error!("WebSocketConnection Error - {}", err);
                 }
                 _ => {}
             }

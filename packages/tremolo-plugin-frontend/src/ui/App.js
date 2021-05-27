@@ -25,7 +25,7 @@ class App extends Component {
 
       this.transport.setup();
       this.transport.postMessage("default", {
-        type: "APP_STARTED",
+        type: "AppStarted",
       });
     } catch (err) {
       this.logger.error(err);

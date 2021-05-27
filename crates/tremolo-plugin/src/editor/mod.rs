@@ -2,7 +2,10 @@ mod protocol;
 mod transport;
 mod webview;
 
-use editor::protocol::{ClientMessage, ServerMessage};
+use editor::protocol::{
+    ClientMessage, ClientMessageInner, MessageWrapper, ParameterDeclarationMessage,
+    PublishParametersMessage, ServerMessage, ServerMessageInner,
+};
 use editor::transport::{WebSocketsTransport, WebviewTransport};
 use editor::webview::WebviewHolder;
 use plugin_parameter::ParameterStore;
@@ -39,10 +42,51 @@ impl TremoloEditor {
 
         if let Err(err) = self.transport.start() {
             log::error!("Failed to start transport {}", err);
+        } else {
+            let input_channel = self.transport.get_input_channel();
+            let output_channel = self.transport.get_output_channel();
+            let parameters = self.parameters.clone();
+            std::thread::spawn(move || {
+                log::info!("Handling App messages");
+                loop {
+                    let MessageWrapper { message, .. } = input_channel.recv().unwrap();
+                    match message {
+                        ClientMessageInner::AppStarted(_) => {
+                            log::info!("App is started. Publishing parameters");
+                            output_channel.send(MessageWrapper {
+                                id: None,
+                                channel: "default".to_string(),
+                                message: ServerMessageInner::PublishParameters(
+                                    PublishParametersMessage {
+                                        parameters: list_parameters(parameters.clone()),
+                                    },
+                                ),
+                            });
+                        }
+                        _ => {}
+                    }
+                }
+            });
         }
 
         Some(true)
     }
+}
+
+fn list_parameters(parameters: Arc<ParameterStore>) -> Vec<ParameterDeclarationMessage> {
+    let num_parameters = parameters.get_num_parameters();
+    let mut output = vec![];
+    for i in 0..num_parameters {
+        let (parameter_id, parameter) = parameters.find_parameter_by_index(i).unwrap();
+        output.push(ParameterDeclarationMessage {
+            id: parameter_id,
+            name: parameter.name(),
+            label: parameter.label(),
+            text: parameter.text(),
+            value: parameter.value(),
+        })
+    }
+    output
 }
 
 impl Editor for TremoloEditor {

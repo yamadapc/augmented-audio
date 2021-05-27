@@ -2,15 +2,32 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct MessageWrapper<Message> {
-    id: String,
-    channel: String,
-    message: Message,
+    pub id: Option<String>,
+    pub channel: String,
+    pub message: Message,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
-pub enum ServerMessageInner {}
+pub enum ServerMessageInner {
+    PublishParameters(PublishParametersMessage),
+}
 pub type ServerMessage = MessageWrapper<ServerMessageInner>;
+
+#[derive(Serialize, Deserialize)]
+pub struct PublishParametersMessage {
+    pub parameters: Vec<ParameterDeclarationMessage>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParameterDeclarationMessage {
+    pub id: String,
+    pub name: String,
+    pub label: String,
+    pub text: String,
+    pub value: f32,
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]

@@ -121,10 +121,17 @@ impl ParameterStore {
         Some(inner.parameters.get(parameter_id)?.clone())
     }
 
-    pub fn find_parameter_by_index(&self, index: i32) -> Option<Arc<dyn PluginParameter>> {
+    // TODO - fix this; don't copy the ID string just to return it.
+    pub fn find_parameter_by_index(
+        &self,
+        index: i32,
+    ) -> Option<(String, Arc<dyn PluginParameter>)> {
         let inner = self.inner.read().ok()?;
         let parameter_id = inner.parameter_ids.get(index as usize)?;
-        Some(inner.parameters.get(parameter_id)?.clone())
+        Some((
+            parameter_id.clone(),
+            inner.parameters.get(parameter_id)?.clone(),
+        ))
     }
 
     pub fn get_num_parameters(&self) -> i32 {
@@ -139,7 +146,7 @@ impl ParameterStore {
 impl PluginParameters for ParameterStore {
     fn get_parameter_label(&self, index: i32) -> String {
         let run = move || -> Option<String> {
-            let parameter = self.find_parameter_by_index(index)?;
+            let (_, parameter) = self.find_parameter_by_index(index)?;
             Some(parameter.label())
         };
         run().unwrap_or("Unknown".to_string())
@@ -147,7 +154,7 @@ impl PluginParameters for ParameterStore {
 
     fn get_parameter_text(&self, index: i32) -> String {
         let run = move || -> Option<String> {
-            let parameter = self.find_parameter_by_index(index)?;
+            let (_, parameter) = self.find_parameter_by_index(index)?;
             Some(parameter.text())
         };
         run().unwrap_or("Unknown".to_string())
@@ -155,7 +162,7 @@ impl PluginParameters for ParameterStore {
 
     fn get_parameter_name(&self, index: i32) -> String {
         let run = move || -> Option<String> {
-            let parameter = self.find_parameter_by_index(index)?;
+            let (_, parameter) = self.find_parameter_by_index(index)?;
             Some(parameter.name())
         };
         run().unwrap_or("Unknown".to_string())
@@ -163,7 +170,7 @@ impl PluginParameters for ParameterStore {
 
     fn get_parameter(&self, index: i32) -> f32 {
         let run = move || -> Option<f32> {
-            let parameter = self.find_parameter_by_index(index)?;
+            let (_, parameter) = self.find_parameter_by_index(index)?;
             Some(parameter.value())
         };
         run().unwrap_or(0.0)
@@ -171,7 +178,7 @@ impl PluginParameters for ParameterStore {
 
     fn set_parameter(&self, index: i32, value: f32) {
         let run = move || -> Option<()> {
-            let parameter = self.find_parameter_by_index(index)?;
+            let (_, parameter) = self.find_parameter_by_index(index)?;
             parameter.set_value(value);
             Some(())
         };
@@ -180,7 +187,7 @@ impl PluginParameters for ParameterStore {
 
     fn can_be_automated(&self, index: i32) -> bool {
         let run = move || -> Option<bool> {
-            let parameter = self.find_parameter_by_index(index)?;
+            let (_, parameter) = self.find_parameter_by_index(index)?;
             Some(parameter.can_be_automated())
         };
         run().unwrap_or(false)
