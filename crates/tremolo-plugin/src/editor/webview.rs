@@ -30,11 +30,10 @@ extern "C" fn call_ptr(this: &Object, _sel: Sel, controller: id, message: id) {
     }
 }
 
-extern "C" fn on_message_ptr(self_ptr: *mut c_void, _: id, wk_script_message: id) {
-    unsafe {
-        let self_ref: &mut WebviewHolder = &mut *(self_ptr as *mut WebviewHolder);
-        self_ref.on_message(wk_script_message);
-    }
+unsafe extern "C" fn on_message_ptr(self_ptr: *mut c_void, _: id, wk_script_message: id) {
+    let self_ptr = self_ptr as *mut WebviewHolder;
+    info!("on_message_ptr - {}", (*self_ptr).id);
+    (*self_ptr).on_message(wk_script_message);
 }
 
 pub unsafe fn make_new_handler<T>(
@@ -146,9 +145,10 @@ impl WebviewHolder {
 
     unsafe fn attach_message_handler(&mut self) {
         info!(
-            "WebviewHolder::attach_message_handler has_callback={} id={}",
+            "WebviewHolder::attach_message_handler has_callback={} id={} ptr={:?}",
             self.on_message_callback.is_some(),
             self.id,
+            self as *const WebviewHolder as *const c_void,
         );
         let name = "editor";
 

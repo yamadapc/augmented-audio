@@ -27,8 +27,8 @@ impl TremoloEditor {
         }
 
         let mut webview = WebviewHolder::new(self.size());
-        webview.initialize(parent);
         self.webview = Some(webview);
+        self.webview.as_mut().unwrap().initialize(parent);
 
         Some(true)
     }
