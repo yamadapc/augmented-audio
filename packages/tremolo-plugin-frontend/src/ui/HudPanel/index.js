@@ -7,7 +7,7 @@ const NUM_VERTICES = 1000;
 export default function HudPanel() {
   const canvasContainerRef = useRef(null);
   const reglRef = useRef(null);
-  const stopped = useRef(false);
+  const stopped = useRef(true);
 
   useEffect(() => {
     if (!canvasContainerRef.current) {
@@ -78,14 +78,9 @@ export default function HudPanel() {
       x / NUM_VERTICES,
     ]);
 
-    regl.frame(({ time }) => {
-      if (stopped.current) {
-        return;
-      }
-
-      // clear contents of the drawing buffer
+    const tick = ({ time }) => {
       regl.clear({
-        color: [0, 0, 0, 1],
+        color: [24 / 255, 24 / 255, 24 / 255, 1],
         depth: 1,
       });
 
@@ -94,6 +89,15 @@ export default function HudPanel() {
         position: vertices,
         time,
       });
+    };
+
+    tick({ time: 0 });
+    regl.frame(({ time }) => {
+      if (stopped.current) {
+        return;
+      }
+
+      tick({ time });
     });
 
     return () => {
@@ -102,7 +106,7 @@ export default function HudPanel() {
   }, []);
 
   return (
-    <div className="HudPanel">
+    <div className="HudPanel" style={{ position: "relative" }}>
       <div
         ref={canvasContainerRef}
         style={{ height: window.innerHeight - 180 }}
@@ -121,7 +125,7 @@ export default function HudPanel() {
           lineHeight: 1,
           border: "solid 1px #666",
           position: "absolute",
-          top: 10,
+          bottom: 10,
           left: 10,
         }}
       >
