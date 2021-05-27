@@ -75,7 +75,7 @@ export default function HudPanel() {
         ],
         position: range(NUM_VERTICES).map((x) => [
           0.1 + 2 * (Math.sin(x / NUM_VERTICES)) - 1.0,
-          0.9 * Math.sin((time % 10000) * (x / NUM_VERTICES) * 3 * 2 * Math.PI),
+          0.9 * Math.sin((time * 4) + (x / NUM_VERTICES) * 3 * 2 * Math.PI),
         ]),
       });
     });

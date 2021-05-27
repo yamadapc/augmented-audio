@@ -25,9 +25,7 @@
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/HudPanel/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/HudPanel/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -242,7 +240,7 @@
       <workItem from="1621844509618" duration="4277000" />
       <workItem from="1621925668351" duration="13157000" />
       <workItem from="1621939465069" duration="34866000" />
-      <workItem from="1622080429585" duration="15955000" />
+      <workItem from="1622080429585" duration="16153000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
