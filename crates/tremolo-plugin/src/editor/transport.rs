@@ -1,12 +1,20 @@
+use crate::editor::protocol::{ClientMessageInner, MessageWrapper, ServerMessageInner};
+use crate::editor::tokio_websockets::run_websockets_transport_main;
 use crossbeam::channel;
 use crossbeam::channel::{Receiver, Sender};
-use editor::protocol::{ClientMessageInner, MessageWrapper, ServerMessageInner};
+use futures_util::SinkExt;
+use futures_util::StreamExt;
 use std::error::Error;
-use std::net::{TcpListener, TcpStream};
+use std::future::Future;
+use std::net::SocketAddr;
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::thread::JoinHandle;
+use tokio::net::{TcpListener, TcpStream};
+use tokio::runtime::Runtime;
+use tokio_tungstenite::accept_async;
+use tokio_tungstenite::tungstenite::Error::{ConnectionClosed, Protocol, Utf8};
 use tungstenite::WebSocket;
 
 pub trait WebviewTransport<ServerMessage, ClientMessage> {
@@ -103,16 +111,28 @@ impl WebSocketsTransport {
 
 impl WebSocketsTransport {
     fn send_message(&self, msg: MessageWrapper<ServerMessageInner>) -> Result<(), Box<dyn Error>> {
-        let lock = self.connections.lock().unwrap();
-
-        let serialized_message = serde_json::to_string(&msg)?;
-        log::info!("Broadcasting message: {}", serialized_message);
-
-        for connection in lock.deref() {
-            let mut websocket = connection.websocket.lock().unwrap();
-
-            websocket.write_message(tungstenite::Message::Text(serialized_message.clone()))?;
-        }
+        // let lock = self.connections.lock().unwrap();
+        //
+        // let serialized_message = serde_json::to_string(&msg)?;
+        // log::info!(
+        //     "Broadcasting message: {} num_clients={}",
+        //     serialized_message,
+        //     lock.deref().len()
+        // );
+        //
+        // for (id, connection) in lock.deref().iter().enumerate() {
+        //     log::info!("Client {} sending message", id);
+        //     let mut websocket = connection.websocket.lock().unwrap();
+        //
+        //     let result =
+        //         websocket.write_message(tungstenite::Message::Text(serialized_message.clone()));
+        //     if let Err(write_err) = result {
+        //         log::error!("Client {} Failed to send message {:?}", id, write_err);
+        //     } else {
+        //         websocket.write_pending();
+        //         log::info!("Client {} received message", id);
+        //     }
+        // }
 
         Ok(())
     }
@@ -134,45 +154,70 @@ impl WebSocketsTransport {
         }
 
         self.thread_handle = Some(thread::spawn(move || {
-            let server = TcpListener::bind(addr).unwrap();
-            for either_stream in server.incoming() {
-                let is_running = running.lock().ok().map(|v| *v).unwrap_or(false);
-                if !is_running {
-                    return;
-                }
+            run_websockets_transport_main(&addr);
 
-                let run = || -> Result<(), Box<dyn Error>> {
-                    let stream = either_stream?;
-                    log::info!("WebSocketsTransport - Accepting connection");
-
-                    let connection = WebSocketConnection::start(stream, input_sender.clone())?;
-                    connections.lock()?.push(connection);
-                    Ok(())
-                };
-
-                if let Err(err) = run() {
-                    log::error!("WebSocketsTransport - Error {}", err);
-                }
-            }
+            // let server = TcpListener::bind(addr).unwrap();
+            // for either_stream in server.incoming() {
+            //     let is_running = running.lock().ok().map(|v| *v).unwrap_or(false);
+            //     if !is_running {
+            //         return;
+            //     }
+            //
+            //     let run = || -> Result<(), Box<dyn Error>> {
+            //         let stream = either_stream?;
+            //         log::info!("WebSocketsTransport - Accepting connection");
+            //
+            //         let connections_ref = connections.clone();
+            //         let mut connections = connections.lock()?;
+            //         let connection = WebSocketConnection::start(
+            //             connections.len(),
+            //             stream,
+            //             input_sender.clone(),
+            //             move |id| {
+            //                 log::info!("WebSocketsTransport - Cleaning-upp connection");
+            //                 connections_ref.lock().unwrap().remove(id);
+            //             },
+            //         )?;
+            //         connections.push(connection);
+            //         Ok(())
+            //     };
+            //
+            //     if let Err(err) = run() {
+            //         log::error!("WebSocketsTransport - Error {}", err);
+            //     }
+            // }
         }));
 
         // TODO - manage writer thread properly - maybe don't use threads :D
         // clean-up this mess
         let output_receiver = self.outputs.1.clone();
         let connections = self.connections.clone();
-        thread::spawn(move || loop {
-            loop {
-                let msg = output_receiver.recv().unwrap();
-                let lock = connections.lock().unwrap();
-                let serialized_message = serde_json::to_string(&msg).unwrap();
-                log::info!("Broadcasting message: {}", serialized_message);
-
-                for connection in lock.deref() {
-                    let mut websocket = connection.websocket.lock().unwrap();
-                    websocket.write_message(tungstenite::Message::Text(serialized_message.clone()));
-                }
-            }
-        });
+        // thread::spawn(move || loop {
+        //     loop {
+        //         let msg = output_receiver.recv().unwrap();
+        //         let lock = connections.lock().unwrap();
+        //         let serialized_message = serde_json::to_string(&msg).unwrap();
+        //         log::info!(
+        //             "Broadcasting message: {} num_clients={}",
+        //             serialized_message,
+        //             lock.deref().len()
+        //         );
+        //
+        //         for (id, connection) in lock.deref().iter().enumerate() {
+        //             log::info!("Client {} sending message", id);
+        //             let mut websocket = connection.websocket.lock().unwrap();
+        //
+        //             let result = websocket
+        //                 .write_message(tungstenite::Message::Text(serialized_message.clone()));
+        //             if let Err(write_err) = result {
+        //                 log::error!("Client {} Failed to send message {:?}", id, write_err);
+        //             } else {
+        //                 websocket.write_pending();
+        //                 log::info!("Client {} received message", id);
+        //             }
+        //         }
+        //     }
+        // });
     }
 }
 
@@ -182,73 +227,81 @@ struct WebSocketConnection {
     websocket: Arc<Mutex<WebSocket<TcpStream>>>,
 }
 
-impl WebSocketConnection {
-    fn start(
-        connection: TcpStream,
-        input_sender: Sender<MessageWrapper<ClientMessageInner>>,
-    ) -> Result<Self, Box<dyn Error>> {
-        let websocket = Arc::new(Mutex::new(tungstenite::server::accept(connection)?));
-        let websocket_thread_copy = websocket.clone();
-        let running = Arc::new(Mutex::new(true));
-        let running_thread_copy = running.clone();
-        let thread_id = thread::spawn(move || {
-            Self::run_loop(websocket_thread_copy, input_sender, running_thread_copy);
-        });
-
-        Ok(WebSocketConnection {
-            thread_id,
-            running,
-            websocket,
-        })
-    }
-
-    fn run_loop(
-        websocket: Arc<Mutex<WebSocket<TcpStream>>>,
-        input_sender: Sender<MessageWrapper<ClientMessageInner>>,
-        running: Arc<Mutex<bool>>,
-    ) {
-        loop {
-            {
-                if *running.lock().unwrap() == false {
-                    return;
-                }
-            }
-
-            let mut websocket = websocket.lock().unwrap();
-            let message = websocket.read_message();
-            if message.is_err() {
-                log::error!("Reading message from socket failed. Connection will be dropped");
-                websocket.close(None).unwrap();
-                // TODO - the connections vector needs to be updated
-                return;
-            }
-            let message = message.unwrap();
-
-            let run = || -> Result<(), Box<dyn Error>> {
-                let text = message.into_text()?;
-
-                log::info!("WebSocketConnection - Received message {}", text);
-                let client_message: MessageWrapper<ClientMessageInner> =
-                    serde_json::from_str(&text)?;
-                input_sender.send(client_message)?;
-                Ok(())
-            };
-
-            match run() {
-                Err(err) => {
-                    log::error!("WebSocketConnection Error - {}", err);
-                }
-                _ => {}
-            }
-        }
-    }
-
-    fn stop(self) -> Result<(), Box<dyn Error>> {
-        let mut running = self.running.lock().unwrap();
-        *running = false;
-        self.thread_id
-            .join()
-            .expect("Failed to join connection thread");
-        Ok(())
-    }
-}
+// impl WebSocketConnection {
+//     fn start<Func>(
+//         id: usize,
+//         connection: TcpStream,
+//         input_sender: Sender<MessageWrapper<ClientMessageInner>>,
+//         terminate: Func,
+//     ) -> Result<Self, Box<dyn Error>>
+//     where
+//         Func: 'static + Fn(usize) + Send,
+//     {
+//         let websocket = Arc::new(Mutex::new(tungstenite::server::accept(connection)?));
+//         let websocket_thread_copy = websocket.clone();
+//         let running = Arc::new(Mutex::new(true));
+//         let running_thread_copy = running.clone();
+//         let thread_id = thread::spawn(move || {
+//             // Self::run_loop(websocket_thread_copy, input_sender, running_thread_copy).unwrap_or(());
+//             terminate(id);
+//         });
+//
+//         Ok(WebSocketConnection {
+//             thread_id,
+//             running,
+//             websocket,
+//         })
+//     }
+//
+//     // fn run_loop(
+//     //     websocket: Arc<Mutex<WebSocket<TcpStream>>>,
+//     //     input_sender: Sender<MessageWrapper<ClientMessageInner>>,
+//     //     running: Arc<Mutex<bool>>,
+//     // ) -> Option<()> {
+//     //     loop {
+//     //         {
+//     //             if *running.lock().ok()? == false {
+//     //                 return Some(());
+//     //             }
+//     //         }
+//     //
+//     //         let mut websocket = websocket.lock().ok()?;
+//     //         let message = websocket.read_message();
+//     //         if message.is_err() {
+//     //             log::error!("Reading message from socket failed. Connection will be dropped");
+//     //             websocket.close(None);
+//     //             // TODO - the connections vector needs to be updated
+//     //             return Some(());
+//     //         }
+//     //         let message = message.unwrap();
+//     //
+//     //         let run = || -> Result<(), Box<dyn Error>> {
+//     //             let text = message.into_text()?;
+//     //
+//     //             log::info!("WebSocketConnection - Received message {}", text);
+//     //             let client_message: MessageWrapper<ClientMessageInner> =
+//     //                 serde_json::from_str(&text)?;
+//     //             input_sender.send(client_message)?;
+//     //             Ok(())
+//     //         };
+//     //
+//     //         match run() {
+//     //             Err(err) => {
+//     //                 log::error!("WebSocketConnection Error - {}", err);
+//     //             }
+//     //             _ => {}
+//     //         }
+//     //     }
+//     //
+//     //     Some(())
+//     // }
+//
+//     fn stop(self) -> Result<(), Box<dyn Error>> {
+//         let mut running = self.running.lock().unwrap();
+//         *running = false;
+//         self.thread_id
+//             .join()
+//             .expect("Failed to join connection thread");
+//         Ok(())
+//     }
+// }

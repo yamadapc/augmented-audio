@@ -7,6 +7,24 @@ pub struct MessageWrapper<Message> {
     pub message: Message,
 }
 
+impl<Message> MessageWrapper<Message> {
+    pub fn new(id: Option<String>, channel: String, message: Message) -> Self {
+        MessageWrapper {
+            id,
+            channel,
+            message,
+        }
+    }
+
+    pub fn notification(message: Message) -> Self {
+        Self::new(None, String::from("default"), message)
+    }
+
+    pub fn request(id: &str, message: Message) -> Self {
+        Self::new(None, String::from(id), message)
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ServerMessageInner {
@@ -36,6 +54,13 @@ pub enum ClientMessageInner {
     SetParameter(SetParameterMessage),
     Log(LogMessage),
 }
+
+impl ClientMessageInner {
+    pub fn notification(self) -> ClientMessage {
+        ClientMessage::notification(self)
+    }
+}
+
 pub type ClientMessage = MessageWrapper<ClientMessageInner>;
 
 #[derive(Serialize, Deserialize)]

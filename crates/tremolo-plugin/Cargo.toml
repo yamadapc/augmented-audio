@@ -2,6 +2,7 @@
 name = "tas_v2"
 version = "0.0.1"
 authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 vst = { git = "https://github.com/rustaudio/vst-rs" }
@@ -14,6 +15,9 @@ log = "0.4.11"
 serde = { version = "1.0.126", features = ["derive"] }
 dirs = "3.0.2"
 log4rs = "1.0.0"
+tokio = { version = "1.6.0", features = ["rt", "macros", "sync", "time"] }
+futures-util = "0.3.15"
+tokio-tungstenite = "0.14.0"
 serde_json = "1.0.64"
 tungstenite = "0.13.0"
 

@@ -1,17 +1,19 @@
 mod protocol;
+mod tokio_websockets;
 mod transport;
 mod webview;
 
-use editor::protocol::{
-    ClientMessage, ClientMessageInner, MessageWrapper, ParameterDeclarationMessage,
-    PublishParametersMessage, ServerMessage, ServerMessageInner,
-};
-use editor::transport::{WebSocketsTransport, WebviewTransport};
-use editor::webview::WebviewHolder;
-use plugin_parameter::ParameterStore;
 use std::ffi::c_void;
 use std::sync::Arc;
 use vst::editor::Editor;
+
+use crate::editor::protocol::{
+    ClientMessage, ClientMessageInner, MessageWrapper, ParameterDeclarationMessage,
+    PublishParametersMessage, ServerMessage, ServerMessageInner,
+};
+use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
+use crate::editor::webview::WebviewHolder;
+use crate::plugin_parameter::ParameterStore;
 
 pub struct TremoloEditor {
     parameters: Arc<ParameterStore>,
