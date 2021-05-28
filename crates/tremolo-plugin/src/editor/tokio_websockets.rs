@@ -1,4 +1,5 @@
 use crate::editor::protocol::ClientMessageInner;
+use crossbeam::atomic::AtomicCell;
 use futures_util::SinkExt;
 use futures_util::StreamExt;
 use std::collections::HashMap;
@@ -6,9 +7,11 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::runtime::Runtime;
+use tokio::sync::broadcast::Sender;
 use tokio::sync::Mutex;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Error::{ConnectionClosed, Protocol, Utf8};
+use tokio_tungstenite::tungstenite::Message;
 
 pub fn run_websockets_transport_main(addr: &str) {
     let runtime = create_websockets_transport_runtime();
@@ -59,6 +62,36 @@ fn create_websockets_transport_runtime() -> Runtime {
     runtime
 }
 
+async fn run_websockets_accept_loop(
+    listener: TcpListener,
+    input_sender: Sender<Message>,
+    current_id: AtomicCell<u32>,
+    connections: Arc<Mutex<HashMap<u32, ()>>>,
+) {
+    while let Ok((stream, _)) = listener.accept().await {
+        let peer = stream
+            .peer_addr()
+            .expect("connected streams should have a peer address");
+        log::info!("Peer address: {}", peer);
+
+        let connection_id = current_id.fetch_add(1);
+        {
+            let mut connections = connections.lock().await;
+            connections.insert(connection_id, ());
+        }
+
+        {
+            let connections = connections.clone();
+            let input_sender = input_sender.clone();
+            tokio::spawn(async move {
+                accept_connection(peer, stream, input_sender).await;
+                let mut connections = connections.lock().await;
+                connections.remove(&connection_id);
+            });
+        }
+    }
+}
+
 struct ServerHandle {
     loop_handle: tokio::task::JoinHandle<()>,
     input_broadcast: tokio::sync::broadcast::Receiver<tungstenite::Message>,
@@ -91,34 +124,12 @@ async fn run_websockets_transport_async<'a>(
     let connections = Arc::new(Mutex::new(HashMap::new()));
     let current_id = crossbeam::atomic::AtomicCell::<u32>::new(0);
 
-    let loop_handle = {
-        let connections = connections.clone();
-        tokio::spawn(async move {
-            while let Ok((stream, _)) = listener.accept().await {
-                let peer = stream
-                    .peer_addr()
-                    .expect("connected streams should have a peer address");
-                log::info!("Peer address: {}", peer);
-
-                let connection_id = current_id.fetch_add(1);
-
-                {
-                    let mut connections = connections.lock().await;
-                    connections.insert(connection_id, ());
-                }
-
-                {
-                    let connections = connections.clone();
-                    let input_sender = input_sender.clone();
-                    tokio::spawn(async move {
-                        accept_connection(peer, stream, input_sender).await;
-                        let mut connections = connections.lock().await;
-                        connections.remove(&connection_id);
-                    });
-                }
-            }
-        })
-    };
+    let loop_handle = tokio::spawn(run_websockets_accept_loop(
+        listener,
+        input_sender,
+        current_id,
+        connections.clone(),
+    ));
 
     Ok(ServerHandle {
         loop_handle,
