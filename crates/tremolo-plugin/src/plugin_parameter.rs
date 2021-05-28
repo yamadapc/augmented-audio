@@ -141,6 +141,10 @@ impl ParameterStore {
         };
         run().unwrap_or(0)
     }
+
+    pub fn value(&self, id: &str) -> f32 {
+        self.find_parameter(id).as_ref().unwrap().value()
+    }
 }
 
 impl PluginParameters for ParameterStore {

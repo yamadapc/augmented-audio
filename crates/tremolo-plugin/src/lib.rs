@@ -1,5 +1,7 @@
+mod constants;
 mod editor;
 mod plugin_parameter;
+mod processor;
 
 extern crate log;
 #[macro_use]
@@ -15,6 +17,8 @@ extern crate proc_macro;
 extern crate serde;
 extern crate tungstenite;
 
+use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PARAMETER_ID};
+use crate::processor::Processor;
 use log::info;
 use log::LevelFilter;
 use log4rs::append::file::FileAppender;
@@ -50,18 +54,9 @@ fn configure_logging() -> Option<()> {
     Some(())
 }
 
-static LEFT_RATE_PARAMETER_ID: &str = "left_rate";
-static RIGHT_RATE_PARAMETER_ID: &str = "right_rate";
-static DEPTH_PARAMETER_ID: &str = "depth";
-
-struct TremoloParameters {}
-
-impl PluginParameters for TremoloParameters {}
-
 struct TremoloPlugin {
     parameters: Arc<ParameterStore>,
-    oscillator_left: Oscillator<f32>,
-    oscillator_right: Oscillator<f32>,
+    processor: Processor,
 }
 
 impl TremoloPlugin {
@@ -88,16 +83,12 @@ impl Plugin for TremoloPlugin {
         configure_logging();
         info!("TremoloPlugin - Started");
 
+        let parameters = Arc::new(TremoloPlugin::build_parameters());
+        let processor = Processor::new(parameters.clone());
+
         TremoloPlugin {
-            parameters: Arc::new(TremoloPlugin::build_parameters()),
-            oscillator_left: Oscillator::new_with_sample_rate(
-                44100.,
-                oscillator::generators::sine_generator,
-            ),
-            oscillator_right: Oscillator::new_with_sample_rate(
-                44100.,
-                oscillator::generators::sine_generator,
-            ),
+            parameters,
+            processor,
         }
     }
 
@@ -114,51 +105,15 @@ impl Plugin for TremoloPlugin {
 
     fn set_sample_rate(&mut self, rate: f32) {
         info!("TremoloPlugin::set_sample_rate");
-        self.oscillator_left.set_sample_rate(rate);
-        self.oscillator_right.set_sample_rate(rate);
-        self.oscillator_left.set_frequency(0.1);
-        self.oscillator_right.set_frequency(0.1);
+        self.processor.set_sample_rate(rate);
     }
 
     fn start_process(&mut self) {
         info!("TremoloPlugin::start_process");
-        self.oscillator_left.set_frequency(0.1);
-        self.oscillator_right.set_frequency(0.1);
     }
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
-        let left_rate = self.parameter_value(LEFT_RATE_PARAMETER_ID);
-        let right_rate = self.parameter_value(RIGHT_RATE_PARAMETER_ID);
-        let depth = self.parameter_value(DEPTH_PARAMETER_ID);
-
-        self.oscillator_left.set_frequency(left_rate);
-        self.oscillator_right.set_frequency(right_rate);
-
-        let num_channels = buffer.input_count();
-        let num_samples = buffer.samples();
-        let (input, mut output) = buffer.split();
-
-        for channel in 0..num_channels {
-            let osc = if channel == 0 {
-                &mut self.oscillator_left
-            } else {
-                &mut self.oscillator_right
-            };
-
-            let input_samples = input.get(channel % input.len());
-            let output_samples = output.get_mut(channel % output.len());
-
-            for sample_index in 0..num_samples {
-                let volume = osc.next_sample();
-                let dry_signal = input_samples[sample_index];
-                let wet_signal = volume * input_samples[sample_index];
-                // mixed_signal = (1.0 - depth) * dry + depth * wet
-                // mixed_signal = dry - dry * depth + depth * wet
-                let mixed_signal = dry_signal + depth * (wet_signal - dry_signal);
-
-                output_samples[sample_index] = mixed_signal;
-            }
-        }
+        self.processor.process(buffer);
     }
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {

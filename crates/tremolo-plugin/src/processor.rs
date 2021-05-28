@@ -1,0 +1,66 @@
+use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PARAMETER_ID};
+use crate::plugin_parameter::ParameterStore;
+use oscillator::Oscillator;
+use std::borrow::BorrowMut;
+use std::sync::Arc;
+use vst::buffer::AudioBuffer;
+
+pub struct Processor {
+    parameters: Arc<ParameterStore>,
+    oscillator_left: Oscillator<f32>,
+    oscillator_right: Oscillator<f32>,
+}
+
+impl Processor {
+    pub fn new(parameters: Arc<ParameterStore>) -> Self {
+        Processor {
+            parameters,
+            oscillator_left: Processor::build_oscillator(),
+            oscillator_right: Processor::build_oscillator(),
+        }
+    }
+
+    fn build_oscillator() -> Oscillator<f32> {
+        Oscillator::new_with_sample_rate(44100., oscillator::generators::sine_generator)
+    }
+
+    pub fn set_sample_rate(&mut self, rate: f32) {
+        self.oscillator_left.set_sample_rate(rate);
+        self.oscillator_right.set_sample_rate(rate);
+    }
+
+    pub fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
+        let left_rate = self.parameters.value(LEFT_RATE_PARAMETER_ID);
+        let right_rate = self.parameters.value(RIGHT_RATE_PARAMETER_ID);
+        let depth = self.parameters.value(DEPTH_PARAMETER_ID);
+
+        self.oscillator_left.set_frequency(left_rate);
+        self.oscillator_right.set_frequency(right_rate);
+
+        let num_channels = buffer.input_count();
+        let num_samples = buffer.samples();
+        let (input, mut output) = buffer.split();
+
+        for channel in 0..num_channels {
+            let osc = if channel == 0 {
+                &mut self.oscillator_left
+            } else {
+                &mut self.oscillator_right
+            };
+
+            let input_samples = input.get(channel % input.len());
+            let output_samples = output.get_mut(channel % output.len());
+
+            for sample_index in 0..num_samples {
+                let volume = osc.next_sample();
+                let dry_signal = input_samples[sample_index];
+                let wet_signal = volume * input_samples[sample_index];
+                // mixed_signal = (1.0 - depth) * dry + depth * wet
+                // mixed_signal = dry - dry * depth + depth * wet
+                let mixed_signal = dry_signal + depth * (wet_signal - dry_signal);
+
+                output_samples[sample_index] = mixed_signal;
+            }
+        }
+    }
+}
