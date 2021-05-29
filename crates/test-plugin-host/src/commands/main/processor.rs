@@ -51,9 +51,7 @@ impl TestHostProcessor {
         self.buffer_handler.process(output);
         let mut audio_buffer = self.buffer_handler.get_audio_buffer();
         self.plugin_instance.process(&mut audio_buffer);
-
-        // Flush plugin output to output
-        flush_vst_output(output, num_channels, &mut audio_buffer)
+        flush_vst_output(num_channels, &mut audio_buffer, output)
     }
 
     pub fn cpal_error(err: StreamError) {
@@ -61,11 +59,8 @@ impl TestHostProcessor {
     }
 }
 
-unsafe fn flush_vst_output(
-    output: &mut [f32],
-    num_channels: usize,
-    audio_buffer: &mut AudioBuffer<f32>,
-) {
+/// Flush plugin output to output
+fn flush_vst_output(num_channels: usize, audio_buffer: &mut AudioBuffer<f32>, output: &mut [f32]) {
     let (_, plugin_output) = audio_buffer.split();
     for (sample_index, frame) in output.chunks_mut(num_channels).enumerate() {
         for (channel, sample) in frame.iter_mut().enumerate() {

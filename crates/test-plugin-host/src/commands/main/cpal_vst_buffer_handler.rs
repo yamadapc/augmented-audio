@@ -11,6 +11,7 @@ pub struct CpalVstBufferHandler {
 }
 
 impl CpalVstBufferHandler {
+    /// Create a buffer handler
     pub fn new(audio_settings: AudioSettings) -> Self {
         let num_channels = audio_settings.channels();
         let buffer_size = audio_settings.buffer_size();
@@ -27,6 +28,7 @@ impl CpalVstBufferHandler {
         }
     }
 
+    /// Prepare the handler given changed audio settings
     pub fn prepare(&mut self, audio_settings: &AudioSettings) {
         self.audio_settings = audio_settings.clone();
 
@@ -38,14 +40,17 @@ impl CpalVstBufferHandler {
         self.host_buffer = HostBuffer::new(num_channels, num_channels);
     }
 
+    /// Modify the input buffer
     pub fn set_input(&mut self, channel: usize, sample: usize, value: f32) {
         self.input_buffer[channel][sample] = value;
     }
 
+    /// Modify the output buffer
     pub fn set_output(&mut self, channel: usize, sample: usize, value: f32) {
         self.output_buffer[channel][sample] = value;
     }
 
+    /// Process cpal input samples
     pub fn process(&mut self, data: &[f32]) {
         for (sample_index, frame) in data.chunks(self.audio_settings.channels()).enumerate() {
             for (channel, sample) in frame.iter().enumerate() {
@@ -55,6 +60,7 @@ impl CpalVstBufferHandler {
         }
     }
 
+    /// Get the VST audio buffer
     pub fn get_audio_buffer(&mut self) -> AudioBuffer<f32> {
         let mut audio_buffer = self
             .host_buffer
