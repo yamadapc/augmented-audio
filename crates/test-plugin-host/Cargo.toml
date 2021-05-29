@@ -13,4 +13,6 @@ clap = "2.33.3"
 tao = "0.2.6"
 log = "0.4.14"
 oscillator = { path = "../oscillator" }
+symphonia-bundle-mp3 = "0.2.0"
+symphonia = { version = "0.2.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
 num-traits = "0.2.14"

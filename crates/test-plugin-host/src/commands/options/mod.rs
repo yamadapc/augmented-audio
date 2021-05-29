@@ -5,6 +5,7 @@ pub struct RunOptions {
     input_audio: String,
     output_audio: Option<String>,
     playback: bool,
+    open_editor: bool,
 }
 
 impl RunOptions {
@@ -39,6 +40,9 @@ pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
             "-o, --output=[OUTPUT_PATH] 'An audio file to create'",
         ))
         .arg(clap::Arg::from_usage(
+            "-e, --editor 'Open the editor window'",
+        ))
+        .arg(clap::Arg::from_usage(
             "--playback 'Will output audio to an audio device'",
         ))
 }
@@ -50,11 +54,13 @@ pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
     let input_audio = matches.value_of("input")?.to_string();
     let output_audio = matches.value_of("input").map(|op| op.to_string());
     let playback = matches.is_present("playback");
+    let open_editor = matches.is_present("editor");
 
     Some(RunOptions {
         plugin_path,
         input_audio,
         output_audio,
         playback,
+        open_editor,
     })
 }
