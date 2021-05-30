@@ -3,10 +3,8 @@ use crate::commands::main::sample_rate_conversion::convert_sample_rate;
 use std::fs::File;
 use std::path::Path;
 use std::process::exit;
-use std::time::Duration;
 use symphonia::core::audio::{AudioBuffer, AudioBufferRef, Signal};
-use symphonia::core::codecs::{Decoder, DecoderOptions};
-use symphonia::core::formats::{FormatOptions, Stream};
+use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
@@ -32,7 +30,7 @@ pub fn default_read_audio_file(input_audio_path: &str) -> ProbeResult {
         &format_opts,
         &metadata_opts,
     ) {
-        Ok(mut probed) => probed,
+        Ok(probed) => probed,
         Err(err) => {
             log::error!("ERROR: Input file not supported: {}", err);
             exit(1);
@@ -48,7 +46,7 @@ fn concat_buffers(buffers: Vec<AudioBuffer<f32>>) -> AudioBuffer<f32> {
         .sum();
 
     let mut output: AudioBuffer<f32> = AudioBuffer::new(duration, *buffers[0].spec());
-    output.fill(|_, _| Ok(()));
+    let _ = output.fill(|_, _| Ok(()));
     let mut output_cursor = 0;
     for buffer in buffers {
         let mut channel_size = 0;

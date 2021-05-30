@@ -17,8 +17,8 @@ impl CpalVstBufferHandler {
         let buffer_size = audio_settings.buffer_size();
 
         let input_buffer = Self::allocate_buffer(num_channels, buffer_size);
-        let mut output_buffer = Self::allocate_buffer(num_channels, buffer_size);
-        let mut host_buffer = HostBuffer::new(num_channels, num_channels);
+        let output_buffer = Self::allocate_buffer(num_channels, buffer_size);
+        let host_buffer = HostBuffer::new(num_channels, num_channels);
 
         CpalVstBufferHandler {
             audio_settings,
@@ -62,7 +62,7 @@ impl CpalVstBufferHandler {
 
     /// Get the VST audio buffer
     pub fn get_audio_buffer(&mut self) -> AudioBuffer<f32> {
-        let mut audio_buffer = self
+        let audio_buffer = self
             .host_buffer
             .bind(&self.input_buffer, &mut self.output_buffer);
         audio_buffer
