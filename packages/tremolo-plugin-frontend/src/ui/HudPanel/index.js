@@ -119,6 +119,7 @@ export default function HudPanel() {
         style={{
           backgroundColor: "#333",
           color: "white",
+          userSelect: 'none',
           borderRadius: 2,
           padding: 5,
           textTransform: "lowercase",
