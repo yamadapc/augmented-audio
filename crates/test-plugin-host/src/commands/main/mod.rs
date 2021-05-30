@@ -33,16 +33,16 @@ unsafe fn initialize_audio_thread(plugin_instance: *mut PluginInstance, audio_fi
         .default_output_device()
         .expect("Expected to find output device");
     log::info!("Using device: {}", output_device.name().unwrap());
-    let input_config = output_device
-        .default_input_config()
-        .expect("Expected default input configuration");
-    let sample_format = input_config.sample_format();
-    let mut input_config: StreamConfig = input_config.into();
-    input_config.buffer_size = BufferSize::Fixed(512);
+    let output_config = output_device
+        .default_output_config()
+        .expect("Expected default output configuration");
+    let sample_format = output_config.sample_format();
+    let mut output_config: StreamConfig = output_config.into();
+    output_config.buffer_size = BufferSize::Fixed(512);
 
     match sample_format {
         SampleFormat::F32 => {
-            run_main_loop(plugin_instance, &output_device, &input_config, audio_file)
+            run_main_loop(plugin_instance, &output_device, &output_config, audio_file)
         }
         _ => {
             panic!("Unsupported sample format from device.")
@@ -53,16 +53,16 @@ unsafe fn initialize_audio_thread(plugin_instance: *mut PluginInstance, audio_fi
 unsafe fn run_main_loop(
     plugin_instance: *mut PluginInstance,
     output_device: &cpal::Device,
-    input_config: &cpal::StreamConfig,
+    output_config: &cpal::StreamConfig,
     audio_file: ProbeResult,
 ) {
-    let buffer_size = match input_config.buffer_size {
+    let buffer_size = match output_config.buffer_size {
         BufferSize::Default => panic!("Using default buffer size will cause reliability issues"),
         BufferSize::Fixed(buffer_size) => buffer_size,
     };
 
-    let sample_rate = input_config.sample_rate.0 as f32;
-    let channels = input_config.channels as usize;
+    let sample_rate = output_config.sample_rate.0 as f32;
+    let channels = output_config.channels as usize;
 
     let mut instance = plugin_instance.as_mut().unwrap();
     instance.suspend();
@@ -83,7 +83,7 @@ unsafe fn run_main_loop(
 
     let stream = output_device
         .build_output_stream(
-            input_config,
+            output_config,
             move |data: &mut [f32], output_info: &cpal::OutputCallbackInfo| {
                 processor.cpal_process(data, output_info);
             },
@@ -93,7 +93,7 @@ unsafe fn run_main_loop(
 
     stream.play().expect("Failed to play output stream");
 
-    std::thread::sleep(std::time::Duration::from_millis(50000));
+    std::thread::park();
 }
 
 fn start_gui(instance: *mut PluginInstance) {

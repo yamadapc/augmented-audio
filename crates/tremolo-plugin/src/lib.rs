@@ -21,6 +21,7 @@ use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PA
 use crate::processor::Processor;
 use log::info;
 use log::LevelFilter;
+use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
@@ -46,6 +47,7 @@ fn configure_logging() -> Option<()> {
 
     let config = Config::builder()
         .appender(Appender::builder().build("logfile", Box::new(logfile)))
+        .appender(Appender::builder().build("stdout", Box::new(ConsoleAppender::builder().build())))
         .build(Root::builder().appender("logfile").build(LevelFilter::Info))
         .ok()?;
 
