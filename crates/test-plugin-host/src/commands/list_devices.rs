@@ -7,7 +7,7 @@ pub fn run_list_devices() {
         .iter()
         .for_each(|host_id| match print_host_devices(host_id) {
             Err(_) => {
-                println!("Error listing devices for host {}", host_id.name());
+                log::error!("Error listing devices for host {}", host_id.name());
             }
             _ => {}
         });
@@ -20,7 +20,7 @@ fn print_host_devices(host_id: &cpal::HostId) -> Result<(), Box<dyn Error>> {
         let name = device.name()?;
         let config = device.default_input_config()?;
         let num_channels = config.channels();
-        println!(
+        log::info!(
             "{} (INPUT): \"{}\" - channels={}",
             host.id().name(),
             name,
@@ -32,7 +32,7 @@ fn print_host_devices(host_id: &cpal::HostId) -> Result<(), Box<dyn Error>> {
         let name = device.name()?;
         let config = device.default_output_config()?;
         let num_channels = config.channels();
-        println!(
+        log::info!(
             "{} (OUTPUT): \"{}\" - channels={}",
             host.id().name(),
             name,

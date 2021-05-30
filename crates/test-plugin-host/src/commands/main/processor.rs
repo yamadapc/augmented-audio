@@ -2,6 +2,7 @@ use cpal::{OutputCallbackInfo, StreamError};
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use crate::commands::main::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::commands::main::audio_settings::AudioSettings;
 use crate::commands::main::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use vst::buffer::AudioBuffer;
@@ -11,6 +12,7 @@ pub struct TestHostProcessor {
     plugin_instance: PluginInstance,
     audio_settings: AudioSettings,
     buffer_handler: CpalVstBufferHandler,
+    audio_file_processor: AudioFileProcessor,
 }
 
 unsafe impl Send for TestHostProcessor {}
@@ -18,6 +20,7 @@ unsafe impl Sync for TestHostProcessor {}
 
 impl TestHostProcessor {
     pub fn new(
+        audio_file_settings: AudioFileSettings,
         plugin_instance: PluginInstance,
         sample_rate: f32,
         channels: usize,
@@ -28,30 +31,35 @@ impl TestHostProcessor {
             plugin_instance,
             audio_settings,
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
+            audio_file_processor: AudioFileProcessor::new(audio_file_settings, audio_settings),
         }
     }
 }
 
 impl TestHostProcessor {
-    // Allocate buffers that'll be used for CPAL -> VST audio forwarding
-    pub fn prepare() {}
+    pub fn prepare(&mut self, audio_settings: AudioSettings) {
+        self.audio_settings = audio_settings;
+        self.buffer_handler.prepare(&audio_settings);
+        self.audio_file_processor.prepare(audio_settings);
+    }
 
     pub unsafe fn cpal_process(&mut self, output: &mut [f32], _output_info: &OutputCallbackInfo) {
         let num_channels = self.audio_settings.channels();
 
         // Input generation section
-        for frame in output.chunks_mut(num_channels) {
-            for sample in frame.iter_mut() {
-                let value = 0.0;
-                *sample = value;
-            }
-        }
+        self.audio_file_processor.process(output);
+        // for frame in output.chunks_mut(num_channels) {
+        //     for sample in frame.iter_mut() {
+        //         let value = 0.0;
+        //         *sample = value;
+        //     }
+        // }
 
         // VST processing section
-        self.buffer_handler.process(output);
-        let mut audio_buffer = self.buffer_handler.get_audio_buffer();
-        self.plugin_instance.process(&mut audio_buffer);
-        flush_vst_output(num_channels, &mut audio_buffer, output)
+        // self.buffer_handler.process(output);
+        // let mut audio_buffer = self.buffer_handler.get_audio_buffer();
+        // self.plugin_instance.process(&mut audio_buffer);
+        // flush_vst_output(num_channels, &mut audio_buffer, output)
     }
 
     pub fn cpal_error(err: StreamError) {

@@ -2,6 +2,7 @@ mod commands;
 mod host;
 
 fn main() {
+    wisual_logger::init_from_env();
     let matches = clap::App::new("test-plugin-host")
         .version("0.0.1")
         .author("Pedro Tacla Yamada <tacla.yamada@gmail.com>")

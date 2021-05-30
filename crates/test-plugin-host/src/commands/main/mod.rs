@@ -1,7 +1,11 @@
+mod audio_file_processor;
 mod audio_settings;
 mod cpal_vst_buffer_handler;
 mod processor;
+mod sample_rate_conversion;
 
+use crate::commands::main::audio_file_processor::{default_read_audio_file, AudioFileSettings};
+use crate::commands::main::audio_settings::AudioSettings;
 use crate::commands::options::RunOptions;
 use crate::host;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
@@ -22,11 +26,11 @@ use vst::plugin::Plugin;
 /// Audio thread
 unsafe fn initialize_audio_thread(plugin_instance: PluginInstance, audio_file: ProbeResult) {
     let cpal_host = cpal::default_host();
-    println!("Using host: {}", cpal_host.id().name());
+    log::info!("Using host: {}", cpal_host.id().name());
     let output_device = cpal_host
         .default_output_device()
         .expect("Expected to find output device");
-    println!("Using device: {}", output_device.name().unwrap());
+    log::info!("Using device: {}", output_device.name().unwrap());
     let input_config = output_device
         .default_input_config()
         .expect("Expected default input configuration");
@@ -100,8 +104,17 @@ unsafe fn run_main_loop(
     plugin_instance.set_sample_rate(sample_rate);
     plugin_instance.resume();
 
-    println!("Buffer size {:?}", buffer_size);
-    let mut processor = TestHostProcessor::new(plugin_instance, sample_rate, channels, buffer_size);
+    log::info!("Buffer size {:?}", buffer_size);
+    let audio_file_settings = AudioFileSettings::new(audio_file);
+    let mut processor = TestHostProcessor::new(
+        audio_file_settings,
+        plugin_instance,
+        sample_rate,
+        channels,
+        buffer_size,
+    );
+    let audio_settings = AudioSettings::new(sample_rate, channels, buffer_size);
+    processor.prepare(audio_settings);
 
     // let mut oscillator = oscillator::Oscillator::sine(sample_rate);
     // oscillator.set_frequency(440.0);
@@ -166,14 +179,14 @@ pub fn run_test(run_options: RunOptions) {
     let host = Arc::new(Mutex::new(host::AudioTestHost));
 
     let path = Path::new(run_options.plugin_path());
-    println!("Loading VST from: {}...", path.to_str().unwrap());
+    log::info!("Loading VST from: {}...", path.to_str().unwrap());
     let mut loader = PluginLoader::load(path, Arc::clone(&host))
         .unwrap_or_else(|e| panic!("Failed to load plugin: {}", e));
 
-    println!("Creating plugin instance...");
+    log::info!("Creating plugin instance...");
     let mut instance = loader.instance().unwrap();
     let info = instance.get_info();
-    println!(
+    log::info!(
         "Loaded '{}':\n\t\
          Vendor: {}\n\t\
          Presets: {}\n\t\
@@ -192,33 +205,11 @@ pub fn run_test(run_options: RunOptions) {
 
     // Initialize the instance
     instance.init();
-    println!("Initialized instance!");
+    log::info!("Initialized instance!");
 
-    let mut hint = Hint::new();
-    let media_source = {
-        let audio_input_path = Path::new(run_options.input_audio());
-        if let Some(extension) = path.extension() {
-            if let Some(extension_str) = extension.to_str() {
-                hint.with_extension(extension_str);
-            }
-        }
-        Box::new(File::open(path).unwrap())
-    };
-    let audio_file = MediaSourceStream::new(media_source, Default::default());
-    let format_opts: FormatOptions = Default::default();
-    let metadata_opts: MetadataOptions = Default::default();
-    let audio_file = match symphonia::default::get_probe().format(
-        &hint,
-        audio_file,
-        &format_opts,
-        &metadata_opts,
-    ) {
-        Ok(mut probed) => probed,
-        Err(err) => {
-            eprintln!("ERROR: Input file not supported: {}", err);
-            exit(1);
-        }
-    };
+    let input_audio_path = run_options.input_audio();
+
+    let audio_file = default_read_audio_file(input_audio_path);
 
     unsafe {
         initialize_audio_thread(instance, audio_file);
@@ -226,5 +217,5 @@ pub fn run_test(run_options: RunOptions) {
 
     start_gui();
 
-    println!("Closing instance...");
+    log::info!("Closing instance...");
 }
