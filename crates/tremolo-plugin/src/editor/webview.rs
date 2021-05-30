@@ -125,7 +125,8 @@ impl WebviewHolder {
 
     pub unsafe fn attach_to_parent(&mut self, parent: *mut c_void) {
         let parent_id = parent as id;
-        parent_id.addSubview_(self.webview.get_native_handle());
+        let wk_webview = self.webview.get_native_handle();
+        parent_id.addSubview_(wk_webview);
         let window_id: id = msg_send![parent_id, window];
         window_id.setStyleMask_(
             NSWindowStyleMask::NSTitledWindowMask
