@@ -13,12 +13,20 @@ use cpal::{BufferSize, SampleFormat, StreamConfig};
 use processor::TestHostProcessor;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
+use std::thread;
 use symphonia::core::probe::ProbeResult;
+use tao::event::{Event, WindowEvent};
+use tao::event_loop::ControlFlow;
+use tao::platform::macos::WindowExtMacOS;
 use vst::host::{PluginInstance, PluginLoader};
 use vst::plugin::Plugin;
 
+struct UnsafePluginRef(*mut PluginInstance);
+unsafe impl Send for UnsafePluginRef {}
+unsafe impl Sync for UnsafePluginRef {}
+
 /// Audio thread
-unsafe fn initialize_audio_thread(plugin_instance: PluginInstance, audio_file: ProbeResult) {
+unsafe fn initialize_audio_thread(plugin_instance: *mut PluginInstance, audio_file: ProbeResult) {
     let cpal_host = cpal::default_host();
     log::info!("Using host: {}", cpal_host.id().name());
     let output_device = cpal_host
@@ -42,13 +50,8 @@ unsafe fn initialize_audio_thread(plugin_instance: PluginInstance, audio_file: P
     }
 }
 
-struct UnsafePluginRef(Arc<Mutex<PluginInstance>>);
-
-unsafe impl Send for UnsafePluginRef {}
-unsafe impl Sync for UnsafePluginRef {}
-
 unsafe fn run_main_loop(
-    mut plugin_instance: PluginInstance,
+    plugin_instance: *mut PluginInstance,
     output_device: &cpal::Device,
     input_config: &cpal::StreamConfig,
     audio_file: ProbeResult,
@@ -61,9 +64,10 @@ unsafe fn run_main_loop(
     let sample_rate = input_config.sample_rate.0 as f32;
     let channels = input_config.channels as usize;
 
-    plugin_instance.suspend();
-    plugin_instance.set_sample_rate(sample_rate);
-    plugin_instance.resume();
+    let mut instance = plugin_instance.as_mut().unwrap();
+    instance.suspend();
+    instance.set_sample_rate(sample_rate);
+    instance.resume();
 
     log::info!("Buffer size {:?}", buffer_size);
     let audio_file_settings = AudioFileSettings::new(audio_file);
@@ -92,7 +96,35 @@ unsafe fn run_main_loop(
     std::thread::sleep(std::time::Duration::from_millis(50000));
 }
 
-fn start_gui() {}
+fn start_gui(instance: *mut PluginInstance) {
+    let event_loop = tao::event_loop::EventLoop::new();
+    let window = tao::window::Window::new(&event_loop).expect("Failed to create editor window");
+
+    let mut editor = unsafe { instance.as_mut() }
+        .unwrap()
+        .get_editor()
+        .expect("Plugin has no editor");
+    editor.open(window.ns_view());
+
+    event_loop.run(move |event, _, control_flow| {
+        *control_flow = ControlFlow::Wait;
+
+        match event {
+            Event::WindowEvent {
+                event: WindowEvent::CloseRequested,
+                ..
+            } => {
+                log::info!("The close button was pressed; stopping");
+                *control_flow = ControlFlow::Exit
+            }
+            Event::MainEventsCleared => {}
+            Event::RedrawRequested(_) => {
+                window.request_redraw();
+            }
+            _ => (),
+        }
+    });
+}
 
 pub fn run_test(run_options: RunOptions) {
     let host = Arc::new(Mutex::new(host::AudioTestHost));
@@ -126,15 +158,24 @@ pub fn run_test(run_options: RunOptions) {
     instance.init();
     log::info!("Initialized instance!");
 
-    let input_audio_path = run_options.input_audio();
+    log::info!("Initializing audio thread");
+    let audio_thread = {
+        let instance = UnsafePluginRef(&mut instance as *mut PluginInstance);
+        let input_audio_path = run_options.input_audio().to_string();
 
-    let audio_file = default_read_audio_file(input_audio_path);
+        thread::spawn(move || unsafe {
+            let instance = instance.0;
+            let audio_file = default_read_audio_file(&input_audio_path);
+            initialize_audio_thread(instance, audio_file);
+        })
+    };
 
-    unsafe {
-        initialize_audio_thread(instance, audio_file);
+    let instance = &mut instance as *mut PluginInstance;
+    if run_options.open_editor() {
+        log::info!("Starting GUI");
+        start_gui(instance);
     }
 
-    start_gui();
-
+    audio_thread.join();
     log::info!("Closing instance...");
 }

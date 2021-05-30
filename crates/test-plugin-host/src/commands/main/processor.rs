@@ -1,15 +1,14 @@
-use cpal::{OutputCallbackInfo, StreamError};
-use vst::host::PluginInstance;
-use vst::plugin::Plugin;
-
 use crate::commands::main::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::commands::main::audio_settings::AudioSettings;
 use crate::commands::main::cpal_vst_buffer_handler::CpalVstBufferHandler;
+use cpal::{OutputCallbackInfo, StreamError};
 use vst::buffer::AudioBuffer;
+use vst::host::PluginInstance;
+use vst::plugin::Plugin;
 
 /// The app's main processor
 pub struct TestHostProcessor {
-    plugin_instance: PluginInstance,
+    plugin_instance: *mut PluginInstance,
     audio_settings: AudioSettings,
     buffer_handler: CpalVstBufferHandler,
     audio_file_processor: AudioFileProcessor,
@@ -21,7 +20,7 @@ unsafe impl Sync for TestHostProcessor {}
 impl TestHostProcessor {
     pub fn new(
         audio_file_settings: AudioFileSettings,
-        plugin_instance: PluginInstance,
+        plugin_instance: *mut PluginInstance,
         sample_rate: f32,
         channels: usize,
         buffer_size: u32,
@@ -52,7 +51,10 @@ impl TestHostProcessor {
         // VST processing section
         self.buffer_handler.process(output);
         let mut audio_buffer = self.buffer_handler.get_audio_buffer();
-        self.plugin_instance.process(&mut audio_buffer);
+        self.plugin_instance
+            .as_mut()
+            .unwrap()
+            .process(&mut audio_buffer);
         flush_vst_output(num_channels, &mut audio_buffer, output)
     }
 
