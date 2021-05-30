@@ -15,7 +15,12 @@ use tokio_tungstenite::tungstenite::Message;
 
 pub fn run_websockets_transport_main(addr: &str) {
     let runtime = create_websockets_transport_runtime();
-    let _ = runtime.block_on(async move { run_websockets_transport_async(ServerOptions { addr }) });
+    let _ = runtime.block_on(async move {
+        let handle = run_websockets_transport_async(ServerOptions { addr })
+            .await
+            .unwrap();
+        handle.loop_handle.await
+    });
 }
 
 async fn handle_connection(
@@ -54,6 +59,7 @@ async fn accept_connection(
 }
 
 fn create_websockets_transport_runtime() -> Runtime {
+    log::info!("Creating tokio event-loop");
     let runtime = tokio::runtime::Builder::new_current_thread()
         .thread_name("ws-transport-tokio")
         .enable_all()
@@ -62,12 +68,14 @@ fn create_websockets_transport_runtime() -> Runtime {
     runtime
 }
 
+#[allow(clippy::needless_lifetimes)]
 async fn run_websockets_accept_loop(
     listener: TcpListener,
     input_sender: Sender<Message>,
     current_id: AtomicCell<u32>,
     connections: Arc<Mutex<HashMap<u32, ()>>>,
 ) {
+    log::info!("Waiting for ws connections");
     while let Ok((stream, _)) = listener.accept().await {
         let peer = stream
             .peer_addr()
