@@ -1,5 +1,5 @@
 [package]
-name = "smooth_value"
+name = "smooth-value"
 version = "0.1.0"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
