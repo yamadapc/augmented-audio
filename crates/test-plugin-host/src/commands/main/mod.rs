@@ -29,7 +29,7 @@ unsafe impl Send for UnsafePluginRef {}
 unsafe impl Sync for UnsafePluginRef {}
 
 /// Audio thread
-unsafe fn initialize_audio_thread(plugin_instance: *mut PluginInstance, audio_file: ProbeResult) {
+fn initialize_audio_thread(plugin_instance: *mut PluginInstance, audio_file: ProbeResult) {
     let cpal_host = cpal::default_host();
     log::info!("Using host: {}", cpal_host.id().name());
     let output_device = cpal_host
@@ -44,9 +44,9 @@ unsafe fn initialize_audio_thread(plugin_instance: *mut PluginInstance, audio_fi
     output_config.buffer_size = BufferSize::Fixed(512);
 
     match sample_format {
-        SampleFormat::F32 => {
+        SampleFormat::F32 => unsafe {
             run_main_loop(plugin_instance, &output_device, &output_config, audio_file)
-        }
+        },
         _ => {
             panic!("Unsupported sample format from device.")
         }
@@ -166,7 +166,7 @@ pub fn run_test(run_options: RunOptions) {
         let instance = UnsafePluginRef(&mut instance as *mut PluginInstance);
         let input_audio_path = run_options.input_audio().to_string();
 
-        thread::spawn(move || unsafe {
+        thread::spawn(move || {
             let instance = instance.0;
             let audio_file = default_read_audio_file(&input_audio_path);
             initialize_audio_thread(instance, audio_file);
