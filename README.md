@@ -1,4 +1,4 @@
-![](design/AppIcon@1.png)
+![](/design/AppIcon@1.png)
 # Augmented Audio
 In this repository I'll push some experiments trying to use Rust for audio programming.
 
