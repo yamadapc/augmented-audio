@@ -67,7 +67,6 @@ pub fn create_transport_runtime() -> Runtime {
     runtime
 }
 
-#[allow(clippy::needless_lifetimes)]
 async fn run_websockets_accept_loop(
     listener: TcpListener,
     input_sender: Sender<Message>,
