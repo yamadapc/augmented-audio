@@ -1,5 +1,6 @@
 <div style="text-align:center"><img style="margin:0 auto" height="150" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/AppIcon%401x.png" /></div>
-- - -
+
+---
 
 # Augmented Audio
 
