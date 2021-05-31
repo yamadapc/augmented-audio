@@ -1,24 +1,19 @@
-mod constants;
-mod editor;
-mod plugin_parameter;
-mod processor;
-
-extern crate log;
-#[macro_use]
-extern crate vst;
 extern crate cocoa;
-#[macro_use]
-extern crate objc;
 extern crate crossbeam;
 extern crate darwin_webkit;
+extern crate log;
 extern crate log4rs;
+#[macro_use]
+extern crate objc;
 extern crate oscillator;
 extern crate proc_macro;
 extern crate serde;
 extern crate tungstenite;
+#[macro_use]
+extern crate vst;
 
-use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PARAMETER_ID};
-use crate::processor::Processor;
+use std::sync::Arc;
+
 use log::info;
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
@@ -26,12 +21,20 @@ use log4rs::append::file::FileAppender;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::Config;
-use oscillator::Oscillator;
-use plugin_parameter::{ParameterStore, PluginParameterImpl};
-use std::sync::Arc;
 use vst::buffer::AudioBuffer;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
+
+use oscillator::Oscillator;
+use plugin_parameter::{ParameterStore, PluginParameterImpl};
+
+use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PARAMETER_ID};
+use crate::processor::Processor;
+
+mod constants;
+mod editor;
+mod plugin_parameter;
+mod processor;
 
 fn configure_logging() -> Option<()> {
     let home_path = dirs::home_dir()?;

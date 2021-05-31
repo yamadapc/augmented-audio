@@ -1,11 +1,7 @@
-mod handlers;
-mod protocol;
-mod tokio_websockets;
-mod transport;
-mod webview;
-
 use std::ffi::c_void;
 use std::sync::Arc;
+use std::thread;
+
 use vst::editor::Editor;
 
 use crate::editor::protocol::{
@@ -16,7 +12,13 @@ use crate::editor::tokio_websockets::create_transport_runtime;
 use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
 use crate::plugin_parameter::ParameterStore;
-use std::thread;
+use tokio::sync::broadcast::error::SendError;
+
+mod handlers;
+mod protocol;
+mod tokio_websockets;
+mod transport;
+mod webview;
 
 pub struct TremoloEditor {
     parameters: Arc<ParameterStore>,
@@ -53,11 +55,48 @@ impl TremoloEditor {
             log::error!("Failed to start transport {}", err);
         }
 
+        {
+            let mut messages = self.transport.messages();
+            let output_messages = self.transport.output_messages();
+            let parameter_store = self.parameters.clone();
+            self.runtime.spawn(async move {
+                loop {
+                    if let Ok(message) = messages.recv().await {
+                        match message {
+                            MessageWrapper { message, .. } => match message {
+                                ClientMessageInner::AppStarted(_) => {
+                                    let parameters_list = list_parameters(&parameter_store);
+                                    let result = output_messages.send(ServerMessage::notification(
+                                        ServerMessageInner::PublishParameters(
+                                            PublishParametersMessage {
+                                                parameters: parameters_list,
+                                            },
+                                        ),
+                                    ));
+
+                                    match result {
+                                        Err(_) => {
+                                            log::error!(
+                                                "Failed to send publish parameters message"
+                                            );
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                                ClientMessageInner::SetParameter(_) => {}
+                                ClientMessageInner::Log(_) => {}
+                            },
+                        }
+                    }
+                }
+            });
+        }
+
         Some(true)
     }
 }
 
-fn list_parameters(parameters: Arc<ParameterStore>) -> Vec<ParameterDeclarationMessage> {
+fn list_parameters(parameters: &ParameterStore) -> Vec<ParameterDeclarationMessage> {
     let num_parameters = parameters.get_num_parameters();
     let mut output = vec![];
     for i in 0..num_parameters {

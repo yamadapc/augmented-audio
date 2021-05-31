@@ -2,7 +2,11 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "lib"
+    "outDir": "lib",
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "noEmit": true,
+    "jsx": "react-jsx"
   },
   "include": [
     "src"

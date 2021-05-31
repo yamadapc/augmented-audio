@@ -1,18 +1,21 @@
-use crate::editor::protocol::ClientMessageInner;
-use crossbeam::atomic::AtomicCell;
-use futures_util::SinkExt;
-use futures_util::StreamExt;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
+
+use crossbeam::atomic::AtomicCell;
+use futures_util::SinkExt;
+use futures_util::StreamExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::runtime::Runtime;
 use tokio::sync::broadcast::Sender;
 use tokio::sync::Mutex;
 use tokio::task::JoinError;
-use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Error::{ConnectionClosed, Protocol, Utf8};
 use tokio_tungstenite::tungstenite::Message;
+use tokio_tungstenite::{accept_async, WebSocketStream};
+
+use crate::editor::protocol::ClientMessageInner;
+use futures_util::stream::{SplitSink, SplitStream};
 
 pub fn run_websockets_transport_main(addr: &str) {
     let runtime = create_transport_runtime();
@@ -28,15 +31,17 @@ pub async fn block_on_websockets_main(addr: &str) -> Result<(), JoinError> {
 
 async fn handle_connection(
     peer: SocketAddr,
-    stream: TcpStream,
+    mut ws_stream: SplitStream<WebSocketStream<TcpStream>>,
     input_sender: tokio::sync::broadcast::Sender<tungstenite::Message>,
 ) -> tungstenite::Result<()> {
-    let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
-
     log::info!("New WebSocket connection: {:?}", peer);
+    loop {
+        let maybe_message = ws_stream.next().await;
+        if maybe_message.is_none() {
+            break;
+        }
 
-    while let Some(msg) = ws_stream.next().await {
-        let msg = msg?;
+        let msg = maybe_message.unwrap()?;
         log::info!("Received message {:?}", msg);
         if msg.is_text() || msg.is_binary() {
             if let Err(err) = input_sender.send(msg) {
@@ -48,12 +53,12 @@ async fn handle_connection(
     Ok(())
 }
 
-async fn accept_connection(
+async fn connection_loop(
     peer: SocketAddr,
-    stream: TcpStream,
-    input_sender: tokio::sync::broadcast::Sender<tungstenite::Message>,
+    input_sender: Sender<Message>,
+    ws_stream: SplitStream<WebSocketStream<TcpStream>>,
 ) {
-    if let Err(e) = handle_connection(peer, stream, input_sender).await {
+    if let Err(e) = handle_connection(peer, ws_stream, input_sender).await {
         match e {
             ConnectionClosed | Protocol(_) | Utf8 => (),
             err => log::error!("Error processing connection: {:?}", err),
@@ -77,7 +82,7 @@ async fn run_websockets_accept_loop(
     listener: TcpListener,
     input_sender: Sender<Message>,
     current_id: AtomicCell<u32>,
-    connections: Arc<Mutex<HashMap<u32, ()>>>,
+    connections: Arc<Mutex<HashMap<u32, SplitSink<WebSocketStream<TcpStream>, Message>>>>,
 ) {
     log::info!("Waiting for ws connections");
     while let Ok((stream, _)) = listener.accept().await {
@@ -87,18 +92,28 @@ async fn run_websockets_accept_loop(
         log::info!("Peer address: {}", peer);
 
         let connection_id = current_id.fetch_add(1);
-        {
-            let mut connections = connections.lock().await;
-            connections.insert(connection_id, ());
-        }
 
         {
             let connections = connections.clone();
             let input_sender = input_sender.clone();
+
             tokio::spawn(async move {
-                accept_connection(peer, stream, input_sender).await;
-                let mut connections = connections.lock().await;
-                connections.remove(&connection_id);
+                let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
+                let (ws_write, ws_read) = ws_stream.split();
+
+                {
+                    let mut connections = connections.lock().await;
+                    connections.insert(connection_id, ws_write);
+                }
+
+                connection_loop(peer, input_sender, ws_read).await;
+
+                {
+                    log::info!("Cleaning-up connection {}", connection_id);
+                    let mut connections = connections.lock().await;
+                    connections.remove(&connection_id);
+                    log::info!("Cleaned-up connection {}", connection_id);
+                }
             });
         }
     }
@@ -108,7 +123,8 @@ pub struct ServerHandle {
     loop_handle: tokio::task::JoinHandle<()>,
     input_sender: tokio::sync::broadcast::Sender<tungstenite::Message>,
     input_broadcast: tokio::sync::broadcast::Receiver<tungstenite::Message>,
-    connections: Arc<Mutex<HashMap<u32, ()>>>,
+    connections:
+        Arc<Mutex<HashMap<u32, SplitSink<WebSocketStream<TcpStream>, tungstenite::Message>>>>,
 }
 
 impl ServerHandle {
@@ -122,6 +138,20 @@ impl ServerHandle {
 
     pub fn abort(&self) {
         self.loop_handle.abort();
+    }
+
+    pub async fn send(&self, message: String) {
+        let mut connections = self.connections.lock().await;
+        log::info!(
+            "Flushing text message to {} connections : {}",
+            connections.len(),
+            message
+        );
+        for (_, connection) in connections.iter_mut() {
+            connection
+                .send(tungstenite::Message::Text(message.clone()))
+                .await;
+        }
     }
 }
 
@@ -162,10 +192,12 @@ pub async fn run_websockets_transport_async<'a>(
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::editor::protocol::AppStartedMessage;
     use log::LevelFilter;
     use tokio::time::Duration;
+
+    use crate::editor::protocol::AppStartedMessage;
+
+    use super::*;
 
     #[tokio::test]
     async fn test_start_websockets_server() {

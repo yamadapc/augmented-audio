@@ -1,9 +1,12 @@
-use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PARAMETER_ID};
-use crate::plugin_parameter::ParameterStore;
-use oscillator::Oscillator;
 use std::borrow::BorrowMut;
 use std::sync::Arc;
+
 use vst::buffer::AudioBuffer;
+
+use oscillator::Oscillator;
+
+use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PARAMETER_ID};
+use crate::plugin_parameter::ParameterStore;
 
 pub struct Processor {
     parameters: Arc<ParameterStore>,
