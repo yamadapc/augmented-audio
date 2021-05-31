@@ -12,23 +12,28 @@ use crate::editor::protocol::{
     ClientMessage, ClientMessageInner, MessageWrapper, ParameterDeclarationMessage,
     PublishParametersMessage, ServerMessage, ServerMessageInner,
 };
+use crate::editor::tokio_websockets::create_transport_runtime;
 use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
 use crate::plugin_parameter::ParameterStore;
+use std::thread;
 
 pub struct TremoloEditor {
     parameters: Arc<ParameterStore>,
     webview: Option<WebviewHolder>,
+    runtime: tokio::runtime::Runtime,
     transport: Box<dyn WebviewTransport<ServerMessage, ClientMessage>>,
 }
 
 impl TremoloEditor {
     pub fn new(parameters: Arc<ParameterStore>) -> Self {
+        let runtime = create_transport_runtime();
         TremoloEditor {
             parameters,
             webview: None,
+            runtime,
             // TODO - WebSockets is just for development
-            transport: Box::new(WebSocketsTransport::new_with_addr("localhost:9510")),
+            transport: Box::new(WebSocketsTransport::new("localhost:9510")),
         }
     }
 
@@ -43,33 +48,9 @@ impl TremoloEditor {
         self.webview = Some(webview);
         self.webview.as_mut().unwrap().initialize(parent);
 
-        if let Err(err) = self.transport.start() {
+        let start_result = self.runtime.block_on(self.transport.start());
+        if let Err(err) = start_result {
             log::error!("Failed to start transport {}", err);
-        } else {
-            let input_channel = self.transport.get_input_channel();
-            let output_channel = self.transport.get_output_channel();
-            let parameters = self.parameters.clone();
-            std::thread::spawn(move || {
-                log::info!("Handling App messages");
-                loop {
-                    let MessageWrapper { message, .. } = input_channel.recv().unwrap();
-                    match message {
-                        ClientMessageInner::AppStarted(_) => {
-                            log::info!("App is started. Publishing parameters");
-                            output_channel.send(MessageWrapper {
-                                id: None,
-                                channel: "default".to_string(),
-                                message: ServerMessageInner::PublishParameters(
-                                    PublishParametersMessage {
-                                        parameters: list_parameters(parameters.clone()),
-                                    },
-                                ),
-                            });
-                        }
-                        _ => {}
-                    }
-                }
-            });
         }
 
         Some(true)

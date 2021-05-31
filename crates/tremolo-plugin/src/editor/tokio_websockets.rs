@@ -9,18 +9,21 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::runtime::Runtime;
 use tokio::sync::broadcast::Sender;
 use tokio::sync::Mutex;
+use tokio::task::JoinError;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Error::{ConnectionClosed, Protocol, Utf8};
 use tokio_tungstenite::tungstenite::Message;
 
 pub fn run_websockets_transport_main(addr: &str) {
-    let runtime = create_websockets_transport_runtime();
-    let _ = runtime.block_on(async move {
-        let handle = run_websockets_transport_async(ServerOptions { addr })
-            .await
-            .unwrap();
-        handle.loop_handle.await
-    });
+    let runtime = create_transport_runtime();
+    let _ = runtime.block_on(async move { block_on_websockets_main(addr) });
+}
+
+pub async fn block_on_websockets_main(addr: &str) -> Result<(), JoinError> {
+    let handle = run_websockets_transport_async(ServerOptions { addr })
+        .await
+        .unwrap();
+    handle.loop_handle.await
 }
 
 async fn handle_connection(
@@ -58,10 +61,11 @@ async fn accept_connection(
     }
 }
 
-fn create_websockets_transport_runtime() -> Runtime {
+pub fn create_transport_runtime() -> Runtime {
     log::info!("Creating tokio event-loop");
-    let runtime = tokio::runtime::Builder::new_current_thread()
+    let runtime = tokio::runtime::Builder::new_multi_thread()
         .thread_name("ws-transport-tokio")
+        .worker_threads(1)
         .enable_all()
         .build()
         .unwrap();
@@ -100,7 +104,7 @@ async fn run_websockets_accept_loop(
     }
 }
 
-struct ServerHandle {
+pub struct ServerHandle {
     loop_handle: tokio::task::JoinHandle<()>,
     input_broadcast: tokio::sync::broadcast::Receiver<tungstenite::Message>,
     connections: Arc<Mutex<HashMap<u32, ()>>>,
@@ -110,9 +114,12 @@ impl ServerHandle {
     async fn get_num_connected_clients(&self) -> usize {
         (*self.connections.lock().await).len()
     }
+    pub fn abort(&self) {
+        self.loop_handle.abort();
+    }
 }
 
-struct ServerOptions<'a> {
+pub struct ServerOptions<'a> {
     addr: &'a str,
 }
 
@@ -122,7 +129,7 @@ impl<'a> ServerOptions<'a> {
     }
 }
 
-async fn run_websockets_transport_async<'a>(
+pub async fn run_websockets_transport_async<'a>(
     options: ServerOptions<'a>,
 ) -> tokio::io::Result<ServerHandle> {
     let listener: tokio::net::TcpListener = TcpListener::bind(options.addr).await?;
