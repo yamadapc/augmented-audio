@@ -110,9 +110,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use plotters::prelude::*;
     use std::path::Path;
+
+    use plotters::prelude::*;
+
+    use super::*;
 
     static DEFAULT_SAMPLE_RATE: f32 = 44100.0;
 
