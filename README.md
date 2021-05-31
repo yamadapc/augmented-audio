@@ -6,16 +6,18 @@
 
 In this repository I'll push some experiments trying to use Rust for audio programming.
 
+## crates/test-plugin-host
+Basic test host. Opens a VST plugin and input file, then connects the plugin's
+output to the default output device.
+
+## crates/tremolo-plugin
+Incomplete tremolo VST with a WebView GUI.
+
 ## crates/oscillator
 Basic oscillator implementation.
 
-## crates/test-plugin-host
-Basic WIP test host.
-
-Currently, is starting the `cpal` audio-thread & instancing a plugin in it.
-
-## crates/tremolo-plugin
-Incomplete tremolo VST.
+## crates/example-midi-host
+Example MIDI host which will log MIDI messages.
 
 - - -
 
