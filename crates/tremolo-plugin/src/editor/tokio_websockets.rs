@@ -16,7 +16,7 @@ use tokio_tungstenite::tungstenite::Message;
 
 pub fn run_websockets_transport_main(addr: &str) {
     let runtime = create_transport_runtime();
-    let _ = runtime.block_on(async move { block_on_websockets_main(addr) });
+    let _ = runtime.block_on(block_on_websockets_main(addr));
 }
 
 pub async fn block_on_websockets_main(addr: &str) -> Result<(), JoinError> {
