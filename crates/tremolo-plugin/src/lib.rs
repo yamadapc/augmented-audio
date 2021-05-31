@@ -25,7 +25,6 @@ use vst::buffer::AudioBuffer;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 
-use oscillator::Oscillator;
 use plugin_parameter::{ParameterStore, PluginParameterImpl};
 
 use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PARAMETER_ID};
@@ -129,12 +128,6 @@ impl Plugin for TremoloPlugin {
         Some(Box::new(editor::TremoloEditor::new(
             self.parameters.clone(),
         )))
-    }
-}
-
-impl TremoloPlugin {
-    fn parameter_value(&mut self, id: &str) -> f32 {
-        self.parameters.find_parameter(id).as_ref().unwrap().value()
     }
 }
 

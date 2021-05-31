@@ -20,9 +20,9 @@ impl<Message> MessageWrapper<Message> {
         Self::new(None, String::from("default"), message)
     }
 
-    pub fn request(id: &str, message: Message) -> Self {
-        Self::new(None, String::from(id), message)
-    }
+    // pub fn request(id: &str, message: Message) -> Self {
+    //     Self::new(None, String::from(id), message)
+    // }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

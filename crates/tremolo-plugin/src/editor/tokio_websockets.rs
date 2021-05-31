@@ -10,24 +10,11 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::runtime::Runtime;
 use tokio::sync::broadcast::Sender;
 use tokio::sync::Mutex;
-use tokio::task::JoinError;
 use tokio_tungstenite::tungstenite::Error::{ConnectionClosed, Protocol, Utf8};
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{accept_async, WebSocketStream};
 
 use crate::editor::protocol::ClientMessageInner;
-
-pub fn run_websockets_transport_main(addr: &str) {
-    let runtime = create_transport_runtime();
-    let _ = runtime.block_on(block_on_websockets_main(addr));
-}
-
-pub async fn block_on_websockets_main(addr: &str) -> Result<(), JoinError> {
-    let handle = run_websockets_transport_async(ServerOptions { addr })
-        .await
-        .unwrap();
-    handle.loop_handle.await
-}
 
 async fn handle_connection(
     peer: SocketAddr,
@@ -98,7 +85,7 @@ async fn run_websockets_accept_loop(
             let input_sender = input_sender.clone();
 
             tokio::spawn(async move {
-                let mut ws_stream = accept_async(stream).await.expect("Failed to accept");
+                let ws_stream = accept_async(stream).await.expect("Failed to accept");
                 let (ws_write, ws_read) = ws_stream.split();
 
                 {
@@ -148,9 +135,12 @@ impl ServerHandle {
             message
         );
         for (_, connection) in connections.iter_mut() {
-            connection
+            if let Err(err) = connection
                 .send(tungstenite::Message::Text(message.clone()))
-                .await;
+                .await
+            {
+                log::error!("Failed to send message {}", err);
+            }
         }
     }
 }

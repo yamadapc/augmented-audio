@@ -1,25 +1,15 @@
 use std::error::Error;
-use std::future::Future;
 use std::sync::Arc;
-use std::thread;
-use std::thread::JoinHandle;
 
 use async_trait::async_trait;
-use tokio::net::TcpStream;
-use tokio::runtime::Runtime;
-use tokio::sync::broadcast::error::{RecvError, SendError};
 use tokio::sync::broadcast::{Receiver, Sender};
 use tokio::sync::Mutex;
-use tokio_tungstenite::accept_async;
-use tokio_tungstenite::tungstenite::Error::{ConnectionClosed, Protocol, Utf8};
-use tokio_tungstenite::tungstenite::Message;
-use tungstenite::WebSocket;
 
 use crate::editor::protocol::{
     ClientMessage, ClientMessageInner, MessageWrapper, ServerMessage, ServerMessageInner,
 };
 use crate::editor::tokio_websockets::{
-    block_on_websockets_main, run_websockets_transport_async, ServerHandle, ServerOptions,
+    run_websockets_transport_async, ServerHandle, ServerOptions,
 };
 
 #[async_trait]

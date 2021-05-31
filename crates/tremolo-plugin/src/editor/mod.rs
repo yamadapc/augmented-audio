@@ -1,14 +1,9 @@
 use std::ffi::c_void;
 use std::sync::Arc;
-use std::thread;
 
-use tokio::sync::broadcast::error::SendError;
 use vst::editor::Editor;
 
-use crate::editor::protocol::{
-    ClientMessage, ClientMessageInner, MessageWrapper, ParameterDeclarationMessage,
-    PublishParametersMessage, ServerMessage, ServerMessageInner,
-};
+use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
 use crate::editor::tokio_websockets::create_transport_runtime;
 use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
@@ -55,44 +50,19 @@ impl TremoloEditor {
             log::error!("Failed to start transport {}", err);
         }
 
-        {
-            let mut messages = self.transport.messages();
-            let output_messages = self.transport.output_messages();
-            let parameter_store = self.parameters.clone();
-            self.runtime.spawn(async move {
-                loop {
-                    if let Ok(message) = messages.recv().await {
-                        match message {
-                            MessageWrapper { message, .. } => match message {
-                                ClientMessageInner::AppStarted(_) => {
-                                    let parameters_list = list_parameters(&parameter_store);
-                                    let result = output_messages.send(ServerMessage::notification(
-                                        ServerMessageInner::PublishParameters(
-                                            PublishParametersMessage {
-                                                parameters: parameters_list,
-                                            },
-                                        ),
-                                    ));
-
-                                    match result {
-                                        Err(_) => {
-                                            log::error!(
-                                                "Failed to send publish parameters message"
-                                            );
-                                        }
-                                        _ => {}
-                                    }
-                                }
-                                ClientMessageInner::SetParameter(_) => {}
-                                ClientMessageInner::Log(_) => {}
-                            },
-                        }
-                    }
-                }
-            });
-        }
+        self.spawn_message_handler();
 
         Some(true)
+    }
+
+    fn spawn_message_handler(&mut self) {
+        let messages = self.transport.messages();
+        let output_messages = self.transport.output_messages();
+        let parameter_store = self.parameters.clone();
+
+        self.runtime.spawn(async move {
+            handlers::message_handler_loop(messages, output_messages, &parameter_store).await
+        });
     }
 }
 
