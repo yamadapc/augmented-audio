@@ -23,9 +23,30 @@
     <cargoProject FILE="$PROJECT_DIR$/crates/plugin-bundler/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="Add websockets transport to rust back-end">
+    <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="Disable button user-select">
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/common/protocol.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/HudPanel/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/HudPanel/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/protocol.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/protocol.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/tokio_websockets.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/tokio_websockets.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/transport.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/transport.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lerna.json" beforeDir="false" afterPath="$PROJECT_DIR$/lerna.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package-lock.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/reportWebVitals.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/setupTests.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/App.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/App.test.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/RotaryControl/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/HudPanel/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/DefaultMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/DefaultMessageTransport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/MessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/MessageTransport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/WebKitMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/WebKitMessageTransport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/webview-transport/src/WebSocketsMessageTransport.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/src/WebSocketsMessageTransport.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,10 +59,10 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="TypeScript File" />
         <option value="package.json" />
         <option value="JavaScript File" />
         <option value="Rust File" />
+        <option value="TypeScript File" />
       </list>
     </option>
   </component>
@@ -77,9 +98,9 @@
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_package_manager_path" value="yarn" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
-    <property name="prettierjs.PrettierConfiguration.Package" value="$PROJECT_DIR$/packages/webview-transport/node_modules/prettier" />
-    <property name="settings.editor.selected.configurable" value="CLionExternalConfigurable" />
-    <property name="ts.external.directory.path" value="$PROJECT_DIR$/packages/webview-transport/node_modules/typescript/lib" />
+    <property name="prettierjs.PrettierConfiguration.Package" value="$PROJECT_DIR$/node_modules/prettier" />
+    <property name="settings.editor.selected.configurable" value="settings.javascript.prettier" />
+    <property name="ts.external.directory.path" value="$PROJECT_DIR$/node_modules/typescript/lib" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -238,7 +259,7 @@
       <workItem from="1621939465069" duration="34866000" />
       <workItem from="1622080429585" duration="42785000" />
       <workItem from="1622323158935" duration="13960000" />
-      <workItem from="1622410718931" duration="3968000" />
+      <workItem from="1622410718931" duration="9168000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
@@ -331,7 +352,14 @@
       <option name="project" value="LOCAL" />
       <updated>1622154368217</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Disable button user-select">
+      <created>1622415698635</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1622415698635</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -351,7 +379,8 @@
     <MESSAGE value="Move front-end bits around" />
     <MESSAGE value="Remove react.js logo" />
     <MESSAGE value="Add websockets transport to rust back-end" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add websockets transport to rust back-end" />
+    <MESSAGE value="Disable button user-select" />
+    <option name="LAST_COMMIT_MESSAGE" value="Disable button user-select" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

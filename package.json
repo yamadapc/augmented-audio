@@ -1,15 +1,13 @@
 {
   "name": "packages",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "CI=1 lerna run build",
     "test": "CI=1 lerna run test"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "lerna": "^4.0.0"
   }

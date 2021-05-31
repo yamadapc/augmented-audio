@@ -1,33 +1,52 @@
+import React from "react";
 import "./index.css";
 import Regl from "regl";
 import { useEffect, useRef } from "react";
 
 const NUM_VERTICES = 1000;
 
+function range(c: number): number[] {
+  const r = [];
+  for (let i = 0; i < c; i++) {
+    r.push(i);
+  }
+  return r;
+}
+
+type Vec4 = [number, number, number, number];
+
+interface ReglUniforms {
+  color: Vec4;
+  time: number;
+}
+
+interface ReglAttributes {
+  position: number[][];
+}
+
+interface ReglProps {
+  position: number[][];
+  color: Vec4;
+  time: number;
+}
+
 export default function HudPanel() {
   const canvasContainerRef = useRef(null);
-  const reglRef = useRef(null);
+  const reglRef = useRef<Regl.Regl | null>(null);
   const stopped = useRef(true);
 
   useEffect(() => {
-    if (!canvasContainerRef.current) {
+    const canvasEl = canvasContainerRef.current;
+    if (!canvasEl) {
       return;
     }
 
     const regl = Regl({
-      container: canvasContainerRef.current,
+      container: canvasEl,
     });
     reglRef.current = regl;
 
-    const range = (c) => {
-      const r = [];
-      for (let i = 0; i < c; i++) {
-        r.push(i);
-      }
-      return r;
-    };
-
-    const drawTriangle = regl({
+    const drawTriangle = regl<ReglUniforms, ReglAttributes, ReglProps, {}>({
       // Shaders in regl are just strings.  You can use glslify or whatever you want
       // to define them.  No need to manually create shader objects.
       frag: `
@@ -59,13 +78,13 @@ export default function HudPanel() {
       `,
 
       attributes: {
-        position: regl.prop("position"),
+        position: regl.prop<ReglProps, "position">("position"),
       },
 
       uniforms: {
         // This defines the color of the triangle to be a dynamic variable
-        color: regl.prop("color"),
-        time: regl.prop("time"),
+        color: regl.prop<ReglProps, "color">("color"),
+        time: regl.prop<ReglProps, "time">("time"),
       },
 
       // This tells regl the number of vertices to draw in this command
@@ -78,17 +97,19 @@ export default function HudPanel() {
       x / NUM_VERTICES,
     ]);
 
-    const tick = ({ time }) => {
+    const tick = ({ time }: { time: number }) => {
       regl.clear({
         color: [24 / 255, 24 / 255, 24 / 255, 1],
         depth: 1,
       });
 
-      drawTriangle({
-        color: [33 / 255, 170 / 255, 230 / 255, 1],
-        position: vertices,
-        time,
-      });
+      drawTriangle([
+        {
+          color: [33 / 255, 170 / 255, 230 / 255, 1],
+          position: vertices,
+          time,
+        },
+      ]);
     };
 
     tick({ time: 0 });
@@ -119,7 +140,7 @@ export default function HudPanel() {
         style={{
           backgroundColor: "#333",
           color: "white",
-          userSelect: 'none',
+          userSelect: "none",
           borderRadius: 2,
           padding: 5,
           textTransform: "lowercase",

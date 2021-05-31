@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct MessageWrapper<Message> {
     pub id: Option<String>,
     pub channel: String,
@@ -25,19 +25,19 @@ impl<Message> MessageWrapper<Message> {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ServerMessageInner {
     PublishParameters(PublishParametersMessage),
 }
 pub type ServerMessage = MessageWrapper<ServerMessageInner>;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct PublishParametersMessage {
     pub parameters: Vec<ParameterDeclarationMessage>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParameterDeclarationMessage {
     pub id: String,
@@ -47,7 +47,7 @@ pub struct ParameterDeclarationMessage {
     pub value: f32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(tag = "type")]
 pub enum ClientMessageInner {
     AppStarted(AppStartedMessage),
@@ -63,17 +63,17 @@ impl ClientMessageInner {
 
 pub type ClientMessage = MessageWrapper<ClientMessageInner>;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AppStartedMessage;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SetParameterMessage {
     parameter_id: String,
     value: f32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct LogMessage {
     level: String,
     message: String,

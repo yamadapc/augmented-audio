@@ -13,12 +13,13 @@ export class WebkitMessageTransport<IncomingMessage, OutgoingMessage> extends Me
     return "WebkitMessageTransport";
   }
 
-  setup(): void {
+  setup(): Promise<void> {
     if (!webkit) {
       this.logger.warn("Not in WebKit view, transport will drop messages.");
     }
     // @ts-ignore
     global.__onMessage = this.onMessage;
+    return Promise.resolve();
   }
 
   isAvailable(): boolean {

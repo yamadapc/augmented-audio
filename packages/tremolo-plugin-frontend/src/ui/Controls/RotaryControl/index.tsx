@@ -1,9 +1,14 @@
+import React from "react";
 import "./index.css";
 import { useEffect, useRef, useState } from "react";
 
 const TWO_PI = 2 * Math.PI;
 
-export function RotaryControl({ name }) {
+interface Props {
+  name: string;
+}
+
+export function RotaryControl({ name }: Props) {
   const props = {
     initialValue: 0.4,
   };
@@ -13,13 +18,14 @@ export function RotaryControl({ name }) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
   const [value, setValue] = useState(initialValue);
-  const cleanUpTasks = useRef([]);
+  const cleanUpTasks = useRef<(() => void)[]>([]);
 
-  const onMouseDown = (e) => {
+  const onMouseDown = (e: React.MouseEvent) => {
     setIsMoving(true);
     const start = { x: e.clientX, y: e.clientY };
     setMousePosition(start);
-    const listener = (e) => {
+
+    const listener = (e: MouseEvent) => {
       const current = { x: e.clientX, y: e.clientY };
       setMousePosition(current);
       const deltaX = current.x - start.x;
@@ -29,13 +35,14 @@ export function RotaryControl({ name }) {
 
       setValue(Math.min(Math.max(0.0, value + movementRatio), 1.0));
     };
-    document.addEventListener("mousemove", listener);
 
+    document.addEventListener("mousemove", listener);
     const runCleanUp = () => {
       document.removeEventListener("mousemove", listener);
       document.removeEventListener("mouseup", runCleanUp);
     };
-    const onMouseUp = (e) => {
+
+    const onMouseUp = (e: MouseEvent) => {
       setIsMoving(false);
       runCleanUp();
     };
@@ -46,6 +53,7 @@ export function RotaryControl({ name }) {
 
   useEffect(() => {
     return () => {
+      // eslint-disable-next-line
       cleanUpTasks.current.forEach((task) => task());
     };
   }, []);

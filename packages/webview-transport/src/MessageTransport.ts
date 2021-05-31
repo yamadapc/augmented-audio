@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 export abstract class MessageTransport<IncomingMessage, OutgoingMessage> {
   protected emitter = new EventEmitter();
 
-  abstract setup(): void;
+  abstract setup(): Promise<void>;
   abstract postMessage(
     channel: string,
     message: OutgoingMessage,

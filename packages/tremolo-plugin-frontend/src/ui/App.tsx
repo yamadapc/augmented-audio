@@ -1,5 +1,6 @@
-import 'reflect-metadata';
+import "reflect-metadata";
 import "./App.css";
+import React from "react";
 import HudPanel from "./HudPanel";
 import Controls from "./Controls";
 import { Component } from "react";
@@ -9,9 +10,14 @@ import {
   WebSocketsMessageTransport,
 } from "@wisual/webview-transport";
 import { LoggerFactory } from "@wisual/logger";
+import { ClientMessageInner, ServerMessageInner } from "../common/protocol";
 
 class App extends Component {
-  logger = LoggerFactory.getLogger("App");
+  private logger = LoggerFactory.getLogger("App");
+  private transport!: DefaultMessageTransport<
+    ServerMessageInner,
+    ClientMessageInner
+  >;
 
   componentDidMount() {
     try {
@@ -21,19 +27,25 @@ class App extends Component {
         new WebkitMessageTransport()
       );
 
-      this.attachListeners(this.transport);
+      this.attachListeners();
 
-      this.transport.setup();
-      this.transport.postMessage("default", {
-        type: "AppStarted",
-      });
+      this.transport
+        .setup()
+        .then(() => {
+          this.transport.postMessage("default", {
+            type: "AppStarted",
+          });
+        })
+        .catch((err) => {
+          this.logger.error(err);
+        });
     } catch (err) {
       this.logger.error(err);
     }
   }
 
-  attachListeners(transport) {
-    transport.addMessageListener((msg) => {
+  attachListeners() {
+    this.transport.addMessageListener((msg) => {
       this.logger.info("Received message", msg);
     });
   }

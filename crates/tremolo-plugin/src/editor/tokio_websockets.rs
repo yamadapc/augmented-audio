@@ -106,6 +106,7 @@ async fn run_websockets_accept_loop(
 
 pub struct ServerHandle {
     loop_handle: tokio::task::JoinHandle<()>,
+    input_sender: tokio::sync::broadcast::Sender<tungstenite::Message>,
     input_broadcast: tokio::sync::broadcast::Receiver<tungstenite::Message>,
     connections: Arc<Mutex<HashMap<u32, ()>>>,
 }
@@ -114,6 +115,11 @@ impl ServerHandle {
     async fn get_num_connected_clients(&self) -> usize {
         (*self.connections.lock().await).len()
     }
+
+    pub fn messages(&mut self) -> tokio::sync::broadcast::Receiver<tungstenite::Message> {
+        self.input_sender.subscribe()
+    }
+
     pub fn abort(&self) {
         self.loop_handle.abort();
     }
@@ -141,7 +147,7 @@ pub async fn run_websockets_transport_async<'a>(
 
     let loop_handle = tokio::spawn(run_websockets_accept_loop(
         listener,
-        input_sender,
+        input_sender.clone(),
         current_id,
         connections.clone(),
     ));
@@ -149,6 +155,7 @@ pub async fn run_websockets_transport_async<'a>(
     Ok(ServerHandle {
         loop_handle,
         input_broadcast,
+        input_sender,
         connections,
     })
 }

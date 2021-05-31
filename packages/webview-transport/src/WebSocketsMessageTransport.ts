@@ -17,12 +17,12 @@ export class WebSocketsMessageTransport<
     return "WebSocketsMessageTransport";
   }
 
-  setup() {
+  setup(): Promise<void> {
     this.logger.info("Opening WS connection");
     return this.makeConnection();
   }
 
-  private makeConnection() {
+  private makeConnection(): Promise<void> {
     if (this.connection) {
       this.connection.onclose = null;
       this.connection.onmessage = null;
