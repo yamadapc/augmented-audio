@@ -2,6 +2,7 @@ use std::ffi::c_void;
 use std::sync::Arc;
 use std::thread;
 
+use tokio::sync::broadcast::error::SendError;
 use vst::editor::Editor;
 
 use crate::editor::protocol::{
@@ -12,7 +13,6 @@ use crate::editor::tokio_websockets::create_transport_runtime;
 use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
 use crate::plugin_parameter::ParameterStore;
-use tokio::sync::broadcast::error::SendError;
 
 mod handlers;
 mod protocol;

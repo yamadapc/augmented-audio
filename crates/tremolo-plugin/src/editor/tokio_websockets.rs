@@ -3,6 +3,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use crossbeam::atomic::AtomicCell;
+use futures_util::stream::{SplitSink, SplitStream};
 use futures_util::SinkExt;
 use futures_util::StreamExt;
 use tokio::net::{TcpListener, TcpStream};
@@ -15,7 +16,6 @@ use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{accept_async, WebSocketStream};
 
 use crate::editor::protocol::ClientMessageInner;
-use futures_util::stream::{SplitSink, SplitStream};
 
 pub fn run_websockets_transport_main(addr: &str) {
     let runtime = create_transport_runtime();

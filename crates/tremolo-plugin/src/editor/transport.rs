@@ -9,6 +9,7 @@ use tokio::net::TcpStream;
 use tokio::runtime::Runtime;
 use tokio::sync::broadcast::error::{RecvError, SendError};
 use tokio::sync::broadcast::{Receiver, Sender};
+use tokio::sync::Mutex;
 use tokio_tungstenite::accept_async;
 use tokio_tungstenite::tungstenite::Error::{ConnectionClosed, Protocol, Utf8};
 use tokio_tungstenite::tungstenite::Message;
@@ -20,7 +21,6 @@ use crate::editor::protocol::{
 use crate::editor::tokio_websockets::{
     block_on_websockets_main, run_websockets_transport_async, ServerHandle, ServerOptions,
 };
-use tokio::sync::Mutex;
 
 #[async_trait]
 pub trait WebviewTransport<ServerMessage, ClientMessage> {

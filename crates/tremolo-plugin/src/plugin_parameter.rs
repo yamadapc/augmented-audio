@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
+
 use vst::plugin::PluginParameters;
 
 /// Trait for a single parameter

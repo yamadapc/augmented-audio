@@ -127,8 +127,9 @@ impl InterpolatedValue {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::f32::EPSILON;
+
+    use super::*;
 
     #[test]
     fn test_smoothing_samples() {

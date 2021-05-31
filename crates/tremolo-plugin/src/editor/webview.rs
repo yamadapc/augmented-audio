@@ -1,3 +1,6 @@
+use std::error::Error;
+use std::ffi::c_void;
+
 use cocoa::appkit::{NSLayoutConstraint, NSView, NSWindow, NSWindowStyleMask};
 use cocoa::base::{id, nil, NO, YES};
 use cocoa::foundation::{NSArray, NSPoint, NSRect, NSSize, NSString};
@@ -8,8 +11,6 @@ use log::{error, info};
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel, BOOL};
 use serde::Serialize;
-use std::error::Error;
-use std::ffi::c_void;
 
 extern "C" fn call_ptr(this: &Object, _sel: Sel, controller: id, message: id) {
     unsafe {
@@ -269,8 +270,9 @@ unsafe fn pin_to_parent(parent_id: id, webview_id: id) {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use std::ptr::null;
+
+    use super::*;
 
     #[test]
     fn test_ptr_dance() {
