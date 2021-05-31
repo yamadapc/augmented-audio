@@ -1,8 +1,8 @@
-<div style="text-align:center"><img style="margin:0 auto" height="150" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/AppIcon%401x.png" /></div>
-
----
+<p align="center"><img height="150" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/AppIcon%401x.png" /></p>
 
 # Augmented Audio
+
+---
 
 In this repository I'll push some experiments trying to use Rust for audio programming.
 
