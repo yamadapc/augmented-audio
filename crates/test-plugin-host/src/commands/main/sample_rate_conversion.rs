@@ -13,7 +13,7 @@ pub fn convert_sample_rate(input_rate: f32, input: &[f32], output_rate: f32, out
         // ex. output:88kHz - input:44kHz = 0.5 input samples per output sample
         let input_samples_per_output = input_rate / output_rate;
 
-        for sample_index in 0..output.len() {
+        for (sample_index, output_sample) in output.iter_mut().enumerate() {
             let input_index: f32 = input_samples_per_output * (sample_index as f32);
             let input_index_floor = input_index.floor() as usize;
 
@@ -27,7 +27,7 @@ pub fn convert_sample_rate(input_rate: f32, input: &[f32], output_rate: f32, out
             let delta = input_index - (input_index_floor as f32);
             let result = (1.0 - delta) * base_sample + delta * next_sample;
 
-            output[sample_index] = result;
+            *output_sample = result;
         }
 
         return;

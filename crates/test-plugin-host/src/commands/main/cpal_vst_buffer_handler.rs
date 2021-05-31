@@ -1,6 +1,7 @@
-use crate::commands::main::audio_settings::AudioSettings;
 use vst::buffer::AudioBuffer;
 use vst::host::HostBuffer;
+
+use crate::commands::main::audio_settings::AudioSettings;
 
 /// Handles conversion from CPAL buffers to VST buffers
 pub struct CpalVstBufferHandler {
@@ -30,7 +31,7 @@ impl CpalVstBufferHandler {
 
     /// Prepare the handler given changed audio settings
     pub fn prepare(&mut self, audio_settings: &AudioSettings) {
-        self.audio_settings = audio_settings.clone();
+        self.audio_settings = *audio_settings;
 
         let num_channels = audio_settings.channels();
         let buffer_size = audio_settings.buffer_size();
@@ -62,21 +63,15 @@ impl CpalVstBufferHandler {
 
     /// Get the VST audio buffer
     pub fn get_audio_buffer(&mut self) -> AudioBuffer<f32> {
-        let audio_buffer = self
-            .host_buffer
-            .bind(&self.input_buffer, &mut self.output_buffer);
-        audio_buffer
+        self.host_buffer
+            .bind(&self.input_buffer, &mut self.output_buffer)
     }
 
     fn allocate_buffer(channels: usize, buffer_size: u32) -> Vec<Vec<f32>> {
         let mut buffer = Vec::new();
         buffer.reserve(channels);
         for _ in 0..channels {
-            let mut channel_buffer = Vec::new();
-            channel_buffer.reserve(buffer_size as usize);
-            for _ in 0..buffer_size {
-                channel_buffer.push(0.0);
-            }
+            let channel_buffer = vec![0.0; buffer_size as usize];
             buffer.push(channel_buffer);
         }
         buffer

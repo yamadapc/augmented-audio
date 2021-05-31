@@ -1,10 +1,11 @@
-use crate::commands::main::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
-use crate::commands::main::audio_settings::AudioSettings;
-use crate::commands::main::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use cpal::{OutputCallbackInfo, StreamError};
 use vst::buffer::AudioBuffer;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
+
+use crate::commands::main::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
+use crate::commands::main::audio_settings::AudioSettings;
+use crate::commands::main::cpal_vst_buffer_handler::CpalVstBufferHandler;
 
 /// The app's main processor
 pub struct TestHostProcessor {

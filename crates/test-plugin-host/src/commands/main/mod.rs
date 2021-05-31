@@ -1,25 +1,28 @@
-mod audio_file_processor;
-mod audio_settings;
-mod cpal_vst_buffer_handler;
-mod processor;
-mod sample_rate_conversion;
-
-use crate::commands::main::audio_file_processor::{default_read_audio_file, AudioFileSettings};
-use crate::commands::main::audio_settings::AudioSettings;
-use crate::commands::options::RunOptions;
-use crate::host;
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{BufferSize, SampleFormat, StreamConfig};
-use processor::TestHostProcessor;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::thread;
+
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::{BufferSize, SampleFormat, StreamConfig};
 use symphonia::core::probe::ProbeResult;
 use tao::event::{Event, WindowEvent};
 use tao::event_loop::ControlFlow;
 use tao::platform::macos::WindowExtMacOS;
 use vst::host::{PluginInstance, PluginLoader};
 use vst::plugin::Plugin;
+
+use processor::TestHostProcessor;
+
+use crate::commands::main::audio_file_processor::{default_read_audio_file, AudioFileSettings};
+use crate::commands::main::audio_settings::AudioSettings;
+use crate::commands::options::RunOptions;
+use crate::host;
+
+mod audio_file_processor;
+mod audio_settings;
+mod cpal_vst_buffer_handler;
+mod processor;
+mod sample_rate_conversion;
 
 struct UnsafePluginRef(*mut PluginInstance);
 unsafe impl Send for UnsafePluginRef {}
@@ -64,7 +67,7 @@ unsafe fn run_main_loop(
     let sample_rate = output_config.sample_rate.0 as f32;
     let channels = output_config.channels as usize;
 
-    let mut instance = plugin_instance.as_mut().unwrap();
+    let instance = plugin_instance.as_mut().unwrap();
     instance.suspend();
     instance.set_sample_rate(sample_rate);
     instance.resume();
@@ -87,7 +90,7 @@ unsafe fn run_main_loop(
             move |data: &mut [f32], output_info: &cpal::OutputCallbackInfo| {
                 processor.cpal_process(data, output_info);
             },
-            move |err| TestHostProcessor::cpal_error(err),
+            TestHostProcessor::cpal_error,
         )
         .expect("Failed to build output stream");
 
@@ -176,6 +179,11 @@ pub fn run_test(run_options: RunOptions) {
         start_gui(instance);
     }
 
-    audio_thread.join();
+    if let Err(err) = audio_thread.join() {
+        log::error!(
+            "Failed to join audio thread. There may be issues terminating the command. Error: {:?}",
+            err
+        );
+    }
     log::info!("Closing instance...");
 }

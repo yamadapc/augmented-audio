@@ -1,13 +1,15 @@
-use crate::commands::main::audio_settings::AudioSettings;
-use crate::commands::main::sample_rate_conversion::convert_sample_rate;
 use std::fs::File;
 use std::path::Path;
 use std::process::exit;
+
 use symphonia::core::audio::{AudioBuffer, AudioBufferRef, Signal};
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
+
+use crate::commands::main::audio_settings::AudioSettings;
+use crate::commands::main::sample_rate_conversion::convert_sample_rate;
 
 /// Opens an audio file with default options & trying to guess the format
 pub fn default_read_audio_file(input_audio_path: &str) -> ProbeResult {
