@@ -1,6 +1,6 @@
 /// Perform sample rate conversion of a buffer using linear interpolation
 pub fn convert_sample_rate(input_rate: f32, input: &[f32], output_rate: f32, output: &mut [f32]) {
-    if output_rate == input_rate {
+    if (output_rate - input_rate).abs() < f32::EPSILON {
         for (idx, sample) in input.iter().enumerate() {
             output[idx] = *sample;
         }

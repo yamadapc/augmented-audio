@@ -103,17 +103,6 @@ pub fn read_file_contents(audio_file: &mut ProbeResult) -> AudioBuffer<f32> {
     concat_buffers(audio_buffer)
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_reading_entire_file() {
-        let mut probe = default_read_audio_file("../confirmation.mp3");
-        let _ = read_file_contents(&mut probe);
-    }
-}
-
 pub struct AudioFileSettings {
     audio_file: ProbeResult,
 }

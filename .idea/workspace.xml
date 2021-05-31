@@ -26,7 +26,8 @@
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="Disable button user-select">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/oscillator/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/build-and-test-rust.sh" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/build-and-test-rust.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main/audio_file_processor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main/audio_file_processor.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main/sample_rate_conversion.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main/sample_rate_conversion.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +99,7 @@
       <recent name="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/Controls/RotaryControl/index.js" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Test tokio_websockets">
+  <component name="RunManager" selected="Cargo.Test audio_file_processor::test (1)">
     <configuration name="ddd" type="CLion_Remote" version="1" remoteCommand="" symbolFile="" sysroot="">
       <debugger kind="GDB" isBundled="true" />
       <method v="2" />
@@ -125,6 +126,21 @@
     </configuration>
     <configuration name="Test audio_file_processor" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="test --package test-plugin-host --bin test-plugin-host commands::main::audio_file_processor" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/test-plugin-host" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test audio_file_processor::test (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package test-plugin-host --bin test-plugin-host commands::main::audio_file_processor::test" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/test-plugin-host" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
@@ -183,37 +199,22 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test tokio_websockets::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package tas_v2 --lib editor::tokio_websockets::test" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/tremolo-plugin" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <envs />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Cargo.Run test-plugin-host" />
-      <item itemvalue="Cargo.Test tokio_websockets::test" />
       <item itemvalue="Cargo.Test tokio_websockets" />
       <item itemvalue="Cargo.Test commands::main::audio_file_processor::test::test_reading_entire_file" />
       <item itemvalue="Cargo.Test audio_file_processor" />
       <item itemvalue="Cargo.Test audio_file_processor::test" />
       <item itemvalue="GDB Remote Debug.ddd" />
+      <item itemvalue="Cargo.Test audio_file_processor::test (1)" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test audio_file_processor::test (1)" />
         <item itemvalue="Cargo.Test tokio_websockets" />
         <item itemvalue="Cargo.Test audio_file_processor::test" />
         <item itemvalue="Cargo.Test audio_file_processor" />
         <item itemvalue="Cargo.Test commands::main::audio_file_processor::test::test_reading_entire_file" />
-        <item itemvalue="Cargo.Test tokio_websockets::test" />
       </list>
     </recent_temporary>
   </component>
@@ -239,7 +240,7 @@
       <workItem from="1621939465069" duration="34866000" />
       <workItem from="1622080429585" duration="42785000" />
       <workItem from="1622323158935" duration="13960000" />
-      <workItem from="1622410718931" duration="9329000" />
+      <workItem from="1622410718931" duration="9504000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>
