@@ -1,0 +1,14 @@
+[package]
+name = "example-midi-host"
+version = "0.1.0"
+authors = ["yamadapc <tacla.yamada@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rimd = "0.0.1"
+midir = "0.7.0"
+thiserror = "1.0.25"
+wisual-logger = { path = "../wisual-logger" }
+log = "0.4.14"

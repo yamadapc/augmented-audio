@@ -7,6 +7,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-bundler/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/wisual-logger/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/example-midi-host/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/smooth-value/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/test-plugin-host/target" />

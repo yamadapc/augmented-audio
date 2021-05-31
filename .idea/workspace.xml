@@ -24,8 +24,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="Disable button user-select">
+      <change afterPath="$PROJECT_DIR$/crates/example-midi-host/src/midi_host/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/rust-audio-software.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/rust-audio-software.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/src/commands/main/mod.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/test-plugin-host/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/crates/test-plugin-host/Cargo.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,8 +43,8 @@
       <list>
         <option value="package.json" />
         <option value="JavaScript File" />
-        <option value="Rust File" />
         <option value="TypeScript File" />
+        <option value="Rust File" />
       </list>
     </option>
   </component>
@@ -89,6 +92,7 @@
       <recent name="$PROJECT_DIR$/packages/webview-transport" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/crates/example-midi-host/src" />
       <recent name="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/transport" />
       <recent name="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui" />
       <recent name="$PROJECT_DIR$/crates" />
@@ -98,7 +102,7 @@
       <recent name="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/Controls/RotaryControl/index.js" />
     </key>
   </component>
-  <component name="RunManager" selected="Cargo.Run test-plugin-host">
+  <component name="RunManager" selected="Cargo.Test midi_host::test::test_start">
     <configuration name="ddd" type="CLion_Remote" version="1" remoteCommand="" symbolFile="" sysroot="">
       <debugger kind="GDB" isBundled="true" />
       <method v="2" />
@@ -110,21 +114,6 @@
     </configuration>
     <configuration name="Run test-plugin-host" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="run --package test-plugin-host --bin test-plugin-host -- &#10;  run&#10;  --input ../confirmation.mp3&#10;  --plugin ../tremolo-plugin/target/debug/libtas_v2.dylib" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/test-plugin-host" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="emulateTerminal" value="false" />
-      <option name="backtrace" value="SHORT" />
-      <envs />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test audio_file_processor" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package test-plugin-host --bin test-plugin-host commands::main::audio_file_processor" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/test-plugin-host" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
@@ -153,9 +142,9 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test audio_file_processor::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --release --package test-plugin-host --bin test-plugin-host commands::main::audio_file_processor::test" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/test-plugin-host" />
+    <configuration name="Test midi_host" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package test-plugin-host --bin test-plugin-host midi_host" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/wisual-logger" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -168,9 +157,24 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test commands::main::audio_file_processor::test::test_reading_entire_file" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --release --package test-plugin-host --bin test-plugin-host commands::main::audio_file_processor::test::test_reading_entire_file -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/test-plugin-host" />
+    <configuration name="Test midi_host::test" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package test-plugin-host --bin test-plugin-host midi_host::test" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/wisual-logger" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="emulateTerminal" value="false" />
+      <option name="backtrace" value="SHORT" />
+      <envs />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test midi_host::test::test_start" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package test-plugin-host --bin test-plugin-host midi_host::test::test_start -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$/crates/wisual-logger" />
       <option name="channel" value="DEFAULT" />
       <option name="requiredFeatures" value="true" />
       <option name="allFeatures" value="false" />
@@ -201,19 +205,19 @@
     <list>
       <item itemvalue="Cargo.Run test-plugin-host" />
       <item itemvalue="Cargo.Test tokio_websockets" />
-      <item itemvalue="Cargo.Test commands::main::audio_file_processor::test::test_reading_entire_file" />
-      <item itemvalue="Cargo.Test audio_file_processor" />
-      <item itemvalue="Cargo.Test audio_file_processor::test" />
       <item itemvalue="GDB Remote Debug.ddd" />
       <item itemvalue="Cargo.Test audio_file_processor::test (1)" />
+      <item itemvalue="Cargo.Test midi_host::test::test_start" />
+      <item itemvalue="Cargo.Test midi_host::test" />
+      <item itemvalue="Cargo.Test midi_host" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test midi_host::test::test_start" />
+        <item itemvalue="Cargo.Test midi_host" />
+        <item itemvalue="Cargo.Test midi_host::test" />
         <item itemvalue="Cargo.Test tokio_websockets" />
         <item itemvalue="Cargo.Test audio_file_processor::test (1)" />
-        <item itemvalue="Cargo.Test audio_file_processor::test" />
-        <item itemvalue="Cargo.Test audio_file_processor" />
-        <item itemvalue="Cargo.Test commands::main::audio_file_processor::test::test_reading_entire_file" />
       </list>
     </recent_temporary>
   </component>
@@ -239,7 +243,7 @@
       <workItem from="1621939465069" duration="34866000" />
       <workItem from="1622080429585" duration="42785000" />
       <workItem from="1622323158935" duration="13960000" />
-      <workItem from="1622410718931" duration="17746000" />
+      <workItem from="1622410718931" duration="19796000" />
     </task>
     <task id="LOCAL-00001" summary="Update with oscillator module">
       <created>1621929093173</created>

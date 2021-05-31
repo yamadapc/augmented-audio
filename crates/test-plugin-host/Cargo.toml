@@ -17,3 +17,6 @@ symphonia-bundle-mp3 = "0.2.0"
 symphonia = { version = "0.2.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
 num-traits = "0.2.14"
 wisual-logger = { path = "../wisual-logger" }
+midir = "0.7.0"
+thiserror = "1.0.25"
+rimd = "0.0.1"
