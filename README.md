@@ -1,4 +1,4 @@
-![](/design/AppIcon@1.png)
+<div style="text-align:center"><img style="margin:0 auto" src="/design/AppIcon@1.png" /></div>
 # Augmented Audio
 In this repository I'll push some experiments trying to use Rust for audio programming.
 
