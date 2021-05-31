@@ -18,12 +18,17 @@ pub async fn message_handler_loop(
 ) {
     loop {
         if let Ok(message) = messages.recv().await {
+            let MessageWrapper { message, .. } = message;
             match message {
-                MessageWrapper { message, .. } => match message {
-                    AppStarted(_) => app_started(&output_messages, parameter_store),
-                    SetParameter(_) => {}
-                    Log(_) => {}
-                },
+                AppStarted(_) => app_started(&output_messages, parameter_store),
+                SetParameter(_) => {}
+                Log(log_message) => {
+                    log::info!(
+                        "FE - LogMessage - level={} message={}",
+                        log_message.level,
+                        log_message.message
+                    )
+                }
             }
         }
     }
@@ -40,10 +45,7 @@ fn app_started(
         }),
     ));
 
-    match result {
-        Err(_) => {
-            log::error!("Failed to send publish parameters message");
-        }
-        _ => {}
+    if result.is_err() {
+        log::error!("Failed to send publish parameters message");
     }
 }

@@ -8,18 +8,21 @@ use futures_util::SinkExt;
 use futures_util::StreamExt;
 use tokio::net::{TcpListener, TcpStream};
 use tokio::runtime::Runtime;
-use tokio::sync::broadcast::Sender;
+use tokio::sync::broadcast::{Receiver, Sender};
 use tokio::sync::Mutex;
+use tokio::task::JoinHandle;
 use tokio_tungstenite::tungstenite::Error::{ConnectionClosed, Protocol, Utf8};
 use tokio_tungstenite::tungstenite::Message;
 use tokio_tungstenite::{accept_async, WebSocketStream};
 
-use crate::editor::protocol::ClientMessageInner;
+type ConnectionId = u32;
+type ConnectionSink = SplitSink<WebSocketStream<TcpStream>, Message>;
+type ConnectionMap = Arc<Mutex<HashMap<ConnectionId, ConnectionSink>>>;
 
 async fn handle_connection(
     peer: SocketAddr,
     mut ws_stream: SplitStream<WebSocketStream<TcpStream>>,
-    input_sender: tokio::sync::broadcast::Sender<tungstenite::Message>,
+    input_sender: Sender<tungstenite::Message>,
 ) -> tungstenite::Result<()> {
     log::info!("New WebSocket connection: {:?}", peer);
     loop {
@@ -69,7 +72,7 @@ async fn run_websockets_accept_loop(
     listener: TcpListener,
     input_sender: Sender<Message>,
     current_id: AtomicCell<u32>,
-    connections: Arc<Mutex<HashMap<u32, SplitSink<WebSocketStream<TcpStream>, Message>>>>,
+    connections: ConnectionMap,
 ) {
     log::info!("Waiting for ws connections");
     while let Ok((stream, _)) = listener.accept().await {
@@ -107,11 +110,10 @@ async fn run_websockets_accept_loop(
 }
 
 pub struct ServerHandle {
-    loop_handle: tokio::task::JoinHandle<()>,
-    input_sender: tokio::sync::broadcast::Sender<tungstenite::Message>,
-    input_broadcast: tokio::sync::broadcast::Receiver<tungstenite::Message>,
-    connections:
-        Arc<Mutex<HashMap<u32, SplitSink<WebSocketStream<TcpStream>, tungstenite::Message>>>>,
+    loop_handle: JoinHandle<()>,
+    input_sender: Sender<tungstenite::Message>,
+    input_broadcast: Receiver<tungstenite::Message>,
+    connections: ConnectionMap,
 }
 
 impl ServerHandle {
@@ -119,7 +121,7 @@ impl ServerHandle {
         (*self.connections.lock().await).len()
     }
 
-    pub fn messages(&mut self) -> tokio::sync::broadcast::Receiver<tungstenite::Message> {
+    pub fn messages(&mut self) -> Receiver<tungstenite::Message> {
         self.input_sender.subscribe()
     }
 
@@ -155,8 +157,8 @@ impl<'a> ServerOptions<'a> {
     }
 }
 
-pub async fn run_websockets_transport_async<'a>(
-    options: ServerOptions<'a>,
+pub async fn run_websockets_transport_async(
+    options: ServerOptions<'_>,
 ) -> tokio::io::Result<ServerHandle> {
     let listener: tokio::net::TcpListener = TcpListener::bind(options.addr).await?;
     log::info!("Listening on: {}", options.addr);
@@ -174,8 +176,8 @@ pub async fn run_websockets_transport_async<'a>(
 
     Ok(ServerHandle {
         loop_handle,
-        input_broadcast,
         input_sender,
+        input_broadcast,
         connections,
     })
 }
@@ -186,6 +188,7 @@ mod test {
     use tokio::time::Duration;
 
     use crate::editor::protocol::AppStartedMessage;
+    use crate::editor::protocol::ClientMessageInner::AppStarted;
 
     use super::*;
 
@@ -200,7 +203,7 @@ mod test {
         let (mut ws_stream, _) = tokio_tungstenite::connect_async("ws://127.0.0.1:9510")
             .await
             .unwrap();
-        let app_started = ClientMessageInner::AppStarted(AppStartedMessage {}).notification();
+        let app_started = AppStarted(AppStartedMessage {}).notification();
         ws_stream
             .send(tungstenite::Message::Text(
                 serde_json::to_string(&app_started).unwrap(),

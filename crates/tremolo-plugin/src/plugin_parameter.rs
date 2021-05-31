@@ -154,7 +154,7 @@ impl PluginParameters for ParameterStore {
             let (_, parameter) = self.find_parameter_by_index(index)?;
             Some(parameter.label())
         };
-        run().unwrap_or("Unknown".to_string())
+        run().unwrap_or_else(|| "Unknown".to_string())
     }
 
     fn get_parameter_text(&self, index: i32) -> String {
@@ -162,7 +162,7 @@ impl PluginParameters for ParameterStore {
             let (_, parameter) = self.find_parameter_by_index(index)?;
             Some(parameter.text())
         };
-        run().unwrap_or("Unknown".to_string())
+        run().unwrap_or_else(|| "Unknown".to_string())
     }
 
     fn get_parameter_name(&self, index: i32) -> String {
@@ -170,7 +170,7 @@ impl PluginParameters for ParameterStore {
             let (_, parameter) = self.find_parameter_by_index(index)?;
             Some(parameter.name())
         };
-        run().unwrap_or("Unknown".to_string())
+        run().unwrap_or_else(|| "Unknown".to_string())
     }
 
     fn get_parameter(&self, index: i32) -> f32 {

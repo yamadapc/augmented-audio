@@ -5,12 +5,17 @@ use async_trait::async_trait;
 use tokio::sync::broadcast::{Receiver, Sender};
 use tokio::sync::Mutex;
 
-use crate::editor::protocol::{
-    ClientMessage, ClientMessageInner, MessageWrapper, ServerMessage, ServerMessageInner,
-};
-use crate::editor::tokio_websockets::{
-    run_websockets_transport_async, ServerHandle, ServerOptions,
-};
+use tokio_websockets::run_websockets_transport_async;
+use tokio_websockets::ServerHandle;
+use tokio_websockets::ServerOptions;
+
+use crate::editor::protocol::ClientMessage;
+use crate::editor::protocol::ClientMessageInner;
+use crate::editor::protocol::MessageWrapper;
+use crate::editor::protocol::ServerMessage;
+use crate::editor::protocol::ServerMessageInner;
+
+pub mod tokio_websockets;
 
 #[async_trait]
 pub trait WebviewTransport<ServerMessage, ClientMessage> {
@@ -40,20 +45,17 @@ impl WebviewTransport<MessageWrapper<ServerMessageInner>, MessageWrapper<ClientM
         let sender = self.broadcast_channel.0.clone();
         tokio::spawn(async move {
             loop {
-                match messages.recv().await {
-                    Ok(tungstenite::Message::Text(msg_str)) => {
-                        if let Ok(message) = serde_json::from_str(&msg_str) {
-                            let message: ClientMessage = message;
-                            log::debug!("WebSocketsTransport parsed message - {:?}", message);
-                            match sender.send(message) {
-                                Ok(_) => {}
-                                Err(err) => {
-                                    log::error!("Failed to forward message for handling {}", err)
-                                }
+                if let Ok(tungstenite::Message::Text(msg_str)) = messages.recv().await {
+                    if let Ok(message) = serde_json::from_str(&msg_str) {
+                        let message: ClientMessage = message;
+                        log::debug!("WebSocketsTransport parsed message - {:?}", message);
+                        match sender.send(message) {
+                            Ok(_) => {}
+                            Err(err) => {
+                                log::error!("Failed to forward message for handling {}", err)
                             }
                         }
                     }
-                    _ => {}
                 }
             }
         });

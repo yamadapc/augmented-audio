@@ -75,8 +75,8 @@ pub struct SetParameterMessage {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LogMessage {
-    level: String,
-    message: String,
+    pub level: String,
+    pub message: String,
 }
 
 #[cfg(test)]

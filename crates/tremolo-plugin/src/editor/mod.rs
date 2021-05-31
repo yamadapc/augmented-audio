@@ -3,15 +3,15 @@ use std::sync::Arc;
 
 use vst::editor::Editor;
 
+use transport::tokio_websockets::create_transport_runtime;
+
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
-use crate::editor::tokio_websockets::create_transport_runtime;
 use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
 use crate::plugin_parameter::ParameterStore;
 
 mod handlers;
 mod protocol;
-mod tokio_websockets;
 mod transport;
 mod webview;
 
