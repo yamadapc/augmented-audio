@@ -21,7 +21,16 @@ pub async fn message_handler_loop(
             let MessageWrapper { message, .. } = message;
             match message {
                 AppStarted(_) => app_started(&output_messages, parameter_store),
-                SetParameter(_) => {}
+                SetParameter(set_parameter) => {
+                    match parameter_store.find_parameter(&set_parameter.parameter_id) {
+                        Some(parameter) => {
+                            parameter.set_value(set_parameter.value);
+                        }
+                        None => {
+                            log::error!("Front-end is asking to set unknown parameter");
+                        }
+                    }
+                }
                 Log(log_message) => {
                     log::info!(
                         "FE - LogMessage - level={} message={}",
@@ -38,6 +47,7 @@ fn app_started(
     output_messages: &Sender<MessageWrapper<ServerMessageInner>>,
     parameter_store: &Arc<ParameterStore>,
 ) {
+    log::info!("App started message received");
     let parameters_list = list_parameters(&parameter_store);
     let result = output_messages.send(ServerMessage::notification(
         ServerMessageInner::PublishParameters(PublishParametersMessage {

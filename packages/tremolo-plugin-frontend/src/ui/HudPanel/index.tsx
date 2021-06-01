@@ -1,4 +1,3 @@
-import React from "react";
 import "./index.css";
 import Regl from "regl";
 import { useEffect, useRef } from "react";

@@ -69,8 +69,8 @@ pub struct AppStartedMessage;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SetParameterMessage {
-    parameter_id: String,
-    value: f32,
+    pub parameter_id: String,
+    pub value: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
