@@ -24,19 +24,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="Disable button user-select">
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/env.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/getHttpsConfig.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/jest/babelTransform.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/jest/cssTransform.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/jest/fileTransform.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/modules.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/paths.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/pnpTs.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/webpack.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/webpackDevServer.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/scripts/build.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/scripts/start.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/scripts/test.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/handlers/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/handlers/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/protocol.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/protocol.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/test-plugin-host-frontend/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/test-plugin-host-frontend/src/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/.babelrc" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/.babelrc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/react-app-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/react-app-env.d.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/RotaryControl/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/RotaryControl/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/HudPanel/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/HudPanel/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tsconfig.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/webview-transport/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/webview-transport/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

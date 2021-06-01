@@ -1,14 +1,12 @@
 import "./App.css";
-import React from "react";
+import React, { Component } from "react";
 import HudPanel from "./HudPanel";
 import Controls from "./Controls";
-import { Component } from "react";
 import { DefaultMessageTransport } from "@wisual/webview-transport";
 import { LoggerFactory } from "@wisual/logger";
 import {
   ClientMessageInner,
   ParameterDeclarationMessage,
-  PublishParametersMessage,
   ServerMessage,
 } from "../common/protocol";
 import { container } from "tsyringe";
@@ -35,13 +33,12 @@ class App extends Component<{}, State> {
       this.handlerService = container.resolve<MessageHandlingService>(
         MessageHandlingService
       );
-      this.handlerService.start();
-
-      // this.attachListeners();
 
       this.transport
         .setup()
         .then(() => {
+          this.logger.info("Transport connected");
+          this.handlerService.start();
           this.transport.postMessage("default", {
             type: "AppStarted",
           });

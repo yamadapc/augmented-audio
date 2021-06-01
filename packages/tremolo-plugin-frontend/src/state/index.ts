@@ -3,8 +3,12 @@ import {
   ParameterDeclarationMessage,
   ServerMessage,
 } from "../common/protocol";
-import { injectAll, singleton } from "tsyringe";
-import { MessageTransport } from "@wisual/webview-transport";
+import { injectAll, registry, singleton } from "tsyringe";
+import {
+  MessageTransport,
+  DefaultMessageTransport,
+} from "@wisual/webview-transport";
+import { LoggerFactory } from "@wisual/logger";
 
 export class ParametersStore {
   parameters: ParameterDeclarationMessage[] = [];
@@ -21,6 +25,7 @@ export interface MessageHandler {
 @singleton()
 export class ParameterMessageHandler implements MessageHandler {
   private parametersStore: ParametersStore;
+  private logger = LoggerFactory.getLogger("ParameterMessageHandler");
 
   constructor(parametersStore: ParametersStore) {
     this.parametersStore = parametersStore;
@@ -32,11 +37,15 @@ export class ParameterMessageHandler implements MessageHandler {
   ): void {
     switch (serverMessage.message.type) {
       case "PublishParameters":
+        this.logger.info("Got parameters message");
         this.parametersStore.parameters = serverMessage.message.parameters;
         break;
     }
   }
 }
+
+@registry([{ token: "MessageHandler", useToken: ParameterMessageHandler }])
+export class MessageHandlerRegistry {}
 
 @singleton()
 export class MessageHandlingService {
@@ -44,8 +53,9 @@ export class MessageHandlingService {
   private transport: MessageTransport<ServerMessage, ClientMessageInner>;
 
   constructor(
+    @injectAll("MessageHandler")
     messageHandlers: MessageHandler[],
-    transport: MessageTransport<ServerMessage, ClientMessageInner>
+    transport: DefaultMessageTransport<ServerMessage, ClientMessageInner>
   ) {
     this.messageHandlers = messageHandlers;
     this.transport = transport;
