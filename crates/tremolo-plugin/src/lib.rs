@@ -14,6 +14,7 @@ extern crate vst;
 
 use std::sync::Arc;
 
+use audio_parameter_store::{ParameterStore, PluginParameter};
 use log::info;
 use log::LevelFilter;
 use log4rs::append::console::ConsoleAppender;
@@ -25,14 +26,12 @@ use vst::buffer::AudioBuffer;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 
-use parameter_store::{ParameterStore, PluginParameter};
-
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
 use crate::processor::Processor;
 
 pub mod constants;
 pub mod editor;
-pub mod parameter_store;
+// pub mod parameter_store;
 pub mod processor;
 
 fn configure_logging() -> Option<()> {

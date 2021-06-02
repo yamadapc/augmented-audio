@@ -1,4 +1,4 @@
-use crate::parameter_store::parameter::ParameterType;
+use audio_parameter_store::parameter::ParameterType;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

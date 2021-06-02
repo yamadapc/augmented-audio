@@ -3,12 +3,12 @@ use std::sync::Arc;
 
 use vst::editor::Editor;
 
+use audio_parameter_store::ParameterStore;
 use transport::tokio_websockets::create_transport_runtime;
 
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
 use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
-use crate::parameter_store::ParameterStore;
 
 pub mod handlers;
 pub mod protocol;
@@ -70,7 +70,8 @@ fn list_parameters(parameters: &ParameterStore) -> Vec<ParameterDeclarationMessa
     let num_parameters = parameters.get_num_parameters();
     let mut output = vec![];
     for i in 0..num_parameters {
-        let (parameter_id, parameter) = parameters.find_parameter_by_index(i).unwrap();
+        let parameter_id = parameters.find_parameter_id(i).unwrap();
+        let parameter = parameters.find_parameter(&parameter_id).unwrap();
         output.push(ParameterDeclarationMessage {
             id: parameter_id,
             name: parameter.name(),

@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use tokio::sync::broadcast::{Receiver, Sender};
 
+use audio_parameter_store::ParameterStore;
 use ClientMessageInner::{AppStarted, Log, SetParameter};
 
 use crate::editor::list_parameters;
@@ -9,7 +10,6 @@ use crate::editor::protocol::{
     ClientMessage, ClientMessageInner, MessageWrapper, PublishParametersMessage, ServerMessage,
     ServerMessageInner,
 };
-use crate::parameter_store::ParameterStore;
 
 pub async fn message_handler_loop(
     mut messages: Receiver<ClientMessage>,

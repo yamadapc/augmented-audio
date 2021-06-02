@@ -1,18 +1,10 @@
 use std::collections::HashMap;
 use std::sync::{Arc, RwLock};
 
-use vst::plugin::PluginParameters;
-
 pub use parameter::PluginParameter;
+pub use parameter::PluginParameterLike;
 
 pub mod parameter;
-
-type ParameterId = String;
-
-struct ParameterStoreInner {
-    parameters: HashMap<ParameterId, Arc<PluginParameter>>,
-    parameter_ids: Vec<ParameterId>,
-}
 
 /// Holder of parameters
 ///
@@ -48,29 +40,50 @@ impl ParameterStore {
         }
     }
 
-    pub fn add_parameter(&mut self, id: &str, parameter: Arc<PluginParameter>) {
+    /// Add a parameter to the store
+    ///
+    /// # Locking
+    /// This will lock the store for writing.
+    /// Locking the store while processing audio is not desired.
+    pub fn add_parameter(&mut self, id: &str, parameter: ParameterRef) {
         if let Ok(mut inner) = self.inner.write() {
             inner.parameter_ids.push(id.to_string());
             inner.parameters.insert(id.to_string(), parameter);
         }
     }
 
-    pub fn find_parameter(&self, parameter_id: &str) -> Option<Arc<PluginParameter>> {
+    /// Find a parameter by ID
+    ///
+    /// # Locking
+    /// This will block if the store is locked for writing.
+    pub fn find_parameter(&self, parameter_id: &str) -> Option<ParameterRef> {
         let inner = self.inner.read().ok()?;
         Some(inner.parameters.get(parameter_id)?.clone())
     }
 
+    /// Find a parameter ID by index
+    ///
+    /// # Locking
+    /// This will block if the store is locked for writing.
     pub fn find_parameter_id(&self, index: i32) -> Option<String> {
         let inner = self.inner.read().ok()?;
         Some(inner.parameter_ids.get(index as usize)?.clone())
     }
 
-    pub fn find_parameter_by_index(&self, index: i32) -> Option<Arc<PluginParameter>> {
+    /// Find a parameter by index
+    ///
+    /// # Locking
+    /// This will block if the store is locked for writing.
+    pub fn find_parameter_by_index(&self, index: i32) -> Option<ParameterRef> {
         let inner = self.inner.read().ok()?;
         let parameter_id = inner.parameter_ids.get(index as usize)?;
         Some(inner.parameters.get(parameter_id)?.clone())
     }
 
+    /// Get count of parameters
+    ///
+    /// # Locking
+    /// This will block if the store is locked for writing.
     pub fn get_num_parameters(&self) -> i32 {
         let run = || -> Option<i32> {
             let inner = self.inner.read().ok()?;
@@ -79,12 +92,16 @@ impl ParameterStore {
         run().unwrap_or(0)
     }
 
+    /// Get a parameter value by ID
+    ///
+    /// # Locking
+    /// This will block if the store is locked for writing.
     pub fn value(&self, id: &str) -> f32 {
         self.find_parameter(id).as_ref().unwrap().value()
     }
 }
 
-impl PluginParameters for ParameterStore {
+impl vst::plugin::PluginParameters for ParameterStore {
     fn get_parameter_label(&self, index: i32) -> String {
         let run = move || -> Option<String> {
             let parameter = self.find_parameter_by_index(index)?;
@@ -189,4 +206,13 @@ mod test {
     fn test_float_is_atomic() {
         assert!(crossbeam::atomic::AtomicCell::<f32>::is_lock_free());
     }
+}
+
+/// Parameter IDs are strings
+pub type ParameterId = String;
+pub type ParameterRef = Arc<dyn PluginParameterLike>;
+
+struct ParameterStoreInner {
+    parameters: HashMap<ParameterId, ParameterRef>,
+    parameter_ids: Vec<ParameterId>,
 }

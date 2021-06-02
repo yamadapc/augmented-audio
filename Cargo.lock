@@ -128,6 +128,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-parameter-store"
+version = "0.1.0"
+dependencies = [
+ "crossbeam",
+ "serde",
+ "vst",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2925,6 +2934,7 @@ name = "tas_v2"
 version = "0.0.1"
 dependencies = [
  "async-trait",
+ "audio-parameter-store",
  "cocoa 0.18.5",
  "crossbeam",
  "darwin-webkit",
@@ -2940,7 +2950,7 @@ dependencies = [
  "tokio",
  "tokio-tungstenite",
  "tungstenite",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs)",
+ "vst",
  "wisual-logger",
 ]
 
@@ -2982,7 +2992,7 @@ dependencies = [
  "symphonia-bundle-mp3",
  "tao",
  "thiserror",
- "vst 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vst",
  "wisual-logger",
 ]
 
@@ -3257,20 +3267,7 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 [[package]]
 name = "vst"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dfeaf21be445e1d9edf37bdedbf7ec24b43ed84ace6295cba3e0d01c1a49a27"
-dependencies = [
- "bitflags",
- "libc",
- "libloading",
- "log",
- "num-traits 0.2.14",
-]
-
-[[package]]
-name = "vst"
-version = "0.2.1"
-source = "git+https://github.com/rustaudio/vst-rs#a398697b0214129720af2480e98f1abf7beecfce"
+source = "git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce#a398697b0214129720af2480e98f1abf7beecfce"
 dependencies = [
  "bitflags",
  "libc",

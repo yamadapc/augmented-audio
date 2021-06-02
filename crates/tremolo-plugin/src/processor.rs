@@ -5,7 +5,7 @@ use vst::buffer::AudioBuffer;
 use oscillator::Oscillator;
 
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
-use crate::parameter_store::ParameterStore;
+use audio_parameter_store::ParameterStore;
 
 pub struct Processor {
     parameters: Arc<ParameterStore>,
