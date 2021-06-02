@@ -172,6 +172,7 @@ impl WebviewHolder {
         let ns_rect: NSRect = NSView::frame(webview_id);
         let ns_size = ns_rect.size;
         window_id.setMinSize_(ns_size);
+        window_id.setContentSize_(ns_size);
     }
 
     unsafe fn attach_message_handler(&mut self) {

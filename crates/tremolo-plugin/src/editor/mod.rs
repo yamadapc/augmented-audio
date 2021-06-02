@@ -107,7 +107,7 @@ fn list_parameters(parameters: &ParameterStore) -> Vec<ParameterDeclarationMessa
 
 impl Editor for TremoloEditor {
     fn size(&self) -> (i32, i32) {
-        (500, 500)
+        (300, 250)
     }
 
     fn position(&self) -> (i32, i32) {
