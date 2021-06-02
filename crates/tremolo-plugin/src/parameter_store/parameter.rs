@@ -157,11 +157,11 @@ impl PluginParameterBuilder {
     pub fn build(self) -> PluginParameter {
         PluginParameter::new(
             AtomicCell::new(self.initial_value.unwrap_or(0.0)),
-            self.name.unwrap_or("".to_string()),
-            self.label.unwrap_or("".to_string()),
+            self.name.unwrap_or_else(|| "".to_string()),
+            self.label.unwrap_or_else(|| "".to_string()),
             self.can_be_automated.unwrap_or(true),
             self.value_range.unwrap_or((0., 1.)),
-            self.value_type.unwrap_or(Default::default()),
+            self.value_type.unwrap_or_default(),
             self.value_precision.unwrap_or(2),
         )
     }

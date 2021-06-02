@@ -111,11 +111,13 @@ async fn run_websockets_accept_loop(
 pub struct ServerHandle {
     loop_handle: JoinHandle<()>,
     input_sender: Sender<tungstenite::Message>,
+    #[allow(dead_code)]
     input_broadcast: Receiver<tungstenite::Message>,
     connections: ConnectionMap,
 }
 
 impl ServerHandle {
+    #[allow(dead_code)]
     async fn get_num_connected_clients(&self) -> usize {
         (*self.connections.lock().await).len()
     }

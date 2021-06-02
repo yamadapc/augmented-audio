@@ -30,10 +30,10 @@ use parameter_store::{ParameterStore, PluginParameter};
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
 use crate::processor::Processor;
 
-mod constants;
-mod editor;
-mod parameter_store;
-mod processor;
+pub mod constants;
+pub mod editor;
+pub mod parameter_store;
+pub mod processor;
 
 fn configure_logging() -> Option<()> {
     let home_path = dirs::home_dir()?;

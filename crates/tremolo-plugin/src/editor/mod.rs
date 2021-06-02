@@ -10,10 +10,10 @@ use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
 use crate::parameter_store::ParameterStore;
 
-mod handlers;
-mod protocol;
-mod transport;
-mod webview;
+pub mod handlers;
+pub mod protocol;
+pub mod transport;
+pub mod webview;
 
 pub struct TremoloEditor {
     parameters: Arc<ParameterStore>,
@@ -94,6 +94,7 @@ impl Editor for TremoloEditor {
         (0, 0)
     }
 
+    #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn open(&mut self, parent: *mut c_void) -> bool {
         log::info!("Editor::open");
         unsafe { self.initialize_webview(parent).unwrap_or(false) }

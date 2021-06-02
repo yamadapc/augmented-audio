@@ -35,6 +35,11 @@ unsafe extern "C" fn on_message_ptr(self_ptr: *mut c_void, _: id, wk_script_mess
     (*self_ptr).on_message(wk_script_message);
 }
 
+/// Create a WebKit message handler class around the input function.
+///
+/// # Safety
+/// Will panic if:
+/// - The same name is used twice
 pub unsafe fn make_new_handler<T>(
     name: &str,
     func: unsafe extern "C" fn(*mut T, id, id),
@@ -96,6 +101,10 @@ impl Drop for WebviewHolder {
 }
 
 impl WebviewHolder {
+    /// Create a wrapper around a webview.
+    ///
+    /// # Safety
+    /// Unsafe due to FFI.
     pub unsafe fn new(size: (i32, i32)) -> WebviewHolder {
         let origin = NSPoint::new(0.0, 0.0);
         let (width, height) = size;
@@ -110,6 +119,15 @@ impl WebviewHolder {
         }
     }
 
+    /// Attach and initialize this webview holder onto a NSView* that the host forwards.
+    ///
+    /// Loads the front-end URL, attaches message handlers & pins the webview onto the parent.
+    ///
+    /// # Safety
+    /// Unsafe due to:
+    ///
+    /// - Operating over a void* passed in by the plugin host
+    /// - Calling into Objective-C APIs
     pub unsafe fn initialize(&mut self, parent: *mut c_void) {
         info!("WebviewHolder::initialize - Attaching to parent NSView");
         self.attach_to_parent(parent);
@@ -124,6 +142,14 @@ impl WebviewHolder {
         self.webview.load_url("http://127.0.0.1:3000");
     }
 
+    /// Attach this webview holder onto a NSView* that the host forwards. Does not attach listeners
+    /// or load the front-end URL.
+    ///
+    /// # Safety
+    /// Unsafe due to:
+    ///
+    /// - Operating over a void* passed in by the plugin host
+    /// - Calling into Objective-C APIs
     pub unsafe fn attach_to_parent(&mut self, parent: *mut c_void) {
         let parent_id = parent as id;
         let wk_webview = self.webview.get_native_handle();
