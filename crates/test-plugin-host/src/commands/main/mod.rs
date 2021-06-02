@@ -102,6 +102,9 @@ unsafe fn run_main_loop(
 fn start_gui(instance: *mut PluginInstance) {
     let event_loop = tao::event_loop::EventLoop::new();
     let window = tao::window::Window::new(&event_loop).expect("Failed to create editor window");
+    unsafe {
+        window.set_title(&(*instance).get_info().name);
+    }
 
     let mut editor = unsafe { instance.as_mut() }
         .unwrap()
