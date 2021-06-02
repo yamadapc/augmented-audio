@@ -23,27 +23,20 @@
     <cargoProject FILE="$PROJECT_DIR$/crates/plugin-bundler/Cargo.toml" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="Disable button user-select">
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/env.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/getHttpsConfig.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/jest/babelTransform.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/jest/cssTransform.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/jest/fileTransform.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/modules.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/paths.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/pnpTs.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/webpack.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/config/webpackDevServer.config.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/scripts/build.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/scripts/start.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/scripts/test.js" afterDir="false" />
+    <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/MessageHandler.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/MessageHandlerRegistry.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/ParameterMessageHandler.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/ParametersStore.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/.babelrc" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/.babelrc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/react-app-env.d.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/react-app-env.d.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/constants.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/constants.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/transport/tokio_websockets.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/transport/tokio_websockets.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/processor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/processor.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/index.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/RotaryControl/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/RotaryControl/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -80,6 +73,7 @@
   <component name="ProjectId" id="1syUphANFhGzRXyKEonVq9QvWs2" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
+    <option name="autoscrollFromSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
@@ -114,6 +108,10 @@
       <recent name="$PROJECT_DIR$/test-plugin-host/src/commands" />
     </key>
     <key name="es6.move.members.recent.items">
+      <recent name="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/MessageHandlerRegistry.ts" />
+      <recent name="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/ParameterMessageHandler.ts" />
+      <recent name="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/ParametersStore.ts" />
+      <recent name="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/MessageHandler.ts" />
       <recent name="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/Controls/RotaryControl/index.js" />
     </key>
   </component>
@@ -358,7 +356,14 @@
       <option name="project" value="LOCAL" />
       <updated>1622415698635</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Add some structure to the front-end">
+      <created>1622587054320</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1622587054320</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -379,7 +384,8 @@
     <MESSAGE value="Remove react.js logo" />
     <MESSAGE value="Add websockets transport to rust back-end" />
     <MESSAGE value="Disable button user-select" />
-    <option name="LAST_COMMIT_MESSAGE" value="Disable button user-select" />
+    <MESSAGE value="Add some structure to the front-end" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add some structure to the front-end" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -11,6 +11,7 @@ import {
 } from "../common/protocol";
 import { container } from "tsyringe";
 import { MessageHandlingService } from "../state";
+import { ParametersStore } from "../state/ParametersStore";
 
 interface State {
   parameters: ParameterDeclarationMessage[];
@@ -24,6 +25,7 @@ class App extends Component<{}, State> {
   >;
   private handlerService!: MessageHandlingService;
   state: State = { parameters: [] };
+  private parametersStore: ParametersStore = container.resolve(ParametersStore);
 
   componentDidMount() {
     try {
@@ -51,30 +53,26 @@ class App extends Component<{}, State> {
     }
   }
 
-  // attachListeners() {
-  //   this.transport.addMessageListener((msg) => {
-  //     this.logger.info("Received message", msg);
-  //     switch (msg.message.type) {
-  //       case "PublishParameters": {
-  //         this.handlePublishParameters(msg.message);
-  //         break;
-  //       }
-  //     }
-  //
-  //   });
-  // }
+  componentWillUnmount() {
+    this.handlerService.stop();
+  }
 
-  // private handlePublishParameters(msg: PublishParametersMessage) {
-  //   this.setState({
-  //     parameters: msg.parameters,
-  //   });
-  // }
+  setParameter = (id: string, value: number) => {
+    this.transport.postMessage("default", {
+      type: "SetParameter",
+      parameterId: id,
+      value,
+    });
+  };
 
   render() {
     return (
       <div className="App">
         <HudPanel />
-        <Controls />
+        <Controls
+          parametersStore={this.parametersStore}
+          setParameter={this.setParameter}
+        />
       </div>
     );
   }

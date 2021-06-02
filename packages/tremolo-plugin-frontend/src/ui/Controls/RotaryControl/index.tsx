@@ -1,13 +1,14 @@
 import "./index.css";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const TWO_PI = 2 * Math.PI;
 
 interface Props {
   name: string;
+  onChange: (value: number) => void;
 }
 
-export function RotaryControl({ name }: Props) {
+export function RotaryControl({ name, onChange }: Props) {
   const props = {
     initialValue: 0.4,
   };
@@ -16,8 +17,16 @@ export function RotaryControl({ name }: Props) {
 
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
-  const [value, setValue] = useState(initialValue);
+  const [value, setValueInner] = useState(initialValue);
   const cleanUpTasks = useRef<(() => void)[]>([]);
+
+  const setValue = useCallback(
+    (val) => {
+      setValueInner(val);
+      onChange(val);
+    },
+    [setValueInner, onChange]
+  );
 
   const onMouseDown = (e: React.MouseEvent) => {
     setIsMoving(true);

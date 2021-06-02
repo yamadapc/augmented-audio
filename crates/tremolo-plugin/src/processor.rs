@@ -4,7 +4,7 @@ use vst::buffer::AudioBuffer;
 
 use oscillator::Oscillator;
 
-use crate::constants::{DEPTH_PARAMETER_ID, LEFT_RATE_PARAMETER_ID, RIGHT_RATE_PARAMETER_ID};
+use crate::constants::{DEPTH_PARAMETER_ID, RATE_PARAMETER_ID};
 use crate::plugin_parameter::ParameterStore;
 
 pub struct Processor {
@@ -32,12 +32,11 @@ impl Processor {
     }
 
     pub fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
-        let left_rate = self.parameters.value(LEFT_RATE_PARAMETER_ID);
-        let right_rate = self.parameters.value(RIGHT_RATE_PARAMETER_ID);
+        let rate = self.parameters.value(RATE_PARAMETER_ID);
         let depth = self.parameters.value(DEPTH_PARAMETER_ID);
 
-        self.oscillator_left.set_frequency(left_rate);
-        self.oscillator_right.set_frequency(right_rate);
+        self.oscillator_left.set_frequency(rate);
+        self.oscillator_right.set_frequency(rate);
 
         let num_channels = buffer.input_count();
         let num_samples = buffer.samples();

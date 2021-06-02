@@ -32,7 +32,7 @@ async fn handle_connection(
         }
 
         let msg = maybe_message.unwrap()?;
-        log::info!("Received message {:?}", msg);
+        log::debug!("Received message {:?}", msg);
         if msg.is_text() || msg.is_binary() {
             if let Err(err) = input_sender.send(msg) {
                 log::error!("Failed to broadcast message {}", err);
