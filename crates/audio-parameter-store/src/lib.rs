@@ -155,6 +155,7 @@ impl vst::plugin::PluginParameters for ParameterStore {
 #[cfg(test)]
 mod test {
     use super::*;
+    use vst::plugin::PluginParameters;
 
     #[test]
     fn test_creating_and_adding_parameters() {
