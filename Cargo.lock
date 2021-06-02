@@ -3358,6 +3358,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "webview-transport"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "crossbeam",
+ "futures-util",
+ "log",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tokio-tungstenite",
+ "tungstenite",
+]
+
+[[package]]
 name = "weezl"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
