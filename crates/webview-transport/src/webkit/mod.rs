@@ -47,12 +47,11 @@ fn parse_and_forward_message<ClientMessage>(
     ClientMessage: DeserializeOwned,
 {
     match serde_json::from_str(&msg) {
-        Ok(msg) => match client_message_sender.send(msg) {
-            Err(err) => {
+        Ok(msg) => {
+            if let Err(err) = client_message_sender.send(msg) {
                 log::error!("Failed to forward JS message {}", err);
             }
-            _ => {}
-        },
+        }
         Err(err) => {
             log::error!("Failed to parse JS message {}", err);
         }
