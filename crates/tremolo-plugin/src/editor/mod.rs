@@ -1,5 +1,5 @@
 use std::ffi::c_void;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use vst::editor::Editor;
 
@@ -8,15 +8,16 @@ use webview_holder::WebviewHolder;
 use webview_transport::{create_transport_runtime, WebSocketsTransport, WebviewTransport};
 
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
+use webview_transport::webkit::WebkitTransport;
 
 pub mod handlers;
 pub mod protocol;
 
 pub struct TremoloEditor {
     parameters: Arc<ParameterStore>,
-    webview: Option<WebviewHolder>,
     runtime: tokio::runtime::Runtime,
-    transport: Box<dyn WebviewTransport<ServerMessage, ClientMessage>>,
+    webview: Option<Arc<Mutex<WebviewHolder>>>,
+    transport: Option<Box<dyn WebviewTransport<ServerMessage, ClientMessage>>>,
 }
 
 impl TremoloEditor {
@@ -26,23 +27,29 @@ impl TremoloEditor {
             parameters,
             webview: None,
             runtime,
-            // TODO - WebSockets is just for development
-            transport: Box::new(WebSocketsTransport::new("localhost:9510")),
+            transport: None,
         }
     }
 
     unsafe fn initialize_webview(&mut self, parent: *mut c_void) -> Option<bool> {
         // If there's already a webkit just re-attach
         if let Some(webview) = &mut self.webview {
+            let mut webview = webview.lock().unwrap();
             webview.attach_to_parent(parent);
             return Some(true);
         }
 
         let webview = WebviewHolder::new(self.size());
-        self.webview = Some(webview);
-        self.webview.as_mut().unwrap().initialize(parent);
+        self.webview = Some(Arc::new(Mutex::new(webview)));
+        {
+            let mut webview = self.webview.as_mut().unwrap().lock().unwrap();
+            webview.initialize(parent);
+        }
 
-        let start_result = self.runtime.block_on(self.transport.start());
+        self.initialize_transport();
+        let start_result = self
+            .runtime
+            .block_on(self.transport.as_mut().unwrap().start());
         if let Err(err) = start_result {
             log::error!("Failed to start transport {}", err);
         }
@@ -52,9 +59,24 @@ impl TremoloEditor {
         Some(true)
     }
 
+    fn initialize_transport(&mut self) {
+        self.transport = Some({
+            let use_websockets_transport = std::env::var("USE_WEBSOCKETS_TRANSPORT")
+                .map(|v| v == "true")
+                .unwrap_or(false);
+            if use_websockets_transport {
+                let websockets_addr = std::env::var("WEBSOCKETS_TRANSPORT_ADDR")
+                    .unwrap_or_else(|_| "localhost:9510".to_string());
+                Box::new(WebSocketsTransport::new(&websockets_addr))
+            } else {
+                Box::new(WebkitTransport::new(self.webview.as_ref().unwrap().clone()))
+            }
+        });
+    }
+
     fn spawn_message_handler(&mut self) {
-        let messages = self.transport.messages();
-        let output_messages = self.transport.output_messages();
+        let messages = self.transport.as_mut().unwrap().messages();
+        let output_messages = self.transport.as_mut().unwrap().output_messages();
         let parameter_store = self.parameters.clone();
 
         self.runtime.spawn(async move {

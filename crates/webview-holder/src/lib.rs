@@ -251,7 +251,7 @@ impl WebviewHolder {
 
         unsafe {
             let msg = NSString::alloc(nil).init_str(javascript_string.as_str());
-            let _: () = msg_send![self.webview.get_native_handle(), evaluateJavaScript: msg];
+            let _: () = msg_send![self.webview.get_native_handle(), evaluateJavaScript: msg completionHandler: nil];
         }
 
         Ok(())
