@@ -3,18 +3,8 @@ use std::sync::{Arc, RwLock};
 
 use vst::plugin::PluginParameters;
 
-/// Trait for a single parameter
-pub trait PluginParameter: Sync + Send {
-    fn name(&self) -> String;
-    fn label(&self) -> String;
-    fn text(&self) -> String;
-    fn value(&self) -> f32;
-    fn set_value(&self, value: f32);
-    fn can_be_automated(&self) -> bool;
-}
-
 /// Simple implementation of a parameter
-pub struct PluginParameterImpl {
+pub struct PluginParameter {
     /// This is the only mutable field.
     ///
     /// Not all platforms will support this. This will not work properly depending on whether the
@@ -25,12 +15,12 @@ pub struct PluginParameterImpl {
     can_be_automated: bool,
 }
 
-unsafe impl Send for PluginParameterImpl {}
-unsafe impl Sync for PluginParameterImpl {}
+unsafe impl Send for PluginParameter {}
+unsafe impl Sync for PluginParameter {}
 
-impl PluginParameterImpl {
+impl PluginParameter {
     pub fn new_with(name: &str, label: &str, value: f32, can_be_automated: bool) -> Self {
-        PluginParameterImpl {
+        PluginParameter {
             value: crossbeam::atomic::AtomicCell::new(value),
             name: String::from(name),
             label: String::from(label),
@@ -39,32 +29,32 @@ impl PluginParameterImpl {
     }
 
     pub fn new(name: &str, label: &str) -> Self {
-        PluginParameterImpl::new_with(name, label, 0.0, true)
+        PluginParameter::new_with(name, label, 0.0, true)
     }
 }
 
-impl PluginParameter for PluginParameterImpl {
-    fn name(&self) -> String {
+impl PluginParameter {
+    pub fn name(&self) -> String {
         self.name.clone()
     }
 
-    fn label(&self) -> String {
+    pub fn label(&self) -> String {
         self.label.clone()
     }
 
-    fn text(&self) -> String {
+    pub fn text(&self) -> String {
         format!("{}", self.value.load())
     }
 
-    fn value(&self) -> f32 {
+    pub fn value(&self) -> f32 {
         self.value.load()
     }
 
-    fn set_value(&self, value: f32) {
+    pub fn set_value(&self, value: f32) {
         self.value.store(value)
     }
 
-    fn can_be_automated(&self) -> bool {
+    pub fn can_be_automated(&self) -> bool {
         self.can_be_automated
     }
 }
@@ -72,7 +62,7 @@ impl PluginParameter for PluginParameterImpl {
 type ParameterId = String;
 
 struct ParameterStoreInner {
-    parameters: HashMap<ParameterId, Arc<dyn PluginParameter>>,
+    parameters: HashMap<ParameterId, Arc<PluginParameter>>,
     parameter_ids: Vec<ParameterId>,
 }
 
@@ -110,23 +100,20 @@ impl ParameterStore {
         }
     }
 
-    pub fn add_parameter(&mut self, id: &str, parameter: Arc<dyn PluginParameter>) {
+    pub fn add_parameter(&mut self, id: &str, parameter: Arc<PluginParameter>) {
         if let Ok(mut inner) = self.inner.write() {
             inner.parameter_ids.push(id.to_string());
             inner.parameters.insert(id.to_string(), parameter);
         }
     }
 
-    pub fn find_parameter(&self, parameter_id: &str) -> Option<Arc<dyn PluginParameter>> {
+    pub fn find_parameter(&self, parameter_id: &str) -> Option<Arc<PluginParameter>> {
         let inner = self.inner.read().ok()?;
         Some(inner.parameters.get(parameter_id)?.clone())
     }
 
     // TODO - fix this; don't copy the ID string just to return it.
-    pub fn find_parameter_by_index(
-        &self,
-        index: i32,
-    ) -> Option<(String, Arc<dyn PluginParameter>)> {
+    pub fn find_parameter_by_index(&self, index: i32) -> Option<(String, Arc<PluginParameter>)> {
         let inner = self.inner.read().ok()?;
         let parameter_id = inner.parameter_ids.get(index as usize)?;
         Some((
@@ -206,7 +193,7 @@ mod test {
     #[test]
     fn test_creating_and_adding_parameters() {
         let mut parameter_store = ParameterStore::new();
-        let parameter = Arc::new(PluginParameterImpl::new("Test parameter", "label"));
+        let parameter = Arc::new(PluginParameter::new("Test parameter", "label"));
         parameter_store.add_parameter("test", parameter);
 
         let first_parameter_name = parameter_store.get_parameter_name(0);
@@ -216,7 +203,7 @@ mod test {
     #[test]
     fn test_parameter_fields() {
         let mut parameter_store = ParameterStore::new();
-        let parameter = Arc::new(PluginParameterImpl::new_with(
+        let parameter = Arc::new(PluginParameter::new_with(
             "Test parameter",
             "label",
             10.0,
@@ -233,7 +220,7 @@ mod test {
     #[test]
     fn test_parameter_set_and_get() {
         let mut parameter_store = ParameterStore::new();
-        let parameter = Arc::new(PluginParameterImpl::new_with(
+        let parameter = Arc::new(PluginParameter::new_with(
             "Test parameter",
             "label",
             10.0,

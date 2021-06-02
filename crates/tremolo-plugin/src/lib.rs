@@ -25,7 +25,7 @@ use vst::buffer::AudioBuffer;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 
-use plugin_parameter::{ParameterStore, PluginParameterImpl};
+use plugin_parameter::{ParameterStore, PluginParameter};
 
 use crate::constants::{DEPTH_PARAMETER_ID, RATE_PARAMETER_ID};
 use crate::processor::Processor;
@@ -68,11 +68,11 @@ impl TremoloPlugin {
         let mut store = ParameterStore::new();
         store.add_parameter(
             RATE_PARAMETER_ID,
-            Arc::new(PluginParameterImpl::new_with("Rate", "Hz", 0.1, true)),
+            Arc::new(PluginParameter::new_with("Rate", "Hz", 0.1, true)),
         );
         store.add_parameter(
             DEPTH_PARAMETER_ID,
-            Arc::new(PluginParameterImpl::new_with("Depth", "", 1.0, true)),
+            Arc::new(PluginParameter::new_with("Depth", "", 1.0, true)),
         );
         store
     }
