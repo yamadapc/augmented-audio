@@ -3378,6 +3378,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "crossbeam",
+ "env_logger 0.8.3",
  "futures-util",
  "log",
  "serde",

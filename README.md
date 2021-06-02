@@ -29,6 +29,19 @@ Incomplete tremolo VST with a WebView GUI.
 Communicates via messages with the Rust audio processor, has a very rough start
 of visualization experiments using WebGL.
 
+## crates/audio-parameter-store
+Implementation of a "parameter store" for audio plugins. Holds audio plugin parameters in a rw locked hashmap and uses
+atomics on parameter values.
+
+## crates/webview-transport
+Abstraction for messaging with JavaScript webview. Provides a websockets & webkit message handler based transports.
+
+On development, websockets may be used and the UI may be developed on Google Chrome. In production webkit message
+handlers may be used.
+
+## crates/webview-holder
+A wrapper on top of webkit webview for MacOS.
+
 ## crates/oscillator
 Basic oscillator implementation.
 

@@ -188,9 +188,6 @@ mod test {
     use log::LevelFilter;
     use tokio::time::Duration;
 
-    use crate::editor::protocol::AppStartedMessage;
-    use crate::editor::protocol::ClientMessageInner::AppStarted;
-
     use super::*;
 
     #[tokio::test]
@@ -204,7 +201,7 @@ mod test {
         let (mut ws_stream, _) = tokio_tungstenite::connect_async("ws://127.0.0.1:9510")
             .await
             .unwrap();
-        let app_started = AppStarted(AppStartedMessage {}).notification();
+        let app_started = "message";
         ws_stream
             .send(tungstenite::Message::Text(
                 serde_json::to_string(&app_started).unwrap(),
@@ -214,10 +211,7 @@ mod test {
 
         let msg = transport.input_broadcast.recv().await.unwrap();
         assert!(msg.is_text());
-        assert_eq!(
-            msg.into_text().unwrap(),
-            "{\"id\":null,\"channel\":\"default\",\"message\":{\"type\":\"AppStarted\"}}"
-        );
+        assert_eq!(msg.into_text().unwrap(), "\"message\"");
         assert_eq!(transport.get_num_connected_clients().await, 1);
         ws_stream.close(None).await.unwrap();
         tokio::time::sleep(Duration::from_millis(100)).await;
