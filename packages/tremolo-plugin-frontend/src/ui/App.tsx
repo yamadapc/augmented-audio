@@ -58,6 +58,7 @@ class App extends Component<{}, State> {
   }
 
   setParameter = (id: string, value: number) => {
+    this.parametersStore.setParameterValue(id, value);
     this.transport.postMessage("default", {
       type: "SetParameter",
       parameterId: id,
@@ -68,7 +69,7 @@ class App extends Component<{}, State> {
   render() {
     return (
       <div className="App">
-        <HudPanel />
+        <HudPanel parametersStore={this.parametersStore} />
         <Controls
           parametersStore={this.parametersStore}
           setParameter={this.setParameter}

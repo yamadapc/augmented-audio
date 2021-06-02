@@ -1,6 +1,8 @@
 import "./index.css";
 import Regl from "regl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ParametersStore } from "../../state/ParametersStore";
+import { observer } from "mobx-react";
 
 const NUM_VERTICES = 1000;
 
@@ -17,6 +19,7 @@ type Vec4 = [number, number, number, number];
 interface ReglUniforms {
   color: Vec4;
   time: number;
+  depth: number;
 }
 
 interface ReglAttributes {
@@ -27,9 +30,15 @@ interface ReglProps {
   position: number[][];
   color: Vec4;
   time: number;
+  depth: number;
 }
 
-export default function HudPanel() {
+interface Props {
+  parametersStore: ParametersStore;
+}
+
+function HudPanel({ parametersStore }: Props) {
+  const [windowHeight, setWindowHeight] = useState(() => window.innerHeight);
   const canvasContainerRef = useRef(null);
   const reglRef = useRef<Regl.Regl | null>(null);
   const stopped = useRef(true);
@@ -65,11 +74,12 @@ export default function HudPanel() {
         precision mediump float;
         attribute vec2 position;
         uniform float time;
+        uniform float depth;
 
         void main() {
           gl_Position = vec4(
             (position.x - 0.5) * 1.9,
-            0.8 * sin(time * 5. + position.x * 30.),
+            depth * 0.8 * sin(time * 5. + position.x * 30.),
             0,
             1
           );
@@ -84,6 +94,7 @@ export default function HudPanel() {
         // This defines the color of the triangle to be a dynamic variable
         color: regl.prop<ReglProps, "color">("color"),
         time: regl.prop<ReglProps, "time">("time"),
+        depth: regl.prop<ReglProps, "depth">("depth"),
       },
 
       // This tells regl the number of vertices to draw in this command
@@ -106,31 +117,32 @@ export default function HudPanel() {
         {
           color: [33 / 255, 170 / 255, 230 / 255, 1],
           position: vertices,
-          time,
+          time: stopped.current ? 0 : time,
+          depth: parametersStore.depth?.value ?? 1.0,
         },
       ]);
     };
 
     tick({ time: 0 });
     regl.frame(({ time }) => {
-      if (stopped.current) {
-        return;
-      }
-
       tick({ time });
     });
 
+    const onResize = () => {
+      setWindowHeight(window.innerHeight);
+      regl.poll();
+    };
+    window.addEventListener("resize", onResize);
+
     return () => {
       regl.destroy();
+      window.removeEventListener("resize", onResize);
     };
-  }, []);
+  }, [parametersStore, setWindowHeight]);
 
   return (
     <div className="HudPanel" style={{ position: "relative" }}>
-      <div
-        ref={canvasContainerRef}
-        style={{ height: window.innerHeight - 180 }}
-      />
+      <div ref={canvasContainerRef} style={{ height: windowHeight - 100 }} />
 
       <button
         onClick={() => {
@@ -155,3 +167,5 @@ export default function HudPanel() {
     </div>
   );
 }
+
+export default observer(HudPanel);

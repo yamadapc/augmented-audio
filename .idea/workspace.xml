@@ -24,19 +24,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="00374b5d-3bb8-497f-9d2a-b0de47a52015" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/MessageHandler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/MessageHandlerRegistry.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/ParameterMessageHandler.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/ParametersStore.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/common/constants.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/constants.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/constants.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/transport/tokio_websockets.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/editor/transport/tokio_websockets.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/lib.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/crates/tremolo-plugin/src/processor.rs" beforeDir="false" afterPath="$PROJECT_DIR$/crates/tremolo-plugin/src/processor.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/index.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/index.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/ParametersStore.ts" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/state/ParametersStore.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/RotaryControl/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/RotaryControl/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/Controls/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/HudPanel/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/packages/tremolo-plugin-frontend/src/ui/HudPanel/index.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
