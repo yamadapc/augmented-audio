@@ -24,6 +24,7 @@ pub struct PluginParameter {
     can_be_automated: bool,
     value_range: (f32, f32),
     value_type: ParameterType,
+    value_precision: u32,
 }
 
 impl PluginParameter {
@@ -34,6 +35,7 @@ impl PluginParameter {
         can_be_automated: bool,
         value_range: (f32, f32),
         value_type: ParameterType,
+        value_precision: u32,
     ) -> Self {
         PluginParameter {
             value,
@@ -42,6 +44,7 @@ impl PluginParameter {
             can_be_automated,
             value_range,
             value_type,
+            value_precision,
         }
     }
 
@@ -87,6 +90,10 @@ impl PluginParameter {
     pub fn value_type(&self) -> ParameterType {
         self.value_type
     }
+
+    pub fn value_precision(&self) -> u32 {
+        self.value_precision
+    }
 }
 
 pub struct PluginParameterBuilder {
@@ -96,6 +103,7 @@ pub struct PluginParameterBuilder {
     can_be_automated: Option<bool>,
     value_range: Option<(f32, f32)>,
     value_type: Option<ParameterType>,
+    value_precision: Option<u32>,
 }
 
 impl PluginParameterBuilder {
@@ -107,6 +115,7 @@ impl PluginParameterBuilder {
             can_be_automated: None,
             value_range: None,
             value_type: None,
+            value_precision: None,
         }
     }
 
@@ -140,6 +149,11 @@ impl PluginParameterBuilder {
         self
     }
 
+    pub fn value_precision(mut self, value_precision: u32) -> Self {
+        self.value_precision = Some(value_precision);
+        self
+    }
+
     pub fn build(self) -> PluginParameter {
         PluginParameter::new(
             AtomicCell::new(self.initial_value.unwrap_or(0.0)),
@@ -148,6 +162,7 @@ impl PluginParameterBuilder {
             self.can_be_automated.unwrap_or(true),
             self.value_range.unwrap_or((0., 1.)),
             self.value_type.unwrap_or(Default::default()),
+            self.value_precision.unwrap_or(2),
         )
     }
 }

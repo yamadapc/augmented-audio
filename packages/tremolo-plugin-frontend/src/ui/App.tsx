@@ -41,6 +41,7 @@ class App extends Component<{}, State> {
         .then(() => {
           this.logger.info("Transport connected");
           this.handlerService.start();
+
           this.transport.postMessage("default", {
             type: "AppStarted",
           });

@@ -73,6 +73,7 @@ impl TremoloPlugin {
                     .name("Rate")
                     .label("Hz")
                     .initial_value(1.0)
+                    .value_precision(1)
                     .value_range(0.05, 90.0)
                     .build(),
             ),
@@ -84,6 +85,7 @@ impl TremoloPlugin {
                     .name("Depth")
                     .initial_value(100.0)
                     .label("%")
+                    .value_precision(0)
                     .value_range(0.0, 100.0)
                     .build(),
             ),
@@ -95,6 +97,7 @@ impl TremoloPlugin {
                     .name("Phase")
                     .initial_value(0.0)
                     .label("º")
+                    .value_precision(0)
                     .value_range(0.0, 360.0)
                     .build(),
             ),

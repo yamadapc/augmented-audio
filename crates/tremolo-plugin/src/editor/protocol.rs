@@ -46,6 +46,7 @@ pub struct ParameterDeclarationMessage {
     pub label: String,
     pub text: String,
     pub value: f32,
+    pub value_precision: u32,
     pub value_range: (f32, f32),
     pub value_type: ParameterType,
 }

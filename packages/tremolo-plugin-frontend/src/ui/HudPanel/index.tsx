@@ -110,7 +110,6 @@ function HudPanel({ parametersStore }: Props) {
     const tick = ({ time }: { time: number }) => {
       regl.clear({
         color: [24 / 255, 24 / 255, 24 / 255, 1],
-        depth: 1,
       });
 
       drawTriangle([
@@ -118,7 +117,7 @@ function HudPanel({ parametersStore }: Props) {
           color: [33 / 255, 170 / 255, 230 / 255, 1],
           position: vertices,
           time: stopped.current ? 0 : time,
-          depth: parametersStore.depth?.value ?? 1.0,
+          depth: (parametersStore.depth?.value ?? 100.0) / 100.0,
         },
       ]);
     };

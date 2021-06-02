@@ -12,12 +12,17 @@ export interface PublishParametersMessage {
     parameters: ParameterDeclarationMessage[]
 }
 
+export type ParameterType = 'Number';
+
 export interface ParameterDeclarationMessage {
     id: string,
     name: string,
     label: string,
     text: string,
     value: number,
+    valueRange: [number, number],
+    valueType: ParameterType,
+    valuePrecision: number,
 }
 
 export type ClientMessage = MessageWrapper<ClientMessageInner>;

@@ -5,16 +5,22 @@ const TWO_PI = 2 * Math.PI;
 
 interface Props {
   name: string;
+  initialValue: number;
+  precision: number;
+  label: string;
+  valueRange: [number, number];
   onChange: (value: number) => void;
 }
 
-export function RotaryControl({ name, onChange }: Props) {
-  const props = {
-    initialValue: 0.4,
-  };
-
-  const { initialValue } = props;
-
+export function RotaryControl({
+  name,
+  onChange,
+  initialValue,
+  label,
+  precision,
+  valueRange: [minValue, maxValue],
+}: Props) {
+  const valueAbsRange = Math.abs(maxValue - minValue);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
   const [value, setValueInner] = useState(initialValue);
@@ -39,9 +45,9 @@ export function RotaryControl({ name, onChange }: Props) {
       const deltaX = current.x - start.x;
       const deltaY = -(current.y - start.y);
       const totalMovement = deltaX + deltaY;
-      const movementRatio = totalMovement / 100;
+      const movementRatio = minValue + valueAbsRange * (totalMovement / 100);
 
-      setValue(Math.min(Math.max(0.0, value + movementRatio), 1.0));
+      setValue(Math.min(Math.max(minValue, value + movementRatio), maxValue));
     };
 
     document.addEventListener("mousemove", listener);
@@ -66,6 +72,7 @@ export function RotaryControl({ name, onChange }: Props) {
     };
   }, []);
 
+  const percentValue = (value - minValue) / valueAbsRange;
   const radius = 40;
   const perimeter = TWO_PI * radius;
   const strokeDashoffset = 0.25 * perimeter;
@@ -75,7 +82,7 @@ export function RotaryControl({ name, onChange }: Props) {
   const centerY = 50;
 
   const start = TWO_PI * 0.25;
-  const end = TWO_PI * 0.25 + TWO_PI * 0.75 * value;
+  const end = TWO_PI * 0.25 + TWO_PI * 0.75 * percentValue;
   const startCoords = [
     centerX + radius * Math.cos(start),
     centerY + radius * Math.sin(start),
@@ -88,39 +95,44 @@ export function RotaryControl({ name, onChange }: Props) {
 
   return (
     <div className="RotaryControl" onMouseDown={onMouseDown}>
-      <svg
-        className="RotaryControl__Circle"
-        width="50%"
-        height="50%"
-        viewBox="0 0 100 100"
-      >
-        <circle
-          cx={centerX}
-          cy={centerY}
-          className="RotaryControl__Circle__Background"
-          r={radius}
-          strokeWidth={9}
-          strokeDasharray={strokeDasharray}
-          strokeDashoffset={strokeDashoffset}
-        />
+      <label className="RotaryControl__ParameterName">{name}</label>
+      <div className="RotaryControl__Container">
+        <svg
+          className="RotaryControl__Circle"
+          width="45px"
+          height="45px"
+          viewBox="0 0 100 100"
+        >
+          <circle
+            cx={centerX}
+            cy={centerY}
+            className="RotaryControl__Circle__Background"
+            r={radius}
+            strokeWidth={9}
+            strokeDasharray={strokeDasharray}
+            strokeDashoffset={strokeDashoffset}
+          />
 
-        <path
-          d={`
+          <path
+            d={`
             M ${startCoords.join(" ")}
             A ${radius} ${radius} 0 ${largeArcFlag} 1 ${valueCoords.join(" ")}
           `}
-          className="RotaryControl__Circle__Value"
-        />
+            className="RotaryControl__Circle__Value"
+          />
 
-        <circle
-          className="RotaryControl__Circle__Knob"
-          cx={valueCoords[0]}
-          cy={valueCoords[1]}
-          r={10}
-        />
-      </svg>
+          <circle
+            className="RotaryControl__Circle__Knob"
+            cx={valueCoords[0]}
+            cy={valueCoords[1]}
+            r={10}
+          />
+        </svg>
 
-      <label>{name}</label>
+        <label className="RotaryControl__Value">
+          {value.toFixed(precision)} {label}
+        </label>
+      </div>
 
       {isMoving && (
         <div
@@ -137,7 +149,7 @@ export function RotaryControl({ name, onChange }: Props) {
             zIndex: 10,
           }}
         >
-          {value.toFixed(2)}
+          {value.toFixed(precision)} {label}
         </div>
       )}
     </div>

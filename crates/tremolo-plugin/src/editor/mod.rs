@@ -79,6 +79,7 @@ fn list_parameters(parameters: &ParameterStore) -> Vec<ParameterDeclarationMessa
             value: parameter.value(),
             value_range: parameter.value_range(),
             value_type: parameter.value_type(),
+            value_precision: parameter.value_precision(),
         })
     }
     output

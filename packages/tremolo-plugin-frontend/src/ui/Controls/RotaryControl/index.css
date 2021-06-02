@@ -1,21 +1,37 @@
 .RotaryControl {
   display: flex;
-  flex-direction: row;
-  max-width: 100px;
+  max-width: 120px;
   height: 80px;
-  justify-content: center;
-  align-items: center;
   margin: 0 5px;
+  margin-top: 10px;
   color: white;
   padding-right: 20px;
   position: relative;
   user-select: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.RotaryControl label {
+.RotaryControl__Container {
+  flex: 1;
+  width: 50px;
+  display: flex;
+  flex-direction: row;
   position: relative;
-  bottom: -14px;
-  right: 20px;
+}
+
+.RotaryControl .RotaryControl__ParameterName {
+  align-self: start;
+  text-align: left;
+}
+
+.RotaryControl .RotaryControl__Value {
+  position: absolute;
+  bottom: 15px;
+  left: 30px;
+  word-break: keep-all;
+  white-space: nowrap;
 }
 
 .RotaryControl svg {
