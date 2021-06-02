@@ -4,15 +4,13 @@ use std::sync::Arc;
 use vst::editor::Editor;
 
 use audio_parameter_store::ParameterStore;
-use transport::tokio_websockets::create_transport_runtime;
+use webview_transport::{create_transport_runtime, WebSocketsTransport, WebviewTransport};
 
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
-use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
 
 pub mod handlers;
 pub mod protocol;
-pub mod transport;
 pub mod webview;
 
 pub struct TremoloEditor {

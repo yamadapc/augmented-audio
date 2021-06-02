@@ -4,10 +4,13 @@ extern crate async_trait;
 pub mod transport;
 pub mod websockets;
 
+pub use transport::WebviewTransport;
+pub use websockets::{create_transport_runtime, WebSocketsTransport};
+
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn it_compiles() {
+        assert_eq!(4, 4);
     }
 }

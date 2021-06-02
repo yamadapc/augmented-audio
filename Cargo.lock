@@ -2951,6 +2951,7 @@ dependencies = [
  "tokio-tungstenite",
  "tungstenite",
  "vst",
+ "webview-transport",
  "wisual-logger",
 ]
 
