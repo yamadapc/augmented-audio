@@ -36,8 +36,10 @@ atomics on parameter values.
 ## crates/webview-transport
 Abstraction for messaging with JavaScript webview. Provides a websockets & webkit message handler based transports.
 
-On development, websockets may be used and the UI may be developed on Google Chrome. In production webkit message
-handlers may be used.
+On development, websockets may be used. This allows for the UI to be developed on Google Chrome rather than the
+embedded webview. In production webkit message handlers may be used.
+
+Front-end has a corresponding package in `packages/webview-transport`.
 
 ## crates/webview-holder
 A wrapper on top of webkit webview for MacOS.
