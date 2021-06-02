@@ -10,7 +10,6 @@ use cocoa::foundation::{NSArray, NSPoint, NSRect, NSSize, NSString};
 use darwin_webkit::helpers::dwk_webview::{string_from_nsstring, DarwinWKWebView};
 use darwin_webkit::webkit::wk_script_message_handler::WKScriptMessage;
 use darwin_webkit::webkit::WKUserContentController;
-use log::{error, info};
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel, BOOL};
 use serde::Serialize;
@@ -25,9 +24,11 @@ extern "C" fn call_ptr(this: &Object, _sel: Sel, controller: id, message: id) {
         >(instance_ptr);
         let data: &*mut c_void = this.get_ivar("internal_data");
         let data: *mut c_void = (*data) as *mut c_void;
-        info!(
+        log::debug!(
             "call_ptr - Received callback this={:?} data={:?} instance={:?}",
-            this, data, instance_ptr as *mut c_void
+            this,
+            data,
+            instance_ptr as *mut c_void
         );
         instance_ptr(data, controller, message);
     }
@@ -35,7 +36,7 @@ extern "C" fn call_ptr(this: &Object, _sel: Sel, controller: id, message: id) {
 
 unsafe extern "C" fn on_message_ptr(self_ptr: *mut c_void, _: id, wk_script_message: id) {
     let self_ptr = self_ptr as *mut WebviewHolder;
-    info!("on_message_ptr - {}", (*self_ptr).id);
+    log::debug!("on_message_ptr - {}", (*self_ptr).id);
     (*self_ptr).on_message(wk_script_message);
 }
 
@@ -54,7 +55,7 @@ pub unsafe fn make_new_handler<T>(
     let class = Class::get(name).unwrap();
     let instance: id = msg_send![class, alloc];
     let instance: id = msg_send![instance, init];
-    info!(
+    log::debug!(
         "make_new_handler - Creating class instance this={:?}",
         instance
     );
@@ -64,9 +65,11 @@ pub unsafe fn make_new_handler<T>(
         instance.set_ivar("internal_data", data as *mut c_void);
     }
 
-    info!(
+    log::debug!(
         "make_new_handler - Registering callback this={:?} data={:?} instance={:?}",
-        instance, data as *mut c_void, func as *mut c_void
+        instance,
+        data as *mut c_void,
+        func as *mut c_void
     );
 
     instance
@@ -79,7 +82,7 @@ unsafe fn make_class_decl(name: &str) {
         return;
     }
 
-    info!("make_new_handler - Creating class decl name={}", name);
+    log::debug!("make_new_handler - Creating class decl name={}", name);
     let superclass = class!(NSObject);
     let mut decl = ClassDecl::new(name, superclass).unwrap();
     decl.add_ivar::<*const c_void>("instance_ptr");
@@ -100,7 +103,7 @@ pub struct WebviewHolder {
 
 impl Drop for WebviewHolder {
     fn drop(&mut self) {
-        info!("WebviewHolder::drop");
+        log::debug!("WebviewHolder::drop");
     }
 }
 
@@ -133,14 +136,14 @@ impl WebviewHolder {
     /// - Operating over a void* passed in by the plugin host
     /// - Calling into Objective-C APIs
     pub unsafe fn initialize(&mut self, parent: *mut c_void) {
-        info!("WebviewHolder::initialize - Attaching to parent NSView");
+        log::debug!("WebviewHolder::initialize - Attaching to parent NSView");
         self.attach_to_parent(parent);
 
-        info!("WebviewHolder::initialize - Setting-up message handler");
+        log::debug!("WebviewHolder::initialize - Setting-up message handler");
         self.attach_message_handler();
 
         // TODO - this should be read from somewhere
-        info!("WebviewHolder::initialize - Loading app URL");
+        log::debug!("WebviewHolder::initialize - Loading app URL");
         self.webview.load_url("http://127.0.0.1:3000");
     }
 
@@ -172,7 +175,7 @@ impl WebviewHolder {
     }
 
     unsafe fn attach_message_handler(&mut self) {
-        info!(
+        log::debug!(
             "WebviewHolder::attach_message_handler has_callback={} id={} ptr={:?}",
             self.on_message_callback.is_some(),
             self.id,
@@ -205,7 +208,7 @@ impl WebviewHolder {
             if is_string == YES {
                 let str = string_from_nsstring(body);
                 let str = str.as_ref().ok_or("Failed to get message ref")?;
-                info!(
+                log::debug!(
                     "Got message from JavaScript message='{}' - has_callback={} self={:?} webkit={:?} id={}",
                     str,
                     self.on_message_callback.is_some(),
@@ -228,7 +231,7 @@ impl WebviewHolder {
         };
 
         if let Err(err) = run() {
-            error!("Message handling failed: {}", err);
+            log::error!("Message handling failed: {}", err);
         }
     }
 }
