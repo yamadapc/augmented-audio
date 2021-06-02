@@ -11,7 +11,7 @@ Basic test host. Opens a VST plugin and input file, then connects the plugin's
 output to the default output device.
 
 ## crates/tremolo-plugin
-<p align="center"><img height="500" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/tremolo-screenshot.png" /></p>
+<p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/tremolo-screenshot.png" /></p>
 Incomplete tremolo VST with a WebView GUI.
 
 ## crates/oscillator
