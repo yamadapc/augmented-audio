@@ -1,0 +1,21 @@
+name: JavaScript
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install lerna
+      run: yarn
+    - name: Bootstrap packages
+      run: ./node_modules/.bin/lerna bootstrap
+    - name: Run tests
+      run: yarn test
+    - name: Run builds
+      run: yarn run build
