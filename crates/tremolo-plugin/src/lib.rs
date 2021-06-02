@@ -74,7 +74,8 @@ impl TremoloPlugin {
                     .label("Hz")
                     .initial_value(1.0)
                     .value_precision(1)
-                    .value_range(0.05, 90.0)
+                    // Really fun sounds when the modulation is at audio rate (over 30Hz)
+                    .value_range(0.05, 10.0)
                     .build(),
             ),
         );
