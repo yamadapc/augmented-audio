@@ -1,19 +1,16 @@
 use std::error::Error;
+use std::fmt::Debug;
 use std::sync::Arc;
 
 use async_trait::async_trait;
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 use tokio::sync::broadcast::{Receiver, Sender};
 use tokio::sync::Mutex;
 
 use tokio_websockets::run_websockets_transport_async;
 use tokio_websockets::ServerHandle;
 use tokio_websockets::ServerOptions;
-
-use crate::editor::protocol::ClientMessage;
-use crate::editor::protocol::ClientMessageInner;
-use crate::editor::protocol::MessageWrapper;
-use crate::editor::protocol::ServerMessage;
-use crate::editor::protocol::ServerMessageInner;
 
 pub mod tokio_websockets;
 
@@ -26,16 +23,34 @@ pub trait WebviewTransport<ServerMessage, ClientMessage> {
     async fn send(&self, message: ServerMessage);
 }
 
-pub struct WebSocketsTransport {
+pub struct WebSocketsTransport<ServerMessage, ClientMessage> {
     addr: String,
     server_handle: Option<Arc<Mutex<ServerHandle>>>,
     broadcast_channel: (Sender<ClientMessage>, Receiver<ClientMessage>),
     output_channel: (Sender<ServerMessage>, Receiver<ServerMessage>),
 }
 
+impl<ServerMessage, ClientMessage> WebSocketsTransport<ServerMessage, ClientMessage>
+where
+    ServerMessage: Serialize + Send + Clone + Debug,
+    ClientMessage: DeserializeOwned + Send + Clone + Debug,
+{
+    pub fn new(addr: &str) -> Self {
+        WebSocketsTransport {
+            addr: String::from(addr),
+            server_handle: None,
+            broadcast_channel: tokio::sync::broadcast::channel(1),
+            output_channel: tokio::sync::broadcast::channel(1),
+        }
+    }
+}
+
 #[async_trait]
-impl WebviewTransport<MessageWrapper<ServerMessageInner>, MessageWrapper<ClientMessageInner>>
-    for WebSocketsTransport
+impl<ServerMessage, ClientMessage> WebviewTransport<ServerMessage, ClientMessage>
+    for WebSocketsTransport<ServerMessage, ClientMessage>
+where
+    ServerMessage: Serialize + Send + Clone + 'static,
+    ClientMessage: DeserializeOwned + Send + Debug + 'static,
 {
     async fn start(&mut self) -> Result<(), Box<dyn Error>> {
         let mut server_handle =
@@ -94,16 +109,16 @@ impl WebviewTransport<MessageWrapper<ServerMessageInner>, MessageWrapper<ClientM
         Ok(())
     }
 
-    fn messages(&self) -> Receiver<MessageWrapper<ClientMessageInner>> {
+    fn messages(&self) -> Receiver<ClientMessage> {
         let (sender, _) = &self.broadcast_channel;
         sender.subscribe()
     }
 
-    fn output_messages(&self) -> Sender<MessageWrapper<ServerMessageInner>> {
+    fn output_messages(&self) -> Sender<ServerMessage> {
         self.output_channel.0.clone()
     }
 
-    async fn send(&self, message: MessageWrapper<ServerMessageInner>) {
+    async fn send(&self, message: ServerMessage) {
         if let Some(handle) = &self.server_handle {
             let result = serde_json::to_string(&message);
             match result {
@@ -115,17 +130,6 @@ impl WebviewTransport<MessageWrapper<ServerMessageInner>, MessageWrapper<ClientM
                     log::error!("Failed to send message {}", err);
                 }
             }
-        }
-    }
-}
-
-impl WebSocketsTransport {
-    pub fn new(addr: &str) -> Self {
-        WebSocketsTransport {
-            addr: String::from(addr),
-            server_handle: None,
-            broadcast_channel: tokio::sync::broadcast::channel(1),
-            output_channel: tokio::sync::broadcast::channel(1),
         }
     }
 }
