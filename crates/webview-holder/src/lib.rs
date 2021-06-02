@@ -14,6 +14,7 @@ use log::{error, info};
 use objc::declare::ClassDecl;
 use objc::runtime::{Class, Object, Sel, BOOL};
 use serde::Serialize;
+use tokio::sync::broadcast::Sender;
 
 extern "C" fn call_ptr(this: &Object, _sel: Sel, controller: id, message: id) {
     unsafe {
@@ -93,7 +94,7 @@ unsafe fn make_class_decl(name: &str) {
 
 pub struct WebviewHolder {
     webview: DarwinWKWebView,
-    on_message_callback: Option<fn(msg: String)>,
+    on_message_callback: Option<Sender<String>>,
     id: i32,
 }
 
@@ -104,7 +105,7 @@ impl Drop for WebviewHolder {
 }
 
 impl WebviewHolder {
-    /// Create a wrapper around a webview.
+    /// Create a wrapper around a webkit.
     ///
     /// # Safety
     /// Unsafe due to FFI.
@@ -122,9 +123,9 @@ impl WebviewHolder {
         }
     }
 
-    /// Attach and initialize this webview holder onto a NSView* that the host forwards.
+    /// Attach and initialize this webkit holder onto a NSView* that the host forwards.
     ///
-    /// Loads the front-end URL, attaches message handlers & pins the webview onto the parent.
+    /// Loads the front-end URL, attaches message handlers & pins the webkit onto the parent.
     ///
     /// # Safety
     /// Unsafe due to:
@@ -143,7 +144,7 @@ impl WebviewHolder {
         self.webview.load_url("http://127.0.0.1:3000");
     }
 
-    /// Attach this webview holder onto a NSView* that the host forwards. Does not attach listeners
+    /// Attach this webkit holder onto a NSView* that the host forwards. Does not attach listeners
     /// or load the front-end URL.
     ///
     /// # Safety
@@ -205,7 +206,7 @@ impl WebviewHolder {
                 let str = string_from_nsstring(body);
                 let str = str.as_ref().ok_or("Failed to get message ref")?;
                 info!(
-                    "Got message from JavaScript message='{}' - has_callback={} self={:?} webview={:?} id={}",
+                    "Got message from JavaScript message='{}' - has_callback={} self={:?} webkit={:?} id={}",
                     str,
                     self.on_message_callback.is_some(),
                     self as *const WebviewHolder as *const c_void,
@@ -213,11 +214,12 @@ impl WebviewHolder {
                     self.id
                 );
 
-                self.on_message_callback
-                    .map(|cb| {
-                        cb(str.clone());
-                    })
+                let result = self
+                    .on_message_callback
+                    .as_ref()
+                    .map(|cb| cb.send(str.clone()))
                     .ok_or("No callback provided")?;
+                result.map_err(|_| "Output receiver channel failed")?;
 
                 Ok(())
             } else {
@@ -232,7 +234,7 @@ impl WebviewHolder {
 }
 
 impl WebviewHolder {
-    pub fn set_on_message_callback(&mut self, on_message_callback: fn(String)) {
+    pub fn set_on_message_callback(&mut self, on_message_callback: Sender<String>) {
         self.on_message_callback = Some(on_message_callback);
     }
 

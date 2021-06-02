@@ -2,6 +2,7 @@
 extern crate async_trait;
 
 pub mod transport;
+pub mod webkit;
 pub mod websockets;
 
 pub use transport::WebviewTransport;

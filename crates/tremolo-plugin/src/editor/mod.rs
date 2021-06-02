@@ -32,7 +32,7 @@ impl TremoloEditor {
     }
 
     unsafe fn initialize_webview(&mut self, parent: *mut c_void) -> Option<bool> {
-        // If there's already a webview just re-attach
+        // If there's already a webkit just re-attach
         if let Some(webview) = &mut self.webview {
             webview.attach_to_parent(parent);
             return Some(true);
@@ -40,12 +40,6 @@ impl TremoloEditor {
 
         let webview = WebviewHolder::new(self.size());
         self.webview = Some(webview);
-        self.webview
-            .as_mut()
-            .unwrap()
-            .set_on_message_callback(|msg| {
-                log::info!("Webkit JS message {}", msg);
-            });
         self.webview.as_mut().unwrap().initialize(parent);
 
         let start_result = self.runtime.block_on(self.transport.start());

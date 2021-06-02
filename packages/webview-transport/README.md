@@ -24,7 +24,7 @@ it onto the script.
 `WebkitMessageTransport` will post messages on a certain channel.
 
 ```typescript
-import { WebkitMessageTransport } from "@wisual/webview-transport";
+import { WebkitMessageTransport } from "@wisual/webkit-transport";
 
 const transport = new WebkitMessageTransport();
 transport.setup();

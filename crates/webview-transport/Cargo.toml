@@ -16,3 +16,5 @@ log = "0.4.11"
 tungstenite = "0.13.0"
 async-trait = "0.1.50"
 serde = { version = "1.0.126", features = ["derive"] }
+
+webview-holder = { path = "../webview-holder" }

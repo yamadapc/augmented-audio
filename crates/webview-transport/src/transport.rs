@@ -1,7 +1,7 @@
 use std::error::Error;
 use tokio::sync::broadcast::{Receiver, Sender};
 
-/// Abstraction for messaging with a webview.
+/// Abstraction for messaging with a webkit.
 #[async_trait]
 pub trait WebviewTransport<ServerMessage, ClientMessage> {
     /// Start transport and its tasks or threads
