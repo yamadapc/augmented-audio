@@ -21,7 +21,11 @@ output to the default output device.
 
 ## crates/tremolo-plugin
 <p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/tremolo-screenshot.png" /></p>
+
 Incomplete tremolo VST with a WebView GUI.
+
+Communicates via messages with the Rust audio processor, has a very rough start
+of visualization experiments using WebGL.
 
 ## crates/oscillator
 Basic oscillator implementation.
