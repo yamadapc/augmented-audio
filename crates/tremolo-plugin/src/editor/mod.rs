@@ -8,7 +8,7 @@ use transport::tokio_websockets::create_transport_runtime;
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
 use crate::editor::transport::{WebSocketsTransport, WebviewTransport};
 use crate::editor::webview::WebviewHolder;
-use crate::plugin_parameter::ParameterStore;
+use crate::parameter_store::ParameterStore;
 
 mod handlers;
 mod protocol;

@@ -9,7 +9,7 @@ use crate::editor::protocol::{
     ClientMessage, ClientMessageInner, MessageWrapper, PublishParametersMessage, ServerMessage,
     ServerMessageInner,
 };
-use crate::plugin_parameter::ParameterStore;
+use crate::parameter_store::ParameterStore;
 
 pub async fn message_handler_loop(
     mut messages: Receiver<ClientMessage>,

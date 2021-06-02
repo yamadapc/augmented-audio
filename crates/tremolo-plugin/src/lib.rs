@@ -25,14 +25,14 @@ use vst::buffer::AudioBuffer;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 
-use plugin_parameter::{ParameterStore, PluginParameter};
+use parameter_store::{ParameterStore, PluginParameter};
 
 use crate::constants::{DEPTH_PARAMETER_ID, RATE_PARAMETER_ID};
 use crate::processor::Processor;
 
 mod constants;
 mod editor;
-mod plugin_parameter;
+mod parameter_store;
 mod processor;
 
 fn configure_logging() -> Option<()> {
