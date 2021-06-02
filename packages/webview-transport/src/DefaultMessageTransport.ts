@@ -30,11 +30,9 @@ export class DefaultMessageTransport<
     >
   ) {
     super();
-    this.transport =
-      process.env.NODE_ENV === "production" &&
-      webKitMessageTransport.isAvailable()
-        ? webKitMessageTransport
-        : webSocketsMessageTransport;
+    this.transport = webKitMessageTransport.isAvailable()
+      ? webKitMessageTransport
+      : webSocketsMessageTransport;
   }
 
   setup(): Promise<void> {

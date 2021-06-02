@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate objc;
+
 use std::error::Error;
 use std::ffi::c_void;
 
@@ -135,8 +138,6 @@ impl WebviewHolder {
         info!("WebviewHolder::initialize - Setting-up message handler");
         self.attach_message_handler();
 
-        assert_eq!(self.on_message_callback.is_some(), false);
-
         // TODO - this should be read from somewhere
         info!("WebviewHolder::initialize - Loading app URL");
         self.webview.load_url("http://127.0.0.1:3000");
@@ -176,7 +177,7 @@ impl WebviewHolder {
             self.id,
             self as *const WebviewHolder as *const c_void,
         );
-        let name = "editor";
+        let name = "default";
 
         // This creates a new objective-c class for the message handler
         let handler = make_new_handler(

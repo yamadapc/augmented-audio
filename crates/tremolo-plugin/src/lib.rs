@@ -3,8 +3,6 @@ extern crate crossbeam;
 extern crate darwin_webkit;
 extern crate log;
 extern crate log4rs;
-#[macro_use]
-extern crate objc;
 extern crate oscillator;
 extern crate proc_macro;
 extern crate serde;

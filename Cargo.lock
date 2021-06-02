@@ -2951,6 +2951,7 @@ dependencies = [
  "tokio-tungstenite",
  "tungstenite",
  "vst",
+ "webview-holder",
  "webview-transport",
  "wisual-logger",
 ]
@@ -3356,6 +3357,18 @@ checksum = "e828417b379f3df7111d3a2a9e5753706cae29c41f7c4029ee9fd77f3e09e582"
 dependencies = [
  "js-sys",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "webview-holder"
+version = "0.1.0"
+dependencies = [
+ "cocoa 0.18.5",
+ "darwin-webkit",
+ "log",
+ "objc",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

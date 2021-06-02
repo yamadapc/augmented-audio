@@ -4,14 +4,13 @@ use std::sync::Arc;
 use vst::editor::Editor;
 
 use audio_parameter_store::ParameterStore;
+use webview_holder::WebviewHolder;
 use webview_transport::{create_transport_runtime, WebSocketsTransport, WebviewTransport};
 
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
-use crate::editor::webview::WebviewHolder;
 
 pub mod handlers;
 pub mod protocol;
-pub mod webview;
 
 pub struct TremoloEditor {
     parameters: Arc<ParameterStore>,
@@ -41,6 +40,12 @@ impl TremoloEditor {
 
         let webview = WebviewHolder::new(self.size());
         self.webview = Some(webview);
+        self.webview
+            .as_mut()
+            .unwrap()
+            .set_on_message_callback(|msg| {
+                log::info!("Webkit JS message {}", msg);
+            });
         self.webview.as_mut().unwrap().initialize(parent);
 
         let start_result = self.runtime.block_on(self.transport.start());
