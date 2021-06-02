@@ -135,7 +135,7 @@ impl WebviewHolder {
     ///
     /// - Operating over a void* passed in by the plugin host
     /// - Calling into Objective-C APIs
-    pub unsafe fn initialize(&mut self, parent: *mut c_void) {
+    pub unsafe fn initialize(&mut self, parent: *mut c_void, url: &str) {
         log::debug!("WebviewHolder::initialize - Attaching to parent NSView");
         self.attach_to_parent(parent);
 
@@ -144,7 +144,7 @@ impl WebviewHolder {
 
         // TODO - this should be read from somewhere
         log::debug!("WebviewHolder::initialize - Loading app URL");
-        self.webview.load_url("http://127.0.0.1:3000");
+        self.webview.load_url(url);
     }
 
     /// Attach this webkit holder onto a NSView* that the host forwards. Does not attach listeners

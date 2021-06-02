@@ -43,7 +43,7 @@ impl TremoloEditor {
         self.webview = Some(Arc::new(Mutex::new(webview)));
         {
             let mut webview = self.webview.as_mut().unwrap().lock().unwrap();
-            webview.initialize(parent);
+            webview.initialize(parent, "http://127.0.0.1:3000");
         }
 
         self.initialize_transport();
