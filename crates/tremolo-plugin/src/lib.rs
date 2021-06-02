@@ -79,6 +79,17 @@ impl TremoloPlugin {
 }
 
 impl Plugin for TremoloPlugin {
+    fn get_info(&self) -> Info {
+        Info {
+            name: "TasV2".to_string(),
+            category: Category::Effect,
+            vendor: "Beijaflor Software".to_string(),
+            unique_id: 2501, // Used by hosts to differentiate between plugins.
+            parameters: self.parameters.get_num_parameters(),
+            ..Default::default()
+        }
+    }
+
     fn new(_host: HostCallback) -> Self {
         configure_logging();
         info!("TremoloPlugin - Started");
@@ -92,24 +103,9 @@ impl Plugin for TremoloPlugin {
         }
     }
 
-    fn get_info(&self) -> Info {
-        Info {
-            name: "TasV2".to_string(),
-            category: Category::Effect,
-            vendor: "Beijaflor Software".to_string(),
-            unique_id: 2501, // Used by hosts to differentiate between plugins.
-            parameters: self.parameters.get_num_parameters(),
-            ..Default::default()
-        }
-    }
-
     fn set_sample_rate(&mut self, rate: f32) {
         info!("TremoloPlugin::set_sample_rate");
         self.processor.set_sample_rate(rate);
-    }
-
-    fn start_process(&mut self) {
-        info!("TremoloPlugin::start_process");
     }
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
@@ -118,6 +114,10 @@ impl Plugin for TremoloPlugin {
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         self.parameters.clone()
+    }
+
+    fn start_process(&mut self) {
+        info!("TremoloPlugin::start_process");
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
