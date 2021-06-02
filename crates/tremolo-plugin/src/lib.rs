@@ -27,7 +27,7 @@ use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 
 use parameter_store::{ParameterStore, PluginParameter};
 
-use crate::constants::{DEPTH_PARAMETER_ID, RATE_PARAMETER_ID};
+use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
 use crate::processor::Processor;
 
 mod constants;
@@ -68,11 +68,36 @@ impl TremoloPlugin {
         let mut store = ParameterStore::new();
         store.add_parameter(
             RATE_PARAMETER_ID,
-            Arc::new(PluginParameter::new_with("Rate", "Hz", 0.1, true)),
+            Arc::new(
+                PluginParameter::builder()
+                    .name("Rate")
+                    .label("Hz")
+                    .initial_value(1.0)
+                    .value_range(0.05, 90.0)
+                    .build(),
+            ),
         );
         store.add_parameter(
             DEPTH_PARAMETER_ID,
-            Arc::new(PluginParameter::new_with("Depth", "", 1.0, true)),
+            Arc::new(
+                PluginParameter::builder()
+                    .name("Depth")
+                    .initial_value(100.0)
+                    .label("%")
+                    .value_range(0.0, 100.0)
+                    .build(),
+            ),
+        );
+        store.add_parameter(
+            PHASE_PARAMETER_ID,
+            Arc::new(
+                PluginParameter::builder()
+                    .name("Phase")
+                    .initial_value(0.0)
+                    .label("º")
+                    .value_range(0.0, 360.0)
+                    .build(),
+            ),
         );
         store
     }

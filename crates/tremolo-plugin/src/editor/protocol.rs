@@ -1,3 +1,4 @@
+use crate::parameter_store::parameter::ParameterType;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -45,6 +46,8 @@ pub struct ParameterDeclarationMessage {
     pub label: String,
     pub text: String,
     pub value: f32,
+    pub value_range: (f32, f32),
+    pub value_type: ParameterType,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

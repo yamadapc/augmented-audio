@@ -87,6 +87,10 @@ impl<T> Oscillator<T>
 where
     T: cpal::Sample,
 {
+    pub fn phase(&self) -> f32 {
+        self.phase
+    }
+
     /// Process a single sample & update the oscillator phase.
     pub fn next_sample(&mut self) -> T {
         let result = self.get();
@@ -99,6 +103,11 @@ where
         if self.phase >= 1.0 {
             self.phase -= 1.0;
         }
+    }
+
+    pub fn value_for_phase(&self, phase: T) -> T {
+        let sample = (self.generator_fn)(phase);
+        T::from(&sample)
     }
 
     pub fn get(&self) -> T {

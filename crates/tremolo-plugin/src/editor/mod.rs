@@ -77,6 +77,8 @@ fn list_parameters(parameters: &ParameterStore) -> Vec<ParameterDeclarationMessa
             label: parameter.label(),
             text: parameter.text(),
             value: parameter.value(),
+            value_range: parameter.value_range(),
+            value_type: parameter.value_type(),
         })
     }
     output

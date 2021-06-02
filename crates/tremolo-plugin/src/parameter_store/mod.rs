@@ -5,7 +5,7 @@ use vst::plugin::PluginParameters;
 
 pub use parameter::PluginParameter;
 
-mod parameter;
+pub mod parameter;
 
 type ParameterId = String;
 
@@ -141,7 +141,7 @@ mod test {
     #[test]
     fn test_creating_and_adding_parameters() {
         let mut parameter_store = ParameterStore::new();
-        let parameter = Arc::new(PluginParameter::new("Test parameter", "label"));
+        let parameter = Arc::new(PluginParameter::builder().name("Test parameter").build());
         parameter_store.add_parameter("test", parameter);
 
         let first_parameter_name = parameter_store.get_parameter_name(0);
@@ -151,12 +151,13 @@ mod test {
     #[test]
     fn test_parameter_fields() {
         let mut parameter_store = ParameterStore::new();
-        let parameter = Arc::new(PluginParameter::new_with(
-            "Test parameter",
-            "label",
-            10.0,
-            true,
-        ));
+        let parameter = Arc::new(
+            PluginParameter::builder()
+                .name("Test parameter")
+                .label("label")
+                .initial_value(10.0)
+                .build(),
+        );
         parameter_store.add_parameter("test", parameter);
 
         assert_eq!(parameter_store.get_parameter_name(0), "Test parameter");
@@ -168,12 +169,12 @@ mod test {
     #[test]
     fn test_parameter_set_and_get() {
         let mut parameter_store = ParameterStore::new();
-        let parameter = Arc::new(PluginParameter::new_with(
-            "Test parameter",
-            "label",
-            10.0,
-            true,
-        ));
+        let parameter = Arc::new(
+            PluginParameter::builder()
+                .name("Test parameter")
+                .initial_value(10.0)
+                .build(),
+        );
         parameter_store.add_parameter("test", parameter);
 
         let parameter = parameter_store.find_parameter("test");

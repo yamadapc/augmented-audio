@@ -4,7 +4,7 @@ use vst::buffer::AudioBuffer;
 
 use oscillator::Oscillator;
 
-use crate::constants::{DEPTH_PARAMETER_ID, RATE_PARAMETER_ID};
+use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
 use crate::parameter_store::ParameterStore;
 
 pub struct Processor {
@@ -33,7 +33,8 @@ impl Processor {
 
     pub fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         let rate = self.parameters.value(RATE_PARAMETER_ID);
-        let depth = self.parameters.value(DEPTH_PARAMETER_ID);
+        let depth = self.parameters.value(DEPTH_PARAMETER_ID) / 100.0;
+        let phase_offset = self.parameters.value(PHASE_PARAMETER_ID) / 360.0;
 
         self.oscillator_left.set_frequency(rate);
         self.oscillator_right.set_frequency(rate);
@@ -53,7 +54,14 @@ impl Processor {
             let output_samples = output.get_mut(channel % output.len());
 
             for sample_index in 0..num_samples {
-                let volume = osc.next_sample();
+                let volume = if channel == 0 {
+                    osc.next_sample()
+                } else {
+                    let value = osc.value_for_phase(osc.phase() + phase_offset);
+                    osc.tick();
+                    value
+                };
+
                 let dry_signal = input_samples[sample_index];
                 let wet_signal = volume * input_samples[sample_index];
                 // mixed_signal = (1.0 - depth) * dry + depth * wet
