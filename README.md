@@ -7,6 +7,15 @@
 In this repository I'll push some experiments trying to use Rust for audio programming.
 
 ## crates/test-plugin-host
+```
+test-plugin-host run \
+    # Open VST at plugin.dylib
+    --plugin ./plugin.dylib \
+    # Open, decode & convert sample-rate of input.mp3
+    --input ./input.mp3 \
+    # Open window & host the VST GUI
+    --editor
+```
 Basic test host. Opens a VST plugin and input file, then connects the plugin's
 output to the default output device.
 
