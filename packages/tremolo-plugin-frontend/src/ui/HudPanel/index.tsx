@@ -1,9 +1,10 @@
 import "./index.css";
 import Regl from "regl";
-import { useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { ParametersStore } from "../../state/ParametersStore";
 import { observer } from "mobx-react";
-import { setInterval } from "timers";
+import { autorun } from "mobx";
+import { debounce } from "lodash";
 
 const NUM_VERTICES = 1000;
 
@@ -42,11 +43,12 @@ interface Props {
   parametersStore: ParametersStore;
 }
 
-function HudPanel({ parametersStore }: Props) {
-  const [windowHeight, setWindowHeight] = useState(() => window.innerHeight);
-  const canvasContainerRef = useRef(null);
+function useHudRenderer(
+  parametersStore: ParametersStore,
+  setWindowHeight: (value: ((prevState: number) => number) | number) => void
+): MutableRefObject<HTMLDivElement | null> {
+  const canvasContainerRef = useRef<HTMLDivElement | null>(null);
   const reglRef = useRef<Regl.Regl | null>(null);
-  const stopped = useRef(true);
 
   useEffect(() => {
     const canvasEl = canvasContainerRef.current;
@@ -121,12 +123,11 @@ function HudPanel({ parametersStore }: Props) {
 
       const depth = parametersStore.depth?.value ?? 100.0;
       const rate = parametersStore.rate?.value ?? 0.1;
-      const timeWithStopped = stopped.current ? 0 : time;
       drawTriangle([
         {
           color: mainColor,
           position: vertices,
-          time: timeWithStopped,
+          time,
           depth,
           phase: 0,
           rate,
@@ -138,7 +139,7 @@ function HudPanel({ parametersStore }: Props) {
         {
           color: secondaryColor,
           position: vertices,
-          time: timeWithStopped,
+          time,
           depth,
           phase,
           rate,
@@ -146,47 +147,33 @@ function HudPanel({ parametersStore }: Props) {
       ]);
     };
 
-    tick({ time: 0 });
-    regl.frame(({ time }) => {
-      tick({ time });
+    const dispose = autorun(() => {
+      tick({ time: Date.now() });
     });
 
-    const onResize = () => {
+    const onResize = debounce(() => {
       setWindowHeight(window.innerHeight);
       regl.poll();
-    };
+    }, 100);
     window.addEventListener("resize", onResize);
 
     return () => {
       regl.destroy();
+      dispose();
       window.removeEventListener("resize", onResize);
     };
   }, [parametersStore, setWindowHeight]);
 
+  return canvasContainerRef;
+}
+
+function HudPanel({ parametersStore }: Props) {
+  const [windowHeight, setWindowHeight] = useState(() => window.innerHeight);
+  const canvasContainerRef = useHudRenderer(parametersStore, setWindowHeight);
+
   return (
     <div className="HudPanel" style={{ position: "relative" }}>
       <div ref={canvasContainerRef} style={{ height: windowHeight - 100 }} />
-
-      {/*<button*/}
-      {/*  onClick={() => {*/}
-      {/*    stopped.current = !stopped.current;*/}
-      {/*  }}*/}
-      {/*  style={{*/}
-      {/*    backgroundColor: "#333",*/}
-      {/*    color: "white",*/}
-      {/*    userSelect: "none",*/}
-      {/*    borderRadius: 2,*/}
-      {/*    padding: 5,*/}
-      {/*    textTransform: "lowercase",*/}
-      {/*    lineHeight: 1,*/}
-      {/*    border: "solid 1px #666",*/}
-      {/*    position: "absolute",*/}
-      {/*    bottom: 10,*/}
-      {/*    left: 10,*/}
-      {/*  }}*/}
-      {/*>*/}
-      {/*  Start / Stop*/}
-      {/*</button>*/}
     </div>
   );
 }
