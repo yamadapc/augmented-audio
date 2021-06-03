@@ -1,8 +1,8 @@
 import "./index.css";
-import {useState} from "react";
-import {ParametersStore} from "../../state/ParametersStore";
-import {observer} from "mobx-react";
-import {useHudRenderer} from "./useHudRenderer";
+import { useState } from "react";
+import { ParametersStore } from "../../state/ParametersStore";
+import { observer } from "mobx-react";
+import { useHudRenderer } from "./useHudRenderer";
 
 interface Props {
   parametersStore: ParametersStore;

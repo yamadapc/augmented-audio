@@ -1,9 +1,9 @@
-import {ParametersStore} from "../../state/ParametersStore";
-import {MutableRefObject, useEffect, useRef} from "react";
+import { ParametersStore } from "../../state/ParametersStore";
+import { MutableRefObject, useEffect, useRef } from "react";
 import Regl from "regl";
-import {autorun} from "mobx";
-import {debounce, range} from "lodash";
-import {ReglAttributes, ReglProps, ReglUniforms, Vec4} from "./types";
+import { autorun } from "mobx";
+import { debounce, range } from "lodash";
+import { ReglAttributes, ReglProps, ReglUniforms, Vec4 } from "./types";
 
 const NUM_VERTICES = 1000;
 
@@ -117,7 +117,9 @@ export function useHudRenderer(
 
     const onResize = debounce(() => {
       setWindowHeight(window.innerHeight);
-      regl.poll();
+      requestAnimationFrame(() => {
+        regl.poll();
+      });
     }, 100);
     window.addEventListener("resize", onResize);
 

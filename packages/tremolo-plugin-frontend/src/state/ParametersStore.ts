@@ -1,7 +1,11 @@
 import { ParameterDeclarationMessage } from "../common/protocol";
 import { singleton } from "tsyringe";
 import { makeAutoObservable } from "mobx";
-import {PHASE_PARAMETER_ID, DEPTH_PARAMETER_ID, RATE_PARAMETER_ID} from "../common/constants";
+import {
+  PHASE_PARAMETER_ID,
+  DEPTH_PARAMETER_ID,
+  RATE_PARAMETER_ID,
+} from "../common/constants";
 
 export class ParameterState {
   private valueInner: number;
