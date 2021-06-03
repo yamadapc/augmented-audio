@@ -1,7 +1,7 @@
 import { ParameterDeclarationMessage } from "../common/protocol";
 import { singleton } from "tsyringe";
 import { makeAutoObservable } from "mobx";
-import { DEPTH_PARAMETER_ID } from "../common/constants";
+import {PHASE_PARAMETER_ID, DEPTH_PARAMETER_ID, RATE_PARAMETER_ID} from "../common/constants";
 
 export class ParameterState {
   private valueInner: number;
@@ -39,6 +39,14 @@ export class ParametersStore {
 
   get depth(): null | ParameterState {
     return this.parameterValues[DEPTH_PARAMETER_ID] ?? null;
+  }
+
+  get rate(): null | ParameterState {
+    return this.parameterValues[RATE_PARAMETER_ID] ?? null;
+  }
+
+  get phase(): null | ParameterState {
+    return this.parameterValues[PHASE_PARAMETER_ID] ?? null;
   }
 
   setParameterValue(id: string, value: number) {

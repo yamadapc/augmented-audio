@@ -3,6 +3,7 @@ import Regl from "regl";
 import { useEffect, useRef, useState } from "react";
 import { ParametersStore } from "../../state/ParametersStore";
 import { observer } from "mobx-react";
+import { setInterval } from "timers";
 
 const NUM_VERTICES = 1000;
 
@@ -20,6 +21,8 @@ interface ReglUniforms {
   color: Vec4;
   time: number;
   depth: number;
+  phase: number;
+  rate: number;
 }
 
 interface ReglAttributes {
@@ -31,6 +34,8 @@ interface ReglProps {
   color: Vec4;
   time: number;
   depth: number;
+  phase: number;
+  rate: number;
 }
 
 interface Props {
@@ -64,22 +69,19 @@ function HudPanel({ parametersStore }: Props) {
           gl_FragColor = color;
         }
       `,
-
-      // .map((x) => [
-      //   0.1 + 2 * (Math.sin(x / NUM_VERTICES)) - 1.0,
-      //   0.9 * Math.sin((time * 4) + (x / NUM_VERTICES) * 3 * 2 * Math.PI),
-      // ]),
-
       vert: `
         precision mediump float;
         attribute vec2 position;
         uniform float time;
         uniform float depth;
+        uniform float phase;
+        uniform float rate;
 
         void main() {
+          float PI = 3.14159;
           gl_Position = vec4(
             (position.x - 0.5) * 1.9,
-            depth * 0.8 * sin(time * 5. + position.x * 30.),
+            (depth / 100.0) * 0.8 * sin(position.x * 3. * rate * PI + (phase / 360.0) * 2. * PI),
             0,
             1
           );
@@ -95,6 +97,8 @@ function HudPanel({ parametersStore }: Props) {
         color: regl.prop<ReglProps, "color">("color"),
         time: regl.prop<ReglProps, "time">("time"),
         depth: regl.prop<ReglProps, "depth">("depth"),
+        phase: regl.prop<ReglProps, "phase">("phase"),
+        rate: regl.prop<ReglProps, "rate">("rate"),
       },
 
       // This tells regl the number of vertices to draw in this command
@@ -107,17 +111,37 @@ function HudPanel({ parametersStore }: Props) {
       x / NUM_VERTICES,
     ]);
 
+    const clearColor: Vec4 = [24 / 255, 24 / 255, 24 / 255, 1];
+    const mainColor: Vec4 = [33 / 255, 170 / 255, 230 / 255, 1];
+    const secondaryColor: Vec4 = [200 / 255, 120 / 255, 60 / 255, 1];
     const tick = ({ time }: { time: number }) => {
       regl.clear({
-        color: [24 / 255, 24 / 255, 24 / 255, 1],
+        color: clearColor,
       });
 
+      const depth = parametersStore.depth?.value ?? 100.0;
+      const rate = parametersStore.rate?.value ?? 0.1;
+      const timeWithStopped = stopped.current ? 0 : time;
       drawTriangle([
         {
-          color: [33 / 255, 170 / 255, 230 / 255, 1],
+          color: mainColor,
           position: vertices,
-          time: stopped.current ? 0 : time,
-          depth: (parametersStore.depth?.value ?? 100.0) / 100.0,
+          time: timeWithStopped,
+          depth,
+          phase: 0,
+          rate,
+        },
+      ]);
+
+      const phase = parametersStore.phase?.value ?? 0.0;
+      drawTriangle([
+        {
+          color: secondaryColor,
+          position: vertices,
+          time: timeWithStopped,
+          depth,
+          phase,
+          rate,
         },
       ]);
     };
