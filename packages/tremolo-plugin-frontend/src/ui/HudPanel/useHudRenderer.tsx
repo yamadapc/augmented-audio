@@ -25,6 +25,10 @@ export function useHudRenderer(
     });
     reglRef.current = regl;
 
+    const vertices = range(NUM_VERTICES).map((x) => [
+      x / NUM_VERTICES,
+      x / NUM_VERTICES,
+    ]);
     const drawTriangle = regl<ReglUniforms, ReglAttributes, ReglProps, {}>({
       // Shaders in regl are just strings.  You can use glslify or whatever you want
       // to define them.  No need to manually create shader objects.
@@ -45,9 +49,15 @@ export function useHudRenderer(
 
         void main() {
           float PI = 3.14159;
+
+          float x = (position.x - 0.5) * 1.9;
+
+          float depthFactor = (depth / 100.0) * 0.8;
+          float phasePrime = position.x * 3. * rate * PI + (phase / 360.0) * 2. * PI;
+          float y = depthFactor * sin(phasePrime);
           gl_Position = vec4(
-            (position.x - 0.5) * 1.9,
-            (depth / 100.0) * 0.8 * sin(position.x * 3. * rate * PI + (phase / 360.0) * 2. * PI),
+            x,
+            y,
             0,
             1
           );
@@ -65,17 +75,17 @@ export function useHudRenderer(
         depth: regl.prop<ReglProps, "depth">("depth"),
         phase: regl.prop<ReglProps, "phase">("phase"),
         rate: regl.prop<ReglProps, "rate">("rate"),
+        // @ts-ignore
+        resolution: ({ viewportWidth, viewportHeight }) => [
+          viewportWidth,
+          viewportHeight,
+        ],
       },
 
       // This tells regl the number of vertices to draw in this command
       count: NUM_VERTICES,
       primitive: "line strip",
     });
-
-    const vertices = range(NUM_VERTICES).map((x) => [
-      x / NUM_VERTICES,
-      x / NUM_VERTICES,
-    ]);
 
     const clearColor: Vec4 = [24 / 255, 24 / 255, 24 / 255, 1];
     const mainColor: Vec4 = [33 / 255, 170 / 255, 230 / 255, 1];
@@ -87,6 +97,7 @@ export function useHudRenderer(
 
       const depth = parametersStore.depth?.value ?? 100.0;
       const rate = parametersStore.rate?.value ?? 0.1;
+      const phase = parametersStore.phase?.value ?? 0.0;
       drawTriangle([
         {
           color: mainColor,
@@ -97,8 +108,6 @@ export function useHudRenderer(
           rate,
         },
       ]);
-
-      const phase = parametersStore.phase?.value ?? 0.0;
       drawTriangle([
         {
           color: secondaryColor,
