@@ -65,10 +65,12 @@ impl TremoloEditor {
                 .map(|v| v == "true")
                 .unwrap_or(false);
             if use_websockets_transport {
+                log::info!("Using websockets transport");
                 let websockets_addr = std::env::var("WEBSOCKETS_TRANSPORT_ADDR")
                     .unwrap_or_else(|_| "localhost:9510".to_string());
                 Box::new(WebSocketsTransport::new(&websockets_addr))
             } else {
+                log::info!("Using webkit transport");
                 Box::new(WebkitTransport::new(self.webview.as_ref().unwrap().clone()))
             }
         });

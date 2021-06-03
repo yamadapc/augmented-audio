@@ -35,22 +35,6 @@ body, #root, .App {
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
 
-    <% htmlWebpackPlugin.files.css.forEach((cssFile) => { %>
-      <style>
-        <%=
-        compilation.assets[cssFile.substr(htmlWebpackPlugin.files.publicPath.length)].source()
-        %>
-      </style>
-    <% }); %>
-
-    <% htmlWebpackPlugin.files.js.forEach((jsFile) => { %>
-      <script>
-        <%=
-        compilation.assets[jsFile.substr(htmlWebpackPlugin.files.publicPath.length)].source()
-        %>
-      </script>
-    <% }); %>
-
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

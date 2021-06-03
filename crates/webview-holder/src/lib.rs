@@ -160,19 +160,18 @@ impl WebviewHolder {
         let wk_webview = self.webview.get_native_handle();
         parent_id.addSubview_(wk_webview);
         let window_id: id = msg_send![parent_id, window];
+
+        let ns_rect: NSRect = NSView::frame(wk_webview);
+        let ns_size = ns_rect.size;
+        window_id.setMinSize_(ns_size);
+        window_id.setContentSize_(ns_size);
         window_id.setStyleMask_(
             NSWindowStyleMask::NSTitledWindowMask
                 | NSWindowStyleMask::NSResizableWindowMask
                 | NSWindowStyleMask::NSClosableWindowMask,
         );
 
-        let webview_id = self.webview.get_native_handle();
-        pin_to_parent(parent_id, webview_id);
-
-        let ns_rect: NSRect = NSView::frame(webview_id);
-        let ns_size = ns_rect.size;
-        window_id.setMinSize_(ns_size);
-        window_id.setContentSize_(ns_size);
+        pin_to_parent(parent_id, wk_webview);
     }
 
     unsafe fn attach_message_handler(&mut self) {
