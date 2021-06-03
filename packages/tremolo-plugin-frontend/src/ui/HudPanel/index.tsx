@@ -167,26 +167,26 @@ function HudPanel({ parametersStore }: Props) {
     <div className="HudPanel" style={{ position: "relative" }}>
       <div ref={canvasContainerRef} style={{ height: windowHeight - 100 }} />
 
-      <button
-        onClick={() => {
-          stopped.current = !stopped.current;
-        }}
-        style={{
-          backgroundColor: "#333",
-          color: "white",
-          userSelect: "none",
-          borderRadius: 2,
-          padding: 5,
-          textTransform: "lowercase",
-          lineHeight: 1,
-          border: "solid 1px #666",
-          position: "absolute",
-          bottom: 10,
-          left: 10,
-        }}
-      >
-        Start / Stop
-      </button>
+      {/*<button*/}
+      {/*  onClick={() => {*/}
+      {/*    stopped.current = !stopped.current;*/}
+      {/*  }}*/}
+      {/*  style={{*/}
+      {/*    backgroundColor: "#333",*/}
+      {/*    color: "white",*/}
+      {/*    userSelect: "none",*/}
+      {/*    borderRadius: 2,*/}
+      {/*    padding: 5,*/}
+      {/*    textTransform: "lowercase",*/}
+      {/*    lineHeight: 1,*/}
+      {/*    border: "solid 1px #666",*/}
+      {/*    position: "absolute",*/}
+      {/*    bottom: 10,*/}
+      {/*    left: 10,*/}
+      {/*  }}*/}
+      {/*>*/}
+      {/*  Start / Stop*/}
+      {/*</button>*/}
     </div>
   );
 }
