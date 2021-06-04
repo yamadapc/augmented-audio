@@ -124,9 +124,7 @@ fn start_gui(instance: *mut PluginInstance) {
                 *control_flow = ControlFlow::Exit
             }
             Event::MainEventsCleared => {}
-            Event::RedrawRequested(_) => {
-                window.request_redraw();
-            }
+            Event::RedrawRequested(_) => {}
             _ => (),
         }
     });
