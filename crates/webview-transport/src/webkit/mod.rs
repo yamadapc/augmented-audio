@@ -76,6 +76,8 @@ where
     ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
 {
     async fn start(&mut self) -> Result<(), Box<dyn Error>> {
+        log::info!("Starting webkit transport");
+
         self.input_task = Some({
             log::info!("Starting client message loop");
             let (client_string_sender, mut client_string_receiver) = channel(1);
@@ -85,8 +87,14 @@ where
 
             tokio::spawn(async move {
                 loop {
-                    let client_message = client_string_receiver.recv().await.unwrap();
-                    parse_and_forward_message(client_message, &client_message_sender)
+                    match client_string_receiver.recv().await {
+                        Ok(client_message) => {
+                            parse_and_forward_message(client_message, &client_message_sender)
+                        }
+                        Err(err) => {
+                            log::error!("Failed to receive client message {}", err);
+                        }
+                    }
                 }
             })
         });
@@ -106,16 +114,16 @@ where
         Ok(())
     }
 
-    async fn stop(self) -> Result<(), Box<dyn Error>> {
+    async fn stop(&self) -> Result<(), Box<dyn Error>> {
         {
             let mut webview = self.webview.lock().unwrap();
             webview.clear_on_message_callback();
         }
 
-        if let Some(task) = self.output_task {
+        if let Some(task) = &self.output_task {
             task.abort();
         }
-        if let Some(task) = self.input_task {
+        if let Some(task) = &self.input_task {
             task.abort();
         }
         Ok(())

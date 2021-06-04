@@ -50,6 +50,7 @@ where
     ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
 {
     async fn start(&mut self) -> Result<(), Box<dyn Error>> {
+        log::info!("Starting websockets transport");
         let mut server_handle =
             run_websockets_transport_async(ServerOptions::new(&self.addr)).await?;
         let messages = server_handle.messages();
@@ -62,8 +63,8 @@ where
         Ok(())
     }
 
-    async fn stop(self) -> Result<(), Box<dyn Error>> {
-        if let Some(handle) = self.server_handle {
+    async fn stop(&self) -> Result<(), Box<dyn Error>> {
+        if let Some(handle) = &self.server_handle {
             handle.lock().await.abort();
         }
         Ok(())

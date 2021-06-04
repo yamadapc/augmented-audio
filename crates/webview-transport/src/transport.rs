@@ -7,7 +7,7 @@ pub trait WebviewTransport<ServerMessage, ClientMessage> {
     /// Start transport and its tasks or threads
     async fn start(&mut self) -> Result<(), Box<dyn Error>>;
     /// Stop transport, abort all tasks or threads
-    async fn stop(self) -> Result<(), Box<dyn Error>>;
+    async fn stop(&self) -> Result<(), Box<dyn Error>>;
     /// Messages from JavaScript
     fn messages(&self) -> Receiver<ClientMessage>;
     /// Messages into JavaScript

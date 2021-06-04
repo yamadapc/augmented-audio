@@ -1,46 +1,56 @@
 export interface MessageWrapper<Message> {
-    id?: string | null,
-    channel: string,
-    message: Message,
+  id?: string | null;
+  channel: string;
+  message: Message;
 }
 
 export type ServerMessage = MessageWrapper<ServerMessageInner>;
-export type ServerMessageInner = PublishParametersMessage;
+export type ServerMessageInner =
+  | PublishParametersMessage
+  | ParameterValueMessage;
 
 export interface PublishParametersMessage {
-    type: 'PublishParameters',
-    parameters: ParameterDeclarationMessage[]
+  type: "PublishParameters";
+  parameters: ParameterDeclarationMessage[];
 }
 
-export type ParameterType = 'Number';
+export interface ParameterValueMessage {
+  type: "ParameterValue";
+  id: string;
+  value: number;
+}
+
+export type ParameterType = "Number";
 
 export interface ParameterDeclarationMessage {
-    id: string,
-    name: string,
-    label: string,
-    text: string,
-    value: number,
-    valueRange: [number, number],
-    valueType: ParameterType,
-    valuePrecision: number,
+  id: string;
+  name: string;
+  label: string;
+  text: string;
+  value: number;
+  valueRange: [number, number];
+  valueType: ParameterType;
+  valuePrecision: number;
 }
 
 export type ClientMessage = MessageWrapper<ClientMessageInner>;
 export type ClientMessageInner =
-    AppStartedMessage | SetParameterMessage | LogMessage;
+  | AppStartedMessage
+  | SetParameterMessage
+  | LogMessage;
 
 interface AppStartedMessage {
-    type: 'AppStarted',
+  type: "AppStarted";
 }
 
 interface SetParameterMessage {
-    type: 'SetParameter',
-    parameterId: string,
-    value: number
+  type: "SetParameter";
+  parameterId: string;
+  value: number;
 }
 
 interface LogMessage {
-    type: 'Log',
-    level : string,
-    message: string
+  type: "Log";
+  level: string;
+  message: string;
 }

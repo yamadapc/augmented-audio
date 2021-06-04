@@ -36,10 +36,10 @@ export class MessageHandlingService {
       });
     });
 
-    this.transport.postMessage("default", {
-      type: "Log",
-      level: "info",
-      message: `ACK:${msg.message.type}`,
-    });
+    // this.transport.postMessage("default", {
+    //   type: "Log",
+    //   level: "info",
+    //   message: `ACK:${msg.message.type}`,
+    // });
   };
 }

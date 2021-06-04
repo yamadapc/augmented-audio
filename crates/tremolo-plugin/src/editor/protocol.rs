@@ -30,12 +30,19 @@ impl<Message> MessageWrapper<Message> {
 #[serde(tag = "type")]
 pub enum ServerMessageInner {
     PublishParameters(PublishParametersMessage),
+    ParameterValue(ParameterValueMessage),
 }
 pub type ServerMessage = MessageWrapper<ServerMessageInner>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PublishParametersMessage {
     pub parameters: Vec<ParameterDeclarationMessage>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ParameterValueMessage {
+    pub id: String,
+    pub value: f32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

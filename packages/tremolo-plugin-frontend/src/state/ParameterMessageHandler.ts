@@ -22,6 +22,10 @@ export class ParameterMessageHandler implements MessageHandler {
         this.logger.info("Got parameters message");
         this.parametersStore.setParameters(serverMessage.message.parameters);
         break;
+      case "ParameterValue":
+        this.logger.info("Got parameters message");
+        this.parametersStore.setParameterValue(serverMessage.message.id, serverMessage.message.value);
+        break;
     }
   }
 }

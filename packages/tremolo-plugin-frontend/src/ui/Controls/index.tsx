@@ -1,6 +1,6 @@
 import React from "react";
 import "./index.css";
-import { RotaryControl } from "./RotaryControl";
+import RotaryControl from "./RotaryControl";
 import { ParametersStore } from "../../state/ParametersStore";
 import { observer } from "mobx-react";
 
@@ -15,19 +15,21 @@ export function Controls({ parametersStore, setParameter }: Props) {
   return (
     <div className="Controls">
       <div className="Box">
-        {parameters.map((parameter) => (
-          <RotaryControl
-            key={parameter.id}
-            name={parameter.name}
-            label={parameter.label}
-            valueRange={parameter.valueRange}
-            precision={parameter.valuePrecision}
-            initialValue={parameter.value}
-            onChange={(value) => {
-              setParameter(parameter.id, value);
-            }}
-          />
-        ))}
+        {parameters.map((parameter) => {
+          const state = parametersStore.getParameter(parameter.id);
+          if (!state) {
+            return null;
+          }
+          return (
+            <RotaryControl
+              declaration={parameter}
+              state={state}
+              onChange={(id, val) => {
+                setParameter(id, val);
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );

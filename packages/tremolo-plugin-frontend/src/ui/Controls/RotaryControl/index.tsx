@@ -1,37 +1,38 @@
 import "./index.css";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { ParameterState } from "../../../state/ParametersStore";
+import { observer } from "mobx-react";
+import { ParameterDeclarationMessage } from "../../../common/protocol";
 
 const TWO_PI = 2 * Math.PI;
 
 interface Props {
-  name: string;
-  initialValue: number;
-  precision: number;
-  label: string;
-  valueRange: [number, number];
-  onChange: (value: number) => void;
+  declaration: ParameterDeclarationMessage;
+  state: ParameterState;
+  onChange: (id: string, val: number) => void;
 }
 
-export function RotaryControl({
-  name,
-  onChange,
-  initialValue,
-  label,
-  precision,
-  valueRange: [minValue, maxValue],
-}: Props) {
+function RotaryControl({ state: parameter, declaration, onChange }: Props) {
+  const {
+    valueRange: [minValue, maxValue],
+    label,
+      name,
+    valuePrecision: precision,
+  } = declaration;
+  const { value } = parameter;
   const valueAbsRange = Math.abs(maxValue - minValue);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
-  const [value, setValueInner] = useState(initialValue);
+  // const [value, setValueInner] = useState(initialValue);
   const cleanUpTasks = useRef<(() => void)[]>([]);
 
   const setValue = useCallback(
     (val) => {
-      setValueInner(val);
-      onChange(val);
+      // setValueInner(val);
+      parameter.value = val;
+      onChange(declaration.id, val);
     },
-    [setValueInner, onChange]
+    [/* setValueInner, */ declaration, parameter, onChange]
   );
 
   const onMouseDown = (e: React.MouseEvent) => {
@@ -155,3 +156,5 @@ export function RotaryControl({
     </div>
   );
 }
+
+export default observer(RotaryControl);

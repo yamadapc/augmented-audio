@@ -41,6 +41,10 @@ export class ParametersStore {
     });
   }
 
+  getParameter(id: string): null | ParameterState {
+    return this.parameterValues[id] ?? null;
+  }
+
   get depth(): null | ParameterState {
     return this.parameterValues[DEPTH_PARAMETER_ID] ?? null;
   }

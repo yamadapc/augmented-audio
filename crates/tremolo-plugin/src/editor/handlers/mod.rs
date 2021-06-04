@@ -7,8 +7,8 @@ use ClientMessageInner::{AppStarted, Log, SetParameter};
 
 use crate::editor::list_parameters;
 use crate::editor::protocol::{
-    ClientMessage, ClientMessageInner, MessageWrapper, PublishParametersMessage, ServerMessage,
-    ServerMessageInner,
+    ClientMessage, ClientMessageInner, MessageWrapper, ParameterValueMessage,
+    PublishParametersMessage, ServerMessage, ServerMessageInner, SetParameterMessage,
 };
 
 pub async fn message_handler_loop(
@@ -22,14 +22,7 @@ pub async fn message_handler_loop(
             match message {
                 AppStarted(_) => app_started(&output_messages, parameter_store),
                 SetParameter(set_parameter) => {
-                    match parameter_store.find_parameter(&set_parameter.parameter_id) {
-                        Some(parameter) => {
-                            parameter.set_value(set_parameter.value);
-                        }
-                        None => {
-                            log::error!("Front-end is asking to set unknown parameter");
-                        }
-                    }
+                    handle_set_parameter(&output_messages, parameter_store, &set_parameter)
                 }
                 Log(log_message) => {
                     log::info!(
@@ -39,6 +32,29 @@ pub async fn message_handler_loop(
                     )
                 }
             }
+        }
+    }
+}
+
+fn handle_set_parameter(
+    output_messages: &Sender<ServerMessage>,
+    parameter_store: &Arc<ParameterStore>,
+    set_parameter: &SetParameterMessage,
+) {
+    match parameter_store.find_parameter(&set_parameter.parameter_id) {
+        Some(parameter) => {
+            parameter.set_value(set_parameter.value);
+            output_messages
+                .send(ServerMessage::notification(
+                    ServerMessageInner::ParameterValue(ParameterValueMessage {
+                        id: set_parameter.parameter_id.clone(),
+                        value: set_parameter.value,
+                    }),
+                ))
+                .unwrap();
+        }
+        None => {
+            log::error!("Front-end is asking to set unknown parameter");
         }
     }
 }

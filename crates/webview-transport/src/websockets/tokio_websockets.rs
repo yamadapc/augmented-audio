@@ -132,7 +132,7 @@ impl ServerHandle {
 
     pub async fn send(&self, message: String) {
         let mut connections = self.connections.lock().await;
-        log::info!(
+        log::debug!(
             "Flushing text message to {} connections : {}",
             connections.len(),
             message

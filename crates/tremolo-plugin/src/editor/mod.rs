@@ -5,13 +5,42 @@ use vst::editor::Editor;
 
 use audio_parameter_store::ParameterStore;
 use webview_holder::WebviewHolder;
-use webview_transport::{create_transport_runtime, WebSocketsTransport, WebviewTransport};
+use webview_transport::{
+    create_transport_runtime, DelegatingTransport, WebSocketsTransport, WebviewTransport,
+};
 
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
+use serde::de::DeserializeOwned;
+use serde::Serialize;
+use std::fmt::Debug;
 use webview_transport::webkit::WebkitTransport;
 
 pub mod handlers;
 pub mod protocol;
+
+fn initialize_transport<ServerMessage, ClientMessage>(
+    webview: Arc<Mutex<WebviewHolder>>,
+) -> Box<dyn WebviewTransport<ServerMessage, ClientMessage>>
+where
+    ServerMessage: Serialize + Send + Clone + Debug + 'static,
+    ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
+{
+    let use_websockets_transport = std::env::var("USE_WEBSOCKETS_TRANSPORT")
+        .map(|v| v == "true")
+        .unwrap_or(false);
+    if use_websockets_transport {
+        log::info!("Using websockets transport");
+        let websockets_addr = std::env::var("WEBSOCKETS_TRANSPORT_ADDR")
+            .unwrap_or_else(|_| "localhost:9510".to_string());
+        Box::new(DelegatingTransport::from_transports(vec![
+            Box::new(WebSocketsTransport::new(&websockets_addr)),
+            Box::new(WebkitTransport::new(webview)),
+        ]))
+    } else {
+        log::info!("Using webkit transport");
+        Box::new(WebkitTransport::new(webview))
+    }
+}
 
 pub struct TremoloEditor {
     parameters: Arc<ParameterStore>,
@@ -41,12 +70,16 @@ impl TremoloEditor {
 
         let webview = WebviewHolder::new(self.size());
         self.webview = Some(Arc::new(Mutex::new(webview)));
+
+        self.transport = Some(initialize_transport::<ServerMessage, ClientMessage>(
+            self.webview.clone().unwrap(),
+        ));
+
         {
             let mut webview = self.webview.as_mut().unwrap().lock().unwrap();
             webview.initialize(parent, "http://127.0.0.1:3000");
         }
 
-        self.initialize_transport();
         let start_result = self
             .runtime
             .block_on(self.transport.as_mut().unwrap().start());
@@ -57,23 +90,6 @@ impl TremoloEditor {
         self.spawn_message_handler();
 
         Some(true)
-    }
-
-    fn initialize_transport(&mut self) {
-        self.transport = Some({
-            let use_websockets_transport = std::env::var("USE_WEBSOCKETS_TRANSPORT")
-                .map(|v| v == "true")
-                .unwrap_or(false);
-            if use_websockets_transport {
-                log::info!("Using websockets transport");
-                let websockets_addr = std::env::var("WEBSOCKETS_TRANSPORT_ADDR")
-                    .unwrap_or_else(|_| "localhost:9510".to_string());
-                Box::new(WebSocketsTransport::new(&websockets_addr))
-            } else {
-                log::info!("Using webkit transport");
-                Box::new(WebkitTransport::new(self.webview.as_ref().unwrap().clone()))
-            }
-        });
     }
 
     fn spawn_message_handler(&mut self) {
