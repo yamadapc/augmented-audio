@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 use std::process::exit;
@@ -12,7 +13,7 @@ use crate::commands::main::audio_settings::AudioSettings;
 use crate::commands::main::sample_rate_conversion::convert_sample_rate;
 
 /// Opens an audio file with default options & trying to guess the format
-pub fn default_read_audio_file(input_audio_path: &str) -> ProbeResult {
+pub fn default_read_audio_file(input_audio_path: &str) -> Result<ProbeResult, Box<dyn Error>> {
     let mut hint = Hint::new();
     let media_source = {
         let audio_input_path = Path::new(input_audio_path);
@@ -21,7 +22,7 @@ pub fn default_read_audio_file(input_audio_path: &str) -> ProbeResult {
                 hint.with_extension(extension_str);
             }
         }
-        Box::new(File::open(audio_input_path).unwrap())
+        Box::new(File::open(audio_input_path)?)
     };
     let audio_file = MediaSourceStream::new(media_source, Default::default());
     let format_opts: FormatOptions = Default::default();
@@ -38,7 +39,7 @@ pub fn default_read_audio_file(input_audio_path: &str) -> ProbeResult {
             exit(1);
         }
     };
-    audio_file
+    Ok(audio_file)
 }
 
 fn concat_buffers(buffers: Vec<AudioBuffer<f32>>) -> AudioBuffer<f32> {

@@ -169,7 +169,7 @@ pub fn run_test(run_options: RunOptions) {
 
         thread::spawn(move || {
             let instance = instance.0;
-            let audio_file = default_read_audio_file(&input_audio_path);
+            let audio_file = default_read_audio_file(&input_audio_path).unwrap();
             initialize_audio_thread(instance, audio_file);
         })
     };
