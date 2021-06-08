@@ -184,7 +184,7 @@ impl PluginParameterBuilder {
 }
 
 /// Type of parameter. Only number for now.
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy, Ord, PartialOrd, Eq, PartialEq)]
 pub enum ParameterType {
     Number,
 }
@@ -192,5 +192,80 @@ pub enum ParameterType {
 impl Default for ParameterType {
     fn default() -> Self {
         ParameterType::Number
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_constructor() {
+        let _ = PluginParameter::new(
+            Default::default(),
+            "".to_string(),
+            "".to_string(),
+            false,
+            (0.0, 0.0),
+            Default::default(),
+            0,
+        );
+    }
+
+    #[test]
+    fn test_get_builder() {
+        let _ = PluginParameter::builder();
+    }
+
+    #[test]
+    fn test_build_and_get_name() {
+        let parameter = PluginParameter::builder().name("Hello world").build();
+        assert_eq!(parameter.name(), "Hello world");
+    }
+
+    #[test]
+    fn test_build_and_get_label() {
+        let parameter = PluginParameter::builder().label("Hz").build();
+        assert_eq!(parameter.label(), "Hz");
+    }
+
+    #[test]
+    fn test_build_and_get_can_be_automated() {
+        let parameter = PluginParameter::builder().can_be_automated(false).build();
+        assert_eq!(parameter.can_be_automated(), false);
+    }
+
+    #[test]
+    fn test_build_and_get_value_range() {
+        let parameter = PluginParameter::builder().value_range(0.0, 440.0).build();
+        assert_eq!(parameter.value_range(), (0.0, 440.0));
+    }
+
+    #[test]
+    fn test_build_and_get_value_type() {
+        let parameter = PluginParameter::builder()
+            .value_type(ParameterType::Number)
+            .build();
+        assert_eq!(parameter.value_type(), ParameterType::Number);
+    }
+
+    #[test]
+    fn test_build_and_get_value_precision() {
+        let parameter = PluginParameter::builder().value_precision(20).build();
+        assert_eq!(parameter.value_precision(), 20);
+    }
+
+    #[test]
+    fn test_get_and_set_value() {
+        let parameter = PluginParameter::builder().initial_value(20.0).build();
+        assert_eq!(parameter.value(), 20.0);
+        parameter.set_value(30.0);
+        assert_eq!(parameter.value(), 30.0);
+    }
+
+    #[test]
+    fn test_default_parameter_type() {
+        let default_type: ParameterType = Default::default();
+        assert_eq!(default_type, ParameterType::Number);
     }
 }
