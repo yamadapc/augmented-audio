@@ -69,3 +69,5 @@ typings/
 
 /target
 .idea/workspace.xml
+
+default.profraw
