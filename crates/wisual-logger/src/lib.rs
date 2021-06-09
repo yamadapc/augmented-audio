@@ -4,7 +4,7 @@ use std::{io, thread};
 
 use chrono::{DateTime, Utc};
 use env_logger::fmt::{Color, Formatter};
-use log::Record;
+use log::{Record, SetLoggerError};
 
 pub struct LogFormatter;
 
@@ -50,8 +50,12 @@ impl LogFormatter {
     }
 }
 
-pub fn init_from_env() {
-    let _ = env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+pub fn try_init_from_env() -> Result<(), SetLoggerError> {
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .format(|buf, record| LogFormatter::format(buf, record))
-        .try_init();
+        .try_init()
+}
+
+pub fn init_from_env() {
+    let _ = try_init_from_env();
 }
