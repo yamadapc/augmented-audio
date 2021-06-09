@@ -19,7 +19,8 @@ pub struct DelegatingTransport<ServerMessage, ClientMessage> {
     transports: TransportsListRef<ServerMessage, ClientMessage>,
     client_channel: (Sender<ClientMessage>, Receiver<ClientMessage>),
     server_channel: (Sender<ServerMessage>, Receiver<ServerMessage>),
-    forward_handle: Option<JoinHandle<()>>,
+    server_forward_handle: Option<JoinHandle<()>>,
+    client_forward_handles: Vec<JoinHandle<()>>,
 }
 
 impl<ServerMessage, ClientMessage> DelegatingTransport<ServerMessage, ClientMessage>
@@ -36,7 +37,8 @@ where
             transports,
             client_channel,
             server_channel,
-            forward_handle: None,
+            server_forward_handle: None,
+            client_forward_handles: Vec::new(),
         }
     }
 
@@ -58,36 +60,25 @@ where
             let mut transports = self.transports.lock().await;
             for transport in transports.iter_mut() {
                 log::info!("Starting transport");
-                transport.start().await.unwrap();
+                transport.start().await?;
             }
         }
 
-        let mut server_message_receiver = self.server_channel.0.subscribe();
+        let server_message_receiver = self.server_channel.0.subscribe();
         let transports = self.transports.clone();
-        self.forward_handle = Some(tokio::spawn(async move {
-            loop {
-                let message = server_message_receiver.recv().await.unwrap();
-                let transports = transports.lock().await;
-                for transport in transports.iter() {
-                    log::debug!("Forwarding messages to each transport {:?}", message);
-                    let message = message.clone();
-                    transport.send(message).await;
-                }
-            }
+        self.server_forward_handle = Some(tokio::spawn(async move {
+            run_forward_server_message_loop(server_message_receiver, transports).await
         }));
 
         {
             let transports = self.transports.lock().await;
             for transport in transports.iter() {
-                let mut client_messages = transport.messages();
+                let client_messages = transport.messages();
                 let client_messages_sender = self.client_channel.0.clone();
-                tokio::spawn(async move {
-                    loop {
-                        let message = client_messages.recv().await.unwrap();
-                        log::debug!("Forwarding message from transport {:?}", message);
-                        client_messages_sender.send(message).unwrap();
-                    }
+                let client_handle = tokio::spawn(async move {
+                    run_message_forwarder_loop(client_messages, client_messages_sender).await
                 });
+                self.client_forward_handles.push(client_handle);
             }
         }
 
@@ -98,11 +89,11 @@ where
         {
             let transports = self.transports.lock().await;
             for transport in transports.iter() {
-                transport.stop().await.unwrap();
+                transport.stop().await?;
             }
         }
 
-        if let Some(handle) = &self.forward_handle {
+        if let Some(handle) = &self.server_forward_handle {
             handle.abort();
         }
         Ok(())
@@ -122,4 +113,71 @@ where
         let (sender, _) = &self.server_channel;
         let _ = sender.send(message);
     }
+}
+
+async fn run_message_forwarder_loop<ClientMessage>(
+    mut client_messages: Receiver<ClientMessage>,
+    client_messages_sender: Sender<ClientMessage>,
+) where
+    ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
+{
+    loop {
+        match forward_message(&mut client_messages, &client_messages_sender).await {
+            Err(err) => {
+                log::error!("Failed to forward message {}", err);
+            }
+            _ => {}
+        }
+    }
+}
+
+async fn forward_message<ClientMessage>(
+    client_messages: &mut Receiver<ClientMessage>,
+    client_messages_sender: &Sender<ClientMessage>,
+) -> Result<(), Box<dyn Error>>
+where
+    ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
+{
+    let message = client_messages.recv().await?;
+    log::debug!("Forwarding message from transport {:?}", message);
+    client_messages_sender.send(message)?;
+    Ok(())
+}
+
+async fn run_forward_server_message_loop<ServerMessage, ClientMessage>(
+    mut server_message_receiver: Receiver<ServerMessage>,
+    transports: Arc<
+        Mutex<Vec<Box<dyn WebviewTransport<ServerMessage, ClientMessage> + Send + Sync>>>,
+    >,
+) -> !
+where
+    ServerMessage: Serialize + Send + Clone + Debug + 'static,
+    ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
+{
+    loop {
+        if let Err(err) = forward_server_message(&mut server_message_receiver, &transports).await {
+            log::error!("Failed to forward server message {}", err);
+        }
+    }
+}
+
+async fn forward_server_message<ServerMessage, ClientMessage>(
+    server_message_receiver: &mut Receiver<ServerMessage>,
+    transports: &Arc<
+        Mutex<Vec<Box<dyn WebviewTransport<ServerMessage, ClientMessage> + Send + Sync>>>,
+    >,
+) -> Result<(), Box<dyn Error>>
+where
+    ServerMessage: Serialize + Send + Clone + Debug + 'static,
+    ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
+{
+    let message = server_message_receiver.recv().await?;
+    let transports = transports.lock().await;
+    for transport in transports.iter() {
+        log::debug!("Forwarding messages to each transport {:?}", message);
+        let message = message.clone();
+        transport.send(message).await;
+    }
+
+    Ok(())
 }

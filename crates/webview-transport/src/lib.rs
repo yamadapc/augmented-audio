@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate async_trait;
 
+pub mod channel;
 pub mod delegating;
 pub mod transport;
 #[cfg(any(target_os = "ios", target_os = "macos"))]
