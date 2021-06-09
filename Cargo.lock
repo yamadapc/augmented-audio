@@ -898,7 +898,7 @@ dependencies = [
  "midir",
  "rimd",
  "thiserror",
- "wisual-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.0",
 ]
 
 [[package]]
@@ -2953,7 +2953,7 @@ dependencies = [
  "vst",
  "webview-holder",
  "webview-transport",
- "wisual-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.0",
 ]
 
 [[package]]
@@ -2995,7 +2995,7 @@ dependencies = [
  "tao",
  "thiserror",
  "vst",
- "wisual-logger 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.0",
 ]
 
 [[package]]
@@ -3447,6 +3447,8 @@ dependencies = [
 [[package]]
 name = "wisual-logger"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09dd9f4bf2b1b2364a1e005f915be3bbde6970427d76e16c75161c6fe15ea48e"
 dependencies = [
  "chrono",
  "env_logger 0.8.3",
@@ -3455,9 +3457,7 @@ dependencies = [
 
 [[package]]
 name = "wisual-logger"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09dd9f4bf2b1b2364a1e005f915be3bbde6970427d76e16c75161c6fe15ea48e"
+version = "0.1.2"
 dependencies = [
  "chrono",
  "env_logger 0.8.3",
