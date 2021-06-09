@@ -13,6 +13,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-trait/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/webview-holder/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/webview-transport/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/wisual-logger/examples" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/test-plugin-host/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />
