@@ -6,9 +6,11 @@ use chrono::{DateTime, Utc};
 use env_logger::fmt::{Color, Formatter};
 use log::{Record, SetLoggerError};
 
+///! A log pretty printer that'll output in colors with thread name and pid
 pub struct LogFormatter;
 
 impl LogFormatter {
+    ///! Output log message with level, time, thread & pid
     pub fn format(buf: &mut Formatter, record: &Record) -> io::Result<()> {
         let metadata = record.metadata();
         let target = metadata.target();
@@ -50,12 +52,14 @@ impl LogFormatter {
     }
 }
 
+///! Try to set-up the logger and return a result
 pub fn try_init_from_env() -> Result<(), SetLoggerError> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .format(|buf, record| LogFormatter::format(buf, record))
         .try_init()
 }
 
+///! Try to set-up the logger and ignore errors
 pub fn init_from_env() {
     let _ = try_init_from_env();
 }
