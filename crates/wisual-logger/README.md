@@ -1,4 +1,6 @@
 # wisual-logger
+![crates.io](https://img.shields.io/crates/v/wisual-logger.svg)
+- - -
 Just a pretty printer configuration for `env_logger`.
 
 ```rust
