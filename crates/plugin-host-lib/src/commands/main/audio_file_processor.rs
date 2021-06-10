@@ -143,6 +143,7 @@ impl AudioFileProcessor {
         }
     }
 
+    /// Prepares for playback
     pub fn prepare(&mut self, audio_settings: AudioSettings) {
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
@@ -157,6 +158,7 @@ impl AudioFileProcessor {
         self.set_audio_file_contents(audio_file_contents)
     }
 
+    /// Performs sample-rate conversion of the input file in multiple threads
     fn set_audio_file_contents(&mut self, audio_file_contents: AudioBuffer<f32>) {
         let start = Instant::now();
         log::info!("Performing sample rate conversion");
