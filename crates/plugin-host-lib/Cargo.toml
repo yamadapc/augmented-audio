@@ -1,0 +1,20 @@
+[package]
+name = "plugin-host-lib"
+version = "0.1.0"
+authors = ["yamadapc <tacla.yamada@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+vst = { git = "https://github.com/rustaudio/vst-rs", rev = "a398697b0214129720af2480e98f1abf7beecfce" }
+cpal = "^0.13.3"
+clap = "^2.33.3"
+tao = "^0.2.6"
+log = "^0.4.14"
+oscillator = { path = "../oscillator" }
+symphonia-bundle-mp3 = "^0.2.0"
+symphonia = { version = "^0.2.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
+num-traits = "^0.2.14"
+wisual-logger = "^0.1.0"
+midir = "^0.7.0"
+thiserror = "^1.0.25"
+rimd = "^0.0.1"

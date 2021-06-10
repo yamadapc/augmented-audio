@@ -2239,6 +2239,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "plugin-host-lib"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "cpal",
+ "log",
+ "midir",
+ "num-traits 0.2.14",
+ "oscillator",
+ "rimd",
+ "symphonia",
+ "symphonia-bundle-mp3",
+ "tao",
+ "thiserror",
+ "vst",
+ "wisual-logger 0.1.0",
+]
+
+[[package]]
 name = "png"
 version = "0.16.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2985,17 +3004,7 @@ name = "test-plugin-host"
 version = "0.1.0"
 dependencies = [
  "clap",
- "cpal",
- "log",
- "midir",
- "num-traits 0.2.14",
- "oscillator",
- "rimd",
- "symphonia",
- "symphonia-bundle-mp3",
- "tao",
- "thiserror",
- "vst",
+ "plugin-host-lib",
  "wisual-logger 0.1.0",
 ]
 

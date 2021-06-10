@@ -11,12 +11,12 @@ use tao::platform::macos::WindowExtMacOS;
 use vst::host::{PluginInstance, PluginLoader};
 use vst::plugin::Plugin;
 
+use audio_file_processor::{default_read_audio_file, AudioFileSettings};
+use audio_settings::AudioSettings;
 use processor::TestHostProcessor;
 
-use crate::commands::main::audio_file_processor::{default_read_audio_file, AudioFileSettings};
-use crate::commands::main::audio_settings::AudioSettings;
 use crate::commands::options::RunOptions;
-use crate::host;
+use crate::host::AudioTestHost;
 
 mod audio_file_processor;
 mod audio_settings;
@@ -131,7 +131,7 @@ fn start_gui(instance: *mut PluginInstance) {
 }
 
 pub fn run_test(run_options: RunOptions) {
-    let host = Arc::new(Mutex::new(host::AudioTestHost));
+    let host = Arc::new(Mutex::new(AudioTestHost));
 
     let path = Path::new(run_options.plugin_path());
     log::info!("Loading VST from: {}...", path.to_str().unwrap());
