@@ -1,4 +1,8 @@
 [workspace]
 members = [
-  "crates/*"
+  "crates/*",
+  "crates/plugin-host-gui/src-tauri"
+]
+exclude = [
+  "crates/plugin-host-gui"
 ]

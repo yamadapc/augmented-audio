@@ -27,7 +27,7 @@ webview-holder = { path = "../webview-holder" }
 webview-transport = { path = "../webview-transport" }
 audio-parameter-store = { path = "../audio-parameter-store" }
 oscillator = { path = "../oscillator" }
-wisual-logger = "^0.1.0"
+wisual-logger = "^0.1.2"
 
 [lib]
 name = "tas_v2"
