@@ -1,5 +1,6 @@
 pub mod commands;
 pub mod host;
+mod timer;
 
 #[cfg(test)]
 mod tests {

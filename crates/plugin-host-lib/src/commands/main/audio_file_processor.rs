@@ -2,7 +2,9 @@ use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 use std::process::exit;
+use std::time::Instant;
 
+use rayon::prelude::*;
 use symphonia::core::audio::{AudioBuffer, AudioBufferRef, Signal};
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
@@ -11,9 +13,15 @@ use symphonia::core::probe::{Hint, ProbeResult};
 
 use crate::commands::main::audio_settings::AudioSettings;
 use crate::commands::main::sample_rate_conversion::convert_sample_rate;
+use crate::timer;
 
 /// Opens an audio file with default options & trying to guess the format
 pub fn default_read_audio_file(input_audio_path: &str) -> Result<ProbeResult, Box<dyn Error>> {
+    log::info!(
+        "Trying to open and probe audio file at {}",
+        input_audio_path
+    );
+
     let mut hint = Hint::new();
     let media_source = {
         let audio_input_path = Path::new(input_audio_path);
@@ -83,7 +91,7 @@ pub fn read_file_contents(audio_file: &mut ProbeResult) -> AudioBuffer<f32> {
     let audio_file_stream_id = audio_file_stream.id;
 
     let mut audio_buffer: Vec<AudioBuffer<f32>> = Vec::new();
-    loop {
+    timer::time("AudioFileProcessor - Reading file packages", || loop {
         let packet = audio_file.format.next_packet().ok();
         if packet.is_none() {
             break;
@@ -101,9 +109,11 @@ pub fn read_file_contents(audio_file: &mut ProbeResult) -> AudioBuffer<f32> {
             }
             _ => break,
         }
-    }
+    });
 
-    concat_buffers(audio_buffer)
+    timer::time("AudioFileProcessor - Concatenating packets", || {
+        concat_buffers(audio_buffer)
+    })
 }
 
 pub struct AudioFileSettings {
@@ -134,38 +144,38 @@ impl AudioFileProcessor {
     }
 
     pub fn prepare(&mut self, audio_settings: AudioSettings) {
+        log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
 
         self.buffer.clear();
         self.buffer.reserve(self.audio_settings.channels());
+
+        let start = Instant::now();
+        log::info!("Reading audio file onto memory");
         let audio_file_contents = read_file_contents(&mut self.audio_file_settings.audio_file);
-        for channel_number in 0..audio_file_contents.spec().channels.count() {
-            let audio_file_channel = audio_file_contents.chan(channel_number);
-            let input_rate = audio_file_contents.spec().rate as f32;
-            let output_rate = self.audio_settings.sample_rate();
-            let audio_file_duration = audio_file_channel.len() as f32 / input_rate;
+        log::info!("Read input file duration={}ms", start.elapsed().as_millis());
+        self.set_audio_file_contents(audio_file_contents)
+    }
 
-            let output_size = (audio_file_duration * output_rate).ceil() as usize;
-            let mut channel = Vec::new();
-            channel.resize(output_size, 0.0);
-            let audio_file_channel = audio_file_contents.chan(channel_number);
+    fn set_audio_file_contents(&mut self, audio_file_contents: AudioBuffer<f32>) {
+        let start = Instant::now();
+        log::info!("Performing sample rate conversion");
+        let output_rate = self.audio_settings.sample_rate();
+        let converted_channels: Vec<Vec<f32>> = (0..audio_file_contents.spec().channels.count())
+            .into_par_iter()
+            .map(|channel_number| {
+                convert_audio_file_sample_rate(&audio_file_contents, output_rate, channel_number)
+            })
+            .collect();
 
-            // Convert sample rate from audio file to in-memory
-            log::info!(
-                "Converting sample_rate channel={} input_rate={} output_rate={}",
-                channel_number,
-                input_rate,
-                output_rate
-            );
-            convert_sample_rate(
-                input_rate,
-                audio_file_channel,
-                output_rate,
-                channel.as_mut_slice(),
-            );
-
+        for channel in converted_channels {
             self.buffer.push(channel);
         }
+
+        log::info!(
+            "Performed sample rate conversion duration={}ms",
+            start.elapsed().as_millis()
+        );
     }
 
     pub fn process(&mut self, data: &mut [f32]) {
@@ -184,4 +194,35 @@ impl AudioFileProcessor {
             }
         }
     }
+}
+
+fn convert_audio_file_sample_rate(
+    audio_file_contents: &AudioBuffer<f32>,
+    output_rate: f32,
+    channel_number: usize,
+) -> Vec<f32> {
+    let audio_file_channel = audio_file_contents.chan(channel_number);
+    let input_rate = audio_file_contents.spec().rate as f32;
+    let audio_file_duration = audio_file_channel.len() as f32 / input_rate;
+
+    let output_size = (audio_file_duration * output_rate).ceil() as usize;
+    let mut channel = Vec::new();
+    channel.resize(output_size, 0.0);
+    let audio_file_channel = audio_file_contents.chan(channel_number);
+
+    // Convert sample rate from audio file to in-memory
+    log::info!(
+        "Converting sample_rate channel={} input_rate={} output_rate={}",
+        channel_number,
+        input_rate,
+        output_rate
+    );
+    convert_sample_rate(
+        input_rate,
+        audio_file_channel,
+        output_rate,
+        channel.as_mut_slice(),
+    );
+
+    channel
 }
