@@ -21,6 +21,8 @@ tokio-tungstenite = "^0.14.0"
 serde_json = "^1.0.64"
 tungstenite = "^0.13.0"
 async-trait = "^0.1.50"
+thiserror = "^1.0.25"
+config = { version = "^0.11.0", features = ["json"] }
 
 webview-holder = { path = "../webview-holder" }
 webview-transport = { path = "../webview-transport" }

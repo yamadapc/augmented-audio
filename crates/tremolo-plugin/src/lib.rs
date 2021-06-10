@@ -12,47 +12,21 @@ extern crate vst;
 
 use std::sync::Arc;
 
-use audio_parameter_store::{ParameterStore, PluginParameter};
-use log::info;
-use log::LevelFilter;
-use log4rs::append::console::ConsoleAppender;
-use log4rs::append::file::FileAppender;
-use log4rs::config::{Appender, Root};
-use log4rs::encode::pattern::PatternEncoder;
-use log4rs::Config;
 use vst::buffer::AudioBuffer;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 
+use audio_parameter_store::{ParameterStore, PluginParameter};
+
+use crate::config::get_configuration_root_path;
+use crate::config::logging::configure_logging;
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
 use crate::processor::Processor;
 
+mod config;
 pub mod constants;
 pub mod editor;
 pub mod processor;
-
-fn configure_logging() -> Option<()> {
-    let home_path = dirs::home_dir()?;
-    let log_dir = home_path.join(".ruas");
-    std::fs::create_dir_all(log_dir.clone()).ok()?;
-    let log_path = log_dir.join("tremolo-plugin.log");
-    let logfile = FileAppender::builder()
-        .encoder(Box::new(PatternEncoder::new(
-            "{d} [{l}] {M}:{L} - {m} - tid:{T}:{t} pid:{P}\n",
-        )))
-        .build(log_path)
-        .ok()?;
-
-    let config = Config::builder()
-        .appender(Appender::builder().build("logfile", Box::new(logfile)))
-        .appender(Appender::builder().build("stdout", Box::new(ConsoleAppender::builder().build())))
-        .build(Root::builder().appender("logfile").build(LevelFilter::Info))
-        .ok()?;
-
-    log4rs::init_config(config).ok()?;
-
-    Some(())
-}
 
 struct TremoloPlugin {
     parameters: Arc<ParameterStore>,
@@ -116,8 +90,11 @@ impl Plugin for TremoloPlugin {
     }
 
     fn new(_host: HostCallback) -> Self {
-        configure_logging();
-        info!("TremoloPlugin - Started");
+        let config_root_path = get_configuration_root_path();
+        if let Err(err) = configure_logging(&config_root_path) {
+            eprintln!("ERROR: Logging set-up has failed {:?}", err);
+        }
+        log::info!("TremoloPlugin - Started");
 
         let parameters = Arc::new(TremoloPlugin::build_parameters());
         let processor = Processor::new(parameters.clone());
@@ -129,7 +106,7 @@ impl Plugin for TremoloPlugin {
     }
 
     fn set_sample_rate(&mut self, rate: f32) {
-        info!("TremoloPlugin::set_sample_rate");
+        log::info!("TremoloPlugin::set_sample_rate");
         self.processor.set_sample_rate(rate);
     }
 
@@ -142,7 +119,7 @@ impl Plugin for TremoloPlugin {
     }
 
     fn start_process(&mut self) {
-        info!("TremoloPlugin::start_process");
+        log::info!("TremoloPlugin::start_process");
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
