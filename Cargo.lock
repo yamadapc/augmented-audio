@@ -3017,11 +3017,13 @@ dependencies = [
 name = "plugin-host-gui"
 version = "0.1.0"
 dependencies = [
+ "cpal",
  "log",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
+ "thiserror",
  "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
