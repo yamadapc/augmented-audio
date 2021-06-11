@@ -5,8 +5,11 @@
 
 use cpal::traits::{DeviceTrait, HostTrait};
 use serde::Serialize;
-use tauri::WindowEvent;
+use std::collections::HashMap;
+use tauri::Window;
 use thiserror::Error;
+
+struct AppState {}
 
 #[derive(Serialize)]
 struct AudioDevice {
@@ -101,13 +104,35 @@ fn list_hosts_command() -> Vec<String> {
     .collect()
 }
 
+#[tauri::command]
+fn subscribe_to_volume_command(window: Window) {
+  log::info!("Setting-up fake volume event emitter");
+  std::thread::spawn(move || loop {
+    let random_f: f32 = rand::random();
+    let random_f2: f32 = rand::random();
+    if let Err(err) = window.emit("volume", vec![random_f, random_f2]) {
+      log::error!("Failed to emit {:?}", err);
+    }
+    std::thread::sleep(std::time::Duration::from_millis(100));
+  });
+  log::info!("Volume event loop will emit volume every 100ms");
+}
+
+#[tauri::command]
+fn unsubscribe_to_volume_command(window: Window) {
+  log::info!("Cleaning-up emitter");
+}
+
 fn main() {
   wisual_logger::init_from_env();
 
   tauri::Builder::default()
+    .manage(AppState {})
     .invoke_handler(tauri::generate_handler![
       list_devices_command,
-      list_hosts_command
+      list_hosts_command,
+      subscribe_to_volume_command,
+      unsubscribe_to_volume_command,
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

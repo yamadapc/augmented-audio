@@ -3019,6 +3019,7 @@ version = "0.1.0"
 dependencies = [
  "cpal",
  "log",
+ "rand 0.8.3",
  "serde",
  "serde_json",
  "tauri",

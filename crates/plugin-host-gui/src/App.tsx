@@ -1,12 +1,28 @@
 import React from "react";
 import "./App.css";
-import { open as openDialog } from "@tauri-apps/api/dialog";
 import { HostSelect } from "./ui/HostSelect";
-import { HorizontalLine } from "./ui/HorizontalLine";
-import { VolumeMeter } from "./ui/VolumeMeter";
 import { Header } from "./ui/Header";
 import { useCommand } from "./services/useCommand";
 import { DevicesList } from "./model";
+import { BottomPanel } from "./ui/BottomPanel";
+import { ContentPanel } from "./ui/ContentPanel";
+import styled from "styled-components";
+import { Container } from "./ui/Container";
+
+const BodyLayoutContainer = styled.div({
+  display: "flex",
+  flex: 1,
+  flexDirection: "column",
+});
+
+const AudioIOContainer = styled.div({
+  borderBottom: "solid 1px black",
+});
+
+const HeaderContainer = styled(Container)({
+  backgroundColor: "#232323",
+  borderBottom: "solid 1px black",
+});
 
 function App() {
   const { data: devicesList } = useCommand<DevicesList>("list_devices_command");
@@ -26,24 +42,21 @@ function App() {
 
   return (
     <div className="App">
-      <Header>Audio IO</Header>
-      <HorizontalLine />
-      <HostSelect label="Audio driver" options={hostOptions} />
-      <HostSelect label="Input device" options={inputDeviceOptions} />
-      <HostSelect label="Output device" options={outputDeviceOptions} />
-      <HorizontalLine />
+      <AudioIOContainer>
+        <HeaderContainer>
+          <Header>Audio IO</Header>
+        </HeaderContainer>
+        <Container>
+          <HostSelect label="Audio driver" options={hostOptions} />
+          <HostSelect label="Input device" options={inputDeviceOptions} />
+          <HostSelect label="Output device" options={outputDeviceOptions} />
+        </Container>
+      </AudioIOContainer>
 
-      <VolumeMeter />
-
-      <button
-        onClick={() => {
-          openDialog().then((result) => {
-            console.log(result);
-          });
-        }}
-      >
-        Select input file
-      </button>
+      <BodyLayoutContainer>
+        <ContentPanel />
+        <BottomPanel />
+      </BodyLayoutContainer>
     </div>
   );
 }

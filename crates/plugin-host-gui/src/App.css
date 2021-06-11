@@ -1,6 +1,9 @@
 .App {
   color: white;
-  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  height: 100vh;
 }
 
 .App label {
