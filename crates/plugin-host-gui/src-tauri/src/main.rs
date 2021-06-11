@@ -5,6 +5,7 @@
 
 use cpal::traits::{DeviceTrait, HostTrait};
 use serde::Serialize;
+use tauri::WindowEvent;
 use thiserror::Error;
 
 #[derive(Serialize)]
