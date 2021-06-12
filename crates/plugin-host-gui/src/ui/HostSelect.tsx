@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import Select, { GroupTypeBase } from "react-select";
-import React from "react";
+import Select, { ActionMeta, GroupTypeBase } from "react-select";
+import React, { useMemo } from "react";
 import { StylesConfig } from "react-select/src/styles";
 import { BORDER_COLOR } from "./constants";
 
@@ -28,6 +28,8 @@ type OptionType<T> = { label: string; value: T };
 interface Props<T> {
   label: string;
   options: OptionType<T>[];
+  value: T;
+  onChange: (value: OptionType<T> | null) => void;
 }
 
 function getReactSelectStyles<T>(): StylesConfig<
@@ -82,21 +84,31 @@ function getReactSelectStyles<T>(): StylesConfig<
       margin: 0,
       padding: 0,
       "&:focus": {
-        border: "solid 1px #00e1ffff",
+        border: "solid 1px #00e1ff",
       },
     }),
   };
 }
 
-export function HostSelect<T>(props: Props<T>) {
+export function HostSelect<T>({ label, options, value, onChange }: Props<T>) {
+  const optionValue: OptionType<T> =
+    useMemo(() => options.find((option) => option.value === value), [value]) ??
+    options[0];
   const reactSelectStyles = getReactSelectStyles();
+  const onChangeCallback = (
+    value: OptionType<T> | null,
+    _meta: ActionMeta<OptionType<T>>
+  ) => onChange(value);
+
   return (
     <SelectWrapper>
-      <SelectLabel>{props.label}</SelectLabel>
+      <SelectLabel>{label}</SelectLabel>
       <SelectExpand>
         <Select
-          value={props.options[0]}
-          options={props.options}
+          value={optionValue}
+          options={options}
+          onChange={onChangeCallback}
+          // @ts-ignore
           styles={reactSelectStyles}
         />
       </SelectExpand>

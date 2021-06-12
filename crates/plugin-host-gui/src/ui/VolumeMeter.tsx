@@ -40,7 +40,6 @@ class InterpolatedValue {
 }
 
 export function VolumeMeter() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const width = 20;
   const height = 100;
   const barWidth = (width - 4) / 2;
@@ -48,11 +47,7 @@ export function VolumeMeter() {
   const boxRight = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    let barHeight1 = new InterpolatedValue(0, 100);
-    let barHeight2 = new InterpolatedValue(0, 100);
-    const barWidth = (width - 4) / 2;
     let animation: number | null = null;
-    let context = canvasRef.current?.getContext("2d");
     const subscriptionId = invoke<number>("subscribe_to_volume_command");
     setInterval(() => {
       // @ts-ignore
@@ -66,56 +61,21 @@ export function VolumeMeter() {
           animation = null;
         });
       }
-      // barHeight1.setValue(volume1 * height);
-      // barHeight2.setValue(volume2 * height);
     }, 100);
 
     const draw = (box: HTMLDivElement, volume: number) => {
       box.style.transform = `scaleY(${volume})`;
     };
-    const render = () => {
-      // if (boxLeft.current) draw(boxLeft.current, barHeight1.get());
-      // if (boxRight.current) draw(boxRight.current, barHeight2.get());
-      // const canvas = canvasRef.current;
-      // if (context == null) {
-      //   context = canvas?.getContext("2d");
-      // }
-      // if (context != null) {
-      //   context.save();
-      //   context.clearRect(0, 0, width, height);
-      //
-      //   context.fillStyle = "rgba(89,182,71,0.41)";
-      //   const b1Prev = barHeight1.getTarget();
-      //   context.fillRect(0, height - b1Prev, barWidth, b1Prev);
-      //   context.fillStyle = "#59b647";
-      //   context.fillRect(0, height - b1Prev - 3, barWidth, 2);
-      //   const b1 = barHeight1.get(16);
-      //   context.fillRect(0, height - b1, barWidth, b1);
-      //
-      //   context.fillStyle = "rgba(89,182,71,0.41)";
-      //   const b2Prev = barHeight2.getTarget();
-      //   context.fillRect(barWidth + 4, height - b2Prev, barWidth, b2Prev);
-      //   context.fillStyle = "#59b647";
-      //   context.fillRect(barWidth + 4, height - b2Prev - 3, barWidth, 2);
-      //   const b2 = barHeight2.get(16);
-      //   context.fillRect(barWidth + 4, height - b2, barWidth, b2);
-      //
-      //   context.restore();
-      // }
-      // animation = requestAnimationFrame(render);
-    };
-    // animation = requestAnimationFrame(render);
 
     return () => {
       if (animation != null) {
         cancelAnimationFrame(animation);
       }
-      // unlistenPromise.then((unlisten) => unlisten());
       subscriptionId.then((id) =>
         invoke("unsubscribe_to_volume_command", { id })
       );
     };
-  }, [canvasRef]);
+  }, []);
 
   return (
     <div
@@ -137,6 +97,7 @@ export function VolumeMeter() {
           willChange: "transform",
           transformOrigin: "bottom left",
           transition: "transform 100ms linear",
+          contentVisibility: "auto",
           transform: "scaleY(0)",
         }}
       />
@@ -149,17 +110,11 @@ export function VolumeMeter() {
           willChange: "transform",
           transformOrigin: "bottom left",
           transition: "transform 100ms linear",
+          contentVisibility: "auto",
           transform: "scaleY(0)",
         }}
         ref={boxRight}
       />
-
-      {/*<canvas*/}
-      {/*  style={{ willChange: "opacity", position: "relative", bottom: -2 }}*/}
-      {/*  width={width}*/}
-      {/*  height={height}*/}
-      {/*  ref={canvasRef}*/}
-      {/*/>*/}
     </div>
   );
 }

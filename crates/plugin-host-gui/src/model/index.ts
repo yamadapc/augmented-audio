@@ -1,4 +1,4 @@
-interface AudioDevice {
+export interface AudioDevice {
   name: string;
 }
 
