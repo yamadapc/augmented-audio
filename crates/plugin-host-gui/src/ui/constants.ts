@@ -1,0 +1,1 @@
+export const BORDER_COLOR = '#767676';

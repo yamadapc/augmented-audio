@@ -110,10 +110,12 @@ fn subscribe_to_volume_command(window: Window) {
   std::thread::spawn(move || loop {
     let random_f: f32 = rand::random();
     let random_f2: f32 = rand::random();
-    if let Err(err) = window.emit("volume", vec![random_f, random_f2]) {
-      log::error!("Failed to emit {:?}", err);
-    }
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    let js_string = format!("window.volume1={};window.volume2={};", random_f, random_f2);
+    window.eval(&js_string);
+    // if let Err(err) = window.emit("volume", vec![random_f, random_f2]) {
+    //   log::error!("Failed to emit {:?}", err);
+    // }
+    std::thread::sleep(std::time::Duration::from_millis(50));
   });
   log::info!("Volume event loop will emit volume every 100ms");
 }

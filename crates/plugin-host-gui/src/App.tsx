@@ -8,6 +8,7 @@ import { BottomPanel } from "./ui/BottomPanel";
 import { ContentPanel } from "./ui/ContentPanel";
 import styled from "styled-components";
 import { Container } from "./ui/Container";
+import {BORDER_COLOR} from "./ui/constants";
 
 const BodyLayoutContainer = styled.div({
   display: "flex",
@@ -16,12 +17,12 @@ const BodyLayoutContainer = styled.div({
 });
 
 const AudioIOContainer = styled.div({
-  borderBottom: "solid 1px black",
+  borderBottom: `solid 1px ${BORDER_COLOR}`,
 });
 
 const HeaderContainer = styled(Container)({
   backgroundColor: "#232323",
-  borderBottom: "solid 1px black",
+  borderBottom: `solid 1px ${BORDER_COLOR}`,
 });
 
 function App() {

@@ -2,6 +2,7 @@ import styled from "styled-components";
 import Select, { GroupTypeBase } from "react-select";
 import React from "react";
 import { StylesConfig } from "react-select/src/styles";
+import { BORDER_COLOR } from "./constants";
 
 export const SelectWrapper = styled.div({
   userSelect: "none",
@@ -37,9 +38,9 @@ function getReactSelectStyles<T>(): StylesConfig<
   return {
     option: (base) => ({
       ...base,
-      background: "#232323",
+      background: "#131313",
       border: "solid 1px #232323",
-      borderBottom: "solid 1px black",
+      borderBottom: `solid 1px ${BORDER_COLOR}`,
       "&:hover": {
         background: "#313030",
         border: "solid 1px #00e1ff",
@@ -47,12 +48,16 @@ function getReactSelectStyles<T>(): StylesConfig<
     }),
     control: (base, props) => ({
       ...base,
-      background: "#232323",
+      background: "#131313",
       borderRadius: 0,
-      border: props.menuIsOpen ? "solid 1px #00e1ff" : "solid 1px black",
+      border: props.menuIsOpen
+        ? "solid 1px #00e1ff"
+        : `solid 1px ${BORDER_COLOR}`,
       outline: "none",
       "&hover": {
-        border: props.menuIsOpen ? "solid 1px #00e1ff" : "solid 1px black",
+        border: props.menuIsOpen
+          ? "solid 1px #00e1ff"
+          : `solid 1px ${BORDER_COLOR}`,
       },
     }),
     menu: (base) => ({
@@ -65,6 +70,8 @@ function getReactSelectStyles<T>(): StylesConfig<
       ...base,
       margin: 0,
       padding: 0,
+      borderLeft: `solid 1px ${BORDER_COLOR}`,
+      borderRight: `solid 1px ${BORDER_COLOR}`,
     }),
     valueContainer: (base) => ({
       ...base,
