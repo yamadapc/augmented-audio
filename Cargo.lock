@@ -2696,6 +2696,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "observable-model"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "once_cell"
 version = "1.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
