@@ -26,3 +26,14 @@ jobs:
       run: npm run test
     - name: Run builds
       run: npm run build
+    - name: Upload tremolo-plugin-frontend build
+      uses: actions/upload-artifact@v2
+      with:
+        name: tremolo-plugin-frontend
+        path: ./packages/tremolo-plugin-frontend/build
+    - name: Upload plugin-host-gui build
+      uses: actions/upload-artifact@v2
+      with:
+        name: plugin-host-gui
+        path: ./crates/plugin-host-gui/build
+
