@@ -6,7 +6,7 @@ use plugin_host_lib::commands::run_test;
 
 fn main() {
     wisual_logger::init_from_env();
-    let mut app = clap::App::new("test-plugin-host")
+    let mut app = clap::App::new("plugin-host")
         .version("0.0.1")
         .author("Pedro Tacla Yamada <tacla.yamada@gmail.com>")
         .about("Test audio plugins")

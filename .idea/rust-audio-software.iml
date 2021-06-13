@@ -3,7 +3,6 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/crates/oscillator/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/crates/test-plugin-host/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-bundler/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/wisual-logger/src" isTestSource="false" />
@@ -19,13 +18,14 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-host-gui/src-tauri/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/observable-model/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/visualization-demo/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/plugin-host-cli/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
-      <excludeFolder url="file://$MODULE_DIR$/crates/test-plugin-host/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/wisual-logger/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/plugin-bundler/target" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/smooth-value/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/plugin-host-cli/target" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

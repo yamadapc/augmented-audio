@@ -62,11 +62,11 @@ jobs:
       run: cargo check --verbose --workspace --exclude plugin-host-gui
     - name: Build
       run: cargo build --release --verbose --workspace --exclude plugin-host-gui
-    - name: Upload test-plugin-host binary
+    - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ runner.os }}-test-plugin-host
-        path: ./target/release/test-plugin-host
+        name: ${{ runner.os }}-plugin-host
+        path: ./target/release/plugin-host
     - name: Upload tremolo-plugin dylib
       uses: actions/upload-artifact@v2
       with:

@@ -7,9 +7,9 @@
 
 In this repository I'll push some experiments trying to use Rust for audio programming.
 
-## crates/test-plugin-host
+## crates/plugin-host-cli
 ```
-test-plugin-host run \
+plugin-host run \
     # Open VST at plugin.dylib
     --plugin ./plugin.dylib \
     # Open, decode & convert sample-rate of input.mp3
