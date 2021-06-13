@@ -2,27 +2,11 @@ import { ParameterDeclarationMessage } from "../common/protocol";
 import { singleton } from "tsyringe";
 import { makeAutoObservable } from "mobx";
 import {
-  PHASE_PARAMETER_ID,
   DEPTH_PARAMETER_ID,
+  PHASE_PARAMETER_ID,
   RATE_PARAMETER_ID,
 } from "../common/constants";
-
-export class ParameterState {
-  private valueInner: number;
-
-  constructor(value: number) {
-    makeAutoObservable(this);
-    this.valueInner = value;
-  }
-
-  get value(): number {
-    return this.valueInner;
-  }
-
-  set value(value: number) {
-    this.valueInner = value;
-  }
-}
+import { ParameterState } from "./ParameterState";
 
 @singleton()
 export class ParametersStore {
