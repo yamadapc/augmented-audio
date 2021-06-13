@@ -44,9 +44,6 @@
     ],
     "testPathIgnorePatterns": [
       "./lib"
-    ],
-    "setupFiles": [
-      "./src/setupTests.ts"
     ]
   }
 }
