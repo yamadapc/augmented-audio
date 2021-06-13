@@ -3074,6 +3074,7 @@ dependencies = [
  "oscillator",
  "rayon",
  "rimd",
+ "serde",
  "symphonia",
  "symphonia-bundle-mp3",
  "tao",

@@ -50,36 +50,6 @@ pub fn default_read_audio_file(input_audio_path: &str) -> Result<ProbeResult, Bo
     Ok(audio_file)
 }
 
-fn concat_buffers(buffers: Vec<AudioBuffer<f32>>) -> AudioBuffer<f32> {
-    let duration = buffers
-        .iter()
-        .map(|buffer| buffer.chan(0).len() as u64)
-        .sum();
-
-    let mut output: AudioBuffer<f32> = AudioBuffer::new(duration, *buffers[0].spec());
-    let _ = output.fill(|_, _| Ok(()));
-    let mut output_cursor = 0;
-    for buffer in buffers {
-        let mut channel_size = 0;
-
-        for channel_num in 0..2 {
-            let mut cursor = output_cursor; // reading channels copy cursor to reset for each channel
-
-            let output_channel = output.chan_mut(channel_num);
-            let channel = buffer.chan(channel_num);
-            channel_size = channel.len();
-
-            for sample in channel {
-                output_channel[cursor] = *sample;
-                cursor += 1;
-            }
-        }
-
-        output_cursor += channel_size;
-    }
-    output
-}
-
 pub fn read_file_contents(audio_file: &mut ProbeResult) -> AudioBuffer<f32> {
     let audio_file_stream = audio_file
         .format
@@ -116,6 +86,7 @@ pub fn read_file_contents(audio_file: &mut ProbeResult) -> AudioBuffer<f32> {
     })
 }
 
+/// An audio processor which plays a file in loop
 pub struct AudioFileSettings {
     audio_file: ProbeResult,
 }
@@ -227,4 +198,34 @@ fn convert_audio_file_sample_rate(
     );
 
     channel
+}
+
+fn concat_buffers(buffers: Vec<AudioBuffer<f32>>) -> AudioBuffer<f32> {
+    let duration = buffers
+        .iter()
+        .map(|buffer| buffer.chan(0).len() as u64)
+        .sum();
+
+    let mut output: AudioBuffer<f32> = AudioBuffer::new(duration, *buffers[0].spec());
+    let _ = output.fill(|_, _| Ok(()));
+    let mut output_cursor = 0;
+    for buffer in buffers {
+        let mut channel_size = 0;
+
+        for channel_num in 0..2 {
+            let mut cursor = output_cursor; // reading channels copy cursor to reset for each channel
+
+            let output_channel = output.chan_mut(channel_num);
+            let channel = buffer.chan(channel_num);
+            channel_size = channel.len();
+
+            for sample in channel {
+                output_channel[cursor] = *sample;
+                cursor += 1;
+            }
+        }
+
+        output_cursor += channel_size;
+    }
+    output
 }

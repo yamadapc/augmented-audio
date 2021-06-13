@@ -1,3 +1,4 @@
+pub mod audio_io;
 pub mod commands;
 pub mod host;
 mod timer;
