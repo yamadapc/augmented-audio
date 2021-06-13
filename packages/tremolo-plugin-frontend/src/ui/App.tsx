@@ -19,13 +19,14 @@ interface State {
 
 class App extends Component<{}, State> {
   private logger = LoggerFactory.getLogger("App");
-  private transport!: DefaultMessageTransport<
+  private transport?: DefaultMessageTransport<
     ServerMessage,
     ClientMessageInner
   >;
-  private handlerService!: MessageHandlingService;
-  state: State = { parameters: [] };
+  private handlerService?: MessageHandlingService;
   private parametersStore: ParametersStore = container.resolve(ParametersStore);
+
+  state: State = { parameters: [] };
 
   componentDidMount() {
     try {
@@ -40,9 +41,9 @@ class App extends Component<{}, State> {
         .setup()
         .then(() => {
           this.logger.info("Transport connected");
-          this.handlerService.start();
+          this.handlerService?.start();
 
-          this.transport.postMessage("default", {
+          this.transport?.postMessage("default", {
             type: "AppStarted",
           });
         })
@@ -55,12 +56,12 @@ class App extends Component<{}, State> {
   }
 
   componentWillUnmount() {
-    this.handlerService.stop();
+    this.handlerService?.stop();
   }
 
   setParameter = (id: string, value: number) => {
     this.parametersStore.setParameterValue(id, value);
-    this.transport.postMessage("default", {
+    this.transport?.postMessage("default", {
       type: "SetParameter",
       parameterId: id,
       value,
