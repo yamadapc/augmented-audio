@@ -36,7 +36,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: plugin-host-gui-frontend
-          path: ./crates/plugin-host-gui/build
+          path: ./packages/plugin-host-gui/build
 
   build-rust:
     runs-on: ${{ matrix.os }}
