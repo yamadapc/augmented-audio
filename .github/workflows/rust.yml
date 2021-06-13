@@ -24,10 +24,10 @@ jobs:
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: Build
-      run: cargo build --verbose --exclude plugin-host-gui
+      run: cargo build --verbose --workspace --exclude plugin-host-gui
     - name: Run tests
-      run: cargo test --verbose --exclude plugin-host-gui
+      run: cargo test --verbose --workspace --exclude plugin-host-gui
     - name: Run clippy
-      run: cargo clippy --verbose --exclude plugin-host-gui
+      run: cargo clippy --verbose --workspace --exclude plugin-host-gui
     - name: Run check
-      run: cargo check --verbose --exclude plugin-host-gui
+      run: cargo check --verbose --workspace --exclude plugin-host-gui
