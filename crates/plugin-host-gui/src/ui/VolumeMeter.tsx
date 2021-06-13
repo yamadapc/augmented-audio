@@ -1,43 +1,6 @@
 import React, { useEffect, useRef } from "react";
-import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/tauri";
 import { BORDER_COLOR } from "./constants";
-
-class InterpolatedValue {
-  private value: number;
-  private durationMs: number;
-  private target: number;
-  private step: number;
-
-  constructor(initialValue: number, durationMs: number) {
-    this.value = initialValue;
-    this.durationMs = durationMs;
-    this.target = initialValue;
-    this.step = 0;
-  }
-
-  get(ticksMs: number = 16) {
-    this.value += this.step * ticksMs;
-    if (this.step > 0 && this.value >= this.target) {
-      this.value = this.target;
-      this.step = 0;
-    } else if (this.step < 0 && this.value <= this.target) {
-      this.value = this.target;
-      this.step = 0;
-    }
-    return this.value;
-  }
-
-  setValue(value: number) {
-    this.target = value;
-    const delta = this.target - this.value;
-    this.step = delta / this.durationMs;
-  }
-
-  getTarget() {
-    return this.value + this.step * 32;
-  }
-}
 
 export function VolumeMeter() {
   const width = 20;

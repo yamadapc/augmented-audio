@@ -92,8 +92,10 @@ function getReactSelectStyles<T>(): StylesConfig<
 
 export function HostSelect<T>({ label, options, value, onChange }: Props<T>) {
   const optionValue: OptionType<T> =
-    useMemo(() => options.find((option) => option.value === value), [value]) ??
-    options[0];
+    useMemo(
+      () => options.find((option) => option.value === value),
+      [value, options]
+    ) ?? options[0];
   const reactSelectStyles = getReactSelectStyles();
   const onChangeCallback = (
     value: OptionType<T> | null,

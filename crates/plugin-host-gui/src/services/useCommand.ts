@@ -1,36 +1,45 @@
-import {useEffect, useState} from "react";
-import {invoke, InvokeArgs} from "@tauri-apps/api/tauri";
+import { useEffect, useState } from "react";
+import { invoke, InvokeArgs } from "@tauri-apps/api/tauri";
 
 interface CommandState<T> {
-    loading: boolean;
-    data: null | T;
-    error: null | Error;
+  loading: boolean;
+  data: null | T;
+  error: null | Error;
 }
 
 interface UseCommandParams {
-    skip: boolean;
-    args: InvokeArgs;
+  skip: boolean;
+  args: InvokeArgs;
 }
 
 export function useCommand<T>(
-    command: string,
-    params?: UseCommandParams
+  command: string,
+  params?: UseCommandParams
 ): CommandState<T> {
-    const [loading, setLoading] = useState(!params?.skip);
-    const [data, setData] = useState<T | null>(null);
-    const [error, setError] = useState<Error | null>(null);
+  const [state, setState] = useState<CommandState<T>>({
+    loading: !params?.skip,
+    data: null,
+    error: null,
+  });
 
-    useEffect(() => {
-        const run = async () => {
-          setLoading(true);
-          const result = await invoke<T>(command, params?.args);
-          setData(result);
-        };
+  useEffect(() => {
+    if (params?.skip) {
+      return;
+    }
 
-        run().catch((err) => {
-            setError(err);
-        });
-    }, [command, params?.args]);
+    const run = async () => {
+      setState((state) =>
+        state.loading ? state : { ...state, loading: true }
+      );
+      const result = await invoke<T>(command, params?.args);
 
-    return {loading, data, error};
+      setState({ error: null, data: result, loading: false });
+    };
+
+    run().catch((err) => {
+      setState((state) => ({ error: err, data: state.data, loading: false }));
+    });
+  }, [command, params?.args, params?.skip]);
+
+  return state;
 }
