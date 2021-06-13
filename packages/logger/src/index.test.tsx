@@ -1,4 +1,4 @@
-import { mount } from "enzyme";
+import { render } from "@testing-library/react";
 import React from "react";
 
 import { useLogger, wrapWithLogger } from "./index";
@@ -16,8 +16,8 @@ describe("LoggerContext and hooks", () => {
       return <div>Here</div>;
     }
 
-    const el = mount(<MockComponent />);
-    expect(el.contains("Here")).toBeTruthy();
+    const el = render(<MockComponent />);
+    expect(el.queryByText("Here")).not.toBeNull();
     expect(onRender).toHaveBeenCalledTimes(1);
     const childLogger = onRender.mock.calls[0][0];
     expect(childLogger.parent).toMatchObject({
@@ -36,12 +36,12 @@ describe("LoggerContext and hooks", () => {
       return <div>Here</div>;
     }
 
-    const el = mount(
+    const el = render(
       <LoggerContext.Provider value={rootLogger}>
         <MockComponent />
       </LoggerContext.Provider>
     );
-    expect(el.contains("Here")).toBeTruthy();
+    expect(el.queryByText("Here")).not.toBeNull();
     expect(onRender).toHaveBeenCalledTimes(1);
     const childLogger = onRender.mock.calls[0][0];
     expect(childLogger.parent).toEqual(rootLogger);
@@ -58,8 +58,8 @@ describe("LoggerContext and hooks", () => {
       return <div>Here</div>;
     }
 
-    const el = mount(wrapWithLogger(rootLogger, <MockComponent />));
-    expect(el.contains("Here")).toBeTruthy();
+    const el = render(wrapWithLogger(rootLogger, <MockComponent />));
+    expect(el.queryByText("Here")).not.toBeNull();
     expect(onRender).toHaveBeenCalledTimes(1);
     const childLogger = onRender.mock.calls[0][0];
     expect(childLogger.parent).toEqual(rootLogger);
