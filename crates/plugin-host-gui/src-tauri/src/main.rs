@@ -3,9 +3,10 @@
   windows_subsystem = "windows"
 )]
 
+use std::sync::{Arc, Mutex};
+
 use cpal::traits::{DeviceTrait, HostTrait};
 use serde::Serialize;
-use std::sync::{Arc, Mutex};
 use tauri::{Menu, MenuItem, Window};
 use thiserror::Error;
 
