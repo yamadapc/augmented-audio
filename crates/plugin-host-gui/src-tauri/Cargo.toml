@@ -18,7 +18,7 @@ rand = "^0.8.3"
 wisual-logger = "^0.1.2"
 serde_json = "^1.0.64"
 serde = { version = "^1.0.64", features = ["derive"] }
-tauri = { version = "1.0.0-beta.1", features = ["api-all"] }
+tauri = { version = "1.0.0-beta.1", features = ["api-all", "menu"] }
 plugin-host-lib = { path = "../../plugin-host-lib" }
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
 

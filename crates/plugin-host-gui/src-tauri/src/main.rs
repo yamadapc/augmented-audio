@@ -6,7 +6,7 @@
 use cpal::traits::{DeviceTrait, HostTrait};
 use serde::Serialize;
 use std::sync::{Arc, Mutex};
-use tauri::Window;
+use tauri::{Menu, MenuItem, Window};
 use thiserror::Error;
 
 struct AudioOptions {
@@ -178,6 +178,19 @@ fn set_output_device_command(state: tauri::State<AppState>, output_device_id: St
 
 fn main() {
   wisual_logger::init_from_env();
+  let mut menus = Vec::new();
+  menus.push(Menu::new(
+    "plugin-host",
+    vec![
+      MenuItem::About(String::from("plugin-host")),
+      MenuItem::Separator,
+      MenuItem::Hide,
+      MenuItem::HideOthers,
+      MenuItem::ShowAll,
+      MenuItem::Separator,
+      MenuItem::Quit,
+    ],
+  ));
 
   tauri::Builder::default()
     .manage(AppState::default())
@@ -190,6 +203,7 @@ fn main() {
       subscribe_to_volume_command,
       unsubscribe_to_volume_command,
     ])
+    .menu(menus)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
