@@ -5,7 +5,6 @@
 
 use cpal::traits::{DeviceTrait, HostTrait};
 use serde::Serialize;
-use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use tauri::Window;
 use thiserror::Error;
@@ -146,14 +145,16 @@ fn subscribe_to_volume_command(window: Window) {
     let random_f: f32 = rand::random();
     let random_f2: f32 = rand::random();
     let js_string = format!("window.volume1={};window.volume2={};", random_f, random_f2);
-    window.eval(&js_string);
+    // TODO fix this
+    let _ = window.eval(&js_string);
     std::thread::sleep(std::time::Duration::from_millis(50));
   });
   log::info!("Volume event loop will emit volume every 100ms");
 }
 
 #[tauri::command]
-fn unsubscribe_to_volume_command(window: Window) {
+fn unsubscribe_to_volume_command(_window: Window) {
+  // TODO implement unsubscribe
   log::info!("Cleaning-up emitter");
 }
 
