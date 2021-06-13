@@ -35,14 +35,14 @@ jobs:
       - name: Upload plugin-host-gui build
         uses: actions/upload-artifact@v2
         with:
-          name: plugin-host-gui
+          name: plugin-host-gui-frontend
           path: ./crates/plugin-host-gui/build
 
   build-rust:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest]
     steps:
     - uses: actions/checkout@v2
     - uses: actions/cache@v2
@@ -62,3 +62,30 @@ jobs:
       run: cargo clippy --verbose --workspace --exclude plugin-host-gui
     - name: Run check
       run: cargo check --verbose --workspace --exclude plugin-host-gui
+
+  build-plugin-host-gui:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Download plugin-host-gui front-end build
+        uses: actions/download-artifact@v2
+        with:
+          name: plugin-host-gui-frontend
+      - name: Test
+        run: cargo test --verbose --workspace --package plugin-host-gui
+      - name: Clippy
+        run: cargo clippy --verbose --workspace --package plugin-host-gui
+      - name: Build release
+        run: cargo build --release --verbose --workspace --package plugin-host-gui
