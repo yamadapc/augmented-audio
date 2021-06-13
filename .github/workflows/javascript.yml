@@ -19,10 +19,10 @@ jobs:
           */*/node_modules
         key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
     - name: Install lerna
-      run: yarn
+      run: npm install
     - name: Bootstrap packages
-      run: ./node_modules/.bin/lerna bootstrap --hoist
+      run: ./node_modules/.bin/lerna bootstrap
     - name: Run tests
-      run: yarn test
+      run: npm run test
     - name: Run builds
-      run: yarn run build
+      run: npm run build
