@@ -2,8 +2,7 @@
 
 <h1 align="center">Augmented Audio Libraries</h1>
 
-[![Rust](https://github.com/yamadapc/augmented-audio/actions/workflows/rust.yml/badge.svg)](https://github.com/yamadapc/augmented-audio/actions/workflows/rust.yml)
-[![JavaScript](https://github.com/yamadapc/augmented-audio/actions/workflows/javascript.yml/badge.svg)](https://github.com/yamadapc/augmented-audio/actions/workflows/javascript.yml)
+[![Default](https://github.com/yamadapc/augmented-audio/actions/workflows/default.yml/badge.svg)](https://github.com/yamadapc/augmented-audio/actions/workflows/default.yml)
 ---
 
 In this repository I'll push some experiments trying to use Rust for audio programming.

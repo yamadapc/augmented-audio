@@ -1,0 +1,64 @@
+name: Default
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: restore lerna
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install lerna
+        run: npm install
+      - name: Bootstrap packages
+        run: ./node_modules/.bin/lerna bootstrap
+      - name: Run tests
+        run: npm run test
+      - name: Run builds
+        run: npm run build
+      - name: Upload tremolo-plugin-frontend build
+        uses: actions/upload-artifact@v2
+        with:
+          name: tremolo-plugin-frontend
+          path: ./packages/tremolo-plugin-frontend/build
+      - name: Upload plugin-host-gui build
+        uses: actions/upload-artifact@v2
+        with:
+          name: plugin-host-gui
+          path: ./crates/plugin-host-gui/build
+
+  build-rust:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - name: Build
+      run: cargo build --verbose --workspace --exclude plugin-host-gui
+    - name: Run tests
+      run: cargo test --verbose --workspace --exclude plugin-host-gui
+    - name: Run clippy
+      run: cargo clippy --verbose --workspace --exclude plugin-host-gui
+    - name: Run check
+      run: cargo check --verbose --workspace --exclude plugin-host-gui
