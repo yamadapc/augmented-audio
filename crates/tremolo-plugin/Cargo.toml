@@ -1,5 +1,6 @@
 [package]
 name = "tas_v2"
+description = "TasV2 Tremolo Audio Plug-in"
 version = "0.0.1"
 authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
 edition = "2018"
@@ -32,3 +33,10 @@ wisual-logger = "^0.1.2"
 [lib]
 name = "tas_v2"
 crate-type = ["cdylib"]
+
+[package.metadata.bundle]
+name = "TasV2"
+identifier = "com.beijaflor.TasV2"
+
+[package.metadata.bundle.macos.properties]
+CFBundleGetInfoString = "vst"

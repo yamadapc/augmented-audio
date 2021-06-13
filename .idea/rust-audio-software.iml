@@ -18,7 +18,9 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-host-gui/src-tauri/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/observable-model/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/visualization-demo/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/bundler/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-host-cli/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/ruas-bundler/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/wisual-logger/target" />
