@@ -17,14 +17,14 @@
     "react": ">=16.0.0 && <18"
   },
   "devDependencies": {
-    "react": "^17.0.2",
+    "react": "^16.14.0",
     "@swc/jest": "^0.1.2",
     "@types/chroma-js": "^2.1.0",
     "@types/enzyme": "^3.10.8",
     "@types/jest": "^26.0.23",
     "@types/lodash": "^4.14.164",
     "@types/node": "^15.12.2",
-    "@types/react": "^17.0.11",
+    "@types/react": "^16.14.8",
     "enzyme": "^3.11.0",
     "enzyme-adapter-react-16": "^1.15.5",
     "jest": "^27.0.4",
