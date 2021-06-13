@@ -62,6 +62,16 @@ jobs:
       run: cargo check --verbose --workspace --exclude plugin-host-gui
     - name: Build
       run: cargo build --release --verbose --workspace --exclude plugin-host-gui
+    - name: Upload test-plugin-host binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ runner.os }}-test-plugin-host
+        path: ./target/release/test-plugin-host
+    - name: Upload tremolo-plugin dylib
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ runner.os }}-libtas_v2-dylib
+        path: ./target/release/libtas_v2.dylib
 
   build-plugin-host-gui:
     runs-on: ${{ matrix.os }}
@@ -93,3 +103,8 @@ jobs:
         run: cargo clippy --verbose --workspace --package plugin-host-gui
       - name: Build release
         run: cargo build --release --verbose --workspace --package plugin-host-gui
+      - name: Upload plugin-host-gui binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ runner.os }}-plugin-host-gui
+          path: ./target/release/plugin-host-gui
