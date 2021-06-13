@@ -54,14 +54,14 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-    - name: Build
-      run: cargo build --verbose --workspace --exclude plugin-host-gui
     - name: Run tests
       run: cargo test --verbose --workspace --exclude plugin-host-gui
     - name: Run clippy
       run: cargo clippy --verbose --workspace --exclude plugin-host-gui
     - name: Run check
       run: cargo check --verbose --workspace --exclude plugin-host-gui
+    - name: Build
+      run: cargo build --release --verbose --workspace --exclude plugin-host-gui
 
   build-plugin-host-gui:
     runs-on: ${{ matrix.os }}
@@ -86,6 +86,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: plugin-host-gui-frontend
+          path: ./crates/plugin-host-gui/build
       - name: Test
         run: cargo test --verbose --workspace --package plugin-host-gui
       - name: Clippy
