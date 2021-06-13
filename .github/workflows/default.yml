@@ -65,6 +65,9 @@ jobs:
 
   build-plugin-host-gui:
     runs-on: ${{ matrix.os }}
+    needs:
+      - build-javascript
+      - build-rust
     strategy:
       matrix:
         os: [macos-latest]
