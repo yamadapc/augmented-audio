@@ -1,7 +1,5 @@
-use std::error::Error;
 use std::fs::File;
 use std::path::Path;
-use std::process::exit;
 use std::time::Instant;
 
 use rayon::prelude::*;
@@ -10,14 +8,30 @@ use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
+use symphonia::default::get_probe;
+use thiserror::Error;
 
 use convert_sample_rate::convert_sample_rate;
 
 use crate::commands::main::audio_settings::AudioSettings;
 use crate::timer;
 
+#[derive(Error, Debug)]
+pub enum AudioFileError {
+    #[error("Failed to decode input file")]
+    DecodeError(#[from] symphonia::core::errors::Error),
+    #[error("Failed to read input file")]
+    FileReadError(#[from] std::io::Error),
+    #[error("Failed to open read stream")]
+    OpenStreamError,
+    #[error("Got mismatch between packet stream ID and input stream ID")]
+    UnexpectedPacketStreamError,
+    #[error("Read unsupported sample format from file")]
+    UnsupportedSampleFormatError,
+}
+
 /// Opens an audio file with default options & trying to guess the format
-pub fn default_read_audio_file(input_audio_path: &str) -> Result<ProbeResult, Box<dyn Error>> {
+pub fn default_read_audio_file(input_audio_path: &str) -> Result<ProbeResult, AudioFileError> {
     log::info!(
         "Trying to open and probe audio file at {}",
         input_audio_path
@@ -26,65 +40,59 @@ pub fn default_read_audio_file(input_audio_path: &str) -> Result<ProbeResult, Bo
     let mut hint = Hint::new();
     let media_source = {
         let audio_input_path = Path::new(input_audio_path);
-        if let Some(extension) = audio_input_path.extension() {
-            if let Some(extension_str) = extension.to_str() {
-                hint.with_extension(extension_str);
-            }
-        }
-        Box::new(File::open(audio_input_path)?)
+        let _ = try_set_audio_file_hint(&mut hint, audio_input_path);
+        File::open(audio_input_path)?
     };
-    let audio_file = MediaSourceStream::new(media_source, Default::default());
+    let audio_file = MediaSourceStream::new(Box::new(media_source), Default::default());
     let format_opts: FormatOptions = Default::default();
     let metadata_opts: MetadataOptions = Default::default();
-    let audio_file = match symphonia::default::get_probe().format(
-        &hint,
-        audio_file,
-        &format_opts,
-        &metadata_opts,
-    ) {
-        Ok(probed) => probed,
-        Err(err) => {
-            log::error!("ERROR: Input file not supported: {}", err);
-            exit(1);
-        }
-    };
+    let audio_file = get_probe().format(&hint, audio_file, &format_opts, &metadata_opts)?;
     Ok(audio_file)
 }
 
-pub fn read_file_contents(audio_file: &mut ProbeResult) -> AudioBuffer<f32> {
+/// Attempt to set a hint on codec based on the input file extension
+fn try_set_audio_file_hint(hint: &mut Hint, audio_input_path: &Path) -> Option<()> {
+    let extension = audio_input_path.extension()?;
+    let extension_str = extension.to_str()?;
+    hint.with_extension(extension_str);
+    Some(())
+}
+
+pub fn read_file_contents(
+    audio_file: &mut ProbeResult,
+) -> Result<AudioBuffer<f32>, AudioFileError> {
     let audio_file_stream = audio_file
         .format
         .default_stream()
-        .expect("Failed to open audio file stream");
+        .ok_or(AudioFileError::OpenStreamError)?;
     let mut decoder = symphonia::default::get_codecs()
-        .make(&audio_file_stream.codec_params, &Default::default())
-        .expect("Failed to get input file codec");
+        .make(&audio_file_stream.codec_params, &Default::default())?;
     let audio_file_stream_id = audio_file_stream.id;
 
     let mut audio_buffer: Vec<AudioBuffer<f32>> = Vec::new();
     timer::time("AudioFileProcessor - Reading file packages", || loop {
-        let packet = audio_file.format.next_packet().ok();
-        if packet.is_none() {
-            break;
-        }
-        let packet = packet.unwrap();
+        match audio_file.format.next_packet().ok() {
+            None => break,
+            Some(packet) => {
+                if packet.stream_id() != audio_file_stream_id {
+                    break;
+                }
 
-        if packet.stream_id() != audio_file_stream_id {
-            break;
-        }
-
-        let decoded = decoder.decode(&packet).ok();
-        match decoded {
-            Some(AudioBufferRef::F32(packet_buffer)) => {
-                audio_buffer.push(packet_buffer.into_owned());
+                let decoded = decoder.decode(&packet).ok();
+                match decoded {
+                    Some(AudioBufferRef::F32(packet_buffer)) => {
+                        audio_buffer.push(packet_buffer.into_owned());
+                    }
+                    _ => break,
+                }
             }
-            _ => break,
         }
     });
 
-    timer::time("AudioFileProcessor - Concatenating packets", || {
-        concat_buffers(audio_buffer)
-    })
+    Ok(timer::time(
+        "AudioFileProcessor - Concatenating packets",
+        || concat_buffers(audio_buffer),
+    ))
 }
 
 /// An audio processor which plays a file in loop
@@ -126,8 +134,15 @@ impl AudioFileProcessor {
         let start = Instant::now();
         log::info!("Reading audio file onto memory");
         let audio_file_contents = read_file_contents(&mut self.audio_file_settings.audio_file);
-        log::info!("Read input file duration={}ms", start.elapsed().as_millis());
-        self.set_audio_file_contents(audio_file_contents)
+        match audio_file_contents {
+            Ok(audio_file_contents) => {
+                log::info!("Read input file duration={}ms", start.elapsed().as_millis());
+                self.set_audio_file_contents(audio_file_contents)
+            }
+            Err(err) => {
+                log::error!("Failed to read input file {}", err);
+            }
+        }
     }
 
     /// Performs sample-rate conversion of the input file in multiple threads

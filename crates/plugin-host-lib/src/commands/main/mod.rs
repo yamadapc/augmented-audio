@@ -8,6 +8,7 @@ use symphonia::core::probe::ProbeResult;
 use tao::event::{Event, WindowEvent};
 use tao::event_loop::ControlFlow;
 use tao::platform::macos::WindowExtMacOS;
+use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoader};
 use vst::plugin::Plugin;
 
@@ -15,6 +16,7 @@ use audio_file_processor::{default_read_audio_file, AudioFileSettings};
 use audio_settings::AudioSettings;
 use processor::TestHostProcessor;
 
+use crate::commands::main::audio_file_processor::AudioFileError;
 use crate::commands::options::RunOptions;
 use crate::host::AudioTestHost;
 
@@ -27,14 +29,39 @@ struct UnsafePluginRef(*mut PluginInstance);
 unsafe impl Send for UnsafePluginRef {}
 unsafe impl Sync for UnsafePluginRef {}
 
+struct PluginHost {
+    audio_processor: TestHostProcessor,
+    audio_thread: std::thread::JoinHandle<()>,
+}
+
+impl PluginHost {
+    fn start(&mut self) {}
+    fn load_plugin(&mut self, plugin_path: &str) {}
+    fn set_output_device(&mut self, output_device_id: &str) {}
+    fn set_input_file(&mut self, input_file_path: &str) {}
+}
+
+#[derive(Error, Debug)]
+enum AudioThreadError {
+    #[error("Unsupported sample format from device.")]
+    UnsupportedSampleFormat,
+    #[error("Failed to get audio device name")]
+    DeviceNameError(#[from] cpal::DeviceNameError),
+    #[error("Failed to read input file")]
+    InputFileError(#[from] AudioFileError),
+}
+
 /// Audio thread
-fn initialize_audio_thread(plugin_instance: *mut PluginInstance, audio_file: ProbeResult) {
+fn initialize_audio_thread(
+    plugin_instance: *mut PluginInstance,
+    audio_file: ProbeResult,
+) -> Result<(), AudioThreadError> {
     let cpal_host = cpal::default_host();
     log::info!("Using host: {}", cpal_host.id().name());
     let output_device = cpal_host
         .default_output_device()
         .expect("Expected to find output device");
-    log::info!("Using device: {}", output_device.name().unwrap());
+    log::info!("Using device: {}", output_device.name()?);
     let output_config = output_device
         .default_output_config()
         .expect("Expected default output configuration");
@@ -44,11 +71,10 @@ fn initialize_audio_thread(plugin_instance: *mut PluginInstance, audio_file: Pro
 
     match sample_format {
         SampleFormat::F32 => unsafe {
-            run_main_loop(plugin_instance, &output_device, &output_config, audio_file)
+            run_main_loop(plugin_instance, &output_device, &output_config, audio_file);
+            Ok(())
         },
-        _ => {
-            panic!("Unsupported sample format from device.")
-        }
+        _ => Err(AudioThreadError::UnsupportedSampleFormat),
     }
 }
 
@@ -166,10 +192,10 @@ pub fn run_test(run_options: RunOptions) {
         let instance = UnsafePluginRef(&mut instance as *mut PluginInstance);
         let input_audio_path = run_options.input_audio().to_string();
 
-        thread::spawn(move || {
+        thread::spawn(move || -> Result<(), AudioThreadError> {
             let instance = instance.0;
-            let audio_file = default_read_audio_file(&input_audio_path).unwrap();
-            initialize_audio_thread(instance, audio_file);
+            let audio_file = default_read_audio_file(&input_audio_path)?;
+            initialize_audio_thread(instance, audio_file)
         })
     };
 
