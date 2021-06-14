@@ -1,4 +1,4 @@
-import { inject, singleton } from "tsyringe";
+import {inject, injectable, singleton} from "tsyringe";
 import { MessageTransport } from "./MessageTransport";
 import { WebSocketsMessageTransport } from "./WebSocketsMessageTransport";
 import { WebkitMessageTransport } from "./WebKitMessageTransport";
