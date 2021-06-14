@@ -29,17 +29,17 @@ struct UnsafePluginRef(*mut PluginInstance);
 unsafe impl Send for UnsafePluginRef {}
 unsafe impl Sync for UnsafePluginRef {}
 
-struct PluginHost {
-    audio_processor: TestHostProcessor,
-    audio_thread: std::thread::JoinHandle<()>,
-}
-
-impl PluginHost {
-    fn start(&mut self) {}
-    fn load_plugin(&mut self, plugin_path: &str) {}
-    fn set_output_device(&mut self, output_device_id: &str) {}
-    fn set_input_file(&mut self, input_file_path: &str) {}
-}
+// struct PluginHost {
+//     audio_processor: TestHostProcessor,
+//     audio_thread: std::thread::JoinHandle<()>,
+// }
+//
+// impl PluginHost {
+//     fn start(&mut self) {}
+//     fn load_plugin(&mut self, plugin_path: &str) {}
+//     fn set_output_device(&mut self, output_device_id: &str) {}
+//     fn set_input_file(&mut self, input_file_path: &str) {}
+// }
 
 #[derive(Error, Debug)]
 enum AudioThreadError {

@@ -24,10 +24,6 @@ pub enum AudioFileError {
     FileReadError(#[from] std::io::Error),
     #[error("Failed to open read stream")]
     OpenStreamError,
-    #[error("Got mismatch between packet stream ID and input stream ID")]
-    UnexpectedPacketStreamError,
-    #[error("Read unsupported sample format from file")]
-    UnsupportedSampleFormatError,
 }
 
 /// Opens an audio file with default options & trying to guess the format
