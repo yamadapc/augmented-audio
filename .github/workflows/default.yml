@@ -22,7 +22,7 @@ jobs:
       - name: Install lerna
         run: npm install
       - name: Bootstrap packages
-        run: ./node_modules/.bin/lerna bootstrap
+        run: ./node_modules/.bin/lerna bootstrap --hoist
       - name: Run tests
         run: npm run test
       - name: Run builds

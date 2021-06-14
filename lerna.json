@@ -3,6 +3,7 @@
     "packages/*",
     "crates/plugin-host-gui"
   ],
+  "hoist": true,
   "private": true,
   "version": "0.0.0"
 }

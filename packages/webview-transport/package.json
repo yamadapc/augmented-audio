@@ -12,6 +12,7 @@
     "isomorphic-ws": "^4.0.1"
   },
   "peerDependencies": {
+    "tsyringe": "^4.5.0",
     "react": ">=16 && <18"
   },
   "devDependencies": {

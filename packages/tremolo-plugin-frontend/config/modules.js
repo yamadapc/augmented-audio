@@ -5,6 +5,7 @@ const path = require('path');
 const paths = require('./paths');
 const chalk = require('react-dev-utils/chalk');
 const resolve = require('resolve');
+const assert = require("assert");
 
 /**
  * Get additional module paths based on the baseUrl of a compilerOptions object.
@@ -107,6 +108,7 @@ function getModules() {
   // If there's a tsconfig.json we assume it's a
   // TypeScript project and set up the config
   // based on tsconfig.json
+  assert(hasTsConfig);
   if (hasTsConfig) {
     const ts = require(resolve.sync('typescript', {
       basedir: paths.appNodeModules,
