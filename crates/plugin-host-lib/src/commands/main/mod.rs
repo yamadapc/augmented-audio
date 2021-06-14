@@ -214,10 +214,7 @@ pub fn run_test(run_options: RunOptions) {
     }
 
     if let Err(err) = audio_thread.join() {
-        log::error!(
-            "Failed to join audio thread. There may be issues terminating the command. Error: {:?}",
-            err
-        );
+        log::error!("Failed to join audio thread. Error: {:?}", err);
     }
     log::info!("Closing instance...");
 }
