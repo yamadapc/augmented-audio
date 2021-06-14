@@ -3,10 +3,7 @@
   windows_subsystem = "windows"
 )]
 
-use cpal::traits::{DeviceTrait, HostTrait};
-use serde::Serialize;
 use tauri::{Menu, MenuItem, Window};
-use thiserror::Error;
 
 use app_state::AppState;
 use plugin_host_lib::audio_io::{AudioIOService, AudioIOServiceResult, DevicesList};

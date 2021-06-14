@@ -11,8 +11,9 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
 
+use convert_sample_rate::convert_sample_rate;
+
 use crate::commands::main::audio_settings::AudioSettings;
-use crate::commands::main::sample_rate_conversion::convert_sample_rate;
 use crate::timer;
 
 /// Opens an audio file with default options & trying to guess the format

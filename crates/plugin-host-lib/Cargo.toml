@@ -12,7 +12,6 @@ clap = "^2.33.3"
 tao = "^0.2.6"
 log = "^0.4.14"
 rayon = "^1.5.1"
-oscillator = { path = "../oscillator" }
 symphonia-bundle-mp3 = "^0.2.0"
 symphonia = { version = "^0.2.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
 num-traits = "^0.2.14"
@@ -20,3 +19,6 @@ wisual-logger = "^0.1.2"
 midir = "^0.7.0"
 thiserror = "^1.0.25"
 rimd = "^0.0.1"
+
+oscillator = { path = "../oscillator" }
+convert-sample-rate = { path = "../convert-sample-rate" }

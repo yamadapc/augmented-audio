@@ -22,7 +22,6 @@ mod audio_file_processor;
 mod audio_settings;
 mod cpal_vst_buffer_handler;
 mod processor;
-mod sample_rate_conversion;
 
 struct UnsafePluginRef(*mut PluginInstance);
 unsafe impl Send for UnsafePluginRef {}

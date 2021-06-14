@@ -21,6 +21,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/bundler/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-host-cli/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/ruas-bundler/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/convert-sample-rate/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/wisual-logger/target" />
