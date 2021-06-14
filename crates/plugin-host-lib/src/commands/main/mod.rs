@@ -49,6 +49,16 @@ enum AudioThreadError {
     DeviceNameError(#[from] cpal::DeviceNameError),
     #[error("Failed to read input file")]
     InputFileError(#[from] AudioFileError),
+    #[error("Failed to get assigned or default audio device")]
+    OutputDeviceNotFoundError,
+    #[error("Failed to get default output stream configuration")]
+    DefaultStreamConfigError(#[from] cpal::DefaultStreamConfigError),
+    #[error("Buffer size needs to be set to a fixed value")]
+    UnexpectedDefaultBufferSize,
+    #[error("Failed to build output stream")]
+    BuildStreamError(#[from] cpal::BuildStreamError),
+    #[error("Failed to start playback")]
+    PlayStreamError(#[from] cpal::PlayStreamError),
 }
 
 /// Audio thread
@@ -60,18 +70,16 @@ fn initialize_audio_thread(
     log::info!("Using host: {}", cpal_host.id().name());
     let output_device = cpal_host
         .default_output_device()
-        .expect("Expected to find output device");
+        .ok_or(AudioThreadError::OutputDeviceNotFoundError)?;
     log::info!("Using device: {}", output_device.name()?);
-    let output_config = output_device
-        .default_output_config()
-        .expect("Expected default output configuration");
+    let output_config = output_device.default_output_config()?;
     let sample_format = output_config.sample_format();
     let mut output_config: StreamConfig = output_config.into();
     output_config.buffer_size = BufferSize::Fixed(512);
 
     match sample_format {
         SampleFormat::F32 => unsafe {
-            run_main_loop(plugin_instance, &output_device, &output_config, audio_file);
+            run_main_loop(plugin_instance, &output_device, &output_config, audio_file)?;
             Ok(())
         },
         _ => Err(AudioThreadError::UnsupportedSampleFormat),
@@ -83,11 +91,11 @@ unsafe fn run_main_loop(
     output_device: &cpal::Device,
     output_config: &cpal::StreamConfig,
     audio_file: ProbeResult,
-) {
+) -> Result<(), AudioThreadError> {
     let buffer_size = match output_config.buffer_size {
-        BufferSize::Default => panic!("Using default buffer size will cause reliability issues"),
-        BufferSize::Fixed(buffer_size) => buffer_size,
-    };
+        BufferSize::Default => Err(AudioThreadError::UnexpectedDefaultBufferSize),
+        BufferSize::Fixed(buffer_size) => Ok(buffer_size),
+    }?;
 
     let sample_rate = output_config.sample_rate.0 as f32;
     let channels = output_config.channels as usize;
@@ -109,19 +117,19 @@ unsafe fn run_main_loop(
     let audio_settings = AudioSettings::new(sample_rate, channels, buffer_size);
     processor.prepare(audio_settings);
 
-    let stream = output_device
-        .build_output_stream(
-            output_config,
-            move |data: &mut [f32], output_info: &cpal::OutputCallbackInfo| {
-                processor.cpal_process(data, output_info);
-            },
-            TestHostProcessor::cpal_error,
-        )
-        .expect("Failed to build output stream");
+    let stream = output_device.build_output_stream(
+        output_config,
+        move |data: &mut [f32], output_info: &cpal::OutputCallbackInfo| {
+            processor.cpal_process(data, output_info);
+        },
+        TestHostProcessor::cpal_error,
+    )?;
 
-    stream.play().expect("Failed to play output stream");
+    stream.play()?;
 
     std::thread::park();
+
+    Ok(())
 }
 
 fn start_gui(instance: *mut PluginInstance) {
