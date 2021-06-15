@@ -2,7 +2,6 @@ import "./index.css";
 import { useEffect, useMemo, useState } from "react";
 import { ParametersStore } from "../../state/ParametersStore";
 import { observer } from "mobx-react";
-import { useHudRenderer } from "./useHudRenderer";
 import { range } from "lodash";
 
 interface Props {
@@ -67,7 +66,12 @@ function HudPanel({ parametersStore }: Props) {
         parametersStore.depth?.value,
         0
       ),
-    [windowHeight, parametersStore.rate?.value, parametersStore.depth?.value]
+    [
+      windowHeight,
+      windowWidth,
+      parametersStore.rate?.value,
+      parametersStore.depth?.value,
+    ]
   );
   const rightPoints = useMemo(
     () =>
@@ -80,6 +84,7 @@ function HudPanel({ parametersStore }: Props) {
       ),
     [
       windowHeight,
+      windowWidth,
       parametersStore.rate?.value,
       parametersStore.depth?.value,
       parametersStore.phase?.value,
