@@ -44,14 +44,14 @@ fn handle_set_parameter(
     match parameter_store.find_parameter(&set_parameter.parameter_id) {
         Some(parameter) => {
             parameter.set_value(set_parameter.value);
-            output_messages
-                .send(ServerMessage::notification(
-                    ServerMessageInner::ParameterValue(ParameterValueMessage {
-                        id: set_parameter.parameter_id.clone(),
-                        value: set_parameter.value,
-                    }),
-                ))
-                .unwrap();
+            // output_messages
+            //     .send(ServerMessage::notification(
+            //         ServerMessageInner::ParameterValue(ParameterValueMessage {
+            //             id: set_parameter.parameter_id.clone(),
+            //             value: set_parameter.value,
+            //         }),
+            //     ))
+            //     .unwrap();
         }
         None => {
             log::error!("Front-end is asking to set unknown parameter");
