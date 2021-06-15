@@ -161,8 +161,5 @@
       "jest-watch-typeahead/testname"
     ],
     "resetMocks": true
-  },
-  "devDependencies": {
-    "html-inline-script-webpack-plugin": "^2.0.1"
   }
 }
