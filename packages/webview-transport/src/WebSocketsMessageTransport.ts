@@ -27,6 +27,7 @@ export class WebSocketsMessageTransport<
       this.connection.onclose = null;
       this.connection.onmessage = null;
       this.connection.onopen = null;
+      this.connection.onerror = null;
     }
 
     this.connection = new WebSocket("ws://localhost:9510/ws");
