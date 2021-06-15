@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "prepublish": "tsc",
-    "test": "exit 0"
+    "test": "jest"
   },
   "dependencies": {
     "@wisual/logger": "^1.0.0",
