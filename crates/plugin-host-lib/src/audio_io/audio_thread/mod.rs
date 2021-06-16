@@ -31,7 +31,7 @@ enum AudioThreadError {
     PlayStreamError(#[from] cpal::PlayStreamError),
 }
 
-struct AudioThread {
+pub struct AudioThread {
     processor: Arc<AtomicPtr<Box<dyn AudioProcessor>>>,
     handle: Option<JoinHandle<Result<(), AudioThreadError>>>,
 }

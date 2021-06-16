@@ -11,6 +11,7 @@ use symphonia::core::probe::{Hint, ProbeResult};
 use symphonia::default::get_probe;
 use thiserror::Error;
 
+use audio_processor_traits::AudioProcessorSettings;
 use convert_sample_rate::convert_sample_rate;
 
 use crate::audio_settings::AudioSettings;
@@ -104,13 +105,16 @@ impl AudioFileSettings {
 
 pub struct AudioFileProcessor {
     audio_file_settings: AudioFileSettings,
-    audio_settings: AudioSettings,
+    audio_settings: AudioProcessorSettings,
     audio_file_cursor: usize,
     buffer: Vec<Vec<f32>>,
 }
 
 impl AudioFileProcessor {
-    pub fn new(audio_file_settings: AudioFileSettings, audio_settings: AudioSettings) -> Self {
+    pub fn new(
+        audio_file_settings: AudioFileSettings,
+        audio_settings: AudioProcessorSettings,
+    ) -> Self {
         AudioFileProcessor {
             audio_file_settings,
             audio_settings,
@@ -120,12 +124,12 @@ impl AudioFileProcessor {
     }
 
     /// Prepares for playback
-    pub fn prepare(&mut self, audio_settings: AudioSettings) {
+    pub fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
 
         self.buffer.clear();
-        self.buffer.reserve(self.audio_settings.channels());
+        self.buffer.reserve(self.audio_settings.input_channels());
 
         let start = Instant::now();
         log::info!("Reading audio file onto memory");
@@ -164,7 +168,7 @@ impl AudioFileProcessor {
     }
 
     pub fn process(&mut self, data: &mut [f32]) {
-        let num_channels = self.audio_settings.channels();
+        let num_channels = self.audio_settings.input_channels();
 
         for frame in data.chunks_mut(num_channels) {
             for (channel, sample) in frame.iter_mut().enumerate() {

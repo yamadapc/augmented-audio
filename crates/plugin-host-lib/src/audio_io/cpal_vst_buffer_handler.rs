@@ -1,11 +1,13 @@
 use vst::buffer::AudioBuffer;
 use vst::host::HostBuffer;
 
+use audio_processor_traits::AudioProcessorSettings;
+
 use crate::audio_settings::AudioSettings;
 
 /// Handles conversion from CPAL buffers to VST buffers
 pub struct CpalVstBufferHandler {
-    audio_settings: AudioSettings,
+    audio_settings: AudioProcessorSettings,
     input_buffer: Vec<Vec<f32>>,
     output_buffer: Vec<Vec<f32>>,
     host_buffer: HostBuffer<f32>,
@@ -13,9 +15,9 @@ pub struct CpalVstBufferHandler {
 
 impl CpalVstBufferHandler {
     /// Create a buffer handler
-    pub fn new(audio_settings: AudioSettings) -> Self {
-        let num_channels = audio_settings.channels();
-        let buffer_size = audio_settings.buffer_size();
+    pub fn new(audio_settings: AudioProcessorSettings) -> Self {
+        let num_channels = audio_settings.input_channels();
+        let buffer_size = audio_settings.block_size();
 
         let input_buffer = Self::allocate_buffer(num_channels, buffer_size);
         let output_buffer = Self::allocate_buffer(num_channels, buffer_size);
@@ -30,11 +32,11 @@ impl CpalVstBufferHandler {
     }
 
     /// Prepare the handler given changed audio settings
-    pub fn prepare(&mut self, audio_settings: &AudioSettings) {
+    pub fn prepare(&mut self, audio_settings: &AudioProcessorSettings) {
         self.audio_settings = *audio_settings;
 
-        let num_channels = audio_settings.channels();
-        let buffer_size = audio_settings.buffer_size();
+        let num_channels = audio_settings.input_channels();
+        let buffer_size = audio_settings.block_size();
 
         self.input_buffer = Self::allocate_buffer(num_channels, buffer_size);
         self.output_buffer = Self::allocate_buffer(num_channels, buffer_size);
@@ -53,7 +55,10 @@ impl CpalVstBufferHandler {
 
     /// Process cpal input samples
     pub fn process(&mut self, data: &[f32]) {
-        for (sample_index, frame) in data.chunks(self.audio_settings.channels()).enumerate() {
+        for (sample_index, frame) in data
+            .chunks(self.audio_settings.input_channels())
+            .enumerate()
+        {
             for (channel, sample) in frame.iter().enumerate() {
                 self.set_input(channel, sample_index, *sample);
                 self.set_output(channel, sample_index, *sample);

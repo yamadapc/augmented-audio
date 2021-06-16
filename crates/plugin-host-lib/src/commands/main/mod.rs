@@ -12,6 +12,8 @@ use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoader};
 use vst::plugin::Plugin;
 
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+
 use crate::audio_settings::AudioSettings;
 use crate::commands::options::RunOptions;
 use crate::processors::audio_file_processor::AudioFileError;
@@ -96,15 +98,15 @@ unsafe fn run_main_loop(
         channels,
         buffer_size,
     );
-    let audio_settings = AudioSettings::new(sample_rate, channels, buffer_size);
+    let audio_settings = AudioProcessorSettings::new(sample_rate, channels, channels, buffer_size);
     processor.prepare(audio_settings);
 
     let stream = output_device.build_output_stream(
         output_config,
         move |data: &mut [f32], output_info: &cpal::OutputCallbackInfo| {
-            processor.cpal_process(data, output_info);
+            processor.process(data);
         },
-        TestHostProcessor::cpal_error,
+        |err| log::error!("Stream error: {}", err),
     )?;
 
     stream.play()?;

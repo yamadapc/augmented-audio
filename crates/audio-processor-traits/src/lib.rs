@@ -1,3 +1,4 @@
+#[derive(Clone, Copy)]
 pub struct AudioProcessorSettings {
     sample_rate: f32,
     input_channels: usize,
