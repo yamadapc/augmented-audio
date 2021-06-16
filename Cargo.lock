@@ -13,6 +13,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aae1277d39aeec15cb388266ecc24b11c80469deae6067e17a1a7aa9e5c1f234"
 
 [[package]]
+name = "ahash"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43bb833f0bf979d8475d38fbf09ed3b8a55e1885fe93ad3f93239fc6a4f17b98"
+dependencies = [
+ "getrandom 0.2.3",
+ "once_cell",
+ "version_check 0.9.3",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "0.7.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -173,6 +184,10 @@ dependencies = [
  "serde",
  "vst",
 ]
+
+[[package]]
+name = "audio-processor-traits"
+version = "0.1.0"
 
 [[package]]
 name = "autocfg"
@@ -579,6 +594,22 @@ checksum = "cc4369b5e4c0cddf64ad8981c0111e7df4f7078f4d6ba98fb31f2e17c4c57b7e"
 dependencies = [
  "bytes",
  "memchr",
+]
+
+[[package]]
+name = "concread"
+version = "0.2.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "07528232eb364b5096c93e0a39553dd22ed373befc7882f773fbffb2159c1fd2"
+dependencies = [
+ "ahash",
+ "crossbeam",
+ "crossbeam-epoch",
+ "crossbeam-utils",
+ "parking_lot",
+ "rand 0.8.3",
+ "smallvec",
+ "tokio",
 ]
 
 [[package]]
@@ -3074,7 +3105,9 @@ dependencies = [
 name = "plugin-host-lib"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-traits",
  "clap",
+ "concread",
  "convert-sample-rate",
  "cpal",
  "log",

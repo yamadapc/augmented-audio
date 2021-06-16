@@ -19,6 +19,8 @@ wisual-logger = "^0.1.2"
 midir = "^0.7.0"
 thiserror = "^1.0.25"
 rimd = "^0.0.1"
+concread = "^0.2.14"
 
+audio-processor-traits = { path = "../audio-processor-traits" }
 oscillator = { path = "../oscillator" }
 convert-sample-rate = { path = "../convert-sample-rate" }
