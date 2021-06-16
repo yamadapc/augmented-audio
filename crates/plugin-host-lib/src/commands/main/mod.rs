@@ -12,17 +12,12 @@ use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoader};
 use vst::plugin::Plugin;
 
-use audio_file_processor::{default_read_audio_file, AudioFileSettings};
-use processor::TestHostProcessor;
-
 use crate::audio_settings::AudioSettings;
-use crate::commands::main::audio_file_processor::AudioFileError;
 use crate::commands::options::RunOptions;
-use crate::host::AudioTestHost;
-
-mod audio_file_processor;
-mod cpal_vst_buffer_handler;
-mod processor;
+use crate::processors::audio_file_processor::AudioFileError;
+use crate::processors::audio_file_processor::{default_read_audio_file, AudioFileSettings};
+use crate::processors::test_host_processor::TestHostProcessor;
+use crate::vst_host::AudioTestHost;
 
 struct UnsafePluginRef(*mut PluginInstance);
 unsafe impl Send for UnsafePluginRef {}

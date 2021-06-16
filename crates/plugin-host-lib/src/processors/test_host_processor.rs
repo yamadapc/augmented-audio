@@ -3,9 +3,9 @@ use vst::buffer::AudioBuffer;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_settings::AudioSettings;
-use crate::commands::main::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
-use crate::commands::main::cpal_vst_buffer_handler::CpalVstBufferHandler;
+use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 
 /// The app's main processor
 pub struct TestHostProcessor {

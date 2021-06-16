@@ -7,8 +7,8 @@ use ClientMessageInner::{AppStarted, Log, SetParameter};
 
 use crate::editor::list_parameters;
 use crate::editor::protocol::{
-    ClientMessage, ClientMessageInner, MessageWrapper, ParameterValueMessage,
-    PublishParametersMessage, ServerMessage, ServerMessageInner, SetParameterMessage,
+    ClientMessage, ClientMessageInner, MessageWrapper, PublishParametersMessage, ServerMessage,
+    ServerMessageInner, SetParameterMessage,
 };
 
 pub async fn message_handler_loop(
@@ -37,7 +37,7 @@ pub async fn message_handler_loop(
 }
 
 fn handle_set_parameter(
-    output_messages: &Sender<ServerMessage>,
+    _output_messages: &Sender<ServerMessage>,
     parameter_store: &Arc<ParameterStore>,
     set_parameter: &SetParameterMessage,
 ) {

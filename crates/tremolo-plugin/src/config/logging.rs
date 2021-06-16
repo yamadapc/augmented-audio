@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use log::{LevelFilter, SetLoggerError};
 use log4rs::append::console::ConsoleAppender;
 use log4rs::append::file::FileAppender;
@@ -5,7 +7,6 @@ use log4rs::config::runtime::ConfigErrors;
 use log4rs::config::{Appender, Root};
 use log4rs::encode::pattern::PatternEncoder;
 use log4rs::Config;
-use std::path::PathBuf;
 
 #[derive(thiserror::Error, Debug)]
 pub enum LoggingSetupError {

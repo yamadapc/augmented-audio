@@ -1,8 +1,9 @@
 pub mod audio_io;
 mod audio_settings;
 pub mod commands;
-pub mod host;
+mod processors;
 mod timer;
+pub mod vst_host;
 
 #[cfg(test)]
 mod tests {
