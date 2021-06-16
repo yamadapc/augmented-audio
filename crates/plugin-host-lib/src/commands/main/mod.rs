@@ -1,119 +1,14 @@
 use std::path::Path;
-use std::sync::{Arc, Mutex};
-use std::thread;
+use std::process::exit;
 
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{BufferSize, SampleFormat, StreamConfig};
-use symphonia::core::probe::ProbeResult;
 use tao::event::{Event, WindowEvent};
 use tao::event_loop::ControlFlow;
 use tao::platform::macos::WindowExtMacOS;
-use thiserror::Error;
-use vst::host::{PluginInstance, PluginLoader};
+use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
-
+use crate::audio_io::TestPluginHost;
 use crate::commands::options::RunOptions;
-use crate::processors::audio_file_processor::AudioFileError;
-use crate::processors::audio_file_processor::{default_read_audio_file, AudioFileSettings};
-use crate::processors::test_host_processor::TestHostProcessor;
-use crate::vst_host::AudioTestHost;
-
-struct UnsafePluginRef(*mut PluginInstance);
-unsafe impl Send for UnsafePluginRef {}
-unsafe impl Sync for UnsafePluginRef {}
-
-#[derive(Error, Debug)]
-enum AudioThreadError {
-    #[error("Unsupported sample format from device.")]
-    UnsupportedSampleFormat,
-    #[error("Failed to get audio device name")]
-    DeviceNameError(#[from] cpal::DeviceNameError),
-    #[error("Failed to read input file")]
-    InputFileError(#[from] AudioFileError),
-    #[error("Failed to get assigned or default audio device")]
-    OutputDeviceNotFoundError,
-    #[error("Failed to get default output stream configuration")]
-    DefaultStreamConfigError(#[from] cpal::DefaultStreamConfigError),
-    #[error("Buffer size needs to be set to a fixed value")]
-    UnexpectedDefaultBufferSize,
-    #[error("Failed to build output stream")]
-    BuildStreamError(#[from] cpal::BuildStreamError),
-    #[error("Failed to start playback")]
-    PlayStreamError(#[from] cpal::PlayStreamError),
-}
-
-/// Audio thread
-fn initialize_audio_thread(
-    plugin_instance: *mut PluginInstance,
-    audio_file: ProbeResult,
-) -> Result<(), AudioThreadError> {
-    let cpal_host = cpal::default_host();
-    log::info!("Using host: {}", cpal_host.id().name());
-    let output_device = cpal_host
-        .default_output_device()
-        .ok_or(AudioThreadError::OutputDeviceNotFoundError)?;
-    log::info!("Using device: {}", output_device.name()?);
-    let output_config = output_device.default_output_config()?;
-    let sample_format = output_config.sample_format();
-    let mut output_config: StreamConfig = output_config.into();
-    output_config.buffer_size = BufferSize::Fixed(512);
-
-    match sample_format {
-        SampleFormat::F32 => unsafe {
-            run_main_loop(plugin_instance, &output_device, &output_config, audio_file)?;
-            Ok(())
-        },
-        _ => Err(AudioThreadError::UnsupportedSampleFormat),
-    }
-}
-
-unsafe fn run_main_loop(
-    plugin_instance: *mut PluginInstance,
-    output_device: &cpal::Device,
-    output_config: &cpal::StreamConfig,
-    audio_file: ProbeResult,
-) -> Result<(), AudioThreadError> {
-    let buffer_size = match output_config.buffer_size {
-        BufferSize::Default => Err(AudioThreadError::UnexpectedDefaultBufferSize),
-        BufferSize::Fixed(buffer_size) => Ok(buffer_size),
-    }?;
-
-    let sample_rate = output_config.sample_rate.0 as f32;
-    let channels = output_config.channels as usize;
-
-    let instance = plugin_instance.as_mut().unwrap();
-    instance.suspend();
-    instance.set_sample_rate(sample_rate);
-    instance.resume();
-
-    log::info!("Buffer size {:?}", buffer_size);
-    let audio_file_settings = AudioFileSettings::new(audio_file);
-    let mut processor = TestHostProcessor::new(
-        audio_file_settings,
-        plugin_instance,
-        sample_rate,
-        channels,
-        buffer_size,
-    );
-    let audio_settings = AudioProcessorSettings::new(sample_rate, channels, channels, buffer_size);
-    processor.prepare(audio_settings);
-
-    let stream = output_device.build_output_stream(
-        output_config,
-        move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-            processor.process(data);
-        },
-        |err| log::error!("Stream error: {}", err),
-    )?;
-
-    stream.play()?;
-
-    std::thread::park();
-
-    Ok(())
-}
 
 fn start_gui(instance: *mut PluginInstance) {
     let event_loop = tao::event_loop::EventLoop::new();
@@ -147,56 +42,23 @@ fn start_gui(instance: *mut PluginInstance) {
 }
 
 pub fn run_test(run_options: RunOptions) {
-    let host = Arc::new(Mutex::new(AudioTestHost));
-
+    let mut host = TestPluginHost::default();
     let path = Path::new(run_options.plugin_path());
     log::info!("Loading VST from: {}...", path.to_str().unwrap());
-    let mut loader = PluginLoader::load(path, Arc::clone(&host))
-        .unwrap_or_else(|e| panic!("Failed to load plugin: {}", e));
-
-    log::info!("Creating plugin instance...");
-    let mut instance = loader.instance().unwrap();
-    let info = instance.get_info();
-    log::info!(
-        "Loaded '{}':\n\t\
-         Vendor: {}\n\t\
-         Presets: {}\n\t\
-         Parameters: {}\n\t\
-         VST ID: {}\n\t\
-         Version: {}\n\t\
-         Initial Delay: {} samples",
-        info.name,
-        info.vendor,
-        info.presets,
-        info.parameters,
-        info.unique_id,
-        info.version,
-        info.initial_delay
-    );
-
-    // Initialize the instance
-    instance.init();
-    log::info!("Initialized instance!");
-
+    if let Err(err) = host.load_plugin(path) {
+        log::error!("Failed to load plugin {}", err);
+        exit(1);
+    }
     log::info!("Initializing audio thread");
-    let audio_thread = {
-        let instance = UnsafePluginRef(&mut instance as *mut PluginInstance);
-        let input_audio_path = run_options.input_audio().to_string();
+    host.start();
 
-        thread::spawn(move || -> Result<(), AudioThreadError> {
-            let instance = instance.0;
-            let audio_file = default_read_audio_file(&input_audio_path)?;
-            initialize_audio_thread(instance, audio_file)
-        })
-    };
-
-    let instance = &mut instance as *mut PluginInstance;
     if run_options.open_editor() {
+        let instance = host.plugin_instance();
         log::info!("Starting GUI");
         start_gui(instance);
     }
 
-    if let Err(err) = audio_thread.join() {
+    if let Err(err) = host.wait() {
         log::error!("Failed to join audio thread. Error: {:?}", err);
     }
     log::info!("Closing instance...");

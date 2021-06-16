@@ -6,8 +6,10 @@ use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
 
 pub use audio_io_service::*;
+use audio_processor_traits::AudioProcessorSettings;
 use audio_thread::AudioThread;
 
+use crate::audio_io::audio_thread::AudioThreadError;
 use crate::audio_settings::AudioSettings;
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
@@ -33,17 +35,28 @@ struct UnsafePluginRef(*mut PluginInstance);
 unsafe impl Send for UnsafePluginRef {}
 unsafe impl Sync for UnsafePluginRef {}
 
-pub struct AudioHost {
+pub struct TestPluginHost {
     audio_thread: AudioThread,
-    audio_settings: AudioSettings,
+    audio_settings: AudioProcessorSettings,
     audio_file_path: PathBuf,
     vst_plugin_instance: Option<Box<PluginInstance>>,
 }
 
-impl AudioHost {
-    pub fn new(audio_settings: AudioSettings) -> Self {
+impl TestPluginHost {}
+
+impl TestPluginHost {}
+
+impl Default for TestPluginHost {
+    fn default() -> Self {
+        let audio_settings = AudioThread::settings().unwrap();
+        TestPluginHost::new(audio_settings)
+    }
+}
+
+impl TestPluginHost {
+    pub fn new(audio_settings: AudioProcessorSettings) -> Self {
         let path = Path::new("").to_path_buf();
-        AudioHost {
+        TestPluginHost {
             audio_thread: AudioThread::new(),
             audio_settings,
             audio_file_path: path,
@@ -93,13 +106,21 @@ impl AudioHost {
             audio_file_settings,
             (&mut instance) as *mut PluginInstance,
             audio_settings.sample_rate(),
-            audio_settings.channels(),
-            audio_settings.buffer_size(),
+            audio_settings.input_channels(),
+            audio_settings.block_size(),
         ));
         self.audio_thread.set_processor(test_host_processor);
 
         // De-allocate old instance
         self.vst_plugin_instance = Some(Box::new(instance));
         Ok(())
+    }
+
+    pub fn plugin_instance(&mut self) -> *mut PluginInstance {
+        self.vst_plugin_instance.as_mut().unwrap().as_mut() as *mut PluginInstance
+    }
+
+    pub fn wait(self) -> Result<(), AudioThreadError> {
+        self.audio_thread.wait()
     }
 }

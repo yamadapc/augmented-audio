@@ -1,3 +1,5 @@
+use std::any::Any;
+use std::error::Error;
 use std::sync::atomic::{AtomicPtr, Ordering};
 use std::sync::Arc;
 use std::thread;
@@ -12,7 +14,7 @@ use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, NoopAudioPr
 use crate::processors::audio_file_processor::AudioFileError;
 
 #[derive(Error, Debug)]
-enum AudioThreadError {
+pub enum AudioThreadError {
     #[error("Unsupported sample format from device.")]
     UnsupportedSampleFormat,
     #[error("Failed to get audio device name")]
@@ -29,12 +31,18 @@ enum AudioThreadError {
     BuildStreamError(#[from] cpal::BuildStreamError),
     #[error("Failed to start playback")]
     PlayStreamError(#[from] cpal::PlayStreamError),
+    #[error("Audio thread isn't running")]
+    NotStartedError,
+    #[error("Unknown error")]
+    UnknownError(Box<dyn Any + Send>),
 }
 
 pub struct AudioThread {
     processor: Arc<AtomicPtr<Box<dyn AudioProcessor>>>,
     handle: Option<JoinHandle<Result<(), AudioThreadError>>>,
 }
+
+impl AudioThread {}
 
 impl AudioThread {
     pub fn new() -> Self {
@@ -54,13 +62,41 @@ impl AudioThread {
         }))
     }
 
+    pub fn wait(mut self) -> Result<(), AudioThreadError> {
+        let handle = self.handle.ok_or(AudioThreadError::NotStartedError)?;
+        handle
+            .join()
+            .map_err(|err| AudioThreadError::UnknownError(err))?;
+        Ok(())
+    }
+
     pub fn set_processor(&mut self, processor: Box<dyn AudioProcessor>) {
+        log::info!("Updating audio processor");
         let new_processor_ptr = Box::into_raw(Box::new(processor));
         let old_processor_ptr = self.processor.swap(new_processor_ptr, Ordering::Relaxed);
         unsafe {
             // Let the old processor be dropped
             let _old_processor_ptr = Box::from_raw(old_processor_ptr);
         }
+    }
+
+    pub fn settings() -> Result<AudioProcessorSettings, AudioThreadError> {
+        // TODO - This should be queried from the audio thread.
+        let cpal_host = cpal::default_host();
+        let output_device = cpal_host
+            .default_output_device()
+            .ok_or(AudioThreadError::OutputDeviceNotFoundError)?;
+        let output_config = output_device.default_output_config()?;
+        let output_config: StreamConfig = output_config.into();
+        let channels = output_config.channels as usize;
+        let audio_settings = AudioProcessorSettings::new(
+            output_config.sample_rate.0 as f32,
+            channels,
+            channels,
+            512,
+        );
+
+        Ok(audio_settings)
     }
 }
 
