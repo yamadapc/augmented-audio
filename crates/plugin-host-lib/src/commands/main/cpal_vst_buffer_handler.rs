@@ -1,7 +1,7 @@
 use vst::buffer::AudioBuffer;
 use vst::host::HostBuffer;
 
-use crate::commands::main::audio_settings::AudioSettings;
+use crate::audio_settings::AudioSettings;
 
 /// Handles conversion from CPAL buffers to VST buffers
 pub struct CpalVstBufferHandler {

@@ -1,4 +1,5 @@
 pub mod audio_io;
+mod audio_settings;
 pub mod commands;
 pub mod host;
 mod timer;

@@ -13,33 +13,20 @@ use vst::host::{PluginInstance, PluginLoader};
 use vst::plugin::Plugin;
 
 use audio_file_processor::{default_read_audio_file, AudioFileSettings};
-use audio_settings::AudioSettings;
 use processor::TestHostProcessor;
 
+use crate::audio_settings::AudioSettings;
 use crate::commands::main::audio_file_processor::AudioFileError;
 use crate::commands::options::RunOptions;
 use crate::host::AudioTestHost;
 
 mod audio_file_processor;
-mod audio_settings;
 mod cpal_vst_buffer_handler;
 mod processor;
 
 struct UnsafePluginRef(*mut PluginInstance);
 unsafe impl Send for UnsafePluginRef {}
 unsafe impl Sync for UnsafePluginRef {}
-
-// struct PluginHost {
-//     audio_processor: TestHostProcessor,
-//     audio_thread: std::thread::JoinHandle<()>,
-// }
-//
-// impl PluginHost {
-//     fn start(&mut self) {}
-//     fn load_plugin(&mut self, plugin_path: &str) {}
-//     fn set_output_device(&mut self, output_device_id: &str) {}
-//     fn set_input_file(&mut self, input_file_path: &str) {}
-// }
 
 #[derive(Error, Debug)]
 enum AudioThreadError {

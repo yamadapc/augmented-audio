@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 use std::time::Duration;
+
 use tokio::sync::RwLock;
 use tokio::task::JoinHandle;
 
@@ -21,6 +22,11 @@ impl VolumePublisherState {
       volume: Arc::new(RwLock::new(0.0)),
       publishers: HashMap::new(),
     }
+  }
+
+  pub async fn set_volume(&mut self, volume: f32) {
+    let mut volume_lock = self.volume.write().await;
+    *volume_lock = volume;
   }
 
   pub fn subscribe<V: 'static + VolumeReceiver + Send>(

@@ -13,7 +13,7 @@ use thiserror::Error;
 
 use convert_sample_rate::convert_sample_rate;
 
-use crate::commands::main::audio_settings::AudioSettings;
+use crate::audio_settings::AudioSettings;
 use crate::timer;
 
 #[derive(Error, Debug)]

@@ -1,19 +1,19 @@
 use std::ffi::c_void;
+use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 
+use serde::de::DeserializeOwned;
+use serde::Serialize;
 use vst::editor::Editor;
 
 use audio_parameter_store::ParameterStore;
 use webview_holder::WebviewHolder;
+use webview_transport::webkit::WebkitTransport;
 use webview_transport::{
     create_transport_runtime, DelegatingTransport, WebSocketsTransport, WebviewTransport,
 };
 
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
-use serde::de::DeserializeOwned;
-use serde::Serialize;
-use std::fmt::Debug;
-use webview_transport::webkit::WebkitTransport;
 
 pub mod handlers;
 pub mod protocol;
@@ -77,7 +77,12 @@ impl TremoloEditor {
 
         {
             let mut webview = self.webview.as_mut().unwrap().lock().unwrap();
-            webview.initialize(parent, "http://127.0.0.1:3000");
+            let frontend_url = "http://127.0.0.1:3000";
+            log::warn!(
+                "Initializing the front-end in development mode: {}",
+                frontend_url
+            );
+            webview.initialize(parent, frontend_url);
         }
 
         let start_result = self
