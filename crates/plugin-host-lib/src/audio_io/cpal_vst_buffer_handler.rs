@@ -20,6 +20,7 @@ impl CpalVstBufferHandler {
         let input_buffer = Self::allocate_buffer(num_channels, buffer_size);
         let output_buffer = Self::allocate_buffer(num_channels, buffer_size);
         let host_buffer = HostBuffer::new(num_channels, num_channels);
+        log::info!("Buffer handler: num_channels={}", num_channels);
 
         CpalVstBufferHandler {
             audio_settings,

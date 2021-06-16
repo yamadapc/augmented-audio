@@ -12,6 +12,7 @@ use thiserror::Error;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, NoopAudioProcessor};
 
 use crate::processors::audio_file_processor::AudioFileError;
+use std::time::Duration;
 
 #[derive(Error, Debug)]
 pub enum AudioThreadError {
@@ -70,10 +71,14 @@ impl AudioThread {
         Ok(())
     }
 
+    /// # Safety:
+    /// The processor MUST be prepared for playback when it's set.
     pub fn set_processor(&mut self, processor: Box<dyn AudioProcessor>) {
         log::info!("Updating audio processor");
         let new_processor_ptr = Box::into_raw(Box::new(processor));
         let old_processor_ptr = self.processor.swap(new_processor_ptr, Ordering::Relaxed);
+        // TODO - We need a way to wait until the audio-thread is done with a block
+        thread::sleep(Duration::from_secs(2));
         unsafe {
             // Let the old processor be dropped
             let _old_processor_ptr = Box::from_raw(old_processor_ptr);
@@ -133,15 +138,7 @@ unsafe fn run_main_loop(
         BufferSize::Fixed(buffer_size) => Ok(buffer_size),
     }?;
 
-    let sample_rate = output_config.sample_rate.0 as f32;
-    let channels = output_config.channels as usize;
-
     log::info!("Buffer size {:?}", buffer_size);
-    let audio_settings = AudioProcessorSettings::new(sample_rate, channels, channels, buffer_size);
-    {
-        let processor = processor.load(Ordering::Relaxed);
-        (*processor).prepare(audio_settings);
-    }
 
     let stream = output_device.build_output_stream(
         output_config,

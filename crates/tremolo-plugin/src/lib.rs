@@ -106,7 +106,7 @@ impl Plugin for TremoloPlugin {
     }
 
     fn set_sample_rate(&mut self, rate: f32) {
-        log::info!("TremoloPlugin::set_sample_rate");
+        log::info!("TremoloPlugin::set_sample_rate: {}", rate);
         self.processor.set_sample_rate(rate);
     }
 

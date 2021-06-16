@@ -6,7 +6,7 @@ use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
 
 pub use audio_io_service::*;
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 use audio_thread::AudioThread;
 
 use crate::audio_io::audio_thread::AudioThreadError;
@@ -45,6 +45,19 @@ pub struct TestPluginHost {
 impl Default for TestPluginHost {
     fn default() -> Self {
         let audio_settings = AudioThread::settings().unwrap();
+        log::info!(
+            "\
+            Using audio settings:\n\t\
+                Sample rate: {}\n\t\
+                Block size: {}\n\t\
+                Input channels: {}\n\t\
+                Output channels: {}\
+            ",
+            audio_settings.sample_rate(),
+            audio_settings.block_size(),
+            audio_settings.input_channels(),
+            audio_settings.output_channels()
+        );
         TestPluginHost::new(audio_settings)
     }
 }
@@ -101,18 +114,20 @@ impl TestPluginHost {
                 .ok_or(AudioHostPluginLoadError::MissingPathError)?,
         )?;
         let audio_file_settings = AudioFileSettings::new(audio_file);
+        let mut instance = Box::new(instance);
 
-        let test_host_processor = Box::new(TestHostProcessor::new(
+        let mut test_host_processor = Box::new(TestHostProcessor::new(
             audio_file_settings,
-            (&mut instance) as *mut PluginInstance,
+            (&mut *instance) as *mut PluginInstance,
             audio_settings.sample_rate(),
             audio_settings.input_channels(),
             audio_settings.block_size(),
         ));
+        test_host_processor.prepare(*audio_settings);
         self.audio_thread.set_processor(test_host_processor);
 
         // De-allocate old instance
-        self.vst_plugin_instance = Some(Box::new(instance));
+        self.vst_plugin_instance = Some(instance);
         Ok(())
     }
 

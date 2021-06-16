@@ -61,9 +61,9 @@ pub fn run_test(run_options: RunOptions) {
 
     let instance = host.plugin_instance();
 
+    let (tx, rx) = channel();
+    let mut watcher = watcher(tx, Duration::from_secs(3)).unwrap();
     {
-        let (tx, rx) = channel();
-        let mut watcher = watcher(tx, Duration::from_secs(3)).unwrap();
         let run_options = run_options.clone();
         watcher.watch(run_options.plugin_path(), RecursiveMode::NonRecursive);
         std::thread::spawn(move || loop {
@@ -84,7 +84,10 @@ pub fn run_test(run_options: RunOptions) {
     if run_options.open_editor() {
         log::info!("Starting GUI");
         start_gui(instance);
+    } else {
+        thread::park();
     }
+
     // if let Err(err) = host.wait() {
     //     log::error!("Failed to join audio thread. Error: {:?}", err);
     // }
