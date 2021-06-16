@@ -1,4 +1,3 @@
-use cpal::{OutputCallbackInfo, StreamError};
 use vst::buffer::AudioBuffer;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
@@ -6,7 +5,6 @@ use vst::plugin::Plugin;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
-use crate::audio_settings::AudioSettings;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 
 /// The app's main processor

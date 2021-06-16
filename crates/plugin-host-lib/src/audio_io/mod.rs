@@ -7,11 +7,10 @@ use vst::plugin::Plugin;
 
 pub use audio_io_service::*;
 use audio_thread::AudioThread;
-use cpal_vst_buffer_handler::CpalVstBufferHandler;
 
 use crate::audio_settings::AudioSettings;
 use crate::processors::audio_file_processor::{
-    default_read_audio_file, AudioFileError, AudioFileProcessor, AudioFileSettings,
+    default_read_audio_file, AudioFileError, AudioFileSettings,
 };
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::vst_host::AudioTestHost;
@@ -90,13 +89,14 @@ impl AudioHost {
         )?;
         let audio_file_settings = AudioFileSettings::new(audio_file);
 
-        let mut test_host_processor = TestHostProcessor::new(
+        let test_host_processor = Box::new(TestHostProcessor::new(
             audio_file_settings,
             (&mut instance) as *mut PluginInstance,
             audio_settings.sample_rate(),
             audio_settings.channels(),
             audio_settings.buffer_size(),
-        );
+        ));
+        self.audio_thread.set_processor(test_host_processor);
 
         // De-allocate old instance
         self.vst_plugin_instance = Some(Box::new(instance));

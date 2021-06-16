@@ -14,7 +14,6 @@ use vst::plugin::Plugin;
 
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
-use crate::audio_settings::AudioSettings;
 use crate::commands::options::RunOptions;
 use crate::processors::audio_file_processor::AudioFileError;
 use crate::processors::audio_file_processor::{default_read_audio_file, AudioFileSettings};
@@ -103,7 +102,7 @@ unsafe fn run_main_loop(
 
     let stream = output_device.build_output_stream(
         output_config,
-        move |data: &mut [f32], output_info: &cpal::OutputCallbackInfo| {
+        move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
             processor.process(data);
         },
         |err| log::error!("Stream error: {}", err),

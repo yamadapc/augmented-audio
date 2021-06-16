@@ -14,7 +14,6 @@ use thiserror::Error;
 use audio_processor_traits::AudioProcessorSettings;
 use convert_sample_rate::convert_sample_rate;
 
-use crate::audio_settings::AudioSettings;
 use crate::timer;
 
 #[derive(Error, Debug)]

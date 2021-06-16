@@ -3,8 +3,6 @@ use vst::host::HostBuffer;
 
 use audio_processor_traits::AudioProcessorSettings;
 
-use crate::audio_settings::AudioSettings;
-
 /// Handles conversion from CPAL buffers to VST buffers
 pub struct CpalVstBufferHandler {
     audio_settings: AudioProcessorSettings,
