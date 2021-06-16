@@ -42,10 +42,6 @@ pub struct TestPluginHost {
     vst_plugin_instance: Option<Box<PluginInstance>>,
 }
 
-impl TestPluginHost {}
-
-impl TestPluginHost {}
-
 impl Default for TestPluginHost {
     fn default() -> Self {
         let audio_settings = AudioThread::settings().unwrap();
@@ -66,6 +62,10 @@ impl TestPluginHost {
 
     pub fn start(&mut self) {
         self.audio_thread.start();
+    }
+
+    pub fn set_audio_file_path(&mut self, path: PathBuf) {
+        self.audio_file_path = path;
     }
 
     pub fn load_plugin(&mut self, path: &Path) -> Result<(), AudioHostPluginLoadError> {

@@ -1,9 +1,11 @@
 use clap::{App, ArgMatches};
 
+#[derive(Clone)]
 pub struct RunOptions {
     plugin_path: String,
     input_audio: String,
     open_editor: bool,
+    watch: bool,
 }
 
 impl RunOptions {
@@ -17,6 +19,10 @@ impl RunOptions {
 
     pub fn open_editor(&self) -> bool {
         self.open_editor
+    }
+
+    pub fn watch(&self) -> bool {
+        self.watch
     }
 }
 
@@ -33,6 +39,9 @@ pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
         .arg(clap::Arg::from_usage(
             "-e, --editor 'Open the editor window'",
         ))
+        .arg(clap::Arg::from_usage(
+            "-w, --watch 'Watch and reload the VST when it changes'",
+        ))
 }
 
 /// Build 'RunOptions' from Clap matches
@@ -41,10 +50,12 @@ pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
     let plugin_path = matches.value_of("plugin")?.to_string();
     let input_audio = matches.value_of("input")?.to_string();
     let open_editor = matches.is_present("editor");
+    let watch = matches.is_present("watch");
 
     Some(RunOptions {
         plugin_path,
         input_audio,
         open_editor,
+        watch,
     })
 }
