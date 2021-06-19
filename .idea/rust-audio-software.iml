@@ -23,6 +23,8 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/ruas-bundler/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/convert-sample-rate/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-traits/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/background-garbage-collector/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/circular-data-structures/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/wisual-logger/target" />

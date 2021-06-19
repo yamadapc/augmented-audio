@@ -38,7 +38,7 @@ impl AudioProcessorSettings {
     }
 }
 
-pub trait AudioProcessor {
+pub trait AudioProcessor: Send + Sync {
     fn prepare(&mut self, _settings: AudioProcessorSettings) {}
     fn process(&mut self, data: &mut [f32]);
 }
