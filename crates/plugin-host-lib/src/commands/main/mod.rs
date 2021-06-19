@@ -2,7 +2,6 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::process::exit;
 use std::sync::mpsc::channel;
-use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -63,9 +62,13 @@ pub fn run_test(run_options: RunOptions) {
 
     let (tx, rx) = channel();
     let mut watcher = watcher(tx, Duration::from_secs(3)).unwrap();
-    {
+
+    if run_options.watch() {
         let run_options = run_options.clone();
-        watcher.watch(run_options.plugin_path(), RecursiveMode::NonRecursive);
+        watcher
+            .watch(run_options.plugin_path(), RecursiveMode::NonRecursive)
+            .expect("Failed to watch file");
+
         std::thread::spawn(move || loop {
             match rx.recv() {
                 Ok(_) => match host.load_plugin(Path::new(run_options.plugin_path())) {

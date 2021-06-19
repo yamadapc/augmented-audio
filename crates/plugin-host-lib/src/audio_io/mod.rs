@@ -1,5 +1,6 @@
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
 use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
@@ -8,9 +9,10 @@ use vst::plugin::Plugin;
 pub use audio_io_service::*;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 use audio_thread::AudioThread;
+use audio_thread::AudioThreadError;
+use garbage_collector::GarbageCollector;
+use garbage_collector::GarbageCollectorError;
 
-use crate::audio_io::audio_thread::AudioThreadError;
-use crate::audio_settings::AudioSettings;
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
 };
@@ -20,6 +22,7 @@ use crate::vst_host::AudioTestHost;
 pub mod audio_io_service;
 pub mod audio_thread;
 pub mod cpal_vst_buffer_handler;
+mod garbage_collector;
 
 #[derive(Debug, Error)]
 pub enum AudioHostPluginLoadError {
@@ -31,6 +34,14 @@ pub enum AudioHostPluginLoadError {
     AudioFileError(#[from] AudioFileError),
 }
 
+#[derive(Debug, Error)]
+pub enum WaitError {
+    #[error("Failed to stop the GC thread")]
+    GarbageCollectorError(#[from] GarbageCollectorError),
+    #[error("Failed to wait on the audio thread")]
+    AudioThreadError(#[from] AudioThreadError),
+}
+
 struct UnsafePluginRef(*mut PluginInstance);
 unsafe impl Send for UnsafePluginRef {}
 unsafe impl Sync for UnsafePluginRef {}
@@ -40,6 +51,7 @@ pub struct TestPluginHost {
     audio_settings: AudioProcessorSettings,
     audio_file_path: PathBuf,
     vst_plugin_instance: Option<Box<PluginInstance>>,
+    garbage_collector: GarbageCollector,
 }
 
 impl Default for TestPluginHost {
@@ -65,11 +77,13 @@ impl Default for TestPluginHost {
 impl TestPluginHost {
     pub fn new(audio_settings: AudioProcessorSettings) -> Self {
         let path = Path::new("").to_path_buf();
+        let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
         TestPluginHost {
-            audio_thread: AudioThread::new(),
+            audio_thread: AudioThread::new(garbage_collector.handle()),
             audio_settings,
             audio_file_path: path,
             vst_plugin_instance: None,
+            garbage_collector,
         }
     }
 
@@ -135,7 +149,8 @@ impl TestPluginHost {
         self.vst_plugin_instance.as_mut().unwrap().as_mut() as *mut PluginInstance
     }
 
-    pub fn wait(self) -> Result<(), AudioThreadError> {
-        self.audio_thread.wait()
+    pub fn wait(self) -> Result<(), WaitError> {
+        self.garbage_collector.stop()?;
+        Ok(self.audio_thread.wait()?)
     }
 }

@@ -63,6 +63,12 @@ impl AudioProcessor for TestHostProcessor {
     }
 }
 
+impl Drop for TestHostProcessor {
+    fn drop(&mut self) {
+        log::warn!("Dropping test host processor");
+    }
+}
+
 /// Flush plugin output to output
 fn flush_vst_output(num_channels: usize, audio_buffer: &mut AudioBuffer<f32>, output: &mut [f32]) {
     let (_, plugin_output) = audio_buffer.split();

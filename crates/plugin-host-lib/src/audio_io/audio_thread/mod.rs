@@ -1,10 +1,8 @@
 use std::any::Any;
-use std::error::Error;
-use std::sync::atomic::{AtomicPtr, Ordering};
-use std::sync::Arc;
 use std::thread;
 use std::thread::JoinHandle;
 
+use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{BufferSize, SampleFormat, StreamConfig};
 use thiserror::Error;
@@ -12,7 +10,6 @@ use thiserror::Error;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, NoopAudioProcessor};
 
 use crate::processors::audio_file_processor::AudioFileError;
-use std::time::Duration;
 
 #[derive(Error, Debug)]
 pub enum AudioThreadError {
@@ -39,35 +36,44 @@ pub enum AudioThreadError {
 }
 
 pub struct AudioThread {
-    processor: Arc<AtomicPtr<Box<dyn AudioProcessor>>>,
-    handle: Option<JoinHandle<Result<(), AudioThreadError>>>,
+    processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
+    processor_ref: Shared<Box<dyn AudioProcessor>>,
+    thread_handle: Option<JoinHandle<Result<(), AudioThreadError>>>,
+    gc_handle: Handle,
 }
 
-impl AudioThread {}
-
 impl AudioThread {
-    pub fn new() -> Self {
+    pub fn new(handle: &Handle) -> Self {
         let processor = NoopAudioProcessor;
         let processor: Box<dyn AudioProcessor> = Box::new(processor);
-        let processor = Box::into_raw(Box::new(processor));
+        let processor_ref = Shared::new(handle, processor);
         AudioThread {
-            processor: Arc::new(AtomicPtr::new(processor)),
-            handle: None,
+            processor: Shared::new(handle, SharedCell::new(processor_ref.clone())),
+            processor_ref,
+            thread_handle: None,
+            gc_handle: handle.clone(),
         }
     }
 
     pub fn start(&mut self) {
         let processor = self.processor.clone();
-        self.handle = Some(thread::spawn(move || -> Result<(), AudioThreadError> {
-            initialize_audio_thread(processor)
-        }))
+        self.thread_handle = Some(
+            thread::Builder::new()
+                .name(String::from("audio-thread"))
+                .spawn(move || -> Result<(), AudioThreadError> {
+                    initialize_audio_thread(processor)
+                })
+                .unwrap(),
+        )
     }
 
-    pub fn wait(mut self) -> Result<(), AudioThreadError> {
-        let handle = self.handle.ok_or(AudioThreadError::NotStartedError)?;
+    pub fn wait(self) -> Result<(), AudioThreadError> {
+        let handle = self
+            .thread_handle
+            .ok_or(AudioThreadError::NotStartedError)?;
         handle
             .join()
-            .map_err(|err| AudioThreadError::UnknownError(err))?;
+            .map_err(|err| AudioThreadError::UnknownError(err))??;
         Ok(())
     }
 
@@ -75,14 +81,10 @@ impl AudioThread {
     /// The processor MUST be prepared for playback when it's set.
     pub fn set_processor(&mut self, processor: Box<dyn AudioProcessor>) {
         log::info!("Updating audio processor");
-        let new_processor_ptr = Box::into_raw(Box::new(processor));
-        let old_processor_ptr = self.processor.swap(new_processor_ptr, Ordering::Relaxed);
-        // TODO - We need a way to wait until the audio-thread is done with a block
-        thread::sleep(Duration::from_secs(2));
-        unsafe {
-            // Let the old processor be dropped
-            let _old_processor_ptr = Box::from_raw(old_processor_ptr);
-        }
+        let new_processor_ptr = Shared::new(&self.gc_handle, processor);
+        self.processor_ref = new_processor_ptr.clone();
+        let _old_processor_ptr = self.processor.replace(new_processor_ptr);
+        // Let the old processor be dropped
     }
 
     pub fn settings() -> Result<AudioProcessorSettings, AudioThreadError> {
@@ -106,7 +108,7 @@ impl AudioThread {
 }
 
 fn initialize_audio_thread(
-    processor: Arc<AtomicPtr<Box<dyn AudioProcessor>>>,
+    processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
 ) -> Result<(), AudioThreadError> {
     let cpal_host = cpal::default_host();
     log::info!("Using host: {}", cpal_host.id().name());
@@ -129,7 +131,7 @@ fn initialize_audio_thread(
 }
 
 unsafe fn run_main_loop(
-    processor: Arc<AtomicPtr<Box<dyn AudioProcessor>>>,
+    processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
     output_device: &cpal::Device,
     output_config: &cpal::StreamConfig,
 ) -> Result<(), AudioThreadError> {
@@ -143,8 +145,10 @@ unsafe fn run_main_loop(
     let stream = output_device.build_output_stream(
         output_config,
         move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-            let processor = processor.load(Ordering::Relaxed);
-            (*processor).process(data);
+            let shared_processor = processor.get();
+            let processor_ptr =
+                shared_processor.as_ref() as *const dyn AudioProcessor as *mut dyn AudioProcessor;
+            (*processor_ptr).process(data);
         },
         |err| {
             log::error!("Playback error: {:?}", err);
