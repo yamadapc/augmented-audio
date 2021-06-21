@@ -69,7 +69,8 @@ impl<T> Queue<T> {
                 }
             }
         }
-        self.tail.compare_exchange(
+        // TODO - ?
+        let _ = self.tail.compare_exchange(
             current_queue_ptr,
             elem_node,
             Ordering::SeqCst,
