@@ -176,8 +176,6 @@ mod test {
     #[test]
     fn test_create_bounded_queue() {
         let _queue = Queue::<i32>::new(10);
-        // assert_eq!(queue.read_index(), 0);
-        // assert_eq!(queue.write_index(), 1);
     }
 
     #[test]
