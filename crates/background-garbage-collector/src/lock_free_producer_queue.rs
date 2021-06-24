@@ -150,7 +150,7 @@ mod test {
             v.push(q.pop().unwrap());
             assert_eq!(q.head.load(Ordering::Relaxed), 2);
             assert_eq!(q.tail.load(Ordering::Relaxed), 10);
-            for i in 0..8 {
+            for _ in 0..8 {
                 assert!(q.head.load(Ordering::Relaxed) < q.tail.load(Ordering::Relaxed));
                 v.push(q.pop().unwrap())
             }
