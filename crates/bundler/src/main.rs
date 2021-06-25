@@ -1,5 +1,6 @@
-use serde::{Deserialize, Serialize};
 use std::path::Path;
+
+use serde::{Deserialize, Serialize};
 use toml::map::Map;
 use toml::Value;
 
@@ -67,9 +68,6 @@ fn generate(config_path: &str, output_path: &str) {
     let input_cargo_file = std::fs::read_to_string(config_path).expect("Failed to read toml file");
     let toml_file: CargoToml =
         toml::from_str(&input_cargo_file).expect("Failed to parse toml file");
-
-    log::info!("Building package plist");
-    let mut plist_file = plist::Dictionary::new();
     let name = toml_file
         .package
         .metadata
@@ -77,18 +75,41 @@ fn generate(config_path: &str, output_path: &str) {
         .name
         .clone()
         .unwrap_or(toml_file.package.name.to_string());
-    plist_file.insert(
-        String::from("CFBundleName"),
-        plist::Value::from(name.clone()),
-    );
+
+    log::info!("Building package plist");
+    let plist_file = build_plist(&name, &toml_file);
+
+    let output_path = Path::new(output_path);
+    if output_path.exists() {
+        log::error!(
+            "Can't create at {}. Path already exists.",
+            output_path.to_str().unwrap()
+        );
+    }
+    std::fs::create_dir_all(output_path).expect("Failed to create directory");
+    std::fs::create_dir_all(output_path.join("Contents")).expect("Failed to create directory");
+    std::fs::create_dir_all(output_path.join("Contents/MacOS"))
+        .expect("Failed to create directory");
+    let plist_path = output_path.join("Contents/Info.plist");
+    log::info!("Writing Info.plist file");
+    plist_file
+        .to_file_xml(plist_path)
+        .expect("Failed to write plist file");
+
+    log::info!("Copying binary library");
+    let binary_path = output_path.join(format!("Contents/MacOS/{}", name));
+    let target_path = find_target(config_path, &toml_file).expect("Couldn't find the target dylib");
+    std::fs::copy(target_path, binary_path).expect("Failed to copy binary lib");
+}
+
+fn build_plist(name: &str, toml_file: &CargoToml) -> plist::Value {
+    let mut plist_file = plist::Dictionary::new();
+    plist_file.insert(String::from("CFBundleName"), plist::Value::from(name));
     plist_file.insert(
         String::from("CFBundleVersion"),
         plist::Value::from(toml_file.package.version.clone()),
     );
-    plist_file.insert(
-        String::from("CFBundleExecutable"),
-        plist::Value::from(name.clone()),
-    );
+    plist_file.insert(String::from("CFBundleExecutable"), plist::Value::from(name));
     plist_file.insert(
         String::from("CFResourcesFileMapped"),
         plist::Value::from(""),
@@ -110,29 +131,8 @@ fn generate(config_path: &str, output_path: &str) {
         String::from("CFBundleDevelopmentRegion"),
         plist::Value::from("English"),
     );
-
-    let output_path = Path::new(output_path);
-    if output_path.exists() {
-        log::error!(
-            "Can't create at {}. Path already exists.",
-            output_path.to_str().unwrap()
-        );
-    }
-    std::fs::create_dir_all(output_path).expect("Failed to create directory");
-    std::fs::create_dir_all(output_path.join("Contents")).expect("Failed to create directory");
-    std::fs::create_dir_all(output_path.join("Contents/MacOS"))
-        .expect("Failed to create directory");
-    let plist_path = output_path.join("Contents/Info.plist");
     let plist_file = plist::Value::Dictionary(plist_file);
-    log::info!("Writing Info.plist file");
     plist_file
-        .to_file_xml(plist_path)
-        .expect("Failed to write plist file");
-
-    log::info!("Copying binary library");
-    let binary_path = output_path.join(format!("Contents/MacOS/{}", name));
-    let target_path = find_target(config_path, &toml_file).expect("Couldn't find the target dylib");
-    std::fs::copy(target_path, binary_path).expect("Failed to copy binary lib");
 }
 
 fn main() {
