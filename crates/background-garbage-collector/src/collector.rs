@@ -1,8 +1,14 @@
 use crate::atomic_queue;
 use crate::node::DropCommand;
 
-struct GarbageCollectorOptions {
+pub struct GarbageCollectorOptions {
     queue_capacity: usize,
+}
+
+impl GarbageCollectorOptions {
+    pub fn new(queue_capacity: usize) -> Self {
+        GarbageCollectorOptions { queue_capacity }
+    }
 }
 
 impl Default for GarbageCollectorOptions {
@@ -28,13 +34,13 @@ impl Default for GarbageCollector {
 }
 
 impl GarbageCollector {
-    fn new(options: GarbageCollectorOptions) -> Self {
+    pub fn new(options: GarbageCollectorOptions) -> Self {
         GarbageCollector {
             queue: atomic_queue::Queue::new(options.queue_capacity),
         }
     }
 
-    fn handle(&self) -> *mut Self {
+    pub fn handle(&self) -> *mut Self {
         self as *const Self as *mut Self
     }
 }
