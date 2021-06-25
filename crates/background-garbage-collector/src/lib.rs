@@ -1,9 +1,10 @@
-pub mod atomic_queue;
+use crate::collector::GarbageCollector;
+use crate::node::Node;
+use crate::shared::SharedGeneric;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
+pub mod atomic_queue;
+pub mod collector;
+mod node;
+pub mod shared;
+
+pub type Shared<T> = SharedGeneric<T, GarbageCollector, Node<T>>;

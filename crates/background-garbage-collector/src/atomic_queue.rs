@@ -306,7 +306,7 @@ mod test {
                 spawn_writer_thread(
                     size,
                     queue.clone(),
-                    Duration::from_millis((2.0 * rand::random::<f64>()) as u64),
+                    Duration::from_millis((rand::random::<f64>()) as u64),
                 )
             })
             .collect();
@@ -334,9 +334,7 @@ mod test {
             for i in 0..size {
                 loop {
                     let pushed = queue.push(mock_ptr(i as i32));
-                    if !pushed {
-                        log::error!("Failed to write entry {}", i);
-                    } else {
+                    if pushed {
                         break;
                     }
                 }
