@@ -21,6 +21,7 @@ use crate::processors::audio_file_processor::{
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::vst_host::AudioTestHost;
+use std::ops::Deref;
 
 pub mod audio_io_service;
 pub mod audio_thread;
@@ -57,6 +58,7 @@ pub struct TestPluginHost {
     audio_file_path: PathBuf,
     plugin_file_path: Option<PathBuf>,
     vst_plugin_instance: Option<SharedProcessor<PluginInstance>>,
+    processor: Option<SharedProcessor<AudioThreadProcessor>>,
     garbage_collector: GarbageCollector,
 }
 
@@ -90,6 +92,7 @@ impl TestPluginHost {
             audio_file_path: path,
             plugin_file_path: None,
             vst_plugin_instance: None,
+            processor: None,
             garbage_collector,
         }
     }
@@ -162,11 +165,25 @@ impl TestPluginHost {
         let test_host_processor = AudioThreadProcessor::Active(test_host_processor);
         let test_host_processor =
             SharedProcessor::new(self.garbage_collector.handle(), test_host_processor);
+        self.processor = Some(test_host_processor.clone());
         self.audio_thread.set_processor(test_host_processor);
 
         // De-allocate old instance
         self.vst_plugin_instance = Some(instance);
         Ok(())
+    }
+
+    pub fn current_volume(&self) -> (f32, f32) {
+        self.processor
+            .as_ref()
+            .map(|processor| {
+                if let AudioThreadProcessor::Active(host) = processor.deref() {
+                    host.current_output_volume()
+                } else {
+                    (0.0, 0.0)
+                }
+            })
+            .unwrap_or((0.0, 0.0))
     }
 
     pub fn plugin_instance(&mut self) -> Option<SharedProcessor<PluginInstance>> {

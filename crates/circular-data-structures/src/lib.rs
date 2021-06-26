@@ -39,8 +39,23 @@ impl<T> CircularVec<T> {
 }
 
 impl<T: Clone> CircularVec<T> {
+    pub fn with_size(size: usize, value: T) -> Self {
+        let mut v = CircularVec::new();
+        v.resize(size, value);
+        v
+    }
+
     pub fn resize(&mut self, new_len: usize, value: T) {
         self.inner.resize(new_len, value);
+    }
+}
+
+impl<T> IntoIterator for CircularVec<T> {
+    type Item = T;
+    type IntoIter = <Vec<T> as IntoIterator>::IntoIter;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.inner.into_iter()
     }
 }
 

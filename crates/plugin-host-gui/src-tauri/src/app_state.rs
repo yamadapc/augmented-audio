@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use cpal::traits::{DeviceTrait, HostTrait};
 
 use plugin_host_lib::audio_io::audio_thread::options::AudioDeviceId;
+use plugin_host_lib::TestPluginHost;
 use std::path::{Path, PathBuf};
 
 pub struct AudioOptions {
@@ -40,6 +41,10 @@ impl AppState {
       host: Arc::new(Mutex::new(host)),
       audio_options: Arc::new(Mutex::new(AudioOptions::default())),
     }
+  }
+
+  pub fn host(&self) -> Arc<Mutex<TestPluginHost>> {
+    self.host.clone()
   }
 }
 
@@ -81,6 +86,14 @@ impl AppState {
         Ok(_) => log::info!("Plugin loaded"),
         Err(err) => log::error!("Failure to load plugin: {}", err),
       }
+    }
+  }
+
+  pub fn current_volume(&self) -> (f32, f32) {
+    if let Ok(host) = self.host.lock() {
+      host.current_volume()
+    } else {
+      (0.0, 0.0)
     }
   }
 }

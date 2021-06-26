@@ -3285,6 +3285,7 @@ version = "0.1.0"
 dependencies = [
  "audio-processor-traits",
  "basedrop 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "circular-data-structures",
  "clap",
  "concread",
  "convert-sample-rate",

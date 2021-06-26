@@ -24,12 +24,15 @@ fn list_hosts_command() -> Vec<String> {
 }
 
 #[tauri::command]
-fn subscribe_to_volume_command(window: Window) {
+fn subscribe_to_volume_command(state: tauri::State<AppState>, window: Window) {
   log::info!("Setting-up fake volume event emitter");
+  let host = state.inner().host();
   std::thread::spawn(move || loop {
-    let random_f: f32 = rand::random();
-    let random_f2: f32 = rand::random();
-    let js_string = format!("window.volume1={};window.volume2={};", random_f, random_f2);
+    let (volume_left, volume_right) = host.lock().unwrap().current_volume();
+    let js_string = format!(
+      "window.volume1={};window.volume2={};",
+      volume_left, volume_right
+    );
     // TODO fix this
     let _ = window.eval(&js_string);
     std::thread::sleep(std::time::Duration::from_millis(50));

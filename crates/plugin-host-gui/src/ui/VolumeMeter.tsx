@@ -12,7 +12,7 @@ export function VolumeMeter() {
   useEffect(() => {
     let animation: number | null = null;
     const subscriptionId = invoke<number>("subscribe_to_volume_command");
-    setInterval(() => {
+    const interval = setInterval(() => {
       // @ts-ignore
       const volume1 = window.volume1;
       // @ts-ignore
@@ -27,10 +27,11 @@ export function VolumeMeter() {
     }, 100);
 
     const draw = (box: HTMLDivElement, volume: number) => {
-      box.style.transform = `scaleY(${volume})`;
+      box.style.transform = `scaleY(${Math.min(volume * 9, 1.0)})`;
     };
 
     return () => {
+      clearInterval(interval);
       if (animation != null) {
         cancelAnimationFrame(animation);
       }

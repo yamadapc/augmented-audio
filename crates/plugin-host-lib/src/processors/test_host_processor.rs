@@ -9,6 +9,7 @@ use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::processors::shared_processor::SharedProcessor;
+use crate::processors::volume_meter_processor::VolumeMeterProcessor;
 
 /// The app's main processor
 pub struct TestHostProcessor {
@@ -16,6 +17,7 @@ pub struct TestHostProcessor {
     audio_settings: AudioProcessorSettings,
     buffer_handler: CpalVstBufferHandler,
     audio_file_processor: AudioFileProcessor,
+    volume_meter_processor: VolumeMeterProcessor,
 }
 
 unsafe impl Send for TestHostProcessor {}
@@ -36,7 +38,12 @@ impl TestHostProcessor {
             audio_settings,
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
             audio_file_processor: AudioFileProcessor::new(audio_file_settings, audio_settings),
+            volume_meter_processor: VolumeMeterProcessor::new(),
         }
+    }
+
+    pub fn current_output_volume(&self) -> (f32, f32) {
+        self.volume_meter_processor.current_volume()
     }
 }
 
@@ -45,6 +52,7 @@ impl AudioProcessor for TestHostProcessor {
         self.audio_settings = audio_settings;
         self.buffer_handler.prepare(&audio_settings);
         self.audio_file_processor.prepare(audio_settings);
+        self.volume_meter_processor.prepare(audio_settings);
     }
 
     fn process(&mut self, output: &mut [f32]) {
@@ -61,7 +69,10 @@ impl AudioProcessor for TestHostProcessor {
                 self.plugin_instance.deref() as *const PluginInstance as *mut PluginInstance;
             (*instance).process(&mut audio_buffer);
         }
-        flush_vst_output(num_channels, &mut audio_buffer, output)
+        flush_vst_output(num_channels, &mut audio_buffer, output);
+
+        // Volume meter
+        self.volume_meter_processor.process(output);
     }
 }
 
