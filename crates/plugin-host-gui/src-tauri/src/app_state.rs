@@ -88,12 +88,4 @@ impl AppState {
       }
     }
   }
-
-  pub fn current_volume(&self) -> (f32, f32) {
-    if let Ok(host) = self.host.lock() {
-      host.current_volume()
-    } else {
-      (0.0, 0.0)
-    }
-  }
 }

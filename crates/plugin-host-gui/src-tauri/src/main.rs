@@ -3,7 +3,7 @@
   windows_subsystem = "windows"
 )]
 
-use tauri::{Menu, MenuItem, Window};
+use tauri::{Menu, MenuItem};
 
 use app_state::AppState;
 use commands::*;
