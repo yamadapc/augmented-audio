@@ -110,6 +110,7 @@ impl OfflineRenderer {
             output_file_processor.process(&mut buffer);
             audio_output_time += start.elapsed();
         }
+        let total_runtime = start.elapsed().as_millis();
 
         log::info!(
             "Output conversions duration={}ms",
@@ -126,7 +127,14 @@ impl OfflineRenderer {
             plugin_flush_time.as_millis()
         );
         log::info!("Plugin runtime duration={}ms", plugin_time.as_millis());
-        log::info!("Total runtime duration={}ms", start.elapsed().as_millis());
+        log::info!("Total runtime duration={}ms", total_runtime);
+
+        let audio_duration =
+            (total_blocks as f32 * block_size as f32) / self.audio_settings.sample_rate();
+        let audio_duration = Duration::from_secs_f32(audio_duration);
+        log::info!("Audio duration : {}ms", audio_duration.as_millis());
+        let realtime_relation = audio_duration.as_millis() as f32 / total_runtime as f32;
+        log::info!("{:.1}x realtime", realtime_relation);
 
         Ok(())
     }
