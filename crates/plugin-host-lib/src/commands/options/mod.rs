@@ -4,6 +4,7 @@ use clap::{App, ArgMatches};
 pub struct RunOptions {
     plugin_path: String,
     input_audio: String,
+    output_audio: Option<String>,
     open_editor: bool,
     watch: bool,
 }
@@ -15,6 +16,10 @@ impl RunOptions {
 
     pub fn input_audio(&self) -> &str {
         &self.input_audio
+    }
+
+    pub fn output_audio(&self) -> &Option<String> {
+        &self.output_audio
     }
 
     pub fn open_editor(&self) -> bool {
@@ -37,6 +42,9 @@ pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
             "-i, --input=<INPUT_PATH> 'An audio file to process'",
         ))
         .arg(clap::Arg::from_usage(
+            "-o, --output=<OUTPUT_PATH> 'If specified, will render offline into file'",
+        ))
+        .arg(clap::Arg::from_usage(
             "-e, --editor 'Open the editor window'",
         ))
         .arg(clap::Arg::from_usage(
@@ -49,12 +57,14 @@ pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
     let matches = matches.subcommand_matches("run")?;
     let plugin_path = matches.value_of("plugin")?.to_string();
     let input_audio = matches.value_of("input")?.to_string();
+    let output_audio = matches.value_of("output").map(|value| value.to_string());
     let open_editor = matches.is_present("editor");
     let watch = matches.is_present("watch");
 
     Some(RunOptions {
         plugin_path,
         input_audio,
+        output_audio,
         open_editor,
         watch,
     })

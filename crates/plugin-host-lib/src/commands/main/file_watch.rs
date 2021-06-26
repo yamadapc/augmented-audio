@@ -4,8 +4,8 @@ use std::sync::{Arc, Mutex};
 
 use notify::DebouncedEvent;
 
+use crate::audio_io::test_plugin_host::TestPluginHost;
 use crate::commands::options::RunOptions;
-use crate::TestPluginHost;
 
 pub fn run_file_watch_loop(
     rx: Receiver<DebouncedEvent>,

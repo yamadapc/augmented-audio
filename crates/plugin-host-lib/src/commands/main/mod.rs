@@ -14,7 +14,7 @@ use tao::platform::macos::WindowExtMacOS;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
-use crate::audio_io::TestPluginHost;
+use crate::audio_io::test_plugin_host::TestPluginHost;
 use crate::commands::options::RunOptions;
 use crate::processors::shared_processor::SharedProcessor;
 

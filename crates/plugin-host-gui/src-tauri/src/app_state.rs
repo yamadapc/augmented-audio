@@ -1,10 +1,10 @@
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use cpal::traits::{DeviceTrait, HostTrait};
 
 use plugin_host_lib::audio_io::audio_thread::options::AudioDeviceId;
-use plugin_host_lib::TestPluginHost;
-use std::path::{Path, PathBuf};
+use plugin_host_lib::audio_io::test_plugin_host::TestPluginHost;
 
 pub struct AudioOptions {
   host_id: String,
