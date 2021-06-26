@@ -2,7 +2,7 @@ use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, NoopAudioProcessor};
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
 use options::AudioThreadOptions;
 
@@ -24,7 +24,7 @@ unsafe impl Send for AudioThread {}
 
 impl AudioThread {
     pub fn new(handle: &Handle) -> Self {
-        let processor = NoopAudioProcessor;
+        let processor = SilenceAudioProcessor;
         let processor: Box<dyn AudioProcessor> = Box::new(processor);
         let processor_ref = Shared::new(handle, processor);
         AudioThread {
