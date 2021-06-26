@@ -60,7 +60,7 @@ impl AudioIOService {
         Ok(devices_vec)
     }
 
-    fn host(host_id: &Option<String>) -> AudioIOServiceResult<cpal::Host> {
+    pub(crate) fn host(host_id: &Option<String>) -> AudioIOServiceResult<cpal::Host> {
         let host_id = host_id
             .as_ref()
             .map(|host_id| {

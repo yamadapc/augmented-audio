@@ -8,11 +8,12 @@ use vst::plugin::Plugin;
 
 pub use audio_io_service::*;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_thread::error::AudioThreadError;
 use audio_thread::AudioThread;
-use audio_thread::AudioThreadError;
 use garbage_collector::GarbageCollector;
 use garbage_collector::GarbageCollectorError;
 
+use crate::audio_io::audio_thread::options::AudioDeviceId;
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
 };
@@ -32,6 +33,12 @@ pub enum AudioHostPluginLoadError {
     MissingPathError,
     #[error("Failed to open or decode the audio file")]
     AudioFileError(#[from] AudioFileError),
+}
+
+#[derive(Debug, Error)]
+pub enum StartError {
+    #[error("Failed to start the audio thread")]
+    AudioThreadError(#[from] AudioThreadError),
 }
 
 #[derive(Debug, Error)]
@@ -56,7 +63,7 @@ pub struct TestPluginHost {
 
 impl Default for TestPluginHost {
     fn default() -> Self {
-        let audio_settings = AudioThread::settings().unwrap();
+        let audio_settings = AudioThread::default_settings().unwrap();
         log::info!(
             "\
             Using audio settings:\n\t\
@@ -87,8 +94,17 @@ impl TestPluginHost {
         }
     }
 
-    pub fn start(&mut self) {
-        self.audio_thread.start();
+    pub fn start(&mut self) -> Result<(), StartError> {
+        self.audio_thread.start()?;
+        Ok(())
+    }
+
+    pub fn set_output_device_id(
+        &mut self,
+        output_device_id: AudioDeviceId,
+    ) -> Result<(), AudioThreadError> {
+        self.audio_thread.set_output_device_id(output_device_id)?;
+        Ok(())
     }
 
     pub fn set_audio_file_path(&mut self, path: PathBuf) {
@@ -149,7 +165,7 @@ impl TestPluginHost {
         self.vst_plugin_instance.as_mut().unwrap().as_mut() as *mut PluginInstance
     }
 
-    pub fn wait(self) -> Result<(), WaitError> {
+    pub fn wait(&mut self) -> Result<(), WaitError> {
         self.garbage_collector.stop()?;
         Ok(self.audio_thread.wait()?)
     }

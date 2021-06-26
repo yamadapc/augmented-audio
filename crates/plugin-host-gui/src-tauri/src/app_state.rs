@@ -1,5 +1,6 @@
-use cpal::traits::{DeviceTrait, HostTrait};
 use std::sync::{Arc, Mutex};
+
+use cpal::traits::{DeviceTrait, HostTrait};
 
 pub struct AudioOptions {
   host_id: String,
@@ -26,7 +27,17 @@ impl Default for AudioOptions {
 }
 
 pub struct AppState {
+  host: Arc<Mutex<plugin_host_lib::TestPluginHost>>,
   audio_options: Arc<Mutex<AudioOptions>>,
+}
+
+impl AppState {
+  fn new(host: plugin_host_lib::TestPluginHost) -> Self {
+    AppState {
+      host: Arc::new(Mutex::new(host)),
+      audio_options: Arc::new(Mutex::new(AudioOptions::default())),
+    }
+  }
 }
 
 impl AppState {
@@ -40,13 +51,5 @@ impl AppState {
 
   pub fn set_output_device_id(&self, output_device_id: String) {
     self.audio_options.lock().unwrap().output_device_id = Some(output_device_id);
-  }
-}
-
-impl Default for AppState {
-  fn default() -> Self {
-    AppState {
-      audio_options: Arc::new(Mutex::new(AudioOptions::default())),
-    }
   }
 }

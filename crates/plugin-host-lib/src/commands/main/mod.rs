@@ -2,6 +2,7 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::process::exit;
 use std::sync::mpsc::channel;
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -56,29 +57,37 @@ pub fn run_test(run_options: RunOptions) {
         exit(1);
     }
     log::info!("Initializing audio thread");
-    host.start();
+    if let Err(err) = host.start() {
+        log::error!("Failed to start host: {}", err);
+        exit(1);
+    }
 
     let instance = host.plugin_instance();
 
     let (tx, rx) = channel();
     let mut watcher = watcher(tx, Duration::from_secs(3)).unwrap();
 
+    let host = Arc::new(Mutex::new(host));
     if run_options.watch() {
         let run_options = run_options.clone();
         watcher
             .watch(run_options.plugin_path(), RecursiveMode::NonRecursive)
             .expect("Failed to watch file");
 
+        let host = host.clone();
         std::thread::spawn(move || loop {
             match rx.recv() {
-                Ok(_) => match host.load_plugin(Path::new(run_options.plugin_path())) {
-                    Ok(_) => {
-                        log::info!("Reloaded plugin");
+                Ok(_) => {
+                    let mut host = host.lock().unwrap();
+                    match (*host).load_plugin(Path::new(run_options.plugin_path())) {
+                        Ok(_) => {
+                            log::info!("Reloaded plugin");
+                        }
+                        Err(err) => {
+                            log::error!("Failed to reload plugin: {}", err);
+                        }
                     }
-                    Err(err) => {
-                        log::error!("Failed to reload plugin: {}", err);
-                    }
-                },
+                }
                 Err(err) => log::error!("File watch error: {}", err),
             }
         });
@@ -91,8 +100,11 @@ pub fn run_test(run_options: RunOptions) {
         thread::park();
     }
 
-    // if let Err(err) = host.wait() {
-    //     log::error!("Failed to join audio thread. Error: {:?}", err);
-    // }
-    // log::info!("Closing instance...");
+    {
+        let mut host = host.lock().unwrap();
+        if let Err(err) = host.wait() {
+            log::error!("Failed to stop audio. Error: {:?}", err);
+        }
+        log::info!("Closing...");
+    }
 }

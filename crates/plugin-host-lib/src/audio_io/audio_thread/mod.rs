@@ -1,46 +1,26 @@
-use std::any::Any;
-use std::thread;
-use std::thread::JoinHandle;
-
 use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{BufferSize, SampleFormat, StreamConfig};
-use thiserror::Error;
+use cpal::StreamConfig;
 
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, NoopAudioProcessor};
+use error::AudioThreadError;
+use options::AudioThreadOptions;
 
-use crate::processors::audio_file_processor::AudioFileError;
+use crate::audio_io::audio_thread::options::AudioDeviceId;
 
-#[derive(Error, Debug)]
-pub enum AudioThreadError {
-    #[error("Unsupported sample format from device.")]
-    UnsupportedSampleFormat,
-    #[error("Failed to get audio device name")]
-    DeviceNameError(#[from] cpal::DeviceNameError),
-    #[error("Failed to read input file")]
-    InputFileError(#[from] AudioFileError),
-    #[error("Failed to get assigned or default audio device")]
-    OutputDeviceNotFoundError,
-    #[error("Failed to get default output stream configuration")]
-    DefaultStreamConfigError(#[from] cpal::DefaultStreamConfigError),
-    #[error("Buffer size needs to be set to a fixed value")]
-    UnexpectedDefaultBufferSize,
-    #[error("Failed to build output stream")]
-    BuildStreamError(#[from] cpal::BuildStreamError),
-    #[error("Failed to start playback")]
-    PlayStreamError(#[from] cpal::PlayStreamError),
-    #[error("Audio thread isn't running")]
-    NotStartedError,
-    #[error("Unknown error")]
-    UnknownError(Box<dyn Any + Send>),
-}
+mod cpal_option_handling;
+pub mod error;
+pub mod options;
 
 pub struct AudioThread {
     processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
     processor_ref: Shared<Box<dyn AudioProcessor>>,
-    thread_handle: Option<JoinHandle<Result<(), AudioThreadError>>>,
+    stream: Option<cpal::Stream>,
     gc_handle: Handle,
+    audio_thread_options: AudioThreadOptions,
 }
+
+unsafe impl Send for AudioThread {}
 
 impl AudioThread {
     pub fn new(handle: &Handle) -> Self {
@@ -50,30 +30,39 @@ impl AudioThread {
         AudioThread {
             processor: Shared::new(handle, SharedCell::new(processor_ref.clone())),
             processor_ref,
-            thread_handle: None,
+            stream: None,
             gc_handle: handle.clone(),
+            audio_thread_options: AudioThreadOptions::default(),
         }
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self) -> Result<(), AudioThreadError> {
         let processor = self.processor.clone();
-        self.thread_handle = Some(
-            thread::Builder::new()
-                .name(String::from("audio-thread"))
-                .spawn(move || -> Result<(), AudioThreadError> {
-                    initialize_audio_thread(processor)
-                })
-                .unwrap(),
-        )
+        let audio_thread_options = self.audio_thread_options.clone();
+        let stream = create_stream(&audio_thread_options, processor)?;
+        log::info!("Starting CPAL output stream");
+        stream.play()?;
+        self.stream = Some(stream);
+        Ok(())
     }
 
-    pub fn wait(self) -> Result<(), AudioThreadError> {
-        let handle = self
-            .thread_handle
-            .ok_or(AudioThreadError::NotStartedError)?;
-        handle
-            .join()
-            .map_err(|err| AudioThreadError::UnknownError(err))??;
+    /// Change output device & restart audio thread
+    pub fn set_output_device_id(
+        &mut self,
+        output_device_id: AudioDeviceId,
+    ) -> Result<(), AudioThreadError> {
+        if output_device_id != self.audio_thread_options.output_device_id {
+            self.audio_thread_options.output_device_id = output_device_id;
+            self.wait()?;
+            self.start()?;
+        }
+        Ok(())
+    }
+
+    pub fn wait(&self) -> Result<(), AudioThreadError> {
+        if let Some(stream) = &self.stream {
+            stream.pause()?;
+        }
         Ok(())
     }
 
@@ -87,8 +76,7 @@ impl AudioThread {
         // Let the old processor be dropped
     }
 
-    pub fn settings() -> Result<AudioProcessorSettings, AudioThreadError> {
-        // TODO - This should be queried from the audio thread.
+    pub fn default_settings() -> Result<AudioProcessorSettings, AudioThreadError> {
         let cpal_host = cpal::default_host();
         let output_device = cpal_host
             .default_output_device()
@@ -107,57 +95,43 @@ impl AudioThread {
     }
 }
 
-fn initialize_audio_thread(
+fn create_stream(
+    options: &AudioThreadOptions,
     processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
-) -> Result<(), AudioThreadError> {
-    let cpal_host = cpal::default_host();
-    log::info!("Using host: {}", cpal_host.id().name());
-    let output_device = cpal_host
-        .default_output_device()
-        .ok_or(AudioThreadError::OutputDeviceNotFoundError)?;
+) -> Result<cpal::Stream, AudioThreadError> {
+    let host = cpal_option_handling::get_cpal_host(&options.host_id);
+    let output_device =
+        cpal_option_handling::get_cpal_output_device(&host, &options.output_device_id)?;
     log::info!("Using device: {}", output_device.name()?);
-    let output_config = output_device.default_output_config()?;
-    let sample_format = output_config.sample_format();
-    let mut output_config: StreamConfig = output_config.into();
-    output_config.buffer_size = BufferSize::Fixed(512);
-
-    match sample_format {
-        SampleFormat::F32 => unsafe {
-            run_main_loop(processor, &output_device, &output_config)?;
-            Ok(())
-        },
-        _ => Err(AudioThreadError::UnsupportedSampleFormat),
-    }
+    let output_config = cpal_option_handling::get_output_config(&options, &output_device)?;
+    let stream = create_stream_inner(processor, &output_device, &output_config)?;
+    Ok(stream)
 }
 
-unsafe fn run_main_loop(
+fn create_stream_inner(
     processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
     output_device: &cpal::Device,
     output_config: &cpal::StreamConfig,
-) -> Result<(), AudioThreadError> {
+) -> Result<cpal::Stream, AudioThreadError> {
     let buffer_size = match output_config.buffer_size {
-        BufferSize::Default => Err(AudioThreadError::UnexpectedDefaultBufferSize),
-        BufferSize::Fixed(buffer_size) => Ok(buffer_size),
+        cpal::BufferSize::Default => Err(AudioThreadError::UnexpectedDefaultBufferSize),
+        cpal::BufferSize::Fixed(buffer_size) => Ok(buffer_size),
     }?;
 
     log::info!("Buffer size {:?}", buffer_size);
 
-    let stream = output_device.build_output_stream(
+    Ok(output_device.build_output_stream(
         output_config,
         move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
             let shared_processor = processor.get();
             let processor_ptr =
                 shared_processor.as_ref() as *const dyn AudioProcessor as *mut dyn AudioProcessor;
-            (*processor_ptr).process(data);
+            unsafe {
+                (*processor_ptr).process(data);
+            }
         },
         |err| {
             log::error!("Playback error: {:?}", err);
         },
-    )?;
-
-    stream.play()?;
-
-    std::thread::park();
-
-    Ok(())
+    )?)
 }

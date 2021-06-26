@@ -1,3 +1,5 @@
+pub use audio_io::TestPluginHost;
+
 pub mod audio_io;
 pub mod commands;
 mod processors;

@@ -25,7 +25,7 @@ struct GarbageCollectorState {
 pub struct GarbageCollector {
     collector: Arc<Mutex<Collector>>,
     state: Arc<Mutex<GarbageCollectorState>>,
-    thread: JoinHandle<()>,
+    thread: Option<JoinHandle<()>>,
     handle: Handle,
 }
 
@@ -52,23 +52,26 @@ impl GarbageCollector {
 
         GarbageCollector {
             collector,
-            thread,
+            thread: Some(thread),
             handle,
             state,
         }
     }
 
     /// Stop & join the collector thread.
-    pub fn stop(self) -> Result<(), GarbageCollectorError> {
+    pub fn stop(&mut self) -> Result<(), GarbageCollectorError> {
         self.state
             .lock()
             .map(|mut state| {
                 state.running = false;
             })
             .map_err(|_| GarbageCollectorError::LockError)?;
-        self.thread
-            .join()
-            .map_err(|_| GarbageCollectorError::JoinError)
+        if let Some(thread) = self.thread.take() {
+            thread
+                .join()
+                .map_err(|_| GarbageCollectorError::JoinError)?;
+        }
+        Ok(())
     }
 
     /// Get a handle to the collector. Does not lock.

@@ -63,8 +63,10 @@ fn set_output_device_command(state: tauri::State<AppState>, output_device_id: St
 
 fn main() {
   wisual_logger::init_from_env();
-  // TODO - next step
-  // let plugin_host = plugin_host_lib::PluginHost::new();
+  let mut plugin_host = plugin_host_lib::TestPluginHost::default();
+  if let Err(err) = plugin_host.start() {
+    log::error!("Failed to start host: {}", err);
+  }
   let mut menus = Vec::new();
   menus.push(Menu::new(
     "plugin-host",
@@ -80,7 +82,7 @@ fn main() {
   ));
 
   tauri::Builder::default()
-    .manage(AppState::default())
+    .manage(AppState::new(plugin_host))
     .invoke_handler(tauri::generate_handler![
       set_audio_driver_command,
       set_input_device_command,
