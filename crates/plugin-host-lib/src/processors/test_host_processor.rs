@@ -89,11 +89,14 @@ pub fn flush_vst_output(
     output: &mut [f32],
 ) {
     let (_, plugin_output) = audio_buffer.split();
+    let channel_outs: Vec<&[f32]> = (0..num_channels)
+        .into_iter()
+        .map(|channel| plugin_output.get(channel))
+        .collect();
+
     for (sample_index, frame) in output.chunks_mut(num_channels).enumerate() {
         for (channel, sample) in frame.iter_mut().enumerate() {
-            let channel_out = plugin_output.get(channel);
-            let value = channel_out.get(sample_index).unwrap();
-            *sample = *value;
+            *sample = channel_outs[channel][sample_index];
         }
     }
 }

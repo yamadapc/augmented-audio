@@ -42,16 +42,6 @@ impl CpalVstBufferHandler {
         self.host_buffer = HostBuffer::new(num_channels, num_channels);
     }
 
-    /// Modify the input buffer
-    pub fn set_input(&mut self, channel: usize, sample: usize, value: f32) {
-        self.input_buffer[channel][sample] = value;
-    }
-
-    /// Modify the output buffer
-    pub fn set_output(&mut self, channel: usize, sample: usize, value: f32) {
-        self.output_buffer[channel][sample] = value;
-    }
-
     /// Process cpal input samples
     pub fn process(&mut self, data: &[f32]) {
         for (sample_index, frame) in data
@@ -59,8 +49,7 @@ impl CpalVstBufferHandler {
             .enumerate()
         {
             for (channel, sample) in frame.iter().enumerate() {
-                self.set_input(channel, sample_index, *sample);
-                self.set_output(channel, sample_index, *sample);
+                self.input_buffer[channel][sample_index] = *sample;
             }
         }
     }

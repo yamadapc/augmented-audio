@@ -70,8 +70,14 @@ impl OfflineRenderer {
 
         let mut audio_file_position = 0;
         let start = Instant::now();
+        let mut audio_input_conversion_time = Duration::from_millis(0);
+        let mut audio_output_time = Duration::from_millis(0);
         let mut plugin_time = Duration::from_millis(0);
+        let mut plugin_conversions_time = Duration::from_millis(0);
+        let mut audio_buffer_create_time = Duration::from_millis(0);
+        let mut plugin_flush_time = Duration::from_millis(0);
         for _block_num in 0..total_blocks {
+            let start = Instant::now();
             let mut channel_number = 0;
             for channel in audio_file_buffer {
                 for i in 0..block_size {
@@ -81,19 +87,44 @@ impl OfflineRenderer {
                 channel_number += 1;
             }
             audio_file_position += block_size;
+            audio_input_conversion_time += start.elapsed();
 
+            let start = Instant::now();
             buffer_handler.process(&buffer);
+            let audio_buffer_start = Instant::now();
             let mut audio_plugin_buffer = buffer_handler.get_audio_buffer();
+            audio_buffer_create_time += audio_buffer_start.elapsed();
+            plugin_conversions_time += start.elapsed();
 
             let start = Instant::now();
             plugin.process(&mut audio_plugin_buffer);
             plugin_time += start.elapsed();
 
+            let start = Instant::now();
+            let flush_start = Instant::now();
             flush_vst_output(num_channels, &mut audio_plugin_buffer, &mut buffer);
+            plugin_flush_time += flush_start.elapsed();
+            plugin_conversions_time += start.elapsed();
 
+            let start = Instant::now();
             output_file_processor.process(&mut buffer);
+            audio_output_time += start.elapsed();
         }
 
+        log::info!(
+            "Output conversions duration={}ms",
+            audio_output_time.as_millis()
+        );
+        log::info!(
+            "Input conversions duration={}ms",
+            audio_input_conversion_time.as_millis()
+        );
+        log::info!(
+            "Plugin conversions duration={}ms - audio_buffer_create={}ms - flush_time={}ms",
+            plugin_conversions_time.as_millis(),
+            audio_buffer_create_time.as_millis(),
+            plugin_flush_time.as_millis()
+        );
         log::info!("Plugin runtime duration={}ms", plugin_time.as_millis());
         log::info!("Total runtime duration={}ms", start.elapsed().as_millis());
 
