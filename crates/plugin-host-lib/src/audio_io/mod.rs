@@ -17,8 +17,10 @@ use crate::audio_io::audio_thread::options::AudioDeviceId;
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
 };
+use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::vst_host::AudioTestHost;
+use basedrop::Shared;
 
 pub mod audio_io_service;
 pub mod audio_thread;
@@ -49,15 +51,12 @@ pub enum WaitError {
     AudioThreadError(#[from] AudioThreadError),
 }
 
-struct UnsafePluginRef(*mut PluginInstance);
-unsafe impl Send for UnsafePluginRef {}
-unsafe impl Sync for UnsafePluginRef {}
-
 pub struct TestPluginHost {
     audio_thread: AudioThread,
     audio_settings: AudioProcessorSettings,
     audio_file_path: PathBuf,
-    vst_plugin_instance: Option<Box<PluginInstance>>,
+    plugin_file_path: Option<PathBuf>,
+    vst_plugin_instance: Option<SharedProcessor<PluginInstance>>,
     garbage_collector: GarbageCollector,
 }
 
@@ -89,6 +88,7 @@ impl TestPluginHost {
             audio_thread: AudioThread::new(garbage_collector.handle()),
             audio_settings,
             audio_file_path: path,
+            plugin_file_path: None,
             vst_plugin_instance: None,
             garbage_collector,
         }
@@ -107,11 +107,16 @@ impl TestPluginHost {
         Ok(())
     }
 
-    pub fn set_audio_file_path(&mut self, path: PathBuf) {
+    pub fn set_audio_file_path(&mut self, path: PathBuf) -> Result<(), AudioHostPluginLoadError> {
         self.audio_file_path = path;
+        if let Some(path) = self.plugin_file_path.clone() {
+            self.load_plugin(path.as_path())?;
+        }
+        Ok(())
     }
 
     pub fn load_plugin(&mut self, path: &Path) -> Result<(), AudioHostPluginLoadError> {
+        self.plugin_file_path = Some(path.into());
         let host = Arc::new(Mutex::new(AudioTestHost));
         let mut loader = PluginLoader::load(path, Arc::clone(&host))?;
         let mut instance = loader.instance()?;
@@ -144,16 +149,17 @@ impl TestPluginHost {
                 .ok_or(AudioHostPluginLoadError::MissingPathError)?,
         )?;
         let audio_file_settings = AudioFileSettings::new(audio_file);
-        let mut instance = Box::new(instance);
+        let instance = SharedProcessor::new(self.garbage_collector.handle(), instance);
 
-        let mut test_host_processor = Box::new(TestHostProcessor::new(
+        let mut test_host_processor: Box<dyn AudioProcessor> = Box::new(TestHostProcessor::new(
             audio_file_settings,
-            (&mut *instance) as *mut PluginInstance,
+            instance.clone(),
             audio_settings.sample_rate(),
             audio_settings.input_channels(),
             audio_settings.block_size(),
         ));
         test_host_processor.prepare(*audio_settings);
+        let test_host_processor = Shared::new(self.garbage_collector.handle(), test_host_processor);
         self.audio_thread.set_processor(test_host_processor);
 
         // De-allocate old instance
@@ -161,8 +167,8 @@ impl TestPluginHost {
         Ok(())
     }
 
-    pub fn plugin_instance(&mut self) -> *mut PluginInstance {
-        self.vst_plugin_instance.as_mut().unwrap().as_mut() as *mut PluginInstance
+    pub fn plugin_instance(&mut self) -> Option<SharedProcessor<PluginInstance>> {
+        self.vst_plugin_instance.clone()
     }
 
     pub fn wait(&mut self) -> Result<(), WaitError> {

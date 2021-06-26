@@ -16,7 +16,6 @@ pub struct AudioThread {
     processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
     processor_ref: Shared<Box<dyn AudioProcessor>>,
     stream: Option<cpal::Stream>,
-    gc_handle: Handle,
     audio_thread_options: AudioThreadOptions,
 }
 
@@ -31,7 +30,6 @@ impl AudioThread {
             processor: Shared::new(handle, SharedCell::new(processor_ref.clone())),
             processor_ref,
             stream: None,
-            gc_handle: handle.clone(),
             audio_thread_options: AudioThreadOptions::default(),
         }
     }
@@ -68,11 +66,10 @@ impl AudioThread {
 
     /// # Safety:
     /// The processor MUST be prepared for playback when it's set.
-    pub fn set_processor(&mut self, processor: Box<dyn AudioProcessor>) {
+    pub fn set_processor(&mut self, processor: Shared<Box<dyn AudioProcessor>>) {
         log::info!("Updating audio processor");
-        let new_processor_ptr = Shared::new(&self.gc_handle, processor);
-        self.processor_ref = new_processor_ptr.clone();
-        let _old_processor_ptr = self.processor.replace(new_processor_ptr);
+        self.processor_ref = processor.clone();
+        let _old_processor_ptr = self.processor.replace(processor);
         // Let the old processor be dropped
     }
 

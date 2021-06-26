@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use vst::buffer::AudioBuffer;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
@@ -6,10 +8,11 @@ use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
+use crate::processors::shared_processor::SharedProcessor;
 
 /// The app's main processor
 pub struct TestHostProcessor {
-    plugin_instance: *mut PluginInstance,
+    plugin_instance: SharedProcessor<PluginInstance>,
     audio_settings: AudioProcessorSettings,
     buffer_handler: CpalVstBufferHandler,
     audio_file_processor: AudioFileProcessor,
@@ -21,7 +24,7 @@ unsafe impl Sync for TestHostProcessor {}
 impl TestHostProcessor {
     pub fn new(
         audio_file_settings: AudioFileSettings,
-        plugin_instance: *mut PluginInstance,
+        plugin_instance: SharedProcessor<PluginInstance>,
         sample_rate: f32,
         channels: usize,
         buffer_size: u32,
@@ -54,10 +57,9 @@ impl AudioProcessor for TestHostProcessor {
         self.buffer_handler.process(output);
         let mut audio_buffer = self.buffer_handler.get_audio_buffer();
         unsafe {
-            self.plugin_instance
-                .as_mut()
-                .unwrap()
-                .process(&mut audio_buffer);
+            let instance =
+                self.plugin_instance.deref() as *const PluginInstance as *mut PluginInstance;
+            (*instance).process(&mut audio_buffer);
         }
         flush_vst_output(num_channels, &mut audio_buffer, output)
     }

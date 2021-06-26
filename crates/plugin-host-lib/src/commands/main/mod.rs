@@ -15,15 +15,18 @@ use vst::plugin::Plugin;
 
 use crate::audio_io::TestPluginHost;
 use crate::commands::options::RunOptions;
+use crate::processors::shared_processor::SharedProcessor;
+use std::ops::Deref;
 
-fn start_gui(instance: *mut PluginInstance) {
+fn start_gui(instance: SharedProcessor<PluginInstance>) {
+    let instance_ptr = instance.deref() as *const PluginInstance as *mut PluginInstance;
     let event_loop = tao::event_loop::EventLoop::new();
     let window = tao::window::Window::new(&event_loop).expect("Failed to create editor window");
     unsafe {
-        window.set_title(&(*instance).get_info().name);
+        window.set_title(&(*instance_ptr).get_info().name);
     }
 
-    let mut editor = unsafe { instance.as_mut() }
+    let mut editor = unsafe { instance_ptr.as_mut() }
         .unwrap()
         .get_editor()
         .expect("Plugin has no editor");
@@ -49,7 +52,10 @@ fn start_gui(instance: *mut PluginInstance) {
 
 pub fn run_test(run_options: RunOptions) {
     let mut host = TestPluginHost::default();
-    host.set_audio_file_path(PathBuf::from(run_options.input_audio()));
+    if let Err(err) = host.set_audio_file_path(PathBuf::from(run_options.input_audio())) {
+        log::error!("Failed to set input file-path {}", err);
+        exit(1);
+    }
     let path = Path::new(run_options.plugin_path());
     log::info!("Loading VST from: {}...", path.to_str().unwrap());
     if let Err(err) = host.load_plugin(path) {
@@ -94,8 +100,10 @@ pub fn run_test(run_options: RunOptions) {
     }
 
     if run_options.open_editor() {
-        log::info!("Starting GUI");
-        start_gui(instance);
+        if let Some(instance) = instance {
+            log::info!("Starting GUI");
+            start_gui(instance);
+        }
     } else {
         thread::park();
     }

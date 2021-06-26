@@ -61,6 +61,18 @@ fn set_output_device_command(state: tauri::State<AppState>, output_device_id: St
   state.set_output_device_id(output_device_id);
 }
 
+#[tauri::command]
+fn set_input_file_command(state: tauri::State<AppState>, input_file: String) {
+  log::info!("Setting audio input file {}", input_file);
+  state.set_input_file(input_file);
+}
+
+#[tauri::command]
+fn set_plugin_path_command(state: tauri::State<AppState>, path: String) {
+  log::info!("Setting plugin path {}", path);
+  state.set_plugin_path(path);
+}
+
 fn main() {
   wisual_logger::init_from_env();
   let mut plugin_host = plugin_host_lib::TestPluginHost::default();
@@ -87,6 +99,8 @@ fn main() {
       set_audio_driver_command,
       set_input_device_command,
       set_output_device_command,
+      set_input_file_command,
+      set_plugin_path_command,
       list_devices_command,
       list_hosts_command,
       subscribe_to_volume_command,

@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex};
 use cpal::traits::{DeviceTrait, HostTrait};
 
 use plugin_host_lib::audio_io::audio_thread::options::AudioDeviceId;
+use std::path::{Path, PathBuf};
 
 pub struct AudioOptions {
   host_id: String,
@@ -54,7 +55,32 @@ impl AppState {
   pub fn set_output_device_id(&self, output_device_id: String) {
     self.audio_options.lock().unwrap().output_device_id = Some(output_device_id.clone());
     if let Ok(mut host) = self.host.lock() {
-      host.set_output_device_id(AudioDeviceId::Id(output_device_id));
+      let result = host.set_output_device_id(AudioDeviceId::Id(output_device_id));
+      match result {
+        Ok(_) => log::info!("Output device set"),
+        Err(err) => log::error!("Failure to set output device: {}", err),
+      }
+    }
+  }
+
+  pub fn set_input_file(&self, input_file: String) {
+    if let Ok(mut host) = self.host.lock() {
+      let result = host.set_audio_file_path(PathBuf::from(input_file));
+      match result {
+        Ok(_) => log::info!("Input file set"),
+        Err(err) => log::error!("Failure to set input: {}", err),
+      }
+    }
+  }
+
+  pub fn set_plugin_path(&self, path: String) {
+    if let Ok(mut host) = self.host.lock() {
+      let path = Path::new(&path);
+      let result = host.load_plugin(path);
+      match result {
+        Ok(_) => log::info!("Plugin loaded"),
+        Err(err) => log::error!("Failure to load plugin: {}", err),
+      }
     }
   }
 }
