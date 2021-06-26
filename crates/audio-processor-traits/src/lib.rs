@@ -6,6 +6,12 @@ pub struct AudioProcessorSettings {
     block_size: u32,
 }
 
+impl Default for AudioProcessorSettings {
+    fn default() -> Self {
+        Self::new(44100.0, 2, 2, 512)
+    }
+}
+
 impl AudioProcessorSettings {
     pub fn new(
         sample_rate: f32,

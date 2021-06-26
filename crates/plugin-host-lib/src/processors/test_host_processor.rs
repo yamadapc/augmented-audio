@@ -83,7 +83,11 @@ impl Drop for TestHostProcessor {
 }
 
 /// Flush plugin output to output
-fn flush_vst_output(num_channels: usize, audio_buffer: &mut AudioBuffer<f32>, output: &mut [f32]) {
+pub fn flush_vst_output(
+    num_channels: usize,
+    audio_buffer: &mut AudioBuffer<f32>,
+    output: &mut [f32],
+) {
     let (_, plugin_output) = audio_buffer.split();
     for (sample_index, frame) in output.chunks_mut(num_channels).enumerate() {
         for (channel, sample) in frame.iter_mut().enumerate() {

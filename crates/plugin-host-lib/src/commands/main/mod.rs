@@ -14,6 +14,8 @@ use tao::platform::macos::WindowExtMacOS;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use crate::audio_io::audio_thread::AudioThread;
+use crate::audio_io::offline_renderer::OfflineRenderer;
 use crate::audio_io::test_plugin_host::TestPluginHost;
 use crate::commands::options::RunOptions;
 use crate::processors::shared_processor::SharedProcessor;
@@ -53,6 +55,11 @@ fn start_gui(instance: SharedProcessor<PluginInstance>) {
 }
 
 pub fn run_test(run_options: RunOptions) {
+    if run_options.output_audio().is_some() {
+        run_offline_rendering(run_options);
+        return;
+    }
+
     let mut host = TestPluginHost::default();
     if let Err(err) = host.set_audio_file_path(PathBuf::from(run_options.input_audio())) {
         log::error!("Failed to set input file-path {}", err);
@@ -102,4 +109,16 @@ pub fn run_test(run_options: RunOptions) {
         }
         log::info!("Closing...");
     }
+}
+
+fn run_offline_rendering(run_options: RunOptions) {
+    log::info!("Running offline rendering");
+    let output_file_path = run_options.output_audio().clone().unwrap();
+    let offline_renderer = OfflineRenderer::new(
+        AudioThread::default_settings().expect("Failed to query audio settings"),
+        run_options.input_audio(),
+        &output_file_path,
+        run_options.plugin_path(),
+    );
+    offline_renderer.run().expect("Failed to render audio");
 }

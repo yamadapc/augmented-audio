@@ -112,6 +112,39 @@ impl TestPluginHost {
 
     pub fn load_plugin(&mut self, path: &Path) -> Result<(), AudioHostPluginLoadError> {
         self.plugin_file_path = Some(path.into());
+        let vst_plugin_instance = Self::load_vst_plugin(path)?;
+        let vst_plugin_instance =
+            SharedProcessor::new(self.garbage_collector.handle(), vst_plugin_instance);
+
+        let audio_settings = &self.audio_settings;
+        let audio_file = default_read_audio_file(
+            &self
+                .audio_file_path
+                .to_str()
+                .ok_or(AudioHostPluginLoadError::MissingPathError)?,
+        )?;
+        let audio_file_settings = AudioFileSettings::new(audio_file);
+
+        let mut test_host_processor = TestHostProcessor::new(
+            audio_file_settings,
+            vst_plugin_instance.clone(),
+            audio_settings.sample_rate(),
+            audio_settings.input_channels(),
+            audio_settings.block_size(),
+        );
+        test_host_processor.prepare(*audio_settings);
+        let test_host_processor = AudioThreadProcessor::Active(test_host_processor);
+        let test_host_processor =
+            SharedProcessor::new(self.garbage_collector.handle(), test_host_processor);
+        self.processor = Some(test_host_processor.clone());
+        self.audio_thread.set_processor(test_host_processor);
+
+        // De-allocate old instance
+        self.vst_plugin_instance = Some(vst_plugin_instance);
+        Ok(())
+    }
+
+    pub(crate) fn load_vst_plugin(path: &Path) -> Result<PluginInstance, AudioHostPluginLoadError> {
         let host = Arc::new(Mutex::new(AudioTestHost));
         let mut loader = PluginLoader::load(path, Arc::clone(&host))?;
         let mut instance = loader.instance()?;
@@ -135,34 +168,7 @@ impl TestPluginHost {
         // Initialize the instance
         instance.init();
         log::info!("Initialized instance!");
-
-        let audio_settings = &self.audio_settings;
-        let audio_file = default_read_audio_file(
-            &self
-                .audio_file_path
-                .to_str()
-                .ok_or(AudioHostPluginLoadError::MissingPathError)?,
-        )?;
-        let audio_file_settings = AudioFileSettings::new(audio_file);
-        let instance = SharedProcessor::new(self.garbage_collector.handle(), instance);
-
-        let mut test_host_processor = TestHostProcessor::new(
-            audio_file_settings,
-            instance.clone(),
-            audio_settings.sample_rate(),
-            audio_settings.input_channels(),
-            audio_settings.block_size(),
-        );
-        test_host_processor.prepare(*audio_settings);
-        let test_host_processor = AudioThreadProcessor::Active(test_host_processor);
-        let test_host_processor =
-            SharedProcessor::new(self.garbage_collector.handle(), test_host_processor);
-        self.processor = Some(test_host_processor.clone());
-        self.audio_thread.set_processor(test_host_processor);
-
-        // De-allocate old instance
-        self.vst_plugin_instance = Some(instance);
-        Ok(())
+        Ok(instance)
     }
 
     pub fn current_volume(&self) -> (f32, f32) {

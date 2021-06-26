@@ -110,6 +110,14 @@ pub struct AudioFileProcessor {
 }
 
 impl AudioFileProcessor {
+    pub fn from_path(
+        audio_settings: AudioProcessorSettings,
+        path: &str,
+    ) -> Result<Self, AudioFileError> {
+        let audio_file_settings = AudioFileSettings::new(default_read_audio_file(path)?);
+        Ok(Self::new(audio_file_settings, audio_settings))
+    }
+
     pub fn new(
         audio_file_settings: AudioFileSettings,
         audio_settings: AudioProcessorSettings,
@@ -120,6 +128,10 @@ impl AudioFileProcessor {
             audio_file_cursor: 0,
             buffer: Vec::new(),
         }
+    }
+
+    pub fn buffer(&self) -> &Vec<Vec<f32>> {
+        &self.buffer
     }
 
     /// Prepares for playback
