@@ -216,6 +216,10 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 [[package]]
 name = "basedrop"
 version = "0.1.2"
+
+[[package]]
+name = "basedrop"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47611e530cf21bb89fbfe322aa8b1feae1ace33ff65f8ebf40fe3b4b99b7c9a2"
 
@@ -2389,6 +2393,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60302e4db3a61da70c0cb7991976248362f30319e88850c487b9b95bbf059e00"
 
 [[package]]
+name = "md5"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "490cc448043f947bae3cbee9c203358d62dbee0db12107a74be5c30ccfd09771"
+
+[[package]]
 name = "memalloc"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3274,12 +3284,13 @@ name = "plugin-host-lib"
 version = "0.1.0"
 dependencies = [
  "audio-processor-traits",
- "basedrop",
+ "basedrop 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "clap",
  "concread",
  "convert-sample-rate",
  "cpal",
  "log",
+ "md5",
  "midir",
  "notify",
  "num-traits 0.2.14",

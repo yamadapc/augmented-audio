@@ -1,5 +1,6 @@
-use basedrop::{Handle, Shared};
 use std::ops::{Deref, DerefMut};
+
+use basedrop::{Handle, Shared};
 
 /// Hack around rust interior mutability for Shared processor pointers.
 /// Processors need to be thread-safe internally.
@@ -12,6 +13,10 @@ impl<T: Send + 'static> SharedProcessor<T> {
         SharedProcessor {
             inner: Shared::new(handle, value),
         }
+    }
+
+    pub fn shared(&self) -> Shared<T> {
+        self.inner.clone()
     }
 }
 

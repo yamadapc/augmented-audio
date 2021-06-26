@@ -14,13 +14,13 @@ use garbage_collector::GarbageCollector;
 use garbage_collector::GarbageCollectorError;
 
 use crate::audio_io::audio_thread::options::AudioDeviceId;
+use crate::audio_io::audio_thread::AudioThreadProcessor;
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
 };
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::vst_host::AudioTestHost;
-use basedrop::Shared;
 
 pub mod audio_io_service;
 pub mod audio_thread;
@@ -151,15 +151,17 @@ impl TestPluginHost {
         let audio_file_settings = AudioFileSettings::new(audio_file);
         let instance = SharedProcessor::new(self.garbage_collector.handle(), instance);
 
-        let mut test_host_processor: Box<dyn AudioProcessor> = Box::new(TestHostProcessor::new(
+        let mut test_host_processor = TestHostProcessor::new(
             audio_file_settings,
             instance.clone(),
             audio_settings.sample_rate(),
             audio_settings.input_channels(),
             audio_settings.block_size(),
-        ));
+        );
         test_host_processor.prepare(*audio_settings);
-        let test_host_processor = Shared::new(self.garbage_collector.handle(), test_host_processor);
+        let test_host_processor = AudioThreadProcessor::Active(test_host_processor);
+        let test_host_processor =
+            SharedProcessor::new(self.garbage_collector.handle(), test_host_processor);
         self.audio_thread.set_processor(test_host_processor);
 
         // De-allocate old instance

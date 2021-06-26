@@ -22,6 +22,7 @@ thiserror = "^1.0.25"
 rimd = "^0.0.1"
 concread = "^0.2.14"
 notify = "4.0.17"
+md5 = "^0.7.0"
 
 audio-processor-traits = { path = "../audio-processor-traits" }
 oscillator = { path = "../oscillator" }

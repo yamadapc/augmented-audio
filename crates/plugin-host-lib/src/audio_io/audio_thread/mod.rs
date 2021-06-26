@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
@@ -7,14 +9,21 @@ use error::AudioThreadError;
 use options::AudioThreadOptions;
 
 use crate::audio_io::audio_thread::options::AudioDeviceId;
+use crate::processors::shared_processor::SharedProcessor;
+use crate::processors::test_host_processor::TestHostProcessor;
 
 mod cpal_option_handling;
 pub mod error;
 pub mod options;
 
+pub enum AudioThreadProcessor {
+    Active(TestHostProcessor),
+    Silence(SilenceAudioProcessor),
+}
+
 pub struct AudioThread {
-    processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
-    processor_ref: Shared<Box<dyn AudioProcessor>>,
+    processor: Shared<SharedCell<AudioThreadProcessor>>,
+    processor_ref: SharedProcessor<AudioThreadProcessor>,
     stream: Option<cpal::Stream>,
     audio_thread_options: AudioThreadOptions,
 }
@@ -23,11 +32,10 @@ unsafe impl Send for AudioThread {}
 
 impl AudioThread {
     pub fn new(handle: &Handle) -> Self {
-        let processor = SilenceAudioProcessor;
-        let processor: Box<dyn AudioProcessor> = Box::new(processor);
-        let processor_ref = Shared::new(handle, processor);
+        let processor = AudioThreadProcessor::Silence(SilenceAudioProcessor);
+        let processor_ref = SharedProcessor::new(handle, processor);
         AudioThread {
-            processor: Shared::new(handle, SharedCell::new(processor_ref.clone())),
+            processor: Shared::new(handle, SharedCell::new(processor_ref.shared())),
             processor_ref,
             stream: None,
             audio_thread_options: AudioThreadOptions::default(),
@@ -66,10 +74,10 @@ impl AudioThread {
 
     /// # Safety:
     /// The processor MUST be prepared for playback when it's set.
-    pub fn set_processor(&mut self, processor: Shared<Box<dyn AudioProcessor>>) {
+    pub fn set_processor(&mut self, processor: SharedProcessor<AudioThreadProcessor>) {
         log::info!("Updating audio processor");
         self.processor_ref = processor.clone();
-        let _old_processor_ptr = self.processor.replace(processor);
+        let _old_processor_ptr = self.processor.replace(processor.shared());
         // Let the old processor be dropped
     }
 
@@ -94,7 +102,7 @@ impl AudioThread {
 
 fn create_stream(
     options: &AudioThreadOptions,
-    processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
+    processor: Shared<SharedCell<AudioThreadProcessor>>,
 ) -> Result<cpal::Stream, AudioThreadError> {
     let host = cpal_option_handling::get_cpal_host(&options.host_id);
     let output_device =
@@ -106,7 +114,7 @@ fn create_stream(
 }
 
 fn create_stream_inner(
-    processor: Shared<SharedCell<Box<dyn AudioProcessor>>>,
+    processor: Shared<SharedCell<AudioThreadProcessor>>,
     output_device: &cpal::Device,
     output_config: &cpal::StreamConfig,
 ) -> Result<cpal::Stream, AudioThreadError> {
@@ -119,12 +127,15 @@ fn create_stream_inner(
 
     Ok(output_device.build_output_stream(
         output_config,
-        move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
+        move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| unsafe {
             let shared_processor = processor.get();
-            let processor_ptr =
-                shared_processor.as_ref() as *const dyn AudioProcessor as *mut dyn AudioProcessor;
-            unsafe {
-                (*processor_ptr).process(data);
+            // Forgive me:
+            let processor_ptr: *mut AudioThreadProcessor = shared_processor.deref()
+                as *const AudioThreadProcessor
+                as *mut AudioThreadProcessor;
+            match &mut (*processor_ptr) {
+                AudioThreadProcessor::Active(processor) => processor.process(data),
+                AudioThreadProcessor::Silence(processor) => (*processor).process(data),
             }
         },
         |err| {

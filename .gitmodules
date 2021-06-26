@@ -1,0 +1,3 @@
+[submodule "crates/basedrop"]
+	path = crates/basedrop
+	url = https://github.com/yamadapc/basedrop/

@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::path::Path;
 use std::path::PathBuf;
 use std::process::exit;
@@ -16,7 +17,8 @@ use vst::plugin::Plugin;
 use crate::audio_io::TestPluginHost;
 use crate::commands::options::RunOptions;
 use crate::processors::shared_processor::SharedProcessor;
-use std::ops::Deref;
+
+mod file_watch;
 
 fn start_gui(instance: SharedProcessor<PluginInstance>) {
     let instance_ptr = instance.deref() as *const PluginInstance as *mut PluginInstance;
@@ -81,22 +83,7 @@ pub fn run_test(run_options: RunOptions) {
             .expect("Failed to watch file");
 
         let host = host.clone();
-        std::thread::spawn(move || loop {
-            match rx.recv() {
-                Ok(_) => {
-                    let mut host = host.lock().unwrap();
-                    match (*host).load_plugin(Path::new(run_options.plugin_path())) {
-                        Ok(_) => {
-                            log::info!("Reloaded plugin");
-                        }
-                        Err(err) => {
-                            log::error!("Failed to reload plugin: {}", err);
-                        }
-                    }
-                }
-                Err(err) => log::error!("File watch error: {}", err),
-            }
-        });
+        std::thread::spawn(move || file_watch::run_file_watch_loop(rx, run_options, host));
     }
 
     if run_options.open_editor() {
