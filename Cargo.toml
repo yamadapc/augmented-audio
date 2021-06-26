@@ -4,5 +4,6 @@ members = [
   "crates/plugin-host-gui/src-tauri"
 ]
 exclude = [
-  "crates/plugin-host-gui"
+  "crates/plugin-host-gui",
+  "crates/basedrop"
 ]
