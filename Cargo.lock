@@ -3276,6 +3276,7 @@ dependencies = [
  "tauri-build",
  "thiserror",
  "tokio",
+ "uuid",
  "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

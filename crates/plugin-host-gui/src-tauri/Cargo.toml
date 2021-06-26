@@ -21,6 +21,7 @@ serde = { version = "^1.0.64", features = ["derive"] }
 tauri = { version = "1.0.0-beta.1", features = ["api-all", "menu"] }
 plugin-host-lib = { path = "../../plugin-host-lib" }
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
+uuid = "^0.8.2"
 
 [features]
 default = [ "custom-protocol" ]
