@@ -20,6 +20,7 @@ extern "C" {
     ) -> CFURLRef;
 }
 
+/// Build a CFStringRef out of a &str ref.
 fn make_cfstring(s: &str) -> Option<CFStringRef> {
     unsafe {
         let allocator = CFAllocatorGetDefault();
@@ -35,6 +36,7 @@ fn make_cfstring(s: &str) -> Option<CFStringRef> {
     }
 }
 
+/// Check if there's a non-null main CFBundle.
 pub fn has_main_bundle() -> bool {
     unsafe {
         let main_bundle = CFBundleGetMainBundle();
@@ -42,6 +44,7 @@ pub fn has_main_bundle() -> bool {
     }
 }
 
+/// Check if there's a non-null CFBundle with this identifier.
 pub fn has_bundle(bundle_identifier: &str) -> bool {
     unsafe {
         let bundle_identifier = make_cfstring(bundle_identifier);
@@ -54,7 +57,8 @@ pub fn has_bundle(bundle_identifier: &str) -> bool {
     }
 }
 
-fn str_from_cfstring(url_cfstring: CFStringRef) -> Option<String> {
+/// Build a `String` from a `CFStringRef`.
+fn string_from_cfstring(url_cfstring: CFStringRef) -> Option<String> {
     unsafe {
         let length = CFStringGetLength(url_cfstring) + 1;
         let mut output_str = String::with_capacity(length as usize);
@@ -73,7 +77,7 @@ fn str_from_cfstring(url_cfstring: CFStringRef) -> Option<String> {
     }
 }
 
-/// Get the path to a resource on the main bundle
+/// Get the path to a resource
 pub fn get_path(
     bundle_identifier: &str,
     resource_name: &str,
@@ -111,7 +115,7 @@ pub fn get_path(
             return None;
         }
 
-        let output_str = str_from_cfstring(url_cfstring)?;
+        let output_str = string_from_cfstring(url_cfstring)?;
 
         Some(PathBuf::from(output_str))
     }
@@ -128,6 +132,25 @@ mod test {
         assert!(cf_str.is_some());
         let cf_str = cf_str.unwrap();
         assert_ne!(cf_str, std::ptr::null());
-        assert_eq!(str_from_cfstring(cf_str).unwrap(), String::from(str));
+        assert_eq!(string_from_cfstring(cf_str).unwrap(), String::from(str));
+    }
+
+    #[test]
+    fn test_make_cfstring_twice_is_safe() {
+        let str = "something here";
+        {
+            let cf_str = make_cfstring(str);
+            assert!(cf_str.is_some());
+            let cf_str = cf_str.unwrap();
+            assert_ne!(cf_str, std::ptr::null());
+            assert_eq!(string_from_cfstring(cf_str).unwrap(), String::from(str));
+        }
+        {
+            let cf_str = make_cfstring(str);
+            assert!(cf_str.is_some());
+            let cf_str = cf_str.unwrap();
+            assert_ne!(cf_str, std::ptr::null());
+            assert_eq!(string_from_cfstring(cf_str).unwrap(), String::from(str));
+        }
     }
 }
