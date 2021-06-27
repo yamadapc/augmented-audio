@@ -15,7 +15,7 @@ env_logger = "^0.8.1"
 log = "^0.4.11"
 serde = { version = "^1.0.126", features = ["derive"] }
 dirs = "^3.0.2"
-log4rs = "^1.0.0"
+log4rs = { version = "^1.0.0", features = ["rolling_file_appender", "compound_policy", "size_trigger"] }
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
 futures-util = "^0.3.15"
 tokio-tungstenite = "^0.14.0"

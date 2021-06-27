@@ -42,7 +42,7 @@ pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
             "-i, --input=<INPUT_PATH> 'An audio file to process'",
         ))
         .arg(clap::Arg::from_usage(
-            "-o, --output=<OUTPUT_PATH> 'If specified, will render offline into file'",
+            "-o, --output=[OUTPUT_PATH] 'If specified, will render offline into file'",
         ))
         .arg(clap::Arg::from_usage(
             "-e, --editor 'Open the editor window'",
