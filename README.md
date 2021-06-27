@@ -11,7 +11,7 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 
 ## Goals of this repository
 
-* **Goal 1:** Learn
+* **Goal 1:** Learn & have fun
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
@@ -49,6 +49,21 @@ plugin-host run --output ./output.wav --plugin ./target/release/myplugin.dylib -
 <p align="center">
   <img height="400" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/web-gui-diagram.png" />
 </p>
+
+**Note:** There are many reasons why web-based GUI is bad in this use-case, for example:
+
+- High-complexity of infrastructure to support runtime & deployment
+- Unavoidably worse performance at certain tasks
+- Overall not worth it, assuming there's are nice cross-platform Rust GUI frameworks and/or the GUI is not too complex
+
+However, there are also reasons why it could be good:
+
+- Amazing development experience: hot-reload, React, Chrome dev-tools
+- Potential for having plug-in GUIs that run in a browser
+  * This can be: remote control for Bela, iPads; a Web front-end for a WebAssembly version of the plug-in, etc.
+  * Without any changes to native/javascript code (because we ate the complexity by doing this)
+    
+So I'm just trying it out & seeing where it can go.
 
 ### Main components
 The web based Tremolo VST in `crates/tremolo-plugin` contains two main components:
