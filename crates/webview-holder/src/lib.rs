@@ -142,7 +142,6 @@ impl WebviewHolder {
         log::debug!("WebviewHolder::initialize - Setting-up message handler");
         self.attach_message_handler();
 
-        // TODO - this should be read from somewhere
         log::debug!("WebviewHolder::initialize - Loading app URL");
         self.webview.load_url(url);
     }
@@ -259,6 +258,10 @@ impl WebviewHolder {
 
         Ok(())
     }
+
+    pub fn webview(&self) -> &DarwinWKWebView {
+        &self.webview
+    }
 }
 
 /// Pin one NSView to a parent NSView so it'll resize to fit it
@@ -303,6 +306,9 @@ unsafe fn pin_to_parent(parent_id: id, webview_id: id) {
 #[cfg(test)]
 mod test {
     use std::ptr::null;
+
+    use cocoa::appkit::NSApp;
+    use cocoa::foundation::NSAutoreleasePool;
 
     use super::*;
 

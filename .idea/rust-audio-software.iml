@@ -28,6 +28,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/basedrop/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/macos-bundle-resources/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/oscillator/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/webview-holder/examples" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/wisual-logger/target" />
