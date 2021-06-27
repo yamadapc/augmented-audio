@@ -67,8 +67,6 @@ impl Drop for VolumePublisherState {
 
 #[cfg(test)]
 mod test {
-  use super::*;
-
   #[test]
   fn test_subscribing_to_volume() {}
 }
