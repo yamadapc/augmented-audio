@@ -27,7 +27,7 @@ fn make_cfstring(s: &str) -> Option<CFStringRef> {
         let cfstring_ref =
             CFStringCreateWithCString(allocator, c_str.as_ptr(), kCFStringEncodingUTF8);
 
-        if cfstring_ref == std::ptr::null_mut() {
+        if cfstring_ref.is_null() {
             return None;
         }
 
@@ -38,7 +38,7 @@ fn make_cfstring(s: &str) -> Option<CFStringRef> {
 pub fn has_main_bundle() -> bool {
     unsafe {
         let main_bundle = CFBundleGetMainBundle();
-        main_bundle != std::ptr::null_mut()
+        !main_bundle.is_null()
     }
 }
 
@@ -47,7 +47,7 @@ pub fn has_bundle(bundle_identifier: &str) -> bool {
         let bundle_identifier = make_cfstring(bundle_identifier);
         if let Some(bundle_identifier) = bundle_identifier {
             let bundle = CFBundleGetBundleWithIdentifier(bundle_identifier);
-            bundle != std::ptr::null_mut()
+            !bundle.is_null()
         } else {
             false
         }
@@ -94,20 +94,20 @@ pub fn get_path(
         log::debug!("Getting bundle {}", bundle_identifier);
         let bundle_identifier = make_cfstring(bundle_identifier)?;
         let main_bundle = CFBundleGetBundleWithIdentifier(bundle_identifier);
-        if main_bundle == std::ptr::null_mut() {
+        if main_bundle.is_null() {
             return None;
         }
 
         log::debug!("Getting resource URL");
         let url_ref =
             CFBundleCopyResourceURL(main_bundle, resource_name, resource_type, sub_dir_name);
-        if url_ref == std::ptr::null_mut() {
+        if url_ref.is_null() {
             return None;
         }
 
         log::debug!("Converting URL to string");
         let url_cfstring = CFURLGetString(url_ref);
-        if url_cfstring == std::ptr::null_mut() {
+        if url_cfstring.is_null() {
             return None;
         }
 
