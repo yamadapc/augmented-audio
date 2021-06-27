@@ -2481,6 +2481,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "macos-bundle-resources"
+version = "0.1.0"
+dependencies = [
+ "core-foundation 0.9.1",
+ "core-foundation-sys 0.8.2",
+ "log",
+]
+
+[[package]]
 name = "malloc_buf"
 version = "0.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4577,6 +4586,7 @@ dependencies = [
  "futures-util",
  "log",
  "log4rs",
+ "macos-bundle-resources",
  "objc",
  "oscillator",
  "serde",

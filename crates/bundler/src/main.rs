@@ -84,6 +84,10 @@ fn generate(config_path: &str, output_path: &str) -> PathBuf {
 
 fn build_plist(name: &str, toml_file: &CargoToml) -> plist::Value {
     let mut plist_file = plist::Dictionary::new();
+    plist_file.insert(
+        String::from("CFBundleIdentifier"),
+        plist::Value::from(toml_file.package.metadata.bundle.identifier.clone()),
+    );
     plist_file.insert(String::from("CFBundleName"), plist::Value::from(name));
     plist_file.insert(
         String::from("CFBundleVersion"),

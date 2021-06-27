@@ -13,7 +13,9 @@ use webview_transport::{
     create_transport_runtime, DelegatingTransport, WebSocketsTransport, WebviewTransport,
 };
 
+use crate::constants::{BUNDLE_IDENTIFIER, INDEX_HTML_RESOURCE};
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
+use macos_bundle_resources::has_main_bundle;
 
 pub mod handlers;
 pub mod protocol;
@@ -51,6 +53,7 @@ pub struct TremoloEditor {
 
 impl TremoloEditor {
     pub fn new(parameters: Arc<ParameterStore>) -> Self {
+        log::info!("Creating editor");
         let runtime = create_transport_runtime();
         TremoloEditor {
             parameters,
@@ -77,12 +80,34 @@ impl TremoloEditor {
 
         {
             let mut webview = self.webview.as_mut().unwrap().lock().unwrap();
-            let frontend_url = "http://127.0.0.1:3000";
-            log::warn!(
-                "Initializing the front-end in development mode: {}",
-                frontend_url
-            );
-            webview.initialize(parent, frontend_url);
+
+            if !has_main_bundle() {
+                log::warn!(
+                    "Plug-in does not have main bundle. Will be unable to run in production mode."
+                );
+                let frontend_url = "http://127.0.0.1:3000";
+                log::warn!(
+                    "Initializing the front-end in development mode: {}",
+                    frontend_url
+                );
+                webview.initialize(parent, frontend_url);
+            } else {
+                log::info!("Plug-in has main bundle. Trying to find front-end resources");
+                if let Some(frontend_path) = macos_bundle_resources::get_path(
+                    BUNDLE_IDENTIFIER,
+                    INDEX_HTML_RESOURCE,
+                    None,
+                    None,
+                ) {
+                    log::info!(
+                        "Found front-end directory at \"{}\"",
+                        frontend_path.to_str().unwrap()
+                    );
+                    webview.initialize(parent, frontend_path.to_str().unwrap());
+                } else {
+                    log::warn!("Did not find front-end directory");
+                }
+            }
         }
 
         let start_result = self
@@ -137,14 +162,14 @@ impl Editor for TremoloEditor {
         (0, 0)
     }
 
+    fn close(&mut self) {
+        log::info!("Editor::close");
+    }
+
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     fn open(&mut self, parent: *mut c_void) -> bool {
         log::info!("Editor::open");
         unsafe { self.initialize_webview(parent).unwrap_or(false) }
-    }
-
-    fn close(&mut self) {
-        log::info!("Editor::close");
     }
 
     fn is_open(&mut self) -> bool {

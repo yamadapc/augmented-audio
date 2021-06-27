@@ -24,6 +24,7 @@ tungstenite = "^0.13.0"
 async-trait = "^0.1.50"
 thiserror = "^1.0.25"
 
+macos-bundle-resources = { path = "../macos-bundle-resources" }
 webview-holder = { path = "../webview-holder" }
 webview-transport = { path = "../webview-transport" }
 audio-parameter-store = { path = "../audio-parameter-store" }

@@ -129,4 +129,10 @@ impl Plugin for TremoloPlugin {
     }
 }
 
+impl Drop for TremoloPlugin {
+    fn drop(&mut self) {
+        log::info!("Shutting-down tremolo plugin");
+    }
+}
+
 plugin_main!(TremoloPlugin); // Important!
