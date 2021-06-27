@@ -137,6 +137,13 @@ for the meter to reach a volume target value after it was read.
 Some tweaking of the transition times & JavaScript poll logic could improve this, but generally it's not a great
 situation.
 
+## Bundling
+Under `crates/bundler` there's a basic program which will take care of bundling the app as a `.vst` bundle for macOS.
+This is just a valid `Info.plist` as well as copying front-end resources into the package.
+
+The VST will access resource paths from its bundle using `CFBundle` functions. A missing binding is added in
+`macos-bundle-resources` to get resources in the plug-in bundle.
+
 ## crates/plugin-host-cli
 ```
 plugin-host run \
