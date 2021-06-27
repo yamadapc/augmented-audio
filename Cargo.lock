@@ -538,6 +538,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "cmd_lib"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c7114bcaf989b09f9fb057b7d7c81491bc1558e8a67bd49bf7f682318d8a6501"
+dependencies = [
+ "cmd_lib_macros",
+ "faccess",
+ "lazy_static",
+ "log",
+ "os_pipe",
+]
+
+[[package]]
+name = "cmd_lib_macros"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "356fd654e9a433e730a826d4e01ea2414ab122ca8a5374eadf6c43a6090f8dd3"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote 1.0.9",
+ "syn 1.0.72",
+]
+
+[[package]]
 name = "cocoa"
 version = "0.18.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1338,6 +1363,17 @@ checksum = "658f19728920138342f68408b7cf7644d90d4784353d8ebc32e7e8663dbe45fa"
 dependencies = [
  "cmake",
  "pkg-config",
+]
+
+[[package]]
+name = "faccess"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e039175679baf763ddddf4f76900b92d4dae9411ee88cf42d2f11b976b09e07c"
+dependencies = [
+ "bitflags 1.2.1",
+ "libc",
+ "winapi 0.3.9",
 ]
 
 [[package]]
@@ -3820,6 +3856,7 @@ name = "ruas-bundler"
 version = "0.1.0"
 dependencies = [
  "clap",
+ "cmd_lib",
  "log",
  "plist",
  "serde",

@@ -1,4 +1,7 @@
-use std::path::Path;
+use std::fs::{copy, create_dir_all, read_to_string};
+use std::path::{Path, PathBuf};
+
+use cmd_lib::run_cmd;
 
 use manifests::CargoToml;
 
@@ -25,9 +28,13 @@ fn find_target(config_path: &str, cargo_package: &CargoToml) -> Option<String> {
     }
 }
 
-fn generate(config_path: &str, output_path: &str) {
-    log::info!("Reading package toml file");
-    let input_cargo_file = std::fs::read_to_string(config_path).expect("Failed to read toml file");
+fn generate(config_path: &str, output_path: &str) -> PathBuf {
+    log::info!(
+        "Reading package toml file config_path={} output_path={}",
+        config_path,
+        output_path
+    );
+    let input_cargo_file = read_to_string(config_path).expect("Failed to read toml file");
     let toml_file: CargoToml =
         toml::from_str(&input_cargo_file).expect("Failed to parse toml file");
     let name = toml_file
@@ -41,22 +48,27 @@ fn generate(config_path: &str, output_path: &str) {
     log::info!("Building package plist");
     let plist_file = build_plist(&name, &toml_file);
 
-    let output_path = Path::new(output_path).canonicalize().unwrap();
+    let output_path = Path::new(output_path);
     if output_path.exists() {
         log::warn!(
             "Can't create at {}. Path already exists. Will try to continue.",
             output_path.to_str().unwrap()
         );
     }
-    std::fs::create_dir_all(&output_path).expect("Failed to create directory");
-    std::fs::create_dir_all(output_path.join("Contents")).expect("Failed to create directory");
-    std::fs::create_dir_all(output_path.join("Contents/MacOS"))
-        .expect("Failed to create directory");
+    create_dir_all(&output_path).expect("Failed to create directory");
+    create_dir_all(output_path.join("Contents")).expect("Failed to create directory");
+    create_dir_all(output_path.join("Contents/MacOS")).expect("Failed to create directory");
+    let output_path = output_path.canonicalize().unwrap();
+
     let plist_path = output_path.join("Contents/Info.plist");
     log::info!("Writing Info.plist file");
     plist_file
         .to_file_xml(plist_path)
         .expect("Failed to write plist file");
+
+    let package_path = Path::new(config_path).parent().unwrap();
+    log::info!("Forcing a build of the package");
+    run_cmd!(cd ${package_path}; cargo build --release).unwrap();
 
     let source_dylib_path =
         find_target(config_path, &toml_file).expect("Couldn't find the target dylib");
@@ -66,7 +78,8 @@ fn generate(config_path: &str, output_path: &str) {
         &source_dylib_path,
         target_dylib_path.to_str().unwrap(),
     );
-    std::fs::copy(source_dylib_path, target_dylib_path).expect("Failed to copy binary lib");
+    copy(source_dylib_path, target_dylib_path).expect("Failed to copy binary lib");
+    output_path
 }
 
 fn build_plist(name: &str, toml_file: &CargoToml) -> plist::Value {
@@ -101,6 +114,26 @@ fn build_plist(name: &str, toml_file: &CargoToml) -> plist::Value {
     plist::Value::Dictionary(plist_file)
 }
 
+fn build_frontend(frontend_path: &str) {
+    log::info!("Building front-end");
+    let path = Path::new(frontend_path);
+    run_cmd!(cd ${path}; yarn run build).unwrap();
+    log::info!("Finished building front-end");
+}
+
+fn move_frontend_to_output(frontend_path: &str, output_path: &Path) {
+    let frontend_build_path = Path::new(frontend_path).join("build");
+    log::info!(
+        "Copying front-end into bundle path frontend_build_path={} output_path={}",
+        frontend_build_path.to_str().unwrap(),
+        output_path.to_str().unwrap()
+    );
+    let resources_directory = output_path.join("Contents/Resources");
+    create_dir_all(resources_directory.clone()).expect("Failed to create resources dir");
+    run_cmd!(cp -r ${frontend_build_path} ${resources_directory}/frontend)
+        .expect("Failed to copy front-end assets");
+}
+
 fn main() {
     wisual_logger::init_from_env();
 
@@ -113,6 +146,9 @@ fn main() {
         ))
         .arg(clap::Arg::from_usage(
             "-o,--output=<OUTPUT_PATH> 'Where to write the plug-in into'",
+        ))
+        .arg(clap::Arg::from_usage(
+            "--frontend-path=[FRONTEND_PATH] 'Front-end path'",
         ));
     let matches = app.get_matches();
     let config_path = matches
@@ -121,6 +157,11 @@ fn main() {
     let output_path = matches
         .value_of("output")
         .expect("Expected output path (--output=...)");
+    let frontend_path = matches.value_of("frontend-path");
 
-    generate(config_path, output_path);
+    let output_path = generate(config_path, output_path);
+    if let Some(frontend_path) = frontend_path {
+        build_frontend(frontend_path);
+        move_frontend_to_output(frontend_path, &output_path);
+    }
 }

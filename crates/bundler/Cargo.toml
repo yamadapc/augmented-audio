@@ -13,3 +13,4 @@ plist = "^1.1.0"
 serde = { version = "^1.0.126", features = ["derive"] }
 toml = "^0.5.8"
 wisual-logger = "^0.1.2"
+cmd_lib = "^1.1.0"
