@@ -28,7 +28,7 @@ fn find_target(config_path: &str, cargo_package: &CargoToml) -> Option<String> {
     }
 }
 
-fn generate(config_path: &str, output_path: &str) -> PathBuf {
+fn build_plist_and_bundle(config_path: &str, output_path: &str) -> PathBuf {
     log::info!(
         "Reading package toml file config_path={} output_path={}",
         config_path,
@@ -153,6 +153,9 @@ fn main() {
         ))
         .arg(clap::Arg::from_usage(
             "--frontend-path=[FRONTEND_PATH] 'Front-end path'",
+        ))
+        .arg(clap::Arg::from_usage(
+            "--skip-frontend-build 'Skip the front-end build'",
         ));
     let matches = app.get_matches();
     let config_path = matches
@@ -163,9 +166,11 @@ fn main() {
         .expect("Expected output path (--output=...)");
     let frontend_path = matches.value_of("frontend-path");
 
-    let output_path = generate(config_path, output_path);
+    let output_path = build_plist_and_bundle(config_path, output_path);
     if let Some(frontend_path) = frontend_path {
-        build_frontend(frontend_path);
+        if !matches.is_present("skip-frontend-build") {
+            build_frontend(frontend_path);
+        }
         move_frontend_to_output(frontend_path, &output_path);
     }
 }

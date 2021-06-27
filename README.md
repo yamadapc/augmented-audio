@@ -160,10 +160,17 @@ output to the default output device.
 ## crates/tremolo-plugin
 <p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/tremolo-screenshot.png" /></p>
 
-Incomplete tremolo VST with a WebView GUI.
+Communicates via messages with the Rust audio processor.
 
-Communicates via messages with the Rust audio processor, has a very rough start
-of visualization experiments using WebGL.
+### Building the tremolo-plugin
+```shell
+cargo run --package ruas-bundler -- \
+    --config ./crates/tremolo-plugin/Cargo.toml \
+    --output ./target/vsts/tas.vst \
+    --frontend-path ./packages/tremolo-plugin-frontend
+```
+
+This will build the VST & its front-end and generate a working `target/vsts/tas.vst` bundle.
 
 ## crates/audio-parameter-store
 Implementation of a "parameter store" for audio plugins. Holds audio plugin parameters in a rw locked hashmap and uses
