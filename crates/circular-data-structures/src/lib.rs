@@ -6,6 +6,12 @@ pub struct CircularVec<T> {
     inner: Vec<T>,
 }
 
+impl<T> Default for CircularVec<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<T> CircularVec<T> {
     pub fn new() -> Self {
         CircularVec { inner: Vec::new() }
@@ -21,6 +27,10 @@ impl<T> CircularVec<T> {
         CircularVec { inner: vec }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
     #[inline]
     pub fn len(&self) -> usize {
         self.inner.len()
@@ -34,7 +44,7 @@ impl<T> CircularVec<T> {
         I: SliceIndex<[T]> + Rem<Output = I> + From<usize>,
     {
         let length = I::from(self.inner.len());
-        return index % length;
+        index % length
     }
 }
 

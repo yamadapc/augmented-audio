@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use log::{LevelFilter, SetLoggerError};
 use log4rs::append::console::ConsoleAppender;
@@ -22,13 +22,13 @@ pub enum LoggingSetupError {
 
 pub type Result<T> = std::result::Result<T, LoggingSetupError>;
 
-fn ensure_logging_directory(root_config_path: &PathBuf) -> Result<PathBuf> {
+fn ensure_logging_directory(root_config_path: &Path) -> Result<PathBuf> {
     std::fs::create_dir_all(root_config_path)
-        .map_err(|err| LoggingSetupError::CreateLogDirectoryError(err))?;
+        .map_err(LoggingSetupError::CreateLogDirectoryError)?;
     Ok(root_config_path.to_path_buf())
 }
 
-pub fn configure_logging(root_config_path: &PathBuf) -> Result<()> {
+pub fn configure_logging(root_config_path: &Path) -> Result<()> {
     let log_dir = ensure_logging_directory(root_config_path)?;
     let log_path = log_dir.join("tremolo-plugin.log");
     let logfile = FileAppender::builder()
@@ -36,7 +36,7 @@ pub fn configure_logging(root_config_path: &PathBuf) -> Result<()> {
             "{d} [{l}] {M}:{L} - {m} - tid:{T}:{t} pid:{P}\n",
         )))
         .build(log_path)
-        .map_err(|err| LoggingSetupError::FileAppenderError(err))?;
+        .map_err(LoggingSetupError::FileAppenderError)?;
 
     let config = Config::builder()
         .appender(Appender::builder().build("logfile", Box::new(logfile)))

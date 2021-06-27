@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
@@ -9,7 +7,7 @@ use error::AudioThreadError;
 use options::AudioThreadOptions;
 
 use crate::audio_io::audio_thread::options::AudioDeviceId;
-use crate::processors::shared_processor::SharedProcessor;
+use crate::processors::shared_processor::{ProcessorCell, SharedProcessor};
 use crate::processors::test_host_processor::TestHostProcessor;
 
 mod cpal_option_handling;
@@ -22,7 +20,7 @@ pub enum AudioThreadProcessor {
 }
 
 pub struct AudioThread {
-    processor: Shared<SharedCell<AudioThreadProcessor>>,
+    processor: Shared<SharedCell<ProcessorCell<AudioThreadProcessor>>>,
     processor_ref: SharedProcessor<AudioThreadProcessor>,
     stream: Option<cpal::Stream>,
     audio_thread_options: AudioThreadOptions,
@@ -102,7 +100,7 @@ impl AudioThread {
 
 fn create_stream(
     options: &AudioThreadOptions,
-    processor: Shared<SharedCell<AudioThreadProcessor>>,
+    processor: Shared<SharedCell<ProcessorCell<AudioThreadProcessor>>>,
 ) -> Result<cpal::Stream, AudioThreadError> {
     let host = cpal_option_handling::get_cpal_host(&options.host_id);
     let output_device =
@@ -114,7 +112,7 @@ fn create_stream(
 }
 
 fn create_stream_inner(
-    processor: Shared<SharedCell<AudioThreadProcessor>>,
+    processor: Shared<SharedCell<ProcessorCell<AudioThreadProcessor>>>,
     output_device: &cpal::Device,
     output_config: &cpal::StreamConfig,
 ) -> Result<cpal::Stream, AudioThreadError> {
@@ -130,9 +128,7 @@ fn create_stream_inner(
         move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| unsafe {
             let shared_processor = processor.get();
             // Forgive me:
-            let processor_ptr: *mut AudioThreadProcessor = shared_processor.deref()
-                as *const AudioThreadProcessor
-                as *mut AudioThreadProcessor;
+            let processor_ptr = shared_processor.0.get();
             match &mut (*processor_ptr) {
                 AudioThreadProcessor::Active(processor) => processor.process(data),
                 AudioThreadProcessor::Silence(processor) => (*processor).process(data),

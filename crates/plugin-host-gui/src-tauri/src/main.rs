@@ -18,8 +18,7 @@ fn main() {
   if let Err(err) = plugin_host.start() {
     log::error!("Failed to start host: {}", err);
   }
-  let mut menus = Vec::new();
-  menus.push(Menu::new(
+  let menus = vec![Menu::new(
     "plugin-host",
     vec![
       MenuItem::About(String::from("plugin-host")),
@@ -30,7 +29,7 @@ fn main() {
       MenuItem::Separator,
       MenuItem::Quit,
     ],
-  ));
+  )];
 
   tauri::Builder::default()
     .manage(AppState::new(plugin_host))

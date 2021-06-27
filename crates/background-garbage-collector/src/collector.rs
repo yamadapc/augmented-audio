@@ -52,6 +52,8 @@ impl GarbageCollectorRef for GarbageCollector {
 }
 
 impl GarbageCollector {
+    /// # Safety
+    /// Relies on drop commands pushed to its queue being valid.
     pub unsafe fn collect(&self) -> usize {
         let mut values_dropped = 0;
         while let Some(drop_command) = self.queue.pop() {

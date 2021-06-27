@@ -13,14 +13,14 @@ fn find_cpal_host_by_name(host_name: &str) -> Option<cpal::Host> {
         .flatten()
 }
 
-fn find_cpal_device_by_name(host: &Host, id: &String) -> Option<Device> {
+fn find_cpal_device_by_name(host: &Host, id: &str) -> Option<Device> {
     host.output_devices()
         .ok()
         .map(|mut devices| {
             devices.find(|device| {
                 let name = device.name();
                 match name {
-                    Ok(name) => &name == id,
+                    Ok(name) => name == id,
                     Err(_) => false,
                 }
             })
@@ -31,7 +31,7 @@ fn find_cpal_device_by_name(host: &Host, id: &String) -> Option<Device> {
 pub fn get_cpal_host(host_id: &AudioHostId) -> cpal::Host {
     match &host_id {
         AudioHostId::Default => cpal::default_host(),
-        AudioHostId::Id(id) => find_cpal_host_by_name(&id).unwrap_or_else(|| cpal::default_host()),
+        AudioHostId::Id(id) => find_cpal_host_by_name(&id).unwrap_or_else(cpal::default_host),
     }
 }
 

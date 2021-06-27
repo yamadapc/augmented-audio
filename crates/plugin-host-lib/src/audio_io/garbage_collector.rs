@@ -121,7 +121,7 @@ fn run_collector_loop(
         let collector = collector.lock().map(|mut collector| {
             collector.collect();
         });
-        if let Err(_) = collector {
+        if collector.is_err() {
             log::warn!("Garbage collector thread failing due to lock error");
             return;
         }

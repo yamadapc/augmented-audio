@@ -122,11 +122,8 @@ async fn run_message_forwarder_loop<ClientMessage>(
     ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
 {
     loop {
-        match forward_message(&mut client_messages, &client_messages_sender).await {
-            Err(err) => {
-                log::error!("Failed to forward message {}", err);
-            }
-            _ => {}
+        if let Err(err) = forward_message(&mut client_messages, &client_messages_sender).await {
+            log::error!("Failed to forward message {}", err);
         }
     }
 }
@@ -146,9 +143,7 @@ where
 
 async fn run_forward_server_message_loop<ServerMessage, ClientMessage>(
     mut server_message_receiver: Receiver<ServerMessage>,
-    transports: Arc<
-        Mutex<Vec<Box<dyn WebviewTransport<ServerMessage, ClientMessage> + Send + Sync>>>,
-    >,
+    transports: TransportsListRef<ServerMessage, ClientMessage>,
 ) -> !
 where
     ServerMessage: Serialize + Send + Clone + Debug + 'static,
@@ -163,9 +158,7 @@ where
 
 async fn forward_server_message<ServerMessage, ClientMessage>(
     server_message_receiver: &mut Receiver<ServerMessage>,
-    transports: &Arc<
-        Mutex<Vec<Box<dyn WebviewTransport<ServerMessage, ClientMessage> + Send + Sync>>>,
-    >,
+    transports: &TransportsListRef<ServerMessage, ClientMessage>,
 ) -> Result<(), Box<dyn Error>>
 where
     ServerMessage: Serialize + Send + Clone + Debug + 'static,

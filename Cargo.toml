@@ -7,3 +7,6 @@ exclude = [
   "crates/plugin-host-gui",
   "crates/basedrop"
 ]
+
+[profile.bench]
+debug = true

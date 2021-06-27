@@ -5,12 +5,9 @@ use vst::plugin::Plugin;
 
 use audio_processor_traits::AudioProcessorSettings;
 
-use crate::audio_io::audio_thread::AudioThread;
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_io::AudioHostPluginLoadError;
-use crate::processors::audio_file_processor::{
-    default_read_audio_file, AudioFileError, AudioFileProcessor, AudioFileSettings,
-};
+use crate::processors::audio_file_processor::{AudioFileError, AudioFileProcessor};
 use crate::processors::output_file_processor::OutputAudioFileProcessor;
 use crate::processors::test_host_processor::flush_vst_output;
 use crate::TestPluginHost;
@@ -76,9 +73,11 @@ impl OfflineRenderer {
         let mut plugin_conversions_time = Duration::from_millis(0);
         let mut audio_buffer_create_time = Duration::from_millis(0);
         let mut plugin_flush_time = Duration::from_millis(0);
+
         for _block_num in 0..total_blocks {
             let start = Instant::now();
             let mut channel_number = 0;
+            #[allow(clippy::explicit_counter_loop)]
             for channel in audio_file_buffer {
                 for i in 0..block_size {
                     let interleaved_index = i * num_channels + channel_number;

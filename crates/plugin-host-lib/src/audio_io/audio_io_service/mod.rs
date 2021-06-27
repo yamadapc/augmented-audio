@@ -42,7 +42,7 @@ impl AudioIOService {
             .input_devices()
             .map_err(|_| AudioIOServiceError::DevicesError)?;
         let devices_vec = devices
-            .map(|device| AudioDevice::from_device(device))
+            .map(AudioDevice::from_device)
             .collect::<Result<Vec<AudioDevice>, cpal::DeviceNameError>>()
             .map_err(|_| AudioIOServiceError::DeviceNameError)?;
         Ok(devices_vec)
@@ -54,7 +54,7 @@ impl AudioIOService {
             .output_devices()
             .map_err(|_| AudioIOServiceError::DevicesError)?;
         let devices_vec = devices
-            .map(|device| AudioDevice::from_device(device))
+            .map(AudioDevice::from_device)
             .collect::<Result<Vec<AudioDevice>, cpal::DeviceNameError>>()
             .map_err(|_| AudioIOServiceError::DeviceNameError)?;
         Ok(devices_vec)

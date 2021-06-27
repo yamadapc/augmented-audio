@@ -34,9 +34,9 @@ impl Default for BufferSize {
     }
 }
 
-impl Into<cpal::BufferSize> for BufferSize {
-    fn into(self) -> cpal::BufferSize {
-        match self {
+impl From<BufferSize> for cpal::BufferSize {
+    fn from(value: BufferSize) -> Self {
+        match value {
             BufferSize::Default => cpal::BufferSize::Default,
             BufferSize::Fixed(size) => cpal::BufferSize::Fixed(size as u32),
         }

@@ -10,9 +10,9 @@ enum CellState {
     Loading = 3,
 }
 
-impl Into<i8> for CellState {
-    fn into(self) -> i8 {
-        match self {
+impl From<CellState> for i8 {
+    fn from(value: CellState) -> Self {
+        match value {
             CellState::Empty => 0,
             CellState::Storing => 1,
             CellState::Stored => 2,
@@ -71,7 +71,7 @@ impl<T> Queue<T> {
             head = self.head.load(Ordering::Relaxed);
         }
         self.do_push(element, head);
-        return true;
+        true
     }
 
     pub fn pop(&self) -> Option<*mut T> {
@@ -113,7 +113,7 @@ impl<T> Queue<T> {
                 )
                 .is_ok()
             {
-                let element = self.elements[tail].clone();
+                let element = self.elements[tail];
                 state.store(CellState::Empty.into(), Ordering::Release);
                 return element;
             }
@@ -150,6 +150,10 @@ impl<T> Queue<T> {
                 return;
             }
         }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
     }
 
     pub fn len(&self) -> usize {

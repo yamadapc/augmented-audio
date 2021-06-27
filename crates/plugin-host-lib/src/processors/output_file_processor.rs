@@ -1,6 +1,5 @@
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::AudioProcessorSettings;
 use std::{fs, io};
-use symphonia::core::probe::ProbeResult;
 
 pub struct OutputFileSettings {
     audio_file_path: String,
@@ -49,9 +48,10 @@ impl OutputAudioFileProcessor {
     }
 
     pub fn process(&mut self, data: &mut [f32]) {
-        if let Some(mut writer) = self.writer.as_mut() {
+        if let Some(writer) = self.writer.as_mut() {
             for sample in data {
-                writer.write_sample(*sample);
+                let _ = writer.write_sample(*sample);
+                // TODO - Handle errors here
             }
         }
     }

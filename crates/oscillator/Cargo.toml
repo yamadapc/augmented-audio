@@ -13,9 +13,6 @@ cpal = "^0.13.3"
 criterion = "0.3"
 plotters = "^0.3.1"
 
-[profile.bench]
-debug = true
-
 [[bench]]
 name = "sine_oscillator_benchmark"
 harness = false

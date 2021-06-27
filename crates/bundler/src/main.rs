@@ -74,7 +74,7 @@ fn generate(config_path: &str, output_path: &str) {
         .bundle
         .name
         .clone()
-        .unwrap_or(toml_file.package.name.to_string());
+        .unwrap_or_else(|| toml_file.package.name.to_string());
 
     log::info!("Building package plist");
     let plist_file = build_plist(&name, &toml_file);
@@ -131,8 +131,7 @@ fn build_plist(name: &str, toml_file: &CargoToml) -> plist::Value {
         String::from("CFBundleDevelopmentRegion"),
         plist::Value::from("English"),
     );
-    let plist_file = plist::Value::Dictionary(plist_file);
-    plist_file
+    plist::Value::Dictionary(plist_file)
 }
 
 fn main() {
