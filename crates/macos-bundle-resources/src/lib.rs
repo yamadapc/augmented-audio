@@ -42,6 +42,18 @@ pub fn has_main_bundle() -> bool {
     }
 }
 
+pub fn has_bundle(bundle_identifier: &str) -> bool {
+    unsafe {
+        let bundle_identifier = make_cfstring(bundle_identifier);
+        if let Some(bundle_identifier) = bundle_identifier {
+            let bundle = CFBundleGetBundleWithIdentifier(bundle_identifier);
+            bundle != std::ptr::null_mut()
+        } else {
+            false
+        }
+    }
+}
+
 fn str_from_cfstring(url_cfstring: CFStringRef) -> Option<String> {
     unsafe {
         let length = CFStringGetLength(url_cfstring) + 1;

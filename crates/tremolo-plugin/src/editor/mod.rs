@@ -7,6 +7,7 @@ use serde::Serialize;
 use vst::editor::Editor;
 
 use audio_parameter_store::ParameterStore;
+use macos_bundle_resources::has_bundle;
 use webview_holder::WebviewHolder;
 use webview_transport::webkit::WebkitTransport;
 use webview_transport::{
@@ -15,7 +16,6 @@ use webview_transport::{
 
 use crate::constants::{BUNDLE_IDENTIFIER, INDEX_HTML_RESOURCE};
 use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
-use macos_bundle_resources::has_main_bundle;
 
 pub mod handlers;
 pub mod protocol;
@@ -81,7 +81,7 @@ impl TremoloEditor {
         {
             let mut webview = self.webview.as_mut().unwrap().lock().unwrap();
 
-            if !has_main_bundle() {
+            if !has_bundle(BUNDLE_IDENTIFIER) {
                 log::warn!(
                     "Plug-in does not have main bundle. Will be unable to run in production mode."
                 );
