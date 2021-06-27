@@ -1,46 +1,8 @@
 use std::path::Path;
 
-use serde::{Deserialize, Serialize};
-use toml::map::Map;
-use toml::Value;
+use manifests::CargoToml;
 
-#[derive(Debug, Serialize, Deserialize)]
-struct MacOsBundleMetadata {
-    properties: Map<String, Value>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct BundleMetadata {
-    name: Option<String>,
-    identifier: String,
-    macos: Option<MacOsBundleMetadata>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct CargoTomlPackageMetadata {
-    bundle: BundleMetadata,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct CargoTomlPackage {
-    name: String,
-    description: String,
-    version: String,
-    metadata: CargoTomlPackageMetadata,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "kebab-case")]
-struct CargoLib {
-    name: String,
-    crate_type: Vec<String>,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct CargoToml {
-    package: CargoTomlPackage,
-    lib: CargoLib,
-}
+mod manifests;
 
 fn find_target(config_path: &str, cargo_package: &CargoToml) -> Option<String> {
     let config_path = std::fs::canonicalize(Path::new(config_path)).ok()?;
@@ -79,14 +41,14 @@ fn generate(config_path: &str, output_path: &str) {
     log::info!("Building package plist");
     let plist_file = build_plist(&name, &toml_file);
 
-    let output_path = Path::new(output_path);
+    let output_path = Path::new(output_path).canonicalize().unwrap();
     if output_path.exists() {
-        log::error!(
-            "Can't create at {}. Path already exists.",
+        log::warn!(
+            "Can't create at {}. Path already exists. Will try to continue.",
             output_path.to_str().unwrap()
         );
     }
-    std::fs::create_dir_all(output_path).expect("Failed to create directory");
+    std::fs::create_dir_all(&output_path).expect("Failed to create directory");
     std::fs::create_dir_all(output_path.join("Contents")).expect("Failed to create directory");
     std::fs::create_dir_all(output_path.join("Contents/MacOS"))
         .expect("Failed to create directory");
@@ -96,10 +58,15 @@ fn generate(config_path: &str, output_path: &str) {
         .to_file_xml(plist_path)
         .expect("Failed to write plist file");
 
-    log::info!("Copying binary library");
-    let binary_path = output_path.join(format!("Contents/MacOS/{}", name));
-    let target_path = find_target(config_path, &toml_file).expect("Couldn't find the target dylib");
-    std::fs::copy(target_path, binary_path).expect("Failed to copy binary lib");
+    let source_dylib_path =
+        find_target(config_path, &toml_file).expect("Couldn't find the target dylib");
+    let target_dylib_path = output_path.join(format!("Contents/MacOS/{}", name));
+    log::info!(
+        "Copying binary library from {} to {}",
+        &source_dylib_path,
+        target_dylib_path.to_str().unwrap(),
+    );
+    std::fs::copy(source_dylib_path, target_dylib_path).expect("Failed to copy binary lib");
 }
 
 fn build_plist(name: &str, toml_file: &CargoToml) -> plist::Value {
@@ -142,15 +109,15 @@ fn main() {
         .author("Pedro Tacla Yamada <tacla.yamada@gmail.com>")
         .about("Package Rust plug-ins")
         .arg(clap::Arg::from_usage(
-            "-p,--package=<PACKAGE> 'Package to bundle'",
+            "-c,--config=<PACKAGE_CARGO_TOML> 'Cargo.toml PATH for the package to bundle'",
         ))
         .arg(clap::Arg::from_usage(
             "-o,--output=<OUTPUT_PATH> 'Where to write the plug-in into'",
         ));
     let matches = app.get_matches();
     let config_path = matches
-        .value_of("package")
-        .expect("Expected package (--package=...)");
+        .value_of("config")
+        .expect("Expected Cargo.toml filepath (--config=...)");
     let output_path = matches
         .value_of("output")
         .expect("Expected output path (--output=...)");
