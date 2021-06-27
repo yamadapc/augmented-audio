@@ -217,7 +217,17 @@ Benchmarks using `criterion` will be slowly added. In order to run benchmarks us
 cargo bench
 ```
 
+#### Profiling on macOS
+> https://crates.io/crates/cargo-instruments
+
+```shell
+cd ./crates/oscillator
+cargo instruments -t time --bench sine_oscillator_benchmark -- --bench
+```
+
 #### Generating flamegraphs from benchmarks
+> **NOTE** I couldn't get this to work on macOS
+
 Flamegraphs can be generated using `cargo-flamegraph`:
 ```shell
 cargo install flamegraph
