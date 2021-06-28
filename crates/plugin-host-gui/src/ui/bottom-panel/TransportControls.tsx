@@ -24,6 +24,10 @@ const TransportButton = styled.button({
   justifyContent: "center",
   transition: "all ease-out 0.1s",
 
+  "&:hover": {
+    opacity: 0.7,
+  },
+
   "&:active": {
     opacity: 0.5,
   },

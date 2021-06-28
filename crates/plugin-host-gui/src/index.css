@@ -15,6 +15,22 @@ body {
   overflow: hidden;
 }
 
+div,
+label {
+  cursor: default;
+  user-select: none;
+}
+
+button {
+  user-select: none;
+}
+
+button,
+select {
+  user-select: none;
+  cursor: pointer;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
