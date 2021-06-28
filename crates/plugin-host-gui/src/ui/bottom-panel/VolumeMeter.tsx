@@ -1,6 +1,6 @@
 import React, {useEffect, useRef} from "react";
 import {invoke} from "@tauri-apps/api/tauri";
-import {BORDER_COLOR} from "../constants";
+import {BORDER_COLOR, GREEN, MEDIUM_GRAY} from "../constants";
 
 export function VolumeMeter() {
   const width = 20;
@@ -44,7 +44,7 @@ export function VolumeMeter() {
   return (
     <div
       style={{
-        backgroundColor: "#262626",
+        backgroundColor: MEDIUM_GRAY,
         border: `solid 1px ${BORDER_COLOR}`,
         height: height,
         display: "inline-flex",
@@ -55,7 +55,7 @@ export function VolumeMeter() {
       <div
         ref={boxLeft}
         style={{
-          backgroundColor: "#59b647",
+          backgroundColor: GREEN,
           height: height,
           width: barWidth,
           willChange: "transform",
@@ -68,7 +68,7 @@ export function VolumeMeter() {
       <div style={{ width: 5 }} />
       <div
         style={{
-          backgroundColor: "#59b647",
+          backgroundColor: GREEN,
           height: height,
           width: barWidth,
           willChange: "transform",

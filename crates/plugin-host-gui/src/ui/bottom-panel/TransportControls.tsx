@@ -1,9 +1,9 @@
-import React, { useCallback } from "react";
+import React, {useCallback} from "react";
 import styled from "styled-components";
-import { Triangle } from "./Triangle";
-import { Pause } from "./Pause";
-import { Square } from "./Square";
-import { invoke } from "@tauri-apps/api/tauri";
+import {Triangle} from "./Triangle";
+import {Pause} from "./Pause";
+import {Square} from "./Square";
+import {invoke} from "@tauri-apps/api/tauri";
 
 const TransportContainer = styled.div({
   display: "flex",

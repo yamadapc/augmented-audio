@@ -1,7 +1,7 @@
 import React, {useMemo} from "react";
 import Select, {ActionMeta, GroupTypeBase} from "react-select";
 import styled from "styled-components";
-import {BORDER_COLOR} from "../constants";
+import {ACTIVE_BORDER_COLOR, BLACK, BORDER_COLOR, LIGHT_GRAY, MEDIUM_GRAY,} from "../constants";
 import {StylesConfig} from "react-select/src/styles";
 
 export const SelectWrapper = styled.div({
@@ -29,7 +29,7 @@ interface Props<T> {
   label: string;
   options: OptionType<T>[];
   value: T | null;
-  onChange: (value: OptionType<T> | null) => void;
+  onChange: (value: OptionType<T>) => void;
 }
 
 function getReactSelectStyles<T>(): StylesConfig<
@@ -40,25 +40,25 @@ function getReactSelectStyles<T>(): StylesConfig<
   return {
     option: (base) => ({
       ...base,
-      background: "#131313",
-      border: "solid 1px #232323",
+      background: BLACK,
+      border: `solid 1px ${MEDIUM_GRAY}`,
       borderBottom: `solid 1px ${BORDER_COLOR}`,
       "&:hover": {
-        background: "#313030",
-        border: "solid 1px #00e1ff",
+        background: LIGHT_GRAY,
+        border: `solid 1px ${ACTIVE_BORDER_COLOR}`,
       },
     }),
     control: (base, props) => ({
       ...base,
-      background: "#131313",
+      background: BLACK,
       borderRadius: 0,
       border: props.menuIsOpen
-        ? "solid 1px #00e1ff"
+        ? `solid 1px ${ACTIVE_BORDER_COLOR}`
         : `solid 1px ${BORDER_COLOR}`,
       outline: "none",
       "&hover": {
         border: props.menuIsOpen
-          ? "solid 1px #00e1ff"
+          ? `solid 1px ${ACTIVE_BORDER_COLOR}`
           : `solid 1px ${BORDER_COLOR}`,
       },
     }),
@@ -84,7 +84,7 @@ function getReactSelectStyles<T>(): StylesConfig<
       margin: 0,
       padding: 0,
       "&:focus": {
-        border: "solid 1px #00e1ff",
+        border: `solid 1px ${ACTIVE_BORDER_COLOR}`,
       },
     }),
   };
@@ -100,7 +100,7 @@ export function HostSelect<T>({ label, options, value, onChange }: Props<T>) {
   const onChangeCallback = (
     value: OptionType<T> | null,
     _meta: ActionMeta<OptionType<T>>
-  ) => onChange(value);
+  ) => value != null && onChange(value);
 
   return (
     <SelectWrapper>
