@@ -171,17 +171,45 @@ impl TestPluginHost {
         Ok(instance)
     }
 
-    pub fn current_volume(&self) -> (f32, f32) {
+    fn host_processor(&self) -> Option<&TestHostProcessor> {
         self.processor
             .as_ref()
             .map(|processor| {
                 if let AudioThreadProcessor::Active(host) = processor.deref() {
-                    host.current_output_volume()
+                    Some(host)
                 } else {
-                    (0.0, 0.0)
+                    None
                 }
             })
+            .flatten()
+    }
+
+    pub fn current_volume(&self) -> (f32, f32) {
+        self.host_processor()
+            .map(|p| p.current_output_volume())
             .unwrap_or((0.0, 0.0))
+    }
+
+    /// Resume playback
+    pub fn play(&self) {
+        self.host_processor().map(|p| p.play());
+    }
+
+    /// Pause playback
+    pub fn pause(&self) {
+        self.host_processor().map(|p| p.pause());
+    }
+
+    /// Stop playback and go back to the start of the file
+    pub fn stop(&self) {
+        self.host_processor().map(|p| p.stop());
+    }
+
+    /// Whether the file is being played back
+    pub fn is_playing(&self) -> bool {
+        self.host_processor()
+            .map(|p| p.is_playing())
+            .unwrap_or(false)
     }
 
     pub fn plugin_instance(&mut self) -> Option<SharedProcessor<PluginInstance>> {

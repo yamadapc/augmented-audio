@@ -15,6 +15,7 @@ use audio_processor_traits::AudioProcessorSettings;
 use convert_sample_rate::convert_sample_rate;
 
 use crate::timer;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 #[derive(Error, Debug)]
 pub enum AudioFileError {
@@ -105,8 +106,9 @@ impl AudioFileSettings {
 pub struct AudioFileProcessor {
     audio_file_settings: AudioFileSettings,
     audio_settings: AudioProcessorSettings,
-    audio_file_cursor: usize,
     buffer: Vec<Vec<f32>>,
+    audio_file_cursor: AtomicUsize,
+    is_playing: AtomicBool,
 }
 
 impl AudioFileProcessor {
@@ -125,11 +127,34 @@ impl AudioFileProcessor {
         AudioFileProcessor {
             audio_file_settings,
             audio_settings,
-            audio_file_cursor: 0,
             buffer: Vec::new(),
+            audio_file_cursor: AtomicUsize::new(0),
+            is_playing: AtomicBool::new(true),
         }
     }
 
+    /// Resume playback
+    pub fn play(&self) {
+        self.is_playing.store(true, Ordering::Relaxed);
+    }
+
+    /// Pause playback
+    pub fn pause(&self) {
+        self.is_playing.store(false, Ordering::Relaxed);
+    }
+
+    /// Stop playback and go back to the start of the file
+    pub fn stop(&self) {
+        self.is_playing.store(false, Ordering::Relaxed);
+        self.audio_file_cursor.store(0, Ordering::Relaxed);
+    }
+
+    /// Whether the file is being played back
+    pub fn is_playing(&self) -> bool {
+        self.is_playing.load(Ordering::Relaxed)
+    }
+
+    /// Unsafe get buffer for offline rendering
     pub fn buffer(&self) -> &Vec<Vec<f32>> {
         &self.buffer
     }
@@ -181,18 +206,37 @@ impl AudioFileProcessor {
     pub fn process(&mut self, data: &mut [f32]) {
         let num_channels = self.audio_settings.input_channels();
 
+        let is_playing = self.is_playing.load(Ordering::Relaxed);
+
+        if !is_playing {
+            for output in data {
+                *output = 0.0;
+            }
+            return;
+        }
+
+        let start_cursor = self.audio_file_cursor.load(Ordering::Relaxed);
+        let mut audio_file_cursor = start_cursor;
+
         for frame in data.chunks_mut(num_channels) {
             for (channel, sample) in frame.iter_mut().enumerate() {
-                let audio_input = self.buffer[channel][self.audio_file_cursor];
+                let audio_input = self.buffer[channel][audio_file_cursor];
                 let value = audio_input;
                 *sample = value;
             }
 
-            self.audio_file_cursor += 1;
-            if self.audio_file_cursor >= self.buffer[0].len() {
-                self.audio_file_cursor = 0;
+            audio_file_cursor += 1;
+            if audio_file_cursor >= self.buffer[0].len() {
+                audio_file_cursor = 0;
             }
         }
+
+        let _ = self.audio_file_cursor.compare_exchange(
+            start_cursor,
+            audio_file_cursor,
+            Ordering::Relaxed,
+            Ordering::Relaxed,
+        );
     }
 }
 

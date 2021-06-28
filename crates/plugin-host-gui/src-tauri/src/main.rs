@@ -43,6 +43,9 @@ fn main() {
       list_hosts_command,
       subscribe_to_volume_command,
       unsubscribe_to_volume_command,
+      play_command,
+      pause_command,
+      stop_command,
     ])
     .menu(menus)
     .run(tauri::generate_context!())

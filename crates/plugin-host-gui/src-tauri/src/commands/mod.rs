@@ -69,3 +69,24 @@ pub fn set_plugin_path_command(state: tauri::State<AppState>, path: String) {
   log::info!("Setting plugin path {}", path);
   state.set_plugin_path(path);
 }
+
+#[tauri::command]
+pub fn play_command(state: tauri::State<AppState>) {
+  let host = state.host();
+  let host = host.lock().unwrap();
+  host.play();
+}
+
+#[tauri::command]
+pub fn pause_command(state: tauri::State<AppState>) {
+  let host = state.host();
+  let host = host.lock().unwrap();
+  host.pause();
+}
+
+#[tauri::command]
+pub fn stop_command(state: tauri::State<AppState>) {
+  let host = state.host();
+  let host = host.lock().unwrap();
+  host.stop();
+}

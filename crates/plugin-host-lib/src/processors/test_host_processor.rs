@@ -45,6 +45,26 @@ impl TestHostProcessor {
     pub fn current_output_volume(&self) -> (f32, f32) {
         self.volume_meter_processor.current_volume()
     }
+
+    /// Resume playback
+    pub fn play(&self) {
+        self.audio_file_processor.play();
+    }
+
+    /// Pause playback
+    pub fn pause(&self) {
+        self.audio_file_processor.pause();
+    }
+
+    /// Stop playback and go back to the start of the file
+    pub fn stop(&self) {
+        self.audio_file_processor.stop();
+    }
+
+    /// Whether the file is being played back
+    pub fn is_playing(&self) -> bool {
+        self.audio_file_processor.is_playing()
+    }
 }
 
 impl AudioProcessor for TestHostProcessor {
