@@ -24,6 +24,13 @@ const Button = styled.button({
   fontSize: 16,
   padding: 10,
   width: "100%",
+  transition: "all ease-out 0.1s",
+  "&:hover": {
+    opacity: 0.7,
+  },
+  "&:active": {
+    opacity: 0.5,
+  },
 });
 
 export function ContentPanel() {
