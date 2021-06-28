@@ -1,7 +1,7 @@
-import { act, render } from "@testing-library/react";
-import { invoke } from "@tauri-apps/api/tauri";
-import { useCommand } from "./useCommand";
-import { castMock } from "../utils/testUtils";
+import {act, render} from "@testing-library/react";
+import {invoke} from "@tauri-apps/api/tauri";
+import {useCommandQuery} from "./useCommandQuery";
+import {castMock} from "../utils/testUtils";
 
 jest.mock("@tauri-apps/api/tauri", () => ({
   invoke: jest.fn(),
@@ -9,7 +9,7 @@ jest.mock("@tauri-apps/api/tauri", () => ({
 
 const invokeMock = castMock(invoke);
 
-describe("useCommand", () => {
+describe("useCommandQuery", () => {
   it("will call tauri commands on mount", async () => {
     const mockData = { s: true };
     invokeMock.mockReturnValue(Promise.resolve(mockData));
@@ -19,7 +19,7 @@ describe("useCommand", () => {
       onRenderCallArg = r;
     });
     const MockComponent = () => {
-      const result = useCommand("command");
+      const result = useCommandQuery("command");
       onRender(result);
       return null;
     };
@@ -50,7 +50,7 @@ describe("useCommand", () => {
 
     const onRender = jest.fn();
     const MockComponent = () => {
-      const result = useCommand("command", { skip: true, args: {} });
+      const result = useCommandQuery("command", { skip: true, args: {} });
       onRender(result);
       return null;
     };

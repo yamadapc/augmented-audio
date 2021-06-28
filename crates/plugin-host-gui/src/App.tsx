@@ -1,15 +1,16 @@
-import React, { useState } from "react";
+import React, {useCallback, useState} from "react";
 import "./App.css";
-import { HostSelect } from "./ui/HostSelect";
-import { Header } from "./ui/Header";
-import { useCommand } from "./services/useCommand";
-import { DevicesList } from "./model";
-import { BottomPanel } from "./ui/BottomPanel";
-import { ContentPanel } from "./ui/ContentPanel";
+import {HostSelect, OptionType} from "./ui/common/HostSelect";
+import {Header} from "./ui/header/Header";
+import {useCommandQuery} from "./services/useCommandQuery";
+import {DevicesList} from "./model";
+import {BottomPanel} from "./ui/bottom-panel/BottomPanel";
+import {ContentPanel} from "./ui/content/ContentPanel";
 import styled from "styled-components";
-import { Container } from "./ui/Container";
-import { BORDER_COLOR } from "./ui/constants";
-import { invoke } from "@tauri-apps/api/tauri";
+import {Container} from "./ui/Container";
+import {BORDER_COLOR} from "./ui/constants";
+import {invoke} from "@tauri-apps/api/tauri";
+import {useLogger} from "@wisual/logger";
 
 const BodyLayoutContainer = styled.div({
   display: "flex",
@@ -27,8 +28,11 @@ const HeaderContainer = styled(Container)({
 });
 
 function App() {
-  const { data: devicesList } = useCommand<DevicesList>("list_devices_command");
-  const { data: hostList } = useCommand<string[]>("list_hosts_command");
+  const logger = useLogger("App");
+  const { data: devicesList } = useCommandQuery<DevicesList>(
+    "list_devices_command"
+  );
+  const { data: hostList } = useCommandQuery<string[]>("list_hosts_command");
   const hostOptions =
     hostList?.map((host) => ({ value: host, label: host })) ?? [];
   const inputDeviceOptions =
@@ -41,12 +45,49 @@ function App() {
       value: device.name,
       label: device.name,
     })) ?? [];
-  // @ts-ignore
-  const [host, setHost] = useState();
-  // @ts-ignore
-  const [inputDevice, setInputDevice] = useState();
-  // @ts-ignore
-  const [outputDevice, setOutputDevice] = useState();
+  const [host, setHost] = useState<string | null>(null);
+  const [inputDevice, setInputDevice] = useState<string | null>(null);
+  const [outputDevice, setOutputDevice] = useState<string | null>(null);
+
+  const onChangeInputDevice = useCallback(
+    (option: OptionType<string> | null) => {
+      const value = option?.value;
+      if (value == null) {
+        return;
+      }
+      setInputDevice(value);
+      invoke("set_input_device_command", {
+        inputDeviceId: value,
+      }).catch((err) => logger.error(err));
+    },
+    [setInputDevice, logger]
+  );
+  const onChangeOutputDevice = useCallback(
+    (option: OptionType<string> | null) => {
+      const value = option?.value;
+      if (value == null) {
+        return;
+      }
+      setOutputDevice(value);
+      invoke("set_output_device_command", {
+        outputDeviceId: value,
+      }).catch((err) => logger.error(err));
+    },
+    [setOutputDevice, logger]
+  );
+  const onChangeAudioDriver = useCallback(
+    (option: OptionType<string> | null) => {
+      const value = option?.value;
+      if (value == null) {
+        return;
+      }
+      setHost(value);
+      invoke("set_audio_driver_command", { hostId: value }).catch((err) =>
+        logger.error(err)
+      );
+    },
+    [setHost, logger]
+  );
 
   return (
     <div className="App">
@@ -59,38 +100,19 @@ function App() {
             label="Audio driver"
             options={hostOptions}
             value={host}
-            onChange={(v) => {
-              // @ts-ignore
-              setHost(v?.value);
-              invoke("set_audio_driver_command", { hostId: v?.value }).catch(
-                (err) => console.error(err)
-              );
-            }}
+            onChange={onChangeAudioDriver}
           />
           <HostSelect
             label="Input device"
             options={inputDeviceOptions}
             value={inputDevice}
-            onChange={(v) => {
-              console.log(v);
-              // @ts-ignore
-              setInputDevice(v?.value);
-              invoke("set_input_device_command", {
-                inputDeviceId: v?.value,
-              }).catch((err) => console.error(err));
-            }}
+            onChange={onChangeInputDevice}
           />
           <HostSelect
             label="Output device"
             options={outputDeviceOptions}
             value={outputDevice}
-            onChange={(v) => {
-              // @ts-ignore
-              setOutputDevice(v?.value);
-              invoke("set_output_device_command", {
-                outputDeviceId: v?.value,
-              }).catch((err) => console.error(err));
-            }}
+            onChange={onChangeOutputDevice}
           />
         </Container>
       </AudioIOContainer>

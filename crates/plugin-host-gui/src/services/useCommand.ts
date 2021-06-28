@@ -1,45 +1,23 @@
-import { useEffect, useState } from "react";
-import { invoke, InvokeArgs } from "@tauri-apps/api/tauri";
+import {invoke} from "@tauri-apps/api/tauri";
+import {useCallback} from "react";
+import {useLogger} from "@wisual/logger";
 
-interface CommandState<T> {
-  loading: boolean;
-  data: null | T;
-  error: null | Error;
-}
+export function useCommandInvoke(command: string) {
+  const logger = useLogger(`use-command:${command}`);
+  const callback = useCallback(() => {
+    const promise = invoke(command);
+    logger.info(`Calling ${command}...`, { command });
 
-interface UseCommandParams {
-  skip: boolean;
-  args: InvokeArgs;
-}
+    promise
+      .then(() => {
+        logger.info(`${command} finished`, { command });
+      })
+      .catch((err) => {
+        logger.error(`${command} failed`, { command, err });
+      });
 
-export function useCommand<T>(
-  command: string,
-  params?: UseCommandParams
-): CommandState<T> {
-  const [state, setState] = useState<CommandState<T>>({
-    loading: !params?.skip,
-    data: null,
-    error: null,
-  });
+    return promise;
+  }, [logger, command]);
 
-  useEffect(() => {
-    if (params?.skip) {
-      return;
-    }
-
-    const run = async () => {
-      setState((state) =>
-        state.loading ? state : { ...state, loading: true }
-      );
-      const result = await invoke<T>(command, params?.args);
-
-      setState({ error: null, data: result, loading: false });
-    };
-
-    run().catch((err) => {
-      setState((state) => ({ error: err, data: state.data, loading: false }));
-    });
-  }, [command, params?.args, params?.skip]);
-
-  return state;
+  return callback;
 }

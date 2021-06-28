@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
-import { BORDER_COLOR } from "./constants";
+import React, {useEffect, useRef} from "react";
+import {invoke} from "@tauri-apps/api/tauri";
+import {BORDER_COLOR} from "../constants";
 
 export function VolumeMeter() {
   const width = 20;

@@ -1,8 +1,8 @@
+import React, {useMemo} from "react";
+import Select, {ActionMeta, GroupTypeBase} from "react-select";
 import styled from "styled-components";
-import Select, { ActionMeta, GroupTypeBase } from "react-select";
-import React, { useMemo } from "react";
-import { StylesConfig } from "react-select/src/styles";
-import { BORDER_COLOR } from "./constants";
+import {BORDER_COLOR} from "../constants";
+import {StylesConfig} from "react-select/src/styles";
 
 export const SelectWrapper = styled.div({
   userSelect: "none",
@@ -23,12 +23,12 @@ const SelectExpand = styled.div({
   flex: 1,
 });
 
-type OptionType<T> = { label: string; value: T };
+export type OptionType<T> = { label: string; value: T };
 
 interface Props<T> {
   label: string;
   options: OptionType<T>[];
-  value: T;
+  value: T | null;
   onChange: (value: OptionType<T> | null) => void;
 }
 

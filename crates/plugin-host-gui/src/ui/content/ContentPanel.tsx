@@ -1,9 +1,9 @@
-import { open as openDialog } from "@tauri-apps/api/dialog";
-import { invoke } from "@tauri-apps/api/tauri";
+import {open as openDialog} from "@tauri-apps/api/dialog";
+import {invoke} from "@tauri-apps/api/tauri";
 import React from "react";
 import styled from "styled-components";
-import { BORDER_COLOR } from "./constants";
-import { useLogger } from "@wisual/logger";
+import {BORDER_COLOR} from "../constants";
+import {useLogger} from "@wisual/logger";
 
 const ContentPanelContainer = styled.div({
   flex: 1,

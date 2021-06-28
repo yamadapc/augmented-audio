@@ -1,8 +1,8 @@
-import {VolumeMeter} from "./VolumeMeter";
 import React from "react";
 import styled from "styled-components";
-import {BORDER_COLOR} from "./constants";
+import {BORDER_COLOR} from "../constants";
 import {TransportControls} from "./TransportControls";
+import {VolumeMeter} from "./VolumeMeter";
 
 const BottomPanelContainer = styled.div({
   display: "flex",
