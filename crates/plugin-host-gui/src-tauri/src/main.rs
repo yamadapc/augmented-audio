@@ -3,6 +3,8 @@
   windows_subsystem = "windows"
 )]
 
+use std::sync::{Arc, Mutex};
+
 use tauri::{Menu, MenuItem};
 
 use app_state::AppState;
@@ -10,6 +12,7 @@ use commands::*;
 
 mod app_state;
 mod commands;
+mod models;
 mod volume_publisher;
 
 fn main() {
@@ -32,7 +35,7 @@ fn main() {
   )];
 
   tauri::Builder::default()
-    .manage(AppState::new(plugin_host))
+    .manage(Arc::new(Mutex::new(AppState::new(plugin_host))))
     .invoke_handler(tauri::generate_handler![
       set_audio_driver_command,
       set_input_device_command,

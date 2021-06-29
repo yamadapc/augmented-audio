@@ -1,10 +1,15 @@
+use std::sync::{Arc, Mutex};
+
 use cpal::traits::HostTrait;
 use serde::Serialize;
 use thiserror::Error;
 
-pub use responses::*;
+pub use models::*;
 
-pub mod responses;
+use crate::audio_io::audio_thread::options::AudioDeviceId;
+use crate::TestPluginHost;
+
+pub mod models;
 
 #[derive(Error, Debug, Serialize)]
 pub enum AudioIOServiceError {
@@ -14,14 +19,82 @@ pub enum AudioIOServiceError {
     DevicesError,
     #[error("Failed to get device name")]
     DeviceNameError,
+    #[error("Failed to perform audio thread changes")]
+    AudioThreadError,
 }
 
 pub type AudioIOServiceResult<T> = Result<T, AudioIOServiceError>;
 
-pub struct AudioIOService {}
+pub struct AudioIOService {
+    host: Arc<Mutex<TestPluginHost>>,
+    state: AudioIOState,
+}
 
 impl AudioIOService {
-    pub fn hosts() -> Vec<String> {
+    pub fn new(host: Arc<Mutex<TestPluginHost>>) -> Self {
+        AudioIOService {
+            host,
+            state: AudioIOState {
+                host: Self::default_host(),
+                input_device: Self::default_input_device(),
+                output_device: Self::default_output_device(),
+            },
+        }
+    }
+}
+
+impl AudioIOService {
+    pub fn state(&self) -> &AudioIOState {
+        &self.state
+    }
+
+    pub fn set_host_id(&mut self, host_id: String) {
+        self.state.host = host_id;
+    }
+
+    pub fn set_input_device_id(&mut self, input_device_id: String) {
+        self.state.input_device = Some(AudioDevice::new(input_device_id));
+    }
+
+    pub fn set_output_device_id(
+        &mut self,
+        output_device_id: String,
+    ) -> Result<(), AudioIOServiceError> {
+        let mut host = self.host.lock().unwrap();
+        let result = host
+            .set_output_device_id(AudioDeviceId::Id(output_device_id.clone()))
+            .map_err(|err| {
+                log::error!("Failed to set output device {}", err);
+                AudioIOServiceError::AudioThreadError
+            })?;
+        self.state.input_device = Some(AudioDevice::new(output_device_id));
+        Ok(result)
+    }
+
+    pub fn default_input_device() -> Option<AudioDevice> {
+        let host = cpal::default_host();
+        let input_device = host.default_input_device();
+
+        input_device
+            .map(|d| AudioDevice::from_device(d).ok())
+            .flatten()
+    }
+
+    pub fn default_output_device() -> Option<AudioDevice> {
+        let host = cpal::default_host();
+        let input_device = host.default_output_device();
+
+        input_device
+            .map(|d| AudioDevice::from_device(d).ok())
+            .flatten()
+    }
+
+    pub fn default_host() -> AudioHost {
+        let host = cpal::default_host();
+        host.id().name().to_string()
+    }
+
+    pub fn hosts() -> Vec<AudioHost> {
         log::info!("Listing hosts");
         let hosts = cpal::available_hosts();
         hosts
@@ -30,13 +103,13 @@ impl AudioIOService {
             .collect()
     }
 
-    pub fn devices_list(host_id: Option<String>) -> AudioIOServiceResult<DevicesList> {
+    pub fn devices_list(host_id: Option<AudioHost>) -> AudioIOServiceResult<DevicesList> {
         let inputs = Self::input_devices(host_id.clone())?;
         let outputs = Self::output_devices(host_id)?;
         Ok(DevicesList::new(inputs, outputs))
     }
 
-    pub fn input_devices(host_id: Option<String>) -> AudioIOServiceResult<Vec<AudioDevice>> {
+    pub fn input_devices(host_id: Option<AudioHost>) -> AudioIOServiceResult<Vec<AudioDevice>> {
         let host = AudioIOService::host(&host_id)?;
         let devices = host
             .input_devices()
@@ -48,7 +121,7 @@ impl AudioIOService {
         Ok(devices_vec)
     }
 
-    pub fn output_devices(host_id: Option<String>) -> AudioIOServiceResult<Vec<AudioDevice>> {
+    pub fn output_devices(host_id: Option<AudioHost>) -> AudioIOServiceResult<Vec<AudioDevice>> {
         let host = AudioIOService::host(&host_id)?;
         let devices = host
             .output_devices()
@@ -60,7 +133,7 @@ impl AudioIOService {
         Ok(devices_vec)
     }
 
-    pub(crate) fn host(host_id: &Option<String>) -> AudioIOServiceResult<cpal::Host> {
+    pub fn host(host_id: &Option<AudioHost>) -> AudioIOServiceResult<cpal::Host> {
         let host_id = host_id
             .as_ref()
             .map(|host_id| {

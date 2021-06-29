@@ -1,10 +1,12 @@
 use cpal::traits::DeviceTrait;
 use cpal::Device;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
+pub type AudioHost = String;
+
+#[derive(Serialize, Deserialize)]
 pub struct AudioDevice {
-    name: String,
+    pub name: String,
 }
 
 impl AudioDevice {
@@ -17,11 +19,11 @@ impl AudioDevice {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DevicesList {
-    input_devices: Vec<AudioDevice>,
-    output_devices: Vec<AudioDevice>,
+    pub input_devices: Vec<AudioDevice>,
+    pub output_devices: Vec<AudioDevice>,
 }
 
 impl DevicesList {
@@ -31,4 +33,12 @@ impl DevicesList {
             output_devices,
         }
     }
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AudioIOState {
+    pub host: AudioHost,
+    pub input_device: Option<AudioDevice>,
+    pub output_device: Option<AudioDevice>,
 }
