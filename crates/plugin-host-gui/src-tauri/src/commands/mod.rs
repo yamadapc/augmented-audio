@@ -27,7 +27,7 @@ pub fn list_hosts_command() -> Vec<String> {
   AudioIOService::hosts()
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn subscribe_to_volume_command(state: tauri::State<AppStateRef>, window: Window) -> String {
   log::info!("Setting-up fake volume event emitter");
   let mut state = state.inner().lock().unwrap();
@@ -42,7 +42,7 @@ pub fn subscribe_to_volume_command(state: tauri::State<AppStateRef>, window: Win
   })
 }
 
-#[tauri::command]
+#[tauri::command(async)]
 pub fn unsubscribe_to_volume_command(
   state: tauri::State<AppStateRef>,
   subscriber_id: volume_publisher::ReceiverId,
