@@ -8,6 +8,7 @@ use plugin_host_lib::audio_io::{
 };
 
 use crate::app_state::AppStateRef;
+use crate::volume_publisher;
 
 #[derive(Serialize, Deserialize)]
 struct CommandError {
@@ -29,26 +30,26 @@ pub fn list_hosts_command() -> Vec<String> {
 #[tauri::command]
 pub fn subscribe_to_volume_command(state: tauri::State<AppStateRef>, window: Window) -> String {
   log::info!("Setting-up fake volume event emitter");
-  let state = state.inner().clone();
-  std::thread::spawn(move || loop {
-    let state = state.lock().unwrap();
-    let host = state.host().lock().unwrap();
-    let (volume_left, volume_right) = host.current_volume();
+  let mut state = state.inner().lock().unwrap();
+  let volume_publisher_service = state.volume_publisher_service();
+  volume_publisher_service.subscribe(move |volume| loop {
+    let (volume_left, volume_right) = volume;
     let js_string = format!(
       "window.volume1={};window.volume2={};",
       volume_left, volume_right
     );
     let _ = window.eval(&js_string);
-    std::thread::sleep(std::time::Duration::from_millis(50));
-  });
-  log::info!("Volume event loop will emit volume every 100ms");
-  String::from("")
+  })
 }
 
 #[tauri::command]
-pub fn unsubscribe_to_volume_command(_window: Window) {
-  // TODO implement unsubscribe
-  log::info!("Cleaning-up emitter");
+pub fn unsubscribe_to_volume_command(
+  state: tauri::State<AppStateRef>,
+  subscriber_id: volume_publisher::ReceiverId,
+) {
+  let mut state = state.inner().lock().unwrap();
+  let volume_publisher_service = state.volume_publisher_service();
+  volume_publisher_service.unsubscribe(&subscriber_id)
 }
 
 #[tauri::command]
