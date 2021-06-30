@@ -25,7 +25,6 @@ uuid = "^0.8.2"
 vst = "^0.2.1"
 tauri = { path = "../../tauri/core/tauri" }
 tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
-tao = { path = "./tao" }
 
 [features]
 default = [ "custom-protocol" ]

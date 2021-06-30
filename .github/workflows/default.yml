@@ -50,6 +50,8 @@ jobs:
         os: [macos-latest]
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - uses: actions/cache@v2
       with:
         path: |
@@ -88,6 +90,8 @@ jobs:
         os: [macos-latest]
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - uses: actions/cache@v2
         with:
           path: |
