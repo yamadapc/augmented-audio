@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@tauri-apps/api": "^1.0.0-beta.5",
+    "@tauri-apps/api": "1.0.0-beta.4",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.1.10",
@@ -48,7 +48,7 @@
     ]
   },
   "devDependencies": {
-    "@tauri-apps/cli": "^1.0.0-beta.5",
+    "@tauri-apps/cli": "1.0.0-beta.5",
     "@types/react-select": "^4.0.15",
     "@types/styled-components": "^5.1.10",
     "prettier": "^2.3.1"

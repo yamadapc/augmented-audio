@@ -6,7 +6,8 @@ members = [
 exclude = [
   "crates/plugin-host-gui",
   "crates/basedrop",
-  "crates/darwin-webkit"
+  "crates/darwin-webkit",
+  "crates/tauri"
 ]
 
 [profile.bench]

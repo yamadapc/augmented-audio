@@ -1,9 +1,12 @@
 use std::collections::HashMap;
+use std::sync::atomic::Ordering;
 use std::sync::{Arc, Mutex, RwLock};
 use std::time::Duration;
 
-use plugin_host_lib::TestPluginHost;
 use tokio::task::JoinHandle;
+use vst::util::AtomicFloat;
+
+use plugin_host_lib::TestPluginHost;
 
 pub type ReceiverId = String;
 
@@ -36,6 +39,7 @@ impl VolumePublisherService {
     let receiver_id = uuid::Uuid::new_v4().to_string();
     let mut state = self.state.lock().unwrap();
     state.subscribe(receiver_id.clone(), callback);
+    log::info!("Created subscription {}", receiver_id);
     receiver_id
   }
 
@@ -89,21 +93,23 @@ where
 }
 
 struct VolumePublisherState {
-  volume: Arc<RwLock<(f32, f32)>>,
   publishers: HashMap<ReceiverId, JoinHandle<()>>,
+  volume_left: Arc<AtomicFloat>,
+  volume_right: Arc<AtomicFloat>,
 }
 
 impl VolumePublisherState {
   fn new() -> Self {
     VolumePublisherState {
-      volume: Arc::new(RwLock::new((0.0, 0.0))),
+      volume_left: Arc::new(AtomicFloat::new(0.0)),
+      volume_right: Arc::new(AtomicFloat::new(0.0)),
       publishers: HashMap::new(),
     }
   }
 
   fn set_volume(&mut self, volume: (f32, f32)) {
-    let mut volume_lock = self.volume.write().unwrap();
-    *volume_lock = volume;
+    self.volume_left.set(volume.0);
+    self.volume_right.set(volume.1);
   }
 
   fn subscribe<V: 'static + VolumeReceiver + Send>(
@@ -111,12 +117,13 @@ impl VolumePublisherState {
     receiver_id: String,
     mut receiver: V,
   ) {
-    let volume = self.volume.clone();
+    let volume_left = self.volume_left.clone();
+    let volume_right = self.volume_right.clone();
     let publisher = tokio::spawn(async move {
       loop {
         {
-          let vol = volume.read().unwrap();
-          receiver.volume_recv(*vol);
+          let vol = (volume_left.get(), volume_right.get());
+          receiver.volume_recv(vol);
         }
         tokio::time::sleep(Duration::from_millis(100)).await;
       }

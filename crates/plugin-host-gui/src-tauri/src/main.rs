@@ -5,7 +5,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use tauri::{GlobalWindowEvent, Menu, MenuItem, WindowEvent};
+use tauri::{GlobalWindowEvent, /* Menu, MenuItem, */ WindowEvent};
 
 use app_state::AppState;
 use commands::*;
@@ -21,19 +21,19 @@ fn main() {
   if let Err(err) = plugin_host.start() {
     log::error!("Failed to start host: {}", err);
   }
-  let main_menus = vec![
-    MenuItem::About(String::from("plugin-host")),
-    MenuItem::Separator,
-    MenuItem::Hide,
-    MenuItem::HideOthers,
-    MenuItem::ShowAll,
-    MenuItem::Separator,
-    MenuItem::Quit,
-  ];
-  let mut main_menu = Menu::new();
-  for item in main_menus {
-    main_menu = main_menu.add_native_item(item);
-  }
+  // let main_menus = vec![
+  //   MenuItem::About(String::from("plugin-host")),
+  //   MenuItem::Separator,
+  //   MenuItem::Hide,
+  //   MenuItem::HideOthers,
+  //   MenuItem::ShowAll,
+  //   MenuItem::Separator,
+  //   MenuItem::Quit,
+  // ];
+  // let mut main_menu = Menu::new();
+  // for item in main_menus {
+  //   main_menu = main_menu.add_native_item(item);
+  // }
 
   let app_state = Arc::new(Mutex::new(AppState::new(plugin_host)));
 
@@ -41,7 +41,7 @@ fn main() {
     .manage(app_state.clone())
     .on_window_event({
       let state = app_state.clone();
-      move |window_event| on_window_event(state.clone(), window_event)
+      move |window_event| on_window_event(&state, window_event)
     })
     .invoke_handler(tauri::generate_handler![
       set_audio_driver_command,
@@ -57,16 +57,15 @@ fn main() {
       pause_command,
       stop_command,
     ])
-    .menu(main_menu)
+    // .menu(main_menu)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }
 
-fn on_window_event(state: Arc<Mutex<AppState>>, window_event: GlobalWindowEvent) {
-  let mut state = state.lock().unwrap();
-
+fn on_window_event(state: &Arc<Mutex<AppState>>, window_event: GlobalWindowEvent) {
   match window_event.event() {
     WindowEvent::CloseRequested => {
+      let mut state = state.lock().unwrap();
       let volume_publisher_service = state.volume_publisher_service();
       volume_publisher_service.stop();
     }

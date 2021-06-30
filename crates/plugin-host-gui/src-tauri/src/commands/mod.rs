@@ -32,7 +32,8 @@ pub fn subscribe_to_volume_command(state: tauri::State<AppStateRef>, window: Win
   log::info!("Setting-up fake volume event emitter");
   let mut state = state.inner().lock().unwrap();
   let volume_publisher_service = state.volume_publisher_service();
-  volume_publisher_service.subscribe(move |volume| loop {
+  let window = window.clone();
+  volume_publisher_service.subscribe(move |volume| {
     let (volume_left, volume_right) = volume;
     let js_string = format!(
       "window.volume1={};window.volume2={};",
