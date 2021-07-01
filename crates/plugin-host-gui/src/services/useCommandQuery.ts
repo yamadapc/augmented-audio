@@ -1,10 +1,18 @@
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import {invoke, InvokeArgs} from "@tauri-apps/api/tauri";
+import {useLogger} from "@wisual/logger";
 
 interface CommandState<T> {
   loading: boolean;
   data: null | T;
   error: null | Error;
+}
+
+interface CommandResult<T> {
+  loading: boolean;
+  data: null | T;
+  error: null | Error;
+  reload: () => void;
 }
 
 interface UseCommandParams {
@@ -15,14 +23,15 @@ interface UseCommandParams {
 export function useCommandQuery<T>(
   command: string,
   params?: UseCommandParams
-): CommandState<T> {
+): CommandResult<T> {
+  const logger = useLogger(`CommandQuery::${command}`);
   const [state, setState] = useState<CommandState<T>>({
     loading: !params?.skip,
     data: null,
     error: null,
   });
 
-  useEffect(() => {
+  const reload = useCallback(() => {
     if (params?.skip) {
       return;
     }
@@ -31,15 +40,25 @@ export function useCommandQuery<T>(
       setState((state) =>
         state.loading ? state : { ...state, loading: true }
       );
+      logger.info("Running command");
       const result = await invoke<T>(command, params?.args);
+      logger.info("Got command response", { result });
 
       setState({ error: null, data: result, loading: false });
     };
 
     run().catch((err) => {
+      logger.error("Failed running command", { error: err });
       setState((state) => ({ error: err, data: state.data, loading: false }));
     });
-  }, [command, params?.args, params?.skip]);
+  }, [command, params?.args, params?.skip, logger]);
 
-  return state;
+  useEffect(() => {
+    reload();
+  }, [reload]);
+
+  return {
+    ...state,
+    reload,
+  };
 }

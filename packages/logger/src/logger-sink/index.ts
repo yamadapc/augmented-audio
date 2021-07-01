@@ -1,4 +1,4 @@
-import { LogLevel, LogMessage } from "../logger/types";
+import {LogLevel, LogMessage} from "../logger/types";
 import memoize from "lodash/memoize";
 import chroma from "chroma-js";
 import chalk from "chalk";
@@ -52,6 +52,20 @@ export class PrettyConsoleSink implements LoggerSink {
         getNameColor(message.logger, true)
       )(message.logger)}) ${chalk.white.bold(message.message)} ${variables}`
     );
+  }
+}
+
+export class DelegatingSink implements LoggerSink {
+  private children: LoggerSink[];
+
+  constructor(children: LoggerSink[]) {
+    this.children = children;
+  }
+
+  log(message: LogMessage) {
+    this.children.forEach((child) => {
+      child.log(message);
+    });
   }
 }
 

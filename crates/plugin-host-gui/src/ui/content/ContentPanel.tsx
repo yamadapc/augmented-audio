@@ -4,6 +4,8 @@ import React from "react";
 import styled from "styled-components";
 import {BLACK, BORDER_COLOR, GRAY} from "../constants";
 import {useLogger} from "@wisual/logger";
+import {useCommandQuery} from "../../services/useCommandQuery";
+import {HostState} from "../../model";
 
 const ContentPanelContainer = styled.div({
   flex: 1,
@@ -14,6 +16,12 @@ const ContentPanelContainer = styled.div({
 
 const ButtonGroup = styled.div({
   flexDirection: "row",
+  display: "flex",
+});
+
+const ButtonContainer = styled.div({
+  flex: 1,
+  flexDirection: "column",
   display: "flex",
 });
 
@@ -35,40 +43,52 @@ const Button = styled.button({
 
 export function ContentPanel() {
   const logger = useLogger("ContentPanel");
+  const { data: hostOptions, reload } = useCommandQuery<HostState>(
+    "get_host_state_command"
+  );
+
+  const audioInputFilePath = hostOptions?.audioInputFilePath;
+  const pluginPath = hostOptions?.pluginPath;
+
+  const onClickOpenAudioFile = () => {
+    const run = async () => {
+      logger.info("Opening file dialog");
+      const result = await openDialog();
+      logger.info("Invoking set_input_file_command", {
+        inputFile: result,
+      });
+      await invoke("set_input_file_command", { inputFile: result });
+      reload();
+    };
+    run().catch((err) => logger.error(err));
+  };
+
+  const onClickSelectPluginPath = () => {
+    const run = async () => {
+      logger.info("Opening file dialog");
+      const result = await openDialog();
+      logger.info("Invoking set_plugin_path_comment", {
+        path: result,
+      });
+      await invoke("set_plugin_path_command", { path: result });
+      reload();
+    };
+    run().catch((err) => logger.error(err));
+  };
 
   return (
     <ContentPanelContainer>
       <ButtonGroup>
-        <Button
-          onClick={() => {
-            logger.info("Opening file dialog");
-            openDialog().then((result) => {
-              logger.info("Invoking set_input_file_command", {
-                inputFile: result,
-              });
-              invoke("set_input_file_command", { inputFile: result }).catch(
-                (err) => logger.error(err)
-              );
-            });
-          }}
-        >
-          Select input audio file
-        </Button>
-        <Button
-          onClick={() => {
-            logger.info("Opening file dialog");
-            openDialog().then((result) => {
-              logger.info("Invoking set_plugin_path_comment", {
-                path: result,
-              });
-              invoke("set_plugin_path_command", { path: result }).catch((err) =>
-                logger.error(err)
-              );
-            });
-          }}
-        >
-          Select plugin path
-        </Button>
+        <ButtonContainer>
+          <Button onClick={onClickOpenAudioFile}>
+            Select input audio file
+          </Button>
+          <code>{audioInputFilePath}</code>
+        </ButtonContainer>
+        <ButtonContainer>
+          <Button onClick={onClickSelectPluginPath}>Select plugin path</Button>
+          <code>{pluginPath}</code>
+        </ButtonContainer>
       </ButtonGroup>
     </ContentPanelContainer>
   );

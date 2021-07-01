@@ -1,17 +1,10 @@
-import { useContext, useMemo } from "react";
+import {useContext, useMemo} from "react";
 
-import { Logger } from "./logger";
-import {
-  LoggerContext,
-  wrapWithLogger,
-} from "./logger-react-context/LoggerContext";
-import { LoggerFactory } from "./logger-factory/LoggerFactory";
-import { LoggerMap } from "./logger/types";
-import {
-  LoggerSink,
-  PrettyConsoleSink,
-  PrettyBrowserSink,
-} from "./logger-sink";
+import {Logger} from "./logger";
+import {LoggerContext, wrapWithLogger,} from "./logger-react-context/LoggerContext";
+import {LoggerFactory} from "./logger-factory/LoggerFactory";
+import {LoggerMap} from "./logger/types";
+import {DelegatingSink, LoggerSink, PrettyBrowserSink, PrettyConsoleSink,} from "./logger-sink";
 
 export type { LoggerMap, LoggerSink };
 export {
@@ -20,6 +13,7 @@ export {
   LoggerFactory,
   PrettyConsoleSink,
   PrettyBrowserSink,
+  DelegatingSink,
 };
 
 /**

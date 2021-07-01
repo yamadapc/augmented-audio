@@ -5,18 +5,18 @@
 
 use std::sync::{Arc, Mutex};
 
+use tauri::api::path::home_dir;
 use tauri::{GlobalWindowEvent, Menu, MenuItem, WindowEvent};
 
-use crate::config::AppConfig;
 use app_state::AppState;
 use commands::*;
-use tauri::api::path::home_dir;
+
+use crate::config::AppConfig;
 
 mod app_state;
 mod commands;
 mod config;
-mod models;
-mod volume_publisher;
+mod services;
 
 fn main() {
   wisual_logger::init_from_env();
@@ -44,6 +44,13 @@ fn main() {
   std::fs::create_dir_all(&home_config_dir).expect("Failed to create configuration directory.");
 
   let app_config = AppConfig {
+    audio_thread_config_path: String::from(
+      home_config_dir
+        .clone()
+        .join("audio-thread-config.json")
+        .to_str()
+        .unwrap(),
+    ),
     storage_config: plugin_host_lib::audio_io::storage::StorageConfig {
       audio_io_state_storage_path: String::from(
         home_config_dir
@@ -71,11 +78,13 @@ fn main() {
       set_plugin_path_command,
       list_devices_command,
       list_hosts_command,
+      get_host_state_command,
       subscribe_to_volume_command,
       unsubscribe_to_volume_command,
       play_command,
       pause_command,
       stop_command,
+      log_command,
     ])
     .menu(main_menu)
     .run(tauri::generate_context!())

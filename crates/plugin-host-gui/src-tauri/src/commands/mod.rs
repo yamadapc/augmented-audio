@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::sync::MutexGuard;
 
 use serde::{Deserialize, Serialize};
 use tauri::Window;
@@ -6,13 +8,46 @@ use tauri::Window;
 use plugin_host_lib::audio_io::{
   AudioIOService, AudioIOServiceError, AudioIOServiceResult, DevicesList,
 };
+use plugin_host_lib::TestPluginHost;
 
-use crate::app_state::AppStateRef;
-use crate::volume_publisher;
+use crate::app_state::{AppState, AppStateRef};
+use crate::services::host_options_service::HostState;
+use crate::services::volume_publisher;
 
 #[derive(Serialize, Deserialize)]
 struct CommandError {
   message: String,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LogMessage {
+  level: String,
+  message: String,
+  time: String,
+  logger: String,
+  variables: HashMap<String, serde_json::Value>,
+  context: HashMap<String, serde_json::Value>,
+}
+
+#[tauri::command]
+pub fn log_command(message: LogMessage) {
+  let level = match message.level.as_str() {
+    "info" => log::Level::Info,
+    "debug" => log::Level::Debug,
+    "warn" => log::Level::Warn,
+    "error" => log::Level::Error,
+    _ => log::Level::Info,
+  };
+  let target = format!("frontend::{}", message.logger);
+  log::log!(
+    target: &target,
+    level,
+    "{} variables={:?} context={:?}",
+    message.message,
+    message.variables,
+    message.context
+  );
 }
 
 #[tauri::command]
@@ -25,6 +60,13 @@ pub fn list_devices_command(host_id: Option<String>) -> AudioIOServiceResult<Dev
 pub fn list_hosts_command() -> Vec<String> {
   log::info!("Listing hosts");
   AudioIOService::hosts()
+}
+
+#[tauri::command]
+pub fn get_host_state_command(state: tauri::State<AppStateRef>) -> HostState {
+  let state = state.lock().unwrap();
+  let host = state.host().lock().unwrap();
+  get_host_state(&host)
 }
 
 #[tauri::command(async)]
@@ -85,9 +127,12 @@ pub fn set_input_file_command(state: tauri::State<AppStateRef>, input_file: Stri
   log::info!("Setting audio input file {}", input_file);
   let state = state.lock().unwrap();
   let mut host = state.host().lock().unwrap();
-  let result = host.set_audio_file_path(PathBuf::from(input_file));
+  let result = host.set_audio_file_path(PathBuf::from(input_file.clone()));
   match result {
-    Ok(_) => log::info!("Input file set"),
+    Ok(_) => {
+      log::info!("Input file set");
+      save_host_options(&state, &host);
+    }
     Err(err) => log::error!("Failure to set input: {}", err),
   }
 }
@@ -100,7 +145,10 @@ pub fn set_plugin_path_command(state: tauri::State<AppStateRef>, path: String) {
   let path = Path::new(&path);
   let result = host.load_plugin(path);
   match result {
-    Ok(_) => log::info!("Plugin loaded"),
+    Ok(_) => {
+      log::info!("Plugin loaded");
+      save_host_options(&state, &host);
+    }
     Err(err) => log::error!("Failure to load plugin: {}", err),
   }
 }
@@ -124,4 +172,29 @@ pub fn stop_command(state: tauri::State<AppStateRef>) {
   let state = state.lock().unwrap();
   let host = state.host().lock().unwrap();
   host.stop();
+}
+
+// TODO: This is a mess, HOST should own its state & persistence?
+fn save_host_options(state: &MutexGuard<AppState>, host: &MutexGuard<TestPluginHost>) {
+  let host_state = get_host_state(host);
+  let result = state.audio_thread_options_service().store(&host_state);
+  match result {
+    Ok(_) => {
+      log::info!("Saved host options");
+    }
+    Err(err) => {
+      log::error!("Failed saving host options: {}", err);
+    }
+  }
+}
+
+fn get_host_state(host: &MutexGuard<TestPluginHost>) -> HostState {
+  let host_state = HostState {
+    plugin_path: host
+      .plugin_file_path()
+      .clone()
+      .map(|s| s.to_str().unwrap().to_string()),
+    audio_input_file_path: Some(host.audio_file_path().clone().to_str().unwrap().to_string()),
+  };
+  host_state
 }

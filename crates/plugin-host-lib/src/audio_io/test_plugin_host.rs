@@ -110,6 +110,14 @@ impl TestPluginHost {
         Ok(())
     }
 
+    pub fn audio_file_path(&self) -> &PathBuf {
+        &self.audio_file_path
+    }
+
+    pub fn plugin_file_path(&self) -> &Option<PathBuf> {
+        &self.plugin_file_path
+    }
+
     pub fn load_plugin(&mut self, path: &Path) -> Result<(), AudioHostPluginLoadError> {
         self.plugin_file_path = Some(path.into());
         let vst_plugin_instance = Self::load_vst_plugin(path)?;
