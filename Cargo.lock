@@ -394,7 +394,6 @@ dependencies = [
  "glib-sys",
  "libc",
  "system-deps",
- "x11",
 ]
 
 [[package]]
@@ -586,17 +585,6 @@ name = "color_quant"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b"
-
-[[package]]
-name = "colored"
-version = "1.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4ffc801dacf156c5854b9df4f425a626539c3a6ef7893cc0c5084a23f0b6c59"
-dependencies = [
- "atty",
- "lazy_static",
- "winapi 0.3.9",
-]
 
 [[package]]
 name = "com"
@@ -2019,14 +2007,11 @@ dependencies = [
  "bytemuck",
  "byteorder 1.4.3",
  "color_quant",
- "gif",
  "jpeg-decoder",
  "num-iter",
  "num-rational 0.3.2",
  "num-traits 0.2.14",
  "png 0.16.8",
- "scoped_threadpool",
- "tiff",
 ]
 
 [[package]]
@@ -2181,9 +2166,6 @@ name = "jpeg-decoder"
 version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "229d53d58899083193af11e15917b5640cd40b29ff475a1fe4ef725deb02d0f2"
-dependencies = [
- "rayon",
-]
 
 [[package]]
 name = "js-sys"
@@ -3263,7 +3245,6 @@ dependencies = [
  "rand 0.8.4",
  "serde",
  "serde_json",
- "tao 0.3.1",
  "tauri",
  "tauri-build",
  "tauri-runtime-wry",
@@ -3739,12 +3720,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea6a9290e3c9cf0f18145ef7ffa62d68ee0bf5fcd651017e586dc7fd5da448c2"
 
 [[package]]
-name = "scoped_threadpool"
-version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d51f5df5af43ab3f1360b429fa5e0152ac5ce8c0bd6485cae490332e96846a8"
-
-[[package]]
 name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3952,19 +3927,6 @@ name = "shlex"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7fdf1b9db47230893d76faad238fd6097fd6d6a9245cd7a4d90dbd639536bbd2"
-
-[[package]]
-name = "simple_logger"
-version = "1.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cd57f17c093ead1d4a1499dc9acaafdd71240908d64775465543b8d9a9f1d198"
-dependencies = [
- "atty",
- "chrono",
- "colored",
- "log",
- "winapi 0.3.9",
-]
 
 [[package]]
 name = "siphasher"
@@ -4306,46 +4268,6 @@ dependencies = [
 [[package]]
 name = "tao"
 version = "0.3.1"
-dependencies = [
- "bitflags",
- "cairo-rs",
- "cc",
- "cocoa 0.24.0",
- "core-foundation 0.9.1",
- "core-graphics 0.22.2",
- "core-video-sys",
- "dispatch",
- "gdk",
- "gdk-pixbuf",
- "gdk-sys",
- "gio",
- "glib",
- "glib-sys",
- "gtk",
- "image",
- "instant",
- "lazy_static",
- "libappindicator",
- "libc",
- "log",
- "ndk",
- "ndk-glue",
- "ndk-sys",
- "objc",
- "parking_lot",
- "raw-window-handle",
- "scopeguard",
- "serde",
- "simple_logger",
- "sourceview",
- "unicode-segmentation",
- "winapi 0.3.9",
- "x11-dl",
-]
-
-[[package]]
-name = "tao"
-version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ecd33dd36dd20ca8a1222c770b13390b04c1a792a7cdf89ee29675d94f172ce5"
 dependencies = [
@@ -4623,17 +4545,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8018d24e04c95ac8790716a5987d0fec4f8b27249ffa0f7d33f1369bdfb88cbd"
 dependencies = [
  "once_cell",
-]
-
-[[package]]
-name = "tiff"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a53f4706d65497df0c4349241deddf35f84cee19c87ed86ea8ca590f4464437"
-dependencies = [
- "jpeg-decoder",
- "miniz_oxide 0.4.4",
- "weezl",
 ]
 
 [[package]]
@@ -5234,7 +5145,7 @@ dependencies = [
  "once_cell",
  "serde",
  "serde_json",
- "tao 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tao 0.3.1",
  "thiserror",
  "url",
  "webkit2gtk",
@@ -5252,16 +5163,6 @@ checksum = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
 dependencies = [
  "winapi 0.2.8",
  "winapi-build",
-]
-
-[[package]]
-name = "x11"
-version = "2.18.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "77ecd092546cb16f25783a5451538e73afc8d32e242648d54f4ae5459ba1e773"
-dependencies = [
- "libc",
- "pkg-config",
 ]
 
 [[package]]
