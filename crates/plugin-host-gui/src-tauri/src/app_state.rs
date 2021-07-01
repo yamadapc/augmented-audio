@@ -9,7 +9,7 @@ pub type AppStateRef = Arc<Mutex<AppState>>;
 pub struct AppState {
   host: Arc<Mutex<TestPluginHost>>,
   audio_io_service: AudioIOService,
-  volume_publisher_service: VolumePublisherService,
+  volume_publisher_service: VolumePublisherService<TestPluginHost>,
 }
 
 impl AppState {
@@ -30,7 +30,7 @@ impl AppState {
     &mut self.audio_io_service
   }
 
-  pub fn volume_publisher_service(&mut self) -> &mut VolumePublisherService {
+  pub fn volume_publisher_service(&mut self) -> &mut VolumePublisherService<TestPluginHost> {
     &mut self.volume_publisher_service
   }
 }

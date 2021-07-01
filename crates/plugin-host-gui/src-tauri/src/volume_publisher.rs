@@ -9,14 +9,30 @@ use plugin_host_lib::TestPluginHost;
 
 pub type ReceiverId = String;
 
-pub struct VolumePublisherService {
-  host: Arc<Mutex<TestPluginHost>>,
+pub trait IVolumeProvider: Send + 'static {
+  fn volume_provider_get(&self) -> (f32, f32);
+}
+
+impl IVolumeProvider for TestPluginHost {
+  fn volume_provider_get(&self) -> (f32, f32) {
+    self.current_volume()
+  }
+}
+
+pub struct VolumePublisherService<VolumeProvider>
+where
+  VolumeProvider: IVolumeProvider,
+{
+  host: Arc<Mutex<VolumeProvider>>,
   state: Arc<Mutex<VolumePublisherState>>,
   polling_task: Option<tokio::task::JoinHandle<()>>,
 }
 
-impl VolumePublisherService {
-  pub fn new(host: Arc<Mutex<TestPluginHost>>) -> Self {
+impl<VolumeProvider> VolumePublisherService<VolumeProvider>
+where
+  VolumeProvider: IVolumeProvider,
+{
+  pub fn new(host: Arc<Mutex<VolumeProvider>>) -> Self {
     VolumePublisherService {
       host,
       state: Arc::new(Mutex::new(VolumePublisherState::new())),
@@ -25,7 +41,10 @@ impl VolumePublisherService {
   }
 }
 
-impl VolumePublisherService {
+impl<VolumeProvider> VolumePublisherService<VolumeProvider>
+where
+  VolumeProvider: IVolumeProvider,
+{
   pub fn subscribe<Cb>(&mut self, callback: Cb) -> ReceiverId
   where
     Cb: FnMut((f32, f32)) + Send + 'static,
@@ -55,7 +74,7 @@ impl VolumePublisherService {
       loop {
         let volume = {
           let host = host.lock().unwrap();
-          host.current_volume()
+          host.volume_provider_get()
         };
 
         {
