@@ -204,7 +204,7 @@ mod test {
   async fn test_subscribing_to_volume() {
     let provider = Arc::new(Mutex::new(MockVolumeProvider { volume: (0.3, 0.3) }));
     let mut volume_publisher =
-      VolumePublisherService::new(provider.clone(), Duration::from_millis(50));
+      VolumePublisherService::new(provider.clone(), Duration::from_millis(100));
 
     let test_volume_ref = Arc::new(Mutex::new(TestVolume {
       volume: (0.0, 0.0),
@@ -219,13 +219,13 @@ mod test {
       }
     });
 
-    tokio::time::sleep(Duration::from_millis(60)).await;
+    tokio::time::sleep(Duration::from_millis(130)).await;
     let test_volume = test_volume_ref.lock().unwrap();
     assert_eq!(test_volume.volume, (0.3, 0.3));
     assert_eq!(test_volume.call_count, 2);
 
     volume_publisher.unsubscribe(&subscription_id);
-    tokio::time::sleep(Duration::from_millis(60)).await;
+    tokio::time::sleep(Duration::from_millis(130)).await;
 
     assert_eq!(test_volume.volume, (0.3, 0.3));
     assert_eq!(test_volume.call_count, 2);
