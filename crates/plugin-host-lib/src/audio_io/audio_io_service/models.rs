@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 pub type AudioHost = String;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Eq, PartialEq, Debug, Deserialize)]
 pub struct AudioDevice {
     pub name: String,
 }
@@ -19,7 +19,7 @@ impl AudioDevice {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Eq, PartialEq, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DevicesList {
     pub input_devices: Vec<AudioDevice>,
@@ -35,7 +35,7 @@ impl DevicesList {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Eq, PartialEq, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AudioIOState {
     pub host: AudioHost,

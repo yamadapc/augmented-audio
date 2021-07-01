@@ -7,11 +7,14 @@ use std::sync::{Arc, Mutex};
 
 use tauri::{GlobalWindowEvent, Menu, MenuItem, WindowEvent};
 
+use crate::config::AppConfig;
 use app_state::AppState;
 use commands::*;
+use tauri::api::path::home_dir;
 
 mod app_state;
 mod commands;
+mod config;
 mod models;
 mod volume_publisher;
 
@@ -36,7 +39,23 @@ fn main() {
     main_menu = main_menu.add_native_item(item);
   }
 
-  let app_state = Arc::new(Mutex::new(AppState::new(plugin_host)));
+  let home_dir = home_dir().expect("Failed to get user HOME directory. App will fail to work.");
+  let home_config_dir = home_dir.join(".plugin-host-gui");
+  std::fs::create_dir_all(&home_config_dir).expect("Failed to create configuration directory.");
+
+  let app_config = AppConfig {
+    storage_config: plugin_host_lib::audio_io::storage::StorageConfig {
+      audio_io_state_storage_path: String::from(
+        home_config_dir
+          .join("audio-io-state.json")
+          .to_str()
+          .unwrap(),
+      ),
+    },
+  };
+  let mut app_state = AppState::new(plugin_host, app_config);
+  app_state.try_reload();
+  let app_state = Arc::new(Mutex::new(app_state));
 
   tauri::Builder::default()
     .manage(app_state.clone())

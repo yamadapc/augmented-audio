@@ -5,11 +5,20 @@ use serde::Serialize;
 use thiserror::Error;
 
 pub use models::*;
+use storage::{AudioIOStorageService, StorageConfig};
 
+use crate::audio_io::audio_io_service::storage::AudioIOStorageServiceError;
 use crate::audio_io::audio_thread::options::AudioDeviceId;
 use crate::TestPluginHost;
 
 pub mod models;
+pub mod storage;
+
+fn log_error<T, Err: std::error::Error>(r: Result<T, Err>) {
+    if let Err(err) = r {
+        log::error!("{}", err);
+    }
+}
 
 #[derive(Error, Debug, Serialize)]
 pub enum AudioIOServiceError {
@@ -28,12 +37,14 @@ pub type AudioIOServiceResult<T> = Result<T, AudioIOServiceError>;
 pub struct AudioIOService {
     host: Arc<Mutex<TestPluginHost>>,
     state: AudioIOState,
+    storage: AudioIOStorageService,
 }
 
 impl AudioIOService {
-    pub fn new(host: Arc<Mutex<TestPluginHost>>) -> Self {
+    pub fn new(host: Arc<Mutex<TestPluginHost>>, storage_config: StorageConfig) -> Self {
         AudioIOService {
             host,
+            storage: AudioIOStorageService::new(storage_config),
             state: AudioIOState {
                 host: Self::default_host(),
                 input_device: Self::default_input_device(),
@@ -44,16 +55,32 @@ impl AudioIOService {
 }
 
 impl AudioIOService {
+    pub fn store(&self) -> Result<(), AudioIOStorageServiceError> {
+        self.storage.store(self.state())
+    }
+
+    pub fn try_store(&self) {
+        log_error(self.store());
+    }
+
+    pub fn reload(&mut self) -> Result<(), AudioIOStorageServiceError> {
+        let state = self.storage.fetch()?;
+        self.state = state;
+        Ok(())
+    }
+
     pub fn state(&self) -> &AudioIOState {
         &self.state
     }
 
     pub fn set_host_id(&mut self, host_id: String) {
         self.state.host = host_id;
+        self.try_store();
     }
 
     pub fn set_input_device_id(&mut self, input_device_id: String) {
         self.state.input_device = Some(AudioDevice::new(input_device_id));
+        self.try_store();
     }
 
     pub fn set_output_device_id(
@@ -68,6 +95,7 @@ impl AudioIOService {
                 AudioIOServiceError::AudioThreadError
             })?;
         self.state.input_device = Some(AudioDevice::new(output_device_id));
+        self.try_store();
         Ok(result)
     }
 

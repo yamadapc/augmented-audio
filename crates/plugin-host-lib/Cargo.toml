@@ -7,6 +7,7 @@ edition = "2018"
 [dependencies]
 basedrop = "^0.1.2"
 serde = { version = "^1.0.64", features = ["derive"] }
+serde_json = "^1.0.64"
 vst = { git = "https://github.com/rustaudio/vst-rs", rev = "a398697b0214129720af2480e98f1abf7beecfce" }
 cpal = "^0.13.3"
 clap = "^2.33.3"

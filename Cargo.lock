@@ -3455,6 +3455,7 @@ dependencies = [
  "rayon",
  "rimd",
  "serde",
+ "serde_json",
  "symphonia",
  "symphonia-bundle-mp3",
  "tao 0.2.6",
