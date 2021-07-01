@@ -23,7 +23,8 @@ plugin-host-lib = { path = "../../plugin-host-lib" }
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
 uuid = "^0.8.2"
 vst = "^0.2.1"
-tauri = { path = "../../tauri/core/tauri" }
+tauri = { path = "../../tauri/core/tauri", features = ["api-all", "system-tray", "raw-window-handle", "menu"] }
+tauri-runtime = { path = "../../tauri/core/tauri-runtime" }
 tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
 
 [features]

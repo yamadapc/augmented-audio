@@ -5,7 +5,7 @@
 
 use std::sync::{Arc, Mutex};
 
-use tauri::{GlobalWindowEvent, /* Menu, MenuItem, */ WindowEvent};
+use tauri::{GlobalWindowEvent, Menu, MenuItem, WindowEvent};
 
 use app_state::AppState;
 use commands::*;
@@ -21,19 +21,20 @@ fn main() {
   if let Err(err) = plugin_host.start() {
     log::error!("Failed to start host: {}", err);
   }
-  // let main_menus = vec![
-  //   MenuItem::About(String::from("plugin-host")),
-  //   MenuItem::Separator,
-  //   MenuItem::Hide,
-  //   MenuItem::HideOthers,
-  //   MenuItem::ShowAll,
-  //   MenuItem::Separator,
-  //   MenuItem::Quit,
-  // ];
-  // let mut main_menu = Menu::new();
-  // for item in main_menus {
-  //   main_menu = main_menu.add_native_item(item);
-  // }
+  // TODO - Menus not working anymore after tauri bump
+  let main_menus = vec![
+    MenuItem::About(String::from("plugin-host")),
+    MenuItem::Separator,
+    MenuItem::Hide,
+    MenuItem::HideOthers,
+    MenuItem::ShowAll,
+    MenuItem::Separator,
+    MenuItem::Quit,
+  ];
+  let mut main_menu = Menu::new();
+  for item in main_menus {
+    main_menu = main_menu.add_native_item(item);
+  }
 
   let app_state = Arc::new(Mutex::new(AppState::new(plugin_host)));
 
@@ -57,7 +58,7 @@ fn main() {
       pause_command,
       stop_command,
     ])
-    // .menu(main_menu)
+    .menu(main_menu)
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

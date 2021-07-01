@@ -1,8 +1,10 @@
 use std::sync::{Arc, Mutex};
+use std::time::Duration;
 
-use crate::volume_publisher::VolumePublisherService;
 use plugin_host_lib::audio_io::test_plugin_host::TestPluginHost;
 use plugin_host_lib::audio_io::AudioIOService;
+
+use crate::volume_publisher::VolumePublisherService;
 
 pub type AppStateRef = Arc<Mutex<AppState>>;
 
@@ -18,7 +20,7 @@ impl AppState {
     AppState {
       host: host.clone(),
       audio_io_service: AudioIOService::new(host.clone()),
-      volume_publisher_service: VolumePublisherService::new(host),
+      volume_publisher_service: VolumePublisherService::new(host, Duration::from_millis(100)),
     }
   }
 

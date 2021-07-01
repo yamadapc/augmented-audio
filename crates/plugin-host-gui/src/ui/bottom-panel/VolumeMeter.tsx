@@ -1,6 +1,6 @@
-import React, {useEffect, useRef} from "react";
-import {invoke} from "@tauri-apps/api/tauri";
-import {BORDER_COLOR, GREEN, MEDIUM_GRAY} from "../constants";
+import React, { useEffect, useRef } from "react";
+import { invoke } from "@tauri-apps/api/tauri";
+import { BORDER_COLOR, GREEN, MEDIUM_GRAY } from "../constants";
 
 export function VolumeMeter() {
   const width = 20;
@@ -36,7 +36,7 @@ export function VolumeMeter() {
         cancelAnimationFrame(animation);
       }
       subscriptionId.then((id) =>
-        invoke("unsubscribe_to_volume_command", { id })
+        invoke("unsubscribe_to_volume_command", { subscriberId: id })
       );
     };
   }, []);

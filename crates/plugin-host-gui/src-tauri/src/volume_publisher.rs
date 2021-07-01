@@ -26,16 +26,18 @@ where
   host: Arc<Mutex<VolumeProvider>>,
   state: Arc<Mutex<VolumePublisherState>>,
   polling_task: Option<tokio::task::JoinHandle<()>>,
+  poll_interval: Duration,
 }
 
 impl<VolumeProvider> VolumePublisherService<VolumeProvider>
 where
   VolumeProvider: IVolumeProvider,
 {
-  pub fn new(host: Arc<Mutex<VolumeProvider>>) -> Self {
+  pub fn new(host: Arc<Mutex<VolumeProvider>>, poll_interval: Duration) -> Self {
     VolumePublisherService {
       host,
-      state: Arc::new(Mutex::new(VolumePublisherState::new())),
+      poll_interval: poll_interval.clone(),
+      state: Arc::new(Mutex::new(VolumePublisherState::new(poll_interval))),
       polling_task: None,
     }
   }
@@ -63,6 +65,7 @@ where
 
   pub fn unsubscribe(&mut self, receiver_id: &str) {
     let mut state = self.state.lock().unwrap();
+    log::info!("Cleaning-up subscription {}", receiver_id);
     state.unsubscribe(receiver_id);
   }
 
@@ -70,6 +73,7 @@ where
     log::info!("Starting volume publisher poller");
     let state = self.state.clone();
     let host = self.host.clone();
+    let poll_interval = self.poll_interval;
     self.polling_task = Some(tokio::spawn(async move {
       loop {
         let volume = {
@@ -82,7 +86,7 @@ where
           state.set_volume(volume);
         }
 
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        tokio::time::sleep(poll_interval).await;
       }
     }));
   }
@@ -114,11 +118,19 @@ struct VolumePublisherState {
   publishers: HashMap<ReceiverId, JoinHandle<()>>,
   volume_left: Arc<AtomicFloat>,
   volume_right: Arc<AtomicFloat>,
+  poll_interval: Duration,
+}
+
+impl Default for VolumePublisherState {
+  fn default() -> Self {
+    Self::new(Duration::from_millis(100))
+  }
 }
 
 impl VolumePublisherState {
-  fn new() -> Self {
+  fn new(poll_interval: Duration) -> Self {
     VolumePublisherState {
+      poll_interval,
       volume_left: Arc::new(AtomicFloat::new(0.0)),
       volume_right: Arc::new(AtomicFloat::new(0.0)),
       publishers: HashMap::new(),
@@ -137,13 +149,14 @@ impl VolumePublisherState {
   ) {
     let volume_left = self.volume_left.clone();
     let volume_right = self.volume_right.clone();
+    let poll_interval = self.poll_interval;
     let publisher = tokio::spawn(async move {
       loop {
         {
           let vol = (volume_left.get(), volume_right.get());
           receiver.volume_recv(vol);
         }
-        tokio::time::sleep(Duration::from_millis(100)).await;
+        tokio::time::sleep(poll_interval).await;
       }
     });
     self.publishers.insert(receiver_id, publisher);
@@ -170,6 +183,84 @@ impl Drop for VolumePublisherState {
 
 #[cfg(test)]
 mod test {
-  #[test]
-  fn test_subscribing_to_volume() {}
+  use super::*;
+
+  struct MockVolumeProvider {
+    volume: (f32, f32),
+  }
+
+  impl IVolumeProvider for MockVolumeProvider {
+    fn volume_provider_get(&self) -> (f32, f32) {
+      self.volume
+    }
+  }
+
+  struct TestVolume {
+    volume: (f32, f32),
+    call_count: usize,
+  }
+
+  #[tokio::test]
+  async fn test_subscribing_to_volume() {
+    let provider = Arc::new(Mutex::new(MockVolumeProvider { volume: (0.3, 0.3) }));
+    let mut volume_publisher =
+      VolumePublisherService::new(provider.clone(), Duration::from_millis(50));
+
+    let test_volume_ref = Arc::new(Mutex::new(TestVolume {
+      volume: (0.0, 0.0),
+      call_count: 0,
+    }));
+    let subscription_id = volume_publisher.subscribe({
+      let test_volume_ref_inner = test_volume_ref.clone();
+      move |volume| {
+        let mut test_volume = test_volume_ref_inner.lock().unwrap();
+        (*test_volume).volume = volume;
+        (*test_volume).call_count += 1;
+      }
+    });
+
+    tokio::time::sleep(Duration::from_millis(60)).await;
+    let test_volume = test_volume_ref.lock().unwrap();
+    assert_eq!(test_volume.volume, (0.3, 0.3));
+    assert_eq!(test_volume.call_count, 2);
+
+    volume_publisher.unsubscribe(&subscription_id);
+    tokio::time::sleep(Duration::from_millis(60)).await;
+
+    assert_eq!(test_volume.volume, (0.3, 0.3));
+    assert_eq!(test_volume.call_count, 2);
+  }
+
+  #[tokio::test]
+  async fn test_2_subscriptions_with_50ms_publish_interval() {
+    let num_subscriptions = 2;
+    let provider = Arc::new(Mutex::new(MockVolumeProvider { volume: (0.3, 0.3) }));
+    let mut volume_publisher =
+      VolumePublisherService::new(provider.clone(), Duration::from_millis(50));
+
+    let mut make_mock_subscription = || {
+      let test_volume_ref = Arc::new(Mutex::new(TestVolume {
+        volume: (0.0, 0.0),
+        call_count: 0,
+      }));
+      volume_publisher.subscribe({
+        let test_volume_ref_inner = test_volume_ref.clone();
+        move |volume| {
+          let mut test_volume = test_volume_ref_inner.lock().unwrap();
+          (*test_volume).volume = volume;
+          (*test_volume).call_count += 1;
+        }
+      })
+    };
+
+    let mut subscriptions = Vec::new();
+    for _ in 0..num_subscriptions {
+      subscriptions.push(make_mock_subscription());
+    }
+
+    tokio::time::sleep(Duration::from_millis(500)).await;
+    for subscription in &subscriptions {
+      volume_publisher.unsubscribe(subscription);
+    }
+  }
 }
