@@ -13,6 +13,7 @@ use plugin_host_lib::TestPluginHost;
 use crate::app_state::{AppState, AppStateRef};
 use crate::services::host_options_service::HostState;
 use crate::services::volume_publisher;
+use tauri::api::path::home_dir;
 
 #[derive(Serialize, Deserialize)]
 struct CommandError {
@@ -189,12 +190,26 @@ fn save_host_options(state: &MutexGuard<AppState>, host: &MutexGuard<TestPluginH
 }
 
 fn get_host_state(host: &MutexGuard<TestPluginHost>) -> HostState {
+  let home_dir = home_dir().unwrap();
+  let plugin_path = host
+    .plugin_file_path()
+    .clone()
+    .map(|plugin_file_path| strip_home_dir(&home_dir, plugin_file_path));
+  let audio_input_file_path = host.audio_file_path().clone();
+  let audio_input_file_path = strip_home_dir(&home_dir, audio_input_file_path);
+  let audio_input_file_path = Some(audio_input_file_path);
+
   let host_state = HostState {
-    plugin_path: host
-      .plugin_file_path()
-      .clone()
-      .map(|s| s.to_str().unwrap().to_string()),
-    audio_input_file_path: Some(host.audio_file_path().clone().to_str().unwrap().to_string()),
+    plugin_path,
+    audio_input_file_path,
   };
   host_state
+}
+
+fn strip_home_dir(home_dir: &PathBuf, path: PathBuf) -> String {
+  if let Ok(without_home) = path.strip_prefix(&home_dir) {
+    format!("~/{}", without_home.to_str().unwrap().to_string())
+  } else {
+    path.to_str().unwrap().to_string()
+  }
 }
