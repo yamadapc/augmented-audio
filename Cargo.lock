@@ -205,6 +205,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-testing-helpers"
+version = "0.1.0"
+dependencies = [
+ "oscillator",
+]
+
+[[package]]
 name = "audio-processor-traits"
 version = "0.1.0"
 
@@ -704,6 +711,7 @@ checksum = "245097e9a4535ee1e3e3931fcfcd55a796a44c643e8596ff6566d68f09b87bbc"
 name = "convert-sample-rate"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-testing-helpers",
  "oscillator",
  "rand 0.8.4",
 ]
@@ -2440,6 +2448,12 @@ dependencies = [
 [[package]]
 name = "looper-processor"
 version = "0.1.0"
+dependencies = [
+ "audio-processor-testing-helpers",
+ "audio-processor-traits",
+ "circular-data-structures",
+ "log",
+]
 
 [[package]]
 name = "mac"
