@@ -70,6 +70,9 @@ fn main() {
       let state = app_state.clone();
       move |window_event| on_window_event(&state, window_event)
     })
+    .on_page_load(|window, _page_load| {
+      let _ = window.emit("status_bar_change", "Loaded");
+    })
     .invoke_handler(tauri::generate_handler![
       set_audio_driver_command,
       set_input_device_command,

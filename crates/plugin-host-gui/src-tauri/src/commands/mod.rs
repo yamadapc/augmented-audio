@@ -3,6 +3,7 @@ use std::path::{Path, PathBuf};
 use std::sync::MutexGuard;
 
 use serde::{Deserialize, Serialize};
+use tauri::api::path::home_dir;
 use tauri::Window;
 
 use plugin_host_lib::audio_io::{
@@ -13,7 +14,6 @@ use plugin_host_lib::TestPluginHost;
 use crate::app_state::{AppState, AppStateRef};
 use crate::services::host_options_service::HostState;
 use crate::services::volume_publisher;
-use tauri::api::path::home_dir;
 
 #[derive(Serialize, Deserialize)]
 struct CommandError {
@@ -124,7 +124,11 @@ pub fn set_output_device_command(
 }
 
 #[tauri::command]
-pub fn set_input_file_command(state: tauri::State<AppStateRef>, input_file: String) {
+pub fn set_input_file_command(
+  state: tauri::State<AppStateRef>,
+  input_file: String,
+  window: Window,
+) {
   log::info!("Setting audio input file {}", input_file);
   let state = state.lock().unwrap();
   let mut host = state.host().lock().unwrap();
@@ -133,13 +137,14 @@ pub fn set_input_file_command(state: tauri::State<AppStateRef>, input_file: Stri
     Ok(_) => {
       log::info!("Input file set");
       save_host_options(&state, &host);
+      let _ = window.emit("status_bar_change", "Saved options");
     }
     Err(err) => log::error!("Failure to set input: {}", err),
   }
 }
 
 #[tauri::command]
-pub fn set_plugin_path_command(state: tauri::State<AppStateRef>, path: String) {
+pub fn set_plugin_path_command(state: tauri::State<AppStateRef>, path: String, window: Window) {
   log::info!("Setting plugin path {}", path);
   let state = state.lock().unwrap();
   let mut host = state.host().lock().unwrap();
@@ -149,30 +154,34 @@ pub fn set_plugin_path_command(state: tauri::State<AppStateRef>, path: String) {
     Ok(_) => {
       log::info!("Plugin loaded");
       save_host_options(&state, &host);
+      let _ = window.emit("status_bar_change", "Plugin reloaded");
     }
     Err(err) => log::error!("Failure to load plugin: {}", err),
   }
 }
 
 #[tauri::command]
-pub fn play_command(state: tauri::State<AppStateRef>) {
+pub fn play_command(state: tauri::State<AppStateRef>, window: Window) {
   let state = state.lock().unwrap();
   let host = state.host().lock().unwrap();
   host.play();
+  let _ = window.emit("status_bar_change", "Playing");
 }
 
 #[tauri::command]
-pub fn pause_command(state: tauri::State<AppStateRef>) {
+pub fn pause_command(state: tauri::State<AppStateRef>, window: Window) {
   let state = state.lock().unwrap();
   let host = state.host().lock().unwrap();
   host.pause();
+  let _ = window.emit("status_bar_change", "Paused");
 }
 
 #[tauri::command]
-pub fn stop_command(state: tauri::State<AppStateRef>) {
+pub fn stop_command(state: tauri::State<AppStateRef>, window: Window) {
   let state = state.lock().unwrap();
   let host = state.host().lock().unwrap();
   host.stop();
+  let _ = window.emit("status_bar_change", "Stopped");
 }
 
 // TODO: This is a mess, HOST should own its state & persistence?
