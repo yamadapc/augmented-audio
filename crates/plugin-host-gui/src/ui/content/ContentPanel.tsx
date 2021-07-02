@@ -41,6 +41,43 @@ const Button = styled.button({
   },
 });
 
+const PathSetting = styled.div({
+  padding: "10px",
+  border: `solid 1px ${BORDER_COLOR}`,
+  backgroundColor: BLACK,
+});
+
+const CheckboxContainer = styled.div({
+  display: "flex",
+  margin: "10px 0",
+});
+
+const CheckboxInputContainer = styled.div({
+  display: "flex",
+  justifyContent: "flex-end",
+});
+
+const CheckboxInput = styled.input({
+  marginRight: 10,
+});
+
+function FileWatchOption() {
+  return (
+    <CheckboxContainer>
+      <CheckboxInputContainer>
+        <CheckboxInput type="checkbox" id="file_watch" />
+      </CheckboxInputContainer>
+      <label htmlFor="file_watch">Enable watching for changes in plug-in</label>
+    </CheckboxContainer>
+  );
+}
+
+const PluginWatchOptions = styled.div({
+  borderTop: `solid 1px ${BORDER_COLOR}`,
+  maxWidth: 700,
+  margin: "20px auto",
+});
+
 export function ContentPanel() {
   const logger = useLogger("ContentPanel");
   const { data: hostOptions, reload } = useCommandQuery<HostState>(
@@ -83,13 +120,17 @@ export function ContentPanel() {
           <Button onClick={onClickOpenAudioFile}>
             Select input audio file
           </Button>
-          <code>{audioInputFilePath}</code>
+          <PathSetting>{audioInputFilePath}</PathSetting>
         </ButtonContainer>
         <ButtonContainer>
           <Button onClick={onClickSelectPluginPath}>Select plugin path</Button>
-          <code>{pluginPath}</code>
+          <PathSetting>{pluginPath}</PathSetting>
         </ButtonContainer>
       </ButtonGroup>
+
+      <PluginWatchOptions>
+        <FileWatchOption />
+      </PluginWatchOptions>
     </ContentPanelContainer>
   );
 }
