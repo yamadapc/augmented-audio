@@ -67,7 +67,7 @@ function FileWatchOption() {
       <CheckboxInputContainer>
         <CheckboxInput type="checkbox" id="file_watch" />
       </CheckboxInputContainer>
-      <label htmlFor="file_watch">Enable watching for changes in plug-in</label>
+      <label htmlFor="file_watch">Enable watching for changes in plug-in (this is a mock)</label>
     </CheckboxContainer>
   );
 }
