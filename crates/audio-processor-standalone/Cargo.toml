@@ -11,3 +11,6 @@ cpal = "^0.13.3"
 log = "^0.4.14"
 wisual-logger = "^0.1.2"
 ringbuf = "^0.2.5"
+
+[dev-dependencies]
+circular-data-structures = { path = "../circular-data-structures" }

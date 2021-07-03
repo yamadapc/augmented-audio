@@ -219,6 +219,7 @@ name = "audio-processor-standalone"
 version = "0.1.0"
 dependencies = [
  "audio-processor-traits",
+ "circular-data-structures",
  "cpal",
  "log",
  "ringbuf",
