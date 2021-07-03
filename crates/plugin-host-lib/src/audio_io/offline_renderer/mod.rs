@@ -42,7 +42,7 @@ impl OfflineRenderer {
         }
     }
 
-    pub fn run(&self) -> Result<(), OfflineRenderError> {
+    pub fn run(&self) -> Result<OfflineRenderDiagnostics, OfflineRenderError> {
         let mut buffer_handler = CpalVstBufferHandler::new(self.audio_settings);
         let mut audio_file_processor =
             AudioFileProcessor::from_path(self.audio_settings, &self.input_file_path)?;
@@ -140,6 +140,45 @@ impl OfflineRenderer {
         let realtime_relation = audio_duration.as_millis() as f32 / total_runtime as f32;
         log::info!("{:.1}x realtime", realtime_relation);
 
-        Ok(())
+        Ok(OfflineRenderDiagnostics {
+            plugin_own_time: plugin_time,
+            total_runtime: Duration::from_millis(total_runtime as u64),
+            host_overhead_diagnostics: HostOverheadDiagnostics {
+                audio_output_conversions_time: audio_output_time,
+                audio_buffer_create_time,
+                audio_input_conversions_time: audio_input_conversion_time,
+                plugin_conversions_time,
+                plugin_flush_time,
+            },
+            output_audio_duration: audio_duration,
+            realtime_ration: realtime_relation,
+        })
     }
+}
+
+pub struct OfflineRenderDiagnostics {
+    /// Time spent inside the VST
+    pub plugin_own_time: Duration,
+    /// Total time to render
+    pub total_runtime: Duration,
+    /// Diagnostics over overhead the plugin-host causes (conversions between VST, CPAL, WAV types)
+    pub host_overhead_diagnostics: HostOverheadDiagnostics,
+    /// How many seconds of data was written to the AUDIO OUTPUT FILE
+    pub output_audio_duration: Duration,
+    /// Ratio between the offline render performance and a real-time workload
+    /// e.g. 10x real-time
+    pub realtime_ration: f32,
+}
+
+pub struct HostOverheadDiagnostics {
+    /// Time spent converting samples/buffers into WAV
+    pub audio_output_conversions_time: Duration,
+    /// Time spent converting CPal interleaved samples into VST buffers for input processing
+    pub audio_input_conversions_time: Duration,
+    /// Time spent converting VST buffers into CPal interleaved samples for flushing plugin output
+    pub plugin_conversions_time: Duration,
+    /// Time to create audio buffers
+    pub audio_buffer_create_time: Duration,
+    /// Time to copy VST output into the output buffer
+    pub plugin_flush_time: Duration,
 }
