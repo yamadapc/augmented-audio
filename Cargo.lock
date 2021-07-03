@@ -221,6 +221,8 @@ dependencies = [
  "audio-processor-traits",
  "cpal",
  "log",
+ "ringbuf",
+ "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -3959,6 +3961,15 @@ dependencies = [
  "byteorder 0.4.2",
  "enum_primitive",
  "num 0.1.42",
+]
+
+[[package]]
+name = "ringbuf"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "908f26a8bb4110da2b151015792f3b8f434e2c76379fca8ab410f12ef534b404"
+dependencies = [
+ "cache-padded",
 ]
 
 [[package]]
