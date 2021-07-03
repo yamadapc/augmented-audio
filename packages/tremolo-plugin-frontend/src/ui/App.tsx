@@ -8,10 +8,10 @@ import {
   ClientMessageInner,
   ParameterDeclarationMessage,
   ServerMessage,
-} from "../common/protocol";
+} from "../message-handling/protocol";
 import { container } from "tsyringe";
-import { MessageHandlingService } from "../state";
-import { ParametersStore } from "../state/ParametersStore";
+import { MessageHandlingService } from "../message-handling";
+import { ParametersStore } from "../message-handling/ParametersStore";
 
 interface State {
   parameters: ParameterDeclarationMessage[];

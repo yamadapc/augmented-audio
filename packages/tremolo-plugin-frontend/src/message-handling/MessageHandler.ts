@@ -1,4 +1,4 @@
-import { ClientMessageInner, ServerMessage } from "../common/protocol";
+import { ClientMessageInner, ServerMessage } from "./protocol";
 
 export interface MessageHandler {
   handle(

@@ -1,9 +1,10 @@
-import { ParametersStore } from "../../state/ParametersStore";
+import { ParametersStore } from "../../message-handling/ParametersStore";
 import { MutableRefObject, useEffect, useRef } from "react";
 import Regl from "regl";
 import { autorun } from "mobx";
 import { debounce, range } from "lodash";
 import { ReglAttributes, ReglProps, ReglUniforms, Vec4 } from "./types";
+import {DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID} from "../../common/constants";
 
 const NUM_VERTICES = 1000;
 
@@ -95,9 +96,9 @@ export function useHudRenderer(
         color: clearColor,
       });
 
-      const depth = parametersStore.depth?.value ?? 100.0;
-      const rate = parametersStore.rate?.value ?? 0.1;
-      const phase = parametersStore.phase?.value ?? 0.0;
+      const depth = parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value ?? 100.0;
+      const rate = parametersStore.getParameter(RATE_PARAMETER_ID)?.value ?? 0.1;
+      const phase = parametersStore.getParameter(PHASE_PARAMETER_ID)?.value ?? 0.0;
       drawTriangle([
         {
           color: mainColor,

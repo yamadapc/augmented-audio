@@ -1,7 +1,10 @@
-import {ClientMessageInner, ServerMessage} from "../common/protocol";
-import {injectAll, singleton} from "tsyringe";
-import {DefaultMessageTransport, MessageTransport,} from "@wisual/webview-transport";
-import {MessageHandler} from "./MessageHandler";
+import { injectAll, singleton } from "tsyringe";
+import {
+  DefaultMessageTransport,
+  MessageTransport,
+} from "@wisual/webview-transport";
+import { MessageHandler } from "./MessageHandler";
+import { ClientMessageInner, ServerMessage } from "./protocol";
 import "./MessageHandlerRegistry";
 
 @singleton()

@@ -2,7 +2,7 @@ import { render } from "@testing-library/react";
 import { container } from "tsyringe";
 import { DefaultMessageTransport } from "@wisual/webview-transport";
 import App from "./App";
-import { ClientMessageInner, ServerMessage } from "../common/protocol";
+import { ClientMessageInner, ServerMessage } from "../message-handling/protocol";
 
 jest.mock("./HudPanel", () => () => null);
 jest.mock("./Controls", () => () => null);

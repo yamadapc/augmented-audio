@@ -1,9 +1,10 @@
 import "./index.css";
 import { useEffect, useMemo, useState } from "react";
-import { ParametersStore } from "../../state/ParametersStore";
+import { ParametersStore } from "../../message-handling/ParametersStore";
 import { observer } from "mobx-react";
 import { range, throttle } from "lodash";
 import { useLogger } from "@wisual/logger";
+import {DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID} from "../../common/constants";
 
 interface Props {
   parametersStore: ParametersStore;
@@ -65,15 +66,15 @@ function HudPanel({ parametersStore }: Props) {
       generatePoints(
         windowHeight,
         windowWidth,
-        parametersStore.rate?.value,
-        parametersStore.depth?.value,
+        parametersStore.getParameter(RATE_PARAMETER_ID)?.value,
+        parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value,
         0
       ),
     [
       windowHeight,
       windowWidth,
-      parametersStore.rate?.value,
-      parametersStore.depth?.value,
+      parametersStore.getParameter(RATE_PARAMETER_ID)?.value,
+      parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value,
     ]
   );
   const rightPoints = useMemo(
@@ -81,16 +82,16 @@ function HudPanel({ parametersStore }: Props) {
       generatePoints(
         windowHeight,
         windowWidth,
-        parametersStore.rate?.value,
-        parametersStore.depth?.value,
-        parametersStore.phase?.value
+        parametersStore.getParameter(RATE_PARAMETER_ID)?.value,
+        parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value,
+        parametersStore.getParameter(PHASE_PARAMETER_ID)?.value
       ),
     [
       windowHeight,
       windowWidth,
-      parametersStore.rate?.value,
-      parametersStore.depth?.value,
-      parametersStore.phase?.value,
+      parametersStore.getParameter(RATE_PARAMETER_ID)?.value,
+      parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value,
+      parametersStore.getParameter(PHASE_PARAMETER_ID)?.value,
     ]
   );
 

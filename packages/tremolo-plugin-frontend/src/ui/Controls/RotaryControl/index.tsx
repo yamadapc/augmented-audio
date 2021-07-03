@@ -1,8 +1,8 @@
 import "./index.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react";
-import { ParameterDeclarationMessage } from "../../../common/protocol";
-import {ParameterState} from "../../../state/ParameterState";
+import { ParameterDeclarationMessage } from "../../../message-handling/protocol";
+import {ParameterState} from "../../../message-handling/ParameterState";
 
 const TWO_PI = 2 * Math.PI;
 

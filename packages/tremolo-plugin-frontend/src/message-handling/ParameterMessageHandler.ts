@@ -1,8 +1,8 @@
+import { LoggerFactory } from "@wisual/logger";
 import { singleton } from "tsyringe";
 import { MessageHandler } from "./MessageHandler";
 import { ParametersStore } from "./ParametersStore";
-import { LoggerFactory } from "@wisual/logger";
-import { ClientMessageInner, ServerMessage } from "../common/protocol";
+import { ClientMessageInner, ServerMessage } from "./protocol";
 
 @singleton()
 export class ParameterMessageHandler implements MessageHandler {

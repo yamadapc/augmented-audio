@@ -1,7 +1,7 @@
 import React from "react";
 import "./index.css";
 import RotaryControl from "./RotaryControl";
-import { ParametersStore } from "../../state/ParametersStore";
+import { ParametersStore } from "../../message-handling/ParametersStore";
 import { observer } from "mobx-react";
 
 interface Props {
