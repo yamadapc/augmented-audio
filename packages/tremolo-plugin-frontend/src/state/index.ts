@@ -1,10 +1,7 @@
-import { ClientMessageInner, ServerMessage } from "../common/protocol";
-import { injectAll, singleton } from "tsyringe";
-import {
-  DefaultMessageTransport,
-  MessageTransport,
-} from "@wisual/webview-transport";
-import { MessageHandler } from "./MessageHandler";
+import {ClientMessageInner, ServerMessage} from "../common/protocol";
+import {injectAll, singleton} from "tsyringe";
+import {DefaultMessageTransport, MessageTransport,} from "@wisual/webview-transport";
+import {MessageHandler} from "./MessageHandler";
 import "./MessageHandlerRegistry";
 
 @singleton()
@@ -35,11 +32,5 @@ export class MessageHandlingService {
         this.transport.postMessage("default", msg, id);
       });
     });
-
-    // this.transport.postMessage("default", {
-    //   type: "Log",
-    //   level: "info",
-    //   message: `ACK:${msg.message.type}`,
-    // });
   };
 }
