@@ -1,17 +1,19 @@
 use basedrop::Owned;
 
-use crate::audio_io::midi::{MidiMessageQueue, MidiMessageWrapper};
+use crate::host::{MidiMessageQueue, MidiMessageWrapper};
 
+/// Audio-thread side of MIDI handling.
+///
 /// Pops MIDI events from the the MIDI queue & collects them on a pre-allocated fixed capacity
 /// vector.
-pub struct MidiMessageHandler {
+pub struct MidiAudioThreadHandler {
     buffer: Vec<Owned<MidiMessageWrapper>>,
     capacity: usize,
 }
 
-impl MidiMessageHandler {
+impl MidiAudioThreadHandler {
     pub fn new(capacity: usize) -> Self {
-        MidiMessageHandler {
+        MidiAudioThreadHandler {
             buffer: Vec::with_capacity(capacity),
             capacity,
         }

@@ -35,6 +35,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/atomic-queue/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-garbage-collector-v2/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-garbage-collector/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-standalone-midi/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-standalone/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-standalone/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-testing-helpers/src" isTestSource="false" />

@@ -2,21 +2,20 @@ use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
+use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
+use audio_processor_standalone_midi::host::MidiMessageQueue;
 use audio_processor_traits::InterleavedAudioBuffer;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
-use midi_message_handler::MidiMessageHandler;
 use options::AudioThreadOptions;
 
 use crate::audio_io::audio_thread::options::AudioDeviceId;
-use crate::audio_io::midi::MidiMessageQueue;
 use crate::constants::MIDI_BUFFER_CAPACITY;
 use crate::processors::shared_processor::{ProcessorCell, SharedProcessor};
 use crate::processors::test_host_processor::TestHostProcessor;
 
 mod cpal_option_handling;
 pub mod error;
-mod midi_message_handler;
 pub mod options;
 
 pub enum AudioThreadProcessor {
@@ -143,7 +142,7 @@ fn create_stream_inner(
     log::info!("Buffer size {:?}", buffer_size);
 
     let num_channels: usize = output_config.channels.into();
-    let mut midi_message_handler = MidiMessageHandler::new(MIDI_BUFFER_CAPACITY);
+    let mut midi_message_handler = MidiAudioThreadHandler::new(MIDI_BUFFER_CAPACITY);
 
     Ok(output_device.build_output_stream(
         output_config,

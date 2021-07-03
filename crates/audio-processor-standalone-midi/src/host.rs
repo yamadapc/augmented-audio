@@ -1,4 +1,4 @@
-use crate::constants::MIDI_BUFFER_CAPACITY;
+use atomic_queue::Queue;
 use basedrop::{Handle, Owned, Shared};
 use midir::{MidiInput, MidiInputConnection};
 use thiserror::Error;
@@ -11,49 +11,15 @@ pub enum MidiError {
     ConnectError(#[from] midir::ConnectError<MidiInput>),
 }
 
-pub type MidiMessageQueue = Shared<atomic_queue::Queue<Owned<MidiMessageWrapper>>>;
+pub type MidiMessageQueue = Shared<Queue<Owned<MidiMessageWrapper>>>;
 
 pub struct MidiMessageWrapper {
     pub message_data: [u8; 3],
     pub timestamp: u64,
 }
 
-struct MidiCallbackContext {
-    handle: Handle,
-    messages: MidiMessageQueue,
-}
-
-impl MidiCallbackContext {
-    pub fn new(handle: Handle, messages: MidiMessageQueue) -> Self {
-        MidiCallbackContext { handle, messages }
-    }
-}
-
-fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext) {
-    if bytes.len() > 3 {
-        log::debug!(
-            "Received a 3+ bytes long MIDI message. It'll be ignored. {:?}",
-            bytes
-        );
-        return;
-    }
-
-    log::debug!("Handling midi message: {:?}", bytes);
-    let mut message_data: [u8; 3] = [0, 0, 0];
-    for (i, b) in bytes.iter().enumerate() {
-        message_data[i] = *b;
-    }
-
-    let message = Owned::new(
-        &context.handle,
-        MidiMessageWrapper {
-            message_data,
-            timestamp,
-        },
-    );
-    context.messages.push(message);
-}
-
+/// Host for MIDI messages, opens all ports & forwards them onto a lock-free queue the audio-thread
+/// can pop from.
 pub struct MidiHost {
     handle: Handle,
     connections: Vec<MidiInputConnection<MidiCallbackContext>>,
@@ -61,11 +27,11 @@ pub struct MidiHost {
 }
 
 impl MidiHost {
-    pub fn new(handle: &Handle) -> Self {
+    pub fn new(handle: &Handle, capacity: usize) -> Self {
         Self {
             handle: handle.clone(),
             connections: Vec::new(),
-            current_messages: Shared::new(handle, atomic_queue::Queue::new(MIDI_BUFFER_CAPACITY)),
+            current_messages: Shared::new(handle, Queue::new(capacity)),
         }
     }
 
@@ -103,4 +69,40 @@ impl Drop for MidiHost {
             connection.close();
         }
     }
+}
+
+struct MidiCallbackContext {
+    handle: Handle,
+    messages: MidiMessageQueue,
+}
+
+impl MidiCallbackContext {
+    pub fn new(handle: Handle, messages: MidiMessageQueue) -> Self {
+        MidiCallbackContext { handle, messages }
+    }
+}
+
+fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext) {
+    if bytes.len() > 3 {
+        log::debug!(
+            "Received a 3+ bytes long MIDI message. It'll be ignored. {:?}",
+            bytes
+        );
+        return;
+    }
+
+    log::debug!("Handling midi message: {:?}", bytes);
+    let mut message_data: [u8; 3] = [0, 0, 0];
+    for (i, b) in bytes.iter().enumerate() {
+        message_data[i] = *b;
+    }
+
+    let message = Owned::new(
+        &context.handle,
+        MidiMessageWrapper {
+            message_data,
+            timestamp,
+        },
+    );
+    context.messages.push(message);
 }

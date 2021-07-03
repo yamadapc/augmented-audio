@@ -1,0 +1,14 @@
+[package]
+name = "audio-processor-standalone-midi"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+basedrop = "^0.1.2"
+thiserror = "^1.0.26"
+midir = "^0.7.0"
+vst = { git = "https://github.com/rustaudio/vst-rs", rev = "a398697b0214129720af2480e98f1abf7beecfce" }
+atomic-queue = { path = "../atomic-queue" }
+log = "^0.4.14"

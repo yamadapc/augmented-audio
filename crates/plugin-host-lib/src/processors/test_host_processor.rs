@@ -4,15 +4,15 @@ use basedrop::Owned;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use audio_processor_standalone_midi::host::MidiMessageWrapper;
+use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
-use crate::audio_io::midi::MidiMessageWrapper;
 use crate::constants::MIDI_BUFFER_CAPACITY;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::volume_meter_processor::VolumeMeterProcessor;
-use crate::processors::vst_midi_converter::MidiConverter;
 
 /// The app's main processor
 pub struct TestHostProcessor {
@@ -21,7 +21,7 @@ pub struct TestHostProcessor {
     buffer_handler: CpalVstBufferHandler,
     audio_file_processor: AudioFileProcessor,
     volume_meter_processor: VolumeMeterProcessor,
-    midi_converter: MidiConverter,
+    midi_converter: MidiVSTConverter,
 }
 
 unsafe impl Send for TestHostProcessor {}
@@ -43,7 +43,7 @@ impl TestHostProcessor {
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
             audio_file_processor: AudioFileProcessor::new(audio_file_settings, audio_settings),
             volume_meter_processor: VolumeMeterProcessor::new(),
-            midi_converter: MidiConverter::new(MIDI_BUFFER_CAPACITY),
+            midi_converter: MidiVSTConverter::new(MIDI_BUFFER_CAPACITY),
         }
     }
 
@@ -75,8 +75,7 @@ impl TestHostProcessor {
 impl TestHostProcessor {
     /// Will eventually evolve onto a "MidiEventsProcessor" trait.
     pub fn process_midi(&mut self, midi_message_buffer: &[Owned<MidiMessageWrapper>]) {
-        self.midi_converter.accept(midi_message_buffer);
-        let events = self.midi_converter.events();
+        let events = self.midi_converter.accept(midi_message_buffer);
         self.plugin_instance.process_events(events);
     }
 }

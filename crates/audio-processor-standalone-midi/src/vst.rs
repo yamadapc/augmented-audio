@@ -3,7 +3,7 @@ use std::cmp::{max, min};
 use basedrop::Owned;
 use vst::api::{Event, Events, MidiEvent};
 
-use crate::audio_io::midi::MidiMessageWrapper;
+use crate::host::MidiMessageWrapper;
 
 /// This is a super unsafe converter from MIDI events as received into the VST api. It's unsafe
 /// because it must do manual memory allocation & management.
@@ -14,7 +14,7 @@ use crate::audio_io::midi::MidiMessageWrapper;
 /// The collecting phase of the audio-thread should collect at most a limit of messages.
 ///
 /// Threshold can be changed in the future to include more.
-pub struct MidiConverter {
+pub struct MidiVSTConverter {
     events: Box<vst::api::Events>,
     /// Events list here for freeing manually allocated memory.
     #[allow(dead_code, clippy::vec_box)]
@@ -22,17 +22,17 @@ pub struct MidiConverter {
     capacity: usize,
 }
 
-impl MidiConverter {
+impl MidiVSTConverter {
     pub fn new(capacity: usize) -> Self {
         unsafe {
-            let events_ptr = MidiConverter::allocate_events(capacity);
+            let events_ptr = MidiVSTConverter::allocate_events(capacity);
             let event_ptrs = std::slice::from_raw_parts_mut(
                 &mut (*events_ptr).events[0] as *mut *mut _ as *mut *mut _,
                 capacity,
             );
             let mut events_lst = Vec::with_capacity(capacity);
             for event_ptr_cell in event_ptrs.iter_mut().take(capacity) {
-                let event_ptr = MidiConverter::allocate_event();
+                let event_ptr = MidiVSTConverter::allocate_event();
                 *event_ptr_cell = event_ptr;
                 events_lst.push(Box::from_raw(*event_ptr_cell));
             }
@@ -45,17 +45,17 @@ impl MidiConverter {
         }
     }
 
-    pub fn events(&self) -> &vst::api::Events {
-        &self.events
-    }
-
-    pub fn accept(&mut self, midi_message_buffer: &[Owned<MidiMessageWrapper>]) {
+    /// Pushes MIDI messages onto a pre-allocated `Events` struct. Returns a reference to it.
+    pub fn accept(
+        &mut self,
+        midi_message_buffer: &[Owned<MidiMessageWrapper>],
+    ) -> &vst::api::Events {
         self.events.num_events = min(self.capacity as i32, midi_message_buffer.len() as i32);
 
         for (i, message) in midi_message_buffer.iter().enumerate() {
             if i >= self.capacity {
                 log::error!("Message was dropped");
-                return;
+                break;
             }
 
             unsafe {
@@ -84,6 +84,12 @@ impl MidiConverter {
                 *in_place_ptr = event;
             }
         }
+
+        &self.events
+    }
+
+    pub fn events(&self) -> &vst::api::Events {
+        &self.events
     }
 
     /// Allocates a simple event. We're only using MIDI events for now, but should create enough
