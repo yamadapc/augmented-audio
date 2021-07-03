@@ -307,9 +307,6 @@ unsafe fn pin_to_parent(parent_id: id, webview_id: id) {
 mod test {
     use std::ptr::null;
 
-    use cocoa::appkit::NSApp;
-    use cocoa::foundation::NSAutoreleasePool;
-
     use super::*;
 
     #[test]

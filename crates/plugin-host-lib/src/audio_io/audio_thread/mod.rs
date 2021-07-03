@@ -2,9 +2,8 @@ use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
-use audio_processor_traits::{
-    AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer, SilenceAudioProcessor,
-};
+use audio_processor_traits::InterleavedAudioBuffer;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
 use options::AudioThreadOptions;
 
