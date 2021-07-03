@@ -1,4 +1,5 @@
-use crate::atomic_queue;
+use atomic_queue;
+
 use crate::node::DropCommand;
 
 pub struct GarbageCollectorOptions {
