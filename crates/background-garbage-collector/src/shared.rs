@@ -54,7 +54,8 @@ mod test {
     use std::sync::atomic::AtomicUsize;
     use std::sync::Arc;
 
-    use crate::atomic_queue;
+    use atomic_queue;
+
     use crate::node::DropCommand;
 
     use super::*;

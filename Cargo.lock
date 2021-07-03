@@ -167,6 +167,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "atomic-queue"
+version = "0.1.0"
+dependencies = [
+ "circular-data-structures",
+ "log",
+ "rand 0.8.4",
+ "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "attohttpc"
 version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -238,6 +248,7 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 name = "background-garbage-collector"
 version = "0.1.0"
 dependencies = [
+ "atomic-queue",
  "circular-data-structures",
  "log",
  "rand 0.8.4",
