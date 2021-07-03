@@ -46,7 +46,6 @@ fn main() {
   let app_config = AppConfig {
     audio_thread_config_path: String::from(
       home_config_dir
-        .clone()
         .join("audio-thread-config.json")
         .to_str()
         .unwrap(),
@@ -67,7 +66,7 @@ fn main() {
   tauri::Builder::default()
     .manage(app_state.clone())
     .on_window_event({
-      let state = app_state.clone();
+      let state = app_state;
       move |window_event| on_window_event(&state, window_event)
     })
     .on_page_load(|window, _page_load| {

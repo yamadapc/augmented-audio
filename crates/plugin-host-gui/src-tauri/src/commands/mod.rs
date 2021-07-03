@@ -75,7 +75,7 @@ pub fn subscribe_to_volume_command(state: tauri::State<AppStateRef>, window: Win
   log::info!("Setting-up fake volume event emitter");
   let mut state = state.inner().lock().unwrap();
   let volume_publisher_service = state.volume_publisher_service();
-  let window = window.clone();
+  let window = window;
   volume_publisher_service.subscribe(move |volume| {
     let (volume_left, volume_right) = volume;
     let js_string = format!(
@@ -132,7 +132,7 @@ pub fn set_input_file_command(
   log::info!("Setting audio input file {}", input_file);
   let state = state.lock().unwrap();
   let mut host = state.host().lock().unwrap();
-  let result = host.set_audio_file_path(PathBuf::from(input_file.clone()));
+  let result = host.set_audio_file_path(PathBuf::from(input_file));
   match result {
     Ok(_) => {
       log::info!("Input file set");
@@ -208,14 +208,13 @@ fn get_host_state(host: &MutexGuard<TestPluginHost>) -> HostState {
   let audio_input_file_path = strip_home_dir(&home_dir, audio_input_file_path);
   let audio_input_file_path = Some(audio_input_file_path);
 
-  let host_state = HostState {
+  HostState {
     plugin_path,
     audio_input_file_path,
-  };
-  host_state
+  }
 }
 
-fn strip_home_dir(home_dir: &PathBuf, path: PathBuf) -> String {
+fn strip_home_dir(home_dir: &Path, path: PathBuf) -> String {
   if let Ok(without_home) = path.strip_prefix(&home_dir) {
     format!("~/{}", without_home.to_str().unwrap().to_string())
   } else {

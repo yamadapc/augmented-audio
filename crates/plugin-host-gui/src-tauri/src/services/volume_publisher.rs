@@ -36,7 +36,7 @@ where
   pub fn new(host: Arc<Mutex<VolumeProvider>>, poll_interval: Duration) -> Self {
     VolumePublisherService {
       host,
-      poll_interval: poll_interval.clone(),
+      poll_interval,
       state: Arc::new(Mutex::new(VolumePublisherState::new(poll_interval))),
       polling_task: None,
     }

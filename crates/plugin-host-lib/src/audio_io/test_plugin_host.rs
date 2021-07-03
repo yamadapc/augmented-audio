@@ -200,17 +200,23 @@ impl TestPluginHost {
 
     /// Resume playback
     pub fn play(&self) {
-        self.host_processor().map(|p| p.play());
+        if let Some(processor) = self.host_processor() {
+            processor.play();
+        }
     }
 
     /// Pause playback
     pub fn pause(&self) {
-        self.host_processor().map(|p| p.pause());
+        if let Some(processor) = self.host_processor() {
+            processor.pause();
+        }
     }
 
     /// Stop playback and go back to the start of the file
     pub fn stop(&self) {
-        self.host_processor().map(|p| p.stop());
+        if let Some(processor) = self.host_processor() {
+            processor.stop();
+        }
     }
 
     /// Whether the file is being played back

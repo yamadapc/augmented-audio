@@ -35,6 +35,12 @@ pub struct LooperProcessorHandle {
     playback_input: AtomicBool,
 }
 
+impl Default for LooperProcessorHandle {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LooperProcessorHandle {
     pub fn new() -> Self {
         LooperProcessorHandle {
