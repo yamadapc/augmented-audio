@@ -2,15 +2,16 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use basedrop::{Handle, Shared};
+use num::Zero;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 use circular_data_structures::CircularVec;
 
-struct CircularAudioBuffer {
-    channels: Vec<CircularVec<f32>>,
+struct CircularAudioBuffer<SampleType> {
+    channels: Vec<CircularVec<SampleType>>,
 }
 
-impl CircularAudioBuffer {
+impl<SampleType: num::Float> CircularAudioBuffer<SampleType> {
     pub fn new() -> Self {
         CircularAudioBuffer {
             channels: Vec::new(),
@@ -21,7 +22,7 @@ impl CircularAudioBuffer {
         let duration_samples = (duration.as_secs_f32() * sample_rate) as usize;
         self.channels.clear();
         for _channel in 0..num_channels {
-            let channel_buffer = CircularVec::with_size(duration_samples, 0.0);
+            let channel_buffer = CircularVec::with_size(duration_samples, SampleType::zero());
             self.channels.push(channel_buffer);
         }
     }
@@ -62,16 +63,16 @@ impl LooperProcessorHandle {
 }
 
 /// Private not thread safe mutable state
-struct LooperProcessorState {
+struct LooperProcessorState<SampleType: num::Float> {
     always_recording_cursor: usize,
     num_channels: usize,
     looper_cursor: usize,
     loop_size: usize,
-    looped_clip: CircularAudioBuffer,
-    always_recording_buffer: CircularAudioBuffer,
+    looped_clip: CircularAudioBuffer<SampleType>,
+    always_recording_buffer: CircularAudioBuffer<SampleType>,
 }
 
-impl LooperProcessorState {
+impl<SampleType: num::Float> LooperProcessorState<SampleType> {
     pub fn new() -> Self {
         LooperProcessorState {
             num_channels: 2,
@@ -85,12 +86,12 @@ impl LooperProcessorState {
 }
 
 /// A single stereo looper
-pub struct LooperProcessor {
-    state: LooperProcessorState,
+pub struct LooperProcessor<SampleType: num::Float> {
+    state: LooperProcessorState<SampleType>,
     handle: Shared<LooperProcessorHandle>,
 }
 
-impl LooperProcessor {
+impl<SampleType: num::Float> LooperProcessor<SampleType> {
     pub fn new(handle: &Handle) -> Self {
         LooperProcessor {
             state: LooperProcessorState::new(),
@@ -103,7 +104,9 @@ impl LooperProcessor {
     }
 }
 
-impl AudioProcessor for LooperProcessor {
+impl<BufferType: AudioBuffer> AudioProcessor<BufferType>
+    for LooperProcessor<BufferType::SampleType>
+{
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         if settings.output_channels() != settings.input_channels() {
             log::error!("Prepare failed. Output/input channels mismatch");
@@ -124,13 +127,15 @@ impl AudioProcessor for LooperProcessor {
         );
     }
 
-    fn process(&mut self, data: &mut [f32]) {
-        for (_sample_index, frame) in data.chunks_mut(self.state.num_channels).enumerate() {
+    fn process(&mut self, data: &mut BufferType) {
+        for sample_index in 0..data.num_samples() {
             let should_playback_input = self.handle.playback_input.load(Ordering::Relaxed);
             let is_playing = self.handle.is_playing_back.load(Ordering::Relaxed);
             let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
 
-            for (channel_num, channel_sample) in frame.iter_mut().enumerate() {
+            for channel_num in 0..data.num_channels() {
+                let channel_sample = data.get_mut(channel_num, sample_index);
+
                 let always_recording_channel =
                     &mut self.state.always_recording_buffer.channels[channel_num];
                 let loop_channel = &mut self.state.looped_clip.channels[channel_num];
@@ -140,7 +145,7 @@ impl AudioProcessor for LooperProcessor {
                 let current_looper_cursor = self.state.looper_cursor;
 
                 if !should_playback_input {
-                    *channel_sample = 0.0;
+                    *channel_sample = BufferType::SampleType::zero();
                 }
                 if is_playing {
                     *channel_sample = loop_channel[current_looper_cursor % self.state.loop_size];
@@ -174,7 +179,7 @@ mod test {
     use std::time::Duration;
 
     use audio_processor_testing_helpers::{rms_level, sine_buffer, test_level_equivalence};
-    use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+    use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer};
 
     use crate::LooperProcessor;
 
@@ -187,15 +192,17 @@ mod test {
         let collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
-        looper.prepare(settings.clone());
+
+        AudioProcessor::<InterleavedAudioBuffer<f32>>::prepare(&mut looper, settings.clone());
 
         let mut silence_buffer = Vec::new();
         // Produce 0.1 second empty buffer
         silence_buffer.resize((0.1 * settings.sample_rate()) as usize, 0.0);
 
         let mut audio_buffer = silence_buffer.clone();
-        looper.process(&mut audio_buffer);
-        assert_eq!(rms_level(&audio_buffer), 0.0);
+        let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
+        AudioProcessor::<InterleavedAudioBuffer<f32>>::process(&mut looper, &mut audio_buffer);
+        assert_eq!(rms_level(&audio_buffer.inner()), 0.0);
     }
 
     #[test]
@@ -203,13 +210,14 @@ mod test {
         let collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
-        looper.prepare(settings.clone());
+        AudioProcessor::<InterleavedAudioBuffer<f32>>::prepare(&mut looper, settings.clone());
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         let mut audio_buffer = sine_buffer.clone();
-        looper.process(&mut audio_buffer);
+        let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
+        AudioProcessor::<InterleavedAudioBuffer<f32>>::process(&mut looper, &mut audio_buffer);
 
-        test_level_equivalence(&sine_buffer, &audio_buffer, 1, 1, 0.001);
+        test_level_equivalence(&sine_buffer, audio_buffer.inner(), 1, 1, 0.001);
     }
 
     #[test]
@@ -217,7 +225,7 @@ mod test {
         let collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
-        looper.prepare(settings.clone());
+        AudioProcessor::<InterleavedAudioBuffer<f32>>::prepare(&mut looper, settings.clone());
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         assert_ne!(sine_buffer.len(), 0);
@@ -226,9 +234,10 @@ mod test {
         assert_ne!(rms_level(&sine_buffer), 0.0);
 
         let mut audio_buffer = sine_buffer.clone();
+        let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
         looper.handle().set_playback_input(false);
-        looper.process(&mut audio_buffer);
+        AudioProcessor::<InterleavedAudioBuffer<f32>>::process(&mut looper, &mut audio_buffer);
 
-        assert_eq!(rms_level(&audio_buffer), 0.0);
+        assert_eq!(rms_level(audio_buffer.inner()), 0.0);
     }
 }

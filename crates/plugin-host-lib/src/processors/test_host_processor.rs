@@ -4,7 +4,7 @@ use vst::buffer::AudioBuffer;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
@@ -67,7 +67,7 @@ impl TestHostProcessor {
     }
 }
 
-impl AudioProcessor for TestHostProcessor {
+impl AudioProcessor<InterleavedAudioBuffer<'_, f32>> for TestHostProcessor {
     fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
         self.audio_settings = audio_settings;
         self.buffer_handler.prepare(&audio_settings);
@@ -75,21 +75,22 @@ impl AudioProcessor for TestHostProcessor {
         self.volume_meter_processor.prepare(audio_settings);
     }
 
-    fn process(&mut self, output: &mut [f32]) {
+    fn process(&mut self, output: &mut InterleavedAudioBuffer<f32>) {
         let num_channels = self.audio_settings.input_channels();
+        let output_slice = output.inner_mut();
 
         // Input generation section
-        self.audio_file_processor.process(output);
+        self.audio_file_processor.process(output_slice);
 
         // VST processing section
-        self.buffer_handler.process(output);
+        self.buffer_handler.process(output_slice);
         let mut audio_buffer = self.buffer_handler.get_audio_buffer();
         unsafe {
             let instance =
                 self.plugin_instance.deref() as *const PluginInstance as *mut PluginInstance;
             (*instance).process(&mut audio_buffer);
         }
-        flush_vst_output(num_channels, &mut audio_buffer, output);
+        flush_vst_output(num_channels, &mut audio_buffer, output_slice);
 
         // Volume meter
         self.volume_meter_processor.process(output);

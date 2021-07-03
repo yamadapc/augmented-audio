@@ -1,6 +1,7 @@
-use audio_processor_traits::AudioProcessor;
-use circular_data_structures::CircularVec;
 use vst::util::AtomicFloat;
+
+use audio_processor_traits::{AudioBuffer, AudioProcessor, InterleavedAudioBuffer};
+use circular_data_structures::CircularVec;
 
 pub struct VolumeMeterProcessor {
     volume_left: AtomicFloat,
@@ -37,11 +38,11 @@ impl VolumeMeterProcessor {
     }
 }
 
-impl AudioProcessor for VolumeMeterProcessor {
-    fn process(&mut self, data: &mut [f32]) {
-        for frame in data.chunks_mut(2) {
-            self.left_buffer[self.current_index] = frame[0];
-            self.right_buffer[self.current_index] = frame[1];
+impl AudioProcessor<InterleavedAudioBuffer<'_, f32>> for VolumeMeterProcessor {
+    fn process(&mut self, data: &mut InterleavedAudioBuffer<f32>) {
+        for frame_index in 0..data.num_samples() {
+            self.left_buffer[self.current_index] = *data.get(0, frame_index);
+            self.right_buffer[self.current_index] = *data.get(1, frame_index);
 
             if self.current_index >= self.buffer_duration_samples {
                 self.current_index = 0;

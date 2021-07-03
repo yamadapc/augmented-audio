@@ -1,3 +1,5 @@
+use num::Zero;
+
 #[derive(Clone, Copy)]
 pub struct AudioProcessorSettings {
     sample_rate: f32,
@@ -44,23 +46,29 @@ impl AudioProcessorSettings {
     }
 }
 
-pub trait AudioProcessor: Send + Sync {
+pub trait AudioProcessor<BufferType: AudioBuffer>: Send + Sync {
     fn prepare(&mut self, _settings: AudioProcessorSettings) {}
-    fn process(&mut self, data: &mut [f32]);
+    fn process(&mut self, data: &mut BufferType);
 }
 
 pub struct NoopAudioProcessor;
 
-impl AudioProcessor for NoopAudioProcessor {
-    fn process(&mut self, _data: &mut [f32]) {}
+impl<BufferType: AudioBuffer> AudioProcessor<BufferType> for NoopAudioProcessor {
+    fn process(&mut self, _data: &mut BufferType) {}
 }
 
 pub struct SilenceAudioProcessor;
 
-impl AudioProcessor for SilenceAudioProcessor {
-    fn process(&mut self, output: &mut [f32]) {
-        for out in output {
-            *out = 0.0;
+impl<BufferType: AudioBuffer> AudioProcessor<BufferType> for SilenceAudioProcessor {
+    fn process(&mut self, output: &mut BufferType) {
+        for sample_index in 0..output.num_samples() {
+            for channel_index in 0..output.num_channels() {
+                output.set(
+                    channel_index,
+                    sample_index,
+                    <BufferType as AudioBuffer>::SampleType::zero(),
+                );
+            }
         }
     }
 }
@@ -76,12 +84,14 @@ impl AudioProcessor for SilenceAudioProcessor {
 ///   conversion to work with VST.
 /// * That's very unfortunate. I'd like to write a single processor that can work with both buffer
 ///   types with no overhead.
-pub trait AudioBuffer<SampleType> {
+pub trait AudioBuffer {
+    type SampleType: num::Float + Sync + Send;
+
     fn num_channels(&self) -> usize;
     fn num_samples(&self) -> usize;
-    fn get(&self, channel: usize, sample: usize) -> &SampleType;
-    fn get_mut(&mut self, channel: usize, sample: usize) -> &mut SampleType;
-    fn set(&mut self, channel: usize, sample: usize, value: SampleType);
+    fn get(&self, channel: usize, sample: usize) -> &Self::SampleType;
+    fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType;
+    fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType);
 }
 
 pub struct InterleavedAudioBuffer<'a, SampleType> {
@@ -96,9 +106,21 @@ impl<'a, SampleType> InterleavedAudioBuffer<'a, SampleType> {
             inner,
         }
     }
+
+    pub fn inner(&self) -> &[SampleType] {
+        &self.inner
+    }
+
+    pub fn inner_mut(&mut self) -> &mut [SampleType] {
+        &mut self.inner
+    }
 }
 
-impl<'a, SampleType> AudioBuffer<SampleType> for InterleavedAudioBuffer<'a, SampleType> {
+impl<'a, SampleType: num::Float + Sync + Send> AudioBuffer
+    for InterleavedAudioBuffer<'a, SampleType>
+{
+    type SampleType = SampleType;
+
     fn num_channels(&self) -> usize {
         self.num_channels
     }

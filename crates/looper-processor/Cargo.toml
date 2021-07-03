@@ -10,6 +10,7 @@ circular-data-structures = { path = "../circular-data-structures" }
 audio-processor-traits = { path = "../audio-processor-traits" }
 log = "^0.4.14"
 basedrop = "^0.1.2"
+num = "^0.4.0"
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../audio-processor-testing-helpers" }

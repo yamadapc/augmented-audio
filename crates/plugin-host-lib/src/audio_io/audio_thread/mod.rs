@@ -2,7 +2,9 @@ use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
+use audio_processor_traits::{
+    AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer, SilenceAudioProcessor,
+};
 use error::AudioThreadError;
 use options::AudioThreadOptions;
 
@@ -123,15 +125,17 @@ fn create_stream_inner(
 
     log::info!("Buffer size {:?}", buffer_size);
 
+    let num_channels: usize = output_config.channels.into();
     Ok(output_device.build_output_stream(
         output_config,
         move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| unsafe {
+            let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
+
             let shared_processor = processor.get();
-            // Forgive me:
             let processor_ptr = shared_processor.0.get();
             match &mut (*processor_ptr) {
-                AudioThreadProcessor::Active(processor) => processor.process(data),
-                AudioThreadProcessor::Silence(processor) => (*processor).process(data),
+                AudioThreadProcessor::Active(processor) => processor.process(&mut audio_buffer),
+                AudioThreadProcessor::Silence(processor) => (*processor).process(&mut audio_buffer),
             }
         },
         |err| {

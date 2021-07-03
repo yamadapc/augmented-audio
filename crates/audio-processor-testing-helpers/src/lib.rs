@@ -32,7 +32,7 @@ pub fn rms_level(input: &[f32]) -> f32 {
 /// Test two buffers have equivalent RMS levels
 pub fn test_level_equivalence(
     input_buffer: &Vec<f32>,
-    output_buffer: &Vec<f32>,
+    output_buffer: &[f32],
     input_window_size: usize,
     output_window_size: usize,
     threshold: f32,
