@@ -14,7 +14,6 @@ use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 use crate::audio_io::audio_thread::error::AudioThreadError;
 use crate::audio_io::audio_thread::options::AudioDeviceId;
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
-use crate::constants::MIDI_BUFFER_CAPACITY;
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
 };
@@ -83,7 +82,7 @@ impl TestPluginHost {
     pub fn new(audio_settings: AudioProcessorSettings) -> Self {
         let path = Path::new("").to_path_buf();
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
-        let midi_host = MidiHost::new(garbage_collector.handle(), MIDI_BUFFER_CAPACITY);
+        let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
 
         TestPluginHost {
             audio_thread: AudioThread::new(

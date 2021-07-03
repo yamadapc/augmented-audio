@@ -1,3 +1,4 @@
+use crate::constants::MIDI_BUFFER_CAPACITY;
 use atomic_queue::Queue;
 use basedrop::{Handle, Owned, Shared};
 use midir::{MidiInput, MidiInputConnection};
@@ -33,6 +34,10 @@ impl MidiHost {
             connections: Vec::new(),
             current_messages: Shared::new(handle, Queue::new(capacity)),
         }
+    }
+
+    pub fn default_with_handle(handle: &Handle) -> Self {
+        MidiHost::new(handle, MIDI_BUFFER_CAPACITY)
     }
 
     pub fn messages(&self) -> &MidiMessageQueue {

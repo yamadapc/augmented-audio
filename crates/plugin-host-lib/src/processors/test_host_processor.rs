@@ -9,7 +9,6 @@ use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
-use crate::constants::MIDI_BUFFER_CAPACITY;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::volume_meter_processor::VolumeMeterProcessor;
@@ -43,7 +42,7 @@ impl TestHostProcessor {
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
             audio_file_processor: AudioFileProcessor::new(audio_file_settings, audio_settings),
             volume_meter_processor: VolumeMeterProcessor::new(),
-            midi_converter: MidiVSTConverter::new(MIDI_BUFFER_CAPACITY),
+            midi_converter: MidiVSTConverter::default(),
         }
     }
 

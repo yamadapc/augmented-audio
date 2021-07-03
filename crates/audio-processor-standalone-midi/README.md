@@ -6,3 +6,6 @@ the audio-thread by `MidiAudioThreadHandler`.
 
 This crate provides conversion into the VST types, which is to allow a VST host to use it. This is provided by the
 `MidiVSTConverter`.
+
+Currently, MIDI messages over 3 bytes are dropped by this host. In addition, the queue is bounded & a size must be
+provided. `Default` implementations will use a MIDI queue capacity of 100.

@@ -3,6 +3,7 @@ use std::cmp::{max, min};
 use basedrop::Owned;
 use vst::api::{Event, Events, MidiEvent};
 
+use crate::constants::MIDI_BUFFER_CAPACITY;
 use crate::host::MidiMessageWrapper;
 
 /// This is a super unsafe converter from MIDI events as received into the VST api. It's unsafe
@@ -20,6 +21,12 @@ pub struct MidiVSTConverter {
     #[allow(dead_code, clippy::vec_box)]
     events_lst: Vec<Box<vst::api::Event>>,
     capacity: usize,
+}
+
+impl Default for MidiVSTConverter {
+    fn default() -> Self {
+        Self::new(MIDI_BUFFER_CAPACITY)
+    }
 }
 
 impl MidiVSTConverter {
