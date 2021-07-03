@@ -12,13 +12,24 @@
 pub trait AudioBuffer {
     type SampleType: num::Float + Sync + Send;
 
+    /// The number of channels in this buffer
     fn num_channels(&self) -> usize;
+
+    /// The number of samples in this buffer
     fn num_samples(&self) -> usize;
+
+    /// Get a ref to an INPUT sample in this buffer
     fn get(&self, channel: usize, sample: usize) -> &Self::SampleType;
+
+    /// Get a mutable ref to an OUTPUT sample in this buffer
+    ///
+    /// On some implementations this may yield a different value than `.get`.
     fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType;
+
+    /// Set an OUTPUT sample in this buffer
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType);
 
-    /// Read only iterator
+    /// Create a read only iterator
     fn iter(&self) -> AudioBufferIterator<Self> {
         AudioBufferIterator::new(&self)
     }
@@ -202,6 +213,7 @@ impl<'a, SampleType: num::Float + Sync + Send> AudioBuffer for SliceAudioBuffer<
     }
 }
 
+#[cfg(feature = "vst_support")]
 pub mod vst {
     use super::*;
 

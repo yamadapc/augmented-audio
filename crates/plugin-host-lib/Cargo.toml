@@ -28,6 +28,6 @@ hound = "^3.4.0"
 
 atomic-queue = { path = "../atomic-queue" }
 circular-data-structures = { path = "../circular-data-structures" }
-audio-processor-traits = { path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.1.0", path = "../audio-processor-traits" }
 oscillator = { path = "../oscillator" }
 convert-sample-rate = { path = "../convert-sample-rate" }
