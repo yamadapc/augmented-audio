@@ -11,6 +11,7 @@ darwin-webkit = "^0.1.3"
 log = "^0.4.11"
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
 vst = { git = "https://github.com/rustaudio/vst-rs", rev = "a398697b0214129720af2480e98f1abf7beecfce" }
+serde_json = "^1.0.64"
 
 audio-parameter-store = { path = "../audio-parameter-store" }
 macos-bundle-resources = { path = "../macos-bundle-resources" }

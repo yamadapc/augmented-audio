@@ -1,5 +1,6 @@
-use audio_parameter_store::parameter::ParameterType;
 use serde::{Deserialize, Serialize};
+
+use audio_parameter_store::parameter::ParameterType;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageWrapper<Message> {

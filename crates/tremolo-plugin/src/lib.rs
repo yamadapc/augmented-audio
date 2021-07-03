@@ -24,12 +24,11 @@ use crate::constants::{
     BUNDLE_IDENTIFIER, DEPTH_PARAMETER_ID, INDEX_HTML_RESOURCE, PHASE_PARAMETER_ID,
     RATE_PARAMETER_ID,
 };
-use crate::editor::GenericParametersEditorOptions;
 use crate::processor::Processor;
+use generic_parameters_editor::{GenericParametersEditor, GenericParametersEditorOptions};
 
 mod config;
 pub mod constants;
-pub mod editor;
 pub mod processor;
 
 struct TremoloPlugin {
@@ -127,7 +126,7 @@ impl Plugin for TremoloPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        Some(Box::new(editor::GenericParametersEditor::new(
+        Some(Box::new(GenericParametersEditor::new(
             GenericParametersEditorOptions::new(
                 String::from(BUNDLE_IDENTIFIER),
                 String::from(INDEX_HTML_RESOURCE),

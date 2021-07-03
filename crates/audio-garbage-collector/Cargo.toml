@@ -9,3 +9,6 @@ edition = "2018"
 thiserror = "^1.0.26"
 basedrop = "^0.1.2"
 log = "^0.4.14"
+
+[dev-dependencies]
+wisual-logger = { version = "^0.1.2", path = "../wisual-logger" }
