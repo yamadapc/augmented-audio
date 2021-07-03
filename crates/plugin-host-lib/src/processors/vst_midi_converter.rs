@@ -1,8 +1,9 @@
+use std::cmp::min;
+
 use basedrop::Owned;
 use vst::api::MidiEvent;
 
 use crate::audio_io::midi::MidiMessageWrapper;
-use std::cmp::min;
 
 /// This is a super unsafe converter from MIDI events as received into the VST api. It's unsafe
 /// because it must do manual memory allocation & management.
@@ -27,7 +28,7 @@ impl MidiConverter {
                 std::mem::align_of::<*mut vst::api::Event>(),
             );
             let events_layout = std::alloc::Layout::from_size_align_unchecked(
-                std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * 98,
+                std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * 100,
                 std::mem::align_of::<*mut vst::api::Events>(),
             );
             let events_ptr = std::alloc::alloc(events_layout) as *mut vst::api::Events;
