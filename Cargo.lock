@@ -3207,9 +3207,14 @@ name = "looper-vst"
 version = "0.1.0"
 dependencies = [
  "audio-garbage-collector",
+ "audio-parameter-store",
  "audio-processor-traits",
+ "dirs 3.0.2",
+ "generic-parameters-editor",
  "log",
+ "log4rs",
  "looper-processor",
+ "thiserror",
  "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
 ]
 

@@ -51,6 +51,24 @@ impl AudioProcessorSettings {
     }
 }
 
+impl AudioProcessorSettings {
+    pub fn set_sample_rate(&mut self, sample_rate: f32) {
+        self.sample_rate = sample_rate;
+    }
+
+    pub fn set_input_channels(&mut self, input_channels: usize) {
+        self.input_channels = input_channels;
+    }
+
+    pub fn set_output_channels(&mut self, output_channels: usize) {
+        self.output_channels = output_channels;
+    }
+
+    pub fn set_block_size(&mut self, block_size: u32) {
+        self.block_size = block_size;
+    }
+}
+
 pub trait AudioProcessor: Send + Sync {
     type SampleType;
     fn prepare(&mut self, _settings: AudioProcessorSettings) {}

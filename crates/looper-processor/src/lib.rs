@@ -109,10 +109,13 @@ impl<SampleType: num::Float> LooperProcessor<SampleType> {
     }
 }
 
-impl<SampleType: num::Float + Send + Sync> AudioProcessor for LooperProcessor<SampleType> {
+impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
+    for LooperProcessor<SampleType>
+{
     type SampleType = SampleType;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
+        log::info!("Prepare looper");
         if settings.output_channels() != settings.input_channels() {
             log::error!("Prepare failed. Output/input channels mismatch");
             return;
@@ -142,22 +145,24 @@ impl<SampleType: num::Float + Send + Sync> AudioProcessor for LooperProcessor<Sa
             let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
 
             for channel_num in 0..data.num_channels() {
-                let channel_sample = data.get_mut(channel_num, sample_index);
+                let input = *data.get(channel_num, sample_index);
 
                 let always_recording_channel =
                     &mut self.state.always_recording_buffer.channels[channel_num];
                 let loop_channel = &mut self.state.looped_clip.channels[channel_num];
 
                 // PLAYBACK SECTION:
-                let input = *channel_sample;
                 let current_looper_cursor = self.state.looper_cursor;
 
-                if !should_playback_input {
-                    *channel_sample = BufferType::SampleType::zero();
-                }
+                let mut output = if !should_playback_input {
+                    BufferType::SampleType::zero()
+                } else {
+                    input
+                };
                 if is_playing {
-                    *channel_sample = loop_channel[current_looper_cursor % self.state.loop_size];
+                    output += loop_channel[current_looper_cursor % self.state.loop_size];
                 }
+                data.set(channel_num, sample_index, output);
 
                 // RECORDING SECTION:
                 if !is_recording {

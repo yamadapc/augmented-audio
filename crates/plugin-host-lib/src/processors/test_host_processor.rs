@@ -83,6 +83,10 @@ impl AudioProcessor for TestHostProcessor {
     type SampleType = f32;
 
     fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
+        self.plugin_instance
+            .set_block_size(audio_settings.block_size() as i64);
+        self.plugin_instance
+            .set_sample_rate(audio_settings.sample_rate() as f32);
         self.audio_settings = audio_settings;
         self.buffer_handler.prepare(&audio_settings);
         self.audio_file_processor.prepare(audio_settings);
