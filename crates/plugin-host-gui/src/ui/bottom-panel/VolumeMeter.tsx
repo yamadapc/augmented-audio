@@ -65,7 +65,7 @@ export function VolumeMeter() {
   }, [setVolumeHandlePos, logger]);
 
   useEffect(() => {
-    const volume = 1 - volumeHandlePos / height;
+    // const volume = 1 - volumeHandlePos / height;
     // TODO - Submit volume up, maintain state & implement volume in TestPluginHost
   }, [volumeHandlePos, height]);
 

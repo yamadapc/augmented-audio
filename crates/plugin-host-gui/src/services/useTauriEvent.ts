@@ -21,7 +21,7 @@ export function useTauriEvent<T>(eventName: string) {
           logger.error(`Failed to subscribe to ${eventName}`, err);
         });
     };
-  }, [setState, eventName]);
+  }, [logger, setState, eventName]);
 
   return state;
 }
