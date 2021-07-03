@@ -1,7 +1,7 @@
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{BufferSize, SampleRate, StreamConfig};
 
-use audio_processor_traits::{AudioProcessor, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer};
 
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'static>(
     mut audio_processor: Processor,
@@ -27,6 +27,14 @@ pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'stati
     output_config.sample_rate = SampleRate(44100);
     output_config.buffer_size = BufferSize::Fixed(buffer_size);
     input_config.buffer_size = BufferSize::Fixed(buffer_size);
+
+    let settings = AudioProcessorSettings::new(
+        output_config.sample_rate.0 as f32,
+        input_config.channels.into(),
+        output_config.channels.into(),
+        buffer_size,
+    );
+    audio_processor.prepare(settings);
 
     let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
     let (mut producer, mut consumer) = buffer.split();

@@ -2502,12 +2502,15 @@ dependencies = [
 name = "looper-processor"
 version = "0.1.0"
 dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-standalone",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "basedrop",
  "circular-data-structures",
  "log",
  "num 0.4.0",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
