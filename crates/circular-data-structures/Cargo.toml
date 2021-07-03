@@ -1,5 +1,9 @@
 [package]
 name = "circular-data-structures"
+description = "Very simple circular buffer based on a vec."
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 version = "0.1.0"
 edition = "2018"
 

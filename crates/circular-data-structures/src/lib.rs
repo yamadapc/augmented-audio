@@ -103,4 +103,25 @@ mod tests {
             assert_eq!(vec[i], i % 10);
         }
     }
+
+    #[test]
+    fn test_we_can_use_the_vec_as_normal() {
+        let mut vec = CircularVec::new();
+        vec.resize(10, 0);
+        assert_eq!(vec.len(), 10);
+        vec[0] = 10;
+        vec[1] = 20;
+        assert_eq!(vec[0], 10);
+        assert_eq!(vec[1], 20);
+        assert_eq!(vec[2], 0);
+    }
+
+    #[test]
+    fn test_we_can_set_elements_past_the_length_into_the_vec() {
+        let mut vec = CircularVec::new();
+        vec.resize(10, 0);
+        assert_eq!(vec.len(), 10);
+        vec[100] = 10;
+        assert_eq!(vec[0], 10);
+    }
 }

@@ -4,6 +4,7 @@ use std::sync::atomic::{AtomicI8, AtomicUsize, Ordering};
 use circular_data_structures::CircularVec;
 use std::mem::MaybeUninit;
 
+/// State a slot in the Queue's circular buffer can be in.
 enum CellState {
     Empty = 0,
     Storing = 1,
@@ -22,8 +23,15 @@ impl From<CellState> for i8 {
     }
 }
 
-/// Atomic queue cloned from
-/// https://github.com/max0x7ba/atomic_queue
+/// Atomic queue cloned from https://github.com/max0x7ba/atomic_queue
+///
+/// Should be:
+/// * Lock-free
+///
+/// Any type can be pushed into the queue, but it's recommended to use some sort of smart pointer
+/// that can be free-ed outside of the critical path.
+///
+/// Uses unsafe internally.
 pub struct Queue<T> {
     head: AtomicUsize,
     tail: AtomicUsize,
@@ -35,6 +43,7 @@ unsafe impl<T> Send for Queue<T> {}
 unsafe impl<T> Sync for Queue<T> {}
 
 impl<T> Queue<T> {
+    /// Create a queue with a certain capacity. Writes will fail when the queue is full.
     pub fn new(capacity: usize) -> Self {
         let mut elements = Vec::with_capacity(capacity);
         for _ in 0..capacity {
@@ -55,6 +64,10 @@ impl<T> Queue<T> {
         }
     }
 
+    /// Push an element into the queue and return `true` on success.
+    ///
+    /// `false` will be returned if the queue is full. If there's contention this operation will
+    /// wait until it's able to claim a slot in the queue.
     pub fn push(&self, element: T) -> bool {
         let mut head = self.head.load(Ordering::Relaxed);
         loop {
@@ -77,6 +90,10 @@ impl<T> Queue<T> {
         true
     }
 
+    /// Pop an element from the queue and return `true` on success.
+    ///
+    /// `false` will be returned if the queue is empty. If there's contention this operation will
+    /// wait until it's able to claim a slot in the queue.
     pub fn pop(&self) -> Option<T> {
         let mut tail = self.tail.load(Ordering::Relaxed);
         loop {
@@ -98,6 +115,7 @@ impl<T> Queue<T> {
         Some(self.do_pop(tail))
     }
 
+    /// Pop an element from the queue without checking if it's empty.
     pub fn force_pop(&self) -> T {
         let tail = self.tail.fetch_add(1, Ordering::Acquire);
         self.do_pop(tail)
@@ -131,6 +149,7 @@ impl<T> Queue<T> {
         }
     }
 
+    /// Push an element into the queue without checking if it's full.
     pub fn force_push(&self, element: T) {
         let head = self.head.fetch_add(1, Ordering::Acquire);
         self.do_push(element, head);
@@ -163,10 +182,12 @@ impl<T> Queue<T> {
         }
     }
 
+    /// True if the queue is empty.
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
 
+    /// Get the length of the queue.
     pub fn len(&self) -> usize {
         max(
             self.head.load(Ordering::Relaxed) - self.tail.load(Ordering::Relaxed),
