@@ -2,7 +2,8 @@ import "./index.css";
 import { useEffect, useMemo, useState } from "react";
 import { ParametersStore } from "../../state/ParametersStore";
 import { observer } from "mobx-react";
-import { range } from "lodash";
+import { range, throttle } from "lodash";
+import { useLogger } from "@wisual/logger";
 
 interface Props {
   parametersStore: ParametersStore;
@@ -44,18 +45,20 @@ function generatePoints(
 }
 
 function HudPanel({ parametersStore }: Props) {
+  const logger = useLogger("HudPanel");
   const [windowWidth, setWindowWidth] = useState(() => window.innerWidth);
   const [windowHeight, setWindowHeight] = useState(() => window.innerHeight);
   useEffect(() => {
-    const onResize = () => {
+    const onResize = throttle(() => {
+      logger.debug("Window has resized");
       setWindowWidth(window.innerWidth);
       setWindowHeight(window.innerHeight);
-    };
-    document.addEventListener("resize", onResize);
+    }, 100);
+    window.addEventListener("resize", onResize);
     return () => {
-      document.removeEventListener("resize", onResize);
+      window.removeEventListener("resize", onResize);
     };
-  }, []);
+  }, [logger]);
 
   const leftPoints = useMemo(
     () =>

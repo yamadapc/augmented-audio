@@ -22,6 +22,7 @@ export function Controls({ parametersStore, setParameter }: Props) {
           }
           return (
             <RotaryControl
+              key={parameter.id}
               declaration={parameter}
               state={state}
               onChange={(id, val) => {

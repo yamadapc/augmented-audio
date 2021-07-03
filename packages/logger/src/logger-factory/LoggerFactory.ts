@@ -31,6 +31,10 @@ export class LoggerFactory {
     });
   }
 
+  static setSink(sink: LoggerSink) {
+    LoggerFactory.shared.setSink(sink);
+  }
+
   static setLevel(logLevel: LogLevel) {
     LoggerFactory.shared.setLevel(logLevel);
   }
