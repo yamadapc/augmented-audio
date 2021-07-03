@@ -72,6 +72,7 @@ impl TestHostProcessor {
 }
 
 impl TestHostProcessor {
+    /// Will eventually evolve onto a "MidiEventsProcessor" trait.
     pub fn process_midi(&mut self, midi_message_buffer: &[Owned<MidiMessageWrapper>]) {
         self.midi_converter.accept(midi_message_buffer);
         let events = self.midi_converter.events();

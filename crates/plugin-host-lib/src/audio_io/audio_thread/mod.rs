@@ -5,6 +5,7 @@ use cpal::StreamConfig;
 use audio_processor_traits::InterleavedAudioBuffer;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
+use midi_message_handler::MidiMessageHandler;
 use options::AudioThreadOptions;
 
 use crate::audio_io::audio_thread::options::AudioDeviceId;
@@ -14,6 +15,7 @@ use crate::processors::test_host_processor::TestHostProcessor;
 
 mod cpal_option_handling;
 pub mod error;
+mod midi_message_handler;
 pub mod options;
 
 pub enum AudioThreadProcessor {
@@ -21,6 +23,10 @@ pub enum AudioThreadProcessor {
     Silence(SilenceAudioProcessor<f32>),
 }
 
+/// Centralizes work done around the CPAL audio thread.
+///
+/// Holds an atomic reference to the current processor, which may be hot-swapped while the audio
+/// thread is running.
 pub struct AudioThread {
     processor: Shared<SharedCell<ProcessorCell<AudioThreadProcessor>>>,
     processor_ref: SharedProcessor<AudioThreadProcessor>,
@@ -150,7 +156,7 @@ fn create_stream_inner(
 
             match &mut (*processor_ptr) {
                 AudioThreadProcessor::Active(processor) => {
-                    processor.process_midi(&midi_message_handler.buffer);
+                    processor.process_midi(midi_message_handler.buffer());
                     processor.process(&mut audio_buffer)
                 }
                 AudioThreadProcessor::Silence(processor) => (*processor).process(&mut audio_buffer),
@@ -162,35 +168,4 @@ fn create_stream_inner(
             log::error!("Playback error: {:?}", err);
         },
     )?)
-}
-
-struct MidiMessageHandler {
-    buffer: Vec<Owned<MidiMessageWrapper>>,
-    capacity: usize,
-}
-
-impl MidiMessageHandler {
-    pub fn new(capacity: usize) -> Self {
-        MidiMessageHandler {
-            buffer: Vec::with_capacity(capacity),
-            capacity,
-        }
-    }
-
-    fn collect_midi_messages(&mut self, midi_message_queue: &MidiMessageQueue) -> usize {
-        let mut midi_message_count = 0;
-        for _i in 0..self.capacity {
-            if let Some(midi_message) = midi_message_queue.pop() {
-                self.buffer.push(midi_message);
-                midi_message_count += 1;
-            } else {
-                return midi_message_count;
-            }
-        }
-        midi_message_count
-    }
-
-    fn clear(&mut self) {
-        self.buffer.clear();
-    }
 }
