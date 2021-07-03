@@ -39,17 +39,17 @@ export type ClientMessageInner =
   | SetParameterMessage
   | LogMessage;
 
-interface AppStartedMessage {
+export interface AppStartedMessage {
   type: "AppStarted";
 }
 
-interface SetParameterMessage {
+export interface SetParameterMessage {
   type: "SetParameter";
   parameterId: string;
   value: number;
 }
 
-interface LogMessage {
+export interface LogMessage {
   type: "Log";
   level: string;
   message: string;

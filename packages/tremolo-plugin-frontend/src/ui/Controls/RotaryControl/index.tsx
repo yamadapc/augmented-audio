@@ -1,8 +1,8 @@
 import "./index.css";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react";
-import { ParameterDeclarationMessage } from "../../../message-handling/protocol";
-import {ParameterState} from "../../../message-handling/ParameterState";
+import { ParameterDeclarationMessage } from "@ruas/generic-parameters-editor-runtime/lib/protocol";
+import { ParameterState } from "@ruas/generic-parameters-editor-runtime/lib/ParameterState";
 
 const TWO_PI = 2 * Math.PI;
 
@@ -16,10 +16,10 @@ function RotaryControl({ state: parameter, declaration, onChange }: Props) {
   const {
     valueRange: [minValue, maxValue],
     label,
-      name,
+    name,
     valuePrecision: precision,
   } = declaration;
-  const { value } = parameter;
+  const value = parameter.value;
   const valueAbsRange = Math.abs(maxValue - minValue);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
@@ -27,6 +27,7 @@ function RotaryControl({ state: parameter, declaration, onChange }: Props) {
 
   const setValue = useCallback(
     (val) => {
+      console.log(val);
       parameter.value = val;
       onChange(declaration.id, val);
     },

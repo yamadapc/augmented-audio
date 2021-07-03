@@ -1,10 +1,14 @@
 import "./index.css";
 import { useEffect, useMemo, useState } from "react";
-import { ParametersStore } from "../../message-handling/ParametersStore";
+import { ParametersStore } from "@ruas/generic-parameters-editor-runtime/lib/ParametersStore";
 import { observer } from "mobx-react";
 import { range, throttle } from "lodash";
 import { useLogger } from "@wisual/logger";
-import {DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID} from "../../common/constants";
+import {
+  DEPTH_PARAMETER_ID,
+  PHASE_PARAMETER_ID,
+  RATE_PARAMETER_ID,
+} from "../../common/constants";
 
 interface Props {
   parametersStore: ParametersStore;
@@ -61,38 +65,24 @@ function HudPanel({ parametersStore }: Props) {
     };
   }, [logger]);
 
+  const rateValue = parametersStore.parameterValues[RATE_PARAMETER_ID]?.value;
+  const depthValue = parametersStore.parameterValues[DEPTH_PARAMETER_ID]?.value;
+  const phaseValue = parametersStore.parameterValues[PHASE_PARAMETER_ID]?.value;
+
   const leftPoints = useMemo(
-    () =>
-      generatePoints(
-        windowHeight,
-        windowWidth,
-        parametersStore.getParameter(RATE_PARAMETER_ID)?.value,
-        parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value,
-        0
-      ),
-    [
-      windowHeight,
-      windowWidth,
-      parametersStore.getParameter(RATE_PARAMETER_ID)?.value,
-      parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value,
-    ]
+    () => generatePoints(windowHeight, windowWidth, rateValue, depthValue, 0),
+    [windowHeight, windowWidth, rateValue, depthValue]
   );
   const rightPoints = useMemo(
     () =>
       generatePoints(
         windowHeight,
         windowWidth,
-        parametersStore.getParameter(RATE_PARAMETER_ID)?.value,
-        parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value,
-        parametersStore.getParameter(PHASE_PARAMETER_ID)?.value
+        rateValue,
+        depthValue,
+        phaseValue
       ),
-    [
-      windowHeight,
-      windowWidth,
-      parametersStore.getParameter(RATE_PARAMETER_ID)?.value,
-      parametersStore.getParameter(DEPTH_PARAMETER_ID)?.value,
-      parametersStore.getParameter(PHASE_PARAMETER_ID)?.value,
-    ]
+    [windowHeight, windowWidth, rateValue, depthValue, phaseValue]
   );
 
   return (

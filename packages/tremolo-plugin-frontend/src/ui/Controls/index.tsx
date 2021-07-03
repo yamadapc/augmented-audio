@@ -1,7 +1,7 @@
 import React from "react";
 import "./index.css";
 import RotaryControl from "./RotaryControl";
-import { ParametersStore } from "../../message-handling/ParametersStore";
+import { ParametersStore } from "@ruas/generic-parameters-editor-runtime/lib/ParametersStore";
 import { observer } from "mobx-react";
 
 interface Props {
@@ -16,7 +16,7 @@ export function Controls({ parametersStore, setParameter }: Props) {
     <div className="Controls">
       <div className="Box">
         {parameters.map((parameter) => {
-          const state = parametersStore.getParameter(parameter.id);
+          const state = parametersStore.parameterValues[parameter.id];
           if (!state) {
             return null;
           }

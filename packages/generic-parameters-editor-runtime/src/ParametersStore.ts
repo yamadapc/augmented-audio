@@ -1,15 +1,20 @@
 import { ParameterDeclarationMessage } from "./protocol";
 import { singleton } from "tsyringe";
-import { makeAutoObservable } from "mobx";
+import { action, makeObservable, observable, trace } from "mobx";
 import { ParameterState } from "./ParameterState";
 
 @singleton()
 export class ParametersStore {
   parameters: ParameterDeclarationMessage[] = [];
-  private parameterValues: { [parameterId: string]: ParameterState } = {};
+  parameterValues: { [parameterId: string]: ParameterState } = {};
 
   constructor() {
-    makeAutoObservable(this);
+    makeObservable(this, {
+      parameters: observable,
+      parameterValues: observable,
+      setParameterValue: action,
+      setParameters: action,
+    });
   }
 
   setParameters(parameters: ParameterDeclarationMessage[]) {
@@ -18,10 +23,6 @@ export class ParametersStore {
     parameters.forEach((parameter) => {
       this.parameterValues[parameter.id] = new ParameterState(parameter.value);
     });
-  }
-
-  getParameter(id: string): null | ParameterState {
-    return this.parameterValues[id] ?? null;
   }
 
   setParameterValue(id: string, value: number) {

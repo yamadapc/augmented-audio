@@ -8,10 +8,10 @@ import {
   ClientMessageInner,
   ParameterDeclarationMessage,
   ServerMessage,
-} from "../message-handling/protocol";
+} from "@ruas/generic-parameters-editor-runtime/lib/protocol";
 import { container } from "tsyringe";
-import { MessageHandlingService } from "../message-handling";
-import { ParametersStore } from "../message-handling/ParametersStore";
+import { MessageHandlingService } from "@ruas/generic-parameters-editor-runtime/lib/MessageHandlingService";
+import { ParametersStore } from "@ruas/generic-parameters-editor-runtime/lib/ParametersStore";
 
 interface State {
   parameters: ParameterDeclarationMessage[];
