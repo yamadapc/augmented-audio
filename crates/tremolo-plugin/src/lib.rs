@@ -20,7 +20,11 @@ use audio_parameter_store::{ParameterStore, PluginParameter};
 
 use crate::config::get_configuration_root_path;
 use crate::config::logging::configure_logging;
-use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
+use crate::constants::{
+    BUNDLE_IDENTIFIER, DEPTH_PARAMETER_ID, INDEX_HTML_RESOURCE, PHASE_PARAMETER_ID,
+    RATE_PARAMETER_ID,
+};
+use crate::editor::GenericParametersEditorOptions;
 use crate::processor::Processor;
 
 mod config;
@@ -123,7 +127,11 @@ impl Plugin for TremoloPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        Some(Box::new(editor::TremoloEditor::new(
+        Some(Box::new(editor::GenericParametersEditor::new(
+            GenericParametersEditorOptions::new(
+                String::from(BUNDLE_IDENTIFIER),
+                String::from(INDEX_HTML_RESOURCE),
+            ),
             self.parameters.clone(),
         )))
     }

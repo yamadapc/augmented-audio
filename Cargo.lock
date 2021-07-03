@@ -206,6 +206,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-garbage-collector"
+version = "0.1.0"
+dependencies = [
+ "basedrop",
+ "log",
+ "thiserror",
+]
+
+[[package]]
+name = "audio-garbage-collector-v2"
+version = "0.1.0"
+dependencies = [
+ "atomic-queue",
+ "circular-data-structures",
+ "log",
+ "rand 0.8.4",
+ "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "audio-parameter-store"
 version = "0.1.0"
 dependencies = [
@@ -238,7 +258,7 @@ name = "audio-processor-traits"
 version = "0.1.0"
 dependencies = [
  "num 0.4.0",
- "vst 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
 ]
 
 [[package]]
@@ -246,17 +266,6 @@ name = "autocfg"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
-
-[[package]]
-name = "background-garbage-collector"
-version = "0.1.0"
-dependencies = [
- "atomic-queue",
- "circular-data-structures",
- "log",
- "rand 0.8.4",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
-]
 
 [[package]]
 name = "base64"
@@ -1809,6 +1818,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "generic-parameters-editor"
+version = "0.1.0"
+dependencies = [
+ "audio-parameter-store",
+ "darwin-webkit",
+ "log",
+ "macos-bundle-resources",
+ "serde",
+ "tokio",
+ "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "webview-holder",
+ "webview-transport",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2488,7 +2512,10 @@ dependencies = [
 name = "looper-vst"
 version = "0.1.0"
 dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-traits",
  "log",
+ "looper-processor",
  "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
 ]
 
@@ -3540,6 +3567,7 @@ name = "plugin-host-lib"
 version = "0.1.0"
 dependencies = [
  "atomic-queue",
+ "audio-garbage-collector",
  "audio-processor-traits",
  "basedrop",
  "circular-data-structures",
@@ -4923,18 +4951,18 @@ checksum = "8eaa81235c7058867fa8c0e7314f33dcce9c215f535d1913822a2b3f5e289f3c"
 
 [[package]]
 name = "thiserror"
-version = "1.0.25"
+version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa6f76457f59514c7eeb4e59d891395fab0b2fd1d40723ae737d64153392e9c6"
+checksum = "93119e4feac1cbe6c798c34d3a53ea0026b0b1de6a120deef895137c0529bfe2"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.25"
+version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8a36768c0fbf1bb15eca10defa29526bda730a2376c2ab4393ccfa16fb1a318d"
+checksum = "060d69a0afe7796bf42e9e2ff91f5ee691fb15c53d38b4b62a9a53eb23164745"
 dependencies = [
  "proc-macro2",
  "quote 1.0.9",

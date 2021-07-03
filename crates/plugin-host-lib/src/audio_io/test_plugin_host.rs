@@ -7,12 +7,12 @@ use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
 
+use audio_garbage_collector::{GarbageCollector, GarbageCollectorError};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::audio_thread::error::AudioThreadError;
 use crate::audio_io::audio_thread::options::AudioDeviceId;
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
-use crate::audio_io::garbage_collector::{GarbageCollector, GarbageCollectorError};
 use crate::audio_io::midi::{MidiError, MidiHost};
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,

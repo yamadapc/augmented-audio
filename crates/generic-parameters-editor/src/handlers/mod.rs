@@ -5,8 +5,8 @@ use tokio::sync::broadcast::{Receiver, Sender};
 use audio_parameter_store::ParameterStore;
 use ClientMessageInner::{AppStarted, Log, SetParameter};
 
-use crate::editor::list_parameters;
-use crate::editor::protocol::{
+use crate::list_parameters;
+use crate::protocol::{
     ClientMessage, ClientMessageInner, MessageWrapper, PublishParametersMessage, ServerMessage,
     ServerMessageInner, SetParameterMessage,
 };

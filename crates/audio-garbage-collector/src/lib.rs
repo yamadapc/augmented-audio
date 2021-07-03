@@ -29,6 +29,12 @@ pub struct GarbageCollector {
     handle: Handle,
 }
 
+impl Default for GarbageCollector {
+    fn default() -> Self {
+        Self::new(Duration::from_millis(100))
+    }
+}
+
 impl GarbageCollector {
     /// Create the collector and start the garbage collector thread
     pub fn new(collect_interval: Duration) -> Self {

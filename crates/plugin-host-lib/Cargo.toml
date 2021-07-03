@@ -27,6 +27,7 @@ vst = { git = "https://github.com/rustaudio/vst-rs", rev = "a398697b0214129720af
 hound = "^3.4.0"
 
 atomic-queue = { path = "../atomic-queue" }
+audio-garbage-collector = { path = "../audio-garbage-collector" }
 circular-data-structures = { path = "../circular-data-structures" }
 audio-processor-traits = { version = "^0.1.0", path = "../audio-processor-traits" }
 oscillator = { path = "../oscillator" }

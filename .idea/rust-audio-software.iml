@@ -23,7 +23,6 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/ruas-bundler/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/convert-sample-rate/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-traits/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/crates/background-garbage-collector/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/circular-data-structures/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/basedrop/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/macos-bundle-resources/src" isTestSource="false" />
@@ -34,9 +33,12 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-host-gui/src-tauri/tao/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/crates/looper-processor/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/atomic-queue/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/audio-garbage-collector-v2/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/audio-garbage-collector/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-standalone/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-standalone/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-testing-helpers/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/generic-parameters-editor/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/looper-vst/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />

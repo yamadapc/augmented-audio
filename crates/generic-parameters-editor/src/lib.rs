@@ -2,19 +2,18 @@ use std::ffi::c_void;
 use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 
+use audio_parameter_store::ParameterStore;
+use macos_bundle_resources::has_bundle;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use vst::editor::Editor;
-
-use audio_parameter_store::ParameterStore;
-use macos_bundle_resources::has_bundle;
 use webview_holder::WebviewHolder;
 use webview_transport::webkit::WebkitTransport;
 use webview_transport::{
     create_transport_runtime, DelegatingTransport, WebSocketsTransport, WebviewTransport,
 };
 
-use crate::editor::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
+use crate::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage};
 
 pub mod handlers;
 pub mod protocol;
