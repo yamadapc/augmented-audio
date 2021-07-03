@@ -82,16 +82,8 @@ impl MidiConverter {
         }
     }
 
-    unsafe fn allocate_events() -> *mut Events {
-        let event_ptr_size = std::mem::size_of::<*mut vst::api::Event>();
-        let events_layout = std::alloc::Layout::from_size_align_unchecked(
-            std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * 100,
-            std::mem::align_of::<*mut vst::api::Events>(),
-        );
-        let events_ptr = std::alloc::alloc(events_layout) as *mut vst::api::Events;
-        events_ptr
-    }
-
+    /// Allocates a simple event. We're only using MIDI events for now, but should create enough
+    /// space for any message type.
     unsafe fn allocate_event() -> *mut Event {
         let (event_size, event_align) = (
             max(
@@ -106,5 +98,18 @@ impl MidiConverter {
         let event_layout = std::alloc::Layout::from_size_align_unchecked(event_size, event_align);
         let event_ptr = std::alloc::alloc(event_layout) as *mut vst::api::Event;
         event_ptr
+    }
+
+    /// Allocates the `Events` struct. This is a C struct with a trailing array of events.
+    /// The Rust declaration sizes this array as 2 elements ; here we append space for another 100
+    /// elements after it.
+    unsafe fn allocate_events() -> *mut Events {
+        let event_ptr_size = std::mem::size_of::<*mut vst::api::Event>();
+        let events_layout = std::alloc::Layout::from_size_align_unchecked(
+            std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * 100,
+            std::mem::align_of::<*mut vst::api::Events>(),
+        );
+        let events_ptr = std::alloc::alloc(events_layout) as *mut vst::api::Events;
+        events_ptr
     }
 }
