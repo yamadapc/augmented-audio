@@ -1,3 +1,4 @@
+use crate::constants::MIDI_BUFFER_CAPACITY;
 use basedrop::{Handle, Owned, Shared};
 use midir::{MidiInput, MidiInputConnection};
 use thiserror::Error;
@@ -24,7 +25,7 @@ struct MidiCallbackContext {
 
 impl MidiCallbackContext {
     pub fn new(handle: Handle, messages: MidiMessageQueue) -> Self {
-        MidiCallbackContext { messages, handle }
+        MidiCallbackContext { handle, messages }
     }
 }
 
@@ -39,10 +40,8 @@ fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext
 
     log::debug!("Handling midi message: {:?}", bytes);
     let mut message_data: [u8; 3] = [0, 0, 0];
-    let mut i = 0;
-    for b in bytes {
+    for (i, b) in bytes.iter().enumerate() {
         message_data[i] = *b;
-        i += 1;
     }
 
     let message = Owned::new(
@@ -66,7 +65,7 @@ impl MidiHost {
         Self {
             handle: handle.clone(),
             connections: Vec::new(),
-            current_messages: Shared::new(handle, atomic_queue::Queue::new(100)),
+            current_messages: Shared::new(handle, atomic_queue::Queue::new(MIDI_BUFFER_CAPACITY)),
         }
     }
 

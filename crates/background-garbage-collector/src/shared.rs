@@ -61,7 +61,7 @@ mod test {
     use super::*;
 
     struct MockGarbageCollector {
-        queue: atomic_queue::Queue<DropCommand>,
+        queue: atomic_queue::Queue<*mut DropCommand>,
     }
 
     impl Default for MockGarbageCollector {

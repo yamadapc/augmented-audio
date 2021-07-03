@@ -37,7 +37,7 @@ pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'stati
             move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
                 let mut output_behind = false;
                 for sample in data {
-                    while let Err(_) = producer.push(*sample) {
+                    while producer.push(*sample).is_err() {
                         output_behind = true;
                     }
                 }

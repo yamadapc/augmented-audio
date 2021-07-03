@@ -43,7 +43,7 @@ impl AudioProcessor for SimpleDelayProcessor {
         // Delay read/write
         for sample_index in 0..data.num_samples() {
             for channel_index in 0..data.num_channels() {
-                let input = data.get(channel_index, sample_index);
+                let input = *data.get(channel_index, sample_index);
 
                 // Read delay output
                 let delay_output = self.delay_buffers[channel_index][self.current_read_position];
@@ -51,7 +51,7 @@ impl AudioProcessor for SimpleDelayProcessor {
                 // Write input into delay with feedback
                 let feedback = 0.3;
                 self.delay_buffers[channel_index][self.current_write_position] =
-                    *input + delay_output * feedback;
+                    input + delay_output * feedback;
 
                 // Output stage
                 data.set(channel_index, sample_index, input + delay_output);

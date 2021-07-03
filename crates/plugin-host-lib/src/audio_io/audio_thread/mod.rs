@@ -1,4 +1,4 @@
-use basedrop::{Handle, Owned, Shared, SharedCell};
+use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
@@ -9,7 +9,8 @@ use midi_message_handler::MidiMessageHandler;
 use options::AudioThreadOptions;
 
 use crate::audio_io::audio_thread::options::AudioDeviceId;
-use crate::audio_io::midi::{MidiMessageQueue, MidiMessageWrapper};
+use crate::audio_io::midi::MidiMessageQueue;
+use crate::constants::MIDI_BUFFER_CAPACITY;
 use crate::processors::shared_processor::{ProcessorCell, SharedProcessor};
 use crate::processors::test_host_processor::TestHostProcessor;
 
@@ -142,7 +143,7 @@ fn create_stream_inner(
     log::info!("Buffer size {:?}", buffer_size);
 
     let num_channels: usize = output_config.channels.into();
-    let mut midi_message_handler = MidiMessageHandler::new(100);
+    let mut midi_message_handler = MidiMessageHandler::new(MIDI_BUFFER_CAPACITY);
 
     Ok(output_device.build_output_stream(
         output_config,

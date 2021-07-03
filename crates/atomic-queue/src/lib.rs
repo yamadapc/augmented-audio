@@ -1,3 +1,3 @@
-pub use atomic_queue::*;
+pub use queue::*;
 
-mod atomic_queue;
+mod queue;
