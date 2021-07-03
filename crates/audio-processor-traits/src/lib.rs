@@ -2,7 +2,7 @@ use num::Zero;
 
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
 
-mod audio_buffer;
+pub mod audio_buffer;
 
 #[derive(Clone, Copy)]
 pub struct AudioProcessorSettings {

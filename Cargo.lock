@@ -216,6 +216,7 @@ name = "audio-processor-traits"
 version = "0.1.0"
 dependencies = [
  "num 0.4.0",
+ "vst 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
