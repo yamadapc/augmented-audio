@@ -17,6 +17,87 @@ pub trait AudioBuffer {
     fn get(&self, channel: usize, sample: usize) -> &Self::SampleType;
     fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType;
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType);
+
+    /// Read only iterator
+    fn iter(&self) -> AudioBufferIterator<Self> {
+        AudioBufferIterator::new(&self)
+    }
+}
+
+pub struct AudioBufferIterator<'a, BufferType: AudioBuffer + ?Sized> {
+    position: usize,
+    buffer: &'a BufferType,
+}
+
+impl<'a, BufferType: AudioBuffer + ?Sized> AudioBufferIterator<'a, BufferType> {
+    pub fn new(buffer: &'a BufferType) -> Self {
+        AudioBufferIterator {
+            position: 0,
+            buffer,
+        }
+    }
+}
+
+impl<'a, BufferType: AudioBuffer> Iterator for AudioBufferIterator<'a, BufferType> {
+    type Item = AudioFrameReference<'a, BufferType>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.position >= self.buffer.num_samples() {
+            return None;
+        }
+
+        let reference = AudioFrameReference::new(self.buffer, self.position);
+        self.position += 1;
+        Some(reference)
+    }
+}
+
+pub struct AudioFrameReference<'a, BufferType> {
+    sample_index: usize,
+    buffer: &'a BufferType,
+}
+
+impl<'a, BufferType> AudioFrameReference<'a, BufferType> {
+    fn new(buffer: &'a BufferType, sample_index: usize) -> Self {
+        AudioFrameReference {
+            sample_index,
+            buffer,
+        }
+    }
+
+    pub fn iter(&self) -> AudioFrameReferenceIterator<'a, BufferType> {
+        AudioFrameReferenceIterator::new(self.buffer, self.sample_index)
+    }
+}
+
+pub struct AudioFrameReferenceIterator<'a, BufferType> {
+    buffer: &'a BufferType,
+    sample_index: usize,
+    channel_index: usize,
+}
+
+impl<'a, BufferType> AudioFrameReferenceIterator<'a, BufferType> {
+    fn new(buffer: &'a BufferType, sample_index: usize) -> Self {
+        AudioFrameReferenceIterator {
+            buffer,
+            sample_index,
+            channel_index: 0,
+        }
+    }
+}
+
+impl<'a, BufferType: AudioBuffer> Iterator for AudioFrameReferenceIterator<'a, BufferType> {
+    type Item = &'a BufferType::SampleType;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.channel_index >= self.buffer.num_channels() {
+            None
+        } else {
+            let r = self.buffer.get(self.channel_index, self.sample_index);
+            self.channel_index += 1;
+            Some(r)
+        }
+    }
 }
 
 /// An AudioBuffer that stores samples as interleaved frames, used for CPAL.

@@ -79,6 +79,12 @@ impl<SampleType> SilenceAudioProcessor<SampleType> {
     }
 }
 
+impl<SampleType> Default for SilenceAudioProcessor<SampleType> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<SampleType: num::Float + Send + Sync> AudioProcessor for SilenceAudioProcessor<SampleType> {
     type SampleType = SampleType;
 

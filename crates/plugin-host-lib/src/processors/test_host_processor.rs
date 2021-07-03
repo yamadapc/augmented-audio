@@ -107,6 +107,7 @@ impl Drop for TestHostProcessor {
 }
 
 /// Flush plugin output to output
+#[allow(clippy::needless_range_loop)]
 pub fn flush_vst_output<BufferType: AudioBuffer<SampleType = f32>>(
     num_channels: usize,
     audio_buffer: &mut vst::buffer::AudioBuffer<f32>,

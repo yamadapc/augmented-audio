@@ -1,8 +1,8 @@
-use cpal::traits::{DeviceTrait, HostTrait};
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 
-use audio_processor_traits::{AudioBuffer, AudioProcessor, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioProcessor, InterleavedAudioBuffer};
 
-fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'static>(
+pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'static>(
     mut audio_processor: Processor,
 ) {
     let host = cpal::default_host();
@@ -23,6 +23,8 @@ fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'static>(
             },
         )
         .unwrap();
+    stream.play().unwrap();
+    std::thread::park();
 }
 
 #[cfg(test)]
