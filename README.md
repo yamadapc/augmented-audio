@@ -15,6 +15,9 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
+## audio-processor-traits
+See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-traits).
+
 ## plugin-host - A CLI for hosting VSTs
 `plugin-host` is a CLI tool for testing VST plug-ins. It's a simple VST host which can open a plug-in and play an audio
 file through it in a loop. Additionally, it supports watching the VST plug-in for changes & reloading it any time it
@@ -143,6 +146,10 @@ This is just a valid `Info.plist` as well as copying front-end resources into th
 
 The VST will access resource paths from its bundle using `CFBundle` functions. A missing binding is added in
 `macos-bundle-resources` to get resources in the plug-in bundle.
+
+See:
+* https://github.com/yamadapc/augmented-audio/tree/master/crates/bundler
+* https://github.com/yamadapc/augmented-audio/tree/master/crates/macos-bundle-resources
 
 ## crates/plugin-host-cli
 ```
