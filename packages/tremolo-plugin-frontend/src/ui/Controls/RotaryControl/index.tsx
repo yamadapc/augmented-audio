@@ -23,16 +23,14 @@ function RotaryControl({ state: parameter, declaration, onChange }: Props) {
   const valueAbsRange = Math.abs(maxValue - minValue);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMoving, setIsMoving] = useState(false);
-  // const [value, setValueInner] = useState(initialValue);
   const cleanUpTasks = useRef<(() => void)[]>([]);
 
   const setValue = useCallback(
     (val) => {
-      // setValueInner(val);
       parameter.value = val;
       onChange(declaration.id, val);
     },
-    [/* setValueInner, */ declaration, parameter, onChange]
+    [declaration, parameter, onChange]
   );
 
   const onMouseDown = (e: React.MouseEvent) => {

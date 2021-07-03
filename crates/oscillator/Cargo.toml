@@ -11,7 +11,9 @@ cpal = "^0.13.3"
 
 [dev-dependencies]
 criterion = "0.3"
-plotters = "^0.3.1"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
+plotters = { version = "^0.3.1", path = "../plotters" }
 
 [[bench]]
 name = "sine_oscillator_benchmark"

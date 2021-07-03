@@ -38,8 +38,12 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-standalone/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-standalone/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-testing-helpers/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/example-iced-app/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/generic-parameters-editor/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/looper-vst/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/plotters/benches" isTestSource="true" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/plotters/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/plotters/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/wisual-logger/target" />
