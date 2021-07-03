@@ -1,2 +1,2 @@
 # circular-data-structures
-Circular buffer based on a vec.
+Very simple circular buffer based on a vec.
