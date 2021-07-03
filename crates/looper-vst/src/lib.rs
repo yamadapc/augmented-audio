@@ -1,4 +1,5 @@
 use vst::plugin::{Category, HostCallback, Info, Plugin};
+use vst::plugin_main;
 
 struct LoopiPlugin {}
 

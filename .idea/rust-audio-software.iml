@@ -33,6 +33,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-host-gui/src-tauri/tao/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/plugin-host-gui/src-tauri/tao/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/crates/looper-processor/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-standalone/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/audio-processor-testing-helpers/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/looper-vst/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />

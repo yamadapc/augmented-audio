@@ -1,14 +1,11 @@
-use vst::buffer::AudioBuffer;
-use vst::host::HostBuffer;
-
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
 /// Handles conversion from CPAL buffers to VST buffers
 pub struct CpalVstBufferHandler {
     audio_settings: AudioProcessorSettings,
     input_buffer: Vec<Vec<f32>>,
     output_buffer: Vec<Vec<f32>>,
-    host_buffer: HostBuffer<f32>,
+    host_buffer: vst::host::HostBuffer<f32>,
 }
 
 impl CpalVstBufferHandler {
@@ -19,7 +16,7 @@ impl CpalVstBufferHandler {
 
         let input_buffer = Self::allocate_buffer(num_channels, buffer_size);
         let output_buffer = Self::allocate_buffer(num_channels, buffer_size);
-        let host_buffer = HostBuffer::new(num_channels, num_channels);
+        let host_buffer = vst::host::HostBuffer::new(num_channels, num_channels);
         log::info!("Buffer handler: num_channels={}", num_channels);
 
         CpalVstBufferHandler {
@@ -39,23 +36,20 @@ impl CpalVstBufferHandler {
 
         self.input_buffer = Self::allocate_buffer(num_channels, buffer_size);
         self.output_buffer = Self::allocate_buffer(num_channels, buffer_size);
-        self.host_buffer = HostBuffer::new(num_channels, num_channels);
+        self.host_buffer = vst::host::HostBuffer::new(num_channels, num_channels);
     }
 
     /// Process cpal input samples
-    pub fn process(&mut self, data: &[f32]) {
-        for (sample_index, frame) in data
-            .chunks(self.audio_settings.input_channels())
-            .enumerate()
-        {
-            for (channel, sample) in frame.iter().enumerate() {
-                self.input_buffer[channel][sample_index] = *sample;
+    pub fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &BufferType) {
+        for sample_index in 0..data.num_samples() {
+            for channel in 0..data.num_channels() {
+                self.input_buffer[channel][sample_index] = *data.get(channel, sample_index);
             }
         }
     }
 
     /// Get the VST audio buffer
-    pub fn get_audio_buffer(&mut self) -> AudioBuffer<f32> {
+    pub fn get_audio_buffer(&mut self) -> vst::buffer::AudioBuffer<f32> {
         self.host_buffer
             .bind(&self.input_buffer, &mut self.output_buffer)
     }

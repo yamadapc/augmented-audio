@@ -17,7 +17,7 @@ pub mod options;
 
 pub enum AudioThreadProcessor {
     Active(TestHostProcessor),
-    Silence(SilenceAudioProcessor),
+    Silence(SilenceAudioProcessor<f32>),
 }
 
 pub struct AudioThread {
@@ -31,7 +31,7 @@ unsafe impl Send for AudioThread {}
 
 impl AudioThread {
     pub fn new(handle: &Handle) -> Self {
-        let processor = AudioThreadProcessor::Silence(SilenceAudioProcessor);
+        let processor = AudioThreadProcessor::Silence(SilenceAudioProcessor::new());
         let processor_ref = SharedProcessor::new(handle, processor);
         AudioThread {
             processor: Shared::new(handle, SharedCell::new(processor_ref.shared())),

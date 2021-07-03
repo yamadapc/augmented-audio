@@ -1,6 +1,6 @@
 use vst::util::AtomicFloat;
 
-use audio_processor_traits::{AudioBuffer, AudioProcessor, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioProcessor};
 use circular_data_structures::CircularVec;
 
 pub struct VolumeMeterProcessor {
@@ -38,8 +38,13 @@ impl VolumeMeterProcessor {
     }
 }
 
-impl AudioProcessor<InterleavedAudioBuffer<'_, f32>> for VolumeMeterProcessor {
-    fn process(&mut self, data: &mut InterleavedAudioBuffer<f32>) {
+impl AudioProcessor for VolumeMeterProcessor {
+    type SampleType = f32;
+
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        data: &mut BufferType,
+    ) {
         for frame_index in 0..data.num_samples() {
             self.left_buffer[self.current_index] = *data.get(0, frame_index);
             self.right_buffer[self.current_index] = *data.get(1, frame_index);

@@ -3,7 +3,7 @@ use std::time::{Duration, Instant};
 use thiserror::Error;
 use vst::plugin::Plugin;
 
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{AudioProcessorSettings, InterleavedAudioBuffer};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_io::AudioHostPluginLoadError;
@@ -89,7 +89,8 @@ impl OfflineRenderer {
             audio_input_conversion_time += start.elapsed();
 
             let start = Instant::now();
-            buffer_handler.process(&buffer);
+            let mut interleaved_buffer = InterleavedAudioBuffer::new(num_channels, &mut buffer);
+            buffer_handler.process(&interleaved_buffer);
             let audio_buffer_start = Instant::now();
             let mut audio_plugin_buffer = buffer_handler.get_audio_buffer();
             audio_buffer_create_time += audio_buffer_start.elapsed();
@@ -101,7 +102,11 @@ impl OfflineRenderer {
 
             let start = Instant::now();
             let flush_start = Instant::now();
-            flush_vst_output(num_channels, &mut audio_plugin_buffer, &mut buffer);
+            flush_vst_output(
+                num_channels,
+                &mut audio_plugin_buffer,
+                &mut interleaved_buffer,
+            );
             plugin_flush_time += flush_start.elapsed();
             plugin_conversions_time += start.elapsed();
 

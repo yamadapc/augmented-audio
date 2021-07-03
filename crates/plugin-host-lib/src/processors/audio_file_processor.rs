@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::path::Path;
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Instant;
 
 use rayon::prelude::*;
@@ -15,7 +16,6 @@ use audio_processor_traits::AudioProcessorSettings;
 use convert_sample_rate::convert_sample_rate;
 
 use crate::timer;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 #[derive(Error, Debug)]
 pub enum AudioFileError {
@@ -203,14 +203,17 @@ impl AudioFileProcessor {
         );
     }
 
-    pub fn process(&mut self, data: &mut [f32]) {
-        let num_channels = self.audio_settings.input_channels();
-
+    pub fn process<BufferType: audio_processor_traits::AudioBuffer<SampleType = f32>>(
+        &mut self,
+        data: &mut BufferType,
+    ) {
         let is_playing = self.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
-            for output in data {
-                *output = 0.0;
+            for sample_index in 0..data.num_samples() {
+                for channel_index in 0..data.num_channels() {
+                    data.set(channel_index, sample_index, 0.0);
+                }
             }
             return;
         }
@@ -218,11 +221,11 @@ impl AudioFileProcessor {
         let start_cursor = self.audio_file_cursor.load(Ordering::Relaxed);
         let mut audio_file_cursor = start_cursor;
 
-        for frame in data.chunks_mut(num_channels) {
-            for (channel, sample) in frame.iter_mut().enumerate() {
-                let audio_input = self.buffer[channel][audio_file_cursor];
+        for sample_index in 0..data.num_samples() {
+            for channel_index in 0..data.num_channels() {
+                let audio_input = self.buffer[channel_index][audio_file_cursor];
                 let value = audio_input;
-                *sample = value;
+                data.set(channel_index, sample_index, value);
             }
 
             audio_file_cursor += 1;

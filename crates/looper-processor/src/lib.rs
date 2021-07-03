@@ -2,7 +2,6 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use basedrop::{Handle, Shared};
-use num::Zero;
 
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 use circular_data_structures::CircularVec;
@@ -110,9 +109,9 @@ impl<SampleType: num::Float> LooperProcessor<SampleType> {
     }
 }
 
-impl<BufferType: AudioBuffer> AudioProcessor<BufferType>
-    for LooperProcessor<BufferType::SampleType>
-{
+impl<SampleType: num::Float + Send + Sync> AudioProcessor for LooperProcessor<SampleType> {
+    type SampleType = SampleType;
+
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         if settings.output_channels() != settings.input_channels() {
             log::error!("Prepare failed. Output/input channels mismatch");
@@ -133,7 +132,10 @@ impl<BufferType: AudioBuffer> AudioProcessor<BufferType>
         );
     }
 
-    fn process(&mut self, data: &mut BufferType) {
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        data: &mut BufferType,
+    ) {
         for sample_index in 0..data.num_samples() {
             let should_playback_input = self.handle.playback_input.load(Ordering::Relaxed);
             let is_playing = self.handle.is_playing_back.load(Ordering::Relaxed);
@@ -199,7 +201,7 @@ mod test {
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
 
-        AudioProcessor::<InterleavedAudioBuffer<f32>>::prepare(&mut looper, settings.clone());
+        looper.prepare(settings.clone());
 
         let mut silence_buffer = Vec::new();
         // Produce 0.1 second empty buffer
@@ -207,7 +209,7 @@ mod test {
 
         let mut audio_buffer = silence_buffer.clone();
         let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
-        AudioProcessor::<InterleavedAudioBuffer<f32>>::process(&mut looper, &mut audio_buffer);
+        looper.process(&mut audio_buffer);
         assert_eq!(rms_level(&audio_buffer.inner()), 0.0);
     }
 
@@ -216,12 +218,12 @@ mod test {
         let collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
-        AudioProcessor::<InterleavedAudioBuffer<f32>>::prepare(&mut looper, settings.clone());
+        looper.prepare(settings.clone());
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         let mut audio_buffer = sine_buffer.clone();
         let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
-        AudioProcessor::<InterleavedAudioBuffer<f32>>::process(&mut looper, &mut audio_buffer);
+        looper.process(&mut audio_buffer);
 
         test_level_equivalence(&sine_buffer, audio_buffer.inner(), 1, 1, 0.001);
     }
@@ -231,7 +233,7 @@ mod test {
         let collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
-        AudioProcessor::<InterleavedAudioBuffer<f32>>::prepare(&mut looper, settings.clone());
+        looper.prepare(settings.clone());
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         assert_ne!(sine_buffer.len(), 0);
@@ -242,7 +244,7 @@ mod test {
         let mut audio_buffer = sine_buffer.clone();
         let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
         looper.handle().set_playback_input(false);
-        AudioProcessor::<InterleavedAudioBuffer<f32>>::process(&mut looper, &mut audio_buffer);
+        looper.process(&mut audio_buffer);
 
         assert_eq!(rms_level(audio_buffer.inner()), 0.0);
     }

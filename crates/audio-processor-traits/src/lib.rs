@@ -1,4 +1,4 @@
-use num::Zero;
+use std::marker::PhantomData;
 
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
 
@@ -50,21 +50,42 @@ impl AudioProcessorSettings {
     }
 }
 
-pub trait AudioProcessor<BufferType: AudioBuffer>: Send + Sync {
+pub trait AudioProcessor: Send + Sync {
+    type SampleType;
     fn prepare(&mut self, _settings: AudioProcessorSettings) {}
-    fn process(&mut self, data: &mut BufferType);
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        data: &mut BufferType,
+    );
 }
 
-pub struct NoopAudioProcessor;
+pub struct NoopAudioProcessor<SampleType>(PhantomData<SampleType>);
 
-impl<BufferType: AudioBuffer> AudioProcessor<BufferType> for NoopAudioProcessor {
-    fn process(&mut self, _data: &mut BufferType) {}
+impl<SampleType: Send + Sync> AudioProcessor for NoopAudioProcessor<SampleType> {
+    type SampleType = SampleType;
+
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        _data: &mut BufferType,
+    ) {
+    }
 }
 
-pub struct SilenceAudioProcessor;
+pub struct SilenceAudioProcessor<SampleType>(PhantomData<SampleType>);
 
-impl<BufferType: AudioBuffer> AudioProcessor<BufferType> for SilenceAudioProcessor {
-    fn process(&mut self, output: &mut BufferType) {
+impl<SampleType> SilenceAudioProcessor<SampleType> {
+    pub fn new() -> Self {
+        SilenceAudioProcessor(PhantomData)
+    }
+}
+
+impl<SampleType: num::Float + Send + Sync> AudioProcessor for SilenceAudioProcessor<SampleType> {
+    type SampleType = SampleType;
+
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        output: &mut BufferType,
+    ) {
         for sample_index in 0..output.num_samples() {
             for channel_index in 0..output.num_channels() {
                 output.set(

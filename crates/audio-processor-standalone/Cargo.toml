@@ -6,3 +6,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+audio-processor-traits = { path = "../audio-processor-traits" }
+cpal = "^0.13.3"
+log = "^0.4.14"
