@@ -13,6 +13,7 @@ use crate::audio_io::audio_thread::error::AudioThreadError;
 use crate::audio_io::audio_thread::options::AudioDeviceId;
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::audio_io::garbage_collector::{GarbageCollector, GarbageCollectorError};
+use crate::audio_io::midi::{MidiError, MidiHost};
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
 };
@@ -34,6 +35,8 @@ pub enum AudioHostPluginLoadError {
 pub enum StartError {
     #[error("Failed to start the audio thread")]
     AudioThreadError(#[from] AudioThreadError),
+    #[error("Failed to start MIDI handler")]
+    MidiError(#[from] MidiError),
 }
 
 #[derive(Debug, Error)]
@@ -51,6 +54,7 @@ pub struct TestPluginHost {
     plugin_file_path: Option<PathBuf>,
     vst_plugin_instance: Option<SharedProcessor<PluginInstance>>,
     processor: Option<SharedProcessor<AudioThreadProcessor>>,
+    midi_host: MidiHost,
     garbage_collector: GarbageCollector,
 }
 
@@ -78,18 +82,25 @@ impl TestPluginHost {
     pub fn new(audio_settings: AudioProcessorSettings) -> Self {
         let path = Path::new("").to_path_buf();
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
+        let midi_host = MidiHost::new(garbage_collector.handle());
+
         TestPluginHost {
-            audio_thread: AudioThread::new(garbage_collector.handle()),
+            audio_thread: AudioThread::new(
+                garbage_collector.handle(),
+                midi_host.messages().clone(),
+            ),
             audio_settings,
             audio_file_path: path,
             plugin_file_path: None,
             vst_plugin_instance: None,
             processor: None,
+            midi_host,
             garbage_collector,
         }
     }
 
     pub fn start(&mut self) -> Result<(), StartError> {
+        self.midi_host.start()?;
         self.audio_thread.start()?;
         Ok(())
     }

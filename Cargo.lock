@@ -3536,6 +3536,7 @@ dependencies = [
 name = "plugin-host-lib"
 version = "0.1.0"
 dependencies = [
+ "atomic-queue",
  "audio-processor-traits",
  "basedrop",
  "circular-data-structures",

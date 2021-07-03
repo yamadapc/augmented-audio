@@ -25,7 +25,7 @@ pub trait GarbageCollectorRef {
 }
 
 pub struct GarbageCollector {
-    queue: atomic_queue::Queue<DropCommand>,
+    queue: atomic_queue::Queue<*mut DropCommand>,
 }
 
 impl Default for GarbageCollector {

@@ -1,14 +1,17 @@
 use std::ops::Deref;
 
+use basedrop::Owned;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
+use crate::audio_io::midi::MidiMessageWrapper;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::volume_meter_processor::VolumeMeterProcessor;
+use crate::processors::vst_midi_converter::MidiConverter;
 
 /// The app's main processor
 pub struct TestHostProcessor {
@@ -17,6 +20,7 @@ pub struct TestHostProcessor {
     buffer_handler: CpalVstBufferHandler,
     audio_file_processor: AudioFileProcessor,
     volume_meter_processor: VolumeMeterProcessor,
+    midi_converter: MidiConverter,
 }
 
 unsafe impl Send for TestHostProcessor {}
@@ -38,6 +42,7 @@ impl TestHostProcessor {
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
             audio_file_processor: AudioFileProcessor::new(audio_file_settings, audio_settings),
             volume_meter_processor: VolumeMeterProcessor::new(),
+            midi_converter: MidiConverter::new(),
         }
     }
 
@@ -63,6 +68,14 @@ impl TestHostProcessor {
     /// Whether the file is being played back
     pub fn is_playing(&self) -> bool {
         self.audio_file_processor.is_playing()
+    }
+}
+
+impl TestHostProcessor {
+    pub fn process_midi(&mut self, midi_message_buffer: &[Owned<MidiMessageWrapper>]) {
+        self.midi_converter.accept(midi_message_buffer);
+        let events = self.midi_converter.events();
+        self.plugin_instance.process_events(events);
     }
 }
 

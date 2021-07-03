@@ -3,6 +3,7 @@ use std::marker::PhantomData;
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
 
 pub mod audio_buffer;
+pub mod midi;
 
 #[derive(Clone, Copy)]
 pub struct AudioProcessorSettings {

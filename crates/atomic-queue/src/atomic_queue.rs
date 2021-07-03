@@ -2,6 +2,7 @@ use std::cmp::max;
 use std::sync::atomic::{AtomicI8, AtomicUsize, Ordering};
 
 use circular_data_structures::CircularVec;
+use std::mem::MaybeUninit;
 
 enum CellState {
     Empty = 0,
@@ -26,7 +27,7 @@ impl From<CellState> for i8 {
 pub struct Queue<T> {
     head: AtomicUsize,
     tail: AtomicUsize,
-    elements: CircularVec<*mut T>,
+    elements: Vec<MaybeUninit<T>>,
     states: CircularVec<AtomicI8>,
 }
 
@@ -35,8 +36,10 @@ unsafe impl<T> Sync for Queue<T> {}
 
 impl<T> Queue<T> {
     pub fn new(capacity: usize) -> Self {
-        let mut elements = CircularVec::with_capacity(capacity);
-        elements.resize(capacity, std::ptr::null_mut());
+        let mut elements = Vec::with_capacity(capacity);
+        for _ in 0..capacity {
+            elements.push(MaybeUninit::uninit());
+        }
         let mut states = Vec::with_capacity(capacity);
         for _ in 0..capacity {
             states.push(AtomicI8::new(CellState::Empty.into()));
@@ -52,7 +55,7 @@ impl<T> Queue<T> {
         }
     }
 
-    pub fn push(&self, element: *mut T) -> bool {
+    pub fn push(&self, element: T) -> bool {
         let mut head = self.head.load(Ordering::Relaxed);
         loop {
             let length = head as i64 - self.tail.load(Ordering::Relaxed) as i64;
@@ -74,7 +77,7 @@ impl<T> Queue<T> {
         true
     }
 
-    pub fn pop(&self) -> Option<*mut T> {
+    pub fn pop(&self) -> Option<T> {
         let mut tail = self.tail.load(Ordering::Relaxed);
         loop {
             let length = self.head.load(Ordering::Relaxed) as i64 - tail as i64;
@@ -95,12 +98,12 @@ impl<T> Queue<T> {
         Some(self.do_pop(tail))
     }
 
-    pub fn force_pop(&self) -> *mut T {
+    pub fn force_pop(&self) -> T {
         let tail = self.tail.fetch_add(1, Ordering::Acquire);
         self.do_pop(tail)
     }
 
-    fn do_pop(&self, tail: usize) -> *mut T {
+    fn do_pop(&self, tail: usize) -> T {
         let state = &self.states[tail];
         loop {
             let expected = CellState::Stored;
@@ -113,23 +116,31 @@ impl<T> Queue<T> {
                 )
                 .is_ok()
             {
-                let element = self.elements[tail];
+                let self_ptr = self as *const Self as *mut Self;
+                let element = unsafe {
+                    std::mem::replace(
+                        &mut (*self_ptr).elements[tail % self.elements.len()],
+                        MaybeUninit::uninit(),
+                    )
+                };
+
                 state.store(CellState::Empty.into(), Ordering::Release);
-                return element;
+
+                return unsafe { element.assume_init() };
             }
         }
     }
 
-    pub fn force_push(&self, element: *mut T) {
+    pub fn force_push(&self, element: T) {
         let head = self.head.fetch_add(1, Ordering::Acquire);
         self.do_push(element, head);
     }
 
-    fn do_push(&self, element: *mut T, head: usize) {
+    fn do_push(&self, element: T, head: usize) {
         self.do_push_any(element, head);
     }
 
-    fn do_push_any(&self, element: *mut T, head: usize) {
+    fn do_push_any(&self, element: T, head: usize) {
         let state = &self.states[head];
         loop {
             let expected = CellState::Empty;
@@ -144,7 +155,7 @@ impl<T> Queue<T> {
             {
                 unsafe {
                     let self_ptr = self as *const Self as *mut Self;
-                    (*self_ptr).elements[head] = element;
+                    (*self_ptr).elements[head % self.elements.len()] = MaybeUninit::new(element);
                 }
                 state.store(CellState::Stored.into(), Ordering::Release);
                 return;
@@ -179,18 +190,18 @@ mod test {
 
     #[test]
     fn test_create_bounded_queue() {
-        let _queue = Queue::<i32>::new(10);
+        let _queue = Queue::<*mut i32>::new(10);
     }
 
     #[test]
     fn test_get_empty_queue_len() {
-        let queue = Queue::<i32>::new(10);
+        let queue = Queue::<*mut i32>::new(10);
         assert_eq!(queue.len(), 0);
     }
 
     #[test]
     fn test_push_element_to_queue_increments_length() {
-        let queue = Queue::<i32>::new(10);
+        let queue = Queue::<*mut i32>::new(10);
         assert_eq!(queue.len(), 0);
         let ptr = mock_ptr(1);
         assert!(queue.push(ptr.clone()));
@@ -202,7 +213,7 @@ mod test {
 
     #[test]
     fn test_push_pop_push_pop() {
-        let queue = Queue::<i32>::new(10);
+        let queue = Queue::<*mut i32>::new(10);
         assert_eq!(queue.len(), 0);
         {
             let ptr = mock_ptr(1);
@@ -224,7 +235,7 @@ mod test {
 
     #[test]
     fn test_overflow_will_not_break_things() {
-        let queue = Queue::<i32>::new(3);
+        let queue = Queue::<*mut i32>::new(3);
         assert_eq!(queue.len(), 0);
 
         // ENTRY 1 - HEAD, ENTRY, TAIL, EMPTY, EMPTY
@@ -281,8 +292,8 @@ mod test {
         let size = 10000;
         let num_threads = 5;
 
-        let queue: Arc<Queue<i32>> = Arc::new(Queue::new(size * num_threads / 3));
-        let output_queue: Arc<Queue<i32>> = Arc::new(Queue::new(size * num_threads));
+        let queue: Arc<Queue<*mut i32>> = Arc::new(Queue::new(size * num_threads / 3));
+        let output_queue: Arc<Queue<*mut i32>> = Arc::new(Queue::new(size * num_threads));
 
         let is_running = Arc::new(Mutex::new(true));
         let reader_thread = {
@@ -331,7 +342,7 @@ mod test {
 
     fn spawn_writer_thread(
         size: usize,
-        queue: Arc<Queue<i32>>,
+        queue: Arc<Queue<*mut i32>>,
         duration: Duration,
     ) -> JoinHandle<()> {
         thread::spawn(move || {

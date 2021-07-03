@@ -1,4 +1,4 @@
-use basedrop::{Handle, Shared, SharedCell};
+use basedrop::{Handle, Owned, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
@@ -8,6 +8,7 @@ use error::AudioThreadError;
 use options::AudioThreadOptions;
 
 use crate::audio_io::audio_thread::options::AudioDeviceId;
+use crate::audio_io::midi::{MidiMessageQueue, MidiMessageWrapper};
 use crate::processors::shared_processor::{ProcessorCell, SharedProcessor};
 use crate::processors::test_host_processor::TestHostProcessor;
 
@@ -25,18 +26,20 @@ pub struct AudioThread {
     processor_ref: SharedProcessor<AudioThreadProcessor>,
     stream: Option<cpal::Stream>,
     audio_thread_options: AudioThreadOptions,
+    midi_message_queue: MidiMessageQueue,
 }
 
 unsafe impl Send for AudioThread {}
 
 impl AudioThread {
-    pub fn new(handle: &Handle) -> Self {
+    pub fn new(handle: &Handle, midi_message_queue: MidiMessageQueue) -> Self {
         let processor = AudioThreadProcessor::Silence(SilenceAudioProcessor::new());
         let processor_ref = SharedProcessor::new(handle, processor);
         AudioThread {
             processor: Shared::new(handle, SharedCell::new(processor_ref.shared())),
             processor_ref,
             stream: None,
+            midi_message_queue,
             audio_thread_options: AudioThreadOptions::default(),
         }
     }
@@ -44,7 +47,8 @@ impl AudioThread {
     pub fn start(&mut self) -> Result<(), AudioThreadError> {
         let processor = self.processor.clone();
         let audio_thread_options = self.audio_thread_options.clone();
-        let stream = create_stream(&audio_thread_options, processor)?;
+        let midi_message_queue = self.midi_message_queue.clone();
+        let stream = create_stream(&audio_thread_options, processor, midi_message_queue)?;
         log::info!("Starting CPAL output stream");
         stream.play()?;
         self.stream = Some(stream);
@@ -102,13 +106,19 @@ impl AudioThread {
 fn create_stream(
     options: &AudioThreadOptions,
     processor: Shared<SharedCell<ProcessorCell<AudioThreadProcessor>>>,
+    midi_message_queue: MidiMessageQueue,
 ) -> Result<cpal::Stream, AudioThreadError> {
     let host = cpal_option_handling::get_cpal_host(&options.host_id);
     let output_device =
         cpal_option_handling::get_cpal_output_device(&host, &options.output_device_id)?;
     log::info!("Using device: {}", output_device.name()?);
     let output_config = cpal_option_handling::get_output_config(&options, &output_device)?;
-    let stream = create_stream_inner(processor, &output_device, &output_config)?;
+    let stream = create_stream_inner(
+        processor,
+        &output_device,
+        &output_config,
+        midi_message_queue,
+    )?;
     Ok(stream)
 }
 
@@ -116,6 +126,7 @@ fn create_stream_inner(
     processor: Shared<SharedCell<ProcessorCell<AudioThreadProcessor>>>,
     output_device: &cpal::Device,
     output_config: &cpal::StreamConfig,
+    midi_message_queue: MidiMessageQueue,
 ) -> Result<cpal::Stream, AudioThreadError> {
     let buffer_size = match output_config.buffer_size {
         cpal::BufferSize::Default => Err(AudioThreadError::UnexpectedDefaultBufferSize),
@@ -125,20 +136,61 @@ fn create_stream_inner(
     log::info!("Buffer size {:?}", buffer_size);
 
     let num_channels: usize = output_config.channels.into();
+    let mut midi_message_handler = MidiMessageHandler::new(100);
+
     Ok(output_device.build_output_stream(
         output_config,
         move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| unsafe {
+            midi_message_handler.collect_midi_messages(&midi_message_queue);
+
             let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
 
             let shared_processor = processor.get();
             let processor_ptr = shared_processor.0.get();
+
             match &mut (*processor_ptr) {
-                AudioThreadProcessor::Active(processor) => processor.process(&mut audio_buffer),
+                AudioThreadProcessor::Active(processor) => {
+                    processor.process_midi(&midi_message_handler.buffer);
+                    processor.process(&mut audio_buffer)
+                }
                 AudioThreadProcessor::Silence(processor) => (*processor).process(&mut audio_buffer),
             }
+
+            midi_message_handler.clear();
         },
         |err| {
             log::error!("Playback error: {:?}", err);
         },
     )?)
+}
+
+struct MidiMessageHandler {
+    buffer: Vec<Owned<MidiMessageWrapper>>,
+    capacity: usize,
+}
+
+impl MidiMessageHandler {
+    pub fn new(capacity: usize) -> Self {
+        MidiMessageHandler {
+            buffer: Vec::with_capacity(capacity),
+            capacity,
+        }
+    }
+
+    fn collect_midi_messages(&mut self, midi_message_queue: &MidiMessageQueue) -> usize {
+        let mut midi_message_count = 0;
+        for _i in 0..self.capacity {
+            if let Some(midi_message) = midi_message_queue.pop() {
+                self.buffer.push(midi_message);
+                midi_message_count += 1;
+            } else {
+                return midi_message_count;
+            }
+        }
+        midi_message_count
+    }
+
+    fn clear(&mut self) {
+        self.buffer.clear();
+    }
 }
