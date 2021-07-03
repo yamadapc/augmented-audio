@@ -14,7 +14,7 @@ pub type Result<T> = std::result::Result<T, MidiError>;
 
 pub struct Data;
 
-pub fn start_midi_host() -> Result<Vec<MidiInputConnection<Data>>> {
+pub fn start_logging_midi_host() -> Result<Vec<MidiInputConnection<Data>>> {
     fn callback(_timestamp: u64, bytes: &[u8], _data: &mut Data) {
         let message = rimd::MidiMessage::from_bytes(Vec::from(bytes));
         match message.status() {
@@ -24,13 +24,19 @@ pub fn start_midi_host() -> Result<Vec<MidiInputConnection<Data>>> {
             Status::NoteOn => {
                 log::info!("Note on - {:?}", message.data)
             }
-            Status::PolyphonicAftertouch => {}
+            Status::PolyphonicAftertouch => {
+                log::info!("Polyphonic aftertouch - {:?}", message.data)
+            }
             Status::ControlChange => {
                 log::info!("Control change - {:?}", message.data)
             }
-            Status::ProgramChange => {}
+            Status::ProgramChange => {
+                log::info!("Program change - {:?}", message.data)
+            }
             Status::ChannelAftertouch => {}
-            Status::PitchBend => {}
+            Status::PitchBend => {
+                log::info!("Pitch bend - {:?}", message.data)
+            }
             Status::SysExStart => {}
             Status::MIDITimeCodeQtrFrame => {}
             Status::SongPositionPointer => {}
