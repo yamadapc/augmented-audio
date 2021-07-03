@@ -151,6 +151,9 @@ See:
 * https://github.com/yamadapc/augmented-audio/tree/master/crates/bundler
 * https://github.com/yamadapc/augmented-audio/tree/master/crates/macos-bundle-resources
 
+## Standalone MIDI handling
+See `audio-processor-standalone-midi`.
+
 ## crates/plugin-host-cli
 ```
 plugin-host run \

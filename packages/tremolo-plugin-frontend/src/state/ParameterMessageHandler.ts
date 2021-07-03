@@ -1,8 +1,8 @@
-import { singleton } from "tsyringe";
-import { MessageHandler } from "./MessageHandler";
-import { ParametersStore } from "./ParametersStore";
-import { LoggerFactory } from "@wisual/logger";
-import { ClientMessageInner, ServerMessage } from "../common/protocol";
+import {singleton} from "tsyringe";
+import {MessageHandler} from "./MessageHandler";
+import {ParametersStore} from "./ParametersStore";
+import {LoggerFactory} from "@wisual/logger";
+import {ClientMessageInner, ServerMessage} from "../common/protocol";
 
 @singleton()
 export class ParameterMessageHandler implements MessageHandler {
@@ -24,7 +24,10 @@ export class ParameterMessageHandler implements MessageHandler {
         break;
       case "ParameterValue":
         this.logger.info("Got parameters message");
-        this.parametersStore.setParameterValue(serverMessage.message.id, serverMessage.message.value);
+        this.parametersStore.setParameterValue(
+          serverMessage.message.id,
+          serverMessage.message.value
+        );
         break;
     }
   }

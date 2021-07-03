@@ -22,7 +22,9 @@
     "declaration": true,
     "rootDir": "src",
     "outDir": "lib",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "noFallthroughCasesInSwitch": true,
+    "noEmit": true
   },
   "include": [
     "src"
