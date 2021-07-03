@@ -1,7 +1,7 @@
-use std::cmp::min;
+use std::cmp::{max, min};
 
 use basedrop::Owned;
-use vst::api::MidiEvent;
+use vst::api::{Event, Events, MidiEvent};
 
 use crate::audio_io::midi::MidiMessageWrapper;
 
@@ -23,24 +23,14 @@ pub struct MidiConverter {
 impl MidiConverter {
     pub fn new() -> Self {
         unsafe {
-            let (event_ptr_size, event_ptr_align) = (
-                std::mem::size_of::<*mut vst::api::Event>(),
-                std::mem::align_of::<*mut vst::api::Event>(),
-            );
-            let events_layout = std::alloc::Layout::from_size_align_unchecked(
-                std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * 100,
-                std::mem::align_of::<*mut vst::api::Events>(),
-            );
-            let events_ptr = std::alloc::alloc(events_layout) as *mut vst::api::Events;
+            let events_ptr = MidiConverter::allocate_events();
             let event_ptrs = std::slice::from_raw_parts_mut(
                 &mut (*events_ptr).events[0] as *mut *mut _ as *mut *mut _,
                 100 as usize,
             );
             let mut events_lst = Vec::with_capacity(100);
             for i in 0..100 {
-                let event_layout =
-                    std::alloc::Layout::from_size_align_unchecked(event_ptr_size, event_ptr_align);
-                let event_ptr = std::alloc::alloc(event_layout) as *mut vst::api::Event;
+                let event_ptr = MidiConverter::allocate_event();
                 event_ptrs[i] = event_ptr;
                 events_lst.push(Box::from_raw(event_ptrs[i] as *mut vst::api::Event));
             }
@@ -90,5 +80,31 @@ impl MidiConverter {
                 *in_place_ptr = event;
             }
         }
+    }
+
+    unsafe fn allocate_events() -> *mut Events {
+        let event_ptr_size = std::mem::size_of::<*mut vst::api::Event>();
+        let events_layout = std::alloc::Layout::from_size_align_unchecked(
+            std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * 100,
+            std::mem::align_of::<*mut vst::api::Events>(),
+        );
+        let events_ptr = std::alloc::alloc(events_layout) as *mut vst::api::Events;
+        events_ptr
+    }
+
+    unsafe fn allocate_event() -> *mut Event {
+        let (event_size, event_align) = (
+            max(
+                std::mem::size_of::<vst::api::SysExEvent>(),
+                max(
+                    std::mem::size_of::<vst::api::Event>(),
+                    std::mem::size_of::<vst::api::MidiEvent>(),
+                ),
+            ),
+            std::mem::align_of::<vst::api::Event>(),
+        );
+        let event_layout = std::alloc::Layout::from_size_align_unchecked(event_size, event_align);
+        let event_ptr = std::alloc::alloc(event_layout) as *mut vst::api::Event;
+        event_ptr
     }
 }
