@@ -12,7 +12,7 @@ use audio_processor_standalone_midi::host::{MidiError, MidiHost};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::audio_thread::error::AudioThreadError;
-use crate::audio_io::audio_thread::options::AudioDeviceId;
+use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioThreadOptions};
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
@@ -23,27 +23,27 @@ use crate::vst_host::AudioTestHost;
 
 #[derive(Debug, Error)]
 pub enum AudioHostPluginLoadError {
-    #[error("Failed to load VST plugin")]
+    #[error(transparent)]
     PluginLoadError(#[from] PluginLoadError),
     #[error("Failed to find audio file path")]
     MissingPathError,
-    #[error("Failed to open or decode the audio file")]
+    #[error(transparent)]
     AudioFileError(#[from] AudioFileError),
 }
 
 #[derive(Debug, Error)]
 pub enum StartError {
-    #[error("Failed to start the audio thread")]
+    #[error(transparent)]
     AudioThreadError(#[from] AudioThreadError),
-    #[error("Failed to start MIDI handler")]
+    #[error(transparent)]
     MidiError(#[from] MidiError),
 }
 
 #[derive(Debug, Error)]
 pub enum WaitError {
-    #[error("Failed to stop the GC thread")]
+    #[error(transparent)]
     GarbageCollectorError(#[from] GarbageCollectorError),
-    #[error("Failed to wait on the audio thread")]
+    #[error(transparent)]
     AudioThreadError(#[from] AudioThreadError),
 }
 
@@ -61,25 +61,16 @@ pub struct TestPluginHost {
 impl Default for TestPluginHost {
     fn default() -> Self {
         let audio_settings = AudioThread::default_settings().unwrap();
-        log::info!(
-            "\
-            Using audio settings:\n\t\
-                Sample rate: {}\n\t\
-                Block size: {}\n\t\
-                Input channels: {}\n\t\
-                Output channels: {}\
-            ",
-            audio_settings.sample_rate(),
-            audio_settings.block_size(),
-            audio_settings.input_channels(),
-            audio_settings.output_channels()
-        );
-        TestPluginHost::new(audio_settings)
+        let audio_thread_options = AudioThreadOptions::default();
+        TestPluginHost::new(audio_settings, audio_thread_options)
     }
 }
 
 impl TestPluginHost {
-    pub fn new(audio_settings: AudioProcessorSettings) -> Self {
+    pub fn new(
+        audio_settings: AudioProcessorSettings,
+        audio_thread_options: AudioThreadOptions,
+    ) -> Self {
         let path = Path::new("").to_path_buf();
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
         let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
@@ -88,6 +79,7 @@ impl TestPluginHost {
             audio_thread: AudioThread::new(
                 garbage_collector.handle(),
                 midi_host.messages().clone(),
+                audio_thread_options,
             ),
             audio_settings,
             audio_file_path: path,

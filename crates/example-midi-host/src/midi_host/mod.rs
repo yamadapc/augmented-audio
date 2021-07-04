@@ -53,17 +53,14 @@ pub fn start_logging_midi_host() -> Result<Vec<MidiInputConnection<Data>>> {
         }
     }
 
-    log::info!("Creating MIDI input");
+    log::info!("Creating MIDI input `plugin-host`");
     let input = midir::MidiInput::new("plugin-host")?;
     let mut connections = Vec::new();
-    log::info!("Connecting to all ports");
     for port in &input.ports() {
         let input = midir::MidiInput::new("plugin-host")?;
-        log::info!("MIDI port - {:?}", input.port_name(&port));
-        log::info!("Creating MIDI connection");
+        log::info!("MIDI input port: {:?}", input.port_name(&port));
         let connection = input.connect(&port, "main-port", callback, Data {})?;
         connections.push(connection);
     }
-    log::info!("Connected to all MIDI ports");
     Ok(connections)
 }

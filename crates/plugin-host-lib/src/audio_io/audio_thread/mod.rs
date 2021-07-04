@@ -37,7 +37,11 @@ pub struct AudioThread {
 unsafe impl Send for AudioThread {}
 
 impl AudioThread {
-    pub fn new(handle: &Handle, midi_message_queue: MidiMessageQueue) -> Self {
+    pub fn new(
+        handle: &Handle,
+        midi_message_queue: MidiMessageQueue,
+        audio_thread_options: AudioThreadOptions,
+    ) -> Self {
         let processor = AudioThreadProcessor::Silence(SilenceAudioProcessor::new());
         let processor_ref = SharedProcessor::new(handle, processor);
         AudioThread {
@@ -45,7 +49,7 @@ impl AudioThread {
             processor_ref,
             stream: None,
             midi_message_queue,
-            audio_thread_options: AudioThreadOptions::default(),
+            audio_thread_options,
         }
     }
 

@@ -45,14 +45,12 @@ impl MidiHost {
     }
 
     pub fn start(&mut self) -> Result<(), MidiError> {
-        log::info!("Creating MIDI input");
+        log::info!("Creating MIDI input `plugin-host`");
         let input = midir::MidiInput::new("plugin-host")?;
-        log::info!("Connecting to all ports");
 
         for port in &input.ports() {
             let input = midir::MidiInput::new("plugin-host")?;
-            log::info!("MIDI port - {:?}", input.port_name(&port));
-            log::info!("Creating MIDI connection");
+            log::info!("MIDI input: {:?}", input.port_name(&port));
             let connection = input.connect(
                 &port,
                 "main-port",
@@ -61,7 +59,6 @@ impl MidiHost {
             )?;
             self.connections.push(connection);
         }
-        log::info!("Connected to all MIDI ports");
 
         Ok(())
     }

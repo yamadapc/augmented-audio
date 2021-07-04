@@ -203,7 +203,26 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandle
             if let Some((status, bytes)) = status {
                 match status {
                     Status::ControlChange => {
-                        log::info!("Received MIDI message: {:?} - {:?}", status, bytes);
+                        let cc_number = bytes[1];
+                        let cc_value = bytes[2];
+                        match (cc_number, cc_value) {
+                            (80, 127) => {
+                                let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
+                                if is_recording {
+                                    log::info!("Start playback");
+                                    self.handle.is_playing_back.store(true, Ordering::Relaxed);
+                                    self.handle.is_recording.store(false, Ordering::Relaxed);
+                                } else {
+                                    log::info!("Start recording");
+                                    self.handle.is_recording.store(true, Ordering::Relaxed);
+                                }
+                            }
+                            (81, 127) => {
+                                self.handle.is_playing_back.store(false, Ordering::Relaxed);
+                                self.handle.is_recording.store(false, Ordering::Relaxed);
+                            }
+                            _ => {}
+                        }
                     }
                     Status::ProgramChange => {}
                     _ => {}

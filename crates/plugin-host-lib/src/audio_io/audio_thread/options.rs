@@ -1,7 +1,18 @@
+use std::fmt::Formatter;
+
 #[derive(Clone)]
 pub enum AudioHostId {
     Default,
     Id(String),
+}
+
+impl std::fmt::Display for AudioHostId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AudioHostId::Default => write!(f, "Default audio host"),
+            AudioHostId::Id(str) => write!(f, "{}", str),
+        }
+    }
 }
 
 impl Default for AudioHostId {
@@ -14,6 +25,15 @@ impl Default for AudioHostId {
 pub enum AudioDeviceId {
     Default,
     Id(String),
+}
+
+impl std::fmt::Display for AudioDeviceId {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AudioDeviceId::Default => write!(f, "Default audio device"),
+            AudioDeviceId::Id(str) => write!(f, "{}", str),
+        }
+    }
 }
 
 impl Default for AudioDeviceId {
