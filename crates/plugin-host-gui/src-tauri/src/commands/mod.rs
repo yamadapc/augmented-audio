@@ -205,8 +205,7 @@ fn get_host_state(host: &MutexGuard<TestPluginHost>) -> HostState {
     .clone()
     .map(|plugin_file_path| strip_home_dir(&home_dir, plugin_file_path));
   let audio_input_file_path = host.audio_file_path().clone();
-  let audio_input_file_path = strip_home_dir(&home_dir, audio_input_file_path);
-  let audio_input_file_path = Some(audio_input_file_path);
+  let audio_input_file_path = audio_input_file_path.map(|path| strip_home_dir(&home_dir, path));
 
   HostState {
     plugin_path,

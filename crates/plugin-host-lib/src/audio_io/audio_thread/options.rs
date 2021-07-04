@@ -63,22 +63,36 @@ impl From<BufferSize> for cpal::BufferSize {
     }
 }
 
-#[derive(Default, Clone)]
+#[derive(Clone)]
 pub struct AudioThreadOptions {
     pub host_id: AudioHostId,
     pub output_device_id: AudioDeviceId,
+    pub input_device_id: Option<AudioDeviceId>,
     pub buffer_size: BufferSize,
+}
+
+impl Default for AudioThreadOptions {
+    fn default() -> Self {
+        Self::new(
+            Default::default(),
+            Default::default(),
+            None,
+            Default::default(),
+        )
+    }
 }
 
 impl AudioThreadOptions {
     pub fn new(
         host_id: AudioHostId,
         output_device_id: AudioDeviceId,
+        input_device_id: Option<AudioDeviceId>,
         buffer_size: BufferSize,
     ) -> Self {
         AudioThreadOptions {
             host_id,
             output_device_id,
+            input_device_id,
             buffer_size,
         }
     }

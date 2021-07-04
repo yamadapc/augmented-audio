@@ -50,12 +50,13 @@ pub enum WaitError {
 pub struct TestPluginHost {
     audio_thread: AudioThread,
     audio_settings: AudioProcessorSettings,
-    audio_file_path: PathBuf,
+    audio_file_path: Option<PathBuf>,
     plugin_file_path: Option<PathBuf>,
     vst_plugin_instance: Option<SharedProcessor<PluginInstance>>,
     processor: Option<SharedProcessor<AudioThreadProcessor>>,
     midi_host: MidiHost,
     garbage_collector: GarbageCollector,
+    mono_input: Option<usize>,
 }
 
 impl Default for TestPluginHost {
@@ -71,7 +72,6 @@ impl TestPluginHost {
         audio_settings: AudioProcessorSettings,
         audio_thread_options: AudioThreadOptions,
     ) -> Self {
-        let path = Path::new("").to_path_buf();
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
         let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
 
@@ -82,12 +82,13 @@ impl TestPluginHost {
                 audio_thread_options,
             ),
             audio_settings,
-            audio_file_path: path,
+            audio_file_path: None,
             plugin_file_path: None,
             vst_plugin_instance: None,
             processor: None,
             midi_host,
             garbage_collector,
+            mono_input: None,
         }
     }
 
@@ -106,14 +107,14 @@ impl TestPluginHost {
     }
 
     pub fn set_audio_file_path(&mut self, path: PathBuf) -> Result<(), AudioHostPluginLoadError> {
-        self.audio_file_path = path;
+        self.audio_file_path = Some(path);
         if let Some(path) = self.plugin_file_path.clone() {
             self.load_plugin(path.as_path())?;
         }
         Ok(())
     }
 
-    pub fn audio_file_path(&self) -> &PathBuf {
+    pub fn audio_file_path(&self) -> &Option<PathBuf> {
         &self.audio_file_path
     }
 
@@ -128,16 +129,20 @@ impl TestPluginHost {
             SharedProcessor::new(self.garbage_collector.handle(), vst_plugin_instance);
 
         let audio_settings = &self.audio_settings;
-        let audio_file = default_read_audio_file(
-            &self
-                .audio_file_path
-                .to_str()
-                .ok_or(AudioHostPluginLoadError::MissingPathError)?,
+        let maybe_audio_file_settings = self.audio_file_path.as_ref().map_or(
+            Ok(None),
+            |audio_file_path| -> Result<Option<AudioFileSettings>, AudioHostPluginLoadError> {
+                let audio_file = default_read_audio_file(
+                    audio_file_path
+                        .to_str()
+                        .ok_or(AudioHostPluginLoadError::MissingPathError)?,
+                )?;
+                Ok(Some(AudioFileSettings::new(audio_file)))
+            },
         )?;
-        let audio_file_settings = AudioFileSettings::new(audio_file);
 
         let mut test_host_processor = TestHostProcessor::new(
-            audio_file_settings,
+            maybe_audio_file_settings,
             vst_plugin_instance.clone(),
             audio_settings.sample_rate(),
             audio_settings.input_channels(),
@@ -236,5 +241,9 @@ impl TestPluginHost {
     pub fn wait(&mut self) -> Result<(), WaitError> {
         self.garbage_collector.stop()?;
         Ok(self.audio_thread.wait()?)
+    }
+
+    pub fn set_mono_input(&mut self, input_channel: Option<usize>) {
+        self.mono_input = input_channel;
     }
 }

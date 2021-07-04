@@ -43,6 +43,7 @@ pub fn run_test(run_options: RunOptions) {
 
     let (audio_settings, audio_thread_options) = get_audio_options(&run_options);
     let mut host = TestPluginHost::new(audio_settings, audio_thread_options);
+    host.set_mono_input(run_options.use_mono_input());
     run_load_audio_file(&run_options, &mut host);
     run_initialize_plugin(&run_options, &mut host);
 
@@ -131,6 +132,13 @@ fn get_audio_options(run_options: &RunOptions) -> (AudioProcessorSettings, Audio
         .map(|s| AudioHostId::Id(s))
         .unwrap_or(audio_thread_options.host_id);
 
+    if run_options.use_default_input_device() {
+        audio_thread_options.input_device_id = Some(AudioDeviceId::Default);
+    }
+    if let Some(input_device_id) = run_options.input_device_id() {
+        audio_thread_options.input_device_id = Some(AudioDeviceId::Id(input_device_id.clone()));
+    }
+
     log::info!(
         "Using audio settings:\n\t\
          Host: {}\n\t\
@@ -168,9 +176,11 @@ fn run_initialize_plugin(run_options: &RunOptions, host: &mut TestPluginHost) {
 
 /// Load the audio input file & exit the process on failure
 fn run_load_audio_file(run_options: &RunOptions, host: &mut TestPluginHost) {
-    if let Err(err) = host.set_audio_file_path(PathBuf::from(run_options.input_audio())) {
-        log::error!("Failed to set input file-path {}", err);
-        exit(1);
+    if let Some(input_audio) = run_options.input_audio() {
+        if let Err(err) = host.set_audio_file_path(PathBuf::from(input_audio)) {
+            log::error!("Failed to set input file-path {}", err);
+            exit(1);
+        }
     }
 }
 
@@ -203,7 +213,10 @@ fn run_offline_rendering(run_options: RunOptions) {
     let (audio_settings, _) = get_audio_options(&run_options);
     let offline_renderer = OfflineRenderer::new(
         audio_settings,
-        run_options.input_audio(),
+        &run_options
+            .input_audio()
+            .clone()
+            .expect("The \"--input\" flag is required for offline rendering"),
         &output_file_path,
         run_options.plugin_path(),
     );

@@ -18,7 +18,7 @@ pub struct TestHostProcessor {
     plugin_instance: SharedProcessor<PluginInstance>,
     audio_settings: AudioProcessorSettings,
     buffer_handler: CpalVstBufferHandler,
-    audio_file_processor: AudioFileProcessor,
+    maybe_audio_file_processor: Option<AudioFileProcessor>,
     volume_meter_processor: VolumeMeterProcessor,
     midi_converter: MidiVSTConverter,
 }
@@ -28,7 +28,7 @@ unsafe impl Sync for TestHostProcessor {}
 
 impl TestHostProcessor {
     pub fn new(
-        audio_file_settings: AudioFileSettings,
+        maybe_audio_file_settings: Option<AudioFileSettings>,
         plugin_instance: SharedProcessor<PluginInstance>,
         sample_rate: f32,
         channels: usize,
@@ -40,7 +40,9 @@ impl TestHostProcessor {
             plugin_instance,
             audio_settings,
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
-            audio_file_processor: AudioFileProcessor::new(audio_file_settings, audio_settings),
+            maybe_audio_file_processor: maybe_audio_file_settings.map(|audio_file_settings| {
+                AudioFileProcessor::new(audio_file_settings, audio_settings)
+            }),
             volume_meter_processor: VolumeMeterProcessor::new(),
             midi_converter: MidiVSTConverter::default(),
         }
@@ -52,22 +54,32 @@ impl TestHostProcessor {
 
     /// Resume playback
     pub fn play(&self) {
-        self.audio_file_processor.play();
+        if let Some(audio_file_processor) = &self.maybe_audio_file_processor {
+            audio_file_processor.play();
+        }
     }
 
     /// Pause playback
     pub fn pause(&self) {
-        self.audio_file_processor.pause();
+        if let Some(audio_file_processor) = &self.maybe_audio_file_processor {
+            audio_file_processor.pause();
+        }
     }
 
     /// Stop playback and go back to the start of the file
     pub fn stop(&self) {
-        self.audio_file_processor.stop();
+        if let Some(audio_file_processor) = &self.maybe_audio_file_processor {
+            audio_file_processor.stop();
+        }
     }
 
     /// Whether the file is being played back
     pub fn is_playing(&self) -> bool {
-        self.audio_file_processor.is_playing()
+        if let Some(audio_file_processor) = &self.maybe_audio_file_processor {
+            audio_file_processor.is_playing()
+        } else {
+            false
+        }
     }
 }
 
@@ -89,7 +101,9 @@ impl AudioProcessor for TestHostProcessor {
             .set_sample_rate(audio_settings.sample_rate() as f32);
         self.audio_settings = audio_settings;
         self.buffer_handler.prepare(&audio_settings);
-        self.audio_file_processor.prepare(audio_settings);
+        if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
+            audio_file_processor.prepare(audio_settings);
+        }
         self.volume_meter_processor.prepare(audio_settings);
     }
 
@@ -100,7 +114,9 @@ impl AudioProcessor for TestHostProcessor {
         let num_channels = self.audio_settings.input_channels();
 
         // Input generation section
-        self.audio_file_processor.process(output);
+        if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
+            audio_file_processor.process(output);
+        }
 
         // VST processing section
         self.buffer_handler.process(output);

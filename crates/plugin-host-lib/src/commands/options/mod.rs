@@ -3,7 +3,7 @@ use clap::{App, ArgMatches};
 #[derive(Clone)]
 pub struct RunOptions {
     plugin_path: String,
-    input_audio: String,
+    input_audio: Option<String>,
     output_audio: Option<String>,
     open_editor: bool,
     watch: bool,
@@ -11,6 +11,9 @@ pub struct RunOptions {
     output_device_id: Option<String>,
     buffer_size: Option<usize>,
     sample_rate: Option<usize>,
+    input_device_id: Option<String>,
+    use_default_input_device: bool,
+    use_mono_input: Option<usize>,
 }
 
 impl RunOptions {
@@ -18,7 +21,7 @@ impl RunOptions {
         &self.plugin_path
     }
 
-    pub fn input_audio(&self) -> &str {
+    pub fn input_audio(&self) -> &Option<String> {
         &self.input_audio
     }
 
@@ -49,6 +52,18 @@ impl RunOptions {
     pub fn sample_rate(&self) -> Option<usize> {
         self.sample_rate
     }
+
+    pub fn input_device_id(&self) -> &Option<String> {
+        &self.input_device_id
+    }
+
+    pub fn use_default_input_device(&self) -> bool {
+        self.use_default_input_device
+    }
+
+    pub fn use_mono_input(&self) -> Option<usize> {
+        self.use_mono_input
+    }
 }
 
 /// Build RunOptions parser
@@ -59,7 +74,7 @@ pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
             "-p, --plugin=<PLUGIN_PATH> 'An audio-plugin to load'",
         ))
         .arg(clap::Arg::from_usage(
-            "-i, --input=<INPUT_PATH> 'An audio file to process'",
+            "-i, --input=[INPUT_PATH] 'An audio file to process'",
         ))
         .arg(clap::Arg::from_usage(
             "-o, --output=[OUTPUT_PATH] 'If specified, will render offline into file'",
@@ -82,13 +97,22 @@ pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
         .arg(clap::Arg::from_usage(
             "--sample-rate=[SAMPLE_RATE] 'Sample rate'",
         ))
+        .arg(clap::Arg::from_usage(
+            "--input-device-id=[INPUT_DEVICE_ID] 'Open audio input with Input device id'",
+        ))
+        .arg(clap::Arg::from_usage(
+            "--use-default-input-device 'Open audio input with the default device'",
+        ))
+        .arg(clap::Arg::from_usage(
+            "--use-mono-input=[CHANNEL_NUMBER] 'If specified, the input stream will be mono-ed selecting the desired channel'",
+        ))
 }
 
 /// Build 'RunOptions' from Clap matches
 pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
     let matches = matches.subcommand_matches("run")?;
     let plugin_path = matches.value_of("plugin")?.to_string();
-    let input_audio = matches.value_of("input")?.to_string();
+    let input_audio = matches.value_of("input").map(|i| i.to_string());
     let output_audio = matches.value_of("output").map(|value| value.to_string());
     let open_editor = matches.is_present("editor");
     let watch = matches.is_present("watch");
@@ -104,6 +128,13 @@ pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
     let sample_rate = matches
         .value_of("sample-rate")
         .map(|value| value.parse().expect("Invalid sample rate"));
+    let input_device_id = matches
+        .value_of("input-device-id")
+        .map(|value| value.to_string());
+    let use_default_input_device = matches.is_present("use-default-input-device");
+    let use_mono_input = matches
+        .value_of("use-mono-input")
+        .map(|s| s.parse().expect("Invalid channel number"));
 
     Some(RunOptions {
         plugin_path,
@@ -115,5 +146,8 @@ pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
         output_device_id,
         buffer_size,
         sample_rate,
+        input_device_id,
+        use_default_input_device,
+        use_mono_input,
     })
 }
