@@ -21,6 +21,7 @@ pub struct TestHostProcessor {
     maybe_audio_file_processor: Option<AudioFileProcessor>,
     volume_meter_processor: VolumeMeterProcessor,
     midi_converter: MidiVSTConverter,
+    mono_input: Option<usize>,
 }
 
 unsafe impl Send for TestHostProcessor {}
@@ -33,6 +34,7 @@ impl TestHostProcessor {
         sample_rate: f32,
         channels: usize,
         buffer_size: u32,
+        mono_input: Option<usize>,
     ) -> Self {
         let audio_settings =
             AudioProcessorSettings::new(sample_rate, channels, channels, buffer_size);
@@ -45,6 +47,7 @@ impl TestHostProcessor {
             }),
             volume_meter_processor: VolumeMeterProcessor::new(),
             midi_converter: MidiVSTConverter::default(),
+            mono_input,
         }
     }
 
@@ -113,6 +116,9 @@ impl AudioProcessor for TestHostProcessor {
     ) {
         let num_channels = self.audio_settings.input_channels();
 
+        // Mono the input source
+        self.mono_input_source(output);
+
         // Input generation section
         if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
             audio_file_processor.process(output);
@@ -155,6 +161,30 @@ pub fn flush_vst_output<BufferType: AudioBuffer<SampleType = f32>>(
     for sample_index in 0..output.num_samples() {
         for channel in 0..output.num_channels() {
             output.set(channel, sample_index, channel_outs[channel][sample_index]);
+        }
+    }
+}
+
+impl TestHostProcessor {
+    fn mono_input_source<BufferType: AudioBuffer<SampleType = f32>>(
+        &mut self,
+        output: &mut BufferType,
+    ) {
+        if let Some(mono_input_channel) = self.mono_input {
+            if mono_input_channel >= output.num_channels() {
+                return;
+            }
+
+            for sample_index in 0..output.num_samples() {
+                let source_sample = *output.get(mono_input_channel, sample_index);
+                for channel_index in 0..output.num_channels() {
+                    if channel_index == mono_input_channel {
+                        continue;
+                    }
+
+                    output.set(channel_index, sample_index, source_sample);
+                }
+            }
         }
     }
 }

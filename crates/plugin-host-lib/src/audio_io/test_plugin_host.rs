@@ -147,6 +147,7 @@ impl TestPluginHost {
             audio_settings.sample_rate(),
             audio_settings.input_channels(),
             audio_settings.block_size(),
+            self.mono_input,
         );
         test_host_processor.prepare(*audio_settings);
         let test_host_processor = AudioThreadProcessor::Active(test_host_processor);

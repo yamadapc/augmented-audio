@@ -130,7 +130,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
         self.state.looped_clip.resize(
             num_channels,
             settings.sample_rate(),
-            Duration::from_secs(300),
+            Duration::from_secs(10),
         );
         self.state.always_recording_buffer.resize(
             num_channels,
@@ -158,15 +158,17 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
                 // PLAYBACK SECTION:
                 let current_looper_cursor = self.state.looper_cursor;
 
-                let mut output = if !should_playback_input {
+                let output = if !should_playback_input {
                     BufferType::SampleType::zero()
                 } else {
                     input
                 };
-                if is_playing {
-                    output += loop_channel[current_looper_cursor % self.state.loop_size];
-                }
-                data.set(channel_num, sample_index, output);
+                let looper_output = if is_playing {
+                    loop_channel[current_looper_cursor % self.state.loop_size]
+                } else {
+                    BufferType::SampleType::zero()
+                };
+                data.set(channel_num, sample_index, looper_output + output);
 
                 // RECORDING SECTION:
                 if !is_recording {
@@ -184,7 +186,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
             self.state.always_recording_cursor += 1;
 
             // If this is the first loop, measure loop size
-            if is_recording && !is_playing {
+            if is_recording {
                 self.state.loop_size += 1;
             }
         }
