@@ -28,6 +28,7 @@ pub fn start_logging_midi_host() -> Result<Vec<MidiInputConnection<Data>>> {
                 log::info!("Polyphonic aftertouch - {:?}", message.data)
             }
             Status::ControlChange => {
+                log::info!("Size: {:?}", bytes);
                 log::info!("Control change - {:?}", message.data)
             }
             Status::ProgramChange => {

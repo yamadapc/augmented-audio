@@ -9,9 +9,10 @@ use vst::plugin_main;
 use audio_garbage_collector::GarbageCollector;
 use audio_parameter_store::ParameterStore;
 use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 use generic_parameters_editor::{GenericParametersEditor, GenericParametersEditorOptions};
 use looper_processor::LooperProcessor;
+use vst::api::Events;
 
 pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";
 pub static INDEX_HTML_RESOURCE: &str = "frontend/index.html";
@@ -66,6 +67,15 @@ impl Plugin for LoopiPlugin {
         let (inputs, outputs) = buffer.split();
         let mut vst_buffer = VSTAudioBuffer::new(inputs, outputs);
         self.processor.process(&mut vst_buffer);
+    }
+
+    fn process_events(&mut self, events: &Events) {
+        self.processor.process_midi_events(unsafe {
+            std::slice::from_raw_parts(
+                &events.events[0] as *const *mut _,
+                events.num_events as usize,
+            )
+        });
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {

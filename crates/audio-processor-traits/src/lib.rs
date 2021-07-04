@@ -1,6 +1,7 @@
 use std::marker::PhantomData;
 
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
+pub use midi::{MidiEventHandler, MidiMessageLike};
 
 pub mod audio_buffer;
 pub mod midi;

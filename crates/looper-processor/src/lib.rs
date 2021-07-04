@@ -3,8 +3,12 @@ use std::time::Duration;
 
 use basedrop::{Handle, Shared};
 
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+};
 use circular_data_structures::CircularVec;
+use num::FromPrimitive;
+use rimd::Status;
 
 struct CircularAudioBuffer<SampleType> {
     channels: Vec<CircularVec<SampleType>>,
@@ -182,6 +186,28 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
             // If this is the first loop, measure loop size
             if is_recording && !is_playing {
                 self.state.loop_size += 1;
+            }
+        }
+    }
+}
+
+impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandler
+    for LooperProcessor<SampleType>
+{
+    fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
+        for message in midi_messages {
+            let status = message
+                .bytes()
+                .map(|bytes| rimd::Status::from_u8(bytes[0]).map(|status| (status, bytes)))
+                .flatten();
+            if let Some((status, bytes)) = status {
+                match status {
+                    Status::ControlChange => {
+                        log::info!("Received MIDI message: {:?} - {:?}", status, bytes);
+                    }
+                    Status::ProgramChange => {}
+                    _ => {}
+                }
             }
         }
     }

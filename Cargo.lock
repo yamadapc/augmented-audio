@@ -3199,6 +3199,7 @@ dependencies = [
  "circular-data-structures",
  "log",
  "num 0.4.0",
+ "rimd",
  "wisual-logger 0.1.2",
 ]
 

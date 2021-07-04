@@ -19,7 +19,7 @@ pub struct MidiVSTConverter {
     events: Box<vst::api::Events>,
     /// Events list here for freeing manually allocated memory.
     #[allow(dead_code, clippy::vec_box)]
-    events_lst: Vec<Box<vst::api::Event>>,
+    events_lst: Vec<Box<Event>>,
     capacity: usize,
 }
 
@@ -66,7 +66,8 @@ impl MidiVSTConverter {
             }
 
             unsafe {
-                let event = vst::api::MidiEvent {
+                log::debug!("Forwarding message {:?}", message.message_data);
+                let event = MidiEvent {
                     event_type: vst::api::EventType::Midi,
                     byte_size: std::mem::size_of::<MidiEvent>() as i32,
                     delta_frames: 0,
@@ -80,15 +81,14 @@ impl MidiVSTConverter {
                     _reserved1: 0,
                     _reserved2: 0,
                 };
-                let mut event: vst::api::Event = std::mem::transmute(event);
-                event.event_type = vst::api::EventType::Midi;
 
                 let ptr = std::slice::from_raw_parts_mut(
-                    &mut self.events.events[0] as *mut *mut _ as *mut *mut _,
+                    &mut self.events.events[0] as *mut *mut Event,
                     self.events.num_events as usize,
                 );
-                let in_place_ptr = ptr[i];
-                *in_place_ptr = event;
+                let ptr_event_ref: *mut Event = ptr[i];
+                let midi_event: *mut MidiEvent = std::mem::transmute(ptr_event_ref);
+                *midi_event = event;
             }
         }
 
@@ -106,22 +106,22 @@ impl MidiVSTConverter {
             max(
                 std::mem::size_of::<vst::api::SysExEvent>(),
                 max(
-                    std::mem::size_of::<vst::api::Event>(),
-                    std::mem::size_of::<vst::api::MidiEvent>(),
+                    std::mem::size_of::<Event>(),
+                    std::mem::size_of::<MidiEvent>(),
                 ),
             ),
-            std::mem::align_of::<vst::api::Event>(),
+            std::mem::align_of::<Event>(),
         );
         let event_layout = std::alloc::Layout::from_size_align_unchecked(event_size, event_align);
 
-        std::alloc::alloc(event_layout) as *mut vst::api::Event
+        std::alloc::alloc(event_layout) as *mut Event
     }
 
     /// Allocates the `Events` struct. This is a C struct with a trailing array of events.
     /// The Rust declaration sizes this array as 2 elements ; here we append space for another
     /// capacity elements after it.
     unsafe fn allocate_events(capacity: usize) -> *mut Events {
-        let event_ptr_size = std::mem::size_of::<*mut vst::api::Event>();
+        let event_ptr_size = std::mem::size_of::<*mut Event>();
         let events_layout = std::alloc::Layout::from_size_align_unchecked(
             std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * capacity,
             std::mem::align_of::<*mut vst::api::Events>(),

@@ -15,6 +15,7 @@ audio-processor-standalone = { version = "^0.1.0", path = "../audio-processor-st
 audio-processor-traits = { version = "^0.1.0", path = "../audio-processor-traits" }
 circular-data-structures = { path = "../circular-data-structures" }
 wisual-logger = { path = "../wisual-logger" }
+rimd = "^0.0.1"
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../audio-processor-testing-helpers" }
