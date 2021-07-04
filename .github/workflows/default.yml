@@ -117,3 +117,36 @@ jobs:
         with:
           name: ${{ runner.os }}-plugin-host-gui
           path: ./target/release/plugin-host-gui
+
+  build-with-coverage:
+    runs-on: ${{ matrix.os }}
+    needs:
+      - build-javascript
+    strategy:
+      matrix:
+        os: [macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Download plugin-host-gui front-end build
+        uses: actions/download-artifact@v2
+        with:
+          name: plugin-host-gui-frontend
+          path: ./crates/plugin-host-gui/build
+      - name: Build and test with coverage
+        run: ./scripts/build-rust-coverage-report.sh
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ runner.os }}-coverage-report
+          path: ./coverage
