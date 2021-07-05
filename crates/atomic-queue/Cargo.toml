@@ -16,3 +16,9 @@ circular-data-structures = { version = "^0.1.0", path = "../circular-data-struct
 log = "^0.4.14"
 wisual-logger = "^0.1.2"
 rand = "^0.8.4"
+criterion = "^0.3"
+ringbuf = "^0.2.6"
+
+[[bench]]
+name = "atomic_queue_benchmark"
+harness = false

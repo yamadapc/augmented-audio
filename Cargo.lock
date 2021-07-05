@@ -224,8 +224,10 @@ name = "atomic-queue"
 version = "0.1.0"
 dependencies = [
  "circular-data-structures",
+ "criterion",
  "log",
  "rand 0.8.4",
+ "ringbuf",
  "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -4065,6 +4067,7 @@ dependencies = [
  "cpal",
  "criterion",
  "plotters 0.3.1",
+ "ringbuf",
 ]
 
 [[package]]
@@ -4899,9 +4902,9 @@ dependencies = [
 
 [[package]]
 name = "ringbuf"
-version = "0.2.5"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "908f26a8bb4110da2b151015792f3b8f434e2c76379fca8ab410f12ef534b404"
+checksum = "6c60f3923939c33e6c543ddbff14d0ee6a407fcd186d560be37282559616adf3"
 dependencies = [
  "cache-padded",
 ]

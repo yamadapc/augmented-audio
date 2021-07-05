@@ -70,9 +70,10 @@ impl<T> Queue<T> {
     /// wait until it's able to claim a slot in the queue.
     pub fn push(&self, element: T) -> bool {
         let mut head = self.head.load(Ordering::Relaxed);
+        let elements_len = self.elements.len();
         loop {
             let length = head as i64 - self.tail.load(Ordering::Relaxed) as i64;
-            if length >= self.elements.len() as i64 {
+            if length >= elements_len as i64 {
                 return false;
             }
 
@@ -174,6 +175,8 @@ impl<T> Queue<T> {
             {
                 unsafe {
                     let self_ptr = self as *const Self as *mut Self;
+                    // There's a potential small % optimisation from removing bounds checking here &
+                    // using mem::replace.
                     (*self_ptr).elements[head % self.elements.len()] = MaybeUninit::new(element);
                 }
                 state.store(CellState::Stored.into(), Ordering::Release);

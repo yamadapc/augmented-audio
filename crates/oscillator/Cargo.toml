@@ -10,7 +10,8 @@ edition = "2018"
 cpal = "^0.13.3"
 
 [dev-dependencies]
-criterion = "0.3"
+criterion = "^0.3"
+ringbuf = "^0.2.6"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 plotters = { version = "^0.3.1", path = "../plotters" }
