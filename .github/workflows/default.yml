@@ -51,7 +51,7 @@ jobs:
     steps:
     - name: Install dependencies
       run: |
-        apt-get install -y libasound2-dev
+        sudo apt-get install -y libasound2-dev
       if: matrix.os == 'ubuntu-latest'
     - uses: actions/checkout@v2
       with:
