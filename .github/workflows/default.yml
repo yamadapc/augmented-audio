@@ -138,6 +138,10 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install nightly
+        run: rustup install nightly
+      - name: Install grcov
+        run: cargo install grcov
       - name: Download plugin-host-gui front-end build
         uses: actions/download-artifact@v2
         with:
