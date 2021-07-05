@@ -120,8 +120,6 @@ jobs:
 
   build-with-coverage:
     runs-on: ${{ matrix.os }}
-    needs:
-      - build-javascript
     strategy:
       matrix:
         os: [macos-latest]
