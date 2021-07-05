@@ -48,6 +48,28 @@ To run off-line rendering to a file, use the `--output` flag:
 plugin-host run --output ./output.wav --plugin ./target/release/myplugin.dylib --input ./my-input-file.mp3
 ```
 
+### GUI
+There's also a GUI for this (see more later on)
+<p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/host-screenshot.png" /></p>
+
+Features supported in the GUI:
+
+* Loading the VST
+* Selecting audio IO options (input/output/driver)
+* Selecting an input file
+* Transport controls
+* Volume metering
+
+Missing functionality:
+
+* File watcher (works in CLI, but not in host GUI see #15)
+* Volume control (needs to be wired-up see #16)
+
+### Future things to improve
+
+* Implement limiter
+* Show some basic output visualizations for analysis
+
 ## Architecture of web based VST GUI
 <p align="center">
   <img height="400" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/web-gui-diagram.png" />
