@@ -100,6 +100,7 @@ jobs:
         cargo test --verbose --workspace \
             --exclude plugin-host-gui \
             --exclude darwin-webkit \
+            --exclude webview-holder \
             --exclude macos-bundle-resources
     - name: Non-OSX build
       run: |
