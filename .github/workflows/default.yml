@@ -158,44 +158,45 @@ jobs:
           name: ${{ runner.os }}-plugin-host-gui
           path: ./target/release/plugin-host-gui
 
-  build-with-coverage:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-      - name: Install nightly
-        run: rustup install nightly
-      - name: Install grcov
-        run: cargo +nightly install --force grcov
-      - name: Install llvm-tools
-        run: rustup component add llvm-tools
-      - name: Download plugin-host-gui front-end build
-        uses: actions/download-artifact@v2
-        with:
-          name: plugin-host-gui-frontend
-          path: ./crates/plugin-host-gui/build
-      - name: Build and test with coverage
-        run: ./scripts/build-rust-coverage-report.sh
-      - name: Upload coverage to coveralls
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        run: |
-          grcov . --binary-path ./target/debug --source-dir . -t coveralls --token $COVERALLS_TOKEN
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ runner.os }}-coverage-report
-          path: ./coverage
+#  # Disabled due to unreliability
+#  build-with-coverage:
+#    runs-on: ${{ matrix.os }}
+#    strategy:
+#      matrix:
+#        os: [macos-latest]
+#    steps:
+#      - uses: actions/checkout@v2
+#        with:
+#          submodules: recursive
+#      - uses: actions/cache@v2
+#        with:
+#          path: |
+#            ~/.cargo/bin/
+#            ~/.cargo/registry/index/
+#            ~/.cargo/registry/cache/
+#            ~/.cargo/git/db/
+#            target/
+#          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+#      - name: Install nightly
+#        run: rustup install nightly
+#      - name: Install grcov
+#        run: cargo +nightly install --force grcov
+#      - name: Install llvm-tools
+#        run: rustup component add llvm-tools
+#      - name: Download plugin-host-gui front-end build
+#        uses: actions/download-artifact@v2
+#        with:
+#          name: plugin-host-gui-frontend
+#          path: ./crates/plugin-host-gui/build
+#      - name: Build and test with coverage
+#        run: ./scripts/build-rust-coverage-report.sh
+#      - name: Upload coverage to coveralls
+#        env:
+#          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+#        run: |
+#          grcov . --binary-path ./target/debug --source-dir . -t coveralls --token $COVERALLS_TOKEN
+#      - name: Upload coverage report
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: ${{ runner.os }}-coverage-report
+#          path: ./coverage
