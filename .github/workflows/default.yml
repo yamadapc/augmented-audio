@@ -85,12 +85,29 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: Run tests
       run: cargo test --verbose --workspace --exclude plugin-host-gui
+      if: matrix.os == 'macos-latest'
     - name: Run clippy
       run: cargo clippy --verbose --workspace --exclude plugin-host-gui
+      if: matrix.os == 'macos-latest'
     - name: Run check
       run: cargo check --verbose --workspace --exclude plugin-host-gui
+      if: matrix.os == 'macos-latest'
     - name: Build
       run: cargo build --release --verbose --workspace --exclude plugin-host-gui
+      if: matrix.os == 'macos-latest'
+    - name: Non-OSX test
+      run: |
+        cargo test --verbose --workspace \
+            --exclude plugin-host-gui \
+            --exclude darwin-webkit \
+            --exclude macos-bundle-resources
+    - name: Non-OSX build
+      run: |
+        cargo build --release --verbose --workspace \
+            --exclude plugin-host-gui \
+            --exclude darwin-webkit \
+            --exclude macos-bundle-resources
+      if: matrix.os != 'macos-latest'
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:
