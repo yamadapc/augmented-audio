@@ -1,6 +1,4 @@
-extern crate cocoa;
 extern crate crossbeam;
-extern crate darwin_webkit;
 extern crate log;
 extern crate log4rs;
 extern crate oscillator;

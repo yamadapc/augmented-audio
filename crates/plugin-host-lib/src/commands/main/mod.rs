@@ -10,6 +10,7 @@ use std::time::Duration;
 use notify::{watcher, RecommendedWatcher, RecursiveMode, Watcher};
 use tao::event::{Event, WindowEvent};
 use tao::event_loop::ControlFlow;
+#[cfg(target_os = "macos")]
 use tao::platform::macos::WindowExtMacOS;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
@@ -70,6 +71,12 @@ pub fn run_test(run_options: RunOptions) {
     }
 }
 
+#[cfg(not(target_os = "macos"))]
+fn start_gui(_instance: SharedProcessor<PluginInstance>) {
+    log::warn!("GUI is unsupported on this OS")
+}
+
+#[cfg(target_os = "macos")]
 fn start_gui(instance: SharedProcessor<PluginInstance>) {
     let instance_ptr = instance.deref() as *const PluginInstance as *mut PluginInstance;
     let event_loop = tao::event_loop::EventLoop::new();

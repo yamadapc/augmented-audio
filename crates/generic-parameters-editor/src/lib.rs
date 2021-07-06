@@ -8,6 +8,7 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use vst::editor::Editor;
 use webview_holder::WebviewHolder;
+#[cfg(target_os = "macos")]
 use webview_transport::webkit::WebkitTransport;
 use webview_transport::{
     create_transport_runtime, DelegatingTransport, WebSocketsTransport, WebviewTransport,
@@ -18,6 +19,23 @@ use crate::protocol::{ClientMessage, ParameterDeclarationMessage, ServerMessage}
 pub mod handlers;
 pub mod protocol;
 
+#[cfg(not(target_os = "macos"))]
+fn initialize_transport<ServerMessage, ClientMessage>(
+    webview: Arc<Mutex<WebviewHolder>>,
+) -> Box<dyn WebviewTransport<ServerMessage, ClientMessage>>
+where
+    ServerMessage: Serialize + Send + Clone + Debug + 'static,
+    ClientMessage: DeserializeOwned + Send + Clone + Debug + 'static,
+{
+    log::info!("Using websockets transport");
+    let websockets_addr =
+        std::env::var("WEBSOCKETS_TRANSPORT_ADDR").unwrap_or_else(|_| "localhost:9510".to_string());
+    Box::new(DelegatingTransport::from_transports(vec![Box::new(
+        WebSocketsTransport::new(&websockets_addr),
+    )]))
+}
+
+#[cfg(target_os = "macos")]
 fn initialize_transport<ServerMessage, ClientMessage>(
     webview: Arc<Mutex<WebviewHolder>>,
 ) -> Box<dyn WebviewTransport<ServerMessage, ClientMessage>>
