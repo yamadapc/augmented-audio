@@ -181,7 +181,7 @@ jobs:
       - name: Install grcov
         run: cargo +nightly install --force grcov
       - name: Install llvm-tools
-        run: rustup +nightly component add llvm-tools
+        run: rustup component add llvm-tools
       - name: Download plugin-host-gui front-end build
         uses: actions/download-artifact@v2
         with:
