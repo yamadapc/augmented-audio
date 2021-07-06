@@ -175,6 +175,7 @@ impl AudioIOService {
     }
 }
 
+#[cfg(target_os = "macos")]
 #[cfg(test)]
 mod test {
     use super::*;
