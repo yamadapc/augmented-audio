@@ -82,13 +82,12 @@ impl<T> Queue<T> {
                 .compare_exchange(head, head + 1, Ordering::Acquire, Ordering::Relaxed)
                 .is_ok()
             {
-                break;
+                self.do_push(element, head);
+                return true;
             }
 
             head = self.head.load(Ordering::Relaxed);
         }
-        self.do_push(element, head);
-        true
     }
 
     /// Pop an element from the queue and return `true` on success.
@@ -122,6 +121,27 @@ impl<T> Queue<T> {
         self.do_pop(tail)
     }
 
+    /// Push an element into the queue without checking if it's full.
+    pub fn force_push(&self, element: T) {
+        let head = self.head.fetch_add(1, Ordering::Acquire);
+        self.do_push(element, head);
+    }
+
+    /// True if the queue is empty.
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
+
+    /// Get the length of the queue.
+    pub fn len(&self) -> usize {
+        max(
+            self.head.load(Ordering::Relaxed) - self.tail.load(Ordering::Relaxed),
+            0,
+        )
+    }
+}
+
+impl<T> Queue<T> {
     fn do_pop(&self, tail: usize) -> T {
         let state = &self.states[tail];
         loop {
@@ -148,12 +168,6 @@ impl<T> Queue<T> {
                 return unsafe { element.assume_init() };
             }
         }
-    }
-
-    /// Push an element into the queue without checking if it's full.
-    pub fn force_push(&self, element: T) {
-        let head = self.head.fetch_add(1, Ordering::Acquire);
-        self.do_push(element, head);
     }
 
     fn do_push(&self, element: T, head: usize) {
@@ -183,19 +197,6 @@ impl<T> Queue<T> {
                 return;
             }
         }
-    }
-
-    /// True if the queue is empty.
-    pub fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    /// Get the length of the queue.
-    pub fn len(&self) -> usize {
-        max(
-            self.head.load(Ordering::Relaxed) - self.tail.load(Ordering::Relaxed),
-            0,
-        )
     }
 }
 
