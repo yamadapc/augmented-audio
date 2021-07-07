@@ -1,10 +1,9 @@
 use std::cmp::{max, min};
 
-use basedrop::Owned;
 use vst::api::{Event, Events, MidiEvent};
 
 use crate::constants::MIDI_BUFFER_CAPACITY;
-use crate::host::MidiMessageWrapper;
+use crate::host::MidiMessageEntry;
 
 /// This is a super unsafe converter from MIDI events as received into the VST api. It's unsafe
 /// because it must do manual memory allocation & management.
@@ -53,10 +52,7 @@ impl MidiVSTConverter {
     }
 
     /// Pushes MIDI messages onto a pre-allocated `Events` struct. Returns a reference to it.
-    pub fn accept(
-        &mut self,
-        midi_message_buffer: &[Owned<MidiMessageWrapper>],
-    ) -> &vst::api::Events {
+    pub fn accept(&mut self, midi_message_buffer: &[MidiMessageEntry]) -> &vst::api::Events {
         self.events.num_events = min(self.capacity as i32, midi_message_buffer.len() as i32);
 
         for (i, message) in midi_message_buffer.iter().enumerate() {

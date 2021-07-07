@@ -1,7 +1,9 @@
 use crate::constants::MIDI_BUFFER_CAPACITY;
 use atomic_queue::Queue;
+use audio_processor_traits::MidiMessageLike;
 use basedrop::{Handle, Owned, Shared};
 use midir::{MidiInput, MidiInputConnection};
+use std::ops::Deref;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -12,7 +14,27 @@ pub enum MidiError {
     ConnectError(#[from] midir::ConnectError<MidiInput>),
 }
 
-pub type MidiMessageQueue = Shared<Queue<Owned<MidiMessageWrapper>>>;
+pub type MidiMessageQueue = Shared<Queue<MidiMessageEntry>>;
+
+pub struct MidiMessageEntry(Owned<MidiMessageWrapper>);
+
+impl Deref for MidiMessageEntry {
+    type Target = Owned<MidiMessageWrapper>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl MidiMessageLike for MidiMessageEntry {
+    fn is_midi(&self) -> bool {
+        true
+    }
+
+    fn bytes(&self) -> Option<&[u8]> {
+        Some(&self.message_data)
+    }
+}
 
 pub struct MidiMessageWrapper {
     pub message_data: [u8; 3],
@@ -99,12 +121,12 @@ fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext
         message_data[i] = *b;
     }
 
-    let message = Owned::new(
+    let message = MidiMessageEntry(Owned::new(
         &context.handle,
         MidiMessageWrapper {
             message_data,
             timestamp,
         },
-    );
+    ));
     context.messages.push(message);
 }

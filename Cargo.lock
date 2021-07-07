@@ -248,7 +248,9 @@ dependencies = [
 name = "audio-processor-standalone"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-standalone-midi",
  "audio-processor-traits",
+ "basedrop",
  "circular-data-structures",
  "cpal",
  "log",
@@ -261,6 +263,7 @@ name = "audio-processor-standalone-midi"
 version = "0.1.0"
 dependencies = [
  "atomic-queue",
+ "audio-processor-traits",
  "basedrop",
  "log",
  "midir",
@@ -3517,6 +3520,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 
 [[package]]
+name = "pitch_calc"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "387005d7ff9e9970f954ffd33e258f9b755d5f27f11a4b57df3e5c6eab5a46f8"
+dependencies = [
+ "num 0.1.42",
+ "rand 0.3.23",
+]
+
+[[package]]
 name = "pkg-config"
 version = "0.3.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3799,6 +3812,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c3d0b9745dc2debf507c8422de05d7226cc1f0644216dfdfead988f9b1ab32a7"
 dependencies = [
  "proc-macro2",
+]
+
+[[package]]
+name = "rand"
+version = "0.3.23"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64ac302d8f83c0c1974bf758f6b041c6c8ada916fbb44a609158ca8b064cc76c"
+dependencies = [
+ "libc",
+ "rand 0.4.6",
 ]
 
 [[package]]
@@ -4746,9 +4769,15 @@ name = "synth"
 version = "0.1.0"
 dependencies = [
  "adsr-envelope",
+ "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-traits",
+ "log",
+ "num 0.4.0",
  "oscillator",
+ "pitch_calc",
+ "rimd",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]

@@ -1,9 +1,9 @@
-use basedrop::{Handle, Owned, Shared, SharedCell};
+use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
-use audio_processor_standalone_midi::host::{MidiMessageQueue, MidiMessageWrapper};
+use audio_processor_standalone_midi::host::MidiMessageQueue;
 use audio_processor_traits::InterleavedAudioBuffer;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
@@ -12,7 +12,6 @@ use options::AudioThreadOptions;
 use crate::audio_io::audio_thread::options::AudioDeviceId;
 use crate::processors::shared_processor::{ProcessorCell, SharedProcessor};
 use crate::processors::test_host_processor::TestHostProcessor;
-use atomic_queue::Queue;
 use ringbuf::Consumer;
 
 mod cpal_option_handling;
@@ -213,7 +212,7 @@ fn create_stream_inner(
 
 fn output_stream_callback(
     processor: &Shared<SharedCell<ProcessorCell<AudioThreadProcessor>>>,
-    midi_message_queue: &Shared<Queue<Owned<MidiMessageWrapper>>>,
+    midi_message_queue: &MidiMessageQueue,
     num_channels: usize,
     midi_message_handler: &mut MidiAudioThreadHandler,
     consumer: &mut Consumer<f32>,
@@ -244,7 +243,7 @@ fn output_stream_callback(
     let processor_ptr = shared_processor.0.get();
     match unsafe { &mut (*processor_ptr) } {
         AudioThreadProcessor::Active(processor) => {
-            processor.process_midi(midi_message_handler.buffer());
+            processor.process_midi(&midi_message_handler.buffer());
             processor.process(&mut audio_buffer)
         }
         AudioThreadProcessor::Silence(processor) => (*processor).process(&mut audio_buffer),

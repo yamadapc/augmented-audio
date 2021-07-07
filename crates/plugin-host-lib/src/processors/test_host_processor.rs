@@ -1,10 +1,9 @@
 use std::ops::Deref;
 
-use basedrop::Owned;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
-use audio_processor_standalone_midi::host::MidiMessageWrapper;
+use audio_processor_standalone_midi::host::MidiMessageEntry;
 use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
@@ -88,7 +87,7 @@ impl TestHostProcessor {
 
 impl TestHostProcessor {
     /// Will eventually evolve onto a "MidiEventsProcessor" trait.
-    pub fn process_midi(&mut self, midi_message_buffer: &[Owned<MidiMessageWrapper>]) {
+    pub fn process_midi(&mut self, midi_message_buffer: &[MidiMessageEntry]) {
         let events = self.midi_converter.accept(midi_message_buffer);
         self.plugin_instance.process_events(events);
     }

@@ -10,6 +10,8 @@ audio-processor-traits = { version = "^0.1.0", path = "../audio-processor-traits
 cpal = "^0.13.3"
 log = "^0.4.14"
 wisual-logger = "^0.1.2"
+basedrop = "^0.1.2"
+audio-processor-standalone-midi = { version = "^0.1.0", path = "../audio-processor-standalone-midi" }
 ringbuf = "^0.2.5"
 
 [dev-dependencies]
