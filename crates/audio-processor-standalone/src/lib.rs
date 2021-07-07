@@ -1,7 +1,10 @@
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{BufferSize, SampleRate, StreamConfig};
+use ringbuf::{Consumer, Producer};
 
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer};
+#[cfg(target_arch = "wasm32")]
+use wasm::*;
 
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'static>(
     mut audio_processor: Processor,
@@ -43,15 +46,7 @@ pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'stati
         .build_input_stream(
             &input_config,
             move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
-                let mut output_behind = false;
-                for sample in data {
-                    while producer.push(*sample).is_err() {
-                        output_behind = true;
-                    }
-                }
-                if output_behind {
-                    log::error!("Output is behind");
-                }
+                input_stream_callback(&mut producer, data)
             },
             |err| {
                 log::error!("Input error: {:?}", err);
@@ -63,22 +58,7 @@ pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'stati
         .build_output_stream(
             &output_config,
             move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-                let mut input_behind = false;
-
-                for sample in data.iter_mut() {
-                    if let Some(input_sample) = consumer.pop() {
-                        *sample = input_sample;
-                    } else {
-                        input_behind = true;
-                    }
-                }
-
-                if input_behind {
-                    log::error!("Input is behind");
-                }
-
-                let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
-                audio_processor.process(&mut audio_buffer);
+                output_stream_callback(&mut audio_processor, num_channels, &mut consumer, data);
             },
             |err| {
                 log::error!("Playback error: {:?}", err);
@@ -90,6 +70,42 @@ pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'stati
     input_stream.play().unwrap();
 
     std::thread::park();
+}
+
+fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
+    let mut output_behind = false;
+    for sample in data {
+        while producer.push(*sample).is_err() {
+            output_behind = true;
+        }
+    }
+    if output_behind {
+        log::error!("Output is behind");
+    }
+}
+
+fn output_stream_callback<Processor: AudioProcessor<SampleType = f32> + 'static>(
+    audio_processor: &mut Processor,
+    num_channels: usize,
+    consumer: &mut Consumer<f32>,
+    data: &mut [f32],
+) {
+    let mut input_behind = false;
+
+    for sample in data.iter_mut() {
+        if let Some(input_sample) = consumer.pop() {
+            *sample = input_sample;
+        } else {
+            input_behind = true;
+        }
+    }
+
+    if input_behind {
+        log::error!("Input is behind");
+    }
+
+    let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
+    audio_processor.process(&mut audio_buffer);
 }
 
 #[cfg(test)]

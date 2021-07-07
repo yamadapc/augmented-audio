@@ -47,6 +47,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/plotters/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/atomic-queue/benches" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/crates/adsr-envelope/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/synth/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/oscillator/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/tremolo-plugin/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/wisual-logger/target" />
