@@ -4,6 +4,11 @@ use std::ffi::c_void;
 #[cfg(target_os = "macos")]
 use crate::macos::get_raw_window_handle;
 
+#[cfg(not(target_os = "macos"))]
+fn get_raw_window_handle(_parent: *mut c_void) -> RawWindowHandle {
+    todo!("Unsupported OS")
+}
+
 pub struct PluginWindow {
     window_handle: RawWindowHandle,
 }

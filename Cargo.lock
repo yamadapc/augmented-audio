@@ -514,6 +514,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "baseview"
+version = "0.1.0"
+source = "git+https://github.com/RustAudio/baseview.git?rev=d399c1275522ae75f5a82caadd904df2685c8660#d399c1275522ae75f5a82caadd904df2685c8660"
+dependencies = [
+ "cocoa 0.24.0",
+ "core-foundation 0.9.1",
+ "keyboard-types",
+ "nix 0.18.0",
+ "objc",
+ "raw-window-handle",
+ "uuid",
+ "winapi 0.3.9",
+ "x11",
+ "xcb",
+ "xcb-util",
+]
+
+[[package]]
 name = "bincode"
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3052,7 +3070,7 @@ dependencies = [
 name = "iced-editor"
 version = "0.1.0"
 dependencies = [
- "baseview",
+ "baseview 0.1.0",
  "cocoa 0.24.0",
  "iced",
  "iced_baseview",
@@ -3067,14 +3085,13 @@ dependencies = [
 name = "iced_baseview"
 version = "0.0.1"
 dependencies = [
- "baseview",
+ "baseview 0.1.0 (git+https://github.com/RustAudio/baseview.git?rev=d399c1275522ae75f5a82caadd904df2685c8660)",
  "iced_core",
  "iced_futures",
  "iced_graphics",
  "iced_native",
  "iced_wgpu",
  "keyboard-types",
- "log",
  "raw-window-handle",
 ]
 
