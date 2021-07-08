@@ -1350,6 +1350,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd0c93bb4b0c6d9b77f4435b0ae98c24d17f1c45b2ff844c6151a07256ca923b"
 
 [[package]]
+name = "dsp-filters"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-traits",
+ "num 0.4.0",
+]
+
+[[package]]
 name = "dtoa"
 version = "0.4.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4772,6 +4780,7 @@ dependencies = [
  "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-traits",
+ "dsp-filters",
  "log",
  "num 0.4.0",
  "oscillator",

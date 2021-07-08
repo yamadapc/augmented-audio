@@ -4,16 +4,14 @@ use rimd::Status;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
-use filter::LowPassFilterProcessor;
-use num::traits::FloatConst;
+use dsp_filters::rbj::{FilterProcessor, FilterType};
 use voice::Voice;
 
-mod filter;
 mod voice;
 
 pub struct Synthesizer {
     voices: [Voice; 4],
-    filter: LowPassFilterProcessor,
+    filter: FilterProcessor,
 }
 
 impl Synthesizer {
@@ -25,7 +23,7 @@ impl Synthesizer {
                 Voice::new(sample_rate),
                 Voice::new(sample_rate),
             ],
-            filter: LowPassFilterProcessor::new(),
+            filter: FilterProcessor::new(FilterType::LowPass),
         }
     }
 }
