@@ -13,7 +13,7 @@ use audio_processor_traits::{
 pub fn audio_processor_main_with_midi<
     Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + 'static,
 >(
-    mut audio_processor: Processor,
+    audio_processor: Processor,
     handle: &Handle,
 ) {
     let (_input_stream, _output_stream) = audio_processor_start_with_midi(audio_processor, handle);
@@ -94,7 +94,7 @@ pub fn audio_processor_start_with_midi<
 }
 
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'static>(
-    mut audio_processor: Processor,
+    audio_processor: Processor,
 ) {
     let (_input_stream, _output_stream) = audio_processor_start(audio_processor);
     std::thread::park();
