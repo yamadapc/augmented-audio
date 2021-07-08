@@ -15,6 +15,15 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
+## Note on Web GUI
+After playing around with `iced`, I've decided to use it instead of Web based GUI.
+
+This is due to inefficient rendering of audio visualisation in Web. I've also considered druid which is also
+not suitable for basic visuals & will bet on `iced` as the GUI library.
+
+The Web bits of this repository will be slowly removed. I'm looking at `iced_baseview`, but might modify it to fit this
+repository's needs.
+
 ## audio-processor-traits
 See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-traits).
 

@@ -1,7 +1,6 @@
-mod config;
-
 use std::sync::Arc;
 
+use vst::api::Events;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin};
 use vst::plugin_main;
@@ -10,9 +9,13 @@ use audio_garbage_collector::GarbageCollector;
 use audio_parameter_store::ParameterStore;
 use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
-use generic_parameters_editor::{GenericParametersEditor, GenericParametersEditorOptions};
+use iced_editor::IcedEditor;
 use looper_processor::LooperProcessor;
-use vst::api::Events;
+
+use crate::ui::LooperApplication;
+
+mod config;
+mod ui;
 
 pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";
 pub static INDEX_HTML_RESOURCE: &str = "frontend/index.html";
@@ -79,13 +82,7 @@ impl Plugin for LoopiPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        Some(Box::new(GenericParametersEditor::new(
-            GenericParametersEditorOptions::new(
-                String::from(BUNDLE_IDENTIFIER),
-                String::from(INDEX_HTML_RESOURCE),
-            ),
-            self.parameters.clone(),
-        )))
+        Some(Box::new(IcedEditor::<LooperApplication>::new(())))
     }
 }
 

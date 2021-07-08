@@ -10,3 +10,6 @@
 [submodule "crates/plotters"]
 	path = crates/plotters
 	url = https://github.com/yamadapc/plotters
+[submodule "crates/iced-baseview"]
+	path = crates/iced-baseview
+	url = https://github.com/yamadapc/iced_baseview

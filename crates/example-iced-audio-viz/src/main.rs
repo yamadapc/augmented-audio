@@ -1,8 +1,8 @@
 use basedrop::Shared;
 use cpal::Stream;
 use iced::{
-    Application, Canvas, Clipboard, Color, Command, Container, Element, Executor, Length, Point,
-    Rectangle, Settings, Subscription, Text,
+    Application, Canvas, Clipboard, Command, Element, Length, Point, Rectangle, Settings,
+    Subscription,
 };
 
 use atomic_queue::Queue;
@@ -12,7 +12,7 @@ use audio_processor_standalone::audio_processor_start;
 use crate::buffer_analyser::BufferAnalyserProcessor;
 use circular_data_structures::CircularVec;
 use iced::canvas::{Cursor, Frame, Geometry, Program, Stroke};
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 mod buffer_analyser;
 
@@ -22,10 +22,15 @@ fn main() -> iced::Result {
 }
 
 struct AudioVisualization {
+    #[allow(dead_code)]
     garbage_collector: GarbageCollector,
+    #[allow(dead_code)]
     queue_handle: Shared<Queue<f32>>,
+    #[allow(dead_code)]
     audio_streams: (Stream, Stream),
+    #[allow(dead_code)]
     buffer: CircularVec<f32>,
+    #[allow(dead_code)]
     position: usize,
 }
 
@@ -67,7 +72,6 @@ impl Application for AudioVisualization {
         _message: Self::Message,
         _clipboard: &mut Clipboard,
     ) -> Command<Self::Message> {
-        let start_position = self.position;
         while let Some(sample) = self.queue_handle.pop() {
             self.buffer[self.position] = sample;
             self.position += 1;

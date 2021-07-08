@@ -23,7 +23,6 @@ use std::time::Duration;
 
 use druid::widget::prelude::*;
 use druid::{AppLauncher, Color, Point, Selector, Target, WidgetExt, WindowDesc};
-use instant::Instant;
 
 use audio_garbage_collector::GarbageCollector;
 use audio_processor_standalone::audio_processor_start;
@@ -32,7 +31,7 @@ use crate::buffer_analyser::BufferAnalyserProcessor;
 use atomic_queue::Queue;
 use basedrop::Shared;
 use circular_data_structures::CircularVec;
-use druid::kurbo::{BezPath, Line};
+use druid::kurbo::BezPath;
 
 mod buffer_analyser;
 
