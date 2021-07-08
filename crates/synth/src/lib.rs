@@ -9,23 +9,32 @@ use rimd::Status;
 struct Voice {
     oscillator: Oscillator<f32>,
     envelope: Envelope,
+    current_note: Option<u8>,
+    volume: f32,
 }
 
 impl Voice {
     fn new(sample_rate: f32) -> Self {
         Voice {
-            oscillator: Oscillator::sine(sample_rate),
+            oscillator: Oscillator::new_with_sample_rate(
+                sample_rate,
+                oscillator::generators::square_generator,
+            ),
             envelope: Envelope::new(),
+            current_note: None,
+            volume: 0.25,
         }
     }
 
     fn note_on(&mut self, note: u8, _velocity: u8) {
+        self.current_note = Some(note);
         self.oscillator
             .set_frequency(pitch_calc::hz_from_step(note as f32));
         self.envelope.note_on();
     }
 
     fn note_off(&mut self) {
+        self.current_note = None;
         self.envelope.note_off();
     }
 }
@@ -45,7 +54,7 @@ impl AudioProcessor for Voice {
         for sample_index in 0..data.num_samples() {
             let oscillator_value = self.oscillator.get();
             let envelope_volume = self.envelope.volume();
-            let output = oscillator_value * envelope_volume;
+            let output = self.volume * oscillator_value * envelope_volume;
 
             for channel_index in 0..data.num_channels() {
                 let input = *data.get(channel_index, sample_index);
@@ -127,14 +136,27 @@ impl Synthesizer {
     }
 
     fn note(&mut self, bytes: &[u8]) {
-        let voice = &mut self.voices[0]; // TODO Implement polyphonic voice assignment
         let note = bytes[1];
         let velocity = bytes[2];
         log::info!("Received NOTE ON message {:?}", bytes);
         if velocity == 0 {
-            voice.note_off();
+            let voice = self
+                .voices
+                .iter_mut()
+                .find(|voice| voice.current_note.is_some() && voice.current_note.unwrap() == note);
+            if let Some(voice) = voice {
+                voice.note_off();
+            }
         } else {
-            voice.note_on(note, velocity);
+            let voice = self
+                .voices
+                .iter_mut()
+                .find(|voice| voice.current_note.is_none());
+            if let Some(voice) = voice {
+                voice.note_on(note, velocity);
+            } else {
+                self.voices[0].note_on(note, velocity);
+            }
         }
     }
 }
