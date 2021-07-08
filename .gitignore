@@ -74,3 +74,4 @@ default.profraw
 test.wav
 
 /references
+/references/DSPFilters/shared/cmake-build-debug
