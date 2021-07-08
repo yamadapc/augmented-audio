@@ -23,6 +23,10 @@ impl<T> CircularVec<T> {
         }
     }
 
+    pub fn inner(&self) -> &Vec<T> {
+        &self.inner
+    }
+
     pub fn with_vec(vec: Vec<T>) -> Self {
         CircularVec { inner: vec }
     }
