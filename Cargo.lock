@@ -497,14 +497,15 @@ checksum = "47611e530cf21bb89fbfe322aa8b1feae1ace33ff65f8ebf40fe3b4b99b7c9a2"
 [[package]]
 name = "baseview"
 version = "0.1.0"
-source = "git+https://github.com/RustAudio/baseview.git?rev=d399c1275522ae75f5a82caadd904df2685c8660#d399c1275522ae75f5a82caadd904df2685c8660"
 dependencies = [
  "cocoa 0.24.0",
  "core-foundation 0.9.1",
  "keyboard-types",
+ "log",
  "nix 0.18.0",
  "objc",
  "raw-window-handle",
+ "rtrb",
  "uuid",
  "winapi 0.3.9",
  "x11",
@@ -3073,6 +3074,7 @@ dependencies = [
  "iced_native",
  "iced_wgpu",
  "keyboard-types",
+ "log",
  "raw-window-handle",
 ]
 
@@ -5635,6 +5637,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dbf7d7b1ea646d380d0e8153158063a6da7efe30ddbf3184042848e3f8a6f671"
 dependencies = [
  "xmlparser",
+]
+
+[[package]]
+name = "rtrb"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "318256ac02f7e11a48a10339ba5dca8bd7eb17496abf384e8ea909bb2ae5275f"
+dependencies = [
+ "cache-padded",
 ]
 
 [[package]]

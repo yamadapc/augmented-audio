@@ -1,4 +1,5 @@
-use iced::Text;
+use iced::{Background, Color, Container, Length, Text};
+
 use iced_baseview::executor;
 use iced_baseview::{Application, Command, Element};
 
@@ -21,6 +22,10 @@ impl Application for LooperApplication {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        Text::new("Hello world").into()
+        let content = Text::new("Hello world");
+        Container::new(content)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into()
     }
 }

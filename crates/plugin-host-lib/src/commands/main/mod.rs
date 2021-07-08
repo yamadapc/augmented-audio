@@ -80,16 +80,27 @@ fn start_gui(_instance: SharedProcessor<PluginInstance>) {
 fn start_gui(instance: SharedProcessor<PluginInstance>) {
     let instance_ptr = instance.deref() as *const PluginInstance as *mut PluginInstance;
     let event_loop = tao::event_loop::EventLoop::new();
-    let window = tao::window::Window::new(&event_loop).expect("Failed to create editor window");
-    unsafe {
-        window.set_title(&(*instance_ptr).get_info().name);
-    }
 
     let mut editor = unsafe { instance_ptr.as_mut() }
         .unwrap()
         .get_editor()
         .expect("Plugin has no editor");
+    let (width, height) = editor.size();
+
+    let window = tao::window::WindowBuilder::new()
+        .with_inner_size(tao::dpi::Size::Logical(tao::dpi::LogicalSize::new(
+            width as f64,
+            height as f64,
+        )))
+        .build(&event_loop)
+        .expect("Failed to create editor window");
+
+    unsafe {
+        window.set_title(&(*instance_ptr).get_info().name);
+    }
     editor.open(window.ns_view());
+
+    window.request_redraw();
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;

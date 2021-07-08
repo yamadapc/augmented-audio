@@ -1,0 +1,20 @@
+[package]
+name = "iced-editor"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+iced = "^0.3.0"
+log = "^0.4.14"
+vst = { git = "https://github.com/rustaudio/vst-rs", rev = "a398697b0214129720af2480e98f1abf7beecfce" }
+wisual-logger = { path = "../wisual-logger" }
+
+baseview = { path = "../baseview" }
+iced_baseview = { path = "../iced-baseview" }
+raw-window-handle = "^0.3.3"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+objc = "^0.2.7"
+cocoa = "^0.24.0"

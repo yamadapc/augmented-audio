@@ -85,23 +85,12 @@ impl Application for AudioVisualization {
     }
 
     fn view<'a>(&'a mut self) -> Element<'a, Self::Message> {
-        // let visualizer = AudioVisualizer {
-        //     buffer: &self.buffer,
-        // };
         Canvas::new(self)
             .width(Length::Fill)
             .height(Length::Fill)
             .into()
-        // Container::new(content)
-        //     .width(Length::Fill)
-        //     .height(Length::Fill)
-        //     .into()
     }
 }
-
-// struct AudioVisualizer<'a> {
-//     buffer: &'a CircularVec<f32>,
-// }
 
 impl Program<Message> for AudioVisualization {
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
