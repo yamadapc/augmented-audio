@@ -1,15 +1,10 @@
-/// Passing around `&mut [f32]` as audio buffers isn't good because:
+/// Represents an audio buffer. This decouples audio processing code from a certain representation
+/// of multi-channel sample buffers.
 ///
-/// * Some libraries / APIs will use interleaved buffers
-/// * Some will not
-/// * If you pick one all your processor code is bound to a buffer layout
-/// * If there's an abstraction on top the processor code can work for any buffer layout while
-///   still having the sample performance
-/// * Currently `AudioProcessor` is made to work with cpal interleaved buffers; it then needs
-///   conversion to work with VST.
-/// * That's very unfortunate. I'd like to write a single processor that can work with both buffer
-///   types with no overhead.
+/// This crate provides implementations of this trait for VST & CPal style buffers, which have
+/// different internal representations.
 pub trait AudioBuffer {
+    /// The type of samples within this buffer. Currently restricted to num::Float numbers.
     type SampleType: num::Float + Sync + Send;
 
     /// The number of channels in this buffer
@@ -35,6 +30,7 @@ pub trait AudioBuffer {
     }
 }
 
+/// Iterator for audio buffers
 pub struct AudioBufferIterator<'a, BufferType: AudioBuffer + ?Sized> {
     position: usize,
     buffer: &'a BufferType,
@@ -111,7 +107,7 @@ impl<'a, BufferType: AudioBuffer> Iterator for AudioFrameReferenceIterator<'a, B
     }
 }
 
-/// An AudioBuffer that stores samples as interleaved frames, used for CPAL.
+/// An AudioBuffer that stores samples as interleaved frames, used for CPAL compatibility.
 ///
 /// Example layout:
 ///
@@ -213,6 +209,7 @@ impl<'a, SampleType: num::Float + Sync + Send> AudioBuffer for SliceAudioBuffer<
     }
 }
 
+/// VST compatibility, enabled by the `vst_support` feature.
 #[cfg(feature = "vst_support")]
 pub mod vst {
     use super::*;

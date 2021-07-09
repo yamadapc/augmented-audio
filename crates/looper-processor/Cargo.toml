@@ -12,7 +12,7 @@ num = "^0.4.0"
 
 audio-garbage-collector = { version = "^0.1.0", path = "../audio-garbage-collector" }
 audio-processor-standalone = { version = "^0.1.0", path = "../audio-processor-standalone" }
-audio-processor-traits = { version = "^0.1.0", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.2.0", path = "../audio-processor-traits" }
 circular-data-structures = { path = "../circular-data-structures" }
 wisual-logger = { path = "../wisual-logger" }
 rimd = "^0.0.1"

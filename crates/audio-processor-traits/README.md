@@ -1,4 +1,7 @@
 # Audio Processor Traits
+[![crates.io](https://img.shields.io/crates/v/audio-processor-traits.svg)](https://crates.io/crates/audio-processor-traits)
+[![docs.rs](https://docs.rs/audio-processor-traits/badge.svg)](https://docs.rs/audio-processor-traits/)
+- - -
 Traits for audio processor types and audio buffer types. Heavily subject to change.
 
 ## Primer
@@ -133,12 +136,14 @@ impl<SampleType: num::Float + Send + Sync> AudioProcessor for SilenceAudioProces
 ```
 
 ## Pending work
-* MIDI trait
+* ~~MIDI trait~~
 * Richer API for applications
 * State management guidelines, using a background ref-counting garbage-collector & immutable 'state handle' references
   (while still allowing the internal state of a processor to be mutable)
 * Automatic implementation of the VST API for all trait implementors
+* Automatic implementation of the LV2 API for all trait implementors
 * Automatic implementation of a "stand-alone" `cpal` based App for all trait implementors (see
   `audio-processor-standalone` in this repository)
 * An audio-graph implementation
+* GUI support
 * Testing tools

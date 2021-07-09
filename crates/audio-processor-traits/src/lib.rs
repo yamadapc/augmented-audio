@@ -1,11 +1,24 @@
+//! Provides abstractions for implementing:
+//!
+//! * Audio processing nodes
+//! * MIDI processing nodes
+//! * Audio buffers
+//!
+//! An audio processor implemented with these traits may work with multiple sample types, audio
+//! buffer types and audio processing back-ends.
+//!
+//! Start looking at [AudioProcessor], then have a look at [AudioBuffer] and [MidiEventHandler].
 use std::marker::PhantomData;
 
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
 pub use midi::{MidiEventHandler, MidiMessageLike};
 
+/// Provides an abstraction for audio buffers that works for CPAL and VST layouts
 pub mod audio_buffer;
+/// Provides an abstraction for MIDI processing that works for stand-alone and VST events
 pub mod midi;
 
+/// Options provided to the audio-processor before calling `process`.
 #[derive(Clone, Copy)]
 pub struct AudioProcessorSettings {
     sample_rate: f32,
@@ -35,18 +48,22 @@ impl AudioProcessorSettings {
         }
     }
 
+    /// The sample rate in samples/second as a floating point number
     pub fn sample_rate(&self) -> f32 {
         self.sample_rate
     }
 
+    /// The number of input channels
     pub fn input_channels(&self) -> usize {
         self.input_channels
     }
 
+    /// The number of output channels
     pub fn output_channels(&self) -> usize {
         self.output_channels
     }
 
+    /// The number of samples which will be provided on each `process` call
     pub fn block_size(&self) -> u32 {
         self.block_size
     }
@@ -70,15 +87,23 @@ impl AudioProcessorSettings {
     }
 }
 
+/// Represents an audio processing node.
+///
+/// Implementors should define the SampleType the node will work over. See some [examples here](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone/examples).
 pub trait AudioProcessor: Send + Sync {
     type SampleType;
+
+    /// Prepare for playback based on current audio settings
     fn prepare(&mut self, _settings: AudioProcessorSettings) {}
+
+    /// Process a block of samples by mutating the input `AudioBuffer`
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
         data: &mut BufferType,
     );
 }
 
+/// An audio-processor which doesn't do any work.
 pub struct NoopAudioProcessor<SampleType>(PhantomData<SampleType>);
 
 impl<SampleType: Send + Sync> AudioProcessor for NoopAudioProcessor<SampleType> {
@@ -91,6 +116,7 @@ impl<SampleType: Send + Sync> AudioProcessor for NoopAudioProcessor<SampleType> 
     }
 }
 
+/// An audio-processor which mutes all channels.
 pub struct SilenceAudioProcessor<SampleType>(PhantomData<SampleType>);
 
 impl<SampleType> SilenceAudioProcessor<SampleType> {
