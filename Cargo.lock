@@ -355,7 +355,6 @@ dependencies = [
 name = "atomic-queue"
 version = "0.1.0"
 dependencies = [
- "circular-data-structures",
  "criterion",
  "log",
  "rand 0.8.4",

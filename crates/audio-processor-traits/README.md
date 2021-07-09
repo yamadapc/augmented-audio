@@ -147,3 +147,6 @@ impl<SampleType: num::Float + Send + Sync> AudioProcessor for SilenceAudioProces
 * An audio-graph implementation
 * GUI support
 * Testing tools
+
+## License
+MIT
