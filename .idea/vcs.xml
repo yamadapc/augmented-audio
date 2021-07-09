@@ -3,7 +3,11 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/basedrop" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/crates/baseview" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/crates/cpal" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/darwin-webkit" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/crates/iced" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/crates/iced-baseview" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/plotters" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/plugin-host-gui/src-tauri/tao" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/tauri" vcs="Git" />
