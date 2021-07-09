@@ -293,6 +293,14 @@ The tool can then be used to run a criterion benchmark and generate a flamegraph
 cargo flamegraph --bench sine_oscillator_benchmark -- --bench
 ```
 
+## Monorepo & Submodules
+This is a mono-repository and several dependencies are vendored as forked submodules. A script can sync the upstreams:
+```shell
+cargo run --package autosync-submodules
+```
+
+This will fetch all upstreams, list the new commits & try to merge them.
+
 ## JavaScript bits
 WebViews are used for UI. A TypeScript browser runtime and front-ends will be included.
 

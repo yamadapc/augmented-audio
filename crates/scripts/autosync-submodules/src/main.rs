@@ -41,11 +41,11 @@ fn list_submodules() -> Vec<SubmoduleDeclaration> {
 fn main() {
     let root = project_root(&std::env::current_dir().unwrap()).unwrap();
     println!(
-        "Found project root at {} it'll be used as the CWD",
+        ">> Found project root at {} it'll be used as the CWD",
         root.to_str().unwrap()
     );
-    std::env::set_current_dir(root);
-    println!("Listing submodules in submodules.json");
+    std::env::set_current_dir(root).expect("Failed to cd onto the project root");
+    println!(">> Listing submodules in submodules.json");
 
     let submodules = list_submodules();
     for submodule in submodules {
@@ -54,23 +54,23 @@ fn main() {
 }
 
 fn validate_submodule(submodule: &SubmoduleDeclaration) {
-    println!("Validating {} is up-to-date", submodule.path);
+    println!(">> Validating {} is up-to-date", submodule.path);
     let submodule_path = &submodule.path;
     let upstream_url = &submodule.upstream_url;
     let submodule_branch = submodule
         .branch
         .clone()
         .unwrap_or_else(|| String::from("master"));
-    cmd_lib::run_cmd!(
+    let _ = cmd_lib::run_cmd!(
         cd ${submodule_path}; git remote add upstream ${upstream_url}
     );
-    cmd_lib::run_cmd!(
+    let _ = cmd_lib::run_cmd!(
         cd ${submodule_path}; git fetch upstream
     );
-    cmd_lib::run_cmd!(
+    let _ = cmd_lib::run_cmd!(
         cd ${submodule_path}; git --no-pager log upstream/${submodule_branch} --format=oneline ^origin/${submodule_branch}
     );
-    cmd_lib::run_cmd!(
-        cd ${submodule_path}; git merge upstream/${submodule_branch}
+    let _ = cmd_lib::run_cmd!(
+        cd ${submodule_path}; git merge upstream/${submodule_branch}; git push
     );
 }
