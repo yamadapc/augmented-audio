@@ -1,2 +1,2 @@
-# example-midi-host
+# midi-logger-host
 Example cross-platform MIDI logger.
