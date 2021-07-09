@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "crates/*",
+  "crates/scripts/autosync-submodules",
   "crates/plugin-host-gui/src-tauri"
 ]
 exclude = [
@@ -11,7 +12,8 @@ exclude = [
   "crates/example-druid-audio-viz",
   "crates/example-iced-audio-viz",
   "crates/audio-processor-iced-design-system",
-  "crates/iced"
+  "crates/iced",
+  "crates/scripts"
 ]
 
 [profile.bench]

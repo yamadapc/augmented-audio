@@ -1,0 +1,28 @@
+[
+  {
+    "path": "crates/basedrop",
+    "url": "https://github.com/yamadapc/basedrop",
+    "upstream_url": "https://github.com/glowcoil/basedrop"
+  },
+  {
+    "path": "crates/plotters",
+    "url": "https://github.com/yamadapc/plotters",
+    "upstream_url": "https://github.com/38/plotters"
+  },
+  {
+    "path": "crates/iced-baseview",
+    "url": "https://github.com/yamadapc/iced_baseview",
+    "upstream_url": "https://github.com/BillyDM/iced_baseview",
+    "branch": "main"
+  },
+  {
+    "path": "crates/iced",
+    "url": "https://github.com/yamadapc/iced",
+    "upstream_url": "https://github.com/hecrj/iced"
+  },
+  {
+    "path": "crates/cpal",
+    "url": "https://github.com/yamadapc/cpal",
+    "upstream_url": "https://github.com/RustAudio/cpal"
+  }
+]
