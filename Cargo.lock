@@ -360,7 +360,7 @@ dependencies = [
  "log",
  "rand 0.8.4",
  "ringbuf",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
@@ -405,7 +405,7 @@ dependencies = [
  "basedrop",
  "log",
  "thiserror",
- "wisual-logger 0.1.2",
+ "wisual-logger 0.1.3",
 ]
 
 [[package]]
@@ -416,7 +416,7 @@ dependencies = [
  "circular-data-structures",
  "log",
  "rand 0.8.4",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
@@ -439,7 +439,7 @@ dependencies = [
  "cpal",
  "log",
  "ringbuf",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
@@ -1995,7 +1995,7 @@ dependencies = [
  "midir",
  "rimd",
  "thiserror",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
@@ -3060,7 +3060,7 @@ dependencies = [
  "objc",
  "raw-window-handle",
  "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
- "wisual-logger 0.1.2",
+ "wisual-logger 0.1.3",
 ]
 
 [[package]]
@@ -3684,7 +3684,7 @@ dependencies = [
  "log",
  "num 0.4.0",
  "rimd",
- "wisual-logger 0.1.2",
+ "wisual-logger 0.1.3",
 ]
 
 [[package]]
@@ -5077,7 +5077,7 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "plugin-host-lib",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
@@ -5098,7 +5098,7 @@ dependencies = [
  "tokio",
  "uuid",
  "vst 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
@@ -5109,7 +5109,7 @@ dependencies = [
  "log",
  "plugin-host-lib",
  "thiserror",
- "wisual-logger 0.1.2",
+ "wisual-logger 0.1.3",
 ]
 
 [[package]]
@@ -5143,7 +5143,7 @@ dependencies = [
  "tao 0.2.6",
  "thiserror",
  "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
@@ -5668,7 +5668,7 @@ dependencies = [
  "plist",
  "serde",
  "toml",
- "wisual-logger 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "wisual-logger 0.1.2",
 ]
 
 [[package]]
@@ -6611,7 +6611,7 @@ dependencies = [
  "oscillator",
  "pitch_calc",
  "rimd",
- "wisual-logger 0.1.2",
+ "wisual-logger 0.1.3",
 ]
 
 [[package]]
@@ -6741,7 +6741,7 @@ dependencies = [
  "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
  "webview-holder",
  "webview-transport",
- "wisual-logger 0.1.2",
+ "wisual-logger 0.1.3",
 ]
 
 [[package]]
@@ -8070,6 +8070,8 @@ dependencies = [
 [[package]]
 name = "wisual-logger"
 version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de0ee491b1bd778ec520a7be97e64377ea10cb18732f302860dda5941f351807"
 dependencies = [
  "chrono",
  "env_logger 0.8.3",
@@ -8078,9 +8080,7 @@ dependencies = [
 
 [[package]]
 name = "wisual-logger"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de0ee491b1bd778ec520a7be97e64377ea10cb18732f302860dda5941f351807"
+version = "0.1.3"
 dependencies = [
  "chrono",
  "env_logger 0.8.3",
