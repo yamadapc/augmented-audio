@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/DSPFilters_Solution.iml" filepath="$PROJECT_DIR$/.idea/DSPFilters_Solution.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/rust-audio-software.iml" filepath="$PROJECT_DIR$/.idea/rust-audio-software.iml" />
     </modules>
   </component>

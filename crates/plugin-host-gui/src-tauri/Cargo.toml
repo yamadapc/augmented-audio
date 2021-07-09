@@ -11,22 +11,21 @@ build = "src/build.rs"
 tauri-build = { version = "1.0.0-beta.0" }
 
 [dependencies]
-cpal = "^0.13.3"
+cpal = { version = "^0.13.3", path = "../../cpal" }
 thiserror = "^1.0.25"
 log = "^0.4.14"
 rand = "^0.8.3"
 wisual-logger = "^0.1.2"
 serde_json = "^1.0.64"
 serde = { version = "^1.0.64", features = ["derive"] }
-#tauri = { version = "1.0.0-beta.4", features = ["api-all", "menu"] }
 plugin-host-lib = { path = "../../plugin-host-lib" }
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
 uuid = "^0.8.2"
 vst = "^0.2.1"
-tauri = { path = "../../tauri/core/tauri", features = ["api-all", "system-tray", "raw-window-handle", "menu"] }
-tauri-runtime = { path = "../../tauri/core/tauri-runtime" }
-tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
-
-[features]
-default = [ "custom-protocol" ]
-custom-protocol = [ "tauri/custom-protocol" ]
+# tauri = { version = "1.0.0-beta.4", features = ["api-all", "menu"] }
+# tauri = { path = "../../tauri/core/tauri", features = ["api-all", "system-tray", "raw-window-handle", "menu"] }
+# tauri-runtime = { path = "../../tauri/core/tauri-runtime" }
+# tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
+# [features]
+# default = [ "custom-protocol" ]
+# custom-protocol = [ "tauri/custom-protocol" ]

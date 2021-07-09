@@ -16,3 +16,9 @@
 [submodule "crates/baseview"]
 	path = crates/baseview
 	url = https://github.com/yamadapc/baseview
+[submodule "crates/iced"]
+	path = crates/iced
+	url = https://github.com/yamadapc/iced
+[submodule "crates/cpal"]
+	path = crates/cpal
+	url = https://github.com/yamadapc/cpal

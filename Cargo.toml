@@ -7,7 +7,11 @@ exclude = [
   "crates/plugin-host-gui",
   "crates/basedrop",
   "crates/darwin-webkit",
-  "crates/tauri"
+  "crates/tauri",
+  "crates/example-druid-audio-viz",
+  "crates/example-iced-audio-viz",
+  "crates/audio-processor-iced-design-system",
+  "crates/iced"
 ]
 
 [profile.bench]

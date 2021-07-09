@@ -13,7 +13,7 @@ log4rs = { version = "^1.0.0", features = ["rolling_file_appender", "compound_po
 dirs = "^3.0.2"
 thiserror = "^1.0.25"
 
-iced = "^0.3.0"
+iced = { version = "^0.3.0", path = "../iced" }
 iced_baseview = { path = "../iced-baseview" }
 iced-editor = { path = "../iced-editor" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }
