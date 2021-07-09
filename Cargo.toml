@@ -10,7 +10,6 @@ exclude = [
   "crates/darwin-webkit",
   "crates/tauri",
   "crates/example-druid-audio-viz",
-  "crates/audio-processor-iced-design-system",
   "crates/iced",
   "crates/scripts"
 ]

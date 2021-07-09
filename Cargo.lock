@@ -390,6 +390,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-iced-design-system"
+version = "0.1.0"
+dependencies = [
+ "iced",
+ "log",
+ "wisual-logger 0.1.3",
+]
+
+[[package]]
 name = "audio-processor-standalone"
 version = "0.1.0"
 dependencies = [
