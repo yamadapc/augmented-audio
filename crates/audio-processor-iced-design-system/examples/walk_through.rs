@@ -1,13 +1,18 @@
-use audio_processor_iced_design_system::container::style as container_style;
-use audio_processor_iced_design_system::spacing::Spacing;
-use audio_processor_iced_design_system::style as audio_style;
-use audio_processor_iced_design_system::{menu_list, tree_view};
 use iced::pane_grid::Axis;
 use iced::{
     widget, Application, Clipboard, Column, Command, Container, Element, Length, PaneGrid, Row,
     Rule, Settings, Text,
 };
 use widget::pane_grid;
+
+use audio_processor_iced_design_system::container::style as container_style;
+use audio_processor_iced_design_system::router::RouterState;
+use audio_processor_iced_design_system::spacing::Spacing;
+use audio_processor_iced_design_system::style as audio_style;
+use audio_processor_iced_design_system::{menu_list, tree_view};
+use iced::futures::FutureExt;
+use std::cell::RefCell;
+use std::collections::HashMap;
 
 fn main() -> iced::Result {
     wisual_logger::init_from_env();
@@ -29,6 +34,7 @@ enum PaneState {
 }
 
 struct WalkthroughApp {
+    router_state: RouterState<()>,
     pane_state: pane_grid::State<PaneState>,
 }
 
@@ -38,8 +44,15 @@ impl Application for WalkthroughApp {
     type Flags = ();
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        let mut router_state = RouterState::new(String::from("/0"), HashMap::new());
+        router_state.add_route(String::from("/0"), ());
+        router_state.add_route(String::from("/1"), ());
+        router_state.add_route(String::from("/2"), ());
+        router_state.add_route(String::from("/3"), ());
+
         (
             WalkthroughApp {
+                router_state,
                 pane_state: pane_grid::State::with_configuration(pane_grid::Configuration::Split {
                     axis: Axis::Horizontal,
                     ratio: 0.8,
@@ -92,7 +105,16 @@ impl Application for WalkthroughApp {
     fn view(&mut self) -> Element<'_, Self::Message> {
         let panel = PaneGrid::new(&mut self.pane_state, |_pane, state| match state {
             PaneState::Sidebar(sidebar) => sidebar.view().into(),
-            PaneState::Content(content) => content.view().into(),
+            PaneState::Content(content) => {
+                let router_state = &mut self.router_state;
+                Column::with_children(vec![
+                    router_state.route("/0", |_| content.view()),
+                    router_state.route("/0", |_| content.view()),
+                    router_state.route("/0", |_| content.view()),
+                    router_state.route("/0", |_| content.view()),
+                ])
+                .into()
+            }
             PaneState::Bottom => BottomPanel::view().into(),
         })
         .width(Length::Fill)
@@ -172,7 +194,10 @@ impl Sidebar {
     }
 
     fn update(&mut self, message: menu_list::Message) {
-        self.menu_list.update(message);
+        self.menu_list.update(message.clone());
+        match message {
+            menu_list::Message::Selected(_) => {}
+        }
     }
 
     fn view(&mut self) -> Element<Message> {

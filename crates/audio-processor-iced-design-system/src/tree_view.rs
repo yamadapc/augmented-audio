@@ -2,11 +2,13 @@ use iced::{Column, Element, Length};
 
 pub use item::ItemState;
 
-pub struct State<InnerState: item::Updatable> {
+use crate::updatable::Updatable;
+
+pub struct State<InnerState: Updatable> {
     items: Vec<item::ItemState<InnerState>>,
 }
 
-impl<InnerState: item::Updatable> State<InnerState> {
+impl<InnerState: Updatable> State<InnerState> {
     pub fn new(items: Vec<item::ItemState<InnerState>>) -> Self {
         State { items }
     }
@@ -17,7 +19,7 @@ pub enum Message<InnerMessage> {
     ChildMessage(usize, item::Message<InnerMessage>),
 }
 
-impl<InnerState: item::Updatable + 'static> State<InnerState> {
+impl<InnerState: Updatable + 'static> State<InnerState> {
     pub fn update(&mut self, msg: Message<InnerState::Message>) {
         match msg {
             Message::ChildMessage(index, msg) => {
@@ -41,20 +43,12 @@ impl<InnerState: item::Updatable + 'static> State<InnerState> {
 }
 
 mod item {
-    use crate::spacing::Spacing;
-    use iced::{Button, Column, Container, Element, Text};
     use std::fmt::Debug;
 
-    pub trait Updatable {
-        type Message: Clone + Debug;
-        fn update(&mut self, message: Self::Message);
-    }
+    use iced::{Button, Column, Container, Element, Text};
 
-    impl Updatable for () {
-        type Message = ();
-
-        fn update(&mut self, _message: Self::Message) {}
-    }
+    use crate::spacing::Spacing;
+    use crate::updatable::Updatable;
 
     #[derive(Debug, Clone)]
     pub enum Message<InnerMessage> {

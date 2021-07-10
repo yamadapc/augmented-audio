@@ -7,6 +7,7 @@ members = [
 exclude = [
   "crates/plugin-host-gui",
   "crates/basedrop",
+  "crates/cpal",
   "crates/darwin-webkit",
   "crates/tauri",
   "crates/example-druid-audio-viz",
