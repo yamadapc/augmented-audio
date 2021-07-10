@@ -126,13 +126,13 @@ fn get_audio_options(run_options: &RunOptions) -> (AudioProcessorSettings, Audio
         run_options
             .sample_rate()
             .map(|s| s as f32)
-            .unwrap_or(audio_settings.sample_rate()),
+            .unwrap_or_else(|| audio_settings.sample_rate()),
     );
     audio_settings.set_block_size(
         run_options
             .buffer_size()
             .map(|size| size as u32)
-            .unwrap_or(audio_settings.block_size()),
+            .unwrap_or_else(|| audio_settings.block_size()),
     );
     let mut audio_thread_options = AudioThreadOptions::default();
     audio_thread_options.buffer_size = run_options
