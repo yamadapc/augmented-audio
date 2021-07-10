@@ -1,3 +1,4 @@
+use audio_processor_iced_design_system::tree_view;
 use iced::pane_grid::Axis;
 use iced::{
     widget, Application, Clipboard, Column, Command, Container, Element, Length, PaneGrid, Row,
@@ -14,11 +15,12 @@ fn main() -> iced::Result {
 #[derive(Debug, Clone)]
 enum Message {
     PaneResized(pane_grid::ResizeEvent),
+    Content(tree_view::Message),
 }
 
 enum PaneState {
     Sidebar,
-    Content,
+    Content(Content),
     Bottom,
 }
 
@@ -41,7 +43,9 @@ impl Application for WalkthroughApp {
                     b: Box::new(pane_grid::Configuration::Split {
                         axis: Axis::Horizontal,
                         ratio: 0.8,
-                        a: Box::new(pane_grid::Configuration::Pane(PaneState::Content)),
+                        a: Box::new(pane_grid::Configuration::Pane(PaneState::Content(
+                            Content::new(),
+                        ))),
                         b: Box::new(pane_grid::Configuration::Pane(PaneState::Bottom)),
                     }),
                 }),
@@ -61,6 +65,13 @@ impl Application for WalkthroughApp {
     ) -> Command<Self::Message> {
         match message {
             Message::PaneResized(resized) => self.pane_state.resize(&resized.split, resized.ratio),
+            Message::Content(msg) => {
+                for (_, state) in self.pane_state.iter_mut() {
+                    if let PaneState::Content(content) = state {
+                        content.update(msg.clone())
+                    }
+                }
+            }
         }
         Command::none()
     }
@@ -68,7 +79,7 @@ impl Application for WalkthroughApp {
     fn view(&mut self) -> Element<'_, Self::Message> {
         let panel = PaneGrid::new(&mut self.pane_state, |_pane, state| match state {
             PaneState::Sidebar => Sidebar::view().into(),
-            PaneState::Content => Content::view().into(),
+            PaneState::Content(content) => content.view().into(),
             PaneState::Bottom => BottomPanel::view().into(),
         })
         .width(Length::Fill)
@@ -122,79 +133,46 @@ mod style {
     }
 }
 
-struct Content;
+struct Content {
+    tree_view: tree_view::State,
+}
 
 impl Content {
-    fn view() -> Element<'static, Message> {
+    fn new() -> Self {
         let items = vec![
-            TreeViewItem::Item(Text::new("Heading 1")),
-            TreeViewItem::Parent {
-                title: String::from("Heading 2"),
-                children: vec![
-                    TreeViewItem::Item(Text::new("Child 1")),
-                    TreeViewItem::Parent {
-                        title: String::from("Child 2"),
-                        children: vec![TreeViewItem::Item(Text::new("Sub-child 1"))],
-                    },
-                    TreeViewItem::Item(Text::new("Child 3")),
+            tree_view::ItemState::Item(String::from("Heading 1")),
+            tree_view::ItemState::parent(
+                String::from("Heading 2"),
+                vec![
+                    tree_view::ItemState::Item(String::from("Child 1")),
+                    tree_view::ItemState::parent(
+                        String::from("Child 2"),
+                        vec![tree_view::ItemState::Item(String::from("Sub-child 1"))],
+                    ),
+                    tree_view::ItemState::Item(String::from("Child 3")),
                 ],
-            },
-            TreeViewItem::Item(Text::new("Heading 3")),
+            ),
+            tree_view::ItemState::Item(String::from("Heading 3")),
         ];
-        let mut tree_view = TreeView::new(items);
+        let tree_view = tree_view::State::new(items);
 
-        Container::new(tree_view.view())
+        Content { tree_view }
+    }
+
+    fn update(&mut self, message: tree_view::Message) {
+        self.tree_view.update(message);
+    }
+
+    fn view(&mut self) -> Element<Message> {
+        let tree_view = self.tree_view.view().map(|msg| Message::Content(msg));
+
+        Container::new(tree_view)
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()
-            .center_y()
+            .padding(30)
             .style(audio_processor_iced_design_system::container::style::Container)
             .into()
-    }
-}
-
-struct TreeView<Item> {
-    items: Vec<TreeViewItem<Item>>,
-}
-
-impl<Item> TreeView<Item> {
-    pub fn new(items: Vec<TreeViewItem<Item>>) -> Self {
-        TreeView { items }
-    }
-}
-
-enum TreeViewItem<Item> {
-    Item(Item),
-    Parent {
-        title: String,
-        children: Vec<TreeViewItem<Item>>,
-    },
-}
-
-impl<Item> TreeView<Item>
-where
-    Item: Into<Element<'static, Message>>,
-{
-    fn view(self) -> Element<'static, Message> {
-        Column::with_children(
-            self.items
-                .into_iter()
-                .map(|item| TreeView::render_item(item))
-                .collect(),
-        )
-        .width(Length::Fill)
-        .into()
-    }
-
-    fn render_item(tree_item: TreeViewItem<Item>) -> Element<'static, Message> {
-        match tree_item {
-            TreeViewItem::Item(inner) => inner.into(),
-            TreeViewItem::Parent { title, children } => {
-                let child_elements = TreeView::new(children);
-                let child_elements = Container::new(child_elements.view()).into();
-                Column::with_children(vec![Text::new(title).into(), child_elements]).into()
-            }
-        }
     }
 }
 
