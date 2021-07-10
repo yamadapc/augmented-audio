@@ -30,12 +30,7 @@ pub mod vst {
 
     impl MidiMessageLike for *mut Event {
         fn is_midi(&self) -> bool {
-            unsafe {
-                match (**self).event_type {
-                    EventType::Midi => true,
-                    _ => false,
-                }
-            }
+            unsafe { matches!((**self).event_type, EventType::Midi) }
         }
 
         fn bytes(&self) -> Option<&[u8]> {

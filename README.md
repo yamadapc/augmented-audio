@@ -251,7 +251,7 @@ sharing caches.
 
 To build the whole project run:
 ```shell
-cargo build
+cargo build --no-default-features
 ```
 
 To run tests:
