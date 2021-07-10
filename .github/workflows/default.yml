@@ -88,16 +88,16 @@ jobs:
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
     - name: Run tests
-      run: cargo test --no-default-features --verbose --workspace --exclude plugin-host-gui
+      run: cargo test --verbose --workspace --exclude plugin-host-gui
       if: matrix.os == 'macos-latest'
     - name: Run clippy
-      run: cargo clippy --no-default-features --verbose --workspace --exclude plugin-host-gui
+      run: cargo clippy --verbose --workspace --exclude plugin-host-gui
       if: matrix.os == 'macos-latest'
     - name: Run check
-      run: cargo check --no-default-features --verbose --workspace --exclude plugin-host-gui
+      run: cargo check --verbose --workspace --exclude plugin-host-gui
       if: matrix.os == 'macos-latest'
     - name: Build
-      run: cargo build --no-default-features --release --verbose --workspace --exclude plugin-host-gui
+      run: cargo build --release --verbose --workspace --exclude plugin-host-gui
       if: matrix.os == 'macos-latest'
     - name: Non-OSX test
       run: |
@@ -108,7 +108,7 @@ jobs:
             --exclude macos-bundle-resources
     - name: Non-OSX build
       run: |
-        cargo build --no-default-features --release --verbose --workspace \
+        cargo build --release --verbose --workspace \
             --exclude plugin-host-gui \
             --exclude darwin-webkit \
             --exclude macos-bundle-resources
@@ -155,7 +155,7 @@ jobs:
       - name: Clippy
         run: cargo clippy --verbose --workspace --package plugin-host-gui
       - name: Build release
-        run: cargo build --no-default-features --release --verbose --workspace --package plugin-host-gui
+        run: cargo build --release --verbose --workspace --package plugin-host-gui
       - name: Upload plugin-host-gui binary
         uses: actions/upload-artifact@v2
         with:
