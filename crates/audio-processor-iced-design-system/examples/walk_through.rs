@@ -9,6 +9,7 @@ use audio_processor_iced_design_system::container::style as container_style;
 use audio_processor_iced_design_system::router::RouterState;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
+use audio_processor_iced_design_system::updatable::Updatable;
 use audio_processor_iced_design_system::{menu_list, tree_view};
 use iced::futures::FutureExt;
 use std::cell::RefCell;
@@ -102,19 +103,10 @@ impl Application for WalkthroughApp {
         Command::none()
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&mut self) -> Element<Self::Message> {
         let panel = PaneGrid::new(&mut self.pane_state, |_pane, state| match state {
             PaneState::Sidebar(sidebar) => sidebar.view().into(),
-            PaneState::Content(content) => {
-                let router_state = &mut self.router_state;
-                Column::with_children(vec![
-                    router_state.route("/0", |_| content.view()),
-                    router_state.route("/0", |_| content.view()),
-                    router_state.route("/0", |_| content.view()),
-                    router_state.route("/0", |_| content.view()),
-                ])
-                .into()
-            }
+            PaneState::Content(content) => Column::with_children(vec![content.view()]).into(),
             PaneState::Bottom => BottomPanel::view().into(),
         })
         .width(Length::Fill)

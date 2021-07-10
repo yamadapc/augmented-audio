@@ -47,13 +47,9 @@ impl<RouteState: Updatable> RouterState<RouteState> {
         self.routes.insert(route_id, state);
     }
 
-    pub fn route<'a, Message>(
-        &'a mut self,
-        route_id: RouteIdRef,
-        renderer: impl Fn(&'a mut RouteState) -> Element<'a, Message>,
-    ) -> Element<'a, Message>
+    pub fn route<Message, F>(&mut self, route_id: RouteIdRef, renderer: F) -> Element<Message>
     where
-        RouteState: 'a,
+        F: Fn(&mut RouteState) -> Element<Message>,
     {
         if self.current_route != route_id {
             return empty();
