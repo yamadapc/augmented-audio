@@ -16,7 +16,8 @@ pub fn audio_processor_main_with_midi<
     audio_processor: Processor,
     handle: &Handle,
 ) {
-    let (_input_stream, _output_stream) = audio_processor_start_with_midi(audio_processor, handle);
+    let (_input_stream, _output_stream, _midi_host) =
+        audio_processor_start_with_midi(audio_processor, handle);
     std::thread::park();
 }
 
@@ -25,7 +26,7 @@ pub fn audio_processor_start_with_midi<
 >(
     mut audio_processor: Processor,
     handle: &Handle,
-) -> (cpal::Stream, cpal::Stream) {
+) -> (cpal::Stream, cpal::Stream, MidiHost) {
     let _ = wisual_logger::try_init_from_env();
 
     // MIDI set-up
@@ -90,7 +91,7 @@ pub fn audio_processor_start_with_midi<
     output_stream.play().unwrap();
     input_stream.play().unwrap();
 
-    (input_stream, output_stream)
+    (input_stream, output_stream, midi_host)
 }
 
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'static>(

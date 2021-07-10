@@ -10,13 +10,13 @@ use circular_data_structures::CircularVec;
 use num::FromPrimitive;
 use rimd::Status;
 
-struct CircularAudioBuffer<SampleType> {
+struct InternalBuffer<SampleType> {
     channels: Vec<CircularVec<SampleType>>,
 }
 
-impl<SampleType: num::Float> CircularAudioBuffer<SampleType> {
+impl<SampleType: num::Float> InternalBuffer<SampleType> {
     pub fn new() -> Self {
-        CircularAudioBuffer {
+        InternalBuffer {
             channels: Vec::new(),
         }
     }
@@ -25,7 +25,7 @@ impl<SampleType: num::Float> CircularAudioBuffer<SampleType> {
         let duration_samples = (duration.as_secs_f32() * sample_rate) as usize;
         self.channels.clear();
         for _channel in 0..num_channels {
-            let channel_buffer = CircularVec::with_size(duration_samples, SampleType::zero());
+            let mut channel_buffer = CircularVec::with_size(duration_samples, SampleType::zero());
             self.channels.push(channel_buffer);
         }
     }
@@ -73,12 +73,15 @@ impl LooperProcessorHandle {
 
 /// Private not thread safe mutable state
 struct LooperProcessorState<SampleType: num::Float> {
+    is_recording: bool,
+    is_playing_back: bool,
     always_recording_cursor: usize,
     num_channels: usize,
     looper_cursor: usize,
-    loop_size: usize,
-    looped_clip: CircularAudioBuffer<SampleType>,
-    always_recording_buffer: CircularAudioBuffer<SampleType>,
+    loop_start: Option<usize>,
+    loop_end: Option<usize>,
+    looped_clip: InternalBuffer<SampleType>,
+    always_recording_buffer: InternalBuffer<SampleType>,
 }
 
 impl<SampleType: num::Float> LooperProcessorState<SampleType> {
@@ -87,9 +90,12 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
             num_channels: 2,
             always_recording_cursor: 0,
             looper_cursor: 0,
-            loop_size: 0,
-            looped_clip: CircularAudioBuffer::new(),
-            always_recording_buffer: CircularAudioBuffer::new(),
+            loop_start: None,
+            loop_end: None,
+            looped_clip: InternalBuffer::new(),
+            always_recording_buffer: InternalBuffer::new(),
+            is_recording: false,
+            is_playing_back: false,
         }
     }
 }
@@ -153,7 +159,9 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
 
                 let always_recording_channel =
                     &mut self.state.always_recording_buffer.channels[channel_num];
+                let always_recording_size = always_recording_channel.len();
                 let loop_channel = &mut self.state.looped_clip.channels[channel_num];
+                let loop_channel_size = loop_channel.len();
 
                 // PLAYBACK SECTION:
                 let current_looper_cursor = self.state.looper_cursor;
@@ -164,7 +172,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
                     input
                 };
                 let looper_output = if is_playing {
-                    loop_channel[current_looper_cursor % self.state.loop_size]
+                    loop_channel[current_looper_cursor]
                 } else {
                     BufferType::SampleType::zero()
                 };
@@ -175,20 +183,30 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
                     // When not recording we'll store samples in a buffer. These samples will be
                     // used to fix timing mistakes from the user
                     let cursor = self.state.always_recording_cursor;
-                    always_recording_channel[cursor] = input;
+                    always_recording_channel[cursor % always_recording_size] = input;
                 } else {
                     // When recording starts we'll store samples in the looper buffer
-                    loop_channel[current_looper_cursor] = input;
+                    loop_channel[current_looper_cursor] =
+                        input + loop_channel[current_looper_cursor];
                 }
             }
 
-            self.state.looper_cursor += 1;
+            // If the look has stopped recording now. Store the end sample
+            if self.state.loop_start.is_none() && is_recording && !self.state.is_recording {
+                self.state.loop_start = Some(self.state.looper_cursor);
+            }
+
+            // If the look has stopped recording now. Store the end sample
+            if self.state.loop_end.is_none() && !is_recording && self.state.is_recording {
+                self.state.loop_end = Some(self.state.looper_cursor);
+                self.state.looper_cursor = self.state.loop_start.unwrap();
+            }
+
+            self.increment_cursor();
             self.state.always_recording_cursor += 1;
 
-            // If this is the first loop, measure loop size
-            if is_recording {
-                self.state.loop_size += 1;
-            }
+            self.state.is_playing_back = is_playing;
+            self.state.is_recording = is_recording;
         }
     }
 }
@@ -230,6 +248,32 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandle
                     _ => {}
                 }
             }
+        }
+    }
+}
+
+impl<SampleType: num::Float> LooperProcessor<SampleType> {
+    pub fn increment_cursor(&mut self) {
+        if let Some((start, end)) = self.state.loop_start.zip(self.state.loop_end) {
+            self.state.looper_cursor += 1;
+            if self.state.looper_cursor == end + 1 {
+                self.state.looper_cursor = start;
+            }
+        } else {
+            self.state.looper_cursor += 1;
+            self.state.looper_cursor =
+                self.state.looper_cursor % self.state.looped_clip.channels[0].len();
+        }
+    }
+
+    pub fn loop_size(&self) -> usize {
+        let size = self.state.looped_clip.channels[0].len();
+        let start = self.state.loop_start.unwrap();
+        let end = self.state.loop_end.unwrap();
+        if end > start {
+            end - start
+        } else {
+            end + (size - start)
         }
     }
 }
