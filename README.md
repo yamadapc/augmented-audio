@@ -261,6 +261,11 @@ cargo test
 
 Build outputs should be on `target/debug` or `target/release`.
 
+#### Building on linux
+Since this is bringing in all the possible rust crates, you'll need to install quite a few dependencies.
+
+See `.github/workflows/default.yml` for a list of what's needed on Ubuntu.
+
 ### Linting
 ```shell
 cargo clippy
