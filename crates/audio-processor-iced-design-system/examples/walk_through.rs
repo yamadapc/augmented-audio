@@ -1,4 +1,7 @@
-use audio_processor_iced_design_system::tree_view;
+use audio_processor_iced_design_system::container::style as container_style;
+use audio_processor_iced_design_system::spacing::Spacing;
+use audio_processor_iced_design_system::style as audio_style;
+use audio_processor_iced_design_system::{menu_list, tree_view};
 use iced::pane_grid::Axis;
 use iced::{
     widget, Application, Clipboard, Column, Command, Container, Element, Length, PaneGrid, Row,
@@ -16,10 +19,11 @@ fn main() -> iced::Result {
 enum Message {
     PaneResized(pane_grid::ResizeEvent),
     Content(tree_view::Message),
+    Sidebar(menu_list::Message),
 }
 
 enum PaneState {
-    Sidebar,
+    Sidebar(Sidebar),
     Content(Content),
     Bottom,
 }
@@ -37,17 +41,19 @@ impl Application for WalkthroughApp {
         (
             WalkthroughApp {
                 pane_state: pane_grid::State::with_configuration(pane_grid::Configuration::Split {
-                    axis: Axis::Vertical,
-                    ratio: 0.2,
-                    a: Box::new(pane_grid::Configuration::Pane(PaneState::Sidebar)),
-                    b: Box::new(pane_grid::Configuration::Split {
-                        axis: Axis::Horizontal,
-                        ratio: 0.8,
-                        a: Box::new(pane_grid::Configuration::Pane(PaneState::Content(
+                    axis: Axis::Horizontal,
+                    ratio: 0.8,
+                    a: Box::new(pane_grid::Configuration::Split {
+                        axis: Axis::Vertical,
+                        ratio: 0.2,
+                        a: Box::new(pane_grid::Configuration::Pane(PaneState::Sidebar(
+                            Sidebar::new(),
+                        ))),
+                        b: Box::new(pane_grid::Configuration::Pane(PaneState::Content(
                             Content::new(),
                         ))),
-                        b: Box::new(pane_grid::Configuration::Pane(PaneState::Bottom)),
                     }),
+                    b: Box::new(pane_grid::Configuration::Pane(PaneState::Bottom)),
                 }),
             },
             Command::none(),
@@ -72,64 +78,33 @@ impl Application for WalkthroughApp {
                     }
                 }
             }
+            Message::Sidebar(msg) => {
+                for (_, state) in self.pane_state.iter_mut() {
+                    if let PaneState::Sidebar(sidebar) = state {
+                        sidebar.update(msg.clone())
+                    }
+                }
+            }
         }
         Command::none()
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
         let panel = PaneGrid::new(&mut self.pane_state, |_pane, state| match state {
-            PaneState::Sidebar => Sidebar::view().into(),
+            PaneState::Sidebar(sidebar) => sidebar.view().into(),
             PaneState::Content(content) => content.view().into(),
             PaneState::Bottom => BottomPanel::view().into(),
         })
         .width(Length::Fill)
         .height(Length::Fill)
-        .style(style::PaneGrid)
+        .style(audio_style::PaneGrid)
         .on_resize(5, |resize_event| Message::PaneResized(resize_event));
 
         Container::new(panel)
             .width(Length::Fill)
             .height(Length::Fill)
-            .style(audio_processor_iced_design_system::container::style::Container)
+            .style(container_style::Container0)
             .into()
-    }
-}
-
-mod style {
-    use iced::pane_grid::Line;
-    use iced::widget::pane_grid;
-    use iced::widget::rule;
-    use iced::Color;
-
-    pub struct PaneGrid;
-
-    impl pane_grid::StyleSheet for PaneGrid {
-        fn picked_split(&self) -> Option<Line> {
-            Option::Some(Line {
-                color: Color::new(1.0, 1.0, 1.0, 0.8),
-                width: 2.0,
-            })
-        }
-
-        fn hovered_split(&self) -> Option<Line> {
-            Option::Some(Line {
-                color: Color::new(1.0, 1.0, 1.0, 0.8),
-                width: 2.0,
-            })
-        }
-    }
-
-    pub(crate) struct Rule;
-
-    impl rule::StyleSheet for Rule {
-        fn style(&self) -> rule::Style {
-            rule::Style {
-                color: Color::new(1.0, 1.0, 1.0, 0.5),
-                width: 1,
-                radius: 0.0,
-                fill_mode: rule::FillMode::Full,
-            }
-        }
     }
 }
 
@@ -170,29 +145,41 @@ impl Content {
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()
-            .padding(30)
-            .style(audio_processor_iced_design_system::container::style::Container)
+            .padding(Spacing::base_spacing())
+            .style(container_style::Container1)
             .into()
     }
 }
 
-struct Sidebar;
+struct Sidebar {
+    menu_list: menu_list::State<String>,
+}
 
 impl Sidebar {
-    fn view() -> Element<'static, Message> {
-        let container = Column::with_children(vec![
-            Text::new("1").into(),
-            Text::new("2").into(),
-            Text::new("3").into(),
-            Text::new("4").into(),
-            Text::new("5").into(),
-            Text::new("6").into(),
-            Text::new("7").into(),
-        ])
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .into();
-        let rule = Rule::vertical(1).style(style::Rule).into();
+    pub fn new() -> Self {
+        Sidebar {
+            menu_list: menu_list::State::new(vec![
+                String::from("Menu item 1"),
+                String::from("Menu item 2"),
+                String::from("Menu item 3"),
+                String::from("Menu item 4"),
+                String::from("Menu item 5"),
+            ]),
+        }
+    }
+
+    fn update(&mut self, message: menu_list::Message) {
+        self.menu_list.update(message);
+    }
+
+    fn view(&mut self) -> Element<Message> {
+        let container = self
+            .menu_list
+            .view(|text| Text::new(&*text).into())
+            .map(|msg| Message::Sidebar(msg))
+            .into();
+
+        let rule = Rule::vertical(1).style(audio_style::Rule).into();
         return Row::with_children(vec![container, rule]).into();
     }
 }
@@ -202,13 +189,13 @@ struct BottomPanel;
 impl BottomPanel {
     fn view() -> Element<'static, Message> {
         Column::with_children(vec![
-            Rule::horizontal(1).style(style::Rule).into(),
+            Rule::horizontal(1).style(audio_style::Rule).into(),
             Container::new(Text::new("Hello"))
                 .width(Length::Fill)
                 .height(Length::Fill)
                 .center_x()
                 .center_y()
-                .style(audio_processor_iced_design_system::container::style::Container)
+                .style(container_style::Container0)
                 .into(),
         ])
         .into()

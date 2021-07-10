@@ -50,7 +50,7 @@ impl Application for LineChartApp {
         Container::new(chart)
             .width(Length::Fill)
             .height(Length::Fill)
-            .style(audio_processor_iced_design_system::container::style::Container)
+            .style(audio_processor_iced_design_system::container::style::Container0)
             .into()
     }
 }

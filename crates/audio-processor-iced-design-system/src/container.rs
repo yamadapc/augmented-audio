@@ -1,17 +1,32 @@
 pub mod style {
+    use crate::colors::Colors;
     use iced::container::Style;
-    use iced::{Background, Color};
+    use iced::Background;
 
-    pub struct Container;
+    pub struct Container0;
 
-    impl iced::container::StyleSheet for Container {
+    impl iced::container::StyleSheet for Container0 {
         fn style(&self) -> Style {
             iced::container::Style {
-                text_color: Some(Color::WHITE),
-                background: Some(Background::Color(Color::new(0.0, 0.0, 0.0, 1.0))),
+                text_color: Some(Colors::text()),
+                background: Some(Background::Color(Colors::background_level0())),
                 border_radius: 0.0,
                 border_width: 0.0,
-                border_color: Color::default(),
+                border_color: Colors::border_color(),
+            }
+        }
+    }
+
+    pub struct Container1;
+
+    impl iced::container::StyleSheet for Container1 {
+        fn style(&self) -> Style {
+            iced::container::Style {
+                text_color: Some(Colors::text()),
+                background: Some(Background::Color(Colors::background_level1())),
+                border_radius: 0.0,
+                border_width: 0.0,
+                border_color: Colors::border_color(),
             }
         }
     }

@@ -112,7 +112,7 @@ mod item {
 
                     let toggle_button = Button::new(button_state, Text::new(&*title))
                         .padding(0)
-                        .style(style::Button)
+                        .style(crate::style::ChromelessButton)
                         .on_press(Message::Toggle)
                         .into();
 
@@ -123,59 +123,6 @@ mod item {
                     };
 
                     Column::with_children(children).into()
-                }
-            }
-        }
-    }
-
-    mod style {
-        use iced::button::Style;
-        use iced::Color;
-
-        pub struct Button;
-
-        impl iced::button::StyleSheet for Button {
-            fn active(&self) -> Style {
-                Style {
-                    shadow_offset: Default::default(),
-                    background: None,
-                    border_radius: 0.0,
-                    border_width: 0.0,
-                    border_color: Default::default(),
-                    text_color: Color::WHITE,
-                }
-            }
-
-            fn hovered(&self) -> Style {
-                Style {
-                    shadow_offset: Default::default(),
-                    background: None,
-                    border_radius: 0.0,
-                    border_width: 0.0,
-                    border_color: Default::default(),
-                    text_color: Color::WHITE,
-                }
-            }
-
-            fn pressed(&self) -> Style {
-                Style {
-                    shadow_offset: Default::default(),
-                    background: None,
-                    border_radius: 0.0,
-                    border_width: 0.0,
-                    border_color: Default::default(),
-                    text_color: Color::WHITE,
-                }
-            }
-
-            fn disabled(&self) -> Style {
-                Style {
-                    shadow_offset: Default::default(),
-                    background: None,
-                    border_radius: 0.0,
-                    border_width: 0.0,
-                    border_color: Default::default(),
-                    text_color: Color::WHITE,
                 }
             }
         }
