@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use basedrop::Shared;
 use cpal::Stream;
-use iced::canvas::{Cursor, Fill, Frame, Geometry, Program, Stroke};
+use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
 use iced::{
     Application, Canvas, Clipboard, Column, Command, Element, Length, Point, Rectangle, Settings,
     Size, Subscription,
@@ -12,8 +12,6 @@ use atomic_queue::Queue;
 use audio_garbage_collector::GarbageCollector;
 use audio_processor_standalone::audio_processor_start;
 use circular_data_structures::CircularVec;
-
-use example_iced_audio_viz::buffer_analyser;
 use example_iced_audio_viz::buffer_analyser::BufferAnalyserProcessor;
 
 fn main() -> iced::Result {

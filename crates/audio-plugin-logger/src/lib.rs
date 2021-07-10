@@ -8,5 +8,7 @@ pub fn get_configuration_root_path() -> PathBuf {
 }
 
 pub fn init(name: &str) {
-    logging::configure_logging(&get_configuration_root_path(), name);
+    if let Err(err) = logging::configure_logging(&get_configuration_root_path(), name) {
+        eprintln!("{}: Failed to initialize logging {:?}", name, err);
+    }
 }

@@ -424,6 +424,12 @@ dependencies = [
 [[package]]
 name = "audio-plugin-logger"
 version = "0.1.0"
+dependencies = [
+ "dirs 3.0.2",
+ "log",
+ "log4rs",
+ "thiserror",
+]
 
 [[package]]
 name = "audio-processor-iced-design-system"

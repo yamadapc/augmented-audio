@@ -6,3 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+log4rs = { version = "^1.0.0", features = ["rolling_file_appender", "compound_policy", "size_trigger"] }
+dirs = "^3.0.2"
+log = "^0.4.14"
+thiserror = "^1.0.26"

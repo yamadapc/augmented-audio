@@ -1,4 +1,4 @@
-use iced::{Background, Color, Container, Length, Text};
+use iced::{Container, Length, Text};
 
 use iced_baseview::executor;
 use iced_baseview::{Application, Command, Element};

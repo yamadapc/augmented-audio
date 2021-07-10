@@ -64,7 +64,7 @@ where
             window: window_open_options,
             flags: self.flags.clone(),
         };
-        let mut handle = IcedWindow::<App>::open_parented(&window_handle, settings);
+        let handle = IcedWindow::<App>::open_parented(&window_handle, settings);
         self.handle = Some(handle);
         true
     }

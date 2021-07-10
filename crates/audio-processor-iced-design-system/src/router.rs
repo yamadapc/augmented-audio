@@ -26,7 +26,7 @@ impl<RouteState: Updatable> RouterState<RouteState> {
     pub fn new(initial_route: RouteId, initial_routes: HashMap<RouteId, RouteState>) -> Self {
         RouterState {
             current_route: initial_route,
-            routes: HashMap::new(),
+            routes: initial_routes,
         }
     }
 
