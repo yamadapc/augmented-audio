@@ -17,7 +17,7 @@ pub trait FilterState {
 /// State for applying a second order section to a sample using Direct Form I
 /// Difference equation:
 ///
-/// ```
+/// ```ignore
 /// y[n] = (b0/a0)*x[n] + (b1/a0)*x[n-1] + (b2/a0)*x[n-2]
 ///                     - (a1/a0)*y[n-1] - (a2/a0)*y[n-2]
 /// ```
@@ -83,7 +83,7 @@ impl<Sample: Float> FilterState for DirectFormIState<Sample> {
 ///
 /// Difference equation:
 ///
-/// ```
+/// ```ignore
 /// v[n] =         x[n] - (a1/a0)*v[n-1] - (a2/a0)*v[n-2]
 /// y(n) = (b0/a0)*v[n] + (b1/a0)*v[n-1] + (b2/a0)*v[n-2]
 /// ```

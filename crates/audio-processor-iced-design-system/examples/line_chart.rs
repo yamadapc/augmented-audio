@@ -1,5 +1,7 @@
 use audio_processor_iced_design_system::charts::{LineChart, LineChartMessage};
-use iced::{Application, Clipboard, Command, Container, Element, Length, Settings};
+use audio_processor_iced_design_system::spacing::Spacing;
+use iced::{Application, Clipboard, Command, Container, Element, Length, Settings, Subscription};
+use std::time::Duration;
 
 fn main() -> iced::Result {
     wisual_logger::init_from_env();
@@ -9,11 +11,13 @@ fn main() -> iced::Result {
 
 struct LineChartApp {
     line_chart: LineChart,
+    offset: usize,
 }
 
 #[derive(Debug, Clone)]
 enum Message {
     LineChart(LineChartMessage),
+    Tick,
 }
 
 impl Application for LineChartApp {
@@ -24,7 +28,12 @@ impl Application for LineChartApp {
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
             LineChartApp {
-                line_chart: LineChart::new(vec![(0.0, 1.0), (1.0, 3.0), (2.0, 0.0), (3.0, 1.0)]),
+                line_chart: LineChart::new(
+                    (0..1000)
+                        .map(|i| (i as f32, (i as f32 / 50.).sin()))
+                        .collect(),
+                ),
+                offset: 0,
             },
             Command::none(),
         )
@@ -39,7 +48,17 @@ impl Application for LineChartApp {
         _message: Self::Message,
         _clipboard: &mut Clipboard,
     ) -> Command<Self::Message> {
+        self.offset += 1;
+        self.line_chart.set_data(
+            (0..1000)
+                .map(|i| (i as f32, ((self.offset + i) as f32 / 50.).sin()))
+                .collect(),
+        );
         Command::none()
+    }
+
+    fn subscription(&self) -> Subscription<Self::Message> {
+        iced::time::every(Duration::from_millis(16)).map(|_| Message::Tick)
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
@@ -50,6 +69,7 @@ impl Application for LineChartApp {
         Container::new(chart)
             .width(Length::Fill)
             .height(Length::Fill)
+            .padding(Spacing::base_spacing())
             .style(audio_processor_iced_design_system::container::style::Container0)
             .into()
     }

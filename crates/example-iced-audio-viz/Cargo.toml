@@ -6,7 +6,7 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-iced = { path = "../iced", version = "^0.3.0", features = ["canvas", "tokio"] }
+iced = { path = "../iced", version = "^0.3.0", features = ["glow_canvas", "tokio", "glow", "iced_glow"] }
 basedrop = "^0.1.2"
 log = "^0.4.14"
 cpal = { version = "^0.13.3", path = "../cpal" }

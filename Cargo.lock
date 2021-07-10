@@ -111,6 +111,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "android_glue"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "000444226fcff248f2bc4c7625be32c63caccfecc2723a2b9f78a7487a49c407"
+
+[[package]]
 name = "ansi_term"
 version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -852,6 +858,15 @@ name = "cfg_aliases"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd16c4719339c4530435d38e511904438d07cce7950afa3718a84ac36c10e89e"
+
+[[package]]
+name = "cgl"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ced0551234e87afee12411d535648dd89d2e7f34c78b753395567aff3d447ff"
+dependencies = [
+ "libc",
+]
 
 [[package]]
 name = "chrono"
@@ -2632,6 +2647,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "gl_generator"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a95dfc23a2b4a9a2f5ab41d194f8bfda3cabec42af4e39f08c339eb2a0c124d"
+dependencies = [
+ "khronos_api",
+ "log",
+ "xml-rs 0.8.3",
+]
+
+[[package]]
 name = "glam"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2751,6 +2777,72 @@ dependencies = [
  "glow 0.6.1",
  "glyph_brush",
  "log",
+]
+
+[[package]]
+name = "glutin"
+version = "0.27.0"
+source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+dependencies = [
+ "android_glue",
+ "cgl",
+ "cocoa 0.24.0",
+ "core-foundation 0.9.1",
+ "glutin_egl_sys",
+ "glutin_emscripten_sys",
+ "glutin_gles2_sys",
+ "glutin_glx_sys",
+ "glutin_wgl_sys",
+ "lazy_static",
+ "libloading 0.7.0",
+ "log",
+ "objc",
+ "osmesa-sys",
+ "parking_lot",
+ "wayland-client",
+ "wayland-egl",
+ "winapi 0.3.9",
+ "winit",
+]
+
+[[package]]
+name = "glutin_egl_sys"
+version = "0.1.5"
+source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+dependencies = [
+ "gl_generator",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "glutin_emscripten_sys"
+version = "0.1.1"
+source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+
+[[package]]
+name = "glutin_gles2_sys"
+version = "0.1.5"
+source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+dependencies = [
+ "gl_generator",
+ "objc",
+]
+
+[[package]]
+name = "glutin_glx_sys"
+version = "0.1.7"
+source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+dependencies = [
+ "gl_generator",
+ "x11-dl",
+]
+
+[[package]]
+name = "glutin_wgl_sys"
+version = "0.1.5"
+source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+dependencies = [
+ "gl_generator",
 ]
 
 [[package]]
@@ -3007,6 +3099,8 @@ version = "0.3.0"
 dependencies = [
  "iced_core",
  "iced_futures",
+ "iced_glow",
+ "iced_glutin",
  "iced_web",
  "iced_wgpu",
  "iced_winit",
@@ -3074,6 +3168,16 @@ dependencies = [
  "iced_graphics",
  "iced_native",
  "log",
+]
+
+[[package]]
+name = "iced_glutin"
+version = "0.2.0"
+dependencies = [
+ "glutin",
+ "iced_graphics",
+ "iced_native",
+ "iced_winit",
 ]
 
 [[package]]
@@ -3420,6 +3524,12 @@ dependencies = [
  "libc",
  "libloading 0.7.0",
 ]
+
+[[package]]
+name = "khronos_api"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
 
 [[package]]
 name = "kuchiki"
@@ -4532,6 +4642,15 @@ dependencies = [
  "criterion",
  "plotters 0.3.1",
  "ringbuf",
+]
+
+[[package]]
+name = "osmesa-sys"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "88cfece6e95d2e717e0872a7f53a8684712ad13822a7979bc760b9c77ec0013b"
+dependencies = [
+ "shared_library",
 ]
 
 [[package]]
@@ -5853,6 +5972,16 @@ checksum = "6be9f7d5565b1483af3e72975e2dee33879b3b86bd48c0929fccf6585d79e65a"
 dependencies = [
  "libc",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "shared_library"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a9e7e0f2bfae24d8a5b5a66c5b257a83c7412304311512a0c054cd5e619da11"
+dependencies = [
+ "lazy_static",
+ "libc",
 ]
 
 [[package]]
@@ -7297,6 +7426,16 @@ dependencies = [
  "nix 0.20.0",
  "wayland-client",
  "xcursor",
+]
+
+[[package]]
+name = "wayland-egl"
+version = "0.28.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "99ba1ab1e18756b23982d36f08856d521d7df45015f404a2d7c4f0b2d2f66956"
+dependencies = [
+ "wayland-client",
+ "wayland-sys",
 ]
 
 [[package]]

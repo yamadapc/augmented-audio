@@ -72,6 +72,7 @@ jobs:
             libx11-xcb-dev \
             libxcb-icccm4-dev \
             libxcb-dri2-0-dev \
+            nvidia-utils-465 \
             libgtk-3-dev
       if: matrix.os == 'ubuntu-latest'
     - uses: actions/checkout@v2

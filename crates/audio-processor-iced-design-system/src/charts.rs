@@ -9,6 +9,10 @@ impl LineChart {
     pub fn new(data: Vec<(f32, f32)>) -> Self {
         LineChart { data }
     }
+
+    pub fn set_data(&mut self, data: Vec<(f32, f32)>) {
+        self.data = data;
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -56,5 +60,20 @@ impl LineChart {
 fn interpolate(value: f32, range_from: (f32, f32), range_to: (f32, f32)) -> f32 {
     let bounds_from = range_from.1 - range_from.0;
     let bounds_to = range_to.1 - range_to.0;
-    value / bounds_from * bounds_to
+    (value - range_from.0) / bounds_from * bounds_to
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_interpolate() {
+        assert_eq!(interpolate(1., (0., 1.), (0., 2.)), 2.);
+    }
+
+    #[test]
+    fn test_interpolate_negative_range() {
+        assert_eq!(interpolate(0., (-1., 1.), (0., 2.)), 1.);
+    }
 }
