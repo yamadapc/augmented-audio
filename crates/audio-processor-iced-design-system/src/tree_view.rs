@@ -2,23 +2,23 @@ use iced::{Column, Element, Length};
 
 pub use item::ItemState;
 
-pub struct State {
-    items: Vec<item::ItemState>,
+pub struct State<InnerState: item::Updatable> {
+    items: Vec<item::ItemState<InnerState>>,
 }
 
-impl State {
-    pub fn new(items: Vec<item::ItemState>) -> Self {
+impl<InnerState: item::Updatable> State<InnerState> {
+    pub fn new(items: Vec<item::ItemState<InnerState>>) -> Self {
         State { items }
     }
 }
 
 #[derive(Debug, Clone)]
-pub enum Message {
-    ChildMessage(usize, item::Message),
+pub enum Message<InnerMessage> {
+    ChildMessage(usize, item::Message<InnerMessage>),
 }
 
-impl State {
-    pub fn update(&mut self, msg: Message) {
+impl<InnerState: item::Updatable + 'static> State<InnerState> {
+    pub fn update(&mut self, msg: Message<InnerState::Message>) {
         match msg {
             Message::ChildMessage(index, msg) => {
                 self.items[index].update(msg);
@@ -26,7 +26,7 @@ impl State {
         }
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&mut self) -> Element<Message<InnerState::Message>> {
         let children = self
             .items
             .iter_mut()
@@ -41,27 +41,57 @@ impl State {
 }
 
 mod item {
+    use crate::spacing::Spacing;
     use iced::{Button, Column, Container, Element, Text};
+    use std::fmt::Debug;
 
-    #[derive(Debug, Clone)]
-    pub enum Message {
-        Toggle,
-        ChildToggled(usize, Box<Message>),
+    pub trait Updatable {
+        type Message: Clone + Debug;
+        fn update(&mut self, message: Self::Message);
+    }
+
+    impl Updatable for () {
+        type Message = ();
+
+        fn update(&mut self, _message: Self::Message) {}
     }
 
     #[derive(Debug, Clone)]
-    pub enum ItemState {
-        Item(String),
+    pub enum Message<InnerMessage> {
+        Toggle,
+        ChildMessage(usize, Box<Message<InnerMessage>>),
+        Inner(InnerMessage),
+    }
+
+    #[derive(Debug, Clone)]
+    pub enum ItemState<InnerState> {
+        Item {
+            title: String,
+            state: InnerState,
+        },
         Parent {
             title: String,
-            children: Vec<ItemState>,
+            children: Vec<ItemState<InnerState>>,
             button_state: iced::button::State,
             is_collapsed: bool,
         },
     }
 
-    impl ItemState {
-        pub fn parent(title: String, children: Vec<ItemState>) -> Self {
+    impl ItemState<()> {
+        pub fn child(title: String) -> Self {
+            ItemState::Item { title, state: () }
+        }
+    }
+
+    impl<InnerState> ItemState<InnerState>
+    where
+        InnerState: Updatable + 'static,
+    {
+        pub fn child_with(title: String, state: InnerState) -> Self {
+            ItemState::Item { title, state }
+        }
+
+        pub fn parent(title: String, children: Vec<ItemState<InnerState>>) -> Self {
             ItemState::Parent {
                 title,
                 children,
@@ -70,9 +100,8 @@ mod item {
             }
         }
 
-        pub fn update(&mut self, message: Message) {
+        pub fn update(&mut self, message: Message<InnerState::Message>) {
             match self {
-                ItemState::Item(_) => {}
                 ItemState::Parent {
                     is_collapsed,
                     children,
@@ -81,16 +110,22 @@ mod item {
                     Message::Toggle => {
                         *is_collapsed = !*is_collapsed;
                     }
-                    Message::ChildToggled(index, msg) => {
+                    Message::ChildMessage(index, msg) => {
                         children[index].update(*msg);
                     }
+                    _ => {}
                 },
+                ItemState::Item { state, .. } => {
+                    if let Message::Inner(inner) = message {
+                        state.update(inner);
+                    }
+                }
             }
         }
 
-        pub fn view(&mut self) -> Element<Message> {
+        pub fn view(&mut self) -> Element<Message<InnerState::Message>> {
             match self {
-                ItemState::Item(inner) => Text::new(&*inner).into(),
+                ItemState::Item { title, .. } => Text::new(&*title).into(),
                 ItemState::Parent {
                     title,
                     children,
@@ -103,11 +138,11 @@ mod item {
                             .enumerate()
                             .map(|(index, item)| {
                                 item.view()
-                                    .map(move |msg| Message::ChildToggled(index, Box::new(msg)))
+                                    .map(move |msg| Message::ChildMessage(index, Box::new(msg)))
                             })
                             .collect(),
                     ))
-                    .padding([0, 0, 0, 30])
+                    .padding([0, 0, 0, Spacing::base_spacing()])
                     .into();
 
                     let toggle_button = Button::new(button_state, Text::new(&*title))

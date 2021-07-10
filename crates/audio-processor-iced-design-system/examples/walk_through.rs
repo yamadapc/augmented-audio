@@ -18,7 +18,7 @@ fn main() -> iced::Result {
 #[derive(Debug, Clone)]
 enum Message {
     PaneResized(pane_grid::ResizeEvent),
-    Content(tree_view::Message),
+    Content(tree_view::Message<()>),
     Sidebar(menu_list::Message),
 }
 
@@ -109,32 +109,32 @@ impl Application for WalkthroughApp {
 }
 
 struct Content {
-    tree_view: tree_view::State,
+    tree_view: tree_view::State<()>,
 }
 
 impl Content {
     fn new() -> Self {
         let items = vec![
-            tree_view::ItemState::Item(String::from("Heading 1")),
+            tree_view::ItemState::child(String::from("Heading 1")),
             tree_view::ItemState::parent(
                 String::from("Heading 2"),
                 vec![
-                    tree_view::ItemState::Item(String::from("Child 1")),
+                    tree_view::ItemState::child(String::from("Child 1")),
                     tree_view::ItemState::parent(
                         String::from("Child 2"),
-                        vec![tree_view::ItemState::Item(String::from("Sub-child 1"))],
+                        vec![tree_view::ItemState::child(String::from("Sub-child 1"))],
                     ),
-                    tree_view::ItemState::Item(String::from("Child 3")),
+                    tree_view::ItemState::child(String::from("Child 3")),
                 ],
             ),
-            tree_view::ItemState::Item(String::from("Heading 3")),
+            tree_view::ItemState::child(String::from("Heading 3")),
         ];
         let tree_view = tree_view::State::new(items);
 
         Content { tree_view }
     }
 
-    fn update(&mut self, message: tree_view::Message) {
+    fn update(&mut self, message: tree_view::Message<()>) {
         self.tree_view.update(message);
     }
 
@@ -158,13 +158,16 @@ struct Sidebar {
 impl Sidebar {
     pub fn new() -> Self {
         Sidebar {
-            menu_list: menu_list::State::new(vec![
-                String::from("Menu item 1"),
-                String::from("Menu item 2"),
-                String::from("Menu item 3"),
-                String::from("Menu item 4"),
-                String::from("Menu item 5"),
-            ]),
+            menu_list: menu_list::State::new(
+                vec![
+                    String::from("Menu item 1"),
+                    String::from("Menu item 2"),
+                    String::from("Menu item 3"),
+                    String::from("Menu item 4"),
+                    String::from("Menu item 5"),
+                ],
+                Some(0),
+            ),
         }
     }
 

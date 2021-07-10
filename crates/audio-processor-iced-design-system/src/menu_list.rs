@@ -12,9 +12,9 @@ pub enum Message {
 }
 
 impl<InnerState> State<InnerState> {
-    pub fn new(children: Vec<InnerState>) -> Self {
+    pub fn new(children: Vec<InnerState>, selected_child: Option<usize>) -> Self {
         State {
-            selected_child: None,
+            selected_child,
             children: children
                 .into_iter()
                 .map(|child| menu_item::State::new(child))
