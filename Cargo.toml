@@ -2,7 +2,7 @@
 members = [
   "crates/*",
   "crates/scripts/autosync-submodules",
-  "crates/plugin-host-gui/src-tauri"
+  "crates/plugin-host-gui/src-tauri",
 ]
 exclude = [
   "crates/plugin-host-gui",

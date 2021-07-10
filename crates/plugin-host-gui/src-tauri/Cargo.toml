@@ -23,9 +23,10 @@ tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-mu
 uuid = "^0.8.2"
 vst = "^0.2.1"
 # tauri = { version = "1.0.0-beta.4", features = ["api-all", "menu"] }
-# tauri = { path = "../../tauri/core/tauri", features = ["api-all", "system-tray", "raw-window-handle", "menu"] }
-# tauri-runtime = { path = "../../tauri/core/tauri-runtime" }
-# tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
-# [features]
-# default = [ "custom-protocol" ]
-# custom-protocol = [ "tauri/custom-protocol" ]
+tauri = { path = "../../tauri/core/tauri", features = ["api-all", "system-tray", "raw-window-handle", "menu"] }
+tauri-runtime = { path = "../../tauri/core/tauri-runtime" }
+tauri-runtime-wry = { path = "../../tauri/core/tauri-runtime-wry" }
+
+[features]
+default = [ "custom-protocol" ]
+custom-protocol = [ "tauri/custom-protocol" ]
