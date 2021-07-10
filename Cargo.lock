@@ -436,6 +436,7 @@ name = "audio-processor-iced-design-system"
 version = "0.1.0"
 dependencies = [
  "iced",
+ "iced_style",
  "log",
  "wisual-logger 0.1.3",
 ]

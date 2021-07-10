@@ -1,5 +1,6 @@
 pub use button::ChromelessButton;
 pub use pane_grid::PaneGrid;
+pub use pick_list::PickList;
 pub use rule::Rule;
 
 pub mod button {
@@ -56,9 +57,10 @@ pub mod button {
 }
 
 pub mod pane_grid {
-    use crate::colors::Colors;
     use iced::pane_grid::Line;
     use iced::widget::pane_grid;
+
+    use crate::colors::Colors;
 
     pub struct PaneGrid;
 
@@ -80,8 +82,9 @@ pub mod pane_grid {
 }
 
 pub mod rule {
-    use crate::colors::Colors;
     use iced::widget::rule;
+
+    use crate::colors::Colors;
 
     pub struct Rule;
 
@@ -92,6 +95,50 @@ pub mod rule {
                 width: 1,
                 radius: 0.0,
                 fill_mode: rule::FillMode::Full,
+            }
+        }
+    }
+}
+
+pub mod pick_list {
+    use crate::colors::Colors;
+    use iced::pick_list::Style;
+    use iced::widget::pick_list;
+    use iced_style::Background;
+
+    pub struct PickList;
+
+    impl pick_list::StyleSheet for PickList {
+        fn menu(&self) -> iced_style::menu::Style {
+            iced_style::menu::Style {
+                text_color: Colors::text(),
+                background: Background::Color(Colors::background_level0()),
+                border_width: 1.0,
+                border_color: Colors::border_color(),
+                selected_text_color: Colors::text(),
+                selected_background: Background::Color(Colors::selected_background()),
+            }
+        }
+
+        fn active(&self) -> Style {
+            Style {
+                text_color: Colors::text(),
+                background: Background::Color(Colors::background_level0()),
+                border_radius: 0.0,
+                border_width: 1.0,
+                border_color: Colors::border_color(),
+                icon_size: 0.5,
+            }
+        }
+
+        fn hovered(&self) -> Style {
+            Style {
+                text_color: Colors::text(),
+                background: Background::Color(Colors::hover_opacity(Colors::background_level0())),
+                border_radius: 0.0,
+                border_width: 1.0,
+                border_color: Colors::selected_background(),
+                icon_size: 0.5,
             }
         }
     }

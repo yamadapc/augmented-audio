@@ -7,6 +7,7 @@ use num::Float;
 use crate::coefficients::BiquadCoefficients;
 use crate::denormal_prevention;
 use crate::state::{DirectFormIState, FilterState};
+use num::pow::Pow;
 
 pub enum FilterType {
     LowPass,
@@ -129,7 +130,7 @@ pub fn setup_band_stop<Sample: Float + FloatConst>(
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
-pub fn setup_low_shelf<Sample: Float + FloatConst + num::pow::Pow<Sample, Output = Sample>>(
+pub fn setup_low_shelf<Sample: Float + FloatConst + Pow<Sample, Output = Sample>>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
     cutoff_frequency: Sample,
@@ -157,7 +158,7 @@ pub fn setup_low_shelf<Sample: Float + FloatConst + num::pow::Pow<Sample, Output
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
-pub fn setup_high_shelf<Sample: Float + FloatConst + num::pow::Pow<Sample, Output = Sample>>(
+pub fn setup_high_shelf<Sample: Float + FloatConst + Pow<Sample, Output = Sample>>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
     cutoff_frequency: Sample,
@@ -201,7 +202,7 @@ impl<Sample: Float> Filter<Sample> {
     }
 }
 
-impl<Sample: num::pow::Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<Sample> {
+impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<Sample> {
     pub fn setup(&mut self, sample_rate: Sample, cutoff_frequency: Sample, q: Sample) {
         self.setup_low_pass(sample_rate, cutoff_frequency, q);
     }
@@ -305,26 +306,30 @@ impl<Sample: num::pow::Pow<Sample, Output = Sample> + Debug + Float + FloatConst
     }
 }
 
-pub struct FilterProcessor {
+pub struct FilterProcessor<
+    SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst,
+> {
     filter_type: FilterType,
-    filter: Filter<f32>,
-    sample_rate: f32,
-    cutoff: f32,
-    q: f32,
-    gain_db: f32,
-    slope: f32,
+    filter: Filter<SampleType>,
+    sample_rate: SampleType,
+    cutoff: SampleType,
+    q: SampleType,
+    gain_db: SampleType,
+    slope: SampleType,
 }
 
-impl FilterProcessor {
+impl<SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst>
+    FilterProcessor<SampleType>
+{
     pub fn new(filter_type: FilterType) -> Self {
         Self {
             filter_type,
             filter: Filter::new(),
-            sample_rate: 44100.0,
-            cutoff: 880.0,
-            q: 1.0,
-            gain_db: 1.0,
-            slope: 0.5,
+            sample_rate: SampleType::from(44100.0).unwrap(),
+            cutoff: SampleType::from(880.0).unwrap(),
+            q: SampleType::from(1.0).unwrap(),
+            gain_db: SampleType::from(1.0).unwrap(),
+            slope: SampleType::from(0.5).unwrap(),
         }
     }
 
@@ -333,27 +338,27 @@ impl FilterProcessor {
         self.setup();
     }
 
-    pub fn set_cutoff(&mut self, cutoff: f32) {
+    pub fn set_cutoff(&mut self, cutoff: SampleType) {
         self.cutoff = cutoff;
         self.setup();
     }
 
-    pub fn set_q(&mut self, q: f32) {
+    pub fn set_q(&mut self, q: SampleType) {
         self.q = q;
         self.setup();
     }
 
-    pub fn set_center_frequency(&mut self, center_frequency: f32) {
+    pub fn set_center_frequency(&mut self, center_frequency: SampleType) {
         self.cutoff = center_frequency;
         self.setup();
     }
 
-    pub fn set_slope(&mut self, slope: f32) {
+    pub fn set_slope(&mut self, slope: SampleType) {
         self.slope = slope;
         self.setup();
     }
 
-    pub fn set_gain_db(&mut self, gain_db: f32) {
+    pub fn set_gain_db(&mut self, gain_db: SampleType) {
         self.gain_db = gain_db;
         self.setup();
     }
@@ -400,11 +405,14 @@ impl FilterProcessor {
     }
 }
 
-impl AudioProcessor for FilterProcessor {
-    type SampleType = f32;
+impl<SampleType> AudioProcessor for FilterProcessor<SampleType>
+where
+    SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst + Send + Sync,
+{
+    type SampleType = SampleType;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.sample_rate = settings.sample_rate();
+        self.sample_rate = SampleType::from(settings.sample_rate()).unwrap();
         self.filter.setup(self.sample_rate, self.cutoff, self.q);
     }
 

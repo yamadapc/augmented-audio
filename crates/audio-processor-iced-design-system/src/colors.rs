@@ -43,6 +43,10 @@ impl Colors {
         black()
     }
 
+    pub fn hover_opacity(color: Color) -> Color {
+        Color::new(color.r, color.g, color.b, color.a * 0.8)
+    }
+
     pub fn background_level1() -> Color {
         medium_gray()
     }

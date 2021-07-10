@@ -1,7 +1,7 @@
 use iced::pane_grid::Axis;
 use iced::{
-    widget, Application, Clipboard, Column, Command, Container, Element, Length, PaneGrid, Row,
-    Rule, Settings, Text,
+    pick_list, widget, Align, Application, Clipboard, Column, Command, Container, Element, Length,
+    PaneGrid, Row, Rule, Settings, Text,
 };
 use widget::pane_grid;
 
@@ -9,10 +9,7 @@ use audio_processor_iced_design_system::container::style as container_style;
 use audio_processor_iced_design_system::router::RouterState;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
-use audio_processor_iced_design_system::updatable::Updatable;
 use audio_processor_iced_design_system::{menu_list, tree_view};
-use iced::futures::FutureExt;
-use std::cell::RefCell;
 use std::collections::HashMap;
 
 fn main() -> iced::Result {
@@ -24,7 +21,7 @@ fn main() -> iced::Result {
 #[derive(Debug, Clone)]
 enum Message {
     PaneResized(pane_grid::ResizeEvent),
-    Content(tree_view::Message<()>),
+    Content(ContentMessage),
     Sidebar(menu_list::Message),
 }
 
@@ -35,6 +32,7 @@ enum PaneState {
 }
 
 struct WalkthroughApp {
+    #[allow(dead_code)]
     router_state: RouterState<()>,
     pane_state: pane_grid::State<PaneState>,
 }
@@ -122,8 +120,18 @@ impl Application for WalkthroughApp {
     }
 }
 
+#[derive(Clone, Debug)]
+enum ContentMessage {
+    PickList(String),
+    TreeView(tree_view::Message<()>),
+}
+
 struct Content {
     tree_view: tree_view::State<()>,
+    pick_list_state_1: pick_list::State<String>,
+    pick_list_state_2: pick_list::State<String>,
+    pick_list_state_3: pick_list::State<String>,
+    selected_option: usize,
 }
 
 impl Content {
@@ -145,24 +153,95 @@ impl Content {
         ];
         let tree_view = tree_view::State::new(items);
 
-        Content { tree_view }
+        Content {
+            tree_view,
+            pick_list_state_1: pick_list::State::default(),
+            pick_list_state_2: pick_list::State::default(),
+            pick_list_state_3: pick_list::State::default(),
+            selected_option: 0,
+        }
     }
 
-    fn update(&mut self, message: tree_view::Message<()>) {
-        self.tree_view.update(message);
+    fn update(&mut self, message: ContentMessage) {
+        match message {
+            ContentMessage::TreeView(message) => self.tree_view.update(message),
+            ContentMessage::PickList(selected) => {
+                self.selected_option = if selected == "Option 1" { 0 } else { 1 };
+            }
+        }
     }
 
     fn view(&mut self) -> Element<Message> {
-        let tree_view = self.tree_view.view().map(|msg| Message::Content(msg));
+        let tree_view = self
+            .tree_view
+            .view()
+            .map(|msg| Message::Content(ContentMessage::TreeView(msg)));
 
-        Container::new(tree_view)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .center_x()
-            .padding(Spacing::base_spacing())
-            .style(container_style::Container1)
-            .into()
+        let options = vec![String::from("Option 1"), String::from("Option 2")];
+        let selected_option = options[self.selected_option].clone();
+        Container::new(Column::with_children(vec![
+            tree_view,
+            Container::new(Rule::horizontal(1).style(audio_style::Rule))
+                .width(Length::Fill)
+                .padding([Spacing::base_spacing(), 0, Spacing::base_spacing(), 0])
+                .into(),
+            Container::new(dropdown_with_label(
+                &mut self.pick_list_state_1,
+                options.clone(),
+                selected_option.clone(),
+            ))
+            .padding([Spacing::base_spacing(), 0])
+            .into(),
+            Container::new(dropdown_with_label(
+                &mut self.pick_list_state_2,
+                options.clone(),
+                selected_option.clone(),
+            ))
+            .padding([Spacing::base_spacing(), 0])
+            .into(),
+            Container::new(dropdown_with_label(
+                &mut self.pick_list_state_3,
+                options,
+                selected_option,
+            ))
+            .padding([Spacing::base_spacing(), 0])
+            .into(),
+        ]))
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .center_x()
+        .padding(Spacing::base_spacing())
+        .style(container_style::Container1)
+        .into()
     }
+}
+
+fn dropdown_with_label(
+    pick_list_state: &mut pick_list::State<String>,
+    options: Vec<String>,
+    selected_option: String,
+) -> Element<Message> {
+    Row::with_children(vec![
+        Container::new(Text::new("Audio driver"))
+            .width(Length::FillPortion(3))
+            .align_x(Align::End)
+            .center_y()
+            .padding([0, Spacing::base_spacing()])
+            .into(),
+        Container::new(
+            pick_list::PickList::new(pick_list_state, options, Some(selected_option), |option| {
+                Message::Content(ContentMessage::PickList(option))
+            })
+            .style(audio_style::PickList)
+            .padding(Spacing::base_spacing())
+            .width(Length::Fill),
+        )
+        .width(Length::FillPortion(7))
+        .into(),
+    ])
+    .width(Length::Fill)
+    .align_items(Align::Center)
+    .into()
 }
 
 struct Sidebar {

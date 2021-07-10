@@ -11,7 +11,7 @@ mod voice;
 
 pub struct Synthesizer {
     voices: [Voice; 4],
-    filter: FilterProcessor,
+    filter: FilterProcessor<f32>,
 }
 
 impl Synthesizer {
