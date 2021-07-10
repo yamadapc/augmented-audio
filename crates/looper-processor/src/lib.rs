@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use basedrop::{Handle, Shared};
 
+use crate::LoopState::PlayOrOverdub;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
@@ -11,6 +12,7 @@ use num::FromPrimitive;
 use rimd::Status;
 
 struct InternalBuffer<SampleType> {
+    size: usize,
     channels: Vec<CircularVec<SampleType>>,
 }
 
@@ -18,14 +20,24 @@ impl<SampleType: num::Float> InternalBuffer<SampleType> {
     pub fn new() -> Self {
         InternalBuffer {
             channels: Vec::new(),
+            size: 0,
         }
+    }
+
+    pub fn num_samples(&self) -> usize {
+        self.size
+    }
+
+    pub fn channel(&mut self, channel_index: usize) -> &mut CircularVec<SampleType> {
+        &mut self.channels[channel_index]
     }
 
     pub fn resize(&mut self, num_channels: usize, sample_rate: f32, duration: Duration) {
         let duration_samples = (duration.as_secs_f32() * sample_rate) as usize;
+        self.size = duration_samples;
         self.channels.clear();
         for _channel in 0..num_channels {
-            let mut channel_buffer = CircularVec::with_size(duration_samples, SampleType::zero());
+            let channel_buffer = CircularVec::with_size(duration_samples, SampleType::zero());
             self.channels.push(channel_buffer);
         }
     }
@@ -53,7 +65,7 @@ impl LooperProcessorHandle {
         }
     }
 
-    pub fn set_playback_input(&self, value: bool) {
+    pub fn store_playback_input(&self, value: bool) {
         self.playback_input.store(value, Ordering::Relaxed);
     }
 
@@ -61,42 +73,81 @@ impl LooperProcessorHandle {
         self.is_recording.store(true, Ordering::Relaxed);
     }
 
-    pub fn stop_recording(&self) {
-        self.is_recording.store(false, Ordering::Relaxed);
-    }
-
     pub fn stop(&self) {
         self.is_recording.store(false, Ordering::Relaxed);
         self.is_playing_back.store(false, Ordering::Relaxed);
     }
+
+    pub fn toggle_recording(&self) {
+        let is_recording = self.is_recording.load(Ordering::Relaxed);
+        if is_recording {
+            self.stop_recording();
+        } else {
+            self.start_recording();
+        }
+    }
+
+    fn stop_recording(&self) {
+        self.is_recording.store(false, Ordering::Relaxed);
+        self.is_playing_back.store(true, Ordering::Relaxed);
+    }
+}
+
+enum LoopState {
+    Empty,
+    Recording { start: usize },
+    PlayOrOverdub { start: usize, end: usize },
 }
 
 /// Private not thread safe mutable state
 struct LooperProcessorState<SampleType: num::Float> {
-    is_recording: bool,
-    is_playing_back: bool,
-    always_recording_cursor: usize,
-    num_channels: usize,
+    loop_state: LoopState,
     looper_cursor: usize,
-    loop_start: Option<usize>,
-    loop_end: Option<usize>,
+    num_channels: usize,
     looped_clip: InternalBuffer<SampleType>,
-    always_recording_buffer: InternalBuffer<SampleType>,
 }
 
 impl<SampleType: num::Float> LooperProcessorState<SampleType> {
     pub fn new() -> Self {
         LooperProcessorState {
             num_channels: 2,
-            always_recording_cursor: 0,
             looper_cursor: 0,
-            loop_start: None,
-            loop_end: None,
+            loop_state: LoopState::Empty,
             looped_clip: InternalBuffer::new(),
-            always_recording_buffer: InternalBuffer::new(),
-            is_recording: false,
-            is_playing_back: false,
         }
+    }
+
+    pub fn increment_cursor(&mut self) {
+        if let PlayOrOverdub { start, end } = self.loop_state {
+            self.looper_cursor += 1;
+            if self.looper_cursor == end + 1 {
+                self.looper_cursor = start;
+            }
+        } else {
+            self.looper_cursor += 1;
+            self.looper_cursor = self.looper_cursor % self.looped_clip.num_samples();
+        }
+    }
+
+    fn on_tick(&mut self, is_recording: bool, looper_cursor: usize) {
+        match self.loop_state {
+            // Loop has ended
+            LoopState::Recording { start } if !is_recording => {
+                self.loop_state = LoopState::PlayOrOverdub {
+                    start,
+                    end: looper_cursor,
+                };
+            }
+            // Loop has started
+            LoopState::Empty if is_recording => {
+                self.loop_state = LoopState::Recording {
+                    start: looper_cursor,
+                };
+            }
+            _ => {}
+        }
+
+        self.increment_cursor();
     }
 }
 
@@ -138,76 +189,51 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
             settings.sample_rate(),
             Duration::from_secs(10),
         );
-        self.state.always_recording_buffer.resize(
-            num_channels,
-            settings.sample_rate(),
-            Duration::from_secs(3),
-        );
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
         data: &mut BufferType,
     ) {
+        let zero = BufferType::SampleType::zero();
         for sample_index in 0..data.num_samples() {
             let should_playback_input = self.handle.playback_input.load(Ordering::Relaxed);
             let is_playing = self.handle.is_playing_back.load(Ordering::Relaxed);
             let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
+            let looper_cursor = self.state.looper_cursor;
 
             for channel_num in 0..data.num_channels() {
                 let input = *data.get(channel_num, sample_index);
 
-                let always_recording_channel =
-                    &mut self.state.always_recording_buffer.channels[channel_num];
-                let always_recording_size = always_recording_channel.len();
-                let loop_channel = &mut self.state.looped_clip.channels[channel_num];
-                let loop_channel_size = loop_channel.len();
+                let loop_channel = self.state.looped_clip.channel(channel_num);
 
                 // PLAYBACK SECTION:
-                let current_looper_cursor = self.state.looper_cursor;
+                let dry_output = if !should_playback_input { zero } else { input };
+                let looper_output = loop_channel[looper_cursor];
+                let looper_output = if is_playing { looper_output } else { zero };
 
-                let output = if !should_playback_input {
-                    BufferType::SampleType::zero()
-                } else {
-                    input
-                };
-                let looper_output = if is_playing {
-                    loop_channel[current_looper_cursor]
-                } else {
-                    BufferType::SampleType::zero()
-                };
-                data.set(channel_num, sample_index, looper_output + output);
+                let mixed_output = looper_output + dry_output;
+                data.set(channel_num, sample_index, mixed_output);
 
                 // RECORDING SECTION:
-                if !is_recording {
-                    // When not recording we'll store samples in a buffer. These samples will be
-                    // used to fix timing mistakes from the user
-                    let cursor = self.state.always_recording_cursor;
-                    always_recording_channel[cursor % always_recording_size] = input;
-                } else {
+                if is_recording {
                     // When recording starts we'll store samples in the looper buffer
-                    loop_channel[current_looper_cursor] =
-                        input + loop_channel[current_looper_cursor];
+                    loop_channel[looper_cursor] = input + loop_channel[looper_cursor];
                 }
             }
 
-            // If the look has stopped recording now. Store the end sample
-            if self.state.loop_start.is_none() && is_recording && !self.state.is_recording {
-                self.state.loop_start = Some(self.state.looper_cursor);
-            }
-
-            // If the look has stopped recording now. Store the end sample
-            if self.state.loop_end.is_none() && !is_recording && self.state.is_recording {
-                self.state.loop_end = Some(self.state.looper_cursor);
-                self.state.looper_cursor = self.state.loop_start.unwrap();
-            }
-
-            self.increment_cursor();
-            self.state.always_recording_cursor += 1;
-
-            self.state.is_playing_back = is_playing;
-            self.state.is_recording = is_recording;
+            self.state.on_tick(is_recording, looper_cursor);
         }
+    }
+}
+
+impl<SampleType: num::Float> LooperProcessor<SampleType> {
+    pub fn toggle_recording(&mut self) {
+        self.handle.toggle_recording();
+    }
+
+    fn stop(&mut self) {
+        self.handle.stop();
     }
 }
 
@@ -226,20 +252,9 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandle
                         let cc_number = bytes[1];
                         let cc_value = bytes[2];
                         match (cc_number, cc_value) {
-                            (80, 127) => {
-                                let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
-                                if is_recording {
-                                    log::info!("Start playback");
-                                    self.handle.is_playing_back.store(true, Ordering::Relaxed);
-                                    self.handle.is_recording.store(false, Ordering::Relaxed);
-                                } else {
-                                    log::info!("Start recording");
-                                    self.handle.is_recording.store(true, Ordering::Relaxed);
-                                }
-                            }
+                            (80, 127) => self.toggle_recording(),
                             (81, 127) => {
-                                self.handle.is_playing_back.store(false, Ordering::Relaxed);
-                                self.handle.is_recording.store(false, Ordering::Relaxed);
+                                self.stop();
                             }
                             _ => {}
                         }
@@ -248,32 +263,6 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandle
                     _ => {}
                 }
             }
-        }
-    }
-}
-
-impl<SampleType: num::Float> LooperProcessor<SampleType> {
-    pub fn increment_cursor(&mut self) {
-        if let Some((start, end)) = self.state.loop_start.zip(self.state.loop_end) {
-            self.state.looper_cursor += 1;
-            if self.state.looper_cursor == end + 1 {
-                self.state.looper_cursor = start;
-            }
-        } else {
-            self.state.looper_cursor += 1;
-            self.state.looper_cursor =
-                self.state.looper_cursor % self.state.looped_clip.channels[0].len();
-        }
-    }
-
-    pub fn loop_size(&self) -> usize {
-        let size = self.state.looped_clip.channels[0].len();
-        let start = self.state.loop_start.unwrap();
-        let end = self.state.loop_end.unwrap();
-        if end > start {
-            end - start
-        } else {
-            end + (size - start)
         }
     }
 }
@@ -339,7 +328,7 @@ mod test {
 
         let mut audio_buffer = sine_buffer.clone();
         let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
-        looper.handle().set_playback_input(false);
+        looper.handle().store_playback_input(false);
         looper.process(&mut audio_buffer);
 
         assert_eq!(rms_level(audio_buffer.inner()), 0.0);
