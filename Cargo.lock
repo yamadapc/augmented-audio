@@ -422,6 +422,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-plugin-logger"
+version = "0.1.0"
+
+[[package]]
 name = "audio-processor-iced-design-system"
 version = "0.1.0"
 dependencies = [
@@ -3628,6 +3632,7 @@ version = "0.1.0"
 dependencies = [
  "audio-garbage-collector",
  "audio-parameter-store",
+ "audio-plugin-logger",
  "audio-processor-traits",
  "dirs 3.0.2",
  "iced",

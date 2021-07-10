@@ -31,9 +31,9 @@ fn ensure_logging_directory(root_config_path: &Path) -> Result<PathBuf> {
     Ok(root_config_path.to_path_buf())
 }
 
-pub fn configure_logging(root_config_path: &Path) -> Result<()> {
+pub fn configure_logging(root_config_path: &Path, name: &str) -> Result<()> {
     let log_dir = ensure_logging_directory(root_config_path)?;
-    let log_path = log_dir.join("looper-plugin.log");
+    let log_path = log_dir.join(name);
     let logfile = RollingFileAppender::builder()
         .encoder(Box::new(PatternEncoder::new(
             "{d} [{l}] {M}:{L} - {m} - tid:{T}:{t} pid:{P}\n",

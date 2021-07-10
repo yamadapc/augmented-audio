@@ -1,36 +1,38 @@
+use std::time::Duration;
+
 use basedrop::Shared;
 use cpal::Stream;
+use iced::canvas::{Cursor, Fill, Frame, Geometry, Program, Stroke};
 use iced::{
-    Application, Canvas, Clipboard, Command, Element, Length, Point, Rectangle, Settings,
-    Subscription,
+    Application, Canvas, Clipboard, Column, Command, Element, Length, Point, Rectangle, Settings,
+    Size, Subscription,
 };
 
 use atomic_queue::Queue;
 use audio_garbage_collector::GarbageCollector;
 use audio_processor_standalone::audio_processor_start;
-
-use crate::buffer_analyser::BufferAnalyserProcessor;
 use circular_data_structures::CircularVec;
-use iced::canvas::{Cursor, Frame, Geometry, Program, Stroke};
-use std::time::Duration;
 
-mod buffer_analyser;
+use example_iced_audio_viz::buffer_analyser;
+use example_iced_audio_viz::buffer_analyser::BufferAnalyserProcessor;
 
 fn main() -> iced::Result {
     log::info!("Initializing app");
     AudioVisualization::run(Settings::default())
 }
 
-struct AudioVisualization {
+struct AudioProcessingHandles {
     #[allow(dead_code)]
     garbage_collector: GarbageCollector,
     #[allow(dead_code)]
-    queue_handle: Shared<Queue<f32>>,
-    #[allow(dead_code)]
     audio_streams: (Stream, Stream),
+}
+
+struct AudioVisualization {
     #[allow(dead_code)]
+    audio_processing_handles: AudioProcessingHandles,
+    queue_handle: Shared<Queue<f32>>,
     buffer: CircularVec<f32>,
-    #[allow(dead_code)]
     position: usize,
 }
 
@@ -53,9 +55,11 @@ impl Application for AudioVisualization {
 
         (
             AudioVisualization {
-                garbage_collector,
+                audio_processing_handles: AudioProcessingHandles {
+                    garbage_collector,
+                    audio_streams,
+                },
                 queue_handle,
-                audio_streams,
                 buffer,
                 position: 0,
             },
@@ -84,39 +88,38 @@ impl Application for AudioVisualization {
         iced::time::every(Duration::from_millis(100)).map(|_| Message::Tick)
     }
 
-    fn view<'a>(&'a mut self) -> Element<'a, Self::Message> {
-        Canvas::new(self)
+    fn view(&mut self) -> Element<Self::Message> {
+        let canvas = Canvas::new(self)
             .width(Length::Fill)
             .height(Length::Fill)
-            .into()
+            .into();
+        Column::with_children(vec![canvas]).into()
     }
 }
 
 impl Program<Message> for AudioVisualization {
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
-        let mut path = iced::canvas::path::Builder::new();
 
         let data = self.buffer.inner();
-        let mut prev = data[0];
         let mut index = 0;
 
         while index < data.len() {
             let item = data[index];
+            let magnitude = item.abs();
             let f_index = index as f32;
             let x_coord = (f_index / data.len() as f32) * frame.width();
-            let x2_coord = ((f_index + 1.0) / data.len() as f32) * frame.width();
-            let y_coord = (prev as f32) * frame.height() / 2.0 + frame.height() / 2.0;
-            let y2_coord = (item as f32) * frame.height() / 2.0 + frame.height() / 2.0;
+            let magnitude = (magnitude as f32) * frame.height() / 2.0 * 5.0;
+            let y_coord = frame.height() / 2.0 - magnitude / 2.0;
 
-            path.move_to(Point::new(x_coord, y_coord));
-            path.line_to(Point::new(x2_coord, y2_coord));
+            frame.fill_rectangle(
+                Point::new(x_coord, y_coord),
+                Size::new(3.0, magnitude),
+                Fill::default(),
+            );
 
-            prev = item;
-            index += 10;
+            index += 100;
         }
-
-        frame.stroke(&path.build(), Stroke::default());
 
         vec![frame.into_geometry()]
     }

@@ -8,13 +8,13 @@ use vst::plugin_main;
 use audio_garbage_collector::GarbageCollector;
 use audio_parameter_store::ParameterStore;
 use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
+use audio_processor_traits::midi::vst::midi_slice_from_events;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 use iced_editor::IcedEditor;
 use looper_processor::LooperProcessor;
 
 use crate::ui::LooperApplication;
 
-mod config;
 mod ui;
 
 pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";
@@ -43,7 +43,7 @@ impl Plugin for LoopiPlugin {
     where
         Self: Sized,
     {
-        let _ = config::logging::configure_logging(&config::get_configuration_root_path());
+        audio_plugin_logger::init("loopi.log");
 
         let garbage_collector = GarbageCollector::default();
         let processor = LooperProcessor::new(garbage_collector.handle());
@@ -73,12 +73,8 @@ impl Plugin for LoopiPlugin {
     }
 
     fn process_events(&mut self, events: &Events) {
-        self.processor.process_midi_events(unsafe {
-            std::slice::from_raw_parts(
-                &events.events[0] as *const *mut _,
-                events.num_events as usize,
-            )
-        });
+        self.processor
+            .process_midi_events(midi_slice_from_events(events));
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
