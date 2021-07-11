@@ -1,3 +1,5 @@
+use num::Float;
+
 /// Represents an audio buffer. This decouples audio processing code from a certain representation
 /// of multi-channel sample buffers.
 ///
@@ -206,6 +208,75 @@ impl<'a, SampleType: num::Float + Sync + Send> AudioBuffer for SliceAudioBuffer<
 
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.channels[channel][sample] = value;
+    }
+}
+
+/// A trait for buffer types that own the data they hold & can be constructed / resized.
+pub trait OwnedAudioBuffer: AudioBuffer {
+    /// Create an empty buffer of this type
+    fn new() -> Self;
+    /// Resize the buffer to fit `num_channels` and `num_samples`
+    fn resize(&mut self, num_channels: usize, num_samples: usize, sample: Self::SampleType);
+}
+
+/// An owned version of the interleaved buffer implementation. Can be converted onto an
+/// `InterleavedAudioBuffer`.
+pub struct VecAudioBuffer<SampleType> {
+    num_channels: usize,
+    num_samples: usize,
+    buffer: Vec<SampleType>,
+}
+
+impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType>
+where
+    SampleType: Float + Sync + Send,
+{
+    type SampleType = SampleType;
+
+    fn num_channels(&self) -> usize {
+        self.num_channels
+    }
+
+    fn num_samples(&self) -> usize {
+        self.num_samples
+    }
+
+    fn get(&self, channel: usize, sample: usize) -> &Self::SampleType {
+        &self.buffer[sample * self.num_channels + channel]
+    }
+
+    fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
+        &mut self.buffer[sample * self.num_channels + channel]
+    }
+
+    fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
+        self.buffer[sample * self.num_channels + channel] = value;
+    }
+}
+
+impl<SampleType> OwnedAudioBuffer for VecAudioBuffer<SampleType>
+where
+    SampleType: Float + Sync + Send,
+{
+    fn new() -> Self {
+        VecAudioBuffer {
+            num_channels: 0,
+            num_samples: 0,
+            buffer: Vec::new(),
+        }
+    }
+
+    fn resize(&mut self, num_channels: usize, num_samples: usize, sample: Self::SampleType) {
+        self.num_samples = num_samples;
+        self.num_channels = num_channels;
+        self.buffer.resize(num_channels * num_samples, sample);
+    }
+}
+
+impl<SampleType> VecAudioBuffer<SampleType> {
+    /// Get an `InterleavedAudioBuffer` reference type out this `VecAudioBuffer`.
+    pub fn interleaved(&mut self) -> InterleavedAudioBuffer<SampleType> {
+        InterleavedAudioBuffer::new(self.num_channels, &mut self.buffer)
     }
 }
 
