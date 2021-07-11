@@ -1,0 +1,11 @@
+[package]
+name = "audio-processor-graph"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+audio-processor-traits = { version = "^0.2", path = "../audio-processor-traits" }
+daggy = "^0.7.0"
+
+[dev-dependencies]
+audio-processor-utility = { path = "../audio-processor-utility" }

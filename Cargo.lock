@@ -432,6 +432,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-graph"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-traits",
+ "audio-processor-utility",
+ "daggy",
+]
+
+[[package]]
 name = "audio-processor-iced-design-system"
 version = "0.1.0"
 dependencies = [
@@ -481,6 +490,13 @@ version = "0.2.0"
 dependencies = [
  "num 0.4.0",
  "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+]
+
+[[package]]
+name = "audio-processor-utility"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-traits",
 ]
 
 [[package]]
@@ -1573,6 +1589,15 @@ dependencies = [
  "bitflags 1.2.1",
  "libloading 0.7.0",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "daggy"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c90e7673f8e419ea041efa8e58d52c526d1fac00908ae47fde06b4863c4fccb3"
+dependencies = [
+ "petgraph",
 ]
 
 [[package]]

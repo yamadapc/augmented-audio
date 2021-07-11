@@ -10,6 +10,8 @@
 //! Start looking at [AudioProcessor], then have a look at [AudioBuffer] and [MidiEventHandler].
 use std::marker::PhantomData;
 
+pub use num::Float;
+
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
 pub use midi::{MidiEventHandler, MidiMessageLike};
 
@@ -101,6 +103,29 @@ pub trait AudioProcessor: Send + Sync {
         &mut self,
         data: &mut BufferType,
     );
+}
+
+/// Auto-implemented object version of the audio-processor trait.
+///
+/// Given a known buffer-type, audio-processors can be made into objects using this type.
+pub trait ObjectAudioProcessor<BufferType> {
+    fn prepare_obj(&mut self, _settings: AudioProcessorSettings) {}
+    fn process_obj(&mut self, data: &mut BufferType);
+}
+
+impl<SampleType, BufferType, Processor> ObjectAudioProcessor<BufferType> for Processor
+where
+    SampleType: Float + Send + Sync,
+    BufferType: AudioBuffer<SampleType = SampleType>,
+    Processor: AudioProcessor<SampleType = SampleType>,
+{
+    fn prepare_obj(&mut self, settings: AudioProcessorSettings) {
+        <Processor as AudioProcessor>::prepare(self, settings);
+    }
+
+    fn process_obj(&mut self, data: &mut BufferType) {
+        <Processor as AudioProcessor>::process(self, data);
+    }
 }
 
 /// An audio-processor which doesn't do any work.

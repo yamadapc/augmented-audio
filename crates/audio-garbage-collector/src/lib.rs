@@ -2,7 +2,8 @@ use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 use std::time::Duration;
 
-use basedrop::{Collector, Handle};
+use basedrop::Collector;
+pub use basedrop::{Handle, Owned, Shared, SharedCell};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
