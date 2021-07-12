@@ -22,3 +22,6 @@
 [submodule "crates/cpal"]
 	path = crates/cpal
 	url = https://github.com/yamadapc/cpal
+[submodule "crates/iced_audio"]
+	path = crates/iced_audio
+	url = https://github.com/yamadapc/iced_audio

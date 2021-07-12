@@ -12,6 +12,7 @@ exclude = [
   "crates/tauri",
   "crates/example-druid-audio-viz",
   "crates/iced",
+  "crates/iced_audio",
   "crates/scripts"
 ]
 

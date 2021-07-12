@@ -6,6 +6,7 @@ use iced::{
 use widget::pane_grid;
 
 use audio_processor_iced_design_system::container::style as container_style;
+use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::{menu_list, tree_view};
@@ -130,11 +131,13 @@ struct Content {
     pick_list_state_3: pick_list::State<String>,
     selected_option: usize,
     buttons_view: ButtonsView,
+    knobs_view: KnobsView,
 }
 
 #[derive(Debug, Clone)]
 enum ContentView {
     Dropdowns,
+    SlidersAndKnobs,
     TreeView,
     Buttons,
 }
@@ -159,13 +162,14 @@ impl Content {
         let tree_view = tree_view::State::new(items);
 
         Content {
-            content_view: ContentView::Buttons,
+            content_view: ContentView::SlidersAndKnobs,
             tree_view,
             pick_list_state_1: pick_list::State::default(),
             pick_list_state_2: pick_list::State::default(),
             pick_list_state_3: pick_list::State::default(),
             selected_option: 0,
             buttons_view: ButtonsView::new(),
+            knobs_view: KnobsView::new(),
         }
     }
 
@@ -224,6 +228,11 @@ impl Content {
                 ])
                 .into()
             }
+            ContentView::SlidersAndKnobs => self
+                .knobs_view
+                .view()
+                .map(|_| Message::Content(ContentMessage::None))
+                .into(),
             ContentView::TreeView => self
                 .tree_view
                 .view()
@@ -233,6 +242,34 @@ impl Content {
                 .view()
                 .map(|_| Message::Content(ContentMessage::None)),
         }
+    }
+}
+
+struct KnobsView {
+    knob_state: iced_audio::knob::State,
+}
+
+impl KnobsView {
+    pub fn new() -> Self {
+        KnobsView {
+            knob_state: iced_audio::knob::State::new(Default::default()),
+        }
+    }
+}
+
+impl KnobsView {
+    fn view(&mut self) -> Element<()> {
+        let knob = Knob::new(&mut self.knob_state, |_| {})
+            .size(Length::Units(50))
+            .style(audio_processor_iced_design_system::knob::style::Knob);
+        Column::with_children(vec![
+            Text::new("Knobs").into(),
+            Container::new(knob)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .into(),
+        ])
+        .into()
     }
 }
 
@@ -334,6 +371,10 @@ impl Sidebar {
         Sidebar {
             menu_list: menu_list::State::new(
                 vec![
+                    (
+                        String::from("Sliders and Knobs"),
+                        ContentView::SlidersAndKnobs,
+                    ),
                     (String::from("Buttons"), ContentView::Buttons),
                     (String::from("Dropdowns"), ContentView::Dropdowns),
                     (String::from("Tree view"), ContentView::TreeView),
