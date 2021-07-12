@@ -92,7 +92,7 @@ impl AudioProcessorSettings {
 /// Represents an audio processing node.
 ///
 /// Implementors should define the SampleType the node will work over. See some [examples here](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone/examples).
-pub trait AudioProcessor: Send + Sync {
+pub trait AudioProcessor: Send {
     type SampleType;
 
     /// Prepare for playback based on current audio settings
@@ -115,7 +115,7 @@ pub trait ObjectAudioProcessor<BufferType> {
 
 impl<SampleType, BufferType, Processor> ObjectAudioProcessor<BufferType> for Processor
 where
-    SampleType: Float + Send + Sync,
+    SampleType: Float + Send,
     BufferType: AudioBuffer<SampleType = SampleType>,
     Processor: AudioProcessor<SampleType = SampleType>,
 {
@@ -131,7 +131,7 @@ where
 /// An audio-processor which doesn't do any work.
 pub struct NoopAudioProcessor<SampleType>(PhantomData<SampleType>);
 
-impl<SampleType: Send + Sync> AudioProcessor for NoopAudioProcessor<SampleType> {
+impl<SampleType: Send> AudioProcessor for NoopAudioProcessor<SampleType> {
     type SampleType = SampleType;
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -156,7 +156,7 @@ impl<SampleType> Default for SilenceAudioProcessor<SampleType> {
     }
 }
 
-impl<SampleType: num::Float + Send + Sync> AudioProcessor for SilenceAudioProcessor<SampleType> {
+impl<SampleType: Float + Send> AudioProcessor for SilenceAudioProcessor<SampleType> {
     type SampleType = SampleType;
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(

@@ -39,7 +39,7 @@ MIDI, state & dry/wet), a basic audio processor trait can solve buffer/sample co
 The first part is the `AudioBuffer` trait.
 ```rust
 pub trait AudioBuffer {
-    type SampleType: num::Float + Sync + Send;
+    type SampleType: num::Float + Send;
 
     /// The number of channels in this buffer
     fn num_channels(&self) -> usize;
@@ -90,7 +90,7 @@ each channel is a slice of floats.
 The **AudioProcessor** trait is only two methods:
 
 ```rust
-pub trait AudioProcessor: Send + Sync {
+pub trait AudioProcessor: Send {
     type SampleType;
     fn prepare(&mut self, _settings: AudioProcessorSettings) {}
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -115,7 +115,7 @@ type and any `AudioBuffer` implementation:
 ```rust
 pub struct SilenceAudioProcessor<SampleType>(PhantomData<SampleType>);
 
-impl<SampleType: num::Float + Send + Sync> AudioProcessor for SilenceAudioProcessor<SampleType> {
+impl<SampleType: num::Float + Send> AudioProcessor for SilenceAudioProcessor<SampleType> {
     type SampleType = SampleType;
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
