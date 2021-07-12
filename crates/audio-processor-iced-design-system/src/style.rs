@@ -1,3 +1,4 @@
+pub use button::Button;
 pub use button::ChromelessButton;
 pub use pane_grid::PaneGrid;
 pub use pick_list::PickList;
@@ -6,6 +7,53 @@ pub use rule::Rule;
 pub mod button {
     use iced::button::Style;
     use iced::Color;
+    use iced_style::Background;
+
+    use crate::colors::Colors;
+
+    fn button_base_style() -> Style {
+        Style {
+            shadow_offset: Default::default(),
+            background: Some(Background::Color(Colors::background_level0())),
+            border_radius: 0.0,
+            border_width: 1.0,
+            border_color: Colors::border_color(),
+            text_color: Colors::text(),
+        }
+    }
+
+    pub struct Button;
+
+    impl iced::button::StyleSheet for Button {
+        fn active(&self) -> Style {
+            button_base_style()
+        }
+
+        fn hovered(&self) -> Style {
+            Style {
+                background: Some(Background::Color(Colors::hover_opacity(
+                    Colors::background_level0(),
+                ))),
+                border_color: Colors::active_border_color(),
+                ..button_base_style()
+            }
+        }
+
+        fn pressed(&self) -> Style {
+            Style {
+                background: Some(Background::Color(Colors::pressed_opacity(
+                    Colors::background_level0(),
+                ))),
+                border_color: Colors::pressed_opacity(Colors::active_border_color()),
+                text_color: Colors::hover_opacity(Colors::text()),
+                ..button_base_style()
+            }
+        }
+
+        fn disabled(&self) -> Style {
+            button_base_style()
+        }
+    }
 
     pub struct ChromelessButton;
 
@@ -28,7 +76,7 @@ pub mod button {
                 border_radius: 0.0,
                 border_width: 0.0,
                 border_color: Default::default(),
-                text_color: Color::new(1.0, 1.0, 1.0, 0.8),
+                text_color: Color::new(1.0, 1.0, 1.0, 0.5),
             }
         }
 
@@ -101,10 +149,11 @@ pub mod rule {
 }
 
 pub mod pick_list {
-    use crate::colors::Colors;
     use iced::pick_list::Style;
     use iced::widget::pick_list;
     use iced_style::Background;
+
+    use crate::colors::Colors;
 
     pub struct PickList;
 

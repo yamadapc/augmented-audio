@@ -1,7 +1,7 @@
 use iced::pane_grid::Axis;
 use iced::{
-    pick_list, widget, Align, Application, Clipboard, Column, Command, Container, Element, Length,
-    PaneGrid, Row, Rule, Settings, Text,
+    pick_list, widget, Align, Application, Button, Clipboard, Column, Command, Container, Element,
+    Length, PaneGrid, Row, Rule, Settings, Text,
 };
 use widget::pane_grid;
 
@@ -119,6 +119,7 @@ enum ContentMessage {
     PickList(String),
     TreeView(tree_view::Message<()>),
     Selected(ContentView),
+    None,
 }
 
 struct Content {
@@ -128,6 +129,7 @@ struct Content {
     pick_list_state_2: pick_list::State<String>,
     pick_list_state_3: pick_list::State<String>,
     selected_option: usize,
+    buttons_view: ButtonsView,
 }
 
 #[derive(Debug, Clone)]
@@ -157,12 +159,13 @@ impl Content {
         let tree_view = tree_view::State::new(items);
 
         Content {
-            content_view: ContentView::Dropdowns,
+            content_view: ContentView::Buttons,
             tree_view,
             pick_list_state_1: pick_list::State::default(),
             pick_list_state_2: pick_list::State::default(),
             pick_list_state_3: pick_list::State::default(),
             selected_option: 0,
+            buttons_view: ButtonsView::new(),
         }
     }
 
@@ -175,6 +178,7 @@ impl Content {
             ContentMessage::Selected(content_view) => {
                 self.content_view = content_view;
             }
+            _ => {}
         }
     }
 
@@ -191,7 +195,7 @@ impl Content {
     }
 
     fn content_view(&mut self) -> Element<Message> {
-        let content = match self.content_view {
+        match self.content_view {
             ContentView::Dropdowns => {
                 let options = vec![String::from("Option 1"), String::from("Option 2")];
                 let selected_option = options[self.selected_option].clone();
@@ -224,9 +228,72 @@ impl Content {
                 .tree_view
                 .view()
                 .map(|msg| Message::Content(ContentMessage::TreeView(msg))),
-            ContentView::Buttons => Text::new("Buttons").into(),
-        };
-        content
+            ContentView::Buttons => self
+                .buttons_view
+                .view()
+                .map(|_| Message::Content(ContentMessage::None)),
+        }
+    }
+}
+
+struct ButtonsView {
+    default_button_state: iced::button::State,
+    tiny_button_state: iced::button::State,
+    chromeless_button_state: iced::button::State,
+}
+
+impl ButtonsView {
+    pub fn new() -> Self {
+        ButtonsView {
+            default_button_state: iced::button::State::new(),
+            tiny_button_state: iced::button::State::new(),
+            chromeless_button_state: iced::button::State::new(),
+        }
+    }
+}
+
+impl ButtonsView {
+    fn view(&mut self) -> Element<()> {
+        Column::with_children(vec![
+            Container::new(Text::new("Buttons"))
+                .padding([0, 0, Spacing::base_spacing(), 0])
+                .into(),
+            Rule::horizontal(1).style(audio_style::Rule).into(),
+            Container::new(Column::with_children(vec![
+                Container::new(
+                    Button::new(&mut self.default_button_state, Text::new("Default button"))
+                        .on_press(())
+                        .style(audio_style::Button),
+                )
+                .padding([0, 0, Spacing::base_spacing(), 0])
+                .into(),
+                Container::new(
+                    Button::new(
+                        &mut self.tiny_button_state,
+                        Text::new("Tiny button").size(Spacing::small_font_size()),
+                    )
+                    .on_press(())
+                    .style(audio_style::Button),
+                )
+                .padding([0, 0, Spacing::base_spacing(), 0])
+                .into(),
+                Container::new(
+                    Button::new(
+                        &mut self.chromeless_button_state,
+                        Text::new("Chrome-less button"),
+                    )
+                    .on_press(())
+                    .style(audio_style::ChromelessButton),
+                )
+                .padding([0, 0, Spacing::base_spacing(), 0])
+                .into(),
+            ]))
+            .padding([Spacing::base_spacing(), 0])
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .into(),
+        ])
+        .into()
     }
 }
 
@@ -267,9 +334,9 @@ impl Sidebar {
         Sidebar {
             menu_list: menu_list::State::new(
                 vec![
+                    (String::from("Buttons"), ContentView::Buttons),
                     (String::from("Dropdowns"), ContentView::Dropdowns),
                     (String::from("Tree view"), ContentView::TreeView),
-                    (String::from("Buttons"), ContentView::Buttons),
                 ],
                 Some(0),
             ),

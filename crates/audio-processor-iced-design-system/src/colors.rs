@@ -4,10 +4,6 @@ fn dark_blue() -> Color {
     rgb(35, 136, 201)
 }
 
-fn blue() -> Color {
-    rgb(0, 255, 255)
-}
-
 fn white() -> Color {
     rgb(255, 255, 255)
 }
@@ -44,7 +40,11 @@ impl Colors {
     }
 
     pub fn hover_opacity(color: Color) -> Color {
-        Color::new(color.r, color.g, color.b, color.a * 0.8)
+        Color::new(color.r, color.g, color.b, color.a * 0.5)
+    }
+
+    pub fn pressed_opacity(color: Color) -> Color {
+        Color::new(color.r, color.g, color.b, color.a * 0.4)
     }
 
     pub fn background_level1() -> Color {
@@ -64,7 +64,7 @@ impl Colors {
     }
 
     pub fn active_border_color() -> Color {
-        blue()
+        dark_blue()
     }
 }
 
