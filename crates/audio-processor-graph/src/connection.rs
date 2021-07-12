@@ -20,4 +20,8 @@ where
     pub fn buffer(&self) -> &BufferType {
         &self.buffer
     }
+
+    pub fn buffer_mut(&mut self) -> &mut BufferType {
+        &mut self.buffer
+    }
 }

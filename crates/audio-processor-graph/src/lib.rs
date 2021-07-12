@@ -1,11 +1,19 @@
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::ObjectAudioProcessor;
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, ObjectAudioProcessor};
 use connection::Connection;
+use daggy::Walker;
+use thiserror::Error;
 
 mod connection;
 
 type NodeIndex = daggy::NodeIndex<u32>;
 type ConnectionIndex = daggy::EdgeIndex<u32>;
+
+#[derive(Debug, Error)]
+enum AudioProcessorGraphError {
+    #[error("Adding this connection would result in a cycle")]
+    WouldCycle,
+}
 
 struct AudioProcessorGraph<BufferType, Processor>
 where
@@ -13,6 +21,7 @@ where
     Processor: ObjectAudioProcessor<BufferType>,
 {
     dag: daggy::Dag<Processor, Connection<BufferType>>,
+    process_order: Vec<NodeIndex>,
 }
 
 impl<BufferType, Processor> Default for AudioProcessorGraph<BufferType, Processor>
@@ -31,7 +40,10 @@ where
     Processor: ObjectAudioProcessor<BufferType>,
 {
     pub fn new(dag: daggy::Dag<Processor, Connection<BufferType>>) -> Self {
-        AudioProcessorGraph { dag }
+        AudioProcessorGraph {
+            dag,
+            process_order: Vec::new(),
+        }
     }
 
     pub fn add_node(&mut self, processor: Processor) -> NodeIndex {
@@ -42,8 +54,76 @@ where
         &mut self,
         source: NodeIndex,
         destination: NodeIndex,
-    ) -> Result<ConnectionIndex, daggy::WouldCycle<Connection<BufferType>>> {
-        self.dag.add_edge(source, destination, Connection::new())
+    ) -> Result<ConnectionIndex, AudioProcessorGraphError> {
+        let edge = self
+            .dag
+            .add_edge(source, destination, Connection::new())
+            .map_err(|_| AudioProcessorGraphError::WouldCycle)?;
+
+        self.prepare_order()
+            .map_err(|_| AudioProcessorGraphError::WouldCycle)?;
+
+        Ok(edge)
+    }
+
+    fn prepare_order(&mut self) -> Result<(), daggy::petgraph::algo::Cycle<daggy::NodeIndex>> {
+        self.process_order = daggy::petgraph::algo::toposort(&self.dag, None)?;
+        Ok(())
+    }
+}
+
+impl<BufferType, Processor> ObjectAudioProcessor<BufferType>
+    for AudioProcessorGraph<BufferType, Processor>
+where
+    BufferType: OwnedAudioBuffer,
+    Processor: ObjectAudioProcessor<BufferType>,
+{
+    fn prepare_obj(&mut self, settings: AudioProcessorSettings) {
+        let process_order = &self.process_order;
+        for node_index in process_order {
+            if let Some(processor) = self.dag.node_weight_mut(*node_index) {
+                processor.prepare_obj(settings);
+            }
+        }
+    }
+
+    fn process_obj(&mut self, data: &mut BufferType) {
+        let process_order = &self.process_order;
+
+        for node_index in process_order {
+            let inputs = self.dag.parents(*node_index);
+            for (connection_id, _) in inputs.iter(&self.dag) {
+                if let Some(connection_buffer) = self.dag.edge_weight(connection_id) {
+                    copy_buffer(connection_buffer.buffer(), data);
+                }
+            }
+
+            if let Some(processor) = self.dag.node_weight_mut(*node_index) {
+                processor.process_obj(data);
+            }
+
+            let mut outputs = self.dag.children(*node_index);
+            while let Some((connection_id, _)) = outputs.walk_next(&self.dag) {
+                if let Some(connection_buffer) = self.dag.edge_weight_mut(connection_id) {
+                    copy_buffer(data, connection_buffer.buffer_mut());
+                }
+            }
+        }
+    }
+}
+
+fn copy_buffer<BufferType>(source: &BufferType, destination: &mut BufferType)
+where
+    BufferType: AudioBuffer,
+{
+    for sample_index in 0..source.num_samples() {
+        for channel_index in 0..source.num_channels() {
+            destination.set(
+                channel_index,
+                sample_index,
+                *source.get(channel_index, sample_index),
+            )
+        }
     }
 }
 
@@ -70,6 +150,6 @@ mod test {
         let mut graph = AudioProcessorGraph::<VecAudioBuffer<f32>, GainProcessor<f32>>::default();
         let gain1 = graph.add_node(GainProcessor::default());
         let gain2 = graph.add_node(GainProcessor::default());
-        graph.add_connection(gain1, gain2).unwrap();
+        let _connection_id = graph.add_connection(gain1, gain2).unwrap();
     }
 }
