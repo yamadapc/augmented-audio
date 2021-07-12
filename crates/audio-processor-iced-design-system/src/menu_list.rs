@@ -1,30 +1,30 @@
 use crate::spacing::Spacing;
 use iced::{Button, Column, Element, Length};
 
-pub struct State<InnerState> {
+pub struct State<InnerState, MenuOption> {
     selected_child: Option<usize>,
-    children: Vec<menu_item::State<InnerState>>,
+    children: Vec<menu_item::State<InnerState, MenuOption>>,
 }
 
 #[derive(Debug, Clone)]
-pub enum Message {
-    Selected(usize),
+pub enum Message<MenuOption> {
+    Selected { index: usize, option: MenuOption },
 }
 
-impl<InnerState> State<InnerState> {
-    pub fn new(children: Vec<InnerState>, selected_child: Option<usize>) -> Self {
+impl<InnerState, MenuOption: Clone> State<InnerState, MenuOption> {
+    pub fn new(children: Vec<(InnerState, MenuOption)>, selected_child: Option<usize>) -> Self {
         State {
             selected_child,
             children: children
                 .into_iter()
-                .map(|child| menu_item::State::new(child))
+                .map(|(child, option)| menu_item::State::new(child, option))
                 .collect(),
         }
     }
 
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: Message<MenuOption>) {
         match message {
-            Message::Selected(index) => {
+            Message::Selected { index, .. } => {
                 self.selected_child = Some(index);
             }
         }
@@ -32,8 +32,8 @@ impl<InnerState> State<InnerState> {
 
     pub fn view(
         &mut self,
-        renderer: impl Fn(&mut InnerState) -> Element<Message>,
-    ) -> Element<Message> {
+        renderer: impl Fn(&mut InnerState) -> Element<Message<MenuOption>>,
+    ) -> Element<Message<MenuOption>> {
         let selected_child = self.selected_child.clone();
         let children_elements = self
             .children
@@ -45,6 +45,7 @@ impl<InnerState> State<InnerState> {
                     menu_item::State {
                         button_state,
                         state,
+                        option,
                     },
                 )| {
                     let is_selected_child =
@@ -54,7 +55,10 @@ impl<InnerState> State<InnerState> {
                         .width(Length::Fill)
                         .style(style::Button(is_selected_child))
                         .padding(Spacing::base_spacing())
-                        .on_press(Message::Selected(index))
+                        .on_press(Message::Selected {
+                            index,
+                            option: option.clone(),
+                        })
                         .into()
                 },
             )
@@ -68,16 +72,18 @@ impl<InnerState> State<InnerState> {
 }
 
 mod menu_item {
-    pub struct State<InnerState> {
+    pub struct State<InnerState, MenuOption> {
         pub(super) button_state: iced::button::State,
         pub state: InnerState,
+        pub option: MenuOption,
     }
 
-    impl<InnerState> State<InnerState> {
-        pub fn new(state: InnerState) -> Self {
+    impl<InnerState, MenuOption> State<InnerState, MenuOption> {
+        pub fn new(state: InnerState, option: MenuOption) -> Self {
             State {
                 button_state: iced::button::State::default(),
                 state,
+                option,
             }
         }
     }

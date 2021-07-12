@@ -6,11 +6,9 @@ use iced::{
 use widget::pane_grid;
 
 use audio_processor_iced_design_system::container::style as container_style;
-use audio_processor_iced_design_system::router::RouterState;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::{menu_list, tree_view};
-use std::collections::HashMap;
 
 fn main() -> iced::Result {
     wisual_logger::init_from_env();
@@ -22,7 +20,7 @@ fn main() -> iced::Result {
 enum Message {
     PaneResized(pane_grid::ResizeEvent),
     Content(ContentMessage),
-    Sidebar(menu_list::Message),
+    Sidebar(menu_list::Message<ContentView>),
 }
 
 enum PaneState {
@@ -33,7 +31,6 @@ enum PaneState {
 
 struct WalkthroughApp {
     #[allow(dead_code)]
-    router_state: RouterState<()>,
     pane_state: pane_grid::State<PaneState>,
 }
 
@@ -43,15 +40,8 @@ impl Application for WalkthroughApp {
     type Flags = ();
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
-        let mut router_state = RouterState::new(String::from("/0"), HashMap::new());
-        router_state.add_route(String::from("/0"), ());
-        router_state.add_route(String::from("/1"), ());
-        router_state.add_route(String::from("/2"), ());
-        router_state.add_route(String::from("/3"), ());
-
         (
             WalkthroughApp {
-                router_state,
                 pane_state: pane_grid::State::with_configuration(pane_grid::Configuration::Split {
                     axis: Axis::Horizontal,
                     ratio: 0.8,
@@ -92,6 +82,10 @@ impl Application for WalkthroughApp {
             }
             Message::Sidebar(msg) => {
                 for (_, state) in self.pane_state.iter_mut() {
+                    let menu_list::Message::Selected { option, .. } = msg.clone();
+                    if let PaneState::Content(content) = state {
+                        content.update(ContentMessage::Selected(option))
+                    }
                     if let PaneState::Sidebar(sidebar) = state {
                         sidebar.update(msg.clone())
                     }
@@ -124,14 +118,23 @@ impl Application for WalkthroughApp {
 enum ContentMessage {
     PickList(String),
     TreeView(tree_view::Message<()>),
+    Selected(ContentView),
 }
 
 struct Content {
+    content_view: ContentView,
     tree_view: tree_view::State<()>,
     pick_list_state_1: pick_list::State<String>,
     pick_list_state_2: pick_list::State<String>,
     pick_list_state_3: pick_list::State<String>,
     selected_option: usize,
+}
+
+#[derive(Debug, Clone)]
+enum ContentView {
+    Dropdowns,
+    TreeView,
+    Buttons,
 }
 
 impl Content {
@@ -154,6 +157,7 @@ impl Content {
         let tree_view = tree_view::State::new(items);
 
         Content {
+            content_view: ContentView::Dropdowns,
             tree_view,
             pick_list_state_1: pick_list::State::default(),
             pick_list_state_2: pick_list::State::default(),
@@ -168,51 +172,61 @@ impl Content {
             ContentMessage::PickList(selected) => {
                 self.selected_option = if selected == "Option 1" { 0 } else { 1 };
             }
+            ContentMessage::Selected(content_view) => {
+                self.content_view = content_view;
+            }
         }
     }
 
     fn view(&mut self) -> Element<Message> {
-        let tree_view = self
-            .tree_view
-            .view()
-            .map(|msg| Message::Content(ContentMessage::TreeView(msg)));
+        let content = self.content_view();
 
-        let options = vec![String::from("Option 1"), String::from("Option 2")];
-        let selected_option = options[self.selected_option].clone();
-        Container::new(Column::with_children(vec![
-            tree_view,
-            Container::new(Rule::horizontal(1).style(audio_style::Rule))
-                .width(Length::Fill)
-                .padding([Spacing::base_spacing(), 0, Spacing::base_spacing(), 0])
-                .into(),
-            Container::new(dropdown_with_label(
-                &mut self.pick_list_state_1,
-                options.clone(),
-                selected_option.clone(),
-            ))
-            .padding([Spacing::base_spacing(), 0])
-            .into(),
-            Container::new(dropdown_with_label(
-                &mut self.pick_list_state_2,
-                options.clone(),
-                selected_option.clone(),
-            ))
-            .padding([Spacing::base_spacing(), 0])
-            .into(),
-            Container::new(dropdown_with_label(
-                &mut self.pick_list_state_3,
-                options,
-                selected_option,
-            ))
-            .padding([Spacing::base_spacing(), 0])
-            .into(),
-        ]))
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .center_x()
-        .padding(Spacing::base_spacing())
-        .style(container_style::Container1)
-        .into()
+        Container::new(content)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .center_x()
+            .padding(Spacing::base_spacing())
+            .style(container_style::Container1)
+            .into()
+    }
+
+    fn content_view(&mut self) -> Element<Message> {
+        let content = match self.content_view {
+            ContentView::Dropdowns => {
+                let options = vec![String::from("Option 1"), String::from("Option 2")];
+                let selected_option = options[self.selected_option].clone();
+                Column::with_children(vec![
+                    Container::new(dropdown_with_label(
+                        &mut self.pick_list_state_1,
+                        options.clone(),
+                        selected_option.clone(),
+                    ))
+                    .padding([Spacing::base_spacing(), 0])
+                    .into(),
+                    Container::new(dropdown_with_label(
+                        &mut self.pick_list_state_2,
+                        options.clone(),
+                        selected_option.clone(),
+                    ))
+                    .padding([Spacing::base_spacing(), 0])
+                    .into(),
+                    Container::new(dropdown_with_label(
+                        &mut self.pick_list_state_3,
+                        options,
+                        selected_option,
+                    ))
+                    .padding([Spacing::base_spacing(), 0])
+                    .into(),
+                ])
+                .into()
+            }
+            ContentView::TreeView => self
+                .tree_view
+                .view()
+                .map(|msg| Message::Content(ContentMessage::TreeView(msg))),
+            ContentView::Buttons => Text::new("Buttons").into(),
+        };
+        content
     }
 }
 
@@ -223,7 +237,7 @@ fn dropdown_with_label(
 ) -> Element<Message> {
     Row::with_children(vec![
         Container::new(Text::new("Audio driver"))
-            .width(Length::FillPortion(3))
+            .width(Length::FillPortion(2))
             .align_x(Align::End)
             .center_y()
             .padding([0, Spacing::base_spacing()])
@@ -236,7 +250,7 @@ fn dropdown_with_label(
             .padding(Spacing::base_spacing())
             .width(Length::Fill),
         )
-        .width(Length::FillPortion(7))
+        .width(Length::FillPortion(8))
         .into(),
     ])
     .width(Length::Fill)
@@ -245,7 +259,7 @@ fn dropdown_with_label(
 }
 
 struct Sidebar {
-    menu_list: menu_list::State<String>,
+    menu_list: menu_list::State<String, ContentView>,
 }
 
 impl Sidebar {
@@ -253,21 +267,19 @@ impl Sidebar {
         Sidebar {
             menu_list: menu_list::State::new(
                 vec![
-                    String::from("Menu item 1"),
-                    String::from("Menu item 2"),
-                    String::from("Menu item 3"),
-                    String::from("Menu item 4"),
-                    String::from("Menu item 5"),
+                    (String::from("Dropdowns"), ContentView::Dropdowns),
+                    (String::from("Tree view"), ContentView::TreeView),
+                    (String::from("Buttons"), ContentView::Buttons),
                 ],
                 Some(0),
             ),
         }
     }
 
-    fn update(&mut self, message: menu_list::Message) {
+    fn update(&mut self, message: menu_list::Message<ContentView>) {
         self.menu_list.update(message.clone());
         match message {
-            menu_list::Message::Selected(_) => {}
+            menu_list::Message::Selected { .. } => {}
         }
     }
 
