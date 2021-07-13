@@ -12,7 +12,7 @@ use audio_processor_standalone_midi::host::{MidiError, MidiHost};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::audio_thread::error::AudioThreadError;
-use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioThreadOptions};
+use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId, AudioThreadOptions};
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
@@ -95,6 +95,19 @@ impl TestPluginHost {
     pub fn start(&mut self) -> Result<(), StartError> {
         self.midi_host.start()?;
         self.audio_thread.start()?;
+        Ok(())
+    }
+
+    pub fn set_host_id(&mut self, host_id: AudioHostId) -> Result<(), AudioThreadError> {
+        self.audio_thread.set_host_id(host_id)?;
+        Ok(())
+    }
+
+    pub fn set_input_device_id(
+        &mut self,
+        input_device_id: Option<AudioDeviceId>,
+    ) -> Result<(), AudioThreadError> {
+        self.audio_thread.set_input_device_id(input_device_id)?;
         Ok(())
     }
 

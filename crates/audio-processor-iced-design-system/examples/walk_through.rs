@@ -17,7 +17,7 @@ fn main() -> iced::Result {
     log::info!("Initializing app");
     WalkthroughApp::run(Settings {
         antialiasing: true,
-        default_text_size: 16,
+        default_text_size: Spacing::default_font_size(),
         ..Settings::default()
     })
 }

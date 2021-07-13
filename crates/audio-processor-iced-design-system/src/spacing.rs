@@ -9,6 +9,10 @@ impl Spacing {
         2
     }
 
+    pub fn default_font_size() -> u16 {
+        16
+    }
+
     pub fn small_font_size() -> u16 {
         14
     }

@@ -4991,6 +4991,7 @@ dependencies = [
 name = "plugin-host-gui2"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-iced-design-system",
  "iced",
  "log",
  "plugin-host-lib",

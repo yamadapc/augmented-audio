@@ -9,7 +9,7 @@ use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudi
 use error::AudioThreadError;
 use options::AudioThreadOptions;
 
-use crate::audio_io::audio_thread::options::AudioDeviceId;
+use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId};
 use crate::processors::shared_processor::{ProcessorCell, SharedProcessor};
 use crate::processors::test_host_processor::TestHostProcessor;
 use ringbuf::Consumer;
@@ -69,6 +69,29 @@ impl AudioThread {
         output_stream.play()?;
         self.output_stream = Some(output_stream);
         self.input_stream = maybe_input_stream;
+        Ok(())
+    }
+
+    /// Change audio host & restart audio thread
+    pub fn set_host_id(&mut self, host_id: AudioHostId) -> Result<(), AudioThreadError> {
+        if host_id != self.audio_thread_options.host_id {
+            self.audio_thread_options.host_id = host_id;
+            self.wait()?;
+            self.start()?;
+        }
+        Ok(())
+    }
+
+    /// Change input device & restart audio thread
+    pub fn set_input_device_id(
+        &mut self,
+        input_device_id: Option<AudioDeviceId>,
+    ) -> Result<(), AudioThreadError> {
+        if input_device_id != self.audio_thread_options.input_device_id {
+            self.audio_thread_options.input_device_id = input_device_id;
+            self.wait()?;
+            self.start()?;
+        }
         Ok(())
     }
 

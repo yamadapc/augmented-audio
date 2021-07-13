@@ -10,5 +10,6 @@ thiserror = "^1.0.25"
 log = "^0.4.14"
 iced = { version = "^0.3.0", path = "../iced" }
 
+audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
 plugin-host-lib = { path = "../plugin-host-lib" }
 wisual-logger = { path = "../wisual-logger" }

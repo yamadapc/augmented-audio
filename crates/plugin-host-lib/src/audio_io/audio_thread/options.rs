@@ -1,6 +1,6 @@
 use std::fmt::Formatter;
 
-#[derive(Clone)]
+#[derive(PartialEq, Eq, Clone)]
 pub enum AudioHostId {
     Default,
     Id(String),

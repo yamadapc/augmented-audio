@@ -8,7 +8,7 @@ pub use models::*;
 use storage::{AudioIOStorageService, StorageConfig};
 
 use crate::audio_io::audio_io_service::storage::AudioIOStorageServiceError;
-use crate::audio_io::audio_thread::options::AudioDeviceId;
+use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId};
 use crate::TestPluginHost;
 
 pub mod models;
@@ -73,14 +73,31 @@ impl AudioIOService {
         &self.state
     }
 
-    pub fn set_host_id(&mut self, host_id: String) {
+    pub fn set_host_id(&mut self, host_id: String) -> Result<(), AudioIOServiceError> {
+        let mut host = self.host.lock().unwrap();
+        host.set_host_id(AudioHostId::Id(host_id.clone()))
+            .map_err(|err| {
+                log::error!("Failed to set host {}", err);
+                AudioIOServiceError::AudioThreadError
+            })?;
         self.state.host = host_id;
         self.try_store();
+        Ok(())
     }
 
-    pub fn set_input_device_id(&mut self, input_device_id: String) {
+    pub fn set_input_device_id(
+        &mut self,
+        input_device_id: String,
+    ) -> Result<(), AudioIOServiceError> {
+        let mut host = self.host.lock().unwrap();
+        host.set_output_device_id(AudioDeviceId::Id(input_device_id.clone()))
+            .map_err(|err| {
+                log::error!("Failed to set input device {}", err);
+                AudioIOServiceError::AudioThreadError
+            })?;
         self.state.input_device = Some(AudioDevice::new(input_device_id));
         self.try_store();
+        Ok(())
     }
 
     pub fn set_output_device_id(
