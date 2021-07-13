@@ -90,7 +90,7 @@ pub fn audio_processor_start_with_midi<
 
     output_stream.play().unwrap();
     input_stream.play().unwrap();
-
+    log::info!("Audio streams started");
     (input_stream, output_stream, midi_host)
 }
 
@@ -152,6 +152,7 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + 'stat
 
     output_stream.play().unwrap();
     input_stream.play().unwrap();
+    log::info!("Audio streams started");
     (input_stream, output_stream)
 }
 
@@ -164,6 +165,7 @@ fn configure_input_device(
     let input_config = input_device.default_input_config().unwrap();
     let mut input_config: StreamConfig = input_config.into();
     log::info!("Using input: {}", input_device.name().unwrap());
+    input_config.channels = 2;
     input_config.sample_rate = SampleRate(sample_rate);
     input_config.buffer_size = BufferSize::Fixed(buffer_size);
     (input_device, input_config)
@@ -179,6 +181,7 @@ fn configure_output_device(
     let num_channels: usize = output_config.channels().into();
     let mut output_config: StreamConfig = output_config.into();
     log::info!("Using output: {}", output_device.name().unwrap());
+    output_config.channels = 2;
     output_config.sample_rate = SampleRate(sample_rate);
     output_config.buffer_size = BufferSize::Fixed(buffer_size);
     (output_device, num_channels, output_config)

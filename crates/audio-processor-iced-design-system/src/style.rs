@@ -261,3 +261,52 @@ mod hover_container {
         }
     }
 }
+
+pub mod v_slider {
+    use crate::colors::Colors;
+    use iced_audio::graphics::v_slider::Style;
+    use iced_audio::v_slider::RectStyle;
+
+    pub struct VSlider;
+
+    impl iced_audio::style::v_slider::StyleSheet for VSlider {
+        fn active(&self) -> Style {
+            Style::Rect(RectStyle {
+                back_color: Colors::background_level0(),
+                back_border_width: 1.0,
+                back_border_radius: 0.0,
+                back_border_color: Colors::border_color(),
+                filled_color: Colors::active_border_color(),
+                handle_color: Colors::hover_opacity(Colors::text()),
+                handle_height: 5,
+                handle_filled_gap: 2.0,
+            })
+        }
+
+        fn hovered(&self) -> Style {
+            Style::Rect(RectStyle {
+                back_color: Colors::background_level0(),
+                back_border_width: 1.0,
+                back_border_radius: 0.0,
+                back_border_color: Colors::border_color(),
+                filled_color: Colors::active_border_color(),
+                handle_color: Colors::text(),
+                handle_height: 5,
+                handle_filled_gap: 2.0,
+            })
+        }
+
+        fn dragging(&self) -> Style {
+            Style::Rect(RectStyle {
+                back_color: Colors::background_level0(),
+                back_border_width: 1.0,
+                back_border_radius: 0.0,
+                back_border_color: Colors::border_color(),
+                filled_color: Colors::active_border_color(),
+                handle_color: Colors::text(),
+                handle_height: 5,
+                handle_filled_gap: 2.0,
+            })
+        }
+    }
+}

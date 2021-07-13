@@ -10,6 +10,7 @@ use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::{knob as audio_knob, menu_list, tree_view};
+use iced_audio::NormalParam;
 
 fn main() -> iced::Result {
     wisual_logger::init_from_env();
@@ -251,6 +252,7 @@ impl Content {
 
 struct KnobsView {
     knob_states: Vec<iced_audio::knob::State>,
+    sliders: SlidersView,
 }
 
 impl KnobsView {
@@ -264,6 +266,7 @@ impl KnobsView {
                 iced_audio::knob::State::new(Default::default()),
                 iced_audio::knob::State::new(Default::default()),
             ],
+            sliders: SlidersView::new(),
         }
     }
 }
@@ -297,17 +300,49 @@ impl KnobsView {
             Rule::horizontal(1).style(audio_style::Rule).into(),
             Container::new(Row::with_children(knobs).spacing(Spacing::base_spacing()))
                 .width(Length::Fill)
-                .height(Length::Fill)
                 .center_x()
                 .padding([Spacing::base_spacing(), 0])
                 .into(),
             Rule::horizontal(1).style(audio_style::Rule).into(),
             Container::new(Text::new("Sliders"))
-                .padding([0, 0, Spacing::base_spacing(), 0])
+                .padding([Spacing::base_spacing(), 0])
                 .into(),
             Rule::horizontal(1).style(audio_style::Rule).into(),
+            self.sliders.view(),
         ])
         .into()
+    }
+}
+
+struct SlidersView {
+    state: Vec<iced_audio::v_slider::State>,
+}
+
+impl SlidersView {
+    pub fn new() -> Self {
+        SlidersView {
+            state: (0..10)
+                .map(|_| iced_audio::v_slider::State::new(NormalParam::default()))
+                .collect(),
+        }
+    }
+
+    pub fn view(&mut self) -> Element<()> {
+        let elements = self
+            .state
+            .iter_mut()
+            .map(|state| {
+                iced_audio::VSlider::new(state, |_| ())
+                    .style(audio_style::v_slider::VSlider)
+                    .into()
+            })
+            .collect();
+        Row::with_children(elements)
+            .spacing(Spacing::base_spacing())
+            .align_items(Align::Center)
+            .width(Length::Fill)
+            .padding([Spacing::base_spacing(), 0])
+            .into()
     }
 }
 

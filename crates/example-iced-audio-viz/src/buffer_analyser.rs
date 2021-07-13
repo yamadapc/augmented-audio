@@ -1,5 +1,5 @@
 use atomic_queue::Queue;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioProcessor};
 use basedrop::{Handle, Shared};
 
 pub struct BufferAnalyserProcessor {
@@ -20,10 +20,6 @@ impl BufferAnalyserProcessor {
 
 impl AudioProcessor for BufferAnalyserProcessor {
     type SampleType = f32;
-
-    fn prepare(&mut self, _settings: AudioProcessorSettings) {
-        // assert_eq!(settings.sample_rate(), 44100.0);
-    }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
