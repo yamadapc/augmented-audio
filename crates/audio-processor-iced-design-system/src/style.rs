@@ -1,5 +1,8 @@
 pub use button::Button;
 pub use button::ChromelessButton;
+pub use container::Container0;
+pub use container::Container1;
+pub use hover_container::HoverContainer;
 pub use pane_grid::PaneGrid;
 pub use pick_list::PickList;
 pub use rule::Rule;
@@ -188,6 +191,72 @@ pub mod pick_list {
                 border_width: 1.0,
                 border_color: Colors::selected_background(),
                 icon_size: 0.5,
+            }
+        }
+    }
+}
+
+pub mod container {
+    use iced::container::Style;
+    use iced::Background;
+
+    use crate::colors::Colors;
+
+    pub struct Container0;
+
+    impl iced::container::StyleSheet for Container0 {
+        fn style(&self) -> Style {
+            iced::container::Style {
+                text_color: Some(Colors::text()),
+                background: Some(Background::Color(Colors::background_level0())),
+                border_radius: 0.0,
+                border_width: 0.0,
+                border_color: Colors::border_color(),
+            }
+        }
+    }
+
+    pub struct Container1;
+
+    impl iced::container::StyleSheet for Container1 {
+        fn style(&self) -> Style {
+            iced::container::Style {
+                text_color: Some(Colors::text()),
+                background: Some(Background::Color(Colors::background_level1())),
+                border_radius: 0.0,
+                border_width: 0.0,
+                border_color: Colors::border_color(),
+            }
+        }
+    }
+}
+
+mod hover_container {
+    use crate::container::hover_container::style::Style;
+    use crate::container::hover_container::style::StyleSheet;
+
+    use crate::colors::Colors;
+
+    pub struct HoverContainer;
+
+    impl StyleSheet for HoverContainer {
+        fn style(&self) -> Style {
+            Style {
+                text_color: None,
+                background: None,
+                border_radius: 0.0,
+                border_width: 0.0,
+                border_color: Colors::border_color(),
+            }
+        }
+
+        fn hovered(&self) -> Style {
+            Style {
+                text_color: None,
+                background: None,
+                border_radius: 0.0,
+                border_width: 1.0,
+                border_color: Colors::border_color(),
             }
         }
     }

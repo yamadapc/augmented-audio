@@ -13,15 +13,15 @@ fn black() -> Color {
 }
 
 fn medium_gray() -> Color {
-    rgb(35, 35, 35)
-}
-
-fn gray() -> Color {
     rgb(42, 42, 42)
 }
 
+fn gray() -> Color {
+    rgb(50, 50, 50)
+}
+
 pub fn light_gray() -> Color {
-    rgb(49, 49, 49)
+    rgb(60, 60, 60)
 }
 
 fn super_light_gray() -> Color {

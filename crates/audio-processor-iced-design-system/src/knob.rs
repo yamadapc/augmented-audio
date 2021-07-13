@@ -10,7 +10,7 @@ pub mod style {
     impl iced_audio::knob::StyleSheet for Knob {
         fn active(&self) -> Style {
             Style::Arc(iced_audio::style::knob::ArcStyle {
-                width: StyleLength::Units(4.),
+                width: StyleLength::Units(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
                 notch: Knob::notch(),
@@ -20,7 +20,7 @@ pub mod style {
 
         fn hovered(&self) -> Style {
             Style::Arc(iced_audio::style::knob::ArcStyle {
-                width: StyleLength::Units(4.),
+                width: StyleLength::Units(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
                 notch: Knob::notch(),
@@ -30,7 +30,7 @@ pub mod style {
 
         fn dragging(&self) -> Style {
             Style::Arc(iced_audio::style::knob::ArcStyle {
-                width: StyleLength::Units(4.),
+                width: StyleLength::Units(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
                 notch: Knob::notch(),
@@ -42,9 +42,9 @@ pub mod style {
     impl Knob {
         fn notch() -> NotchShape {
             iced_audio::style::knob::NotchShape::Line(iced_audio::style::knob::LineNotch {
-                color: Colors::text(),
-                width: StyleLength::Scaled(0.05),
-                length: StyleLength::Scaled(0.2),
+                color: Colors::background_level0(),
+                width: StyleLength::Scaled(0.1),
+                length: StyleLength::Scaled(0.4),
                 cap: Default::default(),
                 offset: StyleLength::Units(0.),
             })

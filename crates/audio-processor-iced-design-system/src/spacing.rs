@@ -5,7 +5,15 @@ impl Spacing {
         10
     }
 
+    pub fn small_spacing() -> u16 {
+        2
+    }
+
     pub fn small_font_size() -> u16 {
-        15
+        14
+    }
+
+    pub fn base_control_size() -> u16 {
+        35
     }
 }

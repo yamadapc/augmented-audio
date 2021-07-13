@@ -5,17 +5,18 @@ use iced::{
 };
 use widget::pane_grid;
 
-use audio_processor_iced_design_system::container::style as container_style;
+use audio_processor_iced_design_system::container::HoverContainer;
 use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
-use audio_processor_iced_design_system::{menu_list, tree_view};
+use audio_processor_iced_design_system::{knob as audio_knob, menu_list, tree_view};
 
 fn main() -> iced::Result {
     wisual_logger::init_from_env();
     log::info!("Initializing app");
     WalkthroughApp::run(Settings {
         antialiasing: true,
+        default_text_size: 16,
         ..Settings::default()
     })
 }
@@ -113,7 +114,7 @@ impl Application for WalkthroughApp {
         Container::new(panel)
             .width(Length::Fill)
             .height(Length::Fill)
-            .style(container_style::Container0)
+            .style(audio_style::Container0)
             .into()
     }
 }
@@ -197,7 +198,7 @@ impl Content {
             .height(Length::Fill)
             .center_x()
             .padding(Spacing::base_spacing())
-            .style(container_style::Container1)
+            .style(audio_style::Container1)
             .into()
     }
 
@@ -249,29 +250,62 @@ impl Content {
 }
 
 struct KnobsView {
-    knob_state: iced_audio::knob::State,
+    knob_states: Vec<iced_audio::knob::State>,
 }
 
 impl KnobsView {
     pub fn new() -> Self {
         KnobsView {
-            knob_state: iced_audio::knob::State::new(Default::default()),
+            knob_states: vec![
+                iced_audio::knob::State::new(Default::default()),
+                iced_audio::knob::State::new(Default::default()),
+                iced_audio::knob::State::new(Default::default()),
+                iced_audio::knob::State::new(Default::default()),
+                iced_audio::knob::State::new(Default::default()),
+                iced_audio::knob::State::new(Default::default()),
+            ],
         }
     }
 }
 
 impl KnobsView {
     fn view(&mut self) -> Element<()> {
-        let knob = Knob::new(&mut self.knob_state, |_| {})
-            .use_radial_interaction(true)
-            .size(Length::Units(50))
-            .style(audio_processor_iced_design_system::knob::style::Knob);
+        let knobs = self
+            .knob_states
+            .iter_mut()
+            .map(|knob_state| {
+                HoverContainer::new(
+                    Column::with_children(vec![
+                        Text::new("Dry/Wet").size(Spacing::small_font_size()).into(),
+                        Knob::new(knob_state, |_| {})
+                            .size(Length::Units(Spacing::base_control_size()))
+                            .style(audio_knob::style::Knob)
+                            .into(),
+                        Text::new("0%").size(Spacing::small_font_size()).into(),
+                    ])
+                    .align_items(Align::Center)
+                    .spacing(Spacing::small_spacing()),
+                )
+                .style(audio_style::HoverContainer)
+                .into()
+            })
+            .collect();
         Column::with_children(vec![
-            Text::new("Knobs").into(),
-            Container::new(knob)
+            Container::new(Text::new("Knobs"))
+                .padding([0, 0, Spacing::base_spacing(), 0])
+                .into(),
+            Rule::horizontal(1).style(audio_style::Rule).into(),
+            Container::new(Row::with_children(knobs).spacing(Spacing::base_spacing()))
                 .width(Length::Fill)
                 .height(Length::Fill)
+                .center_x()
+                .padding([Spacing::base_spacing(), 0])
                 .into(),
+            Rule::horizontal(1).style(audio_style::Rule).into(),
+            Container::new(Text::new("Sliders"))
+                .padding([0, 0, Spacing::base_spacing(), 0])
+                .into(),
+            Rule::horizontal(1).style(audio_style::Rule).into(),
         ])
         .into()
     }
@@ -418,7 +452,7 @@ impl BottomPanel {
                 .height(Length::Fill)
                 .center_x()
                 .center_y()
-                .style(container_style::Container0)
+                .style(audio_style::Container0)
                 .into(),
         ])
         .into()
