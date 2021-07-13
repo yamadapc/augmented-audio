@@ -1,12 +1,14 @@
 use std::sync::{Arc, Mutex};
 
-use iced::{Element, Text};
+use iced::{Column, Container, Element, Length, Rule, Text};
 
 use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult};
 use plugin_host_lib::TestPluginHost;
 
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
+use audio_processor_iced_design_system::spacing::Spacing;
+use audio_processor_iced_design_system::style::{Container0, Container1};
 use plugin_host_lib::audio_io::audio_io_service::storage::StorageConfig;
 use std::env::home_dir;
 
@@ -95,9 +97,39 @@ impl MainContentView {
     }
 
     pub fn view(&mut self) -> Element<Message> {
-        self.audio_io_settings
-            .view()
-            .map(|msg| Message::AudioIOSettings(msg))
+        Column::with_children(vec![
+            self.audio_io_settings
+                .view()
+                .map(|msg| Message::AudioIOSettings(msg))
+                .into(),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            Container::new(Text::new("Content will come here"))
+                .style(Container0)
+                .height(Length::Fill)
+                .width(Length::Fill)
+                .into(),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            Container::new(Text::new("Transport controls will come here"))
+                .style(Container1)
+                .height(Length::Units(200))
+                .width(Length::Fill)
+                .into(),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            Container::new(
+                Text::new("Status messages will come here").size(Spacing::small_font_size()),
+            )
+            .style(Container0)
+            .height(Length::Units(20))
+            .width(Length::Fill)
+            .into(),
+        ])
+        .into()
     }
 
     fn build_audio_driver_dropdown_state() -> DropdownState {

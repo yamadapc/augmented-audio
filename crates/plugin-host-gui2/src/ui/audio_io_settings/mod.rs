@@ -99,10 +99,12 @@ fn section_heading<'a, T: Into<String>>(label: T) -> impl Into<Element<'a, Messa
             .style(Container0)
             .padding(Spacing::base_spacing())
             .into(),
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
+        horizontal_rule().into(),
     ])
+}
+
+fn horizontal_rule() -> Rule {
+    Rule::horizontal(1).style(audio_processor_iced_design_system::style::Rule)
 }
 
 struct DropdownWithLabel {
