@@ -14,7 +14,10 @@ use audio_processor_iced_design_system::{menu_list, tree_view};
 fn main() -> iced::Result {
     wisual_logger::init_from_env();
     log::info!("Initializing app");
-    WalkthroughApp::run(Settings::default())
+    WalkthroughApp::run(Settings {
+        antialiasing: true,
+        ..Settings::default()
+    })
 }
 
 #[derive(Debug, Clone)]
@@ -260,6 +263,7 @@ impl KnobsView {
 impl KnobsView {
     fn view(&mut self) -> Element<()> {
         let knob = Knob::new(&mut self.knob_state, |_| {})
+            .use_radial_interaction(true)
             .size(Length::Units(50))
             .style(audio_processor_iced_design_system::knob::style::Knob);
         Column::with_children(vec![
