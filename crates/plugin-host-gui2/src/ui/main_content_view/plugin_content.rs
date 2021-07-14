@@ -17,12 +17,12 @@ pub enum Message {
 }
 
 impl PluginContentView {
-    pub fn new() -> Self {
+    pub fn new(input_file: Option<String>, audio_plugin_path: Option<String>) -> Self {
         PluginContentView {
             input_file_path_button_state: iced::button::State::new(),
             audio_plugin_path_button_state: iced::button::State::new(),
-            input_file: None,
-            audio_plugin_path: None,
+            input_file,
+            audio_plugin_path,
         }
     }
 

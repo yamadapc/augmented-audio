@@ -9,6 +9,7 @@ use plugin_host_lib::audio_io::audio_io_service::storage::StorageConfig;
 use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult};
 use plugin_host_lib::TestPluginHost;
 
+use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
 use crate::ui::main_content_view::plugin_content::PluginContentView;
@@ -25,9 +26,11 @@ pub struct MainContentView {
     plugin_host: Arc<Mutex<TestPluginHost>>,
     audio_io_service: Arc<Mutex<AudioIOService>>,
     audio_io_settings: AudioIOSettingsView,
+    host_options_service: HostOptionsService,
     plugin_content: PluginContentView,
     transport_controls: TransportControlsView,
     error: Option<Box<dyn std::error::Error>>,
+    host_state: HostState,
 }
 
 #[derive(Clone, Debug)]
@@ -69,11 +72,45 @@ impl MainContentView {
                     .to_string(),
             },
         )));
+        let host_options_service = HostOptionsService::new(
+            home_config_dir
+                .join("audio-thread-config.json")
+                .to_str()
+                .unwrap()
+                .to_string(),
+        );
+        let host_state = host_options_service.fetch().unwrap_or_default();
+        let plugin_content = PluginContentView::new(
+            host_state.audio_input_file_path.clone(),
+            host_state.plugin_path.clone(),
+        );
+
+        if let Some(path) = &host_state.audio_input_file_path {
+            plugin_host
+                .lock()
+                .unwrap()
+                .set_audio_file_path(path.into())
+                .unwrap_or_else(|err| {
+                    log::error!("Failed to set audio input {:?}", err);
+                });
+        }
+        if let Some(path) = &host_state.plugin_path {
+            plugin_host
+                .lock()
+                .unwrap()
+                .load_plugin(Path::new(path))
+                .unwrap_or_else(|err| {
+                    log::error!("Failed to set audio input {:?}", err);
+                });
+        }
+
         MainContentView {
             plugin_host,
             audio_io_service,
             audio_io_settings,
-            plugin_content: PluginContentView::new(),
+            host_options_service,
+            host_state,
+            plugin_content,
             transport_controls: TransportControlsView::new(),
             error: None,
         }
@@ -123,11 +160,23 @@ impl MainContentView {
                             host.set_audio_file_path(PathBuf::from(input_file))
                         };
                         result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
+                        self.host_state.plugin_path = Some(input_file.clone());
+                        self.host_options_service
+                            .store(&self.host_state)
+                            .unwrap_or_else(|err| {
+                                log::error!("Failed to store {:?}", err);
+                            });
                         Command::none()
                     }
                     plugin_content::Message::SetAudioPlugin(path) => {
                         let path = path.clone();
                         let host_ref = self.plugin_host.clone();
+                        self.host_state.audio_input_file_path = Some(path.clone());
+                        self.host_options_service
+                            .store(&self.host_state)
+                            .unwrap_or_else(|err| {
+                                log::error!("Failed to store {:?}", err);
+                            });
                         Command::perform(
                             tokio::task::spawn_blocking(move || {
                                 let mut host = host_ref.lock().unwrap();

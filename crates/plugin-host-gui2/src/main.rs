@@ -4,6 +4,7 @@ use iced::{Application, Clipboard, Command, Container, Element, Length};
 
 use audio_processor_iced_design_system as design_system;
 
+mod services;
 mod ui;
 
 fn main() -> iced::Result {

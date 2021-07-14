@@ -4996,6 +4996,8 @@ dependencies = [
  "iced",
  "log",
  "plugin-host-lib",
+ "serde",
+ "serde_json",
  "thiserror",
  "tinyfiledialogs",
  "tokio",
