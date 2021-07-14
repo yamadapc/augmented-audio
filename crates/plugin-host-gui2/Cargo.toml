@@ -9,6 +9,7 @@ log = "^0.4.14"
 tinyfiledialogs = "^3.0"
 thiserror = "^1.0.25"
 
+tokio = "^1.8.1"
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
 iced = { version = "^0.3.0", path = "../iced" }
 plugin-host-lib = { path = "../plugin-host-lib" }

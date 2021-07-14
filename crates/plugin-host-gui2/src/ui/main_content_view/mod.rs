@@ -28,6 +28,7 @@ pub struct MainContentView {
 pub enum Message {
     AudioIOSettings(audio_io_settings::Message),
     PluginContent(plugin_content::Message),
+    None,
 }
 
 impl MainContentView {
@@ -101,28 +102,37 @@ impl MainContentView {
                     .map(|msg| Message::AudioIOSettings(msg))
             }
             Message::PluginContent(msg) => {
-                match &msg {
+                let command = match &msg {
                     plugin_content::Message::SetInputFile(input_file) => {
                         let result = {
                             let mut host = self.plugin_host.lock().unwrap();
                             host.set_audio_file_path(PathBuf::from(input_file))
                         };
                         result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
+                        Command::none()
                     }
                     plugin_content::Message::SetAudioPlugin(path) => {
-                        let result = {
-                            let mut host = self.plugin_host.lock().unwrap();
-                            let path = Path::new(&path);
-                            host.load_plugin(path)
-                        };
-                        result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
+                        let path = path.clone();
+                        let host_ref = self.plugin_host.clone();
+                        Command::perform(
+                            tokio::task::spawn_blocking(move || {
+                                let mut host = host_ref.lock().unwrap();
+                                let path = Path::new(&path);
+                                host.load_plugin(path)
+                            }),
+                            // TODO - Send back the error
+                            |result| Message::None,
+                        )
                     }
-                    _ => {}
-                }
-                self.plugin_content
+                    _ => Command::none(),
+                };
+                let children = self
+                    .plugin_content
                     .update(msg)
-                    .map(|msg| Message::PluginContent(msg))
+                    .map(|msg| Message::PluginContent(msg));
+                Command::batch(vec![command, children])
             }
+            _ => Command::none(),
         }
     }
 
