@@ -13,7 +13,7 @@ log4rs = { version = "^1.0.0", features = ["rolling_file_appender", "compound_po
 dirs = "^3.0.2"
 thiserror = "^1.0.25"
 
-iced = { version = "^0.3.0", path = "../iced", features = ["iced_glow"] }
+iced = { version = "^0.3.0", path = "../iced", features = ["canvas"] }
 iced_baseview = { path = "../iced-baseview", features = ["canvas"], default-features = false }
 iced-editor = { path = "../iced-editor" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }
@@ -32,4 +32,3 @@ identifier = "com.beijaflor.Loopi"
 
 [package.metadata.bundle.macos.properties]
 CFBundleGetInfoString = "vst"
-

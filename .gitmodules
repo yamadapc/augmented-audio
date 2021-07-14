@@ -25,3 +25,6 @@
 [submodule "crates/iced_audio"]
 	path = crates/iced_audio
 	url = https://github.com/yamadapc/iced_audio
+[submodule "crates/gfx"]
+	path = crates/gfx
+	url = git@github.com:yamadapc/gfx

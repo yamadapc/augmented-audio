@@ -3,7 +3,6 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use iced::{Column, Command, Container, Element, Length, Rule, Text};
-use raw_window_handle::RawWindowHandle;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
