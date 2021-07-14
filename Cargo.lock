@@ -4992,15 +4992,20 @@ name = "plugin-host-gui2"
 version = "0.1.0"
 dependencies = [
  "audio-processor-iced-design-system",
+ "baseview",
+ "cocoa 0.24.0",
  "dirs 3.0.2",
  "iced",
  "log",
+ "objc",
  "plugin-host-lib",
+ "raw-window-handle",
  "serde",
  "serde_json",
  "thiserror",
  "tinyfiledialogs",
  "tokio",
+ "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
  "wisual-logger 0.1.3",
 ]
 

@@ -1,7 +1,11 @@
+use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use iced::{Column, Command, Container, Element, Length, Rule, Text};
+use raw_window_handle::RawWindowHandle;
+use vst::host::PluginInstance;
+use vst::plugin::Plugin;
 
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
@@ -12,15 +16,18 @@ use plugin_host_lib::TestPluginHost;
 use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
+use crate::ui::main_content_view::macos::{open_plugin_window, PluginWindowHandle};
 use crate::ui::main_content_view::plugin_content::PluginContentView;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 
+mod macos;
 mod pause;
 mod plugin_content;
 mod stop;
 mod transport_controls;
 mod triangle;
 
+// TODO - Break-up this god struct
 pub struct MainContentView {
     #[allow(dead_code)]
     plugin_host: Arc<Mutex<TestPluginHost>>,
@@ -30,6 +37,7 @@ pub struct MainContentView {
     plugin_content: PluginContentView,
     transport_controls: TransportControlsView,
     error: Option<Box<dyn std::error::Error>>,
+    editor: Option<PluginWindowHandle>,
     host_state: HostState,
 }
 
@@ -113,6 +121,7 @@ impl MainContentView {
             plugin_content,
             transport_controls: TransportControlsView::new(),
             error: None,
+            editor: None,
         }
     }
 
@@ -160,7 +169,7 @@ impl MainContentView {
                             host.set_audio_file_path(PathBuf::from(input_file))
                         };
                         result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
-                        self.host_state.plugin_path = Some(input_file.clone());
+                        self.host_state.audio_input_file_path = Some(input_file.clone());
                         self.host_options_service
                             .store(&self.host_state)
                             .unwrap_or_else(|err| {
@@ -168,10 +177,30 @@ impl MainContentView {
                             });
                         Command::none()
                     }
+                    plugin_content::Message::OpenPluginWindow => {
+                        log::info!("Opening plugin editor");
+                        let mut host = self.plugin_host.lock().unwrap();
+                        if let Some(instance) = host.plugin_instance() {
+                            log::info!("Found plugin instance");
+                            let instance_ptr =
+                                instance.deref() as *const PluginInstance as *mut PluginInstance;
+                            if let Some(editor) =
+                                unsafe { instance_ptr.as_mut() }.unwrap().get_editor()
+                            {
+                                log::info!("Found plugin editor");
+                                let size = editor.size();
+                                let window = open_plugin_window(editor, size);
+                                log::info!("Opened editor window");
+                                self.editor = Some(window);
+                            }
+                        }
+
+                        Command::none()
+                    }
                     plugin_content::Message::SetAudioPlugin(path) => {
                         let path = path.clone();
                         let host_ref = self.plugin_host.clone();
-                        self.host_state.audio_input_file_path = Some(path.clone());
+                        self.host_state.plugin_path = Some(path.clone());
                         self.host_options_service
                             .store(&self.host_state)
                             .unwrap_or_else(|err| {
@@ -258,6 +287,7 @@ impl MainContentView {
             Container::new(
                 Text::new("Status messages will come here").size(Spacing::small_font_size()),
             )
+            .center_y()
             .padding([0, Spacing::base_spacing()])
             .style(Container0)
             .height(Length::Units(20))

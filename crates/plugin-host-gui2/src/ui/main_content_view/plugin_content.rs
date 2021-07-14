@@ -4,6 +4,7 @@ use iced::{Align, Button, Column, Command, Container, Element, Length, Row, Text
 pub struct PluginContentView {
     input_file_path_button_state: iced::button::State,
     audio_plugin_path_button_state: iced::button::State,
+    plugin_open_button: iced::button::State,
     input_file: Option<String>,
     audio_plugin_path: Option<String>,
 }
@@ -12,6 +13,7 @@ pub struct PluginContentView {
 pub enum Message {
     OpenInputFilePathPicker,
     OpenAudioPluginFilePathPicker,
+    OpenPluginWindow,
     SetInputFile(String),
     SetAudioPlugin(String),
 }
@@ -21,6 +23,7 @@ impl PluginContentView {
         PluginContentView {
             input_file_path_button_state: iced::button::State::new(),
             audio_plugin_path_button_state: iced::button::State::new(),
+            plugin_open_button: iced::button::State::new(),
             input_file,
             audio_plugin_path,
         }
@@ -52,6 +55,7 @@ impl PluginContentView {
             Message::SetAudioPlugin(path) => {
                 self.audio_plugin_path = Some(path);
             }
+            _ => {}
         }
         Command::none()
     }
@@ -72,6 +76,10 @@ impl PluginContentView {
                 "Select audio plugin",
                 Message::OpenAudioPluginFilePathPicker,
             ),
+            Button::new(&mut self.plugin_open_button, Text::new("Open"))
+                .style(audio_processor_iced_design_system::style::Button)
+                .on_press(Message::OpenPluginWindow)
+                .into(),
         ])
         .spacing(Spacing::base_spacing())
         .padding(Spacing::base_spacing())
