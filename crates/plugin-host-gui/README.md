@@ -1,4 +1,8 @@
-# Plugin Host GUI
+# Plugin Host GUI - Web
+> **DEPRECATED** This was my initial implementation using web technology and `tauri` and is being substituted by
+> `plugin-host-gui2`
+> 
+
 This is a GUI tool for testing VST plugins based on Tauri, Rust and React.js.
 
 ## Installing dependencies

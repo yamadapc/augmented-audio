@@ -3,7 +3,6 @@ use std::sync::{Arc, Mutex};
 use iced::{Application, Clipboard, Command, Container, Element, Length};
 
 use audio_processor_iced_design_system as design_system;
-use plugin_host_lib::audio_io::StartError;
 
 mod ui;
 
@@ -30,7 +29,7 @@ impl Application for App {
     type Message = AppMessage;
     type Flags = ();
 
-    fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
+    fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         let mut plugin_host = plugin_host_lib::TestPluginHost::default();
         let start_result = plugin_host.start().map_err(|err| {
             log::error!("Failed to start host: {:?}", err);
@@ -59,10 +58,12 @@ impl Application for App {
         _clipboard: &mut Clipboard,
     ) -> Command<Self::Message> {
         match message {
-            AppMessage::Content(message) => self.main_content_view.update(message),
-            _ => {}
+            AppMessage::Content(message) => self
+                .main_content_view
+                .update(message)
+                .map(|msg| AppMessage::Content(msg)),
+            _ => Command::none(),
         }
-        Command::none()
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {

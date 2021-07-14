@@ -4992,10 +4992,12 @@ name = "plugin-host-gui2"
 version = "0.1.0"
 dependencies = [
  "audio-processor-iced-design-system",
+ "dirs 3.0.2",
  "iced",
  "log",
  "plugin-host-lib",
  "thiserror",
+ "tinyfiledialogs",
  "wisual-logger 0.1.3",
 ]
 
@@ -6821,6 +6823,16 @@ dependencies = [
  "bytemuck",
  "png 0.16.8",
  "wide",
+]
+
+[[package]]
+name = "tinyfiledialogs"
+version = "3.8.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9545b2375cbcb7a7d70cca5e92fbaa096fd89bebd2fbc54a3da7f37d15a54e6b"
+dependencies = [
+ "cc",
+ "libc",
 ]
 
 [[package]]

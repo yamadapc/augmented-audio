@@ -1,4 +1,4 @@
-use iced::{pick_list, Align, Column, Container, Element, Length, Row, Rule, Text};
+use iced::{pick_list, Align, Column, Command, Container, Element, Length, Row, Rule, Text};
 
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
@@ -49,7 +49,7 @@ impl AudioIOSettingsView {
         }
     }
 
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::AudioDriverChange(selected) => {
                 self.audio_driver_dropdown.selected_option = Some(selected);
@@ -61,6 +61,7 @@ impl AudioIOSettingsView {
                 self.output_device_dropdown.selected_option = Some(selected);
             }
         }
+        Command::none()
     }
 
     pub fn view(&mut self) -> Element<Message> {

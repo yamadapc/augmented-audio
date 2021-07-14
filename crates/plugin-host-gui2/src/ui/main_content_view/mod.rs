@@ -1,28 +1,33 @@
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use iced::{Column, Container, Element, Length, Rule, Text};
+use iced::{Column, Command, Container, Element, Length, Rule, Text};
 
+use audio_processor_iced_design_system::spacing::Spacing;
+use audio_processor_iced_design_system::style::{Container0, Container1};
+use plugin_host_lib::audio_io::audio_io_service::storage::StorageConfig;
 use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult};
 use plugin_host_lib::TestPluginHost;
 
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
-use audio_processor_iced_design_system::spacing::Spacing;
-use audio_processor_iced_design_system::style::{Container0, Container1};
-use plugin_host_lib::audio_io::audio_io_service::storage::StorageConfig;
-use std::env::home_dir;
+use crate::ui::main_content_view::plugin_content::PluginContentView;
+
+mod plugin_content;
 
 pub struct MainContentView {
+    #[allow(dead_code)]
     plugin_host: Arc<Mutex<TestPluginHost>>,
     audio_io_service: AudioIOService,
     audio_io_settings: AudioIOSettingsView,
+    plugin_content: PluginContentView,
     error: Option<Box<dyn std::error::Error>>,
 }
 
 #[derive(Clone, Debug)]
 pub enum Message {
     AudioIOSettings(audio_io_settings::Message),
-    None,
+    PluginContent(plugin_content::Message),
 }
 
 impl MainContentView {
@@ -42,7 +47,7 @@ impl MainContentView {
             output_device_state,
         });
         let home_dir =
-            home_dir().expect("Failed to get user HOME directory. App will fail to work.");
+            dirs::home_dir().expect("Failed to get user HOME directory. App will fail to work.");
         let home_config_dir = home_dir.join(".plugin-host-gui");
         std::fs::create_dir_all(&home_config_dir)
             .expect("Failed to create configuration directory.");
@@ -60,11 +65,12 @@ impl MainContentView {
             plugin_host,
             audio_io_service,
             audio_io_settings,
+            plugin_content: PluginContentView::new(),
             error: None,
         }
     }
 
-    pub fn update(&mut self, message: Message) {
+    pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::AudioIOSettings(msg) => {
                 match &msg {
@@ -90,9 +96,33 @@ impl MainContentView {
                             });
                     }
                 }
-                self.audio_io_settings.update(msg);
+                self.audio_io_settings
+                    .update(msg)
+                    .map(|msg| Message::AudioIOSettings(msg))
             }
-            _ => {}
+            Message::PluginContent(msg) => {
+                match &msg {
+                    plugin_content::Message::SetInputFile(input_file) => {
+                        let result = {
+                            let mut host = self.plugin_host.lock().unwrap();
+                            host.set_audio_file_path(PathBuf::from(input_file))
+                        };
+                        result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
+                    }
+                    plugin_content::Message::SetAudioPlugin(path) => {
+                        let result = {
+                            let mut host = self.plugin_host.lock().unwrap();
+                            let path = Path::new(&path);
+                            host.load_plugin(path)
+                        };
+                        result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
+                    }
+                    _ => {}
+                }
+                self.plugin_content
+                    .update(msg)
+                    .map(|msg| Message::PluginContent(msg))
+            }
         }
     }
 
@@ -105,11 +135,15 @@ impl MainContentView {
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
-            Container::new(Text::new("Content will come here"))
-                .style(Container0)
-                .height(Length::Fill)
-                .width(Length::Fill)
-                .into(),
+            Container::new(
+                self.plugin_content
+                    .view()
+                    .map(|msg| Message::PluginContent(msg)),
+            )
+            .style(Container0)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .into(),
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
