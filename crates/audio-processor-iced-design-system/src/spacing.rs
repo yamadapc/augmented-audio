@@ -20,4 +20,8 @@ impl Spacing {
     pub fn base_control_size() -> u16 {
         35
     }
+
+    pub fn small_control_size() -> u16 {
+        20
+    }
 }

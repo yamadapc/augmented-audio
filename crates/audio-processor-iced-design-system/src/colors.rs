@@ -28,6 +28,18 @@ fn super_light_gray() -> Color {
     rgb(118, 118, 118)
 }
 
+pub fn green() -> Color {
+    rgb(73, 190, 84)
+}
+
+pub fn red() -> Color {
+    rgb(199, 84, 80)
+}
+
+pub fn yellow() -> Color {
+    rgb(240, 187, 104)
+}
+
 pub struct Colors;
 
 impl Colors {

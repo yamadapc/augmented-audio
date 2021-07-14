@@ -261,3 +261,9 @@ impl TestPluginHost {
         self.mono_input = input_channel;
     }
 }
+
+impl Drop for TestPluginHost {
+    fn drop(&mut self) {
+        self.stop();
+    }
+}

@@ -109,7 +109,12 @@ impl AudioThread {
     }
 
     pub fn wait(&self) -> Result<(), AudioThreadError> {
+        if let Some(stream) = &self.input_stream {
+            log::info!("Pausing the input stream");
+            stream.pause()?;
+        }
         if let Some(stream) = &self.output_stream {
+            log::info!("Pausing the output stream");
             stream.pause()?;
         }
         Ok(())

@@ -12,15 +12,21 @@ use plugin_host_lib::TestPluginHost;
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
 use crate::ui::main_content_view::plugin_content::PluginContentView;
+use crate::ui::main_content_view::transport_controls::TransportControlsView;
 
+mod pause;
 mod plugin_content;
+mod stop;
+mod transport_controls;
+mod triangle;
 
 pub struct MainContentView {
     #[allow(dead_code)]
     plugin_host: Arc<Mutex<TestPluginHost>>,
-    audio_io_service: AudioIOService,
+    audio_io_service: Arc<Mutex<AudioIOService>>,
     audio_io_settings: AudioIOSettingsView,
     plugin_content: PluginContentView,
+    transport_controls: TransportControlsView,
     error: Option<Box<dyn std::error::Error>>,
 }
 
@@ -28,6 +34,7 @@ pub struct MainContentView {
 pub enum Message {
     AudioIOSettings(audio_io_settings::Message),
     PluginContent(plugin_content::Message),
+    TransportControls(transport_controls::Message),
     None,
 }
 
@@ -52,7 +59,7 @@ impl MainContentView {
         let home_config_dir = home_dir.join(".plugin-host-gui");
         std::fs::create_dir_all(&home_config_dir)
             .expect("Failed to create configuration directory.");
-        let audio_io_service = AudioIOService::new(
+        let audio_io_service = Arc::new(Mutex::new(AudioIOService::new(
             plugin_host.clone(),
             StorageConfig {
                 audio_io_state_storage_path: home_config_dir
@@ -61,12 +68,13 @@ impl MainContentView {
                     .unwrap()
                     .to_string(),
             },
-        );
+        )));
         MainContentView {
             plugin_host,
             audio_io_service,
             audio_io_settings,
             plugin_content: PluginContentView::new(),
+            transport_controls: TransportControlsView::new(),
             error: None,
         }
     }
@@ -74,32 +82,38 @@ impl MainContentView {
     pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::AudioIOSettings(msg) => {
-                match &msg {
-                    audio_io_settings::Message::AudioDriverChange(driver) => {
-                        self.audio_io_service
-                            .set_host_id(driver.clone())
-                            .unwrap_or_else(|err| {
-                                self.error = Some(Box::new(err));
-                            });
-                    }
-                    audio_io_settings::Message::InputDeviceChange(device_id) => {
-                        self.audio_io_service
-                            .set_input_device_id(device_id.clone())
-                            .unwrap_or_else(|err| {
-                                self.error = Some(Box::new(err));
-                            });
-                    }
-                    audio_io_settings::Message::OutputDeviceChange(device_id) => {
-                        self.audio_io_service
-                            .set_output_device_id(device_id.clone())
-                            .unwrap_or_else(|err| {
-                                self.error = Some(Box::new(err));
-                            });
-                    }
-                }
-                self.audio_io_settings
+                let audio_io_service = self.audio_io_service.clone();
+                let command = match msg.clone() {
+                    audio_io_settings::Message::AudioDriverChange(driver) => Command::perform(
+                        tokio::task::spawn_blocking(move || {
+                            audio_io_service.lock().unwrap().set_host_id(driver)
+                        }),
+                        |_| Message::None,
+                    ),
+                    audio_io_settings::Message::InputDeviceChange(device_id) => Command::perform(
+                        tokio::task::spawn_blocking(move || {
+                            audio_io_service
+                                .lock()
+                                .unwrap()
+                                .set_input_device_id(device_id)
+                        }),
+                        |_| Message::None,
+                    ),
+                    audio_io_settings::Message::OutputDeviceChange(device_id) => Command::perform(
+                        tokio::task::spawn_blocking(move || {
+                            audio_io_service
+                                .lock()
+                                .unwrap()
+                                .set_output_device_id(device_id)
+                        }),
+                        |_| Message::None,
+                    ),
+                };
+                let children = self
+                    .audio_io_settings
                     .update(msg)
-                    .map(|msg| Message::AudioIOSettings(msg))
+                    .map(|msg| Message::AudioIOSettings(msg));
+                Command::batch(vec![command, children])
             }
             Message::PluginContent(msg) => {
                 let command = match &msg {
@@ -121,7 +135,7 @@ impl MainContentView {
                                 host.load_plugin(path)
                             }),
                             // TODO - Send back the error
-                            |result| Message::None,
+                            |_result| Message::None,
                         )
                     }
                     _ => Command::none(),
@@ -131,6 +145,29 @@ impl MainContentView {
                     .update(msg)
                     .map(|msg| Message::PluginContent(msg));
                 Command::batch(vec![command, children])
+            }
+            Message::TransportControls(message) => {
+                let host = self.plugin_host.clone();
+                match message.clone() {
+                    transport_controls::Message::Play => {
+                        let host = host.lock().unwrap();
+                        host.play();
+                    }
+                    transport_controls::Message::Pause => {
+                        let host = host.lock().unwrap();
+                        host.pause();
+                    }
+                    transport_controls::Message::Stop => {
+                        let host = host.lock().unwrap();
+                        host.stop();
+                    }
+                    _ => (),
+                }
+                let children = self
+                    .transport_controls
+                    .update(message)
+                    .map(|msg| Message::TransportControls(msg));
+                Command::batch(vec![children])
             }
             _ => Command::none(),
         }
@@ -157,17 +194,22 @@ impl MainContentView {
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
-            Container::new(Text::new("Transport controls will come here"))
-                .style(Container1)
-                .height(Length::Units(200))
-                .width(Length::Fill)
-                .into(),
+            Container::new(
+                self.transport_controls
+                    .view()
+                    .map(|msg| Message::TransportControls(msg)),
+            )
+            .style(Container1)
+            .height(Length::Units(80))
+            .width(Length::Fill)
+            .into(),
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
             Container::new(
                 Text::new("Status messages will come here").size(Spacing::small_font_size()),
             )
+            .padding([0, Spacing::base_spacing()])
             .style(Container0)
             .height(Length::Units(20))
             .width(Length::Fill)
