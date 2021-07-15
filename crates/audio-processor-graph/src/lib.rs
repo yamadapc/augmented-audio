@@ -6,16 +6,16 @@ use thiserror::Error;
 
 mod connection;
 
-type NodeIndex = daggy::NodeIndex<u32>;
-type ConnectionIndex = daggy::EdgeIndex<u32>;
+pub type NodeIndex = daggy::NodeIndex<u32>;
+pub type ConnectionIndex = daggy::EdgeIndex<u32>;
 
 #[derive(Debug, Error)]
-enum AudioProcessorGraphError {
+pub enum AudioProcessorGraphError {
     #[error("Adding this connection would result in a cycle")]
     WouldCycle,
 }
 
-struct AudioProcessorGraph<BufferType, Processor>
+pub struct AudioProcessorGraph<BufferType, Processor>
 where
     BufferType: OwnedAudioBuffer,
     Processor: ObjectAudioProcessor<BufferType>,

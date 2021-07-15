@@ -95,114 +95,123 @@ impl MainContentView {
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
-            Message::AudioIOSettings(msg) => {
-                let audio_io_service = self.audio_io_service.clone();
-                let command = match msg.clone() {
-                    audio_io_settings::Message::AudioDriverChange(driver) => Command::perform(
-                        tokio::task::spawn_blocking(move || {
-                            audio_io_service.lock().unwrap().set_host_id(driver)
-                        }),
-                        |_| Message::None,
-                    ),
-                    audio_io_settings::Message::InputDeviceChange(device_id) => Command::perform(
-                        tokio::task::spawn_blocking(move || {
-                            audio_io_service
-                                .lock()
-                                .unwrap()
-                                .set_input_device_id(device_id)
-                        }),
-                        |_| Message::None,
-                    ),
-                    audio_io_settings::Message::OutputDeviceChange(device_id) => Command::perform(
-                        tokio::task::spawn_blocking(move || {
-                            audio_io_service
-                                .lock()
-                                .unwrap()
-                                .set_output_device_id(device_id)
-                        }),
-                        |_| Message::None,
-                    ),
-                };
-                let children = self
-                    .audio_io_settings
-                    .update(msg)
-                    .map(|msg| Message::AudioIOSettings(msg));
-                Command::batch(vec![command, children])
-            }
-            Message::PluginContent(msg) => {
-                let command = match &msg {
-                    plugin_content::Message::SetInputFile(input_file) => {
-                        let result = {
-                            let mut host = self.plugin_host.lock().unwrap();
-                            host.set_audio_file_path(PathBuf::from(input_file))
-                        };
-                        result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
-                        self.host_state.audio_input_file_path = Some(input_file.clone());
-                        self.host_options_service
-                            .store(&self.host_state)
-                            .unwrap_or_else(|err| {
-                                log::error!("Failed to store {:?}", err);
-                            });
-                        Command::none()
-                    }
-                    plugin_content::Message::OpenPluginWindow => self.open_plugin_window(),
-                    plugin_content::Message::SetAudioPlugin(path) => {
-                        self.close_plugin_window();
-                        let path = path.clone();
-                        let host_ref = self.plugin_host.clone();
-                        self.host_state.plugin_path = Some(path.clone());
-                        self.host_options_service
-                            .store(&self.host_state)
-                            .unwrap_or_else(|err| {
-                                log::error!("Failed to store {:?}", err);
-                            });
-                        Command::perform(
-                            tokio::task::spawn_blocking(move || {
-                                let mut host = host_ref.lock().unwrap();
-                                let path = Path::new(&path);
-                                host.load_plugin(path)
-                            }),
-                            // TODO - Send back the error
-                            |_result| Message::None,
-                        )
-                    }
-                    _ => Command::none(),
-                };
-                let children = self
-                    .plugin_content
-                    .update(msg)
-                    .map(|msg| Message::PluginContent(msg));
-                Command::batch(vec![command, children])
-            }
-            Message::TransportControls(message) => {
-                let host = self.plugin_host.clone();
-                match message.clone() {
-                    transport_controls::Message::Play => {
-                        let host = host.lock().unwrap();
-                        host.play();
-                    }
-                    transport_controls::Message::Pause => {
-                        let host = host.lock().unwrap();
-                        host.pause();
-                    }
-                    transport_controls::Message::Stop => {
-                        let host = host.lock().unwrap();
-                        host.stop();
-                    }
-                    _ => (),
-                }
-                let children = self
-                    .transport_controls
-                    .update(message)
-                    .map(|msg| Message::TransportControls(msg));
-                Command::batch(vec![children])
-            }
+            Message::AudioIOSettings(msg) => self.update_audio_io_settings(msg),
+            Message::PluginContent(msg) => self.update_plugin_content(msg),
+            Message::TransportControls(message) => self.update_transport_controls(message),
             Message::SetStatus(message) => {
                 self.status_message = message;
                 Command::none()
             }
             _ => Command::none(),
         }
+    }
+
+    fn update_audio_io_settings(&mut self, msg: audio_io_settings::Message) -> Command<Message> {
+        let audio_io_service = self.audio_io_service.clone();
+        let command = match msg.clone() {
+            audio_io_settings::Message::AudioDriverChange(driver) => Command::perform(
+                tokio::task::spawn_blocking(move || {
+                    audio_io_service.lock().unwrap().set_host_id(driver)
+                }),
+                |_| Message::None,
+            ),
+            audio_io_settings::Message::InputDeviceChange(device_id) => Command::perform(
+                tokio::task::spawn_blocking(move || {
+                    audio_io_service
+                        .lock()
+                        .unwrap()
+                        .set_input_device_id(device_id)
+                }),
+                |_| Message::None,
+            ),
+            audio_io_settings::Message::OutputDeviceChange(device_id) => Command::perform(
+                tokio::task::spawn_blocking(move || {
+                    audio_io_service
+                        .lock()
+                        .unwrap()
+                        .set_output_device_id(device_id)
+                }),
+                |_| Message::None,
+            ),
+        };
+        let children = self
+            .audio_io_settings
+            .update(msg)
+            .map(|msg| Message::AudioIOSettings(msg));
+        Command::batch(vec![command, children])
+    }
+
+    fn update_plugin_content(&mut self, msg: plugin_content::Message) -> Command<Message> {
+        let command = match &msg {
+            plugin_content::Message::SetInputFile(input_file) => {
+                let result = {
+                    let mut host = self.plugin_host.lock().unwrap();
+                    host.set_audio_file_path(PathBuf::from(input_file))
+                };
+                result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
+                self.host_state.audio_input_file_path = Some(input_file.clone());
+                self.host_options_service
+                    .store(&self.host_state)
+                    .unwrap_or_else(|err| {
+                        log::error!("Failed to store {:?}", err);
+                    });
+                Command::none()
+            }
+            plugin_content::Message::OpenPluginWindow => self.open_plugin_window(),
+            plugin_content::Message::SetAudioPlugin(path) => {
+                self.close_plugin_window();
+                let path = path.clone();
+                let host_ref = self.plugin_host.clone();
+                self.host_state.plugin_path = Some(path.clone());
+                self.host_options_service
+                    .store(&self.host_state)
+                    .unwrap_or_else(|err| {
+                        log::error!("Failed to store {:?}", err);
+                    });
+                Command::perform(
+                    tokio::task::spawn_blocking(move || {
+                        let mut host = host_ref.lock().unwrap();
+                        let path = Path::new(&path);
+                        host.load_plugin(path)
+                    }),
+                    // TODO - Send back the error
+                    |_result| Message::None,
+                )
+            }
+            _ => Command::none(),
+        };
+        let children = self
+            .plugin_content
+            .update(msg)
+            .map(|msg| Message::PluginContent(msg));
+        Command::batch(vec![command, children])
+    }
+
+    fn update_transport_controls(
+        &mut self,
+        message: transport_controls::Message,
+    ) -> Command<Message> {
+        let host = self.plugin_host.clone();
+        match message.clone() {
+            transport_controls::Message::Play => {
+                let host = host.lock().unwrap();
+                host.play();
+            }
+            transport_controls::Message::Pause => {
+                let host = host.lock().unwrap();
+                host.pause();
+            }
+            transport_controls::Message::Stop => {
+                let host = host.lock().unwrap();
+                host.stop();
+            }
+            _ => (),
+        }
+        let children = self
+            .transport_controls
+            .update(message)
+            .map(|msg| Message::TransportControls(msg));
+        Command::batch(vec![children])
     }
 
     fn close_plugin_window(&mut self) {
