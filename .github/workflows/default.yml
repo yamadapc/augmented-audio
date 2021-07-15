@@ -102,6 +102,7 @@ jobs:
     - name: Non-OSX test
       run: |
         cargo test --no-default-features --verbose --workspace \
+            --features story \
             --exclude plugin-host-gui \
             --exclude darwin-webkit \
             --exclude webview-holder \
