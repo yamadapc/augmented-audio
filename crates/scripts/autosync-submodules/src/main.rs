@@ -62,6 +62,9 @@ fn validate_submodule(submodule: &SubmoduleDeclaration) {
         .clone()
         .unwrap_or_else(|| String::from("master"));
     let _ = cmd_lib::run_cmd!(
+        cd ${submodule_path}; git push
+    );
+    let _ = cmd_lib::run_cmd!(
         cd ${submodule_path}; git remote add upstream ${upstream_url}
     );
     let _ = cmd_lib::run_cmd!(
