@@ -9,6 +9,7 @@ env:
 
 jobs:
   build-javascript:
+    name: Build legacy JavaScript apps
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -44,6 +45,7 @@ jobs:
           path: ./crates/plugin-host-gui/build
 
   build-rust:
+    name: Build rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -119,6 +121,11 @@ jobs:
       with:
         name: ${{ runner.os }}-plugin-host
         path: ./target/release/plugin-host
+    - name: Upload plugin-host-gui2 binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ runner.os }}-plugin-host-gui2
+        path: ./target/release/plugin-host-gui2
     - name: Upload tremolo-plugin dylib
       uses: actions/upload-artifact@v2
       with:
@@ -126,6 +133,7 @@ jobs:
         path: ./target/release/libtas_v2.dylib
 
   build-plugin-host-gui:
+    name: Build legacy Rust/Web tauri apps ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     needs:
       - build-javascript
