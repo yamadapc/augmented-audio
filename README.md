@@ -9,15 +9,17 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 
 - - -
 
-## Goals of this repository
+## Goals
 
 * **Goal 1:** Learn & have fun
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
+- - -
+
 <!--ts-->
 * [Augmented Audio Libraries](#augmented-audio-libraries)
-   * [Goals of this repository](#goals-of-this-repository)
+   * [Goals](#goals)
 * [audio-processor-traits](#audio-processor-traits)
    * [audio-processor-utility](#audio-processor-utility)
    * [atomic-queue](#atomic-queue)
@@ -69,7 +71,7 @@ In this repository I'll push some experiments trying to use Rust for audio progr
    * [Monorepo &amp; Submodules](#monorepo--submodules)
    * [JavaScript bits](#javascript-bits)
 
-<!-- Added by: yamadapc, at: Thu Jul 15 18:55:50 AEST 2021 -->
+<!-- Added by: yamadapc, at: Thu Jul 15 18:59:43 AEST 2021 -->
 
 <!--te-->
 
@@ -80,11 +82,22 @@ An abstraction for `AudioProcessor` and `AudioBuffer` implementations.
 See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-traits) and
 its related (work-in-progress) [audio-processor-graph](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-graph).
 
+```rust
+pub trait AudioProcessor: Send {
+    type SampleType;
+    fn prepare(&mut self, _settings: AudioProcessorSettings) {}
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        data: &mut BufferType,
+    );
+}
+```
+
 ## audio-processor-utility
-Panning, gain, mono/stereo processors.
+[Panning, gain, mono/stereo processors.](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-utility)
 
 ## atomic-queue
-A multi-producer/multi-consumer bounded lock-free queue.
+[A multi-producer/multi-consumer bounded lock-free queue.](https://github.com/yamadapc/augmented-audio/tree/master/crates/atomic-queue)
 
 ## Standalone processor
 Implementing the trait enables easy stand-alone hosting of an audio app: [`audio-processor-standalone`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone).
@@ -93,11 +106,11 @@ Implementing the trait enables easy stand-alone hosting of an audio app: [`audio
 Implementing the trait enables easy stand-alone MIDI handling: [`audio-processor-standalone-midi`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone-midi).
 
 ## `dsp-filters`
-A port of the RJB filters in Vinnie Falco's C++ DSPFilters library. Contains resonant low-pass, high-pass, band-pass,
-shelf etc. & implements the `AudioProcessor` trait.
+[A port of the RJB filters in Vinnie Falco's C++ DSPFilters library. Contains resonant low-pass, high-pass, band-pass,
+shelf etc. & implements the `AudioProcessor` trait.](https://github.com/yamadapc/augmented-audio/tree/master/crates/dsp-filters)
 
 ## oscillator
-Basic oscillator implementation.
+[Basic oscillator implementation.](https://github.com/yamadapc/augmented-audio/tree/master/crates/oscillator)
 
 ## audio-garbage-collector & audio-garbage-collector-v2
 These are wrappers on `basedrop` & my own WIP implementation of smart pointers that do reference counting but are
