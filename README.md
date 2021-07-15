@@ -15,15 +15,6 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
-## Note on Web GUI
-After playing around with `iced`, I've decided to use it instead of Web based GUI.
-
-This is due to inefficient rendering of audio visualisation in Web. I've also considered druid which is also
-not suitable for basic visuals & will bet on `iced` as the GUI library.
-
-The Web bits of this repository will be slowly removed. I'm looking at `iced_baseview`, but might modify it to fit this
-repository's needs.
-
 ## audio-processor-traits
 See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-traits).
 
@@ -58,28 +49,66 @@ plugin-host run --output ./output.wav --plugin ./target/release/myplugin.dylib -
 ```
 
 ### GUI
+#### Iced GUI
+<p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/iced-screenshot.png" /></p>
+
 There's also a GUI for this (see more later on)
-<p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/host-screenshot.png" /></p>
 
 Features supported in the GUI:
 
-* Loading the VST
+* Loading the VST - Including the GUI, but with caveats
 * Selecting audio IO options (input/output/driver)
 * Selecting an input file
 * Transport controls
-* Volume metering
 
 Missing functionality:
 
 * File watcher (works in CLI, but not in host GUI see #15)
-* Volume control (needs to be wired-up see #16)
+* Volume metering/control (needs to be wired-up see #16)
 
 ### Future things to improve
 
 * Implement limiter
 * Show some basic output visualizations for analysis
 
-## Architecture of web based VST GUI
+### UI elements
+Styles on top of `iced_audio` & `iced`, see `audio-processor-iced-design-system`.
+
+#### `pick_list`
+<p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/picklist.png" /></p>
+
+Iced `pick_list` / dropdown menu with a label.
+
+#### `menu_list`
+<p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/menu_list.png" /></p>
+
+#### `button`
+<p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/button.png" /></p>
+
+#### `knobs`
+<p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/knobs.png" /></p>
+
+#### `sliders`
+<p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/sliders.png" /></p>
+
+#### `transport`
+<p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/transport.png" /></p>
+
+## Web GUI
+<p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/host-screenshot.png" /></p>
+
+Initially I've implemented `plugin-host-gui` using `tauri`, but after playing around with `iced`, I've decided to use it
+instead of Web based GUI. This comes with its own short-comings, but gets around inefficient rendering of audio
+visualisation in the Web version.
+
+I've also considered druid but found it unsuitable for basic visuals & will bet on `iced` as the GUI library.
+
+The Web bits of this repository will be slowly removed. I'm looking at `iced_baseview`, but might modify it to fit this
+repository's needs.
+
+I do believe however it's a viable avenue depending on the product.
+
+### Architecture of web based VST GUI
 <p align="center">
   <img height="400" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/web-gui-diagram.png" />
 </p>

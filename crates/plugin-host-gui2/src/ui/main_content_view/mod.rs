@@ -147,6 +147,7 @@ impl MainContentView {
                     }
                     plugin_content::Message::OpenPluginWindow => self.open_plugin_window(),
                     plugin_content::Message::SetAudioPlugin(path) => {
+                        self.close_plugin_window();
                         let path = path.clone();
                         let host_ref = self.plugin_host.clone();
                         self.host_state.plugin_path = Some(path.clone());
@@ -201,6 +202,12 @@ impl MainContentView {
                 Command::none()
             }
             _ => Command::none(),
+        }
+    }
+
+    fn close_plugin_window(&mut self) {
+        if let Some(mut plugin_window_handle) = self.plugin_window_handle.take() {
+            plugin_window_handle.editor.close();
         }
     }
 
