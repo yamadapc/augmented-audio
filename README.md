@@ -212,7 +212,7 @@ Iced `pick_list` / dropdown menu with a label.
 <p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/sliders.png" /></p>
 
 #### `transport`
-<p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/transport.png" /></p>
+<p align="center"><img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/transport.png" /></p>
 
 # Web GUI
 <p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/host-screenshot.png" /></p>
