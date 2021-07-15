@@ -7,6 +7,12 @@ pub struct Pause {
     hover: Color,
 }
 
+impl Default for Pause {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Pause {
     pub fn new() -> Self {
         Pause {

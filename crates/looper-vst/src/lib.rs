@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use vst::api::Events;
 use vst::editor::Editor;
-use vst::plugin::{Category, HostCallback, Info, Plugin};
+use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 use vst::plugin_main;
 
 use audio_garbage_collector::GarbageCollector;
@@ -75,6 +75,10 @@ impl Plugin for LoopiPlugin {
     fn process_events(&mut self, events: &Events) {
         self.processor
             .process_midi_events(midi_slice_from_events(events));
+    }
+
+    fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
+        self.parameters.clone()
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {

@@ -202,6 +202,12 @@ impl<Sample: Float> Filter<Sample> {
     }
 }
 
+impl<Sample: Float> Default for Filter<Sample> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<Sample> {
     pub fn setup(&mut self, sample_rate: Sample, cutoff_frequency: Sample, q: Sample) {
         self.setup_low_pass(sample_rate, cutoff_frequency, q);

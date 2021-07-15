@@ -34,7 +34,7 @@ impl<InnerState, MenuOption: Clone> State<InnerState, MenuOption> {
         &mut self,
         renderer: impl Fn(&mut InnerState) -> Element<Message<MenuOption>>,
     ) -> Element<Message<MenuOption>> {
-        let selected_child = self.selected_child.clone();
+        let selected_child = self.selected_child;
         let children_elements = self
             .children
             .iter_mut()

@@ -142,12 +142,12 @@ fn get_audio_options(run_options: &RunOptions) -> (AudioProcessorSettings, Audio
     audio_thread_options.output_device_id = run_options
         .output_device_id()
         .clone()
-        .map(|s| AudioDeviceId::Id(s))
+        .map(AudioDeviceId::Id)
         .unwrap_or(audio_thread_options.output_device_id);
     audio_thread_options.host_id = run_options
         .audio_host_id()
         .clone()
-        .map(|s| AudioHostId::Id(s))
+        .map(AudioHostId::Id)
         .unwrap_or(audio_thread_options.host_id);
 
     if run_options.use_default_input_device() {

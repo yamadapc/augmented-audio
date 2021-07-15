@@ -7,6 +7,15 @@ where
     buffer: BufferType,
 }
 
+impl<BufferType> Default for Connection<BufferType>
+where
+    BufferType: OwnedAudioBuffer,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<BufferType> Connection<BufferType>
 where
     BufferType: OwnedAudioBuffer,

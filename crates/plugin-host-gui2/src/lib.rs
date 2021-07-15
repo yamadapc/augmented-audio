@@ -60,17 +60,14 @@ impl Application for App {
             AppMessage::Content(message) => self
                 .main_content_view
                 .update(message)
-                .map(|msg| AppMessage::Content(msg)),
+                .map(AppMessage::Content),
             _ => Command::none(),
         }
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
         let content = match &self.start_result {
-            Ok(_) => self
-                .main_content_view
-                .view()
-                .map(|msg| AppMessage::Content(msg)),
+            Ok(_) => self.main_content_view.view().map(AppMessage::Content),
             Err(err) => ui::start_error_view::StartErrorView::view(err).map(|_| AppMessage::None),
         };
         Container::new(content)

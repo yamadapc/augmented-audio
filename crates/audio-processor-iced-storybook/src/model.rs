@@ -46,7 +46,7 @@ where
     TargetMessage: TryInto<InnerMessage>,
 {
     fn update(&mut self, message: TargetMessage) -> Command<TargetMessage> {
-        if let Some(inner_message) = message.try_into().ok() {
+        if let Ok(inner_message) = message.try_into() {
             self.inner.update(inner_message).map(|inner| inner.into())
         } else {
             Command::none()
@@ -54,6 +54,6 @@ where
     }
 
     fn view(&mut self) -> Element<TargetMessage> {
-        self.inner.view().map(|msg| TargetMessage::from(msg))
+        self.inner.view().map(TargetMessage::from)
     }
 }

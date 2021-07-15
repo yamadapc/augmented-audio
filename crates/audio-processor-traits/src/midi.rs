@@ -35,12 +35,11 @@ pub mod vst {
 
         fn bytes(&self) -> Option<&[u8]> {
             unsafe {
-                match (**self).event_type {
-                    EventType::Midi => {
-                        let midi_event = *self as *const MidiEvent;
-                        Some(&(*midi_event).midi_data)
-                    }
-                    _ => None,
+                if matches!((**self).event_type, EventType::Midi) {
+                    let midi_event = *self as *const MidiEvent;
+                    Some(&(*midi_event).midi_data)
+                } else {
+                    None
                 }
             }
         }
@@ -48,12 +47,7 @@ pub mod vst {
 
     impl MidiMessageLike for *const Event {
         fn is_midi(&self) -> bool {
-            unsafe {
-                match (**self).event_type {
-                    EventType::Midi => true,
-                    _ => false,
-                }
-            }
+            unsafe { matches!((**self).event_type, EventType::Midi) }
         }
 
         fn bytes(&self) -> Option<&[u8]> {

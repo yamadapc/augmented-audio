@@ -201,6 +201,7 @@ pub mod hover_container {
         type Style: Default;
 
         /// Draws a [`Container`].
+        #[allow(clippy::too_many_arguments)]
         fn draw<Message>(
             &mut self,
             defaults: &Self::Defaults,

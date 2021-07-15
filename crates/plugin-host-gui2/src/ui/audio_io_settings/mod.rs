@@ -77,13 +77,13 @@ impl AudioIOSettingsView {
             Column::with_children(vec![
                 self.audio_driver_dropdown
                     .view()
-                    .map(|s| Message::AudioDriverChange(s)),
+                    .map(Message::AudioDriverChange),
                 self.input_device_dropdown
                     .view()
-                    .map(|s| Message::InputDeviceChange(s)),
+                    .map(Message::InputDeviceChange),
                 self.output_device_dropdown
                     .view()
-                    .map(|s| Message::OutputDeviceChange(s)),
+                    .map(Message::OutputDeviceChange),
             ])
             .spacing(Spacing::base_spacing()),
         )

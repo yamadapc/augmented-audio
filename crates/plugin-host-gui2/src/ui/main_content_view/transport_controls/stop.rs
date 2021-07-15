@@ -7,6 +7,12 @@ pub struct Stop {
     hover: Color,
 }
 
+impl Default for Stop {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Stop {
     pub fn new() -> Self {
         Stop {

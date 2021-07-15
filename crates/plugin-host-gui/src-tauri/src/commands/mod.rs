@@ -101,7 +101,7 @@ pub fn set_audio_driver_command(state: tauri::State<AppStateRef>, host_id: Strin
   log::info!("Setting audio driver {}", host_id);
   let mut state = state.lock().unwrap();
   let audio_io_service = state.audio_io_service();
-  audio_io_service.set_host_id(host_id);
+  let _ = audio_io_service.set_host_id(host_id);
 }
 
 #[tauri::command]
@@ -109,7 +109,7 @@ pub fn set_input_device_command(state: tauri::State<AppStateRef>, input_device_i
   log::info!("Setting input device {}", input_device_id);
   let mut state = state.lock().unwrap();
   let audio_io_service = state.audio_io_service();
-  audio_io_service.set_input_device_id(input_device_id);
+  let _ = audio_io_service.set_input_device_id(input_device_id);
 }
 
 #[tauri::command]

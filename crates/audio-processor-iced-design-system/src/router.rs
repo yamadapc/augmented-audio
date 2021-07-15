@@ -59,7 +59,7 @@ impl<RouteState: Updatable> RouterState<RouteState> {
             return renderer(route);
         }
 
-        return empty();
+        empty()
     }
 }
 

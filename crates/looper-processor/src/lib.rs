@@ -125,7 +125,7 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
             }
         } else {
             self.looper_cursor += 1;
-            self.looper_cursor = self.looper_cursor % self.looped_clip.num_samples();
+            self.looper_cursor %= self.looped_clip.num_samples();
         }
     }
 

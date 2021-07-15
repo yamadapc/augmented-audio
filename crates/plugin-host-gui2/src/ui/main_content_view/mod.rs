@@ -137,7 +137,7 @@ impl MainContentView {
         let children = self
             .audio_io_settings
             .update(msg)
-            .map(|msg| Message::AudioIOSettings(msg));
+            .map(Message::AudioIOSettings);
         Command::batch(vec![command, children])
     }
 
@@ -180,10 +180,7 @@ impl MainContentView {
             }
             _ => Command::none(),
         };
-        let children = self
-            .plugin_content
-            .update(msg)
-            .map(|msg| Message::PluginContent(msg));
+        let children = self.plugin_content.update(msg).map(Message::PluginContent);
         Command::batch(vec![command, children])
     }
 
@@ -192,7 +189,7 @@ impl MainContentView {
         message: transport_controls::Message,
     ) -> Command<Message> {
         let host = self.plugin_host.clone();
-        match message.clone() {
+        match message {
             transport_controls::Message::Play => {
                 let host = host.lock().unwrap();
                 host.play();
@@ -210,7 +207,7 @@ impl MainContentView {
         let children = self
             .transport_controls
             .update(message)
-            .map(|msg| Message::TransportControls(msg));
+            .map(Message::TransportControls);
         Command::batch(vec![children])
     }
 
@@ -245,29 +242,22 @@ impl MainContentView {
 
     pub fn view(&mut self) -> Element<Message> {
         Column::with_children(vec![
-            self.audio_io_settings
-                .view()
-                .map(|msg| Message::AudioIOSettings(msg))
-                .into(),
+            self.audio_io_settings.view().map(Message::AudioIOSettings),
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
-            Container::new(
-                self.plugin_content
-                    .view()
-                    .map(|msg| Message::PluginContent(msg)),
-            )
-            .style(Container0)
-            .height(Length::Fill)
-            .width(Length::Fill)
-            .into(),
+            Container::new(self.plugin_content.view().map(Message::PluginContent))
+                .style(Container0)
+                .height(Length::Fill)
+                .width(Length::Fill)
+                .into(),
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
             Container::new(
                 self.transport_controls
                     .view()
-                    .map(|msg| Message::TransportControls(msg)),
+                    .map(Message::TransportControls),
             )
             .style(Container1)
             .height(Length::Units(80))

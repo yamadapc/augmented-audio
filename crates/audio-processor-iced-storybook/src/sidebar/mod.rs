@@ -49,8 +49,7 @@ impl SidebarView {
         let container = self
             .menu_list
             .view(|text| Text::new(&*text).into())
-            .map(|msg| Message::MenuList(msg))
-            .into();
+            .map(Message::MenuList);
 
         let rule = Rule::vertical(1).style(style::Rule).into();
         return Row::with_children(vec![container, rule]).into();

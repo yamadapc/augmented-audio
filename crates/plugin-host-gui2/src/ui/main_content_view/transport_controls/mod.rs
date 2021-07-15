@@ -27,6 +27,12 @@ pub enum Message {
     None,
 }
 
+impl Default for TransportControlsView {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TransportControlsView {
     pub fn new() -> Self {
         TransportControlsView {

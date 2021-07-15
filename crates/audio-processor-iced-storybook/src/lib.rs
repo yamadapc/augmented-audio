@@ -112,16 +112,11 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
                     }
                 }
 
-                self.sidebar
-                    .update(message)
-                    .map(|message| Message::Sidebar(message))
+                self.sidebar.update(message).map(Message::Sidebar)
             }
             Message::Child(child_message) => {
                 if let Some(story) = find_story(&self.selected_story, &mut self.options) {
-                    story
-                        .renderer
-                        .update(child_message)
-                        .map(|inner| Message::Child(inner))
+                    story.renderer.update(child_message).map(Message::Child)
                 } else {
                     Command::none()
                 }
@@ -131,21 +126,21 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
 
     fn view(&mut self) -> Element<'_, Self::Message> {
         let story = find_story(&self.selected_story, &mut self.options)
-            .map(|story| story.renderer.view().map(|msg| Message::Child(msg)));
-        let story_view = Container::new(Row::with_children(vec![story.unwrap_or(
+            .map(|story| story.renderer.view().map(Message::Child));
+        let story_view = Container::new(Row::with_children(vec![story.unwrap_or_else(|| {
             Container::new(Text::new("Select a story"))
                 .width(Length::Fill)
                 .height(Length::Fill)
                 .center_y()
                 .center_x()
-                .into(),
-        )]))
+                .into()
+        })]))
         .width(Length::Fill)
         .height(Length::Fill)
         .into();
 
         let content = Row::with_children(vec![
-            Container::new(self.sidebar.view().map(|message| Message::Sidebar(message)))
+            Container::new(self.sidebar.view().map(Message::Sidebar))
                 .width(Length::Units(200))
                 .height(Length::Fill)
                 .into(),

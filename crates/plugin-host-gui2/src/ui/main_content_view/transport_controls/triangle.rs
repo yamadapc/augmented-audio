@@ -7,6 +7,12 @@ pub struct Triangle {
     hover: Color,
 }
 
+impl Default for Triangle {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Triangle {
     pub fn new() -> Self {
         Triangle {
