@@ -28,4 +28,5 @@ objc = "^0.2.7"
 
 [features]
 default = ["story"]
+glow = ["iced/glow", "iced/glow_canvas"]
 story = []
