@@ -13,8 +13,6 @@ serde_json = "^1.0.64"
 vst = { git = "https://github.com/rustaudio/vst-rs", rev = "a398697b0214129720af2480e98f1abf7beecfce" }
 baseview = { path = "../baseview" }
 raw-window-handle = "0.3.3"
-cocoa = "^0.24.0"
-objc = "^0.2.7"
 derive_more = "^0.99.16"
 
 tokio = "^1.8.1"
@@ -23,6 +21,10 @@ audio-processor-iced-design-system = { path = "../audio-processor-iced-design-sy
 iced = { version = "^0.3.0", path = "../iced" }
 plugin-host-lib = { path = "../plugin-host-lib" }
 wisual-logger = { path = "../wisual-logger" }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cocoa = "^0.24.0"
+objc = "^0.2.7"
 
 [features]
 default = ["story"]

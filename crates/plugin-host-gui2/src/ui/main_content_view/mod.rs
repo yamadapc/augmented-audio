@@ -15,12 +15,12 @@ use plugin_host_lib::TestPluginHost;
 use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
-use crate::ui::main_content_view::macos::{open_plugin_window, PluginWindowHandle};
 use crate::ui::main_content_view::plugin_content::PluginContentView;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
+use crate::ui::plugin_editor_window::{open_plugin_window, PluginWindowHandle};
 
-pub mod macos;
 pub mod plugin_content;
+pub mod status_bar;
 pub mod transport_controls;
 
 // TODO - Break-up this god struct
@@ -87,7 +87,7 @@ impl MainContentView {
                 transport_controls: TransportControlsView::new(),
                 error: None,
                 plugin_window_handle: None,
-                status_message: String::from("Loading..."),
+                status_message: String::from("Starting audio thread"),
             },
             command,
         )
@@ -322,6 +322,7 @@ struct HostContext {
     host_state: HostState,
 }
 
+/// Load plugin-host state from JSON files when it starts. Do file decoding on a background thread.
 fn reload_plugin_host_state(
     plugin_host: Arc<Mutex<TestPluginHost>>,
 ) -> (HostContext, Command<Message>) {

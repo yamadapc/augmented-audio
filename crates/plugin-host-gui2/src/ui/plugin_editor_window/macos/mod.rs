@@ -1,16 +1,14 @@
+use std::ffi::c_void;
+
 use cocoa::appkit::NSBackingStoreType::NSBackingStoreBuffered;
 use cocoa::appkit::{NSWindow, NSWindowStyleMask};
 use cocoa::base::{nil, NO};
 use cocoa::foundation::{NSAutoreleasePool, NSPoint, NSRect, NSSize, NSString};
 use raw_window_handle::macos::MacOSHandle;
 use raw_window_handle::RawWindowHandle;
-use std::ffi::c_void;
 use vst::editor::Editor;
 
-pub struct PluginWindowHandle {
-    pub editor: Box<dyn Editor>,
-    pub raw_window_handle: RawWindowHandle,
-}
+use crate::ui::plugin_editor_window::PluginWindowHandle;
 
 pub fn open_plugin_window(mut editor: Box<dyn Editor>, size: (i32, i32)) -> PluginWindowHandle {
     let _pool = unsafe { NSAutoreleasePool::new(nil) };

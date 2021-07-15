@@ -47,6 +47,22 @@ impl Colors {
         white()
     }
 
+    pub fn success() -> Color {
+        green()
+    }
+
+    pub fn error() -> Color {
+        red()
+    }
+
+    pub fn warning() -> Color {
+        yellow()
+    }
+
+    pub fn idle() -> Color {
+        Self::background_level0()
+    }
+
     pub fn background_level0() -> Color {
         black()
     }

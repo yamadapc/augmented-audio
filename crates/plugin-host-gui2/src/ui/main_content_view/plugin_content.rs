@@ -61,7 +61,7 @@ impl PluginContentView {
     }
 
     pub fn view(&mut self) -> Element<Message> {
-        Column::with_children(vec![
+        let mut children = vec![
             Self::file_picker_with_label(
                 "Input file",
                 &mut self.input_file_path_button_state,
@@ -76,14 +76,35 @@ impl PluginContentView {
                 "Select audio plugin",
                 Message::OpenAudioPluginFilePathPicker,
             ),
-            Button::new(&mut self.plugin_open_button, Text::new("Open"))
-                .style(audio_processor_iced_design_system::style::Button)
-                .on_press(Message::OpenPluginWindow)
+        ];
+
+        #[cfg(target_os = "macos")]
+        {
+            children.push(
+                Container::new(
+                    Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
+                        .style(audio_processor_iced_design_system::style::Button)
+                        .on_press(Message::OpenPluginWindow),
+                )
+                .center_x()
+                .width(Length::Fill)
                 .into(),
-        ])
-        .spacing(Spacing::base_spacing())
-        .padding(Spacing::base_spacing())
-        .into()
+            );
+        }
+        #[cfg(not(target_os = "macos"))]
+        {
+            children.push(
+                Container::new(Text::new("Opening the editor is not supported in this OS"))
+                    .center_x()
+                    .width(Length::Fill)
+                    .into(),
+            );
+        }
+
+        Column::with_children(children)
+            .spacing(Spacing::base_spacing())
+            .padding(Spacing::base_spacing())
+            .into()
     }
 
     fn file_picker_with_label<'a>(
