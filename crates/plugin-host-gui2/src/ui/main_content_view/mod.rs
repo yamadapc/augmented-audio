@@ -2,20 +2,22 @@ use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use iced::{Column, Command, Container, Element, Length, Rule, Text};
+use iced::{Column, Command, Container, Element, Length, Rule};
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
-use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
 use plugin_host_lib::audio_io::audio_io_service::storage::StorageConfig;
-use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult};
+use plugin_host_lib::audio_io::{
+    AudioHost, AudioHostPluginLoadError, AudioIOService, AudioIOServiceResult,
+};
 use plugin_host_lib::TestPluginHost;
 
 use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
 use crate::ui::main_content_view::plugin_content::PluginContentView;
+use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::plugin_editor_window::{open_plugin_window, PluginWindowHandle};
 
@@ -35,7 +37,7 @@ pub struct MainContentView {
     error: Option<Box<dyn std::error::Error>>,
     plugin_window_handle: Option<PluginWindowHandle>,
     host_state: HostState,
-    status_message: String,
+    status_message: StatusBar,
 }
 
 #[derive(Clone, Debug)]
@@ -43,7 +45,7 @@ pub enum Message {
     AudioIOSettings(audio_io_settings::Message),
     PluginContent(plugin_content::Message),
     TransportControls(transport_controls::Message),
-    SetStatus(String),
+    SetStatus(StatusBar),
     None,
 }
 
@@ -87,7 +89,7 @@ impl MainContentView {
                 transport_controls: TransportControlsView::new(),
                 error: None,
                 plugin_window_handle: None,
-                status_message: String::from("Starting audio thread"),
+                status_message: StatusBar::new("Starting audio thread", status_bar::State::Warning),
             },
             command,
         )
@@ -161,21 +163,36 @@ impl MainContentView {
             plugin_content::Message::SetAudioPlugin(path) => {
                 self.close_plugin_window();
                 let path = path.clone();
-                let host_ref = self.plugin_host.clone();
+
+                self.status_message =
+                    StatusBar::new("Updating persisted state", status_bar::State::Warning);
                 self.host_state.plugin_path = Some(path.clone());
                 self.host_options_service
                     .store(&self.host_state)
                     .unwrap_or_else(|err| {
                         log::error!("Failed to store {:?}", err);
                     });
+
+                self.status_message =
+                    StatusBar::new("Reloading plugin", status_bar::State::Warning);
+
+                let host_ref = self.plugin_host.clone();
                 Command::perform(
                     tokio::task::spawn_blocking(move || {
                         let mut host = host_ref.lock().unwrap();
                         let path = Path::new(&path);
                         host.load_plugin(path)
                     }),
-                    // TODO - Send back the error
-                    |_result| Message::None,
+                    |result| match result {
+                        Err(err) => Message::SetStatus(StatusBar::new(
+                            format!("Error loading plugin: {}", err),
+                            status_bar::State::Error,
+                        )),
+                        Ok(_) => Message::SetStatus(StatusBar::new(
+                            "Loaded plugin",
+                            status_bar::State::Idle,
+                        )),
+                    },
                 )
             }
             _ => Command::none(),
@@ -266,9 +283,8 @@ impl MainContentView {
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
-            Container::new(Text::new(&self.status_message).size(Spacing::small_font_size()))
+            Container::new(self.status_message.clone().view().map(|_| Message::None))
                 .center_y()
-                .padding([0, Spacing::base_spacing()])
                 .style(Container0)
                 .height(Length::Units(20))
                 .width(Length::Fill)
@@ -354,27 +370,39 @@ fn reload_plugin_host_state(
     let command = {
         let host_state = host_state.clone();
         Command::perform(
-            tokio::task::spawn_blocking(move || {
+            tokio::task::spawn_blocking(move || -> Result<(), AudioHostPluginLoadError> {
                 log::info!("Reloading audio plugin & file in background thread");
                 if let Some(path) = &host_state.audio_input_file_path {
                     plugin_host
                         .lock()
                         .unwrap()
                         .set_audio_file_path(path.into())
-                        .unwrap_or_else(|err| {
+                        .map_err(|err| {
                             log::error!("Failed to set audio input {:?}", err);
-                        });
+                            err
+                        })?;
                 }
 
                 if let Some(path) = &host_state.plugin_path {
                     let mut host = plugin_host.lock().unwrap();
-                    host.load_plugin(Path::new(path)).unwrap_or_else(|err| {
+                    host.load_plugin(Path::new(path)).map_err(|err| {
                         log::error!("Failed to set audio input {:?}", err);
-                    });
+                        err
+                    })?;
                     host.pause();
                 }
+                Ok(())
             }),
-            |_| Message::SetStatus(String::from("Ready for playback")),
+            |result| match result {
+                Err(err) => Message::SetStatus(StatusBar::new(
+                    format!("Failed to load plugin: {}", err),
+                    status_bar::State::Error,
+                )),
+                Ok(_) => Message::SetStatus(StatusBar::new(
+                    "Ready for playback",
+                    status_bar::State::Idle,
+                )),
+            },
         )
     };
 

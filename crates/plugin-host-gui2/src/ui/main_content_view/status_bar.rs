@@ -4,7 +4,7 @@ use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
 
 #[derive(Clone, Debug)]
-enum State {
+pub enum State {
     Success,
     Warning,
     Error,
@@ -12,7 +12,7 @@ enum State {
 }
 
 #[derive(Clone, Debug)]
-struct StatusBar {
+pub struct StatusBar {
     message: String,
     state: State,
 }
