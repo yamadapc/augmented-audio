@@ -15,17 +15,123 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
-## audio-processor-traits
-See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-traits).
+<!--ts-->
+* [Augmented Audio Libraries](#augmented-audio-libraries)
+   * [Goals of this repository](#goals-of-this-repository)
+* [audio-processor-traits](#audio-processor-traits)
+   * [audio-processor-utility](#audio-processor-utility)
+   * [atomic-queue](#atomic-queue)
+   * [Standalone processor](#standalone-processor)
+   * [Standalone MIDI handling](#standalone-midi-handling)
+   * [dsp-filters](#dsp-filters)
+   * [oscillator](#oscillator)
+   * [audio-garbage-collector &amp; audio-garbage-collector-v2](#audio-garbage-collector--audio-garbage-collector-v2)
+   * [audio-parameter-store](#audio-parameter-store)
+   * [ADSR](#adsr)
+   * [Tremolo &amp; Tremolo VST](#tremolo--tremolo-vst)
+   * [Looper &amp; Looper VST](#looper--looper-vst)
+   * [Synth](#synth)
+* [plugin-host - A CLI for hosting VSTs during development](#plugin-host---a-cli-for-hosting-vsts-during-development)
+   * [Usage](#usage)
+   * [Plugin Host GUI](#plugin-host-gui)
+      * [Iced GUI](#iced-gui)
+      * [Future things to improve](#future-things-to-improve)
+      * [UI elements](#ui-elements)
+         * [pick_list](#pick_list)
+         * [menu_list](#menu_list)
+         * [button](#button)
+         * [knobs](#knobs)
+         * [sliders](#sliders)
+         * [transport](#transport)
+* [Web GUI](#web-gui)
+   * [Architecture of web based VST GUI](#architecture-of-web-based-vst-gui)
+   * [Web-based Tremolo VST, written in React.js &amp; Rust](#web-based-tremolo-vst-written-in-reactjs--rust)
+      * [Audio thread](#audio-thread)
+      * [GUI thread](#gui-thread)
+         * [Webview transport layer](#webview-transport-layer)
+         * [Tokio](#tokio)
+      * [JavaScript &amp; message passing overhead](#javascript--message-passing-overhead)
+   * [Notes on tauri based plugin-host-gui](#notes-on-tauri-based-plugin-host-gui)
+   * [Bundling](#bundling)
+   * [crates/plugin-host-cli](#cratesplugin-host-cli)
+   * [crates/tremolo-plugin](#cratestremolo-plugin)
+      * [Building the tremolo-plugin](#building-the-tremolo-plugin)
+   * [crates/webview-transport](#crateswebview-transport)
+   * [crates/webview-holder](#crateswebview-holder)
+   * [Rust libraries and tooling](#rust-libraries-and-tooling)
+      * [Overall usage of external libraries](#overall-usage-of-external-libraries)
+      * [Workspace &amp; Building](#workspace--building)
+         * [Building on linux](#building-on-linux)
+      * [Linting](#linting)
+      * [Benchmarking](#benchmarking)
+         * [Profiling on macOS](#profiling-on-macos)
+         * [Generating flamegraphs from benchmarks](#generating-flamegraphs-from-benchmarks)
+   * [Monorepo &amp; Submodules](#monorepo--submodules)
+   * [JavaScript bits](#javascript-bits)
 
-## plugin-host - A CLI for hosting VSTs
-`plugin-host` is a CLI tool for testing VST plug-ins. It's a simple VST host which can open a plug-in and play an audio
-file through it in a loop. Additionally, it supports watching the VST plug-in for changes & reloading it any time it
-changes.
+<!-- Added by: yamadapc, at: Thu Jul 15 18:55:50 AEST 2021 -->
 
-It also supports offline rendering into a file, with some basic diagnostics being printed.
+<!--te-->
 
-### Usage
+# audio-processor-traits
+
+An abstraction for `AudioProcessor` and `AudioBuffer` implementations.
+
+See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-traits) and
+its related (work-in-progress) [audio-processor-graph](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-graph).
+
+## audio-processor-utility
+Panning, gain, mono/stereo processors.
+
+## atomic-queue
+A multi-producer/multi-consumer bounded lock-free queue.
+
+## Standalone processor
+Implementing the trait enables easy stand-alone hosting of an audio app: [`audio-processor-standalone`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone).
+
+## Standalone MIDI handling
+Implementing the trait enables easy stand-alone MIDI handling: [`audio-processor-standalone-midi`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone-midi).
+
+## `dsp-filters`
+A port of the RJB filters in Vinnie Falco's C++ DSPFilters library. Contains resonant low-pass, high-pass, band-pass,
+shelf etc. & implements the `AudioProcessor` trait.
+
+## oscillator
+Basic oscillator implementation.
+
+## audio-garbage-collector & audio-garbage-collector-v2
+These are wrappers on `basedrop` & my own WIP implementation of smart pointers that do reference counting but are
+deallocated on a background thread so they're safe to use the audio-thread.
+
+## audio-parameter-store
+Implementation of a "parameter store" for audio plugins. Holds audio plugin parameters in a rw locked hashmap and uses
+atomics on parameter values.
+
+This needs to be reviewed as the locks could be avoided all together & it might not be real-time safe to acquire the
+lock.
+
+## ADSR
+Basic ADSR envelope implementation.
+
+## Tremolo & Tremolo VST
+Basic tremolo with web GUI
+
+## Looper & Looper VST
+WIP looper implementation.
+
+## Synth
+Basic synth implementation to show-case `audio-processor-traits` & other crates.
+
+# plugin-host - A CLI for hosting VSTs during development
+[plugin-host-cli](https://github.com/yamadapc/augmented-audio/tree/master/crates/plugin-host-cli) is a CLI tool for
+testing VST plug-ins.
+
+It's a simple VST host which can open a plug-in and play an audio file through it in a loop. Additionally, it supports
+watching the VST plug-in for changes & reloading it any time it changes.
+
+It also supports offline rendering into a file and printing some basic diagnostics.
+
+## Usage
 To run a plug-in looping over a file, on your computer's default audio output, run:
 ```shell
 plugin-host run --plugin ./target/release/myplugin.dylib --input ./my-input-file.mp3
@@ -48,11 +154,12 @@ To run off-line rendering to a file, use the `--output` flag:
 plugin-host run --output ./output.wav --plugin ./target/release/myplugin.dylib --input ./my-input-file.mp3
 ```
 
-### GUI
-#### Iced GUI
+## Plugin Host GUI
+### Iced GUI
 <p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/iced-screenshot.png" /></p>
 
-There's also a GUI for this (see more later on)
+[plugin-host-gui2](https://github.com/yamadapc/augmented-audio/tree/master/crates/plugin-host-gui2) is a GUI for the
+testing host.
 
 Features supported in the GUI:
 
@@ -72,7 +179,7 @@ Missing functionality:
 * Show some basic output visualizations for analysis
 
 ### UI elements
-Styles on top of `iced_audio` & `iced`, see `audio-processor-iced-design-system`.
+Styles on top of `iced_audio` & `iced`, see [`audio-processor-iced-design-system`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-iced-design-system).
 
 #### `pick_list`
 <p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/picklist.png" /></p>
@@ -94,7 +201,7 @@ Iced `pick_list` / dropdown menu with a label.
 #### `transport`
 <p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/transport.png" /></p>
 
-## Web GUI
+# Web GUI
 <p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/host-screenshot.png" /></p>
 
 Initially I've implemented `plugin-host-gui` using `tauri`, but after playing around with `iced`, I've decided to use it
@@ -108,7 +215,7 @@ repository's needs.
 
 I do believe however it's a viable avenue depending on the product.
 
-### Architecture of web based VST GUI
+## Architecture of web based VST GUI
 <p align="center">
   <img height="400" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/web-gui-diagram.png" />
 </p>
@@ -128,7 +235,7 @@ However, there are also reasons why it could be good:
     
 So I'm just trying it out & seeing where it can go.
 
-### Main components
+## Web-based Tremolo VST, written in React.js & Rust
 The web based Tremolo VST in `crates/tremolo-plugin` contains two main components:
 
 * React.js JavaScript front-end
@@ -211,9 +318,6 @@ See:
 * https://github.com/yamadapc/augmented-audio/tree/master/crates/bundler
 * https://github.com/yamadapc/augmented-audio/tree/master/crates/macos-bundle-resources
 
-## Standalone MIDI handling
-See `audio-processor-standalone-midi`.
-
 ## crates/plugin-host-cli
 ```
 plugin-host run \
@@ -242,10 +346,6 @@ cargo run --package ruas-bundler -- \
 
 This will build the VST & its front-end and generate a working `target/vsts/tas.vst` bundle.
 
-## crates/audio-parameter-store
-Implementation of a "parameter store" for audio plugins. Holds audio plugin parameters in a rw locked hashmap and uses
-atomics on parameter values.
-
 ## crates/webview-transport
 Abstraction for messaging with JavaScript webview. Provides a websockets & webkit message handler based transports.
 
@@ -256,12 +356,6 @@ Front-end has a corresponding package in `packages/webview-transport`.
 
 ## crates/webview-holder
 A wrapper on top of webkit webview for MacOS.
-
-## crates/oscillator
-Basic oscillator implementation.
-
-## crates/example-midi-host
-Example MIDI host which will log MIDI messages.
 
 ## Rust libraries and tooling
 
