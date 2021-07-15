@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
-#[derive(Serialize, Default, Deserialize, Debug, PartialEq, Eq)]
+#[derive(Serialize, Clone, Default, Deserialize, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct HostState {
     pub plugin_path: Option<String>,

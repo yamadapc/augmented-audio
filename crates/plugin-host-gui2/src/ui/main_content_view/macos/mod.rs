@@ -8,8 +8,8 @@ use std::ffi::c_void;
 use vst::editor::Editor;
 
 pub struct PluginWindowHandle {
-    editor: Box<dyn Editor>,
-    raw_window_handle: RawWindowHandle,
+    pub editor: Box<dyn Editor>,
+    pub raw_window_handle: RawWindowHandle,
 }
 
 pub fn open_plugin_window(mut editor: Box<dyn Editor>, size: (i32, i32)) -> PluginWindowHandle {

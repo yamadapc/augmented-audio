@@ -19,12 +19,9 @@ use crate::ui::main_content_view::macos::{open_plugin_window, PluginWindowHandle
 use crate::ui::main_content_view::plugin_content::PluginContentView;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 
-mod macos;
-mod pause;
-mod plugin_content;
-mod stop;
-mod transport_controls;
-mod triangle;
+pub mod macos;
+pub mod plugin_content;
+pub mod transport_controls;
 
 // TODO - Break-up this god struct
 pub struct MainContentView {
@@ -36,8 +33,9 @@ pub struct MainContentView {
     plugin_content: PluginContentView,
     transport_controls: TransportControlsView,
     error: Option<Box<dyn std::error::Error>>,
-    editor: Option<PluginWindowHandle>,
+    plugin_window_handle: Option<PluginWindowHandle>,
     host_state: HostState,
+    status_message: String,
 }
 
 #[derive(Clone, Debug)]
@@ -45,11 +43,21 @@ pub enum Message {
     AudioIOSettings(audio_io_settings::Message),
     PluginContent(plugin_content::Message),
     TransportControls(transport_controls::Message),
+    SetStatus(String),
     None,
 }
 
 impl MainContentView {
-    pub fn new(plugin_host: Arc<Mutex<TestPluginHost>>) -> Self {
+    pub fn new(plugin_host: Arc<Mutex<TestPluginHost>>) -> (Self, Command<Message>) {
+        let (
+            HostContext {
+                audio_io_service,
+                host_options_service,
+                host_state,
+            },
+            command,
+        ) = reload_plugin_host_state(plugin_host.clone());
+
         let audio_driver_state = MainContentView::build_audio_driver_dropdown_state();
         let input_device_state = MainContentView::build_input_device_dropdown_state(Some(
             AudioIOService::default_host(),
@@ -64,64 +72,25 @@ impl MainContentView {
             input_device_state,
             output_device_state,
         });
-        let home_dir =
-            dirs::home_dir().expect("Failed to get user HOME directory. App will fail to work.");
-        let home_config_dir = home_dir.join(".plugin-host-gui");
-        std::fs::create_dir_all(&home_config_dir)
-            .expect("Failed to create configuration directory.");
-        let audio_io_service = Arc::new(Mutex::new(AudioIOService::new(
-            plugin_host.clone(),
-            StorageConfig {
-                audio_io_state_storage_path: home_config_dir
-                    .join("audio-io-state.json")
-                    .to_str()
-                    .unwrap()
-                    .to_string(),
-            },
-        )));
-        let host_options_service = HostOptionsService::new(
-            home_config_dir
-                .join("audio-thread-config.json")
-                .to_str()
-                .unwrap()
-                .to_string(),
-        );
-        let host_state = host_options_service.fetch().unwrap_or_default();
         let plugin_content = PluginContentView::new(
             host_state.audio_input_file_path.clone(),
             host_state.plugin_path.clone(),
         );
-
-        if let Some(path) = &host_state.audio_input_file_path {
-            plugin_host
-                .lock()
-                .unwrap()
-                .set_audio_file_path(path.into())
-                .unwrap_or_else(|err| {
-                    log::error!("Failed to set audio input {:?}", err);
-                });
-        }
-        if let Some(path) = &host_state.plugin_path {
-            plugin_host
-                .lock()
-                .unwrap()
-                .load_plugin(Path::new(path))
-                .unwrap_or_else(|err| {
-                    log::error!("Failed to set audio input {:?}", err);
-                });
-        }
-
-        MainContentView {
-            plugin_host,
-            audio_io_service,
-            audio_io_settings,
-            host_options_service,
-            host_state,
-            plugin_content,
-            transport_controls: TransportControlsView::new(),
-            error: None,
-            editor: None,
-        }
+        (
+            MainContentView {
+                plugin_host,
+                audio_io_service,
+                audio_io_settings,
+                host_options_service,
+                host_state,
+                plugin_content,
+                transport_controls: TransportControlsView::new(),
+                error: None,
+                plugin_window_handle: None,
+                status_message: String::from("Loading..."),
+            },
+            command,
+        )
     }
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
@@ -176,26 +145,7 @@ impl MainContentView {
                             });
                         Command::none()
                     }
-                    plugin_content::Message::OpenPluginWindow => {
-                        log::info!("Opening plugin editor");
-                        let mut host = self.plugin_host.lock().unwrap();
-                        if let Some(instance) = host.plugin_instance() {
-                            log::info!("Found plugin instance");
-                            let instance_ptr =
-                                instance.deref() as *const PluginInstance as *mut PluginInstance;
-                            if let Some(editor) =
-                                unsafe { instance_ptr.as_mut() }.unwrap().get_editor()
-                            {
-                                log::info!("Found plugin editor");
-                                let size = editor.size();
-                                let window = open_plugin_window(editor, size);
-                                log::info!("Opened editor window");
-                                self.editor = Some(window);
-                            }
-                        }
-
-                        Command::none()
-                    }
+                    plugin_content::Message::OpenPluginWindow => self.open_plugin_window(),
                     plugin_content::Message::SetAudioPlugin(path) => {
                         let path = path.clone();
                         let host_ref = self.plugin_host.clone();
@@ -246,8 +196,35 @@ impl MainContentView {
                     .map(|msg| Message::TransportControls(msg));
                 Command::batch(vec![children])
             }
+            Message::SetStatus(message) => {
+                self.status_message = message;
+                Command::none()
+            }
             _ => Command::none(),
         }
+    }
+
+    fn open_plugin_window(&mut self) -> Command<Message> {
+        if let Some(mut plugin_window_handle) = self.plugin_window_handle.take() {
+            plugin_window_handle.editor.close();
+            let size = plugin_window_handle.editor.size();
+            self.plugin_window_handle = Some(open_plugin_window(plugin_window_handle.editor, size));
+        } else {
+            log::info!("Opening plugin editor");
+            let mut host = self.plugin_host.lock().unwrap();
+            if let Some(instance) = host.plugin_instance() {
+                log::info!("Found plugin instance");
+                let instance_ptr = instance.deref() as *const PluginInstance as *mut PluginInstance;
+                if let Some(editor) = unsafe { instance_ptr.as_mut() }.unwrap().get_editor() {
+                    log::info!("Found plugin editor");
+                    let size = editor.size();
+                    let window = open_plugin_window(editor, size);
+                    log::info!("Opened editor window");
+                    self.plugin_window_handle = Some(window);
+                }
+            }
+        }
+        Command::none()
     }
 
     pub fn view(&mut self) -> Element<Message> {
@@ -283,15 +260,13 @@ impl MainContentView {
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
-            Container::new(
-                Text::new("Status messages will come here").size(Spacing::small_font_size()),
-            )
-            .center_y()
-            .padding([0, Spacing::base_spacing()])
-            .style(Container0)
-            .height(Length::Units(20))
-            .width(Length::Fill)
-            .into(),
+            Container::new(Text::new(&self.status_message).size(Spacing::small_font_size()))
+                .center_y()
+                .padding([0, Spacing::base_spacing()])
+                .style(Container0)
+                .height(Length::Units(20))
+                .width(Length::Fill)
+                .into(),
         ])
         .into()
     }
@@ -333,4 +308,75 @@ impl MainContentView {
             options: output_devices,
         })
     }
+}
+
+struct HostContext {
+    audio_io_service: Arc<Mutex<AudioIOService>>,
+    host_options_service: HostOptionsService,
+    host_state: HostState,
+}
+
+fn reload_plugin_host_state(
+    plugin_host: Arc<Mutex<TestPluginHost>>,
+) -> (HostContext, Command<Message>) {
+    log::info!("Reloading plugin-host settings from disk");
+    let home_dir =
+        dirs::home_dir().expect("Failed to get user HOME directory. App will fail to work.");
+    let home_config_dir = home_dir.join(".plugin-host-gui");
+    std::fs::create_dir_all(&home_config_dir).expect("Failed to create configuration directory.");
+    let audio_io_state_storage_path = home_config_dir
+        .join("audio-io-state.json")
+        .to_str()
+        .unwrap()
+        .to_string();
+    let storage_config = StorageConfig {
+        audio_io_state_storage_path,
+    };
+    let audio_io_service = Arc::new(Mutex::new(AudioIOService::new(
+        plugin_host.clone(),
+        storage_config,
+    )));
+    let host_options_storage_path = home_config_dir
+        .join("audio-thread-config.json")
+        .to_str()
+        .unwrap()
+        .to_string();
+    let host_options_service = HostOptionsService::new(host_options_storage_path);
+    let host_state = host_options_service.fetch().unwrap_or_default();
+
+    let command = {
+        let host_state = host_state.clone();
+        Command::perform(
+            tokio::task::spawn_blocking(move || {
+                log::info!("Reloading audio plugin & file in background thread");
+                if let Some(path) = &host_state.audio_input_file_path {
+                    plugin_host
+                        .lock()
+                        .unwrap()
+                        .set_audio_file_path(path.into())
+                        .unwrap_or_else(|err| {
+                            log::error!("Failed to set audio input {:?}", err);
+                        });
+                }
+
+                if let Some(path) = &host_state.plugin_path {
+                    let mut host = plugin_host.lock().unwrap();
+                    host.load_plugin(Path::new(path)).unwrap_or_else(|err| {
+                        log::error!("Failed to set audio input {:?}", err);
+                    });
+                    host.pause();
+                }
+            }),
+            |_| Message::SetStatus(String::from("Ready for playback")),
+        )
+    };
+
+    (
+        HostContext {
+            audio_io_service,
+            host_options_service,
+            host_state,
+        },
+        command,
+    )
 }

@@ -455,6 +455,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-iced-storybook"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-iced-design-system",
+ "iced",
+ "log",
+ "wisual-logger",
+]
+
+[[package]]
 name = "audio-processor-standalone"
 version = "0.1.0"
 dependencies = [
@@ -4981,8 +4991,10 @@ name = "plugin-host-gui2"
 version = "0.1.0"
 dependencies = [
  "audio-processor-iced-design-system",
+ "audio-processor-iced-storybook",
  "baseview",
  "cocoa 0.24.0",
+ "derive_more",
  "dirs 3.0.2",
  "iced",
  "log",

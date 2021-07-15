@@ -156,3 +156,56 @@ impl DropdownWithLabel {
         .into()
     }
 }
+
+#[cfg(feature = "story")]
+pub mod story {
+    use audio_processor_iced_storybook::StoryView;
+
+    use super::*;
+
+    pub fn default() -> Story {
+        Story::default()
+    }
+
+    pub struct Story {
+        audio_io_settings: AudioIOSettingsView,
+    }
+
+    impl Default for Story {
+        fn default() -> Self {
+            let model = ViewModel {
+                audio_driver_state: DropdownState {
+                    selected_option: None,
+                    options: vec![String::from("Driver 1"), String::from("Driver 2")],
+                },
+                input_device_state: DropdownState {
+                    selected_option: None,
+                    options: vec![
+                        String::from("Input device 1"),
+                        String::from("Input device 2"),
+                    ],
+                },
+                output_device_state: DropdownState {
+                    selected_option: None,
+                    options: vec![
+                        String::from("Output device 1"),
+                        String::from("Output device 2"),
+                    ],
+                },
+            };
+            Self {
+                audio_io_settings: AudioIOSettingsView::new(model),
+            }
+        }
+    }
+
+    impl StoryView<Message> for Story {
+        fn update(&mut self, message: Message) -> Command<Message> {
+            self.audio_io_settings.update(message)
+        }
+
+        fn view(&mut self) -> Element<Message> {
+            self.audio_io_settings.view()
+        }
+    }
+}

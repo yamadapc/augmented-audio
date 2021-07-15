@@ -1,10 +1,14 @@
 use iced::{Button, Command, Container, Element, Length, Row};
 
-use crate::ui::main_content_view::pause::Pause;
-use crate::ui::main_content_view::stop::Stop;
-use crate::ui::main_content_view::triangle::Triangle;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::{colors, style};
+use pause::Pause;
+use stop::Stop;
+use triangle::Triangle;
+
+pub mod pause;
+pub mod stop;
+pub mod triangle;
 
 pub struct TransportControlsView {
     pause: Pause,
@@ -91,5 +95,32 @@ impl TransportControlsView {
         .width(Length::Fill)
         .height(Length::Fill)
         .into()
+    }
+}
+
+#[cfg(feature = "story")]
+pub mod story {
+    use audio_processor_iced_storybook::StoryView;
+
+    use super::*;
+
+    pub fn default() -> Story {
+        Story {
+            transport: TransportControlsView::new(),
+        }
+    }
+
+    pub struct Story {
+        transport: TransportControlsView,
+    }
+
+    impl StoryView<Message> for Story {
+        fn update(&mut self, message: Message) -> Command<Message> {
+            self.transport.update(message)
+        }
+
+        fn view(&mut self) -> Element<Message> {
+            self.transport.view()
+        }
     }
 }

@@ -15,9 +15,15 @@ baseview = { path = "../baseview" }
 raw-window-handle = "0.3.3"
 cocoa = "^0.24.0"
 objc = "^0.2.7"
+derive_more = "^0.99.16"
 
 tokio = "^1.8.1"
+audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
 iced = { version = "^0.3.0", path = "../iced" }
 plugin-host-lib = { path = "../plugin-host-lib" }
 wisual-logger = { path = "../wisual-logger" }
+
+[features]
+default = ["story"]
+story = []
