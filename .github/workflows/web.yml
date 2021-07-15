@@ -1,0 +1,84 @@
+name: Web-based builds
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-javascript:
+    name: Build legacy JavaScript apps
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: restore lerna
+        uses: actions/cache@v2
+        with:
+          path: |
+            node_modules
+            */*/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install lerna
+        run: npm install
+      - name: Bootstrap packages
+        run: ./node_modules/.bin/lerna bootstrap --hoist
+      - name: Run tests
+        run: npm run test
+      - name: Run builds
+        run: npm run build
+      - name: Upload tremolo-plugin-frontend build
+        uses: actions/upload-artifact@v2
+        with:
+          name: tremolo-plugin-frontend
+          path: ./packages/tremolo-plugin-frontend/build
+      - name: Upload plugin-host-gui build
+        uses: actions/upload-artifact@v2
+        with:
+          name: plugin-host-gui-frontend
+          path: ./crates/plugin-host-gui/build
+
+  build-plugin-host-gui:
+    name: Build legacy Rust/Web tauri apps ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    needs:
+      - build-javascript
+      - build-rust
+    strategy:
+      matrix:
+        os: [macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Download plugin-host-gui front-end build
+        uses: actions/download-artifact@v2
+        with:
+          name: plugin-host-gui-frontend
+          path: ./crates/plugin-host-gui/build
+      - name: Test
+        run: cargo test --features story --no-default-features --verbose --workspace --package plugin-host-gui
+      - name: Clippy
+        run: cargo clippy --verbose --workspace --package plugin-host-gui
+      - name: Build release
+        run: cargo build --release --verbose --workspace --package plugin-host-gui
+      - name: Upload plugin-host-gui binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ runner.os }}-plugin-host-gui
+          path: ./target/release/plugin-host-gui
