@@ -69,6 +69,7 @@ pub struct AudioThreadOptions {
     pub output_device_id: AudioDeviceId,
     pub input_device_id: Option<AudioDeviceId>,
     pub buffer_size: BufferSize,
+    pub num_channels: usize,
 }
 
 impl Default for AudioThreadOptions {
@@ -78,6 +79,7 @@ impl Default for AudioThreadOptions {
             Default::default(),
             None,
             Default::default(),
+            2,
         )
     }
 }
@@ -88,12 +90,14 @@ impl AudioThreadOptions {
         output_device_id: AudioDeviceId,
         input_device_id: Option<AudioDeviceId>,
         buffer_size: BufferSize,
+        num_channels: usize,
     ) -> Self {
         AudioThreadOptions {
             host_id,
             output_device_id,
             input_device_id,
             buffer_size,
+            num_channels,
         }
     }
 }

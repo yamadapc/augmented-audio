@@ -69,6 +69,7 @@ impl AudioThread {
         output_stream.play()?;
         self.output_stream = Some(output_stream);
         self.input_stream = maybe_input_stream;
+        log::info!("Audio thread started");
         Ok(())
     }
 

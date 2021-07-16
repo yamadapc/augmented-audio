@@ -74,6 +74,7 @@ pub fn get_output_config(
     let sample_format = output_config.sample_format();
     let mut output_config: cpal::StreamConfig = output_config.into();
     output_config.buffer_size = options.buffer_size.clone().into();
+    output_config.channels = options.num_channels as u16;
 
     if sample_format != cpal::SampleFormat::F32 {
         return Err(AudioThreadError::UnsupportedSampleFormat);
@@ -104,6 +105,7 @@ pub fn get_input_config(
     let sample_format = input_config.sample_format();
     let mut input_config: cpal::StreamConfig = input_config.into();
     input_config.buffer_size = options.buffer_size.clone().into();
+    input_config.channels = options.num_channels as u16;
 
     if sample_format != cpal::SampleFormat::F32 {
         return Err(AudioThreadError::UnsupportedSampleFormat);
