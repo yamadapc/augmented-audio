@@ -26,7 +26,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
       - name: Install dependencies
         run: ./scripts/install-ubuntu-dependencies.sh
         if: matrix.os == 'ubuntu-latest'
@@ -59,7 +59,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-lint-cache-${{ hashFiles('**/Cargo.lock') }}
       - name: Install dependencies
         run: ./scripts/install-ubuntu-dependencies.sh
         if: matrix.os == 'ubuntu-latest'
@@ -87,7 +87,7 @@ jobs:
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
           target/
-        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
     - name: Install dependencies
       run: ./scripts/install-ubuntu-dependencies.sh
       if: matrix.os == 'ubuntu-latest'
