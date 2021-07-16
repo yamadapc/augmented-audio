@@ -230,7 +230,7 @@ pub mod hover_container {
     pub mod style {
         use iced::{Background, Color};
 
-        #[derive(Debug, Clone, Copy)]
+        #[derive(Debug, Clone)]
         pub struct Style {
             pub text_color: Option<Color>,
             pub background: Option<Background>,
@@ -349,6 +349,7 @@ pub mod hover_container {
                     bounds,
                     background: style
                         .background
+                        .clone()
                         .unwrap_or(Background::Color(Color::TRANSPARENT)),
                     border_radius: style.border_radius,
                     border_width: style.border_width,
