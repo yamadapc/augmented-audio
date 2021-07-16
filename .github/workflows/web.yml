@@ -71,11 +71,11 @@ jobs:
           name: plugin-host-gui-frontend
           path: ./crates/plugin-host-gui/build
       - name: Test
-        run: cargo test --features story --no-default-features --verbose --workspace --package plugin-host-gui
+        run: cargo test --features story --no-default-features --verbose --package plugin-host-gui
       - name: Clippy
         run: cargo clippy --verbose --workspace --package plugin-host-gui
       - name: Build release
-        run: cargo build --release --verbose --workspace --package plugin-host-gui
+        run: cargo build --release --verbose --package plugin-host-gui
       - name: Upload plugin-host-gui binary
         uses: actions/upload-artifact@v2
         with:
