@@ -15,9 +15,6 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
     steps:
-      - name: Install dependencies
-        run: ./scripts/install-ubuntu-dependencies.sh
-        if: matrix.os == 'ubuntu-latest'
       - uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -30,6 +27,9 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        run: ./scripts/install-ubuntu-dependencies.sh
+        if: matrix.os == 'ubuntu-latest'
       - name: Run tests
         run: cargo test --verbose --workspace --exclude plugin-host-gui
         if: matrix.os == 'macos-latest'
@@ -48,9 +48,6 @@ jobs:
       matrix:
         os: [macos-latest]
     steps:
-      - name: Install dependencies
-        run: ./scripts/install-ubuntu-dependencies.sh
-        if: matrix.os == 'ubuntu-latest'
       - uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -63,6 +60,9 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install dependencies
+        run: ./scripts/install-ubuntu-dependencies.sh
+        if: matrix.os == 'ubuntu-latest'
       - name: Run clippy
         run: cargo clippy --verbose --workspace --exclude plugin-host-gui
         if: matrix.os == 'macos-latest'
@@ -76,9 +76,6 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest]
     steps:
-    - name: Install dependencies
-      run: ./scripts/install-ubuntu-dependencies.sh
-      if: matrix.os == 'ubuntu-latest'
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -91,6 +88,9 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+    - name: Install dependencies
+      run: ./scripts/install-ubuntu-dependencies.sh
+      if: matrix.os == 'ubuntu-latest'
     - name: Build release
       run: cargo build --release --verbose --workspace --exclude plugin-host-gui
       if: matrix.os == 'macos-latest'
