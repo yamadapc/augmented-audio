@@ -23,7 +23,7 @@ pub fn open_plugin_window(mut editor: Box<dyn Editor>, size: (i32, i32)) -> Plug
     let ns_window = unsafe {
         let ns_window = NSWindow::alloc(nil).initWithContentRect_styleMask_backing_defer_(
             rect,
-            NSWindowStyleMask::NSTitledWindowMask | NSWindowStyleMask::NSClosableWindowMask,
+            NSWindowStyleMask::NSTitledWindowMask,
             NSBackingStoreBuffered,
             NO,
         );

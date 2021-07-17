@@ -85,14 +85,10 @@ impl PluginContentView {
         #[cfg(target_os = "macos")]
         {
             buttons_row.push(
-                Container::new(
-                    Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
-                        .style(audio_processor_iced_design_system::style::Button)
-                        .on_press(Message::OpenPluginWindow),
-                )
-                .center_x()
-                .width(Length::Fill)
-                .into(),
+                Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
+                    .style(audio_processor_iced_design_system::style::Button)
+                    .on_press(Message::OpenPluginWindow)
+                    .into(),
             );
         }
         #[cfg(not(target_os = "macos"))]
@@ -111,7 +107,12 @@ impl PluginContentView {
                 .style(audio_processor_iced_design_system::style::Button)
                 .into(),
         );
-        children.push(Row::with_children(buttons_row).width(Length::Fill).into());
+        children.push(
+            Container::new(Row::with_children(buttons_row).spacing(Spacing::base_spacing()))
+                .center_x()
+                .width(Length::Fill)
+                .into(),
+        );
 
         Column::with_children(children)
             .spacing(Spacing::base_spacing())
