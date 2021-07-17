@@ -8,7 +8,7 @@ fn white() -> Color {
     rgb(255, 255, 255)
 }
 
-fn black() -> Color {
+pub fn black() -> Color {
     rgb(19, 19, 19)
 }
 

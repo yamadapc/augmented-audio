@@ -63,7 +63,10 @@ pub fn main<StoryMessage: 'static + Debug + Clone + Send>(
 ) -> iced::Result {
     wisual_logger::init_from_env();
     log::info!("Initializing iced-storybook");
-    StorybookApp::run(iced::Settings::with_flags(options))
+    StorybookApp::run(iced::Settings {
+        antialiasing: true,
+        ..iced::Settings::with_flags(options)
+    })
 }
 
 #[derive(Debug, Clone)]
