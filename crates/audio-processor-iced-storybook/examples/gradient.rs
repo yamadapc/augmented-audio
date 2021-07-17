@@ -18,6 +18,20 @@ fn main() -> iced::Result {
                 .width(Length::Fill)
                 .into()
         })
+        .story_fn("Top to bottom small", || {
+            Container::new(
+                Container::new(Text::new("Top to bottom"))
+                    .style(TopToBottom)
+                    .center_x()
+                    .center_y()
+                    .padding(50),
+            )
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .center_x()
+            .center_y()
+            .into()
+        })
         .story_fn("Left to right", || {
             Container::new(Text::new("Left to right"))
                 .style(LeftToRight)
@@ -27,6 +41,20 @@ fn main() -> iced::Result {
                 .height(Length::Fill)
                 .width(Length::Fill)
                 .into()
+        })
+        .story_fn("Left to right small", || {
+            Container::new(
+                Container::new(Text::new("Left to right"))
+                    .style(LeftToRight)
+                    .center_x()
+                    .center_y()
+                    .padding(50),
+            )
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .center_x()
+            .center_y()
+            .into()
         })
         .story_fn("Gradient", || {
             Row::with_children(vec![
@@ -126,6 +154,46 @@ fn main() -> iced::Result {
                 .width(Length::Fill)
                 .into()])
             .height(Length::Fill)
+            .width(Length::Fill)
+            .into()
+        })
+        .story_fn("Gradient & Border", || {
+            Container::new(
+                Container::new(Text::new("Gradient & border"))
+                    .style(StyleHolder(Style {
+                        text_color: None,
+                        background: Some(Background::Gradient(Gradient::LinearGradient(
+                            LinearGradient {
+                                direction: Direction::Bottom,
+                                stops: vec![
+                                    GradientStop {
+                                        percentage: 0.0,
+                                        color: Color::from_rgb(63. / 255., 64. / 255., 73. / 255.),
+                                    },
+                                    GradientStop {
+                                        percentage: 1.0,
+                                        color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.)
+                                            .darken(0.9),
+                                    },
+                                ],
+                            },
+                        ))),
+                        border_radius: 5.0,
+                        border_width: 0.0,
+                        border_color: Color::new(1.0, 0.0, 0.0, 1.),
+                    }))
+                    .padding(50),
+            )
+            .height(Length::Fill)
+            .center_y()
+            .style(StyleHolder(Style {
+                text_color: None,
+                background: Some(Background::Color(Color::new(1., 1., 1., 1.))),
+                border_radius: 0.0,
+                border_width: 0.0,
+                border_color: Default::default(),
+            }))
+            .center_x()
             .width(Length::Fill)
             .into()
         })
