@@ -5,6 +5,7 @@ pub struct PluginContentView {
     input_file_path_button_state: iced::button::State,
     audio_plugin_path_button_state: iced::button::State,
     plugin_open_button: iced::button::State,
+    reload_plugin_button: iced::button::State,
     input_file: Option<String>,
     audio_plugin_path: Option<String>,
 }
@@ -13,6 +14,7 @@ pub struct PluginContentView {
 pub enum Message {
     OpenInputFilePathPicker,
     OpenAudioPluginFilePathPicker,
+    ReloadPlugin,
     OpenPluginWindow,
     SetInputFile(String),
     SetAudioPlugin(String),
@@ -24,6 +26,7 @@ impl PluginContentView {
             input_file_path_button_state: iced::button::State::new(),
             audio_plugin_path_button_state: iced::button::State::new(),
             plugin_open_button: iced::button::State::new(),
+            reload_plugin_button: iced::button::State::new(),
             input_file,
             audio_plugin_path,
         }
@@ -78,9 +81,10 @@ impl PluginContentView {
             ),
         ];
 
+        let mut buttons_row = vec![];
         #[cfg(target_os = "macos")]
         {
-            children.push(
+            buttons_row.push(
                 Container::new(
                     Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
                         .style(audio_processor_iced_design_system::style::Button)
@@ -100,6 +104,14 @@ impl PluginContentView {
                     .into(),
             );
         }
+
+        buttons_row.push(
+            Button::new(&mut self.reload_plugin_button, Text::new("Reload plugin"))
+                .on_press(Message::ReloadPlugin)
+                .style(audio_processor_iced_design_system::style::Button)
+                .into(),
+        );
+        children.push(Row::with_children(buttons_row).width(Length::Fill).into());
 
         Column::with_children(children)
             .spacing(Spacing::base_spacing())

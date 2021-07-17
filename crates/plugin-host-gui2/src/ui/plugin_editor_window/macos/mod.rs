@@ -1,8 +1,8 @@
 use std::ffi::c_void;
 
 use cocoa::appkit::NSBackingStoreType::NSBackingStoreBuffered;
-use cocoa::appkit::{NSWindow, NSWindowStyleMask};
-use cocoa::base::{nil, NO};
+use cocoa::appkit::{NSView, NSWindow, NSWindowStyleMask};
+use cocoa::base::{id, nil, NO};
 use cocoa::foundation::{NSAutoreleasePool, NSPoint, NSRect, NSSize, NSString};
 use raw_window_handle::macos::MacOSHandle;
 use raw_window_handle::RawWindowHandle;
@@ -48,5 +48,23 @@ pub fn open_plugin_window(mut editor: Box<dyn Editor>, size: (i32, i32)) -> Plug
     PluginWindowHandle {
         editor,
         raw_window_handle,
+    }
+}
+
+pub fn close_window(handle: RawWindowHandle) {
+    match handle {
+        RawWindowHandle::MacOS(MacOSHandle {
+            ns_window, ns_view, ..
+        }) => {
+            let ns_window = ns_window as id;
+            let ns_view = ns_view as id;
+            unsafe {
+                ns_view.removeFromSuperview();
+                ns_window.close();
+                let _ = Box::from_raw(ns_view);
+                let _ = Box::from_raw(ns_window);
+            }
+        }
+        _ => {}
     }
 }

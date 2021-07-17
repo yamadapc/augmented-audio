@@ -20,7 +20,7 @@ use crate::ui::main_content_view::plugin_content::PluginContentView;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::main_content_view::volume_meter::VolumeMeter;
-use crate::ui::plugin_editor_window::{open_plugin_window, PluginWindowHandle};
+use crate::ui::plugin_editor_window::{close_window, open_plugin_window, PluginWindowHandle};
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
@@ -221,6 +221,38 @@ impl MainContentView {
                     },
                 )
             }
+            plugin_content::Message::ReloadPlugin => {
+                self.close_plugin_window();
+                let host_ref = self.plugin_host.clone();
+                Command::perform(
+                    tokio::task::spawn_blocking(move || {
+                        let mut host = host_ref.lock().unwrap();
+                        if let Some(plugin_file_path) = host.plugin_file_path().clone() {
+                            Some(host.load_plugin(&plugin_file_path))
+                        } else {
+                            None
+                        }
+                    }),
+                    |result| match result {
+                        Err(err) => Message::SetStatus(StatusBar::new(
+                            format!("Failure loading plugin in a background thread: {}", err),
+                            status_bar::State::Error,
+                        )),
+                        Ok(None) => Message::SetStatus(StatusBar::new(
+                            "There's no plugin loaded, configure the plugin path",
+                            status_bar::State::Warning,
+                        )),
+                        Ok(Some(Err(err))) => Message::SetStatus(StatusBar::new(
+                            format!("Error loading plugin: {}", err),
+                            status_bar::State::Error,
+                        )),
+                        Ok(Some(Ok(_))) => Message::SetStatus(StatusBar::new(
+                            "Loaded plugin",
+                            status_bar::State::Idle,
+                        )),
+                    },
+                )
+            }
             _ => Command::none(),
         };
         let children = self.plugin_content.update(msg).map(Message::PluginContent);
@@ -256,15 +288,17 @@ impl MainContentView {
 
     fn close_plugin_window(&mut self) {
         if let Some(mut plugin_window_handle) = self.plugin_window_handle.take() {
+            log::info!("Closing plugin editor");
             plugin_window_handle.editor.close();
+            close_window(plugin_window_handle.raw_window_handle);
+        } else {
+            log::warn!("Close requested, but there's no plugin window handle");
         }
     }
 
     fn open_plugin_window(&mut self) -> Command<Message> {
-        if let Some(mut plugin_window_handle) = self.plugin_window_handle.take() {
-            plugin_window_handle.editor.close();
-            let size = plugin_window_handle.editor.size();
-            self.plugin_window_handle = Some(open_plugin_window(plugin_window_handle.editor, size));
+        if let Some(_) = self.plugin_window_handle.take() {
+            log::warn!("Refusing to open 2 plugin editors");
         } else {
             log::info!("Opening plugin editor");
             let mut host = self.plugin_host.lock().unwrap();
