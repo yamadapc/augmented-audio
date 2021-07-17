@@ -10,6 +10,9 @@ use vst::editor::Editor;
 
 use crate::ui::plugin_editor_window::PluginWindowHandle;
 
+// TODO: I believe this is leaking memory due to no autorelease.
+// The issue I had with autorelease is it caused a crash when the window was closed for some reason.
+// The crash was use after free within the iced runloop but may be unrelated to iced.
 pub fn open_plugin_window(mut editor: Box<dyn Editor>, size: (i32, i32)) -> PluginWindowHandle {
     let _pool = unsafe { NSAutoreleasePool::new(nil) };
     let (width, height) = size;
