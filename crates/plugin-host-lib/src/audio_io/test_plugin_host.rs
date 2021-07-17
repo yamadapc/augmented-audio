@@ -7,7 +7,7 @@ use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
 
-use audio_garbage_collector::{GarbageCollector, GarbageCollectorError};
+use audio_garbage_collector::{GarbageCollector, GarbageCollectorError, Shared};
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
@@ -19,6 +19,7 @@ use crate::processors::audio_file_processor::{
 };
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
+use crate::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use crate::vst_host::AudioTestHost;
 
 #[derive(Debug, Error)]
@@ -155,6 +156,7 @@ impl TestPluginHost {
         )?;
 
         let mut test_host_processor = TestHostProcessor::new(
+            self.garbage_collector.handle(),
             maybe_audio_file_settings,
             vst_plugin_instance.clone(),
             audio_settings.sample_rate(),
@@ -212,6 +214,10 @@ impl TestPluginHost {
                 }
             })
             .flatten()
+    }
+
+    pub fn volume_handle(&self) -> Option<Shared<VolumeMeterProcessorHandle>> {
+        self.host_processor().map(|p| p.volume_handle().clone())
     }
 
     pub fn current_volume(&self) -> (f32, f32) {

@@ -16,6 +16,7 @@ raw-window-handle = "0.3.3"
 derive_more = "^0.99.16"
 
 tokio = "^1.8.1"
+audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
 iced = { version = "^0.3.0", path = "../iced" }

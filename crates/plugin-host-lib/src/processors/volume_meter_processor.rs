@@ -1,11 +1,16 @@
 use vst::util::AtomicFloat;
 
+use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{AudioBuffer, AudioProcessor};
 use circular_data_structures::CircularVec;
 
+pub struct VolumeMeterProcessorHandle {
+    pub volume_left: AtomicFloat,
+    pub volume_right: AtomicFloat,
+}
+
 pub struct VolumeMeterProcessor {
-    volume_left: AtomicFloat,
-    volume_right: AtomicFloat,
+    handle: Shared<VolumeMeterProcessorHandle>,
     current_index: usize,
     buffer_duration_samples: usize,
     left_buffer: CircularVec<f32>,
@@ -13,10 +18,15 @@ pub struct VolumeMeterProcessor {
 }
 
 impl VolumeMeterProcessor {
-    pub fn new() -> Self {
+    pub fn new(handle: &Handle) -> Self {
         VolumeMeterProcessor {
-            volume_left: AtomicFloat::new(0.0),
-            volume_right: AtomicFloat::new(0.0),
+            handle: Shared::new(
+                handle,
+                VolumeMeterProcessorHandle {
+                    volume_left: AtomicFloat::new(0.0),
+                    volume_right: AtomicFloat::new(0.0),
+                },
+            ),
             current_index: 0,
             buffer_duration_samples: 512 * 4,
             left_buffer: CircularVec::with_size(512 * 4, 0.0),
@@ -24,8 +34,15 @@ impl VolumeMeterProcessor {
         }
     }
 
+    pub fn handle(&self) -> &Shared<VolumeMeterProcessorHandle> {
+        &self.handle
+    }
+
     pub fn current_volume(&self) -> (f32, f32) {
-        (self.volume_left.get(), self.volume_right.get())
+        (
+            self.handle.volume_left.get(),
+            self.handle.volume_right.get(),
+        )
     }
 
     pub fn calculate_rms(buffer: &CircularVec<f32>) -> f32 {
@@ -51,9 +68,12 @@ impl AudioProcessor for VolumeMeterProcessor {
 
             if self.current_index >= self.buffer_duration_samples {
                 self.current_index = 0;
-                self.volume_right
+                self.handle
+                    .volume_right
                     .set(Self::calculate_rms(&self.right_buffer));
-                self.volume_left.set(Self::calculate_rms(&self.left_buffer));
+                self.handle
+                    .volume_left
+                    .set(Self::calculate_rms(&self.left_buffer));
             } else {
                 self.current_index += 1;
             }

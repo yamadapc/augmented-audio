@@ -5,6 +5,10 @@ impl Spacing {
         10
     }
 
+    pub fn medium_spacing() -> u16 {
+        5
+    }
+
     pub fn small_spacing() -> u16 {
         2
     }

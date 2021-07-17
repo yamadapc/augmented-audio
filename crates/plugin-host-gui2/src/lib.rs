@@ -1,9 +1,10 @@
 use derive_more::From;
 use std::sync::{Arc, Mutex};
 
-use iced::{Application, Clipboard, Command, Container, Element, Length};
+use iced::{Application, Clipboard, Command, Container, Element, Length, Subscription};
 
 use audio_processor_iced_design_system as design_system;
+use std::time::Duration;
 use ui::main_content_view;
 
 pub mod services;
@@ -63,6 +64,10 @@ impl Application for App {
                 .map(AppMessage::Content),
             _ => Command::none(),
         }
+    }
+
+    fn subscription(&self) -> Subscription<Self::Message> {
+        iced::time::every(Duration::from_millis(16)).map(|_| AppMessage::None)
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {

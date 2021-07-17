@@ -89,7 +89,7 @@ impl AudioIOSettingsView {
         )
         .padding(Spacing::base_spacing())
         .width(Length::Fill)
-        .style(Container1)
+        .style(Container1::default())
     }
 }
 

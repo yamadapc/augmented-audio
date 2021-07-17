@@ -216,7 +216,26 @@ pub mod container {
         }
     }
 
-    pub struct Container1;
+    pub struct Container1 {
+        border_width: f32,
+    }
+
+    impl Default for Container1 {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
+    impl Container1 {
+        pub fn new() -> Self {
+            Container1 { border_width: 0.0 }
+        }
+
+        pub fn border(mut self) -> Self {
+            self.border_width = 1.0;
+            self
+        }
+    }
 
     impl iced::container::StyleSheet for Container1 {
         fn style(&self) -> Style {
@@ -224,7 +243,7 @@ pub mod container {
                 text_color: Some(Colors::text()),
                 background: Some(Background::Color(Colors::background_level1())),
                 border_radius: 0.0,
-                border_width: 0.0,
+                border_width: self.border_width,
                 border_color: Colors::border_color(),
             }
         }

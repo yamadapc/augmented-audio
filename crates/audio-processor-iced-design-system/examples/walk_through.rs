@@ -199,7 +199,7 @@ impl Content {
             .height(Length::Fill)
             .center_x()
             .padding(Spacing::base_spacing())
-            .style(audio_style::Container1)
+            .style(audio_style::Container1::default())
             .into()
     }
 

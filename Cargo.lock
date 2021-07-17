@@ -5108,6 +5108,7 @@ dependencies = [
 name = "plugin-host-gui2"
 version = "0.1.0"
 dependencies = [
+ "audio-garbage-collector",
  "audio-processor-iced-design-system",
  "audio-processor-iced-storybook",
  "baseview",

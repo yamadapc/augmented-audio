@@ -2,7 +2,7 @@ use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use iced::{Column, Command, Container, Element, Length, Rule};
+use iced::{Align, Column, Command, Container, Element, Length, Rule};
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
@@ -19,16 +19,22 @@ use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
 use crate::ui::main_content_view::plugin_content::PluginContentView;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
+use crate::ui::main_content_view::volume_meter::VolumeMeter;
 use crate::ui::plugin_editor_window::{open_plugin_window, PluginWindowHandle};
+use audio_garbage_collector::Shared;
+use audio_processor_iced_design_system::spacing::Spacing;
+use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 
 pub mod plugin_content;
 pub mod status_bar;
 pub mod transport_controls;
+mod volume_meter;
 
 // TODO - Break-up this god struct
 pub struct MainContentView {
-    #[allow(dead_code)]
+    // TODO - This should not be under a lock
     plugin_host: Arc<Mutex<TestPluginHost>>,
+    // TODO - This should not be under a lock
     audio_io_service: Arc<Mutex<AudioIOService>>,
     audio_io_settings: AudioIOSettingsView,
     host_options_service: HostOptionsService,
@@ -38,6 +44,8 @@ pub struct MainContentView {
     plugin_window_handle: Option<PluginWindowHandle>,
     host_state: HostState,
     status_message: StatusBar,
+    // This should not be optional & it might break if the host restarts processors for some reason
+    volume_handle: Option<Shared<VolumeMeterProcessorHandle>>,
 }
 
 #[derive(Clone, Debug)]
@@ -90,22 +98,40 @@ impl MainContentView {
                 error: None,
                 plugin_window_handle: None,
                 status_message: StatusBar::new("Starting audio thread", status_bar::State::Warning),
+                volume_handle: None,
             },
             command,
         )
     }
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
+        self.poll_for_volume_handle();
         match message {
             Message::AudioIOSettings(msg) => self.update_audio_io_settings(msg),
             Message::PluginContent(msg) => self.update_plugin_content(msg),
             Message::TransportControls(message) => self.update_transport_controls(message),
-            Message::SetStatus(message) => {
-                self.status_message = message;
-                Command::none()
-            }
+            Message::SetStatus(message) => self.update_status_message(message),
             _ => Command::none(),
         }
+    }
+
+    fn poll_for_volume_handle(&mut self) {
+        if self.volume_handle.is_none() {
+            if let Some(volume_handle) = self
+                .plugin_host
+                .try_lock()
+                .ok()
+                .map(|host| host.volume_handle())
+                .flatten()
+            {
+                self.volume_handle = Some(volume_handle);
+            }
+        }
+    }
+
+    fn update_status_message(&mut self, message: StatusBar) -> Command<Message> {
+        self.status_message = message;
+        Command::none()
     }
 
     fn update_audio_io_settings(&mut self, msg: audio_io_settings::Message) -> Command<Message> {
@@ -272,11 +298,30 @@ impl MainContentView {
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
             Container::new(
+                Column::with_children(vec![Container::new(
+                    VolumeMeter::new((&self.volume_handle).into())
+                        .view()
+                        .map(|_| Message::None),
+                )
+                .style(Container1::default().border())
+                .height(Length::Units(150))
+                .width(Length::Units(Spacing::base_control_size()))
+                .into()])
+                .width(Length::Fill)
+                .align_items(Align::End),
+            )
+            .style(Container1::default())
+            .width(Length::Fill)
+            .into(),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            Container::new(
                 self.transport_controls
                     .view()
                     .map(Message::TransportControls),
             )
-            .style(Container1)
+            .style(Container1::default())
             .height(Length::Units(80))
             .width(Length::Fill)
             .into(),

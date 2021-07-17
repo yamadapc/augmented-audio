@@ -3,6 +3,7 @@ use std::ops::Deref;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use audio_garbage_collector::{Handle, Shared};
 use audio_processor_standalone_midi::host::MidiMessageEntry;
 use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
@@ -10,7 +11,7 @@ use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::processors::shared_processor::SharedProcessor;
-use crate::processors::volume_meter_processor::VolumeMeterProcessor;
+use crate::processors::volume_meter_processor::{VolumeMeterProcessor, VolumeMeterProcessorHandle};
 
 /// The app's main processor
 pub struct TestHostProcessor {
@@ -28,6 +29,7 @@ unsafe impl Sync for TestHostProcessor {}
 
 impl TestHostProcessor {
     pub fn new(
+        handle: &Handle,
         maybe_audio_file_settings: Option<AudioFileSettings>,
         plugin_instance: SharedProcessor<PluginInstance>,
         sample_rate: f32,
@@ -44,10 +46,14 @@ impl TestHostProcessor {
             maybe_audio_file_processor: maybe_audio_file_settings.map(|audio_file_settings| {
                 AudioFileProcessor::new(audio_file_settings, audio_settings)
             }),
-            volume_meter_processor: VolumeMeterProcessor::new(),
+            volume_meter_processor: VolumeMeterProcessor::new(handle),
             midi_converter: MidiVSTConverter::default(),
             mono_input,
         }
+    }
+
+    pub fn volume_handle(&self) -> &Shared<VolumeMeterProcessorHandle> {
+        self.volume_meter_processor.handle()
     }
 
     pub fn current_output_volume(&self) -> (f32, f32) {
