@@ -21,6 +21,16 @@
     "upstream_url": "https://github.com/hecrj/iced"
   },
   {
+    "path": "crates/baseview",
+    "url": "https://github.com/yamadapc/iced",
+    "upstream_url": "https://github.com/RustAudio/baseview"
+  },
+  {
+    "path": "crates/gfx",
+    "url": "https://github.com/yamadapc/gfx",
+    "upstream_url": "https://github.com/gfx-rs/gfx"
+  },
+  {
     "path": "crates/cpal",
     "url": "https://github.com/yamadapc/cpal",
     "upstream_url": "https://github.com/RustAudio/cpal"

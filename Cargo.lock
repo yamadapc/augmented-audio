@@ -556,7 +556,6 @@ dependencies = [
  "cocoa 0.24.0",
  "core-foundation 0.9.1",
  "keyboard-types",
- "log",
  "nix 0.18.0",
  "objc",
  "raw-window-handle",
