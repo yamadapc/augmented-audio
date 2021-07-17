@@ -1,5 +1,3 @@
-use audio_processor_iced_design_system::colors;
-use audio_processor_iced_design_system::colors::Colors;
 use iced::container::Style;
 use iced::{
     container, Background, Color, Container, Direction, Gradient, GradientStop, Length,
