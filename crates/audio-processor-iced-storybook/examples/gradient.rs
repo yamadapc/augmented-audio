@@ -8,6 +8,26 @@ use iced::{
 
 fn main() -> iced::Result {
     audio_processor_iced_storybook::builder::<()>()
+        .story_fn("Top to bottom", || {
+            Container::new(Text::new("Top to bottom"))
+                .style(TopToBottom)
+                .padding(50)
+                .center_x()
+                .center_y()
+                .height(Length::Fill)
+                .width(Length::Fill)
+                .into()
+        })
+        .story_fn("Left to right", || {
+            Container::new(Text::new("Left to right"))
+                .style(LeftToRight)
+                .center_x()
+                .center_y()
+                .padding(50)
+                .height(Length::Fill)
+                .width(Length::Fill)
+                .into()
+        })
         .story_fn("Gradient", || {
             Row::with_children(vec![
                 Container::new(Text::new("Hey"))
@@ -67,6 +87,37 @@ fn main() -> iced::Result {
             .width(Length::Fill)
             .into()
         })
+        .story_fn("Red to blue", || {
+            Row::with_children(vec![Container::new(Text::new("Red -> Blue"))
+                .style(StyleHolder(Style {
+                    text_color: None,
+                    background: Some(Background::Gradient(Gradient::LinearGradient(
+                        LinearGradient {
+                            direction: Direction::Right,
+                            stops: vec![
+                                GradientStop {
+                                    percentage: 0.0,
+                                    color: Color::from_rgb(1.0, 0.0, 0.0),
+                                },
+                                GradientStop {
+                                    percentage: 1.0,
+                                    color: Color::from_rgb(0.0, 0.0, 1.0),
+                                },
+                            ],
+                        },
+                    ))),
+                    border_radius: 0.0,
+                    border_width: 0.0,
+                    border_color: Default::default(),
+                }))
+                .padding(50)
+                .height(Length::Fill)
+                .width(Length::Fill)
+                .into()])
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .into()
+        })
         .story_fn("Pretty", || {
             Row::with_children(vec![Container::new(Text::new("Hey"))
                 .style(ContainerPrettyStyle)
@@ -81,6 +132,70 @@ fn main() -> iced::Result {
         .run()
 }
 
+struct TopToBottom;
+
+impl container::StyleSheet for TopToBottom {
+    fn style(&self) -> Style {
+        Style {
+            text_color: None,
+            background: Some(Background::Gradient(Gradient::LinearGradient(
+                LinearGradient {
+                    direction: Direction::Bottom,
+                    stops: vec![
+                        GradientStop {
+                            percentage: 0.0,
+                            color: Color::from_rgb(0.0, 1.0, 0.0),
+                        },
+                        GradientStop {
+                            percentage: 0.5,
+                            color: Color::from_rgb(1.0, 0.0, 0.0),
+                        },
+                        GradientStop {
+                            percentage: 1.0,
+                            color: Color::from_rgb(0.0, 0.0, 1.0),
+                        },
+                    ],
+                },
+            ))),
+            border_radius: 0.0,
+            border_width: 0.0,
+            border_color: Default::default(),
+        }
+    }
+}
+
+struct LeftToRight;
+
+impl container::StyleSheet for LeftToRight {
+    fn style(&self) -> Style {
+        Style {
+            text_color: None,
+            background: Some(Background::Gradient(Gradient::LinearGradient(
+                LinearGradient {
+                    direction: Direction::Right,
+                    stops: vec![
+                        GradientStop {
+                            percentage: 0.0,
+                            color: Color::from_rgb(0.0, 1.0, 0.0),
+                        },
+                        GradientStop {
+                            percentage: 0.5,
+                            color: Color::from_rgb(1.0, 0.0, 0.0),
+                        },
+                        GradientStop {
+                            percentage: 1.0,
+                            color: Color::from_rgb(0.0, 0.0, 1.0),
+                        },
+                    ],
+                },
+            ))),
+            border_radius: 0.0,
+            border_width: 0.0,
+            border_color: Default::default(),
+        }
+    }
+}
+
 struct ContainerStyle;
 
 impl container::StyleSheet for ContainerStyle {
@@ -89,7 +204,7 @@ impl container::StyleSheet for ContainerStyle {
             text_color: None,
             background: Some(Background::Gradient(Gradient::LinearGradient(
                 LinearGradient {
-                    direction: Direction::Top,
+                    direction: Direction::Bottom,
                     stops: vec![
                         GradientStop {
                             percentage: 0.0,
@@ -109,6 +224,13 @@ impl container::StyleSheet for ContainerStyle {
     }
 }
 
+struct StyleHolder(Style);
+impl container::StyleSheet for StyleHolder {
+    fn style(&self) -> Style {
+        self.0.clone()
+    }
+}
+
 struct Container2StepsStyle;
 
 impl container::StyleSheet for Container2StepsStyle {
@@ -117,7 +239,7 @@ impl container::StyleSheet for Container2StepsStyle {
             text_color: None,
             background: Some(Background::Gradient(Gradient::LinearGradient(
                 LinearGradient {
-                    direction: Direction::Top,
+                    direction: Direction::Bottom,
                     stops: vec![
                         GradientStop {
                             percentage: 0.0,
@@ -149,19 +271,23 @@ impl container::StyleSheet for ContainerPrettyStyle {
             text_color: None,
             background: Some(Background::Gradient(Gradient::LinearGradient(
                 LinearGradient {
-                    direction: Direction::Top,
+                    direction: Direction::Bottom,
                     stops: vec![
                         GradientStop {
                             percentage: 0.0,
-                            color: Colors::background_level1(),
+                            color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.),
+                        },
+                        GradientStop {
+                            percentage: 0.25,
+                            color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.).darken(0.3),
                         },
                         GradientStop {
                             percentage: 0.75,
-                            color: Colors::background_level0(),
+                            color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.).darken(0.4),
                         },
                         GradientStop {
                             percentage: 1.0,
-                            color: colors::black(),
+                            color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.).darken(0.7),
                         },
                     ],
                 },
