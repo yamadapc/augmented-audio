@@ -12,9 +12,12 @@ use std::marker::PhantomData;
 
 pub use num::Float;
 
+pub use atomic_float::AtomicF32;
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
 pub use midi::{MidiEventHandler, MidiMessageLike};
 
+/// Atomic F32 implementation with `num` trait implementations
+pub mod atomic_float;
 /// Provides an abstraction for audio buffers that works for CPAL and VST layouts
 pub mod audio_buffer;
 /// Provides an abstraction for MIDI processing that works for stand-alone and VST events
@@ -92,7 +95,7 @@ impl AudioProcessorSettings {
 /// Represents an audio processing node.
 ///
 /// Implementors should define the SampleType the node will work over. See some [examples here](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone/examples).
-pub trait AudioProcessor: Send {
+pub trait AudioProcessor {
     type SampleType;
 
     /// Prepare for playback based on current audio settings

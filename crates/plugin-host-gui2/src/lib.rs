@@ -62,7 +62,10 @@ impl Application for App {
                 .main_content_view
                 .update(message)
                 .map(AppMessage::Content),
-            _ => Command::none(),
+            _ => self
+                .main_content_view
+                .update(main_content_view::Message::None)
+                .map(AppMessage::Content),
         }
     }
 

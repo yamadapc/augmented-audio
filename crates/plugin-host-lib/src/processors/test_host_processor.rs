@@ -10,8 +10,10 @@ use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
+use crate::processors::running_rms_processor::{RunningRMSProcessor, RunningRMSProcessorHandle};
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::volume_meter_processor::{VolumeMeterProcessor, VolumeMeterProcessorHandle};
+use std::time::Duration;
 
 /// The app's main processor
 pub struct TestHostProcessor {
@@ -20,6 +22,7 @@ pub struct TestHostProcessor {
     buffer_handler: CpalVstBufferHandler,
     maybe_audio_file_processor: Option<AudioFileProcessor>,
     volume_meter_processor: VolumeMeterProcessor,
+    running_rms_processor: RunningRMSProcessor,
     midi_converter: MidiVSTConverter,
     mono_input: Option<usize>,
 }
@@ -47,17 +50,13 @@ impl TestHostProcessor {
                 AudioFileProcessor::new(audio_file_settings, audio_settings)
             }),
             volume_meter_processor: VolumeMeterProcessor::new(handle),
+            running_rms_processor: RunningRMSProcessor::new_with_duration(
+                handle,
+                Duration::from_millis(300),
+            ),
             midi_converter: MidiVSTConverter::default(),
             mono_input,
         }
-    }
-
-    pub fn volume_handle(&self) -> &Shared<VolumeMeterProcessorHandle> {
-        self.volume_meter_processor.handle()
-    }
-
-    pub fn current_output_volume(&self) -> (f32, f32) {
-        self.volume_meter_processor.current_volume()
     }
 
     /// Resume playback
@@ -89,6 +88,18 @@ impl TestHostProcessor {
             false
         }
     }
+
+    pub fn volume_handle(&self) -> &Shared<VolumeMeterProcessorHandle> {
+        self.volume_meter_processor.handle()
+    }
+
+    pub fn current_output_volume(&self) -> (f32, f32) {
+        self.volume_meter_processor.current_volume()
+    }
+
+    pub fn running_rms_processor_handle(&self) -> &Shared<RunningRMSProcessorHandle> {
+        self.running_rms_processor.handle()
+    }
 }
 
 impl TestHostProcessor {
@@ -113,6 +124,7 @@ impl AudioProcessor for TestHostProcessor {
             audio_file_processor.prepare(audio_settings);
         }
         self.volume_meter_processor.prepare(audio_settings);
+        self.running_rms_processor.prepare(audio_settings);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -141,6 +153,7 @@ impl AudioProcessor for TestHostProcessor {
 
         // Volume meter
         self.volume_meter_processor.process(output);
+        self.running_rms_processor.process(output);
     }
 }
 

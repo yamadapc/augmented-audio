@@ -6,8 +6,8 @@ use num::Float;
 /// This crate provides implementations of this trait for VST & CPal style buffers, which have
 /// different internal representations.
 pub trait AudioBuffer {
-    /// The type of samples within this buffer. Currently restricted to num::Float numbers.
-    type SampleType: Float + Send;
+    /// The type of samples within this buffer.
+    type SampleType;
 
     /// The number of channels in this buffer
     fn num_channels(&self) -> usize;
@@ -139,7 +139,7 @@ impl<'a, SampleType> InterleavedAudioBuffer<'a, SampleType> {
     }
 }
 
-impl<'a, SampleType: Float + Send> AudioBuffer for InterleavedAudioBuffer<'a, SampleType> {
+impl<'a, SampleType> AudioBuffer for InterleavedAudioBuffer<'a, SampleType> {
     type SampleType = SampleType;
 
     fn num_channels(&self) -> usize {
@@ -181,7 +181,7 @@ impl<'a, SampleType> SliceAudioBuffer<'a, SampleType> {
     }
 }
 
-impl<'a, SampleType: Float + Send> AudioBuffer for SliceAudioBuffer<'a, SampleType> {
+impl<'a, SampleType> AudioBuffer for SliceAudioBuffer<'a, SampleType> {
     type SampleType = SampleType;
 
     fn num_channels(&self) -> usize {
@@ -225,10 +225,7 @@ pub struct VecAudioBuffer<SampleType> {
     buffer: Vec<SampleType>,
 }
 
-impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType>
-where
-    SampleType: Float + Send,
-{
+impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType> {
     type SampleType = SampleType;
 
     fn num_channels(&self) -> usize {
@@ -252,10 +249,7 @@ where
     }
 }
 
-impl<SampleType> OwnedAudioBuffer for VecAudioBuffer<SampleType>
-where
-    SampleType: Float + Send,
-{
+impl<SampleType: Clone> OwnedAudioBuffer for VecAudioBuffer<SampleType> {
     fn new() -> Self {
         VecAudioBuffer {
             num_channels: 0,
@@ -295,12 +289,12 @@ pub mod vst {
     ///
     /// This means it might be that `audio_buffer.get(channel, sample)` is different to
     /// `audio_buffer.get_mut(channel, sample)`.
-    pub struct VSTAudioBuffer<'a, SampleType: Float + Send> {
+    pub struct VSTAudioBuffer<'a, SampleType> {
         inputs: ::vst::buffer::Inputs<'a, SampleType>,
         outputs: ::vst::buffer::Outputs<'a, SampleType>,
     }
 
-    impl<'a, SampleType: Float + Send> VSTAudioBuffer<'a, SampleType> {
+    impl<'a, SampleType: Float> VSTAudioBuffer<'a, SampleType> {
         pub fn new(
             inputs: ::vst::buffer::Inputs<'a, SampleType>,
             outputs: ::vst::buffer::Outputs<'a, SampleType>,
@@ -314,7 +308,7 @@ pub mod vst {
         }
     }
 
-    impl<'a, SampleType: Float + Send> AudioBuffer for VSTAudioBuffer<'a, SampleType> {
+    impl<'a, SampleType> AudioBuffer for VSTAudioBuffer<'a, SampleType> {
         type SampleType = SampleType;
 
         fn num_channels(&self) -> usize {

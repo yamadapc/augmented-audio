@@ -17,6 +17,7 @@ use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
 };
+use crate::processors::running_rms_processor::RunningRMSProcessorHandle;
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::processors::volume_meter_processor::VolumeMeterProcessorHandle;
@@ -134,6 +135,15 @@ impl TestPluginHost {
 
     pub fn plugin_file_path(&self) -> &Option<PathBuf> {
         &self.plugin_file_path
+    }
+
+    pub fn garbage_collector(&self) -> &GarbageCollector {
+        &self.garbage_collector
+    }
+
+    pub fn rms_processor_handle(&self) -> Option<Shared<RunningRMSProcessorHandle>> {
+        self.host_processor()
+            .map(|h| h.running_rms_processor_handle().clone())
     }
 
     pub fn load_plugin(&mut self, path: &Path) -> Result<(), AudioHostPluginLoadError> {

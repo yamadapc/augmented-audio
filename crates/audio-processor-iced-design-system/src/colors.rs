@@ -84,7 +84,7 @@ impl Colors {
     }
 
     pub fn border_color() -> Color {
-        super_light_gray()
+        super_light_gray().darken(0.3)
     }
 
     pub fn selected_background() -> Color {
