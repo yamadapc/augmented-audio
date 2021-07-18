@@ -90,9 +90,9 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChartV
         path.line_to(Point::new(0.0, frame.height()));
         path.line_to(Point::new(frame.width(), frame.height()));
 
+        // TODO - Tesselation here is very slow
         frame.fill(&path.build(), Fill::from(Colors::border_color()));
 
-        // TODO - Cache the geometry & output only the new primitives on each frame.
         vec![frame.into_geometry()]
     }
 }

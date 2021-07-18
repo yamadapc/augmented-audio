@@ -34,3 +34,10 @@ circular-data-structures = { path = "../circular-data-structures" }
 audio-processor-traits = { version = "^0.2.0", path = "../audio-processor-traits" }
 oscillator = { path = "../oscillator" }
 convert-sample-rate = { path = "../convert-sample-rate" }
+
+[dev-dependencies]
+criterion = "^0.3.4"
+
+[[bench]]
+name = "rms_processor_benchmark"
+harness = false

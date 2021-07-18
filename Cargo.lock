@@ -5144,6 +5144,7 @@ dependencies = [
  "concread",
  "convert-sample-rate",
  "cpal",
+ "criterion",
  "hound",
  "log",
  "md5",
