@@ -42,7 +42,7 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChart<
             let read_index = ((num_samples - sample_index) + position) % num_samples;
             let sample = *self.audio_buffer.get(0, read_index); // TODO - This is "mono" just ignoring channels
 
-            let item = sample;
+            let item = sample / 10.;
             let f_index = sample_index as f32;
             let x2_coord = frame.width() - ((f_index + 1.0) / num_samples as f32) * frame.width();
             let y2_coord = frame.height() - (item as f32) * frame.height();
