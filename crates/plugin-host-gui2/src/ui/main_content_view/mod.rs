@@ -2,29 +2,33 @@ use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use iced::{Align, Column, Command, Container, Element, Length, Rule};
+use iced::{Column, Command, Container, Element, Length, Row, Rule, Text};
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use audio_garbage_collector::Shared;
+use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
+use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use plugin_host_lib::audio_io::audio_io_service::storage::StorageConfig;
 use plugin_host_lib::audio_io::{
     AudioHost, AudioHostPluginLoadError, AudioIOService, AudioIOServiceResult,
 };
+use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use plugin_host_lib::TestPluginHost;
 
 use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
+use crate::ui::main_content_view::audio_chart::AudioChart;
 use crate::ui::main_content_view::plugin_content::PluginContentView;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::main_content_view::volume_meter::VolumeMeter;
 use crate::ui::plugin_editor_window::{close_window, open_plugin_window, PluginWindowHandle};
-use audio_garbage_collector::Shared;
-use audio_processor_iced_design_system::spacing::Spacing;
-use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
+use std::sync::atomic::AtomicUsize;
 
+mod audio_chart;
 pub mod plugin_content;
 pub mod status_bar;
 pub mod transport_controls;
@@ -46,6 +50,7 @@ pub struct MainContentView {
     status_message: StatusBar,
     // This should not be optional & it might break if the host restarts processors for some reason
     volume_handle: Option<Shared<VolumeMeterProcessorHandle>>,
+    audio_buffer: Option<Shared<(VecAudioBuffer<f32>, AtomicUsize)>>,
 }
 
 #[derive(Clone, Debug)]
@@ -86,6 +91,11 @@ impl MainContentView {
             host_state.audio_input_file_path.clone(),
             host_state.plugin_path.clone(),
         );
+        // let handle = {
+        //     let host = plugin_host.lock().unwrap();
+        //     host.garbage_collector().handle().clone()
+        // };
+
         (
             MainContentView {
                 plugin_host,
@@ -99,13 +109,14 @@ impl MainContentView {
                 plugin_window_handle: None,
                 status_message: StatusBar::new("Starting audio thread", status_bar::State::Warning),
                 volume_handle: None,
+                audio_buffer: None,
             },
             command,
         )
     }
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
-        self.poll_for_volume_handle();
+        self.poll_for_host_handles();
         match message {
             Message::AudioIOSettings(msg) => self.update_audio_io_settings(msg),
             Message::PluginContent(msg) => self.update_plugin_content(msg),
@@ -115,7 +126,7 @@ impl MainContentView {
         }
     }
 
-    fn poll_for_volume_handle(&mut self) {
+    fn poll_for_host_handles(&mut self) {
         if self.volume_handle.is_none() {
             if let Some(volume_handle) = self
                 .plugin_host
@@ -125,6 +136,17 @@ impl MainContentView {
                 .flatten()
             {
                 self.volume_handle = Some(volume_handle);
+            }
+        }
+        if self.audio_buffer.is_none() {
+            if let Some(buffer) = self
+                .plugin_host
+                .try_lock()
+                .ok()
+                .map(|host| host.collector_buffer())
+                .flatten()
+            {
+                self.audio_buffer = Some(buffer);
             }
         }
     }
@@ -332,19 +354,37 @@ impl MainContentView {
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
             Container::new(
-                Column::with_children(vec![Container::new(
-                    VolumeMeter::new((&self.volume_handle).into())
-                        .view()
-                        .map(|_| Message::None),
-                )
-                .style(Container1::default().border())
-                .height(Length::Units(150))
-                .width(Length::Units(Spacing::base_control_size()))
-                .into()])
-                .width(Length::Fill)
-                .align_items(Align::End),
+                Row::with_children(vec![
+                    Container::new(
+                        Container::new::<Element<Message>>(match &self.audio_buffer {
+                            Some(handle) => AudioChart::new(&handle.deref().0, &handle.deref().1)
+                                .view()
+                                .map(|_| Message::None)
+                                .into(),
+                            None => Text::new("").into(),
+                        })
+                        .width(Length::Fill)
+                        .height(Length::Fill)
+                        .style(Container0),
+                    )
+                    .padding(Spacing::base_spacing())
+                    .height(Length::Fill)
+                    .width(Length::Fill)
+                    .into(),
+                    Container::new(
+                        VolumeMeter::new((&self.volume_handle).into())
+                            .view()
+                            .map(|_| Message::None),
+                    )
+                    .style(Container1::default().border())
+                    .width(Length::Units(Spacing::base_control_size()))
+                    .height(Length::Fill)
+                    .into(),
+                ])
+                .width(Length::Fill),
             )
             .style(Container1::default())
+            .height(Length::Units(150))
             .width(Length::Fill)
             .into(),
             Rule::horizontal(1)

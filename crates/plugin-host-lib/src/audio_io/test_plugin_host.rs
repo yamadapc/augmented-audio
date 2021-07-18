@@ -21,6 +21,8 @@ use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use crate::vst_host::AudioTestHost;
+use audio_processor_traits::audio_buffer::VecAudioBuffer;
+use std::sync::atomic::AtomicUsize;
 
 #[derive(Debug, Error)]
 pub enum AudioHostPluginLoadError {
@@ -134,6 +136,15 @@ impl TestPluginHost {
 
     pub fn plugin_file_path(&self) -> &Option<PathBuf> {
         &self.plugin_file_path
+    }
+
+    pub fn garbage_collector(&self) -> &GarbageCollector {
+        &self.garbage_collector
+    }
+
+    pub fn collector_buffer(&self) -> Option<Shared<(VecAudioBuffer<f32>, AtomicUsize)>> {
+        self.host_processor()
+            .map(|h| h.buffer_collector_processor().buffer().clone())
     }
 
     pub fn load_plugin(&mut self, path: &Path) -> Result<(), AudioHostPluginLoadError> {
