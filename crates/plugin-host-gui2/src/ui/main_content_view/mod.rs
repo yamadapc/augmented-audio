@@ -9,11 +9,11 @@ use vst::plugin::Plugin;
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
-use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use plugin_host_lib::audio_io::audio_io_service::storage::StorageConfig;
 use plugin_host_lib::audio_io::{
     AudioHost, AudioHostPluginLoadError, AudioIOService, AudioIOServiceResult,
 };
+use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessorHandle;
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use plugin_host_lib::TestPluginHost;
 
@@ -26,7 +26,6 @@ use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::main_content_view::volume_meter::VolumeMeter;
 use crate::ui::plugin_editor_window::{close_window, open_plugin_window, PluginWindowHandle};
-use std::sync::atomic::AtomicUsize;
 
 mod audio_chart;
 pub mod plugin_content;
@@ -50,7 +49,8 @@ pub struct MainContentView {
     status_message: StatusBar,
     // This should not be optional & it might break if the host restarts processors for some reason
     volume_handle: Option<Shared<VolumeMeterProcessorHandle>>,
-    audio_buffer: Option<Shared<(VecAudioBuffer<f32>, AtomicUsize)>>,
+    rms_processor_handle: Option<Shared<RunningRMSProcessorHandle>>,
+    audio_chart: Option<AudioChart>,
 }
 
 #[derive(Clone, Debug)]
@@ -91,10 +91,6 @@ impl MainContentView {
             host_state.audio_input_file_path.clone(),
             host_state.plugin_path.clone(),
         );
-        // let handle = {
-        //     let host = plugin_host.lock().unwrap();
-        //     host.garbage_collector().handle().clone()
-        // };
 
         (
             MainContentView {
@@ -109,7 +105,8 @@ impl MainContentView {
                 plugin_window_handle: None,
                 status_message: StatusBar::new("Starting audio thread", status_bar::State::Warning),
                 volume_handle: None,
-                audio_buffer: None,
+                rms_processor_handle: None,
+                audio_chart: None,
             },
             command,
         )
@@ -117,6 +114,7 @@ impl MainContentView {
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
         self.poll_for_host_handles();
+        self.audio_chart.as_mut().map(|chart| chart.update());
         match message {
             Message::AudioIOSettings(msg) => self.update_audio_io_settings(msg),
             Message::PluginContent(msg) => self.update_plugin_content(msg),
@@ -138,15 +136,16 @@ impl MainContentView {
                 self.volume_handle = Some(volume_handle);
             }
         }
-        if self.audio_buffer.is_none() {
+        if self.rms_processor_handle.is_none() {
             if let Some(buffer) = self
                 .plugin_host
                 .try_lock()
                 .ok()
-                .map(|host| host.collector_buffer())
+                .map(|host| host.rms_processor_handle())
                 .flatten()
             {
-                self.audio_buffer = Some(buffer);
+                self.rms_processor_handle = Some(buffer.clone());
+                self.audio_chart = Some(AudioChart::new(buffer));
             }
         }
     }
@@ -356,11 +355,8 @@ impl MainContentView {
             Container::new(
                 Row::with_children(vec![
                     Container::new(
-                        Container::new::<Element<Message>>(match &self.audio_buffer {
-                            Some(handle) => AudioChart::new(&handle.deref().0, &handle.deref().1)
-                                .view()
-                                .map(|_| Message::None)
-                                .into(),
+                        Container::new::<Element<Message>>(match &self.audio_chart {
+                            Some(chart) => chart.view().map(|_| Message::None),
                             None => Text::new("").into(),
                         })
                         .width(Length::Fill)

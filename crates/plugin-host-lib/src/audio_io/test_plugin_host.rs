@@ -17,12 +17,11 @@ use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::processors::audio_file_processor::{
     default_read_audio_file, AudioFileError, AudioFileSettings,
 };
+use crate::processors::running_rms_processor::RunningRMSProcessorHandle;
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use crate::vst_host::AudioTestHost;
-use audio_processor_traits::audio_buffer::VecAudioBuffer;
-use std::sync::atomic::AtomicUsize;
 
 #[derive(Debug, Error)]
 pub enum AudioHostPluginLoadError {
@@ -142,9 +141,9 @@ impl TestPluginHost {
         &self.garbage_collector
     }
 
-    pub fn collector_buffer(&self) -> Option<Shared<(VecAudioBuffer<f32>, AtomicUsize)>> {
+    pub fn rms_processor_handle(&self) -> Option<Shared<RunningRMSProcessorHandle>> {
         self.host_processor()
-            .map(|h| h.buffer_collector_processor().buffer().clone())
+            .map(|h| h.running_rms_processor_handle().clone())
     }
 
     pub fn load_plugin(&mut self, path: &Path) -> Result<(), AudioHostPluginLoadError> {
