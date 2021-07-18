@@ -6,6 +6,9 @@ use iced::{canvas, Canvas, Element, Length, Point, Rectangle};
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::AudioBuffer;
 
+// TODO - This is a mess:
+// * Super high CPU
+// * Should be using a moving average
 pub struct AudioChart<'a, Buffer: AudioBuffer> {
     audio_buffer: &'a Buffer,
     position: &'a AtomicUsize,
