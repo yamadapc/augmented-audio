@@ -184,10 +184,12 @@ impl<'a, SampleType> SliceAudioBuffer<'a, SampleType> {
 impl<'a, SampleType> AudioBuffer for SliceAudioBuffer<'a, SampleType> {
     type SampleType = SampleType;
 
+    #[inline]
     fn num_channels(&self) -> usize {
         self.channels.len()
     }
 
+    #[inline]
     fn num_samples(&self) -> usize {
         if self.channels.is_empty() {
             0
@@ -196,14 +198,17 @@ impl<'a, SampleType> AudioBuffer for SliceAudioBuffer<'a, SampleType> {
         }
     }
 
+    #[inline]
     fn get(&self, channel: usize, sample: usize) -> &Self::SampleType {
         &self.channels[channel][sample]
     }
 
+    #[inline]
     fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
         &mut self.channels[channel][sample]
     }
 
+    #[inline]
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.channels[channel][sample] = value;
     }
@@ -228,22 +233,27 @@ pub struct VecAudioBuffer<SampleType> {
 impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType> {
     type SampleType = SampleType;
 
+    #[inline]
     fn num_channels(&self) -> usize {
         self.num_channels
     }
 
+    #[inline]
     fn num_samples(&self) -> usize {
         self.num_samples
     }
 
+    #[inline]
     fn get(&self, channel: usize, sample: usize) -> &Self::SampleType {
         &self.buffer[sample * self.num_channels + channel]
     }
 
+    #[inline]
     fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
         &mut self.buffer[sample * self.num_channels + channel]
     }
 
+    #[inline]
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.buffer[sample * self.num_channels + channel] = value;
     }

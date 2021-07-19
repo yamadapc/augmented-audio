@@ -508,7 +508,9 @@ dependencies = [
 name = "audio-processor-traits"
 version = "0.2.0"
 dependencies = [
+ "criterion",
  "num 0.4.0",
+ "oscillator",
  "vst",
 ]
 

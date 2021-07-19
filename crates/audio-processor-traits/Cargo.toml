@@ -17,3 +17,11 @@ vst_support = ["vst"]
 [dependencies]
 num = "^0.4.0"
 vst = { version = "^0.2", path = "../vst", optional = true }
+
+[dev-dependencies]
+criterion = "^0.3.4"
+oscillator = { path = "../oscillator" }
+
+[[bench]]
+name = "audio_processor_traits_criterion"
+harness = false
