@@ -165,5 +165,9 @@ Other things to measure:
   * Compare this with overhead of the `AudioBuffer` abstraction
 * Measure overhead in contrast to the grand scheme of a non-trivial processor (not gain)
 
+### Other thoughts
+* Which is the more efficient layout?
+* Should audio-processors expose a `process` function that works sample by sample? Perhaps this is easier to optimise
+
 ## License
 MIT
