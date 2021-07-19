@@ -24,6 +24,10 @@ iced = { version = "^0.3.0", path = "../iced" }
 plugin-host-lib = { path = "../plugin-host-lib" }
 wisual-logger = { path = "../wisual-logger" }
 
+[dev-dependencies]
+criterion = { version = "^0.3.4", features = ["html_reports"] }
+oscillator = { path = "../oscillator" }
+
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "^0.24.0"
 objc = "^0.2.7"
@@ -32,3 +36,7 @@ objc = "^0.2.7"
 default = ["story"]
 glow = ["iced/glow", "iced/glow_canvas"]
 story = []
+
+[[bench]]
+name = "plugin_host_gui_criterion"
+harness = false

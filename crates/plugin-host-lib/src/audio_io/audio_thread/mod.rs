@@ -124,7 +124,6 @@ impl AudioThread {
     /// # Safety:
     /// The processor MUST be prepared for playback when it's set.
     pub fn set_processor(&mut self, processor: SharedProcessor<AudioThreadProcessor>) {
-        log::info!("Updating audio processor");
         self.processor_ref = processor.clone();
         let _old_processor_ptr = self.processor.replace(processor.shared());
         // Let the old processor be dropped

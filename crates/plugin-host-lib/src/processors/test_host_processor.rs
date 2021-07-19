@@ -17,6 +17,7 @@ use std::time::Duration;
 
 /// The app's main processor
 pub struct TestHostProcessor {
+    id: String,
     plugin_instance: SharedProcessor<PluginInstance>,
     audio_settings: AudioProcessorSettings,
     buffer_handler: CpalVstBufferHandler,
@@ -43,6 +44,7 @@ impl TestHostProcessor {
         let audio_settings =
             AudioProcessorSettings::new(sample_rate, channels, channels, buffer_size);
         TestHostProcessor {
+            id: uuid::Uuid::new_v4().to_string(),
             plugin_instance,
             audio_settings,
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
@@ -57,6 +59,10 @@ impl TestHostProcessor {
             midi_converter: MidiVSTConverter::default(),
             mono_input,
         }
+    }
+
+    pub fn id(&self) -> &str {
+        &self.id
     }
 
     /// Resume playback
@@ -114,6 +120,7 @@ impl AudioProcessor for TestHostProcessor {
     type SampleType = f32;
 
     fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
+        log::info!("Prepared TestHostProcessor id={}", self.id);
         self.plugin_instance
             .set_block_size(audio_settings.block_size() as i64);
         self.plugin_instance
@@ -159,7 +166,7 @@ impl AudioProcessor for TestHostProcessor {
 
 impl Drop for TestHostProcessor {
     fn drop(&mut self) {
-        log::warn!("Dropping test host processor");
+        log::warn!("Dropping test host processor {}", self.id);
     }
 }
 

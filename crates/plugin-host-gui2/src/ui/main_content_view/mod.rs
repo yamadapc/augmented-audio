@@ -195,6 +195,7 @@ impl MainContentView {
     fn update_plugin_content(&mut self, msg: plugin_content::Message) -> Command<Message> {
         let command = match &msg {
             plugin_content::Message::SetInputFile(input_file) => {
+                self.reset_handles();
                 let result = {
                     let mut host = self.plugin_host.lock().unwrap();
                     host.set_audio_file_path(PathBuf::from(input_file))
@@ -210,6 +211,7 @@ impl MainContentView {
             }
             plugin_content::Message::OpenPluginWindow => self.open_plugin_window(),
             plugin_content::Message::SetAudioPlugin(path) => {
+                self.reset_handles();
                 self.close_plugin_window();
                 let path = path.clone();
 
@@ -247,6 +249,7 @@ impl MainContentView {
             plugin_content::Message::ReloadPlugin => {
                 self.close_plugin_window();
                 let host_ref = self.plugin_host.clone();
+                self.reset_handles();
                 Command::perform(
                     tokio::task::spawn_blocking(move || {
                         let mut host = host_ref.lock().unwrap();
@@ -278,6 +281,12 @@ impl MainContentView {
         };
         let children = self.plugin_content.update(msg).map(Message::PluginContent);
         Command::batch(vec![command, children])
+    }
+
+    fn reset_handles(&mut self) {
+        self.audio_chart = None;
+        self.rms_processor_handle = None;
+        self.volume_handle = None;
     }
 
     fn update_transport_controls(

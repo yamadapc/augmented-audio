@@ -28,3 +28,6 @@
 [submodule "crates/gfx"]
 	path = crates/gfx
 	url = git@github.com:yamadapc/gfx
+[submodule "crates/lyon"]
+	path = crates/lyon
+	url = git@github.com:yamadapc/lyon

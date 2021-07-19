@@ -239,6 +239,7 @@ impl TestPluginHost {
     /// Resume playback
     pub fn play(&self) {
         if let Some(processor) = self.host_processor() {
+            log::info!("Starting playback processor_id={}", processor.id());
             processor.play();
         }
     }
@@ -246,6 +247,7 @@ impl TestPluginHost {
     /// Pause playback
     pub fn pause(&self) {
         if let Some(processor) = self.host_processor() {
+            log::info!("Pausing playback processor_id={}", processor.id());
             processor.pause();
         }
     }
@@ -253,6 +255,7 @@ impl TestPluginHost {
     /// Stop playback and go back to the start of the file
     pub fn stop(&self) {
         if let Some(processor) = self.host_processor() {
+            log::info!("Stopping playback processor_id={}", processor.id());
             processor.stop();
         }
     }
