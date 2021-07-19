@@ -206,10 +206,14 @@ impl TestPluginHost {
         let load_id = uuid::Uuid::new_v4().to_string();
         let load_path = format!("/tmp/plugin-host-{}", load_id);
         std::fs::copy(path, &load_path)?;
-        log::info!("Moved plugin into {}", &load_path);
-        let _ = Command::new("install_name_tool")
-            .args(&["-id", &load_id, &load_path])
-            .output();
+        log::info!("Copied plugin into {}", &load_path);
+        #[cfg(target_os = "macos")]
+        {
+            log::info!("Tainting the library with install_name_tool. Multiple versions will be loaded at the same time due to macOS limitations.");
+            let _ = Command::new("install_name_tool")
+                .args(&["-id", &load_id, &load_path])
+                .output();
+        }
         let load_path = Path::new(&load_path);
         let mut loader = PluginLoader::load(&load_path, Arc::clone(&host))?;
         let mut instance = loader.instance()?;
