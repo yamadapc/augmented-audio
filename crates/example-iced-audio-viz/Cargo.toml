@@ -10,7 +10,7 @@ iced = { path = "../iced", version = "^0.3.0", features = ["tokio", "canvas"] }
 basedrop = "^0.1.2"
 log = "^0.4.14"
 cpal = { version = "^0.13.3", path = "../cpal" }
-vst = { git = "https://github.com/rustaudio/vst-rs", rev = "a398697b0214129720af2480e98f1abf7beecfce" }
+vst = { path = "../vst" }
 
 audio-processor-standalone = { path = "../audio-processor-standalone" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }

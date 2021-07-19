@@ -61,7 +61,7 @@ impl LooperProcessorHandle {
         LooperProcessorHandle {
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
-            playback_input: AtomicBool::new(true),
+            playback_input: AtomicBool::new(false),
         }
     }
 
@@ -153,6 +153,7 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
 
 /// A single stereo looper
 pub struct LooperProcessor<SampleType: num::Float> {
+    pub id: String,
     state: LooperProcessorState<SampleType>,
     handle: Shared<LooperProcessorHandle>,
 }
@@ -160,6 +161,7 @@ pub struct LooperProcessor<SampleType: num::Float> {
 impl<SampleType: num::Float> LooperProcessor<SampleType> {
     pub fn new(handle: &Handle) -> Self {
         LooperProcessor {
+            id: uuid::Uuid::new_v4().to_string(),
             state: LooperProcessorState::new(),
             handle: Shared::new(handle, LooperProcessorHandle::new()),
         }
@@ -176,7 +178,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
     type SampleType = SampleType;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        log::info!("Prepare looper");
+        log::info!("Prepare looper {}", self.id);
         if settings.output_channels() != settings.input_channels() {
             log::error!("Prepare failed. Output/input channels mismatch");
             return;

@@ -33,7 +33,7 @@ impl Plugin for LoopiPlugin {
             name: "Loopi".to_string(),
             category: Category::Effect,
             vendor: "Beijaflor Software".to_string(),
-            unique_id: 2502, // Used by hosts to differentiate between plugins.
+            unique_id: 2504, // Used by hosts to differentiate between plugins.
             parameters: 0,
             ..Default::default()
         }
@@ -91,6 +91,7 @@ impl Drop for LoopiPlugin {
         if let Err(err) = self.garbage_collector.stop() {
             log::error!("Failed to stop GC {}", err);
         }
+        log::info!("Loopi is dropped {}", self.processor.id);
     }
 }
 

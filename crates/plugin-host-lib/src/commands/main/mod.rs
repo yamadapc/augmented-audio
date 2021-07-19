@@ -48,12 +48,12 @@ pub fn run_test(run_options: RunOptions) {
     run_load_audio_file(&run_options, &mut host);
     run_initialize_plugin(&run_options, &mut host);
 
-    let instance = host.plugin_instance();
     let host = Arc::new(Mutex::new(host));
     // This needs to be kept around otherwise the watcher will stop when dropped
     let _maybe_watcher = run_initialize_file_watch_thread(&run_options, &host);
 
     if run_options.open_editor() {
+        let instance = host.lock().unwrap().plugin_instance();
         if let Some(instance) = instance {
             log::info!("Starting GUI");
             start_gui(instance);

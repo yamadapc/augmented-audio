@@ -22,8 +22,10 @@ impl Application for LooperApplication {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let content = Text::new("Hello world");
+        let content = Text::new("HELLO YOU!");
         Container::new(content)
+            .center_x()
+            .center_y()
             .width(Length::Fill)
             .height(Length::Fill)
             .into()

@@ -31,3 +31,9 @@
 [submodule "crates/lyon"]
 	path = crates/lyon
 	url = git@github.com:yamadapc/lyon
+[submodule "crates/libloading"]
+	path = crates/libloading
+	url = git@github.com:yamadapc/rust_libloading
+[submodule "crates/vst"]
+	path = crates/vst
+	url = git@github.com:yamadapc/vst-rs

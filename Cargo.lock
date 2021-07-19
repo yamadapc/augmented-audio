@@ -424,7 +424,7 @@ version = "0.1.0"
 dependencies = [
  "crossbeam",
  "serde",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
 ]
 
 [[package]]
@@ -494,7 +494,7 @@ dependencies = [
  "log",
  "midir",
  "thiserror",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
 ]
 
 [[package]]
@@ -509,7 +509,7 @@ name = "audio-processor-traits"
 version = "0.2.0"
 dependencies = [
  "num 0.4.0",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
 ]
 
 [[package]]
@@ -597,7 +597,7 @@ dependencies = [
  "regex",
  "rustc-hash",
  "shlex",
- "which 3.1.1",
+ "which",
 ]
 
 [[package]]
@@ -1990,7 +1990,7 @@ dependencies = [
  "cpal",
  "iced",
  "log",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
 ]
 
 [[package]]
@@ -2440,7 +2440,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
  "webview-holder",
  "webview-transport",
 ]
@@ -2908,9 +2908,9 @@ dependencies = [
 
 [[package]]
 name = "glyph_brush_layout"
-version = "0.2.2"
+version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "15cf18cf985bd942f05e14552b63c9d08f7d0ed1ec79a977eb9747c9e065f497"
+checksum = "cc32c2334f00ca5ac3695c5009ae35da21da8c62d255b5b96d56e2597a637a38"
 dependencies = [
  "ab_glyph",
  "approx 0.5.0",
@@ -3157,7 +3157,7 @@ dependencies = [
  "log",
  "objc",
  "raw-window-handle",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
  "wisual-logger",
 ]
 
@@ -3673,8 +3673,6 @@ dependencies = [
 [[package]]
 name = "libloading"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6f84d96438c15fcd6c3f244c8fce01d1e2b9c6b5623e9c711dc9286d8fc92d6a"
 dependencies = [
  "cfg-if 1.0.0",
  "winapi 0.3.9",
@@ -3786,6 +3784,7 @@ dependencies = [
  "log",
  "num 0.4.0",
  "rimd",
+ "uuid",
  "wisual-logger",
 ]
 
@@ -3805,7 +3804,7 @@ dependencies = [
  "log4rs",
  "looper-processor",
  "thiserror",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
 ]
 
 [[package]]
@@ -4630,11 +4629,11 @@ checksum = "624a8340c38c1b80fd549087862da4ba43e08858af025b236e509b6649fc13d5"
 
 [[package]]
 name = "open"
-version = "1.7.0"
+version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1711eb4b31ce4ad35b0f316d8dfba4fe5c7ad601c448446d84aae7a896627b20"
+checksum = "dcea7a30d6b81a2423cc59c43554880feff7b57d12916f231a79f8d6d9470201"
 dependencies = [
- "which 4.1.0",
+ "pathdiff",
  "winapi 0.3.9",
 ]
 
@@ -4814,6 +4813,12 @@ dependencies = [
  "smallvec",
  "winapi 0.3.9",
 ]
+
+[[package]]
+name = "pathdiff"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "877630b3de15c0b64cc52f659345724fbf6bdad9bd9566699fc53688f3c34a34"
 
 [[package]]
 name = "pathfinder_geometry"
@@ -5124,7 +5129,7 @@ dependencies = [
  "thiserror",
  "tokio",
  "uuid",
- "vst 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "vst",
  "wisual-logger",
 ]
 
@@ -5152,7 +5157,7 @@ dependencies = [
  "thiserror",
  "tinyfiledialogs",
  "tokio",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
  "wisual-logger",
 ]
 
@@ -5188,7 +5193,7 @@ dependencies = [
  "tao 0.2.6",
  "thiserror",
  "uuid",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
  "wisual-logger",
 ]
 
@@ -6047,9 +6052,9 @@ dependencies = [
 
 [[package]]
 name = "sha-1"
-version = "0.9.6"
+version = "0.9.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c4cfa741c5832d0ef7fab46cabed29c2aae926db0b11bb2069edd8db5e64e16"
+checksum = "1a0c8611594e2ab4ebbf06ec7cbbf0a99450b8570e96cbf5188b5d5f6ef18d81"
 dependencies = [
  "block-buffer",
  "cfg-if 1.0.0",
@@ -6728,7 +6733,7 @@ dependencies = [
  "tokio",
  "tokio-tungstenite",
  "tungstenite",
- "vst 0.2.1 (git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce)",
+ "vst",
  "webview-holder",
  "webview-transport",
  "wisual-logger",
@@ -6777,15 +6782,15 @@ dependencies = [
 
 [[package]]
 name = "tauri-build"
-version = "1.0.0-beta.2"
+version = "1.0.0-beta.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bcefc20a0068157a26623f431aefa165601fe7e612b3bba8fc7b16995f91d86a"
+checksum = "78fbf1de4ceafab0706c586a4abbb920051899d13aeb67a1d6953a79aced5d99"
 dependencies = [
  "anyhow",
  "proc-macro2",
  "quote 1.0.9",
  "serde_json",
- "tauri-utils 1.0.0-beta.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tauri-utils 1.0.0-beta.2",
  "winres",
 ]
 
@@ -6860,9 +6865,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-utils"
-version = "1.0.0-beta.1"
+version = "1.0.0-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e2d97d530d708dc61c1185425ea5fbcebb04fd33e31739ee8ed1eb50a79b3b4"
+checksum = "9870bff4bcd4b795d8ce2efaba31a19012634fee211e7c86694c8d045b8edb73"
 dependencies = [
  "heck",
  "html5ever",
@@ -7352,24 +7357,10 @@ checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 [[package]]
 name = "vst"
 version = "0.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1dfeaf21be445e1d9edf37bdedbf7ec24b43ed84ace6295cba3e0d01c1a49a27"
 dependencies = [
  "bitflags 1.2.1",
  "libc",
- "libloading 0.5.2",
- "log",
- "num-traits 0.2.14",
-]
-
-[[package]]
-name = "vst"
-version = "0.2.1"
-source = "git+https://github.com/rustaudio/vst-rs?rev=a398697b0214129720af2480e98f1abf7beecfce#a398697b0214129720af2480e98f1abf7beecfce"
-dependencies = [
- "bitflags 1.2.1",
- "libc",
- "libloading 0.5.2",
+ "libloading 0.7.0",
  "log",
  "num-traits 0.2.14",
 ]
@@ -7721,9 +7712,9 @@ dependencies = [
 
 [[package]]
 name = "wgpu-core"
-version = "0.9.1"
+version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c45bceb912c11584306d19e3ed36df88c398a15556371f98901b371699141ce6"
+checksum = "958a8a5e418492723ab4e7933bf6dbdf06f5dc87274ba2ae0e4f9c891aac579c"
 dependencies = [
  "arrayvec 0.5.2",
  "bitflags 1.2.1",
@@ -7776,16 +7767,6 @@ version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d011071ae14a2f6671d0b74080ae0cd8ebf3a6f8c9589a2cd45f23126fe29724"
 dependencies = [
- "libc",
-]
-
-[[package]]
-name = "which"
-version = "4.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b55551e42cbdf2ce2bedd2203d0cc08dba002c27510f86dab6d0ce304cba3dfe"
-dependencies = [
- "either",
  "libc",
 ]
 

@@ -9,7 +9,7 @@ use vst::plugin::Plugin;
 
 use audio_garbage_collector::{GarbageCollector, GarbageCollectorError, Shared};
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 
 use crate::audio_io::audio_thread::error::AudioThreadError;
 use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId, AudioThreadOptions};
@@ -22,6 +22,7 @@ use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use crate::vst_host::AudioTestHost;
+use std::process::Command;
 
 #[derive(Debug, Error)]
 pub enum AudioHostPluginLoadError {
@@ -31,6 +32,8 @@ pub enum AudioHostPluginLoadError {
     MissingPathError,
     #[error(transparent)]
     AudioFileError(#[from] AudioFileError),
+    #[error(transparent)]
+    IOError(#[from] std::io::Error),
 }
 
 #[derive(Debug, Error)]
@@ -148,6 +151,18 @@ impl TestPluginHost {
 
     pub fn load_plugin(&mut self, path: &Path) -> Result<(), AudioHostPluginLoadError> {
         self.plugin_file_path = Some(path.into());
+
+        // Force the old plugin to be dropped
+        self.audio_thread.set_processor(SharedProcessor::new(
+            self.garbage_collector.handle(),
+            AudioThreadProcessor::Silence(SilenceAudioProcessor::new()),
+        ));
+        let old_processor = self.processor.take();
+        let old_plugin = self.vst_plugin_instance.take();
+        std::mem::drop(old_processor);
+        std::mem::drop(old_plugin);
+        self.garbage_collector.blocking_collect();
+
         let vst_plugin_instance = Self::load_vst_plugin(path)?;
         let vst_plugin_instance =
             SharedProcessor::new(self.garbage_collector.handle(), vst_plugin_instance);
@@ -188,7 +203,15 @@ impl TestPluginHost {
 
     pub(crate) fn load_vst_plugin(path: &Path) -> Result<PluginInstance, AudioHostPluginLoadError> {
         let host = Arc::new(Mutex::new(AudioTestHost));
-        let mut loader = PluginLoader::load(path, Arc::clone(&host))?;
+        let load_id = uuid::Uuid::new_v4().to_string();
+        let load_path = format!("/tmp/plugin-host-{}", load_id);
+        std::fs::copy(path, &load_path)?;
+        log::info!("Moved plugin into {}", &load_path);
+        let _ = Command::new("install_name_tool")
+            .args(&["-id", &load_id, &load_path])
+            .output();
+        let load_path = Path::new(&load_path);
+        let mut loader = PluginLoader::load(&load_path, Arc::clone(&host))?;
         let mut instance = loader.instance()?;
         let info = instance.get_info();
         log::info!(

@@ -15,7 +15,9 @@ exclude = [
   "crates/gfx",
   "crates/iced_audio",
   "crates/scripts",
-  "crates/lyon"
+  "crates/lyon",
+  "crates/vst",
+  "crates/libloading"
 ]
 
 [profile.bench]
@@ -27,3 +29,5 @@ gfx-backend-metal = { version = "*", path = "./crates/gfx/src/backend/metal", fe
 iced = { version = "^0.3.0", path = "./crates/iced" }
 lyon_tessellation = { path = "./crates/lyon/crates/tessellation", features = ["profiling"] }
 wisual-logger = { path = "./crates/wisual-logger" }
+libloading = { path = "./crates/libloading" }
+vst = { path = "./crates/vst" }
