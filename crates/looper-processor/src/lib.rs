@@ -61,7 +61,7 @@ impl LooperProcessorHandle {
         LooperProcessorHandle {
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
-            playback_input: AtomicBool::new(false),
+            playback_input: AtomicBool::new(true),
         }
     }
 
