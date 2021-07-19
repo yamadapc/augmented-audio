@@ -52,19 +52,17 @@ pub fn open_plugin_window(mut editor: Box<dyn Editor>, size: (i32, i32)) -> Plug
 }
 
 pub fn close_window(handle: RawWindowHandle) {
-    match handle {
-        RawWindowHandle::MacOS(MacOSHandle {
-            ns_window, ns_view, ..
-        }) => {
-            let ns_window = ns_window as id;
-            let ns_view = ns_view as id;
-            unsafe {
-                ns_view.removeFromSuperview();
-                ns_window.close();
-                let _ = Box::from_raw(ns_view);
-                let _ = Box::from_raw(ns_window);
-            }
+    if let RawWindowHandle::MacOS(MacOSHandle {
+        ns_window, ns_view, ..
+    }) = handle
+    {
+        let ns_window = ns_window as id;
+        let ns_view = ns_view as id;
+        unsafe {
+            ns_view.removeFromSuperview();
+            ns_window.close();
+            let _ = Box::from_raw(ns_view);
+            let _ = Box::from_raw(ns_window);
         }
-        _ => {}
     }
 }

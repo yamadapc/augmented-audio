@@ -114,7 +114,9 @@ impl MainContentView {
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
         self.poll_for_host_handles();
-        self.audio_chart.as_mut().map(|chart| chart.update());
+        if let Some(chart) = &mut self.audio_chart {
+            chart.update();
+        }
         match message {
             Message::AudioIOSettings(msg) => self.update_audio_io_settings(msg),
             Message::PluginContent(msg) => self.update_plugin_content(msg),
@@ -248,11 +250,9 @@ impl MainContentView {
                 Command::perform(
                     tokio::task::spawn_blocking(move || {
                         let mut host = host_ref.lock().unwrap();
-                        if let Some(plugin_file_path) = host.plugin_file_path().clone() {
-                            Some(host.load_plugin(&plugin_file_path))
-                        } else {
-                            None
-                        }
+                        host.plugin_file_path()
+                            .clone()
+                            .map(|plugin_file_path| host.load_plugin(&plugin_file_path))
                     }),
                     |result| match result {
                         Err(err) => Message::SetStatus(StatusBar::new(
@@ -318,7 +318,7 @@ impl MainContentView {
     }
 
     fn open_plugin_window(&mut self) -> Command<Message> {
-        if let Some(_) = self.plugin_window_handle.take() {
+        if self.plugin_window_handle.is_some() {
             log::warn!("Refusing to open 2 plugin editors");
         } else {
             log::info!("Opening plugin editor");

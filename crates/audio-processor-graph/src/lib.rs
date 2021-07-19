@@ -76,6 +76,7 @@ impl<BufferType, Processor> ObjectAudioProcessor<BufferType>
     for AudioProcessorGraph<BufferType, Processor>
 where
     BufferType: OwnedAudioBuffer,
+    BufferType::SampleType: Copy,
     Processor: ObjectAudioProcessor<BufferType>,
 {
     fn prepare_obj(&mut self, settings: AudioProcessorSettings) {
@@ -115,6 +116,7 @@ where
 fn copy_buffer<BufferType>(source: &BufferType, destination: &mut BufferType)
 where
     BufferType: AudioBuffer,
+    BufferType::SampleType: Copy,
 {
     for sample_index in 0..source.num_samples() {
         for channel_index in 0..source.num_channels() {

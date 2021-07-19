@@ -11,7 +11,7 @@ use audio_processor_traits::{
 
 // TODO Fix duplication in this file due to MIDI vs. no MIDI.
 pub fn audio_processor_main_with_midi<
-    Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + 'static,
+    Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + Send + 'static,
 >(
     audio_processor: Processor,
     handle: &Handle,
@@ -22,7 +22,7 @@ pub fn audio_processor_main_with_midi<
 }
 
 pub fn audio_processor_start_with_midi<
-    Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + 'static,
+    Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + Send + 'static,
 >(
     mut audio_processor: Processor,
     handle: &Handle,
@@ -94,14 +94,14 @@ pub fn audio_processor_start_with_midi<
     (input_stream, output_stream, midi_host)
 }
 
-pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + 'static>(
+pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
 ) {
     let (_input_stream, _output_stream) = audio_processor_start(audio_processor);
     std::thread::park();
 }
 
-pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + 'static>(
+pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     mut audio_processor: Processor,
 ) -> (cpal::Stream, cpal::Stream) {
     let _ = wisual_logger::try_init_from_env();
@@ -224,7 +224,7 @@ fn output_stream_callback<Processor: AudioProcessor<SampleType = f32> + 'static>
 }
 
 fn output_stream_callback_with_midi<
-    Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + 'static,
+    Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + Send + 'static,
 >(
     midi_message_queue: &MidiMessageQueue,
     midi_audio_thread_handler: &mut MidiAudioThreadHandler,
