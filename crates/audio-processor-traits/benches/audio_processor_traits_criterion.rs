@@ -6,7 +6,7 @@ const NUM_SAMPLES: usize = 10000;
 
 fn gain_vec(vec: &mut Vec<f32>) {
     for sample in vec {
-        *sample = 0.1 * *sample;
+        *sample = 0.1 * *sample * *sample * *sample * *sample * *sample;
     }
 }
 
@@ -16,7 +16,7 @@ where
 {
     for sample_index in 0..audio_buffer.num_samples() {
         let sample = *audio_buffer.get(0, sample_index);
-        let output = sample * 0.1;
+        let output = sample * 0.1 * sample * sample * sample * sample;
         audio_buffer.set(0, sample_index, output);
     }
 }
@@ -27,7 +27,7 @@ where
 {
     for sample_index in 0..audio_buffer.num_samples() {
         let sample = audio_buffer.get_mut(0, sample_index);
-        *sample = *sample * 0.1;
+        *sample = *sample * 0.1 * *sample * *sample * *sample * *sample;
     }
 }
 
@@ -38,7 +38,7 @@ where
     for sample_index in 0..audio_buffer.num_samples() {
         for channel_index in 0..audio_buffer.num_channels() {
             let sample = *audio_buffer.get(channel_index, sample_index);
-            let output = sample * 0.1;
+            let output = sample * 0.1 * sample * sample * sample * sample;
             audio_buffer.set(channel_index, sample_index, output);
         }
     }
@@ -52,7 +52,8 @@ where
     for sample_index in 0..audio_buffer.num_samples() {
         for channel_index in 0..audio_buffer.num_channels() {
             let sample = *audio_buffer.get(channel_index, sample_index);
-            let output = sample * SampleType::from(0.1).unwrap();
+            let output =
+                sample * SampleType::from(0.1).unwrap() * sample * sample * sample * sample;
             audio_buffer.set(channel_index, sample_index, output);
         }
     }

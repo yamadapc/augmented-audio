@@ -149,15 +149,7 @@ impl<SampleType: num::Float + Send> AudioProcessor for SilenceAudioProcessor<Sam
 * Testing tools
 
 ## Buffer performance
-On a simple gain benchmark, performance is between 10-20x worse on a `VecAudioBuffer` than a `Vec`.
-
-Potential reasons why this is the case:
-
-* Unable to optimise bounds checking away (around 2x improvement from using `get_unchecked`)
-* Unable to vectorize (?)
-
-I wasn't aware of this at the start, so I'll have a look & review whether it makes sense to use audio-buffer structs
-given this problem.
+On a trivial gain benchmark, performance is between 10-20x worse on a `VecAudioBuffer` than a `Vec`.
 
 Other things to measure:
 

@@ -142,22 +142,27 @@ impl<'a, SampleType> InterleavedAudioBuffer<'a, SampleType> {
 impl<'a, SampleType> AudioBuffer for InterleavedAudioBuffer<'a, SampleType> {
     type SampleType = SampleType;
 
+    #[inline]
     fn num_channels(&self) -> usize {
         self.num_channels
     }
 
+    #[inline]
     fn num_samples(&self) -> usize {
         self.inner.len() / self.num_channels
     }
 
+    #[inline]
     fn get(&self, channel: usize, sample: usize) -> &SampleType {
         &self.inner[sample * self.num_channels + channel]
     }
 
+    #[inline]
     fn get_mut(&mut self, channel: usize, sample: usize) -> &mut SampleType {
         &mut self.inner[sample * self.num_channels + channel]
     }
 
+    #[inline]
     fn set(&mut self, channel: usize, sample: usize, value: SampleType) {
         let sample_ref = self.get_mut(channel, sample);
         *sample_ref = value;
@@ -176,6 +181,7 @@ pub struct SliceAudioBuffer<'a, SampleType> {
 }
 
 impl<'a, SampleType> SliceAudioBuffer<'a, SampleType> {
+    #[inline]
     pub fn new(channels: &'a mut [&'a mut [SampleType]]) -> Self {
         Self { channels }
     }
@@ -225,9 +231,9 @@ pub trait OwnedAudioBuffer: AudioBuffer {
 /// An owned version of the interleaved buffer implementation. Can be converted onto an
 /// `InterleavedAudioBuffer`.
 pub struct VecAudioBuffer<SampleType> {
+    buffer: Vec<SampleType>,
     num_channels: usize,
     num_samples: usize,
-    buffer: Vec<SampleType>,
 }
 
 impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType> {
@@ -260,6 +266,7 @@ impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType> {
 }
 
 impl<SampleType: Clone> OwnedAudioBuffer for VecAudioBuffer<SampleType> {
+    #[inline]
     fn new() -> Self {
         VecAudioBuffer {
             num_channels: 0,
@@ -268,6 +275,7 @@ impl<SampleType: Clone> OwnedAudioBuffer for VecAudioBuffer<SampleType> {
         }
     }
 
+    #[inline]
     fn resize(&mut self, num_channels: usize, num_samples: usize, sample: Self::SampleType) {
         self.num_samples = num_samples;
         self.num_channels = num_channels;
