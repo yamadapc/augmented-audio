@@ -35,58 +35,21 @@ We'd like some abstraction that covers some of these issues. Without thinking ab
 MIDI, state & dry/wet), a basic audio processor trait can solve buffer/sample conversion issues.
 
 ## AudioBuffer
+An `AudioBuffer` trait is provided. It provides an abstraction to get the size of the buffer and modify it.
 
-The first part is the `AudioBuffer` trait.
-```rust
-pub trait AudioBuffer {
-    type SampleType: num::Float + Send;
+The `AudioBuffer` trait may wrap samples in different layouts or with different ownership, however, it's recommended to
+process samples using the `AudioBuffer::frame`, `AudioBuffer::frame_mut`, `AudioBuffer::slice` and
+`AudioBuffer::slice_mut`.
 
-    /// The number of channels in this buffer
-    fn num_channels(&self) -> usize;
-
-    /// The number of samples in this buffer
-    fn num_samples(&self) -> usize;
-
-    /// Get a ref to an INPUT sample in this buffer
-    fn get(&self, channel: usize, sample: usize) -> &Self::SampleType;
-
-    /// Get a mutable ref to an OUTPUT sample in this buffer
-    ///
-    /// On some implementations this may yield a different value than `.get`.
-    fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType;
-
-    /// Set an OUTPUT sample in this buffer
-    fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType);
-
-    /// Create a read only iterator
-    fn iter(&self) -> AudioBufferIterator<Self> {
-        AudioBufferIterator::new(&self)
-    }
-}
-```
-
-It provides an abstraction to get the size of the buffer and modify it as well as a helper read-only iterator
-implementation.
-
-There're 3 main implementations of this trait in this crate.
-
-### InterleavedAudioBuffer
-This implementation provides compatibility with interleaved buffers, where multi-channel samples are interleaved with
-one another.
-
-This provides compatibility of the `AudioBuffer` trait with `cpal`.
-
-### VSTAudioBuffer
-This implementation provides compatibility with the VST API and the `rust-vst`/`vst` crate.
-
-In `vst`, the channels are separate slices of continuous samples & input/output are separate pointers.
+The reason for this is that using `slice` iterators is much more efficient than iterating over a range of numbers and
+calling `AudioBuffer::get`.
 
 ## AudioProcessor
 
 The **AudioProcessor** trait is only two methods:
 
 ```rust
-pub trait AudioProcessor: Send {
+pub trait AudioProcessor {
     type SampleType;
     fn prepare(&mut self, _settings: AudioProcessorSettings) {}
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -145,7 +108,8 @@ impl<SampleType: num::Float + Send> AudioProcessor for SilenceAudioProcessor<Sam
 * Testing tools
 
 ## Buffer performance
-On a trivial gain benchmark, performance is between 10-20x worse on a `VecAudioBuffer` than a `Vec`.
+On a trivial gain benchmark, performance using the `AudioBuffer::get` APIs is between 10-20x worse on a 
+`VecAudioBuffer` than a `Vec`.
 
 Other things to measure:
 

@@ -41,9 +41,9 @@ impl CpalVstBufferHandler {
 
     /// Process cpal input samples
     pub fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &BufferType) {
-        for sample_index in 0..data.num_samples() {
-            for channel in 0..data.num_channels() {
-                self.input_buffer[channel][sample_index] = *data.get(channel, sample_index);
+        for (sample_index, frame) in data.frames().enumerate() {
+            for (channel, sample) in frame.iter().enumerate() {
+                self.input_buffer[channel][sample_index] = *sample;
             }
         }
     }

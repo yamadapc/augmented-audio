@@ -118,14 +118,10 @@ where
     BufferType: AudioBuffer,
     BufferType::SampleType: Copy,
 {
-    for sample_index in 0..source.num_samples() {
-        for channel_index in 0..source.num_channels() {
-            destination.set(
-                channel_index,
-                sample_index,
-                *source.get(channel_index, sample_index),
-            )
-        }
+    let src = source.slice();
+    let dest = destination.slice_mut();
+    for (s, d) in src.iter().zip(dest) {
+        *d = *s;
     }
 }
 

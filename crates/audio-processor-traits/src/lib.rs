@@ -166,14 +166,8 @@ impl<SampleType: Float + Send> AudioProcessor for SilenceAudioProcessor<SampleTy
         &mut self,
         output: &mut BufferType,
     ) {
-        for sample_index in 0..output.num_samples() {
-            for channel_index in 0..output.num_channels() {
-                output.set(
-                    channel_index,
-                    sample_index,
-                    <BufferType as AudioBuffer>::SampleType::zero(),
-                );
-            }
+        for sample in output.slice_mut() {
+            *sample = SampleType::zero();
         }
     }
 }

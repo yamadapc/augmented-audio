@@ -8,8 +8,6 @@ license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [features]
 default = ["vst_support"]
 vst_support = ["vst"]

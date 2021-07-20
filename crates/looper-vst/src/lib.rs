@@ -62,7 +62,7 @@ impl Plugin for LoopiPlugin {
     }
 
     fn set_block_size(&mut self, size: i64) {
-        self.settings.set_block_size(size as u32);
+        self.settings.set_block_size(size as usize);
         self.processor.prepare(self.settings);
     }
 

@@ -210,10 +210,8 @@ impl AudioFileProcessor {
         let is_playing = self.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
-            for sample_index in 0..data.num_samples() {
-                for channel_index in 0..data.num_channels() {
-                    data.set(channel_index, sample_index, 0.0);
-                }
+            for sample in data.slice_mut() {
+                *sample = 0.0;
             }
             return;
         }
@@ -221,11 +219,11 @@ impl AudioFileProcessor {
         let start_cursor = self.audio_file_cursor.load(Ordering::Relaxed);
         let mut audio_file_cursor = start_cursor;
 
-        for sample_index in 0..data.num_samples() {
-            for channel_index in 0..data.num_channels() {
+        for frame in data.frames_mut() {
+            for (channel_index, sample) in frame.iter_mut().enumerate() {
                 let audio_input = self.buffer[channel_index][audio_file_cursor];
                 let value = audio_input;
-                data.set(channel_index, sample_index, value);
+                *sample = value;
             }
 
             audio_file_cursor += 1;

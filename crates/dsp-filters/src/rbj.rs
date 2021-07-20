@@ -300,14 +300,14 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
         buffer: &mut Buffer,
         channel_index: usize,
     ) {
-        for sample_index in 0..buffer.num_samples() {
-            let input = buffer.get(channel_index, sample_index);
+        for frame in buffer.frames_mut() {
+            let input = frame[channel_index];
             let output = self.state.process1(
                 &self.coefficients,
-                *input,
+                input,
                 self.denormal_prevention.alternating_current(),
             );
-            buffer.set(channel_index, sample_index, output);
+            frame[channel_index] = output;
         }
     }
 }
@@ -429,10 +429,10 @@ where
         self.filter.process_channel(data, 0);
 
         // Mono output
-        for sample_index in 0..data.num_samples() {
-            let left_output = *data.get(0, sample_index);
-            for channel_index in 1..data.num_channels() {
-                data.set(channel_index, sample_index, left_output);
+        for frame in data.frames_mut() {
+            let left_output = frame[0];
+            for channel_index in 1..frame.len() {
+                frame[channel_index] = left_output;
             }
         }
     }

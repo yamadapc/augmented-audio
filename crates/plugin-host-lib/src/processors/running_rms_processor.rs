@@ -96,13 +96,12 @@ impl AudioProcessor for RunningRMSProcessor {
         let window = self.handle.window.get();
         let mut cursor = self.handle.cursor.load(Ordering::Relaxed);
 
-        for sample_index in 0..data.num_samples() {
-            for channel_index in 0..data.num_channels() {
+        for frame in data.frames() {
+            for (channel_index, sample) in frame.iter().enumerate() {
                 let value_slot = window.get(channel_index, cursor);
                 let previous_value = value_slot.get();
 
-                let sample = *data.get(channel_index, sample_index);
-                let new_value = sample * sample; // using square rather than abs is around 1% faster
+                let new_value = *sample * *sample; // using square rather than abs is around 1% faster
                 value_slot.set(new_value);
 
                 let running_sum_slot = &running_sums[channel_index];

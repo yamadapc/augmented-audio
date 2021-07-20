@@ -51,14 +51,13 @@ impl AudioProcessor for Voice {
         &mut self,
         data: &mut BufferType,
     ) {
-        for sample_index in 0..data.num_samples() {
+        for frame in data.frames_mut() {
             let oscillator_value = self.oscillator.get();
             let envelope_volume = self.envelope.volume();
             let output = self.volume * oscillator_value * envelope_volume;
 
-            for channel_index in 0..data.num_channels() {
-                let input = *data.get(channel_index, sample_index);
-                data.set(channel_index, sample_index, input + output);
+            for sample in frame.iter_mut() {
+                *sample += output;
             }
 
             self.envelope.tick();

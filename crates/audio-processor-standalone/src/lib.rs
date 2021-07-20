@@ -158,23 +158,23 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send 
 
 fn configure_input_device(
     host: &Host,
-    buffer_size: u32,
-    sample_rate: u32,
+    buffer_size: usize,
+    sample_rate: usize,
 ) -> (cpal::Device, StreamConfig) {
     let input_device = host.default_input_device().unwrap();
     let input_config = input_device.default_input_config().unwrap();
     let mut input_config: StreamConfig = input_config.into();
     log::info!("Using input: {}", input_device.name().unwrap());
     input_config.channels = 2;
-    input_config.sample_rate = SampleRate(sample_rate);
-    input_config.buffer_size = BufferSize::Fixed(buffer_size);
+    input_config.sample_rate = SampleRate(sample_rate as u32);
+    input_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
     (input_device, input_config)
 }
 
 fn configure_output_device(
     host: Host,
-    buffer_size: u32,
-    sample_rate: u32,
+    buffer_size: usize,
+    sample_rate: usize,
 ) -> (cpal::Device, usize, StreamConfig) {
     let output_device = host.default_output_device().unwrap();
     let output_config = output_device.default_output_config().unwrap();
@@ -182,8 +182,8 @@ fn configure_output_device(
     let mut output_config: StreamConfig = output_config.into();
     log::info!("Using output: {}", output_device.name().unwrap());
     output_config.channels = 2;
-    output_config.sample_rate = SampleRate(sample_rate);
-    output_config.buffer_size = BufferSize::Fixed(buffer_size);
+    output_config.sample_rate = SampleRate(sample_rate as u32);
+    output_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
     (output_device, num_channels, output_config)
 }
 

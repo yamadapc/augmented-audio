@@ -57,9 +57,8 @@ impl AudioProcessor for VolumeAnalyser {
         &mut self,
         data: &mut BufferType,
     ) {
-        for sample_index in 0..data.num_samples() {
-            self.internal_buffer[self.cursor] =
-                (*data.get(0, sample_index), *data.get(1, sample_index));
+        for frame in data.slice().chunks(data.num_channels()) {
+            self.internal_buffer[self.cursor] = (frame[0], frame[1]);
 
             self.cursor += 1;
             if self.cursor >= self.internal_buffer.len() {

@@ -37,14 +37,14 @@ where
             return;
         }
 
-        for sample_index in 0..data.num_samples() {
+        for frame in data.frames_mut() {
             let mut sum: SampleType = SampleType::zero();
 
-            for channel_index in 0..data.num_channels() {
-                sum += *data.get(channel_index, sample_index);
+            for sample in frame.iter() {
+                sum += *sample;
             }
 
-            data.set(0, sample_index, sum);
+            frame[0] = sum;
         }
     }
 }

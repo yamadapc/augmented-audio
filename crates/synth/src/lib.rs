@@ -43,10 +43,8 @@ impl AudioProcessor for Synthesizer {
         data: &mut BufferType,
     ) {
         // Silence the input
-        for sample_index in 0..data.num_samples() {
-            for channel_index in 0..data.num_channels() {
-                data.set(channel_index, sample_index, 0.0);
-            }
+        for sample in data.slice_mut() {
+            *sample = 0.0;
         }
 
         // Produce output for 4 voices

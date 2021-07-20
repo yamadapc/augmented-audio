@@ -1,10 +1,19 @@
 use num::Float;
+use std::slice::{Chunks, ChunksMut};
 
 /// Represents an audio buffer. This decouples audio processing code from a certain representation
 /// of multi-channel sample buffers.
 ///
 /// This crate provides implementations of this trait for VST & CPal style buffers, which have
 /// different internal representations.
+///
+/// When processing samples, it'll be more efficient to use `.slice` and `.slice_mut` than `.get` /
+/// `.set` methods. For the VST buffer, these methods will not work.
+///
+/// It's recommended to convert the buffer into interleaved layout before processing as that'll be
+/// around as expensive as the overhead of `get`/`set` methods on a single loop through samples.
+///
+/// (due to bounds checking and other compiler optimisations that fail with them)
 pub trait AudioBuffer {
     /// The type of samples within this buffer.
     type SampleType;
@@ -15,25 +24,45 @@ pub trait AudioBuffer {
     /// The number of samples in this buffer
     fn num_samples(&self) -> usize;
 
+    /// Get a slice to the internal data. Will not work with VST adapter
+    ///
+    /// This is the faster way to process
     fn slice(&self) -> &[Self::SampleType];
+
+    /// Get a mutable slice to the internal data. Will not work with VST adapter
+    ///
+    /// This is the faster way to process
     fn slice_mut(&mut self) -> &mut [Self::SampleType];
 
-    /// Get a ref to an INPUT sample in this buffer
-    #[deprecated]
+    /// Shortcut for `.slice().chunks(num_channels)`
+    fn frames(&self) -> Chunks<'_, Self::SampleType> {
+        self.slice().chunks(self.num_channels())
+    }
+
+    /// Shortcut for `.slice_mut().chunks_mut(num_channels)`
+    fn frames_mut(&mut self) -> ChunksMut<'_, Self::SampleType> {
+        let channels = self.num_channels();
+        self.slice_mut().chunks_mut(channels)
+    }
+
+    /// Get a ref to an INPUT sample in this buffer.
+    ///
+    /// Calling this on a loop will be ~20x slower than reading from `slice`.
     fn get(&self, channel: usize, sample: usize) -> &Self::SampleType;
 
     /// Get a mutable ref to an OUTPUT sample in this buffer
     ///
     /// On some implementations this may yield a different value than `.get`.
-    #[deprecated]
+    ///
+    /// Calling this on a loop will be ~20x slower than reading from `slice`.
     fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType;
 
     /// Set an OUTPUT sample in this buffer
-    #[deprecated]
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType);
 
     /// Unsafe, no bounds check - Get a ref to an INPUT sample in this buffer
-    #[deprecated]
+    ///
+    /// Calling this on a loop will be ~10x slower than reading from `slice`.
     unsafe fn get_unchecked(&self, channel: usize, sample: usize) -> &Self::SampleType {
         self.get(channel, sample)
     }
@@ -41,13 +70,15 @@ pub trait AudioBuffer {
     /// Unsafe, no bounds check - Get a mutable ref to an OUTPUT sample in this buffer
     ///
     /// On some implementations this may yield a different value than `.get`.
-    #[deprecated]
+    ///
+    /// Calling this on a loop will be ~10x slower than reading from `slice`.
     unsafe fn get_unchecked_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
         self.get_mut(channel, sample)
     }
 
     /// Unsafe, no bounds check - Set an OUTPUT sample in this buffer
-    #[deprecated]
+    ///
+    /// Calling this on a loop will be ~10x slower than reading from `slice`.
     unsafe fn set_unchecked(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.set(channel, sample, value)
     }
@@ -67,22 +98,11 @@ pub struct InterleavedAudioBuffer<'a, SampleType> {
 }
 
 impl<'a, SampleType> InterleavedAudioBuffer<'a, SampleType> {
-    #[deprecated]
     pub fn new(num_channels: usize, inner: &'a mut [SampleType]) -> Self {
         Self {
             num_channels,
             inner,
         }
-    }
-
-    #[deprecated]
-    pub fn inner(&self) -> &[SampleType] {
-        &self.inner
-    }
-
-    #[deprecated]
-    pub fn inner_mut(&mut self) -> &mut [SampleType] {
-        &mut self.inner
     }
 }
 
@@ -99,10 +119,12 @@ impl<'a, SampleType> AudioBuffer for InterleavedAudioBuffer<'a, SampleType> {
         self.inner.len() / self.num_channels
     }
 
+    #[inline]
     fn slice(&self) -> &[Self::SampleType] {
         &self.inner
     }
 
+    #[inline]
     fn slice_mut(&mut self) -> &mut [Self::SampleType] {
         &mut self.inner
     }
@@ -241,13 +263,13 @@ pub mod vst {
     ///
     /// This means it might be that `audio_buffer.get(channel, sample)` is different to
     /// `audio_buffer.get_mut(channel, sample)`.
-    #[deprecated]
     pub struct VSTAudioBuffer<'a, SampleType> {
         inputs: ::vst::buffer::Inputs<'a, SampleType>,
         outputs: ::vst::buffer::Outputs<'a, SampleType>,
     }
 
     impl<'a, SampleType: Float> VSTAudioBuffer<'a, SampleType> {
+        #[deprecated]
         pub fn new(
             inputs: ::vst::buffer::Inputs<'a, SampleType>,
             outputs: ::vst::buffer::Outputs<'a, SampleType>,
@@ -255,6 +277,7 @@ pub mod vst {
             VSTAudioBuffer { inputs, outputs }
         }
 
+        #[deprecated]
         pub fn with_buffer(buffer: &'a mut ::vst::buffer::AudioBuffer<'a, SampleType>) -> Self {
             let (inputs, outputs) = buffer.split();
             Self::new(inputs, outputs)
@@ -277,11 +300,11 @@ pub mod vst {
         }
 
         fn slice(&self) -> &[Self::SampleType] {
-            todo!()
+            &[]
         }
 
         fn slice_mut(&mut self) -> &mut [Self::SampleType] {
-            todo!()
+            &mut []
         }
 
         fn get(&self, channel: usize, sample: usize) -> &Self::SampleType {

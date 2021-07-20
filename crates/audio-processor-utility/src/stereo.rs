@@ -45,15 +45,11 @@ where
         &mut self,
         data: &mut BufferType,
     ) {
-        for sample_index in 0..data.num_samples() {
-            let source_sample = *data.get(self.source_channel, sample_index);
+        for frame in data.frames_mut() {
+            let source_sample = frame[self.source_channel];
 
-            for channel_index in 0..data.num_channels() {
-                if channel_index == self.source_channel {
-                    continue;
-                }
-
-                data.set(channel_index, sample_index, source_sample);
+            for sample in frame.iter_mut() {
+                *sample = source_sample;
             }
         }
     }

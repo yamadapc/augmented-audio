@@ -9,8 +9,8 @@ impl AudioProcessor for MonoRightProcessor {
         &mut self,
         data: &mut BufferType,
     ) {
-        for sample_index in 0..data.num_samples() {
-            data.set(0, sample_index, *data.get(1, sample_index));
+        for frame in data.frames_mut() {
+            frame[0] = frame[1];
         }
     }
 }

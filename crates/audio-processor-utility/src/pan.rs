@@ -47,24 +47,24 @@ where
     ) {
         let zero = SampleType::zero();
         let one = SampleType::one();
-        for sample_index in 0..data.num_samples() {
+        for frame in data.frames_mut() {
             let panning = self.panning;
 
-            let left_input = *data.get(0, sample_index);
-            let right_input = *data.get(1, sample_index);
+            let left_input = frame[0];
+            let right_input = frame[1];
 
             if panning > zero {
                 let left_output = left_input * (one - panning);
                 let right_output = right_input + left_input * panning;
 
-                data.set(0, sample_index, left_output);
-                data.set(1, sample_index, right_output);
+                frame[0] = left_output;
+                frame[1] = right_output;
             } else if panning < zero {
                 let left_output = left_input + right_input * (-panning);
                 let right_output = right_input * (one + panning);
 
-                data.set(0, sample_index, left_output);
-                data.set(1, sample_index, right_output);
+                frame[0] = left_output;
+                frame[1] = right_output;
             }
         }
     }
@@ -83,7 +83,7 @@ mod test {
 
         pan.process(&mut input);
 
-        for frame in input.iter() {
+        for frame in input.frames() {
             for sample in frame.iter() {
                 assert_eq!(*sample, 1.);
             }

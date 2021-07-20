@@ -43,14 +43,8 @@ where
         &mut self,
         data: &mut BufferType,
     ) {
-        for sample_index in 0..data.num_samples() {
-            for channel_index in 0..data.num_channels() {
-                data.set(
-                    channel_index,
-                    sample_index,
-                    *data.get(channel_index, sample_index) * self.gain,
-                )
-            }
+        for sample in data.slice_mut() {
+            *sample = self.gain * *sample;
         }
     }
 }

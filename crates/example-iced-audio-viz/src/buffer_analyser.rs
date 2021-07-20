@@ -25,10 +25,8 @@ impl AudioProcessor for BufferAnalyserProcessor {
         &mut self,
         data: &mut BufferType,
     ) {
-        for sample_index in 0..data.num_samples() {
-            if sample_index % 10 == 0 {
-                self.buffer.push(*data.get(0, sample_index));
-            }
+        for sample in data.slice().chunks(data.num_channels()) {
+            self.buffer.push(sample[0]);
         }
     }
 }
