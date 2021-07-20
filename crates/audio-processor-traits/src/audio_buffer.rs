@@ -63,6 +63,9 @@ pub trait AudioBuffer {
     /// Unsafe, no bounds check - Get a ref to an INPUT sample in this buffer
     ///
     /// Calling this on a loop will be ~10x slower than reading from `slice`.
+    ///
+    /// # Safety
+    /// This performs no bounds checks. Make sure indexes are in range.
     unsafe fn get_unchecked(&self, channel: usize, sample: usize) -> &Self::SampleType {
         self.get(channel, sample)
     }
@@ -72,6 +75,9 @@ pub trait AudioBuffer {
     /// On some implementations this may yield a different value than `.get`.
     ///
     /// Calling this on a loop will be ~10x slower than reading from `slice`.
+    ///
+    /// # Safety
+    /// This performs no bounds checks. Make sure indexes are in range.
     unsafe fn get_unchecked_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
         self.get_mut(channel, sample)
     }
@@ -79,6 +85,9 @@ pub trait AudioBuffer {
     /// Unsafe, no bounds check - Set an OUTPUT sample in this buffer
     ///
     /// Calling this on a loop will be ~10x slower than reading from `slice`.
+    ///
+    /// # Safety
+    /// This performs no bounds checks. Make sure indexes are in range.
     unsafe fn set_unchecked(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.set(channel, sample, value)
     }

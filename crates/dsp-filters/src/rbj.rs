@@ -431,8 +431,8 @@ where
         // Mono output
         for frame in data.frames_mut() {
             let left_output = frame[0];
-            for channel_index in 1..frame.len() {
-                frame[channel_index] = left_output;
+            for sample in frame.iter_mut().skip(1) {
+                *sample = left_output;
             }
         }
     }
