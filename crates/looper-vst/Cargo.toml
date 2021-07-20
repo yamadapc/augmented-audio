@@ -13,6 +13,7 @@ log4rs = { version = "^1.0.0", features = ["rolling_file_appender", "compound_po
 dirs = "^3.0.2"
 thiserror = "^1.0.25"
 
+audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
 iced = { version = "^0.3.0", path = "../iced", features = ["canvas"] }
 iced_baseview = { path = "../iced-baseview", features = ["canvas"], default-features = false }
 iced-editor = { path = "../iced-editor" }

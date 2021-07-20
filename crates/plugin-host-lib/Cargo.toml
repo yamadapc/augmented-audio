@@ -21,7 +21,7 @@ midir = "^0.7.0"
 thiserror = "^1.0.25"
 rimd = "^0.0.1"
 concread = "^0.2.14"
-notify = "4.0.17"
+notify = "^4.0.17"
 md5 = "^0.7.0"
 vst = { path = "../vst" }
 hound = "^3.4.0"

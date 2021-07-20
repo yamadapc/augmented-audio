@@ -2,46 +2,40 @@ use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
-use iced::{Column, Command, Container, Element, Length, Row, Rule, Text};
-use vst::host::PluginInstance;
-use vst::plugin::Plugin;
+use iced::{Command, Element};
+use vst::{host::PluginInstance, plugin::Plugin};
 
 use audio_garbage_collector::Shared;
-use audio_processor_iced_design_system::spacing::Spacing;
-use audio_processor_iced_design_system::style::{Container0, Container1};
-use plugin_host_lib::audio_io::audio_io_service::storage::StorageConfig;
-use plugin_host_lib::audio_io::{
-    AudioHost, AudioHostPluginLoadError, AudioIOService, AudioIOServiceResult,
+use plugin_host_lib::{
+    audio_io::audio_io_service::storage::StorageConfig,
+    audio_io::{AudioHost, AudioHostPluginLoadError, AudioIOService, AudioIOServiceResult},
+    processors::running_rms_processor::RunningRMSProcessorHandle,
+    processors::volume_meter_processor::VolumeMeterProcessorHandle,
+    TestPluginHost,
 };
-use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessorHandle;
-use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
-use plugin_host_lib::TestPluginHost;
 
 use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::ui::audio_io_settings;
-use crate::ui::audio_io_settings::{AudioIOSettingsView, DropdownState};
-use crate::ui::main_content_view::audio_chart::AudioChart;
-use crate::ui::main_content_view::plugin_content::PluginContentView;
+use crate::ui::audio_io_settings::DropdownState;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
-use crate::ui::main_content_view::volume_meter::VolumeMeter;
 use crate::ui::plugin_editor_window::{close_window, open_plugin_window, PluginWindowHandle};
 
 mod audio_chart;
 pub mod plugin_content;
 pub mod status_bar;
 pub mod transport_controls;
+mod view;
 mod volume_meter;
 
-// TODO - Break-up this god struct
 pub struct MainContentView {
     // TODO - This should not be under a lock
     plugin_host: Arc<Mutex<TestPluginHost>>,
     // TODO - This should not be under a lock
     audio_io_service: Arc<Mutex<AudioIOService>>,
-    audio_io_settings: AudioIOSettingsView,
+    audio_io_settings: audio_io_settings::AudioIOSettingsView,
     host_options_service: HostOptionsService,
-    plugin_content: PluginContentView,
+    plugin_content: plugin_content::PluginContentView,
     transport_controls: TransportControlsView,
     error: Option<Box<dyn std::error::Error>>,
     plugin_window_handle: Option<PluginWindowHandle>,
@@ -50,7 +44,7 @@ pub struct MainContentView {
     // This should not be optional & it might break if the host restarts processors for some reason
     volume_handle: Option<Shared<VolumeMeterProcessorHandle>>,
     rms_processor_handle: Option<Shared<RunningRMSProcessorHandle>>,
-    audio_chart: Option<AudioChart>,
+    audio_chart: Option<audio_chart::AudioChart>,
 }
 
 #[derive(Clone, Debug)]
@@ -82,12 +76,13 @@ impl MainContentView {
             AudioIOService::default_host(),
         ))
         .unwrap_or_else(|_| DropdownState::default());
-        let audio_io_settings = AudioIOSettingsView::new(audio_io_settings::ViewModel {
-            audio_driver_state,
-            input_device_state,
-            output_device_state,
-        });
-        let plugin_content = PluginContentView::new(
+        let audio_io_settings =
+            audio_io_settings::AudioIOSettingsView::new(audio_io_settings::ViewModel {
+                audio_driver_state,
+                input_device_state,
+                output_device_state,
+            });
+        let plugin_content = plugin_content::PluginContentView::new(
             host_state.audio_input_file_path.clone(),
             host_state.plugin_path.clone(),
         );
@@ -147,7 +142,7 @@ impl MainContentView {
                 .flatten()
             {
                 self.rms_processor_handle = Some(buffer.clone());
-                self.audio_chart = Some(AudioChart::new(buffer));
+                self.audio_chart = Some(audio_chart::AudioChart::new(buffer));
             }
         }
     }
@@ -194,93 +189,96 @@ impl MainContentView {
 
     fn update_plugin_content(&mut self, msg: plugin_content::Message) -> Command<Message> {
         let command = match &msg {
-            plugin_content::Message::SetInputFile(input_file) => {
-                self.reset_handles();
-                let result = {
-                    let mut host = self.plugin_host.lock().unwrap();
-                    host.set_audio_file_path(PathBuf::from(input_file))
-                };
-                result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
-                self.host_state.audio_input_file_path = Some(input_file.clone());
-                self.host_options_service
-                    .store(&self.host_state)
-                    .unwrap_or_else(|err| {
-                        log::error!("Failed to store {:?}", err);
-                    });
-                Command::none()
-            }
+            plugin_content::Message::SetInputFile(input_file) => self.set_input_file(input_file),
             plugin_content::Message::OpenPluginWindow => self.open_plugin_window(),
-            plugin_content::Message::SetAudioPlugin(path) => {
-                self.reset_handles();
-                self.close_plugin_window();
-                let path = path.clone();
-
-                self.status_message =
-                    StatusBar::new("Updating persisted state", status_bar::State::Warning);
-                self.host_state.plugin_path = Some(path.clone());
-                self.host_options_service
-                    .store(&self.host_state)
-                    .unwrap_or_else(|err| {
-                        log::error!("Failed to store {:?}", err);
-                    });
-
-                self.status_message =
-                    StatusBar::new("Reloading plugin", status_bar::State::Warning);
-
-                let host_ref = self.plugin_host.clone();
-                Command::perform(
-                    tokio::task::spawn_blocking(move || {
-                        let mut host = host_ref.lock().unwrap();
-                        let path = Path::new(&path);
-                        host.load_plugin(path)
-                    }),
-                    |result| match result {
-                        Err(err) => Message::SetStatus(StatusBar::new(
-                            format!("Error loading plugin: {}", err),
-                            status_bar::State::Error,
-                        )),
-                        Ok(_) => Message::SetStatus(StatusBar::new(
-                            "Loaded plugin",
-                            status_bar::State::Idle,
-                        )),
-                    },
-                )
-            }
-            plugin_content::Message::ReloadPlugin => {
-                self.close_plugin_window();
-                let host_ref = self.plugin_host.clone();
-                self.reset_handles();
-                Command::perform(
-                    tokio::task::spawn_blocking(move || {
-                        let mut host = host_ref.lock().unwrap();
-                        host.plugin_file_path()
-                            .clone()
-                            .map(|plugin_file_path| host.load_plugin(&plugin_file_path))
-                    }),
-                    |result| match result {
-                        Err(err) => Message::SetStatus(StatusBar::new(
-                            format!("Failure loading plugin in a background thread: {}", err),
-                            status_bar::State::Error,
-                        )),
-                        Ok(None) => Message::SetStatus(StatusBar::new(
-                            "There's no plugin loaded, configure the plugin path",
-                            status_bar::State::Warning,
-                        )),
-                        Ok(Some(Err(err))) => Message::SetStatus(StatusBar::new(
-                            format!("Error loading plugin: {}", err),
-                            status_bar::State::Error,
-                        )),
-                        Ok(Some(Ok(_))) => Message::SetStatus(StatusBar::new(
-                            "Loaded plugin",
-                            status_bar::State::Idle,
-                        )),
-                    },
-                )
-            }
+            plugin_content::Message::SetAudioPlugin(path) => self.set_audio_plugin_path(path),
+            plugin_content::Message::ReloadPlugin => self.reload_plugin(),
             _ => Command::none(),
         };
         let children = self.plugin_content.update(msg).map(Message::PluginContent);
         Command::batch(vec![command, children])
+    }
+
+    fn reload_plugin(&mut self) -> Command<Message> {
+        self.close_plugin_window();
+        let host_ref = self.plugin_host.clone();
+        self.reset_handles();
+        Command::perform(
+            tokio::task::spawn_blocking(move || {
+                let mut host = host_ref.lock().unwrap();
+                host.plugin_file_path()
+                    .clone()
+                    .map(|plugin_file_path| host.load_plugin(&plugin_file_path))
+            }),
+            |result| match result {
+                Err(err) => Message::SetStatus(StatusBar::new(
+                    format!("Failure loading plugin in a background thread: {}", err),
+                    status_bar::State::Error,
+                )),
+                Ok(None) => Message::SetStatus(StatusBar::new(
+                    "There's no plugin loaded, configure the plugin path",
+                    status_bar::State::Warning,
+                )),
+                Ok(Some(Err(err))) => Message::SetStatus(StatusBar::new(
+                    format!("Error loading plugin: {}", err),
+                    status_bar::State::Error,
+                )),
+                Ok(Some(Ok(_))) => {
+                    Message::SetStatus(StatusBar::new("Loaded plugin", status_bar::State::Idle))
+                }
+            },
+        )
+    }
+
+    fn set_input_file(&mut self, input_file: &String) -> Command<Message> {
+        self.reset_handles();
+        let result = {
+            let mut host = self.plugin_host.lock().unwrap();
+            host.set_audio_file_path(PathBuf::from(input_file))
+        };
+        result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
+        self.host_state.audio_input_file_path = Some(input_file.clone());
+        self.host_options_service
+            .store(&self.host_state)
+            .unwrap_or_else(|err| {
+                log::error!("Failed to store {:?}", err);
+            });
+        Command::none()
+    }
+
+    fn set_audio_plugin_path(&mut self, path: &String) -> Command<Message> {
+        self.reset_handles();
+        self.close_plugin_window();
+        let path = path.clone();
+
+        self.status_message =
+            StatusBar::new("Updating persisted state", status_bar::State::Warning);
+        self.host_state.plugin_path = Some(path.clone());
+        self.host_options_service
+            .store(&self.host_state)
+            .unwrap_or_else(|err| {
+                log::error!("Failed to store {:?}", err);
+            });
+
+        self.status_message = StatusBar::new("Reloading plugin", status_bar::State::Warning);
+
+        let host_ref = self.plugin_host.clone();
+        Command::perform(
+            tokio::task::spawn_blocking(move || {
+                let mut host = host_ref.lock().unwrap();
+                let path = Path::new(&path);
+                host.load_plugin(path)
+            }),
+            |result| match result {
+                Err(err) => Message::SetStatus(StatusBar::new(
+                    format!("Error loading plugin: {}", err),
+                    status_bar::State::Error,
+                )),
+                Ok(_) => {
+                    Message::SetStatus(StatusBar::new("Loaded plugin", status_bar::State::Idle))
+                }
+            },
+        )
     }
 
     fn reset_handles(&mut self) {
@@ -348,73 +346,21 @@ impl MainContentView {
     }
 
     pub fn view(&mut self) -> Element<Message> {
-        Column::with_children(vec![
-            self.audio_io_settings.view().map(Message::AudioIOSettings),
-            Rule::horizontal(1)
-                .style(audio_processor_iced_design_system::style::Rule)
-                .into(),
-            Container::new(self.plugin_content.view().map(Message::PluginContent))
-                .style(Container0)
-                .height(Length::Fill)
-                .width(Length::Fill)
-                .into(),
-            Rule::horizontal(1)
-                .style(audio_processor_iced_design_system::style::Rule)
-                .into(),
-            Container::new(
-                Row::with_children(vec![
-                    Container::new(
-                        Container::new::<Element<Message>>(match &self.audio_chart {
-                            Some(chart) => chart.view().map(|_| Message::None),
-                            None => Text::new("").into(),
-                        })
-                        .width(Length::Fill)
-                        .height(Length::Fill)
-                        .style(Container0),
-                    )
-                    .padding(Spacing::base_spacing())
-                    .height(Length::Fill)
-                    .width(Length::Fill)
-                    .into(),
-                    Container::new(
-                        VolumeMeter::new((&self.volume_handle).into())
-                            .view()
-                            .map(|_| Message::None),
-                    )
-                    .style(Container1::default().border())
-                    .width(Length::Units(Spacing::base_control_size()))
-                    .height(Length::Fill)
-                    .into(),
-                ])
-                .width(Length::Fill),
-            )
-            .style(Container1::default())
-            .height(Length::Units(150))
-            .width(Length::Fill)
-            .into(),
-            Rule::horizontal(1)
-                .style(audio_processor_iced_design_system::style::Rule)
-                .into(),
-            Container::new(
-                self.transport_controls
-                    .view()
-                    .map(Message::TransportControls),
-            )
-            .style(Container1::default())
-            .height(Length::Units(80))
-            .width(Length::Fill)
-            .into(),
-            Rule::horizontal(1)
-                .style(audio_processor_iced_design_system::style::Rule)
-                .into(),
-            Container::new(self.status_message.clone().view().map(|_| Message::None))
-                .center_y()
-                .style(Container0)
-                .height(Length::Units(20))
-                .width(Length::Fill)
-                .into(),
-        ])
-        .into()
+        let audio_io_settings = &mut self.audio_io_settings;
+        let plugin_content = &mut self.plugin_content;
+        let audio_chart = &self.audio_chart;
+        let volume_handle = &self.volume_handle;
+        let transport_controls = &mut self.transport_controls;
+        let status_message = &self.status_message;
+
+        view::main_content_view(view::MainContentViewModel {
+            audio_io_settings,
+            plugin_content,
+            audio_chart,
+            volume_handle,
+            transport_controls,
+            status_message,
+        })
     }
 
     fn build_audio_driver_dropdown_state() -> DropdownState {

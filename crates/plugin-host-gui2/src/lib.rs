@@ -70,7 +70,13 @@ impl Application for App {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        iced::time::every(Duration::from_millis(16)).map(|_| AppMessage::None)
+        let subscriptions =
+            vec![iced::time::every(Duration::from_millis(16)).map(|_| AppMessage::None)];
+        // if let Some(plugin_file_path) = self.plugin_host.lock().unwrap().plugin_file_path() {
+        //     log::info!("Setting-up file-watch subscription");
+        //     services::plugin_file_watch::FileWatcher::new(plugin_file_path);
+        // }
+        Subscription::batch(subscriptions)
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {

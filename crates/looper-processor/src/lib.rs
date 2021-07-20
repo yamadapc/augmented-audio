@@ -198,31 +198,32 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
         data: &mut BufferType,
     ) {
         let zero = BufferType::SampleType::zero();
-        for frame in data.frames_mut() {
+        for sample_index in 0..data.num_samples() {
             let should_playback_input = self.handle.playback_input.load(Ordering::Relaxed);
             let is_playing = self.handle.is_playing_back.load(Ordering::Relaxed);
             let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
             let looper_cursor = self.state.looper_cursor;
 
-            for (channel_num, sample) in frame.iter_mut().enumerate() {
+            for channel_num in 0..data.num_channels() {
                 let loop_channel = self.state.looped_clip.channel(channel_num);
 
                 // PLAYBACK SECTION:
                 let dry_output = if !should_playback_input {
                     zero
                 } else {
-                    *sample
+                    *data.get(channel_num, sample_index)
                 };
                 let looper_output = loop_channel[looper_cursor];
                 let looper_output = if is_playing { looper_output } else { zero };
 
                 let mixed_output = looper_output + dry_output;
-                *sample = mixed_output;
+                data.set(channel_num, sample_index, mixed_output);
 
                 // RECORDING SECTION:
                 if is_recording {
                     // When recording starts we'll store samples in the looper buffer
-                    loop_channel[looper_cursor] = *sample + loop_channel[looper_cursor];
+                    loop_channel[looper_cursor] =
+                        *data.get(channel_num, sample_index) + loop_channel[looper_cursor];
                 }
             }
 
