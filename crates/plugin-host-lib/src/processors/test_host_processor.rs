@@ -38,7 +38,7 @@ impl TestHostProcessor {
         plugin_instance: SharedProcessor<PluginInstance>,
         sample_rate: f32,
         channels: usize,
-        buffer_size: u32,
+        buffer_size: usize,
         mono_input: Option<usize>,
     ) -> Self {
         let audio_settings =

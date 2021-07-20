@@ -24,12 +24,12 @@ pub mod audio_buffer;
 pub mod midi;
 
 /// Options provided to the audio-processor before calling `process`.
-#[derive(Clone, Copy)]
+#[derive(Clone, PartialEq, Debug, Copy)]
 pub struct AudioProcessorSettings {
     sample_rate: f32,
     input_channels: usize,
     output_channels: usize,
-    block_size: u32,
+    block_size: usize,
 }
 
 impl Default for AudioProcessorSettings {
@@ -43,7 +43,7 @@ impl AudioProcessorSettings {
         sample_rate: f32,
         input_channels: usize,
         output_channels: usize,
-        block_size: u32,
+        block_size: usize,
     ) -> Self {
         AudioProcessorSettings {
             sample_rate,
@@ -69,7 +69,7 @@ impl AudioProcessorSettings {
     }
 
     /// The number of samples which will be provided on each `process` call
-    pub fn block_size(&self) -> u32 {
+    pub fn block_size(&self) -> usize {
         self.block_size
     }
 }
@@ -87,7 +87,7 @@ impl AudioProcessorSettings {
         self.output_channels = output_channels;
     }
 
-    pub fn set_block_size(&mut self, block_size: u32) {
+    pub fn set_block_size(&mut self, block_size: usize) {
         self.block_size = block_size;
     }
 }
