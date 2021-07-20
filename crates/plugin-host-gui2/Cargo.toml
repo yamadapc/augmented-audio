@@ -17,6 +17,7 @@ derive_more = "^0.99.16"
 uuid = { version = "^0.8", features = ["v4"] }
 notify = "^4.0.17"
 md5 = "^0.7.0"
+derivative = "^2.2.0"
 
 tokio = "^1.8.1"
 audio-processor-traits = { path = "../audio-processor-traits" }

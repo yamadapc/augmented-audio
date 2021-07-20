@@ -5147,6 +5147,7 @@ dependencies = [
  "baseview",
  "cocoa 0.24.0",
  "criterion",
+ "derivative",
  "derive_more",
  "dirs 3.0.2",
  "iced",

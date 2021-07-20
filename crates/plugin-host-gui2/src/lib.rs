@@ -1,5 +1,4 @@
 use derive_more::From;
-use std::sync::{Arc, Mutex};
 
 use iced::{Application, Clipboard, Command, Container, Element, Length, Subscription};
 
@@ -11,13 +10,11 @@ pub mod services;
 pub mod ui;
 
 pub struct App {
-    #[allow(dead_code)]
-    plugin_host: Arc<Mutex<plugin_host_lib::TestPluginHost>>,
     main_content_view: main_content_view::MainContentView,
     start_result: Result<(), plugin_host_lib::audio_io::StartError>,
 }
 
-#[derive(Debug, Clone, From)]
+#[derive(Debug, From)]
 pub enum AppMessage {
     Content(main_content_view::Message),
     None,
@@ -29,18 +26,16 @@ impl Application for App {
     type Flags = ();
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        log::info!("plugin-host-gui2: Application is booting");
         let mut plugin_host = plugin_host_lib::TestPluginHost::default();
         let start_result = plugin_host.start().map_err(|err| {
             log::error!("Failed to start host: {:?}", err);
             err
         });
-        let plugin_host = Arc::new(Mutex::new(plugin_host));
-        let (main_content_view, command) =
-            main_content_view::MainContentView::new(plugin_host.clone());
+        let (main_content_view, command) = main_content_view::MainContentView::new(plugin_host);
 
         (
             App {
-                plugin_host,
                 main_content_view,
                 start_result,
             },
