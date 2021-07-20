@@ -26,6 +26,23 @@ pub trait AudioBuffer {
     /// Set an OUTPUT sample in this buffer
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType);
 
+    /// Unsafe, no bounds check - Get a ref to an INPUT sample in this buffer
+    unsafe fn get_unchecked(&self, channel: usize, sample: usize) -> &Self::SampleType {
+        self.get(channel, sample)
+    }
+
+    /// Unsafe, no bounds check - Get a mutable ref to an OUTPUT sample in this buffer
+    ///
+    /// On some implementations this may yield a different value than `.get`.
+    unsafe fn get_unchecked_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
+        self.get_mut(channel, sample)
+    }
+
+    /// Unsafe, no bounds check - Set an OUTPUT sample in this buffer
+    unsafe fn set_unchecked(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
+        self.set(channel, sample, value)
+    }
+
     /// Create a read only iterator
     fn iter(&self) -> AudioBufferIterator<Self> {
         AudioBufferIterator::new(&self)
@@ -262,6 +279,26 @@ impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType> {
     #[inline]
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.buffer[sample * self.num_channels + channel] = value;
+    }
+
+    #[inline]
+    unsafe fn get_unchecked(&self, channel: usize, sample: usize) -> &Self::SampleType {
+        self.buffer
+            .get_unchecked(sample * self.num_channels + channel)
+    }
+
+    #[inline]
+    unsafe fn get_unchecked_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
+        self.buffer
+            .get_unchecked_mut(sample * self.num_channels + channel)
+    }
+
+    #[inline]
+    unsafe fn set_unchecked(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
+        let sample = self
+            .buffer
+            .get_unchecked_mut(sample * self.num_channels + channel);
+        *sample = value;
     }
 }
 

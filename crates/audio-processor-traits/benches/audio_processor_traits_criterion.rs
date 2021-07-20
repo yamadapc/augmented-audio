@@ -2,11 +2,25 @@ use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, SliceAudioBuffer, V
 use audio_processor_traits::{AudioBuffer, Float};
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
-const NUM_SAMPLES: usize = 10000;
+const NUM_SAMPLES: usize = 512;
 
 fn gain_vec(vec: &mut Vec<f32>) {
     for sample in vec {
         *sample = 0.1 * *sample * *sample * *sample * *sample * *sample;
+    }
+}
+
+fn unsafe_gain_buffer_fixed_single_channel<BufferType>(audio_buffer: &mut BufferType)
+where
+    BufferType: AudioBuffer<SampleType = f32>,
+{
+    unsafe {
+        for sample_index in 0..audio_buffer.num_samples() {
+            let sample_ref = audio_buffer.get_unchecked_mut(0, sample_index);
+            let sample = *sample_ref;
+            let output = sample * 0.1 * sample * sample * sample * sample;
+            *sample_ref = output;
+        }
     }
 }
 
@@ -60,7 +74,7 @@ where
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("VEC - apply gain", |b| {
+    c.bench_function("VEC - apply gain - 512 samples 11ms to process", |b| {
         let mut buffer = sine_wave_vec(NUM_SAMPLES);
         b.iter(|| {
             gain_vec(&mut buffer);
@@ -68,21 +82,40 @@ fn criterion_benchmark(c: &mut Criterion) {
         });
     });
 
-    c.bench_function("VecAudioBuffer - apply gain with fixed sample type", |b| {
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(1, NUM_SAMPLES, 0.0 as f32);
-        let sine = sine_wave_vec(NUM_SAMPLES);
-        for sample_index in 0..buffer.num_samples() {
-            buffer.set(0, sample_index, sine[sample_index]);
-        }
-        b.iter(|| {
-            gain_buffer_fixed(&mut buffer);
-            black_box(&mut buffer);
-        });
-    });
+    c.bench_function(
+        "VecAudioBuffer - apply gain with fixed sample type - 512 samples 11ms to process",
+        |b| {
+            let mut buffer = VecAudioBuffer::new();
+            buffer.resize(1, NUM_SAMPLES, 0.0 as f32);
+            let sine = sine_wave_vec(NUM_SAMPLES);
+            for sample_index in 0..buffer.num_samples() {
+                buffer.set(0, sample_index, sine[sample_index]);
+            }
+            b.iter(|| {
+                gain_buffer_fixed(&mut buffer);
+                black_box(&mut buffer);
+            });
+        },
+    );
 
     c.bench_function(
-        "VecAudioBuffer - apply gain with fixed sample type & single channel",
+        "VecAudioBuffer - unsafe, fixed types, single channel - 512 samples 11ms to process",
+        |b| {
+            let mut buffer = VecAudioBuffer::new();
+            buffer.resize(1, NUM_SAMPLES, 0.0 as f32);
+            let sine = sine_wave_vec(NUM_SAMPLES);
+            for sample_index in 0..buffer.num_samples() {
+                buffer.set(0, sample_index, sine[sample_index]);
+            }
+            b.iter(|| {
+                unsafe_gain_buffer_fixed_single_channel(&mut buffer);
+                black_box(&mut buffer);
+            });
+        },
+    );
+
+    c.bench_function(
+        "VecAudioBuffer - apply gain with fixed sample type & single channel - 512 samples 11ms to process",
         |b| {
             let mut buffer = VecAudioBuffer::new();
             buffer.resize(1, NUM_SAMPLES, 0.0 as f32);
@@ -97,34 +130,40 @@ fn criterion_benchmark(c: &mut Criterion) {
         },
     );
 
-    c.bench_function("VecAudioBuffer - apply gain with any sample type", |b| {
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(1, NUM_SAMPLES, 0.0 as f32);
-        let sine = sine_wave_vec(NUM_SAMPLES);
-        for sample_index in 0..buffer.num_samples() {
-            buffer.set(0, sample_index, sine[sample_index]);
-        }
-        b.iter(|| {
-            gain_buffer(&mut buffer);
-            black_box(&mut buffer);
-        });
-    });
-
-    c.bench_function("VecAudioBuffer - apply gain with mutable ref", |b| {
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(1, NUM_SAMPLES, 0.0 as f32);
-        let sine = sine_wave_vec(NUM_SAMPLES);
-        for sample_index in 0..buffer.num_samples() {
-            buffer.set(0, sample_index, sine[sample_index]);
-        }
-        b.iter(|| {
-            gain_buffer_fixed_single_channel_ref(&mut buffer);
-            black_box(&mut buffer);
-        });
-    });
+    c.bench_function(
+        "VecAudioBuffer - apply gain with any sample type - 512 samples 11ms to process",
+        |b| {
+            let mut buffer = VecAudioBuffer::new();
+            buffer.resize(1, NUM_SAMPLES, 0.0 as f32);
+            let sine = sine_wave_vec(NUM_SAMPLES);
+            for sample_index in 0..buffer.num_samples() {
+                buffer.set(0, sample_index, sine[sample_index]);
+            }
+            b.iter(|| {
+                gain_buffer(&mut buffer);
+                black_box(&mut buffer);
+            });
+        },
+    );
 
     c.bench_function(
-        "SliceAudioBuffer - apply gain with fixed sample type & single channel",
+        "VecAudioBuffer - apply gain with mutable ref - 512 samples 11ms to process",
+        |b| {
+            let mut buffer = VecAudioBuffer::new();
+            buffer.resize(1, NUM_SAMPLES, 0.0 as f32);
+            let sine = sine_wave_vec(NUM_SAMPLES);
+            for sample_index in 0..buffer.num_samples() {
+                buffer.set(0, sample_index, sine[sample_index]);
+            }
+            b.iter(|| {
+                gain_buffer_fixed_single_channel_ref(&mut buffer);
+                black_box(&mut buffer);
+            });
+        },
+    );
+
+    c.bench_function(
+        "SliceAudioBuffer - apply gain with fixed sample type & single channel - 512 samples 11ms to process",
         |b| {
             let mut sine = sine_wave_vec(NUM_SAMPLES);
             let mut channels = [sine.as_mut_slice()];
@@ -136,15 +175,18 @@ fn criterion_benchmark(c: &mut Criterion) {
         },
     );
 
-    c.bench_function("SliceAudioBuffer - apply gain with any sample type", |b| {
-        let mut sine = sine_wave_vec(NUM_SAMPLES);
-        let mut channels = [sine.as_mut_slice()];
-        let mut buffer = SliceAudioBuffer::new(&mut channels);
-        b.iter(|| {
-            gain_buffer(&mut buffer);
-            black_box(&mut buffer);
-        });
-    });
+    c.bench_function(
+        "SliceAudioBuffer - apply gain with any sample type - 512 samples 11ms to process",
+        |b| {
+            let mut sine = sine_wave_vec(NUM_SAMPLES);
+            let mut channels = [sine.as_mut_slice()];
+            let mut buffer = SliceAudioBuffer::new(&mut channels);
+            b.iter(|| {
+                gain_buffer(&mut buffer);
+                black_box(&mut buffer);
+            });
+        },
+    );
 }
 
 fn sine_wave_vec(duration_samples: usize) -> Vec<f32> {

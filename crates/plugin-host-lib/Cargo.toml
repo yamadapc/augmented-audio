@@ -37,8 +37,8 @@ oscillator = { path = "../oscillator" }
 convert-sample-rate = { path = "../convert-sample-rate" }
 
 [dev-dependencies]
-criterion = "^0.3.4"
+criterion = { version = "^0.3.4", features = ["html_reports"] }
 
 [[bench]]
-name = "rms_processor_benchmark"
+name = "plugin_host_lib_criterion"
 harness = false
