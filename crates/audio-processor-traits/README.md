@@ -44,6 +44,27 @@ process samples using the `AudioBuffer::frame`, `AudioBuffer::frame_mut`, `Audio
 The reason for this is that using `slice` iterators is much more efficient than iterating over a range of numbers and
 calling `AudioBuffer::get`.
 
+It's very unfortunate, but there's not a uniform optimised way to iterate between buffers that have different layouts
+provided in this crate yet.
+
+Something I think should work is to have some kind of channel iterator which will wrap the slice iterators. The channel
+count should be low so losing some optimisation when reading a frame shouldn't be an issue.
+
+Note that 10-20x slowdown is based on a very trivial "gain" work-load. In practice this might be an issue.
+
+On my computer, there's around 600ns overhead per 512 samples to use the `get/set` functions.
+
+With the `_unchecked` versions which skip bounds checking, the overhead is around `300ns` and with `frames`/`slice`
+there's no overhead.
+
+In comparison, my current implementation of interleaved to VST buffer conversion takes around 1.15us to convert from
+CPAL into VST and 1.1us to convert out of VST back to CPAL.
+
+That'd be roughly 2us spent on conversions per 512 sample block, vs a 300-600ns slowdown from iteration.
+
+This has made me think is that it might be better that `AudioProcessor`s only expose a
+`process_sample(&mut self, sample: f32)` function so that they are really not connected to the `AudioBuffer` at all.
+
 ## AudioProcessor
 
 The **AudioProcessor** trait is only two methods:

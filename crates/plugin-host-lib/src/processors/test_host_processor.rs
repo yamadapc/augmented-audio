@@ -178,10 +178,10 @@ pub fn flush_vst_output<BufferType: AudioBuffer<SampleType = f32>>(
     output: &mut BufferType,
 ) {
     let (_, plugin_output) = audio_buffer.split();
-    for sample_index in 0..output.num_samples() {
-        for channel in 0..output.num_channels() {
-            let out = plugin_output.get(channel)[sample_index];
-            output.set(channel, sample_index, out);
+    for channel in 0..output.num_channels() {
+        let plugin_channel = plugin_output.get(channel);
+        for (frame, plugin_frame) in output.frames_mut().zip(plugin_channel) {
+            frame[channel] = *plugin_frame;
         }
     }
 }

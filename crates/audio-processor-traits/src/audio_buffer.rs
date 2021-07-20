@@ -4,8 +4,8 @@ use std::slice::{Chunks, ChunksMut};
 /// Represents an audio buffer. This decouples audio processing code from a certain representation
 /// of multi-channel sample buffers.
 ///
-/// This crate provides implementations of this trait for VST & CPal style buffers, which have
-/// different internal representations.
+/// This crate provides implementations of this trait for CPal style buffers, which use interleaved
+/// internal representation.
 ///
 /// When processing samples, it'll be more efficient to use `.slice` and `.slice_mut` than `.get` /
 /// `.set` methods. For the VST buffer, these methods will not work.
