@@ -17,6 +17,7 @@ fn rms_pow(buffer: &Vec<f32>) -> f32 {
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
+    let mut group = c.benchmark_group("TestHostPlugin - RMS");
     let mut oscillator = oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
     let mut output_buffer = Vec::new();
@@ -26,14 +27,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         oscillator.tick();
     }
 
-    c.bench_function("rms using `abs` - stress 10s of audio at 44.1kHz", |b| {
+    group.bench_function("`abs` - stress 10s of audio at 44.1kHz", |b| {
         b.iter(|| rms_abs(black_box(&mut output_buffer)))
     });
 
-    c.bench_function(
-        "rms using `sq root - stress 10s of audio` at 44.1kHz",
-        |b| b.iter(|| rms_pow(black_box(&mut output_buffer))),
-    );
+    group.bench_function("`sq root - stress 10s of audio` at 44.1kHz", |b| {
+        b.iter(|| rms_pow(black_box(&mut output_buffer)))
+    });
 
     let mut oscillator = oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
@@ -44,13 +44,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         oscillator.tick();
     }
 
-    c.bench_function(
-        "rms using `abs` - 512 samples 11ms to process at 44.1kHz",
-        |b| b.iter(|| rms_abs(black_box(&mut output_buffer))),
-    );
+    group.bench_function("`abs` - 512 samples 11ms to process at 44.1kHz", |b| {
+        b.iter(|| rms_abs(black_box(&mut output_buffer)))
+    });
 
-    c.bench_function(
-        "rms using `sq root` - 512 samples 11ms to process at 44.1kHz",
-        |b| b.iter(|| rms_pow(black_box(&mut output_buffer))),
-    );
+    group.bench_function("`sq root` - 512 samples 11ms to process at 44.1kHz", |b| {
+        b.iter(|| rms_pow(black_box(&mut output_buffer)))
+    });
 }

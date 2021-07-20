@@ -12,7 +12,6 @@ pub struct VolumeMeterProcessorHandle {
     pub peak_right: AtomicFloat,
 }
 
-// TODO - this is really inefficient
 pub struct VolumeMeterProcessor {
     handle: Shared<VolumeMeterProcessorHandle>,
     current_index: usize,

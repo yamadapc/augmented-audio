@@ -173,19 +173,15 @@ impl Drop for TestHostProcessor {
 /// Flush plugin output to output
 #[allow(clippy::needless_range_loop)]
 pub fn flush_vst_output<BufferType: AudioBuffer<SampleType = f32>>(
-    num_channels: usize,
+    _num_channels: usize,
     audio_buffer: &mut vst::buffer::AudioBuffer<f32>,
     output: &mut BufferType,
 ) {
     let (_, plugin_output) = audio_buffer.split();
-    let channel_outs: Vec<&[f32]> = (0..num_channels)
-        .into_iter()
-        .map(|channel| plugin_output.get(channel))
-        .collect();
-
     for sample_index in 0..output.num_samples() {
         for channel in 0..output.num_channels() {
-            output.set(channel, sample_index, channel_outs[channel][sample_index]);
+            let out = plugin_output.get(channel)[sample_index];
+            output.set(channel, sample_index, out);
         }
     }
 }
