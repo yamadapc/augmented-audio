@@ -81,10 +81,6 @@ This implementation provides compatibility with the VST API and the `rust-vst`/`
 
 In `vst`, the channels are separate slices of continuous samples & input/output are separate pointers.
 
-### SliceAudioBuffer
-This is unused at the moment, but provides support for other audio buffers that have similar layout than VST, where
-each channel is a slice of floats.
-
 ## AudioProcessor
 
 The **AudioProcessor** trait is only two methods:

@@ -15,18 +15,25 @@ pub trait AudioBuffer {
     /// The number of samples in this buffer
     fn num_samples(&self) -> usize;
 
+    fn slice(&self) -> &[Self::SampleType];
+    fn slice_mut(&mut self) -> &mut [Self::SampleType];
+
     /// Get a ref to an INPUT sample in this buffer
+    #[deprecated]
     fn get(&self, channel: usize, sample: usize) -> &Self::SampleType;
 
     /// Get a mutable ref to an OUTPUT sample in this buffer
     ///
     /// On some implementations this may yield a different value than `.get`.
+    #[deprecated]
     fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType;
 
     /// Set an OUTPUT sample in this buffer
+    #[deprecated]
     fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType);
 
     /// Unsafe, no bounds check - Get a ref to an INPUT sample in this buffer
+    #[deprecated]
     unsafe fn get_unchecked(&self, channel: usize, sample: usize) -> &Self::SampleType {
         self.get(channel, sample)
     }
@@ -34,95 +41,15 @@ pub trait AudioBuffer {
     /// Unsafe, no bounds check - Get a mutable ref to an OUTPUT sample in this buffer
     ///
     /// On some implementations this may yield a different value than `.get`.
+    #[deprecated]
     unsafe fn get_unchecked_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
         self.get_mut(channel, sample)
     }
 
     /// Unsafe, no bounds check - Set an OUTPUT sample in this buffer
+    #[deprecated]
     unsafe fn set_unchecked(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.set(channel, sample, value)
-    }
-
-    /// Create a read only iterator
-    fn iter(&self) -> AudioBufferIterator<Self> {
-        AudioBufferIterator::new(&self)
-    }
-}
-
-/// Iterator for audio buffers
-pub struct AudioBufferIterator<'a, BufferType: AudioBuffer + ?Sized> {
-    position: usize,
-    buffer: &'a BufferType,
-}
-
-impl<'a, BufferType: AudioBuffer + ?Sized> AudioBufferIterator<'a, BufferType> {
-    pub fn new(buffer: &'a BufferType) -> Self {
-        AudioBufferIterator {
-            position: 0,
-            buffer,
-        }
-    }
-}
-
-impl<'a, BufferType: AudioBuffer> Iterator for AudioBufferIterator<'a, BufferType> {
-    type Item = AudioFrameReference<'a, BufferType>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.position >= self.buffer.num_samples() {
-            return None;
-        }
-
-        let reference = AudioFrameReference::new(self.buffer, self.position);
-        self.position += 1;
-        Some(reference)
-    }
-}
-
-pub struct AudioFrameReference<'a, BufferType> {
-    sample_index: usize,
-    buffer: &'a BufferType,
-}
-
-impl<'a, BufferType> AudioFrameReference<'a, BufferType> {
-    fn new(buffer: &'a BufferType, sample_index: usize) -> Self {
-        AudioFrameReference {
-            sample_index,
-            buffer,
-        }
-    }
-
-    pub fn iter(&self) -> AudioFrameReferenceIterator<'a, BufferType> {
-        AudioFrameReferenceIterator::new(self.buffer, self.sample_index)
-    }
-}
-
-pub struct AudioFrameReferenceIterator<'a, BufferType> {
-    buffer: &'a BufferType,
-    sample_index: usize,
-    channel_index: usize,
-}
-
-impl<'a, BufferType> AudioFrameReferenceIterator<'a, BufferType> {
-    fn new(buffer: &'a BufferType, sample_index: usize) -> Self {
-        AudioFrameReferenceIterator {
-            buffer,
-            sample_index,
-            channel_index: 0,
-        }
-    }
-}
-
-impl<'a, BufferType: AudioBuffer> Iterator for AudioFrameReferenceIterator<'a, BufferType> {
-    type Item = &'a BufferType::SampleType;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.channel_index >= self.buffer.num_channels() {
-            None
-        } else {
-            let r = self.buffer.get(self.channel_index, self.sample_index);
-            self.channel_index += 1;
-            Some(r)
-        }
     }
 }
 
@@ -140,6 +67,7 @@ pub struct InterleavedAudioBuffer<'a, SampleType> {
 }
 
 impl<'a, SampleType> InterleavedAudioBuffer<'a, SampleType> {
+    #[deprecated]
     pub fn new(num_channels: usize, inner: &'a mut [SampleType]) -> Self {
         Self {
             num_channels,
@@ -147,10 +75,12 @@ impl<'a, SampleType> InterleavedAudioBuffer<'a, SampleType> {
         }
     }
 
+    #[deprecated]
     pub fn inner(&self) -> &[SampleType] {
         &self.inner
     }
 
+    #[deprecated]
     pub fn inner_mut(&mut self) -> &mut [SampleType] {
         &mut self.inner
     }
@@ -169,6 +99,14 @@ impl<'a, SampleType> AudioBuffer for InterleavedAudioBuffer<'a, SampleType> {
         self.inner.len() / self.num_channels
     }
 
+    fn slice(&self) -> &[Self::SampleType] {
+        &self.inner
+    }
+
+    fn slice_mut(&mut self) -> &mut [Self::SampleType] {
+        &mut self.inner
+    }
+
     #[inline]
     fn get(&self, channel: usize, sample: usize) -> &SampleType {
         &self.inner[sample * self.num_channels + channel]
@@ -183,57 +121,6 @@ impl<'a, SampleType> AudioBuffer for InterleavedAudioBuffer<'a, SampleType> {
     fn set(&mut self, channel: usize, sample: usize, value: SampleType) {
         let sample_ref = self.get_mut(channel, sample);
         *sample_ref = value;
-    }
-}
-
-/// An AudioBuffer that stores samples as separate buffer slices. Similar the VST, but unused due to
-/// an explicit wrapper on top of rust-vst also being exported.
-///
-/// Example:
-/// `[left_channel_ptr, right_channel_ptr]`
-///
-/// `left_channel = [0, 1, 2, 3, 4]`
-pub struct SliceAudioBuffer<'a, SampleType> {
-    channels: &'a mut [&'a mut [SampleType]],
-}
-
-impl<'a, SampleType> SliceAudioBuffer<'a, SampleType> {
-    #[inline]
-    pub fn new(channels: &'a mut [&'a mut [SampleType]]) -> Self {
-        Self { channels }
-    }
-}
-
-impl<'a, SampleType> AudioBuffer for SliceAudioBuffer<'a, SampleType> {
-    type SampleType = SampleType;
-
-    #[inline]
-    fn num_channels(&self) -> usize {
-        self.channels.len()
-    }
-
-    #[inline]
-    fn num_samples(&self) -> usize {
-        if self.channels.is_empty() {
-            0
-        } else {
-            self.channels[0].len()
-        }
-    }
-
-    #[inline]
-    fn get(&self, channel: usize, sample: usize) -> &Self::SampleType {
-        &self.channels[channel][sample]
-    }
-
-    #[inline]
-    fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
-        &mut self.channels[channel][sample]
-    }
-
-    #[inline]
-    fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
-        self.channels[channel][sample] = value;
     }
 }
 
@@ -264,6 +151,16 @@ impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType> {
     #[inline]
     fn num_samples(&self) -> usize {
         self.num_samples
+    }
+
+    #[inline]
+    fn slice(&self) -> &[Self::SampleType] {
+        &self.buffer
+    }
+
+    #[inline]
+    fn slice_mut(&mut self) -> &mut [Self::SampleType] {
+        &mut self.buffer
     }
 
     #[inline]
@@ -344,6 +241,7 @@ pub mod vst {
     ///
     /// This means it might be that `audio_buffer.get(channel, sample)` is different to
     /// `audio_buffer.get_mut(channel, sample)`.
+    #[deprecated]
     pub struct VSTAudioBuffer<'a, SampleType> {
         inputs: ::vst::buffer::Inputs<'a, SampleType>,
         outputs: ::vst::buffer::Outputs<'a, SampleType>,
@@ -376,6 +274,14 @@ pub mod vst {
             } else {
                 self.outputs.get(0).len()
             }
+        }
+
+        fn slice(&self) -> &[Self::SampleType] {
+            todo!()
+        }
+
+        fn slice_mut(&mut self) -> &mut [Self::SampleType] {
+            todo!()
         }
 
         fn get(&self, channel: usize, sample: usize) -> &Self::SampleType {
