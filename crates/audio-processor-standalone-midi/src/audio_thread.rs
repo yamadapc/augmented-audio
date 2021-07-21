@@ -50,3 +50,94 @@ impl MidiAudioThreadHandler {
         self.buffer.clear();
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::host::MidiMessageWrapper;
+    use audio_processor_traits::MidiMessageLike;
+    use basedrop::{Collector, Owned};
+
+    #[test]
+    fn test_create_handler_and_collect_empty_messages() {
+        let mut collector = Collector::new();
+        let handle = collector.handle();
+        let queue = MidiMessageQueue::new(&handle, atomic_queue::Queue::new(MIDI_BUFFER_CAPACITY));
+
+        let mut midi_audio_thread_handler = MidiAudioThreadHandler::default();
+        let num_messages = midi_audio_thread_handler.collect_midi_messages(&queue);
+        assert_eq!(num_messages, 0);
+        let buffer = midi_audio_thread_handler.buffer();
+        assert_eq!(buffer.len(), 0);
+
+        collector.collect();
+    }
+
+    #[test]
+    fn test_create_handler_and_collect_some_messages() {
+        let mut collector = Collector::new();
+        let handle = collector.handle();
+        let queue = MidiMessageQueue::new(&handle, atomic_queue::Queue::new(MIDI_BUFFER_CAPACITY));
+        queue.push(MidiMessageEntry(Owned::new(
+            &handle,
+            MidiMessageWrapper {
+                message_data: [128, 0, 12],
+                timestamp: 0,
+            },
+        )));
+        queue.push(MidiMessageEntry(Owned::new(
+            &handle,
+            MidiMessageWrapper {
+                message_data: [129, 0, 12],
+                timestamp: 0,
+            },
+        )));
+        queue.push(MidiMessageEntry(Owned::new(
+            &handle,
+            MidiMessageWrapper {
+                message_data: [130, 0, 12],
+                timestamp: 0,
+            },
+        )));
+
+        let mut midi_audio_thread_handler = MidiAudioThreadHandler::default();
+        let num_messages = midi_audio_thread_handler.collect_midi_messages(&queue);
+        assert_eq!(num_messages, 3);
+        let buffer = midi_audio_thread_handler.buffer();
+        assert_eq!(buffer.len(), 3);
+        assert_eq!(buffer[0].is_midi(), true);
+        assert_eq!(buffer[0].message_data, [128, 0, 12]);
+        assert_eq!(buffer[1].message_data, [129, 0, 12]);
+        assert_eq!(buffer[2].message_data, [130, 0, 12]);
+
+        collector.collect();
+    }
+
+    #[test]
+    fn test_create_handler_and_clear() {
+        let mut collector = Collector::new();
+        let handle = collector.handle();
+        let queue = MidiMessageQueue::new(&handle, atomic_queue::Queue::new(MIDI_BUFFER_CAPACITY));
+        queue.push(MidiMessageEntry(Owned::new(
+            &handle,
+            MidiMessageWrapper {
+                message_data: [128, 0, 12],
+                timestamp: 0,
+            },
+        )));
+
+        let mut midi_audio_thread_handler = MidiAudioThreadHandler::default();
+        let num_messages = midi_audio_thread_handler.collect_midi_messages(&queue);
+        assert_eq!(num_messages, 1);
+        let buffer = midi_audio_thread_handler.buffer();
+        assert_eq!(buffer.len(), 1);
+        assert_eq!(buffer.capacity(), MIDI_BUFFER_CAPACITY);
+        assert_eq!(queue.is_empty(), true);
+        midi_audio_thread_handler.clear();
+        let buffer = midi_audio_thread_handler.buffer();
+        assert_eq!(buffer.len(), 0);
+        assert_eq!(buffer.capacity(), MIDI_BUFFER_CAPACITY);
+
+        collector.collect();
+    }
+}

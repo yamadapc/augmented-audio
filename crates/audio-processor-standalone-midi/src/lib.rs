@@ -45,7 +45,7 @@
 //!     let mut midi_audio_thread_handler = MidiAudioThreadHandler::default();
 //!
 //!     // On each tick you'll call collect
-//!     midi_audio_thread_handler.collect_midi_messages(queue);
+//!     midi_audio_thread_handler.collect_midi_messages(&midi_messages_queue);
 //!     // You'll get the MIDI message buffer
 //!     let midi_messages = midi_audio_thread_handler.buffer();
 //!     // ^ This is a `&Vec<MidiMessageEntry>`. If you're using `audio-processor-traits`, you can

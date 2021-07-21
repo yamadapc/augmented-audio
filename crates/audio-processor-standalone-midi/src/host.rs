@@ -82,7 +82,7 @@ pub enum MidiError {
 pub type MidiMessageQueue = Shared<Queue<MidiMessageEntry>>;
 
 /// One entry in the MIDI message queue
-pub struct MidiMessageEntry(Owned<MidiMessageWrapper>);
+pub struct MidiMessageEntry(pub Owned<MidiMessageWrapper>);
 
 impl Deref for MidiMessageEntry {
     type Target = Owned<MidiMessageWrapper>;
