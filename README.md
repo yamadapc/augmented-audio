@@ -166,11 +166,11 @@ Features supported in the GUI:
 * Selecting audio IO options (input/output/driver)
 * Selecting an input file
 * Transport controls
+* File watcher. The plugin and its editor will be reloaded on re-build.
 
 Missing functionality:
 
-* File watcher (works in CLI, but not in host GUI see #15)
-* Volume metering/control (needs to be wired-up see #16)
+* Volume metering/control (see #16)
 
 ### Future things to improve
 
