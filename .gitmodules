@@ -4,9 +4,6 @@
 [submodule "crates/darwin-webkit"]
 	path = crates/darwin-webkit
 	url = https://github.com/yamadapc/rust-darwin-webkit
-[submodule "crates/tauri"]
-	path = crates/tauri
-	url = https://github.com/tauri-apps/tauri
 [submodule "crates/plotters"]
 	path = crates/plotters
 	url = https://github.com/yamadapc/plotters

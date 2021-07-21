@@ -1,7 +1,6 @@
 {
   "packages": [
-    "packages/*",
-    "crates/plugin-host-gui"
+    "packages/*"
   ],
   "hoist": true,
   "private": true,
