@@ -13,6 +13,8 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 ## Goals
 
 * **Goal 1:** Learn & have fun
+  * This is goal #1 and it's very important to keep it in mind if you end-up
+    depending on one of the crates in this repository
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
