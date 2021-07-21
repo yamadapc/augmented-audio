@@ -176,6 +176,8 @@ Missing functionality:
 
 * Implement limiter
 * Show some basic output visualizations for analysis
+* Allow using the default input rather than just input files
+* Implement offline rendering
 
 ### UI elements
 Styles on top of `iced_audio` & `iced`, see [`audio-processor-iced-design-system`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-iced-design-system).
