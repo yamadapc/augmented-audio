@@ -11,7 +11,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 basedrop = "^0.1.2"
 thiserror = "^1.0.26"
 midir = "^0.7.0"
-vst = { path = "../vst" }
+vst = { version = "^0.2.1", path = "../vst" }
 atomic-queue = { version = "^0.1", path = "../atomic-queue" }
 log = "^0.4.14"
 audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
