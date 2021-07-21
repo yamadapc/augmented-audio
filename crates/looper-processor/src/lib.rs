@@ -217,7 +217,11 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
                 let looper_output = if is_playing { looper_output } else { zero };
 
                 let mixed_output = looper_output + dry_output;
-                data.set(channel_num, sample_index, mixed_output);
+                data.set(
+                    channel_num,
+                    sample_index,
+                    SampleType::from(0.1).unwrap() * mixed_output,
+                );
 
                 // RECORDING SECTION:
                 if is_recording {

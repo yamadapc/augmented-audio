@@ -3802,6 +3802,7 @@ dependencies = [
  "dirs 3.0.2",
  "iced",
  "iced-editor",
+ "iced_audio",
  "iced_baseview",
  "log",
  "log4rs",
