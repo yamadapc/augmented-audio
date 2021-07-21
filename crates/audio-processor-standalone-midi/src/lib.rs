@@ -1,6 +1,8 @@
 //! This is a stand-alone MIDI host with helpers for doing real-time handling of MIDI messages in
 //! the audio-thread and to integrate with VST plugins.
 //!
+//! This is part of https://github.com/yamadapc/augmented-audio.
+//!
 //! ## Usage
 //! To use this crate:
 //!
