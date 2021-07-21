@@ -34,7 +34,7 @@
 //!     // A host may be created with `new` or `default_with_handle`.
 //!     let mut host = MidiHost::default_with_handle(&handle);
 //!     // It'll connect to all MIDI input ports when started
-//!     host.start().expect("Failed to connect");
+//!     // host.start().expect("Failed to connect");
 //!     // The host will push messages onto a lock-free queue. This is a reference counted value.
 //!     let midi_messages_queue = host.messages().clone();
 //!
