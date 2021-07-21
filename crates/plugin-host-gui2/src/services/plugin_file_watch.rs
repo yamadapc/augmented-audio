@@ -4,7 +4,7 @@ use std::sync::mpsc::{channel, Receiver};
 use std::time::Duration;
 
 use iced_futures::{futures, BoxStream};
-use notify::{watcher, DebouncedEvent, RecommendedWatcher};
+use notify::{watcher, DebouncedEvent, RecommendedWatcher, RecursiveMode, Watcher};
 
 const BUFFER_SIZE: usize = 10;
 
@@ -65,31 +65,32 @@ fn run_file_watch_loop(
                         }
                     });
                 }
-                Err(err) => log::error!("File watch error: {}", err),
+                // Recv fails if the sender is closed, so no messages will be received
+                Err(_) => {
+                    log::warn!("Sender closed, stopping receiver");
+                    return Ok(());
+                }
             }
         }
     };
 
-    loop {
-        if let Err(err) = inner() {
-            log::error!("Error in file watcher thread: {}", err);
-        }
+    if let Err(err) = inner() {
+        log::warn!("Error in file watcher thread: {}", err);
     }
+    log::info!("Stopping file watcher thread");
 }
 
 /// Represents a single target path being watched & wraps file-watching to it can be used by `iced`.
 pub struct FileWatcher {
-    id: String,
     target_path: PathBuf,
 }
 
 impl FileWatcher {
     /// Create a file-watcher object
-    pub fn new(plugin_file: &Path) -> Result<Self, notify::Error> {
-        Ok(Self {
-            id: uuid::Uuid::new_v4().to_string(),
+    pub fn new(plugin_file: &Path) -> Self {
+        Self {
             target_path: PathBuf::from(plugin_file),
-        })
+        }
     }
 }
 
@@ -100,7 +101,7 @@ where
     type Output = FileWatchMessage;
 
     fn hash(&self, state: &mut H) {
-        self.id.hash(state);
+        self.target_path.hash(state);
     }
 
     fn stream(self: Box<Self>, _input: BoxStream<I>) -> BoxStream<Self::Output> {
@@ -111,9 +112,17 @@ where
             move |mut state| async move {
                 match state {
                     State::Ready { file_path } => {
+                        log::info!("Starting file-watcher over {}", file_path.to_str().unwrap());
                         let (tx, rx) = channel();
                         let (output_tx, output_rx) = tokio::sync::mpsc::channel(BUFFER_SIZE);
-                        if let Ok(watcher) = watcher(tx, Duration::from_secs(2)) {
+                        if let Ok(mut watcher) = watcher(tx, Duration::from_secs(2)) {
+                            if let Err(err) =
+                                watcher.watch(file_path.clone(), RecursiveMode::NonRecursive)
+                            {
+                                log::error!("Failure to watch path {}", err);
+                                return Some((FileWatchMessage::Error, State::Finished));
+                            }
+
                             let thread = tokio::task::spawn_blocking({
                                 let plugin_file = PathBuf::from(file_path);
                                 move || run_file_watch_loop(&plugin_file, rx, output_tx)

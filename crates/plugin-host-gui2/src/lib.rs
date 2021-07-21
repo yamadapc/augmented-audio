@@ -1,9 +1,9 @@
-use derive_more::From;
+use std::time::Duration;
 
+use derive_more::From;
 use iced::{Application, Clipboard, Command, Container, Element, Length, Subscription};
 
 use audio_processor_iced_design_system as design_system;
-use std::time::Duration;
 use ui::main_content_view;
 
 pub mod services;
@@ -65,12 +65,13 @@ impl Application for App {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        let subscriptions =
+        let mut subscriptions =
             vec![iced::time::every(Duration::from_millis(16)).map(|_| AppMessage::None)];
-        // if let Some(plugin_file_path) = self.plugin_host.lock().unwrap().plugin_file_path() {
-        //     log::info!("Setting-up file-watch subscription");
-        //     services::plugin_file_watch::FileWatcher::new(plugin_file_path);
-        // }
+        subscriptions.push(
+            self.main_content_view
+                .subscription()
+                .map(AppMessage::Content),
+        );
         Subscription::batch(subscriptions)
     }
 

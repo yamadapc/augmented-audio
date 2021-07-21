@@ -35,15 +35,15 @@ pub enum AudioIOServiceError {
 pub type AudioIOServiceResult<T> = Result<T, AudioIOServiceError>;
 
 pub struct AudioIOService {
-    // host: Arc<Mutex<TestPluginHost>>,
+    host: Arc<Mutex<TestPluginHost>>,
     state: AudioIOState,
     storage: AudioIOStorageService,
 }
 
 impl AudioIOService {
-    pub fn new(/* host: Arc<Mutex<TestPluginHost>>, */ storage_config: StorageConfig) -> Self {
+    pub fn new(host: Arc<Mutex<TestPluginHost>>, storage_config: StorageConfig) -> Self {
         AudioIOService {
-            // host,
+            host,
             storage: AudioIOStorageService::new(storage_config),
             state: AudioIOState {
                 host: Self::default_host(),
@@ -75,12 +75,12 @@ impl AudioIOService {
 
     pub fn set_host_id(&mut self, host_id: String) -> Result<(), AudioIOServiceError> {
         log::info!("Setting audio host");
-        // let mut host = self.host.lock().unwrap();
-        // host.set_host_id(AudioHostId::Id(host_id.clone()))
-        //     .map_err(|err| {
-        //         log::error!("Failed to set host {}", err);
-        //         AudioIOServiceError::AudioThreadError
-        //     })?;
+        let mut host = self.host.lock().unwrap();
+        host.set_host_id(AudioHostId::Id(host_id.clone()))
+            .map_err(|err| {
+                log::error!("Failed to set host {}", err);
+                AudioIOServiceError::AudioThreadError
+            })?;
         self.state.host = host_id;
         self.try_store();
         Ok(())
@@ -91,12 +91,12 @@ impl AudioIOService {
         input_device_id: String,
     ) -> Result<(), AudioIOServiceError> {
         log::info!("Setting input device");
-        // let mut host = self.host.lock().unwrap();
-        // host.set_input_device_id(Some(AudioDeviceId::Id(input_device_id.clone())))
-        //     .map_err(|err| {
-        //         log::error!("Failed to set input device {}", err);
-        //         AudioIOServiceError::AudioThreadError
-        //     })?;
+        let mut host = self.host.lock().unwrap();
+        host.set_input_device_id(Some(AudioDeviceId::Id(input_device_id.clone())))
+            .map_err(|err| {
+                log::error!("Failed to set input device {}", err);
+                AudioIOServiceError::AudioThreadError
+            })?;
         self.state.input_device = Some(AudioDevice::new(input_device_id));
         self.try_store();
         Ok(())
@@ -107,13 +107,12 @@ impl AudioIOService {
         output_device_id: String,
     ) -> Result<(), AudioIOServiceError> {
         log::info!("Setting output device");
-        // let mut host = self.host.lock().unwrap();
-        // let result = host
-        //     .set_output_device_id(AudioDeviceId::Id(output_device_id.clone()))
-        //     .map_err(|err| {
-        //         log::error!("Failed to set output device {}", err);
-        //         AudioIOServiceError::AudioThreadError
-        //     })?;
+        let mut host = self.host.lock().unwrap();
+        host.set_output_device_id(AudioDeviceId::Id(output_device_id.clone()))
+            .map_err(|err| {
+                log::error!("Failed to set output device {}", err);
+                AudioIOServiceError::AudioThreadError
+            })?;
         self.state.input_device = Some(AudioDevice::new(output_device_id));
         self.try_store();
         Ok(())

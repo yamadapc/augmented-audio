@@ -1,5 +1,5 @@
 use iced::{
-    Background, Container, Direction, Gradient, GradientStop, Length, LinearGradient, Text,
+    Background, Color, Container, Direction, Gradient, GradientStop, Length, LinearGradient, Text,
 };
 
 use audio_processor_iced_design_system::colors::Colors;
@@ -26,7 +26,7 @@ impl Application for LooperApplication {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let content = Text::new("HELLO JESS!");
+        let content = Text::new("HELLO yo!");
         Container::new(content)
             .center_x()
             .center_y()
@@ -42,7 +42,7 @@ struct ContainerStyle;
 impl iced::container::StyleSheet for ContainerStyle {
     fn style(&self) -> Style {
         Style {
-            text_color: None,
+            text_color: Some(Color::new(1., 1., 1., 1.)),
             background: Some(Background::Gradient(Gradient::LinearGradient(
                 LinearGradient {
                     direction: Direction::Bottom,

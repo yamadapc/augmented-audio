@@ -3,7 +3,8 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use derivative::Derivative;
-use iced::{Command, Element};
+use iced::{Command, Element, Subscription};
+use thiserror::Error;
 use vst::{host::PluginInstance, plugin::Plugin};
 
 use audio_garbage_collector::Shared;
@@ -16,6 +17,7 @@ use plugin_host_lib::{
 };
 
 use crate::services::host_options_service::{HostOptionsService, HostState};
+use crate::services::plugin_file_watch::FileWatcher;
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::DropdownState;
 use crate::ui::main_content_view::status_bar::StatusBar;
@@ -29,9 +31,18 @@ pub mod transport_controls;
 mod view;
 mod volume_meter;
 
+#[derive(Debug, Error)]
+enum ReloadPluginError {
+    #[error("Failed to join tokio blocking thread")]
+    JoinError(#[from] tokio::task::JoinError),
+    #[error(transparent)]
+    AudioHostError(#[from] AudioHostPluginLoadError),
+    #[error("No plugin loaded, configure the plugin path")]
+    MissingPluginError,
+}
+
 pub struct MainContentView {
-    plugin_host: Option<TestPluginHost>,
-    // TODO - This should not be under a lock
+    plugin_host: Arc<Mutex<TestPluginHost>>,
     audio_io_service: Arc<Mutex<AudioIOService>>,
     audio_io_settings: audio_io_settings::AudioIOSettingsView,
     host_options_service: HostOptionsService,
@@ -54,12 +65,14 @@ pub enum Message {
     PluginContent(plugin_content::Message),
     TransportControls(transport_controls::Message),
     SetStatus(StatusBar),
-    ReadyForPlayback(#[derivative(Debug = "ignore")] TestPluginHost),
+    ReadyForPlayback,
+    ReloadedPlugin(bool, StatusBar),
     None,
 }
 
 impl MainContentView {
     pub fn new(plugin_host: TestPluginHost) -> (Self, Command<Message>) {
+        let plugin_host = Arc::new(Mutex::new(plugin_host));
         let (
             HostContext {
                 audio_io_service,
@@ -67,7 +80,7 @@ impl MainContentView {
                 host_state,
             },
             command,
-        ) = reload_plugin_host_state(plugin_host);
+        ) = reload_plugin_host_state(plugin_host.clone());
 
         let audio_driver_state = MainContentView::build_audio_driver_dropdown_state();
         let input_device_state = MainContentView::build_input_device_dropdown_state(Some(
@@ -91,7 +104,7 @@ impl MainContentView {
 
         (
             MainContentView {
-                plugin_host: None,
+                plugin_host,
                 audio_io_service,
                 audio_io_settings,
                 host_options_service,
@@ -119,8 +132,7 @@ impl MainContentView {
             Message::PluginContent(msg) => self.update_plugin_content(msg),
             Message::TransportControls(message) => self.update_transport_controls(message),
             Message::SetStatus(message) => self.update_status_message(message),
-            Message::ReadyForPlayback(host) => {
-                self.plugin_host = Some(host);
+            Message::ReadyForPlayback => {
                 Command::perform(iced_futures::futures::future::ready(()), |_| {
                     Message::SetStatus(StatusBar::new(
                         "Ready for playback",
@@ -129,26 +141,39 @@ impl MainContentView {
                 })
             }
             Message::None => Command::none(),
+            Message::ReloadedPlugin(did_close, status_bar) => {
+                self.reset_handles();
+                self.status_message = status_bar;
+                if did_close {
+                    self.open_plugin_window()
+                } else {
+                    Command::none()
+                }
+            }
+        }
+    }
+
+    pub fn subscription(&self) -> Subscription<Message> {
+        if let Some(path) = &self.host_state.plugin_path {
+            Subscription::from_recipe(FileWatcher::new(path.as_ref()))
+                .map(|_| Message::PluginContent(plugin_content::Message::ReloadPlugin))
+        } else {
+            Subscription::none()
         }
     }
 
     fn poll_for_host_handles(&mut self) {
         if self.volume_handle.is_none() {
-            if let Some(volume_handle) = self
-                .plugin_host
-                .as_ref()
-                .map(|h| h.volume_handle())
-                .flatten()
+            if let Ok(Some(volume_handle)) = self.plugin_host.try_lock().map(|h| h.volume_handle())
             {
                 self.volume_handle = Some(volume_handle);
             }
         }
         if self.rms_processor_handle.is_none() {
-            if let Some(buffer) = self
+            if let Ok(Some(buffer)) = self
                 .plugin_host
-                .as_ref()
+                .try_lock()
                 .map(|h| h.rms_processor_handle())
-                .flatten()
             {
                 self.rms_processor_handle = Some(buffer.clone());
                 self.audio_chart = Some(audio_chart::AudioChart::new(buffer));
@@ -209,61 +234,55 @@ impl MainContentView {
     }
 
     fn reload_plugin(&mut self) -> Command<Message> {
-        if let Some(host_ref) = self.plugin_host.take() {
-            self.close_plugin_window();
-            self.reset_handles();
+        let did_close = self.close_plugin_window();
 
-            Command::perform(
-                tokio::task::spawn_blocking(move || {
-                    let mut host = host_ref;
-                    host.plugin_file_path()
-                        .clone()
-                        .map(|plugin_file_path| host.load_plugin(&plugin_file_path))
-                }),
-                |result| match result {
-                    Err(err) => Message::SetStatus(StatusBar::new(
-                        format!("Failure loading plugin in a background thread: {}", err),
-                        status_bar::State::Error,
-                    )),
-                    Ok(None) => Message::SetStatus(StatusBar::new(
-                        "There's no plugin loaded, configure the plugin path",
-                        status_bar::State::Warning,
-                    )),
-                    Ok(Some(Err(err))) => Message::SetStatus(StatusBar::new(
-                        format!("Error loading plugin: {}", err),
-                        status_bar::State::Error,
-                    )),
-                    Ok(Some(Ok(_))) => {
-                        Message::SetStatus(StatusBar::new("Loaded plugin", status_bar::State::Idle))
-                    }
-                },
-            )
-        } else {
-            Command::none()
-        }
+        let host = self.plugin_host.clone();
+        let load_future = async move {
+            let result = tokio::task::spawn_blocking(move || {
+                let mut host = host.lock().unwrap();
+                let plugin_file_path = host
+                    .plugin_file_path()
+                    .clone()
+                    .ok_or(ReloadPluginError::MissingPluginError)?;
+                host.load_plugin(&plugin_file_path)?;
+                Ok(())
+            })
+            .await;
+            match result {
+                Ok(result) => result,
+                Err(err) => Err(ReloadPluginError::JoinError(err)),
+            }
+        };
+
+        Command::perform(load_future, move |result| match result {
+            Err(err) => Message::ReloadedPlugin(
+                did_close,
+                StatusBar::new(format!("{}", err), status_bar::State::Error),
+            ),
+            Ok(_) => Message::ReloadedPlugin(
+                did_close,
+                StatusBar::new("Loaded plugin", status_bar::State::Idle),
+            ),
+        })
     }
 
     // TODO - this is decoding on the main thread, but it should be on a background thread
     fn set_input_file(&mut self, input_file: &String) -> Command<Message> {
-        if self.plugin_host.is_some() {
-            let result = self
-                .plugin_host
-                .as_mut()
-                .unwrap()
-                .set_audio_file_path(PathBuf::from(input_file));
+        let result = self
+            .plugin_host
+            .lock()
+            .unwrap()
+            .set_audio_file_path(PathBuf::from(input_file));
 
-            self.reset_handles();
-            result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
-            self.host_state.audio_input_file_path = Some(input_file.clone());
-            self.host_options_service
-                .store(&self.host_state)
-                .unwrap_or_else(|err| {
-                    log::error!("Failed to store {:?}", err);
-                });
-            Command::none()
-        } else {
-            Command::none()
-        }
+        self.reset_handles();
+        result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
+        self.host_state.audio_input_file_path = Some(input_file.clone());
+        self.host_options_service
+            .store(&self.host_state)
+            .unwrap_or_else(|err| {
+                log::error!("Failed to store {:?}", err);
+            });
+        Command::none()
     }
 
     fn set_audio_plugin_path(&mut self, path: &String) -> Command<Message> {
@@ -282,25 +301,22 @@ impl MainContentView {
 
         self.status_message = StatusBar::new("Reloading plugin", status_bar::State::Warning);
 
-        if let Some(mut host) = self.plugin_host.take() {
-            Command::perform(
-                tokio::task::spawn_blocking(move || {
-                    let path = Path::new(&path);
-                    host.load_plugin(path)
-                }),
-                |result| match result {
-                    Err(err) => Message::SetStatus(StatusBar::new(
-                        format!("Error loading plugin: {}", err),
-                        status_bar::State::Error,
-                    )),
-                    Ok(_) => {
-                        Message::SetStatus(StatusBar::new("Loaded plugin", status_bar::State::Idle))
-                    }
-                },
-            )
-        } else {
-            Command::none()
-        }
+        let host = self.plugin_host.clone();
+        Command::perform(
+            tokio::task::spawn_blocking(move || {
+                let path = Path::new(&path);
+                host.lock().unwrap().load_plugin(path)
+            }),
+            |result| match result {
+                Err(err) => Message::SetStatus(StatusBar::new(
+                    format!("Error loading plugin: {}", err),
+                    status_bar::State::Error,
+                )),
+                Ok(_) => {
+                    Message::SetStatus(StatusBar::new("Loaded plugin", status_bar::State::Idle))
+                }
+            },
+        )
     }
 
     fn reset_handles(&mut self) {
@@ -313,45 +329,44 @@ impl MainContentView {
         &mut self,
         message: transport_controls::Message,
     ) -> Command<Message> {
-        if let Some(host) = &mut self.plugin_host {
-            match message {
-                transport_controls::Message::Play => {
-                    host.play();
-                }
-                transport_controls::Message::Pause => {
-                    host.pause();
-                }
-                transport_controls::Message::Stop => {
-                    host.stop();
-                }
-                _ => (),
+        let host = self.plugin_host.lock().unwrap();
+        match message {
+            transport_controls::Message::Play => {
+                host.play();
             }
-            let children = self
-                .transport_controls
-                .update(message)
-                .map(Message::TransportControls);
-            Command::batch(vec![children])
-        } else {
-            Command::none()
+            transport_controls::Message::Pause => {
+                host.pause();
+            }
+            transport_controls::Message::Stop => {
+                host.stop();
+            }
+            _ => (),
         }
+        let children = self
+            .transport_controls
+            .update(message)
+            .map(Message::TransportControls);
+        Command::batch(vec![children])
     }
 
-    fn close_plugin_window(&mut self) {
+    fn close_plugin_window(&mut self) -> bool {
         if let Some(mut plugin_window_handle) = self.plugin_window_handle.take() {
             log::info!("Closing plugin editor");
             plugin_window_handle.editor.close();
             close_window(plugin_window_handle.raw_window_handle);
+            true
         } else {
             log::warn!("Close requested, but there's no plugin window handle");
+            false
         }
     }
 
     fn open_plugin_window(&mut self) -> Command<Message> {
         if self.plugin_window_handle.is_some() {
             log::warn!("Refusing to open 2 plugin editors");
-        } else if let Some(host) = &mut self.plugin_host {
+        } else {
             log::info!("Opening plugin editor");
-            if let Some(instance) = host.plugin_instance() {
+            if let Some(instance) = self.plugin_host.lock().unwrap().plugin_instance() {
                 log::info!("Found plugin instance");
                 let instance_ptr = instance.deref() as *const PluginInstance as *mut PluginInstance;
                 if let Some(editor) = unsafe { instance_ptr.as_mut() }.unwrap().get_editor() {
@@ -430,7 +445,9 @@ struct HostContext {
 }
 
 /// Load plugin-host state from JSON files when it starts. Do file decoding on a background thread.
-fn reload_plugin_host_state(mut plugin_host: TestPluginHost) -> (HostContext, Command<Message>) {
+fn reload_plugin_host_state(
+    plugin_host: Arc<Mutex<TestPluginHost>>,
+) -> (HostContext, Command<Message>) {
     log::info!("Reloading plugin-host settings from disk");
     let home_dir =
         dirs::home_dir().expect("Failed to get user HOME directory. App will fail to work.");
@@ -444,7 +461,10 @@ fn reload_plugin_host_state(mut plugin_host: TestPluginHost) -> (HostContext, Co
     let storage_config = StorageConfig {
         audio_io_state_storage_path,
     };
-    let audio_io_service = Arc::new(Mutex::new(AudioIOService::new(storage_config)));
+    let audio_io_service = Arc::new(Mutex::new(AudioIOService::new(
+        plugin_host.clone(),
+        storage_config,
+    )));
     let host_options_storage_path = home_config_dir
         .join("audio-thread-config.json")
         .to_str()
@@ -456,29 +476,29 @@ fn reload_plugin_host_state(mut plugin_host: TestPluginHost) -> (HostContext, Co
     let command = {
         let host_state = host_state.clone();
         Command::perform(
-            tokio::task::spawn_blocking(
-                move || -> Result<TestPluginHost, AudioHostPluginLoadError> {
-                    log::info!("Reloading audio plugin & file in background thread");
-                    if let Some(path) = &host_state.audio_input_file_path {
-                        plugin_host
-                            .set_audio_file_path(path.into())
-                            .map_err(|err| {
-                                log::error!("Failed to set audio input {:?}", err);
-                                err
-                            })?;
-                    }
-
-                    if let Some(path) = &host_state.plugin_path {
-                        let host = &mut plugin_host;
-                        host.load_plugin(Path::new(path)).map_err(|err| {
+            tokio::task::spawn_blocking(move || -> Result<(), AudioHostPluginLoadError> {
+                log::info!("Reloading audio plugin & file in background thread");
+                if let Some(path) = &host_state.audio_input_file_path {
+                    plugin_host
+                        .lock()
+                        .unwrap()
+                        .set_audio_file_path(path.into())
+                        .map_err(|err| {
                             log::error!("Failed to set audio input {:?}", err);
                             err
                         })?;
-                        host.pause();
-                    }
-                    Ok(plugin_host)
-                },
-            ),
+                }
+
+                if let Some(path) = &host_state.plugin_path {
+                    let mut host = plugin_host.lock().unwrap();
+                    host.load_plugin(Path::new(path)).map_err(|err| {
+                        log::error!("Failed to set audio input {:?}", err);
+                        err
+                    })?;
+                    host.pause();
+                }
+                Ok(())
+            }),
             |result| match result {
                 Err(err) => Message::SetStatus(StatusBar::new(
                     format!("Failed to load plugin: {}", err),
@@ -488,7 +508,7 @@ fn reload_plugin_host_state(mut plugin_host: TestPluginHost) -> (HostContext, Co
                     format!("Failed to load plugin: {}", err),
                     status_bar::State::Error,
                 )),
-                Ok(Ok(host)) => Message::ReadyForPlayback(host),
+                Ok(Ok(_)) => Message::ReadyForPlayback,
             },
         )
     };
