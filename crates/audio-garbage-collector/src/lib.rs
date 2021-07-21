@@ -151,7 +151,7 @@ mod test {
     }
 
     #[test]
-    fn test_gc_will_run() {
+    fn test_gc_will_run_after_period() {
         let _ = wisual_logger::init_from_env();
         let mut gc = GarbageCollector::new(Duration::from_millis(100));
 
@@ -162,6 +162,23 @@ mod test {
             assert_eq!(gc.blocking_alloc_count(), 2);
         }
         std::thread::sleep(Duration::from_millis(200));
+        assert_eq!(gc.blocking_alloc_count(), 0);
+
+        gc.stop().unwrap();
+    }
+
+    #[test]
+    fn test_gc_will_run_with_blocking_collect() {
+        let _ = wisual_logger::init_from_env();
+        let mut gc = GarbageCollector::new(Duration::from_millis(100));
+
+        assert_eq!(gc.blocking_alloc_count(), 0);
+        {
+            let _s1 = Shared::new(gc.handle(), 10);
+            let _s2 = Shared::new(gc.handle(), 10);
+            assert_eq!(gc.blocking_alloc_count(), 2);
+        }
+        assert_eq!(gc.blocking_collect(), true);
         assert_eq!(gc.blocking_alloc_count(), 0);
 
         gc.stop().unwrap();
