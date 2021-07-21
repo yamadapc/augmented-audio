@@ -5,11 +5,15 @@ use vst::api::{Event, Events, MidiEvent};
 use crate::constants::MIDI_BUFFER_CAPACITY;
 use crate::host::MidiMessageEntry;
 
-/// This is a super unsafe converter from MIDI events as received into the VST api. It's unsafe
-/// because it must do manual memory allocation & management.
+/// This is an unsafe converter from MIDI events received from `midir` into the `rust-vst` VST api.
 ///
-/// Pre-allocates buffers up-front. Capacity is set to 10 MIDI messages. More than 10 midi messages
-/// being passed into it will result in dropped messages.
+/// It's unsafe because it must do manual memory allocation & management to interface with the VST
+/// C-style API.
+///
+/// Pre-allocates buffers of MIDI events up-front. Capacity is set to 100 MIDI messages by default.
+///
+/// More than 100 midi messages being passed into it in a single buffer tick will result in dropped
+/// messages.
 ///
 /// The collecting phase of the audio-thread should collect at most a limit of messages.
 ///
@@ -29,6 +33,9 @@ impl Default for MidiVSTConverter {
 }
 
 impl MidiVSTConverter {
+    /// Create a new MidiVSTConverter with capacity.
+    ///
+    /// Will pre-allocate buffers.
     pub fn new(capacity: usize) -> Self {
         unsafe {
             let events_ptr = MidiVSTConverter::allocate_events(capacity);
@@ -52,6 +59,10 @@ impl MidiVSTConverter {
     }
 
     /// Pushes MIDI messages onto a pre-allocated `Events` struct. Returns a reference to it.
+    ///
+    /// This should be real-time safe.
+    ///
+    /// The `vst::api::Events` returned may be passed into a VST plugin instance.
     pub fn accept(&mut self, midi_message_buffer: &[MidiMessageEntry]) -> &vst::api::Events {
         self.events.num_events = min(self.capacity as i32, midi_message_buffer.len() as i32);
 
@@ -91,6 +102,7 @@ impl MidiVSTConverter {
         &self.events
     }
 
+    /// Get a reference to the events
     pub fn events(&self) -> &vst::api::Events {
         &self.events
     }

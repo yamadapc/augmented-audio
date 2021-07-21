@@ -24,10 +24,14 @@ impl MidiAudioThreadHandler {
         }
     }
 
+    /// Get a reference to the message buffer
     pub fn buffer(&self) -> &Vec<MidiMessageEntry> {
         &self.buffer
     }
 
+    /// Push messages onto the buffer
+    ///
+    /// This is real-time safe as long as `MidiAudioThreadHandler::clear` is called on every tick.
     pub fn collect_midi_messages(&mut self, midi_message_queue: &MidiMessageQueue) -> usize {
         let mut midi_message_count = 0;
         for _i in 0..self.capacity {
@@ -41,6 +45,7 @@ impl MidiAudioThreadHandler {
         midi_message_count
     }
 
+    /// Clear the messages buffer. Must be called after `collect_midi_messages` on every tick.
     pub fn clear(&mut self) {
         self.buffer.clear();
     }
