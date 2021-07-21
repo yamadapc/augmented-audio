@@ -68,7 +68,7 @@ impl MidiVSTConverter {
 
         for (i, message) in midi_message_buffer.iter().enumerate() {
             if i >= self.capacity {
-                log::error!("Message was dropped");
+                log::debug!("MIDI Message was dropped");
                 break;
             }
 
