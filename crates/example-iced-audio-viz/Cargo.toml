@@ -16,4 +16,4 @@ audio-processor-standalone = { path = "../audio-processor-standalone" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 atomic-queue = { path = "../atomic-queue" }
 circular-data-structures = { path = "../circular-data-structures" }
-audio-processor-traits = { path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }

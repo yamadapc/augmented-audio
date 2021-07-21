@@ -20,7 +20,7 @@ md5 = "^0.7.0"
 derivative = "^2.2.0"
 
 tokio = "^1.8.1"
-audio-processor-traits = { path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }

@@ -20,7 +20,7 @@ iced_baseview = { path = "../iced-baseview", features = ["canvas"], default-feat
 iced-editor = { path = "../iced-editor" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-parameter-store = { path = "../audio-parameter-store" }
-audio-processor-traits = { path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
 audio-plugin-logger = { path = "../audio-plugin-logger" }
 looper-processor = { path = "../looper-processor" }
 

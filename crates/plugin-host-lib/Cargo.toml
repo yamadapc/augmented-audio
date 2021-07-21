@@ -32,7 +32,7 @@ atomic-queue = { path = "../atomic-queue" }
 audio-processor-standalone-midi = { path = "../audio-processor-standalone-midi" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 circular-data-structures = { path = "../circular-data-structures" }
-audio-processor-traits = { version = "^0.2.0", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
 oscillator = { path = "../oscillator" }
 convert-sample-rate = { path = "../convert-sample-rate" }
 

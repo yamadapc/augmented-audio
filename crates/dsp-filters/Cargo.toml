@@ -7,4 +7,4 @@ edition = "2018"
 
 [dependencies]
 num = "^0.4.0"
-audio-processor-traits = { path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }

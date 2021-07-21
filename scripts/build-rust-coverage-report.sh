@@ -5,10 +5,10 @@ set -x
 
 rm -f default.profraw
 
-RUSTFLAGS="-Zinstrument-coverage" cargo +nightly test
+RUSTFLAGS="-Zinstrument-coverage" cargo +nightly test --target-dir=./target-nightly
 
 grcov . \
-  --binary-path ./target/debug \
+  --binary-path ./target-nightly/debug \
   --source-dir . \
   -t html --branch \
   -o "./coverage/"

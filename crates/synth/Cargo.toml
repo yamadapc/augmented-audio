@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 audio-garbage-collector = { version = "^0.1.0", path = "../audio-garbage-collector" }
-audio-processor-traits = { version = "^0.2.0", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
 adsr-envelope = { version = "^0.1.0", path = "../adsr-envelope" }
 oscillator = { version = "^0.1.0", path = "../oscillator" }
 audio-processor-standalone = { version = "^0.1.0", path = "../audio-processor-standalone" }
