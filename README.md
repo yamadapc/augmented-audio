@@ -69,7 +69,7 @@ See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/ma
 its related (work-in-progress) [audio-processor-graph](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-graph).
 
 ```rust
-pub trait AudioProcessor: Send {
+pub trait AudioProcessor {
     type SampleType;
     fn prepare(&mut self, _settings: AudioProcessorSettings) {}
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
