@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
-sudo apt-get install -y \
+sudo apt-get update
+sudo apt-get install --fix-missing -y \
     libasound2-dev \
     libssl-dev \
     cmake \
