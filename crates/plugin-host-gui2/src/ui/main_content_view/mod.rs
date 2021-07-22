@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use derivative::Derivative;
-use iced::{Command, Element, Subscription};
+use iced::{Command, Element, Rectangle, Subscription};
 use thiserror::Error;
 use vst::{host::PluginInstance, plugin::Plugin};
 
@@ -31,6 +31,11 @@ pub mod transport_controls;
 mod view;
 mod volume_meter;
 
+enum ClosePluginWindowResult {
+    NoWindow,
+    ClosedPlugin { window_frame: Rectangle },
+}
+
 #[derive(Debug, Error)]
 enum ReloadPluginError {
     #[error("Failed to join tokio blocking thread")]
@@ -56,6 +61,8 @@ pub struct MainContentView {
     volume_handle: Option<Shared<VolumeMeterProcessorHandle>>,
     rms_processor_handle: Option<Shared<RunningRMSProcessorHandle>>,
     audio_chart: Option<audio_chart::AudioChart>,
+    /// Cached window frame from a previous editor open
+    previous_plugin_window_frame: Option<Rectangle>,
 }
 
 #[derive(Derivative)]
@@ -117,6 +124,7 @@ impl MainContentView {
                 volume_handle: None,
                 rms_processor_handle: None,
                 audio_chart: None,
+                previous_plugin_window_frame: None,
             },
             command,
         )
@@ -234,7 +242,14 @@ impl MainContentView {
     }
 
     fn reload_plugin(&mut self) -> Command<Message> {
-        let did_close = self.close_plugin_window();
+        let did_close = if let ClosePluginWindowResult::ClosedPlugin { window_frame } =
+            self.close_plugin_window()
+        {
+            self.previous_plugin_window_frame = Some(window_frame);
+            true
+        } else {
+            false
+        };
 
         let host = self.plugin_host.clone();
         let load_future = async move {
@@ -287,7 +302,9 @@ impl MainContentView {
 
     fn set_audio_plugin_path(&mut self, path: &String) -> Command<Message> {
         self.reset_handles();
-        self.close_plugin_window();
+        if let ClosePluginWindowResult::ClosedPlugin { window_frame } = self.close_plugin_window() {
+            self.previous_plugin_window_frame = Some(window_frame);
+        }
         let path = path.clone();
 
         self.status_message =
@@ -349,15 +366,17 @@ impl MainContentView {
         Command::batch(vec![children])
     }
 
-    fn close_plugin_window(&mut self) -> bool {
+    fn close_plugin_window(&mut self) -> ClosePluginWindowResult {
         if let Some(mut plugin_window_handle) = self.plugin_window_handle.take() {
             log::info!("Closing plugin editor");
             plugin_window_handle.editor.close();
-            close_window(plugin_window_handle.raw_window_handle);
-            true
+            let frame = close_window(plugin_window_handle.raw_window_handle);
+            frame
+                .map(|window_frame| ClosePluginWindowResult::ClosedPlugin { window_frame })
+                .unwrap_or(ClosePluginWindowResult::NoWindow)
         } else {
             log::warn!("Close requested, but there's no plugin window handle");
-            false
+            ClosePluginWindowResult::NoWindow
         }
     }
 
@@ -372,7 +391,12 @@ impl MainContentView {
                 if let Some(editor) = unsafe { instance_ptr.as_mut() }.unwrap().get_editor() {
                     log::info!("Found plugin editor");
                     let size = editor.size();
-                    let window = open_plugin_window(editor, size);
+                    let window = open_plugin_window(
+                        editor,
+                        size,
+                        self.previous_plugin_window_frame
+                            .map(|frame| frame.position()),
+                    );
                     log::info!("Opened editor window");
                     self.plugin_window_handle = Some(window);
                 }

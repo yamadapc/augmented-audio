@@ -9,11 +9,17 @@ use raw_window_handle::RawWindowHandle;
 use vst::editor::Editor;
 
 use crate::ui::plugin_editor_window::PluginWindowHandle;
+use iced::{Point, Rectangle, Size};
+use objc::runtime::Object;
 
 // TODO: I believe this is leaking memory due to no autorelease.
 // The issue I had with autorelease is it caused a crash when the window was closed for some reason.
 // The crash was use after free within the iced runloop but may be unrelated to iced.
-pub fn open_plugin_window(mut editor: Box<dyn Editor>, size: (i32, i32)) -> PluginWindowHandle {
+pub fn open_plugin_window(
+    mut editor: Box<dyn Editor>,
+    size: (i32, i32),
+    position: Option<Point>,
+) -> PluginWindowHandle {
     let _pool = unsafe { NSAutoreleasePool::new(nil) };
     let (width, height) = size;
     let rect = NSRect::new(
@@ -45,24 +51,51 @@ pub fn open_plugin_window(mut editor: Box<dyn Editor>, size: (i32, i32)) -> Plug
     });
     editor.open(ns_view as *mut c_void);
 
+    if let Some(position) = position {
+        log::info!("Restoring plugin window position");
+        let ns_point = NSPoint {
+            x: position.x as f64,
+            y: position.y as f64,
+        };
+        unsafe {
+            NSWindow::setFrameTopLeftPoint_(ns_window, ns_point);
+        }
+    }
+
     PluginWindowHandle {
         editor,
         raw_window_handle,
     }
 }
 
-pub fn close_window(handle: RawWindowHandle) {
+pub fn close_window(handle: RawWindowHandle) -> Option<Rectangle> {
     if let RawWindowHandle::MacOS(MacOSHandle {
         ns_window, ns_view, ..
     }) = handle
     {
-        let ns_window = ns_window as id;
-        let ns_view = ns_view as id;
         unsafe {
+            let ns_window = ns_window as id;
+            let ns_view = ns_view as id;
+            let window_frame = get_window_frame(ns_window);
+
             ns_view.removeFromSuperview();
             ns_window.close();
             let _ = Box::from_raw(ns_view);
             let _ = Box::from_raw(ns_window);
+
+            return Some(window_frame);
         }
     }
+
+    None
+}
+
+unsafe fn get_window_frame(ns_window: *mut Object) -> Rectangle {
+    let frame = NSWindow::frame(ns_window);
+    let bottom_left = frame.origin;
+    let size = frame.size;
+    Rectangle::new(
+        Point::new(bottom_left.x as f32, (bottom_left.y + size.height) as f32),
+        Size::new(size.width as f32, size.height as f32),
+    )
 }
