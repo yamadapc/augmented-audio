@@ -62,6 +62,7 @@ pub struct TestPluginHost {
     midi_host: MidiHost,
     garbage_collector: GarbageCollector,
     mono_input: Option<usize>,
+    temporary_load_path: Option<String>,
 }
 
 impl Default for TestPluginHost {
@@ -94,6 +95,7 @@ impl TestPluginHost {
             midi_host,
             garbage_collector,
             mono_input: None,
+            temporary_load_path: None,
         }
     }
 
@@ -163,6 +165,8 @@ impl TestPluginHost {
         std::mem::drop(old_plugin);
         self.garbage_collector.blocking_collect();
 
+        let path = self.prepare_load_path(path)?;
+        let path = Path::new(&path);
         let vst_plugin_instance = Self::load_vst_plugin(path)?;
         let vst_plugin_instance =
             SharedProcessor::new(self.garbage_collector.handle(), vst_plugin_instance);
@@ -201,21 +205,10 @@ impl TestPluginHost {
         Ok(())
     }
 
-    pub(crate) fn load_vst_plugin(path: &Path) -> Result<PluginInstance, AudioHostPluginLoadError> {
+    pub fn load_vst_plugin(path: &Path) -> Result<PluginInstance, AudioHostPluginLoadError> {
         let host = Arc::new(Mutex::new(AudioTestHost));
-        let load_id = uuid::Uuid::new_v4().to_string();
-        let load_path = format!("/tmp/plugin-host-{}", load_id);
-        std::fs::copy(path, &load_path)?;
-        log::info!("Copied plugin into {}", &load_path);
-        #[cfg(target_os = "macos")]
-        {
-            log::info!("Tainting the library with install_name_tool. Multiple versions will be loaded at the same time due to macOS limitations.");
-            let _ = Command::new("install_name_tool")
-                .args(&["-id", &load_id, &load_path])
-                .output();
-        }
-        let load_path = Path::new(&load_path);
-        let mut loader = PluginLoader::load(&load_path, Arc::clone(&host))?;
+
+        let mut loader = PluginLoader::load(path, Arc::clone(&host))?;
         let mut instance = loader.instance()?;
         let info = instance.get_info();
         log::info!(
@@ -238,6 +231,31 @@ impl TestPluginHost {
         instance.init();
         log::info!("Initialized instance!");
         Ok(instance)
+    }
+
+    /// Copy the dylib to a new location so it'll be properly reloaded on macOS. Clean-up the old
+    /// temporary plugin file.
+    fn prepare_load_path(&mut self, path: &Path) -> Result<String, std::io::Error> {
+        if let Some(temporary_load_path) = self.temporary_load_path.take() {
+            log::info!("Cleaning-up temporary plugin at {}", temporary_load_path);
+            std::fs::remove_file(&temporary_load_path)?;
+        }
+
+        let load_id = uuid::Uuid::new_v4().to_string();
+        let load_path = format!("/tmp/plugin-host-{}", load_id);
+        std::fs::copy(path, &load_path)?;
+        log::info!("Copied plugin into {}", &load_path);
+        self.temporary_load_path = Some(load_path.clone());
+
+        #[cfg(target_os = "macos")]
+        {
+            log::info!("Tainting the library with install_name_tool. Multiple versions will be loaded at the same time due to macOS limitations.");
+            let _ = Command::new("install_name_tool")
+                .args(&["-id", &load_id, &load_path])
+                .output();
+        }
+
+        Ok(load_path)
     }
 
     fn host_processor(&self) -> Option<&TestHostProcessor> {
@@ -311,5 +329,9 @@ impl TestPluginHost {
 impl Drop for TestPluginHost {
     fn drop(&mut self) {
         self.stop();
+        if let Some(temporary_load_path) = self.temporary_load_path.take() {
+            log::warn!("Cleaning-up temporary plug-in file {}", temporary_load_path);
+            let _ = std::fs::remove_file(temporary_load_path);
+        }
     }
 }
