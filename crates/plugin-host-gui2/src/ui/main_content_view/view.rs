@@ -3,6 +3,7 @@
 use iced::{Column, Container, Element, Length, Row, Rule, Text};
 
 use audio_garbage_collector::Shared;
+use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
@@ -18,7 +19,6 @@ use crate::ui::main_content_view::{
     audio_chart, audio_file_chart, plugin_content, transport_controls, Message,
 };
 use crate::ui::style::ContainerStylesheet;
-use audio_processor_iced_design_system::colors::Colors;
 
 pub struct MainContentViewModel<'a> {
     pub audio_io_settings: &'a mut AudioIOSettingsView,
