@@ -1,20 +1,13 @@
-use std::fs::File;
-use std::path::Path;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Instant;
 
 use rayon::prelude::*;
 use symphonia::core::audio::AudioBuffer as SymphoniaAudioBuffer;
-use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::ProbeResult;
-use symphonia::default::get_probe;
-use thiserror::Error;
 
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
-use convert_sample_rate::convert_sample_rate;
 
 use crate::processors::audio_file_processor::file_io::AudioFileError;
-use crate::timer;
 
 pub(crate) mod file_io;
 
