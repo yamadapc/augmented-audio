@@ -45,26 +45,30 @@ fn run_file_watch_loop(
         );
         loop {
             match rx.recv() {
-                Ok(_) => {
-                    let new_hash = get_file_hash(plugin_path)?;
-                    if new_hash == current_hash {
-                        log::warn!("Ignoring event due to same plugin hash");
-                        continue;
-                    } else {
-                        log::info!(
+                Ok(_) => match get_file_hash(plugin_path) {
+                    Ok(new_hash) => {
+                        if new_hash == current_hash {
+                            log::warn!("Ignoring event due to same plugin hash");
+                            continue;
+                        } else {
+                            log::info!(
                             "Received file change event. Plug-in will be reloaded content_hash={}",
                             new_hash
                         );
-                        current_hash = new_hash;
-                    }
-
-                    let output = output.clone();
-                    tokio::spawn(async move {
-                        if let Err(err) = output.send(FileWatchMessage::Changed).await {
-                            log::error!("Failed to write change to tokio channel: {}", err);
+                            current_hash = new_hash;
                         }
-                    });
-                }
+
+                        let output = output.clone();
+                        tokio::spawn(async move {
+                            if let Err(err) = output.send(FileWatchMessage::Changed).await {
+                                log::error!("Failed to write change to tokio channel: {}", err);
+                            }
+                        });
+                    }
+                    Err(err) => {
+                        log::error!("Failed to read file {}", err);
+                    }
+                },
                 // Recv fails if the sender is closed, so no messages will be received
                 Err(_) => {
                     log::warn!("Sender closed, stopping receiver");
