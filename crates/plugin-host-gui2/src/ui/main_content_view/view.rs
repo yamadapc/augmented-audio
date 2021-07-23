@@ -82,7 +82,7 @@ fn audio_file_visualization(audio_file_model: &AudioFileModel) -> Element<Messag
             .map(|_| Message::None),
     )
     .width(Length::Fill)
-    .height(Length::Units(200))
+    .max_height(200)
     .into()
 }
 
