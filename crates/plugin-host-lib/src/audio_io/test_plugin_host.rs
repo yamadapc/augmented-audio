@@ -1,5 +1,6 @@
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
@@ -14,15 +15,13 @@ use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudi
 use crate::audio_io::audio_thread::error::AudioThreadError;
 use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId, AudioThreadOptions};
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
-use crate::processors::audio_file_processor::{
-    default_read_audio_file, AudioFileError, AudioFileSettings,
-};
+use crate::processors::audio_file_processor::file_io::{default_read_audio_file, AudioFileError};
+use crate::processors::audio_file_processor::AudioFileSettings;
 use crate::processors::running_rms_processor::RunningRMSProcessorHandle;
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
 use crate::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use crate::vst_host::AudioTestHost;
-use std::process::Command;
 
 #[derive(Debug, Error)]
 pub enum AudioHostPluginLoadError {

@@ -7,7 +7,8 @@ use audio_processor_traits::{AudioProcessorSettings, InterleavedAudioBuffer};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_io::AudioHostPluginLoadError;
-use crate::processors::audio_file_processor::{AudioFileError, AudioFileProcessor};
+use crate::processors::audio_file_processor::file_io::AudioFileError;
+use crate::processors::audio_file_processor::AudioFileProcessor;
 use crate::processors::output_file_processor::OutputAudioFileProcessor;
 use crate::processors::test_host_processor::flush_vst_output;
 use crate::TestPluginHost;

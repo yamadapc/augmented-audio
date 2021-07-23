@@ -1,7 +1,7 @@
-use crate::processors::audio_file_processor::{
-    default_read_audio_file, AudioFileError, AudioFileProcessor, AudioFileSettings,
-};
 use audio_processor_traits::AudioProcessorSettings;
+
+use crate::processors::audio_file_processor::file_io::{default_read_audio_file, AudioFileError};
+use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 
 pub fn probe_file(input_audio_path: &str) -> Result<AudioFileSettings, AudioFileError> {
     default_read_audio_file(input_audio_path).map(AudioFileSettings::new)

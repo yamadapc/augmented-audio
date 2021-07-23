@@ -2,7 +2,7 @@ use std::any::Any;
 
 use thiserror::Error;
 
-use crate::processors::audio_file_processor::AudioFileError;
+use crate::processors::audio_file_processor::file_io::AudioFileError;
 
 #[derive(Error, Debug)]
 pub enum AudioThreadError {
