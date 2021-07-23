@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use derive_more::From;
-use iced::{Application, Clipboard, Command, Container, Element, Length, Subscription};
+use iced::{Application, Clipboard, Command, Container, Element, Length, Menu, Subscription};
 
 use audio_processor_iced_design_system as design_system;
 use ui::main_content_view;
@@ -17,6 +17,7 @@ pub struct App {
 #[derive(Debug, Clone, From)]
 pub enum AppMessage {
     Content(main_content_view::Message),
+    OpenGithub,
     None,
 }
 
@@ -57,6 +58,12 @@ impl Application for App {
                 .main_content_view
                 .update(message)
                 .map(AppMessage::Content),
+            AppMessage::OpenGithub => {
+                if let Err(err) = opener::open("https://github.com/yamadapc/augmented-audio") {
+                    log::error!("Failed to open GitHub page");
+                }
+                Command::none()
+            }
             _ => self
                 .main_content_view
                 .update(main_content_view::Message::None)
@@ -85,5 +92,26 @@ impl Application for App {
             .height(Length::Fill)
             .width(Length::Fill)
             .into()
+    }
+
+    fn menu(&self) -> Menu<Self::Message> {
+        iced::menu::Menu::with_entries(vec![
+            iced::menu::Entry::Dropdown {
+                title: "File".to_string(),
+                submenu: iced::menu::Menu::with_entries(vec![iced::menu::Entry::Item {
+                    on_activation: AppMessage::None,
+                    hotkey: None,
+                    title: "Open".to_string(),
+                }]),
+            },
+            iced::menu::Entry::Dropdown {
+                title: "Help".to_string(),
+                submenu: iced::menu::Menu::with_entries(vec![iced::menu::Entry::Item {
+                    on_activation: AppMessage::OpenGithub,
+                    hotkey: None,
+                    title: "Open GitHub project".to_string(),
+                }]),
+            },
+        ])
     }
 }
