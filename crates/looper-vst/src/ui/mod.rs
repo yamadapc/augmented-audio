@@ -11,10 +11,11 @@ use audio_processor_iced_design_system::style::Container0;
 use audio_processor_iced_design_system::style::Container1;
 use iced_baseview::canvas::{Cursor, Geometry, Program};
 use iced_baseview::container::Style;
-use iced_baseview::{executor, Canvas, Rectangle};
+use iced_baseview::{executor, Canvas, Rectangle, Subscription, WindowSubs};
 use iced_baseview::{Application, Command, Element};
 use looper_processor::LooperProcessorHandle;
 use looper_visualization::LooperVisualizationView;
+use std::time::Duration;
 use style::ContainerStyle;
 
 mod bottom_panel;
@@ -23,11 +24,11 @@ mod style;
 
 #[derive(Clone)]
 pub struct Flags {
-    pub processor_handle: Shared<LooperProcessorHandle>,
+    pub processor_handle: Shared<LooperProcessorHandle<f32>>,
 }
 
 pub struct LooperApplication {
-    processor_handle: Shared<LooperProcessorHandle>,
+    processor_handle: Shared<LooperProcessorHandle<f32>>,
     looper_visualization: LooperVisualizationView,
     knobs_view: bottom_panel::BottomPanelView,
 }
@@ -35,6 +36,7 @@ pub struct LooperApplication {
 #[derive(Clone, Debug)]
 pub enum Message {
     BottomPanel(bottom_panel::Message),
+    VisualizationTick,
     None,
 }
 
@@ -46,8 +48,8 @@ impl Application for LooperApplication {
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
             LooperApplication {
-                processor_handle: flags.processor_handle,
-                looper_visualization: LooperVisualizationView::new(),
+                processor_handle: flags.processor_handle.clone(),
+                looper_visualization: LooperVisualizationView::new(flags.processor_handle),
                 knobs_view: bottom_panel::BottomPanelView::new(),
             },
             Command::none(),
@@ -59,8 +61,19 @@ impl Application for LooperApplication {
             Message::BottomPanel(message) => {
                 self.knobs_view.update(message).map(Message::BottomPanel)
             }
+            Message::VisualizationTick => {
+                self.looper_visualization.tick_visualization();
+                Command::none()
+            }
             Message::None => Command::none(),
         }
+    }
+
+    fn subscription(
+        &self,
+        _window_subs: &mut WindowSubs<Self::Message>,
+    ) -> Subscription<Self::Message> {
+        iced::time::every(Duration::from_millis(100)).map(|_| Message::VisualizationTick)
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {

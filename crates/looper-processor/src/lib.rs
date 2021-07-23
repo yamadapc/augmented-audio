@@ -11,6 +11,8 @@ use circular_data_structures::CircularVec;
 use num::FromPrimitive;
 use rimd::Status;
 
+const QUEUE_CAPACITY: usize = 2048;
+
 struct InternalBuffer<SampleType> {
     size: usize,
     channels: Vec<CircularVec<SampleType>>,
@@ -44,24 +46,26 @@ impl<SampleType: num::Float> InternalBuffer<SampleType> {
 }
 
 /// Public API types, which should be thread-safe
-pub struct LooperProcessorHandle {
+pub struct LooperProcessorHandle<SampleType> {
     is_recording: AtomicBool,
     is_playing_back: AtomicBool,
     playback_input: AtomicBool,
+    pub queue: atomic_queue::Queue<SampleType>,
 }
 
-impl Default for LooperProcessorHandle {
+impl<SampleType> Default for LooperProcessorHandle<SampleType> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl LooperProcessorHandle {
+impl<SampleType> LooperProcessorHandle<SampleType> {
     pub fn new() -> Self {
         LooperProcessorHandle {
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
             playback_input: AtomicBool::new(true),
+            queue: atomic_queue::Queue::new(QUEUE_CAPACITY),
         }
     }
 
@@ -155,10 +159,10 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
 pub struct LooperProcessor<SampleType: num::Float> {
     pub id: String,
     state: LooperProcessorState<SampleType>,
-    handle: Shared<LooperProcessorHandle>,
+    handle: Shared<LooperProcessorHandle<SampleType>>,
 }
 
-impl<SampleType: num::Float> LooperProcessor<SampleType> {
+impl<SampleType: num::Float + 'static> LooperProcessor<SampleType> {
     pub fn new(handle: &Handle) -> Self {
         LooperProcessor {
             id: uuid::Uuid::new_v4().to_string(),
@@ -167,7 +171,7 @@ impl<SampleType: num::Float> LooperProcessor<SampleType> {
         }
     }
 
-    pub fn handle(&self) -> Shared<LooperProcessorHandle> {
+    pub fn handle(&self) -> Shared<LooperProcessorHandle<SampleType>> {
         self.handle.clone()
     }
 }
@@ -203,6 +207,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
             let is_playing = self.handle.is_playing_back.load(Ordering::Relaxed);
             let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
             let looper_cursor = self.state.looper_cursor;
+            let mut viz_input = BufferType::SampleType::zero();
 
             for channel_num in 0..data.num_channels() {
                 let loop_channel = self.state.looped_clip.channel(channel_num);
@@ -213,6 +218,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
                 } else {
                     *data.get(channel_num, sample_index)
                 };
+                viz_input += dry_output;
                 let looper_output = loop_channel[looper_cursor];
                 let looper_output = if is_playing { looper_output } else { zero };
 
@@ -227,6 +233,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
                 }
             }
 
+            self.handle.queue.push(viz_input);
             self.state.on_tick(is_recording, looper_cursor);
         }
     }
