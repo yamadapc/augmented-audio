@@ -204,7 +204,22 @@ pub mod container {
 
     use crate::colors::Colors;
 
-    pub struct Container0;
+    pub struct Container0 {
+        border_width: f32,
+    }
+
+    impl Default for Container0 {
+        fn default() -> Self {
+            Self { border_width: 0.0 }
+        }
+    }
+
+    impl Container0 {
+        pub fn border_width(mut self, border_width: f32) -> Self {
+            self.border_width = border_width;
+            self
+        }
+    }
 
     impl iced::container::StyleSheet for Container0 {
         fn style(&self) -> Style {
@@ -212,7 +227,7 @@ pub mod container {
                 text_color: Some(Colors::text()),
                 background: Some(Background::Color(Colors::background_level0())),
                 border_radius: 0.0,
-                border_width: 0.0,
+                border_width: self.border_width,
                 border_color: Colors::border_color(),
             }
         }

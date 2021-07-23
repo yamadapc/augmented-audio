@@ -102,7 +102,7 @@ fn bottom_visualisation_content_container(
                 })
                 .width(Length::Fill)
                 .height(Length::Fill)
-                .style(Container0),
+                .style(Container0::default()),
             )
             .padding(Spacing::base_spacing())
             .height(Length::Fill)
@@ -130,7 +130,7 @@ fn plugin_content_container(
     plugin_content: &mut plugin_content::PluginContentView,
 ) -> Element<Message> {
     Container::new(plugin_content.view().map(Message::PluginContent))
-        .style(Container0)
+        .style(Container0::default())
         .height(Length::Fill)
         .width(Length::Fill)
         .into()
@@ -149,7 +149,7 @@ fn transport_controls_container(
 fn status_message_container(status_message: &StatusBar) -> Element<Message> {
     Container::new(status_message.clone().view().map(|_| Message::None))
         .center_y()
-        .style(Container0)
+        .style(Container0::default())
         .height(Length::Units(20))
         .width(Length::Fill)
         .into()

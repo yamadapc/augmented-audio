@@ -153,7 +153,7 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
         Container::new(content)
             .width(Length::Fill)
             .height(Length::Fill)
-            .style(style::Container0)
+            .style(style::Container0::default())
             .into()
     }
 }

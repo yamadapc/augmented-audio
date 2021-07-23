@@ -32,7 +32,7 @@ where
         IcedEditor {
             flags,
             handle: None,
-            size: (500, 500),
+            size: (500, 300),
             position: (0, 0),
         }
     }
@@ -57,7 +57,7 @@ where
             title: "Iced Editor".to_string(),
             size: Size {
                 width: 500.0,
-                height: 500.0,
+                height: 300.0,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
         };

@@ -82,7 +82,9 @@ impl Plugin for LoopiPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        Some(Box::new(IcedEditor::<LooperApplication>::new(())))
+        Some(Box::new(IcedEditor::<LooperApplication>::new(ui::Flags {
+            processor_handle: self.processor.handle(),
+        })))
     }
 }
 

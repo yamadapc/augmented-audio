@@ -88,7 +88,7 @@ impl Application for App {
             Err(err) => ui::start_error_view::StartErrorView::view(err).map(|_| AppMessage::None),
         };
         Container::new(content)
-            .style(design_system::style::container::Container0)
+            .style(design_system::style::container::Container0::default())
             .height(Length::Fill)
             .width(Length::Fill)
             .into()

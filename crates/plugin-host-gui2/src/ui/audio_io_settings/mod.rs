@@ -97,7 +97,7 @@ fn section_heading<'a, T: Into<String>>(label: T) -> impl Into<Element<'a, Messa
     let text = Text::new(label);
     Column::with_children(vec![
         Container::new(text)
-            .style(Container0)
+            .style(Container0::default())
             .padding(Spacing::base_spacing())
             .into(),
         horizontal_rule().into(),
