@@ -3,10 +3,12 @@ use iced::canvas::{Cursor, Geometry, Program};
 use iced::{Canvas, Element, Rectangle};
 
 pub enum Message {
+    #[allow(dead_code)]
     None,
 }
 
 pub struct AudioFileModel {
+    #[allow(dead_code)]
     audio_file: VecAudioBuffer<f32>,
 }
 
@@ -19,6 +21,7 @@ impl AudioFileModel {
 }
 
 pub struct View<'a> {
+    #[allow(dead_code)]
     model: &'a AudioFileModel,
 }
 
@@ -27,13 +30,13 @@ impl<'a> View<'a> {
         Self { model }
     }
 
-    pub fn view(mut self) -> Element<'a, Message> {
+    pub fn view(self) -> Element<'a, Message> {
         Canvas::new(self).into()
     }
 }
 
 impl<'a> Program<Message> for View<'a> {
-    fn draw(&self, bounds: Rectangle, cursor: Cursor) -> Vec<Geometry> {
+    fn draw(&self, _bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
         vec![]
     }
 }

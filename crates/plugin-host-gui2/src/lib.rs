@@ -60,7 +60,7 @@ impl Application for App {
                 .map(AppMessage::Content),
             AppMessage::OpenGithub => {
                 if let Err(err) = opener::open("https://github.com/yamadapc/augmented-audio") {
-                    log::error!("Failed to open GitHub page");
+                    log::error!("Failed to open GitHub page: {}", err);
                 }
                 Command::none()
             }

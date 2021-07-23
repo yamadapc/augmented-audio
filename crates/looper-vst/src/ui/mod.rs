@@ -1,7 +1,4 @@
-use iced::{
-    Align, Background, Color, Column, Container, Direction, Gradient, GradientStop, Length,
-    LinearGradient, Row, Rule, Text,
-};
+use iced::{Align, Background, Color, Column, Container, Length, Row, Rule, Text};
 
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::container::HoverContainer;
@@ -12,7 +9,6 @@ use audio_processor_iced_design_system::style as audio_style;
 use iced_baseview::container::Style;
 use iced_baseview::executor;
 use iced_baseview::{Application, Command, Element};
-use vst::editor::KnobMode;
 
 pub struct LooperApplication {
     knobs_view: KnobsView,

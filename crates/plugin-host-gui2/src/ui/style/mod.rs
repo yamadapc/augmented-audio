@@ -9,26 +9,31 @@ pub struct ContainerStylesheet {
 }
 
 impl ContainerStylesheet {
+    #[allow(dead_code)]
     pub fn with_text_color(mut self, color: Option<Color>) -> Self {
         self.text_color = color;
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_background(mut self, background: Option<Background>) -> Self {
         self.background = background;
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_border_radius(mut self, border_radius: f32) -> Self {
         self.border_radius = border_radius;
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_border_width(mut self, border_width: f32) -> Self {
         self.border_width = border_width;
         self
     }
 
+    #[allow(dead_code)]
     pub fn with_border_color(mut self, border_color: Color) -> Self {
         self.border_color = border_color;
         self
