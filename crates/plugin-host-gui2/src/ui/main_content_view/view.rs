@@ -14,6 +14,8 @@ use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::main_content_view::volume_meter::VolumeMeter;
 use crate::ui::main_content_view::{audio_chart, plugin_content, transport_controls, Message};
+use crate::ui::style::ContainerStylesheet;
+use audio_processor_iced_design_system::colors::Colors;
 
 pub struct MainContentViewModel<'a> {
     pub audio_io_settings: &'a mut AudioIOSettingsView,
@@ -34,27 +36,40 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         status_message,
     } = view_model;
 
-    Column::with_children(vec![
-        audio_io_settings.view().map(Message::AudioIOSettings),
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
-        plugin_content_container(plugin_content),
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
-        bottom_visualisation_content_container(BottomVisualisationViewModel {
-            audio_chart,
-            volume_handle,
-        }),
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
-        transport_controls_container(transport_controls),
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
-        status_message_container(status_message),
+    Row::with_children(vec![
+        // sidebar_view(),
+        // Rule::vertical(1)
+        //     .style(audio_processor_iced_design_system::style::Rule)
+        //     .into(),
+        Column::with_children(vec![
+            audio_io_settings.view().map(Message::AudioIOSettings),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            plugin_content_container(plugin_content),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            sound_file_visualization(),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            Container::new(Text::new("")).height(Length::Fill).into(),
+            bottom_visualisation_content_container(BottomVisualisationViewModel {
+                audio_chart,
+                volume_handle,
+            }),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            transport_controls_container(transport_controls),
+            Rule::horizontal(1)
+                .style(audio_processor_iced_design_system::style::Rule)
+                .into(),
+            status_message_container(status_message),
+        ])
+        // .width(Length::FillPortion(8))
+        .into(),
     ])
     .into()
 }
@@ -62,6 +77,36 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
 struct BottomVisualisationViewModel<'a> {
     audio_chart: &'a Option<audio_chart::AudioChart>,
     volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
+}
+
+fn sidebar_view() -> Element<'static, Message> {
+    Column::with_children(vec![
+        sidebar_menu_item(Text::new("Simple")),
+        sidebar_menu_item(Text::new("Patcher")),
+    ])
+    .width(Length::FillPortion(2))
+    .into()
+}
+
+fn sidebar_menu_item<'a, Message: 'a>(
+    content: impl Into<Element<'a, Message>>,
+) -> Element<'a, Message> {
+    Container::new(content)
+        .style(
+            ContainerStylesheet::default()
+                .with_border_width(1.)
+                .with_border_color(Colors::border_color()),
+        )
+        .width(Length::Fill)
+        .padding(Spacing::base_spacing())
+        .into()
+}
+
+fn sound_file_visualization() -> Element<'static, Message> {
+    Container::new(Text::new("Sound"))
+        .width(Length::Fill)
+        .height(Length::Units(200))
+        .into()
 }
 
 fn bottom_visualisation_content_container(

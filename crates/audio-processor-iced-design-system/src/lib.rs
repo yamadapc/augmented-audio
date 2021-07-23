@@ -13,6 +13,10 @@ pub fn default_settings<Flags: Default>() -> iced::Settings<Flags> {
     iced::Settings {
         antialiasing: true,
         default_text_size: spacing::Spacing::default_font_size(),
+        window: iced::window::Settings {
+            size: (1400, 1024),
+            ..iced::window::Settings::default()
+        },
         ..iced::Settings::default()
     }
 }
