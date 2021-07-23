@@ -13,7 +13,6 @@ exclude = [
   "crates/plotters",
   "crates/gfx",
   "crates/iced_audio",
-  "crates/iced-baseview",
   "crates/scripts",
   "crates/lyon",
   "crates/vst",
