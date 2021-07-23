@@ -4214,6 +4214,7 @@ dependencies = [
  "derive_more",
  "dirs",
  "iced",
+ "iced_core",
  "iced_futures",
  "iced_native",
  "log",

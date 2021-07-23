@@ -26,6 +26,7 @@ audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
 iced = { version = "^0.3.0", path = "../iced" }
+iced_core = { version = "^0.4", path = "../iced/core" }
 iced_native = { version = "^0.4", path = "../iced/native" }
 iced_futures = { version = "^0.3", path = "../iced/futures" }
 plugin-host-lib = { path = "../plugin-host-lib" }

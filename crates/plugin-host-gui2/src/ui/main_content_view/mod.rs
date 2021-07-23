@@ -20,11 +20,13 @@ use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::services::plugin_file_watch::FileWatcher;
 use crate::ui::audio_io_settings;
 use crate::ui::audio_io_settings::DropdownState;
+use crate::ui::main_content_view::audio_file_chart::AudioFileModel;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::plugin_editor_window::{close_window, open_plugin_window, PluginWindowHandle};
 
 mod audio_chart;
+mod audio_file_chart;
 pub mod plugin_content;
 pub mod status_bar;
 pub mod transport_controls;
@@ -63,6 +65,7 @@ pub struct MainContentView {
     audio_chart: Option<audio_chart::AudioChart>,
     /// Cached window frame from a previous editor open
     previous_plugin_window_frame: Option<Rectangle>,
+    audio_file_model: audio_file_chart::AudioFileModel,
 }
 
 #[derive(Derivative)]
@@ -125,6 +128,7 @@ impl MainContentView {
                 rms_processor_handle: None,
                 audio_chart: None,
                 previous_plugin_window_frame: None,
+                audio_file_model: AudioFileModel::empty(),
             },
             command,
         )
@@ -412,6 +416,7 @@ impl MainContentView {
         let volume_handle = &self.volume_handle;
         let transport_controls = &mut self.transport_controls;
         let status_message = &self.status_message;
+        let audio_file_model = &self.audio_file_model;
 
         view::main_content_view(view::MainContentViewModel {
             audio_io_settings,
@@ -420,6 +425,7 @@ impl MainContentView {
             volume_handle,
             transport_controls,
             status_message,
+            audio_file_model,
         })
     }
 

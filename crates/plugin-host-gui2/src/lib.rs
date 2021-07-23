@@ -99,9 +99,14 @@ impl Application for App {
             iced::menu::Entry::Dropdown {
                 title: "File".to_string(),
                 submenu: iced::menu::Menu::with_entries(vec![iced::menu::Entry::Item {
-                    on_activation: AppMessage::None,
-                    hotkey: None,
-                    title: "Open".to_string(),
+                    on_activation: AppMessage::Content(main_content_view::Message::PluginContent(
+                        main_content_view::plugin_content::Message::OpenAudioPluginFilePathPicker,
+                    )),
+                    hotkey: Some(iced_core::keyboard::Hotkey {
+                        key: iced_core::keyboard::KeyCode::O,
+                        modifiers: iced::keyboard::Modifiers::LOGO,
+                    }),
+                    title: "Open plugin...".to_string(),
                 }]),
             },
             iced::menu::Entry::Dropdown {

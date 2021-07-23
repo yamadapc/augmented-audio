@@ -9,11 +9,14 @@ use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHan
 
 use crate::ui::audio_io_settings::AudioIOSettingsView;
 use crate::ui::main_content_view::audio_chart::AudioChart;
+use crate::ui::main_content_view::audio_file_chart::AudioFileModel;
 use crate::ui::main_content_view::plugin_content::PluginContentView;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::main_content_view::volume_meter::VolumeMeter;
-use crate::ui::main_content_view::{audio_chart, plugin_content, transport_controls, Message};
+use crate::ui::main_content_view::{
+    audio_chart, audio_file_chart, plugin_content, transport_controls, Message,
+};
 use crate::ui::style::ContainerStylesheet;
 use audio_processor_iced_design_system::colors::Colors;
 
@@ -24,6 +27,7 @@ pub struct MainContentViewModel<'a> {
     pub volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
     pub transport_controls: &'a mut TransportControlsView,
     pub status_message: &'a StatusBar,
+    pub audio_file_model: &'a AudioFileModel,
 }
 
 pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
@@ -34,6 +38,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         volume_handle,
         transport_controls,
         status_message,
+        audio_file_model,
     } = view_model;
 
     Row::with_children(vec![
@@ -50,7 +55,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
-            sound_file_visualization(),
+            audio_file_visualization(audio_file_model),
             Rule::horizontal(1)
                 .style(audio_processor_iced_design_system::style::Rule)
                 .into(),
@@ -102,11 +107,15 @@ fn sidebar_menu_item<'a, Message: 'a>(
         .into()
 }
 
-fn sound_file_visualization() -> Element<'static, Message> {
-    Container::new(Text::new("Sound"))
-        .width(Length::Fill)
-        .height(Length::Units(200))
-        .into()
+fn audio_file_visualization(audio_file_model: &AudioFileModel) -> Element<Message> {
+    Container::new(
+        audio_file_chart::View::new(audio_file_model)
+            .view()
+            .map(|_| Message::None),
+    )
+    .width(Length::Fill)
+    .height(Length::Units(200))
+    .into()
 }
 
 fn bottom_visualisation_content_container(
