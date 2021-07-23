@@ -332,7 +332,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-traits"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "criterion",
  "num 0.4.0",
