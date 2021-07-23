@@ -14,7 +14,7 @@ pub struct App {
     start_result: Result<(), plugin_host_lib::audio_io::StartError>,
 }
 
-#[derive(Debug, From)]
+#[derive(Debug, Clone, From)]
 pub enum AppMessage {
     Content(main_content_view::Message),
     None,

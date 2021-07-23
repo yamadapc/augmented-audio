@@ -175,6 +175,7 @@ pub mod pick_list {
         fn active(&self) -> Style {
             Style {
                 text_color: Colors::text(),
+                placeholder_color: Default::default(),
                 background: Background::Color(Colors::background_level0()),
                 border_radius: 0.0,
                 border_width: 1.0,
@@ -186,6 +187,7 @@ pub mod pick_list {
         fn hovered(&self) -> Style {
             Style {
                 text_color: Colors::text(),
+                placeholder_color: Default::default(),
                 background: Background::Color(Colors::hover_opacity(Colors::background_level0())),
                 border_radius: 0.0,
                 border_width: 1.0,

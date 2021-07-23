@@ -2283,7 +2283,7 @@ dependencies = [
 [[package]]
 name = "glutin"
 version = "0.27.0"
-source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+source = "git+https://github.com/iced-rs/glutin?rev=03437d8a1826d83c62017b2bb7bf18bfc9e352cc#03437d8a1826d83c62017b2bb7bf18bfc9e352cc"
 dependencies = [
  "android_glue",
  "cgl",
@@ -2309,7 +2309,7 @@ dependencies = [
 [[package]]
 name = "glutin_egl_sys"
 version = "0.1.5"
-source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+source = "git+https://github.com/iced-rs/glutin?rev=03437d8a1826d83c62017b2bb7bf18bfc9e352cc#03437d8a1826d83c62017b2bb7bf18bfc9e352cc"
 dependencies = [
  "gl_generator",
  "winapi 0.3.9",
@@ -2318,12 +2318,12 @@ dependencies = [
 [[package]]
 name = "glutin_emscripten_sys"
 version = "0.1.1"
-source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+source = "git+https://github.com/iced-rs/glutin?rev=03437d8a1826d83c62017b2bb7bf18bfc9e352cc#03437d8a1826d83c62017b2bb7bf18bfc9e352cc"
 
 [[package]]
 name = "glutin_gles2_sys"
 version = "0.1.5"
-source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+source = "git+https://github.com/iced-rs/glutin?rev=03437d8a1826d83c62017b2bb7bf18bfc9e352cc#03437d8a1826d83c62017b2bb7bf18bfc9e352cc"
 dependencies = [
  "gl_generator",
  "objc",
@@ -2332,7 +2332,7 @@ dependencies = [
 [[package]]
 name = "glutin_glx_sys"
 version = "0.1.7"
-source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+source = "git+https://github.com/iced-rs/glutin?rev=03437d8a1826d83c62017b2bb7bf18bfc9e352cc#03437d8a1826d83c62017b2bb7bf18bfc9e352cc"
 dependencies = [
  "gl_generator",
  "x11-dl",
@@ -2341,7 +2341,7 @@ dependencies = [
 [[package]]
 name = "glutin_wgl_sys"
 version = "0.1.5"
-source = "git+https://github.com/iced-rs/glutin?rev=2564d0ab87cf2ad824a2a58733aebe40dd2f29bb#2564d0ab87cf2ad824a2a58733aebe40dd2f29bb"
+source = "git+https://github.com/iced-rs/glutin?rev=03437d8a1826d83c62017b2bb7bf18bfc9e352cc#03437d8a1826d83c62017b2bb7bf18bfc9e352cc"
 dependencies = [
  "gl_generator",
 ]
@@ -2640,6 +2640,9 @@ dependencies = [
 [[package]]
 name = "iced_core"
 version = "0.4.0"
+dependencies = [
+ "bitflags",
+]
 
 [[package]]
 name = "iced_futures"
@@ -6042,7 +6045,7 @@ dependencies = [
 [[package]]
 name = "winit"
 version = "0.25.0"
-source = "git+https://github.com/iced-rs/winit?rev=44a9a6fc442fcfa3fa0dfc2d5a2f86fdf4aba10c#44a9a6fc442fcfa3fa0dfc2d5a2f86fdf4aba10c"
+source = "git+https://github.com/iced-rs/winit?rev=844485272a7412cb35cdbfac3524decdf59475ca#844485272a7412cb35cdbfac3524decdf59475ca"
 dependencies = [
  "bitflags",
  "cocoa 0.24.0",
