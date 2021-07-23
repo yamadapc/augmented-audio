@@ -24,6 +24,7 @@ exclude = [
 debug = true
 
 [patch.crates-io]
+basedrop = { path = "./crates/basedrop" }
 gfx-hal = { path = "./crates/gfx/src/hal" }
 gfx-backend-metal = { version = "*", path = "./crates/gfx/src/backend/metal", features = ["cross"] }
 iced = { version = "^0.3.0", path = "./crates/iced" }

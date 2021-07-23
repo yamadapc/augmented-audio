@@ -26,10 +26,10 @@ pub mod midi;
 /// Options provided to the audio-processor before calling `process`.
 #[derive(Clone, PartialEq, Debug, Copy)]
 pub struct AudioProcessorSettings {
-    sample_rate: f32,
-    input_channels: usize,
-    output_channels: usize,
-    block_size: usize,
+    pub sample_rate: f32,
+    pub input_channels: usize,
+    pub output_channels: usize,
+    pub block_size: usize,
 }
 
 impl Default for AudioProcessorSettings {

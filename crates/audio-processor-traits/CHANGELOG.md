@@ -1,3 +1,6 @@
+## 0.3.1
+* Made audio-processor-settings fields public
+
 ## 0.3.0
 * Relaxed sync / send bounds
 * Deprecated `VSTAudioBuffer`

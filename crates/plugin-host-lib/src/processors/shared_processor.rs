@@ -9,6 +9,8 @@ unsafe impl<T> Sync for ProcessorCell<T> {}
 
 /// Hack around rust interior mutability for Shared processor pointers.
 /// Processors need to be thread-safe internally.
+///
+/// We should deprecate this and use the 'handle' pattern instead.
 pub struct SharedProcessor<T: Send + 'static> {
     inner: Shared<ProcessorCell<T>>,
 }
