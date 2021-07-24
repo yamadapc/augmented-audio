@@ -1767,6 +1767,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "example-iced-xcode-integration"
+version = "0.1.0"
+dependencies = [
+ "baseview",
+ "cocoa 0.24.0",
+ "iced_baseview",
+ "objc",
+ "raw-window-handle",
+]
+
+[[package]]
 name = "expat-sys"
 version = "2.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"

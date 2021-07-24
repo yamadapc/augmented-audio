@@ -1,0 +1,352 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CB48177326ACAC4F00A44748 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CB48177226ACAC4F00A44748 /* AppDelegate.m */; };
+		CB48177626ACAC4F00A44748 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB48177526ACAC4F00A44748 /* ViewController.m */; };
+		CB48177826ACAC5200A44748 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB48177726ACAC5200A44748 /* Assets.xcassets */; };
+		CB48177B26ACAC5200A44748 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB48177926ACAC5200A44748 /* Main.storyboard */; };
+		CB48177E26ACAC5200A44748 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CB48177D26ACAC5200A44748 /* main.m */; };
+		CB48178826ACAF8A00A44748 /* libexample_iced_xcode_integration.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB48178626ACAF0100A44748 /* libexample_iced_xcode_integration.a */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		CB48176E26ACAC4F00A44748 /* example iced xcode integration.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "example iced xcode integration.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB48177126ACAC4F00A44748 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		CB48177226ACAC4F00A44748 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		CB48177426ACAC4F00A44748 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		CB48177526ACAC4F00A44748 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		CB48177726ACAC5200A44748 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CB48177A26ACAC5200A44748 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		CB48177C26ACAC5200A44748 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CB48177D26ACAC5200A44748 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CB48177F26ACAC5200A44748 /* example_iced_xcode_integration.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = example_iced_xcode_integration.entitlements; sourceTree = "<group>"; };
+		CB48178626ACAF0100A44748 /* libexample_iced_xcode_integration.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libexample_iced_xcode_integration.a; path = ../../../target/debug/libexample_iced_xcode_integration.a; sourceTree = "<group>"; };
+		CB48178726ACAF2B00A44748 /* rust_bridge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rust_bridge.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CB48176B26ACAC4F00A44748 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB48178826ACAF8A00A44748 /* libexample_iced_xcode_integration.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CB48176526ACAC4F00A44748 = {
+			isa = PBXGroup;
+			children = (
+				CB48177026ACAC4F00A44748 /* example iced xcode integration */,
+				CB48176F26ACAC4F00A44748 /* Products */,
+				CB48178526ACAF0100A44748 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		CB48176F26ACAC4F00A44748 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CB48176E26ACAC4F00A44748 /* example iced xcode integration.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CB48177026ACAC4F00A44748 /* example iced xcode integration */ = {
+			isa = PBXGroup;
+			children = (
+				CB48177126ACAC4F00A44748 /* AppDelegate.h */,
+				CB48177226ACAC4F00A44748 /* AppDelegate.m */,
+				CB48177426ACAC4F00A44748 /* ViewController.h */,
+				CB48178726ACAF2B00A44748 /* rust_bridge.h */,
+				CB48177526ACAC4F00A44748 /* ViewController.m */,
+				CB48177726ACAC5200A44748 /* Assets.xcassets */,
+				CB48177926ACAC5200A44748 /* Main.storyboard */,
+				CB48177C26ACAC5200A44748 /* Info.plist */,
+				CB48177D26ACAC5200A44748 /* main.m */,
+				CB48177F26ACAC5200A44748 /* example_iced_xcode_integration.entitlements */,
+			);
+			path = "example iced xcode integration";
+			sourceTree = "<group>";
+		};
+		CB48178526ACAF0100A44748 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CB48178626ACAF0100A44748 /* libexample_iced_xcode_integration.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CB48176D26ACAC4F00A44748 /* example iced xcode integration */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB48178226ACAC5200A44748 /* Build configuration list for PBXNativeTarget "example iced xcode integration" */;
+			buildPhases = (
+				CB48176A26ACAC4F00A44748 /* Sources */,
+				CB48176B26ACAC4F00A44748 /* Frameworks */,
+				CB48176C26ACAC4F00A44748 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "example iced xcode integration";
+			productName = "example iced xcode integration";
+			productReference = CB48176E26ACAC4F00A44748 /* example iced xcode integration.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CB48176626ACAC4F00A44748 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1250;
+				TargetAttributes = {
+					CB48176D26ACAC4F00A44748 = {
+						CreatedOnToolsVersion = 12.5.1;
+					};
+				};
+			};
+			buildConfigurationList = CB48176926ACAC4F00A44748 /* Build configuration list for PBXProject "example iced xcode integration" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = CB48176526ACAC4F00A44748;
+			productRefGroup = CB48176F26ACAC4F00A44748 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CB48176D26ACAC4F00A44748 /* example iced xcode integration */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CB48176C26ACAC4F00A44748 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB48177826ACAC5200A44748 /* Assets.xcassets in Resources */,
+				CB48177B26ACAC5200A44748 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CB48176A26ACAC4F00A44748 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB48177626ACAC4F00A44748 /* ViewController.m in Sources */,
+				CB48177E26ACAC5200A44748 /* main.m in Sources */,
+				CB48177326ACAC4F00A44748 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		CB48177926ACAC5200A44748 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CB48177A26ACAC5200A44748 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		CB48178026ACAC5200A44748 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../target/debug/";
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		CB48178126ACAC5200A44748 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/../../../target/debug/";
+				MACOSX_DEPLOYMENT_TARGET = 11.3;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		CB48178326ACAC5200A44748 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "example iced xcode integration/example_iced_xcode_integration.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = Q39U2SBP6Z;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = "example iced xcode integration/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.example-iced-xcode-integration";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		CB48178426ACAC5200A44748 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "example iced xcode integration/example_iced_xcode_integration.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = Q39U2SBP6Z;
+				ENABLE_HARDENED_RUNTIME = YES;
+				INFOPLIST_FILE = "example iced xcode integration/Info.plist";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.example-iced-xcode-integration";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CB48176926ACAC4F00A44748 /* Build configuration list for PBXProject "example iced xcode integration" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB48178026ACAC5200A44748 /* Debug */,
+				CB48178126ACAC5200A44748 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB48178226ACAC5200A44748 /* Build configuration list for PBXNativeTarget "example iced xcode integration" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB48178326ACAC5200A44748 /* Debug */,
+				CB48178426ACAC5200A44748 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CB48176626ACAC4F00A44748 /* Project object */;
+}
