@@ -156,7 +156,7 @@ impl Widget<AudioData> for AudioWave {
             shape.move_to(Point::new(x_coord, y_coord));
             shape.line_to(Point::new(x2_coord, y2_coord));
             prev = item;
-            index += 50;
+            index += 10;
         }
         ctx.stroke(shape, &Color::RED, 3.0);
     }
