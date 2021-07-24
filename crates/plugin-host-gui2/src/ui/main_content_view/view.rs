@@ -48,11 +48,11 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         Rule::horizontal(1)
             .style(audio_processor_iced_design_system::style::Rule)
             .into(),
-        audio_file_visualization(audio_file_model),
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
-        Container::new(Text::new("")).height(Length::Fill).into(),
+        // audio_file_visualization(audio_file_model),
+        // Rule::horizontal(1)
+        //     .style(audio_processor_iced_design_system::style::Rule)
+        //     .into(),
+        // Container::new(Text::new("")).height(Length::Fill).into(),
         bottom_visualisation_content_container(BottomVisualisationViewModel {
             audio_chart,
             volume_handle,

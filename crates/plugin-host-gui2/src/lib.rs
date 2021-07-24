@@ -6,6 +6,7 @@ use iced::{Application, Clipboard, Command, Container, Element, Length, Menu, Su
 use audio_processor_iced_design_system as design_system;
 use ui::main_content_view;
 
+pub mod executor;
 pub mod services;
 pub mod ui;
 
@@ -22,7 +23,7 @@ pub enum AppMessage {
 }
 
 impl Application for App {
-    type Executor = iced::executor::Default;
+    type Executor = executor::PluginHostExecutor;
     type Message = AppMessage;
     type Flags = ();
 
