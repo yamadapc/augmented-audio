@@ -115,7 +115,7 @@ impl Application for WalkthroughApp {
         Container::new(panel)
             .width(Length::Fill)
             .height(Length::Fill)
-            .style(audio_style::Container0)
+            .style(audio_style::Container0::default())
             .into()
     }
 }
@@ -487,7 +487,7 @@ impl BottomPanel {
                 .height(Length::Fill)
                 .center_x()
                 .center_y()
-                .style(audio_style::Container0)
+                .style(audio_style::Container0::default())
                 .into(),
         ])
         .into()

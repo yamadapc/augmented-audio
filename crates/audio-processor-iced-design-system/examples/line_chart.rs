@@ -70,7 +70,7 @@ impl Application for LineChartApp {
             .width(Length::Fill)
             .height(Length::Fill)
             .padding(Spacing::base_spacing())
-            .style(audio_processor_iced_design_system::style::Container0)
+            .style(audio_processor_iced_design_system::style::Container0::default())
             .into()
     }
 }
