@@ -19,6 +19,8 @@ pub fn open_plugin_window(
 }
 
 #[cfg(not(target_os = "macos"))]
-pub fn close_window(raw_window_handle: raw_window_handle::RawWindowHandle) -> Option<Rectangle> {
+pub fn close_window(
+    raw_window_handle: raw_window_handle::RawWindowHandle,
+) -> Option<iced::Rectangle> {
     todo!("Not implemented")
 }
