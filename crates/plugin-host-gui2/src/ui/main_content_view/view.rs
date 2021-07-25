@@ -1,6 +1,6 @@
 //! Stateless views for `MainContentView` layout
 
-use iced::{Column, Container, Element, Length, Row, Rule, Text};
+use iced::{Button, Column, Container, Element, Length, Row, Rule, Text};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
@@ -18,6 +18,11 @@ use crate::ui::main_content_view::{
     audio_chart, audio_file_chart, plugin_content, transport_controls, Message,
 };
 
+pub struct StartStopViewModel {
+    pub is_started: bool,
+    pub button_state: iced::button::State,
+}
+
 pub struct MainContentViewModel<'a> {
     pub audio_io_settings: &'a mut AudioIOSettingsView,
     pub plugin_content: &'a mut PluginContentView,
@@ -25,6 +30,7 @@ pub struct MainContentViewModel<'a> {
     pub volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
     pub transport_controls: &'a mut TransportControlsView,
     pub status_message: &'a StatusBar,
+    pub start_stop_button_state: &'a mut StartStopViewModel,
     pub audio_file_model: &'a AudioFileModel,
 }
 
@@ -36,11 +42,25 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         volume_handle,
         transport_controls,
         status_message,
+        start_stop_button_state,
         audio_file_model,
     } = view_model;
 
     Row::with_children(vec![Column::with_children(vec![
         audio_io_settings.view().map(Message::AudioIOSettings),
+        Container::new(
+            Button::new(
+                &mut start_stop_button_state.button_state,
+                if start_stop_button_state.is_started {
+                    Text::new("Stop audio engine")
+                } else {
+                    Text::new("Start audio engine")
+                },
+            )
+            .on_press(Message::StartStopButtonClicked)
+            .style(audio_processor_iced_design_system::style::Button),
+        )
+        .into(),
         Rule::horizontal(1)
             .style(audio_processor_iced_design_system::style::Rule)
             .into(),
@@ -48,11 +68,6 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         Rule::horizontal(1)
             .style(audio_processor_iced_design_system::style::Rule)
             .into(),
-        // audio_file_visualization(audio_file_model),
-        // Rule::horizontal(1)
-        //     .style(audio_processor_iced_design_system::style::Rule)
-        //     .into(),
-        // Container::new(Text::new("")).height(Length::Fill).into(),
         bottom_visualisation_content_container(BottomVisualisationViewModel {
             audio_chart,
             volume_handle,
@@ -75,6 +90,7 @@ struct BottomVisualisationViewModel<'a> {
     volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
 }
 
+#[allow(dead_code)]
 fn audio_file_visualization(audio_file_model: &AudioFileModel) -> Element<Message> {
     Container::new(
         audio_file_chart::View::new(audio_file_model)

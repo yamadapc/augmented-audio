@@ -66,6 +66,7 @@ pub struct MainContentView {
     /// Cached window frame from a previous editor open
     previous_plugin_window_frame: Option<Rectangle>,
     audio_file_model: audio_file_chart::AudioFileModel,
+    start_stop_button_state: view::StartStopViewModel,
 }
 
 #[derive(Derivative)]
@@ -77,6 +78,7 @@ pub enum Message {
     SetStatus(StatusBar),
     ReadyForPlayback,
     ReloadedPlugin(bool, StatusBar),
+    StartStopButtonClicked,
     None,
 }
 
@@ -129,6 +131,10 @@ impl MainContentView {
                 audio_chart: None,
                 previous_plugin_window_frame: None,
                 audio_file_model: AudioFileModel::empty(),
+                start_stop_button_state: view::StartStopViewModel {
+                    is_started: true,
+                    button_state: Default::default(),
+                },
             },
             command,
         )
@@ -161,6 +167,22 @@ impl MainContentView {
                 } else {
                     Command::none()
                 }
+            }
+            Message::StartStopButtonClicked => {
+                self.start_stop_button_state.is_started = !self.start_stop_button_state.is_started;
+                let plugin_host = self.plugin_host.clone();
+                let should_start = self.start_stop_button_state.is_started;
+                Command::perform(
+                    async move {
+                        let mut plugin_host = plugin_host.lock().unwrap();
+                        if should_start {
+                            plugin_host.start();
+                        } else {
+                            plugin_host.stop();
+                        }
+                    },
+                    |_| Message::None,
+                )
             }
         }
     }
@@ -417,6 +439,7 @@ impl MainContentView {
         let transport_controls = &mut self.transport_controls;
         let status_message = &self.status_message;
         let audio_file_model = &self.audio_file_model;
+        let start_stop_button_state = &mut self.start_stop_button_state;
 
         view::main_content_view(view::MainContentViewModel {
             audio_io_settings,
@@ -426,6 +449,7 @@ impl MainContentView {
             transport_controls,
             status_message,
             audio_file_model,
+            start_stop_button_state,
         })
     }
 
