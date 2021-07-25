@@ -39,7 +39,7 @@ jobs:
         run: |
           cargo test --no-default-features --verbose --workspace \
               --features story \
-              --exclude plugin-host-gui \
+              --exclude example-iced-xcode-integration \
               --exclude darwin-webkit \
               --exclude webview-holder \
               --exclude macos-bundle-resources
@@ -99,7 +99,7 @@ jobs:
     - name: Non-OSX build release
       run: |
         cargo build --release --verbose --workspace \
-            --exclude plugin-host-gui \
+            --exclude example-iced-xcode-integration \
             --exclude darwin-webkit \
             --exclude macos-bundle-resources
       if: matrix.os != 'macos-latest'
