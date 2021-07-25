@@ -92,7 +92,10 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChartV
 
         // let path = path.build();
         // TODO - Tesselation here is very slow
-        frame.fill(&path.build(), Fill::from(Colors::border_color()));
+        frame.fill(
+            &path.build(),
+            Fill::from(Colors::border_color().darken(-0.3)),
+        );
 
         vec![frame.into_geometry()]
     }

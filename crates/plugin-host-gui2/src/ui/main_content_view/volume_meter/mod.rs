@@ -154,6 +154,7 @@ impl VolumeMeterProgram {
         );
     }
 
+    // TODO - don't need to draw this on every frame
     fn draw_mark(frame: &mut Frame, bar_width: f32, offset_x: f32, value: f32) {
         let text = format!("{:.0}", value);
         let max_ampl = db_to_render(2.0);
@@ -167,13 +168,13 @@ impl VolumeMeterProgram {
             &tick_path.build(),
             Stroke::default().with_color(Colors::border_color()),
         );
-        frame.translate(Vector::new(bar_width * 2. + 5., tick_y - 10.0));
+        frame.translate(Vector::new(bar_width * 2. + 5., tick_y - 8.0));
         frame.fill_text(iced::canvas::Text {
             content: text,
-            color: Colors::text(),
+            color: Colors::border_color(),
             ..iced::canvas::Text::default()
         });
-        frame.translate(Vector::new(-(bar_width * 2. + 5.), -(tick_y - 10.0)));
+        frame.translate(Vector::new(-(bar_width * 2. + 5.), -(tick_y - 8.0)));
     }
 }
 

@@ -120,7 +120,7 @@ fn bottom_visualisation_content_container(
                 })
                 .width(Length::Fill)
                 .height(Length::Fill)
-                .style(Container0::default()),
+                .style(Container0::default().border_radius(3.0)),
             )
             .padding(Spacing::base_spacing())
             .height(Length::Fill)
