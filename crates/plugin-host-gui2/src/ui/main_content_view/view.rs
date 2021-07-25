@@ -60,6 +60,8 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
             .on_press(Message::StartStopButtonClicked)
             .style(audio_processor_iced_design_system::style::Button),
         )
+        .padding(Spacing::base_spacing())
+        .center_x()
         .into(),
         Rule::horizontal(1)
             .style(audio_processor_iced_design_system::style::Rule)
