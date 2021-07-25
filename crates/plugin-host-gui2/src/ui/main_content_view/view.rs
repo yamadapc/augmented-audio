@@ -43,7 +43,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         transport_controls,
         status_message,
         start_stop_button_state,
-        audio_file_model,
+        audio_file_model: _,
     } = view_model;
 
     Row::with_children(vec![Column::with_children(vec![
@@ -132,14 +132,14 @@ fn bottom_visualisation_content_container(
                     .map(|_| Message::None),
             )
             .style(Container1::default().border())
-            .width(Length::Units(Spacing::base_control_size()))
+            .width(Length::Units(Spacing::base_control_size() * 2))
             .height(Length::Fill)
             .into(),
         ])
         .width(Length::Fill),
     )
     .style(Container1::default())
-    .height(Length::Units(150))
+    .height(Length::Units(300))
     .width(Length::Fill)
     .into()
 }

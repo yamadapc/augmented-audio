@@ -12,6 +12,8 @@ pub struct VolumeMeterProcessorHandle {
     pub peak_right: AtomicFloat,
 }
 
+// TODO - this is quite a bad strategy ; running RMS processor is a nicer implementation of the same
+// thing
 pub struct VolumeMeterProcessor {
     handle: Shared<VolumeMeterProcessorHandle>,
     current_index: usize,
@@ -19,6 +21,8 @@ pub struct VolumeMeterProcessor {
     buffer_duration_samples: usize,
     left_buffer: CircularVec<f32>,
     right_buffer: CircularVec<f32>,
+    running_sum_left: f32,
+    running_sum_right: f32,
 }
 
 impl VolumeMeterProcessor {
@@ -34,8 +38,10 @@ impl VolumeMeterProcessor {
                 },
             ),
             current_index: 0,
-            buffer_duration: Duration::from_millis(20),
+            buffer_duration: Duration::from_millis(50),
             buffer_duration_samples: 512 * 4,
+            running_sum_left: 0.0,
+            running_sum_right: 0.0,
             left_buffer: CircularVec::with_size(512 * 4, 0.0),
             right_buffer: CircularVec::with_size(512 * 4, 0.0),
         }
@@ -50,25 +56,6 @@ impl VolumeMeterProcessor {
             self.handle.volume_left.get(),
             self.handle.volume_right.get(),
         )
-    }
-
-    fn calculate_rms(buffer: &CircularVec<f32>) -> f32 {
-        let mut sum = 0.0;
-        for i in 0..buffer.len() {
-            let v = buffer[i];
-            sum += v.abs();
-        }
-        sum / buffer.len() as f32
-    }
-
-    // TODO - Would it be faster to do all in one loop? Measure.
-    fn calculate_peak(buffer: &CircularVec<f32>) -> f32 {
-        let mut peak: f32 = 0.0;
-        for i in 0..buffer.len() {
-            let v = buffer[i];
-            peak = peak.max(v.abs());
-        }
-        peak
     }
 }
 
@@ -88,23 +75,33 @@ impl AudioProcessor for VolumeMeterProcessor {
         data: &mut BufferType,
     ) {
         for frame_index in 0..data.num_samples() {
-            self.left_buffer[self.current_index] = *data.get(0, frame_index);
-            self.right_buffer[self.current_index] = *data.get(1, frame_index);
+            let old_left_value = self.left_buffer[self.current_index];
+            let old_right_value = self.right_buffer[self.current_index];
+            let left_value = *data.get(0, frame_index) * *data.get(0, frame_index);
+            let right_value = *data.get(1, frame_index) * *data.get(0, frame_index);
+            self.left_buffer[self.current_index] = left_value;
+            self.right_buffer[self.current_index] = right_value;
+
+            self.running_sum_left = (self.running_sum_left + left_value - old_left_value).max(0.0);
+            self.running_sum_right =
+                (self.running_sum_right + right_value - old_right_value).max(0.0);
+            self.handle
+                .volume_left
+                .set((self.running_sum_left / (self.buffer_duration_samples as f32)).sqrt());
+            self.handle
+                .volume_right
+                .set((self.running_sum_right / (self.buffer_duration_samples as f32)).sqrt());
+
+            // // This should decay ; use "InterpolatedValue" / create an atomic version of it
+            // if right_value > self.handle.peak_right.get() {
+            //     self.handle.peak_right.set(right_value);
+            // }
+            // if left_value > self.handle.peak_left.get() {
+            //     self.handle.peak_left.set(left_value);
+            // }
 
             if self.current_index >= self.buffer_duration_samples {
                 self.current_index = 0;
-                self.handle
-                    .volume_right
-                    .set(Self::calculate_rms(&self.right_buffer));
-                self.handle
-                    .peak_right
-                    .set(Self::calculate_peak(&self.right_buffer));
-                self.handle
-                    .volume_left
-                    .set(Self::calculate_rms(&self.left_buffer));
-                self.handle
-                    .peak_left
-                    .set(Self::calculate_peak(&self.left_buffer));
             } else {
                 self.current_index += 1;
             }

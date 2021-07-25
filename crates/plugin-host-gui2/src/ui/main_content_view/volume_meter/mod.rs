@@ -1,9 +1,9 @@
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
-use iced::canvas::{Cursor, Frame, Geometry, Program};
+use iced::canvas::{Cursor, Frame, Geometry, Program, Stroke};
 use iced::widget::canvas::Fill;
-use iced::{Canvas, Container, Element, Length, Point, Rectangle, Size};
+use iced::{Canvas, Container, Element, Length, Point, Rectangle, Size, Vector};
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
@@ -78,7 +78,7 @@ impl Program<Message> for VolumeMeterProgram {
         let mut frame = Frame::new(bounds.size());
 
         let spacing = Spacing::small_spacing() as f32 / 2.;
-        let bar_width = bounds.width / 2. - spacing / 2.;
+        let bar_width = bounds.width / 4. - spacing / 2.;
         VolumeMeterProgram::draw_volume_bar(
             &mut frame,
             self.volume.left,
@@ -107,14 +107,23 @@ impl VolumeMeterProgram {
         bar_width: f32,
         offset_x: f32,
     ) {
-        // Maybe don't calculate these things on draw?
-        // Also: how to get to the reference power magic nº?
-        // let reference_amplitude = 0.1;
-        // let volume_db = 20.0 * (volume / reference_amplitude).log10();
-        // let peak_volume_db = 20.0 * (peak_volume / reference_amplitude).log10();
+        // let volume = amplitude_to_db(volume).max(-144.);
+        // let peak_volume = (20.0 * (peak_volume / reference_amplitude).log10()).max(-144.);
 
-        let bar_height = volume * frame.height() * 5.;
-        let peak_bar_height = peak_volume * frame.height() * 5.;
+        let max_ampl = db_to_render(2.0);
+        let min_ampl = db_to_render(-144.0);
+        let bar_height = interpolate(volume, (min_ampl, max_ampl), (0.0, frame.height()));
+        let peak_bar_height = interpolate(peak_volume, (min_ampl, max_ampl), (0.0, frame.height()));
+
+        // let bar_height = interpolate(volume, (-144.0, 6.0), (0.0, frame.height()));
+        // let peak_bar_height = interpolate(peak_volume, (-144.0, 6.0), (0.0, frame.height()));
+        log::debug!(
+            "Drawing volume volume={} peak_volume={} / bar_height={} peak_bar_height={}",
+            volume,
+            peak_volume,
+            bar_height,
+            peak_bar_height
+        );
 
         let y_coord = frame.height() - bar_height;
         let peak_y_coord = frame.height() - peak_bar_height;
@@ -124,6 +133,13 @@ impl VolumeMeterProgram {
             Size::new(bar_width, frame.height()),
             Fill::from(Colors::background_level0()),
         );
+
+        // Marks
+        let marks = [0.0, -12.0, -24.0, -36.0, -48.0, -60.0];
+        for value in marks {
+            VolumeMeterProgram::draw_mark(frame, bar_width, offset_x, value);
+        }
+
         // Peak Volume
         frame.fill_rectangle(
             Point::new(offset_x, peak_y_coord),
@@ -136,5 +152,68 @@ impl VolumeMeterProgram {
             Size::new(bar_width, bar_height),
             Fill::from(Colors::success()),
         );
+    }
+
+    fn draw_mark(frame: &mut Frame, bar_width: f32, offset_x: f32, value: f32) {
+        let text = format!("{:.0}", value);
+        let max_ampl = db_to_render(2.0);
+        let min_ampl = db_to_render(-144.0);
+        let value = db_to_render(value);
+        let tick_y = interpolate(value, (min_ampl, max_ampl), (frame.height(), 0.0));
+        let mut tick_path = iced::canvas::path::Builder::new();
+        tick_path.move_to(Point::new(offset_x, tick_y));
+        tick_path.line_to(Point::new(offset_x + bar_width, tick_y));
+        frame.stroke(
+            &tick_path.build(),
+            Stroke::default().with_color(Colors::border_color()),
+        );
+        frame.translate(Vector::new(bar_width * 2. + 5., tick_y - 10.0));
+        frame.fill_text(iced::canvas::Text {
+            content: text,
+            color: Colors::text(),
+            ..iced::canvas::Text::default()
+        });
+        frame.translate(Vector::new(-(bar_width * 2. + 5.), -(tick_y - 10.0)));
+    }
+}
+
+fn db_to_render(db: f32) -> f32 {
+    let reference_amplitude = 1e-1;
+    (10.0_f32).powf(db / 60.0) * reference_amplitude
+}
+
+fn db_to_amplitude(db: f32) -> f32 {
+    let reference_amplitude = 1e-10;
+    (10.0_f32).powf(db / 20.0) * reference_amplitude
+}
+
+fn amplitude_to_db(volume: f32) -> f32 {
+    let reference_amplitude = 1e-10;
+    20.0 * (volume / reference_amplitude).log10()
+}
+
+fn interpolate(value: f32, range_from: (f32, f32), range_to: (f32, f32)) -> f32 {
+    let bounds_from = range_from.1 - range_from.0;
+    let bounds_to = range_to.1 - range_to.0;
+    range_to.0 + (value - range_from.0) / bounds_from * bounds_to
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_interpolate() {
+        assert_eq!(interpolate(1., (0., 1.), (0., 2.)), 2.);
+    }
+
+    #[test]
+    fn test_interpolate_negative_range() {
+        assert_eq!(interpolate(0., (-1., 1.), (0., 2.)), 1.);
+    }
+
+    #[test]
+    fn test_interpolate_reversed_range() {
+        assert_eq!(interpolate(0., (-1., 1.), (2., 0.)), 1.);
     }
 }

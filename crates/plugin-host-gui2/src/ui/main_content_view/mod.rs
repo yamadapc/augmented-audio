@@ -176,7 +176,9 @@ impl MainContentView {
                     async move {
                         let mut plugin_host = plugin_host.lock().unwrap();
                         if should_start {
-                            plugin_host.start();
+                            if let Err(err) = plugin_host.start() {
+                                log::error!("Error starting host: {}", err);
+                            }
                         } else {
                             plugin_host.stop();
                         }
