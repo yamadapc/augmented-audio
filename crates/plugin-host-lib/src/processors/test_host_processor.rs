@@ -6,7 +6,7 @@ use vst::plugin::Plugin;
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_standalone_midi::host::MidiMessageEntry;
 use audio_processor_standalone_midi::vst::MidiVSTConverter;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
@@ -26,6 +26,7 @@ pub struct TestHostProcessor {
     running_rms_processor: RunningRMSProcessor,
     midi_converter: MidiVSTConverter,
     mono_input: Option<usize>,
+    volume: AtomicF32,
 }
 
 unsafe impl Send for TestHostProcessor {}
@@ -58,6 +59,7 @@ impl TestHostProcessor {
             ),
             midi_converter: MidiVSTConverter::default(),
             mono_input,
+            volume: AtomicF32::new(1.0),
         }
     }
 
@@ -105,6 +107,10 @@ impl TestHostProcessor {
 
     pub fn running_rms_processor_handle(&self) -> &Shared<RunningRMSProcessorHandle> {
         self.running_rms_processor.handle()
+    }
+
+    pub fn set_volume(&self, volume: f32) {
+        self.volume.set(volume);
     }
 }
 
@@ -157,6 +163,13 @@ impl AudioProcessor for TestHostProcessor {
             (*instance).process(&mut audio_buffer);
         }
         flush_vst_output(num_channels, &mut audio_buffer, output);
+
+        let volume = self.volume.get();
+        for frame in output.frames_mut() {
+            for sample in frame {
+                *sample *= volume;
+            }
+        }
 
         // Volume meter
         self.volume_meter_processor.process(output);

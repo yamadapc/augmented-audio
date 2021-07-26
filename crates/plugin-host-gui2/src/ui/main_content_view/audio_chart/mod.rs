@@ -6,12 +6,14 @@ use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 use audio_processor_traits::AudioBuffer;
 use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessorHandle;
+use std::time::{Instant, SystemTime};
 
 pub type Message = ();
 
 pub struct AudioChart {
     handle: Shared<RunningRMSProcessorHandle>,
     rms_buffer: VecAudioBuffer<f32>,
+    last_update: usize,
     cursor: usize,
 }
 
@@ -22,18 +24,26 @@ impl AudioChart {
         Self {
             handle,
             rms_buffer,
+            last_update: 0,
             cursor: 0,
         }
     }
 
     pub fn update(&mut self) {
-        let left_volume = self.handle.calculate_rms(0);
-        let right_volume = self.handle.calculate_rms(1);
-        self.rms_buffer
-            .set(0, self.cursor, (left_volume + right_volume) / 2.0);
-        self.cursor += 1;
-        if self.cursor >= self.rms_buffer.num_samples() {
-            self.cursor = 0;
+        let now: usize = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_millis() as usize;
+        if now - self.last_update >= 16 {
+            self.last_update = now;
+            let left_volume = self.handle.calculate_rms(0);
+            let right_volume = self.handle.calculate_rms(1);
+            self.rms_buffer
+                .set(0, self.cursor, (left_volume + right_volume) / 2.0);
+            self.cursor += 1;
+            if self.cursor >= self.rms_buffer.num_samples() {
+                self.cursor = 0;
+            }
         }
     }
 

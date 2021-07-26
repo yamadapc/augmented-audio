@@ -1,12 +1,19 @@
-use audio_garbage_collector::Shared;
-use audio_processor_iced_design_system::colors::Colors;
-use audio_processor_iced_design_system::spacing::Spacing;
+use std::sync::Arc;
+use std::sync::Mutex;
+
 use iced::canvas::event::Status;
 use iced::canvas::{Cursor, Event, Frame, Geometry, Program, Stroke};
 use iced::mouse::Interaction;
 use iced::widget::canvas::Fill;
-use iced::{Canvas, Container, Element, Length, Point, Rectangle, Size, Vector};
+use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, Vector};
+
+use audio_garbage_collector::Shared;
+use audio_processor_iced_design_system::colors::Colors;
+use audio_processor_iced_design_system::spacing::Spacing;
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
+use plugin_host_lib::TestPluginHost;
+
+// TODO - this whole file needs to be refactored
 
 #[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct VolumeInfo {
@@ -43,19 +50,29 @@ impl From<&Option<Shared<VolumeMeterProcessorHandle>>> for VolumeInfo {
 
 #[derive(Clone, Debug)]
 pub enum Message {
-    DragStart { cursor: Option<Point> },
-    DragMove { cursor: Point },
-    DragEnd { cursor: Option<Point> },
+    DragStart,
+    VolumeChange { delta: f32 },
+    DragEnd,
+    None,
 }
 
-#[derive(Default)]
 pub struct State {
+    volume: f32,
     mouse_state: MouseState,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        Self {
+            volume: 1.0,
+            mouse_state: Default::default(),
+        }
+    }
 }
 
 #[derive(Default)]
 struct MouseState {
-    is_dragging: bool,
+    dragging: Option<Point>,
 }
 
 pub struct VolumeMeter {
@@ -67,7 +84,7 @@ impl VolumeMeter {
         Self { volume_info }
     }
 
-    pub fn view<'a>(self, state: &'a mut State) -> Element<'a, Message> {
+    pub fn view(self, state: &mut State) -> Element<Message> {
         Container::new(
             Canvas::new(VolumeMeterProgram::new(self.volume_info, state))
                 .width(Length::Fill)
@@ -77,6 +94,24 @@ impl VolumeMeter {
         .height(Length::Fill)
         .padding(Spacing::medium_spacing())
         .into()
+    }
+}
+
+pub fn update(
+    state: &mut State,
+    message: Message,
+    plugin_host: Arc<Mutex<TestPluginHost>>,
+    volume_handle: &mut Option<Shared<VolumeMeterProcessorHandle>>,
+) -> Command<Message> {
+    match message {
+        Message::VolumeChange { delta } => Command::perform(
+            async move {
+                let mut plugin_host = plugin_host.lock().unwrap();
+                plugin_host.set_volume(delta);
+            },
+            |_| Message::None,
+        ),
+        _ => Command::none(),
     }
 }
 
@@ -92,7 +127,7 @@ impl<'a> VolumeMeterProgram<'a> {
 
     /// True if the cursor is currently dragging the volume meter handle
     fn is_dragging(&self) -> bool {
-        self.state.mouse_state.is_dragging
+        self.state.mouse_state.dragging.is_some()
     }
 }
 
@@ -107,10 +142,18 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
                 iced::mouse::Event::CursorMoved { position } => {
-                    if self.state.mouse_state.is_dragging {
+                    if let Some(last_position) = self.state.mouse_state.dragging {
+                        let top_left_position = bounds.y;
+                        let relative_y =
+                            (bounds.height - (position.y - top_left_position)) / bounds.height;
+                        let volume = VolumeMeterProgram::y_perc_to_amplitude(relative_y)
+                            .min(3.0)
+                            .max(0.0);
+                        self.state.volume = volume;
+                        log::info!("relative_y={} volume={}", relative_y, volume);
                         (
                             iced::canvas::event::Status::Captured,
-                            Some(Message::DragMove { cursor: position }),
+                            Some(Message::VolumeChange { delta: volume }),
                         )
                     } else {
                         ignore
@@ -118,26 +161,22 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
                 }
                 iced::mouse::Event::ButtonPressed(_) => {
                     if cursor.is_over(&bounds) {
-                        self.state.mouse_state.is_dragging = true;
+                        self.state.mouse_state.dragging = cursor.position();
                         (
                             iced::canvas::event::Status::Captured,
-                            Some(Message::DragStart {
-                                cursor: cursor.position(),
-                            }),
+                            Some(Message::DragStart),
                         )
                     } else {
                         ignore
                     }
                 }
                 iced::mouse::Event::ButtonReleased(_) => {
-                    let was_dragging = self.state.mouse_state.is_dragging;
-                    self.state.mouse_state.is_dragging = false;
+                    let was_dragging = self.is_dragging();
+                    self.state.mouse_state.dragging = None;
                     if was_dragging {
                         (
                             iced::canvas::event::Status::Captured,
-                            Some(Message::DragEnd {
-                                cursor: cursor.position(),
-                            }),
+                            Some(Message::DragEnd),
                         )
                     } else {
                         ignore
@@ -168,7 +207,11 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
             bar_width,
             bar_width + spacing,
         );
-        VolumeMeterProgram::draw_volume_handle(&mut frame, bar_width * 2. + spacing);
+        VolumeMeterProgram::draw_volume_handle(
+            &mut frame,
+            bar_width * 2. + spacing,
+            self.state.volume,
+        );
 
         vec![frame.into_geometry()]
     }
@@ -234,12 +277,14 @@ impl<'a> VolumeMeterProgram<'a> {
     }
 
     /// Draw the volume handle
-    fn draw_volume_handle(frame: &mut Frame, offset_x: f32) {
+    fn draw_volume_handle(frame: &mut Frame, offset_x: f32, volume: f32) {
         let mut handle_path = iced::canvas::path::Builder::new();
         let handle_width = 10.0;
 
         let start_x = offset_x - handle_width / 2.;
-        let tick_y = VolumeMeterProgram::decibels_y_position(frame, 0.0);
+        let tick_y = VolumeMeterProgram::amplitude_y_position(frame, volume)
+            .max(0.0)
+            .min(frame.height());
         let start_point = Point::new(start_x, tick_y);
 
         handle_path.move_to(start_point);
@@ -273,6 +318,17 @@ impl<'a> VolumeMeterProgram<'a> {
             ..iced::canvas::Text::default()
         });
         frame.translate(Vector::new(-(bar_width * 2. + 5.), -(tick_y - 8.0)));
+    }
+
+    // TODO - this is just wrong
+    fn y_perc_to_amplitude(y_perc: f32) -> f32 {
+        y_perc
+    }
+
+    fn amplitude_y_position(frame: &mut Frame, value: f32) -> f32 {
+        // let max_ampl = db_to_render(2.0);
+        // let min_ampl = db_to_render(-144.0);
+        interpolate(value, (0.0, 1.0), (frame.height(), 0.0))
     }
 
     /// The Y coordinate for a given `value` in decibels. The return value is reversed.

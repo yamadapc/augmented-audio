@@ -323,6 +323,12 @@ impl TestPluginHost {
     pub fn set_mono_input(&mut self, input_channel: Option<usize>) {
         self.mono_input = input_channel;
     }
+
+    pub fn set_volume(&mut self, volume: f32) {
+        if let Some(processor) = self.host_processor() {
+            processor.set_volume(volume);
+        }
+    }
 }
 
 impl Drop for TestPluginHost {

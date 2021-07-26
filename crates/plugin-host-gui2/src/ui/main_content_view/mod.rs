@@ -189,10 +189,13 @@ impl MainContentView {
                     |_| Message::None,
                 )
             }
-            Message::VolumeMeter(message) => {
-                log::info!("Volume meter message {:?}", message);
-                Command::none()
-            }
+            Message::VolumeMeter(message) => volume_meter::update(
+                &mut self.volume_meter_state,
+                message,
+                self.plugin_host.clone(),
+                &mut self.volume_handle,
+            )
+            .map(Message::VolumeMeter),
         }
     }
 
