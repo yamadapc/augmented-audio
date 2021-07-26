@@ -30,7 +30,7 @@ pub mod plugin_content;
 pub mod status_bar;
 pub mod transport_controls;
 mod view;
-mod volume_meter;
+pub mod volume_meter;
 
 enum ClosePluginWindowResult {
     NoWindow,

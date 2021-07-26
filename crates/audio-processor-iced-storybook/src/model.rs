@@ -1,4 +1,4 @@
-use iced::{Command, Element};
+use iced::{Command, Element, Subscription};
 use std::convert::TryInto;
 
 pub struct Options<StoryMessage> {
@@ -14,6 +14,10 @@ pub struct Story<StoryMessage> {
 pub trait StoryView<StoryMessage> {
     fn update(&mut self, _message: StoryMessage) -> Command<StoryMessage> {
         Command::none()
+    }
+
+    fn subscription(&self) -> Subscription<StoryMessage> {
+        Subscription::none()
     }
 
     fn view(&mut self) -> Element<StoryMessage>;
@@ -51,6 +55,10 @@ where
         } else {
             Command::none()
         }
+    }
+
+    fn subscription(&self) -> Subscription<TargetMessage> {
+        self.inner.subscription().map(|inner| inner.into())
     }
 
     fn view(&mut self) -> Element<TargetMessage> {

@@ -1,6 +1,9 @@
 use std::fmt::Debug;
 
-use iced::{Application, Clipboard, Column, Command, Container, Element, Length, Row, Text};
+use iced::{
+    button, Application, Button, Clipboard, Column, Command, Container, Element, Length, Row,
+    Subscription, Text,
+};
 
 use audio_processor_iced_design_system::menu_list;
 use audio_processor_iced_design_system::spacing::Spacing;
@@ -74,6 +77,7 @@ pub fn main<StoryMessage: 'static + Debug + Clone + Send>(
 pub enum Message<StoryMessage> {
     Sidebar(sidebar::Message),
     Child(StoryMessage),
+    ToggleLogging,
 }
 
 struct StorybookApp<StoryMessage> {
@@ -81,6 +85,8 @@ struct StorybookApp<StoryMessage> {
     selected_story: Option<sidebar::SelectedStory>,
     sidebar: sidebar::SidebarView,
     last_messages: Vec<StoryMessage>,
+    logging_enabled: bool,
+    log_button_state: button::State,
 }
 
 impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<StoryMessage> {
@@ -96,6 +102,8 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
                 selected_story: None,
                 options,
                 last_messages: vec![],
+                logging_enabled: false,
+                log_button_state: Default::default(),
             },
             Command::none(),
         )
@@ -121,29 +129,43 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
                 self.sidebar.update(message).map(Message::Sidebar)
             }
             Message::Child(child_message) => {
-                self.last_messages.push(child_message.clone());
-                if self.last_messages.len() > 7 {
-                    self.last_messages = self
-                        .last_messages
-                        .iter()
-                        .rev()
-                        .take(7)
-                        .rev()
-                        .map(|m| m.clone())
-                        .collect();
+                if self.logging_enabled {
+                    self.last_messages.push(child_message.clone());
+                    if self.last_messages.len() > 7 {
+                        self.last_messages = self
+                            .last_messages
+                            .iter()
+                            .rev()
+                            .take(7)
+                            .rev()
+                            .map(|m| m.clone())
+                            .collect();
+                    }
                 }
 
-                if let Some(story) = find_story(&self.selected_story, &mut self.options) {
+                if let Some(story) = find_story_mut(&self.selected_story, &mut self.options) {
                     story.renderer.update(child_message).map(Message::Child)
                 } else {
                     Command::none()
                 }
             }
+            Message::ToggleLogging => {
+                self.logging_enabled = !self.logging_enabled;
+                Command::none()
+            }
         }
     }
 
+    fn subscription(&self) -> Subscription<Self::Message> {
+        let mut subscriptions = vec![];
+        if let Some(story) = find_story(&self.selected_story, &self.options) {
+            subscriptions.push(story.renderer.subscription().map(Message::Child));
+        }
+        Subscription::batch(subscriptions)
+    }
+
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let story = find_story(&self.selected_story, &mut self.options)
+        let story = find_story_mut(&self.selected_story, &mut self.options)
             .map(|story| story.renderer.view().map(Message::Child));
         let story_view = Container::new(Row::with_children(vec![story.unwrap_or_else(|| {
             Container::new(Text::new("Select a story"))
@@ -167,7 +189,21 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
         .height(Length::Fill);
 
         let bottom_panel = Container::new(Column::with_children(vec![
-            Text::new(" ======== Messages log ========").into(),
+            Row::with_children(vec![
+                Text::new(" ======== Messages log ========").into(),
+                Button::new(
+                    &mut self.log_button_state,
+                    Text::new(if self.logging_enabled {
+                        "Disable log"
+                    } else {
+                        "Enable log"
+                    }),
+                )
+                .on_press(Message::ToggleLogging)
+                .style(style::Button)
+                .into(),
+            ])
+            .into(),
             Column::with_children(
                 self.last_messages
                     .iter()
@@ -193,6 +229,19 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
 }
 
 fn find_story<'a, StoryMessage>(
+    selected_story: &'a Option<SelectedStory>,
+    options: &'a Options<StoryMessage>,
+) -> Option<&'a Story<StoryMessage>> {
+    match &selected_story {
+        Some(selected_story) => options
+            .stories
+            .iter()
+            .find(|story| story.id == selected_story.id),
+        None => None,
+    }
+}
+
+fn find_story_mut<'a, StoryMessage>(
     selected_story: &'a Option<SelectedStory>,
     options: &'a mut Options<StoryMessage>,
 ) -> Option<&'a mut Story<StoryMessage>> {

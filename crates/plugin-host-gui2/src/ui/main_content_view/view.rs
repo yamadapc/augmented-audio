@@ -13,7 +13,6 @@ use crate::ui::main_content_view::audio_file_chart::AudioFileModel;
 use crate::ui::main_content_view::plugin_content::View;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
-use crate::ui::main_content_view::volume_meter::VolumeMeter;
 use crate::ui::main_content_view::{
     audio_chart, audio_file_chart, plugin_content, transport_controls, volume_meter, Message,
 };
@@ -132,7 +131,7 @@ fn bottom_visualisation_content_container(
             .width(Length::Fill)
             .into(),
             Container::new(
-                VolumeMeter::new(volume_handle.into())
+                volume_meter::VolumeMeter::new(volume_handle.into())
                     .view(volume_meter_state)
                     .map(Message::VolumeMeter),
             )

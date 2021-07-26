@@ -375,6 +375,58 @@ fn interpolate(value: f32, range_from: (f32, f32), range_to: (f32, f32)) -> f32 
     range_to.0 + (value - range_from.0) / bounds_from * bounds_to
 }
 
+#[cfg(feature = "story")]
+pub mod story {
+    use std::time::{Duration, Instant};
+
+    use iced::Subscription;
+
+    use audio_processor_iced_design_system::style::Container1;
+    use audio_processor_iced_storybook::StoryView;
+
+    use super::*;
+
+    struct Story {
+        volume_info: VolumeInfo,
+        state: State,
+        start_time: Instant,
+    }
+
+    pub fn default() -> impl StoryView<Message> {
+        Story {
+            volume_info: VolumeInfo::default(),
+            state: State::default(),
+            start_time: Instant::now(),
+        }
+    }
+
+    impl StoryView<Message> for Story {
+        fn update(&mut self, _message: Message) -> Command<Message> {
+            let random_volume = 0.06
+                * (0.1
+                    + ((1.0 + (0.001 * self.start_time.elapsed().as_millis() as f32).sin()) / 2.0));
+            self.volume_info.left = random_volume;
+            self.volume_info.left_peak = random_volume * 1.1;
+            self.volume_info.right = random_volume;
+            self.volume_info.right_peak = random_volume * 1.1;
+            Command::none()
+        }
+
+        fn subscription(&self) -> Subscription<Message> {
+            iced::time::every(Duration::from_millis(16)).map(|_| Message::None)
+        }
+
+        fn view(&mut self) -> Element<Message> {
+            Container::new(VolumeMeter::new(self.volume_info).view(&mut self.state))
+                .style(Container1::default().border())
+                .width(Length::Units(Spacing::base_control_size() * 2))
+                .padding(Spacing::base_spacing())
+                .height(Length::Fill)
+                .into()
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

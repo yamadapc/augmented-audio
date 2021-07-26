@@ -161,8 +161,6 @@ impl View {
 pub mod story {
     use audio_processor_iced_storybook::StoryView;
 
-    use crate::string_vec;
-
     use super::*;
 
     pub fn default() -> Story {
