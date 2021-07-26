@@ -102,6 +102,11 @@ fn run_file_watch_loop(
 }
 
 /// Represents a single target path being watched & wraps file-watching to it can be used by `iced`.
+///
+/// This should be returned as a `Application::subscription` and may be changed over time to watch
+/// new files.
+///
+/// The subscription will emit [FileWatchMessage].
 pub struct FileWatcher {
     target_path: PathBuf,
 }
