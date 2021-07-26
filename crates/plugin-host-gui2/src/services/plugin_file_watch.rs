@@ -32,6 +32,23 @@ fn get_file_hash(path: &Path) -> Result<String, std::io::Error> {
     Ok(format!("{:x}", digest))
 }
 
+/// Run the file watching loop.
+/// This receives file-changed messages from `rx`, which should have been returned by `notify::watcher`.
+///
+/// Whenever these events happen they'll be pushed onto `output`.
+///
+/// The loop will end if:
+///
+/// * There's an error initially finding the file
+/// * The input channel `rx` is closed
+///
+/// Otherwise it'll go on forever. The caller doesn't need to terminate this loop as it'll stop once
+/// the sender side of the file-changed messages channel is dropped. Additionally, it's ok for this
+/// to fail if the file can't initially be found as it should be restarted when the path changes.
+///
+/// File watching will hash the target file on each change event to prevent duplicate events for the
+/// same content from firing. This may cause some CPU usage cost if the target file is too big or
+/// changes too often.
 fn run_file_watch_loop(
     plugin_path: &Path,
     rx: Receiver<DebouncedEvent>,
