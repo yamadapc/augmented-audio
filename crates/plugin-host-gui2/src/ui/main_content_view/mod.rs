@@ -10,7 +10,7 @@ use vst::{host::PluginInstance, plugin::Plugin};
 use audio_garbage_collector::Shared;
 use plugin_host_lib::{
     audio_io::audio_io_service::storage::StorageConfig,
-    audio_io::{AudioHost, AudioHostPluginLoadError, AudioIOService, AudioIOServiceResult},
+    audio_io::{AudioHostPluginLoadError, AudioIOService},
     processors::running_rms_processor::RunningRMSProcessorHandle,
     processors::volume_meter_processor::VolumeMeterProcessorHandle,
     TestPluginHost,
@@ -49,7 +49,6 @@ enum ReloadPluginError {
 
 pub struct MainContentView {
     plugin_host: Arc<Mutex<TestPluginHost>>,
-    audio_io_service: Arc<Mutex<AudioIOService>>,
     audio_io_settings: audio_io_settings::AudioIOSettingsView,
     host_options_service: HostOptionsService,
     plugin_content: plugin_content::PluginContentView,
@@ -99,13 +98,11 @@ impl MainContentView {
             host_state.audio_input_file_path.clone(),
             host_state.plugin_path.clone(),
         );
-        let audio_io_settings =
-            audio_io_settings::AudioIOSettingsView::new(audio_io_service.clone());
+        let audio_io_settings = audio_io_settings::AudioIOSettingsView::new(audio_io_service);
 
         (
             MainContentView {
                 plugin_host,
-                audio_io_service,
                 audio_io_settings,
                 host_options_service,
                 host_state,
@@ -178,13 +175,9 @@ impl MainContentView {
                     |_| Message::None,
                 )
             }
-            Message::VolumeMeter(message) => volume_meter::update(
-                &mut self.volume_meter_state,
-                message,
-                self.plugin_host.clone(),
-                &mut self.volume_handle,
-            )
-            .map(Message::VolumeMeter),
+            Message::VolumeMeter(message) => {
+                volume_meter::update(message, self.plugin_host.clone()).map(Message::VolumeMeter)
+            }
         }
     }
 

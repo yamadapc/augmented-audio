@@ -6,7 +6,7 @@ use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 use audio_processor_traits::AudioBuffer;
 use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessorHandle;
-use std::time::{Instant, SystemTime};
+use std::time::SystemTime;
 
 pub type Message = ();
 

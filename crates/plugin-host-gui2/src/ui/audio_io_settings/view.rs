@@ -1,4 +1,4 @@
-use iced::{pick_list, Align, Column, Command, Container, Element, Length, Row, Rule, Text};
+use iced::{Column, Command, Container, Element, Length, Rule, Text};
 
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};

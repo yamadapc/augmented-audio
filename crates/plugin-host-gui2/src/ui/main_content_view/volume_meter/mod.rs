@@ -72,7 +72,7 @@ impl Default for State {
 
 #[derive(Default)]
 struct MouseState {
-    dragging: Option<Point>,
+    dragging: bool,
 }
 
 pub struct VolumeMeter {
@@ -97,12 +97,7 @@ impl VolumeMeter {
     }
 }
 
-pub fn update(
-    state: &mut State,
-    message: Message,
-    plugin_host: Arc<Mutex<TestPluginHost>>,
-    volume_handle: &mut Option<Shared<VolumeMeterProcessorHandle>>,
-) -> Command<Message> {
+pub fn update(message: Message, plugin_host: Arc<Mutex<TestPluginHost>>) -> Command<Message> {
     match message {
         Message::VolumeChange { delta } => Command::perform(
             async move {
@@ -127,7 +122,7 @@ impl<'a> VolumeMeterProgram<'a> {
 
     /// True if the cursor is currently dragging the volume meter handle
     fn is_dragging(&self) -> bool {
-        self.state.mouse_state.dragging.is_some()
+        self.state.mouse_state.dragging
     }
 }
 
@@ -142,7 +137,7 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
                 iced::mouse::Event::CursorMoved { position } => {
-                    if let Some(last_position) = self.state.mouse_state.dragging {
+                    if self.state.mouse_state.dragging {
                         let top_left_position = bounds.y;
                         let relative_y =
                             (bounds.height - (position.y - top_left_position)) / bounds.height;
@@ -161,7 +156,7 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
                 }
                 iced::mouse::Event::ButtonPressed(_) => {
                     if cursor.is_over(&bounds) {
-                        self.state.mouse_state.dragging = cursor.position();
+                        self.state.mouse_state.dragging = true;
                         (
                             iced::canvas::event::Status::Captured,
                             Some(Message::DragStart),
@@ -172,7 +167,7 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
                 }
                 iced::mouse::Event::ButtonReleased(_) => {
                     let was_dragging = self.is_dragging();
-                    self.state.mouse_state.dragging = None;
+                    self.state.mouse_state.dragging = false;
                     if was_dragging {
                         (
                             iced::canvas::event::Status::Captured,
