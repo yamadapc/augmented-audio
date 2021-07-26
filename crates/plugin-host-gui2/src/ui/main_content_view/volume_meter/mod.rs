@@ -191,16 +191,11 @@ impl<'a> VolumeMeterProgram<'a> {
         bar_width: f32,
         offset_x: f32,
     ) {
-        // let volume = amplitude_to_db(volume).max(-144.);
-        // let peak_volume = (20.0 * (peak_volume / reference_amplitude).log10()).max(-144.);
-
         let max_ampl = db_to_render(2.0);
         let min_ampl = db_to_render(-144.0);
         let bar_height = interpolate(volume, (min_ampl, max_ampl), (0.0, frame.height()));
         let peak_bar_height = interpolate(peak_volume, (min_ampl, max_ampl), (0.0, frame.height()));
 
-        // let bar_height = interpolate(volume, (-144.0, 6.0), (0.0, frame.height()));
-        // let peak_bar_height = interpolate(peak_volume, (-144.0, 6.0), (0.0, frame.height()));
         log::debug!(
             "Drawing volume volume={} peak_volume={} / bar_height={} peak_bar_height={}",
             volume,
