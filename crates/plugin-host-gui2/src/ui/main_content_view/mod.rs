@@ -19,7 +19,6 @@ use plugin_host_lib::{
 use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::services::plugin_file_watch::FileWatcher;
 use crate::ui::audio_io_settings;
-use crate::ui::audio_io_settings::DropdownState;
 use crate::ui::main_content_view::audio_file_chart::AudioFileModel;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
@@ -96,25 +95,12 @@ impl MainContentView {
             command,
         ) = reload_plugin_host_state(plugin_host.clone());
 
-        let audio_driver_state = MainContentView::build_audio_driver_dropdown_state();
-        let input_device_state = MainContentView::build_input_device_dropdown_state(Some(
-            AudioIOService::default_host(),
-        ))
-        .unwrap_or_else(|_| DropdownState::default());
-        let output_device_state = MainContentView::build_output_device_dropdown_state(Some(
-            AudioIOService::default_host(),
-        ))
-        .unwrap_or_else(|_| DropdownState::default());
-        let audio_io_settings =
-            audio_io_settings::AudioIOSettingsView::new(audio_io_settings::ViewModel {
-                audio_driver_state,
-                input_device_state,
-                output_device_state,
-            });
         let plugin_content = plugin_content::PluginContentView::new(
             host_state.audio_input_file_path.clone(),
             host_state.plugin_path.clone(),
         );
+        let audio_io_settings =
+            audio_io_settings::AudioIOSettingsView::new(audio_io_service.clone());
 
         (
             MainContentView {
@@ -149,7 +135,10 @@ impl MainContentView {
             chart.update();
         }
         match message {
-            Message::AudioIOSettings(msg) => self.update_audio_io_settings(msg),
+            Message::AudioIOSettings(msg) => self
+                .audio_io_settings
+                .update(msg)
+                .map(Message::AudioIOSettings),
             Message::PluginContent(msg) => self.update_plugin_content(msg),
             Message::TransportControls(message) => self.update_transport_controls(message),
             Message::SetStatus(message) => self.update_status_message(message),
@@ -230,41 +219,6 @@ impl MainContentView {
     fn update_status_message(&mut self, message: StatusBar) -> Command<Message> {
         self.status_message = message;
         Command::none()
-    }
-
-    fn update_audio_io_settings(&mut self, msg: audio_io_settings::Message) -> Command<Message> {
-        let audio_io_service = self.audio_io_service.clone();
-        let command = match msg.clone() {
-            audio_io_settings::Message::AudioDriverChange(driver) => Command::perform(
-                tokio::task::spawn_blocking(move || {
-                    audio_io_service.lock().unwrap().set_host_id(driver)
-                }),
-                |_| Message::None,
-            ),
-            audio_io_settings::Message::InputDeviceChange(device_id) => Command::perform(
-                tokio::task::spawn_blocking(move || {
-                    audio_io_service
-                        .lock()
-                        .unwrap()
-                        .set_input_device_id(device_id)
-                }),
-                |_| Message::None,
-            ),
-            audio_io_settings::Message::OutputDeviceChange(device_id) => Command::perform(
-                tokio::task::spawn_blocking(move || {
-                    audio_io_service
-                        .lock()
-                        .unwrap()
-                        .set_output_device_id(device_id)
-                }),
-                |_| Message::None,
-            ),
-        };
-        let children = self
-            .audio_io_settings
-            .update(msg)
-            .map(Message::AudioIOSettings);
-        Command::batch(vec![command, children])
     }
 
     fn update_plugin_content(&mut self, msg: plugin_content::Message) -> Command<Message> {
@@ -464,44 +418,6 @@ impl MainContentView {
             status_message,
             audio_file_model,
             start_stop_button_state,
-        })
-    }
-
-    fn build_audio_driver_dropdown_state() -> DropdownState {
-        let default_host = AudioIOService::default_host();
-        let hosts = AudioIOService::hosts();
-        DropdownState {
-            selected_option: Some(default_host),
-            options: hosts,
-        }
-    }
-
-    fn build_input_device_dropdown_state(
-        host: Option<AudioHost>,
-    ) -> AudioIOServiceResult<DropdownState> {
-        let default_input_device = AudioIOService::default_input_device().map(|device| device.name);
-        let input_devices = AudioIOService::input_devices(host)?
-            .into_iter()
-            .map(|device| device.name)
-            .collect();
-        Ok(DropdownState {
-            selected_option: default_input_device,
-            options: input_devices,
-        })
-    }
-
-    fn build_output_device_dropdown_state(
-        host: Option<AudioHost>,
-    ) -> AudioIOServiceResult<DropdownState> {
-        let default_output_device =
-            AudioIOService::default_output_device().map(|device| device.name);
-        let output_devices = AudioIOService::output_devices(host)?
-            .into_iter()
-            .map(|device| device.name)
-            .collect();
-        Ok(DropdownState {
-            selected_option: default_output_device,
-            options: output_devices,
         })
     }
 }

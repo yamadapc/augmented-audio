@@ -9,6 +9,7 @@ use ui::main_content_view;
 pub mod executor;
 pub mod services;
 pub mod ui;
+mod utils;
 
 pub struct App {
     main_content_view: main_content_view::MainContentView,

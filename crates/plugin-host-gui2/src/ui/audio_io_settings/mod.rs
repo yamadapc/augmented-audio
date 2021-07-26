@@ -1,211 +1,111 @@
-use iced::{pick_list, Align, Column, Command, Container, Element, Length, Row, Rule, Text};
+use std::sync::{Arc, Mutex};
 
-use audio_processor_iced_design_system::spacing::Spacing;
-use audio_processor_iced_design_system::style::{Container0, Container1};
+use iced::{Command, Element};
+
+use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult};
+pub use view::Message;
+
+mod dropdown_with_label;
+mod view;
 
 pub struct AudioIOSettingsView {
-    audio_driver_dropdown: DropdownWithLabel,
-    input_device_dropdown: DropdownWithLabel,
-    output_device_dropdown: DropdownWithLabel,
-}
-
-#[derive(Default)]
-pub struct DropdownState {
-    pub selected_option: Option<String>,
-    pub options: Vec<String>,
-}
-
-pub struct ViewModel {
-    pub audio_driver_state: DropdownState,
-    pub input_device_state: DropdownState,
-    pub output_device_state: DropdownState,
-}
-
-#[derive(Debug, Clone)]
-pub enum Message {
-    AudioDriverChange(String),
-    InputDeviceChange(String),
-    OutputDeviceChange(String),
+    audio_io_service: Arc<Mutex<AudioIOService>>,
+    view: view::View,
 }
 
 impl AudioIOSettingsView {
-    pub fn new(model: ViewModel) -> Self {
-        AudioIOSettingsView {
-            audio_driver_dropdown: DropdownWithLabel::new(
-                "Audio driver",
-                model.audio_driver_state.options,
-                model.audio_driver_state.selected_option,
-            ),
-            input_device_dropdown: DropdownWithLabel::new(
-                "Input device",
-                model.input_device_state.options,
-                model.input_device_state.selected_option,
-            ),
-            output_device_dropdown: DropdownWithLabel::new(
-                "Output device",
-                model.output_device_state.options,
-                model.output_device_state.selected_option,
-            ),
+    pub fn new(audio_io_service: Arc<Mutex<AudioIOService>>) -> Self {
+        let audio_driver_state = Self::build_audio_driver_dropdown_state();
+        let input_device_state =
+            Self::build_input_device_dropdown_state(Some(AudioIOService::default_host()))
+                .unwrap_or_else(|_| view::DropdownModel::default());
+        let output_device_state =
+            Self::build_output_device_dropdown_state(Some(AudioIOService::default_host()))
+                .unwrap_or_else(|_| view::DropdownModel::default());
+        let view = view::View::new(view::Model {
+            audio_driver_state,
+            input_device_state,
+            output_device_state,
+        });
+
+        Self {
+            audio_io_service,
+            view,
         }
     }
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
-        match message {
-            Message::AudioDriverChange(selected) => {
-                self.audio_driver_dropdown.selected_option = Some(selected);
-            }
-            Message::InputDeviceChange(selected) => {
-                self.input_device_dropdown.selected_option = Some(selected);
-            }
-            Message::OutputDeviceChange(selected) => {
-                self.output_device_dropdown.selected_option = Some(selected);
-            }
-        }
-        Command::none()
+        let audio_io_service = self.audio_io_service.clone();
+        let command = match message.clone() {
+            Message::AudioDriverChange(driver) => Command::perform(
+                tokio::task::spawn_blocking(move || {
+                    audio_io_service.lock().unwrap().set_host_id(driver)
+                }),
+                |_| Message::None,
+            ),
+            Message::InputDeviceChange(device_id) => Command::perform(
+                tokio::task::spawn_blocking(move || {
+                    audio_io_service
+                        .lock()
+                        .unwrap()
+                        .set_input_device_id(device_id)
+                }),
+                |_| Message::None,
+            ),
+            Message::OutputDeviceChange(device_id) => Command::perform(
+                tokio::task::spawn_blocking(move || {
+                    audio_io_service
+                        .lock()
+                        .unwrap()
+                        .set_output_device_id(device_id)
+                }),
+                |_| Message::None,
+            ),
+            _ => Command::none(),
+        };
+        let children = self.view.update(message);
+        Command::batch(vec![command, children])
     }
 
     pub fn view(&mut self) -> Element<Message> {
-        let header = section_heading("Audio IO Settings");
-        let content = self.content_view();
-        Column::with_children(vec![header.into(), content.into()])
-            .width(Length::Fill)
-            .into()
+        self.view.view()
     }
 
-    pub fn content_view(&mut self) -> impl Into<Element<Message>> {
-        Container::new(
-            Column::with_children(vec![
-                self.audio_driver_dropdown
-                    .view()
-                    .map(Message::AudioDriverChange),
-                self.input_device_dropdown
-                    .view()
-                    .map(Message::InputDeviceChange),
-                self.output_device_dropdown
-                    .view()
-                    .map(Message::OutputDeviceChange),
-            ])
-            .spacing(Spacing::base_spacing()),
-        )
-        .padding(Spacing::base_spacing())
-        .width(Length::Fill)
-        .style(Container1::default())
-    }
-}
-
-fn section_heading<'a, T: Into<String>>(label: T) -> impl Into<Element<'a, Message>> {
-    let text = Text::new(label);
-    Column::with_children(vec![
-        Container::new(text)
-            .style(Container0::default())
-            .padding(Spacing::base_spacing())
-            .into(),
-        horizontal_rule().into(),
-    ])
-}
-
-fn horizontal_rule() -> Rule {
-    Rule::horizontal(1).style(audio_processor_iced_design_system::style::Rule)
-}
-
-struct DropdownWithLabel {
-    pick_list_state: pick_list::State<String>,
-    label: String,
-    options: Vec<String>,
-    selected_option: Option<String>,
-}
-
-impl DropdownWithLabel {
-    pub fn new(
-        label: impl Into<String>,
-        options: Vec<String>,
-        selected_option: Option<impl Into<String>>,
-    ) -> Self {
-        DropdownWithLabel {
-            pick_list_state: pick_list::State::default(),
-            label: label.into(),
-            options,
-            selected_option: selected_option.map(|s| s.into()),
+    fn build_audio_driver_dropdown_state() -> view::DropdownModel {
+        let default_host = AudioIOService::default_host();
+        let hosts = AudioIOService::hosts();
+        view::DropdownModel {
+            selected_option: Some(default_host),
+            options: hosts,
         }
     }
 
-    pub fn view(&mut self) -> Element<String> {
-        Row::with_children(vec![
-            Container::new(Text::new(&self.label))
-                .width(Length::FillPortion(2))
-                .align_x(Align::End)
-                .center_y()
-                .padding([0, Spacing::base_spacing()])
-                .into(),
-            Container::new(
-                pick_list::PickList::new(
-                    &mut self.pick_list_state,
-                    self.options.clone(),
-                    self.selected_option.clone(),
-                    |option| option,
-                )
-                .style(audio_processor_iced_design_system::style::PickList)
-                .padding(Spacing::base_spacing())
-                .width(Length::Fill),
-            )
-            .width(Length::FillPortion(8))
-            .into(),
-        ])
-        .width(Length::Fill)
-        .align_items(Align::Center)
-        .into()
-    }
-}
-
-#[cfg(feature = "story")]
-pub mod story {
-    use audio_processor_iced_storybook::StoryView;
-
-    use super::*;
-
-    pub fn default() -> Story {
-        Story::default()
+    fn build_input_device_dropdown_state(
+        host: Option<AudioHost>,
+    ) -> AudioIOServiceResult<view::DropdownModel> {
+        let default_input_device = AudioIOService::default_input_device().map(|device| device.name);
+        let input_devices = AudioIOService::input_devices(host)?
+            .into_iter()
+            .map(|device| device.name)
+            .collect();
+        Ok(view::DropdownModel {
+            selected_option: default_input_device,
+            options: input_devices,
+        })
     }
 
-    pub struct Story {
-        audio_io_settings: AudioIOSettingsView,
-    }
-
-    impl Default for Story {
-        fn default() -> Self {
-            let model = ViewModel {
-                audio_driver_state: DropdownState {
-                    selected_option: None,
-                    options: vec![String::from("Driver 1"), String::from("Driver 2")],
-                },
-                input_device_state: DropdownState {
-                    selected_option: None,
-                    options: vec![
-                        String::from("Input device 1"),
-                        String::from("Input device 2"),
-                    ],
-                },
-                output_device_state: DropdownState {
-                    selected_option: None,
-                    options: vec![
-                        String::from("Output device 1"),
-                        String::from("Output device 2"),
-                    ],
-                },
-            };
-            Self {
-                audio_io_settings: AudioIOSettingsView::new(model),
-            }
-        }
-    }
-
-    impl StoryView<Message> for Story {
-        fn update(&mut self, message: Message) -> Command<Message> {
-            self.audio_io_settings.update(message)
-        }
-
-        fn view(&mut self) -> Element<Message> {
-            self.audio_io_settings.view()
-        }
+    fn build_output_device_dropdown_state(
+        host: Option<AudioHost>,
+    ) -> AudioIOServiceResult<view::DropdownModel> {
+        let default_output_device =
+            AudioIOService::default_output_device().map(|device| device.name);
+        let output_devices = AudioIOService::output_devices(host)?
+            .into_iter()
+            .map(|device| device.name)
+            .collect();
+        Ok(view::DropdownModel {
+            selected_option: default_output_device,
+            options: output_devices,
+        })
     }
 }
