@@ -15,7 +15,7 @@ use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::main_content_view::volume_meter::VolumeMeter;
 use crate::ui::main_content_view::{
-    audio_chart, audio_file_chart, plugin_content, transport_controls, Message,
+    audio_chart, audio_file_chart, plugin_content, transport_controls, volume_meter, Message,
 };
 
 pub struct StartStopViewModel {
@@ -28,6 +28,7 @@ pub struct MainContentViewModel<'a> {
     pub plugin_content: &'a mut PluginContentView,
     pub audio_chart: &'a Option<AudioChart>,
     pub volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
+    pub volume_meter_state: &'a mut volume_meter::State,
     pub transport_controls: &'a mut TransportControlsView,
     pub status_message: &'a StatusBar,
     pub start_stop_button_state: &'a mut StartStopViewModel,
@@ -40,6 +41,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         plugin_content,
         audio_chart,
         volume_handle,
+        volume_meter_state,
         transport_controls,
         status_message,
         start_stop_button_state,
@@ -72,6 +74,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
             .into(),
         bottom_visualisation_content_container(BottomVisualisationViewModel {
             audio_chart,
+            volume_meter_state,
             volume_handle,
         }),
         Rule::horizontal(1)
@@ -89,6 +92,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
 
 struct BottomVisualisationViewModel<'a> {
     audio_chart: &'a Option<audio_chart::AudioChart>,
+    volume_meter_state: &'a mut volume_meter::State,
     volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
 }
 
@@ -110,6 +114,7 @@ fn bottom_visualisation_content_container(
     let BottomVisualisationViewModel {
         audio_chart,
         volume_handle,
+        volume_meter_state,
     } = view_model;
     Container::new(
         Row::with_children(vec![
@@ -128,8 +133,8 @@ fn bottom_visualisation_content_container(
             .into(),
             Container::new(
                 VolumeMeter::new(volume_handle.into())
-                    .view()
-                    .map(|_| Message::None),
+                    .view(volume_meter_state)
+                    .map(Message::VolumeMeter),
             )
             .style(Container1::default().border())
             .width(Length::Units(Spacing::base_control_size() * 2))

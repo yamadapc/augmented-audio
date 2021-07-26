@@ -1,7 +1,9 @@
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
-use iced::canvas::{Cursor, Frame, Geometry, Program, Stroke};
+use iced::canvas::event::Status;
+use iced::canvas::{Cursor, Event, Frame, Geometry, Program, Stroke};
+use iced::mouse::Interaction;
 use iced::widget::canvas::Fill;
 use iced::{Canvas, Container, Element, Length, Point, Rectangle, Size, Vector};
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
@@ -39,7 +41,22 @@ impl From<&Option<Shared<VolumeMeterProcessorHandle>>> for VolumeInfo {
     }
 }
 
-type Message = ();
+#[derive(Clone, Debug)]
+pub enum Message {
+    DragStart { cursor: Option<Point> },
+    DragMove { cursor: Point },
+    DragEnd { cursor: Option<Point> },
+}
+
+#[derive(Default)]
+pub struct State {
+    mouse_state: MouseState,
+}
+
+#[derive(Default)]
+struct MouseState {
+    is_dragging: bool,
+}
 
 pub struct VolumeMeter {
     volume_info: VolumeInfo,
@@ -50,9 +67,9 @@ impl VolumeMeter {
         Self { volume_info }
     }
 
-    pub fn view<'a>(self) -> Element<'a, ()> {
+    pub fn view<'a>(self, state: &'a mut State) -> Element<'a, Message> {
         Container::new(
-            Canvas::new(VolumeMeterProgram::new(self.volume_info))
+            Canvas::new(VolumeMeterProgram::new(self.volume_info, state))
                 .width(Length::Fill)
                 .height(Length::Fill),
         )
@@ -63,17 +80,75 @@ impl VolumeMeter {
     }
 }
 
-struct VolumeMeterProgram {
+struct VolumeMeterProgram<'a> {
     volume: VolumeInfo,
+    state: &'a mut State,
 }
 
-impl VolumeMeterProgram {
-    pub fn new(volume: VolumeInfo) -> Self {
-        VolumeMeterProgram { volume }
+impl<'a> VolumeMeterProgram<'a> {
+    pub fn new(volume: VolumeInfo, state: &'a mut State) -> Self {
+        VolumeMeterProgram { volume, state }
+    }
+
+    /// True if the cursor is currently dragging the volume meter handle
+    fn is_dragging(&self) -> bool {
+        self.state.mouse_state.is_dragging
     }
 }
 
-impl Program<Message> for VolumeMeterProgram {
+impl<'a> Program<Message> for VolumeMeterProgram<'a> {
+    fn update(
+        &mut self,
+        event: Event,
+        bounds: Rectangle,
+        cursor: Cursor,
+    ) -> (Status, Option<Message>) {
+        let ignore = (iced::canvas::event::Status::Ignored, None);
+        match event {
+            Event::Mouse(mouse_event) => match mouse_event {
+                iced::mouse::Event::CursorMoved { position } => {
+                    if self.state.mouse_state.is_dragging {
+                        (
+                            iced::canvas::event::Status::Captured,
+                            Some(Message::DragMove { cursor: position }),
+                        )
+                    } else {
+                        ignore
+                    }
+                }
+                iced::mouse::Event::ButtonPressed(_) => {
+                    if cursor.is_over(&bounds) {
+                        self.state.mouse_state.is_dragging = true;
+                        (
+                            iced::canvas::event::Status::Captured,
+                            Some(Message::DragStart {
+                                cursor: cursor.position(),
+                            }),
+                        )
+                    } else {
+                        ignore
+                    }
+                }
+                iced::mouse::Event::ButtonReleased(_) => {
+                    let was_dragging = self.state.mouse_state.is_dragging;
+                    self.state.mouse_state.is_dragging = false;
+                    if was_dragging {
+                        (
+                            iced::canvas::event::Status::Captured,
+                            Some(Message::DragEnd {
+                                cursor: cursor.position(),
+                            }),
+                        )
+                    } else {
+                        ignore
+                    }
+                }
+                _ => ignore,
+            },
+            _ => ignore,
+        }
+    }
+
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
 
@@ -93,12 +168,21 @@ impl Program<Message> for VolumeMeterProgram {
             bar_width,
             bar_width + spacing,
         );
+        VolumeMeterProgram::draw_volume_handle(&mut frame, bar_width * 2. + spacing);
 
         vec![frame.into_geometry()]
     }
+
+    fn mouse_interaction(&self, bounds: Rectangle, cursor: Cursor) -> Interaction {
+        if self.is_dragging() || cursor.is_over(&bounds) {
+            iced::mouse::Interaction::ResizingVertically
+        } else {
+            iced::mouse::Interaction::default()
+        }
+    }
 }
 
-impl VolumeMeterProgram {
+impl<'a> VolumeMeterProgram<'a> {
     /// Draw a rectangle for volume
     fn draw_volume_bar(
         frame: &mut Frame,
@@ -154,13 +238,32 @@ impl VolumeMeterProgram {
         );
     }
 
-    // TODO - don't need to draw this on every frame
+    /// Draw the volume handle
+    fn draw_volume_handle(frame: &mut Frame, offset_x: f32) {
+        let mut handle_path = iced::canvas::path::Builder::new();
+        let handle_width = 10.0;
+
+        let start_x = offset_x - handle_width / 2.;
+        let tick_y = VolumeMeterProgram::decibels_y_position(frame, 0.0);
+        let start_point = Point::new(start_x, tick_y);
+
+        handle_path.move_to(start_point);
+        handle_path.line_to(start_point + Vector::new(handle_width, handle_width / 2.0));
+        handle_path.line_to(start_point + Vector::new(handle_width, -handle_width / 2.0));
+        handle_path.line_to(start_point);
+
+        frame.fill(
+            &handle_path.build(),
+            Fill::from(Colors::border_color().darken(-0.5)),
+        );
+    }
+
+    /// Draw a mark and text reference for the `value` decibels point.
+    ///
+    /// TODO - This should be cached between render passes.
     fn draw_mark(frame: &mut Frame, bar_width: f32, offset_x: f32, value: f32) {
-        let text = format!("{:.0}", value);
-        let max_ampl = db_to_render(2.0);
-        let min_ampl = db_to_render(-144.0);
-        let value = db_to_render(value);
-        let tick_y = interpolate(value, (min_ampl, max_ampl), (frame.height(), 0.0));
+        let text = format!("{:>4.0}", value);
+        let tick_y = VolumeMeterProgram::decibels_y_position(frame, value);
         let mut tick_path = iced::canvas::path::Builder::new();
         tick_path.move_to(Point::new(offset_x, tick_y));
         tick_path.line_to(Point::new(offset_x + bar_width, tick_y));
@@ -176,18 +279,45 @@ impl VolumeMeterProgram {
         });
         frame.translate(Vector::new(-(bar_width * 2. + 5.), -(tick_y - 8.0)));
     }
+
+    /// The Y coordinate for a given `value` in decibels. The return value is reversed.
+    ///
+    /// This is for rendering values between -Infinity decibels and `VolumeMeterProgram::max_amplitude`
+    /// decibels.
+    fn decibels_y_position(frame: &mut Frame, value: f32) -> f32 {
+        let max_ampl = VolumeMeterProgram::max_amplitude();
+        let min_ampl = VolumeMeterProgram::min_amplitude();
+        let value = db_to_render(value);
+        interpolate(value, (min_ampl, max_ampl), (frame.height(), 0.0))
+    }
+
+    /// Maximum amplitude rendered at the top-most Y coordinate
+    fn max_amplitude() -> f32 {
+        db_to_render(2.0)
+    }
+
+    /// Minimum amplitude rendered at the bottom-most Y coordinate
+    fn min_amplitude() -> f32 {
+        db_to_render(-144.0)
+    }
 }
 
+/// Convert a number in decibels to the rendering range.
+/// This has no meaning other than to be a logarithmic scaled float that fits nicely within the UI.
 fn db_to_render(db: f32) -> f32 {
     let reference_amplitude = 1e-1;
     (10.0_f32).powf(db / 60.0) * reference_amplitude
 }
 
+/// Convert decibels to amplitude
+#[allow(dead_code)]
 fn db_to_amplitude(db: f32) -> f32 {
     let reference_amplitude = 1e-10;
     (10.0_f32).powf(db / 20.0) * reference_amplitude
 }
 
+/// Convert amplitude to decibels
+#[allow(dead_code)]
 fn amplitude_to_db(volume: f32) -> f32 {
     let reference_amplitude = 1e-10;
     20.0 * (volume / reference_amplitude).log10()

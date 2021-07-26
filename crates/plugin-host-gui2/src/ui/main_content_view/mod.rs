@@ -55,6 +55,7 @@ pub struct MainContentView {
     host_options_service: HostOptionsService,
     plugin_content: plugin_content::PluginContentView,
     transport_controls: TransportControlsView,
+    volume_meter_state: volume_meter::State,
     error: Option<Box<dyn std::error::Error>>,
     plugin_window_handle: Option<PluginWindowHandle>,
     host_state: HostState,
@@ -78,6 +79,7 @@ pub enum Message {
     SetStatus(StatusBar),
     ReadyForPlayback,
     ReloadedPlugin(bool, StatusBar),
+    VolumeMeter(volume_meter::Message),
     StartStopButtonClicked,
     None,
 }
@@ -131,6 +133,7 @@ impl MainContentView {
                 audio_chart: None,
                 previous_plugin_window_frame: None,
                 audio_file_model: AudioFileModel::empty(),
+                volume_meter_state: volume_meter::State::default(),
                 start_stop_button_state: view::StartStopViewModel {
                     is_started: true,
                     button_state: Default::default(),
@@ -185,6 +188,10 @@ impl MainContentView {
                     },
                     |_| Message::None,
                 )
+            }
+            Message::VolumeMeter(message) => {
+                log::info!("Volume meter message {:?}", message);
+                Command::none()
             }
         }
     }
@@ -440,6 +447,7 @@ impl MainContentView {
         let volume_handle = &self.volume_handle;
         let transport_controls = &mut self.transport_controls;
         let status_message = &self.status_message;
+        let volume_meter_state = &mut self.volume_meter_state;
         let audio_file_model = &self.audio_file_model;
         let start_stop_button_state = &mut self.start_stop_button_state;
 
@@ -448,6 +456,7 @@ impl MainContentView {
             plugin_content,
             audio_chart,
             volume_handle,
+            volume_meter_state,
             transport_controls,
             status_message,
             audio_file_model,
