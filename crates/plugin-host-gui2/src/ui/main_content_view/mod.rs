@@ -49,9 +49,9 @@ enum ReloadPluginError {
 
 pub struct MainContentView {
     plugin_host: Arc<Mutex<TestPluginHost>>,
-    audio_io_settings: audio_io_settings::AudioIOSettingsView,
+    audio_io_settings: audio_io_settings::Controller,
     host_options_service: HostOptionsService,
-    plugin_content: plugin_content::PluginContentView,
+    plugin_content: plugin_content::View,
     transport_controls: TransportControlsView,
     volume_meter_state: volume_meter::State,
     error: Option<Box<dyn std::error::Error>>,
@@ -94,11 +94,11 @@ impl MainContentView {
             command,
         ) = reload_plugin_host_state(plugin_host.clone());
 
-        let plugin_content = plugin_content::PluginContentView::new(
+        let plugin_content = plugin_content::View::new(
             host_state.audio_input_file_path.clone(),
             host_state.plugin_path.clone(),
         );
-        let audio_io_settings = audio_io_settings::AudioIOSettingsView::new(audio_io_service);
+        let audio_io_settings = audio_io_settings::Controller::new(audio_io_service);
 
         (
             MainContentView {

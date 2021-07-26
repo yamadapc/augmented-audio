@@ -1,7 +1,7 @@
 use audio_processor_iced_design_system::spacing::Spacing;
 use iced::{Align, Button, Column, Command, Container, Element, Length, Row, Text};
 
-pub struct PluginContentView {
+pub struct View {
     input_file_path_button_state: iced::button::State,
     audio_plugin_path_button_state: iced::button::State,
     plugin_open_button: iced::button::State,
@@ -20,9 +20,9 @@ pub enum Message {
     SetAudioPlugin(String),
 }
 
-impl PluginContentView {
+impl View {
     pub fn new(input_file: Option<String>, audio_plugin_path: Option<String>) -> Self {
-        PluginContentView {
+        View {
             input_file_path_button_state: iced::button::State::new(),
             audio_plugin_path_button_state: iced::button::State::new(),
             plugin_open_button: iced::button::State::new(),
@@ -154,5 +154,40 @@ impl PluginContentView {
         ])
         .align_items(Align::Center)
         .into()
+    }
+}
+
+#[cfg(feature = "story")]
+pub mod story {
+    use audio_processor_iced_storybook::StoryView;
+
+    use crate::string_vec;
+
+    use super::*;
+
+    pub fn default() -> Story {
+        Story::default()
+    }
+
+    pub struct Story {
+        view: View,
+    }
+
+    impl Default for Story {
+        fn default() -> Self {
+            Self {
+                view: View::new(None, None),
+            }
+        }
+    }
+
+    impl StoryView<Message> for Story {
+        fn update(&mut self, message: Message) -> Command<Message> {
+            self.view.update(message)
+        }
+
+        fn view(&mut self) -> Element<Message> {
+            self.view.view()
+        }
     }
 }

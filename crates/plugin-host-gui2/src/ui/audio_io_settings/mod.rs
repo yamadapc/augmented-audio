@@ -8,12 +8,12 @@ pub use view::Message;
 pub mod dropdown_with_label;
 pub mod view;
 
-pub struct AudioIOSettingsView {
+pub struct Controller {
     audio_io_service: Arc<Mutex<AudioIOService>>,
     view: view::View,
 }
 
-impl AudioIOSettingsView {
+impl Controller {
     pub fn new(audio_io_service: Arc<Mutex<AudioIOService>>) -> Self {
         let audio_driver_state = Self::build_audio_driver_dropdown_state();
         let input_device_state =

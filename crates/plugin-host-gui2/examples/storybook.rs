@@ -6,6 +6,7 @@ enum Message {
     AudioIOSettings(ui::audio_io_settings::Message),
     TransportControls(ui::main_content_view::transport_controls::Message),
     Dropdown(String),
+    PluginContent(ui::main_content_view::plugin_content::view::Message),
     None(()),
 }
 
@@ -22,6 +23,10 @@ fn main() -> iced::Result {
         .story(
             "Transport controls",
             ui::main_content_view::transport_controls::story::default(),
+        )
+        .story(
+            "Plugin content",
+            ui::main_content_view::plugin_content::view::story::default(),
         )
         .story(
             "Status bar",

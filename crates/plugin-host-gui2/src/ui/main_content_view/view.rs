@@ -7,10 +7,10 @@ use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 
-use crate::ui::audio_io_settings::AudioIOSettingsView;
+use crate::ui::audio_io_settings;
 use crate::ui::main_content_view::audio_chart::AudioChart;
 use crate::ui::main_content_view::audio_file_chart::AudioFileModel;
-use crate::ui::main_content_view::plugin_content::PluginContentView;
+use crate::ui::main_content_view::plugin_content::View;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 use crate::ui::main_content_view::volume_meter::VolumeMeter;
@@ -24,8 +24,8 @@ pub struct StartStopViewModel {
 }
 
 pub struct MainContentViewModel<'a> {
-    pub audio_io_settings: &'a mut AudioIOSettingsView,
-    pub plugin_content: &'a mut PluginContentView,
+    pub audio_io_settings: &'a mut audio_io_settings::Controller,
+    pub plugin_content: &'a mut View,
     pub audio_chart: &'a Option<AudioChart>,
     pub volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
     pub volume_meter_state: &'a mut volume_meter::State,
@@ -149,9 +149,7 @@ fn bottom_visualisation_content_container(
     .into()
 }
 
-fn plugin_content_container(
-    plugin_content: &mut plugin_content::PluginContentView,
-) -> Element<Message> {
+fn plugin_content_container(plugin_content: &mut plugin_content::View) -> Element<Message> {
     Container::new(plugin_content.view().map(Message::PluginContent))
         .style(Container0::default())
         .height(Length::Fill)
