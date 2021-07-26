@@ -5,8 +5,8 @@ use iced::{Command, Element};
 use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult};
 pub use view::Message;
 
-mod dropdown_with_label;
-mod view;
+pub mod dropdown_with_label;
+pub mod view;
 
 pub struct AudioIOSettingsView {
     audio_io_service: Arc<Mutex<AudioIOService>>,

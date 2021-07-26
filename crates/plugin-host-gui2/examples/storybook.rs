@@ -5,12 +5,20 @@ use plugin_host_gui2::ui;
 enum Message {
     AudioIOSettings(ui::audio_io_settings::Message),
     TransportControls(ui::main_content_view::transport_controls::Message),
+    Dropdown(String),
     None(()),
 }
 
 fn main() -> iced::Result {
     audio_processor_iced_storybook::builder::<Message>()
-        .story("AudioIOSettings", ui::audio_io_settings::story::default())
+        .story(
+            "Dropdown with label",
+            ui::audio_io_settings::dropdown_with_label::story::default(),
+        )
+        .story(
+            "AudioIOSettings",
+            ui::audio_io_settings::view::story::default(),
+        )
         .story(
             "Transport controls",
             ui::main_content_view::transport_controls::story::default(),
