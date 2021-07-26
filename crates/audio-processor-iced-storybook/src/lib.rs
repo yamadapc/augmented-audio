@@ -1,8 +1,9 @@
 use std::fmt::Debug;
 
-use iced::{Application, Clipboard, Command, Container, Element, Length, Row, Text};
+use iced::{Application, Clipboard, Column, Command, Container, Element, Length, Row, Text};
 
 use audio_processor_iced_design_system::menu_list;
+use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style;
 pub use model::Options;
 pub use model::Story;
@@ -79,6 +80,7 @@ struct StorybookApp<StoryMessage> {
     options: Options<StoryMessage>,
     selected_story: Option<sidebar::SelectedStory>,
     sidebar: sidebar::SidebarView,
+    last_messages: Vec<StoryMessage>,
 }
 
 impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<StoryMessage> {
@@ -93,6 +95,7 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
                 sidebar: sidebar::SidebarView::new(&options),
                 selected_story: None,
                 options,
+                last_messages: vec![],
             },
             Command::none(),
         )
@@ -118,6 +121,18 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
                 self.sidebar.update(message).map(Message::Sidebar)
             }
             Message::Child(child_message) => {
+                self.last_messages.push(child_message.clone());
+                if self.last_messages.len() > 7 {
+                    self.last_messages = self
+                        .last_messages
+                        .iter()
+                        .rev()
+                        .take(7)
+                        .rev()
+                        .map(|m| m.clone())
+                        .collect();
+                }
+
                 if let Some(story) = find_story(&self.selected_story, &mut self.options) {
                     story.renderer.update(child_message).map(Message::Child)
                 } else {
@@ -148,13 +163,32 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
                 .height(Length::Fill)
                 .into(),
             story_view,
-        ]);
+        ])
+        .height(Length::Fill);
 
-        Container::new(content)
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .style(style::Container0::default())
-            .into()
+        let bottom_panel = Container::new(Column::with_children(vec![
+            Text::new(" ======== Messages log ========").into(),
+            Column::with_children(
+                self.last_messages
+                    .iter()
+                    .map(|message| Text::new(format!("{:?}", message)).into())
+                    .collect(),
+            )
+            .into(),
+        ]))
+        .style(style::Container1::default().border())
+        .padding(Spacing::base_spacing())
+        .height(Length::Units(200))
+        .width(Length::Fill);
+
+        Container::new(Column::with_children(vec![
+            content.into(),
+            bottom_panel.into(),
+        ]))
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .style(style::Container0::default())
+        .into()
     }
 }
 
