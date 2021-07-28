@@ -16,13 +16,16 @@ exclude = [
   "crates/scripts",
   "crates/lyon",
   "crates/vst",
-  "crates/libloading"
+  "crates/libloading",
+  "crates/pathfinder",
+  "crates/piet"
 ]
 
 [profile.bench]
 debug = true
 
 [patch.crates-io]
+pathfinder_canvas = { path = "./crates/pathfinder/canvas" }
 basedrop = { path = "./crates/basedrop" }
 gfx-hal = { path = "./crates/gfx/src/hal" }
 gfx-backend-metal = { version = "*", path = "./crates/gfx/src/backend/metal", features = ["cross"] }

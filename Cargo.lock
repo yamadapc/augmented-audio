@@ -504,6 +504,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "augmented-ui"
+version = "0.1.0"
+dependencies = [
+ "baseview",
+ "raw-window-handle",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2794,6 +2802,29 @@ name = "half"
 version = "1.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "62aca2aba2d62b4a7f5b33f3712cb1b0692779a56fb510499d5c0aa594daeaf3"
+
+[[package]]
+name = "harfbuzz"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "776caa9519beb53f697d578b6777eebd1262265c84ae797620b7f8f9b3648d91"
+dependencies = [
+ "harfbuzz-sys",
+]
+
+[[package]]
+name = "harfbuzz-sys"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf8c27ca13930dc4ffe474880040fe9e0f03c2121600dc9c95423624cab3e467"
+dependencies = [
+ "cc",
+ "core-graphics 0.22.2",
+ "core-text",
+ "foreign-types",
+ "freetype",
+ "pkg-config",
+]
 
 [[package]]
 name = "hashbrown"
@@ -5441,6 +5472,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cbce6d4507c7e4a3962091436e56e95290cb71fa302d0d270e32130b75fbff27"
 
 [[package]]
+name = "skribo"
+version = "0.2.0"
+dependencies = [
+ "font-kit",
+ "harfbuzz",
+ "harfbuzz-sys",
+ "log",
+ "pathfinder_geometry",
+ "unicode-normalization",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6894,3 +6937,7 @@ checksum = "56c1936c4cc7a1c9ab21a1ebb602eb942ba868cbd44a99cb7cdc5892335e1c85"
 dependencies = [
  "linked-hash-map",
 ]
+
+[[patch.unused]]
+name = "pathfinder_canvas"
+version = "0.5.0"

@@ -34,3 +34,12 @@
 [submodule "crates/vst"]
 	path = crates/vst
 	url = git@github.com:yamadapc/vst-rs
+[submodule "crates/piet"]
+	path = crates/piet
+	url = git@github.com:yamadapc/piet
+[submodule "crates/pathfinder"]
+	path = crates/pathfinder
+	url = git@github.com:yamadapc/pathfinder
+[submodule "crates/skribo"]
+	path = crates/skribo
+	url = git@github.com:yamadapc/skribo
