@@ -185,6 +185,11 @@ Missing functionality:
 ### UI elements
 Styles on top of `iced_audio` & `iced`, see [`audio-processor-iced-design-system`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-iced-design-system).
 
+#### `volume_meter`
+<p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/volume.png" /></p>
+
+Volume control with visualisation.
+
 #### `pick_list`
 <p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/picklist.png" /></p>
 
