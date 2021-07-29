@@ -17,6 +17,7 @@
     <mapping directory="$PROJECT_DIR$/crates/piet/piet/snapshots" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/plotters" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/plugin-host-gui/src-tauri/tao" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/crates/skribo" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/tauri" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/tauri/wry" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/crates/vst" vcs="Git" />
