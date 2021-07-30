@@ -53,7 +53,7 @@ pub struct MainContentView {
     host_options_service: HostOptionsService,
     plugin_content: plugin_content::View,
     transport_controls: TransportControlsView,
-    volume_meter_state: volume_meter::State,
+    volume_meter_state: volume_meter::VolumeMeter,
     error: Option<Box<dyn std::error::Error>>,
     plugin_window_handle: Option<PluginWindowHandle>,
     host_state: HostState,
@@ -116,7 +116,7 @@ impl MainContentView {
                 audio_chart: None,
                 previous_plugin_window_frame: None,
                 audio_file_model: AudioFileModel::empty(),
-                volume_meter_state: volume_meter::State::default(),
+                volume_meter_state: volume_meter::VolumeMeter::new(),
                 start_stop_button_state: view::StartStopViewModel {
                     is_started: true,
                     button_state: Default::default(),

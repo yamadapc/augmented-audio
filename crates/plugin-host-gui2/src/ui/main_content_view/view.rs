@@ -27,7 +27,7 @@ pub struct MainContentViewModel<'a> {
     pub plugin_content: &'a mut View,
     pub audio_chart: &'a Option<AudioChart>,
     pub volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
-    pub volume_meter_state: &'a mut volume_meter::State,
+    pub volume_meter_state: &'a mut volume_meter::VolumeMeter,
     pub transport_controls: &'a mut TransportControlsView,
     pub status_message: &'a StatusBar,
     pub start_stop_button_state: &'a mut StartStopViewModel,
@@ -91,7 +91,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
 
 struct BottomVisualisationViewModel<'a> {
     audio_chart: &'a Option<audio_chart::AudioChart>,
-    volume_meter_state: &'a mut volume_meter::State,
+    volume_meter_state: &'a mut volume_meter::VolumeMeter,
     volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
 }
 
@@ -130,15 +130,11 @@ fn bottom_visualisation_content_container(
             .height(Length::Fill)
             .width(Length::Fill)
             .into(),
-            Container::new(
-                volume_meter::VolumeMeter::new(volume_handle.into())
-                    .view(volume_meter_state)
-                    .map(Message::VolumeMeter),
-            )
-            .style(Container1::default().border())
-            .width(Length::Units(Spacing::base_control_size() * 2))
-            .height(Length::Fill)
-            .into(),
+            Container::new(volume_meter_state.view().map(Message::VolumeMeter))
+                .style(Container1::default().border())
+                .width(Length::Units(Spacing::base_control_size() * 2))
+                .height(Length::Fill)
+                .into(),
         ])
         .width(Length::Fill),
     )

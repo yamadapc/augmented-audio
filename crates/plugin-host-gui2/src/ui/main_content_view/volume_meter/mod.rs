@@ -1,8 +1,10 @@
+mod cache;
+
 use std::sync::Arc;
 use std::sync::Mutex;
 
 use iced::canvas::event::Status;
-use iced::canvas::{Cursor, Event, Frame, Geometry, Program, Stroke};
+use iced::canvas::{Cache, Cursor, Event, Frame, Geometry, Program, Stroke};
 use iced::mouse::Interaction;
 use iced::widget::canvas::Fill;
 use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, Vector};
@@ -12,6 +14,7 @@ use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use plugin_host_lib::TestPluginHost;
+use std::cell::RefCell;
 
 // TODO - this whole file needs to be refactored
 
@@ -77,23 +80,38 @@ struct MouseState {
 
 pub struct VolumeMeter {
     volume_info: VolumeInfo,
+    state: State,
+    frame: RefCell<Frame>,
+    left_cache: Cache,
+    right_cache: Cache,
 }
 
 impl VolumeMeter {
-    pub fn new(volume_info: VolumeInfo) -> Self {
-        Self { volume_info }
+    pub fn new() -> Self {
+        Self {
+            volume_info: VolumeInfo::default(),
+            state: State::default(),
+            frame: RefCell::new(Frame::new(Size::new(100., 100.))),
+            left_cache: Default::default(),
+            right_cache: Default::default(),
+        }
     }
 
-    pub fn view(self, state: &mut State) -> Element<Message> {
-        Container::new(
-            Canvas::new(VolumeMeterProgram::new(self.volume_info, state))
-                .width(Length::Fill)
-                .height(Length::Fill),
-        )
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .padding(Spacing::medium_spacing())
-        .into()
+    pub fn set_volume_info(&mut self, volume_info: VolumeInfo) {
+        self.volume_info = volume_info;
+    }
+
+    pub fn view(&mut self) -> Element<Message> {
+        Container::new(Canvas::new(self).width(Length::Fill).height(Length::Fill))
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .padding(Spacing::medium_spacing())
+            .into()
+    }
+
+    /// True if the cursor is currently dragging the volume meter handle
+    fn is_dragging(&self) -> bool {
+        self.state.mouse_state.dragging
     }
 }
 
@@ -110,23 +128,7 @@ pub fn update(message: Message, plugin_host: Arc<Mutex<TestPluginHost>>) -> Comm
     }
 }
 
-struct VolumeMeterProgram<'a> {
-    volume: VolumeInfo,
-    state: &'a mut State,
-}
-
-impl<'a> VolumeMeterProgram<'a> {
-    pub fn new(volume: VolumeInfo, state: &'a mut State) -> Self {
-        VolumeMeterProgram { volume, state }
-    }
-
-    /// True if the cursor is currently dragging the volume meter handle
-    fn is_dragging(&self) -> bool {
-        self.state.mouse_state.dragging
-    }
-}
-
-impl<'a> Program<Message> for VolumeMeterProgram<'a> {
+impl Program<Message> for VolumeMeter {
     fn update(
         &mut self,
         event: Event,
@@ -141,7 +143,7 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
                         let top_left_position = bounds.y;
                         let relative_y =
                             (bounds.height - (position.y - top_left_position)) / bounds.height;
-                        let volume = VolumeMeterProgram::y_perc_to_amplitude(relative_y)
+                        let volume = VolumeMeter::y_perc_to_amplitude(relative_y)
                             .min(3.0)
                             .max(0.0);
                         self.state.volume = volume;
@@ -184,31 +186,42 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
     }
 
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
-        let mut frame = Frame::new(bounds.size());
+        let mut frame = self.frame.borrow_mut();
+        frame.resize(bounds.size());
 
         let spacing = Spacing::small_spacing() as f32 / 2.;
         let bar_width = bounds.width / 4. - spacing / 2.;
-        VolumeMeterProgram::draw_volume_bar(
+
+        // Draw background, the results will be cached
+        let mut geometry = vec![
+            Self::draw_volume_background(&self.left_cache, &bounds, bar_width, 0.0),
+            Self::draw_volume_background(
+                &self.right_cache,
+                &bounds,
+                bar_width,
+                bar_width + spacing,
+            ),
+        ];
+
+        // Draw volume bars
+        Self::draw_volume_bar(
             &mut frame,
-            self.volume.left,
-            self.volume.left_peak,
+            self.volume_info.left,
+            self.volume_info.left_peak,
             bar_width,
             0.0,
         );
-        VolumeMeterProgram::draw_volume_bar(
+        Self::draw_volume_bar(
             &mut frame,
-            self.volume.right,
-            self.volume.right_peak,
+            self.volume_info.right,
+            self.volume_info.right_peak,
             bar_width,
             bar_width + spacing,
         );
-        VolumeMeterProgram::draw_volume_handle(
-            &mut frame,
-            bar_width * 2. + spacing,
-            self.state.volume,
-        );
+        Self::draw_volume_handle(&mut frame, bar_width * 2. + spacing, self.state.volume);
+        geometry.push(frame.geometry());
 
-        vec![frame.into_geometry()]
+        geometry
     }
 
     fn mouse_interaction(&self, bounds: Rectangle, cursor: Cursor) -> Interaction {
@@ -220,7 +233,29 @@ impl<'a> Program<Message> for VolumeMeterProgram<'a> {
     }
 }
 
-impl<'a> VolumeMeterProgram<'a> {
+impl VolumeMeter {
+    fn draw_volume_background(
+        cache: &Cache,
+        bounds: &Rectangle,
+        bar_width: f32,
+        offset_x: f32,
+    ) -> Geometry {
+        cache.draw(bounds.size(), |frame| {
+            // Background
+            frame.fill_rectangle(
+                Point::new(offset_x, 0.0),
+                Size::new(bar_width, frame.height()),
+                Fill::from(Colors::background_level0()),
+            );
+
+            // Marks
+            let marks = [0.0, -12.0, -24.0, -36.0, -48.0, -60.0];
+            for value in marks {
+                Self::draw_mark(frame, bar_width, offset_x, value);
+            }
+        })
+    }
+
     /// Draw a rectangle for volume
     fn draw_volume_bar(
         frame: &mut Frame,
@@ -244,18 +279,6 @@ impl<'a> VolumeMeterProgram<'a> {
 
         let y_coord = frame.height() - bar_height;
         let peak_y_coord = frame.height() - peak_bar_height;
-        // Background
-        frame.fill_rectangle(
-            Point::new(offset_x, 0.0),
-            Size::new(bar_width, frame.height()),
-            Fill::from(Colors::background_level0()),
-        );
-
-        // Marks
-        let marks = [0.0, -12.0, -24.0, -36.0, -48.0, -60.0];
-        for value in marks {
-            VolumeMeterProgram::draw_mark(frame, bar_width, offset_x, value);
-        }
 
         // Peak Volume
         frame.fill_rectangle(
@@ -277,7 +300,7 @@ impl<'a> VolumeMeterProgram<'a> {
         let handle_width = 10.0;
 
         let start_x = offset_x - handle_width / 2.;
-        let tick_y = VolumeMeterProgram::amplitude_y_position(frame, volume)
+        let tick_y = Self::amplitude_y_position(frame, volume)
             .max(0.0)
             .min(frame.height());
         let start_point = Point::new(start_x, tick_y);
@@ -294,11 +317,9 @@ impl<'a> VolumeMeterProgram<'a> {
     }
 
     /// Draw a mark and text reference for the `value` decibels point.
-    ///
-    /// TODO - This should be cached between render passes.
     fn draw_mark(frame: &mut Frame, bar_width: f32, offset_x: f32, value: f32) {
         let text = format!("{:>4.0}", value);
-        let tick_y = VolumeMeterProgram::decibels_y_position(frame, value);
+        let tick_y = Self::decibels_y_position(frame, value);
         let mut tick_path = iced::canvas::path::Builder::new();
         tick_path.move_to(Point::new(offset_x, tick_y));
         tick_path.line_to(Point::new(offset_x + bar_width, tick_y));
@@ -331,8 +352,8 @@ impl<'a> VolumeMeterProgram<'a> {
     /// This is for rendering values between -Infinity decibels and `VolumeMeterProgram::max_amplitude`
     /// decibels.
     fn decibels_y_position(frame: &mut Frame, value: f32) -> f32 {
-        let max_ampl = VolumeMeterProgram::max_amplitude();
-        let min_ampl = VolumeMeterProgram::min_amplitude();
+        let max_ampl = Self::max_amplitude();
+        let min_ampl = Self::min_amplitude();
         let value = db_to_render(value);
         interpolate(value, (min_ampl, max_ampl), (frame.height(), 0.0))
     }
@@ -379,7 +400,7 @@ fn interpolate(value: f32, range_from: (f32, f32), range_to: (f32, f32)) -> f32 
 pub mod story {
     use std::time::{Duration, Instant};
 
-    use iced::Subscription;
+    use iced::{Row, Subscription};
 
     use audio_processor_iced_design_system::style::Container1;
     use audio_processor_iced_storybook::StoryView;
@@ -388,14 +409,14 @@ pub mod story {
 
     struct Story {
         volume_info: VolumeInfo,
-        state: State,
+        state: Vec<VolumeMeter>,
         start_time: Instant,
     }
 
     pub fn default() -> impl StoryView<Message> {
         Story {
             volume_info: VolumeInfo::default(),
-            state: State::default(),
+            state: (0..20).map(|_| VolumeMeter::new()).collect(),
             start_time: Instant::now(),
         }
     }
@@ -409,6 +430,9 @@ pub mod story {
             self.volume_info.left_peak = random_volume * 1.1;
             self.volume_info.right = random_volume;
             self.volume_info.right_peak = random_volume * 1.1;
+            for s in &mut self.state {
+                s.set_volume_info(self.volume_info);
+            }
             Command::none()
         }
 
@@ -417,12 +441,19 @@ pub mod story {
         }
 
         fn view(&mut self) -> Element<Message> {
-            Container::new(VolumeMeter::new(self.volume_info).view(&mut self.state))
-                .style(Container1::default().border())
-                .width(Length::Units(Spacing::base_control_size() * 2))
-                .padding(Spacing::base_spacing())
-                .height(Length::Fill)
-                .into()
+            let children = self
+                .state
+                .iter_mut()
+                .map(|state| {
+                    Container::new(state.view())
+                        .style(Container1::default().border())
+                        .width(Length::Units(Spacing::base_control_size() * 2))
+                        .padding(Spacing::base_spacing())
+                        .height(Length::Fill)
+                        .into()
+                })
+                .collect();
+            Row::with_children(children).into()
         }
     }
 }
