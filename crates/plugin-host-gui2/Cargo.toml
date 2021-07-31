@@ -25,7 +25,7 @@ audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" 
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
-iced = { version = "^0.3.0", path = "../iced", features = ["debug"] }
+iced = { version = "^0.3.0", path = "../iced", features = ["debug", "glow", "glow_canvas"] }
 iced_core = { version = "^0.4", path = "../iced/core" }
 iced_native = { version = "^0.4", path = "../iced/native" }
 iced_futures = { version = "^0.3", path = "../iced/futures" }
