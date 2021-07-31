@@ -131,6 +131,8 @@ impl MainContentView {
         if let Some(chart) = &mut self.audio_chart {
             chart.update();
         }
+        self.volume_meter_state
+            .set_volume_info((&self.volume_handle).into());
         match message {
             Message::AudioIOSettings(msg) => self
                 .audio_io_settings

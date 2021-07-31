@@ -1,5 +1,3 @@
-mod cache;
-
 use std::sync::Arc;
 use std::sync::Mutex;
 
