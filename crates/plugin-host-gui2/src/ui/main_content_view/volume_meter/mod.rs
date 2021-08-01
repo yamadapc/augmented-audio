@@ -10,29 +10,19 @@ use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
+use audio_volume::{Amplitude, Decibels};
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 use plugin_host_lib::TestPluginHost;
 use std::cell::RefCell;
 
-// TODO - this whole file needs to be refactored
+static REFERENCE_AMPLITUDE: f32 = 0.1;
 
-#[derive(Clone, Copy, Debug, PartialEq, PartialOrd)]
+#[derive(Default, Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct VolumeInfo {
-    left: f32,
-    right: f32,
-    left_peak: f32,
-    right_peak: f32,
-}
-
-impl Default for VolumeInfo {
-    fn default() -> Self {
-        Self {
-            left: 0.0,
-            right: 0.0,
-            left_peak: 0.0,
-            right_peak: 0.0,
-        }
-    }
+    left: Amplitude,
+    right: Amplitude,
+    left_peak: Amplitude,
+    right_peak: Amplitude,
 }
 
 impl From<&Option<Shared<VolumeMeterProcessorHandle>>> for VolumeInfo {
@@ -40,10 +30,10 @@ impl From<&Option<Shared<VolumeMeterProcessorHandle>>> for VolumeInfo {
         match handle {
             None => VolumeInfo::default(),
             Some(handle) => VolumeInfo {
-                left: handle.volume_left.get(),
-                left_peak: handle.peak_left.get(),
-                right: handle.volume_right.get(),
-                right_peak: handle.peak_right.get(),
+                left: Amplitude::from(handle.volume_left.get()),
+                left_peak: Amplitude::from(handle.peak_left.get()),
+                right: Amplitude::from(handle.volume_right.get()),
+                right_peak: Amplitude::from(handle.peak_right.get()),
             },
         }
     }
@@ -52,20 +42,20 @@ impl From<&Option<Shared<VolumeMeterProcessorHandle>>> for VolumeInfo {
 #[derive(Clone, Debug)]
 pub enum Message {
     DragStart,
-    VolumeChange { delta: f32 },
+    VolumeChange { value: Decibels },
     DragEnd,
     None,
 }
 
 pub struct State {
-    volume: f32,
+    volume: Amplitude,
     mouse_state: MouseState,
 }
 
 impl Default for State {
     fn default() -> Self {
         Self {
-            volume: 1.0,
+            volume: Amplitude::from_amplitude(1.0),
             mouse_state: Default::default(),
         }
     }
@@ -115,10 +105,10 @@ impl VolumeMeter {
 
 pub fn update(message: Message, plugin_host: Arc<Mutex<TestPluginHost>>) -> Command<Message> {
     match message {
-        Message::VolumeChange { delta } => Command::perform(
+        Message::VolumeChange { value: delta } => Command::perform(
             async move {
                 let mut plugin_host = plugin_host.lock().unwrap();
-                plugin_host.set_volume(delta);
+                plugin_host.set_volume(delta.as_amplitude(REFERENCE_AMPLITUDE));
             },
             |_| Message::None,
         ),
@@ -144,11 +134,13 @@ impl Program<Message> for VolumeMeter {
                         let volume = VolumeMeter::y_perc_to_amplitude(relative_y)
                             .min(3.0)
                             .max(0.0);
-                        self.state.volume = volume;
+                        self.state.volume = volume.into();
                         log::info!("relative_y={} volume={}", relative_y, volume);
                         (
                             iced::canvas::event::Status::Captured,
-                            Some(Message::VolumeChange { delta: volume }),
+                            Some(Message::VolumeChange {
+                                value: self.state.volume.decibels(REFERENCE_AMPLITUDE),
+                            }),
                         )
                     } else {
                         ignore
@@ -257,20 +249,28 @@ impl VolumeMeter {
     /// Draw a rectangle for volume
     fn draw_volume_bar(
         frame: &mut Frame,
-        volume: f32,
-        peak_volume: f32,
+        volume: Amplitude,
+        peak_volume: Amplitude,
         bar_width: f32,
         offset_x: f32,
     ) {
         let max_ampl = db_to_render(2.0);
         let min_ampl = db_to_render(-144.0);
-        let bar_height = interpolate(volume, (min_ampl, max_ampl), (0.0, frame.height()));
-        let peak_bar_height = interpolate(peak_volume, (min_ampl, max_ampl), (0.0, frame.height()));
+        let bar_height = interpolate(
+            volume.as_amplitude(),
+            (min_ampl, max_ampl),
+            (0.0, frame.height()),
+        );
+        let peak_bar_height = interpolate(
+            peak_volume.as_amplitude(),
+            (min_ampl, max_ampl),
+            (0.0, frame.height()),
+        );
 
         log::debug!(
             "Drawing volume volume={} peak_volume={} / bar_height={} peak_bar_height={}",
-            volume,
-            peak_volume,
+            volume.as_amplitude(),
+            peak_volume.as_amplitude(),
             bar_height,
             peak_bar_height
         );
@@ -293,12 +293,12 @@ impl VolumeMeter {
     }
 
     /// Draw the volume handle
-    fn draw_volume_handle(frame: &mut Frame, offset_x: f32, volume: f32) {
+    fn draw_volume_handle(frame: &mut Frame, offset_x: f32, volume: Amplitude) {
         let mut handle_path = iced::canvas::path::Builder::new();
         let handle_width = 10.0;
 
         let start_x = offset_x - handle_width / 2.;
-        let tick_y = Self::amplitude_y_position(frame, volume)
+        let tick_y = Self::amplitude_y_position(frame, volume.as_amplitude())
             .max(0.0)
             .min(frame.height());
         let start_point = Point::new(start_x, tick_y);
@@ -334,9 +334,15 @@ impl VolumeMeter {
         frame.translate(Vector::new(-(bar_width * 2. + 5.), -(tick_y - 8.0)));
     }
 
-    // TODO - this is just wrong
     fn y_perc_to_amplitude(y_perc: f32) -> f32 {
-        y_perc
+        interpolate(
+            y_perc,
+            (0.0, 1.0),
+            (
+                Decibels::from_db(-144.0).as_amplitude(REFERENCE_AMPLITUDE),
+                Decibels::from_db(2.0).as_amplitude(REFERENCE_AMPLITUDE),
+            ),
+        )
     }
 
     fn amplitude_y_position(frame: &mut Frame, value: f32) -> f32 {
@@ -372,20 +378,6 @@ impl VolumeMeter {
 fn db_to_render(db: f32) -> f32 {
     let reference_amplitude = 1e-1;
     (10.0_f32).powf(db / 60.0) * reference_amplitude
-}
-
-/// Convert decibels to amplitude
-#[allow(dead_code)]
-fn db_to_amplitude(db: f32) -> f32 {
-    let reference_amplitude = 1e-10;
-    (10.0_f32).powf(db / 20.0) * reference_amplitude
-}
-
-/// Convert amplitude to decibels
-#[allow(dead_code)]
-fn amplitude_to_db(volume: f32) -> f32 {
-    let reference_amplitude = 1e-10;
-    20.0 * (volume / reference_amplitude).log10()
 }
 
 fn interpolate(value: f32, range_from: (f32, f32), range_to: (f32, f32)) -> f32 {
@@ -424,6 +416,7 @@ pub mod story {
             let random_volume = 0.06
                 * (0.1
                     + ((1.0 + (0.001 * self.start_time.elapsed().as_millis() as f32).sin()) / 2.0));
+            let random_volume = random_volume.into();
             self.volume_info.left = random_volume;
             self.volume_info.left_peak = random_volume * 1.1;
             self.volume_info.right = random_volume;
