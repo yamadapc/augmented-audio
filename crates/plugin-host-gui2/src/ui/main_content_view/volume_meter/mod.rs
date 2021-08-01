@@ -48,14 +48,14 @@ pub enum Message {
 }
 
 pub struct State {
-    volume: Amplitude,
+    volume: Decibels,
     mouse_state: MouseState,
 }
 
 impl Default for State {
     fn default() -> Self {
         Self {
-            volume: Amplitude::from_amplitude(1.0),
+            volume: Decibels::from_db(0.0),
             mouse_state: Default::default(),
         }
     }
@@ -87,6 +87,10 @@ impl VolumeMeter {
 
     pub fn set_volume_info(&mut self, volume_info: VolumeInfo) {
         self.volume_info = volume_info;
+    }
+
+    pub fn set_volume_handle(&mut self, value: Decibels) {
+        self.state.volume = value;
     }
 
     pub fn view(&mut self) -> Element<Message> {
@@ -131,15 +135,13 @@ impl Program<Message> for VolumeMeter {
                         let top_left_position = bounds.y;
                         let relative_y =
                             (bounds.height - (position.y - top_left_position)) / bounds.height;
-                        let volume = VolumeMeter::y_perc_to_amplitude(relative_y)
-                            .min(3.0)
-                            .max(0.0);
+                        let volume = VolumeMeter::y_perc_to_db(relative_y);
                         self.state.volume = volume.into();
-                        log::info!("relative_y={} volume={}", relative_y, volume);
+                        log::info!("relative_y={} volume={}", relative_y, volume.as_db());
                         (
                             iced::canvas::event::Status::Captured,
                             Some(Message::VolumeChange {
-                                value: self.state.volume.decibels(REFERENCE_AMPLITUDE),
+                                value: self.state.volume,
                             }),
                         )
                     } else {
@@ -241,7 +243,7 @@ impl VolumeMeter {
             // Marks
             let marks = [0.0, -12.0, -24.0, -36.0, -48.0, -60.0];
             for value in marks {
-                Self::draw_mark(frame, bar_width, offset_x, value);
+                Self::draw_mark(frame, bar_width, offset_x, value.into());
             }
         })
     }
@@ -293,12 +295,12 @@ impl VolumeMeter {
     }
 
     /// Draw the volume handle
-    fn draw_volume_handle(frame: &mut Frame, offset_x: f32, volume: Amplitude) {
+    fn draw_volume_handle(frame: &mut Frame, offset_x: f32, volume: Decibels) {
         let mut handle_path = iced::canvas::path::Builder::new();
         let handle_width = 10.0;
 
         let start_x = offset_x - handle_width / 2.;
-        let tick_y = Self::amplitude_y_position(frame, volume.as_amplitude())
+        let tick_y = Self::decibels_y_position(frame, volume)
             .max(0.0)
             .min(frame.height());
         let start_point = Point::new(start_x, tick_y);
@@ -315,8 +317,8 @@ impl VolumeMeter {
     }
 
     /// Draw a mark and text reference for the `value` decibels point.
-    fn draw_mark(frame: &mut Frame, bar_width: f32, offset_x: f32, value: f32) {
-        let text = format!("{:>4.0}", value);
+    fn draw_mark(frame: &mut Frame, bar_width: f32, offset_x: f32, value: Decibels) {
+        let text = format!("{:>4.0}", value.as_db());
         let tick_y = Self::decibels_y_position(frame, value);
         let mut tick_path = iced::canvas::path::Builder::new();
         tick_path.move_to(Point::new(offset_x, tick_y));
@@ -334,31 +336,21 @@ impl VolumeMeter {
         frame.translate(Vector::new(-(bar_width * 2. + 5.), -(tick_y - 8.0)));
     }
 
-    fn y_perc_to_amplitude(y_perc: f32) -> f32 {
-        interpolate(
-            y_perc,
-            (0.0, 1.0),
-            (
-                Decibels::from_db(-144.0).as_amplitude(REFERENCE_AMPLITUDE),
-                Decibels::from_db(2.0).as_amplitude(REFERENCE_AMPLITUDE),
-            ),
-        )
-    }
-
-    fn amplitude_y_position(frame: &mut Frame, value: f32) -> f32 {
-        // let max_ampl = db_to_render(2.0);
-        // let min_ampl = db_to_render(-144.0);
-        interpolate(value, (0.0, 1.0), (frame.height(), 0.0))
+    fn y_perc_to_db(y_perc: f32) -> Decibels {
+        let max_ampl = Self::max_amplitude();
+        let min_ampl = Self::min_amplitude();
+        let db = interpolate(y_perc, (0.0, 1.0), (min_ampl, max_ampl));
+        Decibels::from_db(render_to_db(db))
     }
 
     /// The Y coordinate for a given `value` in decibels. The return value is reversed.
     ///
     /// This is for rendering values between -Infinity decibels and `VolumeMeterProgram::max_amplitude`
     /// decibels.
-    fn decibels_y_position(frame: &mut Frame, value: f32) -> f32 {
+    fn decibels_y_position(frame: &mut Frame, value: Decibels) -> f32 {
         let max_ampl = Self::max_amplitude();
         let min_ampl = Self::min_amplitude();
-        let value = db_to_render(value);
+        let value = db_to_render(value.as_db());
         interpolate(value, (min_ampl, max_ampl), (frame.height(), 0.0))
     }
 
@@ -378,6 +370,11 @@ impl VolumeMeter {
 fn db_to_render(db: f32) -> f32 {
     let reference_amplitude = 1e-1;
     (10.0_f32).powf(db / 60.0) * reference_amplitude
+}
+
+fn render_to_db(render: f32) -> f32 {
+    let reference_amplitude = 1e-1;
+    60.0 * (render / reference_amplitude).log10()
 }
 
 fn interpolate(value: f32, range_from: (f32, f32), range_to: (f32, f32)) -> f32 {

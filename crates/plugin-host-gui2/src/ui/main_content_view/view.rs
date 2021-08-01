@@ -112,8 +112,8 @@ fn bottom_visualisation_content_container(
 ) -> Element<Message> {
     let BottomVisualisationViewModel {
         audio_chart,
-        volume_handle,
         volume_meter_state,
+        ..
     } = view_model;
     Container::new(
         Row::with_children(vec![
