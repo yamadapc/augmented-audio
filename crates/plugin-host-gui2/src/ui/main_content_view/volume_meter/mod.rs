@@ -137,7 +137,11 @@ impl Program<Message> for VolumeMeter {
                             (bounds.height - (position.y - top_left_position)) / bounds.height;
                         let volume = VolumeMeter::y_perc_to_db(relative_y);
                         self.state.volume = volume.into();
-                        log::info!("relative_y={} volume={}", relative_y, volume.as_db());
+                        log::debug!(
+                            "VolumeMeter::update relative_y={} volume={}",
+                            relative_y,
+                            volume.as_db()
+                        );
                         (
                             iced::canvas::event::Status::Captured,
                             Some(Message::VolumeChange {
