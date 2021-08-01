@@ -15,8 +15,6 @@ use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHan
 use plugin_host_lib::TestPluginHost;
 use std::cell::RefCell;
 
-static REFERENCE_AMPLITUDE: f32 = 0.1;
-
 #[derive(Default, Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct VolumeInfo {
     left: Amplitude,
@@ -112,7 +110,9 @@ pub fn update(message: Message, plugin_host: Arc<Mutex<TestPluginHost>>) -> Comm
         Message::VolumeChange { value: delta } => Command::perform(
             async move {
                 let mut plugin_host = plugin_host.lock().unwrap();
-                plugin_host.set_volume(delta.as_amplitude(REFERENCE_AMPLITUDE));
+                let volume = delta.as_amplitude(1.0);
+                log::info!("Setting volume: {}", volume);
+                plugin_host.set_volume(volume);
             },
             |_| Message::None,
         ),
