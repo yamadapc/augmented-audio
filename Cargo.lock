@@ -4629,6 +4629,7 @@ dependencies = [
  "audio-processor-iced-design-system",
  "audio-processor-iced-storybook",
  "audio-processor-traits",
+ "audio-volume",
  "baseview",
  "cocoa 0.24.0",
  "criterion",

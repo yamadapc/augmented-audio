@@ -6,6 +6,7 @@ pub type Float = f32;
 pub type Float = f64;
 
 /// Represents a reference-less dB value.
+#[derive(PartialEq, PartialOrd, Debug, Clone, Copy)]
 pub struct Decibels {
     decibels: Float,
 }
@@ -68,6 +69,7 @@ impl Mul for Decibels {
 }
 
 /// Represents an amplitude measurement or constant.
+#[derive(PartialEq, PartialOrd, Debug, Clone, Copy)]
 pub struct Amplitude {
     amplitude: Float,
 }
