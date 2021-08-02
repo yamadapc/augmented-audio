@@ -5,7 +5,8 @@ use basedrop::{Handle, Shared};
 
 use crate::LoopState::PlayOrOverdub;
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
+    MidiMessageLike,
 };
 use circular_data_structures::CircularVec;
 use num::FromPrimitive;
@@ -50,6 +51,8 @@ pub struct LooperProcessorHandle<SampleType> {
     is_recording: AtomicBool,
     is_playing_back: AtomicBool,
     playback_input: AtomicBool,
+    dry_volume: AtomicF32,
+    loop_volume: AtomicF32,
     pub queue: atomic_queue::Queue<SampleType>,
 }
 
@@ -65,6 +68,8 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
             playback_input: AtomicBool::new(true),
+            dry_volume: AtomicF32::new(1.0),
+            loop_volume: AtomicF32::new(1.0),
             queue: atomic_queue::Queue::new(QUEUE_CAPACITY),
         }
     }
@@ -91,9 +96,25 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
         }
     }
 
-    fn stop_recording(&self) {
+    pub fn is_recording(&self) -> bool {
+        self.is_recording.load(Ordering::Relaxed)
+    }
+
+    pub fn is_playing_back(&self) -> bool {
+        self.is_playing_back.load(Ordering::Relaxed)
+    }
+
+    pub fn stop_recording(&self) {
         self.is_recording.store(false, Ordering::Relaxed);
         self.is_playing_back.store(true, Ordering::Relaxed);
+    }
+
+    pub fn set_dry_volume(&self, value: f32) {
+        self.dry_volume.set(value);
+    }
+
+    pub fn set_loop_volume(&self, value: f32) {
+        self.loop_volume.set(value);
     }
 }
 
@@ -206,6 +227,8 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
             let should_playback_input = self.handle.playback_input.load(Ordering::Relaxed);
             let is_playing = self.handle.is_playing_back.load(Ordering::Relaxed);
             let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
+            let loop_volume = Self::SampleType::from(self.handle.loop_volume.get()).unwrap();
+            let dry_volume = Self::SampleType::from(self.handle.dry_volume.get()).unwrap();
             let looper_cursor = self.state.looper_cursor;
             let mut viz_input = BufferType::SampleType::zero();
 
@@ -222,7 +245,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
                 let looper_output = loop_channel[looper_cursor];
                 let looper_output = if is_playing { looper_output } else { zero };
 
-                let mixed_output = looper_output + dry_output;
+                let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
                 data.set(channel_num, sample_index, mixed_output);
 
                 // RECORDING SECTION:

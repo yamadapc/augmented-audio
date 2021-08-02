@@ -1,17 +1,14 @@
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
-use iced::canvas::{Fill, Frame, Stroke};
-use iced::{Point, Size};
+use iced::canvas::{Frame, Stroke};
+use iced::Point;
 use iced_baseview::canvas::{Cursor, Geometry, Program};
 use iced_baseview::{Canvas, Element, Length, Rectangle};
 use looper_processor::LooperProcessorHandle;
 use std::time::Duration;
 
 #[derive(Debug, Clone)]
-pub enum Message {
-    Tick,
-    None,
-}
+pub enum Message {}
 
 pub struct LooperVisualizationView {
     processor_handle: Shared<LooperProcessorHandle<f32>>,
@@ -34,11 +31,13 @@ impl LooperVisualizationView {
     }
 
     pub fn tick_visualization(&mut self) {
-        while let Some(sample) = self.processor_handle.queue.pop() {
-            self.audio_buffer[self.cursor] = sample;
-            self.cursor += 1;
-            if self.cursor >= self.audio_buffer.len() {
-                self.cursor = 0;
+        if self.processor_handle.is_recording() {
+            while let Some(sample) = self.processor_handle.queue.pop() {
+                self.audio_buffer[self.cursor] = sample;
+                self.cursor += 1;
+                if self.cursor >= self.audio_buffer.len() {
+                    self.cursor = 0;
+                }
             }
         }
     }
@@ -70,10 +69,12 @@ impl Program<()> for LooperVisualizationView {
             index += 10;
         }
 
-        frame.stroke(
-            &path.build(),
-            Stroke::default().with_color(Colors::active_border_color()),
-        );
+        let color = if self.processor_handle.is_recording() {
+            Colors::error()
+        } else {
+            Colors::active_border_color()
+        };
+        frame.stroke(&path.build(), Stroke::default().with_color(color));
 
         vec![frame.into_geometry()]
     }

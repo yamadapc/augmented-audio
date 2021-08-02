@@ -1,21 +1,15 @@
-use iced::{Align, Background, Color, Column, Container, Length, Row, Rule, Text};
+use std::time::Duration;
+
+use iced::{Column, Container, Length};
 
 use audio_garbage_collector::Shared;
-use audio_processor_iced_design_system::colors::Colors;
-use audio_processor_iced_design_system::container::HoverContainer;
-use audio_processor_iced_design_system::knob as audio_knob;
-use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
-use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container0;
 use audio_processor_iced_design_system::style::Container1;
-use iced_baseview::canvas::{Cursor, Geometry, Program};
-use iced_baseview::container::Style;
-use iced_baseview::{executor, Canvas, Rectangle, Subscription, WindowSubs};
+use iced_baseview::{executor, Subscription, WindowSubs};
 use iced_baseview::{Application, Command, Element};
 use looper_processor::LooperProcessorHandle;
 use looper_visualization::LooperVisualizationView;
-use std::time::Duration;
 use style::ContainerStyle;
 
 mod bottom_panel;
@@ -28,6 +22,7 @@ pub struct Flags {
 }
 
 pub struct LooperApplication {
+    #[allow(dead_code)]
     processor_handle: Shared<LooperProcessorHandle<f32>>,
     looper_visualization: LooperVisualizationView,
     knobs_view: bottom_panel::BottomPanelView,
@@ -49,8 +44,8 @@ impl Application for LooperApplication {
         (
             LooperApplication {
                 processor_handle: flags.processor_handle.clone(),
-                looper_visualization: LooperVisualizationView::new(flags.processor_handle),
-                knobs_view: bottom_panel::BottomPanelView::new(),
+                looper_visualization: LooperVisualizationView::new(flags.processor_handle.clone()),
+                knobs_view: bottom_panel::BottomPanelView::new(flags.processor_handle),
             },
             Command::none(),
         )

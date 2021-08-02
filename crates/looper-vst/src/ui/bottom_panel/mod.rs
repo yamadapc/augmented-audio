@@ -1,20 +1,20 @@
-use iced::{Align, Background, Button, Color, Column, Container, Length, Row, Rule, Text};
+use iced::{Align, Button, Column, Container, Length, Row, Text};
+use iced_audio::Normal;
 
-use audio_processor_iced_design_system::colors::Colors;
+use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::container::HoverContainer;
 use audio_processor_iced_design_system::knob as audio_knob;
 use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
-use iced_audio::Normal;
-use iced_baseview::canvas::{Cursor, Geometry, Program};
-use iced_baseview::container::Style;
-use iced_baseview::renderer::Renderer;
-use iced_baseview::{executor, Canvas, Rectangle};
-use iced_baseview::{Application, Command, Element};
+use iced_baseview::{Command, Element};
+use looper_processor::LooperProcessorHandle;
+
+static LOOP_VOLUME_ID: usize = 0;
 
 pub struct ParameterViewModel {
+    id: usize,
     name: String,
     suffix: String,
     value: f32,
@@ -26,7 +26,8 @@ impl ParameterViewModel {
         let knob_state = iced_audio::knob::State::new(Default::default());
 
         ParameterViewModel {
-            name: String::from("Dry/Wet"),
+            id: LOOP_VOLUME_ID,
+            name: String::from("Loop volume"),
             suffix: String::from(""),
             value: 0.0,
             knob_state,
@@ -41,15 +42,17 @@ pub enum Message {
 }
 
 pub struct BottomPanelView {
+    processor_handle: Shared<LooperProcessorHandle<f32>>,
     parameter_states: Vec<ParameterViewModel>,
     buttons_view: ButtonsView,
 }
 
 impl BottomPanelView {
-    pub fn new() -> Self {
+    pub fn new(processor_handle: Shared<LooperProcessorHandle<f32>>) -> Self {
         BottomPanelView {
+            processor_handle: processor_handle.clone(),
             parameter_states: vec![ParameterViewModel::new()],
-            buttons_view: ButtonsView::new(),
+            buttons_view: ButtonsView::new(processor_handle),
         }
     }
 
@@ -58,8 +61,14 @@ impl BottomPanelView {
             Message::KnobChange(id, normal) => {
                 let state = &mut self.parameter_states[id];
                 state.value = normal.as_f32();
+
+                if state.id == LOOP_VOLUME_ID {
+                    self.processor_handle.set_loop_volume(state.value);
+                }
             }
-            Message::RecordPressed => {}
+            Message::RecordPressed => {
+                self.processor_handle.toggle_recording();
+            }
         }
         Command::none()
     }
@@ -97,12 +106,14 @@ impl BottomPanelView {
 }
 
 struct ButtonsView {
+    processor_handle: Shared<LooperProcessorHandle<f32>>,
     record_state: iced::button::State,
 }
 
 impl ButtonsView {
-    pub fn new() -> Self {
+    pub fn new(processor_handle: Shared<LooperProcessorHandle<f32>>) -> Self {
         ButtonsView {
+            processor_handle,
             record_state: iced::button::State::default(),
         }
     }
@@ -110,7 +121,12 @@ impl ButtonsView {
 
 impl ButtonsView {
     pub fn view(&mut self) -> Element<Message> {
-        Button::new(&mut self.record_state, Text::new("Record"))
+        let text = if self.processor_handle.is_recording() {
+            Text::new("Stop recording")
+        } else {
+            Text::new("Record")
+        };
+        Button::new(&mut self.record_state, text)
             .on_press(Message::RecordPressed)
             .style(audio_style::Button)
             .into()
