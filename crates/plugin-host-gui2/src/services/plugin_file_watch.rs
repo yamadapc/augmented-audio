@@ -5,7 +5,6 @@ use std::time::Duration;
 
 use iced_futures::{futures, BoxStream};
 use notify::{watcher, DebouncedEvent, RecommendedWatcher, RecursiveMode, Watcher};
-use std::future::Future;
 
 const BUFFER_SIZE: usize = 10;
 
