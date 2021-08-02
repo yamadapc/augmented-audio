@@ -53,7 +53,7 @@ jobs:
       - name: Run clippy
         run: cargo clippy --no-default-features --features story --workspace --exclude skribo
       - name: Run check
-        run: cargo check --verbose --workspace
+        run: cargo check --verbose --workspace --no-default-features --features story
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
