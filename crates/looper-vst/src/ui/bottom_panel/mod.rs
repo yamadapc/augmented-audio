@@ -12,6 +12,7 @@ use iced_baseview::{Command, Element};
 use looper_processor::LooperProcessorHandle;
 
 static LOOP_VOLUME_ID: usize = 0;
+static DRY_VOLUME_ID: usize = 1;
 
 pub struct ParameterViewModel {
     id: usize,
@@ -22,14 +23,18 @@ pub struct ParameterViewModel {
 }
 
 impl ParameterViewModel {
-    pub fn new() -> Self {
-        let knob_state = iced_audio::knob::State::new(Default::default());
-
+    pub fn new(
+        id: usize,
+        name: String,
+        suffix: String,
+        value: f32,
+        knob_state: iced_audio::knob::State,
+    ) -> Self {
         ParameterViewModel {
-            id: LOOP_VOLUME_ID,
-            name: String::from("Loop volume"),
-            suffix: String::from(""),
-            value: 0.0,
+            id,
+            name,
+            suffix,
+            value,
             knob_state,
         }
     }
@@ -51,7 +56,22 @@ impl BottomPanelView {
     pub fn new(processor_handle: Shared<LooperProcessorHandle<f32>>) -> Self {
         BottomPanelView {
             processor_handle: processor_handle.clone(),
-            parameter_states: vec![ParameterViewModel::new()],
+            parameter_states: vec![
+                ParameterViewModel::new(
+                    LOOP_VOLUME_ID,
+                    String::from("Loop"),
+                    String::from(""),
+                    0.0,
+                    Default::default(),
+                ),
+                ParameterViewModel::new(
+                    DRY_VOLUME_ID,
+                    String::from("Dry"),
+                    String::from(""),
+                    0.0,
+                    Default::default(),
+                ),
+            ],
             buttons_view: ButtonsView::new(processor_handle),
         }
     }
