@@ -5,6 +5,21 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = [
+    "wgpu",
+    "iced/tokio",
+    "iced_baseview/tokio",
+]
+wgpu = [
+    "iced/wgpu",
+    "iced_baseview/wgpu",
+    "iced/canvas",
+    "iced_baseview/canvas",
+    "audio-processor-iced-design-system/wgpu",
+    "iced-editor/wgpu"
+]
+
 [dependencies]
 log = "^0.4.14"
 
@@ -14,10 +29,11 @@ dirs = "^3.0.2"
 thiserror = "^1.0.25"
 
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
-iced = { version = "^0.3.0", path = "../iced", features = ["glow", "glow_canvas", "tokio"] }
+iced = { version = "^0.3.0", path = "../iced" }
 iced_audio = { path = "../iced_audio" }
-iced_baseview = { path = "../iced-baseview", features = ["glow", "glow_canvas", "tokio"], default-features = false }
+iced_baseview = { path = "../iced-baseview" }
 iced-editor = { path = "../iced-editor" }
+
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-parameter-store = { path = "../audio-parameter-store" }
 audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }

@@ -18,7 +18,6 @@ use crate::ui::LooperApplication;
 mod ui;
 
 pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";
-pub static INDEX_HTML_RESOURCE: &str = "frontend/index.html";
 
 struct LoopiPlugin {
     garbage_collector: GarbageCollector,
