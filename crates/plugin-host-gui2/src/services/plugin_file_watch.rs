@@ -5,18 +5,20 @@ use std::time::Duration;
 
 use iced_futures::{futures, BoxStream};
 use notify::{watcher, DebouncedEvent, RecommendedWatcher, RecursiveMode, Watcher};
+use std::future::Future;
 
 const BUFFER_SIZE: usize = 10;
 
 pub enum State {
-    Ready {
-        file_path: PathBuf,
-    },
+    /// The file watch stream is ready to be created, but there's no notify `Watcher` running yet.
+    Ready { file_path: PathBuf },
+    /// Normal state, messages are received from `message_rx` and forwarded to the UI.
     Watching {
         watcher: RecommendedWatcher,
         thread: tokio::task::JoinHandle<()>,
         message_rx: tokio::sync::mpsc::Receiver<FileWatchMessage>,
     },
+    /// The stream is done, the watcher thread should stop on its own.
     Finished,
 }
 
@@ -135,46 +137,54 @@ where
             State::Ready {
                 file_path: self.target_path.clone(),
             },
-            move |mut state| async move {
-                match state {
-                    State::Ready { file_path } => {
-                        log::info!("Starting file-watcher over {}", file_path.to_str().unwrap());
-                        let (tx, rx) = channel();
-                        let (output_tx, output_rx) = tokio::sync::mpsc::channel(BUFFER_SIZE);
-                        if let Ok(mut watcher) = watcher(tx, Duration::from_secs(2)) {
-                            if let Err(err) =
-                                watcher.watch(file_path.clone(), RecursiveMode::NonRecursive)
-                            {
-                                log::error!("Failure to watch path {}", err);
-                                return Some((FileWatchMessage::Error, State::Finished));
-                            }
-
-                            let thread = tokio::task::spawn_blocking({
-                                let plugin_file = file_path;
-                                move || run_file_watch_loop(&plugin_file, rx, output_tx)
-                            });
-                            Some((
-                                FileWatchMessage::Started,
-                                State::Watching {
-                                    thread,
-                                    watcher,
-                                    message_rx: output_rx,
-                                },
-                            ))
-                        } else {
-                            Some((FileWatchMessage::Error, State::Finished))
-                        }
-                    }
-                    State::Watching {
-                        ref mut message_rx, ..
-                    } => message_rx.recv().await.map(|message| (message, state)),
-                    State::Finished => {
-                        let _: () = iced::futures::future::pending().await;
-                        None
-                    }
-                }
-            },
+            Self::tick_stream,
         ))
+    }
+}
+
+impl FileWatcher {
+    /// Called by iced on each tick of the stream. Will receive the stream state & try to emit a
+    /// message or future state.
+    async fn tick_stream(mut state: State) -> Option<(FileWatchMessage, State)> {
+        match state {
+            State::Ready { file_path } => FileWatcher::start_stream(file_path),
+            State::Watching {
+                ref mut message_rx, ..
+            } => message_rx.recv().await.map(|message| (message, state)),
+            State::Finished => {
+                let _: () = iced::futures::future::pending().await;
+                None
+            }
+        }
+    }
+
+    /// Start the file-watcher thread and update the state.
+    fn start_stream(file_path: PathBuf) -> Option<(FileWatchMessage, State)> {
+        log::info!("Starting file-watcher over {}", file_path.to_str().unwrap());
+        let (tx, rx) = channel();
+        let (output_tx, output_rx) = tokio::sync::mpsc::channel(BUFFER_SIZE);
+
+        if let Ok(mut watcher) = watcher(tx, Duration::from_secs(2)) {
+            if let Err(err) = watcher.watch(file_path.clone(), RecursiveMode::NonRecursive) {
+                log::error!("Failure to watch path {}", err);
+                return Some((FileWatchMessage::Error, State::Finished));
+            }
+
+            let thread = tokio::task::spawn_blocking({
+                let plugin_file = file_path;
+                move || run_file_watch_loop(&plugin_file, rx, output_tx)
+            });
+            Some((
+                FileWatchMessage::Started,
+                State::Watching {
+                    thread,
+                    watcher,
+                    message_rx: output_rx,
+                },
+            ))
+        } else {
+            Some((FileWatchMessage::Error, State::Finished))
+        }
     }
 }
 
