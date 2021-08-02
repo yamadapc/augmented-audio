@@ -5,7 +5,8 @@ mod macos;
 
 pub use common::PluginWindowHandle;
 #[cfg(target_os = "macos")]
-pub use macos::{close_window, open_plugin_window};
+pub use macos::{close_window, float_window, open_plugin_window};
+
 #[cfg(not(target_os = "macos"))]
 use vst::editor::Editor;
 
@@ -22,5 +23,10 @@ pub fn open_plugin_window(
 pub fn close_window(
     raw_window_handle: raw_window_handle::RawWindowHandle,
 ) -> Option<iced::Rectangle> {
+    todo!("Not implemented")
+}
+
+#[cfg(not(target_os = "macos"))]
+pub fn float_window(handle: &raw_window_handle::RawWindowHandle) {
     todo!("Not implemented")
 }

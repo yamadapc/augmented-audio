@@ -5,6 +5,7 @@ pub struct View {
     input_file_path_button_state: iced::button::State,
     audio_plugin_path_button_state: iced::button::State,
     plugin_open_button: iced::button::State,
+    plugin_float_button: iced::button::State,
     reload_plugin_button: iced::button::State,
     input_file: Option<String>,
     audio_plugin_path: Option<String>,
@@ -16,6 +17,7 @@ pub enum Message {
     OpenAudioPluginFilePathPicker,
     ReloadPlugin,
     OpenPluginWindow,
+    FloatPluginWindow,
     SetInputFile(String),
     SetAudioPlugin(String),
 }
@@ -26,6 +28,7 @@ impl View {
             input_file_path_button_state: iced::button::State::new(),
             audio_plugin_path_button_state: iced::button::State::new(),
             plugin_open_button: iced::button::State::new(),
+            plugin_float_button: iced::button::State::new(),
             reload_plugin_button: iced::button::State::new(),
             input_file,
             audio_plugin_path,
@@ -88,6 +91,12 @@ impl View {
                 Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
                     .style(audio_processor_iced_design_system::style::Button)
                     .on_press(Message::OpenPluginWindow)
+                    .into(),
+            );
+            buttons_row.push(
+                Button::new(&mut self.plugin_float_button, Text::new("Float editor"))
+                    .style(audio_processor_iced_design_system::style::Button)
+                    .on_press(Message::FloatPluginWindow)
                     .into(),
             );
         }

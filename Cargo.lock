@@ -2987,7 +2987,6 @@ dependencies = [
  "iced_graphics",
  "iced_native",
  "iced_winit",
- "log",
 ]
 
 [[package]]

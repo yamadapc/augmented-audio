@@ -99,3 +99,12 @@ unsafe fn get_window_frame(ns_window: *mut Object) -> Rectangle {
         Size::new(size.width as f32, size.height as f32),
     )
 }
+
+pub fn float_window(handle: &RawWindowHandle) {
+    if let RawWindowHandle::MacOS(MacOSHandle { ns_window, .. }) = handle {
+        unsafe {
+            let window = *ns_window as id;
+            window.setLevel_(3);
+        }
+    }
+}
