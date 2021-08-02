@@ -94,6 +94,19 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
         self.is_playing_back.store(false, Ordering::Relaxed);
     }
 
+    pub fn play(&self) {
+        self.is_playing_back.store(true, Ordering::Relaxed);
+    }
+
+    pub fn toggle_playback(&self) {
+        let is_playing_back = self.is_playing_back.load(Ordering::Relaxed);
+        if is_playing_back {
+            self.stop();
+        } else {
+            self.play();
+        }
+    }
+
     pub fn toggle_recording(&self) {
         let is_recording = self.is_recording.load(Ordering::Relaxed);
         if is_recording {

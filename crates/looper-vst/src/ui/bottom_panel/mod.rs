@@ -84,7 +84,7 @@ impl BottomPanelView {
                 self.processor_handle.clear();
             }
             Message::StopPressed => {
-                self.processor_handle.stop();
+                self.processor_handle.toggle_playback();
             }
         }
         Command::none()
@@ -142,13 +142,19 @@ impl ButtonsView {
 
 impl ButtonsView {
     pub fn view(&mut self) -> Element<Message> {
-        let text = if self.processor_handle.is_recording() {
-            Text::new("Stop recording")
+        let record_text = if self.processor_handle.is_recording() {
+            "Stop recording"
         } else {
-            Text::new("Record")
+            "Record"
         };
+        let stop_text = if self.processor_handle.is_playing_back() {
+            "Stop"
+        } else {
+            "Play"
+        };
+
         Row::with_children(vec![
-            Button::new(&mut self.record_state, text)
+            Button::new(&mut self.record_state, Text::new(record_text))
                 .on_press(Message::RecordPressed)
                 .style(audio_style::Button)
                 .into(),
@@ -156,7 +162,7 @@ impl ButtonsView {
                 .on_press(Message::ClearPressed)
                 .style(audio_style::Button)
                 .into(),
-            Button::new(&mut self.stop_state, Text::new("Stop"))
+            Button::new(&mut self.stop_state, Text::new(stop_text))
                 .on_press(Message::StopPressed)
                 .style(audio_style::Button)
                 .into(),
