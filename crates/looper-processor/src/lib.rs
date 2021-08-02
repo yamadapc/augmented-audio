@@ -51,6 +51,7 @@ pub struct LooperProcessorHandle<SampleType> {
     is_recording: AtomicBool,
     is_playing_back: AtomicBool,
     playback_input: AtomicBool,
+    should_clear: AtomicBool,
     dry_volume: AtomicF32,
     loop_volume: AtomicF32,
     pub queue: atomic_queue::Queue<SampleType>,
@@ -68,6 +69,7 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
             playback_input: AtomicBool::new(true),
+            should_clear: AtomicBool::new(false),
             dry_volume: AtomicF32::new(1.0),
             loop_volume: AtomicF32::new(1.0),
             queue: atomic_queue::Queue::new(QUEUE_CAPACITY),
@@ -80,6 +82,11 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
 
     pub fn start_recording(&self) {
         self.is_recording.store(true, Ordering::Relaxed);
+    }
+
+    pub fn clear(&self) {
+        self.stop();
+        self.should_clear.store(true, Ordering::Relaxed);
     }
 
     pub fn stop(&self) {
@@ -154,6 +161,10 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
         }
     }
 
+    fn clear(&mut self) {
+        self.loop_state = LoopState::Empty;
+    }
+
     fn on_tick(&mut self, is_recording: bool, looper_cursor: usize) {
         match self.loop_state {
             // Loop has ended
@@ -224,6 +235,12 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
     ) {
         let zero = BufferType::SampleType::zero();
         for sample_index in 0..data.num_samples() {
+            let should_clear = self.handle.should_clear.load(Ordering::Relaxed);
+            if should_clear {
+                self.handle.should_clear.store(false, Ordering::Relaxed);
+                self.state.clear();
+            }
+
             let should_playback_input = self.handle.playback_input.load(Ordering::Relaxed);
             let is_playing = self.handle.is_playing_back.load(Ordering::Relaxed);
             let is_recording = self.handle.is_recording.load(Ordering::Relaxed);

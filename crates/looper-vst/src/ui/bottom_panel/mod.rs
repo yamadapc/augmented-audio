@@ -1,5 +1,5 @@
 use iced::{Align, Button, Column, Container, Length, Row, Text};
-use iced_audio::Normal;
+use iced_audio::{Normal, NormalParam};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::container::HoverContainer;
@@ -23,19 +23,13 @@ pub struct ParameterViewModel {
 }
 
 impl ParameterViewModel {
-    pub fn new(
-        id: usize,
-        name: String,
-        suffix: String,
-        value: f32,
-        knob_state: iced_audio::knob::State,
-    ) -> Self {
+    pub fn new(id: usize, name: String, suffix: String, value: f32) -> Self {
         ParameterViewModel {
             id,
             name,
             suffix,
             value,
-            knob_state,
+            knob_state: iced_audio::knob::State::new(NormalParam::from(value)),
         }
     }
 }
@@ -44,6 +38,8 @@ impl ParameterViewModel {
 pub enum Message {
     KnobChange(usize, Normal),
     RecordPressed,
+    ClearPressed,
+    StopPressed,
 }
 
 pub struct BottomPanelView {
@@ -61,16 +57,9 @@ impl BottomPanelView {
                     LOOP_VOLUME_ID,
                     String::from("Loop"),
                     String::from(""),
-                    0.0,
-                    Default::default(),
+                    1.0,
                 ),
-                ParameterViewModel::new(
-                    DRY_VOLUME_ID,
-                    String::from("Dry"),
-                    String::from(""),
-                    0.0,
-                    Default::default(),
-                ),
+                ParameterViewModel::new(DRY_VOLUME_ID, String::from("Dry"), String::from(""), 1.0),
             ],
             buttons_view: ButtonsView::new(processor_handle),
         }
@@ -84,10 +73,18 @@ impl BottomPanelView {
 
                 if state.id == LOOP_VOLUME_ID {
                     self.processor_handle.set_loop_volume(state.value);
+                } else if state.id == DRY_VOLUME_ID {
+                    self.processor_handle.set_dry_volume(state.value);
                 }
             }
             Message::RecordPressed => {
                 self.processor_handle.toggle_recording();
+            }
+            Message::ClearPressed => {
+                self.processor_handle.clear();
+            }
+            Message::StopPressed => {
+                self.processor_handle.stop();
             }
         }
         Command::none()
@@ -128,6 +125,8 @@ impl BottomPanelView {
 struct ButtonsView {
     processor_handle: Shared<LooperProcessorHandle<f32>>,
     record_state: iced::button::State,
+    clear_state: iced::button::State,
+    stop_state: iced::button::State,
 }
 
 impl ButtonsView {
@@ -135,6 +134,8 @@ impl ButtonsView {
         ButtonsView {
             processor_handle,
             record_state: iced::button::State::default(),
+            clear_state: iced::button::State::default(),
+            stop_state: iced::button::State::default(),
         }
     }
 }
@@ -146,10 +147,21 @@ impl ButtonsView {
         } else {
             Text::new("Record")
         };
-        Button::new(&mut self.record_state, text)
-            .on_press(Message::RecordPressed)
-            .style(audio_style::Button)
-            .into()
+        Row::with_children(vec![
+            Button::new(&mut self.record_state, text)
+                .on_press(Message::RecordPressed)
+                .style(audio_style::Button)
+                .into(),
+            Button::new(&mut self.clear_state, Text::new("Clear"))
+                .on_press(Message::ClearPressed)
+                .style(audio_style::Button)
+                .into(),
+            Button::new(&mut self.stop_state, Text::new("Stop"))
+                .on_press(Message::StopPressed)
+                .style(audio_style::Button)
+                .into(),
+        ])
+        .into()
     }
 }
 
