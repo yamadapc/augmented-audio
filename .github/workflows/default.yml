@@ -51,7 +51,7 @@ jobs:
             target/
           key: ${{ runner.os }}-lint-cache-${{ hashFiles('**/Cargo.lock') }}
       - name: Run clippy
-        run: cargo clippy --verbose --workspace --no-default-features --features story
+        run: cargo clippy --no-default-features --features story --workspace --exclude skribo
       - name: Run check
         run: cargo check --verbose --workspace
   build-rust:

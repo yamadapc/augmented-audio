@@ -150,7 +150,7 @@ where
                             }
 
                             let thread = tokio::task::spawn_blocking({
-                                let plugin_file = PathBuf::from(file_path);
+                                let plugin_file = file_path;
                                 move || run_file_watch_loop(&plugin_file, rx, output_tx)
                             });
                             Some((

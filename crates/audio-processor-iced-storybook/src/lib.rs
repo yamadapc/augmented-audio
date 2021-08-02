@@ -138,7 +138,7 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
                             .rev()
                             .take(7)
                             .rev()
-                            .map(|m| m.clone())
+                            .cloned()
                             .collect();
                     }
                 }

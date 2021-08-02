@@ -2,10 +2,8 @@
 
 use iced::{Button, Column, Container, Element, Length, Row, Rule, Text};
 
-use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
-use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
 
 use crate::ui::audio_io_settings;
 use crate::ui::main_content_view::audio_chart::AudioChart;
@@ -26,7 +24,6 @@ pub struct MainContentViewModel<'a> {
     pub audio_io_settings: &'a mut audio_io_settings::Controller,
     pub plugin_content: &'a mut View,
     pub audio_chart: &'a Option<AudioChart>,
-    pub volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
     pub volume_meter_state: &'a mut volume_meter::VolumeMeter,
     pub transport_controls: &'a mut TransportControlsView,
     pub status_message: &'a StatusBar,
@@ -39,7 +36,6 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         audio_io_settings,
         plugin_content,
         audio_chart,
-        volume_handle,
         volume_meter_state,
         transport_controls,
         status_message,
@@ -74,7 +70,6 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
         bottom_visualisation_content_container(BottomVisualisationViewModel {
             audio_chart,
             volume_meter_state,
-            volume_handle,
         }),
         Rule::horizontal(1)
             .style(audio_processor_iced_design_system::style::Rule)
@@ -92,7 +87,6 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
 struct BottomVisualisationViewModel<'a> {
     audio_chart: &'a Option<audio_chart::AudioChart>,
     volume_meter_state: &'a mut volume_meter::VolumeMeter,
-    volume_handle: &'a Option<Shared<VolumeMeterProcessorHandle>>,
 }
 
 #[allow(dead_code)]
@@ -113,7 +107,6 @@ fn bottom_visualisation_content_container(
     let BottomVisualisationViewModel {
         audio_chart,
         volume_meter_state,
-        ..
     } = view_model;
     Container::new(
         Row::with_children(vec![

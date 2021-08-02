@@ -61,7 +61,7 @@ impl From<iced::container::Style> for ContainerStylesheet {
 impl iced::container::StyleSheet for ContainerStylesheet {
     fn style(&self) -> iced::container::Style {
         iced::container::Style {
-            text_color: self.text_color.clone(),
+            text_color: self.text_color,
             background: self.background.clone(),
             border_radius: self.border_radius,
             border_width: self.border_width,

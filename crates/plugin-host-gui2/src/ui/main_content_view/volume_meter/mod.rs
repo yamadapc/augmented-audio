@@ -72,6 +72,12 @@ pub struct VolumeMeter {
     right_cache: Cache,
 }
 
+impl Default for VolumeMeter {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl VolumeMeter {
     pub fn new() -> Self {
         Self {
@@ -136,7 +142,7 @@ impl Program<Message> for VolumeMeter {
                         let relative_y =
                             (bounds.height - (position.y - top_left_position)) / bounds.height;
                         let volume = VolumeMeter::y_perc_to_db(relative_y);
-                        self.state.volume = volume.into();
+                        self.state.volume = volume;
                         log::debug!(
                             "VolumeMeter::update relative_y={} volume={}",
                             relative_y,

@@ -40,11 +40,11 @@ enum ClosePluginWindowResult {
 #[derive(Debug, Error)]
 enum ReloadPluginError {
     #[error("Failed to join tokio blocking thread")]
-    JoinError(#[from] tokio::task::JoinError),
+    Join(#[from] tokio::task::JoinError),
     #[error(transparent)]
-    AudioHostError(#[from] AudioHostPluginLoadError),
+    PluginLoad(#[from] AudioHostPluginLoadError),
     #[error("No plugin loaded, configure the plugin path")]
-    MissingPluginError,
+    MissingHost,
 }
 
 pub struct MainContentView {
@@ -248,14 +248,14 @@ impl MainContentView {
                 let plugin_file_path = host
                     .plugin_file_path()
                     .clone()
-                    .ok_or(ReloadPluginError::MissingPluginError)?;
+                    .ok_or(ReloadPluginError::MissingHost)?;
                 host.load_plugin(&plugin_file_path)?;
                 Ok(())
             })
             .await;
             match result {
                 Ok(result) => result,
-                Err(err) => Err(ReloadPluginError::JoinError(err)),
+                Err(err) => Err(ReloadPluginError::Join(err)),
             }
         };
 
@@ -272,7 +272,7 @@ impl MainContentView {
     }
 
     // TODO - this is decoding on the main thread, but it should be on a background thread
-    fn set_input_file(&mut self, input_file: &String) -> Command<Message> {
+    fn set_input_file(&mut self, input_file: &str) -> Command<Message> {
         let result = self
             .plugin_host
             .lock()
@@ -281,7 +281,7 @@ impl MainContentView {
 
         self.reset_handles();
         result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
-        self.host_state.audio_input_file_path = Some(input_file.clone());
+        self.host_state.audio_input_file_path = Some(input_file.to_string());
         self.host_options_service
             .store(&self.host_state)
             .unwrap_or_else(|err| {
@@ -290,12 +290,12 @@ impl MainContentView {
         Command::none()
     }
 
-    fn set_audio_plugin_path(&mut self, path: &String) -> Command<Message> {
+    fn set_audio_plugin_path(&mut self, path: &str) -> Command<Message> {
+        let path = path.to_string();
         self.reset_handles();
         if let ClosePluginWindowResult::ClosedPlugin { window_frame } = self.close_plugin_window() {
             self.previous_plugin_window_frame = Some(window_frame);
         }
-        let path = path.clone();
 
         self.status_message =
             StatusBar::new("Updating persisted state", status_bar::State::Warning);
@@ -411,7 +411,6 @@ impl MainContentView {
         let audio_io_settings = &mut self.audio_io_settings;
         let plugin_content = &mut self.plugin_content;
         let audio_chart = &self.audio_chart;
-        let volume_handle = &self.volume_handle;
         let transport_controls = &mut self.transport_controls;
         let status_message = &self.status_message;
         let volume_meter_state = &mut self.volume_meter_state;
@@ -422,12 +421,11 @@ impl MainContentView {
             audio_io_settings,
             plugin_content,
             audio_chart,
-            volume_handle,
             volume_meter_state,
             transport_controls,
             status_message,
-            audio_file_model,
             start_stop_button_state,
+            audio_file_model,
         })
     }
 }
