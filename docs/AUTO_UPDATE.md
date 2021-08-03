@@ -1,6 +1,8 @@
 # Auto-update
 This file documents the auto-update process and components.
 
+> This is WIP & only partially implemented. The releases will be uploaded to S3.
+
 ## Overview
 We'd like the applications to provide prompts for users telling them they may update the software.
 

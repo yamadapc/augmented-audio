@@ -508,6 +508,20 @@ name = "audio-volume"
 version = "0.1.0"
 
 [[package]]
+name = "augmented-dev-cli"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "clap 3.0.0-beta.2",
+ "cmd_lib",
+ "log",
+ "serde",
+ "serde_json",
+ "toml",
+ "wisual-logger",
+]
+
+[[package]]
 name = "autocfg"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"

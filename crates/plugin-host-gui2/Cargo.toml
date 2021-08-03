@@ -1,5 +1,6 @@
 [package]
 name = "plugin-host-gui2"
+description = "A VST plugin host for development"
 version = "0.1.0"
 edition = "2018"
 
@@ -49,3 +50,7 @@ story = []
 [[bench]]
 name = "plugin_host_gui_criterion"
 harness = false
+
+[package.metadata.app.macos]
+type = "app-template"
+template-path = "./macos-app/Plugin Host.app"

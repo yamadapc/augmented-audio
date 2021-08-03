@@ -29,7 +29,11 @@ impl Application for App {
     type Flags = ();
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
-        log::info!("plugin-host-gui2: Application is booting");
+        let version = utils::get_version();
+        log::info!(
+            "plugin-host-gui2: Application is booting - VERSION={}",
+            version
+        );
         let mut plugin_host = plugin_host_lib::TestPluginHost::default();
         let start_result = plugin_host.start().map_err(|err| {
             log::error!("Failed to start host: {:?}", err);
