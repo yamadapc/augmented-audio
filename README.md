@@ -19,6 +19,9 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
+## Binary downloads
+* [See releases to download binaries](https://github.com/yamadapc/augmented-audio/releases)
+
 - - -
 
 <!--ts-->
