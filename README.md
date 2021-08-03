@@ -22,6 +22,9 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 ## Binary downloads
 * [See releases to download binaries](https://github.com/yamadapc/augmented-audio/releases)
 
+## Blog posts
+* [Initial 'Test Plugin Host' post](https://beijaflor.io/blog/07-2021/rust-audio-experiments-2/)
+
 - - -
 
 <!--ts-->
