@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
-use toml::map::Map;
-use toml::Value;
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ReleaseNotes {
+    pub text: Option<String>,
+    pub html: Option<String>,
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -8,6 +12,9 @@ pub struct ReleaseJson {
     pub name: String,
     pub key: String,
     pub created_at: String,
+    pub release_notes: Option<ReleaseNotes>,
+    pub file_download_url: String,
+    pub user_download_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -19,7 +26,9 @@ pub enum MacosAppConfig {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct AppConfig {
+    pub public_name: String,
     pub macos: Option<MacosAppConfig>,
 }
 

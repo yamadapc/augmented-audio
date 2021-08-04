@@ -39,7 +39,7 @@ interface Release {
     /**
      * An URL from which the user may manually view & download the release
      */
-    userDownloadUrl: string,
+    userDownloadUrl: null | string,
 }
 ```
 

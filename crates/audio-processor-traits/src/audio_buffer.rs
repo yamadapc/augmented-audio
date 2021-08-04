@@ -289,6 +289,7 @@ pub mod vst {
         #[deprecated]
         pub fn with_buffer(buffer: &'a mut ::vst::buffer::AudioBuffer<'a, SampleType>) -> Self {
             let (inputs, outputs) = buffer.split();
+            #[allow(deprecated)]
             Self::new(inputs, outputs)
         }
     }

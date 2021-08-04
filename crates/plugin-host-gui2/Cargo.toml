@@ -51,6 +51,9 @@ story = []
 name = "plugin_host_gui_criterion"
 harness = false
 
+[package.metadata.app]
+public-name = "Plugin Host"
+
 [package.metadata.app.macos]
 type = "app-template"
 template-path = "./macos-app/Plugin Host.app"

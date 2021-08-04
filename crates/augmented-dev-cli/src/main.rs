@@ -1,6 +1,6 @@
 use chrono::prelude::*;
 use std::fs::read_to_string;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use cmd_lib::run_cmd;
 
@@ -18,7 +18,7 @@ fn get_cli_version() -> String {
     )
 }
 
-fn get_package_version(pkg_version: &str) -> String {
+fn get_release_key(pkg_version: &str) -> String {
     let output = std::process::Command::new("git")
         .args(&["rev-parse", "--short", "HEAD"])
         .output()
@@ -32,30 +32,92 @@ fn run_build_release(crate_path: &str) {
     let input_cargo_file = read_to_string(config_path).expect("Failed to read toml file");
     let cargo_toml: CargoToml =
         toml::from_str(&input_cargo_file).expect("Failed to parse toml file");
-    let package_version = get_package_version(&cargo_toml.package.version);
+    let release_key = get_release_key(&cargo_toml.package.version);
+    let target_path = get_target_path(&cargo_toml.package.name, &release_key);
+    let upload_path = get_upload_path(&release_key);
+    let public_path = get_public_path(
+        &release_key,
+        &cargo_toml
+            .package
+            .metadata
+            .as_ref()
+            .unwrap()
+            .app
+            .as_ref()
+            .unwrap()
+            .public_name,
+    );
 
-    log::info!("Read Cargo.toml:\n{:#?}", cargo_toml);
-    log::info!("Forcing a build of \"{}\"", cargo_toml.package.name);
-
-    run_cmd!(cd ${crate_path}; cargo build --release).unwrap();
     let release_json = ReleaseJson {
         name: cargo_toml.package.name.clone(),
-        key: package_version.clone(),
+        key: release_key,
         created_at: Utc::now().to_rfc3339(),
+        release_notes: None,
+        file_download_url: public_path,
+        user_download_url: None,
     };
     log::info!("Release:\n{:#?}", release_json);
 
+    // Force the package to be built
+    log::info!("Read Cargo.toml:\n{:#?}", cargo_toml);
+    log::info!("Forcing a build of \"{}\"", cargo_toml.package.name);
+    run_cmd!(cd ${crate_path}; cargo build --release).unwrap();
+
     if let Some(local_package) = create_local_package(crate_path, &cargo_toml, &release_json) {
+        sign_app(&local_package);
         let artifact_path = compress_release(&cargo_toml, local_package);
         upload_release(&release_json, artifact_path);
     }
 }
 
-fn upload_release(release_json: &ReleaseJson, artifact_path: String) {}
+fn sign_app(local_package: &LocalPackage) {
+    log::info!("Code-signing the .app package");
+    let certificate = std::env::var("SIGN_CERTIFICATE").unwrap();
+    let app_path = &local_package.target_app_path;
+    run_cmd!(codesign --force --sign "${certificate}" ${app_path}).unwrap();
+}
+
+fn upload_release(release_json: &ReleaseJson, artifact_path: String) {
+    let bucket_path = get_upload_path(&release_json.key);
+    log::info!(
+        "Uploading to S3 release={} path={} bucket_path={}",
+        release_json.key,
+        artifact_path,
+        bucket_path
+    );
+    run_cmd!(aws s3 cp --recursive ${artifact_path} ${bucket_path}).unwrap()
+}
+
+fn get_upload_path(release_key: &str) -> String {
+    let bucket = std::env::var("AWS_S3_BUCKET").unwrap();
+    let bucket_path = format!("{}{}", bucket, release_key);
+    bucket_path
+}
+
+fn get_public_path(release_key: &str, public_name: &str) -> String {
+    let public_path = std::env::var("PUBLIC_PATH").unwrap();
+    let dmg_name = format!("{}.dmg", public_name);
+    let artifact_path = format!(
+        "{}{}/{}",
+        public_path,
+        release_key,
+        urlencoding::encode(&dmg_name)
+    );
+    artifact_path
+}
 
 fn compress_release(cargo_toml: &CargoToml, local_package: LocalPackage) -> String {
     let path = local_package.path;
-    let volume_name = cargo_toml.package.name.clone();
+    let volume_name = cargo_toml
+        .package
+        .metadata
+        .as_ref()
+        .unwrap()
+        .app
+        .as_ref()
+        .unwrap()
+        .public_name
+        .clone();
     let dmg_name = format!("{}.dmg", volume_name);
     let target_path = {
         let path = Path::new(&*path);
@@ -75,11 +137,17 @@ fn compress_release(cargo_toml: &CargoToml, local_package: LocalPackage) -> Stri
     )
     .unwrap();
 
-    target_path
+    Path::new(&*path)
+        .parent()
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .to_string()
 }
 
 struct LocalPackage {
     path: String,
+    target_app_path: PathBuf,
 }
 
 fn create_local_package(
@@ -99,8 +167,7 @@ fn create_local_package(
         match macos_config {
             MacosAppConfig::AppTemplate { template_path } => {
                 let template_path = Path::new(crate_path).join(template_path);
-                let base_target_path =
-                    Path::new("./target/apps/macos/").join(cargo_toml.package.name.clone());
+                let base_target_path = get_target_path(&cargo_toml.package.name, &release_json.key);
 
                 log::info!(
                     "Copying template into `{}` directory",
@@ -121,12 +188,21 @@ fn create_local_package(
 
                 Some(LocalPackage {
                     path: base_target_path.to_str().unwrap().to_string(),
+                    target_app_path,
                 })
             }
         }
     } else {
         None
     }
+}
+
+fn get_target_path(package_name: &str, release_key: &str) -> PathBuf {
+    let base_target_path = Path::new("./target/apps/macos/")
+        .join(package_name)
+        .join(release_key)
+        .join("artifacts");
+    base_target_path
 }
 
 fn main() {
