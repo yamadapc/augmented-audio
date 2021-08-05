@@ -80,6 +80,7 @@ pub enum Message {
     ReloadedPlugin(bool, StatusBar),
     VolumeMeter(volume_meter::Message),
     StartStopButtonClicked,
+    Exit,
     None,
 }
 
@@ -181,6 +182,10 @@ impl MainContentView {
             }
             Message::VolumeMeter(message) => {
                 volume_meter::update(message, self.plugin_host.clone()).map(Message::VolumeMeter)
+            }
+            Message::Exit => {
+                let _ = self.close_plugin_window();
+                Command::none()
             }
         }
     }
@@ -427,6 +432,12 @@ impl MainContentView {
             start_stop_button_state,
             audio_file_model,
         })
+    }
+}
+
+impl Drop for MainContentView {
+    fn drop(&mut self) {
+        let _ = self.close_plugin_window();
     }
 }
 
