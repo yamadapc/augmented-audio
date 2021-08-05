@@ -12,7 +12,7 @@ use vst::editor::Editor;
 
 #[cfg(not(target_os = "macos"))]
 pub fn open_plugin_window(
-    mut editor: Box<dyn Editor>,
+    editor: &mut Box<dyn Editor>,
     size: (i32, i32),
     position: Option<iced::Point>,
 ) -> PluginWindowHandle {

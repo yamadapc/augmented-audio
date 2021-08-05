@@ -1,22 +1,19 @@
 use std::ffi::c_void;
 
-use cocoa::appkit::NSBackingStoreType::NSBackingStoreBuffered;
 use cocoa::appkit::{NSView, NSWindow, NSWindowStyleMask};
+use cocoa::appkit::NSBackingStoreType::NSBackingStoreBuffered;
 use cocoa::base::{id, nil, NO};
 use cocoa::foundation::{NSAutoreleasePool, NSPoint, NSRect, NSSize, NSString};
+use iced::{Point, Rectangle, Size};
+use objc::runtime::Object;
 use raw_window_handle::macos::MacOSHandle;
 use raw_window_handle::RawWindowHandle;
 use vst::editor::Editor;
 
-use crate::ui::plugin_editor_window::PluginWindowHandle;
-use iced::{Point, Rectangle, Size};
-use objc::runtime::Object;
+use super::PluginWindowHandle;
 
-// TODO: I believe this is leaking memory due to no autorelease.
-// The issue I had with autorelease is it caused a crash when the window was closed for some reason.
-// The crash was use after free within the iced runloop but may be unrelated to iced.
 pub fn open_plugin_window(
-    mut editor: Box<dyn Editor>,
+    editor: &mut Box<dyn Editor>,
     size: (i32, i32),
     position: Option<Point>,
 ) -> PluginWindowHandle {
@@ -62,10 +59,7 @@ pub fn open_plugin_window(
         }
     }
 
-    PluginWindowHandle {
-        editor,
-        raw_window_handle,
-    }
+    PluginWindowHandle { raw_window_handle }
 }
 
 pub fn close_window(handle: RawWindowHandle) -> Option<Rectangle> {

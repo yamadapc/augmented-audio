@@ -1,11 +1,9 @@
-use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use derivative::Derivative;
 use iced::{Command, Element, Rectangle, Subscription};
 use thiserror::Error;
-use vst::{host::PluginInstance, plugin::Plugin};
 
 use audio_garbage_collector::Shared;
 use plugin_host_lib::{
@@ -20,22 +18,18 @@ use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::services::plugin_file_watch::FileWatcher;
 use crate::ui::audio_io_settings;
 use crate::ui::main_content_view::audio_file_chart::AudioFileModel;
+use crate::ui::main_content_view::plugin_editor_window::ClosePluginWindowResult;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
-use crate::ui::plugin_editor_window::{close_window, open_plugin_window, PluginWindowHandle};
 
 mod audio_chart;
 mod audio_file_chart;
 pub mod plugin_content;
+pub mod plugin_editor_window;
 pub mod status_bar;
 pub mod transport_controls;
 mod view;
 pub mod volume_meter;
-
-enum ClosePluginWindowResult {
-    NoWindow,
-    ClosedPlugin { window_frame: Rectangle },
-}
 
 #[derive(Debug, Error)]
 enum ReloadPluginError {
@@ -55,8 +49,7 @@ pub struct MainContentView {
     transport_controls: TransportControlsView,
     volume_meter_state: volume_meter::VolumeMeter,
     error: Option<Box<dyn std::error::Error>>,
-    editor_is_floating: bool,
-    plugin_window_handle: Option<PluginWindowHandle>,
+    editor_controller: plugin_editor_window::EditorController,
     host_state: HostState,
     status_message: StatusBar,
     // This should not be optional & it might break if the host restarts processors for some reason
@@ -101,6 +94,7 @@ impl MainContentView {
             host_state.plugin_path.clone(),
         );
         let audio_io_settings = audio_io_settings::Controller::new(audio_io_service);
+        let editor_controller = plugin_editor_window::EditorController::new(plugin_host.clone());
 
         (
             MainContentView {
@@ -111,8 +105,7 @@ impl MainContentView {
                 plugin_content,
                 transport_controls: TransportControlsView::new(),
                 error: None,
-                editor_is_floating: false,
-                plugin_window_handle: None,
+                editor_controller,
                 status_message: StatusBar::new("Starting audio thread", status_bar::State::Warning),
                 volume_handle: None,
                 rms_processor_handle: None,
@@ -241,14 +234,7 @@ impl MainContentView {
     }
 
     fn reload_plugin(&mut self) -> Command<Message> {
-        let did_close = if let ClosePluginWindowResult::ClosedPlugin { window_frame } =
-            self.close_plugin_window()
-        {
-            self.previous_plugin_window_frame = Some(window_frame);
-            true
-        } else {
-            false
-        };
+        let did_close = self.editor_controller.on_reload();
 
         let host = self.plugin_host.clone();
         let load_future = async move {
@@ -366,55 +352,16 @@ impl MainContentView {
     }
 
     fn close_plugin_window(&mut self) -> ClosePluginWindowResult {
-        if let Some(mut plugin_window_handle) = self.plugin_window_handle.take() {
-            log::info!("Closing plugin editor");
-            plugin_window_handle.editor.close();
-            let frame = close_window(plugin_window_handle.raw_window_handle);
-            frame
-                .map(|window_frame| ClosePluginWindowResult::ClosedPlugin { window_frame })
-                .unwrap_or(ClosePluginWindowResult::NoWindow)
-        } else {
-            log::warn!("Close requested, but there's no plugin window handle");
-            ClosePluginWindowResult::NoWindow
-        }
+        self.editor_controller.close_plugin_window()
     }
 
     fn open_plugin_window(&mut self) -> Command<Message> {
-        if self.plugin_window_handle.is_some() {
-            log::warn!("Refusing to open 2 plugin editors");
-        } else {
-            log::info!("Opening plugin editor");
-            if let Some(instance) = self.plugin_host.lock().unwrap().plugin_instance() {
-                log::info!("Found plugin instance");
-                let instance_ptr = instance.deref() as *const PluginInstance as *mut PluginInstance;
-                if let Some(editor) = unsafe { instance_ptr.as_mut() }.unwrap().get_editor() {
-                    log::info!("Found plugin editor");
-                    let size = editor.size();
-                    let window = open_plugin_window(
-                        editor,
-                        size,
-                        self.previous_plugin_window_frame
-                            .map(|frame| frame.position()),
-                    );
-                    log::info!("Opened editor window");
-                    self.plugin_window_handle = Some(window);
-                } else {
-                    log::error!("No editor returned");
-                }
-            }
-
-            if self.editor_is_floating {
-                let _ = self.float_plugin_window();
-            }
-        }
+        self.editor_controller.open_plugin_window();
         Command::none()
     }
 
     fn float_plugin_window(&mut self) -> Command<Message> {
-        self.editor_is_floating = true;
-        if let Some(handle) = &mut self.plugin_window_handle {
-            handle.float();
-        }
+        self.editor_controller.float_plugin_window();
         Command::none()
     }
 
