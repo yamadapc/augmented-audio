@@ -117,7 +117,7 @@ pub fn update(message: Message, plugin_host: Arc<Mutex<TestPluginHost>>) -> Comm
             async move {
                 let mut plugin_host = plugin_host.lock().unwrap();
                 let volume = delta.as_amplitude(1.0);
-                log::debug!("Setting volume: {}", volume);
+                log::trace!("Setting volume: {}", volume);
                 plugin_host.set_volume(volume);
             },
             |_| Message::None,
@@ -143,7 +143,7 @@ impl Program<Message> for VolumeMeter {
                             (bounds.height - (position.y - top_left_position)) / bounds.height;
                         let volume = VolumeMeter::y_perc_to_db(relative_y);
                         self.state.volume = volume;
-                        log::debug!(
+                        log::trace!(
                             "VolumeMeter::update relative_y={} volume={}",
                             relative_y,
                             volume.as_db()
@@ -279,7 +279,7 @@ impl VolumeMeter {
             (0.0, frame.height()),
         );
 
-        log::debug!(
+        log::trace!(
             "Drawing volume volume={} peak_volume={} / bar_height={} peak_bar_height={}",
             volume.as_amplitude(),
             peak_volume.as_amplitude(),

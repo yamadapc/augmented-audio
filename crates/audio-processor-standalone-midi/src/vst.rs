@@ -68,12 +68,12 @@ impl MidiVSTConverter {
 
         for (i, message) in midi_message_buffer.iter().enumerate() {
             if i >= self.capacity {
-                log::debug!("MIDI Message was dropped");
+                log::trace!("MIDI Message was dropped");
                 break;
             }
 
             unsafe {
-                log::debug!("Forwarding message {:?}", message.message_data);
+                log::trace!("Forwarding message {:?}", message.message_data);
                 let event = MidiEvent {
                     event_type: vst::api::EventType::Midi,
                     byte_size: std::mem::size_of::<MidiEvent>() as i32,

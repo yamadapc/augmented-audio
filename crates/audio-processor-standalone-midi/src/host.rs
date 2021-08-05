@@ -121,7 +121,7 @@ impl MidiCallbackContext {
 
 fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext) {
     if bytes.len() > 3 {
-        log::debug!(
+        log::trace!(
             "Received a 3+ bytes long MIDI message. It'll be ignored. {:?}",
             bytes
         );
