@@ -128,7 +128,7 @@ fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext
         return;
     }
 
-    log::debug!("Handling midi message: {:?}", bytes);
+    log::trace!("Handling midi message: {:?}", bytes);
     let mut message_data: [u8; 3] = [0, 0, 0];
     for (i, b) in bytes.iter().enumerate() {
         message_data[i] = *b;
