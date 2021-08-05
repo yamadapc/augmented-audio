@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use derivative::Derivative;
-use iced::{Command, Element, Rectangle, Subscription};
+use iced::{Command, Element, Subscription};
 use thiserror::Error;
 
 use audio_garbage_collector::Shared;
@@ -18,7 +18,6 @@ use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::services::plugin_file_watch::FileWatcher;
 use crate::ui::audio_io_settings;
 use crate::ui::main_content_view::audio_file_chart::AudioFileModel;
-use crate::ui::main_content_view::plugin_editor_window::ClosePluginWindowResult;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
 
@@ -48,7 +47,6 @@ pub struct MainContentView {
     plugin_content: plugin_content::View,
     transport_controls: TransportControlsView,
     volume_meter_state: volume_meter::VolumeMeter,
-    error: Option<Box<dyn std::error::Error>>,
     editor_controller: plugin_editor_window::EditorController,
     host_state: HostState,
     status_message: StatusBar,
@@ -56,8 +54,6 @@ pub struct MainContentView {
     volume_handle: Option<Shared<VolumeMeterProcessorHandle>>,
     rms_processor_handle: Option<Shared<RunningRMSProcessorHandle>>,
     audio_chart: Option<audio_chart::AudioChart>,
-    /// Cached window frame from a previous editor open
-    previous_plugin_window_frame: Option<Rectangle>,
     audio_file_model: audio_file_chart::AudioFileModel,
     start_stop_button_state: view::StartStopViewModel,
 }
@@ -73,6 +69,7 @@ pub enum Message {
     ReloadedPlugin(bool, StatusBar),
     VolumeMeter(volume_meter::Message),
     StartStopButtonClicked,
+    SetAudioFilePathResponse(String),
     Exit,
     None,
 }
@@ -104,13 +101,11 @@ impl MainContentView {
                 host_state,
                 plugin_content,
                 transport_controls: TransportControlsView::new(),
-                error: None,
                 editor_controller,
                 status_message: StatusBar::new("Starting audio thread", status_bar::State::Warning),
                 volume_handle: None,
                 rms_processor_handle: None,
                 audio_chart: None,
-                previous_plugin_window_frame: None,
                 audio_file_model: AudioFileModel::empty(),
                 volume_meter_state: volume_meter::VolumeMeter::new(),
                 start_stop_button_state: view::StartStopViewModel {
@@ -150,10 +145,9 @@ impl MainContentView {
                 self.reset_handles();
                 self.status_message = status_bar;
                 if did_close {
-                    self.open_plugin_window()
-                } else {
-                    Command::none()
+                    self.editor_controller.open_plugin_window();
                 }
+                Command::none()
             }
             Message::StartStopButtonClicked => {
                 self.start_stop_button_state.is_started = !self.start_stop_button_state.is_started;
@@ -177,7 +171,11 @@ impl MainContentView {
                 volume_meter::update(message, self.plugin_host.clone()).map(Message::VolumeMeter)
             }
             Message::Exit => {
-                let _ = self.close_plugin_window();
+                let _ = self.editor_controller.close_plugin_window();
+                Command::none()
+            }
+            Message::SetAudioFilePathResponse(input_file) => {
+                self.on_set_input_file_response(input_file);
                 Command::none()
             }
         }
@@ -192,6 +190,86 @@ impl MainContentView {
         }
     }
 
+    pub fn view(&mut self) -> Element<Message> {
+        let audio_io_settings = &mut self.audio_io_settings;
+        let plugin_content = &mut self.plugin_content;
+        let audio_chart = &self.audio_chart;
+        let transport_controls = &mut self.transport_controls;
+        let status_message = &self.status_message;
+        let volume_meter_state = &mut self.volume_meter_state;
+        let audio_file_model = &self.audio_file_model;
+        let start_stop_button_state = &mut self.start_stop_button_state;
+
+        view::main_content_view(view::MainContentViewModel {
+            audio_io_settings,
+            plugin_content,
+            audio_chart,
+            volume_meter_state,
+            transport_controls,
+            status_message,
+            start_stop_button_state,
+            audio_file_model,
+        })
+    }
+}
+
+// Child update event dispatch
+impl MainContentView {
+    fn update_status_message(&mut self, message: StatusBar) -> Command<Message> {
+        self.status_message = message;
+        Command::none()
+    }
+
+    fn update_plugin_content(&mut self, msg: plugin_content::Message) -> Command<Message> {
+        let command = match &msg {
+            plugin_content::Message::SetInputFile(input_file) => self.set_input_file(input_file),
+            plugin_content::Message::OpenPluginWindow => {
+                self.editor_controller.open_plugin_window();
+                Command::none()
+            }
+            plugin_content::Message::ClosePluginWindow => {
+                let _ = self.editor_controller.close_plugin_window();
+                Command::none()
+            }
+            plugin_content::Message::FloatPluginWindow => {
+                self.editor_controller.float_plugin_window();
+                Command::none()
+            }
+            plugin_content::Message::SetAudioPlugin(path) => self.set_audio_plugin_path(path),
+            plugin_content::Message::ReloadPlugin => self.reload_plugin(),
+            _ => Command::none(),
+        };
+        let children = self.plugin_content.update(msg).map(Message::PluginContent);
+        Command::batch(vec![command, children])
+    }
+
+    fn update_transport_controls(
+        &mut self,
+        message: transport_controls::Message,
+    ) -> Command<Message> {
+        let host = self.plugin_host.lock().unwrap();
+        match message {
+            transport_controls::Message::Play => {
+                host.play();
+            }
+            transport_controls::Message::Pause => {
+                host.pause();
+            }
+            transport_controls::Message::Stop => {
+                host.stop();
+            }
+            _ => (),
+        }
+        let children = self
+            .transport_controls
+            .update(message)
+            .map(Message::TransportControls);
+        Command::batch(vec![children])
+    }
+}
+
+// Current mechanism for getting handles to audio processors
+impl MainContentView {
     fn poll_for_host_handles(&mut self) {
         if self.volume_handle.is_none() {
             if let Ok(Some(volume_handle)) = self.plugin_host.try_lock().map(|h| h.volume_handle())
@@ -211,28 +289,51 @@ impl MainContentView {
         }
     }
 
-    fn update_status_message(&mut self, message: StatusBar) -> Command<Message> {
-        self.status_message = message;
-        Command::none()
+    fn reset_handles(&mut self) {
+        self.audio_chart = None;
+        self.rms_processor_handle = None;
+        self.volume_handle = None;
+    }
+}
+
+// Input file event controller
+impl MainContentView {
+    fn set_input_file(&mut self, input_file: &str) -> Command<Message> {
+        let plugin_host = self.plugin_host.clone();
+        Command::perform(
+            MainContentView::handle_set_input_file_path(plugin_host, input_file.to_string()),
+            move |result| match result {
+                Ok(input_file) => Message::SetAudioFilePathResponse(input_file),
+                Err(err) => {
+                    Message::SetStatus(StatusBar::new(format!("{}", err), status_bar::State::Error))
+                }
+            },
+        )
     }
 
-    fn update_plugin_content(&mut self, msg: plugin_content::Message) -> Command<Message> {
-        let command = match &msg {
-            plugin_content::Message::SetInputFile(input_file) => self.set_input_file(input_file),
-            plugin_content::Message::OpenPluginWindow => self.open_plugin_window(),
-            plugin_content::Message::ClosePluginWindow => {
-                let _ = self.close_plugin_window();
-                Command::none()
-            }
-            plugin_content::Message::FloatPluginWindow => self.float_plugin_window(),
-            plugin_content::Message::SetAudioPlugin(path) => self.set_audio_plugin_path(path),
-            plugin_content::Message::ReloadPlugin => self.reload_plugin(),
-            _ => Command::none(),
-        };
-        let children = self.plugin_content.update(msg).map(Message::PluginContent);
-        Command::batch(vec![command, children])
+    async fn handle_set_input_file_path(
+        plugin_host: Arc<Mutex<TestPluginHost>>,
+        input_file: String,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        let path = PathBuf::from(&input_file);
+        tokio::task::spawn_blocking(move || plugin_host.lock().unwrap().set_audio_file_path(path))
+            .await??;
+        Ok(input_file)
     }
 
+    fn on_set_input_file_response(&mut self, input_file: String) {
+        self.reset_handles();
+        self.host_state.audio_input_file_path = Some(input_file);
+        self.host_options_service
+            .store(&self.host_state)
+            .unwrap_or_else(|err| {
+                log::error!("Failed to store {:?}", err);
+            });
+    }
+}
+
+// Audio plugin file event controller
+impl MainContentView {
     fn reload_plugin(&mut self) -> Command<Message> {
         let did_close = self.editor_controller.on_reload();
 
@@ -266,31 +367,10 @@ impl MainContentView {
         })
     }
 
-    // TODO - this is decoding on the main thread, but it should be on a background thread
-    fn set_input_file(&mut self, input_file: &str) -> Command<Message> {
-        let result = self
-            .plugin_host
-            .lock()
-            .unwrap()
-            .set_audio_file_path(PathBuf::from(input_file));
-
-        self.reset_handles();
-        result.unwrap_or_else(|err| self.error = Some(Box::new(err)));
-        self.host_state.audio_input_file_path = Some(input_file.to_string());
-        self.host_options_service
-            .store(&self.host_state)
-            .unwrap_or_else(|err| {
-                log::error!("Failed to store {:?}", err);
-            });
-        Command::none()
-    }
-
     fn set_audio_plugin_path(&mut self, path: &str) -> Command<Message> {
         let path = path.to_string();
         self.reset_handles();
-        if let ClosePluginWindowResult::ClosedPlugin { window_frame } = self.close_plugin_window() {
-            self.previous_plugin_window_frame = Some(window_frame);
-        }
+        let _ = self.editor_controller.close_plugin_window();
 
         self.status_message =
             StatusBar::new("Updating persisted state", status_bar::State::Warning);
@@ -320,77 +400,11 @@ impl MainContentView {
             },
         )
     }
-
-    fn reset_handles(&mut self) {
-        self.audio_chart = None;
-        self.rms_processor_handle = None;
-        self.volume_handle = None;
-    }
-
-    fn update_transport_controls(
-        &mut self,
-        message: transport_controls::Message,
-    ) -> Command<Message> {
-        let host = self.plugin_host.lock().unwrap();
-        match message {
-            transport_controls::Message::Play => {
-                host.play();
-            }
-            transport_controls::Message::Pause => {
-                host.pause();
-            }
-            transport_controls::Message::Stop => {
-                host.stop();
-            }
-            _ => (),
-        }
-        let children = self
-            .transport_controls
-            .update(message)
-            .map(Message::TransportControls);
-        Command::batch(vec![children])
-    }
-
-    fn close_plugin_window(&mut self) -> ClosePluginWindowResult {
-        self.editor_controller.close_plugin_window()
-    }
-
-    fn open_plugin_window(&mut self) -> Command<Message> {
-        self.editor_controller.open_plugin_window();
-        Command::none()
-    }
-
-    fn float_plugin_window(&mut self) -> Command<Message> {
-        self.editor_controller.float_plugin_window();
-        Command::none()
-    }
-
-    pub fn view(&mut self) -> Element<Message> {
-        let audio_io_settings = &mut self.audio_io_settings;
-        let plugin_content = &mut self.plugin_content;
-        let audio_chart = &self.audio_chart;
-        let transport_controls = &mut self.transport_controls;
-        let status_message = &self.status_message;
-        let volume_meter_state = &mut self.volume_meter_state;
-        let audio_file_model = &self.audio_file_model;
-        let start_stop_button_state = &mut self.start_stop_button_state;
-
-        view::main_content_view(view::MainContentViewModel {
-            audio_io_settings,
-            plugin_content,
-            audio_chart,
-            volume_meter_state,
-            transport_controls,
-            status_message,
-            start_stop_button_state,
-            audio_file_model,
-        })
-    }
 }
 
 impl Drop for MainContentView {
     fn drop(&mut self) {
-        let _ = self.close_plugin_window();
+        let _ = self.editor_controller.close_plugin_window();
     }
 }
 

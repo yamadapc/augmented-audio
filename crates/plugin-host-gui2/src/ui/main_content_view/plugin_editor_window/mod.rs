@@ -73,9 +73,15 @@ impl EditorController {
             }
             log::info!("Closing plugin window");
             let frame = view::close_window(window_handle.raw_window_handle);
-            frame
-                .map(|window_frame| ClosePluginWindowResult::ClosedPlugin { window_frame })
-                .unwrap_or(ClosePluginWindowResult::NoWindow)
+            match frame {
+                Some(frame) => {
+                    self.previous_plugin_window_frame = Some(frame);
+                    ClosePluginWindowResult::ClosedPlugin {
+                        window_frame: frame,
+                    }
+                }
+                None => ClosePluginWindowResult::NoWindow,
+            }
         } else {
             log::warn!("Close requested, but there's no plugin window handle");
             ClosePluginWindowResult::NoWindow
@@ -91,12 +97,10 @@ impl EditorController {
 
     pub fn on_reload(&mut self) -> bool {
         self.editor = None;
-        if let ClosePluginWindowResult::ClosedPlugin { window_frame } = self.close_plugin_window() {
-            self.previous_plugin_window_frame = Some(window_frame);
-            true
-        } else {
-            false
-        }
+        matches!(
+            self.close_plugin_window(),
+            ClosePluginWindowResult::ClosedPlugin { .. }
+        )
     }
 
     fn editor(&mut self) -> Option<&mut Box<dyn Editor>> {
