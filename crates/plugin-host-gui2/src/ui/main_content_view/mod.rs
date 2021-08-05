@@ -145,7 +145,7 @@ impl MainContentView {
                 self.reset_handles();
                 self.status_message = status_bar;
                 if did_close {
-                    self.editor_controller.open_plugin_window();
+                    self.editor_controller.open_window();
                 }
                 Command::none()
             }
@@ -171,7 +171,7 @@ impl MainContentView {
                 volume_meter::update(message, self.plugin_host.clone()).map(Message::VolumeMeter)
             }
             Message::Exit => {
-                let _ = self.editor_controller.close_plugin_window();
+                let _ = self.editor_controller.close_window();
                 Command::none()
             }
             Message::SetAudioFilePathResponse(input_file) => {
@@ -224,15 +224,15 @@ impl MainContentView {
         let command = match &msg {
             plugin_content::Message::SetInputFile(input_file) => self.set_input_file(input_file),
             plugin_content::Message::OpenPluginWindow => {
-                self.editor_controller.open_plugin_window();
+                self.editor_controller.open_window();
                 Command::none()
             }
             plugin_content::Message::ClosePluginWindow => {
-                let _ = self.editor_controller.close_plugin_window();
+                let _ = self.editor_controller.close_window();
                 Command::none()
             }
             plugin_content::Message::FloatPluginWindow => {
-                self.editor_controller.float_plugin_window();
+                self.editor_controller.float_window();
                 Command::none()
             }
             plugin_content::Message::SetAudioPlugin(path) => self.set_audio_plugin_path(path),
@@ -370,7 +370,7 @@ impl MainContentView {
     fn set_audio_plugin_path(&mut self, path: &str) -> Command<Message> {
         let path = path.to_string();
         self.reset_handles();
-        let _ = self.editor_controller.close_plugin_window();
+        let _ = self.editor_controller.close_window();
 
         self.status_message =
             StatusBar::new("Updating persisted state", status_bar::State::Warning);
@@ -404,7 +404,7 @@ impl MainContentView {
 
 impl Drop for MainContentView {
     fn drop(&mut self) {
-        let _ = self.editor_controller.close_plugin_window();
+        let _ = self.editor_controller.close_window();
     }
 }
 

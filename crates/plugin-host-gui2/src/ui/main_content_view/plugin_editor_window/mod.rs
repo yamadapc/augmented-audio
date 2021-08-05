@@ -35,10 +35,8 @@ impl EditorController {
             previous_plugin_window_frame: None,
         }
     }
-}
 
-impl EditorController {
-    pub fn open_plugin_window(&mut self) {
+    pub fn open_window(&mut self) {
         if self.window_handle.is_some() {
             log::warn!("Refusing to open 2 plugin editors");
             return;
@@ -61,11 +59,11 @@ impl EditorController {
         }
 
         if self.editor_is_floating {
-            let _ = self.float_plugin_window();
+            let _ = self.float_window();
         }
     }
 
-    pub fn close_plugin_window(&mut self) -> ClosePluginWindowResult {
+    pub fn close_window(&mut self) -> ClosePluginWindowResult {
         if let Some(window_handle) = self.window_handle.take() {
             log::info!("Closing plugin editor");
             if let Some(editor) = &mut self.editor {
@@ -88,7 +86,7 @@ impl EditorController {
         }
     }
 
-    pub fn float_plugin_window(&mut self) {
+    pub fn float_window(&mut self) {
         self.editor_is_floating = true;
         if let Some(handle) = &mut self.window_handle {
             handle.float();
@@ -98,7 +96,7 @@ impl EditorController {
     pub fn on_reload(&mut self) -> bool {
         self.editor = None;
         matches!(
-            self.close_plugin_window(),
+            self.close_window(),
             ClosePluginWindowResult::ClosedPlugin { .. }
         )
     }
