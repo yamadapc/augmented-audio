@@ -7,6 +7,7 @@ pub struct View {
     plugin_open_button: iced::button::State,
     plugin_float_button: iced::button::State,
     reload_plugin_button: iced::button::State,
+    plugin_is_open: bool,
     input_file: Option<String>,
     audio_plugin_path: Option<String>,
 }
@@ -17,6 +18,7 @@ pub enum Message {
     OpenAudioPluginFilePathPicker,
     ReloadPlugin,
     OpenPluginWindow,
+    ClosePluginWindow,
     FloatPluginWindow,
     SetInputFile(String),
     SetAudioPlugin(String),
@@ -30,6 +32,7 @@ impl View {
             plugin_open_button: iced::button::State::new(),
             plugin_float_button: iced::button::State::new(),
             reload_plugin_button: iced::button::State::new(),
+            plugin_is_open: false,
             input_file,
             audio_plugin_path,
         }
@@ -61,6 +64,8 @@ impl View {
             Message::SetAudioPlugin(path) => {
                 self.audio_plugin_path = Some(path);
             }
+            Message::OpenPluginWindow => self.plugin_is_open = true,
+            Message::ClosePluginWindow => self.plugin_is_open = false,
             _ => {}
         }
         Command::none()
@@ -87,12 +92,21 @@ impl View {
         let mut buttons_row = vec![];
         #[cfg(target_os = "macos")]
         {
-            buttons_row.push(
-                Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
-                    .style(audio_processor_iced_design_system::style::Button)
-                    .on_press(Message::OpenPluginWindow)
-                    .into(),
-            );
+            if !self.plugin_is_open {
+                buttons_row.push(
+                    Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
+                        .style(audio_processor_iced_design_system::style::Button)
+                        .on_press(Message::OpenPluginWindow)
+                        .into(),
+                );
+            } else {
+                buttons_row.push(
+                    Button::new(&mut self.plugin_open_button, Text::new("Close editor"))
+                        .style(audio_processor_iced_design_system::style::Button)
+                        .on_press(Message::ClosePluginWindow)
+                        .into(),
+                );
+            }
             buttons_row.push(
                 Button::new(&mut self.plugin_float_button, Text::new("Float editor"))
                     .style(audio_processor_iced_design_system::style::Button)
