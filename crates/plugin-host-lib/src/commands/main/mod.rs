@@ -43,7 +43,7 @@ pub fn run_test(run_options: RunOptions) {
     }
 
     let (audio_settings, audio_thread_options) = get_audio_options(&run_options);
-    let mut host = TestPluginHost::new(audio_settings, audio_thread_options);
+    let mut host = TestPluginHost::new(audio_settings, audio_thread_options, false);
     host.set_mono_input(run_options.use_mono_input());
     run_load_audio_file(&run_options, &mut host);
     run_initialize_plugin(&run_options, &mut host);

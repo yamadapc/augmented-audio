@@ -117,7 +117,7 @@ pub fn update(message: Message, plugin_host: Arc<Mutex<TestPluginHost>>) -> Comm
             async move {
                 let mut plugin_host = plugin_host.lock().unwrap();
                 let volume = delta.as_amplitude(1.0);
-                log::info!("Setting volume: {}", volume);
+                log::debug!("Setting volume: {}", volume);
                 plugin_host.set_volume(volume);
             },
             |_| Message::None,

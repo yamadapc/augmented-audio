@@ -4,6 +4,9 @@ use derive_more::From;
 use iced::{Application, Clipboard, Command, Container, Element, Length, Menu, Subscription};
 
 use audio_processor_iced_design_system as design_system;
+use plugin_host_lib::audio_io::audio_thread::options::AudioThreadOptions;
+use plugin_host_lib::audio_io::audio_thread::AudioThread;
+use plugin_host_lib::TestPluginHost;
 use ui::main_content_view;
 
 pub mod executor;
@@ -34,7 +37,11 @@ impl Application for App {
             "plugin-host-gui2: Application is booting - VERSION={}",
             version
         );
-        let mut plugin_host = plugin_host_lib::TestPluginHost::default();
+        let mut plugin_host = {
+            let audio_settings = AudioThread::default_settings().unwrap();
+            let audio_thread_options = AudioThreadOptions::default();
+            TestPluginHost::new(audio_settings, audio_thread_options, true)
+        };
         let start_result = plugin_host.start().map_err(|err| {
             log::error!("Failed to start host: {:?}", err);
             err

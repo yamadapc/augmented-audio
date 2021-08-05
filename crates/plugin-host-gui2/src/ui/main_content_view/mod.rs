@@ -227,6 +227,10 @@ impl MainContentView {
         let command = match &msg {
             plugin_content::Message::SetInputFile(input_file) => self.set_input_file(input_file),
             plugin_content::Message::OpenPluginWindow => self.open_plugin_window(),
+            plugin_content::Message::ClosePluginWindow => {
+                let _ = self.close_plugin_window();
+                Command::none()
+            }
             plugin_content::Message::FloatPluginWindow => self.float_plugin_window(),
             plugin_content::Message::SetAudioPlugin(path) => self.set_audio_plugin_path(path),
             plugin_content::Message::ReloadPlugin => self.reload_plugin(),
@@ -394,6 +398,8 @@ impl MainContentView {
                     );
                     log::info!("Opened editor window");
                     self.plugin_window_handle = Some(window);
+                } else {
+                    log::error!("No editor returned");
                 }
             }
 

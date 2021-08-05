@@ -62,13 +62,14 @@ pub struct TestPluginHost {
     garbage_collector: GarbageCollector,
     mono_input: Option<usize>,
     temporary_load_path: Option<String>,
+    start_paused: bool,
 }
 
 impl Default for TestPluginHost {
     fn default() -> Self {
         let audio_settings = AudioThread::default_settings().unwrap();
         let audio_thread_options = AudioThreadOptions::default();
-        TestPluginHost::new(audio_settings, audio_thread_options)
+        TestPluginHost::new(audio_settings, audio_thread_options, false)
     }
 }
 
@@ -76,6 +77,7 @@ impl TestPluginHost {
     pub fn new(
         audio_settings: AudioProcessorSettings,
         audio_thread_options: AudioThreadOptions,
+        start_paused: bool,
     ) -> Self {
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
         let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
@@ -95,6 +97,7 @@ impl TestPluginHost {
             garbage_collector,
             mono_input: None,
             temporary_load_path: None,
+            start_paused,
         }
     }
 
@@ -193,6 +196,11 @@ impl TestPluginHost {
             self.mono_input,
         );
         test_host_processor.prepare(*audio_settings);
+
+        if self.processor.is_none() && self.start_paused {
+            test_host_processor.pause();
+        }
+
         let test_host_processor = AudioThreadProcessor::Active(test_host_processor);
         let test_host_processor =
             SharedProcessor::new(self.garbage_collector.handle(), test_host_processor);
