@@ -532,7 +532,10 @@ dependencies = [
 name = "augmented-ui"
 version = "0.1.0"
 dependencies = [
+ "cocoa 0.24.0",
+ "lazy_static",
  "log",
+ "objc",
  "stretch",
  "wisual-logger",
  "xml-rs",
