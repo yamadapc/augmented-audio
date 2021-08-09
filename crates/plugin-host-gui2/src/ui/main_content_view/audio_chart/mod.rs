@@ -1,16 +1,19 @@
+use std::cell::RefCell;
+use std::time::SystemTime;
+
 use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
-use iced::{canvas, Canvas, Element, Length, Point, Rectangle};
+use iced::{canvas, Canvas, Element, Length, Point, Rectangle, Size};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 use audio_processor_traits::AudioBuffer;
 use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessorHandle;
-use std::time::SystemTime;
 
 pub type Message = ();
 
 pub struct AudioChart {
+    frame: RefCell<Frame>,
     handle: Shared<RunningRMSProcessorHandle>,
     rms_buffer: VecAudioBuffer<f32>,
     last_update: usize,
@@ -22,6 +25,7 @@ impl AudioChart {
         let mut rms_buffer = VecAudioBuffer::new();
         rms_buffer.resize(1, 500, 0.0);
         Self {
+            frame: RefCell::new(Frame::new(Size::new(100., 100.))),
             handle,
             rms_buffer,
             last_update: 0,
@@ -47,20 +51,22 @@ impl AudioChart {
         }
     }
 
-    pub fn view(&self) -> Element<Message> {
-        AudioChartView::new(&self.rms_buffer, self.cursor).view()
+    pub fn view(&mut self) -> Element<Message> {
+        AudioChartView::new(&mut self.frame, &self.rms_buffer, self.cursor).view()
     }
 }
 
 // TODO - Use a view model here rather than a raw buffer
 pub struct AudioChartView<'a, Buffer: AudioBuffer> {
+    frame: &'a mut RefCell<Frame>,
     audio_buffer: &'a Buffer,
     position: usize,
 }
 
 impl<'a, Buffer: AudioBuffer<SampleType = f32>> AudioChartView<'a, Buffer> {
-    pub fn new(audio_buffer: &'a Buffer, position: usize) -> Self {
+    pub fn new(frame: &'a mut RefCell<Frame>, audio_buffer: &'a Buffer, position: usize) -> Self {
         Self {
+            frame,
             audio_buffer,
             position,
         }
@@ -76,7 +82,8 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> AudioChartView<'a, Buffer> {
 
 impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChartView<'a, Buffer> {
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
-        let mut frame = Frame::new(bounds.size());
+        let mut frame = self.frame.borrow_mut();
+        frame.resize(bounds.size());
         let mut path = canvas::path::Builder::new();
 
         let num_samples = self.audio_buffer.num_samples();
@@ -100,13 +107,11 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChartV
         path.line_to(Point::new(0.0, frame.height()));
         path.line_to(Point::new(frame.width(), frame.height()));
 
-        // let path = path.build();
-        // TODO - Tesselation here is very slow
         frame.fill(
             &path.build(),
             Fill::from(Colors::border_color().darken(-0.3)),
         );
 
-        vec![frame.into_geometry()]
+        vec![frame.geometry()]
     }
 }

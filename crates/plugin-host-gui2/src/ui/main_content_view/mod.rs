@@ -193,7 +193,7 @@ impl MainContentView {
     pub fn view(&mut self) -> Element<Message> {
         let audio_io_settings = &mut self.audio_io_settings;
         let plugin_content = &mut self.plugin_content;
-        let audio_chart = &self.audio_chart;
+        let audio_chart = &mut self.audio_chart;
         let transport_controls = &mut self.transport_controls;
         let status_message = &self.status_message;
         let volume_meter_state = &mut self.volume_meter_state;

@@ -23,7 +23,7 @@ pub struct StartStopViewModel {
 pub struct MainContentViewModel<'a> {
     pub audio_io_settings: &'a mut audio_io_settings::Controller,
     pub plugin_content: &'a mut View,
-    pub audio_chart: &'a Option<AudioChart>,
+    pub audio_chart: &'a mut Option<AudioChart>,
     pub volume_meter_state: &'a mut volume_meter::VolumeMeter,
     pub transport_controls: &'a mut TransportControlsView,
     pub status_message: &'a StatusBar,
@@ -85,7 +85,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
 }
 
 struct BottomVisualisationViewModel<'a> {
-    audio_chart: &'a Option<audio_chart::AudioChart>,
+    audio_chart: &'a mut Option<audio_chart::AudioChart>,
     volume_meter_state: &'a mut volume_meter::VolumeMeter,
 }
 
