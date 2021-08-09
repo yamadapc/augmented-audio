@@ -19,6 +19,10 @@ use objc::{
     sel,
 };
 
+use augmented_ui::color::Color;
+use augmented_ui::component::{Node, RenderContext};
+use augmented_ui::renderer::Renderer;
+
 struct AppDelegate {
     id: *mut Object,
 }
@@ -178,6 +182,14 @@ fn initialize_menu() -> *mut Object {
     }
 }
 
+fn app_component(_: Box<RenderContext>) -> Node {
+    Node::group(vec![
+        Node::color_box(Color::new(255, 0, 0, 1)).into(),
+        Node::color_box(Color::new(0, 255, 0, 1)).into(),
+        Node::color_box(Color::new(0, 0, 255, 1)).into(),
+    ])
+}
+
 fn main() {
     wisual_logger::init_from_env();
 
@@ -204,9 +216,11 @@ fn main() {
             let title = NSString::alloc(nil).init_str(&"Main").autorelease();
             ns_window.setTitle_(title);
             ns_window.makeKeyAndOrderFront_(nil);
-
             ns_window
         };
+
+        let mut renderer = Renderer::new_with_window(ns_window);
+        renderer.render(app_component);
 
         let menu = initialize_menu();
         app.setMainMenu_(menu);
