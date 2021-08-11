@@ -2,141 +2,21 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
 use basedrop::{Handle, Shared};
+use num::FromPrimitive;
+use rimd::Status;
 
-use crate::LoopState::PlayOrOverdub;
 use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
     MidiMessageLike,
 };
-use circular_data_structures::CircularVec;
-use num::FromPrimitive;
-use rimd::Status;
 
-const QUEUE_CAPACITY: usize = 2048;
+use crate::buffer::InternalBuffer;
+pub use crate::handle::LooperProcessorHandle;
+use crate::handle::ProcessParameters;
+use crate::LoopState::PlayOrOverdub;
 
-struct InternalBuffer<SampleType> {
-    size: usize,
-    channels: Vec<CircularVec<SampleType>>,
-}
-
-impl<SampleType: num::Float> InternalBuffer<SampleType> {
-    pub fn new() -> Self {
-        InternalBuffer {
-            channels: Vec::new(),
-            size: 0,
-        }
-    }
-
-    pub fn num_samples(&self) -> usize {
-        self.size
-    }
-
-    pub fn channel(&mut self, channel_index: usize) -> &mut CircularVec<SampleType> {
-        &mut self.channels[channel_index]
-    }
-
-    pub fn resize(&mut self, num_channels: usize, sample_rate: f32, duration: Duration) {
-        let duration_samples = (duration.as_secs_f32() * sample_rate) as usize;
-        self.size = duration_samples;
-        self.channels.clear();
-        for _channel in 0..num_channels {
-            let channel_buffer = CircularVec::with_size(duration_samples, SampleType::zero());
-            self.channels.push(channel_buffer);
-        }
-    }
-}
-
-/// Public API types, which should be thread-safe
-pub struct LooperProcessorHandle<SampleType> {
-    is_recording: AtomicBool,
-    is_playing_back: AtomicBool,
-    playback_input: AtomicBool,
-    should_clear: AtomicBool,
-    dry_volume: AtomicF32,
-    loop_volume: AtomicF32,
-    pub queue: atomic_queue::Queue<SampleType>,
-}
-
-impl<SampleType> Default for LooperProcessorHandle<SampleType> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<SampleType> LooperProcessorHandle<SampleType> {
-    pub fn new() -> Self {
-        LooperProcessorHandle {
-            is_recording: AtomicBool::new(false),
-            is_playing_back: AtomicBool::new(false),
-            playback_input: AtomicBool::new(true),
-            should_clear: AtomicBool::new(false),
-            dry_volume: AtomicF32::new(1.0),
-            loop_volume: AtomicF32::new(1.0),
-            queue: atomic_queue::Queue::new(QUEUE_CAPACITY),
-        }
-    }
-
-    pub fn store_playback_input(&self, value: bool) {
-        self.playback_input.store(value, Ordering::Relaxed);
-    }
-
-    pub fn start_recording(&self) {
-        self.is_recording.store(true, Ordering::Relaxed);
-    }
-
-    pub fn clear(&self) {
-        self.stop();
-        self.should_clear.store(true, Ordering::Relaxed);
-    }
-
-    pub fn stop(&self) {
-        self.is_recording.store(false, Ordering::Relaxed);
-        self.is_playing_back.store(false, Ordering::Relaxed);
-    }
-
-    pub fn play(&self) {
-        self.is_playing_back.store(true, Ordering::Relaxed);
-    }
-
-    pub fn toggle_playback(&self) {
-        let is_playing_back = self.is_playing_back.load(Ordering::Relaxed);
-        if is_playing_back {
-            self.stop();
-        } else {
-            self.play();
-        }
-    }
-
-    pub fn toggle_recording(&self) {
-        let is_recording = self.is_recording.load(Ordering::Relaxed);
-        if is_recording {
-            self.stop_recording();
-        } else {
-            self.start_recording();
-        }
-    }
-
-    pub fn is_recording(&self) -> bool {
-        self.is_recording.load(Ordering::Relaxed)
-    }
-
-    pub fn is_playing_back(&self) -> bool {
-        self.is_playing_back.load(Ordering::Relaxed)
-    }
-
-    pub fn stop_recording(&self) {
-        self.is_recording.store(false, Ordering::Relaxed);
-        self.is_playing_back.store(true, Ordering::Relaxed);
-    }
-
-    pub fn set_dry_volume(&self, value: f32) {
-        self.dry_volume.set(value);
-    }
-
-    pub fn set_loop_volume(&self, value: f32) {
-        self.loop_volume.set(value);
-    }
-}
+mod buffer;
+mod handle;
 
 enum LoopState {
     Empty,
@@ -265,17 +145,19 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
     ) {
         let zero = BufferType::SampleType::zero();
         for sample_index in 0..data.num_samples() {
-            let should_clear = self.handle.should_clear.load(Ordering::Relaxed);
+            let ProcessParameters {
+                should_clear,
+                playback_input,
+                is_playing_back,
+                is_recording,
+                loop_volume,
+                dry_volume,
+            } = self.handle.parameters();
             if should_clear {
-                self.handle.should_clear.store(false, Ordering::Relaxed);
+                self.handle.set_should_clear(false);
                 self.state.clear();
             }
 
-            let should_playback_input = self.handle.playback_input.load(Ordering::Relaxed);
-            let is_playing = self.handle.is_playing_back.load(Ordering::Relaxed);
-            let is_recording = self.handle.is_recording.load(Ordering::Relaxed);
-            let loop_volume = Self::SampleType::from(self.handle.loop_volume.get()).unwrap();
-            let dry_volume = Self::SampleType::from(self.handle.dry_volume.get()).unwrap();
             let looper_cursor = self.state.looper_cursor;
             let mut viz_input = BufferType::SampleType::zero();
 
@@ -283,14 +165,14 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
                 let loop_channel = self.state.looped_clip.channel(channel_num);
 
                 // PLAYBACK SECTION:
-                let dry_output = if !should_playback_input {
+                let dry_output = if !playback_input {
                     zero
                 } else {
                     *data.get(channel_num, sample_index)
                 };
                 viz_input += dry_output;
                 let looper_output = loop_channel[looper_cursor];
-                let looper_output = if is_playing { looper_output } else { zero };
+                let looper_output = if is_playing_back { looper_output } else { zero };
 
                 let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
                 data.set(channel_num, sample_index, mixed_output);
