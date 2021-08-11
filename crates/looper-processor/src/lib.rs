@@ -13,7 +13,6 @@ use audio_processor_traits::{
 use crate::buffer::InternalBuffer;
 pub use crate::handle::LooperProcessorHandle;
 use crate::handle::ProcessParameters;
-use crate::LoopState::PlayOrOverdub;
 
 mod buffer;
 mod handle;
@@ -43,7 +42,7 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
     }
 
     pub fn increment_cursor(&mut self) {
-        if let PlayOrOverdub { start, end } = self.loop_state {
+        if let LoopState::PlayOrOverdub { start, end } = self.loop_state {
             self.looper_cursor += 1;
             if end > start {
                 if self.looper_cursor >= end {
@@ -163,14 +162,12 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
 
             for channel_num in 0..data.num_channels() {
                 let loop_channel = self.state.looped_clip.channel(channel_num);
+                // INPUT SECTION:
+                let input = *data.get(channel_num, sample_index);
+                let dry_output = Self::get_input(playback_input, input);
+                viz_input += dry_output;
 
                 // PLAYBACK SECTION:
-                let dry_output = if !playback_input {
-                    zero
-                } else {
-                    *data.get(channel_num, sample_index)
-                };
-                viz_input += dry_output;
                 let looper_output = loop_channel[looper_cursor];
                 let looper_output = if is_playing_back { looper_output } else { zero };
 
@@ -192,7 +189,15 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
 }
 
 impl<SampleType: num::Float> LooperProcessor<SampleType> {
-    pub fn toggle_recording(&mut self) {
+    fn get_input(playback_input: bool, input: SampleType) -> SampleType {
+        if !playback_input {
+            SampleType::zero()
+        } else {
+            input
+        }
+    }
+
+    fn toggle_recording(&mut self) {
         self.handle.toggle_recording();
     }
 
