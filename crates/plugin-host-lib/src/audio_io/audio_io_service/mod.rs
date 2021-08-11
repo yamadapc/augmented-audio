@@ -30,6 +30,8 @@ pub enum AudioIOServiceError {
     DeviceNameError,
     #[error("Failed to perform audio thread changes")]
     AudioThreadError,
+    #[error("Failed to read configuration from disk")]
+    StorageError,
 }
 
 pub type AudioIOServiceResult<T> = Result<T, AudioIOServiceError>;
@@ -63,9 +65,31 @@ impl AudioIOService {
         log_error(self.store());
     }
 
-    pub fn reload(&mut self) -> Result<(), AudioIOStorageServiceError> {
-        let state = self.storage.fetch()?;
+    pub fn reload(&mut self) -> Result<(), AudioIOServiceError> {
+        let state = self
+            .storage
+            .fetch()
+            .map_err(|_| AudioIOServiceError::StorageError)?;
         self.state = state;
+        let mut host = self.host.lock().unwrap();
+        host.set_host_id(AudioHostId::Id(self.state.host.clone()))
+            .map_err(|_| AudioIOServiceError::AudioThreadError)?;
+        host.set_input_device_id(Some(
+            self.state
+                .input_device
+                .clone()
+                .map(|d| AudioDeviceId::Id(d.name))
+                .unwrap_or(AudioDeviceId::Default),
+        ))
+        .map_err(|_| AudioIOServiceError::AudioThreadError)?;
+        host.set_output_device_id(
+            self.state
+                .output_device
+                .clone()
+                .map(|d| AudioDeviceId::Id(d.name))
+                .unwrap_or(AudioDeviceId::Default),
+        )
+        .map_err(|_| AudioIOServiceError::AudioThreadError)?;
         Ok(())
     }
 

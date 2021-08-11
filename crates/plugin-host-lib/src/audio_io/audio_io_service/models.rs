@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 pub type AudioHost = String;
 
-#[derive(Serialize, Eq, PartialEq, Debug, Deserialize)]
+#[derive(Clone, Serialize, Eq, PartialEq, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AudioDevice {
     pub name: String,

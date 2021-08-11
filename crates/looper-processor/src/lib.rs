@@ -165,8 +165,25 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
     pub fn increment_cursor(&mut self) {
         if let PlayOrOverdub { start, end } = self.loop_state {
             self.looper_cursor += 1;
-            if self.looper_cursor == end + 1 {
-                self.looper_cursor = start;
+            if end > start {
+                if self.looper_cursor >= end {
+                    self.looper_cursor = start;
+                }
+            } else {
+                // End point is before start
+                let loop_length = self.looped_clip.num_samples() - start + end;
+                if self.looper_cursor >= start {
+                    let cursor_relative_to_start = self.looper_cursor - start;
+                    if cursor_relative_to_start >= loop_length {
+                        self.looper_cursor = start;
+                    }
+                } else {
+                    let cursor_relative_to_start =
+                        self.looper_cursor - end + self.looped_clip.num_samples() - start;
+                    if cursor_relative_to_start >= loop_length {
+                        self.looper_cursor = start;
+                    }
+                }
             }
         } else {
             self.looper_cursor += 1;

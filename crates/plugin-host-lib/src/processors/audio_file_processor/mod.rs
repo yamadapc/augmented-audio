@@ -131,9 +131,6 @@ impl AudioFileProcessor {
         let is_playing = self.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
-            for sample in data.slice_mut() {
-                *sample = 0.0;
-            }
             return;
         }
 
@@ -144,7 +141,7 @@ impl AudioFileProcessor {
             for (channel_index, sample) in frame.iter_mut().enumerate() {
                 let audio_input = self.buffer[channel_index][audio_file_cursor];
                 let value = audio_input;
-                *sample = value;
+                *sample += value;
             }
 
             audio_file_cursor += 1;

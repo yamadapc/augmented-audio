@@ -206,6 +206,7 @@ fn create_stream_inner(
     };
 
     let input_stream = if let Some((input_device, input_config)) = input {
+        log::info!("Initializing input device {}", input_device.name().unwrap());
         let input_stream = input_device.build_input_stream(
             input_config,
             move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
@@ -219,6 +220,7 @@ fn create_stream_inner(
     };
 
     let has_input = input_stream.is_some();
+    log::info!("OUTPUT has_input={}", has_input);
     let output_stream = output_device.build_output_stream(
         output_config,
         move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {

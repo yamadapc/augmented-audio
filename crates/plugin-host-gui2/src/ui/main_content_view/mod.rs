@@ -445,8 +445,16 @@ fn reload_plugin_host_state(
 
     let command = {
         let host_state = host_state.clone();
+        let audio_io_service = audio_io_service.clone();
+
         Command::perform(
             tokio::task::spawn_blocking(move || -> Result<(), AudioHostPluginLoadError> {
+                if let Err(err) = audio_io_service.lock().unwrap().reload() {
+                    log::error!("Failed to reload audio options: {}", err);
+                } else {
+                    log::info!("Loaded audio options");
+                }
+
                 log::info!("Reloading audio plugin & file in background thread");
                 if let Some(path) = &host_state.audio_input_file_path {
                     plugin_host
