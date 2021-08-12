@@ -2,7 +2,7 @@ use chrono::prelude::*;
 use std::fs::read_to_string;
 use std::path::{Path, PathBuf};
 
-use cmd_lib::run_cmd;
+use cmd_lib::{run_cmd, spawn};
 
 use crate::manifests::{MacosAppConfig, ReleaseJson};
 use manifests::CargoToml;
@@ -61,7 +61,15 @@ fn run_build_release(crate_path: &str) {
     // Force the package to be built
     log::info!("Read Cargo.toml:\n{:#?}", cargo_toml);
     log::info!("Forcing a build of \"{}\"", cargo_toml.package.name);
-    run_cmd!(cd ${crate_path}; cargo build --release).unwrap();
+    {
+        let current = std::env::current_dir().unwrap();
+        std::env::set_current_dir(crate_path);
+        spawn!(cargo build --release)
+            .unwrap()
+            .wait_cmd_result()
+            .unwrap();
+        std::env::set_current_dir(current);
+    }
 
     if let Some(local_package) = create_local_package(crate_path, &cargo_toml, &release_json) {
         sign_app(&local_package);
@@ -191,6 +199,10 @@ fn create_local_package(
                     target_app_path,
                 })
             }
+            MacosAppConfig::Vst => {
+                log::info!("VST build is unsupported");
+                None
+            }
         }
     } else {
         None
@@ -219,14 +231,14 @@ fn main() {
         .version(&*version)
         .about("Development CLI for augmented projects, helps build and deploy apps")
         .subcommand(
-            clap::App::new("build-app-release")
+            clap::App::new("build")
                 .about("Build a release package for a given app")
                 .arg(clap::Arg::from("-c, --crate=<PATH> 'Crate path'")),
         );
 
     let matches = app.clone().get_matches();
-    if matches.is_present("build-app-release") {
-        let matches = matches.subcommand_matches("build-app-release").unwrap();
+    if matches.is_present("build") {
+        let matches = matches.subcommand_matches("build").unwrap();
         run_build_release(matches.value_of("crate").unwrap());
     } else {
         app.print_help().unwrap();

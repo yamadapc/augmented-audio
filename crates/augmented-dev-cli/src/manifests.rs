@@ -23,6 +23,8 @@ pub struct ReleaseJson {
 pub enum MacosAppConfig {
     #[serde(rename_all = "kebab-case")]
     AppTemplate { template_path: String },
+    #[serde(rename_all = "kebab-case")]
+    Vst,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

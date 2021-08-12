@@ -51,9 +51,9 @@ looper-processor = { path = "../looper-processor" }
 name = "loopi"
 crate-type = ["cdylib"]
 
-[package.metadata.bundle]
-name = "Loopi"
-identifier = "com.beijaflor.Loopi"
-
-[package.metadata.bundle.macos.properties]
-CFBundleGetInfoString = "vst"
+[package.metadata]
+app.public-name = "Loopi"
+app.macos.type = "vst"
+bundle.name = "Loopi"
+bundle.identifier = "com.beijaflor.Loopi"
+bundle.macos.properties.CFBundleGetInfoString = "vst"
