@@ -24,7 +24,7 @@ impl VstHandler {
             .as_ref()
             .unwrap();
 
-        let plist_file = build_plist(input.cargo_toml, &vst);
+        let plist_file = build_plist(&app_config.public_name, input.cargo_toml, &vst);
         run_cmd!(mkdir -p ${target_path}).unwrap();
 
         let output_path = target_path.join(format!("{}.vst", app_config.public_name));
@@ -58,7 +58,7 @@ impl VstHandler {
     }
 }
 
-fn build_plist(toml_file: &CargoToml, vst: &VstConfig) -> plist::Value {
+fn build_plist(public_name: &str, toml_file: &CargoToml, vst: &VstConfig) -> plist::Value {
     let mut plist_file = plist::Dictionary::new();
     plist_file.insert(
         String::from("CFBundleIdentifier"),
@@ -66,7 +66,7 @@ fn build_plist(toml_file: &CargoToml, vst: &VstConfig) -> plist::Value {
     );
     plist_file.insert(
         String::from("CFBundleName"),
-        plist::Value::from(toml_file.package.name.clone()),
+        plist::Value::from(String::from(public_name)),
     );
     plist_file.insert(
         String::from("CFBundleVersion"),
