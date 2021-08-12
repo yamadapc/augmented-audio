@@ -66,9 +66,9 @@ fn build_plist_and_bundle(config_path: &str, output_path: &str) -> PathBuf {
         .to_file_xml(plist_path)
         .expect("Failed to write plist file");
 
-    let package_path = Path::new(config_path).parent().unwrap();
-    log::info!("Forcing a build of the package");
-    run_cmd!(cd ${package_path}; cargo build --release).unwrap();
+    // let package_path = Path::new(config_path).parent().unwrap();
+    // log::info!("Forcing a build of the package");
+    // run_cmd!(cd ${package_path}; cargo build --release).unwrap();
 
     let source_dylib_path =
         find_target(config_path, &toml_file).expect("Couldn't find the target dylib");

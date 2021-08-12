@@ -219,14 +219,14 @@ fn main() {
         .version(&*version)
         .about("Development CLI for augmented projects, helps build and deploy apps")
         .subcommand(
-            clap::App::new("build-release")
+            clap::App::new("build-app-release")
                 .about("Build a release package for a given app")
                 .arg(clap::Arg::from("-c, --crate=<PATH> 'Crate path'")),
         );
 
     let matches = app.clone().get_matches();
-    if matches.is_present("build-release") {
-        let matches = matches.subcommand_matches("build-release").unwrap();
+    if matches.is_present("build-app-release") {
+        let matches = matches.subcommand_matches("build-app-release").unwrap();
         run_build_release(matches.value_of("crate").unwrap());
     } else {
         app.print_help().unwrap();
