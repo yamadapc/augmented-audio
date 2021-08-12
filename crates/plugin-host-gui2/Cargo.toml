@@ -26,11 +26,11 @@ tokio = "^1.8.1"
 audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" }
-audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system", features = ["glow"] }
+audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system", features = ["glow"], default-features = false }
 audio-volume = { path = "../audio-volume" }
-iced = { version = "^0.3.0", path = "../iced", features = ["debug", "glow", "glow_canvas"] }
-iced_core = { version = "^0.4", path = "../iced/core" }
-iced_native = { version = "^0.4", path = "../iced/native" }
+iced = { version = "^0.3.0", path = "../iced", features = ["debug", "glow", "glow_canvas"], default-features = false }
+iced_core = { version = "^0.4", path = "../iced/core", default-features = false  }
+iced_native = { version = "^0.4", path = "../iced/native", default-features = false }
 iced_futures = { version = "^0.3", path = "../iced/futures" }
 plugin-host-lib = { path = "../plugin-host-lib" }
 wisual-logger = { path = "../wisual-logger" }

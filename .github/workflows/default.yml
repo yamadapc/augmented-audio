@@ -30,7 +30,7 @@ jobs:
             target/
           key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
       - name: Run tests
-        run: cargo test --verbose --workspace --no-default-features --features story --exclude augmented-ui
+        run: cargo test --verbose --workspace --features story --exclude augmented-ui
   lint-rust:
     name: Lint rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -51,9 +51,9 @@ jobs:
             target/
           key: ${{ runner.os }}-lint-cache-${{ hashFiles('**/Cargo.lock') }}
       - name: Run clippy
-        run: cargo clippy --no-default-features --features story --workspace --exclude skribo --exclude augmented-ui
+        run: cargo clippy --features story --workspace --exclude skribo --exclude augmented-ui
       - name: Run check
-        run: cargo check --verbose --workspace --no-default-features --features story --exclude augmented-ui
+        run: cargo check --verbose --workspace --features story --exclude augmented-ui
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -74,7 +74,7 @@ jobs:
           target/
         key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
     - name: Build release
-      run: cargo build --release --verbose --workspace --exclude augmented-ui --no-default-features
+      run: cargo build --release --verbose --workspace --exclude augmented-ui
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:

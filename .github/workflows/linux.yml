@@ -33,7 +33,7 @@ jobs:
         run: ./scripts/install-ubuntu-dependencies.sh
       - name: Test
         run: |
-          cargo test --no-default-features --verbose --workspace \
+          cargo test --verbose --workspace \
               --features story \
               --exclude augmented-ui \
               --exclude example-iced-xcode-integration \

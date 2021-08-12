@@ -6,9 +6,17 @@ description = "A looper VST effect"
 
 [features]
 default = [
-    "wgpu",
+    "glow",
     "iced/tokio",
     "iced_baseview/tokio",
+]
+glow = [
+    "iced/glow",
+    "iced_baseview/glow",
+    "iced/glow_canvas",
+    "iced_baseview/glow_canvas",
+    "audio-processor-iced-design-system/glow",
+    "iced-editor/glow"
 ]
 wgpu = [
     "iced/wgpu",
@@ -27,11 +35,11 @@ log4rs = { version = "^1.0.0", features = ["rolling_file_appender", "compound_po
 dirs = "^3.0.2"
 thiserror = "^1.0.25"
 
-audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
-iced = { version = "^0.3.0", path = "../iced" }
-iced_audio = { path = "../iced_audio" }
-iced_baseview = { path = "../iced-baseview" }
-iced-editor = { path = "../iced-editor" }
+audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system", default-features = false }
+iced = { version = "^0.3.0", path = "../iced", default-features = false }
+iced_audio = { path = "../iced_audio", default-features = false }
+iced_baseview = { path = "../iced-baseview", default-features = false }
+iced-editor = { path = "../iced-editor", default-features = false }
 
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-parameter-store = { path = "../audio-parameter-store" }
