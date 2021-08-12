@@ -18,13 +18,23 @@ pub struct ReleaseJson {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VstConfig {
+    pub identifier: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AppTemplateConfig {
+    pub template_path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 #[serde(tag = "type")]
 pub enum MacosAppConfig {
     #[serde(rename_all = "kebab-case")]
-    AppTemplate { template_path: String },
+    AppTemplate(AppTemplateConfig),
     #[serde(rename_all = "kebab-case")]
-    Vst,
+    Vst(VstConfig),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -42,12 +52,19 @@ pub struct CargoTomlPackageMetadata {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CargoTomlPackage {
     pub name: String,
-    pub description: String,
     pub version: String,
+    pub description: Option<String>,
     pub metadata: Option<CargoTomlPackageMetadata>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub struct CargoLib {
+    pub name: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CargoToml {
     pub package: CargoTomlPackage,
+    pub lib: Option<CargoLib>,
 }
