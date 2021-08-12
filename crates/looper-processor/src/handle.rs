@@ -1,6 +1,9 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use audio_garbage_collector::Handle;
 use audio_processor_traits::AtomicF32;
+
+use crate::midi_map::MidiMap;
 
 const QUEUE_CAPACITY: usize = 2048;
 
@@ -12,17 +15,12 @@ pub struct LooperProcessorHandle<SampleType> {
     should_clear: AtomicBool,
     dry_volume: AtomicF32,
     loop_volume: AtomicF32,
+    midi_map: MidiMap,
     pub queue: atomic_queue::Queue<SampleType>,
 }
 
-impl<SampleType> Default for LooperProcessorHandle<SampleType> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl<SampleType> LooperProcessorHandle<SampleType> {
-    pub fn new() -> Self {
+    pub fn new(handle: &Handle) -> Self {
         LooperProcessorHandle {
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
@@ -30,6 +28,7 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
             should_clear: AtomicBool::new(false),
             dry_volume: AtomicF32::new(1.0),
             loop_volume: AtomicF32::new(1.0),
+            midi_map: MidiMap::new_with_handle(handle),
             queue: atomic_queue::Queue::new(QUEUE_CAPACITY),
         }
     }
@@ -97,6 +96,10 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
 
     pub(crate) fn set_should_clear(&self, value: bool) {
         self.should_clear.store(false, Ordering::Relaxed);
+    }
+
+    pub(crate) fn midi_map(&self) -> &MidiMap {
+        &self.midi_map
     }
 }
 

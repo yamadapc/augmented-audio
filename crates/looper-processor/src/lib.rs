@@ -1,21 +1,22 @@
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
 
-use basedrop::{Handle, Shared};
 use num::FromPrimitive;
 use rimd::Status;
 
+use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
-    MidiMessageLike,
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
 
 use crate::buffer::InternalBuffer;
 pub use crate::handle::LooperProcessorHandle;
 use crate::handle::ProcessParameters;
+use crate::midi_map::{Action, MidiSpec};
+use std::ops::AddAssign;
 
 mod buffer;
 mod handle;
+mod midi_map;
 
 enum LoopState {
     Empty,
@@ -108,7 +109,7 @@ impl<SampleType: num::Float + 'static> LooperProcessor<SampleType> {
         LooperProcessor {
             id: uuid::Uuid::new_v4().to_string(),
             state: LooperProcessorState::new(),
-            handle: Shared::new(handle, LooperProcessorHandle::new()),
+            handle: Shared::new(handle, LooperProcessorHandle::new(handle)),
         }
     }
 
@@ -117,7 +118,7 @@ impl<SampleType: num::Float + 'static> LooperProcessor<SampleType> {
     }
 }
 
-impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
+impl<SampleType: num::Float + Send + Sync + AddAssign> AudioProcessor
     for LooperProcessor<SampleType>
 {
     type SampleType = SampleType;
@@ -142,17 +143,9 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
         &mut self,
         data: &mut BufferType,
     ) {
-        let zero = BufferType::SampleType::zero();
         for sample_index in 0..data.num_samples() {
-            let ProcessParameters {
-                should_clear,
-                playback_input,
-                is_playing_back,
-                is_recording,
-                loop_volume,
-                dry_volume,
-            } = self.handle.parameters();
-            if should_clear {
+            let parameters = self.handle.parameters();
+            if parameters.should_clear {
                 self.handle.set_should_clear(false);
                 self.state.clear();
             }
@@ -161,35 +154,61 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> AudioProcessor
             let mut viz_input = BufferType::SampleType::zero();
 
             for channel_num in 0..data.num_channels() {
-                let loop_channel = self.state.looped_clip.channel(channel_num);
-                // INPUT SECTION:
-                let input = *data.get(channel_num, sample_index);
-                let dry_output = Self::get_input(playback_input, input);
-                viz_input += dry_output;
-
-                // PLAYBACK SECTION:
-                let looper_output = loop_channel[looper_cursor];
-                let looper_output = if is_playing_back { looper_output } else { zero };
-
-                let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
-                data.set(channel_num, sample_index, mixed_output);
-
-                // RECORDING SECTION:
-                if is_recording {
-                    // When recording starts we'll store samples in the looper buffer
-                    loop_channel[looper_cursor] =
-                        *data.get(channel_num, sample_index) + loop_channel[looper_cursor];
-                }
+                self.process_sample(&parameters, data, sample_index, channel_num, &mut viz_input)
             }
 
             self.handle.queue.push(viz_input);
-            self.state.on_tick(is_recording, looper_cursor);
+            self.state.on_tick(parameters.is_recording, looper_cursor);
         }
     }
 }
 
-impl<SampleType: num::Float> LooperProcessor<SampleType> {
-    fn get_input(playback_input: bool, input: SampleType) -> SampleType {
+impl<SampleType: num::Float + AddAssign> LooperProcessor<SampleType> {
+    fn process_sample<BufferType: AudioBuffer<SampleType = SampleType>>(
+        &mut self,
+        parameters: &ProcessParameters<SampleType>,
+        data: &mut BufferType,
+        sample_index: usize,
+        channel_num: usize,
+        viz_input: &mut SampleType,
+    ) {
+        let looper_cursor: usize = self.state.looper_cursor;
+
+        let ProcessParameters {
+            playback_input,
+            is_playing_back,
+            is_recording,
+            loop_volume,
+            dry_volume,
+            ..
+        } = *parameters;
+
+        let loop_channel = self.state.looped_clip.channel(channel_num);
+        // INPUT SECTION:
+        let input = *data.get(channel_num, sample_index);
+        let dry_output = Self::process_input(playback_input, input);
+        *viz_input += dry_output;
+
+        // PLAYBACK SECTION:
+        let looper_output = loop_channel[looper_cursor];
+        let looper_output = if is_playing_back {
+            looper_output
+        } else {
+            SampleType::zero()
+        };
+
+        let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
+        data.set(channel_num, sample_index, mixed_output);
+
+        // RECORDING SECTION:
+        if is_recording {
+            // When recording starts we'll store samples in the looper buffer
+            loop_channel[looper_cursor] =
+                *data.get(channel_num, sample_index) + loop_channel[looper_cursor];
+        }
+    }
+
+    fn process_input(playback_input: bool, input: SampleType) -> SampleType {
         if !playback_input {
             SampleType::zero()
         } else {
@@ -216,20 +235,30 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandle
                 .map(|bytes| rimd::Status::from_u8(bytes[0]).map(|status| (status, bytes)))
                 .flatten();
             if let Some((status, bytes)) = status {
-                match status {
-                    Status::ControlChange => {
-                        let cc_number = bytes[1];
-                        let cc_value = bytes[2];
-                        match (cc_number, cc_value) {
-                            (80, 127) => self.toggle_recording(),
-                            (81, 127) => {
-                                self.stop();
+                if let Some(action) = self
+                    .handle
+                    .midi_map()
+                    .get(&MidiSpec::new(bytes[0], bytes[1]))
+                {
+                    match action {
+                        Action::SetRecording(value) => {
+                            if value {
+                                self.handle.start_recording()
+                            } else {
+                                self.handle.stop_recording()
                             }
-                            _ => {}
+                        }
+                        Action::SetPlayback(value) => {
+                            if value {
+                                self.handle.play()
+                            } else {
+                                self.handle.stop()
+                            }
+                        }
+                        Action::Clear => {
+                            self.handle.clear();
                         }
                     }
-                    Status::ProgramChange => {}
-                    _ => {}
                 }
             }
         }
