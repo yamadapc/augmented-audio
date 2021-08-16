@@ -1,0 +1,23 @@
+[package]
+name = "looper-processor"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+log = "^0.4.14"
+basedrop = "^0.1.2"
+num = "^0.4.0"
+uuid = { version = "^0.8.2", features = [ "v4" ] }
+
+audio-garbage-collector = { version = "^0.1.0", path = "../../../augmented/audio/audio-garbage-collector" }
+audio-processor-standalone = { version = "^0.1.0", path = "../../../audio-processor-standalone" }
+audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
+atomic-queue = { version = "^0.1", path = "../../../atomic-queue" }
+circular-data-structures = { path = "../../../circular-data-structures" }
+wisual-logger = { path = "../../../wisual-logger" }
+rimd = "^0.0.1"
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }

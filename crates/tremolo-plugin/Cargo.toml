@@ -22,8 +22,8 @@ async-trait = "^0.1.50"
 thiserror = "^1.0.25"
 
 webview-transport = { path = "../webview-transport" }
-audio-parameter-store = { path = "../audio-parameter-store" }
-oscillator = { path = "../oscillator" }
+audio-parameter-store = { path = "../augmented/audio/audio-parameter-store" }
+oscillator = { path = "../augmented/audio/oscillator" }
 wisual-logger = { version = "^0.1.2", path = "../wisual-logger" }
 generic-parameters-editor = { path = "../generic-parameters-editor" }
 

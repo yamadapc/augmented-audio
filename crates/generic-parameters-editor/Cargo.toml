@@ -12,7 +12,7 @@ tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-mu
 vst = { path = "../vendor/vst" }
 serde_json = "^1.0.64"
 
-audio-parameter-store = { path = "../audio-parameter-store" }
+audio-parameter-store = { path = "../augmented/audio/audio-parameter-store" }
 macos-bundle-resources = { path = "../macos-bundle-resources" }
 webview-holder = { path = "../webview-holder" }
 webview-transport = { path = "../webview-transport" }

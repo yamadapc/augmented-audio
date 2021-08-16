@@ -20,7 +20,7 @@ impl Default for CargoTomlReaderImpl {
 
 impl CargoTomlReader for CargoTomlReaderImpl {
     fn read(&self, crate_path: &str) -> CargoToml {
-        let config_path = Path::new(crate_path).join("Cargo.toml");
+        let config_path = Path::new(crate_path).join("../../../../../../../Cargo.toml");
         let input_cargo_file = read_to_string(config_path).expect("Failed to read toml file");
         let cargo_toml: CargoToml =
             toml::from_str(&input_cargo_file).expect("Failed to parse toml file");

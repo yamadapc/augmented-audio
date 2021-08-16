@@ -14,4 +14,4 @@ midir = "^0.7.0"
 vst = { version = "^0.2.1", path = "../vendor/vst" }
 atomic-queue = { version = "^0.1", path = "../atomic-queue" }
 log = "^0.4.14"
-audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "^0.3", path = "../augmented/audio/audio-processor-traits" }

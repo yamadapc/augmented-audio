@@ -30,10 +30,10 @@ uuid = { version = "^0.8.2", features = [ "v4" ] }
 
 atomic-queue = { path = "../../../atomic-queue" }
 audio-processor-standalone-midi = { version = "^0.1", path = "../../../audio-processor-standalone-midi" }
-audio-garbage-collector = { path = "../../../audio-garbage-collector" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
 circular-data-structures = { path = "../../../circular-data-structures" }
-audio-processor-traits = { version = "^0.3", path = "../../../audio-processor-traits" }
-oscillator = { path = "../../../oscillator" }
+audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
+oscillator = { path = "../../../augmented/audio/oscillator" }
 convert-sample-rate = { path = "../../../convert-sample-rate" }
 
 [dev-dependencies]

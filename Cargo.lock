@@ -19,17 +19,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9fe5e32de01730eb1f6b7f5b51c17e03e2325bf40a74f754f04f130043affff"
 
 [[package]]
-name = "adler32"
-version = "1.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aae1277d39aeec15cb388266ecc24b11c80469deae6067e17a1a7aa9e5c1f234"
-
-[[package]]
 name = "adsr-envelope"
 version = "0.1.0"
-dependencies = [
- "plotters 0.3.1",
-]
 
 [[package]]
 name = "ahash"
@@ -236,18 +227,6 @@ dependencies = [
  "basedrop",
  "log",
  "thiserror",
- "wisual-logger",
-]
-
-[[package]]
-name = "audio-garbage-collector-v2"
-version = "0.1.0"
-dependencies = [
- "atomic-queue",
- "circular-data-structures",
- "log",
- "rand 0.8.4",
- "wisual-logger",
 ]
 
 [[package]]
@@ -266,16 +245,6 @@ dependencies = [
  "dirs",
  "log",
  "log4rs",
- "thiserror",
-]
-
-[[package]]
-name = "audio-processor-graph"
-version = "0.1.0"
-dependencies = [
- "audio-processor-traits",
- "audio-processor-utility",
- "daggy",
  "thiserror",
 ]
 
@@ -340,17 +309,8 @@ dependencies = [
 name = "audio-processor-traits"
 version = "0.3.1"
 dependencies = [
- "criterion",
  "num 0.4.0",
- "oscillator",
  "vst",
-]
-
-[[package]]
-name = "audio-processor-utility"
-version = "0.1.0"
-dependencies = [
- "audio-processor-traits",
 ]
 
 [[package]]
@@ -870,12 +830,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "color_quant"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b"
-
-[[package]]
 name = "combine"
 version = "4.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1136,15 +1090,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "crc32fast"
-version = "1.2.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81156fece84ab6a9f2afdb109ce3ae577e42b1228441eded99bd77f627953b1a"
-dependencies = [
- "cfg-if 1.0.0",
-]
-
-[[package]]
 name = "criterion"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1159,7 +1104,7 @@ dependencies = [
  "lazy_static",
  "num-traits 0.2.14",
  "oorandom",
- "plotters 0.3.0",
+ "plotters",
  "rayon",
  "regex",
  "serde",
@@ -1282,15 +1227,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "daggy"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c90e7673f8e419ea041efa8e58d52c526d1fac00908ae47fde06b4863c4fccb3"
-dependencies = [
- "petgraph",
-]
-
-[[package]]
 name = "darling"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1328,6 +1264,19 @@ dependencies = [
 [[package]]
 name = "darwin-webkit"
 version = "0.1.3"
+dependencies = [
+ "block",
+ "cocoa 0.18.5",
+ "core-graphics 0.17.3",
+ "criterion",
+ "dispatch",
+ "libc",
+ "objc",
+]
+
+[[package]]
+name = "darwin-webkit"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fc001c1588d8c3e7b2066cc21cd1e1cda7e3975ceacee71f07270548c4594718"
 dependencies = [
@@ -1337,16 +1286,6 @@ dependencies = [
  "dispatch",
  "libc",
  "objc",
-]
-
-[[package]]
-name = "deflate"
-version = "0.8.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73770f8e1fe7d64df17ca66ad28994a0a623ea497fa69486e14984e715c5d174"
-dependencies = [
- "adler32",
- "byteorder 1.4.3",
 ]
 
 [[package]]
@@ -1991,7 +1930,7 @@ name = "generic-parameters-editor"
 version = "0.1.0"
 dependencies = [
  "audio-parameter-store",
- "darwin-webkit",
+ "darwin-webkit 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log",
  "macos-bundle-resources",
  "serde",
@@ -2190,16 +2129,6 @@ dependencies = [
  "libloading 0.7.0",
  "log",
  "renderdoc-sys",
-]
-
-[[package]]
-name = "gif"
-version = "0.11.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5a668f699973d0f573d15749b7002a9ac9e1f9c6b220e7b165601334c173d8de"
-dependencies = [
- "color_quant",
- "weezl",
 ]
 
 [[package]]
@@ -2832,22 +2761,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "image"
-version = "0.23.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24ffcb7e7244a9bf19d35bf2883b9c080c4ced3c07a9895572178cdb8f13f6a1"
-dependencies = [
- "bytemuck",
- "byteorder 1.4.3",
- "color_quant",
- "jpeg-decoder",
- "num-iter",
- "num-rational 0.3.2",
- "num-traits 0.2.14",
- "png",
-]
-
-[[package]]
 name = "indexmap"
 version = "1.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2979,12 +2892,6 @@ checksum = "972f5ae5d1cb9c6ae417789196c803205313edde988685da5e3aae0827b9e7fd"
 dependencies = [
  "libc",
 ]
-
-[[package]]
-name = "jpeg-decoder"
-version = "0.1.22"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "229d53d58899083193af11e15917b5640cd40b29ff475a1fe4ef725deb02d0f2"
 
 [[package]]
 name = "js-sys"
@@ -3406,15 +3313,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "miniz_oxide"
-version = "0.3.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "791daaae1ed6889560f8c4359194f56648355540573244a5448a83ba1ecc7435"
-dependencies = [
- "adler32",
-]
-
-[[package]]
 name = "mio"
 version = "0.6.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3822,17 +3720,6 @@ dependencies = [
 
 [[package]]
 name = "num-rational"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12ac428b1cb17fce6f731001d307d351ec70a6d202fc2e60f7d4c5e42d8f4f07"
-dependencies = [
- "autocfg",
- "num-integer",
- "num-traits 0.2.14",
-]
-
-[[package]]
-name = "num-rational"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d41702bd167c2df5520b384281bc111a4b5efcf7fbc4c9c222c815b07e0a6a6a"
@@ -4046,9 +3933,6 @@ name = "oscillator"
 version = "0.1.0"
 dependencies = [
  "cpal",
- "criterion",
- "plotters 0.3.1",
- "ringbuf",
 ]
 
 [[package]]
@@ -4256,37 +4140,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "plotters"
-version = "0.3.1"
-dependencies = [
- "chrono",
- "font-kit",
- "image",
- "lazy_static",
- "num-traits 0.2.14",
- "pathfinder_geometry",
- "plotters-backend",
- "plotters-bitmap",
- "plotters-svg",
- "ttf-parser 0.12.3",
-]
-
-[[package]]
 name = "plotters-backend"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d88417318da0eaf0fdcdb51a0ee6c3bed624333bff8f946733049380be67ac1c"
-
-[[package]]
-name = "plotters-bitmap"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21362fa905695e5618aefd169358f52e0e8bc4a8e05333cf780fda8cddc00b54"
-dependencies = [
- "gif",
- "image",
- "plotters-backend",
-]
 
 [[package]]
 name = "plotters-svg"
@@ -4378,18 +4235,6 @@ dependencies = [
  "uuid",
  "vst",
  "wisual-logger",
-]
-
-[[package]]
-name = "png"
-version = "0.16.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c3287920cb847dee3de33d301c463fba14dda99db24214ddf93f83d3021f4c6"
-dependencies = [
- "bitflags",
- "crc32fast",
- "deflate",
- "miniz_oxide",
 ]
 
 [[package]]
@@ -5142,10 +4987,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "smooth-value"
-version = "0.1.0"
-
-[[package]]
 name = "sourceview"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5478,7 +5319,7 @@ dependencies = [
  "audio-parameter-store",
  "cocoa 0.18.5",
  "crossbeam",
- "darwin-webkit",
+ "darwin-webkit 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "dirs",
  "env_logger 0.8.4",
  "futures-util",
@@ -6063,7 +5904,7 @@ name = "webview-holder"
 version = "0.1.0"
 dependencies = [
  "cocoa 0.18.5",
- "darwin-webkit",
+ "darwin-webkit 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log",
  "objc",
  "serde",
@@ -6088,12 +5929,6 @@ dependencies = [
  "tungstenite",
  "webview-holder",
 ]
-
-[[package]]
-name = "weezl"
-version = "0.1.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8b77fdfd5a253be4ab714e4ffa3c49caf146b4de743e97510c0656cf90f1e8e"
 
 [[package]]
 name = "wgpu"

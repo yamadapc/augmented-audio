@@ -1,11 +1,9 @@
 [package]
-name = "adsr-envelope"
+name = "audio-processor-testing-helpers"
 version = "0.1.0"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-
-[target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-plotters = { version = "^0.3.1", path = "../vendor/plotters" }
+oscillator = { path = "../../audio/oscillator" }
