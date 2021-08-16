@@ -1,0 +1,18 @@
+[package]
+name = "audio-processor-standalone"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+audio-processor-traits = { version = "^0.3", path = "../../audio/audio-processor-traits" }
+cpal = { version = "^0.13.3", path = "../../../vendor/cpal" }
+log = "^0.4.14"
+wisual-logger = "^0.1.2"
+basedrop = "^0.1.2"
+audio-processor-standalone-midi = { version = "^0.1.0", path = "../audio-processor-standalone-midi" }
+ringbuf = "^0.2.5"
+
+[dev-dependencies]
+circular-data-structures = { path = "../../data/circular-data-structures" }

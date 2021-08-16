@@ -1,0 +1,30 @@
+name: Rust
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install rust nightly
+      run: rustup install nightly
+    - name: Install grcov
+      run: |
+        cargo +nightly install grcov
+    - name: Build and test with coverage
+      run: |
+        ./scripts/build-and-test-with-coverage.sh
+    - name: Run linter
+      run: |
+        rustup component add clippy
+        cargo clippy

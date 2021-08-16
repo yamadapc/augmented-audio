@@ -12,10 +12,10 @@ num = "^0.4.0"
 uuid = { version = "^0.8.2", features = [ "v4" ] }
 
 audio-garbage-collector = { version = "^0.1.0", path = "../../../augmented/audio/audio-garbage-collector" }
-audio-processor-standalone = { version = "^0.1.0", path = "../../../audio-processor-standalone" }
+audio-processor-standalone = { version = "^0.1.0", path = "../../../augmented/application/audio-processor-standalone" }
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
-atomic-queue = { version = "^0.1", path = "../../../atomic-queue" }
-circular-data-structures = { path = "../../../circular-data-structures" }
+atomic-queue = { version = "^0.1", path = "../../../augmented/data/atomic-queue" }
+circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
 wisual-logger = { path = "../../../wisual-logger" }
 rimd = "^0.0.1"
 

@@ -1,0 +1,14 @@
+[package]
+name = "convert-sample-rate"
+version = "0.1.0"
+authors = ["yamadapc <tacla.yamada@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[dev-dependencies]
+rand = "^0.8.3"
+oscillator = { path = "../../audio/oscillator" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }

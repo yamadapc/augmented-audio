@@ -21,15 +21,15 @@ tungstenite = "^0.13.0"
 async-trait = "^0.1.50"
 thiserror = "^1.0.25"
 
-webview-transport = { path = "../webview-transport" }
+webview-transport = { path = "../augmented/gui/webview-transport" }
 audio-parameter-store = { path = "../augmented/audio/audio-parameter-store" }
 oscillator = { path = "../augmented/audio/oscillator" }
 wisual-logger = { version = "^0.1.2", path = "../wisual-logger" }
-generic-parameters-editor = { path = "../generic-parameters-editor" }
+generic-parameters-editor = { path = "../augmented/gui/generic-parameters-editor" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-macos-bundle-resources = { path = "../macos-bundle-resources" }
-webview-holder = { path = "../webview-holder" }
+macos-bundle-resources = { path = "../augmented/gui/macos-bundle-resources" }
+webview-holder = { path = "../augmented/gui/webview-holder" }
 cocoa = "^0.18.4"
 objc = "^0.2.7"
 darwin-webkit = "^0.1.3"
