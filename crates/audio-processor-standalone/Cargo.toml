@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
-cpal = { version = "^0.13.3", path = "../cpal" }
+cpal = { version = "^0.13.3", path = "../vendor/cpal" }
 log = "^0.4.14"
 wisual-logger = "^0.1.2"
 basedrop = "^0.1.2"

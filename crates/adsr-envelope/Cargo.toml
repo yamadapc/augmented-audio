@@ -8,4 +8,4 @@ edition = "2018"
 [dependencies]
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
-plotters = { version = "^0.3.1", path = "../plotters" }
+plotters = { version = "^0.3.1", path = "../vendor/plotters" }

@@ -9,7 +9,7 @@ edition = "2018"
 serde = { version = "^1.0.126", features = ["derive"] }
 log = "^0.4.11"
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
-vst = { path = "../vst" }
+vst = { path = "../vendor/vst" }
 serde_json = "^1.0.64"
 
 audio-parameter-store = { path = "../audio-parameter-store" }

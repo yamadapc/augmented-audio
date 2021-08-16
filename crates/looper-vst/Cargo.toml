@@ -30,15 +30,15 @@ wgpu = [
 [dependencies]
 log = "^0.4.14"
 
-vst = { path = "../vst" }
+vst = { path = "../vendor/vst" }
 log4rs = { version = "^1.0.0", features = ["rolling_file_appender", "compound_policy", "size_trigger"] }
 dirs = "^3.0.2"
 thiserror = "^1.0.25"
 
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system", default-features = false }
-iced = { version = "^0.3.0", path = "../iced", default-features = false }
-iced_audio = { path = "../iced_audio", default-features = false }
-iced_baseview = { path = "../iced-baseview", default-features = false }
+iced = { version = "^0.3.0", path = "../vendor/iced", default-features = false }
+iced_audio = { path = "../vendor/iced_audio", default-features = false }
+iced_baseview = { path = "../vendor/iced-baseview", default-features = false }
 iced-editor = { path = "../iced-editor", default-features = false }
 
 audio-garbage-collector = { path = "../audio-garbage-collector" }
