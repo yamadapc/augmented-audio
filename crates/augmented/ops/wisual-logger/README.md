@@ -12,7 +12,7 @@ fn main() {
 ```
 
 Will output:
-![](screenshot.png)
+![](crates/augmented/ops/wisual-logger/screenshot.png)
 
 ```shell
 INFO [2021-07-09T02:26:16.239338+00:00] (main@hello_world) Hello world

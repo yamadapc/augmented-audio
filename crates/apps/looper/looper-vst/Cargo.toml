@@ -44,7 +44,7 @@ iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = 
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
-audio-plugin-logger = { path = "../../../audio-plugin-logger" }
+audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
 looper-processor = { path = "../looper-processor" }
 
 [lib]

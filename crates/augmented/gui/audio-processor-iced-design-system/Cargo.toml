@@ -35,4 +35,4 @@ version = "^0.3.0"
 default-features = false
 
 [dev-dependencies]
-wisual-logger = { version = "^0.1", path = "../../../wisual-logger" }
+wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }

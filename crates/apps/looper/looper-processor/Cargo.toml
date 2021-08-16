@@ -16,7 +16,7 @@ audio-processor-standalone = { version = "^0.1.0", path = "../../../augmented/ap
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
 atomic-queue = { version = "^0.1", path = "../../../augmented/data/atomic-queue" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
-wisual-logger = { path = "../../../wisual-logger" }
+wisual-logger = { path = "../../../augmented/ops/wisual-logger" }
 rimd = "^0.0.1"
 
 [dev-dependencies]

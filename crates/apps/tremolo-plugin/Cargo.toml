@@ -6,7 +6,7 @@ authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-vst = { path = "../vendor/vst" }
+vst = { path = "../../vendor/vst" }
 crossbeam = "^0.8.0"
 env_logger = "^0.8.1"
 log = "^0.4.11"
@@ -21,15 +21,15 @@ tungstenite = "^0.13.0"
 async-trait = "^0.1.50"
 thiserror = "^1.0.25"
 
-webview-transport = { path = "../augmented/gui/webview-transport" }
-audio-parameter-store = { path = "../augmented/audio/audio-parameter-store" }
-oscillator = { path = "../augmented/audio/oscillator" }
-wisual-logger = { version = "^0.1.2", path = "../wisual-logger" }
-generic-parameters-editor = { path = "../augmented/gui/generic-parameters-editor" }
+webview-transport = { path = "../../augmented/gui/webview-transport" }
+audio-parameter-store = { path = "../../augmented/audio/audio-parameter-store" }
+oscillator = { path = "../../augmented/audio/oscillator" }
+wisual-logger = { version = "^0.1.2", path = "../../augmented/ops/wisual-logger" }
+generic-parameters-editor = { path = "../../augmented/gui/generic-parameters-editor" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-macos-bundle-resources = { path = "../augmented/gui/macos-bundle-resources" }
-webview-holder = { path = "../augmented/gui/webview-holder" }
+macos-bundle-resources = { path = "../../augmented/gui/macos-bundle-resources" }
+webview-holder = { path = "../../augmented/gui/webview-holder" }
 cocoa = "^0.18.4"
 objc = "^0.2.7"
 darwin-webkit = "^0.1.3"

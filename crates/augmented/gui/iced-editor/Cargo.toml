@@ -13,7 +13,7 @@ wgpu = ["iced/wgpu", "iced/canvas", "iced_baseview/canvas", "iced_baseview/wgpu"
 iced = { version = "^0.3.0", path = "../../../vendor/iced", default-features = false }
 log = "^0.4.14"
 vst = { path = "../../../vendor/vst" }
-wisual-logger = { path = "../../../wisual-logger" }
+wisual-logger = { path = "../../ops/wisual-logger" }
 
 baseview = { path = "../../../vendor/baseview" }
 iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false }

@@ -6,12 +6,12 @@ members = [
   "crates/apps/plugin-host/plugin-host-gui2",
   "crates/apps/plugin-host/plugin-host-lib",
   "crates/augmented/data/atomic-queue",
-  "crates/audio-plugin-logger",
+  "crates/augmented/ops/audio-plugin-logger",
   "crates/augmented/gui/audio-processor-iced-design-system",
   "crates/augmented/gui/audio-processor-iced-storybook",
   "crates/augmented/application/audio-processor-standalone",
   "crates/augmented/application/audio-processor-standalone-midi",
-  "crates/audio-volume",
+  "crates/augmented/data/audio-volume",
   "crates/augmented/development/augmented-dev-cli",
   "crates/augmented/development/bundler",
   "crates/augmented/data/circular-data-structures",
@@ -25,11 +25,11 @@ members = [
   "crates/scripts/midi-logger-host",
   "crates/spikes/example-iced-audio-viz",
   "crates/spikes/example-iced-xcode-integration",
-  "crates/synth",
-  "crates/tremolo-plugin",
+  "crates/apps/synth",
+  "crates/apps/tremolo-plugin",
   "crates/augmented/gui/webview-holder",
   "crates/augmented/gui/webview-transport",
-  "crates/wisual-logger",
+  "crates/augmented/ops/wisual-logger",
 ]
 
 exclude = [
@@ -46,7 +46,7 @@ exclude = [
 debug = true
 
 [patch.crates-io]
-wisual-logger = { path = "./crates/wisual-logger" }
+wisual-logger = { path = "crates/augmented/ops/wisual-logger" }
 
 # Vendor overrides
 basedrop = { path = "./crates/vendor/basedrop" }
