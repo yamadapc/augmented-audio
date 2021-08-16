@@ -1,3 +1,9 @@
+//! Data-types for representing volume in:
+//!
+//! * [`Decibels`]
+//! * [`Amplitude`]
+//!
+//! And conversions between the two.
 use std::ops::Mul;
 
 #[cfg(not(feature = "f64"))]

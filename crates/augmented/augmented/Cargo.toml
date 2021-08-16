@@ -39,3 +39,10 @@ iced = { path = "../../vendor/iced" }
 iced_audio = { path = "../../vendor/iced_audio" }
 baseview = { path = "../../vendor/baseview" }
 
+# ops
+audio-plugin-logger = { path = "../ops/audio-plugin-logger" }
+wisual-logger = { path = "../ops/wisual-logger" }
+
+# testing
+audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" }
+

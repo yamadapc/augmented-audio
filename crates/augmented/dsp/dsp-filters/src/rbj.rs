@@ -1,14 +1,18 @@
+//! Filters from <https://shepazu.github.io/Audio-EQ-Cookbook/audio-eq-cookbook.html>
+//!
+//! Ported from [vinniefalco/DSPFilters](https://github.com/vinniefalco/DSPFilters/)
 use std::fmt::Debug;
 
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use num::pow::Pow;
 use num::traits::FloatConst;
 use num::Float;
 
 use crate::coefficients::BiquadCoefficients;
 use crate::denormal_prevention;
 use crate::state::{DirectFormIState, FilterState};
-use num::pow::Pow;
 
+/// Type of a filter
 pub enum FilterType {
     LowPass,
     HighPass,
@@ -186,6 +190,7 @@ pub fn setup_high_shelf<Sample: Float + FloatConst + Pow<Sample, Output = Sample
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
+/// Holds the state and coefficients for a filter.
 pub struct Filter<Sample: Float> {
     coefficients: BiquadCoefficients<Sample>,
     state: DirectFormIState<Sample>,
@@ -193,6 +198,7 @@ pub struct Filter<Sample: Float> {
 }
 
 impl<Sample: Float> Filter<Sample> {
+    /// Create a new empty filter
     pub fn new() -> Self {
         Filter {
             coefficients: BiquadCoefficients::default(),
@@ -209,18 +215,22 @@ impl<Sample: Float> Default for Filter<Sample> {
 }
 
 impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<Sample> {
+    /// Set-up the filter as low-pass with a certain cut-off and Q
     pub fn setup(&mut self, sample_rate: Sample, cutoff_frequency: Sample, q: Sample) {
         self.setup_low_pass(sample_rate, cutoff_frequency, q);
     }
 
+    /// Set-up the filter as low-pass with a certain cut-off and Q
     pub fn setup_low_pass(&mut self, sample_rate: Sample, cutoff_frequency: Sample, q: Sample) {
         setup_low_pass(&mut self.coefficients, sample_rate, cutoff_frequency, q);
     }
 
+    /// Set-up the filter as high-pass with a certain cut-off and Q
     pub fn setup_high_pass(&mut self, sample_rate: Sample, cutoff_frequency: Sample, q: Sample) {
         setup_high_pass(&mut self.coefficients, sample_rate, cutoff_frequency, q);
     }
 
+    /// Set-up the filter as band-pass with a certain center frequency and band-width
     pub fn setup_band_pass1(
         &mut self,
         sample_rate: Sample,
@@ -235,6 +245,7 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
         );
     }
 
+    /// Set-up the filter as band-pass with a certain center frequency and band-width
     pub fn setup_band_pass2(
         &mut self,
         sample_rate: Sample,
@@ -249,6 +260,7 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
         );
     }
 
+    /// Set-up the filter as band-stop with a certain center frequency and band-width
     pub fn setup_band_stop(
         &mut self,
         sample_rate: Sample,
@@ -263,6 +275,7 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
         );
     }
 
+    /// Set-up the filter as low-shelf with a certain cut-off, gain and slope
     pub fn setup_low_shelf(
         &mut self,
         sample_rate: Sample,
@@ -279,6 +292,7 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
         );
     }
 
+    /// Set-up the filter as high-shelf with a certain cut-off, gain and slope
     pub fn setup_high_shelf(
         &mut self,
         sample_rate: Sample,
@@ -295,6 +309,10 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
         );
     }
 
+    /// Process an input [`AudioBuffer`] instance. The [`Filter`] struct is mono (see
+    /// [`FilterProcessor`] for multi-channel usage).
+    ///
+    /// A channel must be provided. The buffer will be modified in-place.
     pub fn process_channel<Buffer: AudioBuffer<SampleType = Sample>>(
         &mut self,
         buffer: &mut Buffer,
@@ -312,6 +330,31 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
     }
 }
 
+/// An [`AudioProcessor`] which holds a [`Filter`]. Easy to use DSP filter.
+///
+/// After setting the filter type with [`FilterProcessor::set_filter_type`], use the filter with the
+/// [`AudioProcessor::prepare`] and [`AudioProcessor::process`] methods.
+///
+/// ```
+/// use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
+/// use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+/// use dsp_filters::rbj::{FilterProcessor, FilterType};
+///
+/// let mut audio_buffer = VecAudioBuffer::new();
+/// audio_buffer.resize(2, 1 * 44100, 0.0);
+/// let settings = AudioProcessorSettings {
+///     sample_rate: 44100.0,
+///     ..AudioProcessorSettings::default()
+/// };
+///
+/// let mut filter_processor = FilterProcessor::new(FilterType::LowPass);
+/// filter_processor.set_cutoff(880.0);
+/// filter_processor.set_q(1.0);
+///
+/// filter_processor.prepare(settings);
+///
+/// filter_processor.process(&mut audio_buffer);
+/// ```
 pub struct FilterProcessor<
     SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst,
 > {
@@ -327,6 +370,9 @@ pub struct FilterProcessor<
 impl<SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst>
     FilterProcessor<SampleType>
 {
+    /// Create a new [`FilterProcessor`] with the [`FilterType`] and an initial state.
+    ///
+    /// Sample-rate, cut-off, q, gain and slope will be set to defaults, but should be changed.
     pub fn new(filter_type: FilterType) -> Self {
         Self {
             filter_type,
@@ -339,36 +385,48 @@ impl<SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatCon
         }
     }
 
+    /// Change the filter-type
     pub fn set_filter_type(&mut self, filter_type: FilterType) {
         self.filter_type = filter_type;
         self.setup();
     }
 
+    /// Change the cut-off
     pub fn set_cutoff(&mut self, cutoff: SampleType) {
         self.cutoff = cutoff;
         self.setup();
     }
 
+    /// Change the q
     pub fn set_q(&mut self, q: SampleType) {
         self.q = q;
         self.setup();
     }
 
+    /// Change the center-frequency
     pub fn set_center_frequency(&mut self, center_frequency: SampleType) {
         self.cutoff = center_frequency;
         self.setup();
     }
 
+    /// Change the slope
     pub fn set_slope(&mut self, slope: SampleType) {
         self.slope = slope;
         self.setup();
     }
 
+    /// Change the gain
     pub fn set_gain_db(&mut self, gain_db: SampleType) {
         self.gain_db = gain_db;
         self.setup();
     }
 
+    /// Set the sample-rate
+    pub fn set_sample_rate(&mut self, sample_rate: SampleType) {
+        self.sample_rate = sample_rate;
+    }
+
+    /// Set-up the filter for playback
     pub fn setup(&mut self) {
         match self.filter_type {
             FilterType::LowPass => {
@@ -419,7 +477,7 @@ where
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         self.sample_rate = SampleType::from(settings.sample_rate()).unwrap();
-        self.filter.setup(self.sample_rate, self.cutoff, self.q);
+        self.setup();
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(

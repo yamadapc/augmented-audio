@@ -9,7 +9,12 @@ use audio_processor_traits::{
     AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer, MidiEventHandler,
 };
 
-// TODO Fix duplication in this file due to MIDI vs. no MIDI.
+/// Run an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
+/// messages received on all inputs to it.
+///
+/// Will internally create [`cpal::Stream`], [`MidiHost`] and park the current thread. If the thread
+/// is unparked the function will exit and the audio/MIDI threads will stop once these structures
+/// are dropped.
 pub fn audio_processor_main_with_midi<
     Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + Send + 'static,
 >(
@@ -21,6 +26,11 @@ pub fn audio_processor_main_with_midi<
     std::thread::park();
 }
 
+/// Start an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
+/// messages received on all inputs to it.
+///
+/// Returns the [`cpal::Stream`]s and [`MidiHost`]. The audio-thread will keep running until these are
+/// dropped.
 pub fn audio_processor_start_with_midi<
     Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + Send + 'static,
 >(
@@ -94,6 +104,9 @@ pub fn audio_processor_start_with_midi<
     (input_stream, output_stream, midi_host)
 }
 
+/// Run an [`AudioProcessor`] stand-alone cpal app.
+///
+/// Returns the [`cpal::Stream`] streams. The audio-thread will keep running until these are dropped.
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
 ) {
@@ -101,6 +114,9 @@ pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send +
     std::thread::park();
 }
 
+/// Start an [`AudioProcessor`] as a stand-alone cpal app>
+///
+/// Returns the [`cpal::Stream`] streams. The audio-thread will keep running until these are dropped.
 pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     mut audio_processor: Processor,
 ) -> (cpal::Stream, cpal::Stream) {

@@ -341,11 +341,13 @@ dependencies = [
  "atomic-queue",
  "audio-garbage-collector",
  "audio-parameter-store",
+ "audio-plugin-logger",
  "audio-processor-graph",
  "audio-processor-iced-design-system",
  "audio-processor-iced-storybook",
  "audio-processor-standalone",
  "audio-processor-standalone-midi",
+ "audio-processor-testing-helpers",
  "audio-processor-traits",
  "audio-processor-utility",
  "audio-volume",
@@ -360,6 +362,7 @@ dependencies = [
  "macos-bundle-resources",
  "oscillator",
  "smooth-value",
+ "wisual-logger",
 ]
 
 [[package]]

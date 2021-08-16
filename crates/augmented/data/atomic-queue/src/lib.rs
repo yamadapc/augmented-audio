@@ -1,3 +1,7 @@
+//! [`atomic_queue`] is a port of C++'s [max0x7ba/atomic_queue](https://github.com/max0x7ba/atomic_queue)
+//! implementation to rust.
+//!
+//! It provides a bounded multi-producer, multi-consumer lock-free queue that is real-time safe.
 use std::cmp::max;
 use std::mem::MaybeUninit;
 use std::sync::atomic::{AtomicI8, AtomicUsize, Ordering};
