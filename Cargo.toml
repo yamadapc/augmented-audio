@@ -10,33 +10,25 @@ members = [
 ]
 exclude = [
   "crates/apps",
-  "crates/basedrop",
-  "crates/baseview",
-  "crates/cpal",
   "crates/darwin-webkit",
-  "crates/gfx",
-  "crates/iced",
-  "crates/iced_audio",
   "crates/libloading",
-  "crates/lyon",
-  "crates/pathfinder",
-  "crates/piet",
-  "crates/plotters",
   "crates/scripts",
   "crates/spikes",
-  "crates/vst",
+  "crates/vendor",
 ]
 
 [profile.bench]
 debug = true
 
 [patch.crates-io]
-pathfinder_canvas = { path = "./crates/pathfinder/canvas" }
-basedrop = { path = "./crates/basedrop" }
-gfx-hal = { path = "./crates/gfx/src/hal" }
-gfx-backend-metal = { version = "*", path = "./crates/gfx/src/backend/metal", features = ["cross"] }
-iced = { version = "^0.3.0", path = "./crates/iced" }
-lyon_tessellation = { path = "./crates/lyon/crates/tessellation", features = ["profiling"] }
 wisual-logger = { path = "./crates/wisual-logger" }
-libloading = { path = "./crates/libloading" }
-vst = { path = "./crates/vst" }
+
+# Vendor overrides
+basedrop = { path = "./crates/vendor/basedrop" }
+gfx-backend-metal = { version = "*", path = "./crates/vendor/gfx/src/backend/metal", features = ["cross"] }
+gfx-hal = { path = "./crates/vendor/gfx/src/hal" }
+iced = { version = "^0.3.0", path = "./crates/vendor/iced" }
+libloading = { path = "./crates/vendor/libloading" }
+lyon_tessellation = { path = "./crates/vendor/lyon/crates/tessellation", features = ["profiling"] }
+pathfinder_canvas = { path = "./crates/vendor/pathfinder/canvas" }
+vst = { path = "./crates/vendor/vst" }

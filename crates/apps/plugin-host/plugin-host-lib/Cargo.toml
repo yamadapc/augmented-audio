@@ -8,7 +8,7 @@ edition = "2018"
 basedrop = "^0.1.2"
 serde = { version = "^1.0.64", features = ["derive"] }
 serde_json = "^1.0.64"
-cpal = { version = "^0.13.3", path = "../../../cpal" }
+cpal = { version = "^0.13.3", path = "../../../vendor/cpal" }
 clap = "^2.33.3"
 tao = "^0.2.6"
 log = "^0.4.14"
@@ -23,7 +23,7 @@ rimd = "^0.0.1"
 concread = "^0.2.14"
 notify = "^4.0.17"
 md5 = "^0.7.0"
-vst = { path = "../../../vst" }
+vst = { path = "../../../vendor/vst" }
 hound = "^3.4.0"
 ringbuf = "^0.2.5"
 uuid = { version = "^0.8.2", features = [ "v4" ] }

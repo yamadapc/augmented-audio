@@ -11,8 +11,8 @@ tinyfiledialogs = "^3.0"
 thiserror = "^1.0.25"
 serde = { version = "^1.0.126", features = ["derive"] }
 serde_json = "^1.0.64"
-vst = { path = "../../../vst" }
-baseview = { path = "../../../baseview" }
+vst = { path = "../../../vendor/vst" }
+baseview = { path = "../../../vendor/baseview" }
 raw-window-handle = "0.3.3"
 derive_more = "^0.99.16"
 uuid = { version = "^0.8", features = ["v4"] }
@@ -28,10 +28,10 @@ audio-garbage-collector = { path = "../../../audio-garbage-collector" }
 audio-processor-iced-storybook = { path = "../../../audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../../../audio-processor-iced-design-system", features = ["glow"], default-features = false }
 audio-volume = { path = "../../../audio-volume" }
-iced = { version = "^0.3.0", path = "../../../iced", features = ["debug", "glow", "glow_canvas"], default-features = false }
-iced_core = { version = "^0.4", path = "../../../iced/core", default-features = false  }
-iced_native = { version = "^0.4", path = "../../../iced/native", default-features = false }
-iced_futures = { version = "^0.3", path = "../../../iced/futures" }
+iced = { version = "^0.3.0", path = "../../../vendor/iced", features = ["debug", "glow", "glow_canvas"], default-features = false }
+iced_core = { version = "^0.4", path = "../../../vendor/iced/core", default-features = false  }
+iced_native = { version = "^0.4", path = "../../../vendor/iced/native", default-features = false }
+iced_futures = { version = "^0.3", path = "../../../vendor/iced/futures" }
 plugin-host-lib = { path = "../plugin-host-lib" }
 wisual-logger = { path = "../../../wisual-logger" }
 
