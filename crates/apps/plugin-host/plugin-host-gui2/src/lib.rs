@@ -1,9 +1,11 @@
 use std::time::Duration;
 
 use derive_more::From;
-use iced::{Application, Clipboard, Command, Container, Element, Length, Menu, Subscription};
 
 use audio_processor_iced_design_system as design_system;
+use augmented::gui::iced::{
+    Application, Clipboard, Command, Container, Element, Length, Menu, Subscription,
+};
 use plugin_host_lib::audio_io::audio_thread::options::AudioThreadOptions;
 use plugin_host_lib::audio_io::audio_thread::AudioThread;
 use plugin_host_lib::TestPluginHost;

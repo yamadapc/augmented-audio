@@ -2,10 +2,10 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use derivative::Derivative;
-use iced::{Command, Element, Subscription};
 use thiserror::Error;
 
-use audio_garbage_collector::Shared;
+use augmented::audio::gc::Shared;
+use augmented::gui::iced::{Command, Element, Subscription};
 use plugin_host_lib::{
     audio_io::audio_io_service::storage::StorageConfig,
     audio_io::{AudioHostPluginLoadError, AudioIOService},

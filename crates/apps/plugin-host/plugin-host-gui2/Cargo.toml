@@ -22,6 +22,8 @@ derivative = "^2.2.0"
 opener = "^0.5.0"
 shaku = { version = "^0.6.1", features = ["derive"] }
 
+augmented = { path = "../../../augmented/augmented", features = ["glow"] }
+
 tokio = "^1.8.1"
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }

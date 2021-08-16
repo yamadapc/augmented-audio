@@ -4,6 +4,19 @@ description = "The Augmented Framework for audio applications"
 version = "0.1.0"
 edition = "2018"
 
+[features]
+default = []
+wgpu = [
+    "iced/wgpu",
+    "audio-processor-iced-design-system/wgpu",
+    "audio-processor-iced-storybook/wgpu",
+]
+glow = [
+    "iced/glow",
+    "audio-processor-iced-design-system/glow",
+    "audio-processor-iced-storybook/glow",
+]
+
 [dependencies]
 # application
 audio-processor-standalone = { path = "../application/audio-processor-standalone" }

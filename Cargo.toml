@@ -37,6 +37,7 @@ members = [
   "crates/augmented/gui/macos-bundle-resources",
   "crates/augmented/gui/webview-holder",
   "crates/augmented/gui/webview-transport",
+  "crates/augmented/ops/augmented-analytics",
   "crates/augmented/ops/audio-plugin-logger",
   "crates/augmented/ops/wisual-logger",
 ]
