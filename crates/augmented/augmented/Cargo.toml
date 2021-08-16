@@ -1,0 +1,41 @@
+[package]
+name = "augmented"
+description = "The Augmented Framework for audio applications"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+# application
+audio-processor-standalone = { path = "../application/audio-processor-standalone" }
+audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" }
+
+# audio
+adsr-envelope = { path = "../audio/adsr-envelope" }
+audio-garbage-collector = { path = "../audio/audio-garbage-collector" }
+audio-parameter-store = { path = "../audio/audio-parameter-store" }
+audio-processor-graph = { path = "../audio/audio-processor-graph" }
+audio-processor-traits = { path = "../audio/audio-processor-traits" }
+audio-processor-utility = { path = "../audio/audio-processor-utility" }
+oscillator = { path = "../audio/oscillator" }
+cpal = { path = "../../vendor/cpal" }
+
+# data
+atomic-queue = { path = "../data/atomic-queue" }
+audio-volume = { path = "../data/audio-volume" }
+circular-data-structures = { path = "../data/circular-data-structures" }
+smooth-value = { path = "../data/smooth-value" }
+
+# dsp
+convert-sample-rate = { path = "../dsp/convert-sample-rate" }
+dsp-filters = { path = "../dsp/dsp-filters" }
+
+# gui
+audio-processor-iced-design-system = { path = "../gui/audio-processor-iced-design-system" }
+audio-processor-iced-storybook = { path = "../gui/audio-processor-iced-storybook" }
+iced-editor = { path = "../gui/iced-editor" }
+macos-bundle-resources = { path = "../gui/macos-bundle-resources" }
+
+iced = { path = "../../vendor/iced" }
+iced_audio = { path = "../../vendor/iced_audio" }
+baseview = { path = "../../vendor/baseview" }
+

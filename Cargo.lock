@@ -249,6 +249,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-graph"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-traits",
+ "daggy",
+ "thiserror",
+]
+
+[[package]]
 name = "audio-processor-iced-design-system"
 version = "0.1.0"
 dependencies = [
@@ -314,8 +323,44 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-utility"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-traits",
+]
+
+[[package]]
 name = "audio-volume"
 version = "0.1.0"
+
+[[package]]
+name = "augmented"
+version = "0.1.0"
+dependencies = [
+ "adsr-envelope",
+ "atomic-queue",
+ "audio-garbage-collector",
+ "audio-parameter-store",
+ "audio-processor-graph",
+ "audio-processor-iced-design-system",
+ "audio-processor-iced-storybook",
+ "audio-processor-standalone",
+ "audio-processor-standalone-midi",
+ "audio-processor-traits",
+ "audio-processor-utility",
+ "audio-volume",
+ "baseview",
+ "circular-data-structures",
+ "convert-sample-rate",
+ "cpal",
+ "dsp-filters",
+ "iced",
+ "iced-editor",
+ "iced_audio",
+ "macos-bundle-resources",
+ "oscillator",
+ "smooth-value",
+]
 
 [[package]]
 name = "augmented-dev-cli"
@@ -1224,6 +1269,15 @@ dependencies = [
  "bitflags",
  "libloading 0.7.0",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "daggy"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c90e7673f8e419ea041efa8e58d52c526d1fac00908ae47fde06b4863c4fccb3"
+dependencies = [
+ "petgraph",
 ]
 
 [[package]]
@@ -4985,6 +5039,10 @@ dependencies = [
  "smithay-client-toolkit 0.14.0",
  "wayland-client",
 ]
+
+[[package]]
+name = "smooth-value"
+version = "0.1.0"
 
 [[package]]
 name = "sourceview"
