@@ -1,24 +1,28 @@
 [workspace]
 members = [
   "crates/*",
-  "crates/scripts/autosync-submodules",
+  "crates/spikes/*",
+  "crates/scripts/*",
 ]
 exclude = [
+  "crates/apps",
   "crates/basedrop",
+  "crates/baseview",
   "crates/cpal",
   "crates/darwin-webkit",
-  "crates/example-druid-audio-viz",
-  "crates/iced",
-  "crates/baseview",
-  "crates/plotters",
   "crates/gfx",
+  "crates/iced",
   "crates/iced_audio",
-  "crates/scripts",
-  "crates/lyon",
-  "crates/vst",
   "crates/libloading",
+  "crates/lyon",
   "crates/pathfinder",
-  "crates/piet"
+  "crates/piet",
+  "crates/plotters",
+  "crates/scripts",
+  "crates/spikes",
+  "crates/spikes/augmented-ui",
+  "crates/spikes/example-druid-audio-viz",
+  "crates/vst",
 ]
 
 [profile.bench]

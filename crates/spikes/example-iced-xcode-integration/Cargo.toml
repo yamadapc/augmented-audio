@@ -8,8 +8,8 @@ name = "example_iced_xcode_integration"
 crate-type = ["staticlib"]
 
 [dependencies]
-iced_baseview = { path = "../iced-baseview", features = ["tokio", "canvas"] }
-baseview = { path = "../baseview" }
+iced_baseview = { path = "../../iced-baseview", features = ["tokio", "canvas"] }
+baseview = { path = "../../baseview" }
 raw-window-handle = "^0.3.3"
 objc = "^0.2.7"
 cocoa = "^0.24.0"

@@ -531,35 +531,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "augmented-ui"
-version = "0.1.0"
-dependencies = [
- "cocoa 0.24.0",
- "lazy_static",
- "log",
- "objc",
- "stretch",
- "wisual-logger",
- "xml-rs",
-]
-
-[[package]]
 name = "autocfg"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
-
-[[package]]
-name = "autosync-submodules"
-version = "0.1.0"
-dependencies = [
- "clap 3.0.0-beta.2",
- "cmd_lib",
- "log",
- "serde",
- "serde_json",
- "wisual-logger",
-]
 
 [[package]]
 name = "base64"
@@ -1801,33 +1776,6 @@ name = "event-listener"
 version = "2.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
-
-[[package]]
-name = "example-iced-audio-viz"
-version = "0.1.0"
-dependencies = [
- "atomic-queue",
- "audio-garbage-collector",
- "audio-processor-standalone",
- "audio-processor-traits",
- "basedrop",
- "circular-data-structures",
- "cpal",
- "iced",
- "log",
- "vst",
-]
-
-[[package]]
-name = "example-iced-xcode-integration"
-version = "0.1.0"
-dependencies = [
- "baseview",
- "cocoa 0.24.0",
- "iced_baseview",
- "objc",
- "raw-window-handle",
-]
 
 [[package]]
 name = "expat-sys"
@@ -3433,12 +3381,6 @@ dependencies = [
  "cfg-if 1.0.0",
  "winapi 0.3.9",
 ]
-
-[[package]]
-name = "libm"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7fc7aa29613bd6a620df431842069224d8bc9011086b1db4c0e0cd47fa03ec9a"
 
 [[package]]
 name = "line-wrap"
@@ -5791,16 +5733,6 @@ name = "str-buf"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d44a3643b4ff9caf57abcee9c2c621d6c03d9135e0d8b589bd9afb5992cb176a"
-
-[[package]]
-name = "stretch"
-version = "0.3.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b0dc6d20ce137f302edf90f9cd3d278866fd7fb139efca6f246161222ad6d87"
-dependencies = [
- "lazy_static",
- "libm",
-]
 
 [[package]]
 name = "strsim"
