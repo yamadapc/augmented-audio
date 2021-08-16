@@ -537,6 +537,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 
 [[package]]
+name = "autosync-submodules"
+version = "0.1.0"
+dependencies = [
+ "clap 3.0.0-beta.2",
+ "cmd_lib",
+ "log",
+ "serde",
+ "serde_json",
+ "wisual-logger",
+]
+
+[[package]]
 name = "base64"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1778,6 +1790,33 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7531096570974c3a9dcf9e4b8e1cede1ec26cf5046219fb3b9d897503b9be59"
 
 [[package]]
+name = "example-iced-audio-viz"
+version = "0.1.0"
+dependencies = [
+ "atomic-queue",
+ "audio-garbage-collector",
+ "audio-processor-standalone",
+ "audio-processor-traits",
+ "basedrop",
+ "circular-data-structures",
+ "cpal",
+ "iced",
+ "log",
+ "vst",
+]
+
+[[package]]
+name = "example-iced-xcode-integration"
+version = "0.1.0"
+dependencies = [
+ "baseview",
+ "cocoa 0.24.0",
+ "iced_baseview",
+ "objc",
+ "raw-window-handle",
+]
+
+[[package]]
 name = "expat-sys"
 version = "2.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1817,9 +1856,9 @@ dependencies = [
 
 [[package]]
 name = "filetime"
-version = "0.2.14"
+version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1d34cfa13a63ae058bfa601fe9e313bbdb3746427c1459185464ce0fcf62e1e8"
+checksum = "975ccf83d8d9d0d84682850a38c8169027be83368805971cc4f238c2b245bc98"
 dependencies = [
  "cfg-if 1.0.0",
  "libc",

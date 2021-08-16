@@ -1,8 +1,12 @@
 [workspace]
 members = [
   "crates/*",
-  "crates/spikes/*",
-  "crates/scripts/*",
+  "crates/apps/plugin-host/plugin-host-cli",
+  "crates/apps/plugin-host/plugin-host-gui2",
+  "crates/apps/plugin-host/plugin-host-lib",
+  "crates/scripts/autosync-submodules",
+  "crates/spikes/example-iced-audio-viz",
+  "crates/spikes/example-iced-xcode-integration",
 ]
 exclude = [
   "crates/apps",
@@ -20,8 +24,6 @@ exclude = [
   "crates/plotters",
   "crates/scripts",
   "crates/spikes",
-  "crates/spikes/augmented-ui",
-  "crates/spikes/example-druid-audio-viz",
   "crates/vst",
 ]
 
