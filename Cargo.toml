@@ -22,6 +22,15 @@ members = [
   # Augmented components
   "crates/augmented/application/audio-processor-standalone",
   "crates/augmented/application/audio-processor-standalone-midi",
+  "crates/augmented/audio/adsr-envelope",
+  "crates/augmented/audio/audio-garbage-collector",
+  "crates/augmented/audio/audio-garbage-collector-v2",
+  "crates/augmented/audio/audio-parameter-store",
+  "crates/augmented/audio/audio-processor-graph",
+  "crates/augmented/audio/audio-processor-traits",
+  "crates/augmented/audio/audio-processor-utility",
+  "crates/augmented/audio/audiounit",
+  "crates/augmented/audio/oscillator",
   "crates/augmented/data/atomic-queue",
   "crates/augmented/data/audio-volume",
   "crates/augmented/data/circular-data-structures",
@@ -37,8 +46,8 @@ members = [
   "crates/augmented/gui/macos-bundle-resources",
   "crates/augmented/gui/webview-holder",
   "crates/augmented/gui/webview-transport",
-  "crates/augmented/ops/augmented-analytics",
   "crates/augmented/ops/audio-plugin-logger",
+  "crates/augmented/ops/augmented-analytics",
   "crates/augmented/ops/wisual-logger",
 ]
 

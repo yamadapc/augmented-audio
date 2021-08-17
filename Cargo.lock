@@ -19,8 +19,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9fe5e32de01730eb1f6b7f5b51c17e03e2325bf40a74f754f04f130043affff"
 
 [[package]]
+name = "adler32"
+version = "1.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aae1277d39aeec15cb388266ecc24b11c80469deae6067e17a1a7aa9e5c1f234"
+
+[[package]]
 name = "adsr-envelope"
 version = "0.1.0"
+dependencies = [
+ "plotters 0.3.1",
+]
 
 [[package]]
 name = "ahash"
@@ -227,6 +236,18 @@ dependencies = [
  "basedrop",
  "log",
  "thiserror",
+ "wisual-logger",
+]
+
+[[package]]
+name = "audio-garbage-collector-v2"
+version = "0.1.0"
+dependencies = [
+ "atomic-queue",
+ "circular-data-structures",
+ "log",
+ "rand 0.8.4",
+ "wisual-logger",
 ]
 
 [[package]]
@@ -253,6 +274,7 @@ name = "audio-processor-graph"
 version = "0.1.0"
 dependencies = [
  "audio-processor-traits",
+ "audio-processor-utility",
  "daggy",
  "thiserror",
 ]
@@ -318,7 +340,9 @@ dependencies = [
 name = "audio-processor-traits"
 version = "0.3.1"
 dependencies = [
+ "criterion",
  "num 0.4.0",
+ "oscillator",
  "vst",
 ]
 
@@ -332,6 +356,15 @@ dependencies = [
 [[package]]
 name = "audio-volume"
 version = "0.1.0"
+
+[[package]]
+name = "audiounit"
+version = "0.1.0"
+dependencies = [
+ "cacao",
+ "cocoa 0.24.0",
+ "objc",
+]
 
 [[package]]
 name = "augmented"
@@ -586,6 +619,24 @@ name = "bytes"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b700ce4376041dcd0a327fd0097c41095743c4c8af8887265942faf1100bd040"
+
+[[package]]
+name = "cacao"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f127f049857f8fbf2dad41b378c2f14aae4b888bcb3a7c42998f454fd616fa1c"
+dependencies = [
+ "block",
+ "core-foundation 0.9.1",
+ "core-graphics 0.22.2",
+ "dispatch",
+ "lazy_static",
+ "libc",
+ "objc",
+ "objc_id",
+ "os_info",
+ "url",
+]
 
 [[package]]
 name = "cache-padded"
@@ -896,6 +947,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "color_quant"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d7b894f5411737b7867f4827955924d7c254fc9f4d91a6aad6b097804b1018b"
+
+[[package]]
 name = "combine"
 version = "4.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -978,6 +1035,7 @@ version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0a89e2ae426ea83155dccf10c0fa6b1463ef6d5fcb44cee0b224a408fa640a62"
 dependencies = [
+ "chrono",
  "core-foundation-sys 0.8.2",
  "libc",
 ]
@@ -1156,6 +1214,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "crc32fast"
+version = "1.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "81156fece84ab6a9f2afdb109ce3ae577e42b1228441eded99bd77f627953b1a"
+dependencies = [
+ "cfg-if 1.0.0",
+]
+
+[[package]]
 name = "criterion"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1170,7 +1237,7 @@ dependencies = [
  "lazy_static",
  "num-traits 0.2.14",
  "oorandom",
- "plotters",
+ "plotters 0.3.0",
  "rayon",
  "regex",
  "serde",
@@ -1361,6 +1428,16 @@ dependencies = [
  "dispatch",
  "libc",
  "objc",
+]
+
+[[package]]
+name = "deflate"
+version = "0.8.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73770f8e1fe7d64df17ca66ad28994a0a623ea497fa69486e14984e715c5d174"
+dependencies = [
+ "adler32",
+ "byteorder 1.4.3",
 ]
 
 [[package]]
@@ -2207,6 +2284,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "gif"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a668f699973d0f573d15749b7002a9ac9e1f9c6b220e7b165601334c173d8de"
+dependencies = [
+ "color_quant",
+ "weezl",
+]
+
+[[package]]
 name = "gio"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2909,6 +2996,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "image"
+version = "0.23.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "24ffcb7e7244a9bf19d35bf2883b9c080c4ced3c07a9895572178cdb8f13f6a1"
+dependencies = [
+ "bytemuck",
+ "byteorder 1.4.3",
+ "color_quant",
+ "jpeg-decoder",
+ "num-iter",
+ "num-rational 0.3.2",
+ "num-traits 0.2.14",
+ "png",
+]
+
+[[package]]
 name = "indexmap"
 version = "1.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3046,6 +3149,12 @@ checksum = "972f5ae5d1cb9c6ae417789196c803205313edde988685da5e3aae0827b9e7fd"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "jpeg-decoder"
+version = "0.1.22"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "229d53d58899083193af11e15917b5640cd40b29ff475a1fe4ef725deb02d0f2"
 
 [[package]]
 name = "js-sys"
@@ -3473,6 +3582,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a60c7ce501c71e03a9c9c0d35b861413ae925bd979cc7a4e30d060069aaac8d"
 
 [[package]]
+name = "miniz_oxide"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "791daaae1ed6889560f8c4359194f56648355540573244a5448a83ba1ecc7435"
+dependencies = [
+ "adler32",
+]
+
+[[package]]
 name = "mio"
 version = "0.6.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3892,6 +4010,17 @@ dependencies = [
 
 [[package]]
 name = "num-rational"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12ac428b1cb17fce6f731001d307d351ec70a6d202fc2e60f7d4c5e42d8f4f07"
+dependencies = [
+ "autocfg",
+ "num-integer",
+ "num-traits 0.2.14",
+]
+
+[[package]]
+name = "num-rational"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d41702bd167c2df5520b384281bc111a4b5efcf7fbc4c9c222c815b07e0a6a6a"
@@ -4085,6 +4214,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "os_info"
+version = "3.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ac91020bfed8cc3f8aa450d4c3b5fa1d3373fc091c8a92009f3b27749d5a227"
+dependencies = [
+ "log",
+ "serde",
+ "winapi 0.3.9",
+]
+
+[[package]]
 name = "os_pipe"
 version = "0.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4105,6 +4245,9 @@ name = "oscillator"
 version = "0.1.0"
 dependencies = [
  "cpal",
+ "criterion",
+ "plotters 0.3.1",
+ "ringbuf",
 ]
 
 [[package]]
@@ -4312,10 +4455,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "plotters"
+version = "0.3.1"
+dependencies = [
+ "chrono",
+ "font-kit",
+ "image",
+ "lazy_static",
+ "num-traits 0.2.14",
+ "pathfinder_geometry",
+ "plotters-backend",
+ "plotters-bitmap",
+ "plotters-svg",
+ "ttf-parser 0.12.3",
+]
+
+[[package]]
 name = "plotters-backend"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d88417318da0eaf0fdcdb51a0ee6c3bed624333bff8f946733049380be67ac1c"
+
+[[package]]
+name = "plotters-bitmap"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "21362fa905695e5618aefd169358f52e0e8bc4a8e05333cf780fda8cddc00b54"
+dependencies = [
+ "gif",
+ "image",
+ "plotters-backend",
+]
 
 [[package]]
 name = "plotters-svg"
@@ -4408,6 +4578,18 @@ dependencies = [
  "uuid",
  "vst",
  "wisual-logger",
+]
+
+[[package]]
+name = "png"
+version = "0.16.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c3287920cb847dee3de33d301c463fba14dda99db24214ddf93f83d3021f4c6"
+dependencies = [
+ "bitflags",
+ "crc32fast",
+ "deflate",
+ "miniz_oxide",
 ]
 
 [[package]]
@@ -6230,6 +6412,12 @@ dependencies = [
  "tungstenite",
  "webview-holder",
 ]
+
+[[package]]
+name = "weezl"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8b77fdfd5a253be4ab714e4ffa3c49caf146b4de743e97510c0656cf90f1e8e"
 
 [[package]]
 name = "wgpu"

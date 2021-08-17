@@ -1,6 +1,7 @@
 use crate::model::{AnalyticsEvent, ClientMetadata};
 use async_trait::async_trait;
 
+/// Trait for back-ends. See [`augmented_analytics::backend::google::GoogleAnalyticsBackend`].
 #[async_trait]
 pub trait AnalyticsBackend: Send {
     /// Back-ends should define a method to post events in bulk.

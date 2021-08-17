@@ -11,6 +11,7 @@ use super::backend_trait::AnalyticsBackend;
 use super::reqwest_executor::RequestExecutor;
 
 pub struct GoogleAnalyticsConfig {
+    /// The version of the GA API (default to 1)
     pub version: String,
     pub tracking_id: String,
 }
@@ -33,6 +34,7 @@ impl GoogleAnalyticsConfig {
     }
 }
 
+/// Analytics back-end for Google Analytics
 pub struct GoogleAnalyticsBackend {
     client: reqwest::Client,
     config: GoogleAnalyticsConfig,
@@ -40,6 +42,7 @@ pub struct GoogleAnalyticsBackend {
 }
 
 impl GoogleAnalyticsBackend {
+    /// Create a back-end with config
     pub fn new(config: GoogleAnalyticsConfig) -> Self {
         Self {
             client: reqwest::Client::new(),
@@ -48,6 +51,7 @@ impl GoogleAnalyticsBackend {
         }
     }
 
+    #[doc(hidden)]
     pub fn new_with_executor(config: GoogleAnalyticsConfig, executor: RequestExecutor) -> Self {
         Self {
             client: reqwest::Client::new(),

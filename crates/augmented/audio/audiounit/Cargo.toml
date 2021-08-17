@@ -1,0 +1,9 @@
+[package]
+name = "audiounit"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+cocoa = "0.24"
+objc = "0.2"
+cacao = "0.2"
