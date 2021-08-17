@@ -372,10 +372,13 @@ dependencies = [
  "async-trait",
  "itertools 0.10.1",
  "log",
+ "mockall",
+ "mockall_double",
  "reqwest",
  "serde",
  "serde_json",
  "serde_urlencoded",
+ "thiserror",
  "tokio",
  "wisual-logger",
 ]
@@ -3566,6 +3569,18 @@ name = "mockall_derive"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7e25b214433f669161f414959594216d8e6ba83b6679d3db96899c0b4639033"
+dependencies = [
+ "cfg-if 1.0.0",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "mockall_double"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3e25b78d34b2b713b1d000d629079755cfc166e6a65f9f4c1c012a94305467c5"
 dependencies = [
  "cfg-if 1.0.0",
  "proc-macro2",

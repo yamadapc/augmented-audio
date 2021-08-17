@@ -78,11 +78,12 @@ impl AnalyticsWorker {
     }
 
     /// Force flush all events until the sender queue is closed
-    async fn flush_all(&mut self) {
+    #[doc(hidden)]
+    pub async fn flush_all(&mut self) {
         let mut events = vec![];
 
         while let Some(event) = self.events_queue.recv().await {
-            log::info!("Flushing event {:?}", event);
+            log::debug!("Flushing event {:?}", event);
             events.push(event);
         }
         self.send_bulk(&events).await;
@@ -119,49 +120,5 @@ impl AnalyticsClient {
         if let Err(_) = self.events_queue.send(event) {
             log::error!("Receiver is down, but analytics event was fired.");
         }
-    }
-}
-
-#[cfg(test)]
-mod test {
-    use tokio::sync::mpsc::unbounded_channel;
-
-    use crate::{
-        AnalyticsClient, AnalyticsEvent, AnalyticsWorker, ClientMetadata, GoogleAnalyticsBackend,
-        GoogleAnalyticsConfig,
-    };
-
-    #[tokio::test]
-    async fn test_setup_client() {
-        let _ = wisual_logger::try_init_from_env();
-
-        let (sender, receiver) = unbounded_channel();
-        let mut worker = AnalyticsWorker::new(
-            Default::default(),
-            Box::new(GoogleAnalyticsBackend::google(GoogleAnalyticsConfig::new(
-                "UA-74188650-6",
-            ))),
-            ClientMetadata::new("1"),
-            receiver,
-        );
-
-        {
-            let client = AnalyticsClient::new(sender);
-            client.send(
-                AnalyticsEvent::screen()
-                    .application("testing_analytics_client")
-                    .version("0.0.0")
-                    .content("test")
-                    .build(),
-            );
-            client.send(
-                AnalyticsEvent::event()
-                    .category("interaction")
-                    .action("play")
-                    .build(),
-            )
-        }
-
-        worker.flush_all().await;
     }
 }

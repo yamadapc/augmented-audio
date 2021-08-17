@@ -2,10 +2,13 @@ use std::collections::HashMap;
 
 use async_trait::async_trait;
 use itertools::Itertools;
+use mockall_double::double;
 
 use crate::model::{AnalyticsEvent, ClientMetadata};
 
 use super::backend_trait::AnalyticsBackend;
+#[double]
+use super::reqwest_executor::RequestExecutor;
 
 pub struct GoogleAnalyticsConfig {
     pub version: String,
@@ -33,13 +36,23 @@ impl GoogleAnalyticsConfig {
 pub struct GoogleAnalyticsBackend {
     client: reqwest::Client,
     config: GoogleAnalyticsConfig,
+    executor: RequestExecutor,
 }
 
 impl GoogleAnalyticsBackend {
-    pub fn google(config: GoogleAnalyticsConfig) -> Self {
+    pub fn new(config: GoogleAnalyticsConfig) -> Self {
         Self {
             client: reqwest::Client::new(),
             config,
+            executor: RequestExecutor::default(),
+        }
+    }
+
+    pub fn new_with_executor(config: GoogleAnalyticsConfig, executor: RequestExecutor) -> Self {
+        Self {
+            client: reqwest::Client::new(),
+            config,
+            executor,
         }
     }
 
@@ -104,22 +117,15 @@ impl AnalyticsBackend for GoogleAnalyticsBackend {
         metadata: &ClientMetadata,
         events: &[AnalyticsEvent],
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        let mut body: Vec<HashMap<String, String>> = Vec::new();
-        for event in events {
-            let event = Self::build_event(metadata, &self.config, event);
-            body.push(event);
-        }
+        let event_body = events
+            .into_iter()
+            .map(|event| Self::build_event(metadata, &self.config, event))
+            .filter_map(|event| serde_urlencoded::to_string(event).ok());
 
-        let chunks: Vec<String> = body
-            .iter()
+        let chunks: Vec<String> = event_body
             .chunks(20)
             .into_iter()
-            .map(|batch| {
-                batch
-                    .into_iter()
-                    .filter_map(|event| serde_urlencoded::to_string(event).ok())
-                    .join("\n")
-            })
+            .map(|batch| batch.into_iter().join("\n"))
             .collect();
 
         for batch in chunks {
@@ -135,10 +141,63 @@ impl AnalyticsBackend for GoogleAnalyticsBackend {
                         err
                     ))
                 })?;
-            let response = self.client.execute(request).await?;
-            log::info!("Flushed analytics events response={:?}", response);
+
+            let status = self.executor.execute(&self.client, request).await?;
+            log::info!(
+                "Flushed analytics events event_count={} status={:?}",
+                events.len(),
+                status
+            );
         }
 
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::convert::TryFrom;
+
+    use super::*;
+    use crate::backend::reqwest_executor;
+
+    #[tokio::test]
+    async fn test_send_bulk() {
+        let mut executor = RequestExecutor::default();
+        executor
+            .expect_execute()
+            .return_once(|_, _| Ok(reqwest::StatusCode::try_from(200).unwrap()));
+
+        let mut backend = GoogleAnalyticsBackend::new_with_executor(
+            GoogleAnalyticsConfig::new("UA-1234"),
+            executor,
+        );
+        let metadata = ClientMetadata::new("1234");
+        let events = vec![AnalyticsEvent::event()
+            .action("view")
+            .category("video")
+            .build()];
+
+        backend.send_bulk(&metadata, &events).await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_send_bulk_failure() {
+        let mut executor = RequestExecutor::default();
+        executor
+            .expect_execute()
+            .return_once(|_, _| Err(reqwest_executor::ExecutorError::MockError));
+
+        let mut backend = GoogleAnalyticsBackend::new_with_executor(
+            GoogleAnalyticsConfig::new("UA-1234"),
+            executor,
+        );
+        let metadata = ClientMetadata::new("1234");
+        let events = vec![AnalyticsEvent::event()
+            .action("view")
+            .category("video")
+            .build()];
+
+        assert!(backend.send_bulk(&metadata, &events).await.is_err());
     }
 }
