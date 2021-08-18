@@ -33,7 +33,13 @@ fn main() {
     let target_arg = format!("--target={}", target);
     let sdk = sdk_path().ok();
     let sdk = sdk.as_ref().map(String::as_ref);
-    let mut clang_args = vec!["-x", "objective-c", "-fblocks", &target_arg];
+    let mut clang_args = vec![
+        "-x",
+        "objective-c",
+        "-fblocks",
+        "-fretain-comments-from-system-headers",
+        &target_arg,
+    ];
     if let Some(sdk) = sdk {
         clang_args.extend(&["-isysroot", sdk]);
     }
@@ -53,7 +59,13 @@ fn main() {
         .blocklist_item("objc_object")
         .blocklist_item("id")
         .blocklist_item("timezone")
+        .opaque_type("FndrOpaqueInfo")
+        .opaque_type("HFSPlusCatalogFile")
+        .opaque_type("HFSCatalogFile")
+        .opaque_type("HFSPlusCatalogFolder")
+        .opaque_type("HFSCatalogFolder")
         .no_copy("AudioUnitRenderContext")
+        .no_debug("AudioUnitRenderContext")
         .header_contents("AVFAudio.h", "#include<AVFAudio/AVFAudio.h>")
         // Tell cargo to invalidate the built crate whenever any of the
         // included header files changed.
