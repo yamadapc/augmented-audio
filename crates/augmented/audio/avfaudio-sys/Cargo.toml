@@ -3,6 +3,9 @@ name = "avfaudio-sys"
 version = "0.1.0"
 edition = "2018"
 
+[lib]
+doctest = false
+
 [dependencies]
 objc = "0.2.7"
 block = "0.1.6"
