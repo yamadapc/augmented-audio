@@ -8,3 +8,4 @@ cocoa = "0.24"
 objc = "0.2"
 cacao = "0.2"
 block = "0.1.6"
+avfaudio-sys = { version = "0.1", path = "../avfaudio-sys" }

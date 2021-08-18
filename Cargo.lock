@@ -359,6 +359,7 @@ version = "0.1.0"
 name = "audiounit"
 version = "0.1.0"
 dependencies = [
+ "avfaudio-sys",
  "block",
  "cacao",
  "cocoa 0.24.0",

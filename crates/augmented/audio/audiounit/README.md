@@ -1,3 +1,2 @@
 # audiounit
-
-A description of this package.
+Hosting for audio-units.
