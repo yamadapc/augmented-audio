@@ -1,6 +1,35 @@
+use cacao::core_foundation::base::OSStatus;
 use cacao::foundation::NSNumber;
 use cocoa::base::{id, BOOL, YES};
 use objc::msg_send;
+
+// /// An audio component. - <https://developer.apple.com/documentation/audiotoolbox/audiocomponent?language=objc>
+// #[repr(C)]
+// pub struct AudioComponent {
+//     private: [u8; 0],
+// }
+//
+// /// A component instance, or object, is an audio unit or audio codec. - <https://developer.apple.com/documentation/audiotoolbox/audiocomponentinstance?language=objc>
+// #[repr(C)]
+// pub struct AudioComponentInstance {
+//     private: [u8; 0],
+// }
+//
+// #[link(name = "AVFAudio", kind = "framework")]
+// extern "C" {
+//     fn AudioComponentInstanceNew(
+//         in_component: *mut AudioComponent,
+//         out_instance: *mut AudioComponentInstance,
+//     ) -> OSStatus;
+// }
+
+pub struct AVAudioUnit {
+    reference: id,
+}
+
+impl AVAudioUnit {
+    pub fn instantiate(description: AudioComponentDescription) {}
+}
 
 /// Wraps `AVAudioUnitComponent` - <https://developer.apple.com/documentation/avfaudio/avaudiounitcomponent?language=objc>
 ///
@@ -14,6 +43,11 @@ impl AVAudioUnitComponent {
     pub fn new(reference: id) -> Self {
         Self { reference }
     }
+
+    // /// The AudioComponent of the audio unit component.
+    // pub fn audio_component(&self) -> *mut AudioComponent {
+    //     unsafe { msg_send![self.reference, audioComponent] }
+    // }
 
     /// The [`AudioComponentDescription`] of the audio unit component.
     pub fn audio_component_description(&self) -> AudioComponentDescription {
@@ -122,9 +156,6 @@ pub struct AudioComponentDescription {
     /// Set this value to zero.
     pub componentFlagsMask: u32,
 }
-
-#[link(name = "AVFAudio", kind = "framework")]
-extern "C" {}
 
 /// Wraps `AVAudioUnitComponentManager` - <https://developer.apple.com/documentation/avfaudio/avaudiounitcomponentmanager?language=objc>
 ///
