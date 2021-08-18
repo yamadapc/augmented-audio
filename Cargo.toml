@@ -30,6 +30,7 @@ members = [
   "crates/augmented/audio/audio-processor-traits",
   "crates/augmented/audio/audio-processor-utility",
   "crates/augmented/audio/audiounit",
+  "crates/augmented/audio/avfaudio-sys",
   "crates/augmented/audio/oscillator",
   "crates/augmented/data/atomic-queue",
   "crates/augmented/data/audio-volume",
