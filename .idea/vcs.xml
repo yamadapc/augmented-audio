@@ -2,25 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/basedrop" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/baseview" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/cpal" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/darwin-webkit" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/gfx" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/iced" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/iced-baseview" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/iced_audio" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/libloading" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/lyon" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/pathfinder" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/piet" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/piet/piet/snapshots" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/plotters" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/plugin-host-gui/src-tauri/tao" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/skribo" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/tauri" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/tauri/wry" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/crates/vst" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/references/DSPFilters" vcs="Git" />
   </component>
 </project>
