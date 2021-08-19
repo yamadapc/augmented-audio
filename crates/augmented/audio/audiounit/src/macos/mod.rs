@@ -1,22 +1,12 @@
-mod sys;
+use std::ffi::c_void;
 
+use bitflags::bitflags;
+use block::IntoConcreteBlock;
 use cacao::core_foundation::base::OSStatus;
 use cacao::foundation::NSNumber;
 use cocoa::base::{id, nil, BOOL, YES};
 use objc::msg_send;
-use std::ffi::c_void;
-
-// /// An audio component. - <https://developer.apple.com/documentation/audiotoolbox/audiocomponent?language=objc>
-// #[repr(C)]
-// pub struct AudioComponent {
-//     private: [u8; 0],
-// }
-//
-// /// A component instance, or object, is an audio unit or audio codec. - <https://developer.apple.com/documentation/audiotoolbox/audiocomponentinstance?language=objc>
-// #[repr(C)]
-// pub struct AudioComponentInstance {
-//     private: [u8; 0],
-// }
+use std::mem::ManuallyDrop;
 
 #[link(name = "AVFAudio", kind = "framework")]
 extern "C" {}
@@ -128,6 +118,175 @@ impl AUAudioUnit {
     }
 }
 
+bitflags! {
+
+/// Flags for configuring audio unit rendering.
+///
+/// <https://developer.apple.com/documentation/audiotoolbox/audiounitrenderactionflags?language=objc>
+///
+/// Rust-y wrapper on top of [`avfaudio_sys::AudioUnitRenderActionFlags`]
+#[derive(Default)]
+#[repr(C)]
+pub struct AudioUnitRenderActionFlags: u32 {
+    /// Called on a render notification Proc - which is called either before or after the render
+    /// operation of the audio unit. If this flag is set, the proc is being called before the
+    /// render operation is performed.
+    const PRE_RENDER = avfaudio_sys::AudioUnitRenderActionFlags_kAudioUnitRenderAction_PreRender;
+    /// Called on a render notification Proc - which is called either before or after the render
+    /// operation of the audio unit. If this flag is set, the proc is being called after the render
+    /// operation is completed.
+    const POST_RENDER = avfaudio_sys::AudioUnitRenderActionFlags_kAudioUnitRenderAction_PostRender;
+    /// This flag can be set in a render input callback (or in the audio unit's render operation
+    /// itself) and is used to indicate that the render buffer contains only silence. It can then
+    /// be used by the caller as a hint to whether the buffer needs to be processed or not.
+    const OUTPUT_IS_SILENCE = avfaudio_sys::AudioUnitRenderActionFlags_kAudioUnitRenderAction_OutputIsSilence;
+    /// This is used with offline audio units (of type 'auol'). It is used when an offline unit is
+    /// being preflighted, which is performed prior to the actual offline rendering actions are
+    /// performed. It is used for those cases where the offline process needs it (for example, with
+    /// an offline unit that normalizes an audio file, it needs to see all of the audio data first
+    /// before it can perform its normalization).
+    const OFFLINE_PREFLIGHT = avfaudio_sys::AudioUnitRenderActionFlags_kAudioOfflineUnitRenderAction_Preflight;
+    /// Once an offline unit has been successfully preflighted, it is then put into its render mode.
+    /// So this flag is set to indicate to the audio unit that it is now in that state and that it
+    /// should perform its processing on the input data.
+    const OFFLINE_RENDER = avfaudio_sys::AudioUnitRenderActionFlags_kAudioOfflineUnitRenderAction_Render;
+    /// This flag is set when an offline unit has completed either its preflight or performed render
+    /// operation.
+    const OFFLINE_COMPLETE = avfaudio_sys::AudioUnitRenderActionFlags_kAudioOfflineUnitRenderAction_Complete;
+    /// If this flag is set on the post-render call an error was returned by the audio unit's render
+    /// operation. In this case, the error can be retrieved through the lastRenderError property and
+    /// the audio data in ioData handed to the post-render notification will be invalid.
+    const POST_RENDER_ERROR = avfaudio_sys::AudioUnitRenderActionFlags_kAudioUnitRenderAction_PostRenderError;
+    /// If this flag is set, then checks that are done on the arguments provided to render are not
+    /// performed. This can be useful to use to save computation time in situations where you are
+    /// sure you are providing the correct arguments and structures to the various render calls.
+    const DO_NOT_CHECK_RENDER_ARGS = avfaudio_sys::AudioUnitRenderActionFlags_kAudioUnitRenderAction_DoNotCheckRenderArgs;
+}
+
+}
+
+/// An abstraction for the Objective-C block that performs real-time audio rendering for AudioUnits
+pub struct AUAudioUnitRenderBlock {
+    block_ptr: *const block::Block<
+        (
+            *mut avfaudio_sys::AudioUnitRenderActionFlags,
+            *const avfaudio_sys::AudioTimeStamp,
+            avfaudio_sys::AUAudioFrameCount,
+            avfaudio_sys::NSInteger,
+            *mut avfaudio_sys::AudioBufferList,
+            avfaudio_sys::AURenderPullInputBlock,
+        ),
+        avfaudio_sys::AUAudioUnitStatus,
+    >,
+}
+
+impl AUAudioUnitRenderBlock {
+    pub fn new(
+        block_ptr: *const block::Block<
+            (
+                *mut avfaudio_sys::AudioUnitRenderActionFlags,
+                *const avfaudio_sys::AudioTimeStamp,
+                avfaudio_sys::AUAudioFrameCount,
+                avfaudio_sys::NSInteger,
+                *mut avfaudio_sys::AudioBufferList,
+                avfaudio_sys::AURenderPullInputBlock,
+            ),
+            avfaudio_sys::AUAudioUnitStatus,
+        >,
+    ) -> Self {
+        AUAudioUnitRenderBlock { block_ptr }
+    }
+
+    /// # Safety
+    /// Don't use.
+    pub unsafe fn raw_call(
+        &self,
+        flags: &mut AudioUnitRenderActionFlags,
+        timestamp: *const avfaudio_sys::AudioTimeStamp,
+        frame_count: avfaudio_sys::AUAudioFrameCount,
+        output_bus_number: avfaudio_sys::NSInteger,
+        buffer_list: *mut avfaudio_sys::AudioBufferList,
+        pull_input_block: avfaudio_sys::AURenderPullInputBlock,
+    ) -> avfaudio_sys::AUAudioUnitStatus {
+        self.block_ptr.as_ref().unwrap().call((
+            &mut flags.bits as *mut _,
+            timestamp,
+            frame_count,
+            output_bus_number,
+            buffer_list,
+            pull_input_block,
+        ))
+    }
+}
+
+struct AURenderPullInputBlock {
+    block_ptr: *const block::Block<
+        (
+            *mut avfaudio_sys::AudioUnitRenderActionFlags,
+            *const avfaudio_sys::AudioTimeStamp,
+            avfaudio_sys::AUAudioFrameCount,
+            avfaudio_sys::NSInteger,
+            *mut avfaudio_sys::AudioBufferList,
+        ),
+        avfaudio_sys::AUAudioUnitStatus,
+    >,
+}
+
+impl AURenderPullInputBlock {
+    pub fn new(
+        block_ptr: *const block::Block<
+            (
+                *mut avfaudio_sys::AudioUnitRenderActionFlags,
+                *const avfaudio_sys::AudioTimeStamp,
+                avfaudio_sys::AUAudioFrameCount,
+                avfaudio_sys::NSInteger,
+                *mut avfaudio_sys::AudioBufferList,
+            ),
+            avfaudio_sys::AUAudioUnitStatus,
+        >,
+    ) -> Self {
+        Self { block_ptr }
+    }
+
+    pub fn from_fn<F>(f: F) -> Self
+    where
+        F: IntoConcreteBlock<
+            (
+                *mut avfaudio_sys::AudioUnitRenderActionFlags,
+                *const avfaudio_sys::AudioTimeStamp,
+                avfaudio_sys::AUAudioFrameCount,
+                avfaudio_sys::NSInteger,
+                *mut avfaudio_sys::AudioBufferList,
+            ),
+            Ret = avfaudio_sys::AUAudioUnitStatus,
+        >,
+    {
+        let block = ManuallyDrop::new(block::ConcreteBlock::new(f));
+        let block = &**block;
+        let block_ptr = block as *const _;
+        Self::new(block_ptr)
+    }
+
+    /// # Safety
+    /// Don't use.
+    pub unsafe fn raw_call(
+        &self,
+        flags: &mut AudioUnitRenderActionFlags,
+        timestamp: *const avfaudio_sys::AudioTimeStamp,
+        frame_count: avfaudio_sys::AUAudioFrameCount,
+        input_bus_number: avfaudio_sys::NSInteger,
+        input_data: *mut avfaudio_sys::AudioBufferList,
+    ) -> avfaudio_sys::AUAudioUnitStatus {
+        self.block_ptr.as_ref().unwrap().call((
+            &mut flags.bits as *mut _,
+            timestamp,
+            frame_count,
+            input_bus_number,
+            input_data,
+        ))
+    }
+}
+
 /// Wraps `AVAudioUnitComponent` - <https://developer.apple.com/documentation/avfaudio/avaudiounitcomponent?language=objc>
 ///
 /// A class that provides details about an audio unit such as: type, subtype, manufacturer, and
@@ -140,11 +299,6 @@ impl AVAudioUnitComponent {
     pub fn new(reference: id) -> Self {
         Self { reference }
     }
-
-    // /// The AudioComponent of the audio unit component.
-    // pub fn audio_component(&self) -> *mut AudioComponent {
-    //     unsafe { msg_send![self.reference, audioComponent] }
-    // }
 
     /// The [`AudioComponentDescription`] of the audio unit component.
     pub fn audio_component_description(&self) -> AudioComponentDescription {
@@ -310,8 +464,9 @@ impl AVAudioUnitComponentManager {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use cocoa::quartzcore::transaction::set_value_for_key;
+
+    use super::*;
 
     #[test]
     fn test_list_all_components() {
