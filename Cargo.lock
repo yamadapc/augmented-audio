@@ -364,6 +364,7 @@ dependencies = [
  "cacao",
  "cocoa 0.24.0",
  "objc",
+ "objc_id",
 ]
 
 [[package]]

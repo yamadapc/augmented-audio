@@ -286,7 +286,7 @@ impl AVAudioUnitComponentManager {
     }
 
     /// Return all [`AudioUnit`] component information
-    pub fn all_components(&mut self) -> Vec<AVAudioUnitComponent> {
+    pub fn all_components(&self) -> Vec<AVAudioUnitComponent> {
         let mut result = vec![];
         unsafe {
             // NSPredicate
