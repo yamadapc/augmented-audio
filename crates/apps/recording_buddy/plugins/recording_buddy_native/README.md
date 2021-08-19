@@ -1,9 +1,10 @@
 # recording_buddy_native
+Native bits for recording buddy.
 
-Native bits for recording buddy
+The purpouse of this plugin is only to force librecording_buddy.a to be statically linked into the flutter app and
+visible from dart.
 
-## Getting Started
-
+## Documentation
 This project is a starting point for a Flutter
 [plug-in package](https://flutter.dev/developing-packages/),
 a specialized package that includes platform-specific implementation code for
