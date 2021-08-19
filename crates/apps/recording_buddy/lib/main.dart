@@ -8,7 +8,7 @@ void main() {
 
 void initializeRecordingBuddy() {
   var fun = DynamicLibrary
-      .executable()
+      .process()
       .lookupFunction<Void Function(), void Function()>("initialize_recording_buddy");
   fun.call();
 }

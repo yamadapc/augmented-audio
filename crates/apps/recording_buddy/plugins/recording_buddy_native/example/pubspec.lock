@@ -91,7 +91,7 @@ packages:
   recording_buddy_native:
     dependency: "direct main"
     description:
-      path: "plugins/recording_buddy_native"
+      path: ".."
       relative: true
     source: path
     version: "0.0.1"
