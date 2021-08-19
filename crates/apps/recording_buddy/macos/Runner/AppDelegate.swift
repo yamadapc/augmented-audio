@@ -6,6 +6,7 @@ class AppDelegate: FlutterAppDelegate {
     var statusItem: NSStatusItem!
 
     override func applicationDidFinishLaunching(_ notification: Notification) {
+        initialize_recording_buddy()
 
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {

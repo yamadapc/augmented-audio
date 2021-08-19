@@ -1,21 +1,15 @@
 PODS:
   - FlutterMacOS (1.0.0)
-  - recording_buddy_native (0.0.1):
-    - FlutterMacOS
 
 DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
-  - recording_buddy_native (from `Flutter/ephemeral/.symlinks/plugins/recording_buddy_native/macos`)
 
 EXTERNAL SOURCES:
   FlutterMacOS:
     :path: Flutter/ephemeral
-  recording_buddy_native:
-    :path: Flutter/ephemeral/.symlinks/plugins/recording_buddy_native/macos
 
 SPEC CHECKSUMS:
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
-  recording_buddy_native: 16f9e7f9d10a12d1c9598e1ab1d88f6d4b0bc506
 
 PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
 

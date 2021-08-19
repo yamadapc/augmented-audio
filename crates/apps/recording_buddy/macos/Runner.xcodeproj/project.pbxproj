@@ -28,6 +28,7 @@
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		CBE818B826CE55BC00DD2D59 /* ContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBE818B726CE55BC00DD2D59 /* ContentViewController.swift */; };
+		CBE818BC26CF177900DD2D59 /* librecording_buddy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CBE818BA26CE855C00DD2D59 /* librecording_buddy.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -84,6 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CBE818BC26CF177900DD2D59 /* librecording_buddy.a in Frameworks */,
 				1F2121B218BA188A4983F358 /* Pods_Runner.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -416,6 +418,11 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/../Flutter/ephemeral/.symlinks/plugins/recording_buddy_native/macos\"",
+					"${PROJECT_DIR}/Runner/lib/release/",
+				);
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -546,6 +553,11 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/../Flutter/ephemeral/.symlinks/plugins/recording_buddy_native/macos\"",
+					"${PROJECT_DIR}/Runner/lib/debug/",
+				);
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -566,6 +578,11 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"${PODS_ROOT}/../Flutter/ephemeral/.symlinks/plugins/recording_buddy_native/macos\"",
+					"${PROJECT_DIR}/Runner/lib/release/",
 				);
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
