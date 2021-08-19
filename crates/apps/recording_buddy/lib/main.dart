@@ -1,7 +1,16 @@
+import 'dart:ffi';
+
 import 'package:flutter/cupertino.dart';
 
 void main() {
   runApp(MyApp());
+}
+
+void initializeRecordingBuddy() {
+  var fun = DynamicLibrary
+      .executable()
+      .lookupFunction<Void Function(), void Function()>("initialize_recording_buddy");
+  fun.call();
 }
 
 class MyApp extends StatelessWidget {
@@ -49,12 +58,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
+  void initState() {
+    initializeRecordingBuddy();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
         padding: EdgeInsetsDirectional.all(10),
         decoration:
             BoxDecoration(color: CupertinoTheme.of(context).barBackgroundColor),
-        child: Expanded(child: buildColumn(context)));
+        child: buildColumn(context));
   }
 
   Column buildColumn(BuildContext context) {
