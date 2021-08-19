@@ -219,7 +219,7 @@ impl AUAudioUnitRenderBlock {
     }
 }
 
-struct AURenderPullInputBlock {
+pub struct AURenderPullInputBlock {
     block_ptr: *const block::Block<
         (
             *mut avfaudio_sys::AudioUnitRenderActionFlags,
