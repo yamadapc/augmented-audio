@@ -178,9 +178,13 @@ fn configure_input_device(
     sample_rate: usize,
 ) -> (cpal::Device, StreamConfig) {
     let input_device = host.default_input_device().unwrap();
+    log::info!("Using input: {}", input_device.name().unwrap());
+    let supported_configs = input_device.supported_input_configs().unwrap();
+    for config in supported_configs {
+        log::info!("Supported config: {:?}", config);
+    }
     let input_config = input_device.default_input_config().unwrap();
     let mut input_config: StreamConfig = input_config.into();
-    log::info!("Using input: {}", input_device.name().unwrap());
     input_config.channels = 2;
     input_config.sample_rate = SampleRate(sample_rate as u32);
     input_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
@@ -193,10 +197,14 @@ fn configure_output_device(
     sample_rate: usize,
 ) -> (cpal::Device, usize, StreamConfig) {
     let output_device = host.default_output_device().unwrap();
+    log::info!("Using output: {}", output_device.name().unwrap());
+    let supported_configs = output_device.supported_input_configs().unwrap();
+    for config in supported_configs {
+        log::info!("Supported config: {:?}", config);
+    }
     let output_config = output_device.default_output_config().unwrap();
     let num_channels: usize = output_config.channels().into();
     let mut output_config: StreamConfig = output_config.into();
-    log::info!("Using output: {}", output_device.name().unwrap());
     output_config.channels = 2;
     output_config.sample_rate = SampleRate(sample_rate as u32);
     output_config.buffer_size = BufferSize::Fixed(buffer_size as u32);

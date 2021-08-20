@@ -4935,9 +4935,9 @@ dependencies = [
 name = "recording_buddy"
 version = "0.1.0"
 dependencies = [
+ "augmented",
  "cbindgen",
  "log",
- "wisual-logger",
 ]
 
 [[package]]
