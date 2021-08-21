@@ -177,7 +177,7 @@ pub fn audio_processor_main_with_midi<
 pub fn audio_processor_start_with_midi<
     Processor: AudioProcessor<SampleType = f32> + MidiEventHandler + Send + 'static,
 >(
-    mut audio_processor: Processor,
+    audio_processor: Processor,
     handle: &Handle,
 ) -> StandaloneHandles {
     let app = StandaloneProcessorImpl {
