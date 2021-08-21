@@ -10,7 +10,7 @@ use iced::{
 
 use atomic_queue::Queue;
 use audio_garbage_collector::GarbageCollector;
-use audio_processor_standalone::audio_processor_start;
+use audio_processor_standalone::{audio_processor_start, StandaloneHandles};
 use circular_data_structures::CircularVec;
 use example_iced_audio_viz::buffer_analyser::BufferAnalyserProcessor;
 
@@ -23,7 +23,7 @@ struct AudioProcessingHandles {
     #[allow(dead_code)]
     garbage_collector: GarbageCollector,
     #[allow(dead_code)]
-    audio_streams: (Stream, Stream),
+    standalone_handles: StandaloneHandles,
 }
 
 struct AudioVisualization {
@@ -48,14 +48,14 @@ impl Application for AudioVisualization {
         let garbage_collector = GarbageCollector::default();
         let processor = BufferAnalyserProcessor::new(garbage_collector.handle());
         let queue_handle = processor.queue();
-        let audio_streams = audio_processor_start(processor);
+        let standalone_handles = audio_processor_start(processor);
         let buffer = CircularVec::with_size(5 * 4410, 0.0);
 
         (
             AudioVisualization {
                 audio_processing_handles: AudioProcessingHandles {
                     garbage_collector,
-                    audio_streams,
+                    standalone_handles: standalone_handles,
                 },
                 queue_handle,
                 buffer,

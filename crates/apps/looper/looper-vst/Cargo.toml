@@ -41,6 +41,7 @@ iced_audio = { path = "../../../vendor/iced_audio", default-features = false }
 iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false }
 iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false }
 
+augmented = { path = "../../../augmented/augmented" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }

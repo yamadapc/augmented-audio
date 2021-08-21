@@ -13,13 +13,13 @@ use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHa
 use iced_editor::IcedEditor;
 use looper_processor::LooperProcessor;
 
-use crate::ui::LooperApplication;
+pub use crate::ui::LooperApplication;
 
-mod ui;
+pub mod ui;
 
 pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";
 
-struct LoopiPlugin {
+pub struct LoopiPlugin {
     garbage_collector: GarbageCollector,
     parameters: Arc<ParameterStore>,
     processor: LooperProcessor<f32>,

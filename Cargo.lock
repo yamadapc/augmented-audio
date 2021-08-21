@@ -397,6 +397,7 @@ dependencies = [
  "macos-bundle-resources",
  "oscillator",
  "smooth-value",
+ "vst",
  "wisual-logger",
 ]
 
@@ -706,25 +707,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c24dab4283a142afa2fdca129b80ad2c6284e073930f964c3a1293c225ee39a"
 dependencies = [
  "rustc_version 0.4.0",
-]
-
-[[package]]
-name = "cbindgen"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51e3973b165dc0f435831a9e426de67e894de532754ff7a3f307c03ee5dec7dc"
-dependencies = [
- "clap 2.33.3",
- "heck",
- "indexmap",
- "log",
- "proc-macro2",
- "quote",
- "serde",
- "serde_json",
- "syn",
- "tempfile",
- "toml",
 ]
 
 [[package]]
@@ -3376,6 +3358,7 @@ dependencies = [
  "audio-plugin-logger",
  "audio-processor-iced-design-system",
  "audio-processor-traits",
+ "augmented",
  "dirs",
  "iced",
  "iced-editor",
@@ -4929,15 +4912,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "678054eb77286b51581ba43620cc911abf02758c91f93f479767aed0f90458b2"
 dependencies = [
  "rand_core 0.3.1",
-]
-
-[[package]]
-name = "recording_buddy"
-version = "0.1.0"
-dependencies = [
- "augmented",
- "cbindgen",
- "log",
 ]
 
 [[package]]

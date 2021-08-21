@@ -9,7 +9,7 @@ use iced::{
 };
 
 use audio_garbage_collector::GarbageCollector;
-use audio_processor_standalone::audio_processor_start;
+use audio_processor_standalone::{audio_processor_start, StandaloneHandles};
 use example_iced_audio_viz::volume_analyser::{VolumeAnalyser, VolumeAnalyserHandle};
 
 fn main() -> iced::Result {
@@ -21,7 +21,7 @@ struct AudioProcessingHandles {
     #[allow(dead_code)]
     garbage_collector: GarbageCollector,
     #[allow(dead_code)]
-    audio_streams: (Stream, Stream),
+    standalone_handles: StandaloneHandles,
 }
 
 struct AudioVisualization {
@@ -46,13 +46,13 @@ impl Application for AudioVisualization {
         let garbage_collector = GarbageCollector::default();
         let processor = VolumeAnalyser::new(garbage_collector.handle(), Duration::from_millis(8));
         let handle = processor.handle().clone();
-        let audio_streams = audio_processor_start(processor);
+        let standalone_handles = audio_processor_start(processor);
 
         (
             AudioVisualization {
                 audio_processing_handles: AudioProcessingHandles {
                     garbage_collector,
-                    audio_streams,
+                    standalone_handles: standalone_handles,
                 },
                 handle,
                 volume_left: 0.0,
