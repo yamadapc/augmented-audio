@@ -54,13 +54,6 @@ pub fn main() {
     let processor = BufferAnalyserProcessor::new(garbage_collector.handle());
     let queue_handle = processor.queue();
     let _audio_streams = audio_processor_start(processor);
-
-    // We create a new thread and generate colours in it.
-    // This happens on a second thread so that we can run the UI in the
-    // main thread. Generating some colours nicely follows the pattern for what
-    // should be done like this: generating something over time
-    // (like this or reacting to external events), or something that takes a
-    // long time and shouldn't block main UI updates.
     thread::spawn(move || generate_audio_updates(event_sink, queue_handle));
 
     launcher
@@ -146,17 +139,27 @@ impl Widget<AudioData> for AudioWave {
         let mut index = 0;
 
         let mut shape = BezPath::new();
+        let num_points = data.len();
+        let width = size.width;
+        let step = ((num_points as f64) / width) as usize;
         while index < data.len() {
             let item = data[index];
             let f_index = index as f64;
             let x_coord = (f_index / data.len() as f64) * size.width;
-            let x2_coord = ((f_index + 1.0) / data.len() as f64) * size.width;
             let y_coord = (prev as f64) * size.height / 2.0 + size.height / 2.0;
-            let y2_coord = (item as f64) * size.height / 2.0 + size.height / 2.0;
             shape.move_to(Point::new(x_coord, y_coord));
-            shape.line_to(Point::new(x2_coord, y2_coord));
+
+            let mut draw = |item| {
+                let x2_coord = ((f_index + 1.0) / data.len() as f64) * size.width;
+                let y2_coord = (item as f64) * size.height / 2.0 + size.height / 2.0;
+                shape.line_to(Point::new(x2_coord, y2_coord));
+            };
+
+            draw(item);
+            draw(-item);
+
             prev = item;
-            index += 10;
+            index += step;
         }
         ctx.stroke(shape, &Color::RED, 3.0);
     }

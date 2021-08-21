@@ -352,6 +352,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-settings-gui"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-iced-design-system",
+ "audio-processor-iced-storybook",
+ "derive_more",
+ "iced",
+]
+
+[[package]]
 name = "audio-volume"
 version = "0.1.0"
 

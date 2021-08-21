@@ -1,0 +1,20 @@
+[package]
+name = "audio-settings-gui"
+description = "Helper for rendering Audio IO settings GUI"
+version = "0.1.0"
+edition = "2018"
+
+[features]
+default = ["glow", "story"]
+glow = ["iced/glow", "iced/glow_canvas", "audio-processor-iced-storybook/glow"]
+wgpu = ["iced/wgpu", "iced/canvas", "audio-processor-iced-storybook/wgpu"]
+story = []
+
+[dependencies]
+iced = { version = "^0.3.0", path = "../../../vendor/iced", default-features = false }
+# Augmented
+audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
+audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" }
+
+[dev-dependencies]
+derive_more = "^0.99.16"
