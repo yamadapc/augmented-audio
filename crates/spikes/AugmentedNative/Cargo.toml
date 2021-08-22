@@ -1,0 +1,15 @@
+[package]
+name = "AugmentedNative"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+uniffi = "0.14"
+uniffi_macros = "0.14"
+plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
+
+[build-dependencies]
+uniffi_build = "0.14"

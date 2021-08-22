@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <Group
+      location = "group:/Users/yamadapc/projects/rust-audio-software/crates/spikes/AugmentedNative/src"
+      name = "src">
+      <FileRef
+         location = "group:/Users/yamadapc/projects/rust-audio-software/crates/spikes/AugmentedNative/Storybook/Storybook-Bridging-Header.h">
+      </FileRef>
+      <Group
+         location = "group:Generated"
+         name = "Generated">
+         <FileRef
+            location = "group:augmentedFFI.h">
+         </FileRef>
+         <FileRef
+            location = "group:augmentedFFI.modulemap">
+         </FileRef>
+         <FileRef
+            location = "group:augmented.swift">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:lib.rs">
+      </FileRef>
+      <FileRef
+         location = "group:augmented.udl">
+      </FileRef>
+   </Group>
+   <FileRef
+      location = "self:">
+   </FileRef>
+</Workspace>

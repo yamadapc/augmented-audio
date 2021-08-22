@@ -1,0 +1,11 @@
+namespace augmented {
+
+    AudioGuiInitialModel get_audio_info();
+
+};
+
+dictionary AudioGuiInitialModel {
+    sequence<string> host_ids;
+    sequence<string> input_ids;
+    sequence<string> output_ids;
+};
