@@ -14,7 +14,7 @@ fileprivate extension RustBuffer {
     // Allocate a new buffer, copying the contents of a `UInt8` array.
     init(bytes: [UInt8]) {
         let rbuf = bytes.withUnsafeBufferPointer { ptr in
-            try! rustCall { ffi_augmented_fea8_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+            try! rustCall { ffi_augmented_3c29_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
         }
         self.init(capacity: rbuf.capacity, len: rbuf.len, data: rbuf.data)
     }
@@ -22,7 +22,7 @@ fileprivate extension RustBuffer {
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_augmented_fea8_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_augmented_3c29_rustbuffer_free(self, $0) }
     }
 }
 
@@ -199,6 +199,24 @@ extension ViaFfiUsingByteBuffer {
 
 // Implement our protocols for the built-in types that we use.
 
+extension Optional: ViaFfiUsingByteBuffer, ViaFfi, Serializable where Wrapped: Serializable {
+    fileprivate static func read(from buf: Reader) throws -> Self {
+        switch try buf.readInt() as Int8 {
+        case 0: return nil
+        case 1: return try Wrapped.read(from: buf)
+        default: throw UniffiInternalError.unexpectedOptionalTag
+        }
+    }
+
+    fileprivate func write(into buf: Writer) {
+        guard let value = self else {
+            buf.writeInt(Int8(0))
+            return
+        }
+        buf.writeInt(Int8(1))
+        value.write(into: buf)
+    }
+}
 
 
 
@@ -234,7 +252,7 @@ extension String: ViaFfi {
 
     fileprivate static func lift(_ v: FfiType) throws -> Self {
         defer {
-            try! rustCall { ffi_augmented_fea8_rustbuffer_free(v, $0) }
+            try! rustCall { ffi_augmented_3c29_rustbuffer_free(v, $0) }
         }
         if v.data == nil {
             return String()
@@ -250,7 +268,7 @@ extension String: ViaFfi {
                 // The swift string gives us a trailing null byte, we don't want it.
                 let buf = UnsafeBufferPointer(rebasing: ptr.prefix(upTo: ptr.count - 1))
                 let bytes = ForeignBytes(bufferPointer: buf)
-                return try! rustCall { ffi_augmented_fea8_rustbuffer_from_bytes(bytes, $0) }
+                return try! rustCall { ffi_augmented_3c29_rustbuffer_from_bytes(bytes, $0) }
             }
         }
     }
@@ -266,6 +284,20 @@ extension String: ViaFfi {
         buf.writeBytes(self.utf8)
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -423,6 +455,61 @@ fileprivate extension AudioGuiInitialModel {
 
 extension AudioGuiInitialModel: ViaFfiUsingByteBuffer, ViaFfi {}
 
+public struct AudioGuiModel {
+    public var hostId: String?
+    public var inputId: String?
+    public var outputId: String?
+
+    // Default memberwise initializers are never public by default, so we
+    // declare one manually.
+    public init(hostId: String?, inputId: String?, outputId: String? ) {
+        self.hostId = hostId
+        self.inputId = inputId
+        self.outputId = outputId
+    }
+}
+
+
+extension AudioGuiModel: Equatable, Hashable {
+    public static func ==(lhs: AudioGuiModel, rhs: AudioGuiModel) -> Bool {
+        if lhs.hostId != rhs.hostId {
+            return false
+        }
+        if lhs.inputId != rhs.inputId {
+            return false
+        }
+        if lhs.outputId != rhs.outputId {
+            return false
+        }
+        return true
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(hostId)
+        hasher.combine(inputId)
+        hasher.combine(outputId)
+    }
+}
+
+
+fileprivate extension AudioGuiModel {
+    static func read(from buf: Reader) throws -> AudioGuiModel {
+        return try AudioGuiModel(
+            hostId: String?.read(from: buf),
+            inputId: String?.read(from: buf),
+            outputId: String?.read(from: buf)
+        )
+    }
+
+    func write(into buf: Writer) {
+        hostId.write(into: buf)
+        inputId.write(into: buf)
+        outputId.write(into: buf)
+    }
+}
+
+extension AudioGuiModel: ViaFfiUsingByteBuffer, ViaFfi {}
+
 
 
 
@@ -433,7 +520,7 @@ public func initializeLogger()  {
     
     rustCall() {
     
-    augmented_fea8_initialize_logger( $0)
+    augmented_3c29_initialize_logger( $0)
 }
 }
 
@@ -446,9 +533,22 @@ public func getAudioInfo()  -> AudioGuiInitialModel {
     
     rustCall() {
     
-    augmented_fea8_get_audio_info( $0)
+    augmented_3c29_get_audio_info( $0)
 }
     return try! AudioGuiInitialModel.lift(_retval)
+}
+
+
+
+
+public func setAudioInfo(model: AudioGuiModel )  {
+    try!
+    
+    
+    rustCall() {
+    
+    augmented_3c29_set_audio_info(model.lower() , $0)
+}
 }
 
 

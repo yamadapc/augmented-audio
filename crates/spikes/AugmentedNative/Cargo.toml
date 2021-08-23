@@ -11,6 +11,7 @@ uniffi = "0.14"
 uniffi_macros = "0.14"
 plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
+log = "0.4"
 
 [build-dependencies]
 uniffi_build = "0.14"

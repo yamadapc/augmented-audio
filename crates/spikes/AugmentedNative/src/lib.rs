@@ -11,19 +11,27 @@ pub struct AudioGuiInitialModel {
 }
 
 pub fn get_audio_info() -> AudioGuiInitialModel {
-    println!("get_audio_info");
+    log::info!("get_audio_info called");
     let host_list = AudioIOService::hosts();
-    println!("get_audio_info - hosts");
     let input_list = AudioIOService::input_devices(None).unwrap();
-    println!("get_audio_info - inputs");
     let output_list = AudioIOService::output_devices(None).unwrap();
-    println!("get_audio_info - outputs");
 
     AudioGuiInitialModel {
         host_ids: host_list,
         input_ids: input_list.into_iter().map(|device| device.name).collect(),
         output_ids: output_list.into_iter().map(|device| device.name).collect(),
     }
+}
+
+#[derive(Debug)]
+pub struct AudioGuiModel {
+    host_id: Option<String>,
+    input_id: Option<String>,
+    output_id: Option<String>,
+}
+
+pub fn set_audio_info(model: AudioGuiModel) {
+    log::info!("set_audio_info called with {:?}", model);
 }
 
 uniffi_macros::include_scaffolding!("augmented");

@@ -42,6 +42,12 @@ class ContentViewController {
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak model] _ in
                 print(String(describing: model))
+                let ffiModel = AudioGuiModel(
+                    hostId: model?.hostId,
+                    inputId: model?.inputId,
+                    outputId: model?.outputId
+                )
+                setAudioInfo(model: ffiModel)
             })
             .store(in: &subscriptions)
     }

@@ -44,27 +44,31 @@ typedef struct RustCallStatus {
 // ⚠️ increment the version suffix in all instances of UNIFFI_SHARED_HEADER_V3 in this file.           ⚠️
 #endif // def UNIFFI_SHARED_H
 
-void augmented_fea8_initialize_logger(
+void augmented_3c29_initialize_logger(
       
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer augmented_fea8_get_audio_info(
+RustBuffer augmented_3c29_get_audio_info(
       
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_augmented_fea8_rustbuffer_alloc(
+void augmented_3c29_set_audio_info(
+      RustBuffer model,
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer ffi_augmented_3c29_rustbuffer_alloc(
       int32_t size,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_augmented_fea8_rustbuffer_from_bytes(
+RustBuffer ffi_augmented_3c29_rustbuffer_from_bytes(
       ForeignBytes bytes,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_augmented_fea8_rustbuffer_free(
+void ffi_augmented_3c29_rustbuffer_free(
       RustBuffer buf,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_augmented_fea8_rustbuffer_reserve(
+RustBuffer ffi_augmented_3c29_rustbuffer_reserve(
       RustBuffer buf,int32_t additional,
     RustCallStatus *_Nonnull out_status
     );
