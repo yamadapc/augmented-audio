@@ -88,11 +88,11 @@ impl AudioThread {
         &mut self,
         input_device_id: Option<AudioDeviceId>,
     ) -> Result<(), AudioThreadError> {
-        if input_device_id != self.audio_thread_options.input_device_id {
-            self.audio_thread_options.input_device_id = input_device_id;
-            self.wait()?;
-            self.start()?;
-        }
+        // if input_device_id != self.audio_thread_options.input_device_id {
+        self.audio_thread_options.input_device_id = input_device_id;
+        self.wait()?;
+        self.start()?;
+        // }
         Ok(())
     }
 
@@ -101,11 +101,11 @@ impl AudioThread {
         &mut self,
         output_device_id: AudioDeviceId,
     ) -> Result<(), AudioThreadError> {
-        if output_device_id != self.audio_thread_options.output_device_id {
-            self.audio_thread_options.output_device_id = output_device_id;
-            self.wait()?;
-            self.start()?;
-        }
+        // if output_device_id != self.audio_thread_options.output_device_id {
+        self.audio_thread_options.output_device_id = output_device_id;
+        self.wait()?;
+        self.start()?;
+        // }
         Ok(())
     }
 

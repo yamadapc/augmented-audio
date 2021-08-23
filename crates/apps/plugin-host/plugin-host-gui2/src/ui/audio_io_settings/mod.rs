@@ -14,6 +14,7 @@ pub struct Controller {
 }
 
 impl Controller {
+    // TODO - This should be reading the IO state from disk on startup.
     pub fn new(audio_io_service: Arc<Mutex<AudioIOService>>) -> Self {
         let audio_driver_state = Self::build_audio_driver_dropdown_state();
         let input_device_state =

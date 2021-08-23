@@ -70,6 +70,7 @@ impl AudioIOService {
             .storage
             .fetch()
             .map_err(|_| AudioIOServiceError::StorageError)?;
+        log::info!("Reloaded state {:?}", state);
         self.state = state;
         let mut host = self.host.lock().unwrap();
         host.set_host_id(AudioHostId::Id(self.state.host.clone()))
@@ -137,7 +138,7 @@ impl AudioIOService {
                 log::error!("Failed to set output device {}", err);
                 AudioIOServiceError::AudioThreadError
             })?;
-        self.state.input_device = Some(AudioDevice::new(output_device_id));
+        self.state.output_device = Some(AudioDevice::new(output_device_id));
         self.try_store();
         Ok(())
     }
