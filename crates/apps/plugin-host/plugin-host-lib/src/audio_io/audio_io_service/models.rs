@@ -36,7 +36,7 @@ impl DevicesList {
     }
 }
 
-#[derive(Serialize, Eq, PartialEq, Debug, Deserialize)]
+#[derive(Serialize, Clone, Eq, PartialEq, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AudioIOState {
     pub host: AudioHost,

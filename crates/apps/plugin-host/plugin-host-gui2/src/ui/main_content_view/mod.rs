@@ -90,8 +90,14 @@ impl MainContentView {
             host_state.audio_input_file_path.clone(),
             host_state.plugin_path.clone(),
         );
-        let audio_io_settings = audio_io_settings::Controller::new(audio_io_service);
+        let (audio_io_settings, audio_io_settings_command) =
+            audio_io_settings::Controller::new(audio_io_service);
         let editor_controller = plugin_editor_window::EditorController::new(plugin_host.clone());
+
+        let command = Command::batch(vec![
+            command,
+            audio_io_settings_command.map(Message::AudioIOSettings),
+        ]);
 
         (
             MainContentView {
