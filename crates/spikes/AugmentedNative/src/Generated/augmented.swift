@@ -14,7 +14,7 @@ fileprivate extension RustBuffer {
     // Allocate a new buffer, copying the contents of a `UInt8` array.
     init(bytes: [UInt8]) {
         let rbuf = bytes.withUnsafeBufferPointer { ptr in
-            try! rustCall { ffi_augmented_157d_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+            try! rustCall { ffi_augmented_fea8_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
         }
         self.init(capacity: rbuf.capacity, len: rbuf.len, data: rbuf.data)
     }
@@ -22,7 +22,7 @@ fileprivate extension RustBuffer {
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_augmented_157d_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_augmented_fea8_rustbuffer_free(self, $0) }
     }
 }
 
@@ -234,7 +234,7 @@ extension String: ViaFfi {
 
     fileprivate static func lift(_ v: FfiType) throws -> Self {
         defer {
-            try! rustCall { ffi_augmented_157d_rustbuffer_free(v, $0) }
+            try! rustCall { ffi_augmented_fea8_rustbuffer_free(v, $0) }
         }
         if v.data == nil {
             return String()
@@ -250,7 +250,7 @@ extension String: ViaFfi {
                 // The swift string gives us a trailing null byte, we don't want it.
                 let buf = UnsafeBufferPointer(rebasing: ptr.prefix(upTo: ptr.count - 1))
                 let bytes = ForeignBytes(bufferPointer: buf)
-                return try! rustCall { ffi_augmented_157d_rustbuffer_from_bytes(bytes, $0) }
+                return try! rustCall { ffi_augmented_fea8_rustbuffer_from_bytes(bytes, $0) }
             }
         }
     }
@@ -427,13 +427,26 @@ extension AudioGuiInitialModel: ViaFfiUsingByteBuffer, ViaFfi {}
 
 
 
+public func initializeLogger()  {
+    try!
+    
+    
+    rustCall() {
+    
+    augmented_fea8_initialize_logger( $0)
+}
+}
+
+
+
+
 public func getAudioInfo()  -> AudioGuiInitialModel {
     let _retval = try!
     
     
     rustCall() {
     
-    augmented_157d_get_audio_info( $0)
+    augmented_fea8_get_audio_info( $0)
 }
     return try! AudioGuiInitialModel.lift(_retval)
 }

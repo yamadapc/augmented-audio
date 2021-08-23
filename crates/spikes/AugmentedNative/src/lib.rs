@@ -1,5 +1,9 @@
 use plugin_host_lib::audio_io::AudioIOService;
 
+pub fn initialize_logger() {
+    let _ = wisual_logger::try_init_from_env();
+}
+
 pub struct AudioGuiInitialModel {
     host_ids: Vec<String>,
     input_ids: Vec<String>,

@@ -1,5 +1,7 @@
 namespace augmented {
 
+    void initialize_logger();
+
     AudioGuiInitialModel get_audio_info();
 
 };

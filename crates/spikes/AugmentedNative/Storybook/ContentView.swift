@@ -27,38 +27,19 @@ class AudioSettingsModel: ObservableObject {
     }
 }
 
-class AudioGuiModel: ObservableObject {
-    @Published var hostIds: [HostId]
-    @Published var inputIds: [InputId]
-    @Published var outputIds: [OutputId]
-    @Published var settings: AudioSettingsModel
-
-    init(
-        hostIds: [HostId],
-        inputIds: [InputId],
-        outputIds: [OutputId],
-        settings: AudioSettingsModel
-    ) {
-        self.hostIds = hostIds
-        self.inputIds = inputIds
-        self.outputIds = outputIds
-        self.settings = settings
-    }
-}
-
 struct SelectInput: View {
-    @State var selection = 0
+    @State var selection: Int? = nil
     var label: String
     var options: [String]
 
     var body: some View {
         HStack {
-            Text(label).frame(width: 200, alignment: .trailing)
+            Text("\(label):").frame(width: 200, alignment: .trailing)
             Picker(label, selection: $selection, content: {
-                ForEach(options, id: \.self) { value in
-                    Text(value)
+                ForEach(options.indices, id: \.self) { index in
+                    Text(options[index]).tag(index as Int?)
                 }
-            }).labelsHidden()
+            }).labelsHidden().frame(maxWidth: 300)
         }
     }
 }
@@ -72,21 +53,18 @@ class ContentViewController {
 @available(macOS 11.0, *)
 struct ContentView: View {
     let controller = ContentViewController()
-    var model: AudioGuiInitialModel!
+    var audioInfo: AudioGuiInitialModel!
     @State var selection = 0
 
     init() {
-        self.model = controller.onInit()
-        print("INITIALIZED \(String(describing: self.model))")
+        self.audioInfo = controller.onInit()
     }
 
     var body: some View {
         VStack {
-            Section(header: Text("Audio Settings")) {
-                SelectInput(label: "Audio Host", options: self.model.hostIds)
-                SelectInput(label: "Audio Input Device", options: self.model.inputIds)
-                SelectInput(label: "Audio Output Device", options: self.model.outputIds)
-            }.font(.system(.body).bold())
+            SelectInput(label: "Audio Host", options: self.audioInfo.hostIds)
+            SelectInput(label: "Audio Input Device", options: self.audioInfo.inputIds)
+            SelectInput(label: "Audio Output Device", options: self.audioInfo.outputIds)
         }.padding()
     }
 }
