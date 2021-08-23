@@ -1,4 +1,46 @@
+use std::thread;
+use std::time::Duration;
+
+use callbacks::*;
 use plugin_host_lib::audio_io::AudioIOService;
+
+// Taken from - https://www.nickwilcox.com/blog/recipe_swift_rust_callback/
+mod callbacks {
+    use std::ffi::c_void;
+
+    #[repr(C)]
+    pub struct CompletedCallback {
+        userdata: *mut c_void,
+        callback: extern "C" fn(*mut c_void, bool),
+    }
+
+    unsafe impl Send for CompletedCallback {}
+
+    impl CompletedCallback {
+        pub fn succeeded(self) {
+            (self.callback)(self.userdata, true);
+            std::mem::forget(self)
+        }
+        pub fn failed(self) {
+            (self.callback)(self.userdata, false);
+            std::mem::forget(self)
+        }
+    }
+
+    impl Drop for CompletedCallback {
+        fn drop(&mut self) {
+            panic!("CompletedCallback must have explicit succeeded or failed call")
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn async_operation(callback: CompletedCallback) {
+    thread::spawn(move || {
+        thread::sleep(Duration::from_secs(3));
+        callback.succeeded()
+    });
+}
 
 pub fn initialize_logger() {
     let _ = wisual_logger::try_init_from_env();

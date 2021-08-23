@@ -34,6 +34,9 @@ class ContentViewController {
     private var subscriptions = Set<AnyCancellable>()
 
     func onInit() -> AudioGuiInitialModel {
+        asyncOperation(closure: { response in
+            print("Swift got Rust response \(response)")
+        })
         return getAudioInfo()
     }
 

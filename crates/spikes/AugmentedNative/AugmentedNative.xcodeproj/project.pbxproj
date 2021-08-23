@@ -17,6 +17,7 @@
 		CB99167226D307BC00D9B9E2 /* augmented.udl in Sources */ = {isa = PBXBuildFile; fileRef = CB99167026D307AF00D9B9E2 /* augmented.udl */; };
 		CB99167526D30A3800D9B9E2 /* libAugmentedNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB99165D26D304CB00D9B9E2 /* libAugmentedNative.a */; };
 		CB99167726D38AEC00D9B9E2 /* AudioSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB99167626D38AEC00D9B9E2 /* AudioSettingsViewController.swift */; };
+		CBB9249426D447F300CA3AD2 /* RustCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB9249326D447F300CA3AD2 /* RustCallback.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -78,6 +79,7 @@
 		CB99167026D307AF00D9B9E2 /* augmented.udl */ = {isa = PBXFileReference; lastKnownFileType = text; path = augmented.udl; sourceTree = "<group>"; };
 		CB99167326D3083D00D9B9E2 /* Storybook-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Storybook-Bridging-Header.h"; path = "/Users/yamadapc/projects/rust-audio-software/crates/spikes/AugmentedNative/Storybook/Storybook-Bridging-Header.h"; sourceTree = "<absolute>"; };
 		CB99167626D38AEC00D9B9E2 /* AudioSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSettingsViewController.swift; sourceTree = "<group>"; };
+		CBB9249326D447F300CA3AD2 /* RustCallback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustCallback.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +137,7 @@
 				CB99162E26D1BA8B00D9B9E2 /* AppDelegate.swift */,
 				CB99167626D38AEC00D9B9E2 /* AudioSettingsViewController.swift */,
 				CB99163026D1BA8B00D9B9E2 /* ContentView.swift */,
+				CBB9249326D447F300CA3AD2 /* RustCallback.swift */,
 				CB99163226D1BA8E00D9B9E2 /* Assets.xcassets */,
 				CB99163726D1BA8E00D9B9E2 /* Main.storyboard */,
 				CB99163A26D1BA8E00D9B9E2 /* Info.plist */,
@@ -375,6 +378,7 @@
 				CB99163126D1BA8B00D9B9E2 /* ContentView.swift in Sources */,
 				CB99167226D307BC00D9B9E2 /* augmented.udl in Sources */,
 				CB99167726D38AEC00D9B9E2 /* AudioSettingsViewController.swift in Sources */,
+				CBB9249426D447F300CA3AD2 /* RustCallback.swift in Sources */,
 				CB99162F26D1BA8B00D9B9E2 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
