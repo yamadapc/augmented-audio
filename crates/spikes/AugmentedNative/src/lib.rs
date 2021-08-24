@@ -1,3 +1,4 @@
+use std::ffi::c_void;
 use std::thread;
 use std::time::Duration;
 
@@ -31,6 +32,21 @@ mod callbacks {
         fn drop(&mut self) {
             panic!("CompletedCallback must have explicit succeeded or failed call")
         }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn run_gl_loop(context: *mut std::ffi::c_void) {
+    unsafe {}
+}
+
+#[no_mangle]
+pub extern "C" fn run_gl_draw() {
+    unsafe {
+        gl::load_with(|s| sdl2::sys::SDL_GL_GetProcAddress(s.as_ptr() as *const _));
+        gl::ClearColor(1.0, 0.0, 0.0, 1.0);
+        gl::Clear(gl::COLOR_BUFFER_BIT);
+        gl::Flush();
     }
 }
 

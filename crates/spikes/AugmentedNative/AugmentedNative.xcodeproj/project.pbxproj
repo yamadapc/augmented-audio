@@ -18,6 +18,7 @@
 		CB99167526D30A3800D9B9E2 /* libAugmentedNative.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB99165D26D304CB00D9B9E2 /* libAugmentedNative.a */; };
 		CB99167726D38AEC00D9B9E2 /* AudioSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB99167626D38AEC00D9B9E2 /* AudioSettingsViewController.swift */; };
 		CBB9249426D447F300CA3AD2 /* RustCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB9249326D447F300CA3AD2 /* RustCallback.swift */; };
+		CBB9249626D4E87E00CA3AD2 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBB9249526D4E87E00CA3AD2 /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -80,6 +81,7 @@
 		CB99167326D3083D00D9B9E2 /* Storybook-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "Storybook-Bridging-Header.h"; path = "/Users/yamadapc/projects/rust-audio-software/crates/spikes/AugmentedNative/Storybook/Storybook-Bridging-Header.h"; sourceTree = "<absolute>"; };
 		CB99167626D38AEC00D9B9E2 /* AudioSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioSettingsViewController.swift; sourceTree = "<group>"; };
 		CBB9249326D447F300CA3AD2 /* RustCallback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RustCallback.swift; sourceTree = "<group>"; };
+		CBB9249526D4E87E00CA3AD2 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,6 +89,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CBB9249626D4E87E00CA3AD2 /* OpenGL.framework in Frameworks */,
 				CB99167526D30A3800D9B9E2 /* libAugmentedNative.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,6 +179,7 @@
 		CB99165C26D304CB00D9B9E2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CBB9249526D4E87E00CA3AD2 /* OpenGL.framework */,
 				CB99166526D306F500D9B9E2 /* src */,
 				CB99165D26D304CB00D9B9E2 /* libAugmentedNative.a */,
 			);

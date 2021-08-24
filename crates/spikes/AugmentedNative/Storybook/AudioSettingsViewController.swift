@@ -8,10 +8,10 @@
 import Cocoa
 import SwiftUI
 
-func setupWindow() -> NSWindow {
+func setupWindow(width: Int, height: Int) -> NSWindow {
     // Create the window and set the content view.
     let window = NSWindow(
-        contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
+        contentRect: NSRect(x: 0, y: 0, width: width, height: height),
         styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
         backing: .buffered,
         defer: false

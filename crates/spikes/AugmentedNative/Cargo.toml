@@ -12,7 +12,17 @@ uniffi_macros = "0.14"
 plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 log = "0.4"
+gl = "0.14.0"
+sdl2 = { version = "0.34.5", features = ["static-link", "use-vcpkg"] }
 
 [build-dependencies]
 uniffi_build = "0.14"
 cbindgen = "0.20.0"
+
+[package.metadata.vcpkg]
+dependencies = ["sdl2", "sdl2-image[libjpeg-turbo,tiff,libwebp]", "sdl2-ttf", "sdl2-gfx", "sdl2-mixer"]
+git = "https://github.com/microsoft/vcpkg"
+rev = "a0518036077baa4"
+
+[package.metadata.vcpkg.target]
+x86_64-pc-windows-msvc = { triplet = "x64-windows-static-md" }
