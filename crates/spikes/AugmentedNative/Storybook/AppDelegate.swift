@@ -11,7 +11,7 @@ import OpenGL
 
 class GLView: NSOpenGLView {
     override func draw(_ dirtyRect: NSRect) {
-        run_gl_draw()
+        // run_gl_draw()
     }
 }
 
