@@ -74,8 +74,8 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 
 An abstraction for `AudioProcessor` and `AudioBuffer` implementations.
 
-See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-traits) and
-its related (work-in-progress) [audio-processor-graph](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-graph).
+See [audio-processor-traits](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-traits) and
+its related (work-in-progress) [audio-processor-graph](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-graph).
 
 ```rust
 pub trait AudioProcessor {
@@ -89,23 +89,23 @@ pub trait AudioProcessor {
 ```
 
 ## audio-processor-utility
-[Panning, gain, mono/stereo processors.](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-utility)
+[Panning, gain, mono/stereo processors.](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-utility)
 
 ## atomic-queue
-[A multi-producer/multi-consumer bounded lock-free queue.](https://github.com/yamadapc/augmented-audio/tree/master/crates/atomic-queue)
+[A multi-producer/multi-consumer bounded lock-free queue.](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/data/atomic-queue)
 
 ## Standalone processor
-Implementing the trait enables easy stand-alone hosting of an audio app: [`audio-processor-standalone`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone).
+Implementing the trait enables easy stand-alone hosting of an audio app: [`audio-processor-standalone`](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/application/audio-processor-standalone).
 
 ## Standalone MIDI handling
-Implementing the trait enables easy stand-alone MIDI handling: [`audio-processor-standalone-midi`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone-midi).
+Implementing the trait enables easy stand-alone MIDI handling: [`audio-processor-standalone-midi`](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/application/audio-processor-standalone-midi).
 
 ## `dsp-filters`
 [A port of the RJB filters in Vinnie Falco's C++ DSPFilters library. Contains resonant low-pass, high-pass, band-pass,
-shelf etc. & implements the `AudioProcessor` trait.](https://github.com/yamadapc/augmented-audio/tree/master/crates/dsp-filters)
+shelf etc. & implements the `AudioProcessor` trait.](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/dsp/dsp-filters)
 
 ## oscillator
-[Basic oscillator implementation.](https://github.com/yamadapc/augmented-audio/tree/master/crates/oscillator)
+[Basic oscillator implementation.](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/oscillator)
 
 ## audio-garbage-collector & audio-garbage-collector-v2
 These are wrappers on `basedrop` & my own WIP implementation of smart pointers that do reference counting but are
@@ -131,7 +131,7 @@ WIP looper implementation.
 Basic synth implementation to show-case `audio-processor-traits` & other crates.
 
 # plugin-host - A CLI for hosting VSTs during development
-[plugin-host-cli](https://github.com/yamadapc/augmented-audio/tree/master/crates/plugin-host-cli) is a CLI tool for
+[plugin-host-cli](https://github.com/yamadapc/augmented-audio/tree/master/crates/apps/plugin-host/plugin-host-cli) is a CLI tool for
 testing VST plug-ins.
 
 It's a simple VST host which can open a plug-in and play an audio file through it in a loop. Additionally, it supports
@@ -166,7 +166,7 @@ plugin-host run --output ./output.wav --plugin ./target/release/myplugin.dylib -
 ### Iced GUI
 <p align="center"><img height="350" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/iced-screenshot.png" /></p>
 
-[plugin-host-gui2](https://github.com/yamadapc/augmented-audio/tree/master/crates/plugin-host-gui2) is a GUI for the
+[plugin-host-gui2](https://github.com/yamadapc/augmented-audio/tree/master/crates/apps/plugin-host/plugin-host-gui2) is a GUI for the
 testing host.
 
 Features supported in the GUI:
@@ -189,7 +189,7 @@ Missing functionality:
 * Implement offline rendering
 
 ### UI elements
-Styles on top of `iced_audio` & `iced`, see [`audio-processor-iced-design-system`](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-iced-design-system).
+Styles on top of `iced_audio` & `iced`, see [`audio-processor-iced-design-system`](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/gui/audio-processor-iced-design-system).
 
 #### `volume_meter`
 <p align="center"><img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/volume.png" /></p>
