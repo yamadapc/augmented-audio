@@ -4925,6 +4925,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "recording_buddy"
+version = "0.1.0"
+
+[[package]]
 name = "redox_syscall"
 version = "0.1.57"
 source = "registry+https://github.com/rust-lang/crates.io-index"
