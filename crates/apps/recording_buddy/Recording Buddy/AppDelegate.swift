@@ -10,11 +10,17 @@ import SwiftUI
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
-
+    var statusItem: NSStatusItem!
     var window: NSWindow!
 
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        if let button = statusItem.button {
+            button.image = NSImage(named: NSImage.Name("MenuBarIcon"))
+            button.action = #selector(onClickStatusItem(_:))
+        }
+
         // Create the SwiftUI view that provides the window contents.
         let contentView = ContentView()
 
@@ -24,16 +30,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered, defer: false)
         window.isReleasedWhenClosed = false
-        window.center()
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
-        window.makeKeyAndOrderFront(nil)
+
+        // TODO - This should only happen during development
+        window.center()
+        window.makeKeyAndOrderFront(self)
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
 
+    @objc
+    func onClickStatusItem(_ sender: Any?) {
+        let menuItemFrame = NSApp.currentEvent!.window!.frame
+        let menuItemOrigin = menuItemFrame.origin
+        let origin = menuItemOrigin.applying(
+            CGAffineTransform.init(translationX: 0.0, y: -self.window.frame.height)
+        )
 
+        self.window.setFrameOrigin(origin)
+        NSApp.activate(ignoringOtherApps: true)
+        self.window.makeKeyAndOrderFront(sender)
+    }
 }
 

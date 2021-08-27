@@ -99,7 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				CB87B81826D8B94C00207FB1 /* AppDelegate.swift */,
-				CB87B81A26D8B94C00207FB1 /* ContentView.swift */,
+				CB87B84726D8BA2400207FB1 /* ui */,
 				CB87B81C26D8B94F00207FB1 /* Assets.xcassets */,
 				CB87B82126D8B94F00207FB1 /* Main.storyboard */,
 				CB87B82426D8B94F00207FB1 /* Info.plist */,
@@ -133,6 +133,14 @@
 				CB87B83B26D8B94F00207FB1 /* Info.plist */,
 			);
 			path = "Recording BuddyUITests";
+			sourceTree = "<group>";
+		};
+		CB87B84726D8BA2400207FB1 /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				CB87B81A26D8B94C00207FB1 /* ContentView.swift */,
+			);
+			path = ui;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
