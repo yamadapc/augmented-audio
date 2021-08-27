@@ -1,0 +1,20 @@
+namespace augmented {
+
+    void initialize_logger();
+
+    AudioGuiInitialModel get_audio_info();
+    void set_audio_info(AudioGuiModel model);
+
+};
+
+dictionary AudioGuiInitialModel {
+    sequence<string> host_ids;
+    sequence<string> input_ids;
+    sequence<string> output_ids;
+};
+
+dictionary AudioGuiModel {
+    string? host_id;
+    string? input_id;
+    string? output_id;
+};

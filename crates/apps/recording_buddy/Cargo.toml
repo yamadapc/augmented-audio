@@ -7,3 +7,13 @@ edition = "2018"
 crate-type = ["staticlib"]
 
 [dependencies]
+uniffi = "0.14"
+uniffi_macros = "0.14"
+log = "0.4"
+
+plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
+wisual-logger = { path = "../../augmented/ops/wisual-logger" }
+
+[build-dependencies]
+uniffi_build = "0.14"
+cbindgen = "0.20.0"
