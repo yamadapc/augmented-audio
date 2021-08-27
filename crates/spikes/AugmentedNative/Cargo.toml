@@ -12,8 +12,9 @@ uniffi_macros = "0.14"
 plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 log = "0.4"
-gl = "0.14.0"
-sdl2 = { version = "0.34.5", features = ["static-link", "use-vcpkg"] }
+metal = "0.23.1"
+cocoa = "0.24.0"
+core-graphics-types = "0.1.1"
 
 [build-dependencies]
 uniffi_build = "0.14"

@@ -7,19 +7,13 @@
 
 import Cocoa
 import SwiftUI
-import OpenGL
-
-class GLView: NSOpenGLView {
-    override func draw(_ dirtyRect: NSRect) {
-        // run_gl_draw()
-    }
-}
+import MetalKit
 
 @available(macOS 11.0, *)
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
-    var openGLWindow: NSWindow!
+    var metalWindow: NSWindow!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         initializeLogger()
@@ -28,13 +22,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.title = "Audio Settings"
         window.contentView = setupContentView()
 
-        openGLWindow = setupWindow(width: 600, height: 600)
-        openGLWindow.title = "OpenGL"
-        let openGLView = GLView()
-        openGLWindow.contentView = openGLView
-        let openGLContext = openGLView.openGLContext
-        let cglContext = openGLContext?.cglContextObj
-        run_gl_loop(cglContext)
+        metalWindow = setupWindow(width: 600, height: 600)
+        metalWindow.title = "Metal"
+        let metalView = NSView()
+        metalWindow.contentView = metalView
+        run_loop(Unmanaged.passRetained(metalView).toOpaque())
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
