@@ -7,15 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CB4CCFD026DE35040065149C /* RecordingBuddyViews in Frameworks */ = {isa = PBXBuildFile; productRef = CB4CCFCF26DE35040065149C /* RecordingBuddyViews */; };
+		CB4CCFD426DE3D320065149C /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4CCFD326DE3D320065149C /* Context.swift */; };
 		CB87B81926D8B94C00207FB1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB87B81826D8B94C00207FB1 /* AppDelegate.swift */; };
-		CB87B81B26D8B94C00207FB1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB87B81A26D8B94C00207FB1 /* ContentView.swift */; };
 		CB87B81D26D8B94F00207FB1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB87B81C26D8B94F00207FB1 /* Assets.xcassets */; };
 		CB87B82026D8B94F00207FB1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB87B81F26D8B94F00207FB1 /* Preview Assets.xcassets */; };
 		CB87B82326D8B94F00207FB1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB87B82126D8B94F00207FB1 /* Main.storyboard */; };
 		CB87B82F26D8B94F00207FB1 /* Recording_BuddyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB87B82E26D8B94F00207FB1 /* Recording_BuddyTests.swift */; };
 		CB87B83A26D8B94F00207FB1 /* Recording_BuddyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB87B83926D8B94F00207FB1 /* Recording_BuddyUITests.swift */; };
 		CB87B85126D8BE9C00207FB1 /* augmented.udl in Sources */ = {isa = PBXBuildFile; fileRef = CB87B84E26D8BE8C00207FB1 /* augmented.udl */; };
-		CB87B85326D8C05D00207FB1 /* Recording_Buddy-Bridging-Header.h in Sources */ = {isa = PBXBuildFile; fileRef = CB87B85226D8C03800207FB1 /* Recording_Buddy-Bridging-Header.h */; };
+		CB87B85326D8C05D00207FB1 /* RecordingBuddy-Bridging-Header.h in Sources */ = {isa = PBXBuildFile; fileRef = CB87B85226D8C03800207FB1 /* RecordingBuddy-Bridging-Header.h */; };
 		CB87B86326D8C1C900207FB1 /* librecording_buddy.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB87B86226D8C1C900207FB1 /* librecording_buddy.a */; };
 		CB87B86626D8C29800207FB1 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB87B86426D8C29700207FB1 /* AudioUnit.framework */; };
 		CB87B86726D8C29800207FB1 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB87B86526D8C29700207FB1 /* AVFAudio.framework */; };
@@ -61,9 +62,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CB4CCFCE26DE34980065149C /* RecordingBuddyViews */ = {isa = PBXFileReference; lastKnownFileType = folder; path = RecordingBuddyViews; sourceTree = "<group>"; };
+		CB4CCFD326DE3D320065149C /* Context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
 		CB87B81526D8B94C00207FB1 /* Recording Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Recording Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB87B81826D8B94C00207FB1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		CB87B81A26D8B94C00207FB1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CB87B81C26D8B94F00207FB1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CB87B81F26D8B94F00207FB1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		CB87B82226D8B94F00207FB1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -78,7 +80,7 @@
 		CB87B84C26D8BE8C00207FB1 /* bindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
 		CB87B84D26D8BE8C00207FB1 /* lib.rs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = lib.rs; sourceTree = "<group>"; };
 		CB87B84E26D8BE8C00207FB1 /* augmented.udl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = augmented.udl; sourceTree = "<group>"; };
-		CB87B85226D8C03800207FB1 /* Recording_Buddy-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Recording_Buddy-Bridging-Header.h"; sourceTree = "<group>"; };
+		CB87B85226D8C03800207FB1 /* RecordingBuddy-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RecordingBuddy-Bridging-Header.h"; sourceTree = "<group>"; };
 		CB87B85526D8C09800207FB1 /* augmentedFFI.modulemap */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; path = augmentedFFI.modulemap; sourceTree = "<group>"; };
 		CB87B85626D8C09800207FB1 /* augmented.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = augmented.swift; sourceTree = "<group>"; };
 		CB87B85726D8C09800207FB1 /* augmentedFFI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = augmentedFFI.h; sourceTree = "<group>"; };
@@ -97,6 +99,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB87B86D26D8C2D600207FB1 /* Carbon.framework in Frameworks */,
+				CB4CCFD026DE35040065149C /* RecordingBuddyViews in Frameworks */,
 				CB87B86B26D8C2C200207FB1 /* CoreMIDI.framework in Frameworks */,
 				CB87B86926D8C2B900207FB1 /* CoreAudio.framework in Frameworks */,
 				CB87B86626D8C29800207FB1 /* AudioUnit.framework in Frameworks */,
@@ -122,9 +125,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CB4CCFD226DE3D2A0065149C /* engine */ = {
+			isa = PBXGroup;
+			children = (
+				CB4CCFD326DE3D320065149C /* Context.swift */,
+			);
+			path = engine;
+			sourceTree = "<group>";
+		};
 		CB87B80C26D8B94C00207FB1 = {
 			isa = PBXGroup;
 			children = (
+				CB4CCFCE26DE34980065149C /* RecordingBuddyViews */,
 				CB87B81726D8B94C00207FB1 /* Recording Buddy */,
 				CB87B82D26D8B94F00207FB1 /* Recording BuddyTests */,
 				CB87B83826D8B94F00207FB1 /* Recording BuddyUITests */,
@@ -146,12 +158,12 @@
 		CB87B81726D8B94C00207FB1 /* Recording Buddy */ = {
 			isa = PBXGroup;
 			children = (
-				CB87B84A26D8BE8C00207FB1 /* src */,
+				CB4CCFD226DE3D2A0065149C /* engine */,
 				CB87B81826D8B94C00207FB1 /* AppDelegate.swift */,
-				CB87B85226D8C03800207FB1 /* Recording_Buddy-Bridging-Header.h */,
-				CB87B84726D8BA2400207FB1 /* ui */,
-				CB87B81C26D8B94F00207FB1 /* Assets.xcassets */,
+				CB87B85226D8C03800207FB1 /* RecordingBuddy-Bridging-Header.h */,
+				CB87B84A26D8BE8C00207FB1 /* src */,
 				CB87B82126D8B94F00207FB1 /* Main.storyboard */,
+				CB87B81C26D8B94F00207FB1 /* Assets.xcassets */,
 				CB87B82426D8B94F00207FB1 /* Info.plist */,
 				CB87B82526D8B94F00207FB1 /* Recording_Buddy.entitlements */,
 				CB87B81E26D8B94F00207FB1 /* Preview Content */,
@@ -184,14 +196,6 @@
 				CB87B83B26D8B94F00207FB1 /* Info.plist */,
 			);
 			path = "Recording BuddyUITests";
-			sourceTree = "<group>";
-		};
-		CB87B84726D8BA2400207FB1 /* ui */ = {
-			isa = PBXGroup;
-			children = (
-				CB87B81A26D8B94C00207FB1 /* ContentView.swift */,
-			);
-			path = ui;
 			sourceTree = "<group>";
 		};
 		CB87B84A26D8BE8C00207FB1 /* src */ = {
@@ -246,6 +250,9 @@
 			dependencies = (
 			);
 			name = "Recording Buddy";
+			packageProductDependencies = (
+				CB4CCFCF26DE35040065149C /* RecordingBuddyViews */,
+			);
 			productName = "Recording Buddy";
 			productReference = CB87B81526D8B94C00207FB1 /* Recording Buddy.app */;
 			productType = "com.apple.product-type.application";
@@ -382,10 +389,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB87B81B26D8B94C00207FB1 /* ContentView.swift in Sources */,
 				CB87B81926D8B94C00207FB1 /* AppDelegate.swift in Sources */,
 				CB87B85126D8BE9C00207FB1 /* augmented.udl in Sources */,
-				CB87B85326D8C05D00207FB1 /* Recording_Buddy-Bridging-Header.h in Sources */,
+				CB4CCFD426DE3D320065149C /* Context.swift in Sources */,
+				CB87B85326D8C05D00207FB1 /* RecordingBuddy-Bridging-Header.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -490,6 +497,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OBJC_BRIDGING_HEADER = "Recording Buddy/RecordingBuddy-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -545,6 +553,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "Recording Buddy/RecordingBuddy-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 			};
 			name = Release;
@@ -570,7 +579,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Recording-Buddy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Recording Buddy/Recording_Buddy-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Recording Buddy/RecordingBuddy-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -597,7 +606,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Recording-Buddy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "Recording Buddy/Recording_Buddy-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Recording Buddy/RecordingBuddy-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -726,6 +735,13 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CB4CCFCF26DE35040065149C /* RecordingBuddyViews */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = RecordingBuddyViews;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CB87B80D26D8B94C00207FB1 /* Project object */;
 }

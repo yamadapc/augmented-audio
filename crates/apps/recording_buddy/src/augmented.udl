@@ -1,19 +1,21 @@
 namespace augmented {
 
     void initialize_logger();
-
-    AudioGuiInitialModel get_audio_info();
-    void set_audio_info(AudioGuiModel model);
-
 };
 
-dictionary AudioGuiInitialModel {
+interface AudioOptionsService {
+    constructor();
+    AvailableAudioOptions get_available_options();
+    void set_options(AudioOptions model);
+};
+
+dictionary AvailableAudioOptions {
     sequence<string> host_ids;
     sequence<string> input_ids;
     sequence<string> output_ids;
 };
 
-dictionary AudioGuiModel {
+dictionary AudioOptions {
     string? host_id;
     string? input_id;
     string? output_id;

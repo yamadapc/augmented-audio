@@ -7,12 +7,14 @@
 
 import Cocoa
 import SwiftUI
+import RecordingBuddyViews
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
+    var appContext = AppContextImpl()
+    var audioOptionsService = AudioOptionsService()
     var statusItem: NSStatusItem!
     var window: NSWindow!
-
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
@@ -22,7 +24,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         // Create the SwiftUI view that provides the window contents.
-        let contentView = ContentView()
+        let contentView = ContentView(
+            engineStateViewModel: EngineStateViewModel(isRunning: true)
+        ).environment(\.appContext, appContext)
 
         // Create the window and set the content view.
         window = NSWindow(
@@ -55,4 +59,3 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         self.window.makeKeyAndOrderFront(sender)
     }
 }
-

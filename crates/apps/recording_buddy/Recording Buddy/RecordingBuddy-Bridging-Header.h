@@ -1,3 +1,4 @@
+
 #ifndef Recording_Buddy_Bridging_Header_h
 #define Recording_Buddy_Bridging_Header_h
 

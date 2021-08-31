@@ -14,7 +14,7 @@ private extension RustBuffer {
     // Allocate a new buffer, copying the contents of a `UInt8` array.
     init(bytes: [UInt8]) {
         let rbuf = bytes.withUnsafeBufferPointer { ptr in
-            try! rustCall { ffi_augmented_3c29_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+            try! rustCall { ffi_augmented_c4a7_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
         }
         self.init(capacity: rbuf.capacity, len: rbuf.len, data: rbuf.data)
     }
@@ -22,7 +22,7 @@ private extension RustBuffer {
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_augmented_3c29_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_augmented_c4a7_rustbuffer_free(self, $0) }
     }
 }
 
@@ -243,7 +243,7 @@ extension String: ViaFfi {
 
     fileprivate static func lift(_ v: FfiType) throws -> Self {
         defer {
-            try! rustCall { ffi_augmented_3c29_rustbuffer_free(v, $0) }
+            try! rustCall { ffi_augmented_c4a7_rustbuffer_free(v, $0) }
         }
         if v.data == nil {
             return String()
@@ -259,7 +259,7 @@ extension String: ViaFfi {
                 // The swift string gives us a trailing null byte, we don't want it.
                 let buf = UnsafeBufferPointer(rebasing: ptr.prefix(upTo: ptr.count - 1))
                 let bytes = ForeignBytes(bufferPointer: buf)
-                return try! rustCall { ffi_augmented_3c29_rustbuffer_from_bytes(bytes, $0) }
+                return try! rustCall { ffi_augmented_c4a7_rustbuffer_from_bytes(bytes, $0) }
             }
         }
     }
@@ -358,7 +358,7 @@ private func makeRustCall<T>(_ callback: (UnsafeMutablePointer<RustCallStatus>) 
     }
 }
 
-public struct AudioGuiInitialModel {
+public struct AvailableAudioOptions {
     public var hostIds: [String]
     public var inputIds: [String]
     public var outputIds: [String]
@@ -372,8 +372,8 @@ public struct AudioGuiInitialModel {
     }
 }
 
-extension AudioGuiInitialModel: Equatable, Hashable {
-    public static func == (lhs: AudioGuiInitialModel, rhs: AudioGuiInitialModel) -> Bool {
+extension AvailableAudioOptions: Equatable, Hashable {
+    public static func == (lhs: AvailableAudioOptions, rhs: AvailableAudioOptions) -> Bool {
         if lhs.hostIds != rhs.hostIds {
             return false
         }
@@ -393,9 +393,9 @@ extension AudioGuiInitialModel: Equatable, Hashable {
     }
 }
 
-private extension AudioGuiInitialModel {
-    static func read(from buf: Reader) throws -> AudioGuiInitialModel {
-        return try AudioGuiInitialModel(
+private extension AvailableAudioOptions {
+    static func read(from buf: Reader) throws -> AvailableAudioOptions {
+        return try AvailableAudioOptions(
             hostIds: [String].read(from: buf),
             inputIds: [String].read(from: buf),
             outputIds: [String].read(from: buf)
@@ -409,9 +409,9 @@ private extension AudioGuiInitialModel {
     }
 }
 
-extension AudioGuiInitialModel: ViaFfiUsingByteBuffer, ViaFfi {}
+extension AvailableAudioOptions: ViaFfiUsingByteBuffer, ViaFfi {}
 
-public struct AudioGuiModel {
+public struct AudioOptions {
     public var hostId: String?
     public var inputId: String?
     public var outputId: String?
@@ -425,8 +425,8 @@ public struct AudioGuiModel {
     }
 }
 
-extension AudioGuiModel: Equatable, Hashable {
-    public static func == (lhs: AudioGuiModel, rhs: AudioGuiModel) -> Bool {
+extension AudioOptions: Equatable, Hashable {
+    public static func == (lhs: AudioOptions, rhs: AudioOptions) -> Bool {
         if lhs.hostId != rhs.hostId {
             return false
         }
@@ -446,9 +446,9 @@ extension AudioGuiModel: Equatable, Hashable {
     }
 }
 
-private extension AudioGuiModel {
-    static func read(from buf: Reader) throws -> AudioGuiModel {
-        return try AudioGuiModel(
+private extension AudioOptions {
+    static func read(from buf: Reader) throws -> AudioOptions {
+        return try AudioOptions(
             hostId: String?.read(from: buf),
             inputId: String?.read(from: buf),
             outputId: String?.read(from: buf)
@@ -462,29 +462,90 @@ private extension AudioGuiModel {
     }
 }
 
-extension AudioGuiModel: ViaFfiUsingByteBuffer, ViaFfi {}
+extension AudioOptions: ViaFfiUsingByteBuffer, ViaFfi {}
 
 public func initializeLogger() {
     try!
 
         rustCall {
-            augmented_3c29_initialize_logger($0)
+            augmented_c4a7_initialize_logger($0)
         }
 }
 
-public func getAudioInfo() -> AudioGuiInitialModel {
-    let _retval = try!
-
-        rustCall {
-            augmented_3c29_get_audio_info($0)
-        }
-    return try! AudioGuiInitialModel.lift(_retval)
+public protocol AudioOptionsServiceProtocol {
+    func getAvailableOptions() -> AvailableAudioOptions
+    func setOptions(model: AudioOptions)
 }
 
-public func setAudioInfo(model: AudioGuiModel) {
-    try!
+public class AudioOptionsService: AudioOptionsServiceProtocol {
+    fileprivate let pointer: UnsafeMutableRawPointer
 
-        rustCall {
-            augmented_3c29_set_audio_info(model.lower(), $0)
-        }
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `ViaFfi` without making this `required` and we can't
+    // make it `required` without making it `public`.
+    required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+        self.pointer = pointer
+    }
+
+    public convenience init() {
+        self.init(unsafeFromRawPointer: try!
+
+            rustCall {
+                augmented_c4a7_AudioOptionsService_new($0)
+            })
+    }
+
+    deinit {
+        try! rustCall { ffi_augmented_c4a7_AudioOptionsService_object_free(pointer, $0) }
+    }
+
+    public func getAvailableOptions() -> AvailableAudioOptions {
+        let _retval = try!
+            rustCall {
+                augmented_c4a7_AudioOptionsService_get_available_options(self.pointer, $0)
+            }
+        return try! AvailableAudioOptions.lift(_retval)
+    }
+
+    public func setOptions(model: AudioOptions) {
+        try!
+            rustCall {
+                augmented_c4a7_AudioOptionsService_set_options(self.pointer, model.lower(), $0)
+            }
+    }
 }
+
+private extension AudioOptionsService {
+    typealias FfiType = UnsafeMutableRawPointer
+
+    static func read(from buf: Reader) throws -> Self {
+        let v: UInt64 = try buf.readInt()
+        // The Rust code won't compile if a pointer won't fit in a UInt64.
+        // We have to go via `UInt` because that's the thing that's the size of a pointer.
+        let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
+        if ptr == nil {
+            throw UniffiInternalError.unexpectedNullPointer
+        }
+        return try lift(ptr!)
+    }
+
+    func write(into buf: Writer) {
+        // This fiddling is because `Int` is the thing that's the same size as a pointer.
+        // The Rust code won't compile if a pointer won't fit in a `UInt64`.
+        buf.writeInt(UInt64(bitPattern: Int64(Int(bitPattern: lower()))))
+    }
+
+    static func lift(_ pointer: UnsafeMutableRawPointer) throws -> Self {
+        return Self(unsafeFromRawPointer: pointer)
+    }
+
+    func lower() -> UnsafeMutableRawPointer {
+        return pointer
+    }
+}
+
+// Ideally this would be `fileprivate`, but Swift says:
+// """
+// 'private' modifier cannot be used with extensions that declare protocol conformances
+// """
+extension AudioOptionsService: ViaFfi, Serializable {}
