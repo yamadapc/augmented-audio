@@ -9,16 +9,31 @@ import Foundation
 import Cocoa
 import RecordingBuddyViews
 
-class AppContextImpl: AppContext {
-    let handler: ChartHandler
+@available(macOS 11.0, *)
+class AppContextImpl {
+    let handler = ChartHandlerImpl()
+    let engineStateViewModel = EngineStateViewModel(isRunning: true)
+    let settingsController = SettingsController()
+    let navigationDelegateImpl: NavigationDelegateImpl
 
     init() {
+        self.navigationDelegateImpl = NavigationDelegateImpl(settingsController: settingsController)
         initializeLogger()
-        self.handler = ChartHandlerImpl()
     }
 
+    func engineState() -> EngineStateViewModel {
+        return engineStateViewModel
+    }
+}
+
+@available(macOS 11.0, *)
+extension AppContextImpl: AppContext {
     func chartHandler() -> ChartHandler {
         return handler
+    }
+
+    func navigationDelegate() -> NavigationDelegate {
+        return navigationDelegateImpl
     }
 }
 

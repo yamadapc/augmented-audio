@@ -3,12 +3,6 @@ namespace augmented {
     void initialize_logger();
 };
 
-interface AudioOptionsService {
-    constructor();
-    AvailableAudioOptions get_available_options();
-    void set_options(AudioOptions model);
-};
-
 dictionary AvailableAudioOptions {
     sequence<string> host_ids;
     sequence<string> input_ids;
@@ -19,4 +13,10 @@ dictionary AudioOptions {
     string? host_id;
     string? input_id;
     string? output_id;
+};
+
+interface AudioOptionsService {
+    constructor();
+    AvailableAudioOptions get_available_options();
+    void set_options(AudioOptions model);
 };

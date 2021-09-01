@@ -10,6 +10,7 @@ import SwiftUI
 
 public protocol AppContext {
     func chartHandler() throws -> ChartHandler
+    func navigationDelegate() throws -> NavigationDelegate
 }
 
 enum EmptyAppContextError: Error {
@@ -18,6 +19,10 @@ enum EmptyAppContextError: Error {
 
 class EmptyAppContext: AppContext {
     func chartHandler() throws -> ChartHandler {
+        throw EmptyAppContextError.notImplemented
+    }
+
+    func navigationDelegate() throws -> NavigationDelegate {
         throw EmptyAppContextError.notImplemented
     }
 }

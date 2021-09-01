@@ -8,6 +8,7 @@
 import SwiftUI
 
 public struct ContentView: View {
+    @Environment(\.appContext) var appContext: AppContext
     var engineStateViewModel: EngineStateViewModel
 
     public init(
@@ -20,6 +21,9 @@ public struct ContentView: View {
         VStack {
             EngineStateView(model: engineStateViewModel)
             ChartControl()
+            Button("Settings", action: {
+                try? appContext.navigationDelegate().navigate(.openSettings)
+            })
         }.frame(minWidth: 300, minHeight: 500, alignment: .topLeading)
     }
 }
