@@ -8,8 +8,8 @@ typedef struct CompletedCallback {
   void (*callback)(void*, bool);
 } CompletedCallback;
 
+void run_loop(void *context);
+
+void run_draw(void);
+
 void async_operation(struct CompletedCallback callback);
-
-void run_loop(void* context);
-
-void run_draw();

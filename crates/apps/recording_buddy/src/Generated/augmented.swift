@@ -14,7 +14,7 @@ private extension RustBuffer {
     // Allocate a new buffer, copying the contents of a `UInt8` array.
     init(bytes: [UInt8]) {
         let rbuf = bytes.withUnsafeBufferPointer { ptr in
-            try! rustCall { ffi_augmented_c4a7_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+            try! rustCall { ffi_augmented_dac1_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
         }
         self.init(capacity: rbuf.capacity, len: rbuf.len, data: rbuf.data)
     }
@@ -22,7 +22,7 @@ private extension RustBuffer {
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_augmented_c4a7_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_augmented_dac1_rustbuffer_free(self, $0) }
     }
 }
 
@@ -243,7 +243,7 @@ extension String: ViaFfi {
 
     fileprivate static func lift(_ v: FfiType) throws -> Self {
         defer {
-            try! rustCall { ffi_augmented_c4a7_rustbuffer_free(v, $0) }
+            try! rustCall { ffi_augmented_dac1_rustbuffer_free(v, $0) }
         }
         if v.data == nil {
             return String()
@@ -259,7 +259,7 @@ extension String: ViaFfi {
                 // The swift string gives us a trailing null byte, we don't want it.
                 let buf = UnsafeBufferPointer(rebasing: ptr.prefix(upTo: ptr.count - 1))
                 let bytes = ForeignBytes(bufferPointer: buf)
-                return try! rustCall { ffi_augmented_c4a7_rustbuffer_from_bytes(bytes, $0) }
+                return try! rustCall { ffi_augmented_dac1_rustbuffer_from_bytes(bytes, $0) }
             }
         }
     }
@@ -414,14 +414,12 @@ extension AvailableAudioOptions: ViaFfiUsingByteBuffer, ViaFfi {}
 public struct AudioOptions {
     public var hostId: String?
     public var inputId: String?
-    public var outputId: String?
 
     // Default memberwise initializers are never public by default, so we
     // declare one manually.
-    public init(hostId: String?, inputId: String?, outputId: String?) {
+    public init(hostId: String?, inputId: String?) {
         self.hostId = hostId
         self.inputId = inputId
-        self.outputId = outputId
     }
 }
 
@@ -433,16 +431,12 @@ extension AudioOptions: Equatable, Hashable {
         if lhs.inputId != rhs.inputId {
             return false
         }
-        if lhs.outputId != rhs.outputId {
-            return false
-        }
         return true
     }
 
     public func hash(into hasher: inout Hasher) {
         hasher.combine(hostId)
         hasher.combine(inputId)
-        hasher.combine(outputId)
     }
 }
 
@@ -450,15 +444,13 @@ private extension AudioOptions {
     static func read(from buf: Reader) throws -> AudioOptions {
         return try AudioOptions(
             hostId: String?.read(from: buf),
-            inputId: String?.read(from: buf),
-            outputId: String?.read(from: buf)
+            inputId: String?.read(from: buf)
         )
     }
 
     func write(into buf: Writer) {
         hostId.write(into: buf)
         inputId.write(into: buf)
-        outputId.write(into: buf)
     }
 }
 
@@ -468,7 +460,7 @@ public func initializeLogger() {
     try!
 
         rustCall {
-            augmented_c4a7_initialize_logger($0)
+            augmented_dac1_initialize_logger($0)
         }
 }
 
@@ -491,18 +483,18 @@ public class AudioOptionsService: AudioOptionsServiceProtocol {
         self.init(unsafeFromRawPointer: try!
 
             rustCall {
-                augmented_c4a7_AudioOptionsService_new($0)
+                augmented_dac1_AudioOptionsService_new($0)
             })
     }
 
     deinit {
-        try! rustCall { ffi_augmented_c4a7_AudioOptionsService_object_free(pointer, $0) }
+        try! rustCall { ffi_augmented_dac1_AudioOptionsService_object_free(pointer, $0) }
     }
 
     public func getAvailableOptions() -> AvailableAudioOptions {
         let _retval = try!
             rustCall {
-                augmented_c4a7_AudioOptionsService_get_available_options(self.pointer, $0)
+                augmented_dac1_AudioOptionsService_get_available_options(self.pointer, $0)
             }
         return try! AvailableAudioOptions.lift(_retval)
     }
@@ -510,7 +502,7 @@ public class AudioOptionsService: AudioOptionsServiceProtocol {
     public func setOptions(model: AudioOptions) {
         try!
             rustCall {
-                augmented_c4a7_AudioOptionsService_set_options(self.pointer, model.lower(), $0)
+                augmented_dac1_AudioOptionsService_set_options(self.pointer, model.lower(), $0)
             }
     }
 }

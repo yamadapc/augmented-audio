@@ -11,6 +11,8 @@
 		CB4CCFD426DE3D320065149C /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4CCFD326DE3D320065149C /* Context.swift */; };
 		CB4CCFD726DE41CC0065149C /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4CCFD626DE41CC0065149C /* SettingsController.swift */; };
 		CB4CCFD926DF608F0065149C /* NavigationDelegateImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4CCFD826DF608F0065149C /* NavigationDelegateImpl.swift */; };
+		CB4CCFE026DF79580065149C /* TestMetalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4CCFDF26DF79580065149C /* TestMetalView.swift */; };
+		CB4CCFE326DF797B0065149C /* AudioChart.metal in Sources */ = {isa = PBXBuildFile; fileRef = CB4CCFE226DF797B0065149C /* AudioChart.metal */; };
 		CB87B81926D8B94C00207FB1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB87B81826D8B94C00207FB1 /* AppDelegate.swift */; };
 		CB87B81D26D8B94F00207FB1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB87B81C26D8B94F00207FB1 /* Assets.xcassets */; };
 		CB87B82026D8B94F00207FB1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB87B81F26D8B94F00207FB1 /* Preview Assets.xcassets */; };
@@ -68,6 +70,8 @@
 		CB4CCFD326DE3D320065149C /* Context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
 		CB4CCFD626DE41CC0065149C /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
 		CB4CCFD826DF608F0065149C /* NavigationDelegateImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationDelegateImpl.swift; sourceTree = "<group>"; };
+		CB4CCFDF26DF79580065149C /* TestMetalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestMetalView.swift; sourceTree = "<group>"; };
+		CB4CCFE226DF797B0065149C /* AudioChart.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AudioChart.metal; sourceTree = "<group>"; };
 		CB87B81526D8B94C00207FB1 /* Recording Buddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Recording Buddy.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB87B81826D8B94C00207FB1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB87B81C26D8B94F00207FB1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -132,9 +136,10 @@
 		CB4CCFD226DE3D2A0065149C /* engine */ = {
 			isa = PBXGroup;
 			children = (
-				CB4CCFD526DE41B30065149C /* settings */,
 				CB4CCFD326DE3D320065149C /* Context.swift */,
 				CB4CCFD826DF608F0065149C /* NavigationDelegateImpl.swift */,
+				CB4CCFE126DF79660065149C /* metal */,
+				CB4CCFD526DE41B30065149C /* settings */,
 			);
 			path = engine;
 			sourceTree = "<group>";
@@ -145,6 +150,15 @@
 				CB4CCFD626DE41CC0065149C /* SettingsController.swift */,
 			);
 			path = settings;
+			sourceTree = "<group>";
+		};
+		CB4CCFE126DF79660065149C /* metal */ = {
+			isa = PBXGroup;
+			children = (
+				CB4CCFDF26DF79580065149C /* TestMetalView.swift */,
+				CB4CCFE226DF797B0065149C /* AudioChart.metal */,
+			);
+			path = metal;
 			sourceTree = "<group>";
 		};
 		CB87B80C26D8B94C00207FB1 = {
@@ -172,7 +186,6 @@
 		CB87B81726D8B94C00207FB1 /* Recording Buddy */ = {
 			isa = PBXGroup;
 			children = (
-				CB4CCFD226DE3D2A0065149C /* engine */,
 				CB87B81826D8B94C00207FB1 /* AppDelegate.swift */,
 				CB87B85226D8C03800207FB1 /* RecordingBuddy-Bridging-Header.h */,
 				CB87B82126D8B94F00207FB1 /* Main.storyboard */,
@@ -180,6 +193,7 @@
 				CB87B82426D8B94F00207FB1 /* Info.plist */,
 				CB87B82526D8B94F00207FB1 /* Recording_Buddy.entitlements */,
 				CB87B85B26D8C15200207FB1 /* Recording Buddy-Bridging-Header.h */,
+				CB4CCFD226DE3D2A0065149C /* engine */,
 				CB87B81E26D8B94F00207FB1 /* Preview Content */,
 				CB87B84A26D8BE8C00207FB1 /* src */,
 			);
@@ -408,6 +422,8 @@
 				CB4CCFD726DE41CC0065149C /* SettingsController.swift in Sources */,
 				CB87B85126D8BE9C00207FB1 /* augmented.udl in Sources */,
 				CB4CCFD426DE3D320065149C /* Context.swift in Sources */,
+				CB4CCFE326DF797B0065149C /* AudioChart.metal in Sources */,
+				CB4CCFE026DF79580065149C /* TestMetalView.swift in Sources */,
 				CB87B85326D8C05D00207FB1 /* RecordingBuddy-Bridging-Header.h in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import RecordingBuddyViews
+import Combine
 
 @available(macOS 11.0, *)
 class SettingsController: NSObject, NSWindowDelegate {
@@ -15,6 +16,7 @@ class SettingsController: NSObject, NSWindowDelegate {
     let audioOptionsModel = AudioOptionsModel()
     let availableAudioOptionsModel = AvailableAudioOptionsModel()
     var settingsWindow: NSWindow? = nil
+    private var subscriptions = Set<AnyCancellable>()
 
     func refreshModels() {
         let availableOptions = audioOptionsService.getAvailableOptions()
@@ -26,13 +28,31 @@ class SettingsController: NSObject, NSWindowDelegate {
         }
     }
 
+    func setupSubscriptions() {
+        self.subscriptions.removeAll()
+        audioOptionsModel.objectWillChange
+            .sink(receiveValue: {
+                DispatchQueue.main.async {
+                    let model = self.audioOptionsModel
+                    let options = AudioOptions(
+                        hostId: model.hostId,
+                        inputId: model.inputId
+                    )
+                    self.audioOptionsService.setOptions(model: options)
+                }
+            })
+            .store(in: &subscriptions)
+    }
+
     func windowWillClose(_ notification: Notification) {
         self.settingsWindow = nil
+        self.subscriptions.removeAll()
     }
 
     func openSettings() {
         DispatchQueue.global(qos: .background).async {
             self.refreshModels()
+            self.setupSubscriptions()
         }
 
         if let window = settingsWindow {

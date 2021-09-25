@@ -17,21 +17,18 @@ public class EngineStateViewModel: ObservableObject {
 
 struct EngineStateView: View {
     @ObservedObject var model: EngineStateViewModel
-
+    
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text("Audio Engine")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                GroupBox {
-                    HStack {
-                        Toggle(runningText(), isOn: $model.isRunning)
-                            .toggleStyle(SwitchToggleStyle())
-                    }
+        HStack {
+            Text("Audio Engine")
+                .frame(maxWidth: .infinity, alignment: .leading)
+            GroupBox {
+                HStack {
+                    Toggle(runningText(), isOn: $model.isRunning)
+                        .toggleStyle(SwitchToggleStyle())
                 }
-            }.frame(alignment: .topLeading).padding(5.0)
-            Divider()
-        }
+            }
+        }.frame(alignment: .topLeading).padding(10.0)
     }
 
     func runningText() -> String {

@@ -7,11 +7,21 @@ edition = "2018"
 crate-type = ["staticlib"]
 
 [dependencies]
+# FFI
 uniffi = "0.14"
 uniffi_macros = "0.14"
-log = "0.4"
 
+# macOS
+objc = "0.2.7"
+cocoa = "0.24.0"
+metal = "0.23.1"
+core-graphics-types = "0.1.1"
+cty = "0.2.1"
+
+# Augmented
+log = "0.4"
 plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
+augmented = { path = "../../augmented/augmented" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 
 [build-dependencies]

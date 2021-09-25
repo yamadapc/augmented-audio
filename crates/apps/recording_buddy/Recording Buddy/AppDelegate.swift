@@ -14,11 +14,11 @@ let DEFAULT_WIDTH = 480
 let DEFAULT_HEIGHT = 300
 
 func getWindowStyleMask() -> NSWindow.StyleMask {
-#if DEBUG
+    #if DEBUG
     return [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView]
-#else
+    #else
     return [.fullSizeContentView, .utilityWindow]
-#endif
+    #endif
 }
 
 @available(macOS 11.0, *)
@@ -53,10 +53,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
 
-#if DEBUG
+        #if DEBUG
         window.center()
         window.makeKeyAndOrderFront(self)
-#endif
+        appContext.navigationDelegate().navigate(.openSettings)
+        #endif
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

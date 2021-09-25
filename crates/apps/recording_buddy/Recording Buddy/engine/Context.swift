@@ -39,6 +39,7 @@ extension AppContextImpl: AppContext {
 
 class ChartHandlerImpl: ChartHandler {
     func onChartView(_ nsView: NSView) {
-
+        let nsViewPtr = Unmanaged.passRetained(nsView).toOpaque()
+        chart_handler_on_chart_view(nsViewPtr)
     }
 }

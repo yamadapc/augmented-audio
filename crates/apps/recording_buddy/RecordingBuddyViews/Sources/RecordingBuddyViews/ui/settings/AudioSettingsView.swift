@@ -36,18 +36,15 @@ public class AvailableAudioOptionsModel: ObservableObject {
 public class AudioOptionsModel: ObservableObject {
     @Published public var hostId: HostId?
     @Published public var inputId: InputId?
-    @Published public var outputId: OutputId?
 
     public init() {}
 
     public init(
         hostId: HostId,
-        inputId: InputId,
-        outputId: OutputId
+        inputId: InputId
     ) {
         self.hostId = hostId
         self.inputId = inputId
-        self.outputId = outputId
     }
 }
 
@@ -102,11 +99,6 @@ public struct AudioSettingsView: View {
                 label: "Audio Input Device",
                 options: $audioInfo.inputIds,
                 model: $model.inputId
-            )
-            SelectInput(
-                label: "Audio Output Device",
-                options: $audioInfo.outputIds,
-                model: $model.outputId
             )
         }.padding()
     }

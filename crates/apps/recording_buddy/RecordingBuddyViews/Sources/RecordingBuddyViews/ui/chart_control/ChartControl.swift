@@ -9,21 +9,35 @@ import SwiftUI
 import MetalKit
 
 struct MetalView: NSViewRepresentable {
-    typealias NSViewType = MTKView
+    typealias NSViewType = NSView
 
-    func makeNSView(context: Context) -> MTKView {
-        return MTKView()
+    func makeNSView(context: Context) -> NSViewType {
+        let appContext = context.environment.appContext
+        let view = NSView()
+        view.wantsLayer = true
+        DispatchQueue.main.async {
+            try? appContext.chartHandler().onChartView(view)
+        }
+        return view
     }
 
-    func updateNSView(_ nsView: MTKView, context: Context) {}
+    func updateNSView(_ nsView: NSViewType, context: Context) {}
 }
 
 struct ChartControl: View {
     var body: some View {
-        ZStack {
-            Text("Threshold").frame(maxWidth: .infinity, maxHeight: .infinity)
-            MetalView()
-        }.frame(alignment: .center)
+        Group {
+            ZStack {
+                MetalView()
+            }
+            .frame(alignment: .center)
+            .background(
+                Color(red: 0.15, green: 0.15, blue: 0.15, opacity: 1)
+            )
+            .foregroundColor(Color.white)
+            .border(Color(NSColor.underPageBackgroundColor), width: 1)
+        }
+        .padding(10)
     }
 }
 
