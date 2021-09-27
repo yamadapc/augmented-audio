@@ -8,6 +8,6 @@ typedef struct CompletedCallback {
   void (*callback)(void*, bool);
 } CompletedCallback;
 
-void async_operation(struct CompletedCallback callback);
-
 void chart_handler_on_chart_view(void *ns_view);
+
+void async_operation(struct CompletedCallback callback);

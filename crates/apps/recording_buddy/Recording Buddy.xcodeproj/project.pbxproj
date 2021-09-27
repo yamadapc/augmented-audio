@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CB1D2B0F2701CE7300320BE1 /* EngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1D2B0E2701CE7300320BE1 /* EngineController.swift */; };
 		CB4CCFD026DE35040065149C /* RecordingBuddyViews in Frameworks */ = {isa = PBXBuildFile; productRef = CB4CCFCF26DE35040065149C /* RecordingBuddyViews */; };
 		CB4CCFD426DE3D320065149C /* Context.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4CCFD326DE3D320065149C /* Context.swift */; };
 		CB4CCFD726DE41CC0065149C /* SettingsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB4CCFD626DE41CC0065149C /* SettingsController.swift */; };
@@ -66,6 +67,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CB1D2B0E2701CE7300320BE1 /* EngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngineController.swift; sourceTree = "<group>"; };
 		CB4CCFCE26DE34980065149C /* RecordingBuddyViews */ = {isa = PBXFileReference; lastKnownFileType = folder; path = RecordingBuddyViews; sourceTree = "<group>"; };
 		CB4CCFD326DE3D320065149C /* Context.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Context.swift; sourceTree = "<group>"; };
 		CB4CCFD626DE41CC0065149C /* SettingsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsController.swift; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 			isa = PBXGroup;
 			children = (
 				CB4CCFD326DE3D320065149C /* Context.swift */,
+				CB1D2B0E2701CE7300320BE1 /* EngineController.swift */,
 				CB4CCFD826DF608F0065149C /* NavigationDelegateImpl.swift */,
 				CB4CCFE126DF79660065149C /* metal */,
 				CB4CCFD526DE41B30065149C /* settings */,
@@ -425,6 +428,7 @@
 				CB4CCFE326DF797B0065149C /* AudioChart.metal in Sources */,
 				CB4CCFE026DF79580065149C /* TestMetalView.swift in Sources */,
 				CB87B85326D8C05D00207FB1 /* RecordingBuddy-Bridging-Header.h in Sources */,
+				CB1D2B0F2701CE7300320BE1 /* EngineController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

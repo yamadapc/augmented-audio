@@ -18,3 +18,8 @@ interface AudioOptionsService {
     AvailableAudioOptions get_available_options();
     void set_options(AudioOptions model);
 };
+
+interface AudioEngineService {
+    constructor();
+    void start();
+};

@@ -14,7 +14,7 @@ private extension RustBuffer {
     // Allocate a new buffer, copying the contents of a `UInt8` array.
     init(bytes: [UInt8]) {
         let rbuf = bytes.withUnsafeBufferPointer { ptr in
-            try! rustCall { ffi_augmented_dac1_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
+            try! rustCall { ffi_augmented_2fe4_rustbuffer_from_bytes(ForeignBytes(bufferPointer: ptr), $0) }
         }
         self.init(capacity: rbuf.capacity, len: rbuf.len, data: rbuf.data)
     }
@@ -22,7 +22,7 @@ private extension RustBuffer {
     // Frees the buffer in place.
     // The buffer must not be used after this is called.
     func deallocate() {
-        try! rustCall { ffi_augmented_dac1_rustbuffer_free(self, $0) }
+        try! rustCall { ffi_augmented_2fe4_rustbuffer_free(self, $0) }
     }
 }
 
@@ -243,7 +243,7 @@ extension String: ViaFfi {
 
     fileprivate static func lift(_ v: FfiType) throws -> Self {
         defer {
-            try! rustCall { ffi_augmented_dac1_rustbuffer_free(v, $0) }
+            try! rustCall { ffi_augmented_2fe4_rustbuffer_free(v, $0) }
         }
         if v.data == nil {
             return String()
@@ -259,7 +259,7 @@ extension String: ViaFfi {
                 // The swift string gives us a trailing null byte, we don't want it.
                 let buf = UnsafeBufferPointer(rebasing: ptr.prefix(upTo: ptr.count - 1))
                 let bytes = ForeignBytes(bufferPointer: buf)
-                return try! rustCall { ffi_augmented_dac1_rustbuffer_from_bytes(bytes, $0) }
+                return try! rustCall { ffi_augmented_2fe4_rustbuffer_from_bytes(bytes, $0) }
             }
         }
     }
@@ -460,7 +460,7 @@ public func initializeLogger() {
     try!
 
         rustCall {
-            augmented_dac1_initialize_logger($0)
+            augmented_2fe4_initialize_logger($0)
         }
 }
 
@@ -483,18 +483,18 @@ public class AudioOptionsService: AudioOptionsServiceProtocol {
         self.init(unsafeFromRawPointer: try!
 
             rustCall {
-                augmented_dac1_AudioOptionsService_new($0)
+                augmented_2fe4_AudioOptionsService_new($0)
             })
     }
 
     deinit {
-        try! rustCall { ffi_augmented_dac1_AudioOptionsService_object_free(pointer, $0) }
+        try! rustCall { ffi_augmented_2fe4_AudioOptionsService_object_free(pointer, $0) }
     }
 
     public func getAvailableOptions() -> AvailableAudioOptions {
         let _retval = try!
             rustCall {
-                augmented_dac1_AudioOptionsService_get_available_options(self.pointer, $0)
+                augmented_2fe4_AudioOptionsService_get_available_options(self.pointer, $0)
             }
         return try! AvailableAudioOptions.lift(_retval)
     }
@@ -502,7 +502,7 @@ public class AudioOptionsService: AudioOptionsServiceProtocol {
     public func setOptions(model: AudioOptions) {
         try!
             rustCall {
-                augmented_dac1_AudioOptionsService_set_options(self.pointer, model.lower(), $0)
+                augmented_2fe4_AudioOptionsService_set_options(self.pointer, model.lower(), $0)
             }
     }
 }
@@ -541,3 +541,72 @@ private extension AudioOptionsService {
 // 'private' modifier cannot be used with extensions that declare protocol conformances
 // """
 extension AudioOptionsService: ViaFfi, Serializable {}
+
+public protocol AudioEngineServiceProtocol {
+    func start()
+}
+
+public class AudioEngineService: AudioEngineServiceProtocol {
+    fileprivate let pointer: UnsafeMutableRawPointer
+
+    // TODO: We'd like this to be `private` but for Swifty reasons,
+    // we can't implement `ViaFfi` without making this `required` and we can't
+    // make it `required` without making it `public`.
+    required init(unsafeFromRawPointer pointer: UnsafeMutableRawPointer) {
+        self.pointer = pointer
+    }
+
+    public convenience init() {
+        self.init(unsafeFromRawPointer: try!
+
+            rustCall {
+                augmented_2fe4_AudioEngineService_new($0)
+            })
+    }
+
+    deinit {
+        try! rustCall { ffi_augmented_2fe4_AudioEngineService_object_free(pointer, $0) }
+    }
+
+    public func start() {
+        try!
+            rustCall {
+                augmented_2fe4_AudioEngineService_start(self.pointer, $0)
+            }
+    }
+}
+
+private extension AudioEngineService {
+    typealias FfiType = UnsafeMutableRawPointer
+
+    static func read(from buf: Reader) throws -> Self {
+        let v: UInt64 = try buf.readInt()
+        // The Rust code won't compile if a pointer won't fit in a UInt64.
+        // We have to go via `UInt` because that's the thing that's the size of a pointer.
+        let ptr = UnsafeMutableRawPointer(bitPattern: UInt(truncatingIfNeeded: v))
+        if ptr == nil {
+            throw UniffiInternalError.unexpectedNullPointer
+        }
+        return try lift(ptr!)
+    }
+
+    func write(into buf: Writer) {
+        // This fiddling is because `Int` is the thing that's the same size as a pointer.
+        // The Rust code won't compile if a pointer won't fit in a `UInt64`.
+        buf.writeInt(UInt64(bitPattern: Int64(Int(bitPattern: lower()))))
+    }
+
+    static func lift(_ pointer: UnsafeMutableRawPointer) throws -> Self {
+        return Self(unsafeFromRawPointer: pointer)
+    }
+
+    func lower() -> UnsafeMutableRawPointer {
+        return pointer
+    }
+}
+
+// Ideally this would be `fileprivate`, but Swift says:
+// """
+// 'private' modifier cannot be used with extensions that declare protocol conformances
+// """
+extension AudioEngineService: ViaFfi, Serializable {}

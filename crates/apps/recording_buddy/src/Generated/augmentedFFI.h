@@ -44,39 +44,51 @@ typedef struct RustCallStatus {
 // ⚠️ increment the version suffix in all instances of UNIFFI_SHARED_HEADER_V3 in this file.           ⚠️
 #endif // def UNIFFI_SHARED_H
 
-void ffi_augmented_dac1_AudioOptionsService_object_free(
+void ffi_augmented_2fe4_AudioOptionsService_object_free(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void*_Nonnull augmented_dac1_AudioOptionsService_new(
+void*_Nonnull augmented_2fe4_AudioOptionsService_new(
       
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer augmented_dac1_AudioOptionsService_get_available_options(
+RustBuffer augmented_2fe4_AudioOptionsService_get_available_options(
       void*_Nonnull ptr,
     RustCallStatus *_Nonnull out_status
     );
-void augmented_dac1_AudioOptionsService_set_options(
+void augmented_2fe4_AudioOptionsService_set_options(
       void*_Nonnull ptr,RustBuffer model,
     RustCallStatus *_Nonnull out_status
     );
-void augmented_dac1_initialize_logger(
+void ffi_augmented_2fe4_AudioEngineService_object_free(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void*_Nonnull augmented_2fe4_AudioEngineService_new(
       
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_augmented_dac1_rustbuffer_alloc(
+void augmented_2fe4_AudioEngineService_start(
+      void*_Nonnull ptr,
+    RustCallStatus *_Nonnull out_status
+    );
+void augmented_2fe4_initialize_logger(
+      
+    RustCallStatus *_Nonnull out_status
+    );
+RustBuffer ffi_augmented_2fe4_rustbuffer_alloc(
       int32_t size,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_augmented_dac1_rustbuffer_from_bytes(
+RustBuffer ffi_augmented_2fe4_rustbuffer_from_bytes(
       ForeignBytes bytes,
     RustCallStatus *_Nonnull out_status
     );
-void ffi_augmented_dac1_rustbuffer_free(
+void ffi_augmented_2fe4_rustbuffer_free(
       RustBuffer buf,
     RustCallStatus *_Nonnull out_status
     );
-RustBuffer ffi_augmented_dac1_rustbuffer_reserve(
+RustBuffer ffi_augmented_2fe4_rustbuffer_reserve(
       RustBuffer buf,int32_t additional,
     RustCallStatus *_Nonnull out_status
     );

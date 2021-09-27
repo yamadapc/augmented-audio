@@ -19,8 +19,9 @@ public struct ContentView: View {
     public var body: some View {
         VStack(spacing: 0) {
             EngineStateView(model: engineStateViewModel)
-            Divider()
-            ChartControl()
+            // Charts are disabled for a first iteration.
+            // Divider()
+            // ChartControl()
             Divider()
             FooterView()
         }.frame(minWidth: 300, minHeight: 500, alignment: .topLeading)

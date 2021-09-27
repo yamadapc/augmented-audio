@@ -15,10 +15,13 @@ class AppContextImpl {
     let engineStateViewModel = EngineStateViewModel(isRunning: true)
     let settingsController = SettingsController()
     let navigationDelegateImpl: NavigationDelegateImpl
+    let engineController: EngineController
 
     init() {
         self.navigationDelegateImpl = NavigationDelegateImpl(settingsController: settingsController)
         initializeLogger()
+        self.engineController = EngineController(engineStateViewModel: engineStateViewModel)
+        self.engineController.setup()
     }
 
     func engineState() -> EngineStateViewModel {
