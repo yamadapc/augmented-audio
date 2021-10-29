@@ -1,4 +1,4 @@
-use iced::{Align, Button, Column, Container, Length, Row, Text};
+use iced::{Alignment, Button, Column, Container, Length, Row, Text};
 use iced_audio::{Normal, NormalParam};
 
 use audio_garbage_collector::Shared;
@@ -190,7 +190,7 @@ fn parameter_view(index: usize, parameter_view_model: &mut ParameterViewModel) -
             .size(Spacing::small_font_size())
             .into(),
         ])
-        .align_items(Align::Center)
+        .align_items(Alignment::Center)
         .spacing(Spacing::small_spacing()),
     )
     .style(audio_style::HoverContainer)
