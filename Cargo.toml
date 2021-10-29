@@ -1,4 +1,5 @@
 [workspace]
+resolver = "2"
 members = [
   # Applications & Plug-ins
   "crates/apps/looper/looper-processor",
