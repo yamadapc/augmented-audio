@@ -1,6 +1,6 @@
 use audio_processor_iced_design_system::charts::{LineChart, LineChartMessage};
 use audio_processor_iced_design_system::spacing::Spacing;
-use iced::{Application, Clipboard, Command, Container, Element, Length, Settings, Subscription};
+use iced::{Application, Command, Container, Element, Length, Settings, Subscription};
 use std::time::Duration;
 
 fn main() -> iced::Result {
@@ -43,11 +43,7 @@ impl Application for LineChartApp {
         String::from("Line Chart")
     }
 
-    fn update(
-        &mut self,
-        _message: Self::Message,
-        _clipboard: &mut Clipboard,
-    ) -> Command<Self::Message> {
+    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
         self.offset += 1;
         self.line_chart.set_data(
             (0..1000)

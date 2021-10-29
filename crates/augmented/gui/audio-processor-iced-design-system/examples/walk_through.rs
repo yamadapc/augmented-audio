@@ -1,7 +1,7 @@
 use iced::pane_grid::Axis;
 use iced::{
-    pick_list, widget, Align, Application, Button, Clipboard, Column, Command, Container, Element,
-    Length, PaneGrid, Row, Rule, Settings, Text,
+    alignment, pick_list, widget, Alignment, Application, Button, Column, Command, Container,
+    Element, Length, PaneGrid, Row, Rule, Settings, Text,
 };
 use widget::pane_grid;
 
@@ -72,11 +72,7 @@ impl Application for WalkthroughApp {
         String::from("Walkthrough")
     }
 
-    fn update(
-        &mut self,
-        message: Self::Message,
-        _clipboard: &mut Clipboard,
-    ) -> Command<Self::Message> {
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
         match message {
             Message::PaneResized(resized) => self.pane_state.resize(&resized.split, resized.ratio),
             Message::Content(msg) => {
@@ -286,7 +282,7 @@ impl KnobsView {
                             .into(),
                         Text::new("0%").size(Spacing::small_font_size()).into(),
                     ])
-                    .align_items(Align::Center)
+                    .align_items(Alignment::Center)
                     .spacing(Spacing::small_spacing()),
                 )
                 .style(audio_style::HoverContainer)
@@ -339,7 +335,7 @@ impl SlidersView {
             .collect();
         Row::with_children(elements)
             .spacing(Spacing::base_spacing())
-            .align_items(Align::Center)
+            .align_items(Alignment::Center)
             .width(Length::Fill)
             .padding([Spacing::base_spacing(), 0])
             .into()
@@ -415,7 +411,7 @@ fn dropdown_with_label(
     Row::with_children(vec![
         Container::new(Text::new("Audio driver"))
             .width(Length::FillPortion(2))
-            .align_x(Align::End)
+            .align_x(alignment::Horizontal::Right)
             .center_y()
             .padding([0, Spacing::base_spacing()])
             .into(),
@@ -431,7 +427,7 @@ fn dropdown_with_label(
         .into(),
     ])
     .width(Length::Fill)
-    .align_items(Align::Center)
+    .align_items(Alignment::Center)
     .into()
 }
 
