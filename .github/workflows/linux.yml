@@ -36,6 +36,7 @@ jobs:
           cargo test --verbose --workspace \
               --features story \
               --exclude augmented-ui \
+              --exclude audiounit \
               --exclude example-iced-xcode-integration \
               --exclude darwin-webkit \
               --exclude webview-holder \
@@ -65,6 +66,7 @@ jobs:
       run: |
         cargo build --release --verbose --workspace \
             --exclude augmented-ui \
+            --exclude audiounit \
             --exclude example-iced-xcode-integration \
             --exclude darwin-webkit \
             --exclude macos-bundle-resources
