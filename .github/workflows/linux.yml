@@ -38,6 +38,8 @@ jobs:
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude example-iced-xcode-integration \
+              --exclude avfaudio-sys \
+              --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
               --exclude macos-bundle-resources
@@ -68,6 +70,8 @@ jobs:
             --exclude augmented-ui \
             --exclude audiounit \
             --exclude example-iced-xcode-integration \
+            --exclude avfaudio-sys \
+            --exclude recording_buddy \
             --exclude darwin-webkit \
             --exclude macos-bundle-resources
     - name: Upload plugin-host binary
