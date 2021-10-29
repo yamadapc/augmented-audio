@@ -24,7 +24,7 @@ jobs:
           path: |
             node_modules
             */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install lerna
         run: npm install
       - name: Bootstrap packages
