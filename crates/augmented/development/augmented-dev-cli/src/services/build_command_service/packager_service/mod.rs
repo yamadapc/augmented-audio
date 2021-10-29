@@ -5,7 +5,7 @@ use mockall::automock;
 use app_template_handler::AppTemplateHandler;
 use vst_handler::VstHandler;
 
-use crate::manifests::{CargoToml, MacosAppConfig, ReleaseJson, VstConfig};
+use crate::manifests::{CargoToml, MacosAppConfig, ReleaseJson};
 
 mod app_template_handler;
 mod vst_handler;
