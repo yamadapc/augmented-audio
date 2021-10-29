@@ -16,7 +16,8 @@
     "tsyringe": "^4.5.0"
   },
   "devDependencies": {
-    "@swc/jest": "^0.1.2",
+    "@swc/core": "^1.2.105",
+    "@swc/jest": "^0.2.5",
     "@testing-library/react": "^11.2.7",
     "@types/chroma-js": "^2.1.0",
     "@types/enzyme": "^3.10.8",
