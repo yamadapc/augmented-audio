@@ -6,7 +6,7 @@ use ui::main_content_view::{plugin_content, status_bar, transport_controls, volu
 
 #[derive(Debug, From, Clone, TryInto)]
 enum Message {
-    AudioIOSettings(audio_io_settings::Message),
+    AudioIOSettings(audio_io_settings::view::Message),
     TransportControls(transport_controls::Message),
     Dropdown(String),
     PluginContent(plugin_content::Message),
