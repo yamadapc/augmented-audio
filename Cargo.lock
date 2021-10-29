@@ -164,6 +164,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "askama"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d298738b6e47e1034e560e5afe63aa488fea34e25ec11b855a76f0d7b8e73134"
+dependencies = [
+ "askama_derive",
+ "askama_escape",
+ "askama_shared",
+]
+
+[[package]]
+name = "askama_derive"
+version = "0.10.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ca2925c4c290382f9d2fa3d1c1b6a63fa1427099721ecca4749b154cc9c25522"
+dependencies = [
+ "askama_shared",
+ "proc-macro2",
+ "syn",
+]
+
+[[package]]
+name = "askama_escape"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "90c108c1a94380c89d2215d0ac54ce09796823cca0fd91b299cfff3b33e346fb"
+
+[[package]]
+name = "askama_shared"
+version = "0.11.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2582b77e0f3c506ec4838a25fa8a5f97b9bed72bb6d3d272ea1c031d8bd373bc"
+dependencies = [
+ "askama_escape",
+ "nom 6.1.2",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "syn",
+ "toml",
+]
+
+[[package]]
 name = "async-trait"
 version = "0.1.51"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3119,6 +3162,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
+name = "lexical-core"
+version = "0.7.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6607c62aa161d23d17a9072cc5da0be67cdfc89d3afb1e8d9c842bebc2525ffe"
+dependencies = [
+ "arrayvec 0.5.2",
+ "bitflags",
+ "cfg-if 1.0.0",
+ "ryu",
+ "static_assertions",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.98"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3763,6 +3819,7 @@ checksum = "e7413f999671bd4745a7b624bd370a569fb6bc574b23c83a3c5ed2e453f3d5e2"
 dependencies = [
  "bitvec",
  "funty",
+ "lexical-core",
  "memchr",
  "version_check",
 ]
@@ -4809,6 +4866,7 @@ dependencies = [
  "objc",
  "plugin-host-lib",
  "uniffi",
+ "uniffi_bindgen",
  "uniffi_build",
  "uniffi_macros",
  "wisual-logger",
@@ -6009,6 +6067,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "uniffi_bindgen"
+version = "0.14.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f4e944a8726406ebf34aad02e8f3634a1b78c7e3598fd407c50c9c53041b1ce"
+dependencies = [
+ "anyhow",
+ "askama",
+ "cargo_metadata",
+ "clap 2.33.3",
+ "heck",
+ "paste",
+ "serde",
+ "toml",
+ "weedle",
+]
+
+[[package]]
 name = "uniffi_build"
 version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6408,6 +6483,15 @@ dependencies = [
  "tokio-tungstenite",
  "tungstenite",
  "webview-holder",
+]
+
+[[package]]
+name = "weedle"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "610950904727748ca09682e857f0d6d6437f0ca862f32f9229edba8cec8b2635"
+dependencies = [
+ "nom 5.1.2",
 ]
 
 [[package]]
