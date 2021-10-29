@@ -30,7 +30,7 @@ audio-processor-graph = { path = "../audio/audio-processor-graph" }
 audio-processor-traits = { path = "../audio/audio-processor-traits" }
 audio-processor-utility = { path = "../audio/audio-processor-utility" }
 oscillator = { path = "../audio/oscillator" }
-cpal = { path = "../../vendor/cpal" }
+cpal = { version = "^0.13.3" }
 
 # data
 atomic-queue = { path = "../data/atomic-queue" }

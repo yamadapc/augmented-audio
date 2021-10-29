@@ -16,9 +16,6 @@
 [submodule "crates/vendor/iced"]
 	path = crates/vendor/iced
 	url = https://github.com/yamadapc/iced
-[submodule "crates/vendor/cpal"]
-	path = crates/vendor/cpal
-	url = https://github.com/yamadapc/cpal
 [submodule "crates/vendor/iced_audio"]
 	path = crates/vendor/iced_audio
 	url = https://github.com/yamadapc/iced_audio

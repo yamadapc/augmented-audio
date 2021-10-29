@@ -34,10 +34,5 @@
     "path": "crates/vendor/lyon",
     "url": "https://github.com/yamadapc/lyon",
     "upstream_url": "https://github.com/nical/lyon"
-  },
-  {
-    "path": "crates/vendor/cpal",
-    "url": "https://github.com/yamadapc/cpal",
-    "upstream_url": "https://github.com/RustAudio/cpal"
   }
 ]
