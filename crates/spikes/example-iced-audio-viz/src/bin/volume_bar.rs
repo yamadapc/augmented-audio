@@ -4,8 +4,8 @@ use basedrop::Shared;
 use cpal::Stream;
 use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
 use iced::{
-    Application, Canvas, Clipboard, Column, Command, Element, Length, Point, Rectangle, Settings,
-    Size, Subscription,
+    Application, Canvas, Column, Command, Element, Length, Point, Rectangle, Settings, Size,
+    Subscription,
 };
 
 use audio_garbage_collector::GarbageCollector;
@@ -66,11 +66,7 @@ impl Application for AudioVisualization {
         String::from("ICED Audio Viz")
     }
 
-    fn update(
-        &mut self,
-        _message: Self::Message,
-        _clipboard: &mut Clipboard,
-    ) -> Command<Self::Message> {
+    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
         let (left, right) = self.handle.volume();
         self.volume_left = left;
         self.volume_right = right;

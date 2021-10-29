@@ -3,7 +3,7 @@ pub use hover_container::HoverContainer;
 /// Modified `iced_native::container::Container` to have styles on hover/pressed
 pub mod hover_container {
     use iced::canvas::event::Status;
-    use iced::{Align, Length, Point, Rectangle};
+    use iced::{Alignment, Length, Point, Rectangle};
     use iced_native::layout::{Limits, Node};
     use iced_native::{
         layout, overlay, Clipboard, Element, Event, Hasher, Layout, Padding, Widget,
@@ -17,8 +17,8 @@ pub mod hover_container {
         height: Length,
         max_width: u32,
         max_height: u32,
-        horizontal_alignment: Align,
-        vertical_alignment: Align,
+        horizontal_alignment: Alignment,
+        vertical_alignment: Alignment,
         style: Renderer::Style,
     }
 
@@ -36,8 +36,8 @@ pub mod hover_container {
                 height: Length::Shrink,
                 max_width: u32::MAX,
                 max_height: u32::MAX,
-                horizontal_alignment: Align::Start,
-                vertical_alignment: Align::Start,
+                horizontal_alignment: Alignment::Start,
+                vertical_alignment: Alignment::Start,
                 style: Renderer::Style::default(),
                 content: content.into(),
             }
@@ -74,26 +74,26 @@ pub mod hover_container {
         }
 
         /// Sets the content alignment for the horizontal axis of the [`Container`].
-        pub fn align_x(mut self, alignment: Align) -> Self {
+        pub fn align_x(mut self, alignment: Alignment) -> Self {
             self.horizontal_alignment = alignment;
             self
         }
 
         /// Sets the content alignment for the vertical axis of the [`Container`].
-        pub fn align_y(mut self, alignment: Align) -> Self {
+        pub fn align_y(mut self, alignment: Alignment) -> Self {
             self.vertical_alignment = alignment;
             self
         }
 
         /// Centers the contents in the horizontal axis of the [`Container`].
         pub fn center_x(mut self) -> Self {
-            self.horizontal_alignment = Align::Center;
+            self.horizontal_alignment = Alignment::Center;
             self
         }
 
         /// Centers the contents in the vertical axis of the [`Container`].
         pub fn center_y(mut self) -> Self {
-            self.vertical_alignment = Align::Center;
+            self.vertical_alignment = Alignment::Center;
             self
         }
 

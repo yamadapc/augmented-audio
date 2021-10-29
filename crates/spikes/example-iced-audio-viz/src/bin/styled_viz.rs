@@ -4,8 +4,8 @@ use basedrop::Shared;
 use cpal::Stream;
 use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
 use iced::{
-    Application, Canvas, Clipboard, Column, Command, Element, Length, Point, Rectangle, Settings,
-    Size, Subscription,
+    Application, Canvas, Column, Command, Element, Length, Point, Rectangle, Settings, Size,
+    Subscription,
 };
 
 use atomic_queue::Queue;
@@ -69,11 +69,7 @@ impl Application for AudioVisualization {
         String::from("ICED Audio Viz")
     }
 
-    fn update(
-        &mut self,
-        _message: Self::Message,
-        _clipboard: &mut Clipboard,
-    ) -> Command<Self::Message> {
+    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
         while let Some(sample) = self.queue_handle.pop() {
             self.buffer[self.position] = sample;
             self.position += 1;

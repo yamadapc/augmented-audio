@@ -1,8 +1,8 @@
 use std::fmt::Debug;
 
 use iced::{
-    button, Application, Button, Clipboard, Column, Command, Container, Element, Length, Row,
-    Subscription, Text,
+    button, Application, Button, Column, Command, Container, Element, Length, Row, Subscription,
+    Text,
 };
 
 use audio_processor_iced_design_system::menu_list;
@@ -113,11 +113,7 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
         String::from("Storybook")
     }
 
-    fn update(
-        &mut self,
-        message: Self::Message,
-        _clipboard: &mut Clipboard,
-    ) -> Command<Self::Message> {
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
         match message {
             Message::Sidebar(message) => {
                 match &message {

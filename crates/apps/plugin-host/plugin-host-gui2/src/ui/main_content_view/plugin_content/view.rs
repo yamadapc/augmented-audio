@@ -1,5 +1,5 @@
 use audio_processor_iced_design_system::spacing::Spacing;
-use iced::{Align, Button, Column, Command, Container, Element, Length, Row, Text};
+use iced::{alignment, Alignment, Button, Column, Command, Container, Element, Length, Row, Text};
 
 pub struct View {
     input_file_path_button_state: iced::button::State,
@@ -153,7 +153,7 @@ impl View {
         Row::with_children(vec![
             Container::new(Text::new(label))
                 .width(Length::FillPortion(2))
-                .align_x(Align::End)
+                .align_x(alignment::Horizontal::Right)
                 .center_y()
                 .padding([0, Spacing::base_spacing()])
                 .into(),
@@ -168,14 +168,14 @@ impl View {
                 .on_press(message)
                 .style(audio_processor_iced_design_system::style::Button)
                 .into()])
-                .align_items(Align::Center)
+                .align_items(Alignment::Center)
                 .spacing(Spacing::base_spacing()),
             )
             .center_y()
             .width(Length::FillPortion(8))
             .into(),
         ])
-        .align_items(Align::Center)
+        .align_items(Alignment::Center)
         .into()
     }
 }

@@ -3,9 +3,7 @@ use std::time::Duration;
 use derive_more::From;
 
 use audio_processor_iced_design_system as design_system;
-use augmented::gui::iced::{
-    Application, Clipboard, Command, Container, Element, Length, Menu, Subscription,
-};
+use augmented::gui::iced::{Application, Command, Container, Element, Length, Subscription};
 use plugin_host_lib::audio_io::audio_thread::options::AudioThreadOptions;
 use plugin_host_lib::audio_io::audio_thread::AudioThread;
 use plugin_host_lib::TestPluginHost;
@@ -63,11 +61,7 @@ impl Application for App {
         String::from("plugin-host")
     }
 
-    fn update(
-        &mut self,
-        message: Self::Message,
-        _clipboard: &mut Clipboard,
-    ) -> Command<Self::Message> {
+    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
         match message {
             AppMessage::Content(message) => self
                 .main_content_view
@@ -109,29 +103,29 @@ impl Application for App {
             .into()
     }
 
-    fn menu(&self) -> Menu<Self::Message> {
-        iced::menu::Menu::with_entries(vec![
-            iced::menu::Entry::Dropdown {
-                title: "File".to_string(),
-                submenu: iced::menu::Menu::with_entries(vec![iced::menu::Entry::Item {
-                    on_activation: AppMessage::Content(main_content_view::Message::PluginContent(
-                        main_content_view::plugin_content::Message::OpenAudioPluginFilePathPicker,
-                    )),
-                    hotkey: Some(iced_core::keyboard::Hotkey {
-                        key: iced_core::keyboard::KeyCode::O,
-                        modifiers: iced::keyboard::Modifiers::LOGO,
-                    }),
-                    title: "Open plugin...".to_string(),
-                }]),
-            },
-            iced::menu::Entry::Dropdown {
-                title: "Help".to_string(),
-                submenu: iced::menu::Menu::with_entries(vec![iced::menu::Entry::Item {
-                    on_activation: AppMessage::OpenGithub,
-                    hotkey: None,
-                    title: "Open GitHub project".to_string(),
-                }]),
-            },
-        ])
-    }
+    // fn menu(&self) -> Menu<Self::Message> {
+    //     iced::menu::Menu::with_entries(vec![
+    //         iced::menu::Entry::Dropdown {
+    //             title: "File".to_string(),
+    //             submenu: iced::menu::Menu::with_entries(vec![iced::menu::Entry::Item {
+    //                 on_activation: AppMessage::Content(main_content_view::Message::PluginContent(
+    //                     main_content_view::plugin_content::Message::OpenAudioPluginFilePathPicker,
+    //                 )),
+    //                 hotkey: Some(iced_core::keyboard::Hotkey {
+    //                     key: iced_core::keyboard::KeyCode::O,
+    //                     modifiers: iced::keyboard::Modifiers::LOGO,
+    //                 }),
+    //                 title: "Open plugin...".to_string(),
+    //             }]),
+    //         },
+    //         iced::menu::Entry::Dropdown {
+    //             title: "Help".to_string(),
+    //             submenu: iced::menu::Menu::with_entries(vec![iced::menu::Entry::Item {
+    //                 on_activation: AppMessage::OpenGithub,
+    //                 hotkey: None,
+    //                 title: "Open GitHub project".to_string(),
+    //             }]),
+    //         },
+    //     ])
+    // }
 }

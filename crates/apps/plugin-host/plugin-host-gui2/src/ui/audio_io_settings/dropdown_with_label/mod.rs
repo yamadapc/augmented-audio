@@ -1,5 +1,5 @@
 use iced::Command;
-use iced::{pick_list, Align, Container, Element, Length, Row, Text};
+use iced::{alignment, pick_list, Alignment, Container, Element, Length, Row, Text};
 
 use audio_processor_iced_design_system::spacing::Spacing;
 
@@ -35,7 +35,7 @@ impl DropdownWithLabel {
         Row::with_children(vec![
             Container::new(Text::new(&self.label))
                 .width(Length::FillPortion(2))
-                .align_x(Align::End)
+                .align_x(alignment::Horizontal::Right)
                 .center_y()
                 .padding([0, Spacing::base_spacing()])
                 .into(),
@@ -54,7 +54,7 @@ impl DropdownWithLabel {
             .into(),
         ])
         .width(Length::Fill)
-        .align_items(Align::Center)
+        .align_items(Alignment::Center)
         .into()
     }
 }
