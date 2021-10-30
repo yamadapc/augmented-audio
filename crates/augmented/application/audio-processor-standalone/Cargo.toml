@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2018"
 description = "Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`"
 license = "MIT"
@@ -16,6 +16,3 @@ log = "^0.4.14"
 wisual-logger = "^0.1.2"
 basedrop = "^0.1.2"
 ringbuf = "^0.2.5"
-
-[dev-dependencies]
-circular-data-structures = { path = "../../data/circular-data-structures" }

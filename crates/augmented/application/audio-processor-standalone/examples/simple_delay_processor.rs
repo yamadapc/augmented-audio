@@ -1,30 +1,33 @@
 use std::time::Duration;
 
 use audio_processor_traits::{AudioBuffer, AudioProcessor};
-use circular_data_structures::CircularVec;
 
 struct SimpleDelayProcessor {
     current_write_position: usize,
     current_read_position: usize,
-    delay_buffers: Vec<CircularVec<f32>>,
+    delay_buffers: Vec<Vec<f32>>,
+    buffer_size: usize,
 }
 
 impl SimpleDelayProcessor {
     fn new() -> Self {
+        let max_delay_time = (Duration::from_secs(5).as_secs_f32() * 44100.0) as usize;
+
         Self {
             current_write_position: (Duration::from_millis(800).as_secs_f32() * 44100.0) as usize,
             current_read_position: 0,
             delay_buffers: vec![
-                CircularVec::with_size(
-                    (Duration::from_secs(5).as_secs_f32() * 44100.0) as usize,
-                    0.0,
-                ),
-                CircularVec::with_size(
-                    (Duration::from_secs(5).as_secs_f32() * 44100.0) as usize,
-                    0.0,
-                ),
+                Self::make_vec(max_delay_time),
+                Self::make_vec(max_delay_time),
             ],
+            buffer_size: max_delay_time,
         }
+    }
+
+    fn make_vec(max_delay_time: usize) -> Vec<f32> {
+        let mut v = Vec::new();
+        v.resize(max_delay_time, 0.0);
+        v
     }
 }
 
@@ -59,6 +62,12 @@ impl AudioProcessor for SimpleDelayProcessor {
 
             self.current_read_position += 1;
             self.current_write_position += 1;
+            if self.current_read_position >= self.buffer_size {
+                self.current_read_position = 0;
+            }
+            if self.current_write_position >= self.buffer_size {
+                self.current_write_position = 0;
+            }
         }
     }
 }

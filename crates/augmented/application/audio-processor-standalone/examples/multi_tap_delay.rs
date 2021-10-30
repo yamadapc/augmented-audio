@@ -1,12 +1,12 @@
 use std::time::Duration;
 
 use audio_processor_traits::{AudioBuffer, AudioProcessor};
-use circular_data_structures::CircularVec;
 
 struct SimpleDelayProcessor {
     current_write_position: usize,
     current_read_positions: Vec<(usize, usize)>,
-    delay_buffers: Vec<CircularVec<f32>>,
+    buffer_size: usize,
+    delay_buffers: Vec<Vec<f32>>,
 }
 
 impl SimpleDelayProcessor {
@@ -42,20 +42,22 @@ impl SimpleDelayProcessor {
             }
         }
 
+        let max_delay_time = (Duration::from_secs(10).as_secs_f32() * 44100.0) as usize;
         Self {
             current_write_position: write_position,
             current_read_positions: read_positions,
+            buffer_size: max_delay_time,
             delay_buffers: vec![
-                CircularVec::with_size(
-                    (Duration::from_secs(10).as_secs_f32() * 44100.0) as usize,
-                    0.0,
-                ),
-                CircularVec::with_size(
-                    (Duration::from_secs(10).as_secs_f32() * 44100.0) as usize,
-                    0.0,
-                ),
+                Self::make_vec(max_delay_time),
+                Self::make_vec(max_delay_time),
             ],
         }
+    }
+
+    fn make_vec(max_delay_time: usize) -> Vec<f32> {
+        let mut v = Vec::new();
+        v.resize(max_delay_time, 0.0);
+        v
     }
 }
 
@@ -105,9 +107,20 @@ impl AudioProcessor for SimpleDelayProcessor {
             }
 
             for pos in &mut self.current_read_positions {
-                *pos = (pos.0 + 1, pos.1 + 1);
+                let mut p0 = pos.0 + 1;
+                let mut p1 = pos.1 + 1;
+                if p0 >= self.buffer_size {
+                    p0 = 0;
+                }
+                if p1 >= self.buffer_size {
+                    p1 = 0;
+                }
+                *pos = (p0, p1);
             }
             self.current_write_position += 1;
+            if self.current_write_position >= self.buffer_size {
+                self.current_write_position = 0;
+            }
         }
     }
 }

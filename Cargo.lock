@@ -343,7 +343,6 @@ dependencies = [
  "audio-processor-standalone-midi",
  "audio-processor-traits",
  "basedrop",
- "circular-data-structures",
  "cpal",
  "log",
  "ringbuf",
