@@ -1,0 +1,12 @@
+[package]
+name = "audio-processor-analysis"
+description = "Analysis AudioProcessors"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+audio-garbage-collector = { path = "../audio-garbage-collector" }
+audio-processor-traits = { version = "0.3", path = "../audio-processor-traits" }
+
+[package.metadata.augmented]
+private = true

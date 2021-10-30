@@ -304,6 +304,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-analysis"
+version = "0.1.0"
+dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-traits",
+]
+
+[[package]]
 name = "audio-processor-graph"
 version = "0.1.0"
 dependencies = [
@@ -4515,6 +4523,7 @@ version = "0.1.0"
 dependencies = [
  "atomic-queue",
  "audio-garbage-collector",
+ "audio-processor-analysis",
  "audio-processor-standalone-midi",
  "audio-processor-traits",
  "basedrop",
