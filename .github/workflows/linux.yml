@@ -31,8 +31,6 @@ jobs:
           key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
       - name: Install dependencies
         run: ./scripts/install-ubuntu-dependencies.sh
-      - name: Install uniffi bindgen
-        run: cargo install --force uniffi_bindgen
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -82,8 +80,6 @@ jobs:
         key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
     - name: Install dependencies
       run: ./scripts/install-ubuntu-dependencies.sh
-    - name: Install uniffi bindgen
-      run: cargo install --force uniffi_bindgen
     - name: Build release
       run: |
         cargo build --release --verbose --workspace \

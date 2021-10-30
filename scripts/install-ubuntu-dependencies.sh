@@ -25,4 +25,10 @@ sudo apt-get install --fix-missing -y \
     nvidia-utils-465 \
     libgtk-3-dev
 
-cargo install cargo-tarpaulin
+if ! [ -x "$(command -v uniffi-bindgen)" ]; then
+  cargo install uniffi_bindgen
+fi
+
+if ! [ -x "$(command -v cargo-tarpaulin)" ]; then
+  cargo install cargo-tarpaulin
+fi
