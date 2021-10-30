@@ -1,4 +1,4 @@
-# Version 0.1.0
+# Version 0.1.1
 #
 #   docker build -t yamadapc/augmented-audio-linux-ci:0.1.0 -f ./docker/linux-ci.dockerfile .
 #   docker push yamadapc/augmented-audio-linux-ci:0.1.0
@@ -30,4 +30,6 @@ RUN apt-get install --fix-missing -y \
     nvidia-utils-465 \
     libgtk-3-dev
 
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+RUN apt-get install -y curl
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable
+ENV PATH="/root/.cargo/bin:${PATH}"

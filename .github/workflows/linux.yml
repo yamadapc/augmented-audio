@@ -13,7 +13,7 @@ jobs:
   test-rust:
     name: LINUX Run unit-tests on rust crates
     runs-on: ubuntu-latest
-    container: yamadapc/augmented-audio-linux-ci:0.1.0
+    container: yamadapc/augmented-audio-linux-ci:0.1.1
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,10 +27,11 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
-      - name: Install dependencies
-        run: ./scripts/install-ubuntu-dependencies.sh
       - name: Install uniffi bindgen
-        run: cargo install --force uniffi_bindgen
+        run: |
+          if ! [ -x "$(command -v uniffi-bindgen)" ]; then
+            cargo install uniffi_bindgen
+          fi
       - name: Test
         run: |
           cargo test --verbose --workspace \
@@ -58,7 +59,7 @@ jobs:
   build-rust:
     name: LINUX Build release rust crates
     runs-on: ubuntu-latest
-    container: yamadapc/augmented-audio-linux-ci:0.1.0
+    container: yamadapc/augmented-audio-linux-ci:0.1.1
     steps:
     - uses: actions/checkout@v2
       with:
@@ -75,7 +76,10 @@ jobs:
     - name: Install dependencies
       run: ./scripts/install-ubuntu-dependencies.sh
     - name: Install uniffi bindgen
-      run: cargo install --force uniffi_bindgen
+      run: |
+        if ! [ -x "$(command -v uniffi-bindgen)" ]; then
+          cargo install uniffi_bindgen
+        fi
     - name: Build release
       run: |
         cargo build --release --verbose --workspace \
