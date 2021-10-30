@@ -1,4 +1,7 @@
 # augmented-dsp-filters
+[![crates.io](https://img.shields.io/crates/v/augmented-dsp-filters.svg)](https://crates.io/crates/augmented-dsp-filters)
+[![docs.rs](https://docs.rs/augmented-dsp-filters/badge.svg)](https://docs.rs/augmented-dsp-filters/)
+- - -
 
 Mechanical port of Vinnie Falco's https://github.com/vinniefalco/DSPFilters/.
 
