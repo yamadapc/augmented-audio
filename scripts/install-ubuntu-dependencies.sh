@@ -24,3 +24,5 @@ sudo apt-get install --fix-missing -y \
     libxcb-dri2-0-dev \
     nvidia-utils-465 \
     libgtk-3-dev
+
+cargo install cargo-tarpaulin

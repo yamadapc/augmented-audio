@@ -34,8 +34,11 @@ jobs:
       - name: Install uniffi bindgen
         run: cargo install --force uniffi_bindgen
       - name: Test
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
-          cargo test --verbose --workspace \
+          cargo tarpaulin --verbose --workspace \
+              --coveralls $COVERALLS_TOKEN
               --features story \
               --exclude augmented-ui \
               --exclude audiounit \
