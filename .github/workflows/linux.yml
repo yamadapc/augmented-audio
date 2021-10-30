@@ -37,9 +37,9 @@ jobs:
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
-          cargo tarpaulin --verbose --workspace \
-              --coveralls $COVERALLS_TOKEN \
+          cargo tarpaulin --workspace \
               --features story \
+              --coveralls $COVERALLS_TOKEN \
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude example-iced-xcode-integration \
