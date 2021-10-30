@@ -14,12 +14,6 @@ use crate::TestPluginHost;
 pub mod models;
 pub mod storage;
 
-fn log_error<T, Err: std::error::Error>(r: Result<T, Err>) {
-    if let Err(err) = r {
-        log::error!("{}", err);
-    }
-}
-
 #[derive(Error, Debug, Serialize)]
 pub enum AudioIOServiceError {
     #[error("Failed to get host reference")]
@@ -62,7 +56,10 @@ impl AudioIOService {
     }
 
     pub fn try_store(&self) {
-        log_error(self.store());
+        if let Err(err) = self.store() {
+            let err: &dyn std::error::Error = &err;
+            log::error!("{}", err);
+        }
     }
 
     pub fn reload(&mut self) -> Result<(), AudioIOServiceError> {
@@ -227,20 +224,20 @@ mod test {
     #[test]
     fn test_io_service_get_hosts() {
         let hosts = AudioIOService::hosts();
-        assert!(hosts.len() > 0);
+        assert!(!hosts.is_empty());
     }
 
     #[test]
     fn test_io_service_get_inputs() {
         let host = None;
         let inputs = AudioIOService::input_devices(host).unwrap();
-        assert!(inputs.len() > 0);
+        assert!(!inputs.is_empty());
     }
 
     #[test]
     fn test_io_service_get_outputs() {
         let host = None;
         let outputs = AudioIOService::output_devices(host).unwrap();
-        assert!(outputs.len() > 0);
+        assert!(!outputs.is_empty());
     }
 }

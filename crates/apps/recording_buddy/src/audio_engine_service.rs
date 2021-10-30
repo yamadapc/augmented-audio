@@ -29,7 +29,13 @@ impl AudioProcessor for RecordingBuddyProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
-        _data: &mut BufferType,
+        data: &mut BufferType,
     ) {
+        // Silence the output
+        for frame in data.frames_mut() {
+            for sample in frame {
+                *sample = 0.0
+            }
+        }
     }
 }
