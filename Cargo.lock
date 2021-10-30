@@ -472,6 +472,7 @@ dependencies = [
  "chrono",
  "clap 3.0.0-beta.2",
  "cmd_lib",
+ "crates_io_api",
  "log",
  "mockall",
  "plist",
@@ -884,6 +885,7 @@ dependencies = [
  "libc",
  "num-integer",
  "num-traits 0.2.14",
+ "serde",
  "time",
  "winapi 0.3.9",
 ]
@@ -1348,6 +1350,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "66c99696f6c9dd7f35d486b9d04d7e6e202aa3e8c40d553f2fdf5e7e0c6a71ef"
 dependencies = [
  "libc",
+]
+
+[[package]]
+name = "crates_io_api"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f0ab4553806e9495b7e78a66454c16c5021cd3816d7b8e7e8fe28aa5474346bb"
+dependencies = [
+ "chrono",
+ "futures",
+ "log",
+ "reqwest",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "tokio",
+ "url",
 ]
 
 [[package]]
@@ -4948,6 +4967,7 @@ dependencies = [
  "percent-encoding",
  "pin-project-lite",
  "serde",
+ "serde_json",
  "serde_urlencoded",
  "tokio",
  "tokio-native-tls",

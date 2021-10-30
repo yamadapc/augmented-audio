@@ -15,3 +15,7 @@ toml = "^0.5.8"
 urlencoding = "2.1.0"
 plist = "^1.1.0"
 mockall = "0.10.2"
+crates_io_api = "0.7.3"
+
+[package.metadata.augmented]
+private = true

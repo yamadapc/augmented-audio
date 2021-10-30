@@ -20,3 +20,6 @@ async-trait = "^0.1.50"
 serde = { version = "^1.0.126", features = ["derive"] }
 
 webview-holder = { path = "../webview-holder" }
+
+[package.metadata.augmented]
+private = true

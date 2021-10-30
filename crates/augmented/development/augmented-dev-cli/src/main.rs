@@ -23,6 +23,7 @@ fn main() {
     let mut app = clap::App::new("augmented-dev-cli")
         .version(&*version)
         .about("Development CLI for augmented projects, helps build and deploy apps")
+        .subcommand(clap::App::new("list-crates").about("List crates and their published status"))
         .subcommand(
             clap::App::new("build")
                 .about("Build a release package for a given app")
@@ -31,9 +32,12 @@ fn main() {
 
     let matches = app.clone().get_matches();
 
-    if matches.is_present("build") {
+    if matches.is_present("list-crates") {
+        let list_crates_service = services::ListCratesService::default();
+        list_crates_service.run();
+    } else if matches.is_present("build") {
         let matches = matches.subcommand_matches("build").unwrap();
-        let mut build_service = services::build_command_service::BuildCommandService::default();
+        let mut build_service = services::BuildCommandService::default();
         build_service.run_build(matches.value_of("crate").unwrap());
     } else {
         app.print_help().unwrap();

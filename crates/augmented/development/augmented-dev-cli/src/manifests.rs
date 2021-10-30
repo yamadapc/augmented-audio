@@ -23,6 +23,7 @@ pub struct VstConfig {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub struct AppTemplateConfig {
     pub template_path: String,
 }
@@ -45,8 +46,14 @@ pub struct AppConfig {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AugmentedMetadata {
+    pub private: Option<bool>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CargoTomlPackageMetadata {
     pub app: Option<AppConfig>,
+    pub augmented: Option<AugmentedMetadata>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -60,7 +67,7 @@ pub struct CargoTomlPackage {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub struct CargoLib {
-    pub name: String,
+    pub name: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

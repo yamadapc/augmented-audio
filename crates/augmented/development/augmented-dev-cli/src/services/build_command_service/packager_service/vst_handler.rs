@@ -43,7 +43,14 @@ impl VstHandler {
 
         let source_dylib_path = format!(
             "./target/release/lib{}.dylib",
-            input.cargo_toml.lib.as_ref().unwrap().name
+            input
+                .cargo_toml
+                .lib
+                .as_ref()
+                .expect("VST requires a lib")
+                .name
+                .as_ref()
+                .expect("VST lib require a name")
         );
         let target_dylib_path =
             output_path.join(format!("Contents/MacOS/{}", input.cargo_toml.package.name));

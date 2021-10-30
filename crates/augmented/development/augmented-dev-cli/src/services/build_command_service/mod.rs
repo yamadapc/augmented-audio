@@ -2,9 +2,6 @@ use chrono::prelude::*;
 use cmd_lib::spawn;
 
 use crate::manifests::{CargoToml, ReleaseJson};
-use crate::services::build_command_service::cargo_toml_reader::{
-    CargoTomlReader, CargoTomlReaderImpl,
-};
 use crate::services::build_command_service::git_release_provider::{
     GitReleaseProvider, GitReleaseProviderImpl,
 };
@@ -14,8 +11,8 @@ use crate::services::build_command_service::packager_service::{
 use crate::services::build_command_service::release_service::{
     ReleaseInput, ReleaseService, ReleaseServiceImpl,
 };
+use crate::services::cargo_toml_reader::{CargoTomlReader, CargoTomlReaderImpl};
 
-mod cargo_toml_reader;
 mod git_release_provider;
 mod packager_service;
 mod release_service;
