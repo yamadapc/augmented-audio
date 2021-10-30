@@ -6,7 +6,11 @@
 version: 2
 updates:
   - package-ecosystem: "cargo"
-    directory: "/"
+    directory: "/crates/augmented"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "cargo"
+    directory: "/crates/apps"
     schedule:
       interval: "daily"
   - package-ecosystem: "npm"
