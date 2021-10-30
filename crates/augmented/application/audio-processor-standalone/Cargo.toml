@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-audio-processor-standalone-midi = { version = "^0.1.0", path = "../audio-processor-standalone-midi" }
+audio-processor-standalone-midi = { version = "^0.1", path = "../audio-processor-standalone-midi" }
 audio-processor-traits = { version = "^0.3", path = "../../audio/audio-processor-traits" }
 
 cpal = { version = "^0.13.3" }
