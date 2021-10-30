@@ -13,7 +13,7 @@ jobs:
   test-rust:
     name: LINUX Run unit-tests on rust crates
     runs-on: ubuntu-latest
-    container: yamadapc/augmented-audio-linux-ci:0.1.2
+    container: yamadapc/augmented-audio-linux-ci:0.1.3
     steps:
       - uses: actions/checkout@v2
         with:
@@ -59,7 +59,7 @@ jobs:
   build-rust:
     name: LINUX Build release rust crates
     runs-on: ubuntu-latest
-    container: yamadapc/augmented-audio-linux-ci:0.1.2
+    container: yamadapc/augmented-audio-linux-ci:0.1.3
     steps:
     - uses: actions/checkout@v2
       with:
