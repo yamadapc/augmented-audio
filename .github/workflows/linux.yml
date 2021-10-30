@@ -32,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: ./scripts/install-ubuntu-dependencies.sh
       - name: Install uniffi bindgen
-        run: cargo install uniffi_bindgen
+        run: cargo install --force uniffi_bindgen
       - name: Test
         run: |
           cargo test --verbose --workspace \
@@ -67,7 +67,7 @@ jobs:
     - name: Install dependencies
       run: ./scripts/install-ubuntu-dependencies.sh
     - name: Install uniffi bindgen
-      run: cargo install uniffi_bindgen
+      run: cargo install --force uniffi_bindgen
     - name: Build release
       run: |
         cargo build --release --verbose --workspace \
