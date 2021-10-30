@@ -2,14 +2,19 @@
 name = "audio-processor-standalone"
 version = "0.1.0"
 edition = "2018"
+description = "Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
+audio-processor-standalone-midi = { version = "^0.1.0", path = "../audio-processor-standalone-midi" }
 audio-processor-traits = { version = "^0.3", path = "../../audio/audio-processor-traits" }
+
 cpal = { version = "^0.13.3" }
 log = "^0.4.14"
 wisual-logger = "^0.1.2"
 basedrop = "^0.1.2"
-audio-processor-standalone-midi = { version = "^0.1.0", path = "../audio-processor-standalone-midi" }
 ringbuf = "^0.2.5"
 
 [dev-dependencies]
