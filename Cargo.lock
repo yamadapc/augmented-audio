@@ -338,7 +338,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-standalone"
-version = "0.1.4"
+version = "0.1.5"
 dependencies = [
  "audio-processor-standalone-midi",
  "audio-processor-traits",
