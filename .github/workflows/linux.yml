@@ -27,6 +27,8 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
+      - name: Set-up rust toolchain
+        run: rustup default stable
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
@@ -73,6 +75,8 @@ jobs:
           ~/.cargo/git/db/
           target/
         key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
+    - name: Set-up rust toolchain
+      run: rustup default stable
     - name: Install dependencies
       run: ./scripts/install-ubuntu-dependencies.sh
     - name: Install uniffi bindgen
