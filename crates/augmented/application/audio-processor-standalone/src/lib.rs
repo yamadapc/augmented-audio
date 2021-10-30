@@ -248,14 +248,8 @@ fn configure_output_device(
 }
 
 fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
-    let mut output_behind = false;
     for sample in data {
-        while producer.push(*sample).is_err() {
-            output_behind = true;
-        }
-    }
-    if output_behind {
-        log::error!("Output is behind");
+        while producer.push(*sample).is_err() {}
     }
 }
 
@@ -271,18 +265,10 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
     consumer: &mut Consumer<f32>,
     data: &mut [f32],
 ) {
-    let mut input_behind = false;
-
     for sample in data.iter_mut() {
         if let Some(input_sample) = consumer.pop() {
             *sample = input_sample;
-        } else {
-            input_behind = true;
         }
-    }
-
-    if input_behind {
-        log::error!("Input is behind");
     }
 
     // Collect MIDI

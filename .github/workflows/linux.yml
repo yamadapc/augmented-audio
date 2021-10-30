@@ -35,9 +35,12 @@ jobs:
             cargo install uniffi_bindgen
           fi
       - name: Test
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
-          cargo test --verbose --workspace \
+          cargo tarpaulin --workspace \
               --features story \
+              --coveralls $COVERALLS_TOKEN \
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude basedrop \

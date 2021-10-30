@@ -484,7 +484,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-dsp-filters"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "audio-processor-traits",
  "num 0.4.0",
