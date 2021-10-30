@@ -38,7 +38,7 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
           cargo tarpaulin --verbose --workspace \
-              --coveralls $COVERALLS_TOKEN
+              --coveralls $COVERALLS_TOKEN \
               --features story \
               --exclude augmented-ui \
               --exclude audiounit \
