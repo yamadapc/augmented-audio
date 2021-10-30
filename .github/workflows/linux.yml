@@ -34,6 +34,11 @@ jobs:
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
             cargo install uniffi_bindgen
           fi
+      - name: Install tarpaulin bindgen
+        run: |
+          if ! [ -x "$(command -v uniffi-bindgen)" ]; then
+            cargo install cargo-tarpaulin
+          fi
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -80,8 +85,6 @@ jobs:
         key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
     - name: Set-up rust toolchain
       run: rustup default stable
-    - name: Install dependencies
-      run: ./scripts/install-ubuntu-dependencies.sh
     - name: Install uniffi bindgen
       run: |
         if ! [ -x "$(command -v uniffi-bindgen)" ]; then
