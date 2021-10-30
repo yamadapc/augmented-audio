@@ -39,6 +39,18 @@ jobs:
               --features story \
               --exclude augmented-ui \
               --exclude audiounit \
+              --exclude basedrop \
+              --exclude gfx \
+              --exclude iced \
+              --exclude iced-baseview \
+              --exclude iced_audio \
+              --exclude libloading \
+              --exclude lyon \
+              --exclude pathfinder \
+              --exclude piet \
+              --exclude plotters \
+              --exclude skribo \
+              --exclude vst \
               --exclude example-iced-xcode-integration \
               --exclude avfaudio-sys \
               --exclude recording_buddy \
