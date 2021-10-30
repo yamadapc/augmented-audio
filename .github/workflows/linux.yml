@@ -11,11 +11,9 @@ env:
 
 jobs:
   test-rust:
-    name: Run unit-tests on rust crates ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+    name: LINUX Run unit-tests on rust crates
+    runs-on: ubuntu-latest
+    container: yamadapc/augmented-audio-linux-ci:0.1.0
     steps:
       - uses: actions/checkout@v2
         with:
@@ -58,11 +56,9 @@ jobs:
               --exclude webview-holder \
               --exclude macos-bundle-resources
   build-rust:
-    name: Build release rust crates ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
+    name: LINUX Build release rust crates
+    runs-on: ubuntu-latest
+    container: yamadapc/augmented-audio-linux-ci:0.1.0
     steps:
     - uses: actions/checkout@v2
       with:
