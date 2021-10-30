@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 description = "Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`"
 license = "MIT"
