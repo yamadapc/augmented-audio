@@ -8,8 +8,8 @@ crate-type = ["staticlib"]
 
 [dependencies]
 # FFI
-uniffi = "0.14"
-uniffi_macros = "0.14"
+uniffi = "0.14.1"
+uniffi_macros = "0.14.1"
 
 # macOS
 objc = "0.2.7"
@@ -25,6 +25,6 @@ augmented = { path = "../../augmented/augmented" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 
 [build-dependencies]
-uniffi_build = "0.14"
+uniffi_build = "0.14.1"
 uniffi_bindgen = "0.14.1"
 cbindgen = "0.20.0"
