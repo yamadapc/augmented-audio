@@ -431,11 +431,11 @@ dependencies = [
  "audio-processor-traits",
  "audio-processor-utility",
  "audio-volume",
+ "augmented-dsp-filters",
  "baseview",
  "circular-data-structures",
  "convert-sample-rate",
  "cpal",
- "dsp-filters",
  "iced",
  "iced-editor",
  "iced_audio",
@@ -480,6 +480,14 @@ dependencies = [
  "toml",
  "urlencoding",
  "wisual-logger",
+]
+
+[[package]]
+name = "augmented-dsp-filters"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-traits",
+ "num 0.4.0",
 ]
 
 [[package]]
@@ -1723,14 +1731,6 @@ name = "downcast-rs"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ea835d29036a4087793836fa931b08837ad5e957da9e23886b29586fb9b6650"
-
-[[package]]
-name = "dsp-filters"
-version = "0.1.0"
-dependencies = [
- "audio-processor-traits",
- "num 0.4.0",
-]
 
 [[package]]
 name = "dtoa"
@@ -5603,7 +5603,7 @@ dependencies = [
  "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-traits",
- "dsp-filters",
+ "augmented-dsp-filters",
  "log",
  "num 0.4.0",
  "oscillator",

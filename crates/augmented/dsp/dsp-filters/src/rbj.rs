@@ -338,7 +338,7 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
 /// ```
 /// use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 /// use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
-/// use dsp_filters::rbj::{FilterProcessor, FilterType};
+/// use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 ///
 /// let mut audio_buffer = VecAudioBuffer::new();
 /// audio_buffer.resize(2, 1 * 44100, 0.0);

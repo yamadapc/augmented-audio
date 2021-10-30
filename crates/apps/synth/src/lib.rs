@@ -4,7 +4,7 @@ use rimd::Status;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
-use dsp_filters::rbj::{FilterProcessor, FilterType};
+use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 use voice::Voice;
 
 mod voice;

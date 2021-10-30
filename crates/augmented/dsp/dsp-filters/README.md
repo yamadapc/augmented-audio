@@ -1,4 +1,4 @@
-# dsp-filters
+# augmented-dsp-filters
 
 Mechanical port of Vinnie Falco's https://github.com/vinniefalco/DSPFilters/.
 
@@ -17,7 +17,7 @@ See `synth` on this repository for a nice working example.
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings
 };
-use dsp_filters::rbj::{FilterProcessor, FilterType};
+use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 
 pub struct YourProcessor {
     filter: FilterProcessor<f32>, // <- f32 may be f64 if you wish
