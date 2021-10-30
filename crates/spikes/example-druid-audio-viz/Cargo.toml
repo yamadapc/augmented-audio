@@ -11,7 +11,7 @@ instant = "^0.1.9"
 basedrop = "^0.1.2"
 log = "^0.4.14"
 
-audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" }
+audio-processor-standalone = { version = "^0.1.1", path = "../../augmented/application/audio-processor-standalone" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
 atomic-queue = { path = "../../augmented/data/atomic-queue" }
 circular-data-structures = { path = "../../augmented/data/circular-data-structures" }
