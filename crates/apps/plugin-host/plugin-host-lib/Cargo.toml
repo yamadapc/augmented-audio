@@ -25,7 +25,7 @@ symphonia-bundle-mp3 = "^0.2.0"
 tao = "0.5.2"
 thiserror = "^1.0.25"
 uuid = { version = "^0.8.2", features = [ "v4" ] }
-vst = { path = "../../../vendor/vst" }
+vst = { version = "0.2.1", path = "../../../vendor/vst" }
 wisual-logger = "^0.1.2"
 
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }
