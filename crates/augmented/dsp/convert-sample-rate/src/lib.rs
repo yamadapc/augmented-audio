@@ -57,7 +57,7 @@ pub fn convert_sample_rate(input_rate: f32, input: &[f32], output_rate: f32, out
 mod tests {
     use std::time::Duration;
 
-    use audio_processor_testing_helpers::sine_buffer;
+    use audio_processor_testing_helpers::generators::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
 
     use super::*;

@@ -374,7 +374,9 @@ dependencies = [
 name = "audio-processor-testing-helpers"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-traits",
  "oscillator",
+ "plotters 0.3.1",
 ]
 
 [[package]]
@@ -494,6 +496,7 @@ dependencies = [
 name = "augmented-dsp-filters"
 version = "0.2.0"
 dependencies = [
+ "audio-processor-testing-helpers",
  "audio-processor-traits",
  "num 0.4.0",
 ]
