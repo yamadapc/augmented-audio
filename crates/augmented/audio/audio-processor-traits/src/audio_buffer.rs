@@ -171,6 +171,23 @@ pub struct VecAudioBuffer<SampleType> {
     num_samples: usize,
 }
 
+impl<SampleType> VecAudioBuffer<SampleType> {
+    pub fn new_with(buffer: Vec<SampleType>, num_channels: usize, num_samples: usize) -> Self {
+        Self {
+            buffer,
+            num_samples,
+            num_channels,
+        }
+    }
+}
+
+impl<SampleType: Clone> From<Vec<SampleType>> for VecAudioBuffer<SampleType> {
+    fn from(simple_vec: Vec<SampleType>) -> Self {
+        let num_samples = simple_vec.len();
+        VecAudioBuffer::new_with(simple_vec, 1, num_samples)
+    }
+}
+
 impl<SampleType> AudioBuffer for VecAudioBuffer<SampleType> {
     type SampleType = SampleType;
 

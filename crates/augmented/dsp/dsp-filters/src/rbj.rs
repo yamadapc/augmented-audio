@@ -495,3 +495,35 @@ where
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use audio_processor_testing_helpers::charts::*;
+
+    use super::*;
+
+    #[test]
+    fn test_band_pass_filter_frequency_response() {
+        use FilterType::*;
+
+        let filters = vec![
+            ("low-pass", LowPass),
+            ("high-pass", HighPass),
+            ("band-pass1", BandPass1),
+            ("band-pass2", BandPass2),
+            ("band-stop", BandStop),
+            ("low-shelf", LowShelf),
+            ("high-shelf", HighShelf),
+        ];
+
+        for (filter_name, filter_type) in filters {
+            let mut processor = FilterProcessor::new(filter_type);
+            processor.set_cutoff(880.0);
+            generate_frequency_response_plot(
+                &*format!("{}{}", env!("CARGO_MANIFEST_DIR"), "/src/rbj.rs"),
+                &*format!("{}-880hz-frequency-response", filter_name),
+                &mut processor,
+            );
+        }
+    }
+}

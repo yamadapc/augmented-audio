@@ -1,8 +1,9 @@
-use audio_garbage_collector::{Shared, SharedCell};
-use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
+
+use audio_garbage_collector::{Handle, Shared, SharedCell};
+use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
+use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 /// A shared "processor handle" to `RunningRMSProcessor`
 pub struct RunningRMSProcessorHandle {
@@ -13,7 +14,7 @@ pub struct RunningRMSProcessorHandle {
 
 impl RunningRMSProcessorHandle {
     /// Create a new handle with empty buffers
-    fn new(gc_handle: &basedrop::Handle) -> Self {
+    fn new(gc_handle: &Handle) -> Self {
         RunningRMSProcessorHandle {
             window: SharedCell::new(Shared::new(gc_handle, VecAudioBuffer::new())),
             running_sums: SharedCell::new(Shared::new(gc_handle, Vec::new())),
@@ -22,7 +23,7 @@ impl RunningRMSProcessorHandle {
     }
 
     /// Create a new RMS window with size & replace the old one with it.
-    fn resize(&self, gc_handle: &basedrop::Handle, num_channels: usize, num_samples: usize) {
+    fn resize(&self, gc_handle: &Handle, num_channels: usize, num_samples: usize) {
         self.cursor.store(0, Ordering::Relaxed);
 
         let mut window = VecAudioBuffer::new();
@@ -52,13 +53,13 @@ pub struct RunningRMSProcessor {
     handle: Shared<RunningRMSProcessorHandle>,
     duration_samples: usize,
     duration: Duration,
-    gc_handle: basedrop::Handle,
+    gc_handle: Handle,
 }
 
 impl RunningRMSProcessor {
     /// Create a `RunningRMSProcessor` which will calculate RMS based on a certain `duration` of
     /// samples.
-    pub fn new_with_duration(gc_handle: &basedrop::Handle, duration: Duration) -> Self {
+    pub fn new_with_duration(gc_handle: &Handle, duration: Duration) -> Self {
         RunningRMSProcessor {
             handle: Shared::new(gc_handle, RunningRMSProcessorHandle::new(gc_handle)),
             duration_samples: 0,
@@ -120,8 +121,9 @@ impl AudioProcessor for RunningRMSProcessor {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use audio_garbage_collector::GarbageCollector;
+
+    use super::*;
 
     #[test]
     fn test_audio_process_running() {

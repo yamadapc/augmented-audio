@@ -28,6 +28,7 @@ members = [
   "crates/augmented/audio/audio-garbage-collector",
   "crates/augmented/audio/audio-garbage-collector-v2",
   "crates/augmented/audio/audio-parameter-store",
+  "crates/augmented/audio/audio-processor-analysis",
   "crates/augmented/audio/audio-processor-graph",
   "crates/augmented/audio/audio-processor-traits",
   "crates/augmented/audio/audio-processor-utility",

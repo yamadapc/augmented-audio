@@ -269,7 +269,9 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandle
 mod test {
     use std::time::Duration;
 
-    use audio_processor_testing_helpers::{rms_level, sine_buffer, test_level_equivalence};
+    use audio_processor_testing_helpers::rms_level;
+    use audio_processor_testing_helpers::sine_buffer;
+    use audio_processor_testing_helpers::test_level_equivalence;
     use audio_processor_traits::{
         AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
     };

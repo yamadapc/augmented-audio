@@ -10,3 +10,6 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [dependencies]
 num = "^0.4.0"
 audio-processor-traits = { version = "^0.3", path = "../../audio/audio-processor-traits" }
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
