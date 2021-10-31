@@ -9,6 +9,8 @@ pub struct View {
     audio_driver_dropdown: DropdownWithLabel,
     input_device_dropdown: DropdownWithLabel,
     output_device_dropdown: DropdownWithLabel,
+    sample_rate_dropdown: DropdownWithLabel,
+    buffer_size_dropdown: DropdownWithLabel,
 }
 
 #[derive(Debug, Clone)]
@@ -16,6 +18,8 @@ pub enum Message {
     AudioDriverChange(String),
     InputDeviceChange(String),
     OutputDeviceChange(String),
+    SampleRateChange(String),
+    BufferSizeChange(String),
     None,
 }
 
@@ -37,6 +41,16 @@ impl View {
                 model.output_device_state.options,
                 model.output_device_state.selected_option,
             ),
+            sample_rate_dropdown: DropdownWithLabel::new(
+                "Sample rate",
+                model.sample_rate_state.options,
+                model.sample_rate_state.selected_option,
+            ),
+            buffer_size_dropdown: DropdownWithLabel::new(
+                "Buffer size",
+                model.buffer_size_state.options,
+                model.buffer_size_state.selected_option,
+            ),
         }
     }
 
@@ -51,7 +65,13 @@ impl View {
             Message::OutputDeviceChange(selected) => {
                 self.output_device_dropdown.update(selected);
             }
-            _ => {}
+            Message::SampleRateChange(selected) => {
+                self.sample_rate_dropdown.update(selected);
+            }
+            Message::BufferSizeChange(selected) => {
+                self.buffer_size_dropdown.update(selected);
+            }
+            Message::None => {}
         }
         Command::none()
     }
@@ -76,6 +96,12 @@ impl View {
                 self.output_device_dropdown
                     .view()
                     .map(Message::OutputDeviceChange),
+                self.sample_rate_dropdown
+                    .view()
+                    .map(Message::SampleRateChange),
+                self.buffer_size_dropdown
+                    .view()
+                    .map(Message::BufferSizeChange),
             ])
             .spacing(Spacing::base_spacing()),
         )
@@ -89,6 +115,8 @@ pub struct Model {
     pub audio_driver_state: DropdownModel,
     pub input_device_state: DropdownModel,
     pub output_device_state: DropdownModel,
+    pub sample_rate_state: DropdownModel,
+    pub buffer_size_state: DropdownModel,
 }
 
 #[derive(Default)]
@@ -142,6 +170,14 @@ pub mod story {
                 output_device_state: DropdownModel {
                     selected_option: None,
                     options: string_vec!["Output device 1", "Output device 2"],
+                },
+                sample_rate_state: DropdownModel {
+                    selected_option: None,
+                    options: string_vec!["44.1kHz", "96.0kHz"],
+                },
+                buffer_size_state: DropdownModel {
+                    selected_option: None,
+                    options: string_vec!["256", "512", "1024", "2048"],
                 },
             };
             Self {

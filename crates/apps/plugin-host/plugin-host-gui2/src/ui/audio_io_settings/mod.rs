@@ -2,6 +2,7 @@ use std::sync::{Arc, Mutex};
 
 use iced::{Command, Element};
 
+use crate::ui::audio_io_settings::view::DropdownModel;
 use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult, AudioIOState};
 
 pub mod dropdown_with_label;
@@ -33,6 +34,14 @@ impl Controller {
             audio_driver_state,
             input_device_state,
             output_device_state,
+            sample_rate_state: DropdownModel {
+                selected_option: None,
+                options: vec![],
+            },
+            buffer_size_state: DropdownModel {
+                selected_option: None,
+                options: vec![],
+            },
         });
 
         let command = Controller::on_init(audio_io_service.clone());
