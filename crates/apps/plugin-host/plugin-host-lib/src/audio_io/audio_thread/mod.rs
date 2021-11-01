@@ -158,7 +158,7 @@ fn create_stream(
     let output_device =
         cpal_option_handling::get_cpal_output_device(&host, &options.output_device_id)?;
     log::info!("Using device: {}", output_device.name()?);
-    let output_config = cpal_option_handling::get_output_config(&options, &output_device)?;
+    let output_config = cpal_option_handling::get_output_config(options, &output_device)?;
     let input_device = if let Some(device_id) = &options.input_device_id {
         Some(cpal_option_handling::get_cpal_input_device(
             &host, device_id,
@@ -167,7 +167,7 @@ fn create_stream(
         None
     };
     let input_config = if let Some(device) = &input_device {
-        Some(cpal_option_handling::get_input_config(&options, device)?)
+        Some(cpal_option_handling::get_input_config(options, device)?)
     } else {
         None
     };
@@ -257,7 +257,7 @@ fn output_stream_callback(
         }
     }
 
-    midi_message_handler.collect_midi_messages(&midi_message_queue);
+    midi_message_handler.collect_midi_messages(midi_message_queue);
 
     let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
 
@@ -265,7 +265,7 @@ fn output_stream_callback(
     let processor_ptr = shared_processor.0.get();
     match unsafe { &mut (*processor_ptr) } {
         AudioThreadProcessor::Active(processor) => {
-            processor.process_midi(&midi_message_handler.buffer());
+            processor.process_midi(midi_message_handler.buffer());
             processor.process(&mut audio_buffer)
         }
         AudioThreadProcessor::Silence(processor) => (*processor).process(&mut audio_buffer),

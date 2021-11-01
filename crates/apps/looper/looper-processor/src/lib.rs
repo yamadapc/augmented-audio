@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use num::FromPrimitive;
-use rimd::Status;
 
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{
@@ -234,7 +233,7 @@ impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandle
                 .bytes()
                 .map(|bytes| rimd::Status::from_u8(bytes[0]).map(|status| (status, bytes)))
                 .flatten();
-            if let Some((status, bytes)) = status {
+            if let Some((_status, bytes)) = status {
                 if let Some(action) = self
                     .handle
                     .midi_map()
@@ -288,7 +287,7 @@ mod test {
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
 
-        looper.prepare(settings.clone());
+        looper.prepare(settings);
 
         let mut silence_buffer = Vec::new();
         // Produce 0.1 second empty buffer
@@ -297,7 +296,7 @@ mod test {
         let mut audio_buffer = silence_buffer.clone();
         let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
         looper.process(&mut audio_buffer);
-        assert_eq!(rms_level(&audio_buffer.slice()), 0.0);
+        assert_eq!(rms_level(audio_buffer.slice()), 0.0);
     }
 
     #[test]
@@ -305,7 +304,7 @@ mod test {
         let collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
-        looper.prepare(settings.clone());
+        looper.prepare(settings);
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         let mut audio_buffer = sine_buffer.clone();
@@ -320,7 +319,7 @@ mod test {
         let collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::new(&collector.handle());
         let settings = test_settings();
-        looper.prepare(settings.clone());
+        looper.prepare(settings);
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         assert_ne!(sine_buffer.len(), 0);
@@ -328,7 +327,7 @@ mod test {
         println!("Sine RMS: {}", rms_level(&sine_buffer));
         assert_ne!(rms_level(&sine_buffer), 0.0);
 
-        let mut audio_buffer = sine_buffer.clone();
+        let mut audio_buffer = sine_buffer;
         let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
         looper.handle().store_playback_input(false);
         looper.process(&mut audio_buffer);

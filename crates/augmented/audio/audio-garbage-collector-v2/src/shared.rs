@@ -215,7 +215,7 @@ mod test {
     fn test_clone() {
         let mock_handle = Box::into_raw(Box::new(MockGarbageCollector::default()));
         let count = Arc::new(AtomicUsize::new(1));
-        let value = RefCounter::new(count.clone());
+        let value = RefCounter::new(count);
 
         let shared1 = SharedGeneric::<RefCounter, MockGarbageCollector, MockNode<RefCounter>>::new(
             mock_handle,
@@ -228,7 +228,7 @@ mod test {
             "Ref count is not 1, but there's only 1 ref"
         );
 
-        let shared2 = shared1.clone();
+        let shared2 = shared1;
         let current_count = get_node_ref_count(&shared2);
         assert_eq!(current_count, 2, "Ref count is not 2, but there're 2 refs");
     }
@@ -268,7 +268,7 @@ mod test {
                     value,
                 );
             set_drop_command(&shared1, mock_ptr(2));
-            let _shared2 = shared1.clone();
+            let _shared2 = shared1;
         }
         assert_eq!(
             count.load(Ordering::Relaxed),
@@ -288,8 +288,8 @@ mod test {
         shared: &SharedGeneric<RefCounter, MockGarbageCollector, MockNode<RefCounter>>,
     ) -> usize {
         let inner = shared.inner.load(Ordering::Relaxed);
-        let current_count = unsafe { (*inner).ref_count.load(Ordering::Relaxed) };
-        current_count
+
+        unsafe { (*inner).ref_count.load(Ordering::Relaxed) }
     }
 
     fn set_drop_command(

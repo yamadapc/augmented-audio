@@ -1,5 +1,5 @@
 use audio_garbage_collector::{Handle, Shared, SharedCell};
-use rimd::Status;
+
 use std::collections::HashMap;
 use std::ops::Deref;
 

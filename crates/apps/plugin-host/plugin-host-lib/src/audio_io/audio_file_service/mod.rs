@@ -75,7 +75,7 @@ mod test {
         let audio_file = audio_file_service.load_file(&file_path).unwrap();
 
         assert!(audio_file.contents.spec().channels.count() > 0);
-        assert!(audio_file.rms_snapshot.len() > 0);
+        assert!(!audio_file.rms_snapshot.is_empty());
         // let file_path = format!(
         //     "{}{}",
         //     env!("CARGO_MANIFEST_DIR"),

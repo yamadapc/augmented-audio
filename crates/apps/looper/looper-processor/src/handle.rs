@@ -94,7 +94,7 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
         self.loop_volume.set(value);
     }
 
-    pub(crate) fn set_should_clear(&self, value: bool) {
+    pub(crate) fn set_should_clear(&self, _value: bool) {
         self.should_clear.store(false, Ordering::Relaxed);
     }
 

@@ -67,7 +67,6 @@ mod test {
 
     #[test]
     fn test_ensure_logging_directory() {
-        let _ = ensure_logging_directory(&PathBuf::from(dirs::home_dir().unwrap().join(".ruas")))
-            .unwrap();
+        let _ = ensure_logging_directory(&dirs::home_dir().unwrap().join(".ruas")).unwrap();
     }
 }

@@ -122,7 +122,7 @@ impl AnalyticsBackend for GoogleAnalyticsBackend {
         events: &[AnalyticsEvent],
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let event_body = events
-            .into_iter()
+            .iter()
             .map(|event| Self::build_event(metadata, &self.config, event))
             .filter_map(|event| serde_urlencoded::to_string(event).ok());
 

@@ -15,7 +15,7 @@ unsafe fn setup_count_bench(webview: Arc<DarwinWKWebView>, n: u64) -> Receiver<(
     let (sender, receiver) = channel();
 
     let mut i = 0;
-    let message_sender = sender.clone();
+    let message_sender = sender;
     let cb_webview = webview.clone();
     let callback = Box::into_raw(Box::new(Box::new(move |_: id, _message: id| {
         i += 1;

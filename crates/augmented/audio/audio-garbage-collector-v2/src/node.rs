@@ -96,7 +96,7 @@ mod test {
             move || count.load(Ordering::Relaxed) != 1
         };
 
-        let ref_counter = RefCounter::new(count.clone());
+        let ref_counter = RefCounter::new(count);
         let ref_counter = Box::into_raw(Box::new(ref_counter));
         let ref_counter_drop_command = DropCommand::new(ref_counter);
 
@@ -114,7 +114,7 @@ mod test {
             let count = count.clone();
             move || count.load(Ordering::Relaxed) != 1
         };
-        let ref_counter = RefCounter::new(count.clone());
+        let ref_counter = RefCounter::new(count);
         let node = Node::with_value(ref_counter);
 
         assert!(!has_been_dropped(), "Value was dropped before expected");

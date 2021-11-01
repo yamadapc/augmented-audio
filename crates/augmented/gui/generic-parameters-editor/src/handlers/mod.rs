@@ -66,7 +66,7 @@ fn app_started(
     parameter_store: &Arc<ParameterStore>,
 ) {
     log::info!("App started message received");
-    let parameters_list = list_parameters(&parameter_store);
+    let parameters_list = list_parameters(parameter_store);
     let result = output_messages.send(ServerMessage::notification(
         ServerMessageInner::PublishParameters(PublishParametersMessage {
             parameters: parameters_list,

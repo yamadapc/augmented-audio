@@ -161,7 +161,7 @@ impl AnalyticsWorker {
 
     /// Flushes the current batch of events and clears the queue
     async fn flush(&mut self, events: &mut Vec<AnalyticsEvent>) {
-        self.send_bulk(&events).await;
+        self.send_bulk(events).await;
         events.clear();
     }
 
