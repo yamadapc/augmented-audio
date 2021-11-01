@@ -1,10 +1,5 @@
-use std::time::Duration;
-
 pub use generators::sine_buffer;
 pub use util::rms_level;
-
-use oscillator::generators::sine_generator;
-use oscillator::Oscillator;
 
 pub mod charts;
 mod generators;

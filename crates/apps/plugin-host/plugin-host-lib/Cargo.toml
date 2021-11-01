@@ -27,6 +27,7 @@ thiserror = "^1.0.25"
 uuid = { version = "^0.8.2", features = [ "v4" ] }
 vst = { version = "0.2.1", path = "../../../vendor/vst" }
 wisual-logger = "^0.1.2"
+itertools = "^0.10.1"
 
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
@@ -39,6 +40,7 @@ oscillator = { path = "../../../augmented/audio/oscillator" }
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }
 
 [[bench]]
 name = "plugin_host_lib_criterion"

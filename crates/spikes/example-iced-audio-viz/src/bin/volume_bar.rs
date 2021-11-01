@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use basedrop::Shared;
-use cpal::Stream;
 use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
 use iced::{
     Application, Canvas, Column, Command, Element, Length, Point, Rectangle, Settings, Size,
@@ -52,7 +51,7 @@ impl Application for AudioVisualization {
             AudioVisualization {
                 audio_processing_handles: AudioProcessingHandles {
                     garbage_collector,
-                    standalone_handles: standalone_handles,
+                    standalone_handles,
                 },
                 handle,
                 volume_left: 0.0,

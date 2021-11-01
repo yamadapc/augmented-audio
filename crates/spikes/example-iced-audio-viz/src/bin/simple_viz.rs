@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use basedrop::Shared;
-use cpal::Stream;
 use iced::canvas::{Cursor, Frame, Geometry, Program, Stroke};
 use iced::{
     Application, Canvas, Column, Command, Element, Length, Point, Rectangle, Settings, Subscription,

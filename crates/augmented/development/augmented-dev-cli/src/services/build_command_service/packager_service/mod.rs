@@ -25,6 +25,7 @@ pub struct LocalPackage {
 
 #[automock]
 pub trait PackagerService {
+    #[allow(clippy::needless_lifetimes)]
     fn create_local_package<'a>(&self, input: PackagerInput<'a>) -> Option<LocalPackage>;
 }
 

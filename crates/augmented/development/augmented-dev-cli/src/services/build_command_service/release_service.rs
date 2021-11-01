@@ -15,6 +15,7 @@ pub struct ReleaseInput<'a> {
 #[automock]
 pub trait ReleaseService {
     /// Sign compress and upload package
+    #[allow(clippy::needless_lifetimes)]
     fn release<'a>(&self, release_input: ReleaseInput<'a>);
 }
 
