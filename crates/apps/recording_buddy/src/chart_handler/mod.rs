@@ -3,7 +3,7 @@ use cocoa::base::{id, YES};
 use metal::{
     BinaryArchive, Device, Library, MTLClearColor, MTLLoadAction, MTLPixelFormat, MTLPrimitiveType,
     MTLResourceOptions, MTLStoreAction, MetalLayer, RenderPassDescriptor, RenderPassDescriptorRef,
-    RenderPipelineDescriptor, RenderPipelineState, TextureRef, URL,
+    RenderPipelineDescriptor, RenderPipelineState, TextureRef,
 };
 use std::ffi::c_void;
 use std::mem::size_of;
@@ -59,7 +59,7 @@ pub extern "C" fn chart_handler_on_chart_view(ns_view: *mut c_void) {
         view.setWantsLayer(YES);
         view.setLayer(std::mem::transmute(layer.as_ref()));
         let window = view.window();
-        let draw_size = window.frame(); // TODO - use this
+        let _draw_size = window.frame(); // TODO - use this
 
         let context = PipelineCtx { layer, device };
         std::thread::spawn(move || {
@@ -129,13 +129,13 @@ pub extern "C" fn chart_handler_on_chart_view(ns_view: *mut c_void) {
 
                 // Obtain a renderPassDescriptor generated from the view's drawable textures.
                 let render_pass_descriptor = RenderPassDescriptor::new();
-                prepare_render_pass_descriptor(&render_pass_descriptor, drawable.texture(), t);
+                prepare_render_pass_descriptor(render_pass_descriptor, drawable.texture(), t);
 
                 // Create a render command encoder.
-                let encoder = command_buffer.new_render_command_encoder(&render_pass_descriptor);
+                let encoder = command_buffer.new_render_command_encoder(render_pass_descriptor);
 
                 {
-                    let descriptor = RenderPipelineDescriptor::new();
+                    let _descriptor = RenderPipelineDescriptor::new();
                     encoder.set_render_pipeline_state(&pipeline_state);
                 }
                 // Pass in the parameter data.
@@ -146,7 +146,7 @@ pub extern "C" fn chart_handler_on_chart_view(ns_view: *mut c_void) {
                 encoder.end_encoding();
 
                 // Schedule a present once the framebuffer is complete using the current drawable.
-                command_buffer.present_drawable(&drawable);
+                command_buffer.present_drawable(drawable);
 
                 // Finalize rendering here & push the command buffer to the GPU.
                 command_buffer.commit();
@@ -164,7 +164,7 @@ pub extern "C" fn chart_handler_on_chart_view(ns_view: *mut c_void) {
 fn prepare_pipeline_state(
     device: &Device,
     library: &Library,
-    binary_archive: Option<&BinaryArchive>,
+    _binary_archive: Option<&BinaryArchive>,
 ) -> RenderPipelineState {
     let vert = library.get_function("vs", None).unwrap();
     let frag = library.get_function("ps", None).unwrap();
