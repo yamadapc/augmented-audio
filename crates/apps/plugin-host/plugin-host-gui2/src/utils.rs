@@ -12,6 +12,6 @@ pub fn get_version() -> String {
     )
 }
 
-pub fn command_message<Message>(message: Message) -> iced::Command<Message> {
+pub fn command_message<Message: 'static + Send>(message: Message) -> iced::Command<Message> {
     iced::Command::perform(async move { message }, |message| message)
 }
