@@ -103,8 +103,10 @@ pub extern "C" fn chart_handler_on_chart_view(ns_view: *mut c_void) {
                 {
                     let binary_archive_path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                         .join("crates/apps/recording_buddy/binary_archive.metallib");
-                    let binary_archive_url =
-                        URL::new_with_string(&format!("file://{}", binary_archive_path.display()));
+                    let binary_archive_url = metal::URL::new_with_string(&format!(
+                        "file://{}",
+                        binary_archive_path.display()
+                    ));
                     let binary_archive_descriptor = metal::BinaryArchiveDescriptor::new();
                     if binary_archive_path.exists() {
                         binary_archive_descriptor.set_url(&binary_archive_url);
@@ -181,9 +183,9 @@ fn prepare_pipeline_state(
 
     #[cfg(not(debug_assertions))]
     {
-        pipeline_state_descriptor.set_binary_archives(&[binary_archive.unwrap()]);
+        pipeline_state_descriptor.set_binary_archives(&[_binary_archive.unwrap()]);
         // Add the pipeline descriptor to the binary archive cache.
-        binary_archive
+        _binary_archive
             .unwrap()
             .add_render_pipeline_functions_with_descriptor(&pipeline_state_descriptor)
             .unwrap();
