@@ -228,7 +228,8 @@ mod test {
             "Ref count is not 1, but there's only 1 ref"
         );
 
-        let shared2 = shared1;
+        #[allow(clippy::redundant_clone)]
+        let shared2 = shared1.clone();
         let current_count = get_node_ref_count(&shared2);
         assert_eq!(current_count, 2, "Ref count is not 2, but there're 2 refs");
     }
