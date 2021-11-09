@@ -84,7 +84,7 @@ checksum = "aae1277d39aeec15cb388266ecc24b11c80469deae6067e17a1a7aa9e5c1f234"
 name = "adsr-envelope"
 version = "0.1.0"
 dependencies = [
- "plotters 0.3.1",
+ "plotters",
 ]
 
 [[package]]
@@ -432,7 +432,7 @@ version = "0.1.0"
 dependencies = [
  "audio-processor-traits",
  "oscillator",
- "plotters 0.3.1",
+ "plotters",
 ]
 
 [[package]]
@@ -1469,7 +1469,7 @@ dependencies = [
  "lazy_static",
  "num-traits 0.2.14",
  "oorandom",
- "plotters 0.3.0",
+ "plotters",
  "rayon",
  "regex",
  "serde",
@@ -4287,7 +4287,7 @@ version = "0.1.0"
 dependencies = [
  "cpal",
  "criterion",
- "plotters 0.3.1",
+ "plotters",
  "ringbuf",
 ]
 
@@ -4479,20 +4479,9 @@ dependencies = [
 
 [[package]]
 name = "plotters"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45ca0ae5f169d0917a7c7f5a9c1a3d3d9598f18f529dd2b8373ed988efea307a"
-dependencies = [
- "num-traits 0.2.14",
- "plotters-backend",
- "plotters-svg",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "plotters"
 version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "32a3fd9ec30b9749ce28cd91f255d569591cdf937fe280c312143e3c4bad6f2a"
 dependencies = [
  "chrono",
  "font-kit",
@@ -4504,6 +4493,8 @@ dependencies = [
  "plotters-bitmap",
  "plotters-svg",
  "ttf-parser",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
