@@ -74,7 +74,6 @@ wisual-logger = { path = "crates/augmented/ops/wisual-logger" }
 
 # Vendor overrides
 iced = { version = "^0.3.0", path = "./crates/vendor/iced" }
-libloading = { path = "./crates/vendor/libloading" }
 lyon_tessellation = { path = "./crates/vendor/lyon/crates/tessellation", features = ["profiling"] }
 pathfinder_canvas = { path = "./crates/vendor/pathfinder/canvas" }
 vst = { path = "./crates/vendor/vst" }

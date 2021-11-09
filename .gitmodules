@@ -19,9 +19,6 @@
 [submodule "crates/vendor/lyon"]
 	path = crates/vendor/lyon
 	url = git@github.com:yamadapc/lyon
-[submodule "crates/vendor/libloading"]
-	path = crates/vendor/libloading
-	url = git@github.com:yamadapc/rust_libloading
 [submodule "crates/vendor/vst"]
 	path = crates/vendor/vst
 	url = git@github.com:yamadapc/vst-rs
