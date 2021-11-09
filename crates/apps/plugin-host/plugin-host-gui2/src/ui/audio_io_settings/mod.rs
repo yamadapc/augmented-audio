@@ -3,7 +3,9 @@ use std::sync::{Arc, Mutex};
 use iced::{Command, Element};
 
 use crate::ui::audio_io_settings::view::DropdownModel;
-use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult, AudioIOState};
+use plugin_host_lib::audio_io::{
+    AudioHost, AudioIOService, AudioIOServiceError, AudioIOServiceResult, AudioIOState,
+};
 
 pub mod dropdown_with_label;
 pub mod view;
@@ -26,18 +28,19 @@ impl Controller {
         let audio_driver_state = Self::build_audio_driver_dropdown_state();
         let input_device_state =
             Self::build_input_device_dropdown_state(Some(AudioIOService::default_host()))
-                .unwrap_or_else(|_| view::DropdownModel::default());
+                .unwrap_or_default();
         let output_device_state =
             Self::build_output_device_dropdown_state(Some(AudioIOService::default_host()))
-                .unwrap_or_else(|_| view::DropdownModel::default());
+                .unwrap_or_default();
+        let sample_rate_state =
+            Self::build_sample_rate_dropdown_state(AudioIOService::default_host())
+                .unwrap_or_default();
+
         let view = view::View::new(view::Model {
             audio_driver_state,
             input_device_state,
             output_device_state,
-            sample_rate_state: DropdownModel {
-                selected_option: None,
-                options: vec![],
-            },
+            sample_rate_state,
             buffer_size_state: DropdownModel {
                 selected_option: None,
                 options: vec![],
@@ -151,6 +154,19 @@ impl Controller {
         Ok(view::DropdownModel {
             selected_option: default_input_device,
             options: input_devices,
+        })
+    }
+
+    fn build_sample_rate_dropdown_state(_host: AudioHost) -> Option<view::DropdownModel> {
+        let input_device = AudioIOService::default_input_device()?;
+
+        Some(view::DropdownModel {
+            selected_option: Some("44100Hz".into()),
+            options: input_device
+                .sample_rates()
+                .iter()
+                .map(|rate| format!("{}Hz", rate.0))
+                .collect(),
         })
     }
 

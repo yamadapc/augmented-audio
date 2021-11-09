@@ -26,6 +26,8 @@ pub enum AudioIOServiceError {
     AudioThreadError,
     #[error("Failed to read configuration from disk")]
     StorageError,
+    #[error("Failed to build device configuration model")]
+    BuildAudioDeviceError,
 }
 
 pub type AudioIOServiceResult<T> = Result<T, AudioIOServiceError>;
@@ -119,7 +121,9 @@ impl AudioIOService {
                 log::error!("Failed to set input device {}", err);
                 AudioIOServiceError::AudioThreadError
             })?;
-        self.state.input_device = Some(AudioDevice::new(input_device_id));
+
+        // TODO fix this
+        // self.state.input_device = Some(AudioDevice::new(input_device_id));
         self.try_store();
         Ok(())
     }
@@ -135,7 +139,8 @@ impl AudioIOService {
                 log::error!("Failed to set output device {}", err);
                 AudioIOServiceError::AudioThreadError
             })?;
-        self.state.output_device = Some(AudioDevice::new(output_device_id));
+        // TODO fix this
+        // self.state.output_device = Some(AudioDevice::new(output_device_id));
         self.try_store();
         Ok(())
     }
@@ -185,8 +190,8 @@ impl AudioIOService {
             .map_err(|_| AudioIOServiceError::DevicesError)?;
         let devices_vec = devices
             .map(AudioDevice::from_device)
-            .collect::<Result<Vec<AudioDevice>, cpal::DeviceNameError>>()
-            .map_err(|_| AudioIOServiceError::DeviceNameError)?;
+            .collect::<Result<Vec<AudioDevice>, BuildAudioDeviceError>>()
+            .map_err(|_| AudioIOServiceError::BuildAudioDeviceError)?;
         Ok(devices_vec)
     }
 
@@ -197,8 +202,8 @@ impl AudioIOService {
             .map_err(|_| AudioIOServiceError::DevicesError)?;
         let devices_vec = devices
             .map(AudioDevice::from_device)
-            .collect::<Result<Vec<AudioDevice>, cpal::DeviceNameError>>()
-            .map_err(|_| AudioIOServiceError::DeviceNameError)?;
+            .collect::<Result<Vec<AudioDevice>, BuildAudioDeviceError>>()
+            .map_err(|_| AudioIOServiceError::BuildAudioDeviceError)?;
         Ok(devices_vec)
     }
 
