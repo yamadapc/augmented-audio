@@ -10,4 +10,4 @@ audio-processor-traits = { version = "0.3", path = "../../audio/audio-processor-
 oscillator = { path = "../../audio/oscillator" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-plotters = { version = "^0.3.1", path = "../../../vendor/plotters" }
+plotters = { version = "0.3" }

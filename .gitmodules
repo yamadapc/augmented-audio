@@ -4,9 +4,6 @@
 [submodule "crates/darwin-webkit"]
 	path = crates/darwin-webkit
 	url = https://github.com/yamadapc/rust-darwin-webkit
-[submodule "crates/vendor/plotters"]
-	path = crates/vendor/plotters
-	url = https://github.com/yamadapc/plotters
 [submodule "crates/vendor/iced-baseview"]
 	path = crates/vendor/iced-baseview
 	url = https://github.com/yamadapc/iced_baseview
