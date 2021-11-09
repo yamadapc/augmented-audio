@@ -19,9 +19,6 @@
 [submodule "crates/vendor/iced_audio"]
 	path = crates/vendor/iced_audio
 	url = https://github.com/yamadapc/iced_audio
-[submodule "crates/vendor/gfx"]
-	path = crates/vendor/gfx
-	url = git@github.com:yamadapc/gfx
 [submodule "crates/vendor/lyon"]
 	path = crates/vendor/lyon
 	url = git@github.com:yamadapc/lyon

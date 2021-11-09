@@ -6930,14 +6930,6 @@ dependencies = [
 ]
 
 [[patch.unused]]
-name = "gfx-backend-metal"
-version = "0.9.1"
-
-[[patch.unused]]
-name = "gfx-hal"
-version = "0.9.0"
-
-[[patch.unused]]
 name = "lyon_tessellation"
 version = "0.17.9"
 
