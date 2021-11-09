@@ -2,7 +2,7 @@ use std::ffi::c_void;
 
 use bitflags::bitflags;
 use block::IntoConcreteBlock;
-use cacao::core_foundation::base::OSStatus;
+
 use cacao::foundation::NSNumber;
 use cocoa::base::{id, nil, BOOL, YES};
 use objc::msg_send;
@@ -464,13 +464,12 @@ impl AVAudioUnitComponentManager {
 
 #[cfg(test)]
 mod test {
-    use cocoa::quartzcore::transaction::set_value_for_key;
 
     use super::*;
 
     #[test]
     fn test_list_all_components() {
-        let mut manager = AVAudioUnitComponentManager::shared();
+        let manager = AVAudioUnitComponentManager::shared();
         let components = manager.all_components();
         for component in components {
             println!("Name: {}", component.name());
@@ -479,7 +478,7 @@ mod test {
 
     #[test]
     fn test_list_all_components_and_archs() {
-        let mut manager = AVAudioUnitComponentManager::shared();
+        let manager = AVAudioUnitComponentManager::shared();
         let components = manager.all_components();
         let archs = components[0].available_architectures();
         println!("{:?}", archs);
@@ -487,7 +486,7 @@ mod test {
 
     #[test]
     fn test_name_and_desc_strings() {
-        let mut manager = AVAudioUnitComponentManager::shared();
+        let manager = AVAudioUnitComponentManager::shared();
         let components = manager.all_components();
         let component = &components[0];
         println!("Name: {:?}", component.name());
@@ -498,7 +497,7 @@ mod test {
 
     #[test]
     fn test_query_description() {
-        let mut manager = AVAudioUnitComponentManager::shared();
+        let manager = AVAudioUnitComponentManager::shared();
         let components = manager.all_components();
         let component = &components[0];
         println!("Description: {:?}", component.audio_component_description());
@@ -506,7 +505,7 @@ mod test {
 
     #[test]
     fn test_query_capabilities() {
-        let mut manager = AVAudioUnitComponentManager::shared();
+        let manager = AVAudioUnitComponentManager::shared();
         let components = manager.all_components();
         let component = &components[0];
         println!("{}", component.has_custom_view());
@@ -516,7 +515,7 @@ mod test {
 
     #[test]
     fn test_create_unit() {
-        let mut manager = AVAudioUnitComponentManager::shared();
+        let manager = AVAudioUnitComponentManager::shared();
         let components = manager.all_components();
         let component = &components[5];
         let unit = AUAudioUnit::instantiate(component.audio_component_description());
@@ -555,11 +554,11 @@ mod test {
             mBuffers: [buffer],
         };
         let pull_input_block = block::ConcreteBlock::new(
-            |flags: *mut u32,
-             timestamp: *const avfaudio_sys::AudioTimeStamp,
-             frame_count: u32,
-             bus_number: i64,
-             buffer_list: *mut avfaudio_sys::AudioBufferList| {
+            |_flags: *mut u32,
+             _timestamp: *const avfaudio_sys::AudioTimeStamp,
+             _frame_count: u32,
+             _bus_number: i64,
+             _buffer_list: *mut avfaudio_sys::AudioBufferList| {
                 // TODO -> This is how input is provided.
                 0
             },

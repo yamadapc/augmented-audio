@@ -3,7 +3,7 @@ use iced::canvas::{Fill, Frame, Path};
 use iced::{Point, Size};
 
 fn run_fill(frame: &mut Frame, path: &Path) {
-    frame.fill(&path, Fill::default());
+    frame.fill(path, Fill::default());
 }
 
 fn criterion_benchmark(c: &mut Criterion) {

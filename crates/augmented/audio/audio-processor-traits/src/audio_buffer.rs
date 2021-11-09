@@ -130,7 +130,7 @@ impl<'a, SampleType> AudioBuffer for InterleavedAudioBuffer<'a, SampleType> {
 
     #[inline]
     fn slice(&self) -> &[Self::SampleType] {
-        &self.inner
+        self.inner
     }
 
     #[inline]

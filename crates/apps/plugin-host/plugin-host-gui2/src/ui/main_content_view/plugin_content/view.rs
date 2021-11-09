@@ -1,5 +1,8 @@
-use audio_processor_iced_design_system::spacing::Spacing;
 use iced::{alignment, Alignment, Button, Column, Command, Container, Element, Length, Row, Text};
+
+use audio_processor_iced_design_system::spacing::Spacing;
+
+use crate::utils::command_message;
 
 pub struct View {
     input_file_path_button_state: iced::button::State,
@@ -44,18 +47,14 @@ impl View {
                 let result = tinyfiledialogs::open_file_dialog("Input file", "", None);
                 log::info!("Got response {:?}", result);
                 if let Some(path) = result {
-                    return Command::perform(async move { path }, |path| {
-                        Message::SetInputFile(path)
-                    });
+                    return command_message(Message::SetInputFile(path));
                 }
             }
             Message::OpenAudioPluginFilePathPicker => {
                 let result = tinyfiledialogs::open_file_dialog("Audio plugin", "", None);
                 log::info!("Got response {:?}", result);
                 if let Some(path) = result {
-                    return Command::perform(async move { path }, |path| {
-                        Message::SetAudioPlugin(path)
-                    });
+                    return command_message(Message::SetAudioPlugin(path));
                 }
             }
             Message::SetInputFile(path) => {

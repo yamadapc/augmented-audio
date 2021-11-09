@@ -14,20 +14,19 @@ use log4rs::Config;
 #[derive(thiserror::Error, Debug)]
 pub enum LoggingSetupError {
     #[error("Failed to create logging directory")]
-    CreateLogDirectoryError(std::io::Error),
+    CreateLogDirectory(std::io::Error),
     #[error("Failed to set-up log-file appender")]
-    FileAppenderError(std::io::Error),
+    FileAppender(std::io::Error),
     #[error("Failed to set-up logging configuration")]
-    LogConfigError(#[from] ConfigErrors),
+    LogConfig(#[from] ConfigErrors),
     #[error("Failed to set logger configuration")]
-    SetLoggerError(#[from] SetLoggerError),
+    SetLogger(#[from] SetLoggerError),
 }
 
 pub type Result<T> = std::result::Result<T, LoggingSetupError>;
 
 fn ensure_logging_directory(root_config_path: &Path) -> Result<PathBuf> {
-    std::fs::create_dir_all(root_config_path)
-        .map_err(LoggingSetupError::CreateLogDirectoryError)?;
+    std::fs::create_dir_all(root_config_path).map_err(LoggingSetupError::CreateLogDirectory)?;
     Ok(root_config_path.to_path_buf())
 }
 
@@ -45,7 +44,7 @@ pub fn configure_logging(root_config_path: &Path) -> Result<()> {
                 Box::new(DeleteRoller::new()),
             )),
         )
-        .map_err(LoggingSetupError::FileAppenderError)?;
+        .map_err(LoggingSetupError::FileAppender)?;
 
     let config = Config::builder()
         .appender(Appender::builder().build("logfile", Box::new(logfile)))
@@ -68,7 +67,6 @@ mod test {
 
     #[test]
     fn test_ensure_logging_directory() {
-        let _ = ensure_logging_directory(&PathBuf::from(dirs::home_dir().unwrap().join(".ruas")))
-            .unwrap();
+        let _ = ensure_logging_directory(&dirs::home_dir().unwrap().join(".ruas")).unwrap();
     }
 }

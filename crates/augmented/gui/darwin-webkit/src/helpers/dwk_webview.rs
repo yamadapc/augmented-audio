@@ -117,7 +117,6 @@ impl DarwinWKWebView {
                 let str = msg_send![error, localizedDescription];
                 let str = string_from_nsstring(str);
                 println!("Error {}", str.as_ref().unwrap().as_str());
-                return;
             }
         };
         let b = ConcreteBlock::new(b);

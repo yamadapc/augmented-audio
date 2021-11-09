@@ -19,6 +19,62 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9fe5e32de01730eb1f6b7f5b51c17e03e2325bf40a74f754f04f130043affff"
 
 [[package]]
+name = "actix"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3720d0064a0ce5c0de7bd93bdb0a6caebab2a9b5668746145d7b3b0c5da02914"
+dependencies = [
+ "actix-rt",
+ "actix_derive",
+ "bitflags",
+ "bytes",
+ "crossbeam-channel",
+ "futures-core",
+ "futures-sink",
+ "futures-task",
+ "futures-util",
+ "log",
+ "once_cell",
+ "parking_lot",
+ "pin-project-lite",
+ "smallvec",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
+name = "actix-handler-macro"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1768c793f06b54d8296e4f8832d7dd3bc24d2ba1da2b104cc776f05e2ec50c0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "actix-rt"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4a0c218d0a17c120f10ee0c69c9f0c45d87319e8f66b1f065e8412b612fc3e24"
+dependencies = [
+ "futures-core",
+ "tokio",
+]
+
+[[package]]
+name = "actix_derive"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d44b8fee1ced9671ba043476deddef739dd0959bf77030b26b738cc591737a7"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
 name = "adler32"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -160,7 +216,7 @@ version = "0.33.3+1.2.191"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc4f1d82f164f838ae413296d1131aa6fa79b917d25bebaa7033d25620c09219"
 dependencies = [
- "libloading 0.7.0",
+ "libloading 0.7.1",
 ]
 
 [[package]]
@@ -537,6 +593,8 @@ checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
 [[package]]
 name = "basedrop"
 version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "47611e530cf21bb89fbfe322aa8b1feae1ace33ff65f8ebf40fe3b4b99b7c9a2"
 
 [[package]]
 name = "baseview"
@@ -920,7 +978,7 @@ checksum = "853eda514c284c2287f4bf20ae614f8781f40a81d32ecda6e91449304dfe077c"
 dependencies = [
  "glob",
  "libc",
- "libloading 0.7.0",
+ "libloading 0.7.1",
 ]
 
 [[package]]
@@ -1535,7 +1593,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2daefd788d1e96e0a9d66dee4b828b883509bc3ea9ce30665f04c3246372690c"
 dependencies = [
  "bitflags",
- "libloading 0.7.0",
+ "libloading 0.7.1",
  "winapi 0.3.9",
 ]
 
@@ -1712,7 +1770,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ac1b7517328c04c2aa68422fc60a41b92208182142ed04a25879c26c8f878794"
 dependencies = [
- "libloading 0.7.0",
+ "libloading 0.7.1",
 ]
 
 [[package]]
@@ -2428,7 +2486,7 @@ dependencies = [
  "glutin_glx_sys",
  "glutin_wgl_sys",
  "lazy_static",
- "libloading 0.7.0",
+ "libloading 0.7.1",
  "log",
  "objc",
  "osmesa-sys",
@@ -3171,7 +3229,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c2352bd1d0bceb871cb9d40f24360c8133c11d7486b68b5381c1dd1a32015e3"
 dependencies = [
  "libc",
- "libloading 0.7.0",
+ "libloading 0.7.1",
 ]
 
 [[package]]
@@ -3223,7 +3281,9 @@ dependencies = [
 
 [[package]]
 name = "libloading"
-version = "0.7.0"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c0cf036d15402bea3c5d4de17b3fce76b3e4a56ebc1f577be0e7a72f7c607cf0"
 dependencies = [
  "cfg-if 1.0.0",
  "winapi 0.3.9",
@@ -4515,10 +4575,13 @@ dependencies = [
 name = "plugin-host-lib"
 version = "0.1.0"
 dependencies = [
+ "actix",
+ "actix-handler-macro",
  "atomic-queue",
  "audio-garbage-collector",
  "audio-processor-analysis",
  "audio-processor-standalone-midi",
+ "audio-processor-testing-helpers",
  "audio-processor-traits",
  "basedrop",
  "circular-data-structures",
@@ -4528,6 +4591,7 @@ dependencies = [
  "cpal",
  "criterion",
  "hound",
+ "itertools 0.10.1",
  "log",
  "md5",
  "midir",
@@ -5297,6 +5361,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "signal-hook-registry"
+version = "1.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e51e73328dc4ac0c7ccbda3a494dfa03df1de2f46018127f60c693f2648455b0"
+dependencies = [
+ "libc",
+]
+
+[[package]]
 name = "slab"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5861,7 +5934,10 @@ dependencies = [
  "memchr",
  "mio 0.7.13",
  "num_cpus",
+ "once_cell",
+ "parking_lot",
  "pin-project-lite",
+ "signal-hook-registry",
  "tokio-macros",
  "winapi 0.3.9",
 ]
@@ -6575,7 +6651,7 @@ dependencies = [
  "inplace_it",
  "js-sys",
  "khronos-egl",
- "libloading 0.7.0",
+ "libloading 0.7.1",
  "log",
  "metal",
  "naga",
@@ -6847,14 +6923,6 @@ checksum = "56c1936c4cc7a1c9ab21a1ebb602eb942ba868cbd44a99cb7cdc5892335e1c85"
 dependencies = [
  "linked-hash-map",
 ]
-
-[[patch.unused]]
-name = "gfx-backend-metal"
-version = "0.9.1"
-
-[[patch.unused]]
-name = "gfx-hal"
-version = "0.9.0"
 
 [[patch.unused]]
 name = "lyon_tessellation"

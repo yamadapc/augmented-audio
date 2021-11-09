@@ -42,19 +42,30 @@ enum ReloadPluginError {
 
 pub struct MainContentView {
     plugin_host: Arc<Mutex<TestPluginHost>>,
-    audio_io_settings: audio_io_settings::Controller,
-    host_options_service: HostOptionsService,
-    plugin_content: plugin_content::View,
-    transport_controls: TransportControlsView,
-    volume_meter_state: volume_meter::VolumeMeter,
-    editor_controller: plugin_editor_window::EditorController,
     host_state: HostState,
-    status_message: StatusBar,
-    // This should not be optional & it might break if the host restarts processors for some reason
+    /// Volume processor handle
+    /// This should not be optional & it might break if the host restarts processors for some reason
     volume_handle: Option<Shared<VolumeMeterProcessorHandle>>,
+    /// RMS processor handle
+    /// This should not be optional & it might break if the host restarts processors for some reason
     rms_processor_handle: Option<Shared<RunningRMSProcessorHandle>>,
+    /// Amplitude over time chart
     audio_chart: Option<audio_chart::AudioChart>,
+    /// Unused
     audio_file_model: audio_file_chart::AudioFileModel,
+
+    /// Holds the audio settings view and its sync with the test host
+    audio_io_settings: audio_io_settings::Controller,
+    /// Reloads options from disk
+    host_options_service: HostOptionsService,
+    /// Center content view
+    plugin_content: plugin_content::View,
+    /// Playback buttons
+    transport_controls: TransportControlsView,
+    /// Holds the plugin GUI window
+    editor_controller: plugin_editor_window::EditorController,
+    volume_meter_state: volume_meter::VolumeMeter,
+    status_message: StatusBar,
     start_stop_button_state: view::StartStopViewModel,
 }
 
@@ -106,18 +117,15 @@ impl MainContentView {
                 host_options_service,
                 host_state,
                 plugin_content,
-                transport_controls: TransportControlsView::new(),
                 editor_controller,
+                transport_controls: TransportControlsView::default(),
                 status_message: StatusBar::new("Starting audio thread", status_bar::State::Warning),
                 volume_handle: None,
                 rms_processor_handle: None,
                 audio_chart: None,
                 audio_file_model: AudioFileModel::empty(),
-                volume_meter_state: volume_meter::VolumeMeter::new(),
-                start_stop_button_state: view::StartStopViewModel {
-                    is_started: true,
-                    button_state: Default::default(),
-                },
+                volume_meter_state: volume_meter::VolumeMeter::default(),
+                start_stop_button_state: view::StartStopViewModel::default(),
             },
             command,
         )
@@ -131,59 +139,21 @@ impl MainContentView {
         self.volume_meter_state
             .set_volume_info((&self.volume_handle).into());
         match message {
-            Message::AudioIOSettings(msg) => self
-                .audio_io_settings
-                .update(msg)
-                .map(Message::AudioIOSettings),
+            Message::AudioIOSettings(msg) => self.update_audio_io_settings(msg),
             Message::PluginContent(msg) => self.update_plugin_content(msg),
             Message::TransportControls(message) => self.update_transport_controls(message),
             Message::SetStatus(message) => self.update_status_message(message),
-            Message::ReadyForPlayback => {
-                Command::perform(iced_futures::futures::future::ready(()), |_| {
-                    Message::SetStatus(StatusBar::new(
-                        "Ready for playback",
-                        status_bar::State::Idle,
-                    ))
-                })
+            Message::ReadyForPlayback => Self::update_ready_for_playback(),
+            Message::ReloadedPlugin(did_close, status_bar) => {
+                self.update_reloaded_plugin(did_close, status_bar)
+            }
+            Message::StartStopButtonClicked => self.update_start_stop_button_clicked(),
+            Message::VolumeMeter(message) => self.update_volume_meter(message),
+            Message::Exit => self.update_exit(),
+            Message::SetAudioFilePathResponse(input_file) => {
+                self.update_set_audio_file_path_response(input_file)
             }
             Message::None => Command::none(),
-            Message::ReloadedPlugin(did_close, status_bar) => {
-                self.reset_handles();
-                self.status_message = status_bar;
-                if did_close {
-                    self.editor_controller.open_window();
-                }
-                Command::none()
-            }
-            Message::StartStopButtonClicked => {
-                self.start_stop_button_state.is_started = !self.start_stop_button_state.is_started;
-                let plugin_host = self.plugin_host.clone();
-                let should_start = self.start_stop_button_state.is_started;
-                Command::perform(
-                    async move {
-                        let mut plugin_host = plugin_host.lock().unwrap();
-                        if should_start {
-                            if let Err(err) = plugin_host.start() {
-                                log::error!("Error starting host: {}", err);
-                            }
-                        } else {
-                            plugin_host.stop();
-                        }
-                    },
-                    |_| Message::None,
-                )
-            }
-            Message::VolumeMeter(message) => {
-                volume_meter::update(message, self.plugin_host.clone()).map(Message::VolumeMeter)
-            }
-            Message::Exit => {
-                let _ = self.editor_controller.close_window();
-                Command::none()
-            }
-            Message::SetAudioFilePathResponse(input_file) => {
-                self.on_set_input_file_response(input_file);
-                Command::none()
-            }
         }
     }
 
@@ -271,6 +241,70 @@ impl MainContentView {
             .update(message)
             .map(Message::TransportControls);
         Command::batch(vec![children])
+    }
+
+    fn update_set_audio_file_path_response(&mut self, input_file: String) -> Command<Message> {
+        self.on_set_input_file_response(input_file);
+        Command::none()
+    }
+
+    fn update_exit(&mut self) -> Command<Message> {
+        let _ = self.editor_controller.close_window();
+        Command::none()
+    }
+
+    fn update_volume_meter(&mut self, message: volume_meter::Message) -> Command<Message> {
+        volume_meter::update(message, self.plugin_host.clone()).map(Message::VolumeMeter)
+    }
+
+    fn update_start_stop_button_clicked(&mut self) -> Command<Message> {
+        self.start_stop_button_state.is_started = !self.start_stop_button_state.is_started;
+        let plugin_host = self.plugin_host.clone();
+        let should_start = self.start_stop_button_state.is_started;
+        Command::perform(
+            async move { Self::run_on_toggle_playback_command(plugin_host, should_start) },
+            |_| Message::None,
+        )
+    }
+
+    fn update_reloaded_plugin(
+        &mut self,
+        did_close: bool,
+        status_bar: StatusBar,
+    ) -> Command<Message> {
+        self.reset_handles();
+        self.status_message = status_bar;
+        if did_close {
+            self.editor_controller.open_window();
+        }
+        Command::none()
+    }
+
+    // TODO Util function?
+    fn update_ready_for_playback() -> Command<Message> {
+        Command::perform(iced_futures::futures::future::ready(()), |_| {
+            Message::SetStatus(StatusBar::new(
+                "Ready for playback",
+                status_bar::State::Idle,
+            ))
+        })
+    }
+
+    fn update_audio_io_settings(&mut self, msg: audio_io_settings::Message) -> Command<Message> {
+        self.audio_io_settings
+            .update(msg)
+            .map(Message::AudioIOSettings)
+    }
+
+    fn run_on_toggle_playback_command(plugin_host: Arc<Mutex<TestPluginHost>>, should_start: bool) {
+        let mut plugin_host = plugin_host.lock().unwrap();
+        if should_start {
+            if let Err(err) = plugin_host.start() {
+                log::error!("Error starting host: {}", err);
+            }
+        } else {
+            plugin_host.stop();
+        }
     }
 }
 

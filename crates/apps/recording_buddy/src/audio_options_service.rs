@@ -14,6 +14,12 @@ pub struct AudioOptions {
 
 pub struct AudioOptionsService {}
 
+impl Default for AudioOptionsService {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AudioOptionsService {
     pub fn new() -> Self {
         Self {}

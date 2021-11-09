@@ -230,7 +230,7 @@ mod test {
         let queue = Queue::<*mut i32>::new(10);
         assert_eq!(queue.len(), 0);
         let ptr = mock_ptr(1);
-        assert!(queue.push(ptr.clone()));
+        assert!(queue.push(ptr));
         assert_eq!(queue.len(), 1);
         let value = queue.pop();
         assert_eq!(value.unwrap(), ptr);
@@ -243,7 +243,7 @@ mod test {
         assert_eq!(queue.len(), 0);
         {
             let ptr = mock_ptr(1);
-            assert!(queue.push(ptr.clone()));
+            assert!(queue.push(ptr));
             assert_eq!(queue.len(), 1);
             let value = queue.pop();
             assert_eq!(value.unwrap(), ptr);
@@ -251,7 +251,7 @@ mod test {
         }
         {
             let ptr = mock_ptr(2);
-            assert!(queue.push(ptr.clone()));
+            assert!(queue.push(ptr));
             assert_eq!(queue.len(), 1);
             let value = queue.pop();
             assert_eq!(value.unwrap(), ptr);

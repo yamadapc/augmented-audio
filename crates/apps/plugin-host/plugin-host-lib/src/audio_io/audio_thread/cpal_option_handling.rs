@@ -47,7 +47,7 @@ fn find_cpal_input_device_by_name(host: &Host, id: &str) -> Option<Device> {
 pub fn get_cpal_host(host_id: &AudioHostId) -> cpal::Host {
     match &host_id {
         AudioHostId::Default => cpal::default_host(),
-        AudioHostId::Id(id) => find_cpal_host_by_name(&id).unwrap_or_else(cpal::default_host),
+        AudioHostId::Id(id) => find_cpal_host_by_name(id).unwrap_or_else(cpal::default_host),
     }
 }
 

@@ -10,8 +10,6 @@ use plotters::prelude::*;
 struct FrequencyResponseResult {
     frequency: f32,
     relative_output_level: f32,
-    input_rms: f32,
-    output_rms: f32,
 }
 
 fn test_frequency_response<Processor>(
@@ -24,25 +22,23 @@ where
 {
     let input_buffer = sine_buffer(sample_rate, frequency, Duration::from_millis(50));
     let mut input_buffer = VecAudioBuffer::from(input_buffer);
+
     let input_rms = rms_level(input_buffer.slice());
-
     audio_processor.process(&mut input_buffer);
-
     let output_rms = rms_level(input_buffer.slice());
 
     let relative_output_level = output_rms / input_rms;
+
     FrequencyResponseResult {
         frequency,
         relative_output_level,
-        input_rms,
-        output_rms,
     }
 }
 
 fn get_test_frequencies() -> Vec<f32> {
     let mut freqs = vec![];
     let mut start_freq = 20.0;
-    for i in 0..200 {
+    for _ in 0..200 {
         freqs.push(start_freq);
         start_freq += 20.0;
     }
@@ -130,6 +126,41 @@ pub fn generate_frequency_response_plot<Processor>(
         .draw_series(LineSeries::new(chart_model.values, &RED))
         .unwrap();
     println!(">>> Wrote {} chart to {:?}", plot_name, chart_filename);
+}
+
+pub fn draw_vec_chart(filename: &str, plot_name: &str, vec: Vec<f32>) {
+    let filename = Path::new(filename);
+    let chart_filename = filename.with_file_name(format!(
+        "{}--{}.png",
+        filename.file_name().unwrap().to_str().unwrap(),
+        plot_name
+    ));
+
+    let backend = BitMapBackend::new(&chart_filename, (1000, 200));
+    let drawing_area = backend.into_drawing_area();
+    drawing_area.fill(&WHITE).unwrap();
+
+    let x_range = (0, vec.len());
+    let y_range = (
+        vec.iter().cloned().fold(-1. / 0., f32::max) as f64,
+        vec.iter().cloned().fold(1. / 0., f32::min) as f64,
+    );
+    let values: Vec<(usize, f64)> = vec
+        .iter()
+        .enumerate()
+        .map(|(i, s)| (i, *s as f64))
+        .collect();
+
+    let mut chart = ChartBuilder::on(&drawing_area)
+        .caption(plot_name, ("sans-serif", 20))
+        .set_label_area_size(LabelAreaPosition::Left, 40)
+        .set_label_area_size(LabelAreaPosition::Bottom, 40)
+        .build_cartesian_2d(x_range.0..x_range.1, y_range.0..y_range.1)
+        .unwrap();
+
+    chart.configure_mesh().draw().unwrap();
+
+    chart.draw_series(LineSeries::new(values, &RED)).unwrap();
 }
 
 #[cfg(test)]

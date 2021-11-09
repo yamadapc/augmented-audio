@@ -11,3 +11,7 @@ pub fn get_version() -> String {
         env!("GIT_REV_SHORT")
     )
 }
+
+pub fn command_message<Message: 'static + Send>(message: Message) -> iced::Command<Message> {
+    iced::Command::perform(async move { message }, |message| message)
+}

@@ -32,7 +32,6 @@ impl CargoTomlReader for CargoTomlReaderImpl {
 
 #[cfg(test)]
 mod test {
-    use super::*;
 
     // #[test]
     // fn test_read_cargo() {

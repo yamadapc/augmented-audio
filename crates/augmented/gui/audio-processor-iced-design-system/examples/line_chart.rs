@@ -58,10 +58,7 @@ impl Application for LineChartApp {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let chart = self
-            .line_chart
-            .element()
-            .map(move |msg| Message::LineChart(msg));
+        let chart = self.line_chart.element().map(Message::LineChart);
         Container::new(chart)
             .width(Length::Fill)
             .height(Length::Fill)

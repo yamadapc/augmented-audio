@@ -2,15 +2,15 @@ pub struct Spacing;
 
 impl Spacing {
     pub fn base_spacing() -> u16 {
-        10
+        8
     }
 
     pub fn medium_spacing() -> u16 {
-        5
+        2
     }
 
     pub fn small_spacing() -> u16 {
-        2
+        1
     }
 
     pub fn default_font_size() -> u16 {
@@ -26,6 +26,6 @@ impl Spacing {
     }
 
     pub fn small_control_size() -> u16 {
-        20
+        12
     }
 }

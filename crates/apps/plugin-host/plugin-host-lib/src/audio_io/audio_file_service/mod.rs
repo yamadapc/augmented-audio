@@ -1,45 +1,90 @@
-use audio_processor_traits::AudioProcessorSettings;
+use rayon::prelude::*;
+use symphonia::core::audio::Signal;
+use symphonia::{core::audio::AudioBuffer as SymphoniaAudioBuffer, core::probe::ProbeResult};
 
-use crate::processors::audio_file_processor::file_io::{default_read_audio_file, AudioFileError};
-use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
+use crate::processors::audio_file_processor::file_io::{
+    default_read_audio_file, read_file_contents, AudioFileError,
+};
 
-pub fn probe_file(input_audio_path: &str) -> Result<AudioFileSettings, AudioFileError> {
-    default_read_audio_file(input_audio_path).map(AudioFileSettings::new)
+// TODO: Add metadata & contents
+// * Length
+// * Metadata
+// * Content buffer
+pub struct AudioFile {
+    probe: ProbeResult,
+    contents: SymphoniaAudioBuffer<f32>,
+    rms_snapshot: Vec<f32>,
 }
 
-pub fn decode_and_prepare_processor(
-    audio_processor_settings: AudioProcessorSettings,
-    audio_file_settings: AudioFileSettings,
-) -> AudioFileProcessor {
-    let mut processor = AudioFileProcessor::new(audio_file_settings, audio_processor_settings);
-    processor.prepare(audio_processor_settings);
-    processor
+trait AudioFileService {
+    fn load_file(&self, input_audio_path: &str) -> Result<AudioFile, AudioFileError>;
+}
+
+pub struct AudioFileServiceImpl {}
+
+impl Default for AudioFileServiceImpl {
+    fn default() -> Self {
+        Self {}
+    }
+}
+
+impl AudioFileService for AudioFileServiceImpl {
+    fn load_file(&self, input_audio_path: &str) -> Result<AudioFile, AudioFileError> {
+        let mut probe = default_read_audio_file(input_audio_path)?;
+        let contents = read_file_contents(&mut probe)?;
+        let rms_snapshot = Self::calculate_rms_snapshot(&contents);
+        Ok(AudioFile {
+            probe,
+            contents,
+            rms_snapshot,
+        })
+    }
+}
+
+impl AudioFileServiceImpl {
+    fn calculate_rms_snapshot(contents: &SymphoniaAudioBuffer<f32>) -> Vec<f32> {
+        let converted_channels: Vec<Vec<f32>> = (0..contents.spec().channels.count())
+            .into_par_iter()
+            .map(|channel_number| contents.chan(channel_number).into())
+            .collect();
+
+        let mut buffer: Vec<f32> = vec![];
+        buffer.resize(converted_channels[0].len(), 0.0);
+        for channel in converted_channels {
+            for (i, sample) in channel.iter().enumerate() {
+                buffer[i] += sample;
+            }
+        }
+
+        buffer
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use audio_processor_traits::AudioProcessorSettings;
-
-    use super::{decode_and_prepare_processor, probe_file};
+    use super::*;
 
     #[test]
-    fn test_smoke_probe_file() {
-        let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-        let _probe = probe_file(&*format!(
-            "{}/../../../../input-files/C3-loop.mp3",
-            crate_dir
-        ))
-        .unwrap();
-    }
+    fn test_load_input_file() {
+        let audio_file_service = AudioFileServiceImpl::default();
+        let file_path = format!(
+            "{}{}",
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../../../input-files/synthetizer-loop.mp3"
+        );
+        let audio_file = audio_file_service.load_file(&file_path).unwrap();
 
-    #[test]
-    fn test_smoke_decode_and_prepare_processor() {
-        let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
-        let probe = probe_file(&*format!(
-            "{}/../../../../input-files/C3-loop.mp3",
-            crate_dir
-        ))
-        .unwrap();
-        let _processor = decode_and_prepare_processor(AudioProcessorSettings::default(), probe);
+        assert!(audio_file.contents.spec().channels.count() > 0);
+        assert!(!audio_file.rms_snapshot.is_empty());
+        // let file_path = format!(
+        //     "{}{}",
+        //     env!("CARGO_MANIFEST_DIR"),
+        //     "/src/audio_io/audio_file_service/mod.rs"
+        // );
+        // audio_processor_testing_helpers::charts::draw_vec_chart(
+        //     &file_path,
+        //     "audio-file-chart",
+        //     audio_file.rms_snapshot,
+        // );
     }
 }

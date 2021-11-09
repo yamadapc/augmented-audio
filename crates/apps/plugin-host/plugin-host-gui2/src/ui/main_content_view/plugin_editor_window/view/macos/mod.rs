@@ -1,7 +1,7 @@
 use std::ffi::c_void;
 
-use cocoa::appkit::{NSView, NSWindow, NSWindowStyleMask};
 use cocoa::appkit::NSBackingStoreType::NSBackingStoreBuffered;
+use cocoa::appkit::{NSView, NSWindow, NSWindowStyleMask};
 use cocoa::base::{id, nil, NO};
 use cocoa::foundation::{NSAutoreleasePool, NSPoint, NSRect, NSSize, NSString};
 use iced::{Point, Rectangle, Size};

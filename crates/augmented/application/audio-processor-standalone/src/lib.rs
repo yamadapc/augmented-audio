@@ -279,7 +279,7 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
     {
         if let Some(midi_handler) = processor.midi() {
             midi_audio_thread_handler.collect_midi_messages(midi_message_queue);
-            midi_handler.process_midi_events(&midi_audio_thread_handler.buffer());
+            midi_handler.process_midi_events(midi_audio_thread_handler.buffer());
             midi_audio_thread_handler.clear();
         }
     }

@@ -69,6 +69,8 @@ pub fn main<StoryMessage: 'static + Debug + Clone + Send>(
     log::info!("Initializing iced-storybook");
     StorybookApp::run(iced::Settings {
         antialiasing: true,
+        default_text_size: audio_processor_iced_design_system::spacing::Spacing::default_font_size(
+        ),
         ..iced::Settings::with_flags(options)
     })
 }

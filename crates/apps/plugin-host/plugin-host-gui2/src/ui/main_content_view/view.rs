@@ -20,6 +20,15 @@ pub struct StartStopViewModel {
     pub button_state: iced::button::State,
 }
 
+impl Default for StartStopViewModel {
+    fn default() -> Self {
+        Self {
+            is_started: true,
+            button_state: Default::default(),
+        }
+    }
+}
+
 pub struct MainContentViewModel<'a> {
     pub audio_io_settings: &'a mut audio_io_settings::Controller,
     pub plugin_content: &'a mut View,
