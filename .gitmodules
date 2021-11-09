@@ -1,6 +1,3 @@
-[submodule "crates/vendor/basedrop"]
-	path = crates/vendor/basedrop
-	url = https://github.com/yamadapc/basedrop/
 [submodule "crates/darwin-webkit"]
 	path = crates/darwin-webkit
 	url = https://github.com/yamadapc/rust-darwin-webkit
