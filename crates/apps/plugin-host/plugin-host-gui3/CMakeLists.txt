@@ -15,7 +15,11 @@ find_package(
     REQUIRED
 )
 
-add_executable(plugin_host_gui3 main.cpp)
+add_executable(
+    plugin_host_gui3
+    src/main.cpp
+)
+
 target_link_libraries(
     plugin_host_gui3
     Qt::Core
