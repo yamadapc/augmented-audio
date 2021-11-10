@@ -61,11 +61,12 @@ jobs:
               --exclude webview-holder \
               --exclude macos-bundle-resources
       - name: Test
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN == 0 }}
         run: |
           cargo test --workspace \
               --features story \
-              --exclude-files "./crates/vendor/*" \
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude basedrop \
