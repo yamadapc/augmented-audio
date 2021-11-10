@@ -31,13 +31,40 @@ jobs:
           key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
       - name: Install dependencies
         run: ./scripts/install-ubuntu-dependencies.sh
-      - name: Test
+      - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
           cargo tarpaulin --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
+              --exclude-files "./crates/vendor/*" \
+              --exclude augmented-ui \
+              --exclude audiounit \
+              --exclude basedrop \
+              --exclude gfx \
+              --exclude iced \
+              --exclude iced-baseview \
+              --exclude iced_audio \
+              --exclude libloading \
+              --exclude lyon \
+              --exclude pathfinder \
+              --exclude piet \
+              --exclude plotters \
+              --exclude skribo \
+              --exclude vst \
+              --exclude example-iced-xcode-integration \
+              --exclude avfaudio-sys \
+              --exclude recording_buddy \
+              --exclude darwin-webkit \
+              --exclude webview-holder \
+              --exclude macos-bundle-resources
+      - name: Test
+        if: ${{ env.COVERALLS_TOKEN == 0 }}
+        run: |
+          cargo test --workspace \
+              --features story \
               --exclude-files "./crates/vendor/*" \
               --exclude augmented-ui \
               --exclude audiounit \
