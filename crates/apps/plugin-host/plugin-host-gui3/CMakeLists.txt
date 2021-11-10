@@ -18,6 +18,8 @@ find_package(
 add_executable(
     plugin_host_gui3
     src/main.cpp
+    src/MainWindow.cpp
+    src/MainWindow.h
 )
 
 target_link_libraries(
@@ -26,3 +28,5 @@ target_link_libraries(
     Qt::Gui
     Qt::Widgets
 )
+
+set(CMAKE_AUTOMOC ON)
