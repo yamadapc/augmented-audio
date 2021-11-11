@@ -44,9 +44,14 @@ impl OfflineRenderer {
     }
 
     pub fn run(&self) -> Result<OfflineRenderDiagnostics, OfflineRenderError> {
+        let garbage_collector = audio_garbage_collector::GarbageCollector::default();
+
         let mut buffer_handler = CpalVstBufferHandler::new(self.audio_settings);
-        let mut audio_file_processor =
-            AudioFileProcessor::from_path(self.audio_settings, &self.input_file_path)?;
+        let mut audio_file_processor = AudioFileProcessor::from_path(
+            garbage_collector.handle(),
+            self.audio_settings,
+            &self.input_file_path,
+        )?;
         let mut plugin = TestPluginHost::load_vst_plugin(self.plugin_path.as_ref())?;
         let mut output_file_processor =
             OutputAudioFileProcessor::from_path(self.audio_settings, &self.output_file_path);

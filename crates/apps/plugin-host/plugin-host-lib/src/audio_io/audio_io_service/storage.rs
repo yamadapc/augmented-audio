@@ -113,6 +113,7 @@ mod test {
                 state: state.clone(),
             })
             .await
+            .unwrap()
             .unwrap();
         let stored_state = service.send(FetchMessage).await.unwrap().unwrap();
         assert_eq!(stored_state, state);

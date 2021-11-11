@@ -5,6 +5,7 @@ use rayon::prelude::*;
 use symphonia::core::audio::AudioBuffer as SymphoniaAudioBuffer;
 use symphonia::core::probe::ProbeResult;
 
+use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
 use crate::processors::audio_file_processor::file_io::AudioFileError;
@@ -20,38 +21,18 @@ impl AudioFileSettings {
     pub fn new(audio_file: ProbeResult) -> Self {
         AudioFileSettings { audio_file }
     }
+
+    pub fn from_path(path: &str) -> Result<Self, AudioFileError> {
+        Ok(Self::new(file_io::default_read_audio_file(path)?))
+    }
 }
 
-pub struct AudioFileProcessor {
-    audio_file_settings: AudioFileSettings,
-    audio_settings: AudioProcessorSettings,
-    buffer: Vec<Vec<f32>>,
+pub struct AudioFileProcessorHandle {
     audio_file_cursor: AtomicUsize,
     is_playing: AtomicBool,
 }
 
-impl AudioFileProcessor {
-    pub fn from_path(
-        audio_settings: AudioProcessorSettings,
-        path: &str,
-    ) -> Result<Self, AudioFileError> {
-        let audio_file_settings = AudioFileSettings::new(file_io::default_read_audio_file(path)?);
-        Ok(Self::new(audio_file_settings, audio_settings))
-    }
-
-    pub fn new(
-        audio_file_settings: AudioFileSettings,
-        audio_settings: AudioProcessorSettings,
-    ) -> Self {
-        AudioFileProcessor {
-            audio_file_settings,
-            audio_settings,
-            buffer: Vec::new(),
-            audio_file_cursor: AtomicUsize::new(0),
-            is_playing: AtomicBool::new(true),
-        }
-    }
-
+impl AudioFileProcessorHandle {
     /// Resume playback
     pub fn play(&self) {
         self.is_playing.store(true, Ordering::Relaxed);
@@ -71,6 +52,43 @@ impl AudioFileProcessor {
     /// Whether the file is being played back
     pub fn is_playing(&self) -> bool {
         self.is_playing.load(Ordering::Relaxed)
+    }
+}
+
+pub struct AudioFileProcessor {
+    audio_file_settings: AudioFileSettings,
+    audio_settings: AudioProcessorSettings,
+    buffer: Vec<Vec<f32>>,
+    handle: Shared<AudioFileProcessorHandle>,
+}
+
+impl AudioFileProcessor {
+    pub fn from_path(
+        handle: &Handle,
+        audio_settings: AudioProcessorSettings,
+        path: &str,
+    ) -> Result<Self, AudioFileError> {
+        let audio_file_settings = AudioFileSettings::new(file_io::default_read_audio_file(path)?);
+        Ok(Self::new(handle, audio_file_settings, audio_settings))
+    }
+
+    pub fn new(
+        handle: &Handle,
+        audio_file_settings: AudioFileSettings,
+        audio_settings: AudioProcessorSettings,
+    ) -> Self {
+        AudioFileProcessor {
+            audio_file_settings,
+            audio_settings,
+            buffer: Vec::new(),
+            handle: Shared::new(
+                handle,
+                AudioFileProcessorHandle {
+                    audio_file_cursor: AtomicUsize::new(0),
+                    is_playing: AtomicBool::new(true),
+                },
+            ),
+        }
     }
 
     /// Unsafe get buffer for offline rendering
@@ -128,13 +146,13 @@ impl AudioFileProcessor {
     }
 
     pub fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &mut BufferType) {
-        let is_playing = self.is_playing.load(Ordering::Relaxed);
+        let is_playing = self.handle.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
             return;
         }
 
-        let start_cursor = self.audio_file_cursor.load(Ordering::Relaxed);
+        let start_cursor = self.handle.audio_file_cursor.load(Ordering::Relaxed);
         let mut audio_file_cursor = start_cursor;
 
         for frame in data.frames_mut() {
@@ -150,11 +168,94 @@ impl AudioFileProcessor {
             }
         }
 
-        let _ = self.audio_file_cursor.compare_exchange(
+        let _ = self.handle.audio_file_cursor.compare_exchange(
             start_cursor,
             audio_file_cursor,
             Ordering::Relaxed,
             Ordering::Relaxed,
         );
+    }
+
+    /// Resume playback
+    pub fn play(&self) {
+        self.handle.play()
+    }
+
+    /// Pause playback
+    pub fn pause(&self) {
+        self.handle.pause()
+    }
+
+    /// Stop playback and go back to the start of the file
+    pub fn stop(&self) {
+        self.handle.stop()
+    }
+
+    /// Whether the file is being played back
+    pub fn is_playing(&self) -> bool {
+        self.handle.is_playing()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use audio_garbage_collector::GarbageCollector;
+    use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
+
+    use super::*;
+
+    fn setup() -> (GarbageCollector, AudioFileSettings) {
+        let garbage_collector = audio_garbage_collector::GarbageCollector::default();
+        let path = format!(
+            "{}{}",
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../../../input-files/1sec-sine.mp3"
+        );
+        let audio_file_settings = AudioFileSettings::from_path(&path).unwrap();
+        (garbage_collector, audio_file_settings)
+    }
+
+    /**
+     * Test a stopped audio processor is silent
+     */
+    #[test]
+    fn test_audio_file_processor_stopped_is_silent() {
+        let (garbage_collector, audio_file_settings) = setup();
+
+        let mut audio_file_processor = AudioFileProcessor::new(
+            garbage_collector.handle(),
+            audio_file_settings,
+            Default::default(),
+        );
+        audio_file_processor.prepare(Default::default());
+
+        audio_file_processor.stop();
+        let mut sample_buffer = VecAudioBuffer::new();
+        sample_buffer.resize(2, 44100, 0.0);
+        audio_file_processor.process(&mut sample_buffer);
+
+        assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) < f32::EPSILON);
+    }
+
+    /**
+     * Test a running audio processor is not silent
+     */
+    #[test]
+    fn test_audio_file_processor_playing_is_not_silent() {
+        let (garbage_collector, audio_file_settings) = setup();
+
+        let mut audio_file_processor = AudioFileProcessor::new(
+            garbage_collector.handle(),
+            audio_file_settings,
+            Default::default(),
+        );
+        audio_file_processor.prepare(Default::default());
+
+        let mut sample_buffer = VecAudioBuffer::new();
+        sample_buffer.resize(2, 44100, 0.0);
+        audio_file_processor.play();
+        audio_file_processor.process(&mut sample_buffer);
+
+        assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) > f32::EPSILON);
     }
 }
