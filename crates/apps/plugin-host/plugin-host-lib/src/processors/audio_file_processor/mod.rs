@@ -97,6 +97,9 @@ impl AudioFileProcessor {
     }
 
     /// Prepares for playback
+    ///
+    /// Note: Currently this will load the audio file on the audio-thread.
+    /// It'd be an interesting exercise to perform this on a background thread.
     pub fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
