@@ -1,17 +1,3 @@
-// Copyright 2020 The Druid Authors.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 //! An example of sending commands from another thread.
 //! This is useful when you want to have some kind of
 //! generated content (like here), or some task that just
@@ -44,10 +30,6 @@ pub fn main() {
     let window = WindowDesc::new(|| make_ui()).title("External Event Demo");
 
     let launcher = AppLauncher::with_window(window);
-
-    // If we want to create commands from another thread `launcher.get_external_handle()`
-    // should be used. For sending commands from within widgets you can always call
-    // `ctx.submit_command`
     let event_sink = launcher.get_external_handle();
 
     let garbage_collector = GarbageCollector::default();
