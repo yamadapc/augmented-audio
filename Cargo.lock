@@ -5070,7 +5070,6 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "basedrop",
- "bindgen 0.59.1",
  "circular-data-structures",
  "clap 2.33.3",
  "concread",
