@@ -12,6 +12,7 @@ use ui::main_content_view;
 
 mod actor_system;
 pub mod executor;
+mod ops;
 pub mod services;
 pub mod ui;
 mod utils;
@@ -53,7 +54,8 @@ impl Application for App {
             log::error!("Failed to start host: {:?}", err);
             err
         });
-        let (main_content_view, command) = main_content_view::MainContentView::new(plugin_host);
+        let (main_content_view, command) =
+            main_content_view::MainContentView::new(plugin_host, &actor_system_thread);
 
         (
             App {

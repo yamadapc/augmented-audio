@@ -8,9 +8,7 @@ use thiserror::Error;
 pub use models::*;
 use storage::{AudioIOStorageService, StorageConfig};
 
-use crate::audio_io::audio_io_service::storage::AudioIOStorageServiceError;
 use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId};
-use crate::audio_io::AudioIOServiceError::StorageError;
 use crate::TestPluginHost;
 
 pub mod models;
@@ -55,57 +53,7 @@ impl AudioIOService {
 }
 
 impl AudioIOService {
-    async fn store(&self) -> Result<(), AudioIOStorageServiceError> {
-        self.storage
-            .send(storage::StoreMessage {
-                state: self.state().clone(),
-            })
-            .await?
-    }
-
-    async fn try_store(&self) {
-        if let Err(err) = self.store().await {
-            let err: &dyn std::error::Error = &err;
-            log::error!("{}", err);
-        }
-    }
-
-    pub async fn reload(&mut self) -> Result<(), AudioIOServiceError> {
-        let state = self
-            .storage
-            .send(storage::FetchMessage)
-            .await
-            .map_err(|_| AudioIOServiceError::StorageError)?
-            .map_err(|_| AudioIOServiceError::StorageError)?;
-        log::info!("Reloaded state {:?}", state);
-        self.state = state;
-        let mut host = self.host.lock().unwrap();
-        host.set_host_id(AudioHostId::Id(self.state.host.clone()))
-            .map_err(|_| AudioIOServiceError::AudioThreadError)?;
-        host.set_input_device_id(Some(
-            self.state
-                .input_device
-                .clone()
-                .map(|d| AudioDeviceId::Id(d.name))
-                .unwrap_or(AudioDeviceId::Default),
-        ))
-        .map_err(|_| AudioIOServiceError::AudioThreadError)?;
-        host.set_output_device_id(
-            self.state
-                .output_device
-                .clone()
-                .map(|d| AudioDeviceId::Id(d.name))
-                .unwrap_or(AudioDeviceId::Default),
-        )
-        .map_err(|_| AudioIOServiceError::AudioThreadError)?;
-        Ok(())
-    }
-
-    pub fn state(&self) -> &AudioIOState {
-        &self.state
-    }
-
-    pub fn set_host_id(&mut self, host_id: String) -> Result<(), AudioIOServiceError> {
+    fn set_host_id(&mut self, host_id: String) -> Result<(), AudioIOServiceError> {
         log::info!("Setting audio host");
         let mut host = self.host.lock().unwrap();
         host.set_host_id(AudioHostId::Id(host_id.clone()))
@@ -114,14 +62,10 @@ impl AudioIOService {
                 AudioIOServiceError::AudioThreadError
             })?;
         self.state.host = host_id;
-        self.try_store();
         Ok(())
     }
 
-    pub fn set_input_device_id(
-        &mut self,
-        input_device_id: String,
-    ) -> Result<(), AudioIOServiceError> {
+    fn set_input_device_id(&mut self, input_device_id: String) -> Result<(), AudioIOServiceError> {
         log::info!("Setting input device");
         let mut host = self.host.lock().unwrap();
         host.set_input_device_id(Some(AudioDeviceId::Id(input_device_id.clone())))
@@ -130,9 +74,18 @@ impl AudioIOService {
                 AudioIOServiceError::AudioThreadError
             })?;
 
-        // TODO fix this
-        // self.state.input_device = Some(AudioDevice::new(input_device_id));
-        self.try_store();
+        let maybe_input_device = Self::input_devices(Some(self.state.host.clone()))
+            .ok()
+            .map(|input_devices| {
+                input_devices
+                    .into_iter()
+                    .find(|input_device| input_device.name == input_device_id)
+            })
+            .flatten();
+        if let Some(input_device) = maybe_input_device {
+            self.state.input_device = Some(input_device);
+        }
+
         Ok(())
     }
 
@@ -147,9 +100,19 @@ impl AudioIOService {
                 log::error!("Failed to set output device {}", err);
                 AudioIOServiceError::AudioThreadError
             })?;
-        // TODO fix this
-        // self.state.output_device = Some(AudioDevice::new(output_device_id));
-        self.try_store();
+
+        let maybe_output_device = Self::output_devices(Some(self.state.host.clone()))
+            .ok()
+            .map(|output_devices| {
+                output_devices
+                    .into_iter()
+                    .find(|output_device| output_device.name == output_device_id)
+            })
+            .flatten();
+        if let Some(output_device) = maybe_output_device {
+            self.state.output_device = Some(output_device);
+        }
+
         Ok(())
     }
 
@@ -234,14 +197,93 @@ impl Actor for AudioIOService {
 }
 
 #[derive(Message)]
-#[rtype(result = "()")]
+#[rtype(result = "Result<(), AudioIOServiceError>")]
 pub struct ReloadMessage;
 
 impl Handler<ReloadMessage> for AudioIOService {
-    type Result = ();
+    type Result = ResponseActFuture<Self, Result<(), AudioIOServiceError>>;
 
     fn handle(&mut self, _msg: ReloadMessage, _ctx: &mut Self::Context) -> Self::Result {
-        self.reload();
+        let state = self.storage.send(storage::FetchMessage).into_actor(self);
+        let result = state.map(|res, this, _ctx| match res {
+            Ok(Ok(state)) => {
+                log::info!("Reloaded state {:?}", state);
+                this.state = state;
+
+                let mut host = this.host.lock().unwrap();
+                host.set_host_id(AudioHostId::Id(this.state.host.clone()))
+                    .map_err(|_| AudioIOServiceError::AudioThreadError)?;
+                host.set_input_device_id(Some(
+                    this.state
+                        .input_device
+                        .clone()
+                        .map(|d| AudioDeviceId::Id(d.name))
+                        .unwrap_or(AudioDeviceId::Default),
+                ))
+                .map_err(|_| AudioIOServiceError::AudioThreadError)?;
+                host.set_output_device_id(
+                    this.state
+                        .output_device
+                        .clone()
+                        .map(|d| AudioDeviceId::Id(d.name))
+                        .unwrap_or(AudioDeviceId::Default),
+                )
+                .map_err(|_| AudioIOServiceError::AudioThreadError)?;
+
+                Ok(())
+            }
+            _ => Err(AudioIOServiceError::StorageError),
+        });
+
+        Box::pin(result)
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "AudioIOState")]
+pub struct GetStateMessage;
+
+impl Handler<GetStateMessage> for AudioIOService {
+    type Result = MessageResult<GetStateMessage>;
+
+    fn handle(&mut self, _msg: GetStateMessage, _ctx: &mut Self::Context) -> Self::Result {
+        MessageResult(self.state.clone())
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<(), AudioIOServiceError>")]
+pub enum SetStateMessage {
+    SetHostId { host_id: String },
+    SetInputDeviceId { input_device_id: String },
+    SetOutputDeviceId { output_device_id: String },
+}
+
+impl Handler<SetStateMessage> for AudioIOService {
+    type Result = ResponseActFuture<Self, Result<(), AudioIOServiceError>>;
+
+    fn handle(&mut self, msg: SetStateMessage, _ctx: &mut Self::Context) -> Self::Result {
+        use SetStateMessage::*;
+
+        let result = match msg {
+            SetHostId { host_id } => self.set_host_id(host_id),
+            SetInputDeviceId { input_device_id } => self.set_input_device_id(input_device_id),
+            SetOutputDeviceId { output_device_id } => self.set_host_id(output_device_id),
+        };
+
+        let store_future = self.storage.send(storage::StoreMessage {
+            state: self.state.clone(),
+        });
+        let result_future = store_future.into_actor(self).map(|storage_result, _, _| {
+            if let Err(err) = storage_result {
+                let err: &dyn std::error::Error = &err;
+                log::error!("{}", err);
+            }
+
+            result
+        });
+
+        Box::pin(result_future)
     }
 }
 

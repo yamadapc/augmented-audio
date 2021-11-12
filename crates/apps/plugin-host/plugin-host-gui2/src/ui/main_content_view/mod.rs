@@ -5,6 +5,7 @@ use actix::prelude::*;
 use derivative::Derivative;
 use thiserror::Error;
 
+use crate::actor_system::ActorSystemThread;
 use augmented::audio::gc::Shared;
 use augmented::gui::iced::{Command, Element, Subscription};
 use plugin_host_lib::{
@@ -88,7 +89,10 @@ pub enum Message {
 }
 
 impl MainContentView {
-    pub fn new(plugin_host: TestPluginHost) -> (Self, Command<Message>) {
+    pub fn new(
+        plugin_host: TestPluginHost,
+        actor_system_thread: &ActorSystemThread,
+    ) -> (Self, Command<Message>) {
         let plugin_host = Arc::new(Mutex::new(plugin_host));
         let (
             HostContext {
@@ -97,7 +101,7 @@ impl MainContentView {
                 host_state,
             },
             command,
-        ) = reload_plugin_host_state(plugin_host.clone());
+        ) = reload_plugin_host_state(plugin_host.clone(), actor_system_thread);
 
         let plugin_content = plugin_content::View::new(
             host_state.audio_input_file_path.clone(),
@@ -459,6 +463,7 @@ struct HostContext {
 /// Load plugin-host state from JSON files when it starts. Do file decoding on a background thread.
 fn reload_plugin_host_state(
     plugin_host: Arc<Mutex<TestPluginHost>>,
+    actor_system_thread: &ActorSystemThread,
 ) -> (HostContext, Command<Message>) {
     log::info!("Reloading plugin-host settings from disk");
     let home_dir =
@@ -473,7 +478,11 @@ fn reload_plugin_host_state(
     let storage_config = StorageConfig {
         audio_io_state_storage_path,
     };
-    let audio_io_service = AudioIOService::new(plugin_host.clone(), storage_config).start();
+    let audio_io_service = {
+        let plugin_host = plugin_host.clone();
+        actor_system_thread
+            .spawn_result(async move { AudioIOService::new(plugin_host, storage_config).start() })
+    };
     let host_options_storage_path = home_config_dir
         .join("audio-thread-config.json")
         .to_str()
@@ -516,7 +525,7 @@ fn reload_plugin_host_state(
                 }
                 Ok(())
             },
-            |result| match result {
+            |result: Result<(), AudioHostPluginLoadError>| match result {
                 Err(err) => Message::SetStatus(StatusBar::new(
                     format!("Failed to load plugin: {}", err),
                     status_bar::State::Error,
