@@ -1,0 +1,62 @@
+BasedOnStyle: LLVM
+Language : Cpp
+Standard: Cpp11
+
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+BinPackArguments: false
+BinPackParameters: false
+
+# JUCE coding conventions http://www.juce.com/documentation/coding-standards
+IndentWidth: 4
+ContinuationIndentWidth: 4
+UseTab: Never
+BreakBeforeBraces: Allman
+IndentCaseLabels: false
+AccessModifierOffset: -4
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ColumnLimit: 120
+PointerBindsToType: true
+
+SpacesInParentheses: false
+SpacesInAngles: false
+SpaceBeforeAssignmentOperators: true
+MaxEmptyLinesToKeep: 2
+SpaceBeforeParens: Always
+NamespaceIndentation: None
+---
+BasedOnStyle: LLVM
+Language : ObjC
+
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+
+BinPackArguments: false
+BinPackParameters: false
+
+# JUCE coding conventions http://www.juce.com/documentation/coding-standards
+IndentWidth: 4
+ContinuationIndentWidth: 4
+UseTab: Never
+BreakBeforeBraces: Allman
+IndentCaseLabels: false
+AccessModifierOffset: -4
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ColumnLimit: 120
+PointerBindsToType: true
+
+SpacesInParentheses: false
+SpacesInAngles: false
+SpaceBeforeAssignmentOperators: true
+MaxEmptyLinesToKeep: 2
+SpaceBeforeParens: Always
+NamespaceIndentation: None
