@@ -3,9 +3,7 @@ use std::sync::{Arc, Mutex};
 use iced::{Command, Element};
 
 use crate::ui::audio_io_settings::view::DropdownModel;
-use plugin_host_lib::audio_io::{
-    AudioHost, AudioIOService, AudioIOServiceError, AudioIOServiceResult, AudioIOState,
-};
+use plugin_host_lib::audio_io::{AudioHost, AudioIOService, AudioIOServiceResult, AudioIOState};
 
 pub mod dropdown_with_label;
 pub mod view;

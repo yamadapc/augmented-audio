@@ -11,8 +11,11 @@ use crate::processors::audio_file_processor::file_io::{
 // * Metadata
 // * Content buffer
 pub struct AudioFile {
+    #[allow(unused)]
     probe: ProbeResult,
+    #[allow(unused)]
     contents: SymphoniaAudioBuffer<f32>,
+    #[allow(unused)]
     rms_snapshot: Vec<f32>,
 }
 

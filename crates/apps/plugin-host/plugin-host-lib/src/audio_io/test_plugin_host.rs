@@ -4,6 +4,7 @@ use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+use actix::prelude::*;
 use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
@@ -101,9 +102,9 @@ impl TestPluginHost {
         }
     }
 
-    pub fn start(&mut self) -> Result<(), StartError> {
+    pub fn start_audio(&mut self) -> Result<(), StartError> {
         self.midi_host.start()?;
-        self.audio_thread.start()?;
+        self.audio_thread.start_audio()?;
         Ok(())
     }
 
@@ -346,5 +347,21 @@ impl Drop for TestPluginHost {
             log::warn!("Cleaning-up temporary plug-in file {}", temporary_load_path);
             let _ = std::fs::remove_file(temporary_load_path);
         }
+    }
+}
+
+impl Actor for TestPluginHost {
+    type Context = Context<Self>;
+}
+
+#[derive(Message)]
+#[rtype(result = "Option<SharedProcessor<PluginInstance>>")]
+struct GetPluginInstance;
+
+impl Handler<GetPluginInstance> for TestPluginHost {
+    type Result = Option<SharedProcessor<PluginInstance>>;
+
+    fn handle(&mut self, _msg: GetPluginInstance, _ctx: &mut Self::Context) -> Self::Result {
+        self.vst_plugin_instance.clone()
     }
 }

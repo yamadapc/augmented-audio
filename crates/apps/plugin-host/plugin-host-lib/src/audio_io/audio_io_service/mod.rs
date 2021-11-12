@@ -1,5 +1,6 @@
 use std::sync::{Arc, Mutex};
 
+use actix::prelude::*;
 use cpal::traits::HostTrait;
 use serde::Serialize;
 use thiserror::Error;
@@ -9,6 +10,7 @@ use storage::{AudioIOStorageService, StorageConfig};
 
 use crate::audio_io::audio_io_service::storage::AudioIOStorageServiceError;
 use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId};
+use crate::audio_io::AudioIOServiceError::StorageError;
 use crate::TestPluginHost;
 
 pub mod models;
@@ -35,14 +37,14 @@ pub type AudioIOServiceResult<T> = Result<T, AudioIOServiceError>;
 pub struct AudioIOService {
     host: Arc<Mutex<TestPluginHost>>,
     state: AudioIOState,
-    storage: AudioIOStorageService,
+    storage: Addr<AudioIOStorageService>,
 }
 
 impl AudioIOService {
     pub fn new(host: Arc<Mutex<TestPluginHost>>, storage_config: StorageConfig) -> Self {
         AudioIOService {
             host,
-            storage: AudioIOStorageService::new(storage_config),
+            storage: AudioIOStorageService::new(storage_config).start(),
             state: AudioIOState {
                 host: Self::default_host(),
                 input_device: Self::default_input_device(),
@@ -53,21 +55,27 @@ impl AudioIOService {
 }
 
 impl AudioIOService {
-    pub fn store(&self) -> Result<(), AudioIOStorageServiceError> {
-        self.storage.store(self.state())
+    async fn store(&self) -> Result<(), AudioIOStorageServiceError> {
+        self.storage
+            .send(storage::StoreMessage {
+                state: self.state().clone(),
+            })
+            .await?
     }
 
-    pub fn try_store(&self) {
-        if let Err(err) = self.store() {
+    async fn try_store(&self) {
+        if let Err(err) = self.store().await {
             let err: &dyn std::error::Error = &err;
             log::error!("{}", err);
         }
     }
 
-    pub fn reload(&mut self) -> Result<(), AudioIOServiceError> {
+    pub async fn reload(&mut self) -> Result<(), AudioIOServiceError> {
         let state = self
             .storage
-            .fetch()
+            .send(storage::FetchMessage)
+            .await
+            .map_err(|_| AudioIOServiceError::StorageError)?
             .map_err(|_| AudioIOServiceError::StorageError)?;
         log::info!("Reloaded state {:?}", state);
         self.state = state;
@@ -218,6 +226,22 @@ impl AudioIOService {
             .flatten()
             .unwrap_or_else(|| cpal::default_host().id());
         cpal::host_from_id(host_id).map_err(|_| AudioIOServiceError::HostUnavailableError)
+    }
+}
+
+impl Actor for AudioIOService {
+    type Context = Context<Self>;
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ReloadMessage;
+
+impl Handler<ReloadMessage> for AudioIOService {
+    type Result = ();
+
+    fn handle(&mut self, _msg: ReloadMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.reload();
     }
 }
 

@@ -186,7 +186,7 @@ fn run_initialize_plugin(run_options: &RunOptions, host: &mut TestPluginHost) {
         exit(1);
     }
     log::info!("Initializing audio thread");
-    if let Err(err) = host.start() {
+    if let Err(err) = host.start_audio() {
         log::error!("Failed to start host: {}", err);
         exit(1);
     }

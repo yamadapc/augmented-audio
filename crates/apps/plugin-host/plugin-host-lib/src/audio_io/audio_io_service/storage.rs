@@ -18,6 +18,8 @@ pub enum AudioIOStorageServiceError {
     SerdeError(#[from] serde_json::Error),
     #[error("IO error")]
     IOError(#[from] std::io::Error),
+    #[error("Mailbox error")]
+    MailboxError(#[from] actix::MailboxError),
 }
 
 pub struct AudioIOStorageService {
@@ -53,7 +55,7 @@ pub struct FetchMessage;
 #[derive(Message)]
 #[rtype(result = "Result<(), AudioIOStorageServiceError>")]
 pub struct StoreMessage {
-    state: AudioIOState,
+    pub state: AudioIOState,
 }
 
 #[actix_handler]

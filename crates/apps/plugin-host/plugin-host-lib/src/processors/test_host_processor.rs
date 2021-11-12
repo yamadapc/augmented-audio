@@ -16,8 +16,10 @@ use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::volume_meter_processor::{VolumeMeterProcessor, VolumeMeterProcessorHandle};
 
 pub struct TestHostProcessorHandle {
+    #[allow(unused)]
     plugin_instance: SharedProcessor<PluginInstance>,
     volume: AtomicF32,
+    #[allow(unused)]
     volume_meter_processor_handle: Shared<VolumeMeterProcessorHandle>,
 }
 

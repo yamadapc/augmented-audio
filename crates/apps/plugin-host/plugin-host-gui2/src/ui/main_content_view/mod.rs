@@ -1,12 +1,14 @@
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
+use actix::prelude::*;
 use derivative::Derivative;
 use thiserror::Error;
 
 use augmented::audio::gc::Shared;
 use augmented::gui::iced::{Command, Element, Subscription};
 use plugin_host_lib::{
+    audio_io::audio_io_service,
     audio_io::audio_io_service::storage::StorageConfig,
     audio_io::{AudioHostPluginLoadError, AudioIOService},
     processors::running_rms_processor::RunningRMSProcessorHandle,
@@ -63,7 +65,7 @@ pub struct MainContentView {
     /// Playback buttons
     transport_controls: TransportControlsView,
     /// Holds the plugin GUI window
-    editor_controller: plugin_editor_window::EditorController,
+    editor_controller: plugin_editor_window::EditorController<Arc<Mutex<TestPluginHost>>>,
     volume_meter_state: volume_meter::VolumeMeter,
     status_message: StatusBar,
     start_stop_button_state: view::StartStopViewModel,
@@ -299,7 +301,7 @@ impl MainContentView {
     fn run_on_toggle_playback_command(plugin_host: Arc<Mutex<TestPluginHost>>, should_start: bool) {
         let mut plugin_host = plugin_host.lock().unwrap();
         if should_start {
-            if let Err(err) = plugin_host.start() {
+            if let Err(err) = plugin_host.start_audio() {
                 log::error!("Error starting host: {}", err);
             }
         } else {
@@ -449,7 +451,7 @@ impl Drop for MainContentView {
 }
 
 struct HostContext {
-    audio_io_service: Arc<Mutex<AudioIOService>>,
+    audio_io_service: Addr<AudioIOService>,
     host_options_service: HostOptionsService,
     host_state: HostState,
 }
@@ -471,10 +473,7 @@ fn reload_plugin_host_state(
     let storage_config = StorageConfig {
         audio_io_state_storage_path,
     };
-    let audio_io_service = Arc::new(Mutex::new(AudioIOService::new(
-        plugin_host.clone(),
-        storage_config,
-    )));
+    let audio_io_service = AudioIOService::new(plugin_host.clone(), storage_config).start();
     let host_options_storage_path = home_config_dir
         .join("audio-thread-config.json")
         .to_str()
@@ -488,8 +487,8 @@ fn reload_plugin_host_state(
         let audio_io_service = audio_io_service.clone();
 
         Command::perform(
-            tokio::task::spawn_blocking(move || -> Result<(), AudioHostPluginLoadError> {
-                if let Err(err) = audio_io_service.lock().unwrap().reload() {
+            async move {
+                if let Err(err) = audio_io_service.send(audio_io_service::ReloadMessage).await {
                     log::error!("Failed to reload audio options: {}", err);
                 } else {
                     log::info!("Loaded audio options");
@@ -516,17 +515,13 @@ fn reload_plugin_host_state(
                     host.pause();
                 }
                 Ok(())
-            }),
+            },
             |result| match result {
                 Err(err) => Message::SetStatus(StatusBar::new(
                     format!("Failed to load plugin: {}", err),
                     status_bar::State::Error,
                 )),
-                Ok(Err(err)) => Message::SetStatus(StatusBar::new(
-                    format!("Failed to load plugin: {}", err),
-                    status_bar::State::Error,
-                )),
-                Ok(Ok(_)) => Message::ReadyForPlayback,
+                Ok(_) => Message::ReadyForPlayback,
             },
         )
     };

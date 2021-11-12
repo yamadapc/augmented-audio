@@ -56,7 +56,7 @@ impl AudioThread {
         }
     }
 
-    pub fn start(&mut self) -> Result<(), AudioThreadError> {
+    pub fn start_audio(&mut self) -> Result<(), AudioThreadError> {
         let processor = self.processor.clone();
         let audio_thread_options = self.audio_thread_options.clone();
         let midi_message_queue = self.midi_message_queue.clone();
@@ -78,7 +78,7 @@ impl AudioThread {
         if host_id != self.audio_thread_options.host_id {
             self.audio_thread_options.host_id = host_id;
             self.wait()?;
-            self.start()?;
+            self.start_audio()?;
         }
         Ok(())
     }
@@ -91,7 +91,7 @@ impl AudioThread {
         // if input_device_id != self.audio_thread_options.input_device_id {
         self.audio_thread_options.input_device_id = input_device_id;
         self.wait()?;
-        self.start()?;
+        self.start_audio()?;
         // }
         Ok(())
     }
@@ -104,7 +104,7 @@ impl AudioThread {
         // if output_device_id != self.audio_thread_options.output_device_id {
         self.audio_thread_options.output_device_id = output_device_id;
         self.wait()?;
-        self.start()?;
+        self.start_audio()?;
         // }
         Ok(())
     }
@@ -315,7 +315,7 @@ mod actor {
             use AudioThreadMessage::*;
 
             match msg {
-                Start => self.start(),
+                Start => self.start_audio(),
                 SetHost { host_id } => self.set_host_id(host_id),
                 SetInputDevice { input_device_id } => self.set_input_device_id(input_device_id),
                 SetOutputDevice { output_device_id } => self.set_output_device_id(output_device_id),
@@ -342,7 +342,7 @@ mod actor {
             let gc = GarbageCollector::default();
             let midi_queue = Shared::new(gc.handle(), Queue::new(100));
             let audio_thread =
-                AudioThread::new(gc.handle(), midi_queue, Default::default()).start();
+                AudioThread::new(gc.handle(), midi_queue, Default::default()).start_audio();
 
             audio_thread
                 .send(AudioThreadMessage::Start)
