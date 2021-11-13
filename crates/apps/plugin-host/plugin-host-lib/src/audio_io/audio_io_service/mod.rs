@@ -44,7 +44,9 @@ impl AudioIOService {
     pub fn new(audio_thread: Addr<AudioThread>, storage_config: StorageConfig) -> Self {
         AudioIOService {
             audio_thread,
-            storage: AudioIOStorageService::new(storage_config).start(),
+            storage: SyncArbiter::start(1, move || {
+                AudioIOStorageService::new(storage_config.clone())
+            }),
             state: AudioIOState {
                 host: Self::default_host(),
                 input_device: Self::default_input_device(),

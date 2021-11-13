@@ -281,12 +281,12 @@ fn input_stream_callback(producer: &mut ringbuf::Producer<f32>, data: &[f32]) {
 }
 
 pub mod actor {
-    use actix::{Actor, Context, Handler, Message};
+    use actix::{Actor, Handler, Message, SyncContext};
 
     use super::*;
 
     impl Actor for AudioThread {
-        type Context = Context<Self>;
+        type Context = SyncContext<Self>;
     }
 
     #[derive(Message)]

@@ -1,7 +1,4 @@
-use actix::Actor;
-use actix::Context;
-use actix::Message;
-use actix_handler_macro::actix_handler;
+use actix::{Actor, Handler, Message, SyncContext};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -45,7 +42,7 @@ impl AudioIOStorageService {
 }
 
 impl Actor for AudioIOStorageService {
-    type Context = Context<Self>;
+    type Context = SyncContext<Self>;
 }
 
 #[derive(Message)]
@@ -58,22 +55,19 @@ pub struct StoreMessage {
     pub state: AudioIOState,
 }
 
-#[actix_handler]
-impl AudioIOStorageService {
-    fn handle_fetch(
-        &self,
-        _message: FetchMessage,
-        _ctx: &mut Context<Self>,
-    ) -> Result<AudioIOState, AudioIOStorageServiceError> {
+impl Handler<FetchMessage> for AudioIOStorageService {
+    type Result = Result<AudioIOState, AudioIOStorageServiceError>;
+
+    fn handle(&mut self, _msg: FetchMessage, _ctx: &mut Self::Context) -> Self::Result {
         self.fetch()
     }
+}
 
-    fn handle_store(
-        &self,
-        message: StoreMessage,
-        _ctx: &mut Context<Self>,
-    ) -> Result<(), AudioIOStorageServiceError> {
-        self.store(&message.state)
+impl Handler<StoreMessage> for AudioIOStorageService {
+    type Result = Result<(), AudioIOStorageServiceError>;
+
+    fn handle(&mut self, msg: StoreMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.store(&msg.state)
     }
 }
 

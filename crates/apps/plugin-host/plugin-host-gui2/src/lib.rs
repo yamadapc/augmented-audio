@@ -51,7 +51,6 @@ impl Application for App {
                 TestPluginHost::new(audio_settings, audio_thread_options, true)
             })
         };
-        let start_result = Ok(());
         let start_result = plugin_host.start_audio().map_err(|err| {
             log::error!("Failed to start host: {:?}", err);
             err
@@ -59,6 +58,7 @@ impl Application for App {
         let (main_content_view, command) =
             main_content_view::MainContentView::new(plugin_host, &actor_system_thread);
 
+        log::info!("plugin-host-gui2: Start-up is complete");
         (
             App {
                 main_content_view,

@@ -44,8 +44,9 @@ enum ReloadPluginError {
     Join(#[from] tokio::task::JoinError),
     #[error(transparent)]
     PluginLoad(#[from] AudioHostPluginLoadError),
-    #[error("No plugin loaded, configure the plugin path")]
-    MissingHost,
+    // TODO - This error is swallowed in TestHost
+    // #[error("No plugin loaded, configure the plugin path")]
+    // MissingHost,
 }
 
 pub struct MainContentView {

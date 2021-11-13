@@ -26,12 +26,22 @@ impl ActorSystemThread {
 
     fn with_new_system() -> Self {
         let (tx, rx) = channel();
-        std::thread::spawn(move || {
-            let system = actix::System::new();
-            let arbiter_handle = Arbiter::current();
-            let _ = tx.send(arbiter_handle);
-            system.run()
-        });
+        std::thread::Builder::new()
+            .name("actor-system".into())
+            .spawn(move || {
+                let system = actix::System::with_tokio_rt(|| {
+                    tokio::runtime::Builder::new_multi_thread()
+                        .thread_name("actor-system-tokio-worker")
+                        .enable_io()
+                        .enable_time()
+                        .build()
+                        .unwrap()
+                });
+                let arbiter_handle = Arbiter::current();
+                let _ = tx.send(arbiter_handle);
+                system.run()
+            })
+            .unwrap();
         let arbiter_handle = rx.recv().unwrap();
 
         Self { arbiter_handle }

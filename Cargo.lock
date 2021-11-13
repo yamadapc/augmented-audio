@@ -417,13 +417,14 @@ dependencies = [
 name = "audio-processor-standalone-midi"
 version = "0.1.1"
 dependencies = [
- "atomic-queue",
- "audio-processor-traits",
- "basedrop",
- "log",
- "midir",
- "thiserror",
- "vst",
+    "actix",
+    "atomic-queue",
+    "audio-processor-traits",
+    "basedrop",
+    "log",
+    "midir",
+    "thiserror",
+    "vst",
 ]
 
 [[package]]
@@ -4610,19 +4611,20 @@ dependencies = [
  "midir",
  "notify",
  "num-traits 0.2.14",
- "oscillator",
- "rayon",
- "rimd",
- "ringbuf",
- "serde",
- "serde_json",
- "symphonia",
- "symphonia-bundle-mp3",
- "tao",
- "thiserror",
- "uuid",
- "vst",
- "wisual-logger",
+    "oscillator",
+    "rayon",
+    "rimd",
+    "ringbuf",
+    "serde",
+    "serde_json",
+    "symphonia",
+    "symphonia-bundle-mp3",
+    "tao",
+    "thiserror",
+    "tokio",
+    "uuid",
+    "vst",
+    "wisual-logger",
 ]
 
 [[package]]

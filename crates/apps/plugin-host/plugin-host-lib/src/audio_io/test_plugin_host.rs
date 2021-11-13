@@ -5,11 +5,13 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use actix::prelude::*;
+use atomic_queue::Queue;
 use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
 
 use audio_garbage_collector::{GarbageCollector, GarbageCollectorError, Shared};
+use audio_processor_standalone_midi::constants::MIDI_BUFFER_CAPACITY;
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 
@@ -60,7 +62,7 @@ pub struct TestPluginHost {
     plugin_file_path: Option<PathBuf>,
     vst_plugin_instance: Option<SharedProcessor<PluginInstance>>,
     processor: Option<SharedProcessor<AudioThreadProcessor>>,
-    midi_host: MidiHost,
+    midi_host: Addr<MidiHost>,
     garbage_collector: GarbageCollector,
     mono_input: Option<usize>,
     temporary_load_path: Option<String>,
@@ -82,14 +84,22 @@ impl TestPluginHost {
         start_paused: bool,
     ) -> Self {
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
-        let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
 
-        let audio_thread = AudioThread::new(
-            garbage_collector.handle(),
-            midi_host.messages().clone(),
-            audio_thread_options,
-        )
-        .start();
+        let midi_queue = Shared::new(garbage_collector.handle(), Queue::new(MIDI_BUFFER_CAPACITY));
+        let audio_thread = {
+            let midi_queue = midi_queue.clone();
+            let handle = garbage_collector.handle().clone();
+            SyncArbiter::start(1, move || {
+                AudioThread::new(&handle, midi_queue.clone(), audio_thread_options.clone())
+            })
+        };
+        let midi_host = {
+            let midi_queue = midi_queue.clone();
+            let handle = garbage_collector.handle().clone();
+            SyncArbiter::start(1, move || {
+                MidiHost::default_with_queue(&handle, midi_queue.clone())
+            })
+        };
 
         TestPluginHost {
             audio_thread,
@@ -111,8 +121,9 @@ impl TestPluginHost {
     }
 
     pub fn start_audio(&mut self) -> Result<(), StartError> {
-        self.midi_host.start()?;
         // TODO - handle errors
+        self.midi_host
+            .do_send(audio_processor_standalone_midi::host::StartMessage);
         self.audio_thread
             .do_send(audio_thread::actor::AudioThreadMessage::Start);
         Ok(())
