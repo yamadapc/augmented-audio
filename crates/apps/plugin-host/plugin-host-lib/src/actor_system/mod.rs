@@ -3,8 +3,8 @@ use std::sync::mpsc::channel;
 
 use actix::prelude::*;
 
+#[derive(Debug, Clone)]
 pub struct ActorSystemThread {
-    thread_handle: Option<std::thread::JoinHandle<std::io::Result<()>>>,
     arbiter_handle: ArbiterHandle,
 }
 
@@ -17,7 +17,7 @@ impl Default for ActorSystemThread {
 impl ActorSystemThread {
     pub fn with_new_system() -> Self {
         let (tx, rx) = channel();
-        let thread_handle = std::thread::spawn(move || {
+        std::thread::spawn(move || {
             let system = actix::System::new();
             let arbiter_handle = Arbiter::current();
             let _ = tx.send(arbiter_handle);
@@ -25,10 +25,7 @@ impl ActorSystemThread {
         });
         let arbiter_handle = rx.recv().unwrap();
 
-        Self {
-            thread_handle: Some(thread_handle),
-            arbiter_handle,
-        }
+        Self { arbiter_handle }
     }
 
     #[allow(unused)]

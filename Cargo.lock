@@ -4527,6 +4527,7 @@ dependencies = [
 name = "plugin-host"
 version = "0.1.0"
 dependencies = [
+ "actix",
  "clap 2.33.3",
  "plugin-host-lib",
  "wisual-logger",

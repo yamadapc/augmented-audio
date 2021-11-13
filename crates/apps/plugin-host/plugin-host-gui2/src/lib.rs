@@ -2,15 +2,14 @@ use std::time::Duration;
 
 use derive_more::From;
 
-use crate::actor_system::ActorSystemThread;
 use audio_processor_iced_design_system as design_system;
 use augmented::gui::iced::{Application, Command, Container, Element, Length, Subscription};
+use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_thread::options::AudioThreadOptions;
 use plugin_host_lib::audio_io::audio_thread::AudioThread;
 use plugin_host_lib::TestPluginHost;
 use ui::main_content_view;
 
-mod actor_system;
 pub mod executor;
 mod ops;
 pub mod services;

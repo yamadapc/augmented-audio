@@ -349,3 +349,32 @@ impl Handler<GetPluginInstanceMessage> for TestPluginHost {
         self.vst_plugin_instance.clone()
     }
 }
+
+#[derive(Message)]
+#[rtype(result = "Result<(), AudioHostPluginLoadError>")]
+pub struct LoadPluginMessage {
+    pub plugin_path: PathBuf,
+}
+
+impl Handler<LoadPluginMessage> for TestPluginHost {
+    type Result = Result<(), AudioHostPluginLoadError>;
+
+    fn handle(&mut self, msg: LoadPluginMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.load_plugin(&msg.plugin_path)
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct WaitMessage;
+
+impl Handler<WaitMessage> for TestPluginHost {
+    type Result = ();
+
+    fn handle(&mut self, _msg: WaitMessage, _ctx: &mut Self::Context) -> Self::Result {
+        match self.wait() {
+            Ok(_) => log::info!("Plugin host stopped"),
+            Err(err) => log::error!("Failed to stop: {}", err),
+        }
+    }
+}
