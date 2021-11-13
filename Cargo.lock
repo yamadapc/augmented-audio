@@ -1679,6 +1679,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "demo_plugin"
+version = "0.0.1"
+dependencies = [
+ "augmented",
+ "log",
+]
+
+[[package]]
 name = "derivative"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

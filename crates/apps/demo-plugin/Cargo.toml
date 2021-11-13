@@ -1,0 +1,13 @@
+[package]
+name = "demo_plugin"
+version = "0.0.1"
+authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+augmented = { path = "../../augmented/augmented" }
+log = "^0.4.11"
+
+[lib]
+name = "demo_plugin"
+crate-type = ["cdylib"]
