@@ -1,7 +1,12 @@
+use lazy_static::lazy_static;
 use std::future::Future;
 use std::sync::mpsc::channel;
 
 use actix::prelude::*;
+
+lazy_static! {
+    static ref THREAD: ActorSystemThread = ActorSystemThread::with_new_system();
+}
 
 #[derive(Debug, Clone)]
 pub struct ActorSystemThread {
@@ -10,12 +15,16 @@ pub struct ActorSystemThread {
 
 impl Default for ActorSystemThread {
     fn default() -> Self {
-        Self::with_new_system()
+        THREAD.clone()
     }
 }
 
 impl ActorSystemThread {
-    pub fn with_new_system() -> Self {
+    pub fn current() -> Self {
+        THREAD.clone()
+    }
+
+    fn with_new_system() -> Self {
         let (tx, rx) = channel();
         std::thread::spawn(move || {
             let system = actix::System::new();

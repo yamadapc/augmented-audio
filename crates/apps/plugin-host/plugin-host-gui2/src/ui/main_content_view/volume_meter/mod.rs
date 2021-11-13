@@ -1,5 +1,4 @@
-use std::sync::Arc;
-use std::sync::Mutex;
+use std::cell::RefCell;
 
 use iced::canvas::event::Status;
 use iced::canvas::{Cache, Cursor, Event, Frame, Geometry, Program, Stroke};
@@ -11,9 +10,9 @@ use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_volume::{Amplitude, Decibels};
+use plugin_host_lib::audio_io::processor_handle_registry::ProcessorHandleRegistry;
+use plugin_host_lib::processors::test_host_processor::TestHostProcessorHandle;
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;
-use plugin_host_lib::TestPluginHost;
-use std::cell::RefCell;
 
 #[derive(Default, Clone, Copy, Debug, PartialEq, PartialOrd)]
 pub struct VolumeInfo {
@@ -111,17 +110,18 @@ impl VolumeMeter {
     }
 }
 
-pub fn update(message: Message, plugin_host: Arc<Mutex<TestPluginHost>>) -> Command<Message> {
+pub fn update(message: Message) -> Command<Message> {
     match message {
-        Message::VolumeChange { value: delta } => Command::perform(
-            async move {
-                let mut plugin_host = plugin_host.lock().unwrap();
-                let volume = delta.as_amplitude(1.0);
-                log::trace!("Setting volume: {}", volume);
-                plugin_host.set_volume(volume);
-            },
-            |_| Message::None,
-        ),
+        Message::VolumeChange { value: delta } => {
+            let volume = delta.as_amplitude(1.0);
+            let test_host_processor: Shared<TestHostProcessorHandle> =
+                ProcessorHandleRegistry::current()
+                    .get("test-host-processor")
+                    .unwrap();
+            test_host_processor.set_volume(volume);
+
+            Command::none()
+        }
         _ => Command::none(),
     }
 }

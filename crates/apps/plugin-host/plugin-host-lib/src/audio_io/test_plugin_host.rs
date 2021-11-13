@@ -365,6 +365,30 @@ impl Handler<LoadPluginMessage> for TestPluginHost {
 }
 
 #[derive(Message)]
+#[rtype(result = "Addr<AudioThread>")]
+pub struct GetAudioThreadMessage;
+
+impl Handler<GetAudioThreadMessage> for TestPluginHost {
+    type Result = Addr<AudioThread>;
+
+    fn handle(&mut self, _msg: GetAudioThreadMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.audio_thread.clone()
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<(), AudioHostPluginLoadError>")]
+pub struct SetAudioFilePathMessage(pub PathBuf);
+
+impl Handler<SetAudioFilePathMessage> for TestPluginHost {
+    type Result = Result<(), AudioHostPluginLoadError>;
+
+    fn handle(&mut self, msg: SetAudioFilePathMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.set_audio_file_path(msg.0)
+    }
+}
+
+#[derive(Message)]
 #[rtype(result = "()")]
 pub struct WaitMessage;
 
@@ -376,5 +400,44 @@ impl Handler<WaitMessage> for TestPluginHost {
             Ok(_) => log::info!("Plugin host stopped"),
             Err(err) => log::error!("Failed to stop: {}", err),
         }
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct StartMessage;
+
+impl Handler<StartMessage> for TestPluginHost {
+    type Result = ();
+
+    fn handle(&mut self, _msg: StartMessage, _ctx: &mut Self::Context) -> Self::Result {
+        let _ = self.start_audio(); // todo - log error
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct StopMessage;
+
+impl Handler<StopMessage> for TestPluginHost {
+    type Result = ();
+
+    fn handle(&mut self, _msg: StopMessage, _ctx: &mut Self::Context) -> Self::Result {
+        let _ = self.stop(); // todo - log error
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<(), AudioHostPluginLoadError>")]
+pub struct ReloadPluginMessage;
+
+impl Handler<ReloadPluginMessage> for TestPluginHost {
+    type Result = Result<(), AudioHostPluginLoadError>;
+
+    fn handle(&mut self, _msg: ReloadPluginMessage, _ctx: &mut Self::Context) -> Self::Result {
+        if let Some(plugin_file_path) = self.plugin_file_path().clone() {
+            self.load_plugin(&plugin_file_path)?;
+        }
+        Ok(())
     }
 }

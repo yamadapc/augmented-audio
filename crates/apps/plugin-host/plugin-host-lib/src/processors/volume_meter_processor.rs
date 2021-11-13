@@ -1,5 +1,6 @@
 use vst::util::AtomicFloat;
 
+use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 use circular_data_structures::CircularVec;
@@ -26,17 +27,19 @@ pub struct VolumeMeterProcessor {
 }
 
 impl VolumeMeterProcessor {
-    pub fn new(handle: &Handle) -> Self {
+    pub fn new(gc_handle: &Handle) -> Self {
+        let handle = Shared::new(
+            gc_handle,
+            VolumeMeterProcessorHandle {
+                volume_left: AtomicFloat::new(0.0),
+                volume_right: AtomicFloat::new(0.0),
+                peak_left: AtomicFloat::new(0.0),
+                peak_right: AtomicFloat::new(0.0),
+            },
+        );
+        ProcessorHandleRegistry::current().register("volume-processor", handle.clone());
         VolumeMeterProcessor {
-            handle: Shared::new(
-                handle,
-                VolumeMeterProcessorHandle {
-                    volume_left: AtomicFloat::new(0.0),
-                    volume_right: AtomicFloat::new(0.0),
-                    peak_left: AtomicFloat::new(0.0),
-                    peak_right: AtomicFloat::new(0.0),
-                },
-            ),
+            handle,
             current_index: 0,
             buffer_duration: Duration::from_millis(50),
             buffer_duration_samples: 512 * 4,

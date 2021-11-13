@@ -1,5 +1,4 @@
-use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
+use std::path::PathBuf;
 
 use actix::prelude::*;
 use derivative::Derivative;
@@ -7,8 +6,12 @@ use thiserror::Error;
 
 use augmented::audio::gc::Shared;
 use augmented::gui::iced::{Command, Element, Subscription};
+use plugin_host_lib::audio_io::{
+    LoadPluginMessage, ReloadPluginMessage, SetAudioFilePathMessage, StartMessage, StopMessage,
+};
 use plugin_host_lib::{
     actor_system::ActorSystemThread,
+    audio_io,
     audio_io::audio_io_service,
     audio_io::audio_io_service::storage::StorageConfig,
     audio_io::processor_handle_registry::ProcessorHandleRegistry,
@@ -46,7 +49,7 @@ enum ReloadPluginError {
 }
 
 pub struct MainContentView {
-    plugin_host: Arc<Mutex<TestPluginHost>>,
+    plugin_host: Addr<TestPluginHost>,
     host_state: HostState,
     /// Volume processor handle
     /// This should not be optional & it might break if the host restarts processors for some reason
@@ -68,7 +71,7 @@ pub struct MainContentView {
     /// Playback buttons
     transport_controls: TransportControlsView,
     /// Holds the plugin GUI window
-    editor_controller: plugin_editor_window::EditorController<Arc<Mutex<TestPluginHost>>>,
+    editor_controller: plugin_editor_window::EditorController<Addr<TestPluginHost>>,
     volume_meter_state: volume_meter::VolumeMeter,
     status_message: StatusBar,
     start_stop_button_state: view::StartStopViewModel,
@@ -95,7 +98,7 @@ impl MainContentView {
         plugin_host: TestPluginHost,
         actor_system_thread: &ActorSystemThread,
     ) -> (Self, Command<Message>) {
-        let plugin_host = Arc::new(Mutex::new(plugin_host));
+        let plugin_host = actor_system_thread.spawn_result(async move { plugin_host.start() });
         let (
             HostContext {
                 audio_io_service,
@@ -266,7 +269,7 @@ impl MainContentView {
     }
 
     fn update_volume_meter(&mut self, message: volume_meter::Message) -> Command<Message> {
-        volume_meter::update(message, self.plugin_host.clone()).map(Message::VolumeMeter)
+        volume_meter::update(message).map(Message::VolumeMeter)
     }
 
     fn update_start_stop_button_clicked(&mut self) -> Command<Message> {
@@ -308,14 +311,11 @@ impl MainContentView {
             .map(Message::AudioIOSettings)
     }
 
-    fn run_on_toggle_playback_command(plugin_host: Arc<Mutex<TestPluginHost>>, should_start: bool) {
-        let mut plugin_host = plugin_host.lock().unwrap();
+    fn run_on_toggle_playback_command(plugin_host: Addr<TestPluginHost>, should_start: bool) {
         if should_start {
-            if let Err(err) = plugin_host.start_audio() {
-                log::error!("Error starting host: {}", err);
-            }
+            plugin_host.do_send(StartMessage);
         } else {
-            plugin_host.stop();
+            plugin_host.do_send(StopMessage);
         }
     }
 }
@@ -324,16 +324,14 @@ impl MainContentView {
 impl MainContentView {
     fn poll_for_host_handles(&mut self) {
         if self.volume_handle.is_none() {
-            if let Ok(Some(volume_handle)) = self.plugin_host.try_lock().map(|h| h.volume_handle())
+            if let Some(volume_handle) = ProcessorHandleRegistry::current().get("volume-processor")
             {
                 self.volume_handle = Some(volume_handle);
             }
         }
         if self.rms_processor_handle.is_none() {
-            if let Ok(Some(buffer)) = self
-                .plugin_host
-                .try_lock()
-                .map(|h| h.rms_processor_handle())
+            if let Some(buffer) =
+                ProcessorHandleRegistry::current().get::<RunningRMSProcessorHandle>("rms-processor")
             {
                 self.rms_processor_handle = Some(buffer.clone());
                 self.audio_chart = Some(audio_chart::AudioChart::new(buffer));
@@ -364,12 +362,11 @@ impl MainContentView {
     }
 
     async fn handle_set_input_file_path(
-        plugin_host: Arc<Mutex<TestPluginHost>>,
+        plugin_host: Addr<TestPluginHost>,
         input_file: String,
     ) -> Result<String, Box<dyn std::error::Error>> {
         let path = PathBuf::from(&input_file);
-        tokio::task::spawn_blocking(move || plugin_host.lock().unwrap().set_audio_file_path(path))
-            .await??;
+        plugin_host.send(SetAudioFilePathMessage(path)).await??;
         Ok(input_file)
     }
 
@@ -390,22 +387,7 @@ impl MainContentView {
         let did_close = self.editor_controller.on_reload();
 
         let host = self.plugin_host.clone();
-        let load_future = async move {
-            let result = tokio::task::spawn_blocking(move || {
-                let mut host = host.lock().unwrap();
-                let plugin_file_path = host
-                    .plugin_file_path()
-                    .clone()
-                    .ok_or(ReloadPluginError::MissingHost)?;
-                host.load_plugin(&plugin_file_path)?;
-                Ok(())
-            })
-            .await;
-            match result {
-                Ok(result) => result,
-                Err(err) => Err(ReloadPluginError::Join(err)),
-            }
-        };
+        let load_future = host.send(ReloadPluginMessage);
 
         Command::perform(load_future, move |result| match result {
             Err(err) => Message::ReloadedPlugin(
@@ -437,9 +419,8 @@ impl MainContentView {
 
         let host = self.plugin_host.clone();
         Command::perform(
-            tokio::task::spawn_blocking(move || {
-                let path = Path::new(&path);
-                host.lock().unwrap().load_plugin(path)
+            host.send(LoadPluginMessage {
+                plugin_path: path.into(),
             }),
             |result| match result {
                 Err(err) => Message::SetStatus(StatusBar::new(
@@ -468,7 +449,7 @@ struct HostContext {
 
 /// Load plugin-host state from JSON files when it starts. Do file decoding on a background thread.
 fn reload_plugin_host_state(
-    plugin_host: Arc<Mutex<TestPluginHost>>,
+    plugin_host: Addr<TestPluginHost>,
     actor_system_thread: &ActorSystemThread,
 ) -> (HostContext, Command<Message>) {
     log::info!("Reloading plugin-host settings from disk");
@@ -487,7 +468,10 @@ fn reload_plugin_host_state(
     let audio_io_service = {
         let plugin_host = plugin_host.clone();
         actor_system_thread.spawn_result(async move {
-            let audio_thread = plugin_host.lock().unwrap().audio_thread();
+            let audio_thread = plugin_host
+                .send(audio_io::GetAudioThreadMessage)
+                .await
+                .unwrap();
             AudioIOService::new(audio_thread, storage_config).start()
         })
     };
@@ -514,9 +498,9 @@ fn reload_plugin_host_state(
                 log::info!("Reloading audio plugin & file in background thread");
                 if let Some(path) = &host_state.audio_input_file_path {
                     plugin_host
-                        .lock()
+                        .send(SetAudioFilePathMessage(path.into()))
+                        .await
                         .unwrap()
-                        .set_audio_file_path(path.into())
                         .map_err(|err| {
                             log::error!("Failed to set audio input {:?}", err);
                             err
@@ -524,12 +508,22 @@ fn reload_plugin_host_state(
                 }
 
                 if let Some(path) = &host_state.plugin_path {
-                    let mut host = plugin_host.lock().unwrap();
-                    host.load_plugin(Path::new(path)).map_err(|err| {
-                        log::error!("Failed to set audio input {:?}", err);
-                        err
-                    })?;
-                    host.pause();
+                    plugin_host
+                        .send(LoadPluginMessage {
+                            plugin_path: path.into(),
+                        })
+                        .await
+                        .unwrap()
+                        .map_err(|err| {
+                            log::error!("Failed to set audio input {:?}", err);
+                            err
+                        })?;
+
+                    let audio_file: Shared<AudioFileProcessorHandle> =
+                        ProcessorHandleRegistry::current()
+                            .get("audio-file")
+                            .unwrap();
+                    audio_file.stop();
                 }
                 Ok(())
             },

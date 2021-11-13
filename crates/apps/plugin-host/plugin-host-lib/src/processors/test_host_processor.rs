@@ -10,6 +10,7 @@ use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
+use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::processors::running_rms_processor::{RunningRMSProcessor, RunningRMSProcessorHandle};
 use crate::processors::shared_processor::SharedProcessor;
@@ -21,6 +22,12 @@ pub struct TestHostProcessorHandle {
     volume: AtomicF32,
     #[allow(unused)]
     volume_meter_processor_handle: Shared<VolumeMeterProcessorHandle>,
+}
+
+impl TestHostProcessorHandle {
+    pub fn set_volume(&self, volume: f32) {
+        self.volume.set(volume);
+    }
 }
 
 /// The app's main processor
@@ -54,15 +61,26 @@ impl TestHostProcessor {
             AudioProcessorSettings::new(sample_rate, channels, channels, buffer_size);
         let volume_meter_processor = VolumeMeterProcessor::new(handle);
 
-        let host_processor_handle = TestHostProcessorHandle {
-            plugin_instance: plugin_instance.clone(),
-            volume: AtomicF32::new(1.0),
-            volume_meter_processor_handle: volume_meter_processor.handle().clone(),
-        };
+        let host_processor_handle = Shared::new(
+            handle,
+            TestHostProcessorHandle {
+                plugin_instance: plugin_instance.clone(),
+                volume: AtomicF32::new(1.0),
+                volume_meter_processor_handle: volume_meter_processor.handle().clone(),
+            },
+        );
+
+        ProcessorHandleRegistry::current()
+            .register("test-host-processor", host_processor_handle.clone());
+
+        let running_rms_processor =
+            RunningRMSProcessor::new_with_duration(handle, Duration::from_millis(300));
+        ProcessorHandleRegistry::current()
+            .register("rms-processor", running_rms_processor.handle().clone());
 
         TestHostProcessor {
             id: uuid::Uuid::new_v4().to_string(),
-            handle: Shared::new(handle, host_processor_handle),
+            handle: host_processor_handle,
             plugin_instance,
             audio_settings,
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
@@ -70,10 +88,7 @@ impl TestHostProcessor {
                 AudioFileProcessor::new(handle, audio_file_settings, audio_settings)
             }),
             volume_meter_processor,
-            running_rms_processor: RunningRMSProcessor::new_with_duration(
-                handle,
-                Duration::from_millis(300),
-            ),
+            running_rms_processor,
             midi_converter: MidiVSTConverter::default(),
             mono_input,
         }
@@ -130,7 +145,7 @@ impl TestHostProcessor {
     }
 
     pub fn set_volume(&self, volume: f32) {
-        self.handle.volume.set(volume);
+        self.handle.set_volume(volume);
     }
 }
 

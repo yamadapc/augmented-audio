@@ -1,11 +1,14 @@
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 
+use actix::Addr;
 use iced::Rectangle;
 use vst::editor::Editor;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use plugin_host_lib::actor_system::ActorSystemThread;
+use plugin_host_lib::audio_io::GetPluginInstanceMessage;
 use plugin_host_lib::processors::shared_processor::SharedProcessor;
 use plugin_host_lib::TestPluginHost;
 
@@ -18,6 +21,14 @@ pub trait IEditorPluginInstanceProvider {
 impl IEditorPluginInstanceProvider for Arc<Mutex<TestPluginHost>> {
     fn plugin_instance(&self) -> Option<SharedProcessor<PluginInstance>> {
         self.lock().unwrap().plugin_instance()
+    }
+}
+
+impl IEditorPluginInstanceProvider for Addr<TestPluginHost> {
+    fn plugin_instance(&self) -> Option<SharedProcessor<PluginInstance>> {
+        let addr = self.clone();
+        ActorSystemThread::current()
+            .spawn_result(async move { addr.send(GetPluginInstanceMessage).await.unwrap() })
     }
 }
 

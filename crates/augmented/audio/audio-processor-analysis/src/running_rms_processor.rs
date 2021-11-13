@@ -38,7 +38,12 @@ impl RunningRMSProcessorHandle {
 
     /// Calculate the RMS of the current window based on its running sum and size
     pub fn calculate_rms(&self, channel: usize) -> f32 {
-        let sum = self.running_sums.get()[channel].get().max(0.0);
+        let running_sums = self.running_sums.get();
+        if channel >= running_sums.len() {
+            return 0.0;
+        }
+
+        let sum = running_sums[channel].get().max(0.0);
         (sum / self.window.get().num_samples() as f32).sqrt()
     }
 }
@@ -60,8 +65,10 @@ impl RunningRMSProcessor {
     /// Create a `RunningRMSProcessor` which will calculate RMS based on a certain `duration` of
     /// samples.
     pub fn new_with_duration(gc_handle: &Handle, duration: Duration) -> Self {
+        let handle = Shared::new(gc_handle, RunningRMSProcessorHandle::new(gc_handle));
+
         RunningRMSProcessor {
-            handle: Shared::new(gc_handle, RunningRMSProcessorHandle::new(gc_handle)),
+            handle,
             duration_samples: 0,
             duration,
             gc_handle: gc_handle.clone(),

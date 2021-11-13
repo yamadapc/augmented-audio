@@ -42,7 +42,7 @@ impl Application for App {
             version
         );
 
-        let actor_system_thread = ActorSystemThread::default();
+        let actor_system_thread = ActorSystemThread::current();
 
         let mut plugin_host = {
             let audio_settings = AudioThread::default_settings().unwrap();
@@ -51,6 +51,7 @@ impl Application for App {
                 TestPluginHost::new(audio_settings, audio_thread_options, true)
             })
         };
+        let start_result = Ok(());
         let start_result = plugin_host.start_audio().map_err(|err| {
             log::error!("Failed to start host: {:?}", err);
             err
