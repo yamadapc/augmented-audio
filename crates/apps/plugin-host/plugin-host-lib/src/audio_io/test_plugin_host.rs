@@ -108,27 +108,6 @@ impl TestPluginHost {
         Ok(())
     }
 
-    fn set_host_id(&mut self, host_id: AudioHostId) -> Result<(), AudioThreadError> {
-        self.audio_thread.set_host_id(host_id)?;
-        Ok(())
-    }
-
-    fn set_input_device_id(
-        &mut self,
-        input_device_id: Option<AudioDeviceId>,
-    ) -> Result<(), AudioThreadError> {
-        self.audio_thread.set_input_device_id(input_device_id)?;
-        Ok(())
-    }
-
-    fn set_output_device_id(
-        &mut self,
-        output_device_id: AudioDeviceId,
-    ) -> Result<(), AudioThreadError> {
-        self.audio_thread.set_output_device_id(output_device_id)?;
-        Ok(())
-    }
-
     pub fn set_audio_file_path(&mut self, path: PathBuf) -> Result<(), AudioHostPluginLoadError> {
         self.audio_file_path = Some(path);
         if let Some(path) = self.plugin_file_path.clone() {
