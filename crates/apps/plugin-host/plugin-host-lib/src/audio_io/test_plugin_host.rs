@@ -10,6 +10,7 @@ use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
 
+use crate::actor_system::ActorSystemThread;
 use audio_garbage_collector::{GarbageCollector, GarbageCollectorError, Shared};
 use audio_processor_standalone_midi::constants::MIDI_BUFFER_CAPACITY;
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
@@ -85,21 +86,13 @@ impl TestPluginHost {
     ) -> Self {
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
 
-        let midi_queue = Shared::new(garbage_collector.handle(), Queue::new(MIDI_BUFFER_CAPACITY));
-        let audio_thread = {
-            let midi_queue = midi_queue.clone();
-            let handle = garbage_collector.handle().clone();
-            SyncArbiter::start(1, move || {
-                AudioThread::new(&handle, midi_queue.clone(), audio_thread_options.clone())
-            })
-        };
-        let midi_host = {
-            let midi_queue = midi_queue.clone();
-            let handle = garbage_collector.handle().clone();
-            SyncArbiter::start(1, move || {
-                MidiHost::default_with_queue(&handle, midi_queue.clone())
-            })
-        };
+        let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
+        let audio_thread = ActorSystemThread::start(AudioThread::new(
+            garbage_collector.handle(),
+            midi_host.messages().clone(),
+            audio_thread_options,
+        ));
+        let midi_host = ActorSystemThread::start(midi_host);
 
         TestPluginHost {
             audio_thread,

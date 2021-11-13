@@ -44,7 +44,7 @@ pub fn run_test(run_options: RunOptions) {
         return;
     }
 
-    let actor_system_thread = ActorSystemThread::default();
+    let actor_system_thread = ActorSystemThread::current();
 
     let (audio_settings, audio_thread_options) = get_audio_options(&run_options);
     let mut host = actor_system_thread.spawn_result(async move {

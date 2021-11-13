@@ -1,7 +1,6 @@
 use std::ops::Deref;
-use std::sync::{Arc, Mutex};
 
-use actix::{Actor, Handler, Message, SyncContext};
+use actix::{Actor, Context, Handler, Message};
 use basedrop::{Handle, Owned, Shared};
 use midir::{MidiInput, MidiInputConnection};
 use thiserror::Error;
@@ -17,7 +16,7 @@ use crate::constants::MIDI_BUFFER_CAPACITY;
 /// The host will close all MIDI connections on drop.
 pub struct MidiHost {
     handle: Handle,
-    connections: Arc<Mutex<Vec<MidiInputConnection<MidiCallbackContext>>>>,
+    connections: Vec<MidiInputConnection<MidiCallbackContext>>,
     current_messages: MidiMessageQueue,
 }
 
@@ -26,7 +25,7 @@ impl MidiHost {
     pub fn new(handle: &Handle, capacity: usize) -> Self {
         Self {
             handle: handle.clone(),
-            connections: Arc::new(Mutex::new(Vec::new())),
+            connections: Vec::new(),
             current_messages: Shared::new(handle, Queue::new(capacity)),
         }
     }
@@ -40,7 +39,7 @@ impl MidiHost {
     pub fn default_with_queue(handle: &Handle, queue: MidiMessageQueue) -> Self {
         Self {
             handle: handle.clone(),
-            connections: Arc::new(Mutex::new(Vec::new())),
+            connections: Vec::new(),
             current_messages: queue,
         }
     }
@@ -54,7 +53,6 @@ impl MidiHost {
     pub fn start_midi(&mut self) -> Result<(), MidiError> {
         log::info!("Creating MIDI input `plugin-host`");
         let input = midir::MidiInput::new("plugin-host")?;
-        let mut connections = self.connections.lock().unwrap();
 
         for port in &input.ports() {
             let input = midir::MidiInput::new("plugin-host")?;
@@ -65,7 +63,7 @@ impl MidiHost {
                 midi_callback,
                 MidiCallbackContext::new(self.handle.clone(), self.current_messages.clone()),
             )?;
-            connections.push(connection);
+            self.connections.push(connection);
         }
 
         Ok(())
@@ -75,15 +73,14 @@ impl MidiHost {
 impl Drop for MidiHost {
     fn drop(&mut self) {
         log::info!("Closing MIDI connections");
-        let mut connections = self.connections.lock().unwrap();
-        while let Some(connection) = connections.pop() {
+        while let Some(connection) = self.connections.pop() {
             connection.close();
         }
     }
 }
 
 impl Actor for MidiHost {
-    type Context = SyncContext<Self>;
+    type Context = Context<Self>;
 }
 
 #[derive(Message)]

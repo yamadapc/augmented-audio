@@ -18,7 +18,7 @@ mod utils;
 
 pub struct App {
     #[allow(unused)]
-    actor_system_thread: ActorSystemThread,
+    actor_system_thread: &'static ActorSystemThread,
     main_content_view: main_content_view::MainContentView,
     start_result: Result<(), plugin_host_lib::audio_io::StartError>,
 }

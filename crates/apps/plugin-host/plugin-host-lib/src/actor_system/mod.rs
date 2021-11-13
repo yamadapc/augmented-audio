@@ -1,50 +1,53 @@
-use lazy_static::lazy_static;
 use std::future::Future;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::channel;
+use std::sync::Arc;
 
 use actix::prelude::*;
+use lazy_static::lazy_static;
 
 lazy_static! {
     static ref THREAD: ActorSystemThread = ActorSystemThread::with_new_system();
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ActorSystemThread {
-    arbiter_handle: ArbiterHandle,
-}
-
-impl Default for ActorSystemThread {
-    fn default() -> Self {
-        THREAD.clone()
-    }
+    system: actix::System,
+    arbiters: Vec<Arbiter>,
+    counter: Arc<AtomicUsize>,
 }
 
 impl ActorSystemThread {
-    pub fn current() -> Self {
-        THREAD.clone()
+    pub fn current() -> &'static Self {
+        &THREAD
     }
 
     fn with_new_system() -> Self {
         let (tx, rx) = channel();
+        let (sys_tx, sys_rx) = channel();
+
         std::thread::Builder::new()
             .name("actor-system".into())
             .spawn(move || {
-                let system = actix::System::with_tokio_rt(|| {
-                    tokio::runtime::Builder::new_multi_thread()
-                        .thread_name("actor-system-tokio-worker")
-                        .enable_io()
-                        .enable_time()
-                        .build()
-                        .unwrap()
-                });
-                let arbiter_handle = Arbiter::current();
-                let _ = tx.send(arbiter_handle);
+                let system = actix::System::new();
+                let mut arbiters = vec![];
+                for _ in 0..8 {
+                    arbiters.push(Arbiter::new());
+                }
+                let _ = tx.send(arbiters);
+                let _ = sys_tx.send(System::current());
                 system.run()
             })
             .unwrap();
-        let arbiter_handle = rx.recv().unwrap();
 
-        Self { arbiter_handle }
+        let arbiters = rx.recv().unwrap();
+        let system = sys_rx.recv().unwrap();
+
+        Self {
+            system,
+            arbiters,
+            counter: Arc::new(AtomicUsize::new(0)),
+        }
     }
 
     #[allow(unused)]
@@ -52,7 +55,7 @@ impl ActorSystemThread {
     where
         Fut: 'static + Send + Future<Output = ()>,
     {
-        self.arbiter_handle.spawn(fut);
+        self.arbiters[self.next_arbiter_idx()].spawn(fut);
     }
 
     #[allow(unused)]
@@ -62,22 +65,35 @@ impl ActorSystemThread {
         T: 'static + Send,
     {
         let (tx, rx) = channel();
-        self.arbiter_handle.spawn(async move {
+        self.spawn(async move {
             let result = fut.await;
             let _ = tx.send(result);
         });
         let result = rx.recv().unwrap();
         result
     }
+
+    fn next_arbiter_idx(&self) -> usize {
+        self.counter.fetch_add(1, Ordering::Relaxed) % self.arbiters.len()
+    }
+
+    pub fn start<A>(actor: A) -> Addr<A>
+    where
+        A: Actor<Context = actix::Context<A>> + Send,
+    {
+        Self::current().spawn_result(async move { actor.start() })
+    }
 }
 
 impl Drop for ActorSystemThread {
     fn drop(&mut self) {
         log::info!("Stopping actor system thread");
-        self.arbiter_handle.spawn(async {
+        self.spawn(async {
             System::current().stop();
         });
-        let _ = self.arbiter_handle.stop();
+        for arbiter in &self.arbiters {
+            let _ = arbiter.stop();
+        }
     }
 }
 

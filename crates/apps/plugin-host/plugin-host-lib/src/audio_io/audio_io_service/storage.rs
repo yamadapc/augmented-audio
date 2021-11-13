@@ -1,4 +1,4 @@
-use actix::{Actor, Handler, Message, SyncContext};
+use actix::{Actor, Context, Handler, Message};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -42,7 +42,7 @@ impl AudioIOStorageService {
 }
 
 impl Actor for AudioIOStorageService {
-    type Context = SyncContext<Self>;
+    type Context = Context<Self>;
 }
 
 #[derive(Message)]
