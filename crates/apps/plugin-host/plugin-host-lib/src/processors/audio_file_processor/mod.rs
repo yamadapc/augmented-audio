@@ -5,6 +5,7 @@ use rayon::prelude::*;
 use symphonia::core::audio::AudioBuffer as SymphoniaAudioBuffer;
 use symphonia::core::probe::ProbeResult;
 
+use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
@@ -73,21 +74,25 @@ impl AudioFileProcessor {
     }
 
     pub fn new(
-        handle: &Handle,
+        gc_handle: &Handle,
         audio_file_settings: AudioFileSettings,
         audio_settings: AudioProcessorSettings,
     ) -> Self {
+        let handle = Shared::new(
+            gc_handle,
+            AudioFileProcessorHandle {
+                audio_file_cursor: AtomicUsize::new(0),
+                is_playing: AtomicBool::new(true),
+            },
+        );
+
+        ProcessorHandleRegistry::current().register("audio-file", handle.clone());
+
         AudioFileProcessor {
             audio_file_settings,
             audio_settings,
             buffer: Vec::new(),
-            handle: Shared::new(
-                handle,
-                AudioFileProcessorHandle {
-                    audio_file_cursor: AtomicUsize::new(0),
-                    is_playing: AtomicBool::new(true),
-                },
-            ),
+            handle,
         }
     }
 

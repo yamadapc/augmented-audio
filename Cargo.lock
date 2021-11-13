@@ -4595,6 +4595,7 @@ dependencies = [
  "futures-util",
  "hound",
  "itertools 0.10.1",
+ "lazy_static",
  "log",
  "md5",
  "midir",

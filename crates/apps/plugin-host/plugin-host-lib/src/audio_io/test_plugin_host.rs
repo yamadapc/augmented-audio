@@ -13,8 +13,9 @@ use audio_garbage_collector::{GarbageCollector, GarbageCollectorError, Shared};
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 
+use crate::audio_io::audio_thread;
 use crate::audio_io::audio_thread::error::AudioThreadError;
-use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId, AudioThreadOptions};
+use crate::audio_io::audio_thread::options::AudioThreadOptions;
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::processors::audio_file_processor::file_io::{default_read_audio_file, AudioFileError};
 use crate::processors::audio_file_processor::AudioFileSettings;
@@ -53,7 +54,7 @@ pub enum WaitError {
 }
 
 pub struct TestPluginHost {
-    audio_thread: AudioThread,
+    audio_thread: Addr<AudioThread>,
     audio_settings: AudioProcessorSettings,
     audio_file_path: Option<PathBuf>,
     plugin_file_path: Option<PathBuf>,
@@ -83,12 +84,15 @@ impl TestPluginHost {
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
         let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
 
+        let audio_thread = AudioThread::new(
+            garbage_collector.handle(),
+            midi_host.messages().clone(),
+            audio_thread_options,
+        )
+        .start();
+
         TestPluginHost {
-            audio_thread: AudioThread::new(
-                garbage_collector.handle(),
-                midi_host.messages().clone(),
-                audio_thread_options,
-            ),
+            audio_thread,
             audio_settings,
             audio_file_path: None,
             plugin_file_path: None,
@@ -102,9 +106,15 @@ impl TestPluginHost {
         }
     }
 
+    pub fn audio_thread(&self) -> Addr<AudioThread> {
+        self.audio_thread.clone()
+    }
+
     pub fn start_audio(&mut self) -> Result<(), StartError> {
         self.midi_host.start()?;
-        self.audio_thread.start_audio()?;
+        // TODO - handle errors
+        self.audio_thread
+            .do_send(audio_thread::actor::AudioThreadMessage::Start);
         Ok(())
     }
 
@@ -133,10 +143,14 @@ impl TestPluginHost {
         self.plugin_file_path = Some(path.into());
 
         // Force the old plugin to be dropped
-        self.audio_thread.set_processor(SharedProcessor::new(
-            self.garbage_collector.handle(),
-            AudioThreadProcessor::Silence(SilenceAudioProcessor::new()),
-        ));
+        self.audio_thread
+            .do_send(audio_thread::actor::AudioThreadMessage::SetProcessor {
+                processor: SharedProcessor::new(
+                    self.garbage_collector.handle(),
+                    AudioThreadProcessor::Silence(SilenceAudioProcessor::new()),
+                ),
+            });
+
         let old_processor = self.processor.take();
         let old_plugin = self.vst_plugin_instance.take();
         std::mem::drop(old_processor);
@@ -181,7 +195,11 @@ impl TestPluginHost {
         let test_host_processor =
             SharedProcessor::new(self.garbage_collector.handle(), test_host_processor);
         self.processor = Some(test_host_processor.clone());
-        self.audio_thread.set_processor(test_host_processor);
+
+        self.audio_thread
+            .do_send(audio_thread::actor::AudioThreadMessage::SetProcessor {
+                processor: test_host_processor,
+            });
 
         // De-allocate old instance
         self.vst_plugin_instance = Some(vst_plugin_instance);
@@ -288,7 +306,11 @@ impl TestPluginHost {
 
     pub fn wait(&mut self) -> Result<(), WaitError> {
         self.garbage_collector.stop()?;
-        Ok(self.audio_thread.wait()?)
+
+        self.audio_thread
+            .do_send(audio_thread::actor::AudioThreadMessage::Wait);
+
+        Ok(())
     }
 
     pub fn set_mono_input(&mut self, input_channel: Option<usize>) {

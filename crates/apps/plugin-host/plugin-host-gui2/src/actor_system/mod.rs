@@ -57,14 +57,11 @@ impl ActorSystemThread {
 
 impl Drop for ActorSystemThread {
     fn drop(&mut self) {
+        log::info!("Stopping actor system thread");
         self.arbiter_handle.spawn(async {
             System::current().stop();
         });
         let _ = self.arbiter_handle.stop();
-
-        if let Some(thread_handle) = self.thread_handle.take() {
-            let _ = thread_handle.join();
-        }
     }
 }
 

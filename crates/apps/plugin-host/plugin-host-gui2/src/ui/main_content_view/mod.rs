@@ -5,9 +5,10 @@ use actix::prelude::*;
 use derivative::Derivative;
 use thiserror::Error;
 
-use crate::actor_system::ActorSystemThread;
 use augmented::audio::gc::Shared;
 use augmented::gui::iced::{Command, Element, Subscription};
+use plugin_host_lib::audio_io::processor_handle_registry::ProcessorHandleRegistry;
+use plugin_host_lib::processors::audio_file_processor::AudioFileProcessorHandle;
 use plugin_host_lib::{
     audio_io::audio_io_service,
     audio_io::audio_io_service::storage::StorageConfig,
@@ -17,6 +18,7 @@ use plugin_host_lib::{
     TestPluginHost,
 };
 
+use crate::actor_system::ActorSystemThread;
 use crate::services::host_options_service::{HostOptionsService, HostState};
 use crate::services::plugin_file_watch::FileWatcher;
 use crate::ui::audio_io_settings;
@@ -229,16 +231,20 @@ impl MainContentView {
         &mut self,
         message: transport_controls::Message,
     ) -> Command<Message> {
-        let host = self.plugin_host.lock().unwrap();
+        let audio_file_processor_handle: Shared<AudioFileProcessorHandle> =
+            ProcessorHandleRegistry::current()
+                .get("audio-file")
+                .unwrap();
+
         match message {
             transport_controls::Message::Play => {
-                host.play();
+                audio_file_processor_handle.play();
             }
             transport_controls::Message::Pause => {
-                host.pause();
+                audio_file_processor_handle.pause();
             }
             transport_controls::Message::Stop => {
-                host.stop();
+                audio_file_processor_handle.stop();
             }
             _ => (),
         }
@@ -481,7 +487,8 @@ fn reload_plugin_host_state(
     let audio_io_service = {
         let plugin_host = plugin_host.clone();
         actor_system_thread.spawn_result(async move {
-            AudioIOService::new(todo!("Pass audio-thread ADDR"), storage_config).start()
+            let audio_thread = plugin_host.lock().unwrap().audio_thread();
+            AudioIOService::new(audio_thread, storage_config).start()
         })
     };
     let host_options_storage_path = home_config_dir

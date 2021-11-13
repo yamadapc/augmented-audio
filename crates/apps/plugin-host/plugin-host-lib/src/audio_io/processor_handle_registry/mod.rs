@@ -2,8 +2,14 @@ use std::any::Any;
 use std::sync::Arc;
 
 use concread::hashmap::HashMap;
+use lazy_static::lazy_static;
 
 use audio_garbage_collector::Shared;
+
+lazy_static! {
+    static ref PROCESSOR_HANDLE_REGISTRY: ProcessorHandleRegistry =
+        ProcessorHandleRegistry::default();
+}
 
 pub type HandleId = String;
 
@@ -14,17 +20,25 @@ pub struct ProcessorHandleRegistry {
 }
 
 impl ProcessorHandleRegistry {
-    fn register(&self, id: impl Into<HandleId>, handle: impl Any + 'static + Sized + Sync + Send) {
+    pub fn register(
+        &self,
+        id: impl Into<HandleId>,
+        handle: impl Any + 'static + Sized + Sync + Send,
+    ) {
         let mut tx = self.handles.write();
         tx.insert(id.into(), Arc::new(handle));
         tx.commit();
     }
 
-    fn get<T: 'static>(&self, id: &str) -> Option<Shared<T>> {
+    pub fn get<T: 'static>(&self, id: &str) -> Option<Shared<T>> {
         let tx = self.handles.read();
         let entry = tx.get(id)?;
         let ptr = entry.downcast_ref::<Shared<T>>()?;
         Some(ptr.clone())
+    }
+
+    pub fn current() -> &'static Self {
+        &PROCESSOR_HANDLE_REGISTRY
     }
 }
 
@@ -39,6 +53,7 @@ mod test {
     fn test_register_handle() {
         #[derive(Default)]
         struct Handle {
+            #[allow(unused)]
             volume: AtomicF32,
         }
 
