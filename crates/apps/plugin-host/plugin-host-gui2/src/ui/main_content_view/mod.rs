@@ -480,8 +480,9 @@ fn reload_plugin_host_state(
     };
     let audio_io_service = {
         let plugin_host = plugin_host.clone();
-        actor_system_thread
-            .spawn_result(async move { AudioIOService::new(plugin_host, storage_config).start() })
+        actor_system_thread.spawn_result(async move {
+            AudioIOService::new(todo!("Pass audio-thread ADDR"), storage_config).start()
+        })
     };
     let host_options_storage_path = home_config_dir
         .join("audio-thread-config.json")

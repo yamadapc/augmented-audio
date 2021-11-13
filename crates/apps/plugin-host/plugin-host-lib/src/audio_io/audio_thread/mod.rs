@@ -280,7 +280,7 @@ fn input_stream_callback(producer: &mut ringbuf::Producer<f32>, data: &[f32]) {
     }
 }
 
-mod actor {
+pub mod actor {
     use actix::{Actor, Context, Handler, Message};
 
     use super::*;
@@ -293,6 +293,11 @@ mod actor {
     #[rtype(result = "Result<(), AudioThreadError>")]
     pub enum AudioThreadMessage {
         Start,
+        SetOptions {
+            host_id: AudioHostId,
+            input_device_id: Option<AudioDeviceId>,
+            output_device_id: AudioDeviceId,
+        },
         SetHost {
             host_id: AudioHostId,
         },
@@ -316,6 +321,16 @@ mod actor {
 
             match msg {
                 Start => self.start_audio(),
+                SetOptions {
+                    host_id,
+                    input_device_id,
+                    output_device_id,
+                } => {
+                    self.set_host_id(host_id)?;
+                    self.set_input_device_id(input_device_id)?;
+                    self.set_output_device_id(output_device_id)?;
+                    Ok(())
+                }
                 SetHost { host_id } => self.set_host_id(host_id),
                 SetInputDevice { input_device_id } => self.set_input_device_id(input_device_id),
                 SetOutputDevice { output_device_id } => self.set_output_device_id(output_device_id),
@@ -342,7 +357,7 @@ mod actor {
             let gc = GarbageCollector::default();
             let midi_queue = Shared::new(gc.handle(), Queue::new(100));
             let audio_thread =
-                AudioThread::new(gc.handle(), midi_queue, Default::default()).start_audio();
+                AudioThread::new(gc.handle(), midi_queue, Default::default()).start();
 
             audio_thread
                 .send(AudioThreadMessage::Start)

@@ -108,12 +108,12 @@ impl TestPluginHost {
         Ok(())
     }
 
-    pub fn set_host_id(&mut self, host_id: AudioHostId) -> Result<(), AudioThreadError> {
+    fn set_host_id(&mut self, host_id: AudioHostId) -> Result<(), AudioThreadError> {
         self.audio_thread.set_host_id(host_id)?;
         Ok(())
     }
 
-    pub fn set_input_device_id(
+    fn set_input_device_id(
         &mut self,
         input_device_id: Option<AudioDeviceId>,
     ) -> Result<(), AudioThreadError> {
@@ -121,7 +121,7 @@ impl TestPluginHost {
         Ok(())
     }
 
-    pub fn set_output_device_id(
+    fn set_output_device_id(
         &mut self,
         output_device_id: AudioDeviceId,
     ) -> Result<(), AudioThreadError> {
@@ -143,10 +143,6 @@ impl TestPluginHost {
 
     pub fn plugin_file_path(&self) -> &Option<PathBuf> {
         &self.plugin_file_path
-    }
-
-    pub fn garbage_collector(&self) -> &GarbageCollector {
-        &self.garbage_collector
     }
 
     pub fn rms_processor_handle(&self) -> Option<Shared<RunningRMSProcessorHandle>> {
@@ -213,7 +209,7 @@ impl TestPluginHost {
         Ok(())
     }
 
-    pub fn load_vst_plugin(path: &Path) -> Result<PluginInstance, AudioHostPluginLoadError> {
+    pub(crate) fn load_vst_plugin(path: &Path) -> Result<PluginInstance, AudioHostPluginLoadError> {
         let host = Arc::new(Mutex::new(AudioTestHost));
 
         let mut loader = PluginLoader::load(path, Arc::clone(&host))?;
@@ -283,12 +279,6 @@ impl TestPluginHost {
         self.host_processor().map(|p| p.volume_handle().clone())
     }
 
-    pub fn current_volume(&self) -> (f32, f32) {
-        self.host_processor()
-            .map(|p| p.current_output_volume())
-            .unwrap_or((0.0, 0.0))
-    }
-
     /// Resume playback
     pub fn play(&self) {
         if let Some(processor) = self.host_processor() {
@@ -311,13 +301,6 @@ impl TestPluginHost {
             log::info!("Stopping playback processor_id={}", processor.id());
             processor.stop();
         }
-    }
-
-    /// Whether the file is being played back
-    pub fn is_playing(&self) -> bool {
-        self.host_processor()
-            .map(|p| p.is_playing())
-            .unwrap_or(false)
     }
 
     pub fn plugin_instance(&mut self) -> Option<SharedProcessor<PluginInstance>> {
@@ -356,12 +339,12 @@ impl Actor for TestPluginHost {
 
 #[derive(Message)]
 #[rtype(result = "Option<SharedProcessor<PluginInstance>>")]
-struct GetPluginInstance;
+pub struct GetPluginInstanceMessage;
 
-impl Handler<GetPluginInstance> for TestPluginHost {
+impl Handler<GetPluginInstanceMessage> for TestPluginHost {
     type Result = Option<SharedProcessor<PluginInstance>>;
 
-    fn handle(&mut self, _msg: GetPluginInstance, _ctx: &mut Self::Context) -> Self::Result {
+    fn handle(&mut self, _msg: GetPluginInstanceMessage, _ctx: &mut Self::Context) -> Self::Result {
         self.vst_plugin_instance.clone()
     }
 }
