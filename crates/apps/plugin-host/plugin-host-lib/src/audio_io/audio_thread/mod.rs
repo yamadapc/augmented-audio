@@ -326,9 +326,17 @@ pub mod actor {
                     input_device_id,
                     output_device_id,
                 } => {
-                    self.set_host_id(host_id)?;
-                    self.set_input_device_id(input_device_id)?;
-                    self.set_output_device_id(output_device_id)?;
+                    let audio_thread_options = AudioThreadOptions {
+                        host_id,
+                        input_device_id,
+                        output_device_id,
+                        ..self.audio_thread_options.clone()
+                    };
+                    if audio_thread_options != self.audio_thread_options {
+                        self.audio_thread_options = audio_thread_options;
+                        self.wait()?;
+                        self.start_audio()?;
+                    }
                     Ok(())
                 }
                 SetHost { host_id } => self.set_host_id(host_id),
