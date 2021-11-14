@@ -76,6 +76,8 @@ pub struct MainContentView {
     volume_meter_state: volume_meter::VolumeMeter,
     status_message: StatusBar,
     start_stop_button_state: view::StartStopViewModel,
+    navigation_header_state: view::NavigationHeaderState,
+    route: view::Route,
 }
 
 #[derive(Derivative)]
@@ -91,6 +93,7 @@ pub enum Message {
     StartStopButtonClicked,
     SetAudioFilePathResponse(String),
     Exit,
+    SetRoute(view::Route),
     None,
 }
 
@@ -138,6 +141,8 @@ impl MainContentView {
                 audio_file_model: AudioFileModel::empty(),
                 volume_meter_state: volume_meter::VolumeMeter::default(),
                 start_stop_button_state: view::StartStopViewModel::default(),
+                route: view::Route::Development,
+                navigation_header_state: Default::default(),
             },
             command,
         )
@@ -166,6 +171,10 @@ impl MainContentView {
                 self.update_set_audio_file_path_response(input_file)
             }
             Message::None => Command::none(),
+            Message::SetRoute(route) => {
+                self.route = route;
+                Command::none()
+            }
         }
     }
 
@@ -187,8 +196,11 @@ impl MainContentView {
         let volume_meter_state = &mut self.volume_meter_state;
         let audio_file_model = &self.audio_file_model;
         let start_stop_button_state = &mut self.start_stop_button_state;
+        let navigation_header_state = &mut self.navigation_header_state;
 
         view::main_content_view(view::MainContentViewModel {
+            route: &self.route,
+            navigation_header_state,
             audio_io_settings,
             plugin_content,
             audio_chart,
