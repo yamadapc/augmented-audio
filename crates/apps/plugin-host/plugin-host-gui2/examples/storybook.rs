@@ -3,6 +3,7 @@ use plugin_host_gui2::ui;
 use ui::audio_io_settings;
 use ui::audio_io_settings::dropdown_with_label;
 use ui::main_content_view::{plugin_content, status_bar, transport_controls, volume_meter};
+use ui::tabs;
 
 #[derive(Debug, From, Clone, TryInto)]
 enum Message {
@@ -10,12 +11,14 @@ enum Message {
     TransportControls(transport_controls::Message),
     Dropdown(String),
     PluginContent(plugin_content::Message),
+    TabsMessage(tabs::Message),
     VolumeMeter(volume_meter::Message),
     None(()),
 }
 
 fn main() -> iced::Result {
     audio_processor_iced_storybook::builder::<Message>()
+        .story("Tabs", tabs::story::default())
         .story("Dropdown with label", dropdown_with_label::story::default())
         .story("AudioIOSettings", audio_io_settings::view::story::default())
         .story("Transport controls", transport_controls::story::default())

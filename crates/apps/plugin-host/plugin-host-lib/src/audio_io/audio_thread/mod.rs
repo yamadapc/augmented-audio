@@ -351,6 +351,7 @@ pub mod actor {
         }
     }
 
+    #[cfg(target_os = "macos")]
     #[cfg(test)]
     mod test {
         use atomic_queue::Queue;
