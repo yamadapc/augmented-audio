@@ -4,6 +4,7 @@ use std::process::Command;
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
+use actix::prelude::*;
 use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
@@ -12,8 +13,10 @@ use audio_garbage_collector::{GarbageCollector, GarbageCollectorError, Shared};
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 
+use crate::actor_system::ActorSystemThread;
+use crate::audio_io::audio_thread;
 use crate::audio_io::audio_thread::error::AudioThreadError;
-use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId, AudioThreadOptions};
+use crate::audio_io::audio_thread::options::AudioThreadOptions;
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::processors::audio_file_processor::file_io::{default_read_audio_file, AudioFileError};
 use crate::processors::audio_file_processor::AudioFileSettings;
@@ -52,13 +55,13 @@ pub enum WaitError {
 }
 
 pub struct TestPluginHost {
-    audio_thread: AudioThread,
+    audio_thread: Addr<AudioThread>,
     audio_settings: AudioProcessorSettings,
     audio_file_path: Option<PathBuf>,
     plugin_file_path: Option<PathBuf>,
     vst_plugin_instance: Option<SharedProcessor<PluginInstance>>,
     processor: Option<SharedProcessor<AudioThreadProcessor>>,
-    midi_host: MidiHost,
+    midi_host: Addr<MidiHost>,
     garbage_collector: GarbageCollector,
     mono_input: Option<usize>,
     temporary_load_path: Option<String>,
@@ -80,14 +83,17 @@ impl TestPluginHost {
         start_paused: bool,
     ) -> Self {
         let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
+
         let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
+        let audio_thread = ActorSystemThread::start(AudioThread::new(
+            garbage_collector.handle(),
+            midi_host.messages().clone(),
+            audio_thread_options,
+        ));
+        let midi_host = ActorSystemThread::start(midi_host);
 
         TestPluginHost {
-            audio_thread: AudioThread::new(
-                garbage_collector.handle(),
-                midi_host.messages().clone(),
-                audio_thread_options,
-            ),
+            audio_thread,
             audio_settings,
             audio_file_path: None,
             plugin_file_path: None,
@@ -101,30 +107,16 @@ impl TestPluginHost {
         }
     }
 
-    pub fn start(&mut self) -> Result<(), StartError> {
-        self.midi_host.start()?;
-        self.audio_thread.start()?;
-        Ok(())
+    pub fn audio_thread(&self) -> Addr<AudioThread> {
+        self.audio_thread.clone()
     }
 
-    pub fn set_host_id(&mut self, host_id: AudioHostId) -> Result<(), AudioThreadError> {
-        self.audio_thread.set_host_id(host_id)?;
-        Ok(())
-    }
-
-    pub fn set_input_device_id(
-        &mut self,
-        input_device_id: Option<AudioDeviceId>,
-    ) -> Result<(), AudioThreadError> {
-        self.audio_thread.set_input_device_id(input_device_id)?;
-        Ok(())
-    }
-
-    pub fn set_output_device_id(
-        &mut self,
-        output_device_id: AudioDeviceId,
-    ) -> Result<(), AudioThreadError> {
-        self.audio_thread.set_output_device_id(output_device_id)?;
+    pub fn start_audio(&mut self) -> Result<(), StartError> {
+        // TODO - handle errors
+        self.midi_host
+            .do_send(audio_processor_standalone_midi::host::StartMessage);
+        self.audio_thread
+            .do_send(audio_thread::actor::AudioThreadMessage::Start);
         Ok(())
     }
 
@@ -144,10 +136,6 @@ impl TestPluginHost {
         &self.plugin_file_path
     }
 
-    pub fn garbage_collector(&self) -> &GarbageCollector {
-        &self.garbage_collector
-    }
-
     pub fn rms_processor_handle(&self) -> Option<Shared<RunningRMSProcessorHandle>> {
         self.host_processor()
             .map(|h| h.running_rms_processor_handle().clone())
@@ -157,10 +145,14 @@ impl TestPluginHost {
         self.plugin_file_path = Some(path.into());
 
         // Force the old plugin to be dropped
-        self.audio_thread.set_processor(SharedProcessor::new(
-            self.garbage_collector.handle(),
-            AudioThreadProcessor::Silence(SilenceAudioProcessor::new()),
-        ));
+        self.audio_thread
+            .do_send(audio_thread::actor::AudioThreadMessage::SetProcessor {
+                processor: SharedProcessor::new(
+                    self.garbage_collector.handle(),
+                    AudioThreadProcessor::Silence(SilenceAudioProcessor::new()),
+                ),
+            });
+
         let old_processor = self.processor.take();
         let old_plugin = self.vst_plugin_instance.take();
         std::mem::drop(old_processor);
@@ -205,14 +197,18 @@ impl TestPluginHost {
         let test_host_processor =
             SharedProcessor::new(self.garbage_collector.handle(), test_host_processor);
         self.processor = Some(test_host_processor.clone());
-        self.audio_thread.set_processor(test_host_processor);
+
+        self.audio_thread
+            .do_send(audio_thread::actor::AudioThreadMessage::SetProcessor {
+                processor: test_host_processor,
+            });
 
         // De-allocate old instance
         self.vst_plugin_instance = Some(vst_plugin_instance);
         Ok(())
     }
 
-    pub fn load_vst_plugin(path: &Path) -> Result<PluginInstance, AudioHostPluginLoadError> {
+    pub(crate) fn load_vst_plugin(path: &Path) -> Result<PluginInstance, AudioHostPluginLoadError> {
         let host = Arc::new(Mutex::new(AudioTestHost));
 
         let mut loader = PluginLoader::load(path, Arc::clone(&host))?;
@@ -282,12 +278,6 @@ impl TestPluginHost {
         self.host_processor().map(|p| p.volume_handle().clone())
     }
 
-    pub fn current_volume(&self) -> (f32, f32) {
-        self.host_processor()
-            .map(|p| p.current_output_volume())
-            .unwrap_or((0.0, 0.0))
-    }
-
     /// Resume playback
     pub fn play(&self) {
         if let Some(processor) = self.host_processor() {
@@ -312,20 +302,17 @@ impl TestPluginHost {
         }
     }
 
-    /// Whether the file is being played back
-    pub fn is_playing(&self) -> bool {
-        self.host_processor()
-            .map(|p| p.is_playing())
-            .unwrap_or(false)
-    }
-
     pub fn plugin_instance(&mut self) -> Option<SharedProcessor<PluginInstance>> {
         self.vst_plugin_instance.clone()
     }
 
     pub fn wait(&mut self) -> Result<(), WaitError> {
         self.garbage_collector.stop()?;
-        Ok(self.audio_thread.wait()?)
+
+        self.audio_thread
+            .do_send(audio_thread::actor::AudioThreadMessage::Wait);
+
+        Ok(())
     }
 
     pub fn set_mono_input(&mut self, input_channel: Option<usize>) {
@@ -346,5 +333,113 @@ impl Drop for TestPluginHost {
             log::warn!("Cleaning-up temporary plug-in file {}", temporary_load_path);
             let _ = std::fs::remove_file(temporary_load_path);
         }
+    }
+}
+
+impl Actor for TestPluginHost {
+    type Context = Context<Self>;
+}
+
+#[derive(Message)]
+#[rtype(result = "Option<SharedProcessor<PluginInstance>>")]
+pub struct GetPluginInstanceMessage;
+
+impl Handler<GetPluginInstanceMessage> for TestPluginHost {
+    type Result = Option<SharedProcessor<PluginInstance>>;
+
+    fn handle(&mut self, _msg: GetPluginInstanceMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.vst_plugin_instance.clone()
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<(), AudioHostPluginLoadError>")]
+pub struct LoadPluginMessage {
+    pub plugin_path: PathBuf,
+}
+
+impl Handler<LoadPluginMessage> for TestPluginHost {
+    type Result = Result<(), AudioHostPluginLoadError>;
+
+    fn handle(&mut self, msg: LoadPluginMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.load_plugin(&msg.plugin_path)
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Addr<AudioThread>")]
+pub struct GetAudioThreadMessage;
+
+impl Handler<GetAudioThreadMessage> for TestPluginHost {
+    type Result = Addr<AudioThread>;
+
+    fn handle(&mut self, _msg: GetAudioThreadMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.audio_thread.clone()
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<(), AudioHostPluginLoadError>")]
+pub struct SetAudioFilePathMessage(pub PathBuf);
+
+impl Handler<SetAudioFilePathMessage> for TestPluginHost {
+    type Result = Result<(), AudioHostPluginLoadError>;
+
+    fn handle(&mut self, msg: SetAudioFilePathMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.set_audio_file_path(msg.0)
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct WaitMessage;
+
+impl Handler<WaitMessage> for TestPluginHost {
+    type Result = ();
+
+    fn handle(&mut self, _msg: WaitMessage, _ctx: &mut Self::Context) -> Self::Result {
+        match self.wait() {
+            Ok(_) => log::info!("Plugin host stopped"),
+            Err(err) => log::error!("Failed to stop: {}", err),
+        }
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct StartMessage;
+
+impl Handler<StartMessage> for TestPluginHost {
+    type Result = ();
+
+    fn handle(&mut self, _msg: StartMessage, _ctx: &mut Self::Context) -> Self::Result {
+        let _ = self.start_audio(); // todo - log error
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct StopMessage;
+
+impl Handler<StopMessage> for TestPluginHost {
+    type Result = ();
+
+    fn handle(&mut self, _msg: StopMessage, _ctx: &mut Self::Context) -> Self::Result {
+        let _ = self.stop(); // todo - log error
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<(), AudioHostPluginLoadError>")]
+pub struct ReloadPluginMessage;
+
+impl Handler<ReloadPluginMessage> for TestPluginHost {
+    type Result = Result<(), AudioHostPluginLoadError>;
+
+    fn handle(&mut self, _msg: ReloadPluginMessage, _ctx: &mut Self::Context) -> Self::Result {
+        if let Some(plugin_file_path) = self.plugin_file_path().clone() {
+            self.load_plugin(&plugin_file_path)?;
+        }
+        Ok(())
     }
 }

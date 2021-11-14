@@ -1,3 +1,6 @@
+/// VST
+pub use vst;
+
 /// Run [`audio::processor::AudioProcessor`]s and [`audio::processor::midi::MidiEventHandler`] as
 /// stand-alone applications.
 pub mod application;

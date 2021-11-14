@@ -1,5 +1,6 @@
 use std::ops::Deref;
 
+use actix::{Actor, Context, Handler, Message};
 use basedrop::{Handle, Owned, Shared};
 use midir::{MidiInput, MidiInputConnection};
 use thiserror::Error;
@@ -34,13 +35,22 @@ impl MidiHost {
         MidiHost::new(handle, MIDI_BUFFER_CAPACITY)
     }
 
+    /// Build a MidiHost with a pre-built queue
+    pub fn default_with_queue(handle: &Handle, queue: MidiMessageQueue) -> Self {
+        Self {
+            handle: handle.clone(),
+            connections: Vec::new(),
+            current_messages: queue,
+        }
+    }
+
     /// Get a reference to the message queue
     pub fn messages(&self) -> &MidiMessageQueue {
         &self.current_messages
     }
 
     /// Start the MIDI connections
-    pub fn start(&mut self) -> Result<(), MidiError> {
+    pub fn start_midi(&mut self) -> Result<(), MidiError> {
         log::info!("Creating MIDI input `plugin-host`");
         let input = midir::MidiInput::new("plugin-host")?;
 
@@ -66,6 +76,22 @@ impl Drop for MidiHost {
         while let Some(connection) = self.connections.pop() {
             connection.close();
         }
+    }
+}
+
+impl Actor for MidiHost {
+    type Context = Context<Self>;
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<(), MidiError>")]
+pub struct StartMessage;
+
+impl Handler<StartMessage> for MidiHost {
+    type Result = Result<(), MidiError>;
+
+    fn handle(&mut self, _msg: StartMessage, _ctx: &mut Self::Context) -> Self::Result {
+        self.start_midi()
     }
 }
 

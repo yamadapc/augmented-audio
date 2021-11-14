@@ -1,23 +1,23 @@
 use std::path::Path;
 use std::sync::mpsc::Receiver;
-use std::sync::{Arc, Mutex};
 
+use actix::Addr;
 use notify::DebouncedEvent;
 
 use crate::audio_io::test_plugin_host::TestPluginHost;
+use crate::audio_io::LoadPluginMessage;
 use crate::commands::options::RunOptions;
 
 pub fn run_file_watch_loop(
     rx: Receiver<DebouncedEvent>,
     run_options: RunOptions,
-    host: Arc<Mutex<TestPluginHost>>,
+    host: Addr<TestPluginHost>,
 ) -> ! {
     let inner = || -> Result<(), std::io::Error> {
         let mut current_hash = get_file_hash(run_options.plugin_path().as_ref())?;
         loop {
             match rx.recv() {
                 Ok(_) => {
-                    let mut host = host.lock().unwrap();
                     let new_hash = get_file_hash(run_options.plugin_path().as_ref())?;
                     if new_hash == current_hash {
                         log::warn!("Ignoring event due to same plugin hash");
@@ -30,14 +30,10 @@ pub fn run_file_watch_loop(
                         current_hash = new_hash;
                     }
 
-                    match (*host).load_plugin(Path::new(run_options.plugin_path())) {
-                        Ok(_) => {
-                            log::info!("Reloaded plugin");
-                        }
-                        Err(err) => {
-                            log::error!("Failed to reload plugin: {}", err);
-                        }
-                    }
+                    // TODO - How to get the result from an arbitrary thread?
+                    host.do_send(LoadPluginMessage {
+                        plugin_path: Path::new(run_options.plugin_path()).into(),
+                    });
                 }
                 Err(err) => log::error!("File watch error: {}", err),
             }

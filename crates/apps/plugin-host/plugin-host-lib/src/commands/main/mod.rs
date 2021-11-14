@@ -3,7 +3,6 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::process::exit;
 use std::sync::mpsc::channel;
-use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
 
@@ -15,14 +14,17 @@ use tao::platform::macos::WindowExtMacOS;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use crate::actor_system::ActorSystemThread;
 use crate::audio_io::audio_thread::options::{
     AudioDeviceId, AudioHostId, AudioThreadOptions, BufferSize,
 };
 use crate::audio_io::audio_thread::AudioThread;
 use crate::audio_io::offline_renderer::OfflineRenderer;
 use crate::audio_io::test_plugin_host::TestPluginHost;
+use crate::audio_io::WaitMessage;
 use crate::commands::options::RunOptions;
 use crate::processors::shared_processor::SharedProcessor;
+use actix::{Actor, Addr};
 use audio_processor_traits::AudioProcessorSettings;
 use std::thread::JoinHandle;
 
@@ -42,18 +44,22 @@ pub fn run_test(run_options: RunOptions) {
         return;
     }
 
+    let actor_system_thread = ActorSystemThread::current();
+
     let (audio_settings, audio_thread_options) = get_audio_options(&run_options);
-    let mut host = TestPluginHost::new(audio_settings, audio_thread_options, false);
+    let mut host = actor_system_thread.spawn_result(async move {
+        TestPluginHost::new(audio_settings, audio_thread_options, false)
+    });
     host.set_mono_input(run_options.use_mono_input());
     run_load_audio_file(&run_options, &mut host);
     run_initialize_plugin(&run_options, &mut host);
 
-    let host = Arc::new(Mutex::new(host));
+    let instance = host.plugin_instance();
+    let host = actor_system_thread.spawn_result(async move { host.start() });
     // This needs to be kept around otherwise the watcher will stop when dropped
-    let _maybe_watcher = run_initialize_file_watch_thread(&run_options, &host);
+    let _maybe_watcher = run_initialize_file_watch_thread(&run_options, host.clone());
 
     if run_options.open_editor() {
-        let instance = host.lock().unwrap().plugin_instance();
         if let Some(instance) = instance {
             log::info!("Starting GUI");
             start_gui(instance);
@@ -63,10 +69,7 @@ pub fn run_test(run_options: RunOptions) {
     }
 
     {
-        let mut host = host.lock().unwrap();
-        if let Err(err) = host.wait() {
-            log::error!("Failed to stop audio. Error: {:?}", err);
-        }
+        host.do_send(WaitMessage);
         log::info!("Closing...");
     }
 }
@@ -186,7 +189,7 @@ fn run_initialize_plugin(run_options: &RunOptions, host: &mut TestPluginHost) {
         exit(1);
     }
     log::info!("Initializing audio thread");
-    if let Err(err) = host.start() {
+    if let Err(err) = host.start_audio() {
         log::error!("Failed to start host: {}", err);
         exit(1);
     }
@@ -205,7 +208,7 @@ fn run_load_audio_file(run_options: &RunOptions, host: &mut TestPluginHost) {
 /// Start the file watcher thread
 fn run_initialize_file_watch_thread(
     run_options: &RunOptions,
-    host: &Arc<Mutex<TestPluginHost>>,
+    host: Addr<TestPluginHost>,
 ) -> Option<(RecommendedWatcher, JoinHandle<()>)> {
     if run_options.watch() {
         let (tx, rx) = channel();
@@ -215,7 +218,6 @@ fn run_initialize_file_watch_thread(
             .watch(run_options.plugin_path(), RecursiveMode::NonRecursive)
             .expect("Failed to watch file");
 
-        let host = host.clone();
         let handle =
             std::thread::spawn(move || file_watch::run_file_watch_loop(rx, run_options, host));
         Some((watcher, handle))

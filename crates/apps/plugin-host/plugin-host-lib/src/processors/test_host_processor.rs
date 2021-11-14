@@ -1,4 +1,5 @@
 use std::ops::Deref;
+use std::time::Duration;
 
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
@@ -9,15 +10,30 @@ use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
+use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
 use crate::processors::running_rms_processor::{RunningRMSProcessor, RunningRMSProcessorHandle};
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::volume_meter_processor::{VolumeMeterProcessor, VolumeMeterProcessorHandle};
-use std::time::Duration;
+
+pub struct TestHostProcessorHandle {
+    #[allow(unused)]
+    plugin_instance: SharedProcessor<PluginInstance>,
+    volume: AtomicF32,
+    #[allow(unused)]
+    volume_meter_processor_handle: Shared<VolumeMeterProcessorHandle>,
+}
+
+impl TestHostProcessorHandle {
+    pub fn set_volume(&self, volume: f32) {
+        self.volume.set(volume);
+    }
+}
 
 /// The app's main processor
 pub struct TestHostProcessor {
     id: String,
+    handle: Shared<TestHostProcessorHandle>,
     plugin_instance: SharedProcessor<PluginInstance>,
     audio_settings: AudioProcessorSettings,
     buffer_handler: CpalVstBufferHandler,
@@ -26,7 +42,6 @@ pub struct TestHostProcessor {
     running_rms_processor: RunningRMSProcessor,
     midi_converter: MidiVSTConverter,
     mono_input: Option<usize>,
-    volume: AtomicF32,
 }
 
 unsafe impl Send for TestHostProcessor {}
@@ -44,22 +59,38 @@ impl TestHostProcessor {
     ) -> Self {
         let audio_settings =
             AudioProcessorSettings::new(sample_rate, channels, channels, buffer_size);
+        let volume_meter_processor = VolumeMeterProcessor::new(handle);
+
+        let host_processor_handle = Shared::new(
+            handle,
+            TestHostProcessorHandle {
+                plugin_instance: plugin_instance.clone(),
+                volume: AtomicF32::new(1.0),
+                volume_meter_processor_handle: volume_meter_processor.handle().clone(),
+            },
+        );
+
+        ProcessorHandleRegistry::current()
+            .register("test-host-processor", host_processor_handle.clone());
+
+        let running_rms_processor =
+            RunningRMSProcessor::new_with_duration(handle, Duration::from_millis(300));
+        ProcessorHandleRegistry::current()
+            .register("rms-processor", running_rms_processor.handle().clone());
+
         TestHostProcessor {
             id: uuid::Uuid::new_v4().to_string(),
+            handle: host_processor_handle,
             plugin_instance,
             audio_settings,
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
             maybe_audio_file_processor: maybe_audio_file_settings.map(|audio_file_settings| {
-                AudioFileProcessor::new(audio_file_settings, audio_settings)
+                AudioFileProcessor::new(handle, audio_file_settings, audio_settings)
             }),
-            volume_meter_processor: VolumeMeterProcessor::new(handle),
-            running_rms_processor: RunningRMSProcessor::new_with_duration(
-                handle,
-                Duration::from_millis(300),
-            ),
+            volume_meter_processor,
+            running_rms_processor,
             midi_converter: MidiVSTConverter::default(),
             mono_input,
-            volume: AtomicF32::new(1.0),
         }
     }
 
@@ -97,6 +128,10 @@ impl TestHostProcessor {
         }
     }
 
+    pub fn handle(&self) -> &Shared<TestHostProcessorHandle> {
+        &self.handle
+    }
+
     pub fn volume_handle(&self) -> &Shared<VolumeMeterProcessorHandle> {
         self.volume_meter_processor.handle()
     }
@@ -110,7 +145,7 @@ impl TestHostProcessor {
     }
 
     pub fn set_volume(&self, volume: f32) {
-        self.volume.set(volume);
+        self.handle.set_volume(volume);
     }
 }
 
@@ -164,7 +199,7 @@ impl AudioProcessor for TestHostProcessor {
         }
         flush_vst_output(num_channels, &mut audio_buffer, output);
 
-        let volume = self.volume.get();
+        let volume = self.handle.volume.get();
         for frame in output.frames_mut() {
             for sample in frame {
                 *sample *= volume;

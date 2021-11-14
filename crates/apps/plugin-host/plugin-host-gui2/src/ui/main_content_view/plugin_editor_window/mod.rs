@@ -1,22 +1,44 @@
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 
+use actix::Addr;
 use iced::Rectangle;
 use vst::editor::Editor;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
+use plugin_host_lib::actor_system::ActorSystemThread;
+use plugin_host_lib::audio_io::GetPluginInstanceMessage;
+use plugin_host_lib::processors::shared_processor::SharedProcessor;
 use plugin_host_lib::TestPluginHost;
 
 mod view;
+
+pub trait IEditorPluginInstanceProvider {
+    fn plugin_instance(&self) -> Option<SharedProcessor<PluginInstance>>;
+}
+
+impl IEditorPluginInstanceProvider for Arc<Mutex<TestPluginHost>> {
+    fn plugin_instance(&self) -> Option<SharedProcessor<PluginInstance>> {
+        self.lock().unwrap().plugin_instance()
+    }
+}
+
+impl IEditorPluginInstanceProvider for Addr<TestPluginHost> {
+    fn plugin_instance(&self) -> Option<SharedProcessor<PluginInstance>> {
+        let addr = self.clone();
+        ActorSystemThread::current()
+            .spawn_result(async move { addr.send(GetPluginInstanceMessage).await.unwrap() })
+    }
+}
 
 pub enum ClosePluginWindowResult {
     NoWindow,
     ClosedPlugin { window_frame: Rectangle },
 }
 
-pub struct EditorController {
-    plugin_host: Arc<Mutex<TestPluginHost>>,
+pub struct EditorController<EditorPluginInstanceProvider: IEditorPluginInstanceProvider> {
+    plugin_instance_provider: EditorPluginInstanceProvider,
     editor: Option<Box<dyn Editor>>,
     window_handle: Option<view::PluginWindowHandle>,
     /// Whether the editor window is above all others
@@ -25,10 +47,12 @@ pub struct EditorController {
     previous_plugin_window_frame: Option<Rectangle>,
 }
 
-impl EditorController {
-    pub fn new(plugin_host: Arc<Mutex<TestPluginHost>>) -> Self {
+impl<EditorPluginInstanceProvider: IEditorPluginInstanceProvider>
+    EditorController<EditorPluginInstanceProvider>
+{
+    pub fn new(plugin_instance_provider: EditorPluginInstanceProvider) -> Self {
         EditorController {
-            plugin_host,
+            plugin_instance_provider,
             editor: None,
             window_handle: None,
             editor_is_floating: false,
@@ -106,7 +130,7 @@ impl EditorController {
             return self.editor.as_mut();
         }
 
-        let instance = self.plugin_host.lock().unwrap().plugin_instance();
+        let instance = self.plugin_instance_provider.plugin_instance();
 
         log::info!("Found plugin instance");
         let instance_ptr = instance?.deref() as *const PluginInstance as *mut PluginInstance;

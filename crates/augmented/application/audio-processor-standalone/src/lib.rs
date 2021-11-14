@@ -81,7 +81,7 @@ fn standalone_start(
     let midi_host = app.midi().and(handle).map(|handle| {
         // MIDI set-up
         let mut midi_host = MidiHost::default_with_handle(handle);
-        midi_host.start().expect("Failed to start MIDI host");
+        midi_host.start_midi().expect("Failed to start MIDI host");
         midi_host
     });
     let mut midi_context = midi_host.as_ref().map(|midi_host| {

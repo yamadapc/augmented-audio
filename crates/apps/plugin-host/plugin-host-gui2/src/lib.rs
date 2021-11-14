@@ -4,17 +4,21 @@ use derive_more::From;
 
 use audio_processor_iced_design_system as design_system;
 use augmented::gui::iced::{Application, Command, Container, Element, Length, Subscription};
+use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_thread::options::AudioThreadOptions;
 use plugin_host_lib::audio_io::audio_thread::AudioThread;
 use plugin_host_lib::TestPluginHost;
 use ui::main_content_view;
 
 pub mod executor;
+mod ops;
 pub mod services;
 pub mod ui;
 mod utils;
 
 pub struct App {
+    #[allow(unused)]
+    actor_system_thread: &'static ActorSystemThread,
     main_content_view: main_content_view::MainContentView,
     start_result: Result<(), plugin_host_lib::audio_io::StartError>,
 }
@@ -37,20 +41,28 @@ impl Application for App {
             "plugin-host-gui2: Application is booting - VERSION={}",
             version
         );
+
+        let actor_system_thread = ActorSystemThread::current();
+
         let mut plugin_host = {
             let audio_settings = AudioThread::default_settings().unwrap();
             let audio_thread_options = AudioThreadOptions::default();
-            TestPluginHost::new(audio_settings, audio_thread_options, true)
+            actor_system_thread.spawn_result(async move {
+                TestPluginHost::new(audio_settings, audio_thread_options, true)
+            })
         };
-        let start_result = plugin_host.start().map_err(|err| {
+        let start_result = plugin_host.start_audio().map_err(|err| {
             log::error!("Failed to start host: {:?}", err);
             err
         });
-        let (main_content_view, command) = main_content_view::MainContentView::new(plugin_host);
+        let (main_content_view, command) =
+            main_content_view::MainContentView::new(plugin_host, &actor_system_thread);
 
+        log::info!("plugin-host-gui2: Start-up is complete");
         (
             App {
                 main_content_view,
+                actor_system_thread,
                 start_result,
             },
             command.map(|msg| msg.into()),

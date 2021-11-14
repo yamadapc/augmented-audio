@@ -1,6 +1,7 @@
 use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
+use ringbuf::Consumer;
 
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 use audio_processor_standalone_midi::host::MidiMessageQueue;
@@ -12,7 +13,6 @@ use options::AudioThreadOptions;
 use crate::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId};
 use crate::processors::shared_processor::{ProcessorCell, SharedProcessor};
 use crate::processors::test_host_processor::TestHostProcessor;
-use ringbuf::Consumer;
 
 mod cpal_option_handling;
 pub mod error;
@@ -56,7 +56,7 @@ impl AudioThread {
         }
     }
 
-    pub fn start(&mut self) -> Result<(), AudioThreadError> {
+    pub fn start_audio(&mut self) -> Result<(), AudioThreadError> {
         let processor = self.processor.clone();
         let audio_thread_options = self.audio_thread_options.clone();
         let midi_message_queue = self.midi_message_queue.clone();
@@ -78,7 +78,7 @@ impl AudioThread {
         if host_id != self.audio_thread_options.host_id {
             self.audio_thread_options.host_id = host_id;
             self.wait()?;
-            self.start()?;
+            self.start_audio()?;
         }
         Ok(())
     }
@@ -91,7 +91,7 @@ impl AudioThread {
         // if input_device_id != self.audio_thread_options.input_device_id {
         self.audio_thread_options.input_device_id = input_device_id;
         self.wait()?;
-        self.start()?;
+        self.start_audio()?;
         // }
         Ok(())
     }
@@ -104,7 +104,7 @@ impl AudioThread {
         // if output_device_id != self.audio_thread_options.output_device_id {
         self.audio_thread_options.output_device_id = output_device_id;
         self.wait()?;
-        self.start()?;
+        self.start_audio()?;
         // }
         Ok(())
     }
@@ -277,5 +277,107 @@ fn output_stream_callback(
 fn input_stream_callback(producer: &mut ringbuf::Producer<f32>, data: &[f32]) {
     for sample in data {
         while producer.push(*sample).is_err() {}
+    }
+}
+
+pub mod actor {
+    use actix::{Actor, Context, Handler, Message};
+
+    use super::*;
+
+    impl Actor for AudioThread {
+        type Context = Context<Self>;
+    }
+
+    #[derive(Message)]
+    #[rtype(result = "Result<(), AudioThreadError>")]
+    pub enum AudioThreadMessage {
+        Start,
+        SetOptions {
+            host_id: AudioHostId,
+            input_device_id: Option<AudioDeviceId>,
+            output_device_id: AudioDeviceId,
+        },
+        SetHost {
+            host_id: AudioHostId,
+        },
+        SetInputDevice {
+            input_device_id: Option<AudioDeviceId>,
+        },
+        SetOutputDevice {
+            output_device_id: AudioDeviceId,
+        },
+        SetProcessor {
+            processor: SharedProcessor<AudioThreadProcessor>,
+        },
+        Wait,
+    }
+
+    impl Handler<AudioThreadMessage> for AudioThread {
+        type Result = Result<(), AudioThreadError>;
+
+        fn handle(&mut self, msg: AudioThreadMessage, _ctx: &mut Self::Context) -> Self::Result {
+            use AudioThreadMessage::*;
+
+            match msg {
+                Start => self.start_audio(),
+                SetOptions {
+                    host_id,
+                    input_device_id,
+                    output_device_id,
+                } => {
+                    let audio_thread_options = AudioThreadOptions {
+                        host_id,
+                        input_device_id,
+                        output_device_id,
+                        ..self.audio_thread_options.clone()
+                    };
+                    if audio_thread_options != self.audio_thread_options {
+                        self.audio_thread_options = audio_thread_options;
+                        self.wait()?;
+                        self.start_audio()?;
+                    }
+                    Ok(())
+                }
+                SetHost { host_id } => self.set_host_id(host_id),
+                SetInputDevice { input_device_id } => self.set_input_device_id(input_device_id),
+                SetOutputDevice { output_device_id } => self.set_output_device_id(output_device_id),
+                SetProcessor { processor } => {
+                    self.set_processor(processor);
+                    Ok(())
+                }
+                Wait => self.wait(),
+            }
+        }
+    }
+
+    #[cfg(target_os = "macos")]
+    #[cfg(test)]
+    mod test {
+        use atomic_queue::Queue;
+        use audio_garbage_collector::GarbageCollector;
+
+        use super::*;
+
+        #[actix::test]
+        async fn test_start_audio_thread() {
+            let _ = wisual_logger::try_init_from_env();
+
+            let gc = GarbageCollector::default();
+            let midi_queue = Shared::new(gc.handle(), Queue::new(100));
+            let audio_thread =
+                AudioThread::new(gc.handle(), midi_queue, Default::default()).start();
+
+            audio_thread
+                .send(AudioThreadMessage::Start)
+                .await
+                .unwrap()
+                .unwrap();
+            audio_thread
+                .send(AudioThreadMessage::Wait)
+                .await
+                .unwrap()
+                .unwrap();
+        }
     }
 }

@@ -1,17 +1,18 @@
-use std::sync::{Arc, Mutex};
+use actix::{Addr, MailboxError};
 
 use iced::{Command, Element};
 
 use crate::ui::audio_io_settings::view::DropdownModel;
 use plugin_host_lib::audio_io::{
-    AudioHost, AudioIOService, AudioIOServiceError, AudioIOServiceResult, AudioIOState,
+    AudioHost, AudioIOService, AudioIOServiceResult, AudioIOState, GetStateMessage, ReloadMessage,
+    SetStateMessage,
 };
 
 pub mod dropdown_with_label;
 pub mod view;
 
 pub struct Controller {
-    audio_io_service: Arc<Mutex<AudioIOService>>,
+    audio_io_service: Addr<AudioIOService>,
     view: view::View,
 }
 
@@ -24,7 +25,7 @@ pub enum Message {
 
 impl Controller {
     // TODO - This should be reading the IO state from disk on startup.
-    pub fn new(audio_io_service: Arc<Mutex<AudioIOService>>) -> (Self, Command<Message>) {
+    pub fn new(audio_io_service: Addr<AudioIOService>) -> (Self, Command<Message>) {
         let audio_driver_state = Self::build_audio_driver_dropdown_state();
         let input_device_state =
             Self::build_input_device_dropdown_state(Some(AudioIOService::default_host()))
@@ -58,15 +59,12 @@ impl Controller {
         )
     }
 
-    fn on_init(audio_io_service: Arc<Mutex<AudioIOService>>) -> Command<Message> {
+    fn on_init(audio_io_service: Addr<AudioIOService>) -> Command<Message> {
         Command::perform(
             async move {
-                let result = tokio::task::spawn_blocking(move || {
-                    let mut audio_io_service = audio_io_service.lock().unwrap();
-                    let _ = audio_io_service.reload();
-                    audio_io_service.state().clone()
-                })
-                .await;
+                let _ = audio_io_service.send(ReloadMessage).await;
+                let result: Result<AudioIOState, MailboxError> =
+                    audio_io_service.send(GetStateMessage).await;
                 result
             },
             move |result| {
@@ -95,28 +93,16 @@ impl Controller {
                 }
                 Command::none()
             }
-            Message::View(view::Message::AudioDriverChange(driver)) => Command::perform(
-                tokio::task::spawn_blocking(move || {
-                    audio_io_service.lock().unwrap().set_host_id(driver)
-                }),
+            Message::View(view::Message::AudioDriverChange(host_id)) => Command::perform(
+                audio_io_service.send(SetStateMessage::SetHostId { host_id }),
                 |_| Message::None,
             ),
-            Message::View(view::Message::InputDeviceChange(device_id)) => Command::perform(
-                tokio::task::spawn_blocking(move || {
-                    audio_io_service
-                        .lock()
-                        .unwrap()
-                        .set_input_device_id(device_id)
-                }),
+            Message::View(view::Message::InputDeviceChange(input_device_id)) => Command::perform(
+                audio_io_service.send(SetStateMessage::SetInputDeviceId { input_device_id }),
                 |_| Message::None,
             ),
-            Message::View(view::Message::OutputDeviceChange(device_id)) => Command::perform(
-                tokio::task::spawn_blocking(move || {
-                    audio_io_service
-                        .lock()
-                        .unwrap()
-                        .set_output_device_id(device_id)
-                }),
+            Message::View(view::Message::OutputDeviceChange(output_device_id)) => Command::perform(
+                audio_io_service.send(SetStateMessage::SetOutputDeviceId { output_device_id }),
                 |_| Message::None,
             ),
             _ => Command::none(),
