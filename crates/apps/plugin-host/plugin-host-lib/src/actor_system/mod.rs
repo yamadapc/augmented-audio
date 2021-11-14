@@ -104,7 +104,7 @@ mod test {
     #[test]
     fn test_start_actor_system_thread() {
         let _ = wisual_logger::try_init_from_env();
-        let _actor_system_thread = ActorSystemThread::default();
+        let _actor_system_thread = ActorSystemThread::with_new_system();
     }
 
     #[test]
@@ -127,7 +127,7 @@ mod test {
         }
 
         let _ = wisual_logger::try_init_from_env();
-        let actor_system_thread = ActorSystemThread::default();
+        let actor_system_thread = ActorSystemThread::with_new_system();
 
         let addr: Addr<TestActor> =
             actor_system_thread.spawn_result(async { TestActor {}.start() });

@@ -5,17 +5,15 @@ use std::sync::{Arc, Mutex};
 use std::time::Duration;
 
 use actix::prelude::*;
-use atomic_queue::Queue;
 use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
 
-use crate::actor_system::ActorSystemThread;
 use audio_garbage_collector::{GarbageCollector, GarbageCollectorError, Shared};
-use audio_processor_standalone_midi::constants::MIDI_BUFFER_CAPACITY;
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 
+use crate::actor_system::ActorSystemThread;
 use crate::audio_io::audio_thread;
 use crate::audio_io::audio_thread::error::AudioThreadError;
 use crate::audio_io::audio_thread::options::AudioThreadOptions;
