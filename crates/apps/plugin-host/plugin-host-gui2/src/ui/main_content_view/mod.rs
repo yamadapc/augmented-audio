@@ -28,6 +28,7 @@ use crate::ui::audio_io_settings;
 use crate::ui::main_content_view::audio_file_chart::AudioFileModel;
 use crate::ui::main_content_view::status_bar::StatusBar;
 use crate::ui::main_content_view::transport_controls::TransportControlsView;
+use crate::utils::set_status_bar;
 
 mod audio_chart;
 mod audio_file_chart;
@@ -308,14 +309,9 @@ impl MainContentView {
         Command::none()
     }
 
-    // TODO Util function?
     fn update_ready_for_playback() -> Command<Message> {
-        Command::perform(iced_futures::futures::future::ready(()), |_| {
-            Message::SetStatus(StatusBar::new(
-                "Ready for playback",
-                status_bar::State::Idle,
-            ))
-        })
+        let status = StatusBar::new("Ready for playback", status_bar::State::Idle);
+        set_status_bar(status)
     }
 
     fn update_audio_io_settings(&mut self, msg: audio_io_settings::Message) -> Command<Message> {
