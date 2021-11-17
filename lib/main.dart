@@ -15,17 +15,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.purple,
-      ),
+          primarySwatch: Colors.purple,
+          textTheme: const TextTheme(
+            bodyText2: TextStyle(
+              fontSize: 12,
+            ),
+          )),
       home: const MyHomePage(title: 'DAW'),
     );
   }
@@ -55,15 +50,15 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         backgroundColor: const Color.fromRGBO(35, 35, 38, 1.0),
         body: Column(children: [
-          Header(),
+          const Header(),
           Expanded(
               child: Row(
-            children: [
+            children: const [
               Sidebar(),
               Expanded(child: TracksView()),
             ],
           )),
-          BottomPanel(),
+          const BottomPanel(),
         ]));
   }
 }
@@ -113,9 +108,12 @@ class _TracksViewState extends State<TracksView> {
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       scrollDirection: Axis.horizontal,
-      children: tracks.map((track) {
-        return JamTrackView(key: Key(track.id), title: track.title);
+      children: List.generate(tracks.length, (trackIndex) {
+        var track = tracks[trackIndex];
+        return JamTrackView(
+            key: Key(track.id), title: track.title, index: trackIndex);
       }).toList(),
+      buildDefaultDragHandles: false,
     );
   }
 }
@@ -137,7 +135,7 @@ class BottomPanel extends StatelessWidget {
           )
         ], border: Border.all(color: const Color.fromRGBO(65, 65, 65, 1.0))),
         height: 200,
-        child: Row(children: [const Text("Plugin 1")]),
+        child: Row(children: const [Text("Plugin 1")]),
       ),
     );
   }
@@ -179,10 +177,12 @@ class Track {
 
 class JamTrackView extends StatelessWidget {
   final String title;
+  final int index;
 
   const JamTrackView({
     Key? key,
     required this.title,
+    required this.index,
   }) : super(key: key);
 
   @override
@@ -195,34 +195,34 @@ class JamTrackView extends StatelessWidget {
               left: BorderSide(color: Color.fromRGBO(65, 65, 65, 0.0)),
               right: BorderSide(color: Color.fromRGBO(65, 65, 65, 1.0)),
             )),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 40.0),
-          child: SizedBox(
-              width: 120,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  // Track heading
-                  TrackTitle(title: title),
-                  Expanded(
-                      child: Column(children: const [
-                    ClipView(title: "Clip 1"),
-                    ClipView(title: "Clip 2"),
-                    ClipView(title: "Clip 3"),
-                    ClipView(title: "Clip 4"),
-                    ClipSlot(),
-                    ClipSlot(),
-                    ClipSlot(),
-                    ClipSlot(),
-                    ClipSlot(),
-                    ClipSlot(),
-                  ])),
-                  const TrackControls()
-                  // Clips
-                ],
-              )),
-        ),
+        child: SizedBox(
+            width: 120,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                // Track heading
+                ReorderableDragStartListener(
+                  index: index,
+                  child: TrackTitle(title: title),
+                ),
+                Expanded(
+                    child: Column(children: const [
+                  ClipView(title: "Clip 1"),
+                  ClipView(title: "Clip 2"),
+                  ClipView(title: "Clip 3"),
+                  ClipView(title: "Clip 4"),
+                  ClipSlot(),
+                  ClipSlot(),
+                  ClipSlot(),
+                  ClipSlot(),
+                  ClipSlot(),
+                  ClipSlot(),
+                ])),
+                const TrackControls()
+                // Clips
+              ],
+            )),
       ),
     );
   }
