@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:graphx/graphx.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const DawApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class DawApp extends StatelessWidget {
+  const DawApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
