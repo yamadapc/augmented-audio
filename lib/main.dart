@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:graphx/graphx.dart';
 
 void main() {
   runApp(const MyApp());
@@ -50,29 +52,129 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-        appBar: AppBar(
-          // Here we take the value from the MyHomePage object that was created by
-          // the App.build method, and use it to set our appbar title.
-          title: Text(widget.title),
-        ),
-        body: ReorderableListView(
-          onReorder: (sourceIndex, targetIndex) {},
-          scrollDirection: Axis.horizontal,
-          children: const [
-            JamTrackView(key: Key("1"), title: "Track 1"),
-            JamTrackView(key: Key("2"), title: "Track 2"),
-            JamTrackView(key: Key("3"), title: "Track 3"),
-            JamTrackView(key: Key("4"), title: "Track 4"),
-          ],
-        ));
+        backgroundColor: const Color.fromRGBO(35, 35, 38, 1.0),
+        body: Column(children: [
+          Header(),
+          Expanded(
+              child: Row(
+            children: [
+              Sidebar(),
+              Expanded(child: TracksView()),
+            ],
+          )),
+          BottomPanel(),
+        ]));
   }
+}
+
+class Sidebar extends StatelessWidget {
+  const Sidebar({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 300,
+      child: Container(
+          decoration:
+              const BoxDecoration(color: Color.fromRGBO(50, 50, 50, 1.0)),
+          child: null),
+    );
+  }
+}
+
+class TracksView extends StatefulWidget {
+  const TracksView({Key? key}) : super(key: key);
+
+  @override
+  State<TracksView> createState() => _TracksViewState();
+}
+
+class _TracksViewState extends State<TracksView> {
+  var tracks = [
+    Track("1", "Track 1"),
+    Track("2", "Track 2"),
+    Track("3", "Track 3"),
+    Track("4", "Track 4"),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return ReorderableListView(
+      onReorder: (sourceIndex, targetIndex) {
+        setState(() {
+          var elem = tracks[sourceIndex];
+          tracks.removeAt(sourceIndex);
+          var targetPrime = Math.max(
+              sourceIndex < targetIndex ? targetIndex - 1 : targetIndex, 0);
+          tracks.insert(targetPrime, elem);
+        });
+      },
+      physics:
+          const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      scrollDirection: Axis.horizontal,
+      children: tracks.map((track) {
+        return JamTrackView(key: Key(track.id), title: track.title);
+      }).toList(),
+    );
+  }
+}
+
+class BottomPanel extends StatelessWidget {
+  const BottomPanel({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var textStyle = TextStyle(color: Colors.white.withOpacity(0.8));
+    return DefaultTextStyle(
+      style: textStyle,
+      child: Container(
+        decoration: BoxDecoration(boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.4),
+            spreadRadius: 1.0,
+            blurRadius: 5.0,
+          )
+        ], border: Border.all(color: const Color.fromRGBO(65, 65, 65, 1.0))),
+        height: 200,
+        child: Row(children: [const Text("Plugin 1")]),
+      ),
+    );
+  }
+}
+
+class Header extends StatelessWidget {
+  const Header({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var textStyle = TextStyle(color: Colors.white.withOpacity(0.8));
+    return DefaultTextStyle.merge(
+      style: textStyle,
+      child: Container(
+          height: 30,
+          width: double.infinity,
+          padding: const EdgeInsets.all(4.0),
+          decoration: BoxDecoration(boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              spreadRadius: 1.0,
+              blurRadius: 5.0,
+            )
+          ], border: Border.all(color: Colors.black)),
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [Text("DAW")])),
+    );
+  }
+}
+
+class Track {
+  final String id;
+  final String title;
+
+  Track(this.id, this.title);
 }
 
 class JamTrackView extends StatelessWidget {
@@ -85,32 +187,42 @@ class JamTrackView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-          border: Border(
-              left: BorderSide(color: Colors.black),
-              right: BorderSide(color: Colors.black))),
+    return ClipRect(
       child: Container(
-        margin: const EdgeInsets.only(bottom: 40.0),
-        child: SizedBox(
-            width: 200,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                // Track heading
-                TrackTitle(title: title),
-                Expanded(
-                    child: Column(children: const [
-                  ClipView(title: "Clip 1"),
-                  ClipView(title: "Clip 2"),
-                  ClipView(title: "Clip 3"),
-                  ClipView(title: "Clip 4"),
-                ])),
-                const TrackControls()
-                // Clips
-              ],
+        decoration: const BoxDecoration(
+            color: Color.fromRGBO(79, 79, 79, 1.0),
+            border: Border(
+              left: BorderSide(color: Color.fromRGBO(65, 65, 65, 0.0)),
+              right: BorderSide(color: Color.fromRGBO(65, 65, 65, 1.0)),
             )),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 40.0),
+          child: SizedBox(
+              width: 120,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  // Track heading
+                  TrackTitle(title: title),
+                  Expanded(
+                      child: Column(children: const [
+                    ClipView(title: "Clip 1"),
+                    ClipView(title: "Clip 2"),
+                    ClipView(title: "Clip 3"),
+                    ClipView(title: "Clip 4"),
+                    ClipSlot(),
+                    ClipSlot(),
+                    ClipSlot(),
+                    ClipSlot(),
+                    ClipSlot(),
+                    ClipSlot(),
+                  ])),
+                  const TrackControls()
+                  // Clips
+                ],
+              )),
+        ),
       ),
     );
   }
@@ -123,49 +235,164 @@ class TrackControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var textStyle = TextStyle(color: Colors.white.withOpacity(0.8));
     return SizedBox(
       width: double.infinity,
       child: Container(
           padding: const EdgeInsets.all(8.0),
           decoration: const BoxDecoration(
-              color: Colors.red,
-              border: Border(
-                  top: BorderSide(color: Colors.black),
-                  bottom: BorderSide(color: Colors.black))),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text("Track controls"),
-                VolumeMeter(),
-                DropdownButton(
-                    isExpanded: true,
-                    value: "Input 1",
-                    items: const [
-                      DropdownMenuItem(
-                          child: Text("Input 1"), value: "Input 1"),
-                      DropdownMenuItem(
-                          child: Text("Input 2"), value: "Input 2"),
-                      DropdownMenuItem(
-                          child: Text("Input 3"), value: "Input 3"),
+            color: Color.fromRGBO(60, 60, 60, 1.0),
+            border:
+                Border(top: BorderSide(color: Color.fromRGBO(90, 90, 90, 1.0))),
+          ),
+          child: DefaultTextStyle.merge(
+            style: textStyle,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(children: const [
+                          Knob(),
+                          Knob(),
+                        ]),
+                      ),
+                      const SizedBox(width: 30, child: VolumeMeter()),
                     ],
-                    onChanged: onChanged)
-              ])),
+                  ),
+                  DropdownButton(
+                      dropdownColor: const Color.fromRGBO(30, 30, 30, 1.0),
+                      style: textStyle,
+                      isExpanded: true,
+                      value: "Input 1",
+                      items: const [
+                        DropdownMenuItem(
+                            child: Text("Input 1"), value: "Input 1"),
+                        DropdownMenuItem(
+                            child: Text("Input 2"), value: "Input 2"),
+                        DropdownMenuItem(
+                            child: Text("Input 3"), value: "Input 3"),
+                      ],
+                      onChanged: onChanged)
+                ]),
+          )),
     );
   }
 
   void onChanged(Object? value) {}
 }
 
+class Knob extends StatelessWidget {
+  const Knob({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: 50,
+        width: 50,
+        decoration: const BoxDecoration(
+          color: Colors.black,
+          shape: BoxShape.circle,
+        ),
+        child: null);
+  }
+}
+
 class VolumeMeter extends StatelessWidget {
+  const VolumeMeter({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        height: 120,
+        height: 150,
         child: Container(
-          decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-          child: const Text("canvas here"),
+          decoration: BoxDecoration(
+              border: Border.all(color: const Color.fromRGBO(90, 90, 90, 1.0))),
+          child: SceneBuilderWidget(
+              builder: () => SceneController(
+                    config: SceneConfig.autoRender,
+                    back: VolumeMeterScene(),
+                  )),
         ));
+  }
+}
+
+class VolumeMeterScene extends GSprite {
+  late GShape rectangleLeft;
+  late GShape rectangleRight;
+  var tick = 0.0;
+
+  @override
+  void addedToStage() {
+    var backgroundLeft = GShape();
+    backgroundLeft.graphics
+      ..beginFill(const Color.fromRGBO(54, 54, 54, 1.0))
+      ..drawRect(0, 0, 11.5, (stage?.stageHeight ?? 0))
+      ..endFill();
+    addChild(backgroundLeft);
+    var backgroundRight = GShape();
+    backgroundRight.graphics
+      ..beginFill(const Color.fromRGBO(54, 54, 54, 1.0))
+      ..drawRect(15.0, 0, 11.5, (stage?.stageHeight ?? 0))
+      ..endFill();
+    addChild(backgroundRight);
+
+    var volumeWidth = 10.0;
+    var volumeHeight = 40.0;
+    rectangleLeft = GShape();
+    rectangleLeft.graphics.lineStyle(1.0, Colors.green)
+      ..beginFill(Colors.green)
+      ..drawRect(2.5, (stage?.stageHeight ?? 0) - volumeHeight, volumeWidth,
+          volumeHeight)
+      ..endFill();
+    addChild(rectangleLeft);
+
+    rectangleRight = GShape();
+    rectangleRight.graphics.lineStyle(1.0, Colors.green)
+      ..beginFill(Colors.green)
+      ..drawRect(volumeWidth + 5.0, (stage?.stageHeight ?? 0) - volumeHeight,
+          volumeWidth, volumeHeight)
+      ..endFill();
+    addChild(rectangleRight);
+  }
+
+  @override
+  void update(double delta) {
+    super.update(delta);
+
+    tick += delta;
+
+    var volumeHeight = 40.0;
+    var height = volumeHeight * (1 + Math.sin(tick * 4.0));
+    rectangleLeft.height = height;
+    rectangleLeft.y = stage?.stageHeight;
+    rectangleLeft.pivotY = stage?.stageHeight ?? 0;
+
+    height = volumeHeight * (1 + Math.cos(tick * 4.0));
+    rectangleRight.height = height;
+    rectangleRight.y = stage?.stageHeight;
+    rectangleRight.pivotY = stage?.stageHeight ?? 0;
+    // print(rectangle.y);
+  }
+}
+
+class ClipSlot extends StatelessWidget {
+  const ClipSlot({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      height: 35,
+      child: Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: const BoxDecoration(
+              color: Color.fromRGBO(50, 50, 50, 1),
+              border: Border(bottom: BorderSide(color: Colors.black))),
+          child: null),
+    );
   }
 }
 
@@ -177,12 +404,34 @@ class ClipView extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
+      height: 35,
       child: Container(
-          padding: const EdgeInsets.all(8.0),
           decoration: const BoxDecoration(
-              color: Color(0xFF9E99FF),
+              color: Color.fromRGBO(50, 50, 50, 1),
               border: Border(bottom: BorderSide(color: Colors.black))),
-          child: Text(title)),
+          child: Container(
+              margin: const EdgeInsets.all(1.0),
+              padding: const EdgeInsets.only(left: 6.0, right: 6.0),
+              decoration: const BoxDecoration(
+                  color: Color.fromRGBO(89, 199, 228, 1),
+                  border: Border(bottom: BorderSide(color: Colors.black))),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(child: Text(title)),
+                  SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: IconButton(
+                        padding: const EdgeInsets.all(0),
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.stop,
+                          size: 20,
+                        )),
+                  ),
+                ],
+              ))),
     );
   }
 }
