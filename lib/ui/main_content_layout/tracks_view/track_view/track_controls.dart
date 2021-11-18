@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'TrackControls/Knob.dart';
-import 'TrackControls/VolumeMeter.dart';
+import 'track_controls/knob.dart';
+import 'track_controls/volume_meter.dart';
 
 class TrackControls extends StatelessWidget {
   const TrackControls({

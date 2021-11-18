@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'MainContentLayout/BottomPanel.dart';
-import 'MainContentLayout/Header.dart';
-import 'MainContentLayout/Sidebar.dart';
-import 'MainContentLayout/TracksView.dart';
+import 'main_content_layout/bottom_panel.dart';
+import 'main_content_layout/header.dart';
+import 'main_content_layout/sidebar.dart';
+import 'main_content_layout/tracks_view.dart';
 
 class MainContentLayout extends StatelessWidget {
   const MainContentLayout({Key? key, required this.title}) : super(key: key);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'TrackView/Clip.dart';
-import 'TrackView/TrackControls.dart';
-import 'TrackView/TrackTitle.dart';
+import 'track_view/clip.dart';
+import 'track_view/track_controls.dart';
+import 'track_view/track_title.dart';
 
 class JamTrackView extends StatelessWidget {
   final String title;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'MainContentLayout.dart';
+import 'main_content_layout.dart';
 
 class DawApp extends StatelessWidget {
   const DawApp({Key? key}) : super(key: key);

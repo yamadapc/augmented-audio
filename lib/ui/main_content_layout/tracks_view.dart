@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:graphx/graphx.dart';
 
-import 'TracksView/TrackView.dart';
+import 'tracks_view/track_view.dart';
 
 class TracksView extends StatefulWidget {
   const TracksView({Key? key}) : super(key: key);
