@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
 
 class BottomPanel extends StatelessWidget {
   const BottomPanel({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = TextStyle(color: Colors.white.withOpacity(0.8));
-    return DefaultTextStyle(
-      style: textStyle,
+    return DawTextStyle(
       child: Container(
         decoration: BoxDecoration(boxShadow: [
           BoxShadow(
