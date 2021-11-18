@@ -6,17 +6,20 @@ class VolumeMeter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        height: 150,
-        child: Container(
-          decoration: BoxDecoration(
-              border: Border.all(color: const Color.fromRGBO(90, 90, 90, 1.0))),
-          child: SceneBuilderWidget(
-              builder: () => SceneController(
-                    config: SceneConfig.autoRender,
-                    back: VolumeMeterScene(),
-                  )),
-        ));
+    return RepaintBoundary(
+      child: SizedBox(
+          height: 150,
+          child: Container(
+            decoration: BoxDecoration(
+                border:
+                    Border.all(color: const Color.fromRGBO(90, 90, 90, 1.0))),
+            child: SceneBuilderWidget(
+                builder: () => SceneController(
+                      config: SceneConfig.autoRender,
+                      back: VolumeMeterScene(),
+                    )),
+          )),
+    );
   }
 }
 
