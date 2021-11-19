@@ -6,7 +6,7 @@
 // tree, read text, and verify that the values of widget properties are correct.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_daw_mock_ui/main.dart';
+import 'package:flutter_daw_mock_ui/ui/daw_app.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

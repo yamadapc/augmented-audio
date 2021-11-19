@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:graphx/graphx.dart';
 
@@ -28,7 +27,6 @@ class _KnobState extends State<Knob> {
       child: GestureDetector(
         onPanStart: onPanStart,
         onPanUpdate: onPanUpdate,
-        onPanCancel: onPanCancel,
         onPanEnd: onPanEnd,
         child:
             CustomPaint(size: Size.square(size), painter: KnobPainter(value)),
@@ -54,7 +52,9 @@ class _KnobState extends State<Knob> {
 
     var angle =
         atan2(center.y - localPosition.y, center.x - localPosition.x) + Math.PI;
-    if (angle < 0.5 * Math.PI) {
+    if (angle > 0.25 * Math.PI && angle < 0.75 * Math.PI) {
+      return;
+    } else if (angle <= 0.25 * Math.PI) {
       angle = Math.PI_2 - startAngle + angle;
     } else {
       angle -= startAngle;
@@ -71,8 +71,6 @@ class _KnobState extends State<Knob> {
       isDragging = false;
     });
   }
-
-  void onPanCancel() {}
 }
 
 class KnobPainter extends CustomPainter {

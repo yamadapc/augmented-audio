@@ -17,7 +17,7 @@ class MainContentLayout extends StatelessWidget {
     const tracksView = TracksView();
     var contentTabs = [
       PanelTab(0, "Tracks", tracksView),
-      PanelTab(1, "Debug", DebugView()),
+      PanelTab(1, "Debug", const DebugView()),
     ];
     var content = Expanded(child: PanelTabsView(tabs: contentTabs));
 
