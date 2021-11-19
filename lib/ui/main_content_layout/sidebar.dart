@@ -12,7 +12,7 @@ class Sidebar extends StatelessWidget {
         child: Container(
             decoration:
                 const BoxDecoration(color: Color.fromRGBO(50, 50, 50, 1.0)),
-            child: SidebarBrowser()),
+            child: const SidebarBrowser()),
       ),
     );
   }
