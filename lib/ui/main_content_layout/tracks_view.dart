@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:graphx/graphx.dart';
 
 import 'tracks_view/track_view.dart';
@@ -51,11 +52,4 @@ class _TracksViewState extends State<TracksView> {
       tracks.insert(targetPrime, elem);
     });
   }
-}
-
-class Track {
-  final String id;
-  final String title;
-
-  Track(this.id, this.title);
 }

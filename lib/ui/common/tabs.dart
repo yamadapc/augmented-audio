@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
 
-class PanelTab {
+class ConcretePanelTab {
   final int id;
   final String title;
   final Widget view;
 
-  PanelTab(this.id, this.title, this.view);
+  ConcretePanelTab(this.id, this.title, this.view);
 }
 
 class PanelTabsView extends StatefulWidget {
-  final List<PanelTab> tabs;
+  final List<ConcretePanelTab> tabs;
 
   const PanelTabsView({Key? key, required this.tabs}) : super(key: key);
 
@@ -56,7 +56,7 @@ class _PanelTabsViewState extends State<PanelTabsView> {
     ]);
   }
 
-  void onTabPressed(PanelTab tab) {
+  void onTabPressed(ConcretePanelTab tab) {
     setState(() {
       selectedTab = tab.id;
     });

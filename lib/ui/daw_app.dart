@@ -17,7 +17,7 @@ class DawApp extends StatelessWidget {
               fontSize: 12,
             ),
           )),
-      home: const MainContentLayout(title: 'DAW'),
+      home: MainContentLayout(title: 'DAW'),
     );
   }
 }

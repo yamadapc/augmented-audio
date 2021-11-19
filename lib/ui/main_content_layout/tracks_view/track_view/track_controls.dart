@@ -26,16 +26,26 @@ class TrackControls extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(children: const [
-                          Knob(),
-                          Knob(),
-                        ]),
-                      ),
-                      const SizedBox(width: 30, child: VolumeMeter()),
-                    ],
+                  IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: const [
+                                  Knob(),
+                                  Knob(),
+                                ]),
+                          ),
+                        ),
+                        const SizedBox(width: 30, child: VolumeMeter()),
+                      ],
+                    ),
                   ),
                   DropdownButton(
                       dropdownColor: const Color.fromRGBO(30, 30, 30, 1.0),
