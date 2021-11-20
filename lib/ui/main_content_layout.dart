@@ -24,6 +24,7 @@ class MainContentLayout extends StatelessWidget {
     ];
     var content = Expanded(child: PanelTabsView(tabs: contentTabs));
 
+    // TODO - review random repaint boundaries
     return Scaffold(
         backgroundColor: const Color.fromRGBO(35, 35, 38, 1.0),
         body: Column(children: [
@@ -31,11 +32,11 @@ class MainContentLayout extends StatelessWidget {
           Expanded(
               child: Row(
             children: [
-              const Sidebar(),
+              const RepaintBoundary(child: Sidebar()),
               content,
             ],
           )),
-          BottomPanel(),
+          RepaintBoundary(child: BottomPanel()),
         ]));
   }
 }
