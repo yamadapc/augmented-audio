@@ -36,7 +36,7 @@ class MainContentLayout extends StatelessWidget {
               content,
             ],
           )),
-          RepaintBoundary(child: BottomPanel()),
+          const RepaintBoundary(child: BottomPanel()),
         ]));
   }
 }

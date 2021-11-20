@@ -6,11 +6,12 @@ class VolumeMeter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var sceneBuilderWidget = SceneBuilderWidget(
-        builder: () => SceneController(
-              config: SceneConfig.autoRender,
-              back: VolumeMeterScene(),
-            ));
+    // var sceneBuilderWidget = SceneBuilderWidget(
+    //     builder: () => SceneController(
+    //           config: SceneConfig.autoRender,
+    //           back: VolumeMeterScene(),
+    //         ));
+
     return RepaintBoundary(
       child: SizedBox(
           height: 150,
