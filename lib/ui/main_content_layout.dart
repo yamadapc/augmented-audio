@@ -35,7 +35,7 @@ class MainContentLayout extends StatelessWidget {
               content,
             ],
           )),
-          const BottomPanel(),
+          BottomPanel(),
         ]));
   }
 }
