@@ -32,18 +32,20 @@ class JamTrackView extends StatelessWidget {
             // Track heading
             TrackTitle(title: title, index: index),
             Expanded(
-              child: Column(children: const [
-                ClipView(title: "Clip 1"),
-                ClipView(title: "Clip 2"),
-                ClipView(title: "Clip 3"),
-                ClipView(title: "Clip 4"),
-                ClipSlot(),
-                ClipSlot(),
-                ClipSlot(),
-                ClipSlot(),
-                ClipSlot(),
-                ClipSlot(),
-              ]),
+              child: SingleChildScrollView(
+                child: Column(children: const [
+                  ClipView(title: "Clip 1"),
+                  ClipView(title: "Clip 2"),
+                  ClipView(title: "Clip 3"),
+                  ClipView(title: "Clip 4"),
+                  ClipSlot(),
+                  ClipSlot(),
+                  ClipSlot(),
+                  ClipSlot(),
+                  ClipSlot(),
+                  ClipSlot(),
+                ]),
+              ),
             ),
             const TrackControls()
             // Clips

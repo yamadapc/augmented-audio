@@ -123,6 +123,7 @@ class Story implements SidebarItem<Story> {
   @override
   final String title;
   final WidgetBuilder? view;
+  @override
   final List<Story> children;
 
   Story(this.title, this.view, this.children);
