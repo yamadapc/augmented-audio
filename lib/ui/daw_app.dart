@@ -11,13 +11,13 @@ class DawApp extends StatelessWidget {
     return MaterialApp(
       title: 'DAW Demo',
       theme: ThemeData(
-          primarySwatch: Colors.purple,
+          primarySwatch: Colors.blue,
           textTheme: const TextTheme(
             bodyText2: TextStyle(
               fontSize: 12,
             ),
           )),
-      home: MainContentLayout(title: 'DAW'),
+      home: const MainContentLayout(title: 'DAW'),
     );
   }
 }
