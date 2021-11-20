@@ -98,7 +98,6 @@ class SidebarButtonView<T> extends StatelessWidget {
             color: isSelected
                 ? const Color.fromRGBO(20, 20, 20, 1.0)
                 : Colors.transparent),
-        padding: const EdgeInsets.only(top: 0, bottom: 4, left: 4, right: 4),
         child: TextButton(
             style: ButtonStyle(
                 foregroundColor: MaterialStateProperty.all(Colors.white),

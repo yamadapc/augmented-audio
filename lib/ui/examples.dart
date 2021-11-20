@@ -11,6 +11,7 @@ class DawStorybook extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    setupStories();
     return StorybookView(storybookState: storybookState);
   }
 
