@@ -7,6 +7,7 @@ import 'package:vector_math/vector_math_64.dart';
 
 import 'tracks_view/track_view.dart';
 import 'tracks_view/track_view/track_controls.dart';
+import 'tracks_view/track_view/track_title.dart';
 
 class TracksView extends StatelessWidget {
   final TracksList tracksList;
@@ -41,6 +42,33 @@ class TracksView extends StatelessWidget {
 
     return Stack(children: [
       content,
+      Positioned(
+          left: 0,
+          top: 0,
+          child: Observer(
+              builder: (_) => Transform(
+                  transform: translationXTransform.value,
+                  child: Row(
+                    children: tracksList.tracks
+                        .asMap()
+                        .entries
+                        .map(
+                          (entry) => Container(
+                              decoration: const BoxDecoration(
+                                  color: Color.fromRGBO(79, 79, 79, 1.0),
+                                  border: Border(
+                                    left: BorderSide(
+                                        color: Color.fromRGBO(65, 65, 65, 0.0)),
+                                    right: BorderSide(
+                                        color: Color.fromRGBO(65, 65, 65, 1.0)),
+                                  )),
+                              width: 120,
+                              child: IntrinsicHeight(
+                                  child: TrackTitle(
+                                      track: entry.value, index: entry.key))),
+                        )
+                        .toList(),
+                  )))),
       Positioned(
         left: 0,
         bottom: 0,
