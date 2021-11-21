@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:flutter_daw_mock_ui/ui/examples.dart';
 
+import 'common/status_bar.dart';
 import 'common/tabs.dart';
 import 'main_content_layout/bottom_panel.dart';
 import 'main_content_layout/header.dart';
@@ -39,6 +40,7 @@ class MainContentLayout extends StatelessWidget {
             ],
           )),
           const RepaintBoundary(child: BottomPanel()),
+          const StatusBar(),
         ]));
   }
 }

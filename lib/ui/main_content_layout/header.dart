@@ -9,7 +9,6 @@ class Header extends StatelessWidget {
     return DefaultTextStyle.merge(
       style: textStyle,
       child: Container(
-          height: 30,
           width: double.infinity,
           padding: const EdgeInsets.all(4.0),
           decoration: BoxDecoration(boxShadow: [
@@ -19,10 +18,23 @@ class Header extends StatelessWidget {
               blurRadius: 5.0,
             )
           ], border: Border.all(color: Colors.black)),
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [Text("DAW")])),
+          child: const TransportControls()),
     );
+  }
+}
+
+class TransportControls extends StatelessWidget {
+  const TransportControls({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: const [
+          Icon(Icons.stop, color: Colors.white),
+          Icon(Icons.play_arrow, color: Colors.white),
+          Icon(Icons.fiber_manual_record, color: Colors.white),
+        ]);
   }
 }
