@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'track_controls/knob.dart';
+import 'track_controls/knob_field.dart';
 import 'track_controls/volume_meter.dart';
 
 class TrackControls extends StatelessWidget {
@@ -40,8 +40,8 @@ class TrackControls extends StatelessWidget {
                                     MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: const [
-                                  Knob(),
-                                  Knob(),
+                                  KnobField(label: "Pan"),
+                                  KnobField(label: "A"),
                                 ]),
                           ),
                         ),
