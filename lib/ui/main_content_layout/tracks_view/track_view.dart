@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/state/project.dart';
 
 import 'track_view/clip.dart';
 import 'track_view/track_controls.dart';
 import 'track_view/track_title.dart';
 
 class JamTrackView extends StatelessWidget {
-  final String title;
   final int index;
+  final Track track;
 
   const JamTrackView({
     Key? key,
-    required this.title,
+    required this.track,
     required this.index,
   }) : super(key: key);
 
@@ -31,20 +32,15 @@ class JamTrackView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               // Track heading
-              TrackTitle(title: title, index: index),
+              TrackTitle(track: track, index: index),
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(children: const [
-                    ClipView(title: "Clip 1"),
-                    ClipView(title: "Clip 2"),
-                    ClipView(title: "Clip 3"),
-                    ClipView(title: "Clip 4"),
-                    ClipSlot(),
-                    ClipSlot(),
-                    ClipSlot(),
-                    ClipSlot(),
-                    ClipSlot(),
-                    ClipSlot(),
+                  child: Column(children: [
+                    ...track.clips
+                        .map((clip) => ClipView(title: clip.title))
+                        .toList(),
+                    const ClipSlot(),
+                    const ClipSlot(),
                   ]),
                 ),
               ),

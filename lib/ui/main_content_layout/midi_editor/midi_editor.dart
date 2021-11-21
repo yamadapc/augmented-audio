@@ -92,7 +92,9 @@ class MidiEditorContentView extends StatelessWidget {
                 return MIDINoteView(
                   note: note,
                   rowPositions: rowPositions,
+                  isSelected: model.selectedNotes.contains(note),
                   parentWidth: boxConstraints.maxWidth - 110,
+                  onTap: () => onTap(note),
                   onDragUpdate: (details) =>
                       onDragUpdate(context, note, details),
                 );
@@ -111,6 +113,10 @@ class MidiEditorContentView extends StatelessWidget {
     var index = (localPosition.dy / 21);
     var newNote = notes[index.toInt()];
     note.note = newNote;
+  }
+
+  onTap(MIDINoteModel note) {
+    model.setSelectedNote(note);
   }
 }
 
@@ -237,17 +243,6 @@ class MIDINoteLane extends StatelessWidget {
                 color: Colors.transparent,
               ),
               child: null,
-              /*
-              LayoutBuilder(
-                  builder: (_, boxConstraints) => Observer(
-                      builder: (_) => Stack(
-                          children: model.midiNoteMap[note.getSymbol()]
-                                  ?.map((note) => MIDINoteView(
-                                      note: note,
-                                      boxConstraints: boxConstraints))
-                                  .toList() ??
-                              [])))
-               */
             ),
           ),
         )
@@ -267,14 +262,18 @@ class MIDINoteView extends StatelessWidget {
   final Map<String, int> rowPositions;
   final double parentWidth;
   final void Function(DragUpdateDetails) onDragUpdate;
+  final void Function() onTap;
+  final bool isSelected;
 
-  const MIDINoteView(
-      {Key? key,
-      required this.note,
-      required this.rowPositions,
-      required this.parentWidth,
-      required this.onDragUpdate})
-      : super(key: key);
+  const MIDINoteView({
+    Key? key,
+    required this.note,
+    required this.isSelected,
+    required this.rowPositions,
+    required this.parentWidth,
+    required this.onDragUpdate,
+    required this.onTap,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -297,9 +296,12 @@ class MIDINoteView extends StatelessWidget {
                     note: note, width: parentWidth, isLeftHandle: true),
                 Expanded(
                   child: GestureDetector(
+                    onTap: onTap,
                     onPanUpdate: onPanUpdate,
                     child: Container(
-                      decoration: const BoxDecoration(color: Colors.blue),
+                      decoration: BoxDecoration(
+                          color:
+                              Colors.blue.withOpacity(isSelected ? 1.0 : 0.5)),
                       width: noteWidth,
                       height: height,
                       child: null,

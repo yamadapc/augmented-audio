@@ -58,19 +58,13 @@ abstract class _MIDIClipModel with Store {
   @observable
   ObservableList<MIDINoteModel> midiNotes = ObservableList.of([]);
 
-  @computed
-  Map<String, List<MIDINoteModel>> get midiNoteMap {
-    Map<String, List<MIDINoteModel>> result = {};
+  @observable
+  ObservableList<MIDINoteModel> selectedNotes = ObservableList.of([]);
 
-    for (var event in midiNotes) {
-      var key = event.note.getSymbol();
-      if (result[key] == null) {
-        result[key] = [];
-      }
-      result[key]!.add(event);
-    }
-
-    return result;
+  @action
+  void setSelectedNote(MIDINoteModel noteModel) {
+    selectedNotes.clear();
+    selectedNotes.add(noteModel);
   }
 
   @action

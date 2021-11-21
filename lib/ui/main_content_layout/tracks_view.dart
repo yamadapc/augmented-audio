@@ -1,32 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
 
 import 'tracks_view/track_view.dart';
 
-class TracksView extends StatefulWidget {
-  const TracksView({Key? key}) : super(key: key);
+class TracksView extends StatelessWidget {
+  final TracksList tracksList;
 
-  @override
-  State<TracksView> createState() => _TracksViewState();
-}
-
-class _TracksViewState extends State<TracksView> {
-  var tracks = [
-    Track("1", "Track 1"),
-    Track("2", "Track 2"),
-    Track("3", "Track 3"),
-    Track("4", "Track 4"),
-  ];
+  TracksView({Key? key, required this.tracksList}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints viewportConstraints) {
-        var trackViews = List.generate(tracks.length, (trackIndex) {
-          var track = tracks[trackIndex];
+    return Observer(
+      builder: (_) {
+        var trackViews = List.generate(tracksList.tracks.length, (trackIndex) {
+          var track = tracksList.tracks[trackIndex];
           return JamTrackView(
-              key: Key(track.id), title: track.title, index: trackIndex);
+              key: Key(track.id), track: track, index: trackIndex);
         }).toList();
 
         var content = ReorderableListView(
@@ -44,12 +35,6 @@ class _TracksViewState extends State<TracksView> {
   }
 
   void onReorderTracks(int sourceIndex, int targetIndex) {
-    setState(() {
-      var elem = tracks[sourceIndex];
-      tracks.removeAt(sourceIndex);
-      var targetPrime = Math.max(
-          sourceIndex < targetIndex ? targetIndex - 1 : targetIndex, 0);
-      tracks.insert(targetPrime, elem);
-    });
+    tracksList.reorderTracks(sourceIndex, targetIndex);
   }
 }

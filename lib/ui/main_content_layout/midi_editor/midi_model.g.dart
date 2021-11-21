@@ -9,14 +9,6 @@ part of 'midi_model.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MIDIClipModel on _MIDIClipModel, Store {
-  Computed<Map<String, List<MIDINoteModel>>>? _$midiNoteMapComputed;
-
-  @override
-  Map<String, List<MIDINoteModel>> get midiNoteMap => (_$midiNoteMapComputed ??=
-          Computed<Map<String, List<MIDINoteModel>>>(() => super.midiNoteMap,
-              name: '_MIDIClipModel.midiNoteMap'))
-      .value;
-
   final _$midiNotesAtom = Atom(name: '_MIDIClipModel.midiNotes');
 
   @override
@@ -32,8 +24,34 @@ mixin _$MIDIClipModel on _MIDIClipModel, Store {
     });
   }
 
+  final _$selectedNotesAtom = Atom(name: '_MIDIClipModel.selectedNotes');
+
+  @override
+  ObservableList<MIDINoteModel> get selectedNotes {
+    _$selectedNotesAtom.reportRead();
+    return super.selectedNotes;
+  }
+
+  @override
+  set selectedNotes(ObservableList<MIDINoteModel> value) {
+    _$selectedNotesAtom.reportWrite(value, super.selectedNotes, () {
+      super.selectedNotes = value;
+    });
+  }
+
   final _$_MIDIClipModelActionController =
       ActionController(name: '_MIDIClipModel');
+
+  @override
+  void setSelectedNote(MIDINoteModel noteModel) {
+    final _$actionInfo = _$_MIDIClipModelActionController.startAction(
+        name: '_MIDIClipModel.setSelectedNote');
+    try {
+      return super.setSelectedNote(noteModel);
+    } finally {
+      _$_MIDIClipModelActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void addEvent({required double time, required Note note}) {
@@ -50,7 +68,7 @@ mixin _$MIDIClipModel on _MIDIClipModel, Store {
   String toString() {
     return '''
 midiNotes: ${midiNotes},
-midiNoteMap: ${midiNoteMap}
+selectedNotes: ${selectedNotes}
     ''';
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:flutter_daw_mock_ui/ui/examples.dart';
 
 import 'common/tabs.dart';
@@ -9,14 +10,17 @@ import 'main_content_layout/sidebar.dart';
 import 'main_content_layout/tracks_view.dart';
 
 class MainContentLayout extends StatelessWidget {
-  const MainContentLayout({Key? key, required this.title}) : super(key: key);
+  final Project project;
+
+  const MainContentLayout(
+      {Key? key, required this.title, required this.project})
+      : super(key: key);
 
   final String title;
 
   @override
   Widget build(BuildContext context) {
-    const tracksView = TracksView();
-
+    var tracksView = TracksView(tracksList: project.tracksList);
     var contentTabs = [
       ConcretePanelTab(0, "Tracks", tracksView),
       ConcretePanelTab(1, "Debug", const DebugView()),
