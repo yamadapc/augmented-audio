@@ -7,9 +7,13 @@ class DawTextStyle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = DefaultTextStyle.of(context)
+    var textStyle = of(context);
+    return DefaultTextStyle(style: textStyle, child: child);
+  }
+
+  static TextStyle of(BuildContext context) {
+    return DefaultTextStyle.of(context)
         .style
         .merge(TextStyle(color: Colors.white.withOpacity(0.8)));
-    return DefaultTextStyle(style: textStyle, child: child);
   }
 }

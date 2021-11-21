@@ -7,6 +7,9 @@ class UIState = _UIState with _$UIState;
 abstract class _UIState with Store {
   @observable
   SidebarState sidebarState = SidebarState();
+
+  @observable
+  PanelTabsState mainContentTabsState = PanelTabsState();
 }
 
 class SidebarState = _SidebarState with _$SidebarState;

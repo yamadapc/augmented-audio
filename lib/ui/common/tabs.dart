@@ -14,12 +14,17 @@ class ConcretePanelTab {
 class PanelTabsView extends StatelessWidget {
   final List<ConcretePanelTab> tabs;
   final void Function()? onMinimize;
-  final PanelTabsState panelTabsState = PanelTabsState();
+  late final PanelTabsState panelTabsState;
   late final bool showVerticalTabs;
 
   PanelTabsView(
-      {Key? key, required this.tabs, this.onMinimize, bool? showVerticalTabs})
+      {Key? key,
+      required this.tabs,
+      this.onMinimize,
+      PanelTabsState? panelTabsState,
+      bool? showVerticalTabs})
       : super(key: key) {
+    this.panelTabsState = panelTabsState ?? PanelTabsState();
     this.showVerticalTabs = showVerticalTabs ?? false;
   }
 

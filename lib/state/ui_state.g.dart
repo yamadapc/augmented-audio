@@ -24,10 +24,28 @@ mixin _$UIState on _UIState, Store {
     });
   }
 
+  final _$mainContentTabsStateAtom =
+      Atom(name: '_UIState.mainContentTabsState');
+
+  @override
+  PanelTabsState get mainContentTabsState {
+    _$mainContentTabsStateAtom.reportRead();
+    return super.mainContentTabsState;
+  }
+
+  @override
+  set mainContentTabsState(PanelTabsState value) {
+    _$mainContentTabsStateAtom.reportWrite(value, super.mainContentTabsState,
+        () {
+      super.mainContentTabsState = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
-sidebarState: ${sidebarState}
+sidebarState: ${sidebarState},
+mainContentTabsState: ${mainContentTabsState}
     ''';
   }
 }

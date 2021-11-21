@@ -6,6 +6,8 @@ import 'package:mobx/mobx.dart';
 
 import 'main_content_layout.dart';
 
+var uiState = UIState();
+
 class DawApp extends StatelessWidget {
   const DawApp({Key? key}) : super(key: key);
 
@@ -26,8 +28,6 @@ class DawApp extends StatelessWidget {
       Track(id: "2", title: "Track 2"),
     ];
     project.tracksList.tracks.addAll(tracks);
-
-    var uiState = UIState();
 
     return MaterialApp(
       title: 'DAW Demo',
