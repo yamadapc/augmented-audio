@@ -40,7 +40,7 @@ class BottomPanel extends StatelessWidget {
                       Border.all(color: const Color.fromRGBO(65, 65, 65, 1.0))),
               height: heightObservable.value,
               child: PanelTabsView(tabs: [
-                ConcretePanelTab(0, "MIDI Editor", const MIDIEditorView()),
+                ConcretePanelTab(0, "MIDI Editor", MIDIEditorView()),
                 ConcretePanelTab(1, "FX", const TrackEffectsView()),
               ]),
             )

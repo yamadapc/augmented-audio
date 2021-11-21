@@ -10,7 +10,9 @@ class TrackControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = TextStyle(color: Colors.white.withOpacity(0.8));
+    var defaultTextStyle = DefaultTextStyle.of(context).style;
+    var textStyle =
+        defaultTextStyle.merge(TextStyle(color: Colors.white.withOpacity(0.8)));
     return SizedBox(
       width: double.infinity,
       child: Container(

@@ -104,7 +104,9 @@ class SidebarButtonView<T> extends StatelessWidget {
                 backgroundColor: MaterialStateProperty.all(Colors.transparent),
                 alignment: Alignment.centerLeft,
                 textStyle: MaterialStateProperty.all(
-                    const TextStyle(color: Colors.white))),
+                    DefaultTextStyle.of(context)
+                        .style
+                        .merge(const TextStyle(color: Colors.white)))),
             onPressed: onPressedInner,
             child: Text(title)));
   }

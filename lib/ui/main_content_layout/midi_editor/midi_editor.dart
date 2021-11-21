@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
-List<String> notes = [
+import 'midi_model.dart';
+
+List<Note> notes = [
   "C3",
   "C#3",
   "D3",
@@ -27,15 +29,19 @@ List<String> notes = [
   "A4",
   "A#4",
   "B4",
-].reversed.toList();
+].reversed.map((note) => Note.ofSymbol(note)).toList();
 
 class MIDIEditorView extends StatelessWidget {
-  const MIDIEditorView({Key? key}) : super(key: key);
+  final MIDIClipModel model = MIDIClipModel();
+
+  MIDIEditorView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return DefaultTextStyle(
-      style: const TextStyle(color: Colors.black),
+      style: DefaultTextStyle.of(context)
+          .style
+          .merge(const TextStyle(color: Colors.black)),
       child: Container(
         decoration:
             const BoxDecoration(color: Color.fromRGBO(120, 120, 120, 1)),
@@ -47,10 +53,7 @@ class MIDIEditorView extends StatelessWidget {
                 children: [
                   const MIDITimelineBackground(),
                   SingleChildScrollView(
-                    child: Column(
-                        children: notes
-                            .map((note) => MIDINoteLane(note: note))
-                            .toList()),
+                    child: MidiEditorContentView(model: model),
                   )
                 ],
               ),
@@ -59,6 +62,55 @@ class MIDIEditorView extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class MidiEditorContentView extends StatelessWidget {
+  const MidiEditorContentView({
+    Key? key,
+    required this.model,
+  }) : super(key: key);
+
+  final MIDIClipModel model;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (_, boxConstraints) {
+        var rowPositions = notes.asMap().map((key, value) {
+          return MapEntry(value.getSymbol(), key * 21);
+        });
+
+        return Observer(
+          builder: (context) => Stack(
+            children: [
+              Column(
+                  children: notes
+                      .map((note) => MIDINoteLane(note: note, model: model))
+                      .toList()),
+              ...model.midiNotes.map((note) {
+                return MIDINoteView(
+                  note: note,
+                  rowPositions: rowPositions,
+                  parentWidth: boxConstraints.maxWidth - 110,
+                  onDragUpdate: (details) =>
+                      onDragUpdate(context, note, details),
+                );
+              }).toList()
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  onDragUpdate(
+      BuildContext context, MIDINoteModel note, DragUpdateDetails details) {
+    var renderBox = context.findRenderObject() as RenderBox;
+    var localPosition = renderBox.globalToLocal(details.globalPosition);
+    var index = (localPosition.dy / 21);
+    var newNote = notes[index.toInt()];
+    note.note = newNote;
   }
 }
 
@@ -155,24 +207,12 @@ class MIDITimelineHeader extends StatelessWidget {
   }
 }
 
-class MIDILaneModel {
-  final List<MIDINote> notes;
-
-  MIDILaneModel(this.notes);
-}
-
-class MIDINote {
-  final Observable<double> time;
-  final Observable<double> duration = Observable((1 / 4) / 4);
-
-  MIDINote(this.time);
-}
-
 class MIDINoteLane extends StatelessWidget {
-  final String note;
-  final Observable<MIDILaneModel> midiLaneModel = Observable(MIDILaneModel([]));
+  final Note note;
+  final MIDIClipModel model;
 
-  MIDINoteLane({Key? key, required this.note}) : super(key: key);
+  const MIDINoteLane({Key? key, required this.note, required this.model})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -184,8 +224,8 @@ class MIDINoteLane extends StatelessWidget {
       ),
       width: double.infinity,
       child: Row(children: [
-        SizedBox(width: 50, child: Text(note)),
-        PianoKeyView(isSharp: isSharp()),
+        SizedBox(width: 50, child: Text(note.getSymbol())),
+        PianoKeyView(isSharp: note.isSharp()),
         Expanded(
           child: GestureDetector(
             onTapUp: (details) => onTapUp(context, details),
@@ -196,13 +236,18 @@ class MIDINoteLane extends StatelessWidget {
                 // Without painting, there's no gesture detection above
                 color: Colors.transparent,
               ),
-              child: LayoutBuilder(
+              child: null,
+              /*
+              LayoutBuilder(
                   builder: (_, boxConstraints) => Observer(
                       builder: (_) => Stack(
-                          children: midiLaneModel.value.notes
-                              .map((note) => MIDINoteView(
-                                  note: note, boxConstraints: boxConstraints))
-                              .toList()))),
+                          children: model.midiNoteMap[note.getSymbol()]
+                                  ?.map((note) => MIDINoteView(
+                                      note: note,
+                                      boxConstraints: boxConstraints))
+                                  .toList() ??
+                              [])))
+               */
             ),
           ),
         )
@@ -213,36 +258,35 @@ class MIDINoteLane extends StatelessWidget {
   void onTapUp(BuildContext context, TapUpDetails details) {
     var width = context.size!.width - 110;
     var x = details.localPosition.dx / width;
-    var note = MIDINote(Observable(x));
-    runInAction(() {
-      var model = MIDILaneModel(midiLaneModel.value.notes);
-      model.notes.add(note);
-      midiLaneModel.value = model;
-    });
-  }
-
-  bool isSharp() {
-    return note.contains("#");
+    model.addEvent(time: x, note: note);
   }
 }
 
 class MIDINoteView extends StatelessWidget {
-  final MIDINote note;
-  final BoxConstraints boxConstraints;
+  final MIDINoteModel note;
+  final Map<String, int> rowPositions;
+  final double parentWidth;
+  final void Function(DragUpdateDetails) onDragUpdate;
 
   const MIDINoteView(
-      {Key? key, required this.note, required this.boxConstraints})
+      {Key? key,
+      required this.note,
+      required this.rowPositions,
+      required this.parentWidth,
+      required this.onDragUpdate})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        var notePosition = note.time.value * boxConstraints.maxWidth;
-        var noteWidth = note.duration.value * boxConstraints.maxWidth;
+        var notePosition = 110 + note.time * parentWidth;
+        var noteWidth = note.duration * parentWidth;
         var height = 20.0;
+        var noteTop = rowPositions[note.note.getSymbol()]!.toDouble();
+
         return Positioned(
-          top: 0,
+          top: noteTop,
           left: notePosition,
           child: SizedBox(
             width: noteWidth,
@@ -250,9 +294,7 @@ class MIDINoteView extends StatelessWidget {
             child: Row(
               children: [
                 MIDIResizeHandleView(
-                    note: note,
-                    boxConstraints: boxConstraints,
-                    isLeftHandle: true),
+                    note: note, width: parentWidth, isLeftHandle: true),
                 Expanded(
                   child: GestureDetector(
                     onPanUpdate: onPanUpdate,
@@ -265,9 +307,7 @@ class MIDINoteView extends StatelessWidget {
                   ),
                 ),
                 MIDIResizeHandleView(
-                    note: note,
-                    boxConstraints: boxConstraints,
-                    isLeftHandle: false),
+                    note: note, width: parentWidth, isLeftHandle: false),
               ],
             ),
           ),
@@ -277,22 +317,23 @@ class MIDINoteView extends StatelessWidget {
   }
 
   void onPanUpdate(DragUpdateDetails details) {
-    var dx = details.delta.dx / boxConstraints.maxWidth;
+    var dx = details.delta.dx / parentWidth;
     runInAction(() {
-      note.time.value += dx;
+      note.time += dx;
     });
+    onDragUpdate(details);
   }
 }
 
 class MIDIResizeHandleView extends StatelessWidget {
-  final MIDINote note;
-  final BoxConstraints boxConstraints;
+  final MIDINoteModel note;
+  final double width;
   final bool isLeftHandle;
 
   const MIDIResizeHandleView(
       {Key? key,
       required this.note,
-      required this.boxConstraints,
+      required this.width,
       required this.isLeftHandle})
       : super(key: key);
 
@@ -311,13 +352,13 @@ class MIDIResizeHandleView extends StatelessWidget {
   }
 
   void onPanUpdate(DragUpdateDetails details) {
-    var dx = details.delta.dx / boxConstraints.maxWidth;
+    var dx = details.delta.dx / width;
     runInAction(() {
       if (isLeftHandle) {
-        note.time.value += dx;
-        note.duration.value -= dx;
+        note.time += dx;
+        note.duration -= dx;
       } else {
-        note.duration.value += dx;
+        note.duration += dx;
       }
     });
   }

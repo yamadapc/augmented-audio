@@ -45,7 +45,10 @@ class _PanelTabsViewState extends State<PanelTabsView> {
                                         Colors.transparent),
                                     alignment: Alignment.centerLeft,
                                     textStyle: MaterialStateProperty.all(
-                                        const TextStyle(color: Colors.white))),
+                                        DefaultTextStyle.of(context)
+                                            .style
+                                            .merge(const TextStyle(
+                                                color: Colors.white)))),
                                 onPressed: () {
                                   onTabPressed(tab);
                                 },
