@@ -4,7 +4,6 @@ import 'package:flutter_daw_mock_ui/ui/examples.dart';
 
 import 'common/tabs.dart';
 import 'main_content_layout/bottom_panel.dart';
-import 'main_content_layout/debug/debug_view.dart';
 import 'main_content_layout/header.dart';
 import 'main_content_layout/sidebar.dart';
 import 'main_content_layout/tracks_view.dart';
@@ -23,8 +22,7 @@ class MainContentLayout extends StatelessWidget {
     var tracksView = TracksView(tracksList: project.tracksList);
     var contentTabs = [
       ConcretePanelTab(0, "Tracks", tracksView),
-      ConcretePanelTab(1, "Debug", const DebugView()),
-      ConcretePanelTab(2, "Storybook", const DawStorybook()),
+      ConcretePanelTab(1, "Storybook", const DawStorybook()),
     ];
     var content = Expanded(child: PanelTabsView(tabs: contentTabs));
 
