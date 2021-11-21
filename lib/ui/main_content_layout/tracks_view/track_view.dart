@@ -4,13 +4,11 @@ import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'track_view/clip.dart';
 
 class JamTrackView extends StatelessWidget {
-  final int index;
   final Track track;
 
   const JamTrackView({
     Key? key,
     required this.track,
-    required this.index,
   }) : super(key: key);
 
   @override

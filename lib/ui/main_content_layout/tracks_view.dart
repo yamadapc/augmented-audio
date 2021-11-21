@@ -28,11 +28,10 @@ class TracksView extends StatelessWidget {
           constraints: BoxConstraints(minHeight: getHeight(viewport)),
           child: Observer(
             builder: (_) => Row(
-                children: List.generate(tracksList.tracks.length, (trackIndex) {
-              var track = tracksList.tracks[trackIndex];
-              return JamTrackView(
-                  key: Key(track.id), track: track, index: trackIndex);
-            }).toList()),
+                children: tracksList.tracks
+                    .map((track) =>
+                        JamTrackView(key: Key(track.id), track: track))
+                    .toList()),
           ),
         ),
       ),
