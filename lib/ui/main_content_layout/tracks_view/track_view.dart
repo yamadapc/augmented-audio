@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
 
 import 'track_view/clip.dart';
-import 'track_view/track_controls.dart';
 import 'track_view/track_title.dart';
 
 class JamTrackView extends StatelessWidget {
@@ -17,10 +16,12 @@ class JamTrackView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var trackWidth = 120.0;
+
     return RepaintBoundary(
       child: ClipRect(
         child: Container(
-          width: 120,
+          width: trackWidth,
           decoration: const BoxDecoration(
               color: Color.fromRGBO(79, 79, 79, 1.0),
               border: Border(
@@ -50,7 +51,7 @@ class JamTrackView extends StatelessWidget {
                   const ClipSlot(),
                 ]),
               ),
-              RepaintBoundary(child: TrackControls(track: track))
+              const SizedBox(height: 300),
               // Clips
             ],
           ),
