@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:mobx/mobx.dart';
 
@@ -11,6 +12,11 @@ class DawApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var project = Project();
+    var audioIOState = AudioIOState(ObservableList.of([
+      AudioInput("none", "No input"),
+      AudioInput("1", "Input 1"),
+      AudioInput("2", "Input 2"),
+    ]));
     var tracks = [
       Track(
           id: "1",
@@ -31,7 +37,9 @@ class DawApp extends StatelessWidget {
               fontSize: 12,
             ),
           )),
-      home: MainContentLayout(title: 'DAW', project: project),
+      home: AudioIOStateProvider(
+          audioIOState: audioIOState,
+          child: MainContentLayout(title: 'DAW', project: project)),
     );
   }
 }

@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
+import 'package:flutter_daw_mock_ui/state/project.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'track_controls/knob_field.dart';
 import 'track_controls/volume_meter.dart';
 
 class TrackControls extends StatelessWidget {
+  final Track track;
+
   const TrackControls({
     Key? key,
+    required this.track,
   }) : super(key: key);
 
   @override
@@ -13,6 +19,7 @@ class TrackControls extends StatelessWidget {
     var defaultTextStyle = DefaultTextStyle.of(context).style;
     var textStyle =
         defaultTextStyle.merge(TextStyle(color: Colors.white.withOpacity(0.8)));
+
     return SizedBox(
       width: double.infinity,
       child: Container(
@@ -49,24 +56,62 @@ class TrackControls extends StatelessWidget {
                       ],
                     ),
                   ),
-                  DropdownButton(
-                      dropdownColor: const Color.fromRGBO(30, 30, 30, 1.0),
-                      style: textStyle,
-                      isExpanded: true,
-                      value: "Input 1",
-                      items: const [
-                        DropdownMenuItem(
-                            child: Text("Input 1"), value: "Input 1"),
-                        DropdownMenuItem(
-                            child: Text("Input 2"), value: "Input 2"),
-                        DropdownMenuItem(
-                            child: Text("Input 3"), value: "Input 3"),
-                      ],
-                      onChanged: onChanged)
+                  Observer(
+                    builder: (_) => AudioIOInputDropdownView(
+                        value: AudioIOStateProvider.stateOf(context)
+                            .availableInputs
+                            .firstWhere(
+                                (input) => input.id == track.audioInputId),
+                        onChanged: onChanged),
+                  )
                 ]),
           )),
     );
   }
 
-  void onChanged(Object? value) {}
+  void onChanged(AudioInput? input) {
+    if (input != null) {
+      track.setAudioInputId(input.id);
+    } else {
+      track.setAudioInputId("none");
+    }
+  }
+}
+
+typedef AudioIOInputDropdownViewOnChanged = void Function(AudioInput?);
+
+class AudioIOInputDropdownView extends StatelessWidget {
+  final AudioInput? value;
+  final AudioIOInputDropdownViewOnChanged onChanged;
+
+  const AudioIOInputDropdownView({
+    Key? key,
+    required this.value,
+    required this.onChanged,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Observer(
+      builder: (buildContext) {
+        var audioIOState = AudioIOStateProvider.stateOf(buildContext);
+        var dropdownItems = audioIOState.availableInputs
+            .map(
+              (input) =>
+                  DropdownMenuItem(child: Text(input.title), value: input),
+            )
+            .toList();
+
+        return DropdownButton<AudioInput>(
+            dropdownColor: const Color.fromRGBO(30, 30, 30, 1.0),
+            style: DefaultTextStyle.of(buildContext)
+                .style
+                .merge(TextStyle(color: Colors.white.withOpacity(0.8))),
+            isExpanded: true,
+            value: value,
+            items: dropdownItems,
+            onChanged: onChanged);
+      },
+    );
+  }
 }

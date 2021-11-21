@@ -38,9 +38,17 @@ abstract class _Track with Store {
   @observable
   String title = "";
 
+  @observable
+  String audioInputId = "none";
+
   ObservableList<Clip> clips = ObservableList.of([]);
 
   ObservableList<AudioEffectInstance> audioEffects = ObservableList.of([]);
+
+  @action
+  void setAudioInputId(String audioInputId) {
+    this.audioInputId = audioInputId;
+  }
 
   _Track({required this.id, required this.title, clips}) {
     this.clips = clips ?? ObservableList.of([]);

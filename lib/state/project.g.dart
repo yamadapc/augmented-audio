@@ -116,11 +116,40 @@ mixin _$Track on _Track, Store {
     });
   }
 
+  final _$audioInputIdAtom = Atom(name: '_Track.audioInputId');
+
+  @override
+  String get audioInputId {
+    _$audioInputIdAtom.reportRead();
+    return super.audioInputId;
+  }
+
+  @override
+  set audioInputId(String value) {
+    _$audioInputIdAtom.reportWrite(value, super.audioInputId, () {
+      super.audioInputId = value;
+    });
+  }
+
+  final _$_TrackActionController = ActionController(name: '_Track');
+
+  @override
+  void setAudioInputId(String audioInputId) {
+    final _$actionInfo =
+        _$_TrackActionController.startAction(name: '_Track.setAudioInputId');
+    try {
+      return super.setAudioInputId(audioInputId);
+    } finally {
+      _$_TrackActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
 id: ${id},
-title: ${title}
+title: ${title},
+audioInputId: ${audioInputId}
     ''';
   }
 }
