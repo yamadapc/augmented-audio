@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
+import 'package:flutter_daw_mock_ui/state/ui_state.dart';
 import 'package:flutter_daw_mock_ui/ui/examples.dart';
 
 import 'common/status_bar.dart';
@@ -11,9 +12,13 @@ import 'main_content_layout/tracks_view.dart';
 
 class MainContentLayout extends StatelessWidget {
   final Project project;
+  final UIState uiState;
 
   const MainContentLayout(
-      {Key? key, required this.title, required this.project})
+      {Key? key,
+      required this.title,
+      required this.project,
+      required this.uiState})
       : super(key: key);
 
   final String title;
@@ -35,7 +40,8 @@ class MainContentLayout extends StatelessWidget {
           Expanded(
               child: Row(
             children: [
-              const RepaintBoundary(child: Sidebar()),
+              RepaintBoundary(
+                  child: Sidebar(sidebarState: uiState.sidebarState)),
               content,
             ],
           )),

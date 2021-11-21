@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
+import 'package:flutter_daw_mock_ui/state/ui_state.dart';
 import 'package:mobx/mobx.dart';
 
 import 'main_content_layout.dart';
@@ -23,16 +24,10 @@ class DawApp extends StatelessWidget {
           title: "Track 1",
           clips: ObservableList.of([Clip(title: "Clip 1")])),
       Track(id: "2", title: "Track 2"),
-      Track(id: "3", title: "Track 3"),
-      Track(id: "4", title: "Track 4"),
-      Track(id: "5", title: "Track 5"),
-      Track(id: "6", title: "Track 6"),
-      Track(id: "7", title: "Track 7"),
-      Track(id: "8", title: "Track 8"),
-      Track(id: "9", title: "Track 9"),
-      Track(id: "10", title: "Track 10"),
     ];
     project.tracksList.tracks.addAll(tracks);
+
+    var uiState = UIState();
 
     return MaterialApp(
       title: 'DAW Demo',
@@ -45,7 +40,8 @@ class DawApp extends StatelessWidget {
           )),
       home: AudioIOStateProvider(
           audioIOState: audioIOState,
-          child: MainContentLayout(title: 'DAW', project: project)),
+          child: MainContentLayout(
+              title: 'DAW', project: project, uiState: uiState)),
     );
   }
 }

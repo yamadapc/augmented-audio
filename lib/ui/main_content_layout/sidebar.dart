@@ -1,108 +1,62 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_daw_mock_ui/ui/common/generic_sidebar.dart';
+import 'package:flutter_daw_mock_ui/state/ui_state.dart';
 import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
+import 'package:flutter_daw_mock_ui/ui/common/tabs.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
-class Category implements SidebarItem<Category> {
-  @override
-  final String title;
-  const Category(this.title);
-
-  @override
-  List<Category> get children {
-    return [];
-  }
-}
+import 'sidebar/sidebar_browser.dart';
 
 class Sidebar extends StatelessWidget {
-  const Sidebar({Key? key}) : super(key: key);
+  final SidebarState sidebarState;
+
+  const Sidebar({Key? key, required this.sidebarState}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return DawTextStyle(
-      child: SizedBox(
-        width: 400,
-        child: Container(
-            decoration:
-                const BoxDecoration(color: Color.fromRGBO(50, 50, 50, 1.0)),
-            child: const SidebarBrowser()),
+    var tabs = [
+      ConcretePanelTab(
+          0,
+          "Browser",
+          Container(
+              decoration:
+                  const BoxDecoration(color: Color.fromRGBO(50, 50, 50, 1.0)),
+              child: const SidebarBrowser()))
+    ];
+    return Observer(
+      builder: (_) => DawTextStyle(
+        child: sidebarState.panelState.isExpanded
+            ? SizedBox(
+                width: sidebarState.panelState.size,
+                child: PanelTabsView(
+                  showVerticalTabs: true,
+                  onMinimize: onMinimize,
+                  tabs: tabs,
+                ),
+              )
+            : Container(
+                decoration: const BoxDecoration(
+                    border: Border(
+                        right: BorderSide(color: Color.fromRGBO(0, 0, 0, 1.0))),
+                    color: Color.fromRGBO(80, 80, 80, 1.0)),
+                child: RotatedBox(
+                  quarterTurns: -1,
+                  child: Row(
+                    children: [
+                      const Spacer(),
+                      SelectableButton(
+                          onPressed: () {
+                            onMinimize();
+                          },
+                          isSelected: true,
+                          child: const Text("Browser"))
+                    ],
+                  ),
+                )),
       ),
     );
   }
-}
 
-class SidebarBrowser extends StatefulWidget {
-  const SidebarBrowser({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<SidebarBrowser> createState() => _SidebarBrowserState();
-}
-
-class _SidebarBrowserState extends State<SidebarBrowser> {
-  Category? selectedCategory;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(children: [
-      SizedBox(
-        width: 150,
-        child: Container(
-          decoration: const BoxDecoration(
-              border: Border(
-                  right: BorderSide(color: Color.fromRGBO(20, 20, 20, 1.0))),
-              color: Color.fromRGBO(80, 80, 80, 1.0)),
-          child: SidebarCategories(
-              selectedCategory: selectedCategory,
-              onSelectCategory: onSelectCategory),
-        ),
-      ),
-      SizedBox(
-        width: 250,
-        child: Container(
-          padding: const EdgeInsets.all(4.0),
-          decoration: const BoxDecoration(
-              border: Border(
-                  right: BorderSide(color: Color.fromRGBO(20, 20, 20, 1.0)))),
-          child: ListView(children: const [
-            Text("Samples"),
-            Text("Effects"),
-            Text("Instruments"),
-            Text("Plugins"),
-          ]),
-        ),
-      )
-    ]);
-  }
-
-  void onSelectCategory(Category category) {
-    setState(() {
-      selectedCategory = category;
-    });
-  }
-}
-
-class SidebarCategories extends StatelessWidget {
-  final List<Category> categories = const [
-    Category("Samples"),
-    Category("Effects"),
-    Category("Instruments"),
-    Category("Plug-ins"),
-  ];
-  final Category? selectedCategory;
-  final void Function(Category) onSelectCategory;
-
-  const SidebarCategories(
-      {Key? key,
-      required this.selectedCategory,
-      required this.onSelectCategory})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return SidebarButtonsListView(
-        values: categories,
-        selectedValue: selectedCategory,
-        onSelect: onSelectCategory);
+  void onMinimize() {
+    sidebarState.panelState.toggleExpanded();
   }
 }
