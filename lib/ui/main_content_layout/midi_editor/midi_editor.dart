@@ -51,7 +51,7 @@ class MIDIEditorView extends StatelessWidget {
             Expanded(
               child: Stack(
                 children: [
-                  const MIDITimelineBackground(),
+                  const RepaintBoundary(child: MIDITimelineBackground()),
                   SingleChildScrollView(
                     child: MidiEditorContentView(model: model),
                   )
@@ -84,21 +84,23 @@ class MidiEditorContentView extends StatelessWidget {
         return Observer(
           builder: (context) => Stack(
             children: [
-              Column(
-                  children: notes
-                      .map((note) => MIDINoteLane(note: note, model: model))
-                      .toList()),
-              ...model.midiNotes.map((note) {
-                return MIDINoteView(
-                  note: note,
-                  rowPositions: rowPositions,
-                  isSelected: model.selectedNotes.contains(note),
-                  parentWidth: boxConstraints.maxWidth - 110,
-                  onTap: () => onTap(note),
-                  onDragUpdate: (details) =>
-                      onDragUpdate(context, note, details),
-                );
-              }).toList()
+              RepaintBoundary(
+                child: Column(
+                    children: notes
+                        .map((note) => MIDINoteLane(note: note, model: model))
+                        .toList()),
+              ),
+              ...model.midiNotes
+                  .map((note) => MIDINoteView(
+                        note: note,
+                        rowPositions: rowPositions,
+                        isSelected: model.selectedNotes.contains(note),
+                        parentWidth: boxConstraints.maxWidth - 110,
+                        onTap: () => onTap(note),
+                        onDragUpdate: (details) =>
+                            onDragUpdate(context, note, details),
+                      ))
+                  .toList()
             ],
           ),
         );
@@ -287,30 +289,32 @@ class MIDINoteView extends StatelessWidget {
         return Positioned(
           top: noteTop,
           left: notePosition,
-          child: SizedBox(
-            width: noteWidth,
-            height: height,
-            child: Row(
-              children: [
-                MIDIResizeHandleView(
-                    note: note, width: parentWidth, isLeftHandle: true),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: onTap,
-                    onPanUpdate: onPanUpdate,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          color:
-                              Colors.blue.withOpacity(isSelected ? 1.0 : 0.5)),
-                      width: noteWidth,
-                      height: height,
-                      child: null,
+          child: RepaintBoundary(
+            child: SizedBox(
+              width: noteWidth,
+              height: height,
+              child: Row(
+                children: [
+                  MIDIResizeHandleView(
+                      note: note, width: parentWidth, isLeftHandle: true),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: onTap,
+                      onPanUpdate: onPanUpdate,
+                      child: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.blue
+                                .withOpacity(isSelected ? 1.0 : 0.5)),
+                        width: noteWidth,
+                        height: height,
+                        child: null,
+                      ),
                     ),
                   ),
-                ),
-                MIDIResizeHandleView(
-                    note: note, width: parentWidth, isLeftHandle: false),
-              ],
+                  MIDIResizeHandleView(
+                      note: note, width: parentWidth, isLeftHandle: false),
+                ],
+              ),
             ),
           ),
         );

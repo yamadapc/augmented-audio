@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class TrackTitle extends StatelessWidget {
   const TrackTitle({
@@ -13,21 +14,32 @@ class TrackTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scrollable(
-        axisDirection: AxisDirection.down,
-        viewportBuilder: (context, offset) => ReorderableDragStartListener(
-            index: index,
-            child: SizedBox(
-              width: double.infinity,
-              child: Container(
+    return ReorderableDragStartListener(
+        index: index,
+        child: GestureDetector(
+          onTap: () {
+            track.select();
+          },
+          child: SizedBox(
+            width: double.infinity,
+            child: Observer(
+              builder: (_) => Container(
                 padding: const EdgeInsets.all(8.0),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                     color: Colors.white38,
-                    border: Border(bottom: BorderSide(color: Colors.black))),
+                    border: track.isSelected
+                        ? Border.all(color: Colors.blue)
+                        : const Border(
+                            top: BorderSide(color: Colors.transparent),
+                            left: BorderSide(color: Colors.transparent),
+                            right: BorderSide(color: Colors.transparent),
+                            bottom: BorderSide(color: Colors.black))),
                 child: Text(
                   track.title,
                 ),
               ),
-            )));
+            ),
+          ),
+        ));
   }
 }

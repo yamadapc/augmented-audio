@@ -33,8 +33,9 @@ class DawApp extends StatelessWidget {
       Track(
           id: "1",
           title: "Track 1",
-          clips: ObservableList.of([Clip(title: "Clip 1")])),
-      Track(id: "2", title: "Track 2"),
+          clips: ObservableList.of([Clip(title: "Clip 1")]),
+          parent: project.tracksList),
+      Track(id: "2", title: "Track 2", parent: project.tracksList),
     ];
     project.tracksList.tracks.addAll(tracks);
 

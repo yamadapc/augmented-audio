@@ -20,6 +20,9 @@ abstract class _TracksList with Store {
   @observable
   ObservableList<Track> tracks = ObservableList.of([]);
 
+  @observable
+  Track? selectedTrack;
+
   @action
   void reorderTracks(int sourceIndex, int targetIndex) {
     var elem = tracks[sourceIndex];
@@ -28,9 +31,26 @@ abstract class _TracksList with Store {
         Math.max(sourceIndex < targetIndex ? targetIndex - 1 : targetIndex, 0);
     tracks.insert(targetPrime, elem);
   }
+
+  @action
+  void selectTrack(Track track) {
+    selectedTrack = track;
+  }
 }
 
-class Track = _Track with _$Track;
+class Track extends _Track with _$Track {
+  Track(
+      {required String id, required String title, clips, TracksList? parent}) {
+    this.id = id;
+    this.title = title;
+    this.clips = clips ?? ObservableList.of([]);
+    this.parent = parent;
+  }
+
+  void select() {
+    parent?.selectTrack(this);
+  }
+}
 
 abstract class _Track with Store {
   @observable
@@ -56,13 +76,16 @@ abstract class _Track with Store {
     DoubleValue(),
   ]);
 
+  @computed
+  bool get isSelected {
+    return parent?.selectedTrack == this;
+  }
+
+  TracksList? parent;
+
   @action
   void setAudioInputId(String audioInputId) {
     this.audioInputId = audioInputId;
-  }
-
-  _Track({required this.id, required this.title, clips}) {
-    this.clips = clips ?? ObservableList.of([]);
   }
 }
 

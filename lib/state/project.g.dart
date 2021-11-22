@@ -64,6 +64,21 @@ mixin _$TracksList on _TracksList, Store {
     });
   }
 
+  final _$selectedTrackAtom = Atom(name: '_TracksList.selectedTrack');
+
+  @override
+  Track? get selectedTrack {
+    _$selectedTrackAtom.reportRead();
+    return super.selectedTrack;
+  }
+
+  @override
+  set selectedTrack(Track? value) {
+    _$selectedTrackAtom.reportWrite(value, super.selectedTrack, () {
+      super.selectedTrack = value;
+    });
+  }
+
   final _$_TracksListActionController = ActionController(name: '_TracksList');
 
   @override
@@ -78,14 +93,33 @@ mixin _$TracksList on _TracksList, Store {
   }
 
   @override
+  void selectTrack(Track track) {
+    final _$actionInfo = _$_TracksListActionController.startAction(
+        name: '_TracksList.selectTrack');
+    try {
+      return super.selectTrack(track);
+    } finally {
+      _$_TracksListActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
-tracks: ${tracks}
+tracks: ${tracks},
+selectedTrack: ${selectedTrack}
     ''';
   }
 }
 
 mixin _$Track on _Track, Store {
+  Computed<bool>? _$isSelectedComputed;
+
+  @override
+  bool get isSelected => (_$isSelectedComputed ??=
+          Computed<bool>(() => super.isSelected, name: '_Track.isSelected'))
+      .value;
+
   final _$idAtom = Atom(name: '_Track.id');
 
   @override
@@ -213,7 +247,8 @@ audioInputId: ${audioInputId},
 clips: ${clips},
 audioEffects: ${audioEffects},
 pan: ${pan},
-sends: ${sends}
+sends: ${sends},
+isSelected: ${isSelected}
     ''';
   }
 }
