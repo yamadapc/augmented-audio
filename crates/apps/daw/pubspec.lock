@@ -237,6 +237,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.4"
+  flutter_rust_bridge:
+    dependency: "direct main"
+    description:
+      name: flutter_rust_bridge
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.6.0"
   flutter_svg:
     dependency: transitive
     description:

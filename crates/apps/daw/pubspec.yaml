@@ -17,6 +17,7 @@ dependencies:
   flutter_mobx: ^2.0.0
   collection: ^1.15.0
   file_picker: ^4.2.4
+  flutter_rust_bridge: ^1.6.0
 
 dev_dependencies:
   flutter_test:
