@@ -24,7 +24,8 @@ class PanelTabsView extends StatelessWidget {
       PanelTabsState? panelTabsState,
       bool? showVerticalTabs})
       : super(key: key) {
-    this.panelTabsState = panelTabsState ?? PanelTabsState();
+    this.panelTabsState =
+        panelTabsState ?? PanelTabsState("PanelTabsState:unknown");
     this.showVerticalTabs = showVerticalTabs ?? false;
   }
 

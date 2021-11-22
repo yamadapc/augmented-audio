@@ -1,3 +1,4 @@
+import 'package:flutter_daw_mock_ui/state/entity.dart';
 import 'package:mobx/mobx.dart';
 
 part 'midi_model.g.dart';
@@ -52,9 +53,16 @@ class Note {
   }
 }
 
-class MIDIClipModel = _MIDIClipModel with _$MIDIClipModel;
+class MIDIClipModel extends _MIDIClipModel with _$MIDIClipModel {
+  @override
+  ActionController get _$_MIDIClipModelActionController =>
+      getActionController();
+}
 
-abstract class _MIDIClipModel with Store {
+abstract class _MIDIClipModel with Store, Entity {
+  @override
+  String id = "MIDIClipModel:0";
+
   @observable
   ObservableList<MIDINoteModel> midiNotes = ObservableList.of([]);
 
@@ -69,14 +77,20 @@ abstract class _MIDIClipModel with Store {
 
   @action
   void addEvent({required double time, required Note note}) {
-    var event = MIDINoteModel();
+    var event = MIDINoteModel(
+        id + "/midiNotes/MidiNoteModel:" + midiNotes.length.toString());
     event.note = note;
     event.time = time;
     midiNotes.add(event);
   }
 }
 
-class MIDINoteModel = _MIDINoteModel with _$MIDINoteModel;
+class MIDINoteModel extends _MIDINoteModel with _$MIDINoteModel, Entity {
+  @override
+  String id;
+
+  MIDINoteModel(this.id);
+}
 
 abstract class _MIDINoteModel with Store {
   @observable

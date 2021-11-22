@@ -1,3 +1,4 @@
+import 'package:flutter_daw_mock_ui/state/entity.dart';
 import 'package:flutter_daw_mock_ui/ui/main_content_layout/tracks_view/track_view/track_controls/knob_field.dart';
 import 'package:graphx/graphx.dart';
 import 'package:mobx/mobx.dart';
@@ -6,7 +7,10 @@ part 'project.g.dart';
 
 class Project = _Project with _$Project;
 
-abstract class _Project with Store {
+abstract class _Project with Store, Entity {
+  @override
+  String id = "";
+
   @observable
   String title = "Untitled";
 
@@ -14,9 +18,15 @@ abstract class _Project with Store {
   TracksList tracksList = TracksList();
 }
 
-class TracksList = _TracksList with _$TracksList;
+class TracksList extends _TracksList with _$TracksList {
+  @override
+  ActionController get _$_TracksListActionController => getActionController();
+}
 
-abstract class _TracksList with Store {
+abstract class _TracksList with Store, Entity {
+  @override
+  String id = "TracksList";
+
   @observable
   ObservableList<Track> tracks = ObservableList.of([]);
 
@@ -41,18 +51,24 @@ abstract class _TracksList with Store {
 class Track extends _Track with _$Track {
   Track(
       {required String id, required String title, clips, TracksList? parent}) {
-    this.id = id;
+    this.id = "/Track:$id";
     this.title = title;
     this.clips = clips ?? ObservableList.of([]);
     this.parent = parent;
+    pan = DoubleValue(this.id + "/pan");
+    sends = ObservableList.of([DoubleValue(this.id + "/sends/A")]);
   }
+
+  @override
+  ActionController get _$_TrackActionController => getActionController();
 
   void select() {
     parent?.selectTrack(this);
   }
 }
 
-abstract class _Track with Store {
+abstract class _Track with Store, Entity {
+  @override
   @observable
   String id = "";
 
@@ -69,11 +85,11 @@ abstract class _Track with Store {
   ObservableList<AudioEffectInstance> audioEffects = ObservableList.of([]);
 
   @observable
-  DoubleValue pan = DoubleValue();
+  DoubleValue pan = DoubleValue("pan");
 
   @observable
   ObservableList<DoubleValue> sends = ObservableList.of([
-    DoubleValue(),
+    DoubleValue("sends/A"),
   ]);
 
   @computed
@@ -89,9 +105,19 @@ abstract class _Track with Store {
   }
 }
 
-class DoubleValue = _DoubleValue with _$DoubleValue;
+class DoubleValue extends _DoubleValue with _$DoubleValue {
+  DoubleValue(String id) {
+    this.id = id;
+  }
 
-abstract class _DoubleValue with Store, KnobFieldModel {
+  @override
+  ActionController get _$_DoubleValueActionController => getActionController();
+}
+
+abstract class _DoubleValue with Store, KnobFieldModel, Entity {
+  @override
+  String id = "";
+
   @observable
   double value = 0.0;
 

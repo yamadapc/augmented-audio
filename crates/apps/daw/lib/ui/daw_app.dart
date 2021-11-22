@@ -58,13 +58,11 @@ class DawApp extends StatelessWidget {
   }
 
   AudioIOState setupAudioIOState(DawUi api) {
-    var audioIOState = AudioIOState(
-        inputDevices: ObservableList.of([]),
-        outputDevices: ObservableList.of([]),
-        availableInputs: ObservableList.of([
-          AudioInput("none", "No input"),
-          AudioInput("1", "Input 1"),
-        ]));
+    var audioIOState = AudioIOState();
+    audioIOState.availableInputs = ObservableList.of([
+      AudioInput("none", "No input"),
+      AudioInput("1", "Input 1"),
+    ]);
     var audioIOService = AudioIOService(api, audioIOState);
     audioIOService.syncDevices();
     return audioIOState;

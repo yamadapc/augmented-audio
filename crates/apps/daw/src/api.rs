@@ -19,3 +19,12 @@ pub fn audio_io_get_input_devices() -> Result<String> {
     let result = serde_json::to_string(&devices_list)?;
     Ok(result)
 }
+
+pub struct EntityEvent {
+    /// CHANGE
+    pub event_type: String,
+    /// TRACK:1234/...
+    pub entity_id: String,
+    pub old_value: String,
+    pub new_value: String,
+}
