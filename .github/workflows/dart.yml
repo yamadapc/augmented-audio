@@ -1,0 +1,30 @@
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Dart
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
+      - name: Install dependencies
+        run: cd ./crates/apps/daw && flutter pub get
+      - name: Verify formatting
+        run: cd ./crates/apps/daw && dart format --output=none --set-exit-if-changed .
+      - name: Analyze project source
+        run: cd ./crates/apps/daw && dart analyze
+      - name: Run tests
+        run: cd ./crates/apps/daw && flutter test
