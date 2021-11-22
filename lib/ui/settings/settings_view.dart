@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
 import 'package:flutter_daw_mock_ui/ui/common/generic_sidebar.dart';
 import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 part 'settings_view.g.dart';
@@ -50,6 +52,8 @@ class AudioSettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var textStyle = DawTextStyle.of(context);
+    var audioIOState = AudioIOStateProvider.stateOf(context);
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
@@ -61,21 +65,61 @@ class AudioSettingsView extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ))),
           const SizedBox(height: 10),
-          const FormFieldView(
-              label: "Audio host", hint: "Select audio host..."),
-          const FormFieldView(
-              label: "Buffer size", hint: "Select buffer size..."),
+          Observer(
+            builder: (_) => FormFieldView<AudioDevice>(
+              value: audioIOState.currentInputDevice,
+              label: "Input device",
+              hint: "Select audio input device...",
+              options: audioIOState.inputDevices
+                  .map((inputDevice) =>
+                      FormFieldOption(inputDevice.title, inputDevice))
+                  .toList(),
+              onChanged: (inputDevice) {
+                audioIOState.setInputDevice(inputDevice);
+              },
+            ),
+          ),
+          Observer(
+            builder: (_) => FormFieldView<AudioDevice>(
+              value: audioIOState.currentOutputDevice,
+              label: "Output device",
+              hint: "Select audio output device...",
+              options: audioIOState.outputDevices
+                  .map((outputDevice) =>
+                      FormFieldOption(outputDevice.title, outputDevice))
+                  .toList(),
+              onChanged: (outputDevice) {
+                audioIOState.setOutputDevice(outputDevice);
+              },
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class FormFieldView extends StatelessWidget {
+class FormFieldOption<T> {
+  final String label;
+  final T value;
+
+  FormFieldOption(this.label, this.value);
+}
+
+class FormFieldView<T> extends StatelessWidget {
   final String label;
   final String hint;
+  final List<FormFieldOption<T>> options;
+  final void Function(T?) onChanged;
+  final T? value;
 
-  const FormFieldView({Key? key, required this.label, required this.hint})
+  const FormFieldView(
+      {Key? key,
+      required this.value,
+      required this.label,
+      required this.hint,
+      required this.options,
+      required this.onChanged})
       : super(key: key);
 
   @override
@@ -97,24 +141,22 @@ class FormFieldView extends StatelessWidget {
         Expanded(
           child: Padding(
             padding: const EdgeInsets.only(left: 16, right: 16),
-            child: DropdownButton(
+            child: DropdownButton<T>(
                 isExpanded: true,
+                value: value,
                 dropdownColor: const Color.fromRGBO(30, 30, 30, 1.0),
                 style: textStyle,
                 hint: Text(hint,
                     style: textStyle
                         .merge(const TextStyle(fontStyle: FontStyle.italic))),
-                items: [
-                  DropdownMenuItem(
-                      child: Text("AudioFuse Studio", style: textStyle),
-                      value: "1"),
-                  DropdownMenuItem(
-                      child: Text("Loopback", style: textStyle), value: "2"),
-                  DropdownMenuItem(
-                      child: Text("Default output", style: textStyle),
-                      value: "3"),
-                ],
-                onChanged: (value) {}),
+                items: options
+                    .map(
+                      (option) => DropdownMenuItem(
+                          child: Text(option.label, style: textStyle),
+                          value: option.value),
+                    )
+                    .toList(),
+                onChanged: onChanged),
           ),
         ),
       ],

@@ -15,11 +15,20 @@ class DawApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var project = Project();
-    var audioIOState = AudioIOState(ObservableList.of([
-      AudioInput("none", "No input"),
-      AudioInput("1", "Input 1"),
-      AudioInput("2", "Input 2"),
-    ]));
+    var audioIOState = AudioIOState(
+        inputDevices: ObservableList.of([
+          AudioDevice(title: "Default input"),
+          AudioDevice(title: "AudioFuse Studio"),
+        ]),
+        outputDevices: ObservableList.of([
+          AudioDevice(title: "Default output"),
+          AudioDevice(title: "AudioFuse Studio"),
+        ]),
+        availableInputs: ObservableList.of([
+          AudioInput("none", "No input"),
+          AudioInput("1", "Input 1"),
+          AudioInput("2", "Input 2"),
+        ]));
     var tracks = [
       Track(
           id: "1",

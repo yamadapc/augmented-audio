@@ -41,11 +41,27 @@ mixin _$UIState on _UIState, Store {
     });
   }
 
+  final _$detailsPanelStateAtom = Atom(name: '_UIState.detailsPanelState');
+
+  @override
+  DetailsPanelState get detailsPanelState {
+    _$detailsPanelStateAtom.reportRead();
+    return super.detailsPanelState;
+  }
+
+  @override
+  set detailsPanelState(DetailsPanelState value) {
+    _$detailsPanelStateAtom.reportWrite(value, super.detailsPanelState, () {
+      super.detailsPanelState = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
 sidebarState: ${sidebarState},
-mainContentTabsState: ${mainContentTabsState}
+mainContentTabsState: ${mainContentTabsState},
+detailsPanelState: ${detailsPanelState}
     ''';
   }
 }
@@ -161,6 +177,76 @@ mixin _$PanelTabsState on _PanelTabsState, Store {
   String toString() {
     return '''
 selectedIndex: ${selectedIndex}
+    ''';
+  }
+}
+
+mixin _$DetailsPanelState on _DetailsPanelState, Store {
+  final _$panelTabsStateAtom = Atom(name: '_DetailsPanelState.panelTabsState');
+
+  @override
+  PanelTabsState get panelTabsState {
+    _$panelTabsStateAtom.reportRead();
+    return super.panelTabsState;
+  }
+
+  @override
+  set panelTabsState(PanelTabsState value) {
+    _$panelTabsStateAtom.reportWrite(value, super.panelTabsState, () {
+      super.panelTabsState = value;
+    });
+  }
+
+  final _$heightAtom = Atom(name: '_DetailsPanelState.height');
+
+  @override
+  double get height {
+    _$heightAtom.reportRead();
+    return super.height;
+  }
+
+  @override
+  set height(double value) {
+    _$heightAtom.reportWrite(value, super.height, () {
+      super.height = value;
+    });
+  }
+
+  final _$midiClipModelAtom = Atom(name: '_DetailsPanelState.midiClipModel');
+
+  @override
+  MIDIClipModel get midiClipModel {
+    _$midiClipModelAtom.reportRead();
+    return super.midiClipModel;
+  }
+
+  @override
+  set midiClipModel(MIDIClipModel value) {
+    _$midiClipModelAtom.reportWrite(value, super.midiClipModel, () {
+      super.midiClipModel = value;
+    });
+  }
+
+  final _$_DetailsPanelStateActionController =
+      ActionController(name: '_DetailsPanelState');
+
+  @override
+  void updateHeight(double deltaY) {
+    final _$actionInfo = _$_DetailsPanelStateActionController.startAction(
+        name: '_DetailsPanelState.updateHeight');
+    try {
+      return super.updateHeight(deltaY);
+    } finally {
+      _$_DetailsPanelStateActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  String toString() {
+    return '''
+panelTabsState: ${panelTabsState},
+height: ${height},
+midiClipModel: ${midiClipModel}
     ''';
   }
 }

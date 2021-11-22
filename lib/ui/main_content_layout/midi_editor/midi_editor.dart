@@ -32,9 +32,9 @@ List<Note> notes = [
 ].reversed.map((note) => Note.ofSymbol(note)).toList();
 
 class MIDIEditorView extends StatelessWidget {
-  final MIDIClipModel model = MIDIClipModel();
+  final MIDIClipModel model;
 
-  MIDIEditorView({Key? key}) : super(key: key);
+  const MIDIEditorView({Key? key, required this.model}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,12 +66,12 @@ class MIDIEditorView extends StatelessWidget {
 }
 
 class MidiEditorContentView extends StatelessWidget {
+  final MIDIClipModel model;
+
   const MidiEditorContentView({
     Key? key,
     required this.model,
   }) : super(key: key);
-
-  final MIDIClipModel model;
 
   @override
   Widget build(BuildContext context) {

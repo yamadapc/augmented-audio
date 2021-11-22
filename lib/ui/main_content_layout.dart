@@ -49,7 +49,8 @@ class MainContentLayout extends StatelessWidget {
               content,
             ],
           )),
-          const RepaintBoundary(child: BottomPanel()),
+          RepaintBoundary(
+              child: BottomPanel(detailsPanelState: uiState.detailsPanelState)),
           const StatusBar(),
         ]));
   }

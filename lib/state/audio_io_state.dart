@@ -7,9 +7,43 @@ class AudioIOState = _AudioIOState with _$AudioIOState;
 
 abstract class _AudioIOState with Store {
   @observable
+  AudioDevice? currentInputDevice;
+
+  @observable
+  AudioDevice? currentOutputDevice;
+
+  @observable
+  ObservableList<AudioDevice> inputDevices = ObservableList.of([]);
+
+  @observable
+  ObservableList<AudioDevice> outputDevices = ObservableList.of([]);
+
+  @observable
   ObservableList<AudioInput> availableInputs = ObservableList.of([]);
 
-  _AudioIOState(this.availableInputs);
+  @action
+  void setInputDevice(AudioDevice? inputDevice) {
+    currentInputDevice = inputDevice;
+  }
+
+  @action
+  void setOutputDevice(AudioDevice? outputDevice) {
+    currentOutputDevice = outputDevice;
+  }
+
+  _AudioIOState(
+      {required this.availableInputs,
+      required this.inputDevices,
+      required this.outputDevices});
+}
+
+class AudioDevice = _AudioDevice with _$AudioDevice;
+
+abstract class _AudioDevice with Store {
+  String id = "";
+  String title = "";
+
+  _AudioDevice({required this.title});
 }
 
 class AudioInput = _AudioInput with _$AudioInput;

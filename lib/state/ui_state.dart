@@ -1,3 +1,4 @@
+import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_model.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ui_state.g.dart';
@@ -10,6 +11,9 @@ abstract class _UIState with Store {
 
   @observable
   PanelTabsState mainContentTabsState = PanelTabsState();
+
+  @observable
+  DetailsPanelState detailsPanelState = DetailsPanelState();
 }
 
 class SidebarState = _SidebarState with _$SidebarState;
@@ -43,5 +47,23 @@ abstract class _PanelTabsState with Store {
   @action
   void setSelectedIndex(int index) {
     selectedIndex = index;
+  }
+}
+
+class DetailsPanelState = _DetailsPanelState with _$DetailsPanelState;
+
+abstract class _DetailsPanelState with Store {
+  @observable
+  PanelTabsState panelTabsState = PanelTabsState();
+
+  @observable
+  double height = 200;
+
+  @observable
+  MIDIClipModel midiClipModel = MIDIClipModel();
+
+  @action
+  void updateHeight(double deltaY) {
+    height -= deltaY;
   }
 }

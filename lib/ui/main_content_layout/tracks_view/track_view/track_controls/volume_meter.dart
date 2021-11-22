@@ -1,26 +1,77 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:graphx/graphx.dart';
+import 'package:mobx/mobx.dart';
 
-class VolumeMeter extends StatelessWidget {
-  const VolumeMeter({Key? key}) : super(key: key);
+part 'volume_meter.g.dart';
+
+class VolumeMeterModel = _VolumeMeterModel with _$VolumeMeterModel;
+
+abstract class _VolumeMeterModel with Store {
+  @observable
+  double volumeLeft = 0.0;
+
+  @observable
+  double volumeRight = 0.0;
+}
+
+class VolumeMeter extends StatefulWidget {
+  late Timer timer;
+
+  VolumeMeter({Key? key}) : super(key: key);
+
+  @override
+  State<VolumeMeter> createState() => _VolumeMeterState();
+}
+
+class _VolumeMeterState extends State<VolumeMeter> {
+  final VolumeMeterModel model = VolumeMeterModel();
+
+  double volume = 0.0;
+  Matrix4 transform = Matrix4.identity();
+
+  late Timer timer;
+
+  @override
+  void initState() {
+    var tick = 0.0;
+    timer = Timer.periodic(const Duration(milliseconds: 16), (d) {
+      tick += 0.01;
+      setState(() {
+        volume = (Math.sin(tick) + 1) / 2;
+        transform.setIdentity();
+        transform.scale(1.0, volume);
+      });
+    });
+  }
+
+  @override
+  void deactivate() {
+    timer.cancel();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // var sceneBuilderWidget = SceneBuilderWidget(
-    //     builder: () => SceneController(
-    //           config: SceneConfig.autoRender,
-    //           back: VolumeMeterScene(),
-    //         ));
-
     return RepaintBoundary(
-      child: SizedBox(
-          height: 150,
-          child: Container(
+      child: RotatedBox(
+        quarterTurns: 2,
+        child: SizedBox(
+            height: 150,
+            child: Container(
               decoration: BoxDecoration(
                   border:
                       Border.all(color: const Color.fromRGBO(90, 90, 90, 1.0))),
-              child: null // sceneBuilderWidget,
-              )),
+              child: Transform(
+                transform: transform,
+                child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.green,
+                    ),
+                    child: null),
+              ),
+            )),
+      ),
     );
   }
 }
