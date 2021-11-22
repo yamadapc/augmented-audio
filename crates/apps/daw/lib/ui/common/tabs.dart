@@ -116,17 +116,21 @@ class PanelTabsHeaderView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> tabButtons = hasVerticalTabs
-        ? []
-        : tabs
-            .map((tab) => SelectableButton(
-                  isSelected: tab.id == panelTabsState.selectedIndex,
-                  onPressed: () {
-                    panelTabsState.setSelectedIndex(tab.id);
-                  },
-                  child: Text(tab.title),
-                ))
-            .toList();
+    Widget leftHandContent = hasVerticalTabs
+        ? Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(tabs[panelTabsState.selectedIndex].title),
+          )
+        : Row(
+            children: tabs
+                .map((tab) => SelectableButton(
+                      isSelected: tab.id == panelTabsState.selectedIndex,
+                      onPressed: () {
+                        panelTabsState.setSelectedIndex(tab.id);
+                      },
+                      child: Text(tab.title),
+                    ))
+                .toList());
 
     var rightHandButtons = [];
     if (onMinimize != null) {
@@ -157,10 +161,7 @@ class PanelTabsHeaderView extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(child: Row(children: tabButtons)),
-          ...rightHandButtons
-        ],
+        children: [Expanded(child: leftHandContent), ...rightHandButtons],
       ),
     ));
   }
