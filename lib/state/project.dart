@@ -1,3 +1,4 @@
+import 'package:flutter_daw_mock_ui/ui/main_content_layout/tracks_view/track_view/track_controls/knob_field.dart';
 import 'package:graphx/graphx.dart';
 import 'package:mobx/mobx.dart';
 
@@ -41,9 +42,19 @@ abstract class _Track with Store {
   @observable
   String audioInputId = "none";
 
+  @observable
   ObservableList<Clip> clips = ObservableList.of([]);
 
+  @observable
   ObservableList<AudioEffectInstance> audioEffects = ObservableList.of([]);
+
+  @observable
+  DoubleValue pan = DoubleValue();
+
+  @observable
+  ObservableList<DoubleValue> sends = ObservableList.of([
+    DoubleValue(),
+  ]);
 
   @action
   void setAudioInputId(String audioInputId) {
@@ -52,6 +63,24 @@ abstract class _Track with Store {
 
   _Track({required this.id, required this.title, clips}) {
     this.clips = clips ?? ObservableList.of([]);
+  }
+}
+
+class DoubleValue = _DoubleValue with _$DoubleValue;
+
+abstract class _DoubleValue with Store, KnobFieldModel {
+  @observable
+  double value = 0.0;
+
+  @override
+  double getValue() {
+    return value;
+  }
+
+  @override
+  @action
+  void setValue(double value) {
+    this.value = value;
   }
 }
 

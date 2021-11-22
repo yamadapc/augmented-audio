@@ -3,21 +3,18 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:graphx/graphx.dart';
 
-class Knob extends StatefulWidget {
-  const Knob({Key? key}) : super(key: key);
+class Knob extends StatelessWidget {
+  final double value;
+  final Function(double) onChange;
 
-  @override
-  State<Knob> createState() => _KnobState();
-}
+  const Knob({Key? key, required this.value, required this.onChange})
+      : super(key: key);
 
-class _KnobState extends State<Knob> {
   final double size = 50.0;
+
   get center {
     return size / 2.0;
   }
-
-  double value = 0.0;
-  bool isDragging = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,19 +22,11 @@ class _KnobState extends State<Knob> {
       height: size,
       width: size,
       child: GestureDetector(
-        onPanStart: onPanStart,
         onPanUpdate: onPanUpdate,
-        onPanEnd: onPanEnd,
         child:
             CustomPaint(size: Size.square(size), painter: KnobPainter(value)),
       ),
     );
-  }
-
-  void onPanStart(DragStartDetails details) {
-    setState(() {
-      isDragging = true;
-    });
   }
 
   void onPanUpdate(DragUpdateDetails details) {
@@ -60,16 +49,9 @@ class _KnobState extends State<Knob> {
       angle -= startAngle;
     }
 
-    setState(() {
-      value = angle / scope;
-      value = Math.max(0, Math.min(value, 1));
-    });
-  }
-
-  void onPanEnd(DragEndDetails details) {
-    setState(() {
-      isDragging = false;
-    });
+    var newValue = angle / scope;
+    newValue = Math.max(0, Math.min(newValue, 1));
+    onChange(newValue);
   }
 }
 

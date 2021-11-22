@@ -131,6 +131,66 @@ mixin _$Track on _Track, Store {
     });
   }
 
+  final _$clipsAtom = Atom(name: '_Track.clips');
+
+  @override
+  ObservableList<Clip> get clips {
+    _$clipsAtom.reportRead();
+    return super.clips;
+  }
+
+  @override
+  set clips(ObservableList<Clip> value) {
+    _$clipsAtom.reportWrite(value, super.clips, () {
+      super.clips = value;
+    });
+  }
+
+  final _$audioEffectsAtom = Atom(name: '_Track.audioEffects');
+
+  @override
+  ObservableList<AudioEffectInstance> get audioEffects {
+    _$audioEffectsAtom.reportRead();
+    return super.audioEffects;
+  }
+
+  @override
+  set audioEffects(ObservableList<AudioEffectInstance> value) {
+    _$audioEffectsAtom.reportWrite(value, super.audioEffects, () {
+      super.audioEffects = value;
+    });
+  }
+
+  final _$panAtom = Atom(name: '_Track.pan');
+
+  @override
+  DoubleValue get pan {
+    _$panAtom.reportRead();
+    return super.pan;
+  }
+
+  @override
+  set pan(DoubleValue value) {
+    _$panAtom.reportWrite(value, super.pan, () {
+      super.pan = value;
+    });
+  }
+
+  final _$sendsAtom = Atom(name: '_Track.sends');
+
+  @override
+  ObservableList<DoubleValue> get sends {
+    _$sendsAtom.reportRead();
+    return super.sends;
+  }
+
+  @override
+  set sends(ObservableList<DoubleValue> value) {
+    _$sendsAtom.reportWrite(value, super.sends, () {
+      super.sends = value;
+    });
+  }
+
   final _$_TrackActionController = ActionController(name: '_Track');
 
   @override
@@ -149,7 +209,48 @@ mixin _$Track on _Track, Store {
     return '''
 id: ${id},
 title: ${title},
-audioInputId: ${audioInputId}
+audioInputId: ${audioInputId},
+clips: ${clips},
+audioEffects: ${audioEffects},
+pan: ${pan},
+sends: ${sends}
+    ''';
+  }
+}
+
+mixin _$DoubleValue on _DoubleValue, Store {
+  final _$valueAtom = Atom(name: '_DoubleValue.value');
+
+  @override
+  double get value {
+    _$valueAtom.reportRead();
+    return super.value;
+  }
+
+  @override
+  set value(double value) {
+    _$valueAtom.reportWrite(value, super.value, () {
+      super.value = value;
+    });
+  }
+
+  final _$_DoubleValueActionController = ActionController(name: '_DoubleValue');
+
+  @override
+  void setValue(double value) {
+    final _$actionInfo = _$_DoubleValueActionController.startAction(
+        name: '_DoubleValue.setValue');
+    try {
+      return super.setValue(value);
+    } finally {
+      _$_DoubleValueActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  String toString() {
+    return '''
+value: ${value}
     ''';
   }
 }

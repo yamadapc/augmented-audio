@@ -46,9 +46,9 @@ class TrackControls extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 crossAxisAlignment: CrossAxisAlignment.center,
-                                children: const [
-                                  KnobField(label: "Pan"),
-                                  KnobField(label: "A"),
+                                children: [
+                                  KnobField(label: "Pan", model: track.pan),
+                                  KnobField(label: "A", model: track.sends[0]),
                                 ]),
                           ),
                         ),
@@ -62,14 +62,14 @@ class TrackControls extends StatelessWidget {
                             .availableInputs
                             .firstWhere(
                                 (input) => input.id == track.audioInputId),
-                        onChanged: onChanged),
+                        onChanged: onAudioInputChanged),
                   )
                 ]),
           )),
     );
   }
 
-  void onChanged(AudioInput? input) {
+  void onAudioInputChanged(AudioInput? input) {
     if (input != null) {
       track.setAudioInputId(input.id);
     } else {
