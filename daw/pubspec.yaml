@@ -1,0 +1,31 @@
+name: flutter_daw_mock_ui
+description: Mock Audio Widgets Demo
+
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.15.0-268.8.beta <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  graphx: ^1.0.3
+  mobx: ^2.0.0
+  flutter_mobx: ^2.0.0
+  collection: ^1.15.0
+  file_picker: ^4.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  build_runner: ^1.12.2
+  mobx_codegen: ^2.0.0
+  flutter_lints: ^1.0.0
+  golden_toolkit: ^0.12.0
+
+flutter:
+  uses-material-design: true

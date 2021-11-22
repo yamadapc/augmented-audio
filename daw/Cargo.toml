@@ -1,0 +1,11 @@
+[package]
+name = "flutter_daw_mock_ui"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+flutter_rust_bridge = "*"
+
+[build-dependencies]
+cbindgen = "*"
+flutter_rust_bridge_codegen = "*"
