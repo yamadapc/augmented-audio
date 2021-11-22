@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:flutter_daw_mock_ui/state/ui_state.dart';
+import 'package:flutter_daw_mock_ui/state/wire.dart' as wire;
 import 'package:mobx/mobx.dart';
 
 import 'main_content_layout.dart';
@@ -14,6 +15,8 @@ class DawApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    var api = wire.initialize();
+
     var project = Project();
     var audioIOState = AudioIOState(
         inputDevices: ObservableList.of([

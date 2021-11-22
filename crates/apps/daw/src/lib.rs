@@ -1,3 +1,2 @@
-fn main() {
-    println!("Hello, world!");
-}
+pub mod api;
+mod bridge_generated;

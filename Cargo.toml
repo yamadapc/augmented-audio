@@ -12,6 +12,8 @@ members = [
   "crates/apps/recording_buddy",
   "crates/apps/demo-plugin",
 
+  "crates/apps/daw",
+
   # Repository scripts
   "crates/scripts/autosync-submodules",
   "crates/scripts/midi-logger-host",

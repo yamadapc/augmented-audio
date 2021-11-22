@@ -1,11 +1,15 @@
 [package]
-name = "flutter_daw_mock_ui"
+name = "daw_ui"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+crate-type = ["cdylib"]
+
 [dependencies]
-flutter_rust_bridge = "*"
+flutter_rust_bridge = "^1.6.0"
+anyhow = "^1.0.47"
 
 [build-dependencies]
-cbindgen = "*"
-flutter_rust_bridge_codegen = "*"
+cbindgen = "^0.20.0"
+flutter_rust_bridge_codegen = "^1.6.0"
