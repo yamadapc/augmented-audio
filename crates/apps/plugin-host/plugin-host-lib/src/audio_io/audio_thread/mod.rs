@@ -281,13 +281,36 @@ fn input_stream_callback(producer: &mut ringbuf::Producer<f32>, data: &[f32]) {
 }
 
 pub mod actor {
-    use actix::{Actor, Context, Handler, Message};
+    use crate::actor_system::ActorSystemThread;
+    use actix::{Actor, Context, Handler, Message, Supervised, SystemService};
+    use audio_processor_standalone_midi::host::{GetQueueMessage, MidiHost};
 
     use super::*;
 
     impl Actor for AudioThread {
         type Context = Context<Self>;
     }
+
+    impl Supervised for AudioThread {}
+
+    impl Default for AudioThread {
+        fn default() -> Self {
+            let midi_message_queue = ActorSystemThread::current()
+                .spawn_result(async move {
+                    let midi_host = MidiHost::from_registry();
+                    midi_host.send(GetQueueMessage).await
+                })
+                .unwrap();
+
+            AudioThread::new(
+                audio_garbage_collector::handle(),
+                midi_message_queue.0,
+                Default::default(),
+            )
+        }
+    }
+
+    impl SystemService for AudioThread {}
 
     #[derive(Message)]
     #[rtype(result = "Result<(), AudioThreadError>")]

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/bridge_generated.dart';
+import 'package:flutter_daw_mock_ui/services/audio_io_service.dart';
+import 'package:flutter_daw_mock_ui/services/state_sync.dart';
 import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:flutter_daw_mock_ui/state/ui_state.dart';
@@ -16,34 +19,16 @@ class DawApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var api = wire.initialize();
+    api.initializeLogger();
+    AudioIOState audioIOState = setupAudioIOState(api);
 
-    var project = Project();
-    var audioIOState = AudioIOState(
-        inputDevices: ObservableList.of([
-          AudioDevice(title: "Default input"),
-          AudioDevice(title: "AudioFuse Studio"),
-        ]),
-        outputDevices: ObservableList.of([
-          AudioDevice(title: "Default output"),
-          AudioDevice(title: "AudioFuse Studio"),
-        ]),
-        availableInputs: ObservableList.of([
-          AudioInput("none", "No input"),
-          AudioInput("1", "Input 1"),
-          AudioInput("2", "Input 2"),
-        ]));
-    var tracks = [
-      Track(
-          id: "1",
-          title: "Track 1",
-          clips: ObservableList.of([Clip(title: "Clip 1")]),
-          parent: project.tracksList),
-      Track(id: "2", title: "Track 2", parent: project.tracksList),
-    ];
-    project.tracksList.tracks.addAll(tracks);
+    var stateSync = StateSyncService.get(api);
+    stateSync.start();
+
+    Project project = setupProjectState();
 
     return MaterialApp(
-      title: 'DAW Demo',
+      title: 'DAW',
       theme: ThemeData(
           primarySwatch: Colors.blue,
           textTheme: const TextTheme(
@@ -56,5 +41,32 @@ class DawApp extends StatelessWidget {
           child: MainContentLayout(
               title: 'DAW', project: project, uiState: uiState)),
     );
+  }
+
+  Project setupProjectState() {
+    var project = Project();
+    var tracks = [
+      Track(
+          id: "1",
+          title: "Track 1",
+          clips: ObservableList.of([Clip(title: "Clip 1")]),
+          parent: project.tracksList),
+      Track(id: "2", title: "Track 2", parent: project.tracksList),
+    ];
+    project.tracksList.tracks.addAll(tracks);
+    return project;
+  }
+
+  AudioIOState setupAudioIOState(DawUi api) {
+    var audioIOState = AudioIOState(
+        inputDevices: ObservableList.of([]),
+        outputDevices: ObservableList.of([]),
+        availableInputs: ObservableList.of([
+          AudioInput("none", "No input"),
+          AudioInput("1", "Input 1"),
+        ]));
+    var audioIOService = AudioIOService(api, audioIOState);
+    audioIOService.syncDevices();
+    return audioIOState;
   }
 }

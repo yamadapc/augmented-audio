@@ -2,14 +2,13 @@ use std::ops::Deref;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
 
 use actix::prelude::*;
 use thiserror::Error;
 use vst::host::{PluginInstance, PluginLoadError, PluginLoader};
 use vst::plugin::Plugin;
 
-use audio_garbage_collector::{GarbageCollector, GarbageCollectorError, Shared};
+use audio_garbage_collector::Shared;
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 
@@ -49,8 +48,6 @@ pub enum StartError {
 #[derive(Debug, Error)]
 pub enum WaitError {
     #[error(transparent)]
-    GarbageCollectorError(#[from] GarbageCollectorError),
-    #[error(transparent)]
     AudioThreadError(#[from] AudioThreadError),
 }
 
@@ -62,7 +59,6 @@ pub struct TestPluginHost {
     vst_plugin_instance: Option<SharedProcessor<PluginInstance>>,
     processor: Option<SharedProcessor<AudioThreadProcessor>>,
     midi_host: Addr<MidiHost>,
-    garbage_collector: GarbageCollector,
     mono_input: Option<usize>,
     temporary_load_path: Option<String>,
     start_paused: bool,
@@ -82,11 +78,11 @@ impl TestPluginHost {
         audio_thread_options: AudioThreadOptions,
         start_paused: bool,
     ) -> Self {
-        let garbage_collector = GarbageCollector::new(Duration::from_secs(1));
+        let handle = audio_garbage_collector::handle();
 
-        let midi_host = MidiHost::default_with_handle(garbage_collector.handle());
+        let midi_host = MidiHost::default_with_handle(handle);
         let audio_thread = ActorSystemThread::start(AudioThread::new(
-            garbage_collector.handle(),
+            handle,
             midi_host.messages().clone(),
             audio_thread_options,
         ));
@@ -100,7 +96,6 @@ impl TestPluginHost {
             vst_plugin_instance: None,
             processor: None,
             midi_host,
-            garbage_collector,
             mono_input: None,
             temporary_load_path: None,
             start_paused,
@@ -148,7 +143,7 @@ impl TestPluginHost {
         self.audio_thread
             .do_send(audio_thread::actor::AudioThreadMessage::SetProcessor {
                 processor: SharedProcessor::new(
-                    self.garbage_collector.handle(),
+                    audio_garbage_collector::handle(),
                     AudioThreadProcessor::Silence(SilenceAudioProcessor::new()),
                 ),
             });
@@ -157,13 +152,13 @@ impl TestPluginHost {
         let old_plugin = self.vst_plugin_instance.take();
         std::mem::drop(old_processor);
         std::mem::drop(old_plugin);
-        self.garbage_collector.blocking_collect();
+        audio_garbage_collector::current().blocking_collect();
 
         let path = self.prepare_load_path(path)?;
         let path = Path::new(&path);
         let vst_plugin_instance = Self::load_vst_plugin(path)?;
         let vst_plugin_instance =
-            SharedProcessor::new(self.garbage_collector.handle(), vst_plugin_instance);
+            SharedProcessor::new(audio_garbage_collector::handle(), vst_plugin_instance);
 
         let audio_settings = &self.audio_settings;
         let maybe_audio_file_settings = self.audio_file_path.as_ref().map_or(
@@ -179,7 +174,7 @@ impl TestPluginHost {
         )?;
 
         let mut test_host_processor = TestHostProcessor::new(
-            self.garbage_collector.handle(),
+            audio_garbage_collector::handle(),
             maybe_audio_file_settings,
             vst_plugin_instance.clone(),
             audio_settings.sample_rate(),
@@ -195,7 +190,7 @@ impl TestPluginHost {
 
         let test_host_processor = AudioThreadProcessor::Active(test_host_processor);
         let test_host_processor =
-            SharedProcessor::new(self.garbage_collector.handle(), test_host_processor);
+            SharedProcessor::new(audio_garbage_collector::handle(), test_host_processor);
         self.processor = Some(test_host_processor.clone());
 
         self.audio_thread
@@ -307,8 +302,6 @@ impl TestPluginHost {
     }
 
     pub fn wait(&mut self) -> Result<(), WaitError> {
-        self.garbage_collector.stop()?;
-
         self.audio_thread
             .do_send(audio_thread::actor::AudioThreadMessage::Wait);
 
@@ -336,8 +329,16 @@ impl Drop for TestPluginHost {
     }
 }
 
+impl Supervised for TestPluginHost {}
+
+impl SystemService for TestPluginHost {}
+
 impl Actor for TestPluginHost {
     type Context = Context<Self>;
+
+    fn started(&mut self, _ctx: &mut Self::Context) {
+        log::info!("TestPluginHost started");
+    }
 }
 
 #[derive(Message)]

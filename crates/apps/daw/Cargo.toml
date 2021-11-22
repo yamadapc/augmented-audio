@@ -1,3 +1,5 @@
+cargo-features = ["edition2021"]
+
 [package]
 name = "daw_ui"
 version = "0.1.0"
@@ -7,8 +9,16 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
+actix = "^0.12.0"
 flutter_rust_bridge = "^1.6.0"
 anyhow = "^1.0.47"
+log = "^0.4.14"
+
+serde = "^1.0.130"
+serde_json = "^1.0.71"
+
+plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }
+wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 
 [build-dependencies]
 cbindgen = "^0.20.0"

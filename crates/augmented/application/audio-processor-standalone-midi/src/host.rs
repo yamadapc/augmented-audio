@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-use actix::{Actor, Context, Handler, Message};
+use actix::{Actor, Context, Handler, Message, MessageResponse, Supervised, SystemService};
 use basedrop::{Handle, Owned, Shared};
 use midir::{MidiInput, MidiInputConnection};
 use thiserror::Error;
@@ -83,6 +83,16 @@ impl Actor for MidiHost {
     type Context = Context<Self>;
 }
 
+impl Default for MidiHost {
+    fn default() -> Self {
+        Self::default_with_handle(audio_garbage_collector::handle())
+    }
+}
+
+impl Supervised for MidiHost {}
+
+impl SystemService for MidiHost {}
+
 #[derive(Message)]
 #[rtype(result = "Result<(), MidiError>")]
 pub struct StartMessage;
@@ -92,6 +102,22 @@ impl Handler<StartMessage> for MidiHost {
 
     fn handle(&mut self, _msg: StartMessage, _ctx: &mut Self::Context) -> Self::Result {
         self.start_midi()
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "GetQueueMessageResult")]
+pub struct GetQueueMessage;
+
+#[derive(Message, MessageResponse)]
+#[rtype(result = "()")]
+pub struct GetQueueMessageResult(pub MidiMessageQueue);
+
+impl Handler<GetQueueMessage> for MidiHost {
+    type Result = GetQueueMessageResult;
+
+    fn handle(&mut self, _msg: GetQueueMessage, _ctx: &mut Self::Context) -> Self::Result {
+        GetQueueMessageResult(self.current_messages.clone())
     }
 }
 
