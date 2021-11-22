@@ -1,4 +1,5 @@
 import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_model.dart';
+import 'package:graphx/graphx.dart';
 import 'package:mobx/mobx.dart';
 
 part 'ui_state.g.dart';
@@ -65,5 +66,6 @@ abstract class _DetailsPanelState with Store {
   @action
   void updateHeight(double deltaY) {
     height -= deltaY;
+    height = Math.max(height, 200);
   }
 }
