@@ -12,6 +12,9 @@ The gist of it is:
 3. You now have a CLI for rendering online (CPAL, use your mic)  or offline (pass a file through your processor & write
    the results to a `.wav`)
 
+## Example
+Check out the `examples` directory for running examples and trying it out.
+
 ```rust
 // Imports
 use std::time::Duration;
