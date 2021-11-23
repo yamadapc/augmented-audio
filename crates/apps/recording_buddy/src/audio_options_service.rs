@@ -1,5 +1,6 @@
 use plugin_host_lib::audio_io::AudioIOService;
 
+#[allow(dead_code)]
 pub struct AvailableAudioOptions {
     pub host_ids: Vec<String>,
     pub input_ids: Vec<String>,
@@ -25,6 +26,7 @@ impl AudioOptionsService {
         Self {}
     }
 
+    #[allow(dead_code)]
     pub fn get_available_options(&self) -> AvailableAudioOptions {
         log::info!("get_audio_info called");
         let host_list = AudioIOService::hosts();
@@ -38,6 +40,7 @@ impl AudioOptionsService {
         }
     }
 
+    #[allow(dead_code)]
     pub fn set_options(&self, model: AudioOptions) {
         log::info!("set_audio_info called with {:?}", model);
     }

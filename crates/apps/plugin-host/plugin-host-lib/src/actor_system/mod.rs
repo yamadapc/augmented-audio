@@ -69,8 +69,8 @@ impl ActorSystemThread {
             let result = fut.await;
             let _ = tx.send(result);
         });
-        let result = rx.recv().unwrap();
-        result
+
+        rx.recv().unwrap()
     }
 
     fn next_arbiter_idx(&self) -> usize {

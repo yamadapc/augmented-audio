@@ -38,10 +38,8 @@ where
         data: &mut BufferType,
     ) {
         for frame in data.frames_mut() {
-            let mut channel = 0;
-            for sample in frame {
+            for (channel, sample) in frame.iter_mut().enumerate() {
                 *sample = self.s_process_channel(channel, *sample);
-                channel += 1;
             }
         }
     }

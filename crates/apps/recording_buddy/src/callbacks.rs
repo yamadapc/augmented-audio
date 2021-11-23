@@ -14,6 +14,8 @@ impl CompletedCallback {
         (self.callback)(self.userdata, true);
         std::mem::forget(self)
     }
+
+    #[allow(dead_code)]
     pub fn failed(self) {
         (self.callback)(self.userdata, false);
         std::mem::forget(self)
