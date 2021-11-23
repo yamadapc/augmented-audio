@@ -1,6 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_daw_mock_ui/state/wire.dart';
+import 'package:flutter_daw_mock_ui/state/wire/wire.dart';
 import 'package:flutter_daw_mock_ui/ui/common/file_picker.dart';
 import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
 

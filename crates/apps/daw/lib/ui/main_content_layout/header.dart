@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_daw_mock_ui/state/wire.dart';
+import 'package:flutter_daw_mock_ui/state/wire/wire.dart';
 
 class Header extends StatelessWidget {
   const Header({Key? key}) : super(key: key);

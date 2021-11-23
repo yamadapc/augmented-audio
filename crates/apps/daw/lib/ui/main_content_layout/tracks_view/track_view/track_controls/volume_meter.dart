@@ -44,11 +44,13 @@ class _VolumeMeterState extends State<VolumeMeter> {
         transform.scale(1.0, volume);
       });
     });
+    super.initState();
   }
 
   @override
   void deactivate() {
     timer.cancel();
+    super.deactivate();
   }
 
   @override
