@@ -38,5 +38,10 @@ class NativeAudioIOStore with AudioIOStore {
 }
 
 AudioIOStore? getAudioIOStore() {
-  return NativeAudioIOStore(initialize()!);
+  var api = initialize();
+  if (api != null) {
+    return NativeAudioIOStore(api);
+  } else {
+    return null;
+  }
 }
