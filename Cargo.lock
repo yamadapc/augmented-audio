@@ -398,6 +398,7 @@ dependencies = [
 name = "audio-processor-graph"
 version = "0.1.0"
 dependencies = [
+ "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-time",
  "audio-processor-traits",

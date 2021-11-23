@@ -9,6 +9,7 @@ daggy = "^0.7.0"
 thiserror = "^1.0.26"
 
 [dev-dependencies]
+audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-processor-utility = { path = "../audio-processor-utility" }
 audio-processor-time = { path = "../audio-processor-time" }
 augmented-dsp-filters = { path = "../../dsp/dsp-filters" }
