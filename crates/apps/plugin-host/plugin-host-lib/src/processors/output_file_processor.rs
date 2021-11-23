@@ -1,5 +1,6 @@
-use audio_processor_traits::AudioProcessorSettings;
 use std::{fs, io};
+
+use audio_processor_traits::AudioProcessorSettings;
 
 pub struct OutputFileSettings {
     audio_file_path: String,
