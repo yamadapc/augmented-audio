@@ -386,6 +386,7 @@ dependencies = [
  "audio-processor-traits",
  "augmented-metrics",
  "convert-sample-rate",
+ "hound",
  "log",
  "rayon",
  "symphonia",
