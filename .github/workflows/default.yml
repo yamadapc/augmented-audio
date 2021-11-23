@@ -11,7 +11,7 @@ env:
 
 jobs:
   test-rust:
-    name: Run unit-tests on rust crates ${{ matrix.os }}
+    name: Rust - Run unit-tests on rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -37,7 +37,7 @@ jobs:
       - name: Run tests
         run: cargo test --verbose --workspace --features story --exclude augmented-ui
   lint-rust:
-    name: Lint rust crates ${{ matrix.os }}
+    name: Rust - Lint rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -65,7 +65,7 @@ jobs:
       - name: Run check
         run: cargo check --verbose --workspace --features story --exclude augmented-ui
   build-rust:
-    name: Build release rust crates ${{ matrix.os }}
+    name: Rust - Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

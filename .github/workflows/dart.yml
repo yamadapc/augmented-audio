@@ -1,8 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Dart
 
 on:
@@ -13,8 +8,8 @@ on:
 
 jobs:
   build:
+    name: Dart - Build & test
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
@@ -28,3 +23,24 @@ jobs:
         run: cd ./crates/apps/daw && dart analyze
       - name: Run tests
         run: cd ./crates/apps/daw && flutter test
+
+  build-web:
+    name: Dart - Web based build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+        with:
+          channel: 'beta'
+      - name: Install dependencies
+        run: cd ./crates/apps/daw && flutter pub get
+      - name: Build for web
+        run: cd ./crates/apps/daw && flutter build web
+      - name: Deploy to GitHub Pages
+        if: success()
+        uses: crazy-max/ghaction-github-pages@v2
+        with:
+          target_branch: gh-pages
+          build_dir: ./crates/apps/daw/build/web
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -50,6 +50,7 @@ class _VolumeMeterState extends State<VolumeMeter> {
   @override
   void deactivate() {
     timer.cancel();
+    super.deactivate();
   }
 
   @override
