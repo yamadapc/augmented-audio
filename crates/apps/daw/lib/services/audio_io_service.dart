@@ -13,9 +13,10 @@ class RemoteAudioDevice {
   final List<int> sampleRateRange;
   final List<int>? bufferSizeRange;
 
-  RemoteAudioDevice({required this.name,
-    required this.sampleRateRange,
-    required this.bufferSizeRange});
+  RemoteAudioDevice(
+      {required this.name,
+      required this.sampleRateRange,
+      required this.bufferSizeRange});
 
   factory RemoteAudioDevice.fromJson(Map<String, dynamic> json) =>
       _$RemoteAudioDeviceFromJson(json);
@@ -42,7 +43,7 @@ class AudioIOService {
   Future<void> syncDevices() async {
     var devicesListStr = await api.audioIoGetInputDevices();
     var remoteDevicesList =
-    RemoteDevicesList.fromJson(json.decode(devicesListStr));
+        RemoteDevicesList.fromJson(json.decode(devicesListStr));
 
     runInAction(() {
       audioIOState.inputDevices.clear();
