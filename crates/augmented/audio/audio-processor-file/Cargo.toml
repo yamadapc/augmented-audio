@@ -1,0 +1,19 @@
+[package]
+name = "audio-processor-file"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rayon = "^1.5.1"
+symphonia = { version = "^0.4.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
+symphonia-bundle-mp3 = "^0.4.0"
+log = "^0.4.14"
+thiserror = "^1.0.30"
+
+augmented-metrics = { path = "../../ops/augmented-metrics" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
+convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" }
+audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }

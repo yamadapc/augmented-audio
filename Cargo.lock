@@ -378,6 +378,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-file"
+version = "0.1.0"
+dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-testing-helpers",
+ "audio-processor-traits",
+ "augmented-metrics",
+ "convert-sample-rate",
+ "log",
+ "rayon",
+ "symphonia",
+ "symphonia-bundle-mp3",
+ "thiserror",
+]
+
+[[package]]
 name = "audio-processor-graph"
 version = "0.1.0"
 dependencies = [
@@ -576,6 +592,13 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "num 0.4.0",
+]
+
+[[package]]
+name = "augmented-metrics"
+version = "0.1.0"
+dependencies = [
+ "log",
 ]
 
 [[package]]
@@ -4692,9 +4715,11 @@ dependencies = [
  "atomic-queue",
  "audio-garbage-collector",
  "audio-processor-analysis",
+ "audio-processor-file",
  "audio-processor-standalone-midi",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
+ "augmented-metrics",
  "basedrop",
  "circular-data-structures",
  "clap 2.33.3",
@@ -5999,18 +6024,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.26"
+version = "1.0.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93119e4feac1cbe6c798c34d3a53ea0026b0b1de6a120deef895137c0529bfe2"
+checksum = "854babe52e4df1653706b98fcfc05843010039b406875930a70e4d9644e5c417"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.26"
+version = "1.0.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "060d69a0afe7796bf42e9e2ff91f5ee691fb15c53d38b4b62a9a53eb23164745"
+checksum = "aa32fd3f627f367fe16f893e2597ae3c05020f8bba2666a4e6ea73d377e5714b"
 dependencies = [
  "proc-macro2",
  "quote",

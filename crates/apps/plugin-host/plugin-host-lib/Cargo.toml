@@ -38,6 +38,8 @@ itertools = "^0.10.1"
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" }
+augmented-metrics = { path = "../../../augmented/ops/augmented-metrics" }
+audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" }
 audio-processor-standalone-midi = { version = "^0.1", path = "../../../augmented/application/audio-processor-standalone-midi" }
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
