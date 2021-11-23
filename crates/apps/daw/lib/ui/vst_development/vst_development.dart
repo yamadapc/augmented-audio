@@ -37,14 +37,14 @@ class VSTDevelopmentView extends StatelessWidget {
   void onInputFilePicked(FilePickerResult? result) {
     var path = result?.files[0].path;
     if (path != null) {
-      dawUi.setInputFilePath(path: path);
+      dawUi?.setInputFilePath(path: path);
     }
   }
 
   void onPluginFilePicked(FilePickerResult? result) {
     var path = result?.files[0].path;
     if (path != null) {
-      dawUi.setVstFilePath(path: path);
+      dawUi?.setVstFilePath(path: path);
     }
   }
 }
