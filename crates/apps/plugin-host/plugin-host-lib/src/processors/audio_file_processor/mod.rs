@@ -9,7 +9,7 @@ use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
-use crate::processors::audio_file_processor::file_io::AudioFileError;
+use file_io::AudioFileError;
 
 pub(crate) mod file_io;
 
