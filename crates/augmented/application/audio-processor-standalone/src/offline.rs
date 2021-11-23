@@ -3,6 +3,7 @@ use audio_garbage_collector::Handle;
 use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
+/// Render a processor offline into a file
 pub fn run_offline_render(
     mut app: impl StandaloneProcessor,
     handle: Option<&Handle>,
