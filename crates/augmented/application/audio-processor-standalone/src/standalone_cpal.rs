@@ -81,6 +81,7 @@ pub fn standalone_start(
         output_config.channels.into(),
         buffer_size,
     );
+
     app.processor().prepare(settings);
 
     let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);

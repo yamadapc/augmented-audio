@@ -431,9 +431,12 @@ dependencies = [
 name = "audio-processor-standalone"
 version = "0.1.5"
 dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-file",
  "audio-processor-standalone-midi",
  "audio-processor-traits",
  "basedrop",
+ "clap 2.33.3",
  "cpal",
  "log",
  "ringbuf",
