@@ -4,21 +4,27 @@ use crate::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 ///
 /// Implementors should define the SampleType the node will work over.
 pub trait SimpleAudioProcessor {
-    type SampleType;
+    type SampleType: Copy;
 
     /// Prepare for playback based on current audio settings
     fn s_prepare(&mut self, _settings: AudioProcessorSettings) {}
 
     /// Process a single sample. If the input is mult-channel, will run for each channel by default.
+    /// If the processor is multi-channel, implement s_process_frame instead.
     ///
-    /// If the processor is stereo, implement s_process_channel instead.
-    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType;
+    /// `s_process_frame` is what should be called by consumers & its not required to implement a
+    /// sound `s_process` method.
+    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+        sample
+    }
 
-    /// Process a single sample given its channel
+    /// Process a multi-channel frame.
     ///
     /// By default calls s_process.
-    fn s_process_channel(&mut self, _channel: usize, sample: Self::SampleType) -> Self::SampleType {
-        self.s_process(sample)
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+        for sample in frame {
+            *sample = self.s_process(*sample);
+        }
     }
 }
 
@@ -38,9 +44,7 @@ where
         data: &mut BufferType,
     ) {
         for frame in data.frames_mut() {
-            for (channel, sample) in frame.iter_mut().enumerate() {
-                *sample = self.s_process_channel(channel, *sample);
-            }
+            self.s_process_frame(frame);
         }
     }
 }

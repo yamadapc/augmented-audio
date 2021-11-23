@@ -1,4 +1,5 @@
-use audio_processor_traits::{AudioBuffer, AudioProcessor, Float};
+use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::Float;
 
 /// An `AudioProcessor` that applies panning on its input.
 ///
@@ -35,37 +36,32 @@ impl<SampleType: Float> PanProcessor<SampleType> {
     }
 }
 
-impl<SampleType> AudioProcessor for PanProcessor<SampleType>
+impl<SampleType> SimpleAudioProcessor for PanProcessor<SampleType>
 where
     SampleType: Float + Sync + Send,
 {
     type SampleType = SampleType;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
+    fn s_process_frame(&mut self, frame: &mut [SampleType]) {
         let zero = SampleType::zero();
         let one = SampleType::one();
-        for frame in data.frames_mut() {
-            let panning = self.panning;
+        let panning = self.panning;
 
-            let left_input = frame[0];
-            let right_input = frame[1];
+        let left_input = frame[0];
+        let right_input = frame[1];
 
-            if panning > zero {
-                let left_output = left_input * (one - panning);
-                let right_output = right_input + left_input * panning;
+        if panning > zero {
+            let left_output = left_input * (one - panning);
+            let right_output = right_input + left_input * panning;
 
-                frame[0] = left_output;
-                frame[1] = right_output;
-            } else if panning < zero {
-                let left_output = left_input + right_input * (-panning);
-                let right_output = right_input * (one + panning);
+            frame[0] = left_output;
+            frame[1] = right_output;
+        } else if panning < zero {
+            let left_output = left_input + right_input * (-panning);
+            let right_output = right_input * (one + panning);
 
-                frame[0] = left_output;
-                frame[1] = right_output;
-            }
+            frame[0] = left_output;
+            frame[1] = right_output;
         }
     }
 }

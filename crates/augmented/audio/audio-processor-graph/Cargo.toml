@@ -10,3 +10,6 @@ thiserror = "^1.0.26"
 
 [dev-dependencies]
 audio-processor-utility = { path = "../audio-processor-utility" }
+audio-processor-time = { path = "../audio-processor-time" }
+augmented-dsp-filters = { path = "../../dsp/dsp-filters" }
+audio-processor-standalone = { path = "../../application/audio-processor-standalone" }

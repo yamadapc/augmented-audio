@@ -15,6 +15,7 @@ pub use num::Float;
 pub use atomic_float::AtomicF32;
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
 pub use midi::{MidiEventHandler, MidiMessageLike};
+use simple_processor::SimpleAudioProcessor;
 
 /// Atomic F32 implementation with `num` trait implementations
 pub mod atomic_float;
@@ -136,14 +137,21 @@ where
 /// An audio-processor which doesn't do any work.
 pub struct NoopAudioProcessor<SampleType>(PhantomData<SampleType>);
 
-impl<SampleType: Send> AudioProcessor for NoopAudioProcessor<SampleType> {
-    type SampleType = SampleType;
-
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _data: &mut BufferType,
-    ) {
+impl<SampleType> Default for NoopAudioProcessor<SampleType> {
+    fn default() -> Self {
+        Self::new()
     }
+}
+
+impl<SampleType> NoopAudioProcessor<SampleType> {
+    pub fn new() -> Self {
+        NoopAudioProcessor(PhantomData::default())
+    }
+}
+
+impl<SampleType: Send + Copy> SimpleAudioProcessor for NoopAudioProcessor<SampleType> {
+    type SampleType = SampleType;
+    fn s_process_frame(&mut self, _frame: &mut [SampleType]) {}
 }
 
 /// An audio-processor which mutes all channels.

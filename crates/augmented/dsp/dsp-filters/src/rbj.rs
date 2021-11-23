@@ -3,7 +3,8 @@
 //! Ported from [vinniefalco/DSPFilters](https://github.com/vinniefalco/DSPFilters/)
 use std::fmt::Debug;
 
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 use num::pow::Pow;
 use num::traits::FloatConst;
 use num::Float;
@@ -469,29 +470,26 @@ impl<SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatCon
     }
 }
 
-impl<SampleType> AudioProcessor for FilterProcessor<SampleType>
+impl<SampleType> SimpleAudioProcessor for FilterProcessor<SampleType>
 where
     SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst + Send + Sync,
 {
     type SampleType = SampleType;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
         self.sample_rate = SampleType::from(settings.sample_rate()).unwrap();
         self.setup();
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
-        self.filter.process_channel(data, 0);
-
-        // Mono output
-        for frame in data.frames_mut() {
-            let left_output = frame[0];
-            for sample in frame.iter_mut().skip(1) {
-                *sample = left_output;
-            }
+    fn s_process_frame(&mut self, frame: &mut [SampleType]) {
+        let input = frame[0];
+        let output = self.filter.state.process1(
+            &self.filter.coefficients,
+            input,
+            self.filter.denormal_prevention.alternating_current(),
+        );
+        for value in frame {
+            *value = output;
         }
     }
 }

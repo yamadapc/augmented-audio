@@ -1,5 +1,8 @@
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, ObjectAudioProcessor};
+use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::{
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, NoopAudioProcessor,
+};
 use connection::Connection;
 use daggy::Walker;
 use thiserror::Error;
@@ -15,38 +18,56 @@ pub enum AudioProcessorGraphError {
     WouldCycle,
 }
 
-pub struct AudioProcessorGraph<BufferType, Processor>
+type NodeType<SampleType> = Box<dyn SimpleAudioProcessor<SampleType = SampleType> + Send>;
+
+pub struct AudioProcessorGraph<BufferType>
 where
     BufferType: OwnedAudioBuffer,
-    Processor: ObjectAudioProcessor<BufferType>,
 {
-    dag: daggy::Dag<Processor, Connection<BufferType>>,
+    input_node: NodeIndex,
+    output_node: NodeIndex,
+    dag: daggy::Dag<NodeType<BufferType::SampleType>, Connection<BufferType>>,
     process_order: Vec<NodeIndex>,
 }
 
-impl<BufferType, Processor> Default for AudioProcessorGraph<BufferType, Processor>
+impl<BufferType> Default for AudioProcessorGraph<BufferType>
 where
     BufferType: OwnedAudioBuffer,
-    Processor: ObjectAudioProcessor<BufferType>,
+    BufferType::SampleType: Copy + Send + 'static,
 {
     fn default() -> Self {
         Self::new(daggy::Dag::default())
     }
 }
 
-impl<BufferType, Processor> AudioProcessorGraph<BufferType, Processor>
+impl<BufferType> AudioProcessorGraph<BufferType>
 where
     BufferType: OwnedAudioBuffer,
-    Processor: ObjectAudioProcessor<BufferType>,
+    BufferType::SampleType: Copy + Send + 'static,
 {
-    pub fn new(dag: daggy::Dag<Processor, Connection<BufferType>>) -> Self {
+    pub fn new(
+        mut dag: daggy::Dag<NodeType<BufferType::SampleType>, Connection<BufferType>>,
+    ) -> Self {
+        let input_node = dag.add_node(Box::new(NoopAudioProcessor::default()));
+        let output_node = dag.add_node(Box::new(NoopAudioProcessor::default()));
+
         AudioProcessorGraph {
+            input_node,
+            output_node,
             dag,
             process_order: Vec::new(),
         }
     }
 
-    pub fn add_node(&mut self, processor: Processor) -> NodeIndex {
+    pub fn input(&self) -> NodeIndex {
+        self.input_node
+    }
+
+    pub fn output(&self) -> NodeIndex {
+        self.output_node
+    }
+
+    pub fn add_node(&mut self, processor: NodeType<BufferType::SampleType>) -> NodeIndex {
         self.dag.add_node(processor)
     }
 
@@ -72,23 +93,26 @@ where
     }
 }
 
-impl<BufferType, Processor> ObjectAudioProcessor<BufferType>
-    for AudioProcessorGraph<BufferType, Processor>
+impl<BufferType> AudioProcessor for AudioProcessorGraph<BufferType>
 where
     BufferType: OwnedAudioBuffer,
     BufferType::SampleType: Copy,
-    Processor: ObjectAudioProcessor<BufferType>,
 {
-    fn prepare_obj(&mut self, settings: AudioProcessorSettings) {
+    type SampleType = BufferType::SampleType;
+
+    fn prepare(&mut self, settings: AudioProcessorSettings) {
         let process_order = &self.process_order;
         for node_index in process_order {
             if let Some(processor) = self.dag.node_weight_mut(*node_index) {
-                processor.prepare_obj(settings);
+                processor.s_prepare(settings);
             }
         }
     }
 
-    fn process_obj(&mut self, data: &mut BufferType) {
+    fn process<InputBufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        data: &mut InputBufferType,
+    ) {
         let process_order = &self.process_order;
 
         for node_index in process_order {
@@ -100,7 +124,9 @@ where
             }
 
             if let Some(processor) = self.dag.node_weight_mut(*node_index) {
-                processor.process_obj(data);
+                for frame in data.frames_mut() {
+                    processor.s_process_frame(frame);
+                }
             }
 
             let mut outputs = self.dag.children(*node_index);
@@ -113,10 +139,13 @@ where
     }
 }
 
-fn copy_buffer<BufferType>(source: &BufferType, destination: &mut BufferType)
-where
-    BufferType: AudioBuffer,
-    BufferType::SampleType: Copy,
+fn copy_buffer<SampleType, InputBufferType, OutputBufferType>(
+    source: &InputBufferType,
+    destination: &mut OutputBufferType,
+) where
+    SampleType: Copy,
+    InputBufferType: AudioBuffer<SampleType = SampleType>,
+    OutputBufferType: AudioBuffer<SampleType = SampleType>,
 {
     let src = source.slice();
     let dest = destination.slice_mut();
@@ -129,25 +158,37 @@ where
 mod test {
     use audio_processor_traits::audio_buffer::VecAudioBuffer;
     use audio_processor_utility::gain::GainProcessor;
+    use audio_processor_utility::pan::PanProcessor;
 
     use super::*;
 
     #[test]
     fn test_create_graph() {
-        let _ = AudioProcessorGraph::<VecAudioBuffer<f32>, GainProcessor<f32>>::default();
+        let _ = AudioProcessorGraph::<VecAudioBuffer<f32>>::default();
     }
 
     #[test]
     fn test_create_graph_and_add_node() {
-        let mut graph = AudioProcessorGraph::<VecAudioBuffer<f32>, GainProcessor<f32>>::default();
-        graph.add_node(GainProcessor::default());
+        let mut graph = AudioProcessorGraph::<VecAudioBuffer<f32>>::default();
+        graph.add_node(Box::new(GainProcessor::default()));
     }
 
     #[test]
     fn test_create_graph_and_add_2_nodes() {
-        let mut graph = AudioProcessorGraph::<VecAudioBuffer<f32>, GainProcessor<f32>>::default();
-        let gain1 = graph.add_node(GainProcessor::default());
-        let gain2 = graph.add_node(GainProcessor::default());
+        let mut graph = AudioProcessorGraph::<VecAudioBuffer<f32>>::default();
+        let gain1 = graph.add_node(Box::new(GainProcessor::default()));
+        let gain2 = graph.add_node(Box::new(GainProcessor::default()));
         let _connection_id = graph.add_connection(gain1, gain2).unwrap();
+    }
+
+    #[test]
+    fn test_create_heterogeneous_graph() {
+        type BufferType = VecAudioBuffer<f32>;
+
+        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let gain = Box::new(GainProcessor::default());
+        let gain = graph.add_node(gain);
+        let pan = graph.add_node(Box::new(PanProcessor::default()));
+        let _connection_id = graph.add_connection(gain, pan).unwrap();
     }
 }
