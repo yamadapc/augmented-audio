@@ -47,6 +47,7 @@ where
 
 #[cfg(test)]
 mod test {
+    use audio_processor_traits::AudioProcessor;
     use audio_processor_traits::InterleavedAudioBuffer;
 
     use super::*;

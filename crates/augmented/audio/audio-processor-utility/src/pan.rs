@@ -68,8 +68,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use audio_processor_traits::AudioBuffer;
+    use audio_processor_traits::AudioProcessor;
     use audio_processor_traits::InterleavedAudioBuffer;
+
+    use super::*;
 
     #[test]
     fn test_pan_noop() {
