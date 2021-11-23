@@ -448,6 +448,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-time"
+version = "0.1.0"
+dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-standalone",
+ "audio-processor-traits",
+]
+
+[[package]]
 name = "audio-processor-traits"
 version = "0.3.1"
 dependencies = [
@@ -618,7 +627,7 @@ dependencies = [
  "nix 0.18.0",
  "objc",
  "raw-window-handle",
- "uuid",
+ "uuid 0.8.2",
  "winapi 0.3.9",
  "x11",
  "xcb",
@@ -1688,12 +1697,14 @@ dependencies = [
  "anyhow",
  "audio-garbage-collector",
  "cbindgen",
+ "flexbuffers",
  "flutter_rust_bridge",
  "flutter_rust_bridge_codegen",
  "log",
  "plugin-host-lib",
  "serde",
  "serde_json",
+ "uuid 1.0.0-alpha.1",
  "wisual-logger",
 ]
 
@@ -2000,6 +2011,19 @@ name = "fixedbitset"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37ab347416e802de484e4d03c7316c48f1ecb56574dfd4a46a80f173ce1de04d"
+
+[[package]]
+name = "flexbuffers"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "15d14128f06405808ce75bfebe11e9b0f9da18719ede6d7bdb1702d6bfe0f7e8"
+dependencies = [
+ "bitflags",
+ "byteorder 1.4.3",
+ "num_enum",
+ "serde",
+ "serde_derive",
+]
 
 [[package]]
 name = "float-cmp"
@@ -3461,7 +3485,7 @@ dependencies = [
  "log",
  "num 0.4.0",
  "rimd",
- "uuid",
+ "uuid 0.8.2",
  "wisual-logger",
 ]
 
@@ -4654,7 +4678,7 @@ dependencies = [
  "tinyfiledialogs",
  "tokio",
  "tokio-stream",
- "uuid",
+ "uuid 0.8.2",
  "vst",
  "wisual-logger",
 ]
@@ -4698,7 +4722,7 @@ dependencies = [
  "tao",
  "thiserror",
  "tokio",
- "uuid",
+ "uuid 0.8.2",
  "vst",
  "wisual-logger",
 ]
@@ -6379,6 +6403,15 @@ name = "uuid"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
+dependencies = [
+ "getrandom 0.2.3",
+]
+
+[[package]]
+name = "uuid"
+version = "1.0.0-alpha.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb3ab47baa004111b323696c6eaa2752e7356f7f77cf6b6dc7a2087368ce1ca4"
 dependencies = [
  "getrandom 0.2.3",
 ]

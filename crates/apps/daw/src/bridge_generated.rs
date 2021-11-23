@@ -102,6 +102,18 @@ pub extern "C" fn wire_audio_io_get_input_devices(port: i64) {
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_get_events_sink(port: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "get_events_sink",
+            port: Some(port),
+            mode: FfiCallMode::Stream,
+        },
+        move || move |task_callback| get_events_sink(task_callback.stream_sink()),
+    )
+}
+
 // Section: wire structs
 
 #[repr(C)]

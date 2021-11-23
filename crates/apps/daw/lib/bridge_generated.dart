@@ -26,6 +26,8 @@ abstract class DawUi extends FlutterRustBridgeBase<DawUiWire> {
   Future<int> setInputFilePath({required String path, dynamic hint});
 
   Future<String> audioIoGetInputDevices({dynamic hint});
+
+  Stream<String> getEventsSink({dynamic hint});
 }
 
 // ------------------------- Implementation Details -------------------------
@@ -84,6 +86,13 @@ class DawUiImpl extends DawUi {
       executeNormal(FlutterRustBridgeTask(
           debugName: 'audio_io_get_input_devices',
           callFfi: (port) => inner.wire_audio_io_get_input_devices(port),
+          parseSuccessData: _wire2api_String,
+          hint: hint));
+
+  Stream<String> getEventsSink({dynamic hint}) =>
+      executeStream(FlutterRustBridgeTask(
+          debugName: 'get_events_sink',
+          callFfi: (port) => inner.wire_get_events_sink(port),
           parseSuccessData: _wire2api_String,
           hint: hint));
 
@@ -248,6 +257,20 @@ class DawUiWire implements FlutterRustBridgeWireBase {
           'wire_audio_io_get_input_devices');
   late final _wire_audio_io_get_input_devices =
       _wire_audio_io_get_input_devicesPtr.asFunction<void Function(int)>();
+
+  void wire_get_events_sink(
+    int port,
+  ) {
+    return _wire_get_events_sink(
+      port,
+    );
+  }
+
+  late final _wire_get_events_sinkPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_get_events_sink');
+  late final _wire_get_events_sink =
+      _wire_get_events_sinkPtr.asFunction<void Function(int)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list(
     int len,

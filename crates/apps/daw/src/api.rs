@@ -1,7 +1,9 @@
 use std::path::PathBuf;
+use std::time::Duration;
 
 use actix::{Handler, SystemService};
 use anyhow::Result;
+use flutter_rust_bridge::StreamSink;
 
 use audio_garbage_collector::Shared;
 use plugin_host_lib::audio_io::processor_handle_registry::ProcessorHandleRegistry;
@@ -70,11 +72,10 @@ pub fn audio_io_get_input_devices() -> Result<String> {
     Ok(result)
 }
 
-pub struct EntityEvent {
-    /// CHANGE
-    pub event_type: String,
-    /// TRACK:1234/...
-    pub entity_id: String,
-    pub old_value: String,
-    pub new_value: String,
+pub fn get_events_sink(sink: StreamSink<String>) -> Result<i32> {
+    std::thread::spawn(move || loop {
+        sink.add("MESSAGE".to_string());
+        std::thread::sleep(Duration::from_millis(1000));
+    });
+    Ok(0)
 }

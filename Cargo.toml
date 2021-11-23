@@ -35,6 +35,7 @@ members = [
   "crates/augmented/audio/audio-processor-graph",
   "crates/augmented/audio/audio-processor-traits",
   "crates/augmented/audio/audio-processor-utility",
+  "crates/augmented/audio/audio-processor-time",
   "crates/augmented/audio/audiounit",
   "crates/augmented/audio/avfaudio-sys",
   "crates/augmented/audio/oscillator",

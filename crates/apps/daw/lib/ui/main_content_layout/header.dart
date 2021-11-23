@@ -34,18 +34,18 @@ class TransportControls extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           IconButton(
-            icon: Icon(Icons.stop, color: Colors.white),
+            icon: const Icon(Icons.stop, color: Colors.white),
             onPressed: () {
               dawUi.stopPlayback();
             },
           ),
           IconButton(
-            icon: Icon(Icons.play_arrow, color: Colors.white),
+            icon: const Icon(Icons.play_arrow, color: Colors.white),
             onPressed: () {
               dawUi.startPlayback();
             },
           ),
-          Icon(Icons.fiber_manual_record, color: Colors.white),
+          const Icon(Icons.fiber_manual_record, color: Colors.white),
         ]);
   }
 }

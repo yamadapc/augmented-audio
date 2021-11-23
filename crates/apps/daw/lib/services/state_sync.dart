@@ -42,6 +42,11 @@ class StateSyncService {
       onEvent(event);
     });
     disposeCallbacks.add(dispose);
+
+    // var stream = api.getEventsSink();
+    // stream.forEach((element) {
+    //   print("REMOTE EVENT - $element");
+    // });
   }
 
   void onEvent(SpyEvent event) {
