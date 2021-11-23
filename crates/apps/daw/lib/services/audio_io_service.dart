@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter_daw_mock_ui/bridge_generated.dart';
 import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
+import 'package:flutter_daw_mock_ui/state/wire/wire_base.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mobx/mobx.dart';
 
@@ -34,14 +34,14 @@ class RemoteDevicesList {
 }
 
 class AudioIOService {
-  final DawUi api;
+  final AudioIOStore api;
   final AudioIOState audioIOState;
 
   AudioIOService(this.api, this.audioIOState);
 
   /// Fetch audio devices from Rust & push them into the flutter state.
   Future<void> syncDevices() async {
-    var devicesListStr = await api.audioIoGetInputDevices();
+    var devicesListStr = await api.getInputDevices();
     var remoteDevicesList =
         RemoteDevicesList.fromJson(json.decode(devicesListStr));
 

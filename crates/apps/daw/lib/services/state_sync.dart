@@ -1,6 +1,4 @@
-import 'package:flutter_daw_mock_ui/bridge_generated.dart';
 import 'package:flutter_daw_mock_ui/state/entity.dart';
-import 'package:flutter_daw_mock_ui/state/wire.dart';
 import 'package:mobx/mobx.dart';
 
 StateSyncService? instance;
@@ -9,28 +7,27 @@ List<Dispose> disposeCallbacks = [];
 
 class TrackedActionController extends ActionController {
   final String entityId;
-  final StateSyncService stateSyncService = StateSyncService.get(dawUi!);
+  final StateSyncService stateSyncService = StateSyncService.get();
 
   TrackedActionController(this.entityId) : super();
 
   @override
   ActionRunInfo startAction({String? name}) {
-    stateSyncService.entityActionStack.add(entityId);
+    stateSyncService.pushEntity(entityId);
     return super.startAction(name: name);
   }
 
   @override
   void endAction(ActionRunInfo info) {
-    stateSyncService.entityActionStack.removeLast();
+    stateSyncService.popEntity();
     super.endAction(info);
   }
 }
 
 class StateSyncService {
-  final DawUi api;
-  final List<String> entityActionStack = [];
+  final List<String> _entityActionStack = [];
 
-  StateSyncService(this.api);
+  StateSyncService();
 
   void start() {
     for (var dispose in disposeCallbacks) {
@@ -51,7 +48,8 @@ class StateSyncService {
 
   void onEvent(SpyEvent event) {
     if (event is ObservableValueSpyEvent) {
-      var entityId = entityActionStack.isEmpty ? null : entityActionStack.last;
+      var entityId =
+          _entityActionStack.isEmpty ? null : _entityActionStack.last;
       if (entityId != null) {
         var changePath = entityId + "/" + event.name.split(".")[1];
         var newValue =
@@ -65,20 +63,28 @@ class StateSyncService {
     // print("$changePath = $newValue");
   }
 
-  static get(DawUi api) {
+  void pushEntity(String entityId) {
+    _entityActionStack.add(entityId);
+  }
+
+  void popEntity() {
+    _entityActionStack.removeLast();
+  }
+
+  static get() {
     if (instance != null) {
       return instance;
     }
 
-    instance = StateSyncService(api);
+    instance = StateSyncService();
     return instance;
   }
 }
 
 T runInEntity<T>(Entity entity, T Function() fn) {
-  var stateSyncService = StateSyncService.get(dawUi!);
-  stateSyncService.entityActionStack.add(entity.id);
+  StateSyncService stateSyncService = StateSyncService.get();
+  stateSyncService.pushEntity(entity.id);
   var result = runInAction(fn);
-  stateSyncService.entityActionStack.removeLast();
+  stateSyncService.popEntity();
   return result;
 }

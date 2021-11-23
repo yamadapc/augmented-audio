@@ -157,17 +157,12 @@ class PanelTabsHeaderView extends StatelessWidget {
     }
 
     return DawTextStyle(
-        child: SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: IntrinsicWidth(
         child: SizedBox(
-          height: 28,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [Expanded(child: leftHandContent), ...rightHandButtons],
-          ),
-        ),
+      height: 28,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [Expanded(child: leftHandContent), ...rightHandButtons],
       ),
     ));
   }

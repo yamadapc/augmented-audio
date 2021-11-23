@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/services/audio_io_service.dart';
+import 'package:flutter_daw_mock_ui/services/state_sync.dart';
 import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:flutter_daw_mock_ui/state/ui_state.dart';
+import 'package:flutter_daw_mock_ui/state/wire/wire.dart' as wire;
+import 'package:flutter_daw_mock_ui/state/wire/wire.dart';
 import 'package:mobx/mobx.dart';
 
 import 'main_content_layout.dart';
@@ -14,13 +18,13 @@ class DawApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    // var api = wire.initialize();
-    // api.initializeLogger();
+    var api = wire.initialize();
+    api?.initializeLogger();
     AudioIOState audioIOState = setupAudioIOState();
-    // api.initializeAudio();
+    api?.initializeAudio();
 
-    // var stateSync = StateSyncService.get(api);
-    // stateSync.start();
+    var stateSync = StateSyncService.get();
+    stateSync.start();
 
     Project project = setupProjectState();
 
@@ -56,12 +60,15 @@ class DawApp extends StatelessWidget {
 
   AudioIOState setupAudioIOState() {
     var audioIOState = AudioIOState();
-    // audioIOState.availableInputs = ObservableList.of([
-    //   AudioInput("none", "No input"),
-    //   AudioInput("1", "Input 1"),
-    // ]);
-    // var audioIOService = AudioIOService(api, audioIOState);
-    // audioIOService.syncDevices();
+    audioIOState.availableInputs = ObservableList.of([
+      AudioInput("none", "No input"),
+      AudioInput("1", "Input 1"),
+    ]);
+    var store = getAudioIOStore();
+    if (store != null) {
+      var audioIOService = AudioIOService(store, audioIOState);
+      audioIOService.syncDevices();
+    }
     return audioIOState;
   }
 }
