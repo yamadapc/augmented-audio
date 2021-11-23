@@ -16,7 +16,7 @@ jobs:
       - name: Install dependencies
         run: cd ./crates/apps/daw && flutter pub get
       - name: Build for web
-        run: cd ./crates/apps/daw && flutter build web --base-href="/augmented-audio"
+        run: cd ./crates/apps/daw && flutter build web --base-href="/augmented-audio/"
       - name: Deploy to GitHub Pages
         if: success()
         uses: crazy-max/ghaction-github-pages@v2
