@@ -78,15 +78,22 @@ impl TestHostProcessor {
         ProcessorHandleRegistry::current()
             .register("rms-processor", running_rms_processor.handle().clone());
 
+        let maybe_audio_file_processor = maybe_audio_file_settings.map(|audio_file_settings| {
+            AudioFileProcessor::new(handle, audio_file_settings, audio_settings)
+        });
+
+        if let Some(audio_file_processor) = &maybe_audio_file_processor {
+            ProcessorHandleRegistry::current()
+                .register("audio-file", audio_file_processor.handle().clone());
+        }
+
         TestHostProcessor {
             id: uuid::Uuid::new_v4().to_string(),
             handle: host_processor_handle,
             plugin_instance,
             audio_settings,
             buffer_handler: CpalVstBufferHandler::new(audio_settings),
-            maybe_audio_file_processor: maybe_audio_file_settings.map(|audio_file_settings| {
-                AudioFileProcessor::new(handle, audio_file_settings, audio_settings)
-            }),
+            maybe_audio_file_processor,
             volume_meter_processor,
             running_rms_processor,
             midi_converter: MidiVSTConverter::default(),
