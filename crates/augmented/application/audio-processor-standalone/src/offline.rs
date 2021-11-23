@@ -1,7 +1,8 @@
-use crate::StandaloneProcessor;
 use audio_garbage_collector::Handle;
 use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+
+use crate::StandaloneProcessor;
 
 /// Render a processor offline into a file
 pub fn run_offline_render(
@@ -12,7 +13,7 @@ pub fn run_offline_render(
 ) {
     let _ = wisual_logger::try_init_from_env();
 
-    let handle = handle.unwrap_or(audio_garbage_collector::handle());
+    let handle = handle.unwrap_or_else(|| audio_garbage_collector::handle());
 
     log::info!(
         "Rendering offline input={} output={}",

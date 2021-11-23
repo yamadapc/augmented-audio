@@ -67,6 +67,7 @@ impl Plugin for LoopiPlugin {
 
     fn process(&mut self, buffer: &mut vst::buffer::AudioBuffer<f32>) {
         let (inputs, outputs) = buffer.split();
+        #[allow(deprecated)]
         let mut vst_buffer = VSTAudioBuffer::new(inputs, outputs);
         self.processor.process(&mut vst_buffer);
     }

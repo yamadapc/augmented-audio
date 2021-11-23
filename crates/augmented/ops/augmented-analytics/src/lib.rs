@@ -66,11 +66,11 @@
 use std::time::Duration;
 
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
+use tokio::task::JoinHandle;
 
 pub use crate::backend::AnalyticsBackend;
 pub use crate::backend::{GoogleAnalyticsBackend, GoogleAnalyticsConfig};
 pub use crate::model::{AnalyticsEvent, ClientMetadata};
-use tokio::task::JoinHandle;
 
 mod backend;
 mod model;
@@ -190,7 +190,7 @@ impl AnalyticsClient {
     pub fn send(&self, event: AnalyticsEvent) {
         // Errors will happen if the receiver is closed.
         // In that case, the events will be dropped.
-        if let Err(_) = self.events_queue.send(event) {
+        if self.events_queue.send(event).is_err() {
             log::error!("Receiver is down, but analytics event was fired.");
         }
     }
