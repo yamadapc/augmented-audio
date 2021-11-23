@@ -7136,9 +7136,5 @@ dependencies = [
 ]
 
 [[patch.unused]]
-name = "lyon_tessellation"
-version = "0.17.9"
-
-[[patch.unused]]
 name = "pathfinder_canvas"
 version = "0.5.0"
