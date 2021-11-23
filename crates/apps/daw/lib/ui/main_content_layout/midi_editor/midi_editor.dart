@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/services/state_sync.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
 import 'midi_model.dart';
 
@@ -324,7 +324,7 @@ class MIDINoteView extends StatelessWidget {
 
   void onPanUpdate(DragUpdateDetails details) {
     var dx = details.delta.dx / parentWidth;
-    runInAction(() {
+    runInEntity(note, () {
       note.time += dx;
     });
     onDragUpdate(details);
@@ -359,7 +359,7 @@ class MIDIResizeHandleView extends StatelessWidget {
 
   void onPanUpdate(DragUpdateDetails details) {
     var dx = details.delta.dx / width;
-    runInAction(() {
+    runInEntity(note, () {
       if (isLeftHandle) {
         note.time += dx;
         note.duration -= dx;

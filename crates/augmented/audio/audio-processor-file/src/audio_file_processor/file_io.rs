@@ -8,9 +8,9 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
 use symphonia::default::get_probe;
-use thiserror::Error;
 
-use crate::timer;
+use augmented_metrics as metrics;
+use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AudioFileError {
@@ -55,18 +55,18 @@ pub fn read_file_contents(
 ) -> Result<SymphoniaAudioBuffer<f32>, AudioFileError> {
     let audio_file_stream = audio_file
         .format
-        .default_stream()
+        .default_track()
         .ok_or(AudioFileError::OpenStreamError)?;
     let mut decoder = symphonia::default::get_codecs()
         .make(&audio_file_stream.codec_params, &Default::default())?;
     let audio_file_stream_id = audio_file_stream.id;
 
     let mut audio_buffer: Vec<SymphoniaAudioBuffer<f32>> = Vec::new();
-    timer::time("AudioFileProcessor - Reading file packages", || loop {
+    metrics::time("AudioFileProcessor - Reading file packages", || loop {
         match audio_file.format.next_packet().ok() {
             None => break,
             Some(packet) => {
-                if packet.stream_id() != audio_file_stream_id {
+                if packet.track_id() != audio_file_stream_id {
                     break;
                 }
 
@@ -81,7 +81,7 @@ pub fn read_file_contents(
         }
     });
 
-    Ok(timer::time(
+    Ok(metrics::time(
         "AudioFileProcessor - Concatenating packets",
         || concat_buffers(audio_buffer),
     ))

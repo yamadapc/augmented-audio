@@ -44,7 +44,7 @@ impl AudioIOService {
     pub fn new(audio_thread: Addr<AudioThread>, storage_config: StorageConfig) -> Self {
         AudioIOService {
             audio_thread,
-            storage: AudioIOStorageService::new(storage_config.clone()).start(),
+            storage: AudioIOStorageService::new(storage_config).start(),
             state: AudioIOState {
                 host: Self::default_host(),
                 input_device: Self::default_input_device(),
@@ -317,7 +317,7 @@ impl Handler<SetStateMessage> for AudioIOService {
         };
 
         let result_future = audio_thread_future.then(|result, this, _| {
-            let result_future: DynResult = if !(result.is_ok()) {
+            let result_future: DynResult = if result.is_err() {
                 Box::pin(futures_util::future::ready(result).into_actor(this))
             } else {
                 let storage_future = this

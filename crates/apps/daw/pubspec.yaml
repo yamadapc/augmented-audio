@@ -17,11 +17,14 @@ dependencies:
   flutter_mobx: ^2.0.0
   collection: ^1.15.0
   file_picker: ^4.2.4
+  flutter_rust_bridge: ^1.6.0
+  json_serializable: ^6.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  ffigen: ^4.1.2
   build_runner: ^1.12.2
   mobx_codegen: ^2.0.0
   flutter_lints: ^1.0.0

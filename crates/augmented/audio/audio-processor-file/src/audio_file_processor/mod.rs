@@ -5,13 +5,11 @@ use rayon::prelude::*;
 use symphonia::core::audio::AudioBuffer as SymphoniaAudioBuffer;
 use symphonia::core::probe::ProbeResult;
 
-use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
+use file_io::AudioFileError;
 
-use crate::processors::audio_file_processor::file_io::AudioFileError;
-
-pub(crate) mod file_io;
+pub mod file_io;
 
 /// An audio processor which plays a file in loop
 pub struct AudioFileSettings {
@@ -85,8 +83,6 @@ impl AudioFileProcessor {
                 is_playing: AtomicBool::new(true),
             },
         );
-
-        ProcessorHandleRegistry::current().register("audio-file", handle.clone());
 
         AudioFileProcessor {
             audio_file_settings,
@@ -182,6 +178,10 @@ impl AudioFileProcessor {
             Ordering::Relaxed,
             Ordering::Relaxed,
         );
+    }
+
+    pub fn handle(&self) -> &Shared<AudioFileProcessorHandle> {
+        &self.handle
     }
 
     /// Resume playback

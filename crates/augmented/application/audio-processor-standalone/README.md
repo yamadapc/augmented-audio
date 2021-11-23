@@ -5,12 +5,28 @@
 
 Provides a stand-alone audio-processor runner for `AudioProcessor` implementations.
 
+The gist of it is:
+
+1. Implement `AudioProcessor` or `SimpleAudioProcessor` from `audio_processor_traits`
+2. Call `audio_processor_main(processor)`
+3. You now have a CLI for rendering online (CPAL, use your mic)  or offline (pass a file through your processor & write
+   the results to a `.wav`)
+
+## Example
+Check out the `examples` directory for running examples and trying it out.
+
 ```rust
 // Imports
 use std::time::Duration;
 
 use audio_processor_traits::{AudioBuffer, AudioProcessor};
 use circular_data_structures::CircularVec;
+
+// Run it
+fn main() {
+    let processor = SimpleDelayProcessor::new();
+    audio_processor_standalone::audio_processor_main(processor);
+}
 
 // Declare a delay `audio_processor_traits::AudioProcessor` implementation
 struct SimpleDelayProcessor {
@@ -71,11 +87,5 @@ impl AudioProcessor for SimpleDelayProcessor {
             self.current_write_position += 1;
         }
     }
-}
-
-// Run it
-fn main() {
-    let processor = SimpleDelayProcessor::new();
-    audio_processor_standalone::audio_processor_main(processor);
 }
 ```

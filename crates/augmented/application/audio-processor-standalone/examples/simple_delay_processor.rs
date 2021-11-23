@@ -25,7 +25,7 @@ impl SimpleDelayProcessor {
     }
 
     fn make_vec(max_delay_time: usize) -> Vec<f32> {
-        let mut v = Vec::new();
+        let mut v = Vec::with_capacity(max_delay_time);
         v.resize(max_delay_time, 0.0);
         v
     }

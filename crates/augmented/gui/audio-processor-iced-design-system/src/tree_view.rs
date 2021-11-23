@@ -16,13 +16,13 @@ impl<InnerState: Updatable> State<InnerState> {
 
 #[derive(Debug, Clone)]
 pub enum Message<InnerMessage> {
-    ChildMessage(usize, item::Message<InnerMessage>),
+    Child(usize, item::Message<InnerMessage>),
 }
 
 impl<InnerState: Updatable + 'static> State<InnerState> {
     pub fn update(&mut self, msg: Message<InnerState::Message>) {
         match msg {
-            Message::ChildMessage(index, msg) => {
+            Message::Child(index, msg) => {
                 self.items[index].update(msg);
             }
         }
@@ -33,10 +33,7 @@ impl<InnerState: Updatable + 'static> State<InnerState> {
             .items
             .iter_mut()
             .enumerate()
-            .map(|(index, item)| {
-                item.view()
-                    .map(move |msg| Message::ChildMessage(index, msg))
-            })
+            .map(|(index, item)| item.view().map(move |msg| Message::Child(index, msg)))
             .collect();
         Column::with_children(children).width(Length::Fill).into()
     }
@@ -53,7 +50,7 @@ mod item {
     #[derive(Debug, Clone)]
     pub enum Message<InnerMessage> {
         Toggle,
-        ChildMessage(usize, Box<Message<InnerMessage>>),
+        Child(usize, Box<Message<InnerMessage>>),
         Inner(InnerMessage),
     }
 
@@ -104,7 +101,7 @@ mod item {
                     Message::Toggle => {
                         *is_collapsed = !*is_collapsed;
                     }
-                    Message::ChildMessage(index, msg) => {
+                    Message::Child(index, msg) => {
                         children[index].update(*msg);
                     }
                     _ => {}
@@ -132,7 +129,7 @@ mod item {
                             .enumerate()
                             .map(|(index, item)| {
                                 item.view()
-                                    .map(move |msg| Message::ChildMessage(index, Box::new(msg)))
+                                    .map(move |msg| Message::Child(index, Box::new(msg)))
                             })
                             .collect(),
                     ))

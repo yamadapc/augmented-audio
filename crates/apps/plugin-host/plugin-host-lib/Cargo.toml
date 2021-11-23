@@ -26,8 +26,8 @@ rimd = "^0.0.1"
 ringbuf = "^0.2.5"
 serde = { version = "^1.0.64", features = ["derive"] }
 serde_json = "^1.0.64"
-symphonia = { version = "^0.2.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
-symphonia-bundle-mp3 = "^0.2.0"
+symphonia = { version = "^0.4.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
+symphonia-bundle-mp3 = "^0.4.0"
 tao = "0.5.2"
 thiserror = "^1.0.25"
 uuid = { version = "^0.8.2", features = [ "v4" ] }
@@ -38,6 +38,8 @@ itertools = "^0.10.1"
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" }
+augmented-metrics = { path = "../../../augmented/ops/augmented-metrics" }
+audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" }
 audio-processor-standalone-midi = { version = "^0.1", path = "../../../augmented/application/audio-processor-standalone-midi" }
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }

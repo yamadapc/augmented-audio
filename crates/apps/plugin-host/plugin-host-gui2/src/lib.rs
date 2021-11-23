@@ -56,7 +56,7 @@ impl Application for App {
             err
         });
         let (main_content_view, command) =
-            main_content_view::MainContentView::new(plugin_host, &actor_system_thread);
+            main_content_view::MainContentView::new(plugin_host, actor_system_thread);
 
         log::info!("plugin-host-gui2: Start-up is complete");
         (

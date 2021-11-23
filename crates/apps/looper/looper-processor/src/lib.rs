@@ -1,3 +1,4 @@
+use std::ops::AddAssign;
 use std::time::Duration;
 
 use num::FromPrimitive;
@@ -11,7 +12,6 @@ use crate::buffer::InternalBuffer;
 pub use crate::handle::LooperProcessorHandle;
 use crate::handle::ProcessParameters;
 use crate::midi_map::{Action, MidiSpec};
-use std::ops::AddAssign;
 
 mod buffer;
 mod handle;
@@ -42,8 +42,8 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
     }
 
     pub fn increment_cursor(&mut self) {
+        self.looper_cursor += 1;
         if let LoopState::PlayOrOverdub { start, end } = self.loop_state {
-            self.looper_cursor += 1;
             if end > start {
                 if self.looper_cursor >= end {
                     self.looper_cursor = start;
@@ -65,7 +65,6 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
                 }
             }
         } else {
-            self.looper_cursor += 1;
             self.looper_cursor %= self.looped_clip.num_samples();
         }
     }
@@ -215,10 +214,12 @@ impl<SampleType: num::Float + AddAssign> LooperProcessor<SampleType> {
         }
     }
 
+    #[allow(dead_code)]
     fn toggle_recording(&mut self) {
         self.handle.toggle_recording();
     }
 
+    #[allow(dead_code)]
     fn stop(&mut self) {
         self.handle.stop();
     }
@@ -271,6 +272,7 @@ mod test {
     use audio_processor_testing_helpers::rms_level;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
+
     use audio_processor_traits::{
         AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
     };

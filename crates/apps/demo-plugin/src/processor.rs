@@ -5,6 +5,12 @@ pub struct Processor {
     oscillator: Oscillator<f32>,
 }
 
+impl Default for Processor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Processor {
     pub fn new() -> Self {
         let mut oscillator = Oscillator::sine(44100.0);
@@ -21,6 +27,8 @@ impl Processor {
         let num_samples = buffer.samples();
 
         let (input, mut output) = buffer.split();
+
+        #[allow(clippy::needless_range_loop)]
         for channel in 0..1 {
             let _input_samples = input.get(channel % input.len());
             let output_samples = output.get_mut(channel % output.len());

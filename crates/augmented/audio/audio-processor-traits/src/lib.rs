@@ -22,6 +22,8 @@ pub mod atomic_float;
 pub mod audio_buffer;
 /// Provides an abstraction for MIDI processing that works for stand-alone and VST events
 pub mod midi;
+/// Simpler audio processor trait, ingesting sample by sample
+pub mod simple_processor;
 
 /// Options provided to the audio-processor before calling `process`.
 #[derive(Clone, PartialEq, Debug, Copy)]

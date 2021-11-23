@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_daw_mock_ui/state/wire.dart';
 
 class Header extends StatelessWidget {
   const Header({Key? key}) : super(key: key);
@@ -31,10 +32,20 @@ class TransportControls extends StatelessWidget {
     return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: const [
-          Icon(Icons.stop, color: Colors.white),
-          Icon(Icons.play_arrow, color: Colors.white),
-          Icon(Icons.fiber_manual_record, color: Colors.white),
+        children: [
+          IconButton(
+            icon: const Icon(Icons.stop, color: Colors.white),
+            onPressed: () {
+              dawUi.stopPlayback();
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.play_arrow, color: Colors.white),
+            onPressed: () {
+              dawUi.startPlayback();
+            },
+          ),
+          const Icon(Icons.fiber_manual_record, color: Colors.white),
         ]);
   }
 }

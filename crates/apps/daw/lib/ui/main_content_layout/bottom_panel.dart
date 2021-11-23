@@ -3,7 +3,6 @@ import 'package:flutter_daw_mock_ui/state/ui_state.dart';
 import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
 import 'package:flutter_daw_mock_ui/ui/common/tabs.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
 import 'bottom_panel/track_effects.dart';
 import 'midi_editor/midi_editor.dart';
@@ -56,8 +55,6 @@ class BottomPanel extends StatelessWidget {
   }
 
   void onPanUpdate(DragUpdateDetails details) {
-    runInAction(() {
-      detailsPanelState.updateHeight(details.delta.dy);
-    });
+    detailsPanelState.updateHeight(details.delta.dy);
   }
 }

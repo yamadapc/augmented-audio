@@ -123,15 +123,6 @@ availableInputs: ${availableInputs}
   }
 }
 
-mixin _$AudioDevice on _AudioDevice, Store {
-  @override
-  String toString() {
-    return '''
-
-    ''';
-  }
-}
-
 mixin _$AudioInput on _AudioInput, Store {
   final _$idAtom = Atom(name: '_AudioInput.id');
 

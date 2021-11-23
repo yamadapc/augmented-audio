@@ -1,0 +1,11 @@
+[package]
+name = "audio-processor-time"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+audio-processor-traits = { path = "../audio-processor-traits" }
+audio-garbage-collector = { path = "../audio-garbage-collector" }
+
+[dev-dependencies]
+audio-processor-standalone = { version = "0.1.5", path = "../../application/audio-processor-standalone" }

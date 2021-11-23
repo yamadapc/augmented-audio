@@ -1,11 +1,18 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_daw_mock_ui/state/entity.dart';
 import 'package:mobx/mobx.dart';
 
 part 'audio_io_state.g.dart';
 
-class AudioIOState = _AudioIOState with _$AudioIOState;
+class AudioIOState extends _AudioIOState with _$AudioIOState {
+  @override
+  ActionController get _$_AudioIOStateActionController => getActionController();
+}
 
-abstract class _AudioIOState with Store {
+abstract class _AudioIOState with Store, Entity {
+  @override
+  String id = "/AudioIOState";
+
   @observable
   AudioDevice? currentInputDevice;
 
@@ -30,20 +37,20 @@ abstract class _AudioIOState with Store {
   void setOutputDevice(AudioDevice? outputDevice) {
     currentOutputDevice = outputDevice;
   }
-
-  _AudioIOState(
-      {required this.availableInputs,
-      required this.inputDevices,
-      required this.outputDevices});
 }
 
-class AudioDevice = _AudioDevice with _$AudioDevice;
-
-abstract class _AudioDevice with Store {
+class AudioDevice {
   String id = "";
   String title = "";
 
-  _AudioDevice({required this.title});
+  AudioDevice({required this.title}) {
+    id = title.hashCode.toString();
+  }
+
+  @override
+  String toString() {
+    return 'AudioDevice:$id';
+  }
 }
 
 class AudioInput = _AudioInput with _$AudioInput;

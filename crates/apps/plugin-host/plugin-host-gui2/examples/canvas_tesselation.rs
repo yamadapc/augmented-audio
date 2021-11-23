@@ -4,7 +4,7 @@ use iced::canvas::{Fill, Frame};
 use iced::{Point, Size};
 use std::time::Instant;
 
-fn run_fill(buffer: &Vec<f32>) -> Frame {
+fn run_fill(buffer: &[f32]) -> Frame {
     let mut frame = Frame::new(Size::new(1000., 1000.));
     let mut path = iced::canvas::path::Builder::new();
     for (i, point) in buffer.iter().enumerate() {

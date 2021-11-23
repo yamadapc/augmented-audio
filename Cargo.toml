@@ -12,6 +12,8 @@ members = [
   "crates/apps/recording_buddy",
   "crates/apps/demo-plugin",
 
+  "crates/apps/daw",
+
   # Repository scripts
   "crates/scripts/autosync-submodules",
   "crates/scripts/midi-logger-host",
@@ -33,6 +35,8 @@ members = [
   "crates/augmented/audio/audio-processor-graph",
   "crates/augmented/audio/audio-processor-traits",
   "crates/augmented/audio/audio-processor-utility",
+  "crates/augmented/audio/audio-processor-file",
+  "crates/augmented/audio/audio-processor-time",
   "crates/augmented/audio/audiounit",
   "crates/augmented/audio/avfaudio-sys",
   "crates/augmented/audio/oscillator",
@@ -54,6 +58,7 @@ members = [
   "crates/augmented/gui/webview-transport",
   "crates/augmented/ops/audio-plugin-logger",
   "crates/augmented/ops/augmented-analytics",
+  "crates/augmented/ops/augmented-metrics",
   "crates/augmented/ops/wisual-logger",
 ]
 
@@ -75,6 +80,4 @@ wisual-logger = { path = "crates/augmented/ops/wisual-logger" }
 
 # Vendor overrides
 iced = { version = "^0.3.0", path = "./crates/vendor/iced" }
-lyon_tessellation = { path = "./crates/vendor/lyon/crates/tessellation", features = ["profiling"] }
-pathfinder_canvas = { path = "./crates/vendor/pathfinder/canvas" }
 vst = { path = "./crates/vendor/vst" }

@@ -4,7 +4,22 @@ use std::time::Duration;
 
 use basedrop::Collector;
 pub use basedrop::{Handle, Owned, Shared, SharedCell};
+use lazy_static::lazy_static;
 use thiserror::Error;
+
+lazy_static! {
+    static ref GARBAGE_COLLECTOR: GarbageCollector = GarbageCollector::default();
+}
+
+/// Return a reference to a global GC instance
+pub fn current() -> &'static GarbageCollector {
+    &GARBAGE_COLLECTOR
+}
+
+/// Return a handle to a global GC instance
+pub fn handle() -> &'static Handle {
+    GARBAGE_COLLECTOR.handle()
+}
 
 #[derive(Debug, Error)]
 pub enum GarbageCollectorError {
