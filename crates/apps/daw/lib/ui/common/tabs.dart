@@ -122,7 +122,8 @@ class PanelTabsHeaderView extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Text(tabs[panelTabsState.selectedIndex].title),
           )
-        : Row(
+        : ListView(
+            scrollDirection: Axis.horizontal,
             children: tabs
                 .map((tab) => SelectableButton(
                       isSelected: tab.id == panelTabsState.selectedIndex,
@@ -160,8 +161,6 @@ class PanelTabsHeaderView extends StatelessWidget {
         child: SizedBox(
       height: 28,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [Expanded(child: leftHandContent), ...rightHandButtons],
       ),
     ));
