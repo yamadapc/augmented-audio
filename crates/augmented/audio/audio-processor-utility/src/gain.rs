@@ -1,6 +1,7 @@
 use std::ops::Mul;
 
-use audio_processor_traits::{AudioBuffer, AudioProcessor, Float};
+use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::Float;
 
 /// An `AudioProcessor` which applies gain to an input signal
 pub struct GainProcessor<SampleType> {
@@ -33,24 +34,20 @@ impl<SampleType: Float> GainProcessor<SampleType> {
     }
 }
 
-impl<SampleType> AudioProcessor for GainProcessor<SampleType>
+impl<SampleType> SimpleAudioProcessor for GainProcessor<SampleType>
 where
     SampleType: Float + Send + Sync + Mul<Output = SampleType>,
 {
     type SampleType = SampleType;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
-        for sample in data.slice_mut() {
-            *sample = self.gain * *sample;
-        }
+    fn s_process(&mut self, sample: SampleType) -> SampleType {
+        self.gain * sample
     }
 }
 
 #[cfg(test)]
 mod test {
+    use audio_processor_traits::AudioProcessor;
     use audio_processor_traits::InterleavedAudioBuffer;
 
     use super::*;

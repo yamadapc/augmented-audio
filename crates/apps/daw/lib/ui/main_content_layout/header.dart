@@ -36,13 +36,13 @@ class TransportControls extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.stop, color: Colors.white),
             onPressed: () {
-              dawUi.stopPlayback();
+              dawUi?.stopPlayback();
             },
           ),
           IconButton(
             icon: const Icon(Icons.play_arrow, color: Colors.white),
             onPressed: () {
-              dawUi.startPlayback();
+              dawUi?.startPlayback();
             },
           ),
           const Icon(Icons.fiber_manual_record, color: Colors.white),

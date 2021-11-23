@@ -95,8 +95,9 @@ impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Samp
     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
         if self.delay_time - self.handle.delay_time_secs.get() > f32::EPSILON {
             self.delay_time = self.handle.delay_time_secs.get();
-            self.current_write_position =
-                self.current_read_position + (self.delay_time * self.sample_rate) as usize;
+            self.current_write_position = (self.current_read_position
+                + (self.delay_time * self.sample_rate) as usize)
+                % self.buffer_size;
         }
 
         let delay_output = self.delay_buffer[self.current_read_position];

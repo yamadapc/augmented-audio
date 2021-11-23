@@ -9,7 +9,7 @@ List<Dispose> disposeCallbacks = [];
 
 class TrackedActionController extends ActionController {
   final String entityId;
-  final StateSyncService stateSyncService = StateSyncService.get(dawUi);
+  final StateSyncService stateSyncService = StateSyncService.get(dawUi!);
 
   TrackedActionController(this.entityId) : super();
 
@@ -76,7 +76,7 @@ class StateSyncService {
 }
 
 T runInEntity<T>(Entity entity, T Function() fn) {
-  var stateSyncService = StateSyncService.get(dawUi);
+  var stateSyncService = StateSyncService.get(dawUi!);
   stateSyncService.entityActionStack.add(entity.id);
   var result = runInAction(fn);
   stateSyncService.entityActionStack.removeLast();

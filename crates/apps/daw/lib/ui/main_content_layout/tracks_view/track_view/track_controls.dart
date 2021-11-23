@@ -57,12 +57,19 @@ class TrackControls extends StatelessWidget {
                     ),
                   ),
                   Observer(
-                    builder: (_) => AudioIOInputDropdownView(
-                        value: AudioIOStateProvider.stateOf(context)
-                            .availableInputs
-                            .firstWhere(
-                                (input) => input.id == track.audioInputId),
-                        onChanged: onAudioInputChanged),
+                    builder: (_) {
+                      var audioIOState = AudioIOStateProvider.stateOf(context);
+
+                      if (audioIOState.availableInputs.isEmpty) {
+                        return Container(child: null);
+                      }
+
+                      return AudioIOInputDropdownView(
+                          value: audioIOState.availableInputs.firstWhere(
+                              (input) => input.id == track.audioInputId,
+                              orElse: () => audioIOState.availableInputs.first),
+                          onChanged: onAudioInputChanged);
+                    },
                   )
                 ]),
           )),

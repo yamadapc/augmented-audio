@@ -2,11 +2,15 @@ import 'dart:ffi';
 
 import 'package:flutter_daw_mock_ui/bridge_generated.dart';
 
-DynamicLibrary dylib = DynamicLibrary.open(
-    "/Users/yamadapc/projects/rust-audio-software/target/debug/libdaw_ui.dylib");
-
-DawUi dawUi = DawUi(dylib);
+DawUi? dawUi;
 
 DawUi initialize() {
-  return dawUi;
+  if (dawUi != null) {
+    return dawUi!;
+  }
+
+  DynamicLibrary dylib = DynamicLibrary.open(
+      "/Users/yamadapc/projects/rust-audio-software/target/debug/libdaw_ui.dylib");
+  dawUi = DawUi(dylib);
+  return dawUi!;
 }

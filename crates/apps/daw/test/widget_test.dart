@@ -5,9 +5,6 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
-import 'dart:ui';
-
-import 'package:flutter/widgets.dart';
 import 'package:flutter_daw_mock_ui/ui/daw_app.dart';
 import 'package:flutter_test/flutter_test.dart';
 // import 'package:golden_toolkit/golden_toolkit.dart';
@@ -18,7 +15,7 @@ void main() {
     await tester.pumpWidget(const DawApp());
   });
 
-/*
+  /*
   testGoldens("DAW App", (tester) async {
     await loadAppFonts();
 
@@ -29,5 +26,5 @@ void main() {
     await tester.pumpWidgetBuilder(widget, surfaceSize: const Size(1920, 1180));
     await screenMatchesGolden(tester, "golden_daw_app", autoHeight: true);
   });
-*/
+  */
 }
