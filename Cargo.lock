@@ -1695,6 +1695,7 @@ version = "0.1.0"
 dependencies = [
  "actix",
  "anyhow",
+ "audio-garbage-collector",
  "cbindgen",
  "flutter_rust_bridge",
  "flutter_rust_bridge_codegen",

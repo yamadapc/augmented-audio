@@ -51,7 +51,6 @@ class AudioSettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var textStyle = DawTextStyle.of(context);
     var audioIOState = AudioIOStateProvider.stateOf(context);
 
     return Padding(
@@ -59,11 +58,7 @@ class AudioSettingsView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Audio settings",
-              style: textStyle.merge(const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ))),
+          const Heading(text: "Audio settings"),
           const SizedBox(height: 10),
           Observer(
             builder: (_) => FormFieldView<AudioDevice>(

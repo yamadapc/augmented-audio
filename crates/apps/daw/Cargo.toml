@@ -17,6 +17,7 @@ log = "^0.4.14"
 serde = "^1.0.130"
 serde_json = "^1.0.71"
 
+audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
 plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 

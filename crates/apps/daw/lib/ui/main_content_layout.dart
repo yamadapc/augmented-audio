@@ -3,6 +3,7 @@ import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:flutter_daw_mock_ui/state/ui_state.dart';
 import 'package:flutter_daw_mock_ui/ui/examples.dart';
 import 'package:flutter_daw_mock_ui/ui/settings/settings_view.dart';
+import 'package:flutter_daw_mock_ui/ui/vst_development/vst_development.dart';
 
 import 'common/status_bar.dart';
 import 'common/tabs.dart';
@@ -31,6 +32,7 @@ class MainContentLayout extends StatelessWidget {
       ConcretePanelTab(0, "Tracks", tracksView),
       ConcretePanelTab(1, "Storybook", const DawStorybook()),
       ConcretePanelTab(2, "Settings", const SettingsView()),
+      ConcretePanelTab(3, "VST Development", const VSTDevelopmentView()),
     ];
     var content = Expanded(
         child: PanelTabsView(

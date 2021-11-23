@@ -21,6 +21,7 @@ class DawApp extends StatelessWidget {
     var api = wire.initialize();
     api.initializeLogger();
     AudioIOState audioIOState = setupAudioIOState(api);
+    api.initializeAudio();
 
     var stateSync = StateSyncService.get(api);
     stateSync.start();
