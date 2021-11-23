@@ -5,7 +5,7 @@ use ringbuf::Consumer;
 
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 use audio_processor_standalone_midi::host::MidiMessageQueue;
-use audio_processor_traits::InterleavedAudioBuffer;
+use audio_processor_traits::{AudioBuffer, InterleavedAudioBuffer};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
 use options::AudioThreadOptions;
@@ -260,6 +260,12 @@ fn output_stream_callback(
     midi_message_handler.collect_midi_messages(midi_message_queue);
 
     let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
+
+    if !has_input {
+        for sample in audio_buffer.slice_mut() {
+            *sample = 0.0;
+        }
+    }
 
     let shared_processor = processor.get();
     let processor_ptr = shared_processor.0.get();

@@ -10,6 +10,7 @@ crate-type = ["staticlib"]
 # FFI
 uniffi = "0.14.1"
 uniffi_macros = "0.14.1"
+anyhow = "=1.0.45" # https://github.com/mozilla/uniffi-rs/issues/1109
 
 # macOS
 objc = "0.2.7"

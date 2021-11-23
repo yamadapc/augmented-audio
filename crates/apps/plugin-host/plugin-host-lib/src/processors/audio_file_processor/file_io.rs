@@ -55,7 +55,7 @@ pub fn read_file_contents(
 ) -> Result<SymphoniaAudioBuffer<f32>, AudioFileError> {
     let audio_file_stream = audio_file
         .format
-        .default_stream()
+        .default_track()
         .ok_or(AudioFileError::OpenStreamError)?;
     let mut decoder = symphonia::default::get_codecs()
         .make(&audio_file_stream.codec_params, &Default::default())?;
@@ -66,7 +66,7 @@ pub fn read_file_contents(
         match audio_file.format.next_packet().ok() {
             None => break,
             Some(packet) => {
-                if packet.stream_id() != audio_file_stream_id {
+                if packet.track_id() != audio_file_stream_id {
                     break;
                 }
 
