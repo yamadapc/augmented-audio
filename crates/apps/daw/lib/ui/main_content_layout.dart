@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:flutter_daw_mock_ui/state/ui_state.dart';
 import 'package:flutter_daw_mock_ui/ui/examples.dart';
+import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/standalone_midi_editor.dart';
 import 'package:flutter_daw_mock_ui/ui/settings/settings_view.dart';
 import 'package:flutter_daw_mock_ui/ui/vst_development/vst_development.dart';
 
@@ -33,6 +34,7 @@ class MainContentLayout extends StatelessWidget {
       ConcretePanelTab(1, "Storybook", const DawStorybook()),
       ConcretePanelTab(2, "Settings", const SettingsView()),
       ConcretePanelTab(3, "VST Development", const VSTDevelopmentView()),
+      ConcretePanelTab(4, "MIDI Editor", StandaloneMIDIEditorView()),
     ];
     var content = Expanded(
         child: PanelTabsView(
