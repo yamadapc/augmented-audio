@@ -8,6 +8,9 @@ use flutter_rust_bridge::StreamSink;
 
 use audio_garbage_collector::Shared;
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use plugin_host_lib::actor_system::ActorSystemThread;
+use plugin_host_lib::audio_io::audio_graph;
+use plugin_host_lib::audio_io::audio_graph::AudioGraphManager;
 use plugin_host_lib::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use plugin_host_lib::audio_io::{
     AudioIOService, LoadPluginMessage, SetAudioFilePathMessage, StartMessage,
@@ -24,8 +27,7 @@ where
     let actor_system_thread = plugin_host_lib::actor_system::ActorSystemThread::current();
     actor_system_thread.spawn(async move {
         let host_addr = TestPluginHost::from_registry();
-        // TODO - handle mailbox error
-        let _ = host_addr.send(msg).await;
+        host_addr.send(msg).await.unwrap();
     });
 }
 
@@ -41,18 +43,20 @@ pub fn initialize_audio() -> Result<i32> {
 }
 
 pub fn start_playback() -> Result<i32> {
-    let audio_file_processor: Shared<AudioFileProcessorHandle> = ProcessorHandleRegistry::current()
-        .get("audio-file")
-        .unwrap();
-    audio_file_processor.play();
+    if let Some(audio_file_processor) =
+        ProcessorHandleRegistry::current().get::<Shared<AudioFileProcessorHandle>>("audio-file")
+    {
+        audio_file_processor.play();
+    }
     Ok(0)
 }
 
 pub fn stop_playback() -> Result<i32> {
-    let audio_file_processor: Shared<AudioFileProcessorHandle> = ProcessorHandleRegistry::current()
-        .get("audio-file")
-        .unwrap();
-    audio_file_processor.stop();
+    if let Some(audio_file_processor) =
+        ProcessorHandleRegistry::current().get::<Shared<AudioFileProcessorHandle>>("audio-file")
+    {
+        audio_file_processor.stop();
+    }
     Ok(0)
 }
 
@@ -87,8 +91,14 @@ trait AudioNode {
     fn set_parameter(&mut self, parameter_name: &str, parameter_value: f32);
 }
 
-struct DynamicAudioNodePool {
-    pool: HashMap<i32, Box<dyn AudioNode>>,
+pub fn audio_graph_setup() -> Result<i32> {
+    log::info!("Starting audio-graph-manager");
+    let actor_system_thread = ActorSystemThread::current();
+    actor_system_thread.spawn_result(async move {
+        let manager = AudioGraphManager::from_registry();
+        manager.send(audio_graph::SetupGraphMessage).await.unwrap();
+    });
+    Ok(0)
 }
 
 pub fn audio_node_create(audio_processor_name: String) -> Result<i32> {

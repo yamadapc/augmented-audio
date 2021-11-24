@@ -28,6 +28,17 @@ abstract class DawUi extends FlutterRustBridgeBase<DawUiWire> {
   Future<String> audioIoGetInputDevices({dynamic hint});
 
   Stream<String> getEventsSink({dynamic hint});
+
+  Future<int> audioGraphSetup({dynamic hint});
+
+  Future<int> audioNodeCreate(
+      {required String audioProcessorName, dynamic hint});
+
+  Future<int> audioNodeSetParameter(
+      {required int audioNodeId,
+      required String parameterName,
+      required double parameterValue,
+      dynamic hint});
 }
 
 // ------------------------- Implementation Details -------------------------
@@ -96,9 +107,48 @@ class DawUiImpl extends DawUi {
           parseSuccessData: _wire2api_String,
           hint: hint));
 
+  Future<int> audioGraphSetup({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+          debugName: 'audio_graph_setup',
+          callFfi: (port) => inner.wire_audio_graph_setup(port),
+          parseSuccessData: _wire2api_i32,
+          hint: hint));
+
+  Future<int> audioNodeCreate(
+          {required String audioProcessorName, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+          debugName: 'audio_node_create',
+          callFfi: (port) => inner.wire_audio_node_create(
+              port, _api2wire_String(audioProcessorName)),
+          parseSuccessData: _wire2api_i32,
+          hint: hint));
+
+  Future<int> audioNodeSetParameter(
+          {required int audioNodeId,
+          required String parameterName,
+          required double parameterValue,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+          debugName: 'audio_node_set_parameter',
+          callFfi: (port) => inner.wire_audio_node_set_parameter(
+              port,
+              _api2wire_i32(audioNodeId),
+              _api2wire_String(parameterName),
+              _api2wire_f32(parameterValue)),
+          parseSuccessData: _wire2api_i32,
+          hint: hint));
+
   // Section: api2wire
   ffi.Pointer<wire_uint_8_list> _api2wire_String(String raw) {
     return _api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  double _api2wire_f32(double raw) {
+    return raw;
+  }
+
+  int _api2wire_i32(int raw) {
+    return raw;
   }
 
   int _api2wire_u8(int raw) {
@@ -271,6 +321,59 @@ class DawUiWire implements FlutterRustBridgeWireBase {
           'wire_get_events_sink');
   late final _wire_get_events_sink =
       _wire_get_events_sinkPtr.asFunction<void Function(int)>();
+
+  void wire_audio_graph_setup(
+    int port,
+  ) {
+    return _wire_audio_graph_setup(
+      port,
+    );
+  }
+
+  late final _wire_audio_graph_setupPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_audio_graph_setup');
+  late final _wire_audio_graph_setup =
+      _wire_audio_graph_setupPtr.asFunction<void Function(int)>();
+
+  void wire_audio_node_create(
+    int port,
+    ffi.Pointer<wire_uint_8_list> audio_processor_name,
+  ) {
+    return _wire_audio_node_create(
+      port,
+      audio_processor_name,
+    );
+  }
+
+  late final _wire_audio_node_createPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_audio_node_create');
+  late final _wire_audio_node_create = _wire_audio_node_createPtr
+      .asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
+  void wire_audio_node_set_parameter(
+    int port,
+    int audio_node_id,
+    ffi.Pointer<wire_uint_8_list> parameter_name,
+    double parameter_value,
+  ) {
+    return _wire_audio_node_set_parameter(
+      port,
+      audio_node_id,
+      parameter_name,
+      parameter_value,
+    );
+  }
+
+  late final _wire_audio_node_set_parameterPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Int32, ffi.Pointer<wire_uint_8_list>,
+              ffi.Float)>>('wire_audio_node_set_parameter');
+  late final _wire_audio_node_set_parameter =
+      _wire_audio_node_set_parameterPtr.asFunction<
+          void Function(int, int, ffi.Pointer<wire_uint_8_list>, double)>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list(
     int len,

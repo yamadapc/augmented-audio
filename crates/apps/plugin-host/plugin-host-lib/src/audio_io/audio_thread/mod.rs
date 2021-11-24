@@ -294,7 +294,9 @@ fn input_stream_callback(producer: &mut ringbuf::Producer<f32>, data: &[f32]) {
 }
 
 pub mod actor {
-    use actix::{Actor, Context, Handler, Message, Supervised, SystemService};
+    use actix::{
+        Actor, AsyncContext, Context, Handler, Message, Supervised, SystemService, WrapFuture,
+    };
 
     use audio_processor_standalone_midi::host::{GetQueueMessage, MidiHost};
 
@@ -310,27 +312,40 @@ pub mod actor {
 
     impl Default for AudioThread {
         fn default() -> Self {
-            let midi_message_queue = ActorSystemThread::current()
-                .spawn_result(async move {
-                    let midi_host = MidiHost::from_registry();
-                    midi_host.send(GetQueueMessage).await
-                })
-                .unwrap();
-
             AudioThread::new(
                 audio_garbage_collector::handle(),
-                midi_message_queue.0,
+                Shared::new(
+                    audio_garbage_collector::handle(),
+                    atomic_queue::Queue::new(0),
+                ),
                 Default::default(),
             )
         }
     }
 
-    impl SystemService for AudioThread {}
+    impl SystemService for AudioThread {
+        fn service_started(&mut self, ctx: &mut Context<Self>) {
+            log::info!("AudioThread started");
+            let midi_host = MidiHost::from_registry();
+            let own_addr = ctx.address();
+            ctx.spawn(
+                async move {
+                    let queue = midi_host.send(GetQueueMessage).await.unwrap();
+                    own_addr
+                        .send(AudioThreadMessage::SetQueue(queue.0))
+                        .await
+                        .unwrap();
+                }
+                .into_actor(self),
+            );
+        }
+    }
 
     #[derive(Message)]
     #[rtype(result = "Result<(), AudioThreadError>")]
     pub enum AudioThreadMessage {
         Start,
+        SetQueue(MidiMessageQueue),
         SetOptions {
             host_id: AudioHostId,
             input_device_id: Option<AudioDeviceId>,
@@ -359,6 +374,14 @@ pub mod actor {
 
             match msg {
                 Start => self.start_audio(),
+                SetQueue(queue) => {
+                    self.midi_message_queue = queue;
+                    if self.output_stream.is_some() {
+                        self.wait()?;
+                        self.start_audio();
+                    }
+                    Ok(())
+                }
                 SetOptions {
                     host_id,
                     input_device_id,

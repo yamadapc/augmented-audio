@@ -92,7 +92,8 @@ class _SynthesizerViewState extends State<SynthesizerView> {
   @override
   void initState() {
     var api = initialize();
-    this.synth = SynthesizerApi(api);
+    api?.audioGraphSetup();
+    synth = SynthesizerApi(api);
   }
 
   @override

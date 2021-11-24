@@ -87,7 +87,7 @@ pub enum AudioProcessorGraphError {
     WouldCycle,
 }
 
-type NodeType<SampleType> = Box<dyn SimpleAudioProcessor<SampleType = SampleType> + Send>;
+pub type NodeType<SampleType> = Box<dyn SimpleAudioProcessor<SampleType = SampleType> + Send>;
 
 pub struct AudioProcessorGraph<BufferType>
 where
