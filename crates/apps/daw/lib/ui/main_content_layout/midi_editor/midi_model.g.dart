@@ -3,6 +3,43 @@
 part of 'midi_model.dart';
 
 // **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+Note _$NoteFromJson(Map<String, dynamic> json) => Note(
+      json['octave'] as int,
+      json['note'] as int,
+    );
+
+Map<String, dynamic> _$NoteToJson(Note instance) => <String, dynamic>{
+      'octave': instance.octave,
+      'note': instance.note,
+    };
+
+MIDIClipModel _$MIDIClipModelFromJson(Map<String, dynamic> json) =>
+    MIDIClipModel()
+      ..id = json['id'] as String
+      ..midiNotes = noteObservableListFromJSON(json['midiNotes'] as List)
+      ..selectedNotes =
+          noteObservableListFromJSON(json['selectedNotes'] as List);
+
+Map<String, dynamic> _$MIDIClipModelToJson(MIDIClipModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'midiNotes': noteObservableListToJSON(instance.midiNotes),
+      'selectedNotes': noteObservableListToJSON(instance.selectedNotes),
+    };
+
+Map<String, dynamic> _$MIDINoteModelToJson(_MIDINoteModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'time': instance.time,
+      'duration': instance.duration,
+      'velocity': instance.velocity,
+      'note': instance.note,
+    };
+
+// **************************************************************************
 // StoreGenerator
 // **************************************************************************
 
@@ -48,6 +85,28 @@ mixin _$MIDIClipModel on _MIDIClipModel, Store {
         name: '_MIDIClipModel.setSelectedNote');
     try {
       return super.setSelectedNote(noteModel);
+    } finally {
+      _$_MIDIClipModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void unselectNotes() {
+    final _$actionInfo = _$_MIDIClipModelActionController.startAction(
+        name: '_MIDIClipModel.unselectNotes');
+    try {
+      return super.unselectNotes();
+    } finally {
+      _$_MIDIClipModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void removeNote(MIDINoteModel noteModel) {
+    final _$actionInfo = _$_MIDIClipModelActionController.startAction(
+        name: '_MIDIClipModel.removeNote');
+    try {
+      return super.removeNote(noteModel);
     } finally {
       _$_MIDIClipModelActionController.endAction(_$actionInfo);
     }

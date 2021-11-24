@@ -1,4 +1,5 @@
 import 'package:flutter_daw_mock_ui/state/entity.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'midi_model.g.dart';
@@ -24,6 +25,7 @@ final List<int> sharpNotes = noteSymbols
     .map((e) => e.key)
     .toList();
 
+@JsonSerializable()
 class Note {
   /// If this is C3, octave is '3'
   final int octave;
@@ -45,6 +47,9 @@ class Note {
 
   String toString() => getSymbol();
 
+  Map<String, dynamic> toJson() => _$NoteToJson(this);
+  factory Note.fromJson(Map<String, dynamic> json) => _$NoteFromJson(json);
+
   static Note ofSymbol(String symbol) {
     var letter = symbol.substring(0, symbol.length - 1);
     var octave = int.parse(symbol[symbol.length - 1]);
@@ -53,19 +58,26 @@ class Note {
   }
 }
 
+@JsonSerializable()
 class MIDIClipModel extends _MIDIClipModel with _$MIDIClipModel {
   @override
   ActionController get _$_MIDIClipModelActionController =>
       getActionController();
+
+  Map<String, dynamic> toJSON() => _$MIDIClipModelToJson(this);
 }
 
 abstract class _MIDIClipModel with Store, Entity {
   @override
   String id = "MIDIClipModel:0";
 
+  @JsonKey(
+      toJson: noteObservableListToJSON, fromJson: noteObservableListFromJSON)
   @observable
   ObservableList<MIDINoteModel> midiNotes = ObservableList.of([]);
 
+  @JsonKey(
+      toJson: noteObservableListToJSON, fromJson: noteObservableListFromJSON)
   @observable
   ObservableList<MIDINoteModel> selectedNotes = ObservableList.of([]);
 
@@ -73,6 +85,17 @@ abstract class _MIDIClipModel with Store, Entity {
   void setSelectedNote(MIDINoteModel noteModel) {
     selectedNotes.clear();
     selectedNotes.add(noteModel);
+  }
+
+  @action
+  void unselectNotes() {
+    selectedNotes.clear();
+  }
+
+  @action
+  void removeNote(MIDINoteModel noteModel) {
+    selectedNotes.remove(noteModel);
+    midiNotes.remove(noteModel);
   }
 
   @action
@@ -85,14 +108,17 @@ abstract class _MIDIClipModel with Store, Entity {
   }
 }
 
-class MIDINoteModel extends _MIDINoteModel with _$MIDINoteModel, Entity {
-  @override
-  String id;
-
-  MIDINoteModel(this.id);
+class MIDINoteModel extends _MIDINoteModel with _$MIDINoteModel {
+  MIDINoteModel(String id) {
+    this.id = id;
+  }
 }
 
-abstract class _MIDINoteModel with Store {
+@JsonSerializable(createFactory: false)
+abstract class _MIDINoteModel with Store, Entity {
+  @override
+  String id = "";
+
   @observable
   double time = 0;
 
@@ -104,4 +130,11 @@ abstract class _MIDINoteModel with Store {
 
   @observable
   Note note = Note(3, 0);
+}
+
+ObservableList<MIDINoteModel> noteObservableListFromJSON(List<dynamic> json) =>
+    throw UnimplementedError("Not implemented");
+
+List<dynamic> noteObservableListToJSON(ObservableList<MIDINoteModel> notes) {
+  return notes.map((element) => _$MIDINoteModelToJson(element)).toList();
 }

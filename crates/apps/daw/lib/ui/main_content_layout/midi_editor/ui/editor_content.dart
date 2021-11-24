@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../midi_model.dart';
@@ -32,7 +33,7 @@ List<Note> notes = [
   "B4",
 ].reversed.map((note) => Note.ofSymbol(note)).toList();
 
-class MIDIEditorContentView extends StatelessWidget {
+class MIDIEditorContentView extends StatefulWidget {
   final MIDIClipModel model;
 
   const MIDIEditorContentView({
@@ -41,38 +42,78 @@ class MIDIEditorContentView extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<MIDIEditorContentView> createState() => _MIDIEditorContentViewState();
+}
+
+class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
+  final FocusNode focusNode = FocusNode();
+
+  @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (_, boxConstraints) {
-        var rowPositions = notes.asMap().map((key, value) {
-          return MapEntry(value.getSymbol(), key * 21);
-        });
+        var rowPositions = notes
+            .asMap()
+            .map((key, value) => MapEntry(value.getSymbol(), key * 21));
 
         return Observer(
-          builder: (context) => Stack(
-            children: [
-              RepaintBoundary(
-                child: Column(
-                    children: notes
-                        .map((note) => MIDINoteLane(note: note, model: model))
-                        .toList()),
-              ),
-              ...model.midiNotes
-                  .map((note) => MIDINoteView(
-                        note: note,
-                        rowPositions: rowPositions,
-                        isSelected: model.selectedNotes.contains(note),
-                        parentWidth: boxConstraints.maxWidth - 110,
-                        onTap: () => onTap(note),
-                        onDragUpdate: (details) =>
-                            onDragUpdate(context, note, details),
-                      ))
-                  .toList()
-            ],
+          builder: (context) => Focus(
+            focusNode: focusNode,
+            onKey: onKey,
+            onFocusChange: onFocusChange,
+            child: buildContent(context, boxConstraints, rowPositions),
           ),
         );
       },
     );
+  }
+
+  Stack buildContent(BuildContext context, BoxConstraints boxConstraints,
+      Map<String, int> rowPositions) {
+    return Stack(
+      children: [
+        RepaintBoundary(
+          child: Column(
+              children: notes
+                  .map((note) => MIDINoteLane(note: note, model: widget.model))
+                  .toList()),
+        ),
+        ...widget.model.midiNotes
+            .map((note) => MIDINoteView(
+                  note: note,
+                  rowPositions: rowPositions,
+                  isSelected: widget.model.selectedNotes.contains(note),
+                  parentWidth: boxConstraints.maxWidth - 110,
+                  onTap: () => onTap(context, note),
+                  onDragUpdate: (details) =>
+                      onDragUpdate(context, note, details),
+                ))
+            .toList()
+      ],
+    );
+  }
+
+  void onFocusChange(hasFocus) {
+    if (!hasFocus) {
+      widget.model.unselectNotes();
+    }
+  }
+
+  KeyEventResult onKey(FocusNode node, RawKeyEvent value) {
+    var deleteKeys = {
+      LogicalKeyboardKey.delete.keyId,
+      LogicalKeyboardKey.backspace.keyId,
+    };
+
+    if (value is RawKeyUpEvent && deleteKeys.contains(value.logicalKey.keyId)) {
+      onDelete();
+      return KeyEventResult.handled;
+    } else if (value is RawKeyDownEvent &&
+        deleteKeys.contains(value.logicalKey.keyId)) {
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
   }
 
   onDragUpdate(
@@ -84,7 +125,14 @@ class MIDIEditorContentView extends StatelessWidget {
     note.note = newNote;
   }
 
-  onTap(MIDINoteModel note) {
-    model.setSelectedNote(note);
+  onTap(BuildContext context, MIDINoteModel note) {
+    widget.model.setSelectedNote(note);
+    FocusScope.of(context).requestFocus(focusNode);
+  }
+
+  onDelete() {
+    for (var note in widget.model.selectedNotes.toList()) {
+      widget.model.removeNote(note);
+    }
   }
 }
