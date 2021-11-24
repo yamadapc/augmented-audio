@@ -10,12 +10,21 @@ class MIDINoteLane extends StatelessWidget {
   final MIDIClipModel model;
   final MIDIEditorViewModel viewModel;
 
+  final GestureDragStartCallback? onPanStart;
+  final GestureDragCancelCallback? onPanCancel;
+  final GestureDragEndCallback? onPanEnd;
+  final GestureDragUpdateCallback? onPanUpdate;
+
   const MIDINoteLane(
       {Key? key,
       required this.height,
       required this.note,
       required this.viewModel,
-      required this.model})
+      required this.model,
+      this.onPanStart,
+      this.onPanCancel,
+      this.onPanEnd,
+      this.onPanUpdate})
       : super(key: key);
 
   @override
@@ -55,7 +64,11 @@ class MIDINoteLane extends StatelessWidget {
   Expanded buildEmptyContentRegion(BuildContext context) {
     return Expanded(
       child: GestureDetector(
-        onTapUp: (details) => onTapUp(context, details),
+        onTapUp: (details) => onTapUpInner(context, details),
+        onPanStart: onPanStart,
+        onPanUpdate: onPanUpdate,
+        onPanCancel: onPanCancel,
+        onPanEnd: onPanEnd,
         child: Container(
           width: double.infinity,
           height: height,
@@ -69,7 +82,7 @@ class MIDINoteLane extends StatelessWidget {
     );
   }
 
-  void onTapUp(BuildContext context, TapUpDetails details) {
+  void onTapUpInner(BuildContext context, TapUpDetails details) {
     var now = DateTime.now().millisecond;
 
     model.unselectNotes();

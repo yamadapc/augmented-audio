@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_editor_view_model.dart';
+import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/ui/selection_overlay/selection_overlay.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../midi_model.dart';
@@ -91,10 +92,18 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
           child: Column(
               children: notes
                   .map((note) => MIDINoteLane(
-                      viewModel: widget.viewModel,
-                      height: widget.viewModel.noteHeight,
-                      note: note,
-                      model: widget.model))
+                        viewModel: widget.viewModel,
+                        height: widget.viewModel.noteHeight,
+                        note: note,
+                        model: widget.model,
+                        onPanStart: (details) =>
+                            onPanStartBackground(context, details),
+                        onPanUpdate: (details) =>
+                            onPanUpdateBackground(context, details),
+                        onPanCancel: onPanCancelBackground,
+                        onPanEnd: (details) =>
+                            onPanEndBackground(context, details, rowPositions),
+                      ))
                   .toList()),
         ),
         ...widget.model.midiNotes
@@ -109,7 +118,8 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
                   onDragUpdate: (details) =>
                       onDragUpdate(context, note, details),
                 ))
-            .toList()
+            .toList(),
+        SelectionOverlayView(model: widget.viewModel.selectionOverlayViewModel)
       ],
     );
   }
@@ -156,5 +166,27 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
     for (var note in widget.model.selectedNotes.toList()) {
       widget.model.removeNote(note);
     }
+  }
+
+  void onPanStartBackground(BuildContext context, DragStartDetails details) {
+    var renderBox = context.findRenderObject() as RenderBox;
+    var localPosition = renderBox.globalToLocal(details.globalPosition);
+    widget.viewModel.selectionOverlayViewModel.onPanStart(localPosition);
+  }
+
+  void onPanUpdateBackground(BuildContext context, DragUpdateDetails details) {
+    var renderBox = context.findRenderObject() as RenderBox;
+    var localPosition = renderBox.globalToLocal(details.globalPosition);
+    widget.viewModel.selectionOverlayViewModel.onPanUpdate(localPosition);
+  }
+
+  void onPanEndBackground(BuildContext context, DragEndDetails details,
+      Map<String, double> rowPositions) {
+    widget.viewModel.onPanEnd(
+        viewportWidth: context.size?.width ?? 0, rowPositions: rowPositions);
+  }
+
+  void onPanCancelBackground() {
+    widget.viewModel.selectionOverlayViewModel.onPanCancel();
   }
 }

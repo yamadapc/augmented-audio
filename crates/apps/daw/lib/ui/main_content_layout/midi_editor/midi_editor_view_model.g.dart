@@ -10,6 +10,7 @@ Map<String, dynamic> _$MIDIEditorViewModelToJson(
         _MIDIEditorViewModel instance) =>
     <String, dynamic>{
       'midiClipModel': instance.midiClipModel,
+      'selectionOverlayViewModel': instance.selectionOverlayViewModel,
       'representedBars': instance.representedBars,
       'noteHeight': instance.noteHeight,
       'lastTapTime': instance.lastTapTime,
@@ -34,6 +35,23 @@ mixin _$MIDIEditorViewModel on _MIDIEditorViewModel, Store {
   set midiClipModel(MIDIClipModel value) {
     _$midiClipModelAtom.reportWrite(value, super.midiClipModel, () {
       super.midiClipModel = value;
+    });
+  }
+
+  final _$selectionOverlayViewModelAtom =
+      Atom(name: '_MIDIEditorViewModel.selectionOverlayViewModel');
+
+  @override
+  SelectionOverlayViewModel get selectionOverlayViewModel {
+    _$selectionOverlayViewModelAtom.reportRead();
+    return super.selectionOverlayViewModel;
+  }
+
+  @override
+  set selectionOverlayViewModel(SelectionOverlayViewModel value) {
+    _$selectionOverlayViewModelAtom
+        .reportWrite(value, super.selectionOverlayViewModel, () {
+      super.selectionOverlayViewModel = value;
     });
   }
 
@@ -120,9 +138,24 @@ mixin _$MIDIEditorViewModel on _MIDIEditorViewModel, Store {
   }
 
   @override
+  void onPanEnd(
+      {required double viewportWidth,
+      required Map<String, double> rowPositions}) {
+    final _$actionInfo = _$_MIDIEditorViewModelActionController.startAction(
+        name: '_MIDIEditorViewModel.onPanEnd');
+    try {
+      return super
+          .onPanEnd(viewportWidth: viewportWidth, rowPositions: rowPositions);
+    } finally {
+      _$_MIDIEditorViewModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 midiClipModel: ${midiClipModel},
+selectionOverlayViewModel: ${selectionOverlayViewModel},
 representedBars: ${representedBars},
 noteHeight: ${noteHeight},
 lastTapTime: ${lastTapTime}
