@@ -34,7 +34,7 @@ abstract class _MIDIEditorViewModel with Store {
   double noteHeight = 20.0;
 
   @observable
-  int? lastTapTime = null;
+  int? lastTapTime;
 
   @action
   void setLastTapTime(int time) {
