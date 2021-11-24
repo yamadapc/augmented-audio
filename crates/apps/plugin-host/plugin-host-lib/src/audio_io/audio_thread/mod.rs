@@ -3,8 +3,10 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 use ringbuf::Consumer;
 
+use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 use audio_processor_standalone_midi::host::MidiMessageQueue;
+use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use audio_processor_traits::{AudioBuffer, InterleavedAudioBuffer};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
@@ -20,6 +22,7 @@ pub mod options;
 
 pub enum AudioThreadProcessor {
     Active(TestHostProcessor),
+    Graph(AudioProcessorGraph<VecAudioBuffer<f32>>),
     Silence(SilenceAudioProcessor<f32>),
 }
 
@@ -39,7 +42,7 @@ pub struct AudioThread {
 unsafe impl Send for AudioThread {}
 
 impl AudioThread {
-    pub fn new(
+    fn new(
         handle: &Handle,
         midi_message_queue: MidiMessageQueue,
         audio_thread_options: AudioThreadOptions,
@@ -275,6 +278,10 @@ fn output_stream_callback(
             processor.process(&mut audio_buffer)
         }
         AudioThreadProcessor::Silence(processor) => (*processor).process(&mut audio_buffer),
+        AudioThreadProcessor::Graph(graph) => {
+            // graph.process_midi(midi_message_handler.buffer());
+            graph.process(&mut audio_buffer);
+        }
     }
 
     midi_message_handler.clear();
@@ -287,9 +294,11 @@ fn input_stream_callback(producer: &mut ringbuf::Producer<f32>, data: &[f32]) {
 }
 
 pub mod actor {
-    use crate::actor_system::ActorSystemThread;
     use actix::{Actor, Context, Handler, Message, Supervised, SystemService};
+
     use audio_processor_standalone_midi::host::{GetQueueMessage, MidiHost};
+
+    use crate::actor_system::ActorSystemThread;
 
     use super::*;
 

@@ -7,9 +7,10 @@ edition = "2018"
 audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
 daggy = "^0.7.0"
 thiserror = "^1.0.26"
+audio-garbage-collector = { path = "../audio-garbage-collector" }
+concread = "0.2.19"
 
 [dev-dependencies]
-audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-processor-utility = { path = "../audio-processor-utility" }
 audio-processor-time = { path = "../audio-processor-time" }
 augmented-dsp-filters = { path = "../../dsp/dsp-filters" }

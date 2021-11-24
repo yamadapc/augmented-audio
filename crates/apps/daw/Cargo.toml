@@ -20,6 +20,8 @@ serde = "^1.0.130"
 serde_json = "^1.0.71"
 
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
+audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" }
+audio-processor-graph = { path = "../../augmented/audio/audio-processor-graph" }
 plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 

@@ -14,6 +14,13 @@ pub struct Synthesizer {
     filter: FilterProcessor<f32>,
 }
 
+impl Default for Synthesizer {
+    fn default() -> Self {
+        let settings = AudioProcessorSettings::default();
+        Self::new(settings.sample_rate)
+    }
+}
+
 impl Synthesizer {
     pub fn new(sample_rate: f32) -> Self {
         Synthesizer {

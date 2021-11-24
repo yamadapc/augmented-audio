@@ -404,6 +404,7 @@ dependencies = [
  "audio-processor-traits",
  "audio-processor-utility",
  "augmented-dsp-filters",
+ "concread",
  "daggy",
  "thiserror",
 ]
@@ -1229,14 +1230,15 @@ dependencies = [
 
 [[package]]
 name = "concread"
-version = "0.2.16"
+version = "0.2.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ed243b9cfff6696137dc72c9bdfa75d5954b5a6a3fa5da9ecb5388d3b0551a0"
+checksum = "b976d09b0160d0e2fd016551933080082a4072d4bacb105dfb55859bc0d1ce0e"
 dependencies = [
  "ahash 0.7.4",
  "crossbeam",
  "crossbeam-epoch",
  "crossbeam-utils",
+ "lru",
  "parking_lot",
  "rand 0.8.4",
  "smallvec",
@@ -1727,6 +1729,8 @@ dependencies = [
  "actix",
  "anyhow",
  "audio-garbage-collector",
+ "audio-processor-graph",
+ "audio-processor-traits",
  "cbindgen",
  "flexbuffers",
  "flutter_rust_bridge",
@@ -2754,7 +2758,7 @@ checksum = "d7a237f0419ab10d17006d55c62ac4f689a6bf52c75d3f38b8361d249e8d4b0b"
 dependencies = [
  "bitflags",
  "gpu-descriptor-types",
- "hashbrown",
+ "hashbrown 0.9.1",
 ]
 
 [[package]]
@@ -2864,6 +2868,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7afe4a420e3fe79967a00898cc1f4db7c8a49a9333a29f8a4bd76a253d5cd04"
 dependencies = [
  "ahash 0.4.7",
+]
+
+[[package]]
+name = "hashbrown"
+version = "0.11.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
+dependencies = [
+ "ahash 0.7.4",
 ]
 
 [[package]]
@@ -3187,7 +3200,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "824845a0bf897a9042383849b02c1bc219c2383772efcd5c6f9766fa4b81aef3"
 dependencies = [
  "autocfg",
- "hashbrown",
+ "hashbrown 0.9.1",
 ]
 
 [[package]]
@@ -3540,6 +3553,15 @@ dependencies = [
  "looper-processor",
  "thiserror",
  "vst",
+]
+
+[[package]]
+name = "lru"
+version = "0.6.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7ea2d928b485416e8908cff2d97d621db22b27f7b3b6729e438bcf42c671ba91"
+dependencies = [
+ "hashbrown 0.11.2",
 ]
 
 [[package]]
@@ -4724,6 +4746,7 @@ dependencies = [
  "audio-garbage-collector",
  "audio-processor-analysis",
  "audio-processor-file",
+ "audio-processor-graph",
  "audio-processor-standalone-midi",
  "audio-processor-testing-helpers",
  "audio-processor-traits",

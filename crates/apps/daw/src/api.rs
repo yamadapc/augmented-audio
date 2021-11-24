@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -6,6 +7,7 @@ use anyhow::Result;
 use flutter_rust_bridge::StreamSink;
 
 use audio_garbage_collector::Shared;
+use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use plugin_host_lib::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use plugin_host_lib::audio_io::{
     AudioIOService, LoadPluginMessage, SetAudioFilePathMessage, StartMessage,
@@ -78,4 +80,25 @@ pub fn get_events_sink(sink: StreamSink<String>) -> Result<i32> {
         std::thread::sleep(Duration::from_millis(1000));
     });
     Ok(0)
+}
+
+trait AudioNode {
+    fn make_processor(&mut self) -> Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>;
+    fn set_parameter(&mut self, parameter_name: &str, parameter_value: f32);
+}
+
+struct DynamicAudioNodePool {
+    pool: HashMap<i32, Box<dyn AudioNode>>,
+}
+
+pub fn audio_node_create(audio_processor_name: String) -> Result<i32> {
+    todo!()
+}
+
+pub fn audio_node_set_parameter(
+    audio_node_id: i32,
+    parameter_name: String,
+    parameter_value: f32,
+) -> Result<i32> {
+    todo!()
 }

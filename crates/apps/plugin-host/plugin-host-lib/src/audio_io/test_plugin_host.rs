@@ -78,15 +78,16 @@ impl TestPluginHost {
         audio_thread_options: AudioThreadOptions,
         start_paused: bool,
     ) -> Self {
-        let handle = audio_garbage_collector::handle();
+        let actor_system_thread = ActorSystemThread::current();
+        let midi_host = actor_system_thread.spawn_result(async move { MidiHost::from_registry() });
+        let audio_thread =
+            actor_system_thread.spawn_result(async move { AudioThread::from_registry() });
 
-        let midi_host = MidiHost::default_with_handle(handle);
-        let audio_thread = ActorSystemThread::start(AudioThread::new(
-            handle,
-            midi_host.messages().clone(),
-            audio_thread_options,
-        ));
-        let midi_host = ActorSystemThread::start(midi_host);
+        audio_thread.do_send(audio_thread::actor::AudioThreadMessage::SetOptions {
+            host_id: audio_thread_options.host_id,
+            input_device_id: audio_thread_options.input_device_id,
+            output_device_id: audio_thread_options.output_device_id,
+        });
 
         TestPluginHost {
             audio_thread,

@@ -1,16 +1,85 @@
+use audio_garbage_collector::{make_shared, make_shared_cell, Shared, SharedCell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, NoopAudioProcessor,
 };
-use connection::Connection;
+use concread::hashmap::HashMap;
 use daggy::Walker;
+use std::cell::UnsafeCell;
+use std::ops::Deref;
 use thiserror::Error;
-
-mod connection;
 
 pub type NodeIndex = daggy::NodeIndex<u32>;
 pub type ConnectionIndex = daggy::EdgeIndex<u32>;
+
+struct BufferCell<BufferType>(UnsafeCell<BufferType>);
+unsafe impl<BufferType> Sync for BufferCell<BufferType> {}
+
+struct ProcessorCell<SampleType>(UnsafeCell<NodeType<SampleType>>);
+unsafe impl<SampleType> Sync for ProcessorCell<SampleType> {}
+
+fn make_processor_cell<SampleType: 'static>(
+    processor: NodeType<SampleType>,
+) -> Shared<ProcessorCell<SampleType>> {
+    make_shared(ProcessorCell(UnsafeCell::new(processor)))
+}
+
+pub struct AudioProcessorGraphHandle<BufferType>
+where
+    BufferType: OwnedAudioBuffer + Send + 'static,
+    BufferType::SampleType: 'static,
+{
+    dag: SharedCell<daggy::Dag<(), ()>>,
+    process_order: SharedCell<Vec<NodeIndex>>,
+    processors: HashMap<NodeIndex, Shared<ProcessorCell<BufferType::SampleType>>>,
+    buffers: HashMap<ConnectionIndex, Shared<BufferCell<BufferType>>>,
+}
+
+impl<BufferType> AudioProcessorGraphHandle<BufferType>
+where
+    BufferType: OwnedAudioBuffer + Send + 'static,
+    BufferType::SampleType: 'static,
+{
+    pub fn add_node(&self, processor: NodeType<BufferType::SampleType>) -> NodeIndex {
+        let mut tx = self.processors.write();
+        let mut dag = self.dag.get().deref().clone();
+        let index = dag.add_node(());
+
+        let processor_ref = make_processor_cell(processor);
+        tx.insert(index, processor_ref);
+        tx.commit();
+
+        self.dag.set(make_shared(dag));
+        index
+    }
+
+    pub fn add_connection(
+        &self,
+        source: NodeIndex,
+        destination: NodeIndex,
+    ) -> Result<ConnectionIndex, AudioProcessorGraphError> {
+        let mut tx = self.buffers.write();
+
+        let mut dag = self.dag.get().deref().clone();
+        let edge = dag
+            .add_edge(source, destination, ())
+            .map_err(|_| AudioProcessorGraphError::WouldCycle)?;
+        let new_order = daggy::petgraph::algo::toposort(&dag, None)
+            .map_err(|_| AudioProcessorGraphError::WouldCycle)?;
+
+        // TODO - resize the buffer
+        let buffer = BufferType::new();
+        let buffer = make_shared(BufferCell(UnsafeCell::new(buffer)));
+        tx.insert(edge, buffer);
+        tx.commit();
+
+        self.dag.set(make_shared(dag));
+        self.process_order.set(make_shared(new_order));
+
+        Ok(edge)
+    }
+}
 
 #[derive(Debug, Error)]
 pub enum AudioProcessorGraphError {
@@ -22,17 +91,17 @@ type NodeType<SampleType> = Box<dyn SimpleAudioProcessor<SampleType = SampleType
 
 pub struct AudioProcessorGraph<BufferType>
 where
-    BufferType: OwnedAudioBuffer,
+    BufferType: OwnedAudioBuffer + Send + 'static,
+    BufferType::SampleType: 'static,
 {
     input_node: NodeIndex,
     output_node: NodeIndex,
-    dag: daggy::Dag<NodeType<BufferType::SampleType>, Connection<BufferType>>,
-    process_order: Vec<NodeIndex>,
+    handle: Shared<AudioProcessorGraphHandle<BufferType>>,
 }
 
 impl<BufferType> Default for AudioProcessorGraph<BufferType>
 where
-    BufferType: OwnedAudioBuffer,
+    BufferType: OwnedAudioBuffer + Send + 'static,
     BufferType::SampleType: Copy + Send + 'static,
 {
     fn default() -> Self {
@@ -42,20 +111,30 @@ where
 
 impl<BufferType> AudioProcessorGraph<BufferType>
 where
-    BufferType: OwnedAudioBuffer,
+    BufferType: OwnedAudioBuffer + Send + 'static,
     BufferType::SampleType: Copy + Send + 'static,
 {
-    pub fn new(
-        mut dag: daggy::Dag<NodeType<BufferType::SampleType>, Connection<BufferType>>,
-    ) -> Self {
-        let input_node = dag.add_node(Box::new(NoopAudioProcessor::default()));
-        let output_node = dag.add_node(Box::new(NoopAudioProcessor::default()));
+    fn new(mut dag: daggy::Dag<(), ()>) -> Self {
+        let input_proc: NodeType<BufferType::SampleType> = Box::new(NoopAudioProcessor::default());
+        let input_node = dag.add_node(());
+        let output_proc: NodeType<BufferType::SampleType> = Box::new(NoopAudioProcessor::default());
+        let output_node = dag.add_node(());
+
+        let processors = HashMap::new();
+        let mut tx = processors.write();
+        tx.insert(input_node, make_processor_cell(input_proc));
+        tx.insert(output_node, make_processor_cell(output_proc));
+        tx.commit();
 
         AudioProcessorGraph {
             input_node,
             output_node,
-            dag,
-            process_order: Vec::new(),
+            handle: make_shared(AudioProcessorGraphHandle {
+                dag: make_shared_cell(dag),
+                process_order: make_shared_cell(Vec::new()),
+                processors: HashMap::new(),
+                buffers: HashMap::new(),
+            }),
         }
     }
 
@@ -67,8 +146,12 @@ where
         self.output_node
     }
 
+    pub fn handle(&self) -> &Shared<AudioProcessorGraphHandle<BufferType>> {
+        &self.handle
+    }
+
     pub fn add_node(&mut self, processor: NodeType<BufferType::SampleType>) -> NodeIndex {
-        self.dag.add_node(processor)
+        self.handle.add_node(processor)
     }
 
     pub fn add_connection(
@@ -76,35 +159,34 @@ where
         source: NodeIndex,
         destination: NodeIndex,
     ) -> Result<ConnectionIndex, AudioProcessorGraphError> {
-        let edge = self
-            .dag
-            .add_edge(source, destination, Connection::new())
-            .map_err(|_| AudioProcessorGraphError::WouldCycle)?;
-
-        self.prepare_order()
-            .map_err(|_| AudioProcessorGraphError::WouldCycle)?;
-
-        Ok(edge)
-    }
-
-    fn prepare_order(&mut self) -> Result<(), daggy::petgraph::algo::Cycle<daggy::NodeIndex>> {
-        self.process_order = daggy::petgraph::algo::toposort(&self.dag, None)?;
-        Ok(())
+        self.handle.add_connection(source, destination)
     }
 }
 
 impl<BufferType> AudioProcessor for AudioProcessorGraph<BufferType>
 where
-    BufferType: OwnedAudioBuffer,
+    BufferType: OwnedAudioBuffer + Send,
     BufferType::SampleType: Copy,
 {
     type SampleType = BufferType::SampleType;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        let process_order = &self.process_order;
+        let handle = self.handle.deref();
+
+        let tx = handle.processors.read();
+        let process_order = handle.process_order.get();
+        let process_order = process_order.deref();
+
         for node_index in process_order {
-            if let Some(processor) = self.dag.node_weight_mut(*node_index) {
-                processor.s_prepare(settings);
+            if let Some(processor) = handle
+                .dag
+                .get()
+                .node_weight(*node_index)
+                .and(tx.get(node_index))
+            {
+                unsafe {
+                    (*processor.deref().0.get()).s_prepare(settings);
+                }
             }
         }
     }
@@ -113,26 +195,50 @@ where
         &mut self,
         data: &mut InputBufferType,
     ) {
-        let process_order = &self.process_order;
+        let handle = self.handle.deref();
+        let dag = handle.dag.get();
+        let dag = dag.deref();
+        let processors = handle.processors.read();
+        let buffers = handle.buffers.read();
+        let process_order = handle.process_order.get();
+        let process_order = process_order.deref();
 
         for node_index in process_order {
-            let inputs = self.dag.parents(*node_index);
-            for (connection_id, _) in inputs.iter(&self.dag) {
-                if let Some(connection_buffer) = self.dag.edge_weight(connection_id) {
-                    copy_buffer(connection_buffer.buffer(), data);
+            let inputs = dag.parents(*node_index);
+            for (connection_id, _) in inputs.iter(dag) {
+                if let Some(buffer_ref) = dag
+                    .edge_weight(connection_id)
+                    .and(buffers.get(&connection_id))
+                {
+                    let buffer = buffer_ref.deref().0.get();
+                    unsafe {
+                        copy_buffer(&*buffer, data);
+                    }
                 }
             }
 
-            if let Some(processor) = self.dag.node_weight_mut(*node_index) {
+            if let Some(processor_ref) =
+                dag.node_weight(*node_index).and(processors.get(node_index))
+            {
+                let processor = processor_ref.deref().0.get();
+
                 for frame in data.frames_mut() {
-                    processor.s_process_frame(frame);
+                    unsafe {
+                        (*processor).s_process_frame(frame);
+                    }
                 }
             }
 
-            let mut outputs = self.dag.children(*node_index);
-            while let Some((connection_id, _)) = outputs.walk_next(&self.dag) {
-                if let Some(connection_buffer) = self.dag.edge_weight_mut(connection_id) {
-                    copy_buffer(data, connection_buffer.buffer_mut());
+            let mut outputs = dag.children(*node_index);
+            while let Some((connection_id, _)) = outputs.walk_next(&dag) {
+                if let Some(buffer_ref) = dag
+                    .edge_weight(connection_id)
+                    .and(buffers.get(&connection_id))
+                {
+                    let buffer = buffer_ref.deref().0.get();
+                    unsafe {
+                        copy_buffer(data, &mut *buffer);
+                    }
                 }
             }
         }
