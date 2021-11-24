@@ -109,6 +109,7 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
         ...widget.model.midiNotes
             .map((note) => MIDINoteView(
                   model: widget.model,
+                  midiEditorViewModel: widget.viewModel,
                   note: note,
                   rowPositions: rowPositions,
                   height: widget.viewModel.noteHeight,
@@ -116,7 +117,7 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
                   parentWidth: boxConstraints.maxWidth - 110,
                   onTap: () => onTap(context, note),
                   onDragUpdate: (details) =>
-                      onDragUpdate(context, note, details),
+                      onNoteDragUpdate(context, note, details),
                 ))
             .toList(),
         SelectionOverlayView(model: widget.viewModel.selectionOverlayViewModel)
@@ -147,12 +148,14 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
     return KeyEventResult.ignored;
   }
 
-  onDragUpdate(
+  onNoteDragUpdate(
       BuildContext context, MIDINoteModel note, DragUpdateDetails details) {
     var renderBox = context.findRenderObject() as RenderBox;
     var localPosition = renderBox.globalToLocal(details.globalPosition);
+
     var index = (localPosition.dy / (widget.viewModel.noteHeight + 1));
     var newNote = notes[index.toInt()];
+
     note.note = newNote;
   }
 

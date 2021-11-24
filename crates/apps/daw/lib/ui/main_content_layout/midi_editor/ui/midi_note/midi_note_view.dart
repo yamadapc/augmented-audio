@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_daw_mock_ui/services/state_sync.dart';
+import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_editor_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../../midi_model.dart';
@@ -7,6 +7,7 @@ import 'midi_resize_handle_view.dart';
 
 class MIDINoteView extends StatelessWidget {
   final MIDIClipModel model;
+  final MIDIEditorViewModel midiEditorViewModel;
   final MIDINoteModel note;
   final double height;
 
@@ -19,6 +20,7 @@ class MIDINoteView extends StatelessWidget {
   const MIDINoteView({
     Key? key,
     required this.model,
+    required this.midiEditorViewModel,
     required this.note,
     required this.height,
     required this.isSelected,
@@ -74,10 +76,9 @@ class MIDINoteView extends StatelessWidget {
   }
 
   void onPanUpdate(DragUpdateDetails details) {
+    // TODO - snap using the mouse position instead
     var dx = details.delta.dx / parentWidth;
-    runInEntity(note, () {
-      note.time += dx;
-    });
+    midiEditorViewModel.onNoteTimeDelta(note, dx);
     onDragUpdate(details);
   }
 

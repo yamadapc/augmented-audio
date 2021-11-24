@@ -53,6 +53,24 @@ abstract class _MIDIEditorViewModel with Store {
   }
 
   @action
+  void onNoteTimeDelta(MIDINoteModel noteModel, double dx) {
+    var barsShown = 4;
+    var grid = 8;
+    var step = 1 / (barsShown * grid);
+
+    var newTime = noteModel.time + dx;
+
+    // snap to grid
+    // print("$newTime, $step ${(newTime / step).floorToDouble() * step}");
+    var gridTime = (newTime / step).floorToDouble() * step;
+    if ((newTime - gridTime).abs() < step / 20) {
+      newTime = gridTime;
+    }
+
+    noteModel.setTime(newTime);
+  }
+
+  @action
   void onPanEnd(
       {required double viewportWidth,
       required Map<String, double> rowPositions}) {

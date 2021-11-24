@@ -135,6 +135,11 @@ abstract class _MIDINoteModel with Store, Entity {
 
   @observable
   Note note = Note(3, 0);
+
+  @action
+  void setTime(double time) {
+    this.time = time;
+  }
 }
 
 ObservableList<MIDINoteModel> noteObservableListFromJSON(List<dynamic> json) =>

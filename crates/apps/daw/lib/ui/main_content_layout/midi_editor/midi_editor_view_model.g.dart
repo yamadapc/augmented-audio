@@ -138,6 +138,17 @@ mixin _$MIDIEditorViewModel on _MIDIEditorViewModel, Store {
   }
 
   @override
+  void onNoteTimeDelta(MIDINoteModel noteModel, double dx) {
+    final _$actionInfo = _$_MIDIEditorViewModelActionController.startAction(
+        name: '_MIDIEditorViewModel.onNoteTimeDelta');
+    try {
+      return super.onNoteTimeDelta(noteModel, dx);
+    } finally {
+      _$_MIDIEditorViewModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   void onPanEnd(
       {required double viewportWidth,
       required Map<String, double> rowPositions}) {

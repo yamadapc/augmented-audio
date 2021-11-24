@@ -193,6 +193,20 @@ mixin _$MIDINoteModel on _MIDINoteModel, Store {
     });
   }
 
+  final _$_MIDINoteModelActionController =
+      ActionController(name: '_MIDINoteModel');
+
+  @override
+  void setTime(double time) {
+    final _$actionInfo = _$_MIDINoteModelActionController.startAction(
+        name: '_MIDINoteModel.setTime');
+    try {
+      return super.setTime(time);
+    } finally {
+      _$_MIDINoteModelActionController.endAction(_$actionInfo);
+    }
+  }
+
   @override
   String toString() {
     return '''
