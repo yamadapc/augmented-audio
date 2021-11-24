@@ -64,7 +64,12 @@ class MIDIClipModel extends _MIDIClipModel with _$MIDIClipModel {
   ActionController get _$_MIDIClipModelActionController =>
       getActionController();
 
-  Map<String, dynamic> toJSON() => _$MIDIClipModelToJson(this);
+  factory MIDIClipModel.fromJson(Map<String, dynamic> json) =>
+      _$MIDIClipModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$MIDIClipModelToJson(this);
+
+  MIDIClipModel();
 }
 
 abstract class _MIDIClipModel with Store, Entity {

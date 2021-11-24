@@ -1,43 +1,59 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_editor_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import '../midi_model.dart';
 import 'background/midi_note_lane_view.dart';
 import 'midi_note/midi_note_view.dart';
 
-List<Note> notes = [
-  "C3",
-  "C#3",
-  "D3",
-  "D#3",
-  "E3",
-  "F3",
-  "F#3",
-  "G3",
-  "G#3",
-  "A3",
-  "A#3",
-  "B3",
-  "C4",
-  "C#4",
-  "D4",
-  "D#4",
-  "E4",
-  "F4",
-  "F#4",
-  "G4",
-  "G#4",
-  "A4",
-  "A#4",
-  "B4",
-].reversed.map((note) => Note.ofSymbol(note)).toList();
+List<String> baseNotes = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
+
+List<int> octaves = [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+];
+
+List<Note> notes = octaves
+    .map((octave) =>
+        baseNotes.map((noteLetter) => "$noteLetter$octave").toList())
+    .fold(List<String>.empty(growable: true),
+        (List<String> previousValue, List<String> element) {
+      previousValue.addAll(element);
+      return previousValue;
+    })
+    .reversed
+    .map((note) => Note.ofSymbol(note))
+    .toList();
 
 class MIDIEditorContentView extends StatefulWidget {
+  final MIDIEditorViewModel viewModel;
   final MIDIClipModel model;
 
   const MIDIEditorContentView({
     Key? key,
+    required this.viewModel,
     required this.model,
   }) : super(key: key);
 
@@ -51,37 +67,41 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
-      builder: (_, boxConstraints) {
-        var rowPositions = notes
-            .asMap()
-            .map((key, value) => MapEntry(value.getSymbol(), key * 21));
+      builder: (_, boxConstraints) => Observer(
+        builder: (context) {
+          var rowPositions = notes.asMap().map((key, value) => MapEntry(
+              value.getSymbol(), key * (widget.viewModel.noteHeight + 1)));
 
-        return Observer(
-          builder: (context) => Focus(
+          return Focus(
             focusNode: focusNode,
             onKey: onKey,
             onFocusChange: onFocusChange,
             child: buildContent(context, boxConstraints, rowPositions),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   Stack buildContent(BuildContext context, BoxConstraints boxConstraints,
-      Map<String, int> rowPositions) {
+      Map<String, double> rowPositions) {
     return Stack(
       children: [
         RepaintBoundary(
           child: Column(
               children: notes
-                  .map((note) => MIDINoteLane(note: note, model: widget.model))
+                  .map((note) => MIDINoteLane(
+                      viewModel: widget.viewModel,
+                      height: widget.viewModel.noteHeight,
+                      note: note,
+                      model: widget.model))
                   .toList()),
         ),
         ...widget.model.midiNotes
             .map((note) => MIDINoteView(
                   note: note,
                   rowPositions: rowPositions,
+                  height: widget.viewModel.noteHeight,
                   isSelected: widget.model.selectedNotes.contains(note),
                   parentWidth: boxConstraints.maxWidth - 110,
                   onTap: () => onTap(context, note),
@@ -120,7 +140,7 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
       BuildContext context, MIDINoteModel note, DragUpdateDetails details) {
     var renderBox = context.findRenderObject() as RenderBox;
     var localPosition = renderBox.globalToLocal(details.globalPosition);
-    var index = (localPosition.dy / 21);
+    var index = (localPosition.dy / (widget.viewModel.noteHeight + 1));
     var newNote = notes[index.toInt()];
     note.note = newNote;
   }

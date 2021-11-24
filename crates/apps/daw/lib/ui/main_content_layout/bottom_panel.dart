@@ -6,6 +6,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'bottom_panel/track_effects.dart';
 import 'midi_editor/midi_editor.dart';
+import 'midi_editor/midi_editor_view_model.dart';
 
 class BottomPanel extends StatelessWidget {
   final DetailsPanelState detailsPanelState;
@@ -44,8 +45,13 @@ class BottomPanel extends StatelessWidget {
                   panelTabsState: detailsPanelState.panelTabsState,
                   tabs: [
                     ConcretePanelTab(0, "FX", const TrackEffectsView()),
-                    ConcretePanelTab(1, "MIDI Editor",
-                        MIDIEditorView(model: detailsPanelState.midiClipModel)),
+                    ConcretePanelTab(
+                        1,
+                        "MIDI Editor",
+                        MIDIEditorView(
+                            model: MIDIEditorViewModel(
+                                midiClipModel:
+                                    detailsPanelState.midiClipModel))),
                   ]),
             )
           ],

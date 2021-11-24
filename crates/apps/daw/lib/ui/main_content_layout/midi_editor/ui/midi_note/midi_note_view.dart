@@ -7,7 +7,9 @@ import 'midi_resize_handle_view.dart';
 
 class MIDINoteView extends StatelessWidget {
   final MIDINoteModel note;
-  final Map<String, int> rowPositions;
+  final double height;
+
+  final Map<String, double> rowPositions;
   final double parentWidth;
   final void Function(DragUpdateDetails) onDragUpdate;
   final void Function() onTap;
@@ -16,6 +18,7 @@ class MIDINoteView extends StatelessWidget {
   const MIDINoteView({
     Key? key,
     required this.note,
+    required this.height,
     required this.isSelected,
     required this.rowPositions,
     required this.parentWidth,
@@ -23,12 +26,12 @@ class MIDINoteView extends StatelessWidget {
     required this.onTap,
   }) : super(key: key);
 
+  @override
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
         var notePosition = 110 + note.time * parentWidth;
         var noteWidth = note.duration * parentWidth;
-        var height = 20.0;
         var noteTop = rowPositions[note.note.getSymbol()]!.toDouble();
 
         return Positioned(

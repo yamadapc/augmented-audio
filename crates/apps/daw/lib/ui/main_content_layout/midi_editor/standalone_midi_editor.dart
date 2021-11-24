@@ -1,14 +1,13 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
 import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_editor.dart';
-import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_model.dart';
+import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_editor_view_model.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 class StandaloneMIDIEditorView extends StatelessWidget {
-  final MIDIClipModel model = MIDIClipModel();
+  final MIDIEditorViewModel midiEditorViewModel = MIDIEditorViewModel();
 
   StandaloneMIDIEditorView({Key? key}) : super(key: key);
 
@@ -19,14 +18,14 @@ class StandaloneMIDIEditorView extends StatelessWidget {
           height: 300,
           child: SingleChildScrollView(
               controller: ScrollController(),
-              child: StandaloneMIDISettingsView(model: model))),
-      Expanded(child: MIDIEditorView(model: model))
+              child: StandaloneMIDISettingsView(model: midiEditorViewModel))),
+      Expanded(child: MIDIEditorView(model: midiEditorViewModel))
     ]);
   }
 }
 
 class StandaloneMIDISettingsView extends StatelessWidget {
-  final MIDIClipModel model;
+  final MIDIEditorViewModel model;
 
   const StandaloneMIDISettingsView({Key? key, required this.model})
       : super(key: key);
@@ -54,7 +53,7 @@ class StandaloneMIDISettingsView extends StatelessWidget {
                         fontFamily: "Monaco",
                       ));
               var encoder = const JsonEncoder.withIndent("  ");
-              var jsonString = encoder.convert(model.toJSON());
+              var jsonString = encoder.convert(model.toJson());
               return Text(jsonString, style: textStyle);
             }),
           ),

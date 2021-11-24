@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'midi_model.dart';
+import 'midi_editor_view_model.dart';
 import 'ui/background/midi_timeline_background.dart';
 import 'ui/editor_content.dart';
 import 'ui/header/midi_timeline_header.dart';
 
 class MIDIEditorView extends StatelessWidget {
-  final MIDIClipModel model;
+  final MIDIEditorViewModel model;
 
   const MIDIEditorView({Key? key, required this.model}) : super(key: key);
 
@@ -27,7 +27,9 @@ class MIDIEditorView extends StatelessWidget {
                 children: [
                   const RepaintBoundary(child: MIDITimelineBackground()),
                   SingleChildScrollView(
-                    child: MIDIEditorContentView(model: model),
+                    controller: ScrollController(),
+                    child: MIDIEditorContentView(
+                        viewModel: model, model: model.midiClipModel),
                   )
                 ],
               ),
