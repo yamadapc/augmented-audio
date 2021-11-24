@@ -12,6 +12,7 @@ Map<String, dynamic> _$MIDIEditorViewModelToJson(
       'midiClipModel': instance.midiClipModel,
       'representedBars': instance.representedBars,
       'noteHeight': instance.noteHeight,
+      'lastTapTime': instance.lastTapTime,
     };
 
 // **************************************************************************
@@ -67,8 +68,45 @@ mixin _$MIDIEditorViewModel on _MIDIEditorViewModel, Store {
     });
   }
 
+  final _$lastTapTimeAtom = Atom(name: '_MIDIEditorViewModel.lastTapTime');
+
+  @override
+  int? get lastTapTime {
+    _$lastTapTimeAtom.reportRead();
+    return super.lastTapTime;
+  }
+
+  @override
+  set lastTapTime(int? value) {
+    _$lastTapTimeAtom.reportWrite(value, super.lastTapTime, () {
+      super.lastTapTime = value;
+    });
+  }
+
   final _$_MIDIEditorViewModelActionController =
       ActionController(name: '_MIDIEditorViewModel');
+
+  @override
+  void setLastTapTime(int time) {
+    final _$actionInfo = _$_MIDIEditorViewModelActionController.startAction(
+        name: '_MIDIEditorViewModel.setLastTapTime');
+    try {
+      return super.setLastTapTime(time);
+    } finally {
+      _$_MIDIEditorViewModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void clearLastTapTime() {
+    final _$actionInfo = _$_MIDIEditorViewModelActionController.startAction(
+        name: '_MIDIEditorViewModel.clearLastTapTime');
+    try {
+      return super.clearLastTapTime();
+    } finally {
+      _$_MIDIEditorViewModelActionController.endAction(_$actionInfo);
+    }
+  }
 
   @override
   void resizeNotesByDelta(double delta) {
@@ -86,7 +124,8 @@ mixin _$MIDIEditorViewModel on _MIDIEditorViewModel, Store {
     return '''
 midiClipModel: ${midiClipModel},
 representedBars: ${representedBars},
-noteHeight: ${noteHeight}
+noteHeight: ${noteHeight},
+lastTapTime: ${lastTapTime}
     ''';
   }
 }

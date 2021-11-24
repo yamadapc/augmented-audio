@@ -99,6 +99,7 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
         ),
         ...widget.model.midiNotes
             .map((note) => MIDINoteView(
+                  model: widget.model,
                   note: note,
                   rowPositions: rowPositions,
                   height: widget.viewModel.noteHeight,
@@ -147,6 +148,7 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
 
   onTap(BuildContext context, MIDINoteModel note) {
     widget.model.setSelectedNote(note);
+    widget.viewModel.clearLastTapTime();
     FocusScope.of(context).requestFocus(focusNode);
   }
 

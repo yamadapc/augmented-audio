@@ -6,6 +6,7 @@ import '../../midi_model.dart';
 import 'midi_resize_handle_view.dart';
 
 class MIDINoteView extends StatelessWidget {
+  final MIDIClipModel model;
   final MIDINoteModel note;
   final double height;
 
@@ -17,6 +18,7 @@ class MIDINoteView extends StatelessWidget {
 
   const MIDINoteView({
     Key? key,
+    required this.model,
     required this.note,
     required this.height,
     required this.isSelected,
@@ -48,6 +50,7 @@ class MIDINoteView extends StatelessWidget {
                   Expanded(
                     child: GestureDetector(
                       onTap: onTap,
+                      onPanStart: onPanStart,
                       onPanUpdate: onPanUpdate,
                       child: Container(
                         decoration: BoxDecoration(
@@ -76,5 +79,9 @@ class MIDINoteView extends StatelessWidget {
       note.time += dx;
     });
     onDragUpdate(details);
+  }
+
+  void onPanStart(DragStartDetails details) {
+    model.setSelectedNote(note);
   }
 }

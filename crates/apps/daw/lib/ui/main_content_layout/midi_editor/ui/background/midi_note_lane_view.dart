@@ -70,9 +70,18 @@ class MIDINoteLane extends StatelessWidget {
   }
 
   void onTapUp(BuildContext context, TapUpDetails details) {
-    var width = context.size!.width - 110;
-    var x = details.localPosition.dx / width;
-    model.addEvent(time: x, note: note);
+    var now = DateTime.now().millisecond;
+
+    model.unselectNotes();
+
+    if (viewModel.lastTapTime != null && now - viewModel.lastTapTime! < 500) {
+      var width = context.size!.width - 110;
+      var x = details.localPosition.dx / width;
+      model.addEvent(time: x, note: note);
+      viewModel.clearLastTapTime();
+    } else {
+      viewModel.setLastTapTime(now);
+    }
   }
 
   void onSidebarPanUpdate(DragUpdateDetails details) {

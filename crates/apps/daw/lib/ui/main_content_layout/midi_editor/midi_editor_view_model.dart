@@ -25,6 +25,19 @@ abstract class _MIDIEditorViewModel with Store {
   @observable
   double noteHeight = 20.0;
 
+  @observable
+  int? lastTapTime = null;
+
+  @action
+  void setLastTapTime(int time) {
+    lastTapTime = time;
+  }
+
+  @action
+  void clearLastTapTime() {
+    lastTapTime = null;
+  }
+
   @action
   void resizeNotesByDelta(double delta) {
     var smallerDelta = delta * 0.1;
