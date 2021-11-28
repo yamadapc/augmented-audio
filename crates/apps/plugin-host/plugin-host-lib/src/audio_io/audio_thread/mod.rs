@@ -2,6 +2,7 @@ use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 use ringbuf::Consumer;
+use std::ops::Deref;
 
 use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
@@ -65,7 +66,10 @@ impl AudioThread {
         let midi_message_queue = self.midi_message_queue.clone();
         let (maybe_input_stream, output_stream) =
             create_stream(&audio_thread_options, processor, midi_message_queue)?;
-        log::info!("Starting CPAL output stream");
+        log::info!(
+            "Starting CPAL output stream options={:?}",
+            audio_thread_options
+        );
         if let Some(input_stream) = maybe_input_stream.as_ref() {
             input_stream.play()?;
         }
@@ -160,7 +164,11 @@ fn create_stream(
 
     let output_device =
         cpal_option_handling::get_cpal_output_device(&host, &options.output_device_id)?;
-    log::info!("Using device: {}", output_device.name()?);
+    log::info!(
+        "Using devices output_device={} input_device={:?}",
+        output_device.name()?,
+        options.input_device_id
+    );
     let output_config = cpal_option_handling::get_output_config(options, &output_device)?;
     let input_device = if let Some(device_id) = &options.input_device_id {
         Some(cpal_option_handling::get_cpal_input_device(
@@ -387,12 +395,10 @@ pub mod actor {
                     input_device_id,
                     output_device_id,
                 } => {
-                    let audio_thread_options = AudioThreadOptions {
-                        host_id,
-                        input_device_id,
-                        output_device_id,
-                        ..self.audio_thread_options.clone()
-                    };
+                    let mut audio_thread_options = self.audio_thread_options.clone();
+                    audio_thread_options.host_id = host_id;
+                    audio_thread_options.input_device_id = input_device_id;
+                    audio_thread_options.output_device_id = output_device_id;
                     if audio_thread_options != self.audio_thread_options {
                         self.audio_thread_options = audio_thread_options;
                         self.wait()?;

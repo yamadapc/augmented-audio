@@ -94,6 +94,24 @@ class _SynthesizerViewState extends State<SynthesizerView> {
     var api = initialize();
     api?.audioGraphSetup();
     synth = SynthesizerApi(api);
+
+    setupGraph(api);
+  }
+
+  Future<void> setupGraph(DawUi? api) async {
+    var systemIndexes = await api!.audioGraphGetSystemIndexes();
+    var inputIndex = systemIndexes[0];
+    var outputIndex = systemIndexes[1];
+
+    await api.audioThreadSetOptions(
+        inputDeviceId: "default", outputDeviceId: "default");
+
+    var delay1 = await api.audioNodeCreate(audioProcessorName: "delay");
+    var delay2 = await api.audioNodeCreate(audioProcessorName: "delay");
+
+    await api.audioGraphConnect(inputIndex: inputIndex, outputIndex: delay1);
+    await api.audioGraphConnect(inputIndex: delay2, outputIndex: outputIndex);
+    await api.audioGraphConnect(inputIndex: delay1, outputIndex: outputIndex);
   }
 
   @override

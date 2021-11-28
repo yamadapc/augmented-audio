@@ -29,7 +29,17 @@ abstract class DawUi extends FlutterRustBridgeBase<DawUiWire> {
 
   Stream<String> getEventsSink({dynamic hint});
 
+  Future<int> audioThreadSetOptions(
+      {required String outputDeviceId,
+      required String inputDeviceId,
+      dynamic hint});
+
   Future<int> audioGraphSetup({dynamic hint});
+
+  Future<Uint32List> audioGraphGetSystemIndexes({dynamic hint});
+
+  Future<int> audioGraphConnect(
+      {required int inputIndex, required int outputIndex, dynamic hint});
 
   Future<int> audioNodeCreate(
       {required String audioProcessorName, dynamic hint});
@@ -107,11 +117,40 @@ class DawUiImpl extends DawUi {
           parseSuccessData: _wire2api_String,
           hint: hint));
 
+  Future<int> audioThreadSetOptions(
+          {required String outputDeviceId,
+          required String inputDeviceId,
+          dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+          debugName: 'audio_thread_set_options',
+          callFfi: (port) => inner.wire_audio_thread_set_options(
+              port,
+              _api2wire_String(outputDeviceId),
+              _api2wire_String(inputDeviceId)),
+          parseSuccessData: _wire2api_i32,
+          hint: hint));
+
   Future<int> audioGraphSetup({dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
           debugName: 'audio_graph_setup',
           callFfi: (port) => inner.wire_audio_graph_setup(port),
           parseSuccessData: _wire2api_i32,
+          hint: hint));
+
+  Future<Uint32List> audioGraphGetSystemIndexes({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+          debugName: 'audio_graph_get_system_indexes',
+          callFfi: (port) => inner.wire_audio_graph_get_system_indexes(port),
+          parseSuccessData: _wire2api_uint_32_list,
+          hint: hint));
+
+  Future<int> audioGraphConnect(
+          {required int inputIndex, required int outputIndex, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+          debugName: 'audio_graph_connect',
+          callFfi: (port) => inner.wire_audio_graph_connect(
+              port, _api2wire_u32(inputIndex), _api2wire_u32(outputIndex)),
+          parseSuccessData: _wire2api_u32,
           hint: hint));
 
   Future<int> audioNodeCreate(
@@ -120,7 +159,7 @@ class DawUiImpl extends DawUi {
           debugName: 'audio_node_create',
           callFfi: (port) => inner.wire_audio_node_create(
               port, _api2wire_String(audioProcessorName)),
-          parseSuccessData: _wire2api_i32,
+          parseSuccessData: _wire2api_u32,
           hint: hint));
 
   Future<int> audioNodeSetParameter(
@@ -151,6 +190,10 @@ class DawUiImpl extends DawUi {
     return raw;
   }
 
+  int _api2wire_u32(int raw) {
+    return raw;
+  }
+
   int _api2wire_u8(int raw) {
     return raw;
   }
@@ -174,8 +217,16 @@ int _wire2api_i32(dynamic raw) {
   return raw as int;
 }
 
+int _wire2api_u32(dynamic raw) {
+  return raw as int;
+}
+
 int _wire2api_u8(dynamic raw) {
   return raw as int;
+}
+
+Uint32List _wire2api_uint_32_list(dynamic raw) {
+  return raw as Uint32List;
 }
 
 Uint8List _wire2api_uint_8_list(dynamic raw) {
@@ -322,6 +373,27 @@ class DawUiWire implements FlutterRustBridgeWireBase {
   late final _wire_get_events_sink =
       _wire_get_events_sinkPtr.asFunction<void Function(int)>();
 
+  void wire_audio_thread_set_options(
+    int port,
+    ffi.Pointer<wire_uint_8_list> output_device_id,
+    ffi.Pointer<wire_uint_8_list> input_device_id,
+  ) {
+    return _wire_audio_thread_set_options(
+      port,
+      output_device_id,
+      input_device_id,
+    );
+  }
+
+  late final _wire_audio_thread_set_optionsPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>)>>('wire_audio_thread_set_options');
+  late final _wire_audio_thread_set_options =
+      _wire_audio_thread_set_optionsPtr.asFunction<
+          void Function(int, ffi.Pointer<wire_uint_8_list>,
+              ffi.Pointer<wire_uint_8_list>)>();
+
   void wire_audio_graph_setup(
     int port,
   ) {
@@ -335,6 +407,39 @@ class DawUiWire implements FlutterRustBridgeWireBase {
           'wire_audio_graph_setup');
   late final _wire_audio_graph_setup =
       _wire_audio_graph_setupPtr.asFunction<void Function(int)>();
+
+  void wire_audio_graph_get_system_indexes(
+    int port,
+  ) {
+    return _wire_audio_graph_get_system_indexes(
+      port,
+    );
+  }
+
+  late final _wire_audio_graph_get_system_indexesPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_audio_graph_get_system_indexes');
+  late final _wire_audio_graph_get_system_indexes =
+      _wire_audio_graph_get_system_indexesPtr.asFunction<void Function(int)>();
+
+  void wire_audio_graph_connect(
+    int port,
+    int input_index,
+    int output_index,
+  ) {
+    return _wire_audio_graph_connect(
+      port,
+      input_index,
+      output_index,
+    );
+  }
+
+  late final _wire_audio_graph_connectPtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(
+              ffi.Int64, ffi.Uint32, ffi.Uint32)>>('wire_audio_graph_connect');
+  late final _wire_audio_graph_connect =
+      _wire_audio_graph_connectPtr.asFunction<void Function(int, int, int)>();
 
   void wire_audio_node_create(
     int port,

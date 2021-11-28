@@ -7,10 +7,15 @@ use anyhow::Result;
 use flutter_rust_bridge::StreamSink;
 
 use audio_garbage_collector::Shared;
+use audio_processor_graph::{NodeIndex, NodeType};
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_thread::actor::AudioThreadMessage;
 use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_graph;
-use plugin_host_lib::audio_io::audio_graph::AudioGraphManager;
+use plugin_host_lib::audio_io::audio_graph::{AudioGraphManager, ProcessorSpec};
+use plugin_host_lib::audio_io::audio_thread;
+use plugin_host_lib::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId};
+use plugin_host_lib::audio_io::audio_thread::AudioThread;
 use plugin_host_lib::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use plugin_host_lib::audio_io::{
     AudioIOService, LoadPluginMessage, SetAudioFilePathMessage, StartMessage,
@@ -86,9 +91,28 @@ pub fn get_events_sink(sink: StreamSink<String>) -> Result<i32> {
     Ok(0)
 }
 
-trait AudioNode {
-    fn make_processor(&mut self) -> Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>;
-    fn set_parameter(&mut self, parameter_name: &str, parameter_value: f32);
+pub fn audio_thread_set_options(input_device_id: String, output_device_id: String) -> Result<i32> {
+    let actor_system_thread = ActorSystemThread::current();
+    actor_system_thread.spawn_result(async move {
+        let audio_thread = AudioThread::from_registry();
+        audio_thread
+            .send(AudioThreadMessage::SetOptions {
+                host_id: AudioHostId::Default,
+                input_device_id: if input_device_id == "default" {
+                    Some(AudioDeviceId::Default)
+                } else {
+                    Some(AudioDeviceId::Id(input_device_id))
+                },
+                output_device_id: if output_device_id == "default" {
+                    AudioDeviceId::Default
+                } else {
+                    AudioDeviceId::Id(output_device_id)
+                },
+            })
+            .await
+            .unwrap();
+    });
+    Ok(0)
 }
 
 pub fn audio_graph_setup() -> Result<i32> {
@@ -97,12 +121,70 @@ pub fn audio_graph_setup() -> Result<i32> {
     actor_system_thread.spawn_result(async move {
         let manager = AudioGraphManager::from_registry();
         manager.send(audio_graph::SetupGraphMessage).await.unwrap();
+        let audio_thread = AudioThread::from_registry();
+        audio_thread.send(AudioThreadMessage::Start).await.unwrap();
     });
     Ok(0)
 }
 
-pub fn audio_node_create(audio_processor_name: String) -> Result<i32> {
-    todo!()
+pub fn audio_graph_get_system_indexes() -> Result<Vec<u32>> {
+    ActorSystemThread::current().spawn_result(async move {
+        let manager = AudioGraphManager::from_registry();
+        let (input_index, output_index) = manager
+            .send(audio_graph::GetSystemIndexesMessage)
+            .await
+            .unwrap()
+            .unwrap();
+        Ok(vec![
+            input_index.index() as u32,
+            output_index.index() as u32,
+        ])
+    })
+}
+
+pub fn audio_graph_connect(input_index: u32, output_index: u32) -> Result<u32> {
+    ActorSystemThread::current().spawn(async move {
+        let manager = AudioGraphManager::from_registry();
+        manager
+            .send(audio_graph::ConnectMessage {
+                input_index: NodeIndex::new(input_index as usize),
+                output_index: NodeIndex::new(output_index as usize),
+            })
+            .await
+            .unwrap();
+    });
+    Ok(0)
+}
+
+pub fn audio_node_create(audio_processor_name: String) -> Result<u32> {
+    let processor: Result<NodeType<f32>> = match audio_processor_name.as_str() {
+        "delay" => Ok(Box::new(audio_processor_time::MonoDelayProcessor::default())),
+        "filter" => Ok(Box::new(augmented_dsp_filters::rbj::FilterProcessor::new(
+            augmented_dsp_filters::rbj::FilterType::LowPass,
+        ))),
+        "gain" => Ok(Box::new(
+            audio_processor_utility::gain::GainProcessor::default(),
+        )),
+        "pan" => Ok(Box::new(
+            audio_processor_utility::pan::PanProcessor::default(),
+        )),
+        _ => Err(anyhow::Error::msg("Failed to create processor")),
+    };
+    let processor = processor?;
+
+    let index = ActorSystemThread::current().spawn_result(async move {
+        let manager = AudioGraphManager::from_registry();
+        manager
+            .send(audio_graph::CreateAudioNodeMessage {
+                processor_spec: ProcessorSpec::RawProcessor { value: processor },
+            })
+            .await
+            .unwrap()
+            .unwrap()
+            .index()
+    });
+
+    Ok(index as u32)
 }
 
 pub fn audio_node_set_parameter(
@@ -111,4 +193,23 @@ pub fn audio_node_set_parameter(
     parameter_value: f32,
 ) -> Result<i32> {
     todo!()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    // #[test]
+    // fn test_create_graph() {
+    //     let _ = wisual_logger::try_init_from_env();
+    //     audio_graph_setup().unwrap();
+    //     audio_thread_set_options("default".into(), "default".into());
+    //     let result = audio_graph_get_system_indexes().unwrap();
+    //     let input_idx = result[0];
+    //     let output_idx = result[1];
+    //     let delay_idx = audio_node_create("delay".into()).unwrap();
+    //     audio_graph_connect(input_idx, delay_idx).unwrap();
+    //     audio_graph_connect(delay_idx, output_idx).unwrap();
+    //     std::thread::park();
+    // }
 }

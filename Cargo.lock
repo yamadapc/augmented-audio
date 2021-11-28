@@ -400,12 +400,15 @@ version = "0.1.0"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-standalone",
+ "audio-processor-testing-helpers",
  "audio-processor-time",
  "audio-processor-traits",
  "audio-processor-utility",
  "augmented-dsp-filters",
  "concread",
  "daggy",
+ "num-traits 0.2.14",
+ "oscillator",
  "thiserror",
 ]
 
@@ -1730,7 +1733,10 @@ dependencies = [
  "anyhow",
  "audio-garbage-collector",
  "audio-processor-graph",
+ "audio-processor-time",
  "audio-processor-traits",
+ "audio-processor-utility",
+ "augmented-dsp-filters",
  "cbindgen",
  "flexbuffers",
  "flutter_rust_bridge",

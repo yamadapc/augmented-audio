@@ -3,20 +3,18 @@ use audio_garbage_collector::Shared;
 
 use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, NodeIndex, NodeType};
 use audio_processor_traits::audio_buffer::VecAudioBuffer;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::audio_thread;
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::processors::shared_processor::SharedProcessor;
 
 /// Alternate manager for the audio-thread processors using `audio-processor-graph`.
+#[derive(Default)]
 pub struct AudioGraphManager {
+    input_idx: Option<NodeIndex>,
+    output_idx: Option<NodeIndex>,
     graph_handle: Option<Shared<AudioProcessorGraphHandle<VecAudioBuffer<f32>>>>,
-}
-
-impl Default for AudioGraphManager {
-    fn default() -> Self {
-        AudioGraphManager { graph_handle: None }
-    }
 }
 
 impl Actor for AudioGraphManager {
@@ -42,7 +40,11 @@ impl Handler<SetupGraphMessage> for AudioGraphManager {
     fn handle(&mut self, _msg: SetupGraphMessage, _ctx: &mut Self::Context) -> Self::Result {
         log::info!("Setting-up audio-graph processor");
 
-        let audio_graph_processor = AudioProcessorGraph::default();
+        let mut audio_graph_processor = AudioProcessorGraph::default();
+        audio_graph_processor.prepare(AudioThread::default_settings().unwrap());
+
+        self.input_idx = Some(audio_graph_processor.input());
+        self.output_idx = Some(audio_graph_processor.output());
         self.graph_handle = Some(audio_graph_processor.handle().clone());
 
         let processor = SharedProcessor::new(
@@ -61,7 +63,7 @@ pub enum ProcessorSpec {
 #[derive(Message)]
 #[rtype(result = "Option<NodeIndex>")]
 pub struct CreateAudioNodeMessage {
-    processor_spec: ProcessorSpec,
+    pub processor_spec: ProcessorSpec,
 }
 
 impl Handler<CreateAudioNodeMessage> for AudioGraphManager {
@@ -76,5 +78,43 @@ impl Handler<CreateAudioNodeMessage> for AudioGraphManager {
             log::info!("Adding audio node index={:?}", index);
             index
         }))
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Option<(NodeIndex, NodeIndex)>")]
+pub struct GetSystemIndexesMessage;
+
+impl Handler<GetSystemIndexesMessage> for AudioGraphManager {
+    type Result = MessageResult<GetSystemIndexesMessage>;
+
+    fn handle(&mut self, _msg: GetSystemIndexesMessage, _ctx: &mut Self::Context) -> Self::Result {
+        let result = self
+            .input_idx
+            .map(|idx| self.output_idx.map(|oidx| (idx, oidx)))
+            .flatten();
+        MessageResult(result)
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "()")]
+pub struct ConnectMessage {
+    pub input_index: NodeIndex,
+    pub output_index: NodeIndex,
+}
+
+impl Handler<ConnectMessage> for AudioGraphManager {
+    type Result = ();
+
+    fn handle(&mut self, msg: ConnectMessage, _ctx: &mut Self::Context) -> Self::Result {
+        log::info!(
+            "Adding connection input={:?} output={:?}",
+            msg.input_index,
+            msg.output_index
+        );
+        self.graph_handle
+            .as_ref()
+            .map(|graph_handle| graph_handle.add_connection(msg.input_index, msg.output_index));
     }
 }

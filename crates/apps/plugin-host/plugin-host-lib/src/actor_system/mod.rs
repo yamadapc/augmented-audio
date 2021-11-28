@@ -61,7 +61,7 @@ impl ActorSystemThread {
         Fut: 'static + Send + Future<Output = ()>,
     {
         let target_id = self.next_arbiter_idx();
-        log::info!("Spawning task on arbiter_id={}", target_id);
+        log::debug!("Spawning task on arbiter_id={}", target_id);
         self.arbiters[target_id].spawn(fut);
     }
 
