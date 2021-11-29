@@ -41,6 +41,7 @@ members = [
   "crates/augmented/audio/avfaudio-sys",
   "crates/augmented/audio/oscillator",
   "crates/augmented/data/atomic-queue",
+  "crates/augmented/data/augmented-midi",
   "crates/augmented/data/audio-volume",
   "crates/augmented/data/circular-data-structures",
   "crates/augmented/development/augmented-dev-cli",
