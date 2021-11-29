@@ -68,11 +68,6 @@ impl<Sample: Float + From<f32>> MonoDelayProcessor<Sample> {
             handle,
             max_delay_time,
             delay_buffer: Self::make_vec(max_delay_time.as_secs() as usize),
-            // delay_time,
-            // sample_rate: 44100.0,
-            // current_write_position: (delay_time * 44100.0) as usize,
-            // current_read_position: 0,
-            // buffer_size: 0,
         }
     }
 
