@@ -1,3 +1,5 @@
+use std::borrow::Borrow;
+
 use nom::bytes::complete::tag;
 use nom::{
     branch::alt,
@@ -12,7 +14,7 @@ use nom::{
 };
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
-pub enum MIDIMessage<'a> {
+pub enum MIDIMessage<Buffer: Borrow<[u8]>> {
     // 0x9
     NoteOn {
         channel: u8,
@@ -52,7 +54,7 @@ pub enum MIDIMessage<'a> {
         controller_number: u8,
         value: u8,
     },
-    SysExMessage(MIDISysExEvent<'a>),
+    SysExMessage(MIDISysExEvent<Buffer>),
     SongPositionPointer {
         beats: u16,
     },
@@ -94,35 +96,37 @@ pub enum MIDIFileDivision {
 }
 
 #[derive(Debug)]
-pub enum MIDIFileChunk<'a> {
+pub enum MIDIFileChunk<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> {
     Header {
         format: MIDIFileFormat,
         num_tracks: u16,
         division: MIDIFileDivision,
     },
     Track {
-        events: Vec<MIDITrackEvent<'a>>,
+        events: Vec<MIDITrackEvent<Buffer>>,
     },
     Unknown {
-        name: &'a str,
-        body: &'a [u8],
+        name: StringRepr,
+        body: Buffer,
     },
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
-enum MIDITrackInner<'a> {
-    Message(MIDIMessage<'a>),
-    Meta(MIDIMetaEvent<'a>),
-    SysEx(MIDISysExEvent<'a>),
+enum MIDITrackInner<Buffer: Borrow<[u8]>> {
+    Message(MIDIMessage<Buffer>),
+    Meta(MIDIMetaEvent<Buffer>),
+    SysEx(MIDISysExEvent<Buffer>),
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
-pub struct MIDITrackEvent<'a> {
+pub struct MIDITrackEvent<Buffer: Borrow<[u8]>> {
     delta_time: u32,
-    event: MIDITrackInner<'a>,
+    event: MIDITrackInner<Buffer>,
 }
 
-pub fn parse_header_body(input: Input) -> Result<MIDIFileChunk> {
+pub fn parse_header_body<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>>(
+    input: Input,
+) -> Result<MIDIFileChunk<StringRepr, Buffer>> {
     let (input, format) = be_u16(input)?;
     let format = match format {
         0 => Ok(MIDIFileFormat::Single),
@@ -188,10 +192,10 @@ pub fn parse_variable_length_num(input: Input) -> Result<u32> {
     Ok((input, result))
 }
 
-pub fn parse_midi_event<'a>(
+pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
     input: Input<'a>,
     state: &mut ParserState,
-) -> Result<'a, MIDIMessage<'a>> {
+) -> Result<'a, MIDIMessage<Buffer>> {
     let (tmp_input, tmp_status) = be_u8(input)?;
     let (input, status) = if tmp_status >= 0x7F {
         state.last_status = Some(tmp_status);
@@ -288,7 +292,7 @@ pub fn parse_midi_event<'a>(
         Ok((
             input,
             MIDIMessage::SysExMessage(MIDISysExEvent {
-                message: sysex_message,
+                message: sysex_message.into(),
             }),
         ))
     } else if status == 0b1111_0010 {
@@ -330,13 +334,15 @@ fn parse_14bit_midi_number(input: Input) -> Result<u16> {
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
-pub struct MIDIMetaEvent<'a> {
+pub struct MIDIMetaEvent<Buffer: Borrow<[u8]>> {
     meta_type: u8,
     length: u32,
-    bytes: &'a [u8],
+    bytes: Buffer,
 }
 
-pub fn parse_meta_event(input: Input) -> Result<MIDIMetaEvent> {
+pub fn parse_meta_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
+    input: Input<'a>,
+) -> Result<'a, MIDIMetaEvent<Buffer>> {
     let (input, _) = tag([0xFF])(input)?;
     let (input, meta_type) = be_u8(input)?;
     let (input, length) = parse_variable_length_num(input)?;
@@ -347,27 +353,34 @@ pub fn parse_meta_event(input: Input) -> Result<MIDIMetaEvent> {
         MIDIMetaEvent {
             meta_type,
             length,
-            bytes,
+            bytes: bytes.into(),
         },
     ))
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
-pub struct MIDISysExEvent<'a> {
-    message: &'a [u8],
+pub struct MIDISysExEvent<Buffer: Borrow<[u8]>> {
+    message: Buffer,
 }
 
-pub fn parse_sysex_event(input: Input) -> Result<MIDISysExEvent> {
+pub fn parse_sysex_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
+    input: Input<'a>,
+) -> Result<'a, MIDISysExEvent<Buffer>> {
     let (input, _) = alt((tag([0xF7]), tag([0xF0])))(input)?;
     let (input, bytes) = take_till(|b| b == 0xF7)(input)?;
     let (input, _) = take(1u8)(input)?;
-    Ok((input, MIDISysExEvent { message: bytes }))
+    Ok((
+        input,
+        MIDISysExEvent {
+            message: bytes.into(),
+        },
+    ))
 }
 
-pub fn parse_track_event<'a>(
+pub fn parse_track_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
     input: Input<'a>,
     state: &mut ParserState,
-) -> Result<'a, MIDITrackEvent<'a>> {
+) -> Result<'a, MIDITrackEvent<Buffer>> {
     let (input, delta_time) = parse_variable_length_num(input)?;
     let (input, event) = alt((
         |input| parse_meta_event(input).map(|(input, event)| (input, MIDITrackInner::Meta(event))),
@@ -398,7 +411,13 @@ pub struct ParserState {
     last_status: Option<u8>,
 }
 
-pub fn parse_chunk(input: Input) -> Result<MIDIFileChunk> {
+pub fn parse_chunk<
+    'a,
+    StringRepr: Borrow<str> + From<&'a str>,
+    Buffer: Borrow<[u8]> + From<Input<'a>>,
+>(
+    input: Input<'a>,
+) -> Result<'a, MIDIFileChunk<StringRepr, Buffer>> {
     let (input, chunk_name) = take(4u32)(input)?;
     let chunk_name: &str = std::str::from_utf8(chunk_name)
         .map_err(|err| Err::Failure(Error::from_external_error(input, ErrorKind::Fail, err)))?;
@@ -420,8 +439,8 @@ pub fn parse_chunk(input: Input) -> Result<MIDIFileChunk> {
         _ => Ok((
             chunk_body,
             MIDIFileChunk::Unknown {
-                name: chunk_name,
-                body: chunk_body,
+                name: chunk_name.into(),
+                body: chunk_body.into(),
             },
         )),
     }?;
@@ -433,12 +452,30 @@ fn parse_chunk_length(input: Input) -> Result<u32> {
     u32(nom::number::Endianness::Big)(input)
 }
 
-pub fn parse_midi_file(input: Input) -> Result<Vec<MIDIFileChunk>> {
-    let (input, chunks) = many0(parse_chunk)(input)?;
-    Ok((input, chunks))
+pub struct MIDIFile<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> {
+    chunks: Vec<MIDIFileChunk<StringRepr, Buffer>>,
 }
 
-pub fn parse_midi(input: Input) -> Result<Vec<MIDIMessage>> {
+impl<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> MIDIFile<StringRepr, Buffer> {
+    pub fn chunks(&self) -> &Vec<MIDIFileChunk<StringRepr, Buffer>> {
+        &self.chunks
+    }
+}
+
+pub fn parse_midi_file<
+    'a,
+    StringRepr: Borrow<str> + From<&'a str>,
+    Buffer: Borrow<[u8]> + From<&'a [u8]>,
+>(
+    input: Input<'a>,
+) -> Result<'a, MIDIFile<StringRepr, Buffer>> {
+    let (input, chunks) = many0(parse_chunk)(input)?;
+    Ok((input, MIDIFile { chunks }))
+}
+
+pub fn parse_midi<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
+    input: Input<'a>,
+) -> Result<'a, Vec<MIDIMessage<Buffer>>> {
     many0(|input| parse_midi_event(input, &mut ParserState::default()))(input)
 }
 
