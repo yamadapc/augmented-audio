@@ -14,19 +14,18 @@ use nom::{
 };
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
+pub struct MIDIMessageNote {
+    channel: u8,
+    note: u8,
+    velocity: u8,
+}
+
+#[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
 pub enum MIDIMessage<Buffer: Borrow<[u8]>> {
     // 0x9
-    NoteOn {
-        channel: u8,
-        note: u8,
-        velocity: u8,
-    },
+    NoteOn(MIDIMessageNote),
     // 0x8
-    NoteOff {
-        channel: u8,
-        note: u8,
-        velocity: u8,
-    },
+    NoteOff(MIDIMessageNote),
     PolyphonicKeyPressure {
         channel: u8,
         note: u8,
@@ -75,19 +74,19 @@ pub enum MIDIMessage<Buffer: Borrow<[u8]>> {
 
 impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
     pub fn note_on(channel: u8, note: u8, velocity: u8) -> Self {
-        MIDIMessage::NoteOn {
+        MIDIMessage::NoteOn(MIDIMessageNote {
             channel,
             note,
             velocity,
-        }
+        })
     }
 
     pub fn note_off(channel: u8, note: u8, velocity: u8) -> Self {
-        MIDIMessage::NoteOff {
+        MIDIMessage::NoteOff(MIDIMessageNote {
             channel,
             note,
             velocity,
-        }
+        })
     }
 
     pub fn control_change(channel: u8, controller_number: u8, value: u8) -> Self {
@@ -102,7 +101,7 @@ impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
 type Input<'a> = &'a [u8];
 type Result<'a, Output> = IResult<Input<'a>, Output>;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum MIDIFileFormat {
     // 0
     Single,
@@ -122,19 +121,17 @@ pub enum MIDIFileDivision {
 }
 
 #[derive(Debug)]
+pub struct MIDIFileHeader {
+    format: MIDIFileFormat,
+    num_tracks: u16,
+    division: MIDIFileDivision,
+}
+
+#[derive(Debug)]
 pub enum MIDIFileChunk<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> {
-    Header {
-        format: MIDIFileFormat,
-        num_tracks: u16,
-        division: MIDIFileDivision,
-    },
-    Track {
-        events: Vec<MIDITrackEvent<Buffer>>,
-    },
-    Unknown {
-        name: StringRepr,
-        body: Buffer,
-    },
+    Header(MIDIFileHeader),
+    Track { events: Vec<MIDITrackEvent<Buffer>> },
+    Unknown { name: StringRepr, body: Buffer },
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
@@ -155,6 +152,17 @@ impl<Buffer: Borrow<[u8]>> MIDITrackEvent<Buffer> {
         MIDITrackEvent {
             delta_time,
             inner: event,
+        }
+    }
+
+    pub fn delta_time(&self) -> u32 {
+        self.delta_time
+    }
+
+    pub fn message(&self) -> Option<&MIDIMessage<Buffer>> {
+        match &self.inner {
+            MIDITrackInner::Message(message) => Some(message),
+            _ => None,
         }
     }
 }
@@ -199,11 +207,11 @@ pub fn parse_header_body<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>>(
 
     Ok((
         input,
-        MIDIFileChunk::Header {
+        MIDIFileChunk::Header(MIDIFileHeader {
             format,
             num_tracks,
             division,
-        },
+        }),
     ))
 }
 
@@ -248,11 +256,11 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         let (input, velocity) = be_u8(input)?;
         Ok((
             input,
-            MIDIMessage::NoteOff {
+            MIDIMessage::NoteOff(MIDIMessageNote {
                 channel,
                 note,
                 velocity,
-            },
+            }),
         ))
     } else if status_start == 0b1001_0000 {
         let channel = parse_channel(status);
@@ -260,11 +268,11 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         let (input, velocity) = be_u8(input)?;
         Ok((
             input,
-            MIDIMessage::NoteOn {
+            MIDIMessage::NoteOn(MIDIMessageNote {
                 channel,
                 note,
                 velocity,
-            },
+            }),
         ))
     } else if status_start == 0b1010_0000 {
         let channel = parse_channel(status);
@@ -523,17 +531,31 @@ impl<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> MIDIFile<StringRepr, Buffer>
         &self.chunks
     }
 
+    pub fn header(&self) -> Option<&MIDIFileHeader> {
+        self.chunks.iter().find_map(|chunk| match chunk {
+            MIDIFileChunk::Header(header) => Some(header),
+            _ => None,
+        })
+    }
+
+    pub fn track_chunks(&self) -> impl Iterator<Item = &MIDITrackEvent<Buffer>> {
+        self.chunks
+            .iter()
+            .filter_map(|chunk| match chunk {
+                MIDIFileChunk::Track { events } => Some(events),
+                _ => None,
+            })
+            .flatten()
+    }
+
     pub fn ticks_per_quarter_note(&self) -> u16 {
-        if let Some(MIDIFileChunk::Header {
+        if let Some(MIDIFileHeader {
             division:
                 MIDIFileDivision::TicksPerQuarterNote {
                     ticks_per_quarter_note,
                 },
             ..
-        }) = self
-            .chunks
-            .iter()
-            .find(|chunk| matches!(chunk, MIDIFileChunk::Header { .. }))
+        }) = self.header()
         {
             *ticks_per_quarter_note
         } else {
@@ -607,5 +629,60 @@ mod test {
         // let file_contents: Vec<u8> = file_contents.into_iter().take(8000).collect();
         let (_rest, midi_stream) = parse_midi_file::<String, Vec<u8>>(&file_contents).unwrap();
         println!("{:?}", midi_stream);
+    }
+
+    #[test]
+    fn test() {
+        let input_path = format!(
+            "{}/test-files/c1_4over4_1bar.mid",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let file_contents = std::fs::read(input_path).unwrap();
+        let (_rest, midi_file) = parse_midi_file::<String, Vec<u8>>(&file_contents).unwrap();
+        assert_eq!(midi_file.ticks_per_quarter_note(), 96);
+        let quarter_length = midi_file.ticks_per_quarter_note() as u32;
+        let sixteenth_length = quarter_length / 4;
+
+        let header = midi_file.header().unwrap();
+        assert_eq!(header.format, MIDIFileFormat::Single);
+        assert_eq!(header.num_tracks, 1);
+
+        let events: Vec<MIDITrackEvent<Vec<u8>>> = midi_file.track_chunks().cloned().collect();
+        let note_on_events: Vec<(u32, MIDIMessageNote)> = events
+            .iter()
+            .filter_map(|event| match event {
+                MIDITrackEvent {
+                    delta_time,
+                    inner: MIDITrackInner::Message(MIDIMessage::NoteOn(note)),
+                } => Some((*delta_time, note.clone())),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(note_on_events.len(), 4);
+        assert_eq!(note_on_events[0].0, 0);
+        assert_eq!(note_on_events[1].0, quarter_length - sixteenth_length);
+        assert_eq!(note_on_events[2].0, quarter_length - sixteenth_length);
+        assert_eq!(note_on_events[3].0, quarter_length - sixteenth_length);
+        for (_, evt) in &note_on_events {
+            assert_eq!(evt.velocity, 100);
+            assert_eq!(evt.note, 36);
+        }
+
+        let note_off_events: Vec<(u32, MIDIMessageNote)> = events
+            .iter()
+            .filter_map(|event| match event {
+                MIDITrackEvent {
+                    delta_time,
+                    inner: MIDITrackInner::Message(MIDIMessage::NoteOff(note)),
+                } => Some((*delta_time, note.clone())),
+                _ => None,
+            })
+            .collect();
+
+        assert_eq!(note_off_events.len(), 4);
+        assert_eq!(note_off_events[0].0, sixteenth_length);
+        assert_eq!(note_off_events[1].0, sixteenth_length);
+        assert_eq!(note_off_events[2].0, sixteenth_length);
+        assert_eq!(note_off_events[3].0, sixteenth_length);
     }
 }
