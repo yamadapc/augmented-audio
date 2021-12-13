@@ -73,6 +73,32 @@ pub enum MIDIMessage<Buffer: Borrow<[u8]>> {
     },
 }
 
+impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
+    pub fn note_on(channel: u8, note: u8, velocity: u8) -> Self {
+        MIDIMessage::NoteOn {
+            channel,
+            note,
+            velocity,
+        }
+    }
+
+    pub fn note_off(channel: u8, note: u8, velocity: u8) -> Self {
+        MIDIMessage::NoteOff {
+            channel,
+            note,
+            velocity,
+        }
+    }
+
+    pub fn control_change(channel: u8, controller_number: u8, value: u8) -> Self {
+        MIDIMessage::ControlChange {
+            channel,
+            controller_number,
+            value,
+        }
+    }
+}
+
 type Input<'a> = &'a [u8];
 type Result<'a, Output> = IResult<Input<'a>, Output>;
 
@@ -112,7 +138,7 @@ pub enum MIDIFileChunk<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> {
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
-enum MIDITrackInner<Buffer: Borrow<[u8]>> {
+pub enum MIDITrackInner<Buffer: Borrow<[u8]>> {
     Message(MIDIMessage<Buffer>),
     Meta(MIDIMetaEvent<Buffer>),
     SysEx(MIDISysExEvent<Buffer>),
@@ -120,8 +146,17 @@ enum MIDITrackInner<Buffer: Borrow<[u8]>> {
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
 pub struct MIDITrackEvent<Buffer: Borrow<[u8]>> {
-    delta_time: u32,
-    event: MIDITrackInner<Buffer>,
+    pub delta_time: u32,
+    pub inner: MIDITrackInner<Buffer>,
+}
+
+impl<Buffer: Borrow<[u8]>> MIDITrackEvent<Buffer> {
+    pub fn new(delta_time: u32, event: MIDITrackInner<Buffer>) -> Self {
+        MIDITrackEvent {
+            delta_time,
+            inner: event,
+        }
+    }
 }
 
 pub fn parse_header_body<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>>(
@@ -340,6 +375,16 @@ pub struct MIDIMetaEvent<Buffer: Borrow<[u8]>> {
     bytes: Buffer,
 }
 
+impl<Buffer: Borrow<[u8]>> MIDIMetaEvent<Buffer> {
+    pub fn new(meta_type: u8, length: u32, bytes: Buffer) -> Self {
+        MIDIMetaEvent {
+            meta_type,
+            length,
+            bytes,
+        }
+    }
+}
+
 pub fn parse_meta_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
     input: Input<'a>,
 ) -> Result<'a, MIDIMetaEvent<Buffer>> {
@@ -361,6 +406,12 @@ pub fn parse_meta_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
 pub struct MIDISysExEvent<Buffer: Borrow<[u8]>> {
     message: Buffer,
+}
+
+impl<Buffer: Borrow<[u8]>> MIDISysExEvent<Buffer> {
+    pub fn new(message: Buffer) -> Self {
+        MIDISysExEvent { message }
+    }
 }
 
 pub fn parse_sysex_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
@@ -403,7 +454,13 @@ pub fn parse_track_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         _ => {}
     }
 
-    Ok((input, MIDITrackEvent { delta_time, event }))
+    Ok((
+        input,
+        MIDITrackEvent {
+            delta_time,
+            inner: event,
+        },
+    ))
 }
 
 #[derive(Default)]
@@ -452,13 +509,36 @@ fn parse_chunk_length(input: Input) -> Result<u32> {
     u32(nom::number::Endianness::Big)(input)
 }
 
+#[derive(Debug)]
 pub struct MIDIFile<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> {
-    chunks: Vec<MIDIFileChunk<StringRepr, Buffer>>,
+    pub chunks: Vec<MIDIFileChunk<StringRepr, Buffer>>,
 }
 
 impl<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> MIDIFile<StringRepr, Buffer> {
+    pub fn new(chunks: Vec<MIDIFileChunk<StringRepr, Buffer>>) -> Self {
+        Self { chunks }
+    }
+
     pub fn chunks(&self) -> &Vec<MIDIFileChunk<StringRepr, Buffer>> {
         &self.chunks
+    }
+
+    pub fn ticks_per_quarter_note(&self) -> u16 {
+        if let Some(MIDIFileChunk::Header {
+            division:
+                MIDIFileDivision::TicksPerQuarterNote {
+                    ticks_per_quarter_note,
+                },
+            ..
+        }) = self
+            .chunks
+            .iter()
+            .find(|chunk| matches!(chunk, MIDIFileChunk::Header { .. }))
+        {
+            *ticks_per_quarter_note
+        } else {
+            0
+        }
     }
 }
 
@@ -510,7 +590,7 @@ mod test {
         // Example pitch change on channel 3
         let pitch_wheel_message = [0xE3, 0x39, 0x54];
         let (_, result) =
-            parse_midi_event(&pitch_wheel_message, &mut ParserState::default()).unwrap();
+            parse_midi_event::<Vec<u8>>(&pitch_wheel_message, &mut ParserState::default()).unwrap();
         assert_eq!(
             result,
             MIDIMessage::PitchWheelChange {
@@ -525,7 +605,7 @@ mod test {
         let input_path = format!("{}/bach_846.mid", env!("CARGO_MANIFEST_DIR"));
         let file_contents = std::fs::read(input_path).unwrap();
         // let file_contents: Vec<u8> = file_contents.into_iter().take(8000).collect();
-        let (_rest, midi_stream) = parse_midi_file(&file_contents).unwrap();
+        let (_rest, midi_stream) = parse_midi_file::<String, Vec<u8>>(&file_contents).unwrap();
         println!("{:?}", midi_stream);
     }
 }

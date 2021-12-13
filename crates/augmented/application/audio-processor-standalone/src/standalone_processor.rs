@@ -6,8 +6,13 @@ pub trait StandaloneProcessor: Send + 'static {
     type Midi: MidiEventHandler;
 
     fn processor(&mut self) -> &mut Self::Processor;
+
     fn midi(&mut self) -> Option<&mut Self::Midi> {
         None
+    }
+
+    fn supports_midi(&mut self) -> bool {
+        self.midi().is_some()
     }
 }
 

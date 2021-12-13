@@ -443,9 +443,11 @@ dependencies = [
  "audio-processor-file",
  "audio-processor-standalone-midi",
  "audio-processor-traits",
+ "augmented-midi",
  "basedrop",
  "clap 2.33.3",
  "cpal",
+ "itertools 0.10.1",
  "log",
  "ringbuf",
  "wisual-logger",
@@ -617,7 +619,12 @@ dependencies = [
 name = "augmented-midi"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-traits",
+ "itertools 0.10.1",
+ "log",
+ "midir",
  "nom 7.1.0",
+ "wisual-logger",
 ]
 
 [[package]]

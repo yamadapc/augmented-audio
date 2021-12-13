@@ -10,6 +10,7 @@ use voice::Voice;
 mod voice;
 
 pub struct Synthesizer {
+    current_voice: usize,
     voices: [Voice; 4],
     filter: FilterProcessor<f32>,
 }
@@ -24,6 +25,7 @@ impl Default for Synthesizer {
 impl Synthesizer {
     pub fn new(sample_rate: f32) -> Self {
         Synthesizer {
+            current_voice: 0,
             voices: [
                 Voice::new(sample_rate),
                 Voice::new(sample_rate),
@@ -81,7 +83,12 @@ impl Synthesizer {
     fn handle_midi_message(&mut self, status: rimd::Status, bytes: &[u8]) {
         match status {
             Status::NoteOn => {
-                self.note(bytes);
+                println!("Note on {}/{}", bytes[1], bytes[2]);
+                self.note(false, bytes);
+            }
+            Status::NoteOff => {
+                // println!("Note off {}", bytes[1]);
+                self.note(true, bytes);
             }
             Status::ControlChange => {
                 if bytes[1] == 21 {
@@ -95,10 +102,10 @@ impl Synthesizer {
         }
     }
 
-    fn note(&mut self, bytes: &[u8]) {
+    fn note(&mut self, is_off: bool, bytes: &[u8]) {
         let note = bytes[1];
         let velocity = bytes[2];
-        if velocity == 0 {
+        if velocity == 0 || is_off {
             let voice = self.voices.iter_mut().find(|voice| {
                 voice.current_note().is_some() && voice.current_note().unwrap() == note
             });
@@ -113,7 +120,8 @@ impl Synthesizer {
             if let Some(voice) = voice {
                 voice.note_on(note, velocity);
             } else {
-                self.voices[0].note_on(note, velocity);
+                self.current_voice = (self.current_voice + 1) % self.voices.len();
+                self.voices[self.current_voice].note_on(note, velocity);
             }
         }
     }
