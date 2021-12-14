@@ -114,6 +114,105 @@ pub extern "C" fn wire_get_events_sink(port: i64) {
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_audio_thread_set_options(
+    port: i64,
+    output_device_id: *mut wire_uint_8_list,
+    input_device_id: *mut wire_uint_8_list,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "audio_thread_set_options",
+            port: Some(port),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_output_device_id = output_device_id.wire2api();
+            let api_input_device_id = input_device_id.wire2api();
+            move |task_callback| audio_thread_set_options(api_output_device_id, api_input_device_id)
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_audio_graph_setup(port: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "audio_graph_setup",
+            port: Some(port),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| audio_graph_setup(),
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_audio_graph_get_system_indexes(port: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "audio_graph_get_system_indexes",
+            port: Some(port),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| audio_graph_get_system_indexes(),
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_audio_graph_connect(port: i64, input_index: u32, output_index: u32) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "audio_graph_connect",
+            port: Some(port),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_input_index = input_index.wire2api();
+            let api_output_index = output_index.wire2api();
+            move |task_callback| audio_graph_connect(api_input_index, api_output_index)
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_audio_node_create(port: i64, audio_processor_name: *mut wire_uint_8_list) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "audio_node_create",
+            port: Some(port),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_audio_processor_name = audio_processor_name.wire2api();
+            move |task_callback| audio_node_create(api_audio_processor_name)
+        },
+    )
+}
+
+#[no_mangle]
+pub extern "C" fn wire_audio_node_set_parameter(
+    port: i64,
+    audio_node_id: i32,
+    parameter_name: *mut wire_uint_8_list,
+    parameter_value: f32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "audio_node_set_parameter",
+            port: Some(port),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_audio_node_id = audio_node_id.wire2api();
+            let api_parameter_name = parameter_name.wire2api();
+            let api_parameter_value = parameter_value.wire2api();
+            move |task_callback| {
+                audio_node_set_parameter(api_audio_node_id, api_parameter_name, api_parameter_value)
+            }
+        },
+    )
+}
+
 // Section: wire structs
 
 #[repr(C)]
@@ -157,6 +256,24 @@ impl Wire2Api<String> for *mut wire_uint_8_list {
     fn wire2api(self) -> String {
         let vec: Vec<u8> = self.wire2api();
         String::from_utf8_lossy(&vec).into_owned()
+    }
+}
+
+impl Wire2Api<f32> for f32 {
+    fn wire2api(self) -> f32 {
+        self
+    }
+}
+
+impl Wire2Api<i32> for i32 {
+    fn wire2api(self) -> i32 {
+        self
+    }
+}
+
+impl Wire2Api<u32> for u32 {
+    fn wire2api(self) -> u32 {
+        self
     }
 }
 

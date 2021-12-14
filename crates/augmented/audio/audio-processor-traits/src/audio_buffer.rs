@@ -165,6 +165,7 @@ pub trait OwnedAudioBuffer: AudioBuffer {
 
 /// An owned version of the interleaved buffer implementation. Can be converted onto an
 /// `InterleavedAudioBuffer`.
+#[derive(Clone)]
 pub struct VecAudioBuffer<SampleType> {
     buffer: Vec<SampleType>,
     num_channels: usize,

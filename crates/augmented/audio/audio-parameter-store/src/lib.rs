@@ -154,8 +154,10 @@ impl vst::plugin::PluginParameters for ParameterStore {
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use audio_processor_testing_helpers::assert_f_eq;
     use vst::plugin::PluginParameters;
+
+    use super::*;
 
     #[test]
     fn test_creating_and_adding_parameters() {
@@ -182,7 +184,7 @@ mod test {
         assert_eq!(parameter_store.get_parameter_name(0), "Test parameter");
         assert_eq!(parameter_store.get_parameter_label(0), "label");
         assert_eq!(parameter_store.get_parameter_text(0), "10");
-        assert_eq!(parameter_store.get_parameter(0), 10.0);
+        assert_f_eq!(parameter_store.get_parameter(0), 10.0);
     }
 
     #[test]
@@ -198,9 +200,9 @@ mod test {
 
         let parameter = parameter_store.find_parameter("test");
         let parameter = parameter.expect("Parameter is missing");
-        assert_eq!(parameter.value(), 10.0);
+        assert_f_eq!(parameter.value(), 10.0);
         parameter.set_value(20.0);
-        assert_eq!(parameter.value(), 20.0);
+        assert_f_eq!(parameter.value(), 20.0);
     }
 
     #[test]

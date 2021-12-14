@@ -7,13 +7,16 @@ use actix::prelude::*;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref THREAD: ActorSystemThread = ActorSystemThread::with_new_system();
+    static ref THREAD: ActorSystemThread = {
+        log::info!("Global actor system will start");
+        ActorSystemThread::with_new_system()
+    };
 }
 
 #[derive(Debug)]
 pub struct ActorSystemThread {
     system: actix::System,
-    arbiters: Vec<Arbiter>,
+    arbiters: Vec<ArbiterHandle>,
     counter: Arc<AtomicUsize>,
 }
 
@@ -26,17 +29,19 @@ impl ActorSystemThread {
         let (tx, rx) = channel();
         let (sys_tx, sys_rx) = channel();
 
+        log::info!("Starting actor system on 8 threads");
         std::thread::Builder::new()
-            .name("actor-system".into())
+            .name("actor-system-main".into())
             .spawn(move || {
                 let system = actix::System::new();
-                let mut arbiters = vec![];
+                let mut arbiters = vec![Arbiter::current()];
                 for _ in 0..8 {
-                    arbiters.push(Arbiter::new());
+                    arbiters.push(Arbiter::new().handle());
                 }
-                let _ = tx.send(arbiters);
-                let _ = sys_tx.send(System::current());
-                system.run()
+                tx.send(arbiters).unwrap();
+                sys_tx.send(System::current()).unwrap();
+                system.run().unwrap();
+                log::warn!("System has stopped");
             })
             .unwrap();
 
@@ -55,7 +60,9 @@ impl ActorSystemThread {
     where
         Fut: 'static + Send + Future<Output = ()>,
     {
-        self.arbiters[self.next_arbiter_idx()].spawn(fut);
+        let target_id = self.next_arbiter_idx();
+        log::debug!("Spawning task on arbiter_id={}", target_id);
+        self.arbiters[target_id].spawn(fut);
     }
 
     #[allow(unused)]

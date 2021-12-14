@@ -7,5 +7,6 @@
       </Languages>
     </inspection_tool>
     <inspection_tool class="MissingFeatures" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="RsSelfConvention" enabled="false" level="WARNING" enabled_by_default="false" />
   </profile>
 </component>

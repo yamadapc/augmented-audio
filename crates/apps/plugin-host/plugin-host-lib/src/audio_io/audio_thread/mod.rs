@@ -3,8 +3,10 @@ use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 use ringbuf::Consumer;
 
+use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 use audio_processor_standalone_midi::host::MidiMessageQueue;
+use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use audio_processor_traits::{AudioBuffer, InterleavedAudioBuffer};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
@@ -20,6 +22,7 @@ pub mod options;
 
 pub enum AudioThreadProcessor {
     Active(TestHostProcessor),
+    Graph(AudioProcessorGraph<VecAudioBuffer<f32>>),
     Silence(SilenceAudioProcessor<f32>),
 }
 
@@ -39,7 +42,7 @@ pub struct AudioThread {
 unsafe impl Send for AudioThread {}
 
 impl AudioThread {
-    pub fn new(
+    fn new(
         handle: &Handle,
         midi_message_queue: MidiMessageQueue,
         audio_thread_options: AudioThreadOptions,
@@ -62,7 +65,10 @@ impl AudioThread {
         let midi_message_queue = self.midi_message_queue.clone();
         let (maybe_input_stream, output_stream) =
             create_stream(&audio_thread_options, processor, midi_message_queue)?;
-        log::info!("Starting CPAL output stream");
+        log::info!(
+            "Starting CPAL output stream options={:?}",
+            audio_thread_options
+        );
         if let Some(input_stream) = maybe_input_stream.as_ref() {
             input_stream.play()?;
         }
@@ -157,7 +163,11 @@ fn create_stream(
 
     let output_device =
         cpal_option_handling::get_cpal_output_device(&host, &options.output_device_id)?;
-    log::info!("Using device: {}", output_device.name()?);
+    log::info!(
+        "Using devices output_device={} input_device={:?}",
+        output_device.name()?,
+        options.input_device_id
+    );
     let output_config = cpal_option_handling::get_output_config(options, &output_device)?;
     let input_device = if let Some(device_id) = &options.input_device_id {
         Some(cpal_option_handling::get_cpal_input_device(
@@ -275,6 +285,10 @@ fn output_stream_callback(
             processor.process(&mut audio_buffer)
         }
         AudioThreadProcessor::Silence(processor) => (*processor).process(&mut audio_buffer),
+        AudioThreadProcessor::Graph(graph) => {
+            // graph.process_midi(midi_message_handler.buffer());
+            graph.process(&mut audio_buffer);
+        }
     }
 
     midi_message_handler.clear();
@@ -287,8 +301,10 @@ fn input_stream_callback(producer: &mut ringbuf::Producer<f32>, data: &[f32]) {
 }
 
 pub mod actor {
-    use crate::actor_system::ActorSystemThread;
-    use actix::{Actor, Context, Handler, Message, Supervised, SystemService};
+    use actix::{
+        Actor, AsyncContext, Context, Handler, Message, Supervised, SystemService, WrapFuture,
+    };
+
     use audio_processor_standalone_midi::host::{GetQueueMessage, MidiHost};
 
     use super::*;
@@ -301,27 +317,40 @@ pub mod actor {
 
     impl Default for AudioThread {
         fn default() -> Self {
-            let midi_message_queue = ActorSystemThread::current()
-                .spawn_result(async move {
-                    let midi_host = MidiHost::from_registry();
-                    midi_host.send(GetQueueMessage).await
-                })
-                .unwrap();
-
             AudioThread::new(
                 audio_garbage_collector::handle(),
-                midi_message_queue.0,
+                Shared::new(
+                    audio_garbage_collector::handle(),
+                    atomic_queue::Queue::new(0),
+                ),
                 Default::default(),
             )
         }
     }
 
-    impl SystemService for AudioThread {}
+    impl SystemService for AudioThread {
+        fn service_started(&mut self, ctx: &mut Context<Self>) {
+            log::info!("AudioThread started");
+            let midi_host = MidiHost::from_registry();
+            let own_addr = ctx.address();
+            ctx.spawn(
+                async move {
+                    let queue = midi_host.send(GetQueueMessage).await.unwrap();
+                    own_addr
+                        .send(AudioThreadMessage::SetQueue(queue.0))
+                        .await
+                        .unwrap();
+                }
+                .into_actor(self),
+            );
+        }
+    }
 
     #[derive(Message)]
     #[rtype(result = "Result<(), AudioThreadError>")]
     pub enum AudioThreadMessage {
         Start,
+        SetQueue(MidiMessageQueue),
         SetOptions {
             host_id: AudioHostId,
             input_device_id: Option<AudioDeviceId>,
@@ -350,17 +379,23 @@ pub mod actor {
 
             match msg {
                 Start => self.start_audio(),
+                SetQueue(queue) => {
+                    self.midi_message_queue = queue;
+                    if self.output_stream.is_some() {
+                        self.wait()?;
+                        self.start_audio()?;
+                    }
+                    Ok(())
+                }
                 SetOptions {
                     host_id,
                     input_device_id,
                     output_device_id,
                 } => {
-                    let audio_thread_options = AudioThreadOptions {
-                        host_id,
-                        input_device_id,
-                        output_device_id,
-                        ..self.audio_thread_options.clone()
-                    };
+                    let mut audio_thread_options = self.audio_thread_options.clone();
+                    audio_thread_options.host_id = host_id;
+                    audio_thread_options.input_device_id = input_device_id;
+                    audio_thread_options.output_device_id = output_device_id;
                     if audio_thread_options != self.audio_thread_options {
                         self.audio_thread_options = audio_thread_options;
                         self.wait()?;

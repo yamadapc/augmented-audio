@@ -9,3 +9,6 @@ edition = "2018"
 crossbeam = "^0.8.1"
 serde = { version = "^1.0.126", features = ["derive"] }
 vst = { path = "../../../vendor/vst" }
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }

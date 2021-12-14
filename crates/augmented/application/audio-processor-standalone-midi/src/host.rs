@@ -91,7 +91,11 @@ impl Default for MidiHost {
 
 impl Supervised for MidiHost {}
 
-impl SystemService for MidiHost {}
+impl SystemService for MidiHost {
+    fn service_started(&mut self, _ctx: &mut Context<Self>) {
+        log::info!("MidiHost started");
+    }
+}
 
 #[derive(Message)]
 #[rtype(result = "Result<(), MidiError>")]

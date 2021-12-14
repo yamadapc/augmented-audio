@@ -21,6 +21,14 @@ pub fn handle() -> &'static Handle {
     GARBAGE_COLLECTOR.handle()
 }
 
+pub fn make_shared_cell<T: Send + 'static>(value: T) -> SharedCell<T> {
+    SharedCell::new(make_shared(value))
+}
+
+pub fn make_shared<T: Send + 'static>(value: T) -> Shared<T> {
+    Shared::new(handle(), value)
+}
+
 #[derive(Debug, Error)]
 pub enum GarbageCollectorError {
     #[error("Failed to acquire lock")]

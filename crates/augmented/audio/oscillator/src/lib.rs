@@ -7,6 +7,7 @@ fn get_phase_step(sample_rate: f32, frequency: f32) -> f32 {
     frequency / sample_rate
 }
 
+#[derive(Clone)]
 pub struct Oscillator<T>
 where
     T: cpal::Sample,

@@ -32,10 +32,10 @@ jobs:
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
-            cargo install uniffi_bindgen
+            cargo install --force --version 0.15.2 uniffi_bindgen
           fi
       - name: Run tests
-        run: cargo test --verbose --workspace --features story --exclude augmented-ui
+        run: cargo test --verbose --workspace --features story --exclude augmented-ui --exclude midir
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -58,12 +58,12 @@ jobs:
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
-            cargo install uniffi_bindgen
+            cargo install --force --version 0.15.2 uniffi_bindgen
           fi
       - name: Run clippy
-        run: cargo clippy --features story --workspace --exclude skribo --exclude augmented-ui
+        run: cargo clippy --features story --workspace --exclude skribo --exclude augmented-ui --exclude midir
       - name: Run check
-        run: cargo check --verbose --workspace --features story --exclude augmented-ui
+        run: cargo check --verbose --workspace --features story --exclude augmented-ui --exclude midir
   build-rust:
     name: Rust - Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -84,9 +84,9 @@ jobs:
           target/
         key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
     - name: Install uniffi bindgen
-      run: cargo install --force uniffi_bindgen
+      run: cargo install --force --version 0.15.2 uniffi_bindgen
     - name: Build release
-      run: cargo build --release --verbose --workspace --exclude augmented-ui
+      run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:

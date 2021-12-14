@@ -51,8 +51,10 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use audio_processor_testing_helpers::assert_f_eq;
     use audio_processor_traits::InterleavedAudioBuffer;
+
+    use super::*;
 
     #[test]
     fn test_stereo_to_mono_processor_sums_channels() {
@@ -64,7 +66,7 @@ mod test {
 
         for sample_index in 0..input.num_samples() {
             let sample = *input.get(0, sample_index);
-            assert_eq!(sample, 1.1);
+            assert_f_eq!(sample, 1.1);
         }
     }
 
@@ -78,7 +80,7 @@ mod test {
 
         for sample_index in 0..input.num_samples() {
             let sample = *input.get(0, sample_index);
-            assert_eq!(sample, 1.0);
+            assert_f_eq!(sample, 1.0);
         }
     }
 

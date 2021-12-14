@@ -5,6 +5,22 @@ pub mod charts;
 mod generators;
 mod util;
 
+#[macro_export]
+macro_rules! assert_f_eq {
+    ($left:expr, $right:expr) => {{
+        match (&$left, &$right) {
+            (left_val, right_val) => {
+                assert!(
+                    ((left_val - right_val).abs() as f32) < f32::EPSILON,
+                    "left: {:?} not equal right: {:?}",
+                    left_val,
+                    right_val
+                );
+            }
+        }
+    }};
+}
+
 /// Test two buffers have equivalent RMS levels
 pub fn test_level_equivalence(
     input_buffer: &[f32],
@@ -22,10 +38,7 @@ pub fn test_level_equivalence(
         let input_level = util::rms_level(input_chunk);
         let output_level = util::rms_level(output_chunk);
         let diff = (input_level - output_level).abs();
-        println!(
-            "  -> Input level: {} Output level: {} Diff: {}",
-            input_level, output_level, diff
-        );
+
         assert!(diff < threshold);
     }
 }

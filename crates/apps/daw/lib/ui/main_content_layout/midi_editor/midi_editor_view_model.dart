@@ -61,7 +61,6 @@ abstract class _MIDIEditorViewModel with Store {
     var newTime = noteModel.time + dx;
 
     // snap to grid
-    // print("$newTime, $step ${(newTime / step).floorToDouble() * step}");
     var gridTime = (newTime / step).floorToDouble() * step;
     if ((newTime - gridTime).abs() < step / 20) {
       newTime = gridTime;

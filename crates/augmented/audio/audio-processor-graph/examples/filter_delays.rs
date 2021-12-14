@@ -21,12 +21,12 @@ fn main() {
                 MonoDelayProcessorHandle::default(),
             ),
         );
-        delay.handle().set_delay_time_secs(5.0 / i);
-        delay.handle().set_feedback(0.5 / (11.0 - i));
+        delay.handle().set_delay_time_secs(2.0 / i);
+        delay.handle().set_feedback(0.2);
         let delay = graph.add_node(Box::new(delay));
 
         let mut low_pass_filter = FilterProcessor::new(FilterType::LowPass);
-        low_pass_filter.set_cutoff(3000.0 / (11.0 - i));
+        low_pass_filter.set_cutoff(1500.0 / i);
         low_pass_filter.set_q(2.0);
         let low_pass_filter = graph.add_node(Box::new(low_pass_filter));
 

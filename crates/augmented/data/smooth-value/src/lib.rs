@@ -127,6 +127,7 @@ impl InterpolatedValue {
 
 #[cfg(test)]
 mod tests {
+    use audio_processor_testing_helpers::assert_f_eq;
     use std::f32::EPSILON;
 
     use super::*;
@@ -135,13 +136,13 @@ mod tests {
     fn test_smoothing_samples() {
         let samples =
             InterpolatedValue::calculate_smoothing_samples(44100.0, Duration::from_secs(1));
-        assert_eq!(samples, 44100.0);
+        assert_f_eq!(samples, 44100.0);
     }
 
     #[test]
     fn test_create_smooth_value() {
         let value = InterpolatedValue::new(44100.0, Duration::from_secs(1), 1234.0);
-        assert_eq!(value.get(), 1234.0);
+        assert_f_eq!(value.get(), 1234.0);
     }
 
     #[test]
@@ -150,7 +151,7 @@ mod tests {
         let duration = Duration::from_secs(1);
         let initial_value = 0.0;
         let mut value = InterpolatedValue::new(sample_rate, duration, initial_value);
-        assert_eq!(value.get(), 0.0);
+        assert_f_eq!(value.get(), 0.0);
 
         // Value starts at 0.0, it'll take 1s (or 44.1k samples) to reach the target
         value.set(100.0);
@@ -174,7 +175,7 @@ mod tests {
         let duration = Duration::from_secs(1);
         let initial_value = 0.0;
         let mut value = InterpolatedValue::new(sample_rate, duration, initial_value);
-        assert_eq!(value.get(), 0.0);
+        assert_f_eq!(value.get(), 0.0);
 
         // Value starts at 0.0, it'll take 1s (or 44.1k samples) to reach the target
         value.set(100.0);
@@ -192,7 +193,7 @@ mod tests {
         let duration = Duration::from_secs(1);
         let initial_value = 0.0;
         let mut value = InterpolatedValue::new(sample_rate, duration, initial_value);
-        assert_eq!(value.get(), 0.0);
+        assert_f_eq!(value.get(), 0.0);
 
         // Value starts at 0.0, it'll take 1s (or 44.1k samples) to reach the target
         value.set(100.0);

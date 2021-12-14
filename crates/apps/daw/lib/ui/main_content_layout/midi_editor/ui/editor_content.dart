@@ -187,6 +187,7 @@ class _MIDIEditorContentViewState extends State<MIDIEditorContentView> {
       Map<String, double> rowPositions) {
     widget.viewModel.onPanEnd(
         viewportWidth: context.size?.width ?? 0, rowPositions: rowPositions);
+    FocusScope.of(context).requestFocus(focusNode);
   }
 
   void onPanCancelBackground() {

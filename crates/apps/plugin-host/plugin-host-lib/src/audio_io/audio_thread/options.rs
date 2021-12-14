@@ -1,6 +1,6 @@
 use std::fmt::Formatter;
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum AudioHostId {
     Default,
     Id(String),
@@ -21,7 +21,7 @@ impl Default for AudioHostId {
     }
 }
 
-#[derive(PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub enum AudioDeviceId {
     Default,
     Id(String),
@@ -42,7 +42,7 @@ impl Default for AudioDeviceId {
     }
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum BufferSize {
     Default,
     Fixed(usize),
@@ -63,7 +63,7 @@ impl From<BufferSize> for cpal::BufferSize {
     }
 }
 
-#[derive(PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct AudioThreadOptions {
     pub host_id: AudioHostId,
     pub output_device_id: AudioDeviceId,

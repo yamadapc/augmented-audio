@@ -47,6 +47,7 @@ where
 
 #[cfg(test)]
 mod test {
+    use audio_processor_testing_helpers::assert_f_eq;
     use audio_processor_traits::AudioProcessor;
     use audio_processor_traits::InterleavedAudioBuffer;
 
@@ -61,7 +62,7 @@ mod test {
         gain.process(&mut input);
 
         for sample in samples {
-            assert_eq!(sample, 0.8);
+            assert_f_eq!(sample, 0.8);
         }
     }
 
@@ -75,7 +76,7 @@ mod test {
         gain.process(&mut input);
 
         for sample in samples {
-            assert_eq!(sample, 0.8);
+            assert_f_eq!(sample, 0.8);
         }
     }
 }
