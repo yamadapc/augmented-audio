@@ -1,7 +1,7 @@
+extern crate augmented_oscillator;
 extern crate crossbeam;
 extern crate log;
 extern crate log4rs;
-extern crate oscillator;
 extern crate proc_macro;
 extern crate serde;
 extern crate tungstenite;
