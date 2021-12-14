@@ -31,6 +31,7 @@ abstract class _SidebarState with Store, Entity {
 
   _SidebarState({required this.id, PanelState? panelState}) {
     this.panelState = panelState ?? PanelState(id + "/PanelState");
+    this.panelState.isExpanded = false;
   }
 }
 
