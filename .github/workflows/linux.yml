@@ -45,6 +45,7 @@ jobs:
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude basedrop \
+              --exclude midir \
               --exclude gfx \
               --exclude iced \
               --exclude iced-baseview \
@@ -72,6 +73,7 @@ jobs:
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude basedrop \
+              --exclude midir \
               --exclude gfx \
               --exclude iced \
               --exclude iced-baseview \
