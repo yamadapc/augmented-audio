@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -8,7 +8,7 @@ use flutter_rust_bridge::StreamSink;
 
 use audio_garbage_collector::Shared;
 use audio_processor_graph::{NodeIndex, NodeType};
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+
 use audio_thread::actor::AudioThreadMessage;
 use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_graph;
@@ -188,16 +188,16 @@ pub fn audio_node_create(audio_processor_name: String) -> Result<u32> {
 }
 
 pub fn audio_node_set_parameter(
-    audio_node_id: i32,
-    parameter_name: String,
-    parameter_value: f32,
+    _audio_node_id: i32,
+    _parameter_name: String,
+    _parameter_value: f32,
 ) -> Result<i32> {
     todo!()
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    
 
     // #[test]
     // fn test_create_graph() {
