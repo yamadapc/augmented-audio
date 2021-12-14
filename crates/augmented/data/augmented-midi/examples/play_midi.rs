@@ -26,7 +26,7 @@ fn main() {
     for port in &output.ports() {
         let output = MidiOutput::new("augmented-midi").unwrap();
         log::info!("MIDI output: {:?}", output.port_name(port));
-        let connection = output.connect(port, "main-port").unwrap();
+        let connection = output.connect(port, "default").unwrap();
         connections.push(connection);
     }
 
@@ -39,11 +39,10 @@ fn main() {
             _ => None,
         })
         .flatten()
-        .sorted_by_key(|event| event.delta_time)
         .collect();
 
     loop {
-        log::info!("Starting playback");
+        log::debug!("Starting playback");
         let midi_block: Vec<(u32, MIDIBytes)> = track_events
             .iter()
             .filter_map(|event| match event.inner {
@@ -54,7 +53,7 @@ fn main() {
                 })) => Some((
                     event.delta_time,
                     MIDIBytes {
-                        bytes: vec![(0x9 << 4) + 1, note, velocity],
+                        bytes: vec![0x90, note, velocity],
                     },
                 )),
                 MIDITrackInner::Message(MIDIMessage::NoteOff(MIDIMessageNote {
@@ -64,7 +63,7 @@ fn main() {
                 })) => Some((
                     event.delta_time,
                     MIDIBytes {
-                        bytes: vec![(0x8 << 4) + 1, note, velocity],
+                        bytes: vec![0x80, note, velocity],
                     },
                 )),
                 _ => None,
@@ -73,23 +72,21 @@ fn main() {
 
         let beats_per_second = 120.0 / 60.0;
         for (delta_time, message) in midi_block {
-            let delta_time_beats = (ticks_per_beat as f32) * (delta_time as f32);
+            let delta_time_beats = (delta_time as f32) / (ticks_per_beat as f32);
             let delta_time_secs = (1.0 / beats_per_second) * delta_time_beats;
 
             log::info!(
-                "Sleeping for delta_time={} delta_time_secs={}s",
+                "Sleeping for message={:?} seconds_per_beat={} delta_time_ticks={} delta_time_beats={} delta_time_secs={}s",
+                message,
+                1.0 / beats_per_second,
                 delta_time,
+                delta_time_beats,
                 delta_time_secs
             );
-            std::thread::sleep(Duration::from_secs(delta_time_secs as u64));
+            std::thread::sleep(Duration::from_millis((delta_time_secs * 1000.0) as u64));
 
             for connection in &mut connections {
                 // let message = [0x90, 70, 80];
-                log::info!(
-                    "Flushing message message={:?} delta={}",
-                    message,
-                    delta_time_secs
-                );
                 connection.send(&message.bytes).unwrap();
             }
         }
