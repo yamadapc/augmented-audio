@@ -26,7 +26,7 @@ sudo apt-get install --fix-missing -y \
     libgtk-3-dev
 
 if ! [ -x "$(command -v uniffi-bindgen)" ]; then
-  cargo install uniffi_bindgen@0.15.2
+  cargo install --version 0.15.2 uniffi_bindgen
 fi
 
 if ! [ -x "$(command -v cargo-tarpaulin)" ]; then
