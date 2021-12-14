@@ -11,7 +11,7 @@ macro_rules! assert_f_eq {
         match (&$left, &$right) {
             (left_val, right_val) => {
                 assert!(
-                    (left_val - right_val).abs() as f32 < f32::EPSILON,
+                    ((left_val - right_val).abs() as f32) < f32::EPSILON,
                     "left: {:?} not equal right: {:?}",
                     left_val,
                     right_val
