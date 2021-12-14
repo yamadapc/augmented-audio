@@ -119,6 +119,17 @@ impl MidiMessageLike for MIDIBytes {
     }
 }
 
+fn convert_to_absolute_time(
+    mut events: Vec<MIDITrackEvent<Vec<u8>>>,
+) -> Vec<MIDITrackEvent<Vec<u8>>> {
+    let mut current_time = 0;
+    for event in &mut events {
+        current_time += event.delta_time;
+        event.delta_time = current_time;
+    }
+    events
+}
+
 fn build_midi_input_blocks(
     settings: &AudioProcessorSettings,
     total_blocks: usize,
@@ -130,7 +141,10 @@ fn build_midi_input_blocks(
     let track_events: Vec<MIDITrackEvent<Vec<u8>>> = chunks
         .into_iter()
         .filter_map(|chunk| match chunk {
-            MIDIFileChunk::Track { events } => Some(events),
+            MIDIFileChunk::Track { events } => {
+                let events = convert_to_absolute_time(events);
+                Some(events)
+            }
             _ => None,
         })
         .flatten()
@@ -177,10 +191,10 @@ fn build_midi_input_blocks(
             })
             .filter_map(|event| match event {
                 MIDIMessage::NoteOn(MIDIMessageNote { velocity, note, .. }) => Some(MIDIBytes {
-                    bytes: vec![0x9 << 4, *note, *velocity],
+                    bytes: vec![0x90, *note, *velocity],
                 }),
                 MIDIMessage::NoteOff(MIDIMessageNote { velocity, note, .. }) => Some(MIDIBytes {
-                    bytes: vec![0x8 << 4, *note, *velocity],
+                    bytes: vec![0x80, *note, *velocity],
                 }),
                 _ => None,
             })
@@ -278,7 +292,7 @@ mod test {
                         })),
                     },
                     MIDITrackEvent {
-                        // 2 quarter note offset (2 / 120 secs in)
+                        // 2 quarter note offset (1 secs in)
                         delta_time: 2,
                         inner: MIDITrackInner::Message(MIDIMessage::NoteOff(MIDIMessageNote {
                             channel: 1,
@@ -294,17 +308,17 @@ mod test {
         // 1000.0 samples a sec
         // 50.0 50ms per block
         let settings = AudioProcessorSettings::new(1000.0, 1, 1, 50);
-        let result = build_midi_input_blocks(&settings, 20, midi_file);
-        assert_eq!(result.len(), 20);
+        let result = build_midi_input_blocks(&settings, 21, midi_file);
+        assert_eq!(result.len(), 21);
         assert_eq!(
             result[0].len(),
             1,
             "Expected 1st block to have note-on event"
         );
-        // TODO this is a failing test
-        // assert_eq!(result[1].len(), 1);
-        // assert_eq!(result[2].len(), 0);
-        // assert_eq!(result[3].len(), 0);
+        for i in 1..19 {
+            assert!(result[i].is_empty());
+        }
+        assert_eq!(result[20].len(), 1);
     }
 
     #[test]

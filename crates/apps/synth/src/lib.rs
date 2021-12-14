@@ -11,7 +11,7 @@ mod voice;
 
 pub struct Synthesizer {
     current_voice: usize,
-    voices: [Voice; 4],
+    voices: [Voice; 8],
     filter: FilterProcessor<f32>,
 }
 
@@ -27,6 +27,10 @@ impl Synthesizer {
         Synthesizer {
             current_voice: 0,
             voices: [
+                Voice::new(sample_rate),
+                Voice::new(sample_rate),
+                Voice::new(sample_rate),
+                Voice::new(sample_rate),
                 Voice::new(sample_rate),
                 Voice::new(sample_rate),
                 Voice::new(sample_rate),
