@@ -45,4 +45,11 @@ For example, the slice could look like `[left_sample0, right_sample0, left_sampl
 or it could look like `[left_sample0, left_sample1, ..., right_sample0, right_sample1, ...]`. Or there could be no
 single slice and instead multiple slices making an audio buffer a collection of pointers to each channel's slice.
 
-**Sample type** 
+**Sample type**: Samples may be in different formats, for example they could be `f32` or `f64` or they could be
+integers.
+
+**Sample rate / context**: Often an audio processor needs to know the sample rate or other context information to
+operate.
+
+Audio related information might include sampling rate and nº of channels. Context might include the play-head position
+of a track or the current tempo in BPM.
