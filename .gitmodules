@@ -30,4 +30,4 @@
 	url = git@github.com:yamadapc/skribo
 [submodule "crates/augmented/data/augmented-midi/midir"]
 	path = crates/augmented/data/augmented-midi/midir
-	url = https://github.com/Boddlnagg/midir/
+	url = https://github.com/yamadapc/midir/
