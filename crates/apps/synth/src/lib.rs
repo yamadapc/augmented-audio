@@ -5,14 +5,13 @@ use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
-use itertools::Itertools;
 use voice::Voice;
 
 mod voice;
 
 pub struct Synthesizer {
     current_voice: usize,
-    voices: [Voice; 8],
+    voices: [Voice; 4],
     filter: FilterProcessor<f32>,
 }
 
@@ -28,10 +27,6 @@ impl Synthesizer {
         Synthesizer {
             current_voice: 0,
             voices: [
-                Voice::new(sample_rate),
-                Voice::new(sample_rate),
-                Voice::new(sample_rate),
-                Voice::new(sample_rate),
                 Voice::new(sample_rate),
                 Voice::new(sample_rate),
                 Voice::new(sample_rate),
@@ -88,9 +83,11 @@ impl Synthesizer {
     fn handle_midi_message(&mut self, status: rimd::Status, bytes: &[u8]) {
         match status {
             Status::NoteOn => {
+                println!("Note on {}/{}", bytes[1], bytes[2]);
                 self.note(false, bytes);
             }
             Status::NoteOff => {
+                // println!("Note off {}", bytes[1]);
                 self.note(true, bytes);
             }
             Status::ControlChange => {
@@ -109,25 +106,22 @@ impl Synthesizer {
         let note = bytes[1];
         let velocity = bytes[2];
         if velocity == 0 || is_off {
-            let voice = self.voices.iter_mut().find_position(|voice| {
+            let voice = self.voices.iter_mut().find(|voice| {
                 voice.current_note().is_some() && voice.current_note().unwrap() == note
             });
-            if let Some((index, voice)) = voice {
+            if let Some(voice) = voice {
                 voice.note_off();
-                self.voices[index + 1].note_off();
             }
         } else {
             let voice = self
                 .voices
                 .iter_mut()
-                .find_position(|voice| voice.current_note().is_none());
-            if let Some((index, voice)) = voice {
-                voice.note_on(note, velocity, 1.0);
-                self.voices[index + 1].note_on(note, velocity, 1.005);
+                .find(|voice| voice.current_note().is_none());
+            if let Some(voice) = voice {
+                voice.note_on(note, velocity);
             } else {
-                self.current_voice = (self.current_voice + 1) % 4;
-                self.voices[self.current_voice].note_on(note, velocity, 1.0);
-                self.voices[self.current_voice + 1].note_on(note, velocity, 1.005);
+                self.current_voice = (self.current_voice + 1) % self.voices.len();
+                self.voices[self.current_voice].note_on(note, velocity);
             }
         }
     }

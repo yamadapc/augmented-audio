@@ -6022,7 +6022,6 @@ dependencies = [
  "audio-processor-standalone",
  "audio-processor-traits",
  "augmented-dsp-filters",
- "itertools 0.10.1",
  "log",
  "num 0.4.0",
  "oscillator",
