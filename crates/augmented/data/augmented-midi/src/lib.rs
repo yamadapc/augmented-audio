@@ -15,9 +15,9 @@ use nom::{
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
 pub struct MIDIMessageNote {
-    channel: u8,
-    note: u8,
-    velocity: u8,
+    pub channel: u8,
+    pub note: u8,
+    pub velocity: u8,
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]

@@ -3,7 +3,9 @@ use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
-use augmented_midi::{MIDIFile, MIDIFileChunk, MIDIMessage, MIDITrackEvent, MIDITrackInner};
+use augmented_midi::{
+    MIDIFile, MIDIFileChunk, MIDIMessage, MIDIMessageNote, MIDITrackEvent, MIDITrackInner,
+};
 use itertools::Itertools;
 
 use crate::StandaloneProcessor;
@@ -148,16 +150,14 @@ fn build_midi_input_blocks(
             i,
         );
 
-        // println!(
-        //     "{} - ticks_per_beat={} - secs={} - beats={} - ticks={} input_len={} dt={}",
-        //     i,
-        //     ticks_per_quarter_note,
-        //     delta_time_secs,
-        //     delta_time_beats,
-        //     delta_time_ticks,
-        //     track_events.len(),
-        //     track_events[track_events_position].delta_time
-        // );
+        log::debug!(
+            "Block - {} - ticks_per_beat={} - ticks={} input_len={} dt={}",
+            i,
+            ticks_per_quarter_note,
+            delta_time_ticks,
+            track_events.len(),
+            track_events[track_events_position].delta_time
+        );
 
         let midi_track_events: Vec<&MIDITrackEvent<Vec<u8>>> = track_events
             .iter()
@@ -168,28 +168,21 @@ fn build_midi_input_blocks(
         let midi_block: Vec<MIDIBytes> = midi_track_events
             .iter()
             .filter_map(|event| {
-                // println!("{:?}", event);
-
-                match event.inner {
-                    MIDITrackInner::Message(MIDIMessage::NoteOn {
-                        channel,
-                        velocity,
-                        note,
-                    }) => {
-                        log::info!("Found note-on delta_time={}", event.delta_time);
-                        Some(MIDIBytes {
-                            bytes: vec![0x9 << 4, note, velocity],
-                        })
-                    }
-                    MIDITrackInner::Message(MIDIMessage::NoteOff {
-                        channel,
-                        velocity,
-                        note,
-                    }) => Some(MIDIBytes {
-                        bytes: vec![0x8 << 4, note, velocity],
-                    }),
-                    _ => None,
+                log::debug!("Filtering MIDI event {:?}", event);
+                if let MIDITrackInner::Message(inner) = &event.inner {
+                    Some(inner)
+                } else {
+                    None
                 }
+            })
+            .filter_map(|event| match event {
+                MIDIMessage::NoteOn(MIDIMessageNote { velocity, note, .. }) => Some(MIDIBytes {
+                    bytes: vec![0x9 << 4, *note, *velocity],
+                }),
+                MIDIMessage::NoteOff(MIDIMessageNote { velocity, note, .. }) => Some(MIDIBytes {
+                    bytes: vec![0x8 << 4, *note, *velocity],
+                }),
+                _ => None,
             })
             .collect();
 
@@ -212,9 +205,6 @@ fn get_delta_time_ticks(
     let beats_per_second = tempo / 60.0;
     let delta_time_beats = delta_time_secs * beats_per_second;
     let delta_time_ticks = ticks_per_quarter_note * delta_time_beats;
-
-    // println!("delta_time_secs={}", delta_time_secs);
-    // println!("delta_time_secs={}", delta_time_secs);
 
     delta_time_ticks
 }
