@@ -48,11 +48,11 @@ pub enum MIDIMessage<Buffer: Borrow<[u8]>> {
         channel: u8,
         value: u16,
     },
-    ChannelModeMessage {
-        channel: u8,
-        controller_number: u8,
-        value: u8,
-    },
+    // ChannelModeMessage {
+    //     channel: u8,
+    //     controller_number: u8,
+    //     value: u8,
+    // },
     SysExMessage(MIDISysExEvent<Buffer>),
     SongPositionPointer {
         beats: u16,
@@ -287,6 +287,7 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
             },
         ))
     } else if status_start == 0b1011_0000 {
+        // TODO - Detect channel mode change?
         let channel = parse_channel(status);
         let (input, controller_number) = be_u8(input)?;
         let (input, value) = be_u8(input)?;
@@ -316,18 +317,6 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         let channel = parse_channel(status);
         let (input, value) = parse_14bit_midi_number(input)?;
         Ok((input, MIDIMessage::PitchWheelChange { channel, value }))
-    } else if status_start == 0b1011_0000 {
-        let channel = parse_channel(status);
-        let (input, controller_number) = be_u8(input)?;
-        let (input, value) = be_u8(input)?;
-        Ok((
-            input,
-            MIDIMessage::ChannelModeMessage {
-                channel,
-                controller_number,
-                value,
-            },
-        ))
     } else if status == 0b1111_0000 {
         let (input, sysex_message) = take_till(|b| b == 0b11110111)(input)?;
         let (input, extra) = take(1u8)(input)?;
