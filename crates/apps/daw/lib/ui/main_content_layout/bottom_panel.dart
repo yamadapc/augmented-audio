@@ -44,14 +44,14 @@ class BottomPanel extends StatelessWidget {
               child: PanelTabsView(
                   panelTabsState: detailsPanelState.panelTabsState,
                   tabs: [
-                    ConcretePanelTab(0, "FX", const TrackEffectsView()),
                     ConcretePanelTab(
-                        1,
+                        0,
                         "MIDI Editor",
                         MIDIEditorView(
                             model: MIDIEditorViewModel(
                                 midiClipModel:
                                     detailsPanelState.midiClipModel))),
+                    ConcretePanelTab(1, "FX", const TrackEffectsView()),
                   ]),
             )
           ],
