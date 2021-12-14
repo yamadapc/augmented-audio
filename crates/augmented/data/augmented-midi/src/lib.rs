@@ -225,7 +225,7 @@ pub fn parse_variable_length_num(input: Input) -> Result<u32> {
     let (input, extra_part) = take(1u8)(input)?;
 
     let mut i = parts.len() + 1;
-    for part in parts.into_iter().chain(extra_part.into_iter()) {
+    for part in parts.iter().chain(extra_part.iter()) {
         i -= 1;
         let part = (part << 1) >> 1;
         let part32 = part as u32;
@@ -320,7 +320,7 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
     } else if status == 0b1111_0000 {
         let (input, sysex_message) = take_till(|b| b == 0b11110111)(input)?;
         let (input, extra) = take(1u8)(input)?;
-        assert!(extra.len() == 0 && extra[0] == 0b11110111);
+        assert!(extra.is_empty() && extra[0] == 0b11110111);
         Ok((
             input,
             MIDIMessage::SysExMessage(MIDISysExEvent {

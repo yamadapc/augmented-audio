@@ -26,7 +26,7 @@ fn main() {
     for port in &output.ports() {
         let output = MidiOutput::new("augmented-midi").unwrap();
         log::info!("MIDI output: {:?}", output.port_name(port));
-        let connection = output.connect(&port, "main-port").unwrap();
+        let connection = output.connect(port, "main-port").unwrap();
         connections.push(connection);
     }
 
