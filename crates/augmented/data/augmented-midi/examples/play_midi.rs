@@ -2,7 +2,7 @@ use std::time::Duration;
 
 use midir::MidiOutput;
 
-use augmented_midi::{MIDIFileChunk, MIDIMessage, MIDITrackEvent, MIDITrackInner};
+use augmented_midi::{MIDIFileChunk, MIDIMessage, MIDIMessageNote, MIDITrackEvent, MIDITrackInner};
 use itertools::Itertools;
 
 #[derive(Debug)]
@@ -47,13 +47,21 @@ fn main() {
         let midi_block: Vec<(u32, MIDIBytes)> = track_events
             .iter()
             .filter_map(|event| match event.inner {
-                MIDITrackInner::Message(MIDIMessage::NoteOn { velocity, note, .. }) => Some((
+                MIDITrackInner::Message(MIDIMessage::NoteOn(MIDIMessageNote {
+                    velocity,
+                    note,
+                    ..
+                })) => Some((
                     event.delta_time,
                     MIDIBytes {
                         bytes: vec![(0x9 << 4) + 1, note, velocity],
                     },
                 )),
-                MIDITrackInner::Message(MIDIMessage::NoteOff { velocity, note, .. }) => Some((
+                MIDITrackInner::Message(MIDIMessage::NoteOff(MIDIMessageNote {
+                    velocity,
+                    note,
+                    ..
+                })) => Some((
                     event.delta_time,
                     MIDIBytes {
                         bytes: vec![(0x8 << 4) + 1, note, velocity],
