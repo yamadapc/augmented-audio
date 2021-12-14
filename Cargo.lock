@@ -4744,6 +4744,7 @@ dependencies = [
  "audio-garbage-collector",
  "audio-processor-iced-design-system",
  "audio-processor-iced-storybook",
+ "audio-processor-testing-helpers",
  "audio-processor-traits",
  "audio-volume",
  "augmented",

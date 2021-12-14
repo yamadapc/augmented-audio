@@ -458,20 +458,22 @@ pub mod story {
 
 #[cfg(test)]
 mod test {
+    use audio_processor_testing_helpers::assert_f_eq;
+
     use super::*;
 
     #[test]
     fn test_interpolate() {
-        assert_eq!(interpolate(1., (0., 1.), (0., 2.)), 2.);
+        assert_f_eq!(interpolate(1., (0., 1.), (0., 2.)), 2.);
     }
 
     #[test]
     fn test_interpolate_negative_range() {
-        assert_eq!(interpolate(0., (-1., 1.), (0., 2.)), 1.);
+        assert_f_eq!(interpolate(0., (-1., 1.), (0., 2.)), 1.);
     }
 
     #[test]
     fn test_interpolate_reversed_range() {
-        assert_eq!(interpolate(0., (-1., 1.), (2., 0.)), 1.);
+        assert_f_eq!(interpolate(0., (-1., 1.), (2., 0.)), 1.);
     }
 }
