@@ -38,6 +38,10 @@ However, there are a number of concerns that aren't handled above:
 **Processor State**: Audio processing logic will want to maintain state, for example, values of parameters being changed
 through a UI or a longer buffer containing previous samples.
 
+On the case there's a UI, the state shared between the audio thread and the UI thread needs to be synchronized somehow
+and since our processing callback needs to run in hard real-time, there needs to be a lot of care onto how this is
+managed (using atomics on simple cases, but a more involved setup for a lot of things).
+
 **Sample buffer layout**: Audio is often multi-channel (2 channels or more) and different audio APIs expect/provide
 audio with different layouts.
 
