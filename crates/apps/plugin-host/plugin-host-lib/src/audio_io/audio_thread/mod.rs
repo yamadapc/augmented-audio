@@ -2,7 +2,6 @@ use basedrop::{Handle, Shared, SharedCell};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 use ringbuf::Consumer;
-use std::ops::Deref;
 
 use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
@@ -307,8 +306,6 @@ pub mod actor {
     };
 
     use audio_processor_standalone_midi::host::{GetQueueMessage, MidiHost};
-
-    use crate::actor_system::ActorSystemThread;
 
     use super::*;
 

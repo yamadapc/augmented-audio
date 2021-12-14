@@ -244,7 +244,7 @@ where
 
         // Push inputs in
         let mut outputs = dag.children(self.input_node);
-        while let Some((connection_id, _)) = outputs.walk_next(&dag) {
+        while let Some((connection_id, _)) = outputs.walk_next(dag) {
             if let Some(buffer_ref) = dag
                 .edge_weight(connection_id)
                 .and(buffers.get(&connection_id))
@@ -301,7 +301,7 @@ where
             }
 
             let mut outputs = dag.children(node_index);
-            while let Some((connection_id, _)) = outputs.walk_next(&dag) {
+            while let Some((connection_id, _)) = outputs.walk_next(dag) {
                 if let Some(buffer_ref) = dag
                     .edge_weight(connection_id)
                     .and(buffers.get(&connection_id))

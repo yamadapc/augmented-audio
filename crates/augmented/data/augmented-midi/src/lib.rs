@@ -122,9 +122,9 @@ pub enum MIDIFileDivision {
 
 #[derive(Debug)]
 pub struct MIDIFileHeader {
-    format: MIDIFileFormat,
-    num_tracks: u16,
-    division: MIDIFileDivision,
+    pub format: MIDIFileFormat,
+    pub num_tracks: u16,
+    pub division: MIDIFileDivision,
 }
 
 #[derive(Debug)]

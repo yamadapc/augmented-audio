@@ -92,7 +92,7 @@ where
         if let Some(midi) = app.midi() {
             if let Some(midi_input_blocks) = &midi_input_blocks {
                 let midi_block = &midi_input_blocks[block_num];
-                if midi_block.len() > 0 {
+                if !midi_block.is_empty() {
                     log::debug!("Forwarding events {:?}", midi_block);
                     midi.process_midi_events(midi_block);
                 }
@@ -204,16 +204,16 @@ fn get_delta_time_ticks(
     let delta_time_secs = (i as f32) * time_per_block;
     let beats_per_second = tempo / 60.0;
     let delta_time_beats = delta_time_secs * beats_per_second;
-    let delta_time_ticks = ticks_per_quarter_note * delta_time_beats;
 
-    delta_time_ticks
+    ticks_per_quarter_note * delta_time_beats
 }
 
 #[cfg(test)]
 mod test {
     use audio_processor_traits::AudioProcessorSettings;
     use augmented_midi::{
-        MIDIFile, MIDIFileChunk, MIDIFileDivision, MIDIFileFormat, MIDITrackEvent, MIDITrackInner,
+        MIDIFile, MIDIFileChunk, MIDIFileDivision, MIDIFileFormat, MIDIFileHeader, MIDITrackEvent,
+        MIDITrackInner,
     };
 
     use super::*;
@@ -221,30 +221,30 @@ mod test {
     #[test]
     fn test_build_midi_input_blocks_with_no_blocks() {
         let chunks = vec![
-            MIDIFileChunk::Header {
+            MIDIFileChunk::Header(MIDIFileHeader {
                 format: MIDIFileFormat::Single,
                 num_tracks: 1,
                 division: MIDIFileDivision::TicksPerQuarterNote {
                     ticks_per_quarter_note: 10,
                 },
-            },
+            }),
             MIDIFileChunk::Track {
                 events: vec![
                     MIDITrackEvent {
                         delta_time: 0,
-                        inner: MIDITrackInner::Message(MIDIMessage::NoteOn {
+                        inner: MIDITrackInner::Message(MIDIMessage::NoteOn(MIDIMessageNote {
                             channel: 1,
                             note: 120,
                             velocity: 120,
-                        }),
+                        })),
                     },
                     MIDITrackEvent {
                         delta_time: 40,
-                        inner: MIDITrackInner::Message(MIDIMessage::NoteOn {
+                        inner: MIDITrackInner::Message(MIDIMessage::NoteOn(MIDIMessageNote {
                             channel: 1,
                             note: 120,
                             velocity: 120,
-                        }),
+                        })),
                     },
                 ],
             },
@@ -259,32 +259,32 @@ mod test {
     #[test]
     fn test_build_midi_input_blocks() {
         let chunks = vec![
-            MIDIFileChunk::Header {
+            MIDIFileChunk::Header(MIDIFileHeader {
                 format: MIDIFileFormat::Single,
                 num_tracks: 1,
                 division: MIDIFileDivision::TicksPerQuarterNote {
                     ticks_per_quarter_note: 1,
                 },
-            },
+            }),
             MIDIFileChunk::Track {
                 events: vec![
                     MIDITrackEvent {
                         // 0
                         delta_time: 0,
-                        inner: MIDITrackInner::Message(MIDIMessage::NoteOn {
+                        inner: MIDITrackInner::Message(MIDIMessage::NoteOn(MIDIMessageNote {
                             channel: 1,
                             note: 120,
                             velocity: 120,
-                        }),
+                        })),
                     },
                     MIDITrackEvent {
                         // 2 quarter note offset (2 / 120 secs in)
                         delta_time: 2,
-                        inner: MIDITrackInner::Message(MIDIMessage::NoteOff {
+                        inner: MIDITrackInner::Message(MIDIMessage::NoteOff(MIDIMessageNote {
                             channel: 1,
                             note: 120,
                             velocity: 120,
-                        }),
+                        })),
                     },
                 ],
             },
