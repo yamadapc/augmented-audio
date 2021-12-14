@@ -26,10 +26,10 @@ impl Voice {
         &self.current_note
     }
 
-    pub fn note_on(&mut self, note: u8, _velocity: u8) {
+    pub fn note_on(&mut self, note: u8, _velocity: u8, offset: f32) {
         self.current_note = Some(note);
         self.oscillator
-            .set_frequency(pitch_calc::hz_from_step(note as f32));
+            .set_frequency(pitch_calc::hz_from_step(note as f32) * offset);
         self.envelope.note_on();
     }
 
