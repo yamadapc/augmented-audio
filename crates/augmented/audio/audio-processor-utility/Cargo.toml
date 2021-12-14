@@ -5,3 +5,6 @@ edition = "2018"
 
 [dependencies]
 audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }

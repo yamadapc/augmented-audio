@@ -57,6 +57,7 @@ where
 
 #[cfg(test)]
 mod test {
+    use audio_processor_testing_helpers::assert_f_eq;
     use audio_processor_traits::InterleavedAudioBuffer;
 
     use super::*;
@@ -72,7 +73,7 @@ mod test {
         for sample_index in 0..input.num_samples() {
             for channel_index in 0..input.num_channels() {
                 let sample = *input.get(channel_index, sample_index);
-                assert_eq!(sample, 0.1);
+                assert_f_eq!(sample, 0.1);
             }
         }
     }
@@ -89,7 +90,7 @@ mod test {
         for sample_index in 0..input.num_samples() {
             for channel_index in 0..input.num_channels() {
                 let sample = *input.get(channel_index, sample_index);
-                assert_eq!(sample, 1.);
+                assert_f_eq!(sample, 1.);
             }
         }
     }

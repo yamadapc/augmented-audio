@@ -258,9 +258,9 @@ mod test {
     #[test]
     fn test_get_and_set_value() {
         let parameter = PluginParameter::builder().initial_value(20.0).build();
-        assert_eq!(parameter.value(), 20.0);
+        assert_f_eq!(parameter.value(), 20.0);
         parameter.set_value(30.0);
-        assert_eq!(parameter.value(), 30.0);
+        assert_f_eq!(parameter.value(), 30.0);
     }
 
     #[test]

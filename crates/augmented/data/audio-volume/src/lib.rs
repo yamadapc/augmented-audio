@@ -158,17 +158,18 @@ pub fn amplitude_to_db(volume: Float, reference_amplitude: Float) -> Float {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use audio_processor_testing_helpers::assert_f_eq;
 
     #[test]
     fn it_can_be_created() {
         let volume = Amplitude::from_amplitude(1.0);
-        assert_eq!(volume.as_amplitude(), 1.0);
+        assert_f_eq!(volume.as_amplitude(), 1.0);
     }
 
     #[test]
     fn it_can_be_converted_to_db() {
         let volume = Amplitude::from_amplitude(1.0);
         let db = volume.decibels(1.0);
-        assert_eq!(db.as_db(), 0.0);
+        assert_f_eq!(db.as_db(), 0.0);
     }
 }

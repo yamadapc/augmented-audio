@@ -500,6 +500,7 @@ dependencies = [
 name = "audio-processor-utility"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-testing-helpers",
  "audio-processor-traits",
 ]
 
