@@ -8,8 +8,8 @@ crate-type = ["staticlib"]
 
 [dependencies]
 # FFI
-uniffi = "0.15.1"
-uniffi_macros = "0.15.1"
+uniffi = "0.15.2"
+uniffi_macros = "0.15.2"
 anyhow = "=1.0.45" # https://github.com/mozilla/uniffi-rs/issues/1109
 
 # macOS
@@ -26,6 +26,6 @@ augmented = { path = "../../augmented/augmented" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 
 [build-dependencies]
-uniffi_build = "0.15.1"
-uniffi_bindgen = "0.15.1"
+uniffi_build = "0.15.2"
+uniffi_bindgen = "0.15.2"
 cbindgen = "0.20.0"
