@@ -39,7 +39,9 @@ jobs:
           cargo tarpaulin --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
-              --exclude-files "./crates/vendor/*" \
+              --exclude-files "*crates/vendor/*" \
+              --exclude-files "*crates/spikes/*" \
+              --exclude-files "*crates/scripts/*" \
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude basedrop \
