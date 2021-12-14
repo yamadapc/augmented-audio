@@ -1,6 +1,6 @@
+use augmented_oscillator::generators::{saw_generator, square_generator};
+use augmented_oscillator::Oscillator;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use oscillator::generators::{saw_generator, square_generator};
-use oscillator::Oscillator;
 
 fn sine_osc(oscillator: &mut Oscillator<f32>, output_buffer: &mut [f32]) {
     for i in output_buffer {

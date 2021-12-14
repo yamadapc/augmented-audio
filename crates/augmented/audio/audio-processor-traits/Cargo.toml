@@ -18,7 +18,7 @@ vst = { version = "^0.2", path = "../../../vendor/vst", optional = true }
 
 [dev-dependencies]
 criterion = "^0.3.4"
-oscillator = { path = "../oscillator" }
+augmented_oscillator = { path = "../oscillator" }
 
 [[bench]]
 name = "audio_processor_traits_criterion"

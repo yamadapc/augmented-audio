@@ -7,7 +7,7 @@ fn run_fill(frame: &mut Frame, path: &Path) {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let mut oscillator = oscillator::Oscillator::sine(44100.0);
+    let mut oscillator = augmented_oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
     let mut output_buffer = Vec::new();
     output_buffer.resize(40000, 0.0);

@@ -1,5 +1,5 @@
-use oscillator::generators::sine_generator;
-use oscillator::Oscillator;
+use augmented_oscillator::generators::sine_generator;
+use augmented_oscillator::Oscillator;
 use std::time::Duration;
 
 /// Create a sine wave buffer with this duration

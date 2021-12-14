@@ -4,10 +4,10 @@ use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, Float, NoopAudioProcessor,
 };
+use augmented_oscillator::Oscillator;
 use concread::hashmap::HashMap;
 use daggy::Walker;
 use num_traits::Zero;
-use oscillator::Oscillator;
 use std::cell::UnsafeCell;
 use std::ops::Deref;
 use thiserror::Error;
@@ -359,7 +359,7 @@ mod test {
     use audio_processor_traits::audio_buffer::VecAudioBuffer;
     use audio_processor_utility::gain::GainProcessor;
     use audio_processor_utility::pan::PanProcessor;
-    use oscillator::Oscillator;
+    use augmented_oscillator::Oscillator;
     use std::time::Duration;
 
     use super::*;

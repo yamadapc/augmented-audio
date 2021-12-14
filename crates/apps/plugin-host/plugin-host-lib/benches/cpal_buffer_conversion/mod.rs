@@ -6,7 +6,7 @@ use plugin_host_lib::processors::test_host_processor::flush_vst_output;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("CpalVstBufferHandler");
-    let mut oscillator = oscillator::Oscillator::sine(44100.0);
+    let mut oscillator = augmented_oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
     let mut output_buffer = VecAudioBuffer::new();
     output_buffer.resize(2, 512, 0.0);

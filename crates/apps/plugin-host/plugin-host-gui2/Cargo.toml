@@ -42,7 +42,7 @@ wisual-logger = { path = "../../../augmented/ops/wisual-logger" }
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
-oscillator = { path = "../../../augmented/audio/oscillator" }
+augmented_oscillator = { path = "../../../augmented/audio/oscillator" }
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }
 
 [target.'cfg(target_os = "macos")'.dependencies]

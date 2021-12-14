@@ -1,6 +1,6 @@
 use adsr_envelope::Envelope;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
-use oscillator::Oscillator;
+use augmented_oscillator::Oscillator;
 
 pub struct Voice {
     oscillators: [Oscillator<f32>; 3],
@@ -15,15 +15,15 @@ impl Voice {
             oscillators: [
                 Oscillator::new_with_sample_rate(
                     sample_rate,
-                    oscillator::generators::square_generator,
+                    augmented_oscillator::generators::square_generator,
                 ),
                 Oscillator::new_with_sample_rate(
                     sample_rate,
-                    oscillator::generators::square_generator,
+                    augmented_oscillator::generators::square_generator,
                 ),
                 Oscillator::new_with_sample_rate(
                     sample_rate,
-                    oscillator::generators::square_generator,
+                    augmented_oscillator::generators::square_generator,
                 ),
             ],
             envelope: Envelope::new(),
