@@ -383,7 +383,7 @@ pub mod actor {
                     self.midi_message_queue = queue;
                     if self.output_stream.is_some() {
                         self.wait()?;
-                        self.start_audio();
+                        self.start_audio()?;
                     }
                     Ok(())
                 }

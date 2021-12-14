@@ -198,6 +198,7 @@ impl Default for ParameterType {
 #[cfg(test)]
 mod test {
     use super::*;
+    use audio_processor_testing_helpers::assert_f_eq;
 
     #[test]
     fn test_constructor() {

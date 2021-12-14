@@ -9,3 +9,6 @@ description = "Provides a data-type for volume"
 [features]
 default = []
 f64 = []
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }

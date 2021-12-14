@@ -354,6 +354,7 @@ dependencies = [
 name = "audio-parameter-store"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-testing-helpers",
  "crossbeam",
  "serde",
  "vst",
@@ -517,6 +518,9 @@ dependencies = [
 [[package]]
 name = "audio-volume"
 version = "0.1.0"
+dependencies = [
+ "audio-processor-testing-helpers",
+]
 
 [[package]]
 name = "audiounit"
