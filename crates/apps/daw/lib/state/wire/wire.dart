@@ -7,3 +7,11 @@ var dawUi = WireImpl.dawUi;
 AudioIOStore? getAudioIOStore() {
   return WireImpl.getAudioIOStore();
 }
+
+AudioGraph? getAudioGraph() {
+  return WireImpl.getAudioGraph();
+}
+
+AudioThread? getAudioThread() {
+  return WireImpl.getAudioThread();
+}

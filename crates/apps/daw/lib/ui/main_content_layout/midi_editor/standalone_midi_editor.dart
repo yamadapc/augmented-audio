@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_daw_mock_ui/bridge_generated.dart';
 import 'package:flutter_daw_mock_ui/state/wire/wire.dart';
 import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
 import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_editor.dart';
@@ -92,26 +91,31 @@ class _SynthesizerViewState extends State<SynthesizerView> {
   @override
   void initState() {
     var api = initialize();
-    api?.audioGraphSetup();
-    synth = SynthesizerApi(api);
+    synth = SynthesizerApi();
 
-    setupGraph(api);
+    setupGraph();
   }
 
-  Future<void> setupGraph(DawUi? api) async {
-    var systemIndexes = await api!.audioGraphGetSystemIndexes();
+  Future<void> setupGraph() async {
+    var graph = getAudioGraph();
+    var audioThread = getAudioThread();
+    if (graph == null || audioThread == null) {
+      return;
+    }
+
+    var systemIndexes = await graph.systemIndexes();
     var inputIndex = systemIndexes[0];
     var outputIndex = systemIndexes[1];
 
-    await api.audioThreadSetOptions(
+    await audioThread.setOptions(
         inputDeviceId: "default", outputDeviceId: "default");
 
-    var delay1 = await api.audioNodeCreate(audioProcessorName: "delay");
-    var delay2 = await api.audioNodeCreate(audioProcessorName: "delay");
+    var delay1 = await graph.createNode(name: "delay");
+    var delay2 = await graph.createNode(name: "delay");
 
-    await api.audioGraphConnect(inputIndex: inputIndex, outputIndex: delay1);
-    await api.audioGraphConnect(inputIndex: delay2, outputIndex: outputIndex);
-    await api.audioGraphConnect(inputIndex: delay1, outputIndex: outputIndex);
+    await graph.connect(inputIndex: inputIndex, outputIndex: delay1);
+    await graph.connect(inputIndex: delay2, outputIndex: outputIndex);
+    await graph.connect(inputIndex: delay1, outputIndex: outputIndex);
   }
 
   @override
@@ -121,7 +125,5 @@ class _SynthesizerViewState extends State<SynthesizerView> {
 }
 
 class SynthesizerApi {
-  final DawUi? api;
-
-  SynthesizerApi(this.api);
+  SynthesizerApi();
 }

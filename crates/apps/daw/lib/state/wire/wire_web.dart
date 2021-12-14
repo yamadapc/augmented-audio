@@ -20,3 +20,11 @@ DawUi? initialize() {
 AudioIOStore? getAudioIOStore() {
   return null;
 }
+
+AudioGraph? getAudioGraph() {
+  return null;
+}
+
+AudioThread? getAudioThread() {
+  return null;
+}

@@ -45,3 +45,58 @@ AudioIOStore? getAudioIOStore() {
     return null;
   }
 }
+
+class NativeAudioGraph with AudioGraph {
+  DawUi api;
+
+  NativeAudioGraph(this.api) {
+    api.audioGraphSetup();
+  }
+
+  @override
+  Future<int> connect({required int inputIndex, required int outputIndex}) {
+    return api.audioGraphConnect(
+        inputIndex: inputIndex, outputIndex: outputIndex);
+  }
+
+  @override
+  Future<int> createNode({required String name}) {
+    return api.audioNodeCreate(audioProcessorName: name);
+  }
+
+  @override
+  Future<List<int>> systemIndexes() {
+    return api.audioGraphGetSystemIndexes();
+  }
+}
+
+AudioGraph? getAudioGraph() {
+  var api = initialize();
+  if (api != null) {
+    return NativeAudioGraph(api);
+  } else {
+    return null;
+  }
+}
+
+class NativeAudioThread with AudioThread {
+  DawUi api;
+
+  NativeAudioThread(this.api);
+
+  @override
+  Future<void> setOptions(
+      {required String inputDeviceId, required String outputDeviceId}) {
+    return api.audioThreadSetOptions(
+        outputDeviceId: outputDeviceId, inputDeviceId: inputDeviceId);
+  }
+}
+
+AudioThread? getAudioThread() {
+  var api = initialize();
+  if (api != null) {
+    return NativeAudioThread(api);
+  } else {
+    return null;
+  }
+}
