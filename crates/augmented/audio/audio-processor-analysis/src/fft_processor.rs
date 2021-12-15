@@ -90,13 +90,12 @@ impl SimpleAudioProcessor for FftProcessor {
 mod test {
     use std::time::Duration;
 
-    use audio_processor_file::AudioFileProcessor;
     use audio_processor_testing_helpers::{
-        charts::draw_vec_chart, oscillator_buffer, sine_generator,
+        charts::draw_vec_chart, oscillator_buffer, relative_path, sine_generator,
     };
 
-    use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-    use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+    use audio_processor_traits::audio_buffer::VecAudioBuffer;
+    use audio_processor_traits::AudioProcessor;
 
     use super::*;
 
@@ -104,7 +103,7 @@ mod test {
     fn test_draw_hann_window() {
         let window = hann_window(2048);
         draw_vec_chart(
-            &*format!("{}/src/fft_processor.png", env!("CARGO_MANIFEST_DIR")),
+            &*relative_path!("src/fft_processor.png"),
             "HannWindow",
             window,
         );
@@ -131,7 +130,7 @@ mod test {
         let output: Vec<f32> = output.iter().take(1000).copied().collect();
 
         draw_vec_chart(
-            &*format!("{}/src/fft_processor.png", env!("CARGO_MANIFEST_DIR")),
+            &*relative_path!("src/fft_processor.png"),
             "FFT_SquareWave_440Hz",
             output,
         );

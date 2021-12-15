@@ -93,6 +93,15 @@ impl AudioFileProcessor {
     }
 
     /// Unsafe get buffer for offline rendering
+    pub fn num_samples(&self) -> usize {
+        if self.buffer.is_empty() {
+            0
+        } else {
+            self.buffer[0].len()
+        }
+    }
+
+    /// Unsafe get buffer for offline rendering
     pub fn buffer(&self) -> &Vec<Vec<f32>> {
         &self.buffer
     }
