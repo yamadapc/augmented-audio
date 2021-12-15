@@ -23,6 +23,7 @@ sudo apt-get install --fix-missing -y \
     libxcb-icccm4-dev \
     libxcb-dri2-0-dev \
     nvidia-utils-465 \
+    lame \
     libgtk-3-dev
 
 if ! [ -x "$(command -v uniffi-bindgen)" ]; then
