@@ -1,4 +1,4 @@
-pub use generators::sine_buffer;
+pub use generators::*;
 pub use util::rms_level;
 
 pub mod charts;

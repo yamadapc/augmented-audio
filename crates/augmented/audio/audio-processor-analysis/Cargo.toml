@@ -7,6 +7,10 @@ edition = "2018"
 [dependencies]
 audio-garbage-collector = { path = "../audio-garbage-collector" }
 audio-processor-traits = { version = "0.3", path = "../audio-processor-traits" }
+rustfft = "6.0.1"
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = true

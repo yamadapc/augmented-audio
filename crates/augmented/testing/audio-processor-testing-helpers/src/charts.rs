@@ -155,7 +155,7 @@ pub fn draw_vec_chart(filename: &str, plot_name: &str, vec: Vec<f32>) {
         .caption(plot_name, ("sans-serif", 20))
         .set_label_area_size(LabelAreaPosition::Left, 40)
         .set_label_area_size(LabelAreaPosition::Bottom, 40)
-        .build_cartesian_2d(x_range.0..x_range.1, y_range.0..y_range.1)
+        .build_cartesian_2d(x_range.0..x_range.1, y_range.1..y_range.0)
         .unwrap();
 
     chart.configure_mesh().draw().unwrap();

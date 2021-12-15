@@ -374,8 +374,10 @@ dependencies = [
 name = "audio-processor-analysis"
 version = "0.1.0"
 dependencies = [
- "audio-garbage-collector",
- "audio-processor-traits",
+    "audio-garbage-collector",
+    "audio-processor-testing-helpers",
+    "audio-processor-traits",
+    "rustfft",
 ]
 
 [[package]]
@@ -4940,8 +4942,17 @@ version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d7dd0fd014130206c9352efbdc92be592751b2b9274dff685348341082c6ea3d"
 dependencies = [
- "predicates-core",
- "treeline",
+    "predicates-core",
+    "treeline",
+]
+
+[[package]]
+name = "primal-check"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "01419cee72c1a1ca944554e23d83e483e1bccf378753344e881de28b5487511d"
+dependencies = [
+    "num-integer",
 ]
 
 [[package]]
@@ -4950,7 +4961,7 @@ version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d6ea3c4595b96363c13943497db34af4460fb474a95c43f4446ad341b8c9785"
 dependencies = [
- "toml",
+    "toml",
 ]
 
 [[package]]
@@ -5408,7 +5419,21 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfa0f585226d2e68097d4f95d113b15b83a82e819ab25717ec0590d9584ef366"
 dependencies = [
- "semver 1.0.3",
+    "semver 1.0.3",
+]
+
+[[package]]
+name = "rustfft"
+version = "6.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1d089e5c57521629a59f5f39bca7434849ff89bd6873b521afe389c1c602543"
+dependencies = [
+    "num-complex 0.4.0",
+    "num-integer",
+    "num-traits 0.2.14",
+    "primal-check",
+    "strength_reduce",
+    "transpose",
 ]
 
 [[package]]
@@ -5793,6 +5818,12 @@ name = "str-buf"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d44a3643b4ff9caf57abcee9c2c621d6c03d9135e0d8b589bd9afb5992cb176a"
+
+[[package]]
+name = "strength_reduce"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3ff2f71c82567c565ba4b3009a9350a96a7269eaa4001ebedae926230bc2254"
 
 [[package]]
 name = "strsim"
@@ -6389,7 +6420,7 @@ version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9ff14f98b1a4b289c6248a023c1c2fa1491062964e9fed67ab29c4e4da4a052"
 dependencies = [
- "lazy_static 1.4.0",
+    "lazy_static 1.4.0",
 ]
 
 [[package]]
@@ -6397,6 +6428,16 @@ name = "traitobject"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efd1f82c56340fdf16f2a953d7bda4f8fdffba13d93b00844c25572110b26079"
+
+[[package]]
+name = "transpose"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95f9c900aa98b6ea43aee227fd680550cdec726526aab8ac801549eadb25e39f"
+dependencies = [
+    "num-integer",
+    "strength_reduce",
+]
 
 [[package]]
 name = "treeline"
