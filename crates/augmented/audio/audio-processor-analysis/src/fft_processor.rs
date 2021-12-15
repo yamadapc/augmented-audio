@@ -17,11 +17,12 @@ fn hann_window(size: usize) -> Vec<f32> {
     result
 }
 
-struct FftProcessor {
+pub struct FftProcessor {
     buffer: Vec<Complex<f32>>,
     scratch: Vec<Complex<f32>>,
     cursor: usize,
     window: Vec<f32>,
+    size: usize,
     fft: Arc<dyn Fft<f32>>,
 }
 
@@ -32,7 +33,7 @@ impl Default for FftProcessor {
 }
 
 impl FftProcessor {
-    fn new(size: usize, direction: FftDirection) -> Self {
+    pub fn new(size: usize, direction: FftDirection) -> Self {
         let mut planner = FftPlanner::new();
         let fft = planner.plan_fft(size, direction);
 
@@ -49,15 +50,23 @@ impl FftProcessor {
             buffer,
             window,
             scratch,
+            size,
             cursor: 0,
             fft,
         }
     }
 
+    pub fn size(&self) -> usize {
+        self.size
+    }
+
+    pub fn buffer(&self) -> &Vec<Complex<f32>> {
+        &self.buffer
+    }
+
     fn perform_fft(&mut self) {
-        println!("Performing FFT");
         self.fft
-            .process_with_scratch(&mut self.buffer, &mut self.scratch)
+            .process_with_scratch(&mut self.buffer, &mut self.scratch);
     }
 }
 
@@ -81,12 +90,13 @@ impl SimpleAudioProcessor for FftProcessor {
 mod test {
     use std::time::Duration;
 
+    use audio_processor_file::AudioFileProcessor;
     use audio_processor_testing_helpers::{
         charts::draw_vec_chart, oscillator_buffer, sine_generator,
     };
 
-    use audio_processor_traits::audio_buffer::VecAudioBuffer;
-    use audio_processor_traits::AudioProcessor;
+    use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
+    use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
     use super::*;
 
