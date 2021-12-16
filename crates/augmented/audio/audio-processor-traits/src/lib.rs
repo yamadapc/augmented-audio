@@ -15,7 +15,7 @@ pub use num::Float;
 pub use num::Zero;
 
 pub use atomic_float::AtomicF32;
-pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
+pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer, VecAudioBuffer};
 pub use midi::{MidiEventHandler, MidiMessageLike};
 use simple_processor::SimpleAudioProcessor;
 

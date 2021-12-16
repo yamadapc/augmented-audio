@@ -94,22 +94,23 @@ pub trait AudioBuffer {
     }
 }
 
-impl<SampleType> dyn AudioBuffer<SampleType = SampleType>
+pub fn set_all<Buffer, SampleType>(buf: &mut Buffer, value: SampleType)
 where
-    SampleType: Clone + num::Zero,
+    Buffer: AudioBuffer<SampleType = SampleType>,
+    SampleType: Clone,
 {
-    /// Set all samples of this buffer to a constant
-    pub fn set_all(&mut self, value: SampleType) {
-        for sample in self.slice_mut() {
-            *sample = value.clone();
-        }
+    for sample in buf.slice_mut() {
+        *sample = value.clone();
     }
+}
 
-    /// Set all samples of this buffer to 0
-    pub fn clear(&mut self) {
-        for sample in self.slice_mut() {
-            *sample = SampleType::zero();
-        }
+pub fn clear<Buffer, SampleType>(buf: &mut Buffer)
+where
+    Buffer: AudioBuffer<SampleType = SampleType>,
+    SampleType: num::Zero,
+{
+    for sample in buf.slice_mut() {
+        *sample = SampleType::zero();
     }
 }
 

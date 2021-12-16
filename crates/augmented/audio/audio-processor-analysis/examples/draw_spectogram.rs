@@ -1,7 +1,7 @@
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{
-    audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, AudioBuffer, AudioProcessor,
-    AudioProcessorSettings, Zero,
+    audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, AudioProcessor,
+    AudioProcessorSettings,
 };
 
 use audio_processor_analysis::fft_processor::FftProcessor;
@@ -38,14 +38,14 @@ fn main() {
     let num_chunks = input.buffer()[0].len() / fft_processor.size();
     log::info!("Processing num_chunks={}", num_chunks);
     for _chunk_idx in 0..num_chunks {
-        AudioBuffer::<SampleType = f32>::clear(&mut buffer);
+        audio_buffer::clear(&mut buffer);
         input.process(&mut buffer);
         fft_processor.process(&mut buffer);
         frames.push(fft_processor.buffer().clone());
     }
 
     let width = 2000;
-    let height = 2000;
+    let height = 500;
     let mut img = image::ImageBuffer::new(width, height);
 
     log::info!("Rendering chunks num_chunks={}", num_chunks);
