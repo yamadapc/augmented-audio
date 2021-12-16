@@ -131,7 +131,7 @@ mod test {
 
         draw_vec_chart(
             &*relative_path!("src/fft_processor.png"),
-            "FFT_SquareWave_440Hz",
+            "FFT_sine_440Hz",
             output,
         );
     }
