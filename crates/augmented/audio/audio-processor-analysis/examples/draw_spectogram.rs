@@ -18,18 +18,17 @@ fn main() {
         .expect("Please provide --input-file");
     let output_file_path = matches
         .value_of("output-file")
-        .expect("Please provide --input-file");
+        .expect("Please provide --output-file");
     log::info!("Reading input file input_file={}", input_file_path);
-    let mut input = AudioFileProcessor::from_path(
-        audio_garbage_collector::handle(),
-        AudioProcessorSettings::default(),
-        input_file_path,
-    )
-    .unwrap();
-    input.prepare(AudioProcessorSettings::default());
+    let settings = AudioProcessorSettings::default();
+
+    let mut input =
+        AudioFileProcessor::from_path(audio_garbage_collector::handle(), settings, input_file_path)
+            .unwrap();
+    input.prepare(settings);
 
     let mut fft_processor = FftProcessor::default();
-    fft_processor.prepare(AudioProcessorSettings::default());
+    fft_processor.prepare(settings);
 
     let mut buffer = VecAudioBuffer::new();
     buffer.resize(1, fft_processor.size(), 0.0);

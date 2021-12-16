@@ -38,20 +38,20 @@ impl EnvelopeFollowerHandle {
     }
 }
 
-struct EnvelopeFollower {
+pub struct EnvelopeFollowerProcessor {
     handle: Shared<EnvelopeFollowerHandle>,
 }
 
-impl Default for EnvelopeFollower {
+impl Default for EnvelopeFollowerProcessor {
     fn default() -> Self {
         Self::new(Duration::from_millis(10), Duration::from_millis(10))
     }
 }
 
-impl EnvelopeFollower {
+impl EnvelopeFollowerProcessor {
     pub fn new(attack_duration: Duration, release_duration: Duration) -> Self {
         let sample_rate = AudioProcessorSettings::default().sample_rate;
-        EnvelopeFollower {
+        EnvelopeFollowerProcessor {
             handle: make_shared(EnvelopeFollowerHandle {
                 envelope_state: 0.0.into(),
                 attack_multiplier: calculate_multiplier(
@@ -70,9 +70,13 @@ impl EnvelopeFollower {
             }),
         }
     }
+
+    pub fn handle(&self) -> &Shared<EnvelopeFollowerHandle> {
+        &self.handle
+    }
 }
 
-impl SimpleAudioProcessor for EnvelopeFollower {
+impl SimpleAudioProcessor for EnvelopeFollowerProcessor {
     type SampleType = f32;
 
     fn s_prepare(&mut self, settings: AudioProcessorSettings) {
@@ -134,7 +138,7 @@ mod test {
         .unwrap();
         input.prepare(settings);
 
-        let mut envelope_follower = EnvelopeFollower::default();
+        let mut envelope_follower = EnvelopeFollowerProcessor::default();
         envelope_follower.prepare(settings);
 
         let mut buffer = VecAudioBuffer::new();
