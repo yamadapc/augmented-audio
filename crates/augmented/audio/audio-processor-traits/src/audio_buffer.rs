@@ -94,6 +94,7 @@ pub trait AudioBuffer {
     }
 }
 
+/// Set all samples of an AudioBuffer to a constant
 pub fn set_all<Buffer, SampleType>(buf: &mut Buffer, value: SampleType)
 where
     Buffer: AudioBuffer<SampleType = SampleType>,
@@ -104,6 +105,7 @@ where
     }
 }
 
+/// Set all samples of an AudioBuffer to Zero::zero
 pub fn clear<Buffer, SampleType>(buf: &mut Buffer)
 where
     Buffer: AudioBuffer<SampleType = SampleType>,
