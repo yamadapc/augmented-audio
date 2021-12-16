@@ -12,7 +12,7 @@ pub struct PlayHead {
 }
 
 impl PlayHead {
-    fn new(options: PlayHeadOptions) -> Self {
+    pub fn new(options: PlayHeadOptions) -> Self {
         Self {
             options,
             position_samples: 0,

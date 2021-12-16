@@ -1,7 +1,7 @@
 use std::process::Command;
 use std::process::ExitStatus;
 
-fn convert_wav_file_to_mp3(
+pub fn convert_wav_file_to_mp3(
     wav_file_path: &str,
     mp3_file_path: &str,
 ) -> std::io::Result<ExitStatus> {

@@ -1,8 +1,8 @@
 use audio_processor_file::AudioFileProcessor;
-use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::audio_buffer::VecAudioBuffer;
-use audio_processor_traits::AudioProcessor;
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{
+    audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, AudioBuffer, AudioProcessor,
+    AudioProcessorSettings, Zero,
+};
 
 use audio_processor_analysis::fft_processor::FftProcessor;
 
@@ -38,6 +38,7 @@ fn main() {
     let num_chunks = input.buffer()[0].len() / fft_processor.size();
     log::info!("Processing num_chunks={}", num_chunks);
     for _chunk_idx in 0..num_chunks {
+        AudioBuffer::<SampleType = f32>::clear(&mut buffer);
         input.process(&mut buffer);
         fft_processor.process(&mut buffer);
         frames.push(fft_processor.buffer().clone());
@@ -92,7 +93,7 @@ fn main() {
                 add_y(y_bin_idx + 1, 1.0 - y_delta);
             }
 
-            let red_f = drawing_magnitude * 255.0 / 200.0;
+            let red_f = drawing_magnitude * 255.0 / 20.0;
             let pixel = image::Rgb([red_f as u8, (red_f * 0.6) as u8, 0]);
             img[(x, y)] = pixel;
         }
