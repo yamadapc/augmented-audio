@@ -1,0 +1,164 @@
+use audio_garbage_collector::{make_shared, Shared};
+use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::{AtomicF32, AudioProcessorSettings};
+use std::time::Duration;
+
+fn calculate_multiplier(sample_rate: f32, duration_ms: f32) -> f32 {
+    let attack_secs = duration_ms * 0.001;
+    let attack_samples = sample_rate * attack_secs;
+    (-1.0 / attack_samples).exp2()
+}
+
+pub struct EnvelopeFollowerHandle {
+    envelope_state: AtomicF32,
+    attack_multiplier: AtomicF32,
+    release_multiplier: AtomicF32,
+    attack_duration_ms: AtomicF32,
+    release_duration_ms: AtomicF32,
+    sample_rate: AtomicF32,
+}
+
+impl EnvelopeFollowerHandle {
+    pub fn state(&self) -> f32 {
+        self.envelope_state.get()
+    }
+
+    pub fn set_attack(&self, duration: Duration) {
+        let duration_ms = duration.as_millis() as f32;
+        self.attack_duration_ms.set(duration_ms);
+        self.attack_multiplier
+            .set(calculate_multiplier(self.sample_rate.get(), duration_ms));
+    }
+
+    pub fn set_release(&self, duration: Duration) {
+        let duration_ms = duration.as_millis() as f32;
+        self.release_duration_ms.set(duration_ms);
+        self.release_multiplier
+            .set(calculate_multiplier(self.sample_rate.get(), duration_ms));
+    }
+}
+
+pub struct EnvelopeFollowerProcessor {
+    handle: Shared<EnvelopeFollowerHandle>,
+}
+
+impl Default for EnvelopeFollowerProcessor {
+    fn default() -> Self {
+        Self::new(Duration::from_millis(10), Duration::from_millis(10))
+    }
+}
+
+impl EnvelopeFollowerProcessor {
+    pub fn new(attack_duration: Duration, release_duration: Duration) -> Self {
+        let sample_rate = AudioProcessorSettings::default().sample_rate;
+        EnvelopeFollowerProcessor {
+            handle: make_shared(EnvelopeFollowerHandle {
+                envelope_state: 0.0.into(),
+                attack_multiplier: calculate_multiplier(
+                    sample_rate,
+                    attack_duration.as_millis() as f32,
+                )
+                .into(),
+                release_multiplier: calculate_multiplier(
+                    sample_rate,
+                    release_duration.as_millis() as f32,
+                )
+                .into(),
+                attack_duration_ms: (attack_duration.as_millis() as f32).into(),
+                release_duration_ms: (release_duration.as_millis() as f32).into(),
+                sample_rate: sample_rate.into(),
+            }),
+        }
+    }
+
+    pub fn handle(&self) -> &Shared<EnvelopeFollowerHandle> {
+        &self.handle
+    }
+}
+
+impl SimpleAudioProcessor for EnvelopeFollowerProcessor {
+    type SampleType = f32;
+
+    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+        let sample_rate = settings.sample_rate;
+        self.handle.sample_rate.set(sample_rate);
+        self.handle.attack_multiplier.set(calculate_multiplier(
+            sample_rate,
+            self.handle.attack_duration_ms.get(),
+        ));
+        self.handle.release_multiplier.set(calculate_multiplier(
+            sample_rate,
+            self.handle.release_duration_ms.get(),
+        ));
+    }
+
+    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+        let value = sample.abs();
+
+        let handle = &self.handle;
+        let envelope = handle.envelope_state.get();
+        let attack = handle.attack_multiplier.get();
+        let release = handle.release_multiplier.get();
+
+        if value > envelope {
+            handle
+                .envelope_state
+                .set((1.0 - attack) * value + attack * envelope);
+        } else {
+            handle
+                .envelope_state
+                .set((1.0 - release) * value + release * envelope);
+        }
+
+        sample
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use audio_processor_file::AudioFileProcessor;
+    use audio_processor_testing_helpers::charts::draw_vec_chart;
+    use audio_processor_testing_helpers::relative_path;
+    use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
+    use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+
+    use super::*;
+
+    #[test]
+    fn test_draw_envelope() {
+        let output_path = relative_path!("src/envelope_follower_processor");
+        let input_file_path = relative_path!("../../../../input-files/C3-loop.mp3");
+        let settings = AudioProcessorSettings::default();
+
+        let mut input = AudioFileProcessor::from_path(
+            audio_garbage_collector::handle(),
+            settings,
+            &input_file_path,
+        )
+        .unwrap();
+        input.prepare(settings);
+
+        let mut envelope_follower = EnvelopeFollowerProcessor::default();
+        envelope_follower.prepare(settings);
+
+        let mut buffer = VecAudioBuffer::new();
+        buffer.resize(1, settings.block_size(), 0.0);
+        let num_chunks = (input.num_samples() / 8) / settings.block_size();
+
+        let mut envelope_readings = vec![];
+        for _chunk in 0..num_chunks {
+            for sample in buffer.slice_mut() {
+                *sample = 0.0;
+            }
+
+            input.process(&mut buffer);
+            for frame in buffer.frames_mut() {
+                let sample = frame[0];
+                envelope_follower.s_process(sample);
+                envelope_readings.push(envelope_follower.handle.envelope_state.get());
+            }
+        }
+
+        draw_vec_chart(&output_path, "Envelope", envelope_readings);
+    }
+}

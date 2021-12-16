@@ -1,5 +1,6 @@
-use num::Float;
 use std::slice::{Chunks, ChunksMut};
+
+use num::Float;
 
 /// Represents an audio buffer. This decouples audio processing code from a certain representation
 /// of multi-channel sample buffers.
@@ -90,6 +91,28 @@ pub trait AudioBuffer {
     /// This performs no bounds checks. Make sure indexes are in range.
     unsafe fn set_unchecked(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.set(channel, sample, value)
+    }
+}
+
+/// Set all samples of an AudioBuffer to a constant
+pub fn set_all<Buffer, SampleType>(buf: &mut Buffer, value: SampleType)
+where
+    Buffer: AudioBuffer<SampleType = SampleType>,
+    SampleType: Clone,
+{
+    for sample in buf.slice_mut() {
+        *sample = value.clone();
+    }
+}
+
+/// Set all samples of an AudioBuffer to Zero::zero
+pub fn clear<Buffer, SampleType>(buf: &mut Buffer)
+where
+    Buffer: AudioBuffer<SampleType = SampleType>,
+    SampleType: num::Zero,
+{
+    for sample in buf.slice_mut() {
+        *sample = SampleType::zero();
     }
 }
 

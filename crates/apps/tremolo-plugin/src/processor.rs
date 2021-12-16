@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use vst::buffer::AudioBuffer;
 
-use oscillator::Oscillator;
+use augmented_oscillator::Oscillator;
 
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
 use audio_parameter_store::ParameterStore;
@@ -23,7 +23,7 @@ impl Processor {
     }
 
     fn build_oscillator() -> Oscillator<f32> {
-        Oscillator::new_with_sample_rate(44100., oscillator::generators::sine_generator)
+        Oscillator::new_with_sample_rate(44100., augmented_oscillator::generators::sine_generator)
     }
 
     pub fn set_sample_rate(&mut self, rate: f32) {

@@ -12,80 +12,34 @@ The gist of it is:
 3. You now have a CLI for rendering online (CPAL, use your mic)  or offline (pass a file through your processor & write
    the results to a `.wav`)
 
-## Example
-Check out the `examples` directory for running examples and trying it out.
-
 ```rust
-// Imports
-use std::time::Duration;
-
 use audio_processor_traits::{AudioBuffer, AudioProcessor};
-use circular_data_structures::CircularVec;
 
-// Run it
+struct SimpleDelayProcessor {}
+
+impl SimpleDelayProcessor { fn new() -> Self { SimpleDelayProcessor {} }}
+
+impl AudioProcessor for SimpleDelayProcessor { /* omitted for brevity */ }
+
 fn main() {
-    let processor = SimpleDelayProcessor::new();
-    audio_processor_standalone::audio_processor_main(processor);
+   let processor = SimpleDelayProcessor::new();
+   audio_processor_standalone::audio_processor_main(processor);
 }
+```
 
-// Declare a delay `audio_processor_traits::AudioProcessor` implementation
-struct SimpleDelayProcessor {
-    current_write_position: usize,
-    current_read_position: usize,
-    delay_buffers: Vec<CircularVec<f32>>,
-}
+## Usage of the command-line
+```
+audio-processor-standalone
 
-impl SimpleDelayProcessor {
-    fn new() -> Self {
-        Self {
-            current_write_position: (Duration::from_millis(800).as_secs_f32() * 44100.0) as usize,
-            current_read_position: 0,
-            delay_buffers: vec![
-                CircularVec::with_size(
-                    (Duration::from_secs(5).as_secs_f32() * 44100.0) as usize,
-                    0.0,
-                ),
-                CircularVec::with_size(
-                    (Duration::from_secs(5).as_secs_f32() * 44100.0) as usize,
-                    0.0,
-                ),
-            ],
-        }
-    }
-}
+USAGE:
+    my-crate [OPTIONS]
 
-impl AudioProcessor for SimpleDelayProcessor {
-    type SampleType = f32;
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
-        // Mono input stage
-        for sample_index in 0..data.num_samples() {
-            data.set(0, sample_index, *data.get(1, sample_index));
-        }
-
-        // Delay read/write
-        for sample_index in 0..data.num_samples() {
-            for channel_index in 0..data.num_channels() {
-                let input = *data.get(channel_index, sample_index);
-
-                // Read delay output
-                let delay_output = self.delay_buffers[channel_index][self.current_read_position];
-
-                // Write input into delay with feedback
-                let feedback = 0.3;
-                self.delay_buffers[channel_index][self.current_write_position] =
-                    input + delay_output * feedback;
-
-                // Output stage
-                data.set(channel_index, sample_index, input + delay_output);
-            }
-
-            self.current_read_position += 1;
-            self.current_write_position += 1;
-        }
-    }
-}
+OPTIONS:
+    -i, --input-file <INPUT_PATH>              An input audio file to process
+        --midi-input-file <MIDI_INPUT_FILE>    If specified, this MIDI file will be passed through the processor
+    -o, --output-file <OUTPUT_PATH>            If specified, will render offline into this file (WAV)
 ```

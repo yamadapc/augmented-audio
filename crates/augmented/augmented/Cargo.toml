@@ -29,7 +29,7 @@ audio-parameter-store = { path = "../audio/audio-parameter-store" }
 audio-processor-graph = { path = "../audio/audio-processor-graph" }
 audio-processor-traits = { path = "../audio/audio-processor-traits" }
 audio-processor-utility = { path = "../audio/audio-processor-utility" }
-oscillator = { path = "../audio/oscillator" }
+augmented_oscillator = { path = "../audio/oscillator" }
 cpal = { version = "^0.13.3" }
 
 # data

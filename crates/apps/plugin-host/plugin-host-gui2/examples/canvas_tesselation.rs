@@ -15,7 +15,7 @@ fn run_fill(buffer: &[f32]) -> Frame {
 }
 
 fn main() {
-    let mut oscillator = oscillator::Oscillator::sine(44100.0);
+    let mut oscillator = augmented_oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
     let mut output_buffer = Vec::new();
     output_buffer.resize(1000, 0.0);

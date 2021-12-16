@@ -30,7 +30,7 @@ fn process_with_f32<Buffer: AudioBuffer<SampleType = f32>>(
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("TestHostPlugin - RunningRMSProcessor");
-    let mut oscillator = oscillator::Oscillator::sine(44100.0);
+    let mut oscillator = augmented_oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
     let mut audio_buffer = VecAudioBuffer::new();
     audio_buffer.resize(2, 512, 0.0);

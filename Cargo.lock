@@ -75,6 +75,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "adler"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f26201604c87b1e01bd3d98f8d5d9a8fcbb815e8cedb41ffccbeb4bf593a35fe"
+
+[[package]]
 name = "adler32"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -164,9 +170,9 @@ checksum = "000444226fcff248f2bc4c7625be32c63caccfecc2723a2b9f78a7487a49c407"
 
 [[package]]
 name = "ansi_term"
-version = "0.11.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee49baf6cb617b853aa8d93bf420db2383fab46d314482ca2803b40d5fde979b"
+checksum = "d52a9bb7ec0cf484c551830a7ce27bd20d67eac647e1befb56b0be4ee39a55d2"
 dependencies = [
  "winapi 0.3.9",
 ]
@@ -375,7 +381,14 @@ name = "audio-processor-analysis"
 version = "0.1.0"
 dependencies = [
  "audio-garbage-collector",
+ "audio-processor-file",
+ "audio-processor-testing-helpers",
  "audio-processor-traits",
+ "clap 2.34.0",
+ "image",
+ "log",
+ "rustfft",
+ "wisual-logger",
 ]
 
 [[package]]
@@ -406,10 +419,10 @@ dependencies = [
  "audio-processor-traits",
  "audio-processor-utility",
  "augmented-dsp-filters",
+ "augmented_oscillator",
  "concread",
  "daggy",
  "num-traits 0.2.14",
- "oscillator",
  "thiserror",
 ]
 
@@ -446,7 +459,7 @@ dependencies = [
  "audio-processor-traits",
  "augmented-midi",
  "basedrop",
- "clap 2.33.3",
+ "clap 2.34.0",
  "cpal",
  "itertools 0.10.1",
  "log",
@@ -474,7 +487,7 @@ name = "audio-processor-testing-helpers"
 version = "0.1.0"
 dependencies = [
  "audio-processor-traits",
- "oscillator",
+ "augmented_oscillator",
  "plotters",
 ]
 
@@ -491,9 +504,9 @@ dependencies = [
 name = "audio-processor-traits"
 version = "0.3.1"
 dependencies = [
+ "augmented_oscillator",
  "criterion",
  "num 0.4.0",
- "oscillator",
  "vst",
 ]
 
@@ -554,6 +567,7 @@ dependencies = [
  "audio-processor-utility",
  "audio-volume",
  "augmented-dsp-filters",
+ "augmented_oscillator",
  "baseview",
  "circular-data-structures",
  "convert-sample-rate",
@@ -562,7 +576,6 @@ dependencies = [
  "iced-editor",
  "iced_audio",
  "macos-bundle-resources",
- "oscillator",
  "smooth-value",
  "vst",
  "wisual-logger",
@@ -635,6 +648,16 @@ dependencies = [
 [[package]]
 name = "augmented-playhead"
 version = "0.1.0"
+
+[[package]]
+name = "augmented_oscillator"
+version = "0.1.0"
+dependencies = [
+ "cpal",
+ "criterion",
+ "plotters",
+ "ringbuf",
+]
 
 [[package]]
 name = "autocfg"
@@ -720,7 +743,7 @@ dependencies = [
  "bitflags",
  "cexpr 0.5.0",
  "clang-sys",
- "clap 2.33.3",
+ "clap 2.34.0",
  "env_logger 0.8.4",
  "lazy_static 1.4.0",
  "lazycell",
@@ -949,7 +972,7 @@ version = "0.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "51e3973b165dc0f435831a9e426de67e894de532754ff7a3f307c03ee5dec7dc"
 dependencies = [
- "clap 2.33.3",
+ "clap 2.34.0",
  "heck",
  "indexmap",
  "log",
@@ -1062,9 +1085,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "2.33.3"
+version = "2.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "37e58ac78573c40708d45522f0d80fa2f01cc4f9b4e2bf749807255454312002"
+checksum = "a0610544180c38b88101fecf2dd634b174a62eef6946f84dfc6a7127512b381c"
 dependencies = [
  "ansi_term",
  "atty",
@@ -1286,7 +1309,7 @@ name = "convert-sample-rate"
 version = "0.1.0"
 dependencies = [
  "audio-processor-testing-helpers",
- "oscillator",
+ "augmented_oscillator",
  "rand 0.8.4",
 ]
 
@@ -1552,7 +1575,7 @@ checksum = "ab327ed7354547cc2ef43cbe20ef68b988e70b4b593cbd66a2a61733123a3d23"
 dependencies = [
  "atty",
  "cast",
- "clap 2.33.3",
+ "clap 2.34.0",
  "criterion-plot",
  "csv",
  "itertools 0.10.1",
@@ -3231,11 +3254,14 @@ dependencies = [
  "bytemuck",
  "byteorder 1.4.3",
  "color_quant",
+ "gif",
  "jpeg-decoder",
  "num-iter",
  "num-rational 0.3.2",
  "num-traits 0.2.14",
  "png",
+ "scoped_threadpool",
+ "tiff",
 ]
 
 [[package]]
@@ -3393,6 +3419,9 @@ name = "jpeg-decoder"
 version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "229d53d58899083193af11e15917b5640cd40b29ff475a1fe4ef725deb02d0f2"
+dependencies = [
+ "rayon",
+]
 
 [[package]]
 name = "js-sys"
@@ -3446,6 +3475,10 @@ name = "khronos_api"
 version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2db585e1d738fc771bf08a151420d3ed193d9d895a36df7f6f8a9456b911ddc"
+
+[[package]]
+name = "lame-mp3"
+version = "0.1.0"
 
 [[package]]
 name = "lazy_static"
@@ -3852,6 +3885,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "791daaae1ed6889560f8c4359194f56648355540573244a5448a83ba1ecc7435"
 dependencies = [
  "adler32",
+]
+
+[[package]]
+name = "miniz_oxide"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a92518e98c078586bc6c934028adcca4c92a53d6a958196de835170a01d84e4b"
+dependencies = [
+ "adler",
+ "autocfg",
 ]
 
 [[package]]
@@ -4547,16 +4590,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "afb2e1c3ee07430c2cf76151675e583e0f19985fa6efae47d6848a3e2c824f85"
 
 [[package]]
-name = "oscillator"
-version = "0.1.0"
-dependencies = [
- "cpal",
- "criterion",
- "plotters",
- "ringbuf",
-]
-
-[[package]]
 name = "osmesa-sys"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4799,7 +4832,7 @@ name = "plugin-host"
 version = "0.1.0"
 dependencies = [
  "actix",
- "clap 2.33.3",
+ "clap 2.34.0",
  "plugin-host-lib",
  "wisual-logger",
 ]
@@ -4816,6 +4849,7 @@ dependencies = [
  "audio-processor-traits",
  "audio-volume",
  "augmented",
+ "augmented_oscillator",
  "baseview",
  "cocoa 0.24.0",
  "criterion",
@@ -4831,7 +4865,6 @@ dependencies = [
  "notify",
  "objc",
  "opener",
- "oscillator",
  "plugin-host-lib",
  "raw-window-handle",
  "serde",
@@ -4861,9 +4894,10 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "augmented-metrics",
+ "augmented_oscillator",
  "basedrop",
  "circular-data-structures",
- "clap 2.33.3",
+ "clap 2.34.0",
  "concread",
  "convert-sample-rate",
  "cpal",
@@ -4877,7 +4911,6 @@ dependencies = [
  "midir 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "notify",
  "num-traits 0.2.14",
- "oscillator",
  "rayon",
  "rimd",
  "ringbuf",
@@ -4902,7 +4935,7 @@ dependencies = [
  "bitflags",
  "crc32fast",
  "deflate",
- "miniz_oxide",
+ "miniz_oxide 0.3.7",
 ]
 
 [[package]]
@@ -4938,6 +4971,15 @@ checksum = "d7dd0fd014130206c9352efbdc92be592751b2b9274dff685348341082c6ea3d"
 dependencies = [
  "predicates-core",
  "treeline",
+]
+
+[[package]]
+name = "primal-check"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "01419cee72c1a1ca944554e23d83e483e1bccf378753344e881de28b5487511d"
+dependencies = [
+ "num-integer",
 ]
 
 [[package]]
@@ -5368,7 +5410,7 @@ dependencies = [
 name = "ruas-bundler"
 version = "0.1.0"
 dependencies = [
- "clap 2.33.3",
+ "clap 2.34.0",
  "cmd_lib",
  "log",
  "plist",
@@ -5408,6 +5450,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "rustfft"
+version = "6.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1d089e5c57521629a59f5f39bca7434849ff89bd6873b521afe389c1c602543"
+dependencies = [
+ "num-complex 0.4.0",
+ "num-integer",
+ "num-traits 0.2.14",
+ "primal-check",
+ "strength_reduce",
+ "transpose",
+]
+
+[[package]]
 name = "ryu"
 version = "1.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5443,6 +5499,12 @@ name = "scoped-tls"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ea6a9290e3c9cf0f18145ef7ffa62d68ee0bf5fcd651017e586dc7fd5da448c2"
+
+[[package]]
+name = "scoped_threadpool"
+version = "0.1.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d51f5df5af43ab3f1360b429fa5e0152ac5ce8c0bd6485cae490332e96846a8"
 
 [[package]]
 name = "scopeguard"
@@ -5791,6 +5853,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d44a3643b4ff9caf57abcee9c2c621d6c03d9135e0d8b589bd9afb5992cb176a"
 
 [[package]]
+name = "strength_reduce"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a3ff2f71c82567c565ba4b3009a9350a96a7269eaa4001ebedae926230bc2254"
+
+[[package]]
 name = "strsim"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5814,7 +5882,7 @@ version = "0.3.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40b9788f4202aa75c240ecc9c15c65185e6a39ccdeb0fd5d008b98825464c87c"
 dependencies = [
- "clap 2.33.3",
+ "clap 2.34.0",
  "lazy_static 1.4.0",
  "structopt-derive",
 ]
@@ -6022,9 +6090,9 @@ dependencies = [
  "audio-processor-standalone",
  "audio-processor-traits",
  "augmented-dsp-filters",
+ "augmented_oscillator",
  "log",
  "num 0.4.0",
- "oscillator",
  "pitch_calc",
  "rimd",
  "wisual-logger",
@@ -6099,6 +6167,7 @@ version = "0.0.1"
 dependencies = [
  "async-trait",
  "audio-parameter-store",
+ "augmented_oscillator",
  "cocoa 0.18.5",
  "crossbeam",
  "darwin-webkit 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -6110,7 +6179,6 @@ dependencies = [
  "log4rs",
  "macos-bundle-resources",
  "objc",
- "oscillator",
  "serde",
  "serde_json",
  "thiserror",
@@ -6225,6 +6293,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d050e60b33d41c19108b32cea32164033a9013fe3b46cbd4457559bfbf77afaa"
 dependencies = [
  "num_cpus",
+]
+
+[[package]]
+name = "tiff"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a53f4706d65497df0c4349241deddf35f84cee19c87ed86ea8ca590f4464437"
+dependencies = [
+ "jpeg-decoder",
+ "miniz_oxide 0.4.4",
+ "weezl",
 ]
 
 [[package]]
@@ -6395,6 +6474,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "efd1f82c56340fdf16f2a953d7bda4f8fdffba13d93b00844c25572110b26079"
 
 [[package]]
+name = "transpose"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95f9c900aa98b6ea43aee227fd680550cdec726526aab8ac801549eadb25e39f"
+dependencies = [
+ "num-integer",
+ "strength_reduce",
+]
+
+[[package]]
 name = "treeline"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6531,7 +6620,7 @@ dependencies = [
  "anyhow",
  "askama",
  "cargo_metadata",
- "clap 2.33.3",
+ "clap 2.34.0",
  "heck",
  "paste",
  "serde",

@@ -182,7 +182,7 @@ fn build_sine_audio_buffer() -> VecAudioBuffer<f32> {
 }
 
 fn sine_wave_vec(duration_samples: usize) -> Vec<f32> {
-    let mut oscillator = oscillator::Oscillator::sine(44100.0);
+    let mut oscillator = augmented_oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
     let mut output_buffer = Vec::new();
     output_buffer.resize(duration_samples, 0.0);

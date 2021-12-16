@@ -1,4 +1,4 @@
-pub use generators::sine_buffer;
+pub use generators::*;
 pub use util::rms_level;
 
 pub mod charts;
@@ -21,6 +21,13 @@ macro_rules! assert_f_eq {
     }};
 }
 
+#[macro_export]
+macro_rules! relative_path {
+    ($path: expr) => {
+        format!("{}/./{}", env!("CARGO_MANIFEST_DIR"), $path)
+    };
+}
+
 /// Test two buffers have equivalent RMS levels
 pub fn test_level_equivalence(
     input_buffer: &[f32],
@@ -40,5 +47,15 @@ pub fn test_level_equivalence(
         let diff = (input_level - output_level).abs();
 
         assert!(diff < threshold);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn test_relative_path() {
+        assert!(std::fs::read_to_string(relative_path!("src/lib.rs"))
+            .unwrap()
+            .contains("fn test_relative_path()"));
     }
 }

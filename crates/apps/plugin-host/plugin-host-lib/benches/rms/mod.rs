@@ -18,7 +18,7 @@ fn rms_pow(buffer: &Vec<f32>) -> f32 {
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("TestHostPlugin - RMS");
-    let mut oscillator = oscillator::Oscillator::sine(44100.0);
+    let mut oscillator = augmented_oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
     let mut output_buffer = Vec::new();
     output_buffer.resize(400000, 0.0);
@@ -35,7 +35,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| rms_pow(black_box(&mut output_buffer)))
     });
 
-    let mut oscillator = oscillator::Oscillator::sine(44100.0);
+    let mut oscillator = augmented_oscillator::Oscillator::sine(44100.0);
     oscillator.set_frequency(440.0);
     let mut output_buffer = Vec::new();
     output_buffer.resize(512, 0.0);

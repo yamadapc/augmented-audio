@@ -10,5 +10,5 @@ edition = "2018"
 
 [dev-dependencies]
 rand = "^0.8.3"
-oscillator = { path = "../../audio/oscillator" }
+augmented_oscillator = { path = "../../audio/oscillator" }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }

@@ -10,10 +10,12 @@
 //! Start looking at [AudioProcessor], then have a look at [AudioBuffer] and [MidiEventHandler].
 use std::marker::PhantomData;
 
+pub use num;
 pub use num::Float;
+pub use num::Zero;
 
 pub use atomic_float::AtomicF32;
-pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer};
+pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer, VecAudioBuffer};
 pub use midi::{MidiEventHandler, MidiMessageLike};
 use simple_processor::SimpleAudioProcessor;
 
