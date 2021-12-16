@@ -1,4 +1,5 @@
 use clap::ArgMatches;
+use std::ffi::OsString;
 
 pub enum RenderingOptions {
     Online {
@@ -30,6 +31,14 @@ impl Options {
 }
 
 pub fn parse_options(supports_midi: bool) -> Options {
+    parse_options_from(supports_midi, &mut std::env::args_os())
+}
+
+fn parse_options_from<I, T>(supports_midi: bool, args: I) -> Options
+where
+    I: IntoIterator<Item = T>,
+    T: Into<OsString> + Clone,
+{
     let app = clap::App::new("audio-processor-standalone");
     let mut app = app
         .arg(clap::Arg::from_usage(
@@ -46,7 +55,7 @@ pub fn parse_options(supports_midi: bool) -> Options {
             ));
     }
 
-    let matches = app.get_matches();
+    let matches = app.get_matches_from(args);
 
     let midi_options = parse_midi_options(&matches);
     let rendering = parse_rendering_options(&matches);
@@ -80,6 +89,83 @@ fn parse_rendering_options(matches: &ArgMatches) -> RenderingOptions {
     } else {
         RenderingOptions::Online {
             input_file: matches.value_of("input-file").map(|s| s.into()),
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_parse_empty_options() {
+        let options = parse_options_from::<Vec<String>, String>(false, vec![]);
+        assert!(options.midi().input_file.is_none());
+        assert!(matches!(
+            options.rendering(),
+            RenderingOptions::Online { .. }
+        ));
+    }
+
+    #[test]
+    fn test_parse_online_options() {
+        let options = parse_options_from::<Vec<String>, String>(
+            false,
+            vec!["program".into(), "--input-file".into(), "test.mp3".into()],
+        );
+        assert!(options.midi().input_file.is_none());
+        assert!(matches!(
+            options.rendering(),
+            RenderingOptions::Online { .. }
+        ));
+        match options.rendering() {
+            RenderingOptions::Online { input_file } => {
+                assert_eq!(input_file.as_ref().unwrap(), "test.mp3");
+            }
+            _ => {}
+        }
+    }
+
+    #[test]
+    fn test_parse_midi_options() {
+        let options = parse_options_from::<Vec<String>, String>(
+            true,
+            vec![
+                "program".into(),
+                "--midi-input-file".into(),
+                "bach.mid".into(),
+            ],
+        );
+        assert!(options.midi().input_file.is_some());
+        assert_eq!(options.midi().input_file.as_ref().unwrap(), "bach.mid")
+    }
+
+    #[test]
+    fn test_parse_offline_options() {
+        let options = parse_options_from::<Vec<String>, String>(
+            false,
+            vec![
+                "program".into(),
+                "--input-file".into(),
+                "test.mp3".into(),
+                "--output-file".into(),
+                "test.wav".into(),
+            ],
+        );
+        assert!(options.midi().input_file.is_none());
+        assert!(matches!(
+            options.rendering(),
+            RenderingOptions::Offline { .. }
+        ));
+        match options.rendering() {
+            RenderingOptions::Offline {
+                input_file,
+                output_file,
+            } => {
+                assert_eq!(input_file, "test.mp3");
+                assert_eq!(output_file, "test.wav");
+            }
+            _ => {}
         }
     }
 }
