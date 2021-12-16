@@ -76,3 +76,46 @@ where
         Some(&mut self.processor)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    use audio_processor_standalone_midi::host::MidiMessageEntry;
+    use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+    use audio_processor_traits::NoopAudioProcessor;
+
+    #[test]
+    fn test_midi_event_handler() {
+        let mut handler = NoMidiEventHandler {};
+        let midi_messages: Vec<MidiMessageEntry> = vec![];
+        handler.process_midi_events(&midi_messages);
+    }
+
+    #[test]
+    fn test_create_standalone_audio_processor() {
+        let processor = NoopAudioProcessor::new();
+        let mut standalone_audio_processor = StandaloneAudioOnlyProcessor::new(processor);
+        assert!(!standalone_audio_processor.supports_midi());
+        assert!(standalone_audio_processor.midi().is_none());
+        let _processor = standalone_audio_processor.processor();
+    }
+
+    #[test]
+    fn test_create_standalone_audio_midi_processor() {
+        struct MockProcessor {}
+        impl SimpleAudioProcessor for MockProcessor {
+            type SampleType = f32;
+        }
+        impl MidiEventHandler for MockProcessor {
+            fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
+            }
+        }
+
+        let processor = MockProcessor {};
+        let mut standalone_audio_processor = StandaloneProcessorImpl::new(processor);
+        assert!(standalone_audio_processor.supports_midi());
+        assert!(standalone_audio_processor.midi().is_some());
+        let _processor = standalone_audio_processor.processor();
+    }
+}
