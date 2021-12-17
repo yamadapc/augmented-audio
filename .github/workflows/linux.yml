@@ -122,6 +122,10 @@ jobs:
             --exclude recording_buddy \
             --exclude darwin-webkit \
             --exclude macos-bundle-resources
+    - name: Run snapshot tests
+      run: |
+        git lfs checkout
+        ./scripts/dev.sh test-snapshots
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:
