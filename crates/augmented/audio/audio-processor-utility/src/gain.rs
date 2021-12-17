@@ -1,36 +1,65 @@
+use audio_garbage_collector::{make_shared, Shared};
+use std::marker::PhantomData;
 use std::ops::Mul;
 
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-use audio_processor_traits::Float;
+use audio_processor_traits::{AtomicF32, Float};
+
+pub struct GainProcessorHandle {
+    gain: AtomicF32,
+}
+
+impl GainProcessorHandle {
+    fn new(gain: impl Into<f32>) -> Self {
+        Self {
+            gain: AtomicF32::new(gain.into()),
+        }
+    }
+
+    pub fn set_gain(&self, gain: impl Into<f32>) {
+        self.gain.set(gain.into());
+    }
+
+    pub fn gain(&self) -> f32 {
+        self.gain.get()
+    }
+}
 
 /// An `AudioProcessor` which applies gain to an input signal
 pub struct GainProcessor<SampleType> {
-    gain: SampleType,
+    handle: Shared<GainProcessorHandle>,
+    phantom: PhantomData<SampleType>,
 }
 
-impl<SampleType: Float> Default for GainProcessor<SampleType> {
+impl<SampleType> Default for GainProcessor<SampleType> {
     /// Construct a `GainProcessor` with 1.0 gain
     fn default() -> Self {
-        Self {
-            gain: SampleType::from(1.0).unwrap(),
-        }
+        Self::new(1.0)
     }
 }
 
-impl<SampleType: Float> GainProcessor<SampleType> {
+impl<SampleType> GainProcessor<SampleType> {
     /// Construct a `GainProcessor` with gain
-    pub fn new(gain: SampleType) -> Self {
-        Self { gain }
+    pub fn new(gain: impl Into<f32>) -> Self {
+        Self::new_with_handle(make_shared(GainProcessorHandle::new(gain)))
+    }
+
+    /// Construct a `GainProcessor` with a certain `GainProcessorHandle`
+    pub fn new_with_handle(handle: Shared<GainProcessorHandle>) -> Self {
+        Self {
+            handle,
+            phantom: PhantomData::default(),
+        }
     }
 
     /// Change the gain
-    pub fn set_gain(&mut self, gain: SampleType) {
-        self.gain = gain;
+    pub fn set_gain(&self, gain: impl Into<f32>) {
+        self.handle.set_gain(gain)
     }
 
     /// Get the gain
-    pub fn gain(&self) -> SampleType {
-        self.gain
+    pub fn gain(&self) -> f32 {
+        self.handle.gain()
     }
 }
 
@@ -41,7 +70,7 @@ where
     type SampleType = SampleType;
 
     fn s_process(&mut self, sample: SampleType) -> SampleType {
-        self.gain * sample
+        SampleType::from(self.gain()).unwrap() * sample
     }
 }
 

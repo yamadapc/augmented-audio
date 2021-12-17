@@ -3,6 +3,10 @@ name = "audio-processor-time"
 version = "0.1.0"
 edition = "2021"
 
+[package.metadata.augmented]
+processor_examples = ["delay"]
+private = false
+
 [dependencies]
 audio-processor-traits = { path = "../audio-processor-traits" }
 audio-garbage-collector = { path = "../audio-garbage-collector" }

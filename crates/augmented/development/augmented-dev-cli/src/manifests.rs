@@ -48,6 +48,7 @@ pub struct AppConfig {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AugmentedMetadata {
     pub private: Option<bool>,
+    pub processor_examples: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,4 +75,28 @@ pub struct CargoLib {
 pub struct CargoToml {
     pub package: CargoTomlPackage,
     pub lib: Option<CargoLib>,
+}
+
+impl CargoToml {
+    pub fn has_snapshot_tests(&self) -> bool {
+        self.package
+            .metadata
+            .as_ref()
+            .map(|metadata| {
+                metadata.augmented.as_ref().map(|augmented| {
+                    augmented.processor_examples.is_some()
+                        && !augmented.processor_examples.as_ref().unwrap().is_empty()
+                })
+            })
+            .flatten()
+            .unwrap_or(false)
+    }
+
+    pub fn is_augmented_crate(&self) -> bool {
+        self.package
+            .metadata
+            .as_ref()
+            .map(|metadata| metadata.augmented.is_some())
+            .unwrap_or(false)
+    }
 }
