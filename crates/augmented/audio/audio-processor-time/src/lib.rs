@@ -88,7 +88,7 @@ where
     S: Float + From<f32>,
 {
     let one: S = 1.0_f32.into();
-    let offset: S = offset.into();
+    let offset: S = offset;
     let rhs = offset * s2;
     let lhs = (one - offset) * s1;
     // assert!(rhs < S::epsilon());

@@ -405,7 +405,7 @@ mod test {
         empty_buffer.resize(1, 1000, 0.0);
         let mut graph = AudioProcessorGraph::<BufferType>::default();
 
-        assert!(rms_level(&empty_buffer.slice()) - 0.0 < f32::EPSILON);
+        assert!(rms_level(empty_buffer.slice()) - 0.0 < f32::EPSILON);
 
         let mut process_buffer = empty_buffer.clone();
         graph.prepare(settings);
