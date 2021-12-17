@@ -87,6 +87,10 @@ jobs:
       run: cargo install --force --version 0.15.2 uniffi_bindgen
     - name: Build release
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
+    - name: Run snapshot tests
+      run: |
+        git lfs checkout
+        ./scripts/dev.sh test-snapshots
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:
