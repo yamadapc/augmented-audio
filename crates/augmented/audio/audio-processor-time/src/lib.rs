@@ -16,8 +16,8 @@ pub struct MonoDelayProcessorHandle {
 impl Default for MonoDelayProcessorHandle {
     fn default() -> Self {
         Self {
-            feedback: AtomicF32::from(0.0),
-            delay_time_secs: AtomicF32::from(0.8),
+            feedback: AtomicF32::from(0.3),
+            delay_time_secs: AtomicF32::from(0.2),
             current_write_position: AtomicUsize::new(0),
             sample_rate: AtomicF32::new(44100.0),
             buffer_size: AtomicUsize::new(1),
@@ -33,6 +33,7 @@ impl MonoDelayProcessorHandle {
 
     pub fn set_delay_time_secs(&self, value: f32) {
         self.delay_time_secs.set(value);
+
         let read_position = self.current_read_position.load(Ordering::Relaxed);
         let sample_rate = self.sample_rate.load(Ordering::Relaxed);
         let buffer_size = self.buffer_size.load(Ordering::Relaxed);
@@ -82,6 +83,19 @@ impl<Sample: Float + From<f32>> MonoDelayProcessor<Sample> {
     }
 }
 
+fn interpolate<S>(s1: S, s2: S, offset: S) -> S
+where
+    S: Float + From<f32>,
+{
+    let one: S = 1.0_f32.into();
+    let offset: S = offset;
+    let rhs = offset * s2;
+    let lhs = (one - offset) * s1;
+    // assert!(rhs < S::epsilon());
+    // assert!(lhs - s1 < S::epsilon());
+    lhs + rhs
+}
+
 impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Sample> {
     type SampleType = Sample;
 
@@ -105,18 +119,31 @@ impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Samp
             .store(0, Ordering::Relaxed);
     }
 
-    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+        let sample = frame[0];
+
+        let sample_rate = self.handle.sample_rate.get();
+        let delay_secs = self.handle.delay_time_secs.get() * sample_rate;
+        let offset = delay_secs - delay_secs.floor();
+        let offset: Self::SampleType = offset.into();
+
         let mut current_read_position = self.handle.current_read_position.load(Ordering::Relaxed);
         let mut current_write_position = self.handle.current_write_position.load(Ordering::Relaxed);
+        let buffer_size = self.handle.buffer_size.load(Ordering::Relaxed);
 
-        let delay_output = self.delay_buffer[current_read_position];
-        self.delay_buffer[current_write_position] =
-            sample + delay_output * self.handle.feedback.get().into();
+        let write_sample =
+            sample + self.delay_buffer[current_read_position] * self.handle.feedback.get().into();
+        self.delay_buffer[current_write_position] = write_sample;
+
+        let delay_output = interpolate(
+            self.delay_buffer[current_read_position],
+            self.delay_buffer[(current_read_position + 1) % buffer_size],
+            offset,
+        );
 
         current_read_position += 1;
         current_write_position += 1;
 
-        let buffer_size = self.handle.buffer_size.load(Ordering::Relaxed);
         if current_read_position >= buffer_size {
             current_read_position = 0;
         }
@@ -131,6 +158,7 @@ impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Samp
             .current_write_position
             .store(current_write_position, Ordering::Relaxed);
 
-        delay_output
+        frame[0] = delay_output;
+        frame[1] = delay_output;
     }
 }

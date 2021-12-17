@@ -281,6 +281,7 @@ where
                             .slice()
                             .iter()
                             .zip(self.temporary_buffer.slice_mut())
+                            .take(data.num_samples() * data.num_channels())
                         {
                             *d = *d + *s;
                         }
@@ -293,7 +294,7 @@ where
             {
                 let processor = processor_ref.deref().0.get();
 
-                for frame in self.temporary_buffer.frames_mut() {
+                for frame in self.temporary_buffer.frames_mut().take(data.num_samples()) {
                     unsafe {
                         (*processor).s_process_frame(frame);
                     }
@@ -329,7 +330,7 @@ where
                     }
 
                     for (s, d) in (&*buffer).slice().iter().zip(data.slice_mut()) {
-                        *d = *d + *s;
+                        *d = *s + *d;
                     }
                 }
             }
@@ -404,7 +405,7 @@ mod test {
         empty_buffer.resize(1, 1000, 0.0);
         let mut graph = AudioProcessorGraph::<BufferType>::default();
 
-        assert!(rms_level(&empty_buffer.slice()) - 0.0 < f32::EPSILON);
+        assert!(rms_level(empty_buffer.slice()) - 0.0 < f32::EPSILON);
 
         let mut process_buffer = empty_buffer.clone();
         graph.prepare(settings);

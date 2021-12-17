@@ -3,7 +3,6 @@ use std::time::Duration;
 use midir::MidiOutput;
 
 use augmented_midi::{MIDIFileChunk, MIDIMessage, MIDIMessageNote, MIDITrackEvent, MIDITrackInner};
-use itertools::Itertools;
 
 #[derive(Debug)]
 struct MIDIBytes {

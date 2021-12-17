@@ -1,4 +1,4 @@
-use audio_processor_traits::{AudioBuffer, AudioProcessor, Float};
+use audio_processor_traits::{Float, SimpleAudioProcessor};
 use std::marker::PhantomData;
 
 /// An `AudioProcessor` which will use a "source channel" as the output for all channels.
@@ -35,22 +35,17 @@ impl<SampleType> MonoToStereoProcessor<SampleType> {
     }
 }
 
-impl<SampleType> AudioProcessor for MonoToStereoProcessor<SampleType>
+impl<SampleType> SimpleAudioProcessor for MonoToStereoProcessor<SampleType>
 where
     SampleType: Float + Sync + Send,
 {
     type SampleType = SampleType;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
-        for frame in data.frames_mut() {
-            let source_sample = frame[self.source_channel];
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+        let source_sample = frame[self.source_channel];
 
-            for sample in frame.iter_mut() {
-                *sample = source_sample;
-            }
+        for sample in frame.iter_mut() {
+            *sample = source_sample;
         }
     }
 }
@@ -58,7 +53,7 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
-    use audio_processor_traits::InterleavedAudioBuffer;
+    use audio_processor_traits::{AudioBuffer, AudioProcessor, InterleavedAudioBuffer};
 
     use super::*;
 

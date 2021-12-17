@@ -144,7 +144,7 @@ impl AudioThread {
         let output_config: StreamConfig = output_config.into();
         let channels = output_config.channels as usize;
         let audio_settings = AudioProcessorSettings::new(
-            output_config.sample_rate.0 as f32,
+            AudioThreadOptions::default().sample_rate.0 as f32,
             channels,
             channels,
             512,
