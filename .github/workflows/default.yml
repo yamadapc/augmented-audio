@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+          lfs: true
       - uses: actions/cache@v2
         with:
           path: |
@@ -28,7 +29,8 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-test-cache
+      - uses: Swatinem/rust-cache@v1
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
@@ -54,7 +56,8 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-lint-cache-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-lint-cache
+      - uses: Swatinem/rust-cache@v1
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
@@ -74,6 +77,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+        lfs: true
     - uses: actions/cache@v2
       with:
         path: |
@@ -82,11 +86,15 @@ jobs:
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
           target/
-        key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-release-cache
+    - uses: Swatinem/rust-cache@v1
     - name: Install uniffi bindgen
       run: cargo install --force --version 0.15.2 uniffi_bindgen
     - name: Build release
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
+    - name: Run snapshot tests
+      run: |
+        ./scripts/dev.sh test-snapshots
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:

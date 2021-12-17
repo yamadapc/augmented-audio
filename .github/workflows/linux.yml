@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+          lfs: true
       - uses: actions/cache@v2
         with:
           path: |
@@ -28,15 +29,18 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
-      - name: Install dependencies
-        run: ./scripts/install-ubuntu-dependencies.sh
+          key: ${{ runner.os }}-test-cache
+      - uses: Swatinem/rust-cache@v1
+      - name: Install APT dependencies
+        run: ./scripts/install-ubuntu-apt-dependencies.sh
+      - name: Install Rust dependencies
+        run: ./scripts/install-ubuntu-rust-dependencies.sh
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
-          cargo tarpaulin --workspace \
+          cargo tarpaulin --skip-clean --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
               --exclude-files "*crates/vendor/*" \
@@ -101,6 +105,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+        lfs: true
     - uses: actions/cache@v2
       with:
         path: |
@@ -109,9 +114,12 @@ jobs:
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
           target/
-        key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
-    - name: Install dependencies
-      run: ./scripts/install-ubuntu-dependencies.sh
+        key: ${{ runner.os }}-release-cache
+    - uses: Swatinem/rust-cache@v1
+    - name: Install APT dependencies
+      run: ./scripts/install-ubuntu-apt-dependencies.sh
+    - name: Install Rust dependencies
+      run: ./scripts/install-ubuntu-rust-dependencies.sh
     - name: Build release
       run: |
         cargo build --release --verbose --workspace \
@@ -122,6 +130,9 @@ jobs:
             --exclude recording_buddy \
             --exclude darwin-webkit \
             --exclude macos-bundle-resources
+    - name: Run snapshot tests
+      run: |
+        ./scripts/dev.sh test-snapshots
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:

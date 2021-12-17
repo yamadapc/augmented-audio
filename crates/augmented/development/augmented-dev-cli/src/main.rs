@@ -1,3 +1,5 @@
+use crate::services::snapshot_tests_service::run_all_snapshot_tests;
+
 mod manifests;
 mod services;
 
@@ -25,6 +27,11 @@ fn main() {
         .about("Development CLI for augmented projects, helps build and deploy apps")
         .subcommand(clap::App::new("list-crates").about("List crates and their published status"))
         .subcommand(
+            clap::App::new("test-snapshots")
+                .about("Run processor snapshot tests")
+                .arg(clap::Arg::from("-u, --update-snapshots")),
+        )
+        .subcommand(
             clap::App::new("build")
                 .about("Build a release package for a given app")
                 .arg(clap::Arg::from("-c, --crate=<PATH> 'Crate path'")),
@@ -39,6 +46,9 @@ fn main() {
         let matches = matches.subcommand_matches("build").unwrap();
         let mut build_service = services::BuildCommandService::default();
         build_service.run_build(matches.value_of("crate").unwrap());
+    } else if matches.is_present("test-snapshots") {
+        let matches = matches.subcommand_matches("test-snapshots").unwrap();
+        run_all_snapshot_tests(Default::default(), matches.is_present("update-snapshots"));
     } else {
         app.print_help().unwrap();
         std::process::exit(1);

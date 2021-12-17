@@ -86,10 +86,7 @@ impl BuildCommandService {
         {
             let current = std::env::current_dir().unwrap();
             std::env::set_current_dir(crate_path).unwrap();
-            spawn!(cargo build --release)
-                .unwrap()
-                .wait_cmd_result()
-                .unwrap();
+            spawn!(cargo build --release).unwrap().wait().unwrap();
             std::env::set_current_dir(current).unwrap();
         }
     }

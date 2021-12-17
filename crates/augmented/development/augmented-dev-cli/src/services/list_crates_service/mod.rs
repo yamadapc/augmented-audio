@@ -26,16 +26,32 @@ impl ListCratesService {
     pub fn run(&self) {
         log::info!("Finding crates...");
 
-        let mut crates = Vec::new();
-        self.find_entries("./crates", &mut crates);
+        let manifests = self.find_manifests();
 
-        let manifests = self.parse_manifests(crates);
-        for manifest in manifests {
+        for (_, manifest) in manifests {
             self.run_get_info(manifest);
         }
     }
 
-    fn find_entries(&self, root: &str, crates: &mut Vec<String>) {
+    pub fn find_augmented_crates(&self) -> Vec<(String, CargoToml)> {
+        self.find_manifests()
+            .into_iter()
+            .filter(|(_, manifest)| manifest.is_augmented_crate())
+            .collect()
+    }
+
+    fn find_manifests(&self) -> Vec<(String, CargoToml)> {
+        let crates = self.find_entries();
+        self.parse_manifests(crates)
+    }
+
+    fn find_entries(&self) -> Vec<String> {
+        let mut crates = Vec::new();
+        self.find_entries_inner("./crates", &mut crates);
+        crates
+    }
+
+    fn find_entries_inner(&self, root: &str, crates: &mut Vec<String>) {
         log::debug!("Scanning {}", root);
         let ignore_dirs: HashSet<&str> = ["spikes", "vendor", "target", "apps"]
             .iter()
@@ -53,7 +69,7 @@ impl ListCratesService {
             file_name == "Cargo.toml"
         });
         if cargo_manifest.is_some() {
-            log::info!("Manifest found at {}", root);
+            log::debug!("Manifest found at {}", root);
             crates.push(root.into());
             return;
         }
@@ -66,15 +82,18 @@ impl ListCratesService {
             let is_dir = entry.file_type().unwrap().is_dir();
 
             if is_dir && !ignore_dirs.contains(file_name) {
-                self.find_entries(&format!("{}/{}", root, file_name), crates);
+                self.find_entries_inner(&format!("{}/{}", root, file_name), crates);
             }
         }
     }
 
-    fn parse_manifests(&self, crates: Vec<String>) -> Vec<CargoToml> {
+    fn parse_manifests(&self, crates: Vec<String>) -> Vec<(String, CargoToml)> {
         crates
             .into_iter()
-            .map(|c| self.cargo_toml_reader.read(&c))
+            .map(|c| {
+                let cargo_toml = self.cargo_toml_reader.read(&c);
+                (c, cargo_toml)
+            })
             .collect()
     }
 
