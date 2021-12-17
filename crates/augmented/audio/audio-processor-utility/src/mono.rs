@@ -84,7 +84,7 @@ mod test {
     fn test_stereo_to_mono_can_handle_empty_input() {
         let mut mono = StereoToMonoProcessor::new();
         let mut samples: [f32; 0] = [];
-        let mut input = InterleavedAudioBuffer::new(0, &mut samples);
+        let mut input = InterleavedAudioBuffer::new(1, &mut samples);
 
         mono.process(&mut input);
     }
