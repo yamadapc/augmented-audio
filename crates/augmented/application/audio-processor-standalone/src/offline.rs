@@ -119,6 +119,7 @@ impl MidiMessageLike for MIDIBytes {
     }
 }
 
+/// Converts a MIDI stream's delta_time into absolute ticks.
 fn convert_to_absolute_time(
     mut events: Vec<MIDITrackEvent<Vec<u8>>>,
 ) -> Vec<MIDITrackEvent<Vec<u8>>> {
@@ -130,6 +131,8 @@ fn convert_to_absolute_time(
     events
 }
 
+/// Builds chunks containing MIDI messages over each block, aligned with their
+/// timing and a 120bpm tempo.
 fn build_midi_input_blocks(
     settings: &AudioProcessorSettings,
     total_blocks: usize,
@@ -207,6 +210,7 @@ fn build_midi_input_blocks(
     result
 }
 
+/// Returns the number of elapsed MIDI ticks based on the current block index
 fn get_delta_time_ticks(
     tempo: f32,
     ticks_per_quarter_note: f32,
