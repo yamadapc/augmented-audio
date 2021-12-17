@@ -29,7 +29,8 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-test-cache-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-test-cache
+      - uses: Swatinem/rust-cache@v1
       - name: Install dependencies
         run: ./scripts/install-ubuntu-dependencies.sh
       - name: Test with coverage
@@ -111,7 +112,8 @@ jobs:
           ~/.cargo/registry/cache/
           ~/.cargo/git/db/
           target/
-        key: ${{ runner.os }}-release-cache-${{ hashFiles('**/Cargo.lock') }}
+        key: ${{ runner.os }}-release-cache
+    - uses: Swatinem/rust-cache@v1
     - name: Install dependencies
       run: ./scripts/install-ubuntu-dependencies.sh
     - name: Build release
