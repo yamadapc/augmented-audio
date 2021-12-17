@@ -1,5 +1,6 @@
 [package]
 name = "augmented-dev-cli"
+description = "CLI for augmented monorepo"
 version = "0.1.0"
 edition = "2018"
 

@@ -43,6 +43,11 @@ impl CpalVstBufferHandler {
     pub fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &BufferType) {
         for (channel, input_buffer_channel) in (0..data.num_channels()).zip(&mut self.input_buffer)
         {
+            // The buffers have been pre-allocated to have at least num samples, however if the
+            // input `data` buffer is smaller than num samples, we need to shrink the VST buffers.
+            input_buffer_channel.resize(data.num_samples(), 0.0);
+            self.output_buffer[channel].resize(data.num_samples(), 0.0);
+
             for (sample, output) in data.frames().zip(input_buffer_channel) {
                 *output = sample[channel];
             }

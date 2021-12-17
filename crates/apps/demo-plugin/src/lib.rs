@@ -1,8 +1,10 @@
+use crate::processor::ProcessorHandleRef;
 use augmented::vst::buffer::AudioBuffer;
 use augmented::vst::editor::Editor;
-use augmented::vst::plugin::{Category, HostCallback, Info, Plugin};
+use augmented::vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 use augmented::vst::plugin_main;
 use processor::Processor;
+use std::sync::Arc;
 
 pub mod processor;
 
@@ -17,6 +19,7 @@ impl Plugin for DemoPlugin {
             category: Category::Effect,
             vendor: "Beijaflor Software".to_string(),
             unique_id: 2501, // Used by hosts to differentiate between plugins.
+            parameters: 1,
             ..Default::default()
         }
     }
@@ -35,6 +38,11 @@ impl Plugin for DemoPlugin {
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         self.processor.process(buffer);
+    }
+
+    fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
+        let shared: ProcessorHandleRef = self.processor.handle();
+        Arc::new(shared)
     }
 
     fn start_process(&mut self) {
