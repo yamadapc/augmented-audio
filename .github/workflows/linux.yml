@@ -31,8 +31,10 @@ jobs:
             target/
           key: ${{ runner.os }}-test-cache
       - uses: Swatinem/rust-cache@v1
-      - name: Install dependencies
-        run: ./scripts/install-ubuntu-dependencies.sh
+      - name: Install APT dependencies
+        run: ./scripts/install-ubuntu-apt-dependencies.sh
+      - name: Install Rust dependencies
+        run: ./scripts/install-ubuntu-rust-dependencies.sh
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -114,8 +116,10 @@ jobs:
           target/
         key: ${{ runner.os }}-release-cache
     - uses: Swatinem/rust-cache@v1
-    - name: Install dependencies
-      run: ./scripts/install-ubuntu-dependencies.sh
+    - name: Install APT dependencies
+      run: ./scripts/install-ubuntu-apt-dependencies.sh
+    - name: Install Rust dependencies
+      run: ./scripts/install-ubuntu-rust-dependencies.sh
     - name: Build release
       run: |
         cargo build --release --verbose --workspace \
