@@ -53,10 +53,7 @@ impl ListCratesService {
 
     fn find_entries_inner(&self, root: &str, crates: &mut Vec<String>) {
         log::debug!("Scanning {}", root);
-        let ignore_dirs: HashSet<&str> = ["spikes", "vendor", "target", "apps"]
-            .iter()
-            .copied()
-            .collect();
+        let ignore_dirs: HashSet<&str> = ["spikes", "vendor", "target"].iter().copied().collect();
 
         let entries =
             read_dir(root).unwrap_or_else(|_| panic!("Failed to list {} directory", root));
@@ -99,7 +96,7 @@ impl ListCratesService {
 
     fn run_get_info(&self, manifest: CargoToml) {
         let package = manifest.package;
-        log::info!(
+        log::debug!(
             "CRATE - {}@{} - {}",
             package.name,
             package.version,
@@ -129,7 +126,7 @@ impl ListCratesService {
                         published_crate.crate_data.max_version,
                     );
                 } else {
-                    log::info!(
+                    log::warn!(
                         "{} crates.io version {} <-> {}",
                         package.name,
                         published_crate.crate_data.max_version,

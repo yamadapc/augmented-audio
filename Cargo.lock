@@ -6169,6 +6169,7 @@ version = "0.0.1"
 dependencies = [
  "async-trait",
  "audio-parameter-store",
+ "audio-processor-traits",
  "augmented_oscillator",
  "cocoa 0.18.5",
  "crossbeam",

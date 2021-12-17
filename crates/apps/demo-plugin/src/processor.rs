@@ -23,18 +23,15 @@ impl Processor {
     }
 
     pub fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
-        let _num_channels = buffer.input_count();
+        let num_channels = buffer.input_count();
         let num_samples = buffer.samples();
 
-        let (input, mut output) = buffer.split();
+        let (_input, mut output) = buffer.split();
 
-        #[allow(clippy::needless_range_loop)]
-        for channel in 0..1 {
-            let _input_samples = input.get(channel % input.len());
-            let output_samples = output.get_mut(channel % output.len());
-
-            for sample_index in 0..num_samples {
-                output_samples[sample_index] = self.oscillator.next_sample();
+        for sample_index in 0..num_samples {
+            let out = self.oscillator.next_sample();
+            for channel in 0..num_channels {
+                output.get_mut(channel)[sample_index] = out;
             }
         }
     }

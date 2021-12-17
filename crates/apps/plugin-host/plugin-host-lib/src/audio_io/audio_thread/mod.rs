@@ -75,7 +75,7 @@ impl AudioThread {
         output_stream.play()?;
         self.output_stream = Some(output_stream);
         self.input_stream = maybe_input_stream;
-        log::info!("Audio thread started");
+        log::info!("CPAL streams started");
         Ok(())
     }
 
@@ -163,11 +163,6 @@ fn create_stream(
 
     let output_device =
         cpal_option_handling::get_cpal_output_device(&host, &options.output_device_id)?;
-    log::info!(
-        "Using devices output_device={} input_device={:?}",
-        output_device.name()?,
-        options.input_device_id
-    );
     let output_config = cpal_option_handling::get_output_config(options, &output_device)?;
     let input_device = if let Some(device_id) = &options.input_device_id {
         Some(cpal_option_handling::get_cpal_input_device(
@@ -182,6 +177,13 @@ fn create_stream(
         None
     };
 
+    log::info!(
+        "Creating streams\n  output_device={} output_sample_rate={} input_device={:?} input_sample_rate={}",
+        output_device.name()?,
+        output_config.sample_rate.0,
+        options.input_device_id,
+        input_config.as_ref().map(|c| c.sample_rate.0).unwrap_or(0),
+    );
     let stream = create_stream_inner(
         processor,
         &output_device,

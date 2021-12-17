@@ -26,6 +26,7 @@ use crate::commands::options::RunOptions;
 use crate::processors::shared_processor::SharedProcessor;
 use actix::{Actor, Addr};
 use audio_processor_traits::AudioProcessorSettings;
+use cpal::SampleRate;
 use std::thread::JoinHandle;
 
 mod file_watch;
@@ -152,6 +153,7 @@ fn get_audio_options(run_options: &RunOptions) -> (AudioProcessorSettings, Audio
         .clone()
         .map(AudioHostId::Id)
         .unwrap_or(audio_thread_options.host_id);
+    audio_thread_options.sample_rate = SampleRate(audio_settings.sample_rate as u32);
 
     if run_options.use_default_input_device() {
         audio_thread_options.input_device_id = Some(AudioDeviceId::Default);

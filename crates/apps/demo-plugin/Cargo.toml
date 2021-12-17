@@ -11,3 +11,11 @@ log = "^0.4.11"
 [lib]
 name = "demo_plugin"
 crate-type = ["cdylib"]
+
+[package.metadata]
+augmented.private = true
+app.public-name = "DemoPlugin"
+app.macos.type = "vst"
+app.macos.identifier = "com.beijaflor.demoplugin"
+bundle.name = "DemoPlugin"
+bundle.macos.properties.CFBundleGetInfoString = "vst"

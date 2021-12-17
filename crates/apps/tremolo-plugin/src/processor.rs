@@ -6,6 +6,7 @@ use augmented_oscillator::Oscillator;
 
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
 use audio_parameter_store::ParameterStore;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
 pub struct Processor {
     parameters: Arc<ParameterStore>,
