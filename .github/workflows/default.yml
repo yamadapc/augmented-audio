@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-          fs: true
+          lfs: true
       - uses: actions/cache@v2
         with:
           path: |
