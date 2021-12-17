@@ -11,7 +11,7 @@ use audio_processor_graph::{NodeIndex, NodeType};
 use audio_thread::actor::AudioThreadMessage;
 use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_graph;
-use plugin_host_lib::audio_io::audio_graph::{AudioGraphManager, ProcessorSpec};
+use plugin_host_lib::audio_io::audio_graph::{AudioGraphManager};
 use plugin_host_lib::audio_io::audio_thread;
 use plugin_host_lib::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId};
 use plugin_host_lib::audio_io::audio_thread::AudioThread;
@@ -109,7 +109,7 @@ pub fn audio_thread_set_options(input_device_id: String, output_device_id: Strin
                 },
             })
             .await
-            .unwrap();
+            .unwrap().unwrap();
     });
     Ok(0)
 }
@@ -121,7 +121,7 @@ pub fn audio_graph_setup() -> Result<i32> {
         let manager = AudioGraphManager::from_registry();
         manager.send(audio_graph::SetupGraphMessage).await.unwrap();
         let audio_thread = AudioThread::from_registry();
-        audio_thread.send(AudioThreadMessage::Start).await.unwrap();
+        audio_thread.send(AudioThreadMessage::Start).await.unwrap().unwrap();
     });
     Ok(0)
 }
@@ -171,17 +171,7 @@ pub fn audio_node_create(audio_processor_name: String) -> Result<u32> {
     };
     let processor = processor?;
 
-    let index = ActorSystemThread::current().spawn_result(async move {
-        let manager = AudioGraphManager::from_registry();
-        manager
-            .send(audio_graph::CreateAudioNodeMessage {
-                processor_spec: ProcessorSpec::RawProcessor { value: processor },
-            })
-            .await
-            .unwrap()
-            .unwrap()
-            .index()
-    });
+    let index = crate::graph::audio_node_create_raw(processor);
 
     Ok(index as u32)
 }
@@ -192,23 +182,4 @@ pub fn audio_node_set_parameter(
     _parameter_value: f32,
 ) -> Result<i32> {
     todo!()
-}
-
-#[cfg(test)]
-mod test {
-    // use super::*;
-    //
-    // #[test]
-    // fn test_create_graph() {
-    //     let _ = wisual_logger::try_init_from_env();
-    //     audio_graph_setup().unwrap();
-    //     audio_thread_set_options("default".into(), "default".into());
-    //     let result = audio_graph_get_system_indexes().unwrap();
-    //     let input_idx = result[0];
-    //     let output_idx = result[1];
-    //     let delay_idx = audio_node_create("delay".into()).unwrap();
-    //     audio_graph_connect(input_idx, delay_idx).unwrap();
-    //     audio_graph_connect(delay_idx, output_idx).unwrap();
-    //     std::thread::park();
-    // }
 }

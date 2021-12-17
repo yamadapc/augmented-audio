@@ -3,7 +3,9 @@ use std::time::Duration;
 
 use audio_garbage_collector::{Handle, Shared, SharedCell};
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{
+    AtomicF32, AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor,
+};
 
 /// A shared "processor handle" to `RunningRMSProcessor`
 pub struct RunningRMSProcessorHandle {
@@ -80,10 +82,10 @@ impl RunningRMSProcessor {
     }
 }
 
-impl AudioProcessor for RunningRMSProcessor {
+impl SimpleAudioProcessor for RunningRMSProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
         self.duration_samples = (settings.sample_rate() * self.duration.as_secs_f32()) as usize;
         self.handle.resize(
             &self.gc_handle,
@@ -92,10 +94,7 @@ impl AudioProcessor for RunningRMSProcessor {
         );
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
         if self.duration_samples == 0 {
             return;
         }
@@ -103,32 +102,30 @@ impl AudioProcessor for RunningRMSProcessor {
         let running_sums = self.handle.running_sums.get();
         let window = self.handle.window.get();
         let mut cursor = self.handle.cursor.load(Ordering::Relaxed);
+        for (channel_index, sample) in frame.iter().enumerate() {
+            let value_slot = window.get(channel_index, cursor);
+            let previous_value = value_slot.get();
 
-        for frame in data.frames() {
-            for (channel_index, sample) in frame.iter().enumerate() {
-                let value_slot = window.get(channel_index, cursor);
-                let previous_value = value_slot.get();
+            let new_value = *sample * *sample; // using square rather than abs is around 1% faster
+            value_slot.set(new_value);
 
-                let new_value = *sample * *sample; // using square rather than abs is around 1% faster
-                value_slot.set(new_value);
-
-                let running_sum_slot = &running_sums[channel_index];
-                let running_sum = running_sum_slot.get() + new_value - previous_value;
-                running_sum_slot.set(running_sum);
-            }
-
-            cursor += 1;
-            if cursor >= self.duration_samples {
-                cursor = 0;
-            }
-            self.handle.cursor.store(cursor, Ordering::Relaxed);
+            let running_sum_slot = &running_sums[channel_index];
+            let running_sum = running_sum_slot.get() + new_value - previous_value;
+            running_sum_slot.set(running_sum);
         }
+
+        cursor += 1;
+        if cursor >= self.duration_samples {
+            cursor = 0;
+        }
+        self.handle.cursor.store(cursor, Ordering::Relaxed);
     }
 }
 
 #[cfg(test)]
 mod test {
     use audio_garbage_collector::GarbageCollector;
+    use audio_processor_traits::AudioProcessor;
 
     use super::*;
 

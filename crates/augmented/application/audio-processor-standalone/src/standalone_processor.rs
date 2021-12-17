@@ -108,7 +108,10 @@ mod test {
             type SampleType = f32;
         }
         impl MidiEventHandler for MockProcessor {
-            fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
+            fn process_midi_events<Message: MidiMessageLike>(
+                &mut self,
+                _midi_messages: &[Message],
+            ) {
             }
         }
 

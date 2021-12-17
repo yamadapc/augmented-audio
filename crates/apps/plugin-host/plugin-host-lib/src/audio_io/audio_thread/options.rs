@@ -1,3 +1,4 @@
+use cpal::SampleRate;
 use std::fmt::Formatter;
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -70,6 +71,7 @@ pub struct AudioThreadOptions {
     pub input_device_id: Option<AudioDeviceId>,
     pub buffer_size: BufferSize,
     pub num_channels: usize,
+    pub sample_rate: SampleRate,
 }
 
 impl Default for AudioThreadOptions {
@@ -78,8 +80,9 @@ impl Default for AudioThreadOptions {
             Default::default(),
             Default::default(),
             None,
-            Default::default(),
+            BufferSize::Fixed(512),
             2,
+            SampleRate(44100),
         )
     }
 }
@@ -91,6 +94,7 @@ impl AudioThreadOptions {
         input_device_id: Option<AudioDeviceId>,
         buffer_size: BufferSize,
         num_channels: usize,
+        sample_rate: SampleRate,
     ) -> Self {
         AudioThreadOptions {
             host_id,
@@ -98,6 +102,7 @@ impl AudioThreadOptions {
             input_device_id,
             buffer_size,
             num_channels,
+            sample_rate,
         }
     }
 }

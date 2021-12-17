@@ -41,6 +41,7 @@ impl Handler<SetupGraphMessage> for AudioGraphManager {
         log::info!("Setting-up audio-graph processor");
 
         let mut audio_graph_processor = AudioProcessorGraph::default();
+        // TODO: This is wrong. The graph should negotiate settings with the audio-thread.
         audio_graph_processor.prepare(AudioThread::default_settings().unwrap());
 
         self.input_idx = Some(audio_graph_processor.input());

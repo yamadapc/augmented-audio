@@ -1,4 +1,4 @@
-use audio_processor_traits::{AudioBuffer, AudioProcessor, Float};
+use audio_processor_traits::{Float, SimpleAudioProcessor};
 use std::marker::PhantomData;
 use std::ops::AddAssign;
 
@@ -23,36 +23,32 @@ impl<SampleType> StereoToMonoProcessor<SampleType> {
     }
 }
 
-impl<SampleType> AudioProcessor for StereoToMonoProcessor<SampleType>
+impl<SampleType> SimpleAudioProcessor for StereoToMonoProcessor<SampleType>
 where
     SampleType: Float + Sync + Send + AddAssign,
 {
     type SampleType = SampleType;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
-        if data.num_channels() == 0 {
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+        if frame.is_empty() {
             return;
         }
 
-        for frame in data.frames_mut() {
-            let mut sum: SampleType = SampleType::zero();
+        let mut sum: SampleType = SampleType::zero();
 
-            for sample in frame.iter() {
-                sum += *sample;
-            }
-
-            frame[0] = sum;
+        for sample in frame.iter_mut() {
+            sum += *sample;
+            *sample = SampleType::zero();
         }
+
+        frame[0] = sum;
     }
 }
 
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
-    use audio_processor_traits::InterleavedAudioBuffer;
+    use audio_processor_traits::{AudioProcessor, InterleavedAudioBuffer};
 
     use super::*;
 
