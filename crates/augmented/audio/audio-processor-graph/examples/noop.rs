@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_traits::audio_buffer::VecAudioBuffer;
 
