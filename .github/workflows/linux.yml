@@ -40,7 +40,7 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
-          cargo tarpaulin --workspace \
+          cargo tarpaulin --skip-clean --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
               --exclude-files "*crates/vendor/*" \
