@@ -92,8 +92,11 @@ fn main() {
                 add_y(y_bin_idx + 1, 1.0 - y_delta);
             }
 
-            let red_f = drawing_magnitude * 255.0 / 20.0;
-            let pixel = image::Rgb([red_f as u8, (red_f * 0.6) as u8, 0]);
+            let ratio = 2.0 * (drawing_magnitude.log10() / 2.0);
+            let red = (255.0 * (ratio - 1.0)).floor();
+            let blue = 0.0; // (255.0 * (1.0 - ratio)).floor();
+            let green = (255.0 * (ratio * 0.5)).floor();
+            let pixel = image::Rgb([red as u8, blue as u8, green as u8]);
             img[(x, y)] = pixel;
         }
     }

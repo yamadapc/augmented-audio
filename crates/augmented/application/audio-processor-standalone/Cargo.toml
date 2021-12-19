@@ -25,3 +25,4 @@ augmented-midi = { path = "../../data/augmented-midi" }
 basedrop = "^0.1.2"
 cpal = { version = "^0.13.3" }
 ringbuf = "^0.2.5"
+vst = { path = "../../../vendor/vst" }

@@ -464,6 +464,7 @@ dependencies = [
  "itertools 0.10.1",
  "log",
  "ringbuf",
+ "vst",
  "wisual-logger",
 ]
 

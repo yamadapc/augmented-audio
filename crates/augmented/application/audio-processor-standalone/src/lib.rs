@@ -11,9 +11,10 @@ pub use standalone_processor::StandaloneProcessor;
 pub use standalone_processor::StandaloneProcessorImpl;
 
 pub mod offline;
-mod options;
-mod standalone_cpal;
-mod standalone_processor;
+pub mod options;
+pub mod standalone_cpal;
+pub mod standalone_processor;
+pub mod standalone_vst;
 
 /// Run an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
 /// messages received on all inputs to it.

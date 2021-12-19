@@ -3,8 +3,21 @@ name = "audio-processor-time"
 version = "0.1.0"
 edition = "2021"
 
+[[example]]
+name = "delay"
+
+[[example]]
+name = "delay_vst"
+crate-type = ["cdylib"]
+
+[package.metadata]
+app.public-name = "audio_processor_time"
+app.macos.type = "vst"
+app.macos.identifier = "com.beijaflor.Delay"
+
 [package.metadata.augmented]
 processor_examples = ["delay"]
+vst_examples = ["delay_vst"]
 private = false
 
 [dependencies]

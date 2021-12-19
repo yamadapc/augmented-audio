@@ -15,6 +15,7 @@ pub struct PackagerInput<'a> {
     pub crate_path: &'a str,
     pub cargo_toml: &'a CargoToml,
     pub release_json: &'a ReleaseJson,
+    pub example_name: Option<&'a str>,
 }
 
 /// Represents an App package that has been built
@@ -54,6 +55,7 @@ impl PackagerService for PackagerServiceImpl {
                 MacosAppConfig::Vst(vst) => VstHandler::handle(target_path, &input, vst),
             }
         } else {
+            log::warn!("There's no package config");
             None
         }
     }

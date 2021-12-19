@@ -34,6 +34,7 @@ fn main() {
         .subcommand(
             clap::App::new("build")
                 .about("Build a release package for a given app")
+                .arg(clap::Arg::from("--example=[EXAMPLE] 'Example name'"))
                 .arg(clap::Arg::from("-c, --crate=<PATH> 'Crate path'")),
         );
 
@@ -45,7 +46,10 @@ fn main() {
     } else if matches.is_present("build") {
         let matches = matches.subcommand_matches("build").unwrap();
         let mut build_service = services::BuildCommandService::default();
-        build_service.run_build(matches.value_of("crate").unwrap());
+        let crate_path = matches.value_of("crate").unwrap();
+        let example_name = matches.value_of("example");
+
+        build_service.run_build(crate_path, example_name);
     } else if matches.is_present("test-snapshots") {
         let matches = matches.subcommand_matches("test-snapshots").unwrap();
         run_all_snapshot_tests(Default::default(), matches.is_present("update-snapshots"));

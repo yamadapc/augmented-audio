@@ -41,17 +41,22 @@ impl VstHandler {
             .to_file_xml(plist_path)
             .expect("Failed to write plist file");
 
-        let source_dylib_path = format!(
-            "./target/release/lib{}.dylib",
-            input
-                .cargo_toml
-                .lib
-                .as_ref()
-                .expect("VST requires a lib")
-                .name
-                .as_ref()
-                .expect("VST lib require a name")
-        );
+        let source_dylib_path = input
+            .example_name
+            .map(|example| format!("./target/release/examples/lib{}.dylib", example))
+            .unwrap_or_else(|| {
+                format!(
+                    "./target/release/lib{}.dylib",
+                    input
+                        .cargo_toml
+                        .lib
+                        .as_ref()
+                        .expect("VST requires a lib")
+                        .name
+                        .as_ref()
+                        .expect("VST lib require a name")
+                )
+            });
         let target_dylib_path =
             output_path.join(format!("Contents/MacOS/{}", input.cargo_toml.package.name));
         log::info!(
