@@ -25,7 +25,8 @@ impl LooperProcessorHandle {
             is_playing_back: AtomicBool::new(false),
             playback_input: AtomicBool::new(true),
             should_clear: AtomicBool::new(false),
-            dry_volume: AtomicF32::new(1.0),
+            // TODO: 0 is the default for testing
+            dry_volume: AtomicF32::new(0.0),
             loop_volume: AtomicF32::new(1.0),
             midi_map: MidiMap::new_with_handle(handle),
             state,
