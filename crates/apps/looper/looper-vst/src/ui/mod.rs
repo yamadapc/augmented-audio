@@ -18,12 +18,12 @@ mod style;
 
 #[derive(Clone)]
 pub struct Flags {
-    pub processor_handle: Shared<LooperProcessorHandle<f32>>,
+    pub processor_handle: Shared<LooperProcessorHandle>,
 }
 
 pub struct LooperApplication {
     #[allow(dead_code)]
-    processor_handle: Shared<LooperProcessorHandle<f32>>,
+    processor_handle: Shared<LooperProcessorHandle>,
     looper_visualization: LooperVisualizationView,
     knobs_view: bottom_panel::BottomPanelView,
 }

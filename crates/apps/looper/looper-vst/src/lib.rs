@@ -22,7 +22,7 @@ pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";
 pub struct LoopiPlugin {
     garbage_collector: GarbageCollector,
     parameters: Arc<ParameterStore>,
-    processor: LooperProcessor<f32>,
+    processor: LooperProcessor,
     settings: AudioProcessorSettings,
 }
 
@@ -93,7 +93,7 @@ impl Drop for LoopiPlugin {
         if let Err(err) = self.garbage_collector.stop() {
             log::error!("Failed to stop GC {}", err);
         }
-        log::info!("Loopi is dropped {}", self.processor.id);
+        log::info!("Loopi is dropped");
     }
 }
 

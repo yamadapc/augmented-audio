@@ -43,13 +43,13 @@ pub enum Message {
 }
 
 pub struct BottomPanelView {
-    processor_handle: Shared<LooperProcessorHandle<f32>>,
+    processor_handle: Shared<LooperProcessorHandle>,
     parameter_states: Vec<ParameterViewModel>,
     buttons_view: ButtonsView,
 }
 
 impl BottomPanelView {
-    pub fn new(processor_handle: Shared<LooperProcessorHandle<f32>>) -> Self {
+    pub fn new(processor_handle: Shared<LooperProcessorHandle>) -> Self {
         BottomPanelView {
             processor_handle: processor_handle.clone(),
             parameter_states: vec![
@@ -123,14 +123,14 @@ impl BottomPanelView {
 }
 
 struct ButtonsView {
-    processor_handle: Shared<LooperProcessorHandle<f32>>,
+    processor_handle: Shared<LooperProcessorHandle>,
     record_state: iced::button::State,
     clear_state: iced::button::State,
     stop_state: iced::button::State,
 }
 
 impl ButtonsView {
-    pub fn new(processor_handle: Shared<LooperProcessorHandle<f32>>) -> Self {
+    pub fn new(processor_handle: Shared<LooperProcessorHandle>) -> Self {
         ButtonsView {
             processor_handle,
             record_state: iced::button::State::default(),

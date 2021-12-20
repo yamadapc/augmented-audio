@@ -1,93 +1,108 @@
-use std::ops::AddAssign;
-use std::time::Duration;
-
+use basedrop::SharedCell;
 use num::FromPrimitive;
+use std::sync::atomic::{AtomicUsize, Ordering};
 
-use audio_garbage_collector::{Handle, Shared};
+use audio_garbage_collector::{make_shared, make_shared_cell, Handle, Shared};
+use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
+    MidiMessageLike, VecAudioBuffer,
 };
 
-use crate::buffer::InternalBuffer;
 pub use crate::handle::LooperProcessorHandle;
 use crate::handle::ProcessParameters;
 use crate::midi_map::{Action, MidiSpec};
 
-mod buffer;
 mod handle;
 mod midi_map;
 
-enum LoopState {
-    Empty,
-    Recording { start: usize },
-    PlayOrOverdub { start: usize, end: usize },
+struct LoopState {
+    // 0 empty, 1 recording, 2 playing
+    recording_state: AtomicUsize,
+    start: AtomicUsize,
+    end: AtomicUsize,
 }
 
 /// Private not thread safe mutable state
-struct LooperProcessorState<SampleType: num::Float> {
+pub struct LooperProcessorState {
     loop_state: LoopState,
-    looper_cursor: usize,
-    num_channels: usize,
-    looped_clip: InternalBuffer<SampleType>,
+    looper_cursor: AtomicUsize,
+    num_channels: AtomicUsize,
+    looped_clip: Shared<SharedCell<VecAudioBuffer<AtomicF32>>>,
 }
 
-impl<SampleType: num::Float> LooperProcessorState<SampleType> {
+impl LooperProcessorState {
     pub fn new() -> Self {
         LooperProcessorState {
-            num_channels: 2,
-            looper_cursor: 0,
-            loop_state: LoopState::Empty,
-            looped_clip: InternalBuffer::new(),
+            num_channels: AtomicUsize::new(2usize),
+            looper_cursor: AtomicUsize::new(0usize),
+            loop_state: LoopState {
+                recording_state: AtomicUsize::new(0),
+                start: AtomicUsize::new(0),
+                end: AtomicUsize::new(0),
+            },
+            looped_clip: make_shared(make_shared_cell(VecAudioBuffer::new())),
         }
     }
 
-    pub fn increment_cursor(&mut self) {
-        self.looper_cursor += 1;
+    pub fn increment_cursor(&self) {
+        let mut looper_cursor = self.looper_cursor.load(Ordering::Relaxed);
+        looper_cursor += 1;
 
-        if let LoopState::PlayOrOverdub { start, end } = self.loop_state {
+        if self.loop_state.recording_state.load(Ordering::Relaxed) == 2 {
+            let start = self.loop_state.start.load(Ordering::Relaxed);
+            let end = self.loop_state.end.load(Ordering::Relaxed);
+
             if end > start {
-                if self.looper_cursor >= end {
-                    self.looper_cursor = start;
+                if looper_cursor >= end {
+                    looper_cursor = start;
                 }
             } else {
                 // End point is before start
-                let loop_length = self.looped_clip.num_samples() - start + end;
-                if self.looper_cursor >= start {
-                    let cursor_relative_to_start = self.looper_cursor - start;
+                let looped_clip = self.looped_clip.get();
+                let loop_length = looped_clip.num_samples() - start + end;
+                if looper_cursor >= start {
+                    let cursor_relative_to_start = looper_cursor - start;
                     if cursor_relative_to_start >= loop_length {
-                        self.looper_cursor = start;
+                        looper_cursor = start;
                     }
                 } else {
                     let cursor_relative_to_start =
-                        self.looper_cursor - end + self.looped_clip.num_samples() - start;
+                        looper_cursor - end + looped_clip.num_samples() - start;
                     if cursor_relative_to_start >= loop_length {
-                        self.looper_cursor = start;
+                        looper_cursor = start;
                     }
                 }
             }
         } else {
-            self.looper_cursor %= self.looped_clip.num_samples();
+            looper_cursor %= self.looped_clip.get().num_samples();
+        }
+
+        self.looper_cursor.store(looper_cursor, Ordering::Relaxed);
+    }
+
+    fn clear(&self) {
+        self.loop_state.recording_state.store(0, Ordering::Relaxed);
+        self.loop_state.start.store(0, Ordering::Relaxed);
+        self.loop_state.end.store(0, Ordering::Relaxed);
+        for sample in self.looped_clip.get().slice() {
+            sample.set(0.0);
         }
     }
 
-    fn clear(&mut self) {
-        self.loop_state = LoopState::Empty;
-    }
-
-    fn on_tick(&mut self, is_recording: bool, looper_cursor: usize) {
-        match self.loop_state {
+    fn on_tick(&self, is_recording: bool, looper_cursor: usize) {
+        match self.loop_state.recording_state.load(Ordering::Relaxed) {
             // Loop has ended
-            LoopState::Recording { start } if !is_recording => {
-                self.loop_state = LoopState::PlayOrOverdub {
-                    start,
-                    end: looper_cursor,
-                };
+            1 if !is_recording => {
+                self.loop_state.recording_state.store(2, Ordering::Relaxed);
+                self.loop_state.end.store(looper_cursor, Ordering::Relaxed);
             }
             // Loop has started
-            LoopState::Empty if is_recording => {
-                self.loop_state = LoopState::Recording {
-                    start: looper_cursor,
-                };
+            0 if is_recording => {
+                self.loop_state.recording_state.store(1, Ordering::Relaxed);
+                self.loop_state
+                    .start
+                    .store(looper_cursor, Ordering::Relaxed);
             }
             _ => {}
         }
@@ -95,53 +110,76 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
         self.increment_cursor();
     }
 
-    fn playhead(&self) -> usize {
-        let cursor = self.looper_cursor;
-        match &self.loop_state {
-            LoopState::Empty => cursor,
-            LoopState::Recording { start, .. } => {
-                if cursor > *start {
-                    cursor - start
-                } else {
-                    0
-                }
-            }
-            LoopState::PlayOrOverdub { start, .. } => {
-                if cursor > *start {
-                    cursor - start
-                } else {
-                    0
-                }
-            }
+    /// Returns the size of the current loop
+    pub fn num_samples(&self) -> usize {
+        let recording_state = self.loop_state.recording_state.load(Ordering::Relaxed);
+
+        if recording_state == 0 {
+            return 0;
         }
+
+        let clip = self.looped_clip.get();
+        let start = self.loop_state.start.load(Ordering::Relaxed);
+        let end = self.end_cursor();
+
+        if end > start {
+            end - start
+        } else {
+            clip.num_samples() - start + end
+        }
+    }
+
+    /// Either the looper cursor or the end
+    fn end_cursor(&self) -> usize {
+        let recording_state = self.loop_state.recording_state.load(Ordering::Relaxed);
+        if recording_state == 1 {
+            self.looper_cursor.load(Ordering::Relaxed)
+        } else {
+            self.loop_state.end.load(Ordering::Relaxed)
+        }
+    }
+
+    pub fn loop_iterator(&self) -> impl Iterator<Item = f32> {
+        let start = self.loop_state.start.load(Ordering::Relaxed);
+        let clip = self.looped_clip.get();
+
+        (0..self.num_samples()).map(move |index| {
+            let idx = (start + index) % clip.num_samples();
+            let mut s = 0.0;
+            for channel in 0..clip.num_channels() {
+                s += clip.get(channel, idx).get();
+            }
+            s
+        })
+    }
+
+    pub fn looped_clip(&self) -> &Shared<SharedCell<VecAudioBuffer<AtomicF32>>> {
+        &self.looped_clip
     }
 }
 
 /// A single stereo looper
-pub struct LooperProcessor<SampleType: num::Float> {
-    pub id: String,
-    state: LooperProcessorState<SampleType>,
-    handle: Shared<LooperProcessorHandle<SampleType>>,
+pub struct LooperProcessor {
+    id: String,
+    handle: Shared<LooperProcessorHandle>,
 }
 
-impl<SampleType: num::Float + 'static> LooperProcessor<SampleType> {
+impl LooperProcessor {
     pub fn new(handle: &Handle) -> Self {
+        let state = LooperProcessorState::new();
         LooperProcessor {
             id: uuid::Uuid::new_v4().to_string(),
-            state: LooperProcessorState::new(),
-            handle: Shared::new(handle, LooperProcessorHandle::new(handle)),
+            handle: Shared::new(handle, LooperProcessorHandle::new(handle, state)),
         }
     }
 
-    pub fn handle(&self) -> Shared<LooperProcessorHandle<SampleType>> {
+    pub fn handle(&self) -> Shared<LooperProcessorHandle> {
         self.handle.clone()
     }
 }
 
-impl<SampleType: num::Float + Send + Sync + AddAssign> AudioProcessor
-    for LooperProcessor<SampleType>
-{
-    type SampleType = SampleType;
+impl AudioProcessor for LooperProcessor {
+    type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         log::info!("Prepare looper {}", self.id);
@@ -151,12 +189,17 @@ impl<SampleType: num::Float + Send + Sync + AddAssign> AudioProcessor
         }
 
         let num_channels = settings.input_channels();
-        self.state.num_channels = num_channels;
-        self.state.looped_clip.resize(
+        self.handle
+            .state
+            .num_channels
+            .store(num_channels, Ordering::Relaxed);
+        let mut buffer = VecAudioBuffer::new();
+        buffer.resize(
             num_channels,
-            settings.sample_rate(),
-            Duration::from_secs(10),
+            (settings.sample_rate() * 10.0) as usize,
+            AtomicF32::new(0.0),
         );
+        self.handle.state.looped_clip.set(make_shared(buffer));
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -167,35 +210,35 @@ impl<SampleType: num::Float + Send + Sync + AddAssign> AudioProcessor
             let parameters = self.handle.parameters();
             if parameters.should_clear {
                 self.handle.set_should_clear(false);
-                self.state.clear();
+                self.handle.state.clear();
             }
 
-            let looper_cursor = self.state.looper_cursor;
-            let mut viz_input = BufferType::SampleType::zero();
+            let looper_cursor = self.handle.state.looper_cursor.load(Ordering::Relaxed);
+            let mut viz_input = 0.0;
 
             for channel_num in 0..data.num_channels() {
                 self.process_sample(&parameters, data, sample_index, channel_num, &mut viz_input)
             }
 
             if self.handle.is_playing_back() || self.handle.is_recording() {
-                self.handle.queue.push(viz_input);
-                self.state.on_tick(parameters.is_recording, looper_cursor);
-                self.handle.set_playhead(self.state.playhead());
+                self.handle
+                    .state
+                    .on_tick(parameters.is_recording, looper_cursor);
             }
         }
     }
 }
 
-impl<SampleType: num::Float + AddAssign> LooperProcessor<SampleType> {
-    fn process_sample<BufferType: AudioBuffer<SampleType = SampleType>>(
+impl LooperProcessor {
+    fn process_sample<BufferType: AudioBuffer<SampleType = f32>>(
         &mut self,
-        parameters: &ProcessParameters<SampleType>,
+        parameters: &ProcessParameters<f32>,
         data: &mut BufferType,
         sample_index: usize,
         channel_num: usize,
-        viz_input: &mut SampleType,
+        viz_input: &mut f32,
     ) {
-        let looper_cursor: usize = self.state.looper_cursor;
+        let looper_cursor: usize = self.handle.state.looper_cursor.load(Ordering::Relaxed);
 
         let ProcessParameters {
             playback_input,
@@ -206,34 +249,31 @@ impl<SampleType: num::Float + AddAssign> LooperProcessor<SampleType> {
             ..
         } = *parameters;
 
-        let loop_channel = self.state.looped_clip.channel(channel_num);
         // INPUT SECTION:
         let input = *data.get(channel_num, sample_index);
         let dry_output = Self::process_input(playback_input, input);
         *viz_input += dry_output;
 
         // PLAYBACK SECTION:
-        let looper_output = loop_channel[looper_cursor];
-        let looper_output = if is_playing_back {
-            looper_output
-        } else {
-            SampleType::zero()
-        };
-
-        let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
-        data.set(channel_num, sample_index, mixed_output);
+        let looped_clip = self.handle.state.looped_clip.get();
+        let looper_output = looped_clip.get(channel_num, looper_cursor).get();
+        let looper_output = if is_playing_back { looper_output } else { 0.0 };
 
         // RECORDING SECTION:
         if is_recording {
             // When recording starts we'll store samples in the looper buffer
-            loop_channel[looper_cursor] =
-                *data.get(channel_num, sample_index) + loop_channel[looper_cursor];
+            let sample = looped_clip.get(channel_num, looper_cursor);
+            sample.set(*data.get(channel_num, sample_index) + sample.get());
         }
+
+        // OUTPUT SECTION:
+        let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
+        data.set(channel_num, sample_index, mixed_output);
     }
 
-    fn process_input(playback_input: bool, input: SampleType) -> SampleType {
+    fn process_input(playback_input: bool, input: f32) -> f32 {
         if !playback_input {
-            SampleType::zero()
+            0.0
         } else {
             input
         }
@@ -250,9 +290,7 @@ impl<SampleType: num::Float + AddAssign> LooperProcessor<SampleType> {
     }
 }
 
-impl<SampleType: num::Float + Send + Sync + std::ops::AddAssign> MidiEventHandler
-    for LooperProcessor<SampleType>
-{
+impl MidiEventHandler for LooperProcessor {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
         for message in midi_messages {
             let status = message
