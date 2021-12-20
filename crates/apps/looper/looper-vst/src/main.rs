@@ -22,7 +22,7 @@ fn main() {
             title: "Looper".to_string(),
             size: Size {
                 width: 500.0,
-                height: 500.0,
+                height: 300.0,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
         },

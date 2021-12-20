@@ -54,6 +54,13 @@ impl Application for LooperApplication {
     fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
         match message {
             Message::BottomPanel(message) => {
+                match &message {
+                    bottom_panel::Message::ClearPressed => {
+                        self.looper_visualization.clear_visualization()
+                    }
+                    _ => {}
+                }
+
                 self.knobs_view.update(message).map(Message::BottomPanel)
             }
             Message::VisualizationTick => {
@@ -68,7 +75,7 @@ impl Application for LooperApplication {
         &self,
         _window_subs: &mut WindowSubs<Self::Message>,
     ) -> Subscription<Self::Message> {
-        iced::time::every(Duration::from_millis(100)).map(|_| Message::VisualizationTick)
+        iced::time::every(Duration::from_millis(16)).map(|_| Message::VisualizationTick)
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {

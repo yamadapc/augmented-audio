@@ -43,6 +43,7 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
 
     pub fn increment_cursor(&mut self) {
         self.looper_cursor += 1;
+
         if let LoopState::PlayOrOverdub { start, end } = self.loop_state {
             if end > start {
                 if self.looper_cursor >= end {
@@ -92,6 +93,27 @@ impl<SampleType: num::Float> LooperProcessorState<SampleType> {
         }
 
         self.increment_cursor();
+    }
+
+    fn playhead(&self) -> usize {
+        let cursor = self.looper_cursor;
+        match &self.loop_state {
+            LoopState::Empty => cursor,
+            LoopState::Recording { start, .. } => {
+                if cursor > *start {
+                    cursor - start
+                } else {
+                    0
+                }
+            }
+            LoopState::PlayOrOverdub { start, .. } => {
+                if cursor > *start {
+                    cursor - start
+                } else {
+                    0
+                }
+            }
+        }
     }
 }
 
@@ -155,8 +177,11 @@ impl<SampleType: num::Float + Send + Sync + AddAssign> AudioProcessor
                 self.process_sample(&parameters, data, sample_index, channel_num, &mut viz_input)
             }
 
-            self.handle.queue.push(viz_input);
-            self.state.on_tick(parameters.is_recording, looper_cursor);
+            if self.handle.is_playing_back() || self.handle.is_recording() {
+                self.handle.queue.push(viz_input);
+                self.state.on_tick(parameters.is_recording, looper_cursor);
+                self.handle.set_playhead(self.state.playhead());
+            }
         }
     }
 }

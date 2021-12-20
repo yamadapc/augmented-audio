@@ -5,7 +5,6 @@ use iced::Point;
 use iced_baseview::canvas::{Cursor, Geometry, Program};
 use iced_baseview::{Canvas, Element, Length, Rectangle};
 use looper_processor::LooperProcessorHandle;
-use std::time::Duration;
 
 #[derive(Debug, Clone)]
 pub enum Message {}
@@ -13,33 +12,27 @@ pub enum Message {}
 pub struct LooperVisualizationView {
     processor_handle: Shared<LooperProcessorHandle<f32>>,
     audio_buffer: Vec<f32>,
-    cursor: usize,
 }
 
 impl LooperVisualizationView {
     pub fn new(processor_handle: Shared<LooperProcessorHandle<f32>>) -> Self {
-        let mut audio_buffer = Vec::new();
-        audio_buffer.resize(
-            (Duration::from_secs(1).as_secs_f32() * 44100.) as usize,
-            0.0,
-        );
+        let audio_buffer = Vec::new();
         Self {
             processor_handle,
             audio_buffer,
-            cursor: 0,
         }
     }
 
     pub fn tick_visualization(&mut self) {
         if self.processor_handle.is_recording() {
             while let Some(sample) = self.processor_handle.queue.pop() {
-                self.audio_buffer[self.cursor] = sample;
-                self.cursor += 1;
-                if self.cursor >= self.audio_buffer.len() {
-                    self.cursor = 0;
-                }
+                self.audio_buffer.push(sample);
             }
         }
+    }
+
+    pub fn clear_visualization(&mut self) {
+        self.audio_buffer.clear();
     }
 
     pub fn view(&mut self) -> Element<()> {
@@ -58,6 +51,8 @@ impl Program<()> for LooperVisualizationView {
         let mut index = 0;
         let mut path = iced::canvas::path::Builder::new();
 
+        let num_pixels = frame.width() * 4.0;
+        let step = (data.len() / num_pixels as usize).max(1);
         while index < data.len() {
             let item = data[index];
             let f_index = index as f32;
@@ -66,7 +61,7 @@ impl Program<()> for LooperVisualizationView {
 
             path.line_to(Point::new(x, y));
 
-            index += 10;
+            index += step;
         }
 
         let color = if self.processor_handle.is_recording() {
@@ -75,6 +70,20 @@ impl Program<()> for LooperVisualizationView {
             Colors::active_border_color()
         };
         frame.stroke(&path.build(), Stroke::default().with_color(color));
+
+        if !data.is_empty() && !self.processor_handle.is_recording() {
+            let mut playhead = iced::canvas::path::Builder::new();
+            let playhead_ratio = self.processor_handle.playhead() as f32 / (data.len() as f32);
+            let playhead_x = playhead_ratio * frame.width();
+            playhead.move_to(Point::new(playhead_x, 0.0));
+            playhead.line_to(Point::new(playhead_x, frame.height()));
+            frame.stroke(
+                &playhead.build(),
+                Stroke::default()
+                    .with_width(2.0)
+                    .with_color(Colors::success()),
+            );
+        }
 
         vec![frame.into_geometry()]
     }

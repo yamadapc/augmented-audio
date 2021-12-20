@@ -1,4 +1,4 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 
 use audio_garbage_collector::Handle;
 use audio_processor_traits::AtomicF32;
@@ -16,6 +16,7 @@ pub struct LooperProcessorHandle<SampleType> {
     dry_volume: AtomicF32,
     loop_volume: AtomicF32,
     midi_map: MidiMap,
+    playhead: AtomicUsize,
     pub queue: atomic_queue::Queue<SampleType>,
 }
 
@@ -28,6 +29,7 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
             should_clear: AtomicBool::new(false),
             dry_volume: AtomicF32::new(1.0),
             loop_volume: AtomicF32::new(1.0),
+            playhead: AtomicUsize::new(0),
             midi_map: MidiMap::new_with_handle(handle),
             queue: atomic_queue::Queue::new(QUEUE_CAPACITY),
         }
@@ -44,6 +46,7 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
     pub fn clear(&self) {
         self.stop();
         self.should_clear.store(true, Ordering::Relaxed);
+        self.set_playhead(0);
     }
 
     pub fn stop(&self) {
@@ -92,6 +95,14 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
 
     pub fn set_loop_volume(&self, value: f32) {
         self.loop_volume.set(value);
+    }
+
+    pub(crate) fn set_playhead(&self, value: usize) {
+        self.playhead.store(value, Ordering::Relaxed);
+    }
+
+    pub fn playhead(&self) -> usize {
+        self.playhead.load(Ordering::Relaxed)
     }
 
     pub(crate) fn set_should_clear(&self, _value: bool) {
