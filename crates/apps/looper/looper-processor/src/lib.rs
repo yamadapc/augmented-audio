@@ -83,6 +83,7 @@ impl LooperProcessorState {
 
     fn clear(&self) {
         self.loop_state.recording_state.store(0, Ordering::Relaxed);
+        self.looper_cursor.store(0, Ordering::Relaxed);
         self.loop_state.start.store(0, Ordering::Relaxed);
         self.loop_state.end.store(0, Ordering::Relaxed);
         for sample in self.looped_clip.get().slice() {
@@ -122,7 +123,7 @@ impl LooperProcessorState {
         let start = self.loop_state.start.load(Ordering::Relaxed);
         let end = self.end_cursor();
 
-        if end > start {
+        if end >= start {
             end - start
         } else {
             clip.num_samples() - start + end
@@ -176,6 +177,33 @@ impl LooperProcessor {
     pub fn handle(&self) -> Shared<LooperProcessorHandle> {
         self.handle.clone()
     }
+
+    fn force_stop(&mut self, looper_cursor: usize) -> bool {
+        // STOP looper if going above max duration
+        if self.handle.is_recording()
+            && self.handle.state.num_samples()
+                >= self.handle.state.looped_clip.get().num_samples() - 1
+        {
+            self.handle
+                .state
+                .loop_state
+                .recording_state
+                .store(2, Ordering::Relaxed);
+            self.handle.state.looper_cursor.store(
+                self.handle.state.loop_state.start.load(Ordering::Relaxed),
+                Ordering::Relaxed,
+            );
+            self.handle
+                .state
+                .loop_state
+                .end
+                .store(looper_cursor - 1, Ordering::Relaxed);
+            self.handle.stop_recording();
+            false
+        } else {
+            true
+        }
+    }
 }
 
 impl AudioProcessor for LooperProcessor {
@@ -221,9 +249,11 @@ impl AudioProcessor for LooperProcessor {
             }
 
             if self.handle.is_playing_back() || self.handle.is_recording() {
-                self.handle
-                    .state
-                    .on_tick(parameters.is_recording, looper_cursor);
+                if self.force_stop(looper_cursor) {
+                    self.handle
+                        .state
+                        .on_tick(parameters.is_recording, looper_cursor);
+                }
             }
         }
     }

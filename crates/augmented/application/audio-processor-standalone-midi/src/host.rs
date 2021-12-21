@@ -56,7 +56,7 @@ impl MidiHost {
 
         for port in &input.ports() {
             let input = midir::MidiInput::new("plugin-host")?;
-            log::info!("MIDI input: {:?}", input.port_name(port));
+            log::debug!("MIDI input: {:?}", input.port_name(port));
             let connection = input.connect(
                 port,
                 "main-port",

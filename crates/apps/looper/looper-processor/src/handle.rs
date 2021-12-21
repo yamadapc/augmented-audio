@@ -117,6 +117,21 @@ impl LooperProcessorHandle {
     pub(crate) fn midi_map(&self) -> &MidiMap {
         &self.midi_map
     }
+
+    pub fn debug(&self) -> String {
+        format!(
+            "cursor={}/{} start={} end={} state={} length={}",
+            self.state.looper_cursor.load(Ordering::Relaxed),
+            self.state.looped_clip.get().num_samples(),
+            self.state.loop_state.start.load(Ordering::Relaxed),
+            self.state.loop_state.end.load(Ordering::Relaxed),
+            self.state
+                .loop_state
+                .recording_state
+                .load(Ordering::Relaxed),
+            self.state.num_samples()
+        )
+    }
 }
 
 /// State read from LooperProcessorHandle on each sample

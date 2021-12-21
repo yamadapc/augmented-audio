@@ -137,7 +137,7 @@ fn configure_input_device(
     log::info!("Using input: {}", input_device.name().unwrap());
     let supported_configs = input_device.supported_input_configs().unwrap();
     for config in supported_configs {
-        log::info!("Supported config: {:?}", config);
+        log::debug!("Supported config: {:?}", config);
     }
     let input_config = input_device.default_input_config().unwrap();
     let mut input_config: StreamConfig = input_config.into();
@@ -156,7 +156,7 @@ fn configure_output_device(
     log::info!("Using output: {}", output_device.name().unwrap());
     let supported_configs = output_device.supported_input_configs().unwrap();
     for config in supported_configs {
-        log::info!("Supported config: {:?}", config);
+        log::debug!("Supported config: {:?}", config);
     }
     let output_config = output_device.default_output_config().unwrap();
     let num_channels: usize = output_config.channels().into();

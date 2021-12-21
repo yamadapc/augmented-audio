@@ -59,7 +59,7 @@ impl BottomPanelView {
                     String::from(""),
                     1.0,
                 ),
-                ParameterViewModel::new(DRY_VOLUME_ID, String::from("Dry"), String::from(""), 1.0),
+                ParameterViewModel::new(DRY_VOLUME_ID, String::from("Dry"), String::from(""), 0.0),
             ],
             buttons_view: ButtonsView::new(processor_handle),
         }

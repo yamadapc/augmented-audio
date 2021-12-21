@@ -1,7 +1,7 @@
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use iced::canvas::{Frame, Stroke};
-use iced::Point;
+use iced::{Column, Point};
 use iced_baseview::canvas::{Cursor, Geometry, Program};
 use iced_baseview::{Canvas, Element, Length, Rectangle};
 use looper_processor::LooperProcessorHandle;
@@ -23,10 +23,14 @@ impl LooperVisualizationView {
     pub fn clear_visualization(&mut self) {}
 
     pub fn view(&mut self) -> Element<()> {
-        Canvas::new(self)
-            .height(Length::Fill)
-            .width(Length::Fill)
-            .into()
+        Column::with_children(vec![
+            // Text::new(self.processor_handle.debug()).into(),
+            Canvas::new(self)
+                .height(Length::Fill)
+                .width(Length::Fill)
+                .into(),
+        ])
+        .into()
     }
 }
 
@@ -37,8 +41,7 @@ impl Program<()> for LooperVisualizationView {
         let looper_state = self.processor_handle.state();
         let mut path = iced::canvas::path::Builder::new();
 
-        let num_pixels = frame.width() * 4.0;
-        let step = (looper_state.num_samples() / num_pixels as usize).max(1);
+        let step = 400;
 
         for (index, item) in looper_state.loop_iterator().enumerate().step_by(step) {
             let f_index = index as f32;

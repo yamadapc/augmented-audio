@@ -11,11 +11,12 @@ mod ui;
 fn main() {
     augmented::ops::wisual_logger::init_from_env();
 
-    let gc = augmented::audio::gc::GarbageCollector::default();
-    let loopi_processor = LooperProcessor::new(gc.handle());
+    let loopi_processor = LooperProcessor::new(audio_garbage_collector::handle());
     let processor_handle = loopi_processor.handle();
-    let _audio_handles =
-        augmented::application::audio_processor_start_with_midi(loopi_processor, gc.handle());
+    let _audio_handles = augmented::application::audio_processor_start_with_midi(
+        loopi_processor,
+        audio_garbage_collector::handle(),
+    );
 
     IcedWindow::<LooperApplication>::open_blocking(Settings {
         window: WindowOpenOptions {
