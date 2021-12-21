@@ -16,21 +16,25 @@ impl AtomicF32 {
     }
 
     /// Get the current value of the atomic float with relaxed ordering.
+    #[inline]
     pub fn get(&self) -> f32 {
         f32::from_bits(self.atomic.load(Ordering::Relaxed))
     }
 
     /// Set the value of the atomic float to `value` with relaxed ordering.
+    #[inline]
     pub fn set(&self, value: f32) {
         self.atomic.store(value.to_bits(), Ordering::Relaxed)
     }
 
     /// Get the current value of the atomic float with `ordering`.
+    #[inline]
     pub fn load(&self, ordering: Ordering) -> f32 {
         f32::from_bits(self.atomic.load(ordering))
     }
 
     /// Set the value of the atomic float to `value` with `ordering`.
+    #[inline]
     pub fn store(&self, value: f32, ordering: Ordering) {
         self.atomic.store(value.to_bits(), ordering)
     }
