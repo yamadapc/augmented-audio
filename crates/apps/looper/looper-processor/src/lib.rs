@@ -148,7 +148,7 @@ impl LooperProcessorState {
             let idx = (start + index) % clip.num_samples();
             let mut s = 0.0;
             for channel in 0..clip.num_channels() {
-                s += clip.get(channel, idx).get();
+                s += unsafe { clip.get_unchecked(channel, idx).get() };
             }
             s
         })

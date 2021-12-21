@@ -75,7 +75,7 @@ impl Application for LooperApplication {
         &self,
         _window_subs: &mut WindowSubs<Self::Message>,
     ) -> Subscription<Self::Message> {
-        iced::time::every(Duration::from_millis(16)).map(|_| Message::VisualizationTick)
+        iced::time::every(Duration::from_millis(64)).map(|_| Message::VisualizationTick)
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
