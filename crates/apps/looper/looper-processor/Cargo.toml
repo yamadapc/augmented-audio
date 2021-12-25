@@ -9,7 +9,9 @@ edition = "2018"
 log = "^0.4.14"
 basedrop = "^0.1.2"
 num = "^0.4.0"
-uuid = { version = "^0.8.2", features = [ "v4" ] }
+num-traits = "0.2.14"
+num-derive = "0.3.3"
+uuid = { version = "^0.8.2", features = ["v4"] }
 
 audio-garbage-collector = { version = "^0.1.0", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "^0.1.5", path = "../../../augmented/application/audio-processor-standalone" }

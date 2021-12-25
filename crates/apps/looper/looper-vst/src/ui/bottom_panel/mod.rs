@@ -1,5 +1,6 @@
 use iced::{Alignment, Button, Column, Container, Length, Row, Text};
 use iced_audio::{Normal, NormalParam};
+use iced_baseview::{Command, Element};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::container::HoverContainer;
@@ -8,14 +9,17 @@ use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
-use iced_baseview::{Command, Element};
 use looper_processor::LooperProcessorHandle;
 
-static LOOP_VOLUME_ID: usize = 0;
-static DRY_VOLUME_ID: usize = 1;
+#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+pub enum ParameterId {
+    LoopVolume,
+    DryVolume,
+    PlaybackSpeed,
+}
 
 pub struct ParameterViewModel {
-    id: usize,
+    id: ParameterId,
     name: String,
     suffix: String,
     value: f32,
@@ -23,7 +27,7 @@ pub struct ParameterViewModel {
 }
 
 impl ParameterViewModel {
-    pub fn new(id: usize, name: String, suffix: String, value: f32) -> Self {
+    pub fn new(id: ParameterId, name: String, suffix: String, value: f32) -> Self {
         ParameterViewModel {
             id,
             name,
@@ -36,7 +40,7 @@ impl ParameterViewModel {
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    KnobChange(usize, Normal),
+    KnobChange(ParameterId, Normal),
     RecordPressed,
     ClearPressed,
     StopPressed,
@@ -54,12 +58,23 @@ impl BottomPanelView {
             processor_handle: processor_handle.clone(),
             parameter_states: vec![
                 ParameterViewModel::new(
-                    LOOP_VOLUME_ID,
+                    ParameterId::LoopVolume,
                     String::from("Loop"),
                     String::from(""),
                     1.0,
                 ),
-                ParameterViewModel::new(DRY_VOLUME_ID, String::from("Dry"), String::from(""), 0.0),
+                ParameterViewModel::new(
+                    ParameterId::DryVolume,
+                    String::from("Dry"),
+                    String::from(""),
+                    0.0,
+                ),
+                ParameterViewModel::new(
+                    ParameterId::PlaybackSpeed,
+                    String::from("SPEED"),
+                    String::from("x"),
+                    1.0,
+                ),
             ],
             buttons_view: ButtonsView::new(processor_handle),
         }
@@ -68,13 +83,22 @@ impl BottomPanelView {
     pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::KnobChange(id, normal) => {
-                let state = &mut self.parameter_states[id];
-                state.value = normal.as_f32();
+                if let Some(state) = self
+                    .parameter_states
+                    .iter_mut()
+                    .find(|param| param.id == id)
+                {
+                    state.value = normal.as_f32();
 
-                if state.id == LOOP_VOLUME_ID {
-                    self.processor_handle.set_loop_volume(state.value);
-                } else if state.id == DRY_VOLUME_ID {
-                    self.processor_handle.set_dry_volume(state.value);
+                    match state.id {
+                        ParameterId::LoopVolume => {
+                            self.processor_handle.set_loop_volume(state.value);
+                        }
+                        ParameterId::DryVolume => {
+                            self.processor_handle.set_dry_volume(state.value);
+                        }
+                        ParameterId::PlaybackSpeed => {}
+                    }
                 }
             }
             Message::RecordPressed => {
@@ -94,8 +118,7 @@ impl BottomPanelView {
         let knobs = self
             .parameter_states
             .iter_mut()
-            .enumerate()
-            .map(|(index, parameter_view_model)| parameter_view(index, parameter_view_model))
+            .map(|parameter_view_model| parameter_view(parameter_view_model))
             .collect();
         Container::new(Column::with_children(vec![Container::new(
             Row::with_children(vec![
@@ -171,14 +194,15 @@ impl ButtonsView {
     }
 }
 
-fn parameter_view(index: usize, parameter_view_model: &mut ParameterViewModel) -> Element<Message> {
+fn parameter_view(parameter_view_model: &mut ParameterViewModel) -> Element<Message> {
+    let parameter_id = parameter_view_model.id.clone();
     HoverContainer::new(
         Column::with_children(vec![
             Text::new(&parameter_view_model.name)
                 .size(Spacing::small_font_size())
                 .into(),
             Knob::new(&mut parameter_view_model.knob_state, move |value| {
-                Message::KnobChange(index, value)
+                Message::KnobChange(parameter_id, value)
             })
             .size(Length::Units(Spacing::base_control_size()))
             .style(audio_knob::style::Knob)

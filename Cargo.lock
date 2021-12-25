@@ -3628,16 +3628,18 @@ checksum = "b3bd0dd2cd90571056fdb71f6275fada10131182f84899f4b2a916e565d81d86"
 name = "looper-processor"
 version = "0.1.0"
 dependencies = [
- "audio-garbage-collector",
- "audio-processor-standalone",
- "audio-processor-testing-helpers",
- "audio-processor-traits",
- "basedrop",
- "log",
- "num 0.4.0",
- "rimd",
- "uuid 0.8.2",
- "wisual-logger",
+    "audio-garbage-collector",
+    "audio-processor-standalone",
+    "audio-processor-testing-helpers",
+    "audio-processor-traits",
+    "basedrop",
+    "log",
+    "num 0.4.0",
+    "num-derive",
+    "num-traits 0.2.14",
+    "rimd",
+    "uuid 0.8.2",
+    "wisual-logger",
 ]
 
 [[package]]

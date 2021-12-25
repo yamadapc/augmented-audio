@@ -1,10 +1,10 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use crate::LooperProcessorState;
 use audio_garbage_collector::Handle;
 use audio_processor_traits::{AtomicF32, AudioBuffer};
 
 use crate::midi_map::MidiMap;
+use crate::LooperProcessorState;
 
 /// Public API types, which should be thread-safe
 pub struct LooperProcessorHandle {
@@ -43,20 +43,24 @@ impl LooperProcessorHandle {
 
     pub fn start_recording(&self) {
         self.is_recording.store(true, Ordering::Relaxed);
+        self.state.looper_increment.set(1.0);
     }
 
     pub fn clear(&self) {
         self.stop();
         self.should_clear.store(true, Ordering::Relaxed);
+        self.state.looper_increment.set(1.0);
     }
 
     pub fn stop(&self) {
         self.is_recording.store(false, Ordering::Relaxed);
+        self.state.looper_increment.set(1.0);
         self.is_playing_back.store(false, Ordering::Relaxed);
     }
 
     pub fn play(&self) {
         self.is_playing_back.store(true, Ordering::Relaxed);
+        self.state.looper_increment.set(1.0);
     }
 
     pub fn toggle_playback(&self) {
@@ -101,7 +105,7 @@ impl LooperProcessorHandle {
     pub fn playhead(&self) -> usize {
         let start = self.state.loop_state.start.load(Ordering::Relaxed);
         let end = self.state.loop_state.end.load(Ordering::Relaxed);
-        let cursor = self.state.looper_cursor.load(Ordering::Relaxed);
+        let cursor = self.state.looper_cursor.get() as usize;
         let clip = self.state.looped_clip.get();
         if end > start {
             cursor - start
@@ -120,15 +124,12 @@ impl LooperProcessorHandle {
 
     pub fn debug(&self) -> String {
         format!(
-            "cursor={}/{} start={} end={} state={} length={}",
-            self.state.looper_cursor.load(Ordering::Relaxed),
+            "cursor={}/{} start={} end={} state={:?} length={}",
+            self.state.looper_cursor.get(),
             self.state.looped_clip.get().num_samples(),
             self.state.loop_state.start.load(Ordering::Relaxed),
             self.state.loop_state.end.load(Ordering::Relaxed),
-            self.state
-                .loop_state
-                .recording_state
-                .load(Ordering::Relaxed),
+            self.state.loop_state.recording_state.get(),
             self.state.num_samples()
         )
     }

@@ -1,32 +1,59 @@
-use basedrop::SharedCell;
-use num::FromPrimitive;
+use std::marker::PhantomData;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+use basedrop::SharedCell;
+use num::{FromPrimitive, ToPrimitive};
+use num_derive::{FromPrimitive, ToPrimitive};
+
 use audio_garbage_collector::{make_shared, make_shared_cell, Handle, Shared};
+use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
     MidiMessageLike, VecAudioBuffer,
 };
 
+use crate::atomic_enum::AtomicEnum;
 pub use crate::handle::LooperProcessorHandle;
 use crate::handle::ProcessParameters;
 use crate::midi_map::{Action, MidiSpec};
+use crate::RecordingState::Recording;
 
+mod atomic_enum;
 mod handle;
 mod midi_map;
 
+#[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
+enum RecordingState {
+    Empty = 0,
+    Recording = 1,
+    Playing = 2,
+}
+
+#[cfg(test)]
+mod test_recording_state {
+    use num::FromPrimitive;
+
+    use super::*;
+
+    #[test]
+    fn test_from_atomic() {
+        let state = 0;
+        let state = RecordingState::from_usize(state).unwrap();
+        assert_eq!(state, RecordingState::Empty);
+    }
+}
+
 struct LoopState {
-    // 0 empty, 1 recording, 2 playing
-    recording_state: AtomicUsize,
+    recording_state: AtomicEnum<RecordingState>,
     start: AtomicUsize,
     end: AtomicUsize,
 }
 
-/// Private not thread safe mutable state
 pub struct LooperProcessorState {
     loop_state: LoopState,
-    looper_cursor: AtomicUsize,
+    looper_cursor: AtomicFloat,
+    looper_increment: AtomicFloat,
     num_channels: AtomicUsize,
     looped_clip: Shared<SharedCell<VecAudioBuffer<AtomicF32>>>,
 }
@@ -35,9 +62,10 @@ impl LooperProcessorState {
     pub fn new() -> Self {
         LooperProcessorState {
             num_channels: AtomicUsize::new(2usize),
-            looper_cursor: AtomicUsize::new(0usize),
+            looper_cursor: AtomicFloat::new(0.0),
+            looper_increment: AtomicFloat::new(1.0),
             loop_state: LoopState {
-                recording_state: AtomicUsize::new(0),
+                recording_state: AtomicEnum::new(RecordingState::Empty),
                 start: AtomicUsize::new(0),
                 end: AtomicUsize::new(0),
             },
@@ -46,12 +74,20 @@ impl LooperProcessorState {
     }
 
     pub fn increment_cursor(&self) {
-        let mut looper_cursor = self.looper_cursor.load(Ordering::Relaxed);
-        looper_cursor += 1;
+        let mut looper_cursor = self.looper_cursor.get();
+        looper_cursor += self.looper_increment.get();
 
-        if self.loop_state.recording_state.load(Ordering::Relaxed) == 2 {
-            let start = self.loop_state.start.load(Ordering::Relaxed);
-            let end = self.loop_state.end.load(Ordering::Relaxed);
+        // This is a slowdown to stop feature that needs to be properly exposed
+        // if self.loop_state.recording_state.get() == RecordingState::Playing {
+        //     self.looper_increment
+        //         .set((self.looper_increment.get() - 0.00001134).max(0.0));
+        // }
+
+        let num_samples = self.looped_clip.get().num_samples() as f32;
+        let recording_state = self.loop_state.recording_state.get();
+        if recording_state == RecordingState::Playing {
+            let start = self.loop_state.start.load(Ordering::Relaxed) as f32;
+            let end = self.loop_state.end.load(Ordering::Relaxed) as f32;
 
             if end > start {
                 if looper_cursor >= end {
@@ -59,31 +95,29 @@ impl LooperProcessorState {
                 }
             } else {
                 // End point is before start
-                let looped_clip = self.looped_clip.get();
-                let loop_length = looped_clip.num_samples() - start + end;
+                let loop_length = num_samples - start + end;
                 if looper_cursor >= start {
                     let cursor_relative_to_start = looper_cursor - start;
                     if cursor_relative_to_start >= loop_length {
                         looper_cursor = start;
                     }
                 } else {
-                    let cursor_relative_to_start =
-                        looper_cursor - end + looped_clip.num_samples() - start;
+                    let cursor_relative_to_start = looper_cursor - end + num_samples - start;
                     if cursor_relative_to_start >= loop_length {
                         looper_cursor = start;
                     }
                 }
             }
         } else {
-            looper_cursor %= self.looped_clip.get().num_samples();
+            looper_cursor %= num_samples;
         }
 
-        self.looper_cursor.store(looper_cursor, Ordering::Relaxed);
+        self.looper_cursor.set(looper_cursor as f32);
     }
 
     fn clear(&self) {
-        self.loop_state.recording_state.store(0, Ordering::Relaxed);
-        self.looper_cursor.store(0, Ordering::Relaxed);
+        self.loop_state.recording_state.set(RecordingState::Empty);
+        self.looper_cursor.set(0.0);
         self.loop_state.start.store(0, Ordering::Relaxed);
         self.loop_state.end.store(0, Ordering::Relaxed);
         for sample in self.looped_clip.get().slice() {
@@ -92,15 +126,17 @@ impl LooperProcessorState {
     }
 
     fn on_tick(&self, is_recording: bool, looper_cursor: usize) {
-        match self.loop_state.recording_state.load(Ordering::Relaxed) {
+        match self.loop_state.recording_state.get() {
             // Loop has ended
-            1 if !is_recording => {
-                self.loop_state.recording_state.store(2, Ordering::Relaxed);
+            RecordingState::Recording if !is_recording => {
+                self.loop_state.recording_state.set(RecordingState::Playing);
                 self.loop_state.end.store(looper_cursor, Ordering::Relaxed);
             }
             // Loop has started
-            0 if is_recording => {
-                self.loop_state.recording_state.store(1, Ordering::Relaxed);
+            RecordingState::Empty if is_recording => {
+                self.loop_state
+                    .recording_state
+                    .set(RecordingState::Recording);
                 self.loop_state
                     .start
                     .store(looper_cursor, Ordering::Relaxed);
@@ -113,9 +149,9 @@ impl LooperProcessorState {
 
     /// Returns the size of the current loop
     pub fn num_samples(&self) -> usize {
-        let recording_state = self.loop_state.recording_state.load(Ordering::Relaxed);
+        let recording_state = self.loop_state.recording_state.get();
 
-        if recording_state == 0 {
+        if recording_state == RecordingState::Empty {
             return 0;
         }
 
@@ -132,9 +168,9 @@ impl LooperProcessorState {
 
     /// Either the looper cursor or the end
     fn end_cursor(&self) -> usize {
-        let recording_state = self.loop_state.recording_state.load(Ordering::Relaxed);
-        if recording_state == 1 {
-            self.looper_cursor.load(Ordering::Relaxed)
+        let recording_state = self.loop_state.recording_state.get();
+        if recording_state == RecordingState::Recording {
+            self.looper_cursor.get() as usize
         } else {
             self.loop_state.end.load(Ordering::Relaxed)
         }
@@ -188,11 +224,11 @@ impl LooperProcessor {
                 .state
                 .loop_state
                 .recording_state
-                .store(2, Ordering::Relaxed);
-            self.handle.state.looper_cursor.store(
-                self.handle.state.loop_state.start.load(Ordering::Relaxed),
-                Ordering::Relaxed,
-            );
+                .set(RecordingState::Playing);
+            self.handle
+                .state
+                .looper_cursor
+                .set(self.handle.state.loop_state.start.load(Ordering::Relaxed) as f32);
             self.handle
                 .state
                 .loop_state
@@ -241,11 +277,10 @@ impl AudioProcessor for LooperProcessor {
                 self.handle.state.clear();
             }
 
-            let looper_cursor = self.handle.state.looper_cursor.load(Ordering::Relaxed);
-            let mut viz_input = 0.0;
+            let looper_cursor = self.handle.state.looper_cursor.get() as usize;
 
             for channel_num in 0..data.num_channels() {
-                self.process_sample(&parameters, data, sample_index, channel_num, &mut viz_input)
+                self.process_sample(&parameters, data, sample_index, channel_num)
             }
 
             if self.handle.is_playing_back() || self.handle.is_recording() {
@@ -266,9 +301,9 @@ impl LooperProcessor {
         data: &mut BufferType,
         sample_index: usize,
         channel_num: usize,
-        viz_input: &mut f32,
     ) {
-        let looper_cursor: usize = self.handle.state.looper_cursor.load(Ordering::Relaxed);
+        let flooper_cursor: f32 = self.handle.state.looper_cursor.get();
+        let looper_cursor: usize = flooper_cursor as usize;
 
         let ProcessParameters {
             playback_input,
@@ -281,13 +316,22 @@ impl LooperProcessor {
 
         // INPUT SECTION:
         let input = *data.get(channel_num, sample_index);
-        let dry_output = Self::process_input(playback_input, input);
-        *viz_input += dry_output;
+        let dry_output = if !playback_input { 0.0 } else { input };
 
         // PLAYBACK SECTION:
         let looped_clip = self.handle.state.looped_clip.get();
-        let looper_output = looped_clip.get(channel_num, looper_cursor).get();
-        let looper_output = if is_playing_back { looper_output } else { 0.0 };
+        let looper_output = if is_playing_back {
+            let looper_output1 = looped_clip.get(channel_num, looper_cursor).get();
+            let looper_output2 = looped_clip
+                .get(channel_num, (looper_cursor + 1) % looped_clip.num_samples())
+                .get();
+
+            let offset = flooper_cursor - looper_cursor as f32;
+
+            looper_output1 * (1.0 - offset) + looper_output2 * offset
+        } else {
+            0.0
+        };
 
         // RECORDING SECTION:
         if is_recording {
@@ -299,24 +343,6 @@ impl LooperProcessor {
         // OUTPUT SECTION:
         let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
         data.set(channel_num, sample_index, mixed_output);
-    }
-
-    fn process_input(playback_input: bool, input: f32) -> f32 {
-        if !playback_input {
-            0.0
-        } else {
-            input
-        }
-    }
-
-    #[allow(dead_code)]
-    fn toggle_recording(&mut self) {
-        self.handle.toggle_recording();
-    }
-
-    #[allow(dead_code)]
-    fn stop(&mut self) {
-        self.handle.stop();
     }
 }
 
