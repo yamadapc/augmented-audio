@@ -73,6 +73,9 @@ impl AudioProcessor for MetronomeProcessor {
             ..*self.state.playhead.options()
         });
         self.state.envelope.set_sample_rate(settings.sample_rate());
+        self.state
+            .oscillator
+            .set_sample_rate(settings.sample_rate())
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -97,7 +100,6 @@ impl AudioProcessor for MetronomeProcessor {
             self.state.oscillator.tick();
 
             let position = self.state.playhead.position_beats();
-
             if position % 4.0 < 0.1 {
                 self.state.oscillator.set_frequency(880.0);
             } else {

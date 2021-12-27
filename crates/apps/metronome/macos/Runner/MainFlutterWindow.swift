@@ -6,7 +6,7 @@ class MainFlutterWindow: NSWindow {
     let flutterViewController = FlutterViewController.init()
     self.contentViewController = flutterViewController
 
-    let size = CGSize(width: 300.0, height: 180.0)
+    let size = CGSize(width: 300.0, height: 200.0)
     self.minSize = size
     self.maxSize = size
     self.setFrame(

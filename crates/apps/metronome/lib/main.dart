@@ -1,6 +1,6 @@
 import 'dart:ffi';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:metronome/bridge_generated.dart';
 
 void main() {
@@ -12,12 +12,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const CupertinoApp(
       title: 'Metronome',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Metronome'),
+      theme: CupertinoThemeData(),
+      home: MyHomePage(title: 'Metronome'),
     );
   }
 }
@@ -33,7 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool isPlaying = true;
-  double volume = 0.3;
+  double volume = 0.075;
   double tempo = 120.0;
 
   late Metronome metronome;
@@ -42,17 +40,19 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     metronome = Metronome(DynamicLibrary.executable());
     metronome.initialize();
+    super.initState();
   }
 
   @override
   void deactivate() {
     metronome.deinitialize();
+    super.deactivate();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
+    return CupertinoPageScaffold(
+      child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Center(
           child: Column(
@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   callback: onTempoChanged),
               buildSlider(
                   label: "Volume", value: volume, callback: onVolumeChanged),
-              TextButton(
+              CupertinoButton(
                   onPressed: onStartStopPressed, child: Text("Start/Stop"))
             ],
           ),
@@ -86,12 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
       children: [
         SizedBox(width: 90, child: Text(label)),
         Expanded(
-          child: Slider(
-              label: label,
-              min: min,
-              max: max,
-              value: value,
-              onChanged: callback),
+          child: CupertinoSlider(
+              min: min, max: max, value: value, onChanged: callback),
         ),
       ],
     );
@@ -105,7 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onVolumeChanged(double value) {
-    metronome.setVolume(value: value);
+    metronome.setVolume(value: value * 4.0);
     setState(() {
       volume = value;
     });
