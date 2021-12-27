@@ -1,7 +1,7 @@
 pub struct PlayHeadOptions {
-    sample_rate: Option<f32>,
-    tempo: Option<u32>,
-    ticks_per_quarter_note: Option<u32>,
+    pub sample_rate: Option<f32>,
+    pub tempo: Option<u32>,
+    pub ticks_per_quarter_note: Option<u32>,
 }
 
 pub struct PlayHead {
@@ -61,6 +61,17 @@ impl PlayHead {
 
     pub fn position_seconds(&self) -> f32 {
         self.position_seconds
+    }
+
+    pub fn position_beats(&self) -> f32 {
+        self.options
+            .tempo
+            .map(|tempo| {
+                let secs = self.position_seconds();
+                let beats_per_second = tempo as f32 / 60.0;
+                beats_per_second * secs
+            })
+            .unwrap_or(0.0)
     }
 
     pub fn position_samples(&self) -> u32 {

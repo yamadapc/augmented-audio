@@ -1,26 +1,24 @@
 [workspace]
 resolver = "2"
 members = [
-  # Applications & Plug-ins
-  "crates/apps/looper/looper-processor",
-  "crates/apps/looper/looper-vst",
-  "crates/apps/plugin-host/plugin-host-cli",
-  "crates/apps/plugin-host/plugin-host-gui2",
-  "crates/apps/plugin-host/plugin-host-lib",
-  "crates/apps/synth",
-  "crates/apps/tremolo-plugin",
-  "crates/apps/recording_buddy",
-  "crates/apps/demo-plugin",
-
-  "crates/apps/daw",
-
-  # Repository scripts
-  "crates/scripts/autosync-submodules",
-  "crates/scripts/midi-logger-host",
-
-  # Demos & Experiments
-  "crates/spikes/example-iced-audio-viz",
-  "crates/spikes/example-iced-xcode-integration",
+    # Applications & Plug-ins
+    "crates/apps/looper/looper-processor",
+    "crates/apps/looper/looper-vst",
+    "crates/apps/plugin-host/plugin-host-cli",
+    "crates/apps/plugin-host/plugin-host-gui2",
+    "crates/apps/plugin-host/plugin-host-lib",
+    "crates/apps/synth",
+    "crates/apps/tremolo-plugin",
+    "crates/apps/recording_buddy",
+    "crates/apps/demo-plugin",
+    "crates/apps/metronome",
+    "crates/apps/daw",
+    # Repository scripts
+    "crates/scripts/autosync-submodules",
+    "crates/scripts/midi-logger-host",
+    # Demos & Experiments
+    "crates/spikes/example-iced-audio-viz",
+    "crates/spikes/example-iced-xcode-integration",
 
   # Augmented framework
   "crates/augmented/augmented",

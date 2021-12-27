@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use basedrop::SharedCell;
@@ -270,6 +271,8 @@ impl AudioProcessor for LooperProcessor {
         &mut self,
         data: &mut BufferType,
     ) {
+        let looped_clip = self.handle.state.looped_clip.get();
+
         for sample_index in 0..data.num_samples() {
             let parameters = self.handle.parameters();
             if parameters.should_clear {
@@ -278,9 +281,16 @@ impl AudioProcessor for LooperProcessor {
             }
 
             let looper_cursor = self.handle.state.looper_cursor.get() as usize;
-
+            let flooper_cursor = looper_cursor as f32;
             for channel_num in 0..data.num_channels() {
-                self.process_sample(&parameters, data, sample_index, channel_num)
+                process_sample(
+                    flooper_cursor,
+                    looped_clip.deref(),
+                    &parameters,
+                    data,
+                    sample_index,
+                    channel_num,
+                )
             }
 
             if self.handle.is_playing_back() || self.handle.is_recording() {
@@ -294,56 +304,53 @@ impl AudioProcessor for LooperProcessor {
     }
 }
 
-impl LooperProcessor {
-    fn process_sample<BufferType: AudioBuffer<SampleType = f32>>(
-        &mut self,
-        parameters: &ProcessParameters<f32>,
-        data: &mut BufferType,
-        sample_index: usize,
-        channel_num: usize,
-    ) {
-        let flooper_cursor: f32 = self.handle.state.looper_cursor.get();
-        let looper_cursor: usize = flooper_cursor as usize;
+fn process_sample(
+    flooper_cursor: f32,
+    looped_clip: &impl AudioBuffer<SampleType = AtomicF32>,
+    parameters: &ProcessParameters<f32>,
+    data: &mut impl AudioBuffer<SampleType = f32>,
+    sample_index: usize,
+    channel_num: usize,
+) {
+    let looper_cursor: usize = flooper_cursor as usize;
 
-        let ProcessParameters {
-            playback_input,
-            is_playing_back,
-            is_recording,
-            loop_volume,
-            dry_volume,
-            ..
-        } = *parameters;
+    let ProcessParameters {
+        playback_input,
+        is_playing_back,
+        is_recording,
+        loop_volume,
+        dry_volume,
+        ..
+    } = *parameters;
 
-        // INPUT SECTION:
-        let input = *data.get(channel_num, sample_index);
-        let dry_output = if !playback_input { 0.0 } else { input };
+    // INPUT SECTION:
+    let input = *data.get(channel_num, sample_index);
+    let dry_output = if !playback_input { 0.0 } else { input };
 
-        // PLAYBACK SECTION:
-        let looped_clip = self.handle.state.looped_clip.get();
-        let looper_output = if is_playing_back {
-            let looper_output1 = looped_clip.get(channel_num, looper_cursor).get();
-            let looper_output2 = looped_clip
-                .get(channel_num, (looper_cursor + 1) % looped_clip.num_samples())
-                .get();
+    // PLAYBACK SECTION:
+    let looper_output = if is_playing_back {
+        let looper_output1 = looped_clip.get(channel_num, looper_cursor).get();
+        let looper_output2 = looped_clip
+            .get(channel_num, (looper_cursor + 1) % looped_clip.num_samples())
+            .get();
 
-            let offset = flooper_cursor - looper_cursor as f32;
+        let offset = flooper_cursor - looper_cursor as f32;
 
-            looper_output1 * (1.0 - offset) + looper_output2 * offset
-        } else {
-            0.0
-        };
+        looper_output1 * (1.0 - offset) + looper_output2 * offset
+    } else {
+        0.0
+    };
 
-        // RECORDING SECTION:
-        if is_recording {
-            // When recording starts we'll store samples in the looper buffer
-            let sample = looped_clip.get(channel_num, looper_cursor);
-            sample.set(*data.get(channel_num, sample_index) + sample.get());
-        }
-
-        // OUTPUT SECTION:
-        let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
-        data.set(channel_num, sample_index, mixed_output);
+    // RECORDING SECTION:
+    if is_recording {
+        // When recording starts we'll store samples in the looper buffer
+        let sample = looped_clip.get(channel_num, looper_cursor);
+        sample.set(*data.get(channel_num, sample_index) + sample.get());
     }
+
+    // OUTPUT SECTION:
+    let mixed_output = loop_volume * looper_output + dry_volume * dry_output;
+    data.set(channel_num, sample_index, mixed_output);
 }
 
 impl MidiEventHandler for LooperProcessor {

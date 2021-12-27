@@ -3813,23 +3813,34 @@ version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0514f491f4cc03632ab399ee01e2c1c1b12d3e1cf2d667c1ff5f87d6dcd2084"
 dependencies = [
- "bitflags",
- "block",
- "core-graphics-types",
- "foreign-types",
- "log",
- "objc",
+    "bitflags",
+    "block",
+    "core-graphics-types",
+    "foreign-types",
+    "log",
+    "objc",
+]
+
+[[package]]
+name = "metronome"
+version = "0.1.0"
+dependencies = [
+    "adsr-envelope",
+    "audio-processor-standalone",
+    "audio-processor-traits",
+    "augmented-playhead",
+    "augmented_oscillator",
 ]
 
 [[package]]
 name = "midi-logger-host"
 version = "0.1.0"
 dependencies = [
- "log",
- "midir 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "rimd",
- "thiserror",
- "wisual-logger",
+    "log",
+    "midir 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+    "rimd",
+    "thiserror",
+    "wisual-logger",
 ]
 
 [[package]]
