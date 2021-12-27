@@ -1,0 +1,23 @@
+[package]
+name = "metronome"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+augmented_oscillator = { path = "../../augmented/audio/oscillator" }
+audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" }
+audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" }
+audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
+augmented-playhead = { path = "../../augmented/data/augmented-playhead" }
+adsr-envelope = { path = "../../augmented/audio/adsr-envelope" }
+anyhow = "1.0.52"
+log = "^0.4.14"
+flutter_rust_bridge = "^1.9.1"
+lazy_static = "1.4.0"
+
+[build-dependencies]
+cbindgen = "^0.20.0"
+flutter_rust_bridge_codegen = "^1.9.1"
