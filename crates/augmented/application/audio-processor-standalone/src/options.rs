@@ -1,5 +1,6 @@
-use clap::ArgMatches;
 use std::ffi::OsString;
+
+use clap::ArgMatches;
 
 pub enum RenderingOptions {
     Online {

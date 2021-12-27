@@ -2,18 +2,21 @@ use basedrop::Handle;
 
 use audio_processor_traits::{AudioProcessor, MidiEventHandler};
 use options::RenderingOptions;
-pub use standalone_cpal::audio_processor_start;
-pub use standalone_cpal::audio_processor_start_with_midi;
-pub use standalone_cpal::standalone_start;
-pub use standalone_cpal::StandaloneHandles;
-pub use standalone_processor::StandaloneAudioOnlyProcessor;
-pub use standalone_processor::StandaloneProcessor;
-pub use standalone_processor::StandaloneProcessorImpl;
+pub use standalone_cpal::{
+    audio_processor_start, audio_processor_start_with_midi, standalone_start, StandaloneHandles,
+};
+pub use standalone_processor::{
+    StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
+};
 
-pub mod offline;
 pub mod options;
 pub mod standalone_cpal;
 pub mod standalone_processor;
+
+// VST / Offline functionality will not work on iOS for now
+#[cfg(not(target_os = "ios"))]
+pub mod offline;
+#[cfg(not(target_os = "ios"))]
 pub mod standalone_vst;
 
 /// Run an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
@@ -62,13 +65,20 @@ fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
             input_file: input_path,
             output_file: output_path,
         } => {
-            offline::run_offline_render(offline::OfflineRenderOptions {
-                app,
-                handle,
-                input_path,
-                output_path,
-                midi_input_file,
-            });
+            #[cfg(target_os = "ios")]
+            {
+                log::error!("Offline rendering is unsupported on iOS");
+            }
+            #[cfg(not(target_os = "ios"))]
+            {
+                offline::run_offline_render(offline::OfflineRenderOptions {
+                    app,
+                    handle,
+                    input_path,
+                    output_path,
+                    midi_input_file,
+                });
+            }
         }
     }
 }

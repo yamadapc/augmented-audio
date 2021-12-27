@@ -1,10 +1,15 @@
-use crate::{StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl};
-use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings, VecAudioBuffer};
-use vst::buffer::AudioBuffer as VSTAudioBuffer;
-use vst::plugin::{HostCallback, Info};
-
 pub use vst;
+use vst::{
+    buffer::AudioBuffer as VSTAudioBuffer,
+    plugin::{HostCallback, Info},
+};
+
+use audio_processor_traits::{
+    audio_buffer::OwnedAudioBuffer, AudioBuffer, AudioProcessor, AudioProcessorSettings,
+    VecAudioBuffer,
+};
+
+use crate::{StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl};
 
 /// TODO - Extend this with VST helpers calling into the host callback.
 pub struct StandalonePluginContext {}

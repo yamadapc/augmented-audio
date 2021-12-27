@@ -1,7 +1,7 @@
 use audio_garbage_collector::Handle;
-use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+    audio_buffer::VecAudioBuffer, AudioBuffer, AudioProcessor, AudioProcessorSettings,
+    MidiEventHandler, MidiMessageLike,
 };
 use augmented_midi::{
     MIDIFile, MIDIFileChunk, MIDIMessage, MIDIMessageNote, MIDITrackEvent, MIDITrackInner,
