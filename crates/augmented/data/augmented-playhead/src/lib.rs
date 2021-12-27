@@ -55,6 +55,10 @@ impl PlayHead {
         }
     }
 
+    pub fn set_tempo(&mut self, tempo: u32) {
+        self.options.tempo = Some(tempo);
+    }
+
     pub fn options(&self) -> &PlayHeadOptions {
         &self.options
     }

@@ -121,9 +121,9 @@ dependencies = [
 
 [[package]]
 name = "allo-isolate"
-version = "0.1.11"
+version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e13e2dba4602fed6c46f7d5cae67fe0fb9a6af1ce01848228f7533a8450c73be"
+checksum = "31644a919a9e4b0188e4569e55bbf5a78b5588ea645acffc15c29240407261bc"
 dependencies = [
  "atomic",
 ]
@@ -179,9 +179,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.45"
+version = "1.0.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ee10e43ae4a853c0a3591d4e2ada1719e553be18199d9da9d4a83f5927c2f5c7"
+checksum = "84450d0b4a8bd1ba4144ce8ce718fbc5d071358b1e5384bace6536b3d1f2d5b3"
 
 [[package]]
 name = "anymap"
@@ -2151,9 +2151,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "1.6.0"
+version = "1.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "efff1d1058803127aec187d8b7808133de6b8152277d415fcf05c6d0683a0de8"
+checksum = "62b4c113bb413770d886e4d71dbf83f8d9f6cb6d0cf1a5e3bd5996a93d057e7d"
 dependencies = [
  "allo-isolate",
  "anyhow",
@@ -2164,9 +2164,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_codegen"
-version = "1.6.0"
+version = "1.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f4ea3554a8885162cbac41d06cf9873c360c24a3f3e3dc2623f34c20f3893ef7"
+checksum = "c5c5b330023afb10673e945d2ead5dd793cd1f3e33bcc789b8066ce497de2279"
 dependencies = [
  "anyhow",
  "convert_case",
@@ -3628,18 +3628,18 @@ checksum = "b3bd0dd2cd90571056fdb71f6275fada10131182f84899f4b2a916e565d81d86"
 name = "looper-processor"
 version = "0.1.0"
 dependencies = [
-    "audio-garbage-collector",
-    "audio-processor-standalone",
-    "audio-processor-testing-helpers",
-    "audio-processor-traits",
-    "basedrop",
-    "log",
-    "num 0.4.0",
-    "num-derive",
-    "num-traits 0.2.14",
-    "rimd",
-    "uuid 0.8.2",
-    "wisual-logger",
+ "audio-garbage-collector",
+ "audio-processor-standalone",
+ "audio-processor-testing-helpers",
+ "audio-processor-traits",
+ "basedrop",
+ "log",
+ "num 0.4.0",
+ "num-derive",
+ "num-traits 0.2.14",
+ "rimd",
+ "uuid 0.8.2",
+ "wisual-logger",
 ]
 
 [[package]]
@@ -3813,34 +3813,41 @@ version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0514f491f4cc03632ab399ee01e2c1c1b12d3e1cf2d667c1ff5f87d6dcd2084"
 dependencies = [
-    "bitflags",
-    "block",
-    "core-graphics-types",
-    "foreign-types",
-    "log",
-    "objc",
+ "bitflags",
+ "block",
+ "core-graphics-types",
+ "foreign-types",
+ "log",
+ "objc",
 ]
 
 [[package]]
 name = "metronome"
 version = "0.1.0"
 dependencies = [
-    "adsr-envelope",
-    "audio-processor-standalone",
-    "audio-processor-traits",
-    "augmented-playhead",
-    "augmented_oscillator",
+ "adsr-envelope",
+ "anyhow",
+ "audio-garbage-collector",
+ "audio-processor-standalone",
+ "audio-processor-traits",
+ "augmented-playhead",
+ "augmented_oscillator",
+ "cbindgen",
+ "flutter_rust_bridge",
+ "flutter_rust_bridge_codegen",
+ "lazy_static 1.4.0",
+ "log",
 ]
 
 [[package]]
 name = "midi-logger-host"
 version = "0.1.0"
 dependencies = [
-    "log",
-    "midir 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
-    "rimd",
-    "thiserror",
-    "wisual-logger",
+ "log",
+ "midir 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rimd",
+ "thiserror",
+ "wisual-logger",
 ]
 
 [[package]]

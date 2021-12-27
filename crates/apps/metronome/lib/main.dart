@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        SizedBox(width: 70, child: Text(label)),
+        SizedBox(width: 90, child: Text(label)),
         Expanded(
           child: Slider(
               label: label,

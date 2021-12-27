@@ -529,8 +529,8 @@ class CustomInteractiveViewer extends StatefulWidget {
   ///
   /// See also:
   ///
-  ///  * [onInteractionStart], which handles the start of the same interaction.
-  ///  * [onInteractionUpdate], which handles an update to the same interaction.
+  ///  * [onInteractionStart], which HANDLES the start of the same interaction.
+  ///  * [onInteractionUpdate], which HANDLES an update to the same interaction.
   final GestureScaleEndCallback? onInteractionEnd;
 
   /// Called when the user begins a pan or scale gesture on the widget.
@@ -548,8 +548,8 @@ class CustomInteractiveViewer extends StatefulWidget {
   ///
   /// See also:
   ///
-  ///  * [onInteractionUpdate], which handles an update to the same interaction.
-  ///  * [onInteractionEnd], which handles the end of the same interaction.
+  ///  * [onInteractionUpdate], which HANDLES an update to the same interaction.
+  ///  * [onInteractionEnd], which HANDLES the end of the same interaction.
   final GestureScaleStartCallback? onInteractionStart;
 
   /// Called when the user updates a pan or scale gesture on the widget.
@@ -568,8 +568,8 @@ class CustomInteractiveViewer extends StatefulWidget {
   ///
   /// See also:
   ///
-  ///  * [onInteractionStart], which handles the start of the same interaction.
-  ///  * [onInteractionEnd], which handles the end of the same interaction.
+  ///  * [onInteractionStart], which HANDLES the start of the same interaction.
+  ///  * [onInteractionEnd], which HANDLES the end of the same interaction.
   final GestureScaleUpdateCallback? onInteractionUpdate;
 
   /// A [TransformationController] for the transformation performed on the
