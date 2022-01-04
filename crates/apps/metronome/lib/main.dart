@@ -58,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Text("Playhead: ${metronome.getPlayhead()}"),
               buildSlider(
                   label: "Tempo ${tempo.toStringAsFixed(0)}",
                   min: 30.0,

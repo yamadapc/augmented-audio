@@ -1,7 +1,7 @@
 build_and_test: FORCE
 	make build-bindings
 	cargo lipo --release --package metronome
-	cargo build
+	cargo build --release
 	cargo test
 	flutter test
 	dart format --fix .

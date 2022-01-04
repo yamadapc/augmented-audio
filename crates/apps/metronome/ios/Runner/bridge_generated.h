@@ -22,6 +22,8 @@ void wire_set_tempo(int64_t port, float value);
 
 void wire_set_volume(int64_t port, float value);
 
+void wire_get_playhead(int64_t port);
+
 void free_WireSyncReturnStruct(struct WireSyncReturnStruct val);
 
 void store_dart_post_cobject(DartPostCObjectFnType ptr);
@@ -33,6 +35,7 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) wire_set_is_playing);
     dummy_var ^= ((int64_t) (void*) wire_set_tempo);
     dummy_var ^= ((int64_t) (void*) wire_set_volume);
+    dummy_var ^= ((int64_t) (void*) wire_get_playhead);
     dummy_var ^= ((int64_t) (void*) free_WireSyncReturnStruct);
     dummy_var ^= ((int64_t) (void*) store_dart_post_cobject);
     return dummy_var;

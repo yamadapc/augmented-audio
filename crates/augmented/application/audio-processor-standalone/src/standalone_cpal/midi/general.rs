@@ -20,7 +20,7 @@ pub fn initialize_midi_host(
         midi_host.start_midi().expect("Failed to start MIDI host");
         midi_host
     });
-    let mut midi_context = midi_host.as_ref().map(|midi_host| {
+    let midi_context = midi_host.as_ref().map(|midi_host| {
         let midi_message_queue = midi_host.messages().clone();
         let midi_audio_thread_handler = MidiAudioThreadHandler::default();
         MidiContext {

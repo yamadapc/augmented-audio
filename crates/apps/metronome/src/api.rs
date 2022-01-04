@@ -44,29 +44,45 @@ pub fn deinitialize() -> Result<i32> {
     Ok(0)
 }
 
-pub fn set_is_playing(value: bool) -> Result<i32> {
+fn with_state0(f: impl FnOnce(&State) -> ()) -> Result<i32> {
+    with_state(|state| {
+        f(state);
+        Ok(0)
+    })
+}
+
+fn with_state<T>(f: impl FnOnce(&State) -> Result<T>) -> Result<T> {
     let handles = STATE.lock().unwrap();
     if let Some(state) = &*handles {
+        f(state)
+    } else {
+        Err(anyhow::Error::msg(
+            "Failed to lock state. `initialize` needs to be called.",
+        ))
+    }
+}
+
+pub fn set_is_playing(value: bool) -> Result<i32> {
+    with_state0(|state| {
         state
             .processor_handle
             .is_playing
             .store(value, Ordering::Relaxed);
-    }
-    Ok(0)
+    })
 }
 
 pub fn set_tempo(value: f32) -> Result<i32> {
-    let handles = STATE.lock().unwrap();
-    if let Some(state) = &*handles {
+    with_state0(|state| {
         state.processor_handle.tempo.set(value);
-    }
-    Ok(0)
+    })
 }
 
 pub fn set_volume(value: f32) -> Result<i32> {
-    let handles = STATE.lock().unwrap();
-    if let Some(state) = &*handles {
+    with_state0(|state| {
         state.processor_handle.volume.set(value);
-    }
-    Ok(0)
+    })
+}
+
+pub fn get_playhead() -> Result<f32> {
+    with_state(|state| Ok(state.processor_handle.position_beats.get()))
 }

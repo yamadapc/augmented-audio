@@ -81,6 +81,18 @@ pub extern "C" fn wire_set_volume(port: i64, value: f32) {
     )
 }
 
+#[no_mangle]
+pub extern "C" fn wire_get_playhead(port: i64) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "get_playhead",
+            port: Some(port),
+            mode: FfiCallMode::Normal,
+        },
+        move || move |task_callback| get_playhead(),
+    )
+}
+
 // Section: wire structs
 
 // Section: allocate functions

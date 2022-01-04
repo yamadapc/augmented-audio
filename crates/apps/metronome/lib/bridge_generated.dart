@@ -23,6 +23,8 @@ abstract class Metronome extends FlutterRustBridgeBase<MetronomeWire> {
   Future<int> setTempo({required double value, dynamic hint});
 
   Future<int> setVolume({required double value, dynamic hint});
+
+  Future<double> getPlayhead({dynamic hint});
 }
 
 // ------------------------- Implementation Details -------------------------
@@ -93,6 +95,18 @@ class MetronomeImpl extends Metronome {
         hint: hint,
       ));
 
+  Future<double> getPlayhead({dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port) => inner.wire_get_playhead(port),
+        parseSuccessData: _wire2api_f32,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "get_playhead",
+          argNames: [],
+        ),
+        argValues: [],
+        hint: hint,
+      ));
+
   // Section: api2wire
   bool _api2wire_bool(bool raw) {
     return raw;
@@ -107,6 +121,10 @@ class MetronomeImpl extends Metronome {
 }
 
 // Section: wire2api
+double _wire2api_f32(dynamic raw) {
+  return raw as double;
+}
+
 int _wire2api_i32(dynamic raw) {
   return raw as int;
 }
@@ -208,6 +226,20 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
           'wire_set_volume');
   late final _wire_set_volume =
       _wire_set_volumePtr.asFunction<void Function(int, double)>();
+
+  void wire_get_playhead(
+    int port,
+  ) {
+    return _wire_get_playhead(
+      port,
+    );
+  }
+
+  late final _wire_get_playheadPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_get_playhead');
+  late final _wire_get_playhead =
+      _wire_get_playheadPtr.asFunction<void Function(int)>();
 
   void free_WireSyncReturnStruct(
     WireSyncReturnStruct val,

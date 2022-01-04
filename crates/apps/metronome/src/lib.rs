@@ -15,6 +15,7 @@ pub struct MetronomeProcessorHandle {
     is_playing: AtomicBool,
     tempo: AtomicF32,
     volume: AtomicF32,
+    position_beats: AtomicF32,
 }
 
 struct MetronomeProcessorState {
@@ -48,6 +49,7 @@ impl MetronomeProcessor {
                 is_playing: AtomicBool::new(true),
                 tempo: AtomicF32::new(120.0),
                 volume: AtomicF32::new(0.3),
+                position_beats: AtomicF32::new(0.0),
             }),
             state: MetronomeProcessorState {
                 playhead: PlayHead::new(PlayHeadOptions {
@@ -96,10 +98,11 @@ impl AudioProcessor for MetronomeProcessor {
 
         for frame in data.frames_mut() {
             self.state.playhead.accept_samples(1);
+            let position = self.state.playhead.position_beats();
+            self.handle.position_beats.set(position);
             self.state.envelope.tick();
             self.state.oscillator.tick();
 
-            let position = self.state.playhead.position_beats();
             if position % 4.0 < 0.1 {
                 self.state.oscillator.set_frequency(880.0);
             } else {
