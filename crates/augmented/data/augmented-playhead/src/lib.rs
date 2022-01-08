@@ -10,12 +10,14 @@ pub struct PlayHead {
     position_us: u64,
     position_samples: u32,
     position_ticks: u32,
+    position_beats: f64,
 }
 
 impl PlayHead {
     pub fn new(options: PlayHeadOptions) -> Self {
         Self {
             options,
+            position_beats: 0.0,
             position_samples: 0,
             position_ticks: 0,
             position_us: 0,
@@ -25,8 +27,10 @@ impl PlayHead {
     pub fn accept_samples(&mut self, num_samples: u32) {
         self.position_samples += num_samples;
         if let Some(sample_rate) = self.options.sample_rate {
-            let elapsed_us = (1.0 / sample_rate) * (num_samples as f32) * 1_000_000.0;
+            let elapsed_secs = (1.0 / sample_rate) * (num_samples as f32);
+            let elapsed_us = elapsed_secs * 1_000_000.0;
             self.position_us += elapsed_us as u64;
+            self.update_position_beats(elapsed_secs as f64);
 
             if let Some((tempo, ticks_per_quarter_note)) =
                 self.options.tempo.zip(self.options.ticks_per_quarter_note)
@@ -47,7 +51,9 @@ impl PlayHead {
             let elapsed_beats = num_ticks as f32 / ticks_per_quarter_note as f32;
             let secs_per_beat = 1.0 / ((tempo as f32) / 60.0);
             let elapsed_seconds = elapsed_beats * secs_per_beat;
-            self.position_us += (elapsed_seconds * 1_000_000.0) as u64;
+            let elapsed_us = (elapsed_seconds * 1_000_000.0) as u64;
+            self.position_us += elapsed_us;
+            self.update_position_beats(elapsed_seconds as f64);
 
             if let Some(sample_rate) = self.options.sample_rate {
                 let elapsed_samples = sample_rate * elapsed_seconds;
@@ -58,6 +64,14 @@ impl PlayHead {
 
     pub fn set_position_seconds(&mut self, seconds: f32) {
         self.position_us = (seconds * 1_000_000.0) as u64;
+        self.position_beats = self
+            .options
+            .tempo
+            .map(|tempo| {
+                let beats_per_second = tempo as f64 / 60.0;
+                beats_per_second * seconds as f64
+            })
+            .unwrap_or(0.0);
         self.accept_samples(0);
     }
 
@@ -73,15 +87,8 @@ impl PlayHead {
         self.position_us as f32 / 1_000_000.0
     }
 
-    pub fn position_beats(&self) -> f32 {
-        self.options
-            .tempo
-            .map(|tempo| {
-                let secs = self.position_seconds();
-                let beats_per_second = tempo as f32 / 60.0;
-                beats_per_second * secs
-            })
-            .unwrap_or(0.0)
+    pub fn position_beats(&self) -> f64 {
+        self.position_beats
     }
 
     pub fn position_samples(&self) -> u32 {
@@ -90,6 +97,17 @@ impl PlayHead {
 
     pub fn position_ticks(&self) -> u32 {
         self.position_ticks
+    }
+
+    fn update_position_beats(&mut self, elapsed_secs: f64) {
+        self.position_beats += self
+            .options
+            .tempo
+            .map(|tempo| {
+                let beats_per_second = tempo as f64 / 60.0;
+                beats_per_second * elapsed_secs
+            })
+            .unwrap_or(0.0)
     }
 }
 
