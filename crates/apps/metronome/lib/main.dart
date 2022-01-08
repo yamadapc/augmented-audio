@@ -37,7 +37,7 @@ class HomePage extends StatefulWidget {
 var labelTextStyle = TextStyle(color: CupertinoColors.white.withOpacity(0.6));
 
 class _HomePageState extends State<HomePage> {
-  bool isPlaying = true;
+  bool isPlaying = false;
   double volume = 0.075;
   double tempo = 120.0;
   Observable<double> playhead = Observable(0.0);
@@ -49,6 +49,10 @@ class _HomePageState extends State<HomePage> {
     metronome = Metronome(DynamicLibrary.executable());
     metronome.initialize();
     metronome.getPlayhead().forEach((element) {
+      if (playhead.value == element) {
+        return;
+      }
+
       runInAction(() {
         playhead.value = element;
       });
@@ -84,6 +88,10 @@ class _HomePageState extends State<HomePage> {
                 width: double.infinity,
                 child: SceneBuilderWidget(
                   builder: () => SceneController(
+                    config: SceneConfig(
+                      autoUpdateRender: false,
+                      painterWillChange: false,
+                    ),
                     back: MetronomeSceneBack(playhead),
                   ),
                   child: null,
@@ -187,8 +195,21 @@ class BottomRow extends StatelessWidget {
 
 class MetronomeSceneBack extends GSprite {
   Observable<double> playhead;
+  Dispose? subscription;
 
   MetronomeSceneBack(this.playhead);
+
+  @override
+  void addedToStage() {
+    subscription = playhead.observe((_) {
+      stage!.scene.requestRender();
+    });
+  }
+
+  @override
+  void removedFromStage() {
+    subscription?.call();
+  }
 
   @override
   void paint(Canvas canvas) {
