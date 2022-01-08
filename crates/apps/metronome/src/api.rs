@@ -22,6 +22,7 @@ impl State {
     fn new() -> Self {
         let processor = MetronomeProcessor::new();
         let processor_handle = processor.handle.clone();
+        processor_handle.is_playing.store(false, Ordering::Relaxed);
         let handles = audio_processor_start(processor);
         Self {
             processor_handle,

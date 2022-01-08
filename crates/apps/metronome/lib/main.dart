@@ -2,7 +2,6 @@ import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
 import 'package:metronome/bridge_generated.dart';
 import 'package:mobx/mobx.dart';
@@ -90,30 +89,32 @@ class _HomePageState extends State<HomePage> {
                   child: null,
                 ),
               ),
-              Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Column(children: [
-                      Text("tempo", textScaleFactor: .8, style: labelTextStyle),
-                      Text(tempo.toStringAsFixed(0), textScaleFactor: 2.0),
-                      SizedBox(
-                        width: double.infinity,
-                        child: CupertinoSlider(
-                            value: tempo,
-                            onChanged: onTempoChanged,
-                            min: 30,
-                            max: 250),
-                      )
-                    ]),
-                    buildSlider(
-                        label: "volume",
-                        value: volume,
-                        callback: onVolumeChanged),
-                    Observer(
-                        builder: (_) => Text("playhead: ${playhead.value}")),
-                    BottomRow(onStartStopPressed: onStartStopPressed)
-                  ],
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Column(children: [
+                        Text("tempo",
+                            textScaleFactor: .8, style: labelTextStyle),
+                        Text(tempo.toStringAsFixed(0), textScaleFactor: 2.0),
+                        SizedBox(
+                          width: double.infinity,
+                          child: CupertinoSlider(
+                              value: tempo,
+                              onChanged: onTempoChanged,
+                              min: 30,
+                              max: 250),
+                        )
+                      ]),
+                      buildSlider(
+                          label: "volume",
+                          value: volume,
+                          callback: onVolumeChanged),
+                      const Spacer(),
+                      BottomRow(onStartStopPressed: onStartStopPressed)
+                    ],
+                  ),
                 ),
               )
             ],
@@ -148,7 +149,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void onVolumeChanged(double value) {
-    metronome.setVolume(value: value * 4.0);
+    metronome.setVolume(value: value * 100.0);
     setState(() {
       volume = value;
     });
@@ -207,22 +208,20 @@ class MetronomeSceneBack extends GSprite {
       var offset = Offset(left + rectWidth / 2.0, top);
 
       if (isTick) {
-        final shadowColor =
-            const Color(0xff975A6F).withOpacity(.2 * playheadPrime);
-        Path shadowPath = Path();
-        shadowPath
-            .addOval(Rect.fromCircle(center: offset, radius: rectWidth / 2.0));
-        canvas.drawShadow(shadowPath, shadowColor, 3.0, true);
         Paint strokePaint = Paint();
-        strokePaint.color = const Color.fromRGBO(255, 255, 255, 1.0);
-        canvas.drawCircle(offset, rectWidth / 2.0 - 3, strokePaint);
+        strokePaint.color = Color.fromRGBO(255, 255, 255, 1.0 * playheadPrime);
+        var rect = Rect.fromCircle(center: offset, radius: rectWidth / 2.0 - 3);
+        var rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10.0));
+        canvas.drawRRect(rrect, strokePaint);
       }
 
       Paint paint = Paint();
       var baseColor = CupertinoColors.activeBlue;
       paint.color =
           baseColor.withOpacity(0.4 + 1.2 * playheadPrime * tickFactor);
-      canvas.drawCircle(offset, rectWidth / 2.0 - 5, paint);
+      var rect = Rect.fromCircle(center: offset, radius: rectWidth / 2.0 - 5);
+      var rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10.0));
+      canvas.drawRRect(rrect, paint);
       left += rectWidth + padding;
     }
   }

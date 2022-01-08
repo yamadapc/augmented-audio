@@ -40,7 +40,7 @@ impl Default for MetronomeProcessor {
 impl MetronomeProcessor {
     pub fn new() -> Self {
         let mut envelope = Envelope::new();
-        envelope.set_attack(Duration::from_millis(50));
+        envelope.set_attack(Duration::from_millis(5));
         envelope.set_decay(Duration::from_millis(50));
         envelope.set_sustain(0.8);
         envelope.set_release(Duration::from_millis(200));
@@ -49,7 +49,7 @@ impl MetronomeProcessor {
             handle: make_shared(MetronomeProcessorHandle {
                 is_playing: AtomicBool::new(true),
                 tempo: AtomicF32::new(120.0),
-                volume: AtomicF32::new(0.3),
+                volume: AtomicF32::new(100.0),
                 position_beats: AtomicF32::new(0.0),
             }),
             state: MetronomeProcessorState {

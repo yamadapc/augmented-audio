@@ -4,3 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
