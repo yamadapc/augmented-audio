@@ -87,9 +87,9 @@ pub extern "C" fn wire_get_playhead(port: i64) {
         WrapInfo {
             debug_name: "get_playhead",
             port: Some(port),
-            mode: FfiCallMode::Normal,
+            mode: FfiCallMode::Stream,
         },
-        move || move |task_callback| get_playhead(),
+        move || move |task_callback| get_playhead(task_callback.stream_sink()),
     )
 }
 

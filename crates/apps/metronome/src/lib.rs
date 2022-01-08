@@ -23,6 +23,7 @@ struct MetronomeProcessorState {
     oscillator: Oscillator<f32>,
     playing: bool,
     envelope: Envelope,
+    last_position: f32,
 }
 
 pub struct MetronomeProcessor {
@@ -39,10 +40,10 @@ impl Default for MetronomeProcessor {
 impl MetronomeProcessor {
     pub fn new() -> Self {
         let mut envelope = Envelope::new();
-        envelope.set_attack(Duration::from_millis(2));
+        envelope.set_attack(Duration::from_millis(50));
         envelope.set_decay(Duration::from_millis(50));
         envelope.set_sustain(0.8);
-        envelope.set_release(Duration::from_millis(10));
+        envelope.set_release(Duration::from_millis(200));
 
         MetronomeProcessor {
             handle: make_shared(MetronomeProcessorHandle {
@@ -52,6 +53,7 @@ impl MetronomeProcessor {
                 position_beats: AtomicF32::new(0.0),
             }),
             state: MetronomeProcessorState {
+                last_position: 0.0,
                 playhead: PlayHead::new(PlayHeadOptions {
                     sample_rate: Some(44100.0),
                     ticks_per_quarter_note: Some(16),
@@ -85,6 +87,9 @@ impl AudioProcessor for MetronomeProcessor {
         data: &mut BufferType,
     ) {
         if !self.handle.is_playing.load(Ordering::Relaxed) {
+            self.state.playhead.set_position_seconds(0.0);
+            self.handle.position_beats.set(0.0);
+
             for sample in data.slice_mut() {
                 *sample = 0.0;
             }
@@ -96,6 +101,7 @@ impl AudioProcessor for MetronomeProcessor {
             self.state.playhead.set_tempo(tempo);
         }
 
+        let mut last_position = self.state.last_position;
         for frame in data.frames_mut() {
             self.state.playhead.accept_samples(1);
             let position = self.state.playhead.position_beats();
@@ -103,13 +109,15 @@ impl AudioProcessor for MetronomeProcessor {
             self.state.envelope.tick();
             self.state.oscillator.tick();
 
-            if position % 4.0 < 0.1 {
-                self.state.oscillator.set_frequency(880.0);
-            } else {
-                self.state.oscillator.set_frequency(440.0);
+            if !self.state.playing {
+                if position % 4.0 < 1.0 {
+                    self.state.oscillator.set_frequency(880.0);
+                } else {
+                    self.state.oscillator.set_frequency(440.0);
+                }
             }
 
-            if position % 1.0 < 0.1 && !self.state.playing {
+            if !self.state.playing && position.floor() != last_position.floor() {
                 self.state.playing = true;
                 self.state.envelope.note_on();
             } else {
@@ -124,6 +132,10 @@ impl AudioProcessor for MetronomeProcessor {
             for sample in frame {
                 *sample = out;
             }
+
+            last_position = position;
         }
+
+        self.state.last_position = last_position;
     }
 }

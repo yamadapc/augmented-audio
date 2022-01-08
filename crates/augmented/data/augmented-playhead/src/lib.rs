@@ -55,6 +55,11 @@ impl PlayHead {
         }
     }
 
+    pub fn set_position_seconds(&mut self, seconds: f32) {
+        self.position_seconds = seconds;
+        self.accept_samples(0);
+    }
+
     pub fn set_tempo(&mut self, tempo: u32) {
         self.options.tempo = Some(tempo);
     }
@@ -125,5 +130,22 @@ mod test {
         play_head.accept_samples(22050);
         assert!((play_head.position_seconds - 0.5).abs() < f32::EPSILON);
         assert_eq!(play_head.position_ticks, 32);
+    }
+
+    #[test]
+    fn test_accept_many_samples() {
+        let sample_count = 5644800;
+        let options = PlayHeadOptions {
+            sample_rate: Some(44100.0),
+            tempo: Some(120),
+            ticks_per_quarter_note: Some(32),
+        };
+        let mut play_head = PlayHead::new(options);
+        play_head.accept_samples(sample_count);
+        assert!((play_head.position_seconds - 128.0).abs() < f32::EPSILON);
+        assert!((play_head.position_beats() - 256.0).abs() < f32::EPSILON);
+        play_head.accept_samples(sample_count / 2);
+        assert!((play_head.position_seconds - 192.0).abs() < f32::EPSILON);
+        assert!((play_head.position_beats() - 384.0).abs() < f32::EPSILON);
     }
 }

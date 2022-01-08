@@ -11,6 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_rust_bridge: ^1.9.1
+  graphx: ^1.0.3
+  mobx: ^2.0.6+1
+  flutter_mobx: ^2.0.3+2
   cupertino_icons: ^1.0.2
 
 dev_dependencies:

@@ -1,9 +1,11 @@
 use std::sync::atomic::Ordering;
 use std::sync::Mutex;
+use std::time::Duration;
 
 use anyhow::Result;
 use audio_garbage_collector::Shared;
 use audio_processor_standalone::audio_processor_start;
+use flutter_rust_bridge::StreamSink;
 use lazy_static::lazy_static;
 
 use crate::MetronomeProcessor;
@@ -83,6 +85,16 @@ pub fn set_volume(value: f32) -> Result<i32> {
     })
 }
 
-pub fn get_playhead() -> Result<f32> {
-    with_state(|state| Ok(state.processor_handle.position_beats.get()))
+pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
+    with_state(|state| {
+        let handle = state.processor_handle.clone();
+        std::thread::spawn(move || {
+            loop {
+                sink.add(handle.position_beats.get());
+                std::thread::sleep(Duration::from_millis(50));
+            }
+            // sink.close();
+        });
+        Ok(0)
+    })
 }

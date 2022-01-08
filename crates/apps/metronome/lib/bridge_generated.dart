@@ -24,7 +24,7 @@ abstract class Metronome extends FlutterRustBridgeBase<MetronomeWire> {
 
   Future<int> setVolume({required double value, dynamic hint});
 
-  Future<double> getPlayhead({dynamic hint});
+  Stream<double> getPlayhead({dynamic hint});
 }
 
 // ------------------------- Implementation Details -------------------------
@@ -95,8 +95,8 @@ class MetronomeImpl extends Metronome {
         hint: hint,
       ));
 
-  Future<double> getPlayhead({dynamic hint}) =>
-      executeNormal(FlutterRustBridgeTask(
+  Stream<double> getPlayhead({dynamic hint}) =>
+      executeStream(FlutterRustBridgeTask(
         callFfi: (port) => inner.wire_get_playhead(port),
         parseSuccessData: _wire2api_f32,
         constMeta: const FlutterRustBridgeTaskConstMeta(
