@@ -45,7 +45,9 @@ fn main() {
     } else if matches.is_present("build") {
         let matches = matches.subcommand_matches("build").unwrap();
         let mut build_service = services::BuildCommandService::default();
-        build_service.run_build(matches.value_of("crate").unwrap());
+        let crate_path = matches.value_of("crate").unwrap();
+
+        build_service.run_build(crate_path);
     } else if matches.is_present("test-snapshots") {
         let matches = matches.subcommand_matches("test-snapshots").unwrap();
         run_all_snapshot_tests(Default::default(), matches.is_present("update-snapshots"));

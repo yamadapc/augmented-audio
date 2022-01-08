@@ -14,20 +14,12 @@ impl VstHandler {
         input: &PackagerInput,
         vst: VstConfig,
     ) -> Option<LocalPackage> {
-        let app_config = input
-            .cargo_toml
-            .package
-            .metadata
-            .as_ref()
-            .unwrap()
-            .app
-            .as_ref()
-            .unwrap();
+        let public_name = input.public_name;
 
-        let plist_file = build_plist(&app_config.public_name, input.cargo_toml, &vst);
+        let plist_file = build_plist(public_name, input.cargo_toml, &vst);
         run_cmd!(mkdir -p ${target_path}).unwrap();
 
-        let output_path = target_path.join(format!("{}.vst", app_config.public_name));
+        let output_path = target_path.join(format!("{}.vst", public_name));
         log::info!("Creating VST at: {}", output_path.to_str().unwrap());
         create_dir_all(output_path.join("Contents/MacOS")).expect("Failed to create directories");
 
@@ -41,17 +33,22 @@ impl VstHandler {
             .to_file_xml(plist_path)
             .expect("Failed to write plist file");
 
-        let source_dylib_path = format!(
-            "./target/release/lib{}.dylib",
-            input
-                .cargo_toml
-                .lib
-                .as_ref()
-                .expect("VST requires a lib")
-                .name
-                .as_ref()
-                .expect("VST lib require a name")
-        );
+        let source_dylib_path = input
+            .example_name
+            .map(|example| format!("./target/release/examples/lib{}.dylib", example))
+            .unwrap_or_else(|| {
+                format!(
+                    "./target/release/lib{}.dylib",
+                    input
+                        .cargo_toml
+                        .lib
+                        .as_ref()
+                        .expect("VST requires a lib")
+                        .name
+                        .as_ref()
+                        .expect("VST lib require a name")
+                )
+            });
         let target_dylib_path =
             output_path.join(format!("Contents/MacOS/{}", input.cargo_toml.package.name));
         log::info!(

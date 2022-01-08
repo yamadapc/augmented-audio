@@ -79,11 +79,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::*;
-
     use audio_processor_standalone_midi::host::MidiMessageEntry;
     use audio_processor_traits::simple_processor::SimpleAudioProcessor;
     use audio_processor_traits::NoopAudioProcessor;
+
+    use super::*;
 
     #[test]
     fn test_midi_event_handler() {

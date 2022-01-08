@@ -49,6 +49,7 @@ pub struct AppConfig {
 pub struct AugmentedMetadata {
     pub private: Option<bool>,
     pub processor_examples: Option<Vec<String>>,
+    pub vst_examples: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

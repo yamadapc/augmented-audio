@@ -5,7 +5,6 @@ use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 use vst::plugin_main;
 
-use audio_garbage_collector::GarbageCollector;
 use audio_parameter_store::ParameterStore;
 use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
 use audio_processor_traits::midi::vst::midi_slice_from_events;
@@ -20,9 +19,8 @@ pub mod ui;
 pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";
 
 pub struct LoopiPlugin {
-    garbage_collector: GarbageCollector,
     parameters: Arc<ParameterStore>,
-    processor: LooperProcessor<f32>,
+    processor: LooperProcessor,
     settings: AudioProcessorSettings,
 }
 
@@ -44,11 +42,9 @@ impl Plugin for LoopiPlugin {
     {
         audio_plugin_logger::init("loopi.log");
 
-        let garbage_collector = GarbageCollector::default();
-        let processor = LooperProcessor::new(garbage_collector.handle());
+        let processor = LooperProcessor::new(audio_garbage_collector::handle());
 
         LoopiPlugin {
-            garbage_collector,
             processor,
             parameters: Arc::new(ParameterStore::default()),
             settings: AudioProcessorSettings::default(),
@@ -90,10 +86,7 @@ impl Plugin for LoopiPlugin {
 
 impl Drop for LoopiPlugin {
     fn drop(&mut self) {
-        if let Err(err) = self.garbage_collector.stop() {
-            log::error!("Failed to stop GC {}", err);
-        }
-        log::info!("Loopi is dropped {}", self.processor.id);
+        log::info!("Loopi is dropped");
     }
 }
 

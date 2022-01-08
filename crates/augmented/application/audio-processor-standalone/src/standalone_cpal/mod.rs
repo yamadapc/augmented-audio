@@ -1,17 +1,20 @@
-use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 use basedrop::Handle;
-use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
-use cpal::{BufferSize, Host, SampleRate, StreamConfig};
+use cpal::{
+    traits::{DeviceTrait, HostTrait, StreamTrait},
+    BufferSize, Host, SampleRate, StreamConfig,
+};
 use ringbuf::{Consumer, Producer};
 
-use audio_processor_standalone_midi::host::{MidiHost, MidiMessageQueue};
 use audio_processor_traits::{
     AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer, MidiEventHandler,
 };
+use midi::{flush_midi_events, initialize_midi_host, MidiContext, MidiHost};
 
 use crate::standalone_processor::{
     StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
 };
+
+mod midi;
 
 /// Start an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
 /// messages received on all inputs to it.
@@ -52,20 +55,7 @@ pub fn standalone_start(
 ) -> StandaloneHandles {
     let _ = wisual_logger::try_init_from_env();
 
-    let midi_host = app.midi().and(handle).map(|handle| {
-        // MIDI set-up
-        let mut midi_host = MidiHost::default_with_handle(handle);
-        midi_host.start_midi().expect("Failed to start MIDI host");
-        midi_host
-    });
-    let mut midi_context = midi_host.as_ref().map(|midi_host| {
-        let midi_message_queue = midi_host.messages().clone();
-        let midi_audio_thread_handler = MidiAudioThreadHandler::default();
-        MidiContext {
-            midi_audio_thread_handler,
-            midi_message_queue,
-        }
-    });
+    let (midi_host, mut midi_context) = initialize_midi_host(&mut app, handle);
 
     // Audio set-up
     let host = cpal::default_host();
@@ -73,15 +63,14 @@ pub fn standalone_start(
     let buffer_size = 512;
     let sample_rate = 44100;
     let (input_device, input_config) = configure_input_device(&host, buffer_size, sample_rate);
-    let (output_device, num_channels, output_config) =
-        configure_output_device(host, buffer_size, sample_rate);
+    let (output_device, output_config) = configure_output_device(host, buffer_size, sample_rate);
+
     let settings = AudioProcessorSettings::new(
         output_config.sample_rate.0 as f32,
         input_config.channels.into(),
         output_config.channels.into(),
         buffer_size,
     );
-
     app.processor().prepare(settings);
 
     let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
@@ -99,6 +88,7 @@ pub fn standalone_start(
         .unwrap();
 
     // Output callback section
+    let num_channels = output_config.channels.into();
     let output_stream = output_device
         .build_output_stream(
             &output_config,
@@ -136,14 +126,26 @@ fn configure_input_device(
     let input_device = host.default_input_device().unwrap();
     log::info!("Using input: {}", input_device.name().unwrap());
     let supported_configs = input_device.supported_input_configs().unwrap();
+
+    let mut supports_stereo = false;
     for config in supported_configs {
-        log::info!("Supported config: {:?}", config);
+        log::info!("  INPUT Supported config: {:?}", config);
+        if config.channels() > 1 {
+            supports_stereo = true;
+        }
     }
+
     let input_config = input_device.default_input_config().unwrap();
     let mut input_config: StreamConfig = input_config.into();
-    input_config.channels = 2;
+    input_config.channels = if supports_stereo { 2 } else { 1 };
     input_config.sample_rate = SampleRate(sample_rate as u32);
     input_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
+
+    #[cfg(target_os = "ios")]
+    {
+        input_config.buffer_size = BufferSize::Default;
+    }
+
     (input_device, input_config)
 }
 
@@ -151,31 +153,29 @@ fn configure_output_device(
     host: Host,
     buffer_size: usize,
     sample_rate: usize,
-) -> (cpal::Device, usize, StreamConfig) {
+) -> (cpal::Device, StreamConfig) {
     let output_device = host.default_output_device().unwrap();
     log::info!("Using output: {}", output_device.name().unwrap());
     let supported_configs = output_device.supported_input_configs().unwrap();
     for config in supported_configs {
-        log::info!("Supported config: {:?}", config);
+        log::info!("  OUTPUT Supported config: {:?}", config);
     }
     let output_config = output_device.default_output_config().unwrap();
-    let num_channels: usize = output_config.channels().into();
     let mut output_config: StreamConfig = output_config.into();
     output_config.channels = 2;
     output_config.sample_rate = SampleRate(sample_rate as u32);
     output_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
-    (output_device, num_channels, output_config)
+    #[cfg(target_os = "ios")]
+    {
+        output_config.buffer_size = BufferSize::Default;
+    }
+    (output_device, output_config)
 }
 
 fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
     for sample in data {
         while producer.push(*sample).is_err() {}
     }
-}
-
-struct MidiContext {
-    midi_message_queue: MidiMessageQueue,
-    midi_audio_thread_handler: MidiAudioThreadHandler,
 }
 
 fn output_stream_with_context<Processor: StandaloneProcessor>(
@@ -192,17 +192,7 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
     }
 
     // Collect MIDI
-    if let Some(MidiContext {
-        midi_audio_thread_handler,
-        midi_message_queue,
-    }) = midi_context
-    {
-        if let Some(midi_handler) = processor.midi() {
-            midi_audio_thread_handler.collect_midi_messages(midi_message_queue);
-            midi_handler.process_midi_events(midi_audio_thread_handler.buffer());
-            midi_audio_thread_handler.clear();
-        }
-    }
+    flush_midi_events(midi_context, processor);
 
     let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
     processor.processor().process(&mut audio_buffer);

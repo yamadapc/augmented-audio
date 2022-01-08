@@ -1,14 +1,13 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use audio_garbage_collector::Handle;
-use audio_processor_traits::AtomicF32;
+use audio_processor_traits::{AtomicF32, AudioBuffer};
 
 use crate::midi_map::MidiMap;
-
-const QUEUE_CAPACITY: usize = 2048;
+use crate::LooperProcessorState;
 
 /// Public API types, which should be thread-safe
-pub struct LooperProcessorHandle<SampleType> {
+pub struct LooperProcessorHandle {
     is_recording: AtomicBool,
     is_playing_back: AtomicBool,
     playback_input: AtomicBool,
@@ -16,21 +15,26 @@ pub struct LooperProcessorHandle<SampleType> {
     dry_volume: AtomicF32,
     loop_volume: AtomicF32,
     midi_map: MidiMap,
-    pub queue: atomic_queue::Queue<SampleType>,
+    pub(crate) state: LooperProcessorState,
 }
 
-impl<SampleType> LooperProcessorHandle<SampleType> {
-    pub fn new(handle: &Handle) -> Self {
+impl LooperProcessorHandle {
+    pub(crate) fn new(handle: &Handle, state: LooperProcessorState) -> Self {
         LooperProcessorHandle {
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
             playback_input: AtomicBool::new(true),
             should_clear: AtomicBool::new(false),
-            dry_volume: AtomicF32::new(1.0),
+            // TODO: 0 is the default for testing
+            dry_volume: AtomicF32::new(0.0),
             loop_volume: AtomicF32::new(1.0),
             midi_map: MidiMap::new_with_handle(handle),
-            queue: atomic_queue::Queue::new(QUEUE_CAPACITY),
+            state,
         }
+    }
+
+    pub fn state(&self) -> &LooperProcessorState {
+        &self.state
     }
 
     pub fn store_playback_input(&self, value: bool) {
@@ -39,20 +43,24 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
 
     pub fn start_recording(&self) {
         self.is_recording.store(true, Ordering::Relaxed);
+        self.state.looper_increment.set(1.0);
     }
 
     pub fn clear(&self) {
         self.stop();
         self.should_clear.store(true, Ordering::Relaxed);
+        self.state.looper_increment.set(1.0);
     }
 
     pub fn stop(&self) {
         self.is_recording.store(false, Ordering::Relaxed);
+        self.state.looper_increment.set(1.0);
         self.is_playing_back.store(false, Ordering::Relaxed);
     }
 
     pub fn play(&self) {
         self.is_playing_back.store(true, Ordering::Relaxed);
+        self.state.looper_increment.set(1.0);
     }
 
     pub fn toggle_playback(&self) {
@@ -94,12 +102,36 @@ impl<SampleType> LooperProcessorHandle<SampleType> {
         self.loop_volume.set(value);
     }
 
+    pub fn playhead(&self) -> usize {
+        let start = self.state.loop_state.start.load(Ordering::Relaxed);
+        let end = self.state.loop_state.end.load(Ordering::Relaxed);
+        let cursor = self.state.looper_cursor.get() as usize;
+        let clip = self.state.looped_clip.get();
+        if end > start {
+            cursor - start
+        } else {
+            cursor + (clip.num_samples() - start)
+        }
+    }
+
     pub(crate) fn set_should_clear(&self, _value: bool) {
         self.should_clear.store(false, Ordering::Relaxed);
     }
 
     pub(crate) fn midi_map(&self) -> &MidiMap {
         &self.midi_map
+    }
+
+    pub fn debug(&self) -> String {
+        format!(
+            "cursor={}/{} start={} end={} state={:?} length={}",
+            self.state.looper_cursor.get(),
+            self.state.looped_clip.get().num_samples(),
+            self.state.loop_state.start.load(Ordering::Relaxed),
+            self.state.loop_state.end.load(Ordering::Relaxed),
+            self.state.loop_state.recording_state.get(),
+            self.state.num_samples()
+        )
     }
 }
 
@@ -119,15 +151,15 @@ pub struct ProcessParameters<F: num::Float> {
     pub dry_volume: F,
 }
 
-impl<F: num::Float> LooperProcessorHandle<F> {
-    pub fn parameters(&self) -> ProcessParameters<F> {
+impl LooperProcessorHandle {
+    pub fn parameters(&self) -> ProcessParameters<f32> {
         ProcessParameters {
             should_clear: self.should_clear.load(Ordering::Relaxed),
             playback_input: self.playback_input.load(Ordering::Relaxed),
             is_playing_back: self.is_playing_back.load(Ordering::Relaxed),
             is_recording: self.is_recording.load(Ordering::Relaxed),
-            loop_volume: F::from(self.loop_volume.get()).unwrap(),
-            dry_volume: F::from(self.dry_volume.get()).unwrap(),
+            loop_volume: self.loop_volume.get(),
+            dry_volume: self.dry_volume.get(),
         }
     }
 }

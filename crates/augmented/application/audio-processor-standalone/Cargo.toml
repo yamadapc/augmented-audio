@@ -17,7 +17,6 @@ itertools = "0.10.1"
 # Augmented
 audio-processor-file = { path = "../../audio/audio-processor-file" }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector" }
-audio-processor-standalone-midi = { version = "^0.1", path = "../audio-processor-standalone-midi" }
 audio-processor-traits = { version = "^0.3", path = "../../audio/audio-processor-traits" }
 augmented-midi = { path = "../../data/augmented-midi" }
 
@@ -25,3 +24,7 @@ augmented-midi = { path = "../../data/augmented-midi" }
 basedrop = "^0.1.2"
 cpal = { version = "^0.13.3" }
 ringbuf = "^0.2.5"
+vst = { path = "../../../vendor/vst" }
+
+[target.'cfg(not(target_os = "ios"))'.dependencies]
+audio-processor-standalone-midi = { version = "^0.1", path = "../audio-processor-standalone-midi" }

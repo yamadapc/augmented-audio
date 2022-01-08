@@ -5,16 +5,18 @@ use mockall::automock;
 use app_template_handler::AppTemplateHandler;
 use vst_handler::VstHandler;
 
-use crate::manifests::{CargoToml, MacosAppConfig, ReleaseJson};
+use crate::manifests::{CargoToml, MacosAppConfig, ReleaseJson, VstConfig};
 
 mod app_template_handler;
 mod vst_handler;
 
 /// Represents an App package that has been built
 pub struct PackagerInput<'a> {
+    pub public_name: &'a str,
     pub crate_path: &'a str,
     pub cargo_toml: &'a CargoToml,
     pub release_json: &'a ReleaseJson,
+    pub example_name: Option<&'a str>,
 }
 
 /// Represents an App package that has been built
@@ -44,6 +46,22 @@ impl PackagerService for PackagerServiceImpl {
             .map(|a| a.macos)
             .flatten();
 
+        if let Some(example) = input.example_name {
+            let target_path =
+                Self::build_target_path(&input.cargo_toml.package.name, &input.release_json.key);
+            return VstHandler::handle(
+                target_path,
+                &input,
+                VstConfig {
+                    identifier: format!(
+                        "com.beijaflor.{}__{}",
+                        input.cargo_toml.package.name.replace("-", "_"),
+                        example.replace("-", "_")
+                    ),
+                },
+            );
+        }
+
         if let Some(macos_config) = macos_config {
             let target_path =
                 Self::build_target_path(&input.cargo_toml.package.name, &input.release_json.key);
@@ -54,6 +72,7 @@ impl PackagerService for PackagerServiceImpl {
                 MacosAppConfig::Vst(vst) => VstHandler::handle(target_path, &input, vst),
             }
         } else {
+            log::error!("There's no package config");
             None
         }
     }
