@@ -431,6 +431,7 @@ mod test {
     fn test_looper_plays_its_input_back() {
         let collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::new(&collector.handle());
+        looper.handle.set_dry_volume(1.0);
         let settings = test_settings();
         looper.prepare(settings);
 
