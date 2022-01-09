@@ -4,15 +4,17 @@ import 'package:flutter/cupertino.dart';
 import 'package:graphx/graphx.dart';
 import 'package:mobx/mobx.dart';
 
+import '../../modules/state/metronome_state_model.dart';
+
 class MetronomeSceneBack extends GSprite {
-  Observable<double> playhead;
+  MetronomeStateModel model;
   Dispose? subscription;
 
-  MetronomeSceneBack(this.playhead);
+  MetronomeSceneBack(this.model);
 
   @override
   void addedToStage() {
-    subscription = playhead.observe((_) {
+    subscription = reaction((_) => model.playhead, (_) {
       stage!.scene.requestRender();
     });
   }
@@ -24,7 +26,7 @@ class MetronomeSceneBack extends GSprite {
 
   @override
   void paint(Canvas canvas) {
-    var playheadValue = playhead.value;
+    var playheadValue = model.playhead;
     var playheadPrime = 1.0 - playheadValue % 1.0;
 
     var width = stage?.stageWidth ?? 100.0;
@@ -41,7 +43,8 @@ class MetronomeSceneBack extends GSprite {
 
       if (isTick) {
         Paint strokePaint = Paint();
-        strokePaint.color = Color.fromRGBO(255, 255, 255, 1.0 * playheadPrime);
+        strokePaint.color =
+            CupertinoColors.white.withOpacity(1.0 * playheadPrime);
         var rect = Rect.fromCircle(center: offset, radius: rectWidth / 2.0 - 3);
         var rrect = RRect.fromRectAndRadius(rect, const Radius.circular(10.0));
         canvas.drawRRect(rrect, strokePaint);

@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:metronome/bridge_generated.dart';
-import 'package:mobx/mobx.dart';
+import 'package:metronome/modules/state/metronome_state_controller.dart';
 
 import '../controls/bottom_row.dart';
 import '../controls/tempo_control.dart';
@@ -10,18 +9,10 @@ import '../visualisation/visualisation.dart';
 class MainPageTab extends StatelessWidget {
   const MainPageTab({
     Key? key,
-    required this.playhead,
-    required this.tempo,
-    required this.metronome,
-    required this.volume,
-    required this.isPlaying,
+    required this.stateController,
   }) : super(key: key);
 
-  final Observable<double> playhead;
-  final Observable<double> tempo;
-  final Metronome metronome;
-  final Observable<double> volume;
-  final Observable<bool> isPlaying;
+  final MetronomeStateController stateController;
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +21,16 @@ class MainPageTab extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            Visualisation(playhead: playhead),
+            Visualisation(model: stateController.model),
             Expanded(
               child: Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    TempoControl(tempo: tempo, metronome: metronome),
-                    VolumeControl(volume: volume, metronome: metronome),
+                    TempoControl(stateController: stateController),
+                    VolumeControl(stateController: stateController),
                     const Spacer(),
-                    BottomRow(metronome: metronome, isPlaying: isPlaying)
+                    BottomRow(stateController: stateController)
                   ],
                 ),
               ),

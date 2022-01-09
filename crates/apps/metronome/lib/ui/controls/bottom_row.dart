@@ -1,18 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
-import '../../bridge_generated.dart';
+import '../../modules/state/metronome_state_controller.dart';
 
 class BottomRow extends StatelessWidget {
-  final Metronome metronome;
-  final Observable<bool> isPlaying;
+  final MetronomeStateController stateController;
 
-  BottomRow({Key? key, required this.metronome, required this.isPlaying})
-      : super(key: key);
+  BottomRow({Key? key, required this.stateController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var model = stateController.model;
     return Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -21,14 +19,12 @@ class BottomRow extends StatelessWidget {
             child: CupertinoButton(
                 color: CupertinoColors.activeBlue,
                 onPressed: () {
-                  metronome.setIsPlaying(value: !isPlaying.value);
-                  runInAction(() {
-                    isPlaying.value = !isPlaying.value;
-                  });
+                  stateController.toggleIsPlaying();
                 },
                 child: Observer(
-                  builder: (_) => Text(isPlaying.value ? "Stop" : "Start",
-                      style: const TextStyle(color: CupertinoColors.white)),
+                  builder: (_) =>
+                      Text(model.isPlaying ? "Stop" : "Start",
+                          style: const TextStyle(color: CupertinoColors.white)),
                 )),
           )
         ]);

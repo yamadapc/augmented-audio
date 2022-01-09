@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:graphx/graphx.dart';
-import 'package:mobx/mobx.dart';
+import 'package:metronome/modules/state/metronome_state_model.dart';
 
 import 'scene.dart';
 
 class Visualisation extends StatelessWidget {
   const Visualisation({
     Key? key,
-    required this.playhead,
+    required this.model,
   }) : super(key: key);
 
-  final Observable<double> playhead;
+  final MetronomeStateModel model;
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +18,13 @@ class Visualisation extends StatelessWidget {
       height: 120,
       width: double.infinity,
       child: SceneBuilderWidget(
-        builder: () => SceneController(
-          config: SceneConfig(
-            autoUpdateRender: false,
-            painterWillChange: false,
-          ),
-          back: MetronomeSceneBack(playhead),
+        builder: () =>
+            SceneController(
+              config: SceneConfig(
+                autoUpdateRender: false,
+                painterWillChange: false,
+              ),
+              back: MetronomeSceneBack(model),
         ),
         child: null,
       ),

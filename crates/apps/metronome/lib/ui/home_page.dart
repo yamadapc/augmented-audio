@@ -2,8 +2,10 @@ import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:metronome/bridge_generated.dart';
+import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:mobx/mobx.dart';
 
+import '../modules/state/metronome_state_model.dart';
 import 'tabs/history_page_tab.dart';
 import 'tabs/main_tab.dart';
 
@@ -22,21 +24,18 @@ class _HomePageState extends State<HomePage> {
   Observable<double> tempo = Observable(120.0);
   Observable<double> playhead = Observable(0.0);
 
+  final MetronomeStateModel metronomeStateModel = MetronomeStateModel();
+
   late Metronome metronome;
+  late MetronomeStateController metronomeStateController;
 
   @override
   void initState() {
     metronome = Metronome(DynamicLibrary.executable());
+    metronomeStateController =
+        MetronomeStateController(metronomeStateModel, metronome);
     metronome.initialize();
-    metronome.getPlayhead().forEach((element) {
-      if (playhead.value == element) {
-        return;
-      }
-
-      runInAction(() {
-        playhead.value = element;
-      });
-    });
+    metronomeStateController.setup();
 
     super.initState();
   }
@@ -59,11 +58,8 @@ class _HomePageState extends State<HomePage> {
       tabBuilder: (_context, index) {
         if (index == 0) {
           return MainPageTab(
-              playhead: playhead,
-              tempo: tempo,
-              metronome: metronome,
-              volume: volume,
-              isPlaying: isPlaying);
+            stateController: metronomeStateController,
+          );
         } else {
           return const HistoryPageTab();
         }
