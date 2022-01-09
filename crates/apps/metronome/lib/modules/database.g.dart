@@ -66,7 +66,7 @@ class _$MetronomeDatabase extends MetronomeDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -82,7 +82,7 @@ class _$MetronomeDatabase extends MetronomeDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Session` (`id` INTEGER NOT NULL, `timestampMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Session` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `timestampMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `tempo` REAL NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -106,7 +106,19 @@ class _$SessionDao extends SessionDao {
             <String, Object?>{
               'id': item.id,
               'timestampMs': item.timestampMs,
-              'durationMs': item.durationMs
+              'durationMs': item.durationMs,
+              'tempo': item.tempo
+            }),
+        _sessionUpdateAdapter = UpdateAdapter(
+            database,
+            'Session',
+            ['id'],
+                (Session item) =>
+            <String, Object?>{
+              'id': item.id,
+              'timestampMs': item.timestampMs,
+              'durationMs': item.durationMs,
+              'tempo': item.tempo
             });
 
   final sqflite.DatabaseExecutor database;
@@ -117,16 +129,28 @@ class _$SessionDao extends SessionDao {
 
   final InsertionAdapter<Session> _sessionInsertionAdapter;
 
+  final UpdateAdapter<Session> _sessionUpdateAdapter;
+
   @override
   Future<List<Session>> findAllSessions() async {
-    return _queryAdapter.queryList('SELECT * FROM Session',
+    return _queryAdapter.queryList(
+        'SELECT * FROM Session ORDER BY timestampMs DESC',
         mapper: (Map<String, Object?> row) =>
-            Session(row['id'] as int,
-                row['timestampMs'] as int, row['durationMs'] as int));
+            Session(
+                row['id'] as int?,
+                row['timestampMs'] as int,
+                row['durationMs'] as int,
+                row['tempo'] as double));
   }
 
   @override
-  Future<void> insertSession(Session session) async {
-    await _sessionInsertionAdapter.insert(session, OnConflictStrategy.abort);
+  Future<int> insertSession(Session session) {
+    return _sessionInsertionAdapter.insertAndReturnId(
+        session, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateSession(Session session) async {
+    await _sessionUpdateAdapter.update(session, OnConflictStrategy.replace);
   }
 }

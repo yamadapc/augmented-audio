@@ -2,8 +2,12 @@ import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:metronome/bridge_generated.dart';
+import 'package:metronome/logger.dart';
+import 'package:metronome/modules/database.dart';
+import 'package:metronome/modules/history/history_controller.dart';
+import 'package:metronome/modules/state/history_state_controller.dart';
+import 'package:metronome/modules/state/history_state_model.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
-import 'package:mobx/mobx.dart';
 
 import '../modules/state/metronome_state_model.dart';
 import 'tabs/history_page_tab.dart';
@@ -19,23 +23,39 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Observable<bool> isPlaying = Observable(false);
-  Observable<double> volume = Observable(0.3);
-  Observable<double> tempo = Observable(120.0);
-  Observable<double> playhead = Observable(0.0);
-
+  final HistoryStateModel historyStateModel = HistoryStateModel();
   final MetronomeStateModel metronomeStateModel = MetronomeStateModel();
 
   late Metronome metronome;
-  late MetronomeStateController metronomeStateController;
+  MetronomeStateController? metronomeStateController;
+  HistoryStateController? historyStateController;
 
   @override
   void initState() {
+    logger.i("Initializing metronome bridge");
     metronome = Metronome(DynamicLibrary.executable());
-    metronomeStateController =
-        MetronomeStateController(metronomeStateModel, metronome);
     metronome.initialize();
-    metronomeStateController.setup();
+
+    logger.i("Opening SQLite database");
+    $FloorMetronomeDatabase
+        .databaseBuilder('metronome_database.db')
+        .build()
+        .then((database) {
+      logger.i("Setting-up controllers");
+
+      historyStateController =
+          HistoryStateController(database.sessionDao, historyStateModel);
+      var historyController = HistoryStartStopHandler(
+          database.sessionDao, metronomeStateModel, historyStateController!);
+
+      setState(() {
+        metronomeStateController = MetronomeStateController(
+            metronomeStateModel, metronome, historyController);
+        metronomeStateController?.setup();
+      });
+    }).catchError((err) {
+      logger.e("ERROR: $err");
+    });
 
     super.initState();
   }
@@ -48,6 +68,10 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (metronomeStateController == null) {
+      return Center(child: Text("Loading..."));
+    }
+
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(items: const [
         BottomNavigationBarItem(
@@ -58,10 +82,10 @@ class _HomePageState extends State<HomePage> {
       tabBuilder: (_context, index) {
         if (index == 0) {
           return MainPageTab(
-            stateController: metronomeStateController,
+            stateController: metronomeStateController!,
           );
         } else {
-          return const HistoryPageTab();
+          return HistoryPageTab(stateController: historyStateController!);
         }
       },
     );
