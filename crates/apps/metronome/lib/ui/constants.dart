@@ -1,3 +1,3 @@
 import 'package:flutter/cupertino.dart';
 
-var labelTextStyle = TextStyle(color: CupertinoColors.white.withOpacity(0.6));
+var labelTextStyle = TextStyle(color: CupertinoColors.label.withOpacity(0.6));

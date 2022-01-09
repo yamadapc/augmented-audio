@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 
-import '../constants.dart';
-
 class TempoControl extends StatelessWidget {
   const TempoControl({
     Key? key,
@@ -16,9 +14,8 @@ class TempoControl extends StatelessWidget {
   Widget build(BuildContext context) {
     var model = stateController.model;
     return Observer(
-        builder: (_) =>
-            Column(children: [
-              Text("tempo", textScaleFactor: .8, style: labelTextStyle),
+        builder: (_) => Column(children: [
+              const Text("tempo", textScaleFactor: .8),
               Text(model.tempo.toStringAsFixed(0), textScaleFactor: 5.0),
               SizedBox(
                 width: double.infinity,
