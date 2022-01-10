@@ -43,7 +43,7 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send 
 
 /// Handles to the CPAL streams and MIDI host. Playback will stop when these are dropped.
 pub struct StandaloneHandles {
-    pub input_stream: cpal::Stream,
+    pub input_stream: Option<cpal::Stream>,
     pub output_stream: cpal::Stream,
     pub midi_host: Option<MidiHost>,
 }
@@ -62,12 +62,20 @@ pub fn standalone_start(
     log::info!("Using host: {}", host.id().name());
     let buffer_size = 512;
     let sample_rate = 44100;
-    let (input_device, input_config) = configure_input_device(&host, buffer_size, sample_rate);
+    let accepts_input = app.options().accepts_input;
+    let input_tuple = if accepts_input {
+        Some(configure_input_device(&host, buffer_size, sample_rate))
+    } else {
+        None
+    };
     let (output_device, output_config) = configure_output_device(host, buffer_size, sample_rate);
 
     let settings = AudioProcessorSettings::new(
         output_config.sample_rate.0 as f32,
-        input_config.channels.into(),
+        input_tuple
+            .as_ref()
+            .map(|(_, input_config)| input_config.channels.into())
+            .unwrap_or(0),
         output_config.channels.into(),
         buffer_size,
     );
@@ -75,17 +83,19 @@ pub fn standalone_start(
 
     let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
     let (mut producer, mut consumer) = buffer.split();
-    let input_stream = input_device
-        .build_input_stream(
-            &input_config,
-            move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
-                input_stream_callback(&mut producer, data)
-            },
-            |err| {
-                log::error!("Input error: {:?}", err);
-            },
-        )
-        .unwrap();
+    let input_stream = input_tuple.map(|(input_device, input_config)| {
+        input_device
+            .build_input_stream(
+                &input_config,
+                move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
+                    input_stream_callback(&mut producer, data)
+                },
+                |err| {
+                    log::error!("Input error: {:?}", err);
+                },
+            )
+            .unwrap()
+    });
 
     // Output callback section
     let num_channels = output_config.channels.into();
@@ -108,7 +118,9 @@ pub fn standalone_start(
         .unwrap();
 
     output_stream.play().unwrap();
-    input_stream.play().unwrap();
+    if let Some(input_stream) = &input_stream {
+        input_stream.play().unwrap();
+    }
     log::info!("Audio streams started");
 
     StandaloneHandles {
@@ -188,6 +200,8 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
     for sample in data.iter_mut() {
         if let Some(input_sample) = consumer.pop() {
             *sample = input_sample;
+        } else {
+            break;
         }
     }
 

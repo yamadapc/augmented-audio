@@ -4,7 +4,8 @@ use std::time::Duration;
 
 use anyhow::Result;
 use audio_garbage_collector::Shared;
-use audio_processor_standalone::audio_processor_start;
+use audio_processor_standalone::standalone_processor::StandaloneOptions;
+use audio_processor_standalone::{standalone_start, StandaloneAudioOnlyProcessor};
 use flutter_rust_bridge::StreamSink;
 use lazy_static::lazy_static;
 
@@ -23,7 +24,14 @@ impl State {
         let processor = MetronomeProcessor::new();
         let processor_handle = processor.handle.clone();
         processor_handle.is_playing.store(false, Ordering::Relaxed);
-        let handles = audio_processor_start(processor);
+        let app = StandaloneAudioOnlyProcessor::new_with(
+            processor,
+            StandaloneOptions {
+                accepts_input: false,
+                ..Default::default()
+            },
+        );
+        let handles = standalone_start(app, None);
         Self {
             processor_handle,
             _handles: handles,
