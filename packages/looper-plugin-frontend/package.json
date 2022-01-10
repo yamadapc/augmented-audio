@@ -35,7 +35,7 @@
     "react-app-rewired": "^2.1.8",
     "customize-cra": "^1.0.0",
     "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.2.7",
+    "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^26.0.15",
     "@types/node": "^12.0.0",
