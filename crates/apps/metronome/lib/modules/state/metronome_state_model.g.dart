@@ -70,7 +70,7 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
   }
 
   final _$_MetronomeStateModelActionController =
-  ActionController(name: '_MetronomeStateModel');
+      ActionController(name: '_MetronomeStateModel');
 
   @override
   void setPlayhead(double value) {

@@ -7,7 +7,7 @@ build_and_test: FORCE
 	dart format --fix .
 
 build-dart-codegen: FORCE
-	flutter packages pub run build_runner build
+	flutter packages pub run build_runner build --delete-conflicting-outputs
 
 watch-dart-codegen: FORCE
 	flutter packages pub run build_runner watch

@@ -102,24 +102,22 @@ class _$SessionDao extends SessionDao {
         _sessionInsertionAdapter = InsertionAdapter(
             database,
             'Session',
-                (Session item) =>
-            <String, Object?>{
-              'id': item.id,
-              'timestampMs': item.timestampMs,
-              'durationMs': item.durationMs,
-              'tempo': item.tempo
-            }),
+            (Session item) => <String, Object?>{
+                  'id': item.id,
+                  'timestampMs': item.timestampMs,
+                  'durationMs': item.durationMs,
+                  'tempo': item.tempo
+                }),
         _sessionUpdateAdapter = UpdateAdapter(
             database,
             'Session',
             ['id'],
-                (Session item) =>
-            <String, Object?>{
-              'id': item.id,
-              'timestampMs': item.timestampMs,
-              'durationMs': item.durationMs,
-              'tempo': item.tempo
-            });
+            (Session item) => <String, Object?>{
+                  'id': item.id,
+                  'timestampMs': item.timestampMs,
+                  'durationMs': item.durationMs,
+                  'tempo': item.tempo
+                });
 
   final sqflite.DatabaseExecutor database;
 
@@ -135,12 +133,11 @@ class _$SessionDao extends SessionDao {
   Future<List<Session>> findAllSessions() async {
     return _queryAdapter.queryList(
         'SELECT * FROM Session ORDER BY timestampMs DESC',
-        mapper: (Map<String, Object?> row) =>
-            Session(
-                row['id'] as int?,
-                row['timestampMs'] as int,
-                row['durationMs'] as int,
-                row['tempo'] as double));
+        mapper: (Map<String, Object?> row) => Session(
+            row['id'] as int?,
+            row['timestampMs'] as int,
+            row['durationMs'] as int,
+            row['tempo'] as double));
   }
 
   @override
