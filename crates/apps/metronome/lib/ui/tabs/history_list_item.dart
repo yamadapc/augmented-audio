@@ -16,11 +16,9 @@ String formatDuration(Duration duration) {
   var minutes = duration.inMinutes;
   var seconds = duration.inSeconds;
   if (hours == 0) {
-    return "${leftPad(minutes.toString(), 2)}:${leftPad(
-        seconds.toString(), 2)}";
+    return "${leftPad(minutes.toString(), 2)}:${leftPad(seconds.toString(), 2)}";
   }
-  return "${leftPad(hours.toString(), 2)}:${leftPad(
-      minutes.toString(), 2)}:${leftPad(seconds.toString(), 2)}";
+  return "${leftPad(hours.toString(), 2)}:${leftPad(minutes.toString(), 2)}:${leftPad(seconds.toString(), 2)}";
 }
 
 class HistoryListItem extends StatelessWidget {

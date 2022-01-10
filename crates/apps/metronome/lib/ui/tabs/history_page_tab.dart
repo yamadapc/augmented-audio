@@ -24,13 +24,12 @@ class _HistoryPageTabState extends State<HistoryPageTab> {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) =>
-          SafeArea(
-            child: ListView(
-                children: widget.stateController.model.sessions
-                    .map((element) => HistoryListItem(session: element))
-                    .toList()),
-          ),
+      builder: (_) => SafeArea(
+        child: ListView(
+            children: widget.stateController.model.sessions
+                .map((element) => HistoryListItem(session: element))
+                .toList()),
+      ),
     );
   }
 }

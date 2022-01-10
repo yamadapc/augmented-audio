@@ -14,8 +14,8 @@ class HistoryStartStopHandler {
 
   DateTime? start;
 
-  HistoryStartStopHandler(this.sessionDao, this.model,
-      this.historyStateController);
+  HistoryStartStopHandler(
+      this.sessionDao, this.model, this.historyStateController);
 
   void onStart() {
     start = DateTime.now();
@@ -37,7 +37,7 @@ class HistoryStartStopHandler {
 
     logger.i("Session end durationMs=$durationMs");
     var session =
-    Session(null, start!.millisecondsSinceEpoch, durationMs, model.tempo);
+        Session(null, start!.millisecondsSinceEpoch, durationMs, model.tempo);
     await sessionDao.insertSession(session);
     await historyStateController.refresh();
 

@@ -22,9 +22,8 @@ class BottomRow extends StatelessWidget {
                   stateController.toggleIsPlaying();
                 },
                 child: Observer(
-                  builder: (_) =>
-                      Text(model.isPlaying ? "Stop" : "Start",
-                          style: const TextStyle(color: CupertinoColors.white)),
+                  builder: (_) => Text(model.isPlaying ? "Stop" : "Start",
+                      style: const TextStyle(color: CupertinoColors.white)),
                 )),
           )
         ]);

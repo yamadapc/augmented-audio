@@ -18,13 +18,12 @@ class Visualisation extends StatelessWidget {
       height: 120,
       width: double.infinity,
       child: SceneBuilderWidget(
-        builder: () =>
-            SceneController(
-              config: SceneConfig(
-                autoUpdateRender: false,
-                painterWillChange: false,
-              ),
-              back: MetronomeSceneBack(model),
+        builder: () => SceneController(
+          config: SceneConfig(
+            autoUpdateRender: false,
+            painterWillChange: false,
+          ),
+          back: MetronomeSceneBack(model),
         ),
         child: null,
       ),
