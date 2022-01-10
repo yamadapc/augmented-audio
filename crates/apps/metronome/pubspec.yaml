@@ -32,8 +32,9 @@ dev_dependencies:
   flutter_launcher_icons: "^0.9.2"
 
 flutter_icons:
-  ios: true
+  ios: "AppIcon"
   image_path: "design/icon.png"
+  remove_alpha_ios: true
 
 
 dependency_overrides:
