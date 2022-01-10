@@ -60,8 +60,7 @@ class MetronomeImpl extends Metronome {
 
   Future<int> setIsPlaying({required bool value, dynamic hint}) =>
       executeNormal(FlutterRustBridgeTask(
-        callFfi: (port) =>
-            inner.wire_set_is_playing(port, _api2wire_bool(value)),
+        callFfi: (port) => inner.wire_set_is_playing(port, value),
         parseSuccessData: _wire2api_i32,
         constMeta: const FlutterRustBridgeTaskConstMeta(
           debugName: "set_is_playing",
@@ -108,8 +107,8 @@ class MetronomeImpl extends Metronome {
       ));
 
   // Section: api2wire
-  bool _api2wire_bool(bool raw) {
-    return raw;
+  int _api2wire_bool(bool raw) {
+    return raw ? 1 : 0;
   }
 
   double _api2wire_f32(double raw) {
@@ -152,10 +151,10 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
       : _lookup = lookup;
 
   void wire_initialize(
-    int port,
+    int port_,
   ) {
     return _wire_initialize(
-      port,
+      port_,
     );
   }
 
@@ -166,10 +165,10 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
       _wire_initializePtr.asFunction<void Function(int)>();
 
   void wire_deinitialize(
-    int port,
+    int port_,
   ) {
     return _wire_deinitialize(
-      port,
+      port_,
     );
   }
 
@@ -180,11 +179,11 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
       _wire_deinitializePtr.asFunction<void Function(int)>();
 
   void wire_set_is_playing(
-    int port,
+    int port_,
     bool value,
   ) {
     return _wire_set_is_playing(
-      port,
+      port_,
       value ? 1 : 0,
     );
   }
@@ -196,11 +195,11 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
       _wire_set_is_playingPtr.asFunction<void Function(int, int)>();
 
   void wire_set_tempo(
-    int port,
+    int port_,
     double value,
   ) {
     return _wire_set_tempo(
-      port,
+      port_,
       value,
     );
   }
@@ -212,11 +211,11 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
       _wire_set_tempoPtr.asFunction<void Function(int, double)>();
 
   void wire_set_volume(
-    int port,
+    int port_,
     double value,
   ) {
     return _wire_set_volume(
-      port,
+      port_,
       value,
     );
   }
@@ -228,10 +227,10 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
       _wire_set_volumePtr.asFunction<void Function(int, double)>();
 
   void wire_get_playhead(
-    int port,
+    int port_,
   ) {
     return _wire_get_playhead(
-      port,
+      port_,
     );
   }
 

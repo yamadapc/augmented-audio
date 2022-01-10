@@ -12,17 +12,17 @@ typedef int64_t DartPort;
 
 typedef bool (*DartPostCObjectFnType)(DartPort port_id, void *message);
 
-void wire_initialize(int64_t port);
+void wire_initialize(int64_t port_);
 
-void wire_deinitialize(int64_t port);
+void wire_deinitialize(int64_t port_);
 
-void wire_set_is_playing(int64_t port, bool value);
+void wire_set_is_playing(int64_t port_, bool value);
 
-void wire_set_tempo(int64_t port, float value);
+void wire_set_tempo(int64_t port_, float value);
 
-void wire_set_volume(int64_t port, float value);
+void wire_set_volume(int64_t port_, float value);
 
-void wire_get_playhead(int64_t port);
+void wire_get_playhead(int64_t port_);
 
 void free_WireSyncReturnStruct(struct WireSyncReturnStruct val);
 

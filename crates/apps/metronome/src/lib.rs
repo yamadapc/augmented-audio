@@ -41,15 +41,15 @@ impl MetronomeProcessor {
     pub fn new() -> Self {
         let mut envelope = Envelope::new();
         envelope.set_attack(Duration::from_millis(5));
-        envelope.set_decay(Duration::from_millis(50));
-        envelope.set_sustain(0.8);
+        envelope.set_decay(Duration::from_millis(200));
+        envelope.set_sustain(0.0);
         envelope.set_release(Duration::from_millis(200));
 
         MetronomeProcessor {
             handle: make_shared(MetronomeProcessorHandle {
                 is_playing: AtomicBool::new(true),
                 tempo: AtomicF32::new(120.0),
-                volume: AtomicF32::new(100.0),
+                volume: AtomicF32::new(1.0),
                 position_beats: AtomicF32::new(0.0),
             }),
             state: MetronomeProcessorState {
@@ -59,7 +59,10 @@ impl MetronomeProcessor {
                     ticks_per_quarter_note: Some(16),
                     tempo: Some(120),
                 }),
-                oscillator: Oscillator::sine(44100.0),
+                oscillator: Oscillator::new_with_sample_rate(
+                    44100.0,
+                    augmented_oscillator::generators::square_generator,
+                ),
                 playing: false,
                 envelope,
             },
@@ -104,7 +107,7 @@ impl AudioProcessor for MetronomeProcessor {
         let mut last_position = self.state.last_position;
         for frame in data.frames_mut() {
             self.state.playhead.accept_samples(1);
-            let position = self.state.playhead.position_beats();
+            let position = self.state.playhead.position_beats() as f32;
             self.handle.position_beats.set(position);
             self.state.envelope.tick();
             self.state.oscillator.tick();
@@ -122,7 +125,6 @@ impl AudioProcessor for MetronomeProcessor {
                 self.state.envelope.note_on();
             } else {
                 self.state.playing = false;
-                self.state.envelope.note_off();
             }
 
             let out = self.state.oscillator.get()
