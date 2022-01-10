@@ -29,6 +29,12 @@ dev_dependencies:
   floor_generator: ^1.2.0
   build_runner: ^2.1.2
   mobx_codegen: ^2.0.5+2
+  flutter_launcher_icons: "^0.9.2"
+
+flutter_icons:
+  ios: true
+  image_path: "design/icon.png"
+
 
 dependency_overrides:
   analyzer: ^3.0.0
