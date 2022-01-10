@@ -14,6 +14,20 @@ pub trait StandaloneProcessor: Send + 'static {
     fn supports_midi(&mut self) -> bool {
         self.midi().is_some()
     }
+
+    fn options(&self) -> &StandaloneOptions;
+}
+
+pub struct StandaloneOptions {
+    pub accepts_input: bool,
+}
+
+impl Default for StandaloneOptions {
+    fn default() -> Self {
+        StandaloneOptions {
+            accepts_input: true,
+        }
+    }
 }
 
 /// Noop MIDI event handler.
@@ -25,11 +39,19 @@ impl MidiEventHandler for NoMidiEventHandler {
 /// A standalone processor impl that will only process audio
 pub struct StandaloneAudioOnlyProcessor<P> {
     processor: P,
+    options: StandaloneOptions,
 }
 
 impl<P> StandaloneAudioOnlyProcessor<P> {
     pub fn new(processor: P) -> Self {
-        StandaloneAudioOnlyProcessor { processor }
+        StandaloneAudioOnlyProcessor {
+            processor,
+            options: StandaloneOptions::default(),
+        }
+    }
+
+    pub fn new_with(processor: P, options: StandaloneOptions) -> Self {
+        StandaloneAudioOnlyProcessor { processor, options }
     }
 }
 
@@ -47,16 +69,28 @@ where
     fn midi(&mut self) -> Option<&mut Self::Midi> {
         None
     }
+
+    fn options(&self) -> &StandaloneOptions {
+        &self.options
+    }
 }
 
 /// A standalone processor impl that will process audio and MIDI
 pub struct StandaloneProcessorImpl<P> {
     processor: P,
+    options: StandaloneOptions,
 }
 
 impl<P> StandaloneProcessorImpl<P> {
     pub fn new(processor: P) -> Self {
-        StandaloneProcessorImpl { processor }
+        StandaloneProcessorImpl {
+            processor,
+            options: StandaloneOptions::default(),
+        }
+    }
+
+    pub fn new_with(processor: P, options: StandaloneOptions) -> Self {
+        StandaloneProcessorImpl { processor, options }
     }
 }
 
@@ -74,6 +108,10 @@ where
 
     fn midi(&mut self) -> Option<&mut Self::Midi> {
         Some(&mut self.processor)
+    }
+
+    fn options(&self) -> &StandaloneOptions {
+        &self.options
     }
 }
 
