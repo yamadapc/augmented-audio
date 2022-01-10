@@ -40,9 +40,7 @@ class HistoryListItem extends StatelessWidget {
               bottom: BorderSide(color: CupertinoColors.opaqueSeparator)),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(formattedDate,
-              style: const TextStyle(
-                  fontSize: 14, color: CupertinoColors.secondaryLabel)),
+          Text(formattedDate, style: const TextStyle(fontSize: 14)),
           Row(children: [
             Expanded(
               child: Text(formatDuration(duration),
