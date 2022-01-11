@@ -28,6 +28,11 @@
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		CB2BD6EB278D9248004D4594 /* libmetronome.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6EA278D9248004D4594 /* libmetronome.a */; };
+		CB2BD6F1278E047B004D4594 /* CoreAudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F0278E047B004D4594 /* CoreAudioKit.framework */; };
+		CB2BD6F3278E0489004D4594 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F2278E0489004D4594 /* CoreAudio.framework */; };
+		CB2BD6F5278E0494004D4594 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F4278E0494004D4594 /* AVFAudio.framework */; };
+		CB2BD6F7278E04A1004D4594 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F6278E04A1004D4594 /* AudioUnit.framework */; };
+		CB2BD6F9278E04AB004D4594 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F8278E04AB004D4594 /* CoreMIDI.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +80,13 @@
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		C2DBF53A961A077016D314F2 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		CB2BD6EA278D9248004D4594 /* libmetronome.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmetronome.a; path = ../../../../target/release/libmetronome.a; sourceTree = "<group>"; };
+		CB2BD6EC278E03AA004D4594 /* bridge_generated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge_generated.h; sourceTree = "<group>"; };
+		CB2BD6ED278E03E5004D4594 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
+		CB2BD6F0278E047B004D4594 /* CoreAudioKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudioKit.framework; path = System/Library/Frameworks/CoreAudioKit.framework; sourceTree = SDKROOT; };
+		CB2BD6F2278E0489004D4594 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		CB2BD6F4278E0494004D4594 /* AVFAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFAudio.framework; path = System/Library/Frameworks/AVFAudio.framework; sourceTree = SDKROOT; };
+		CB2BD6F6278E04A1004D4594 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
+		CB2BD6F8278E04AB004D4594 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		CB6435B0277965AC00E80800 /* libmetronome.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmetronome.dylib; path = ../../../../target/release/libmetronome.dylib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -83,6 +95,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB2BD6F9278E04AB004D4594 /* CoreMIDI.framework in Frameworks */,
+				CB2BD6F7278E04A1004D4594 /* AudioUnit.framework in Frameworks */,
+				CB2BD6F5278E0494004D4594 /* AVFAudio.framework in Frameworks */,
+				CB2BD6F3278E0489004D4594 /* CoreAudio.framework in Frameworks */,
+				CB2BD6F1278E047B004D4594 /* CoreAudioKit.framework in Frameworks */,
 				CB2BD6EB278D9248004D4594 /* libmetronome.a in Frameworks */,
 				11ACA7B468DF3233095774FA /* Pods_Runner.framework in Frameworks */,
 			);
@@ -150,6 +167,8 @@
 				33CC11122044BFA00003C045 /* MainFlutterWindow.swift */,
 				33E51913231747F40026EE4D /* DebugProfile.entitlements */,
 				33E51914231749380026EE4D /* Release.entitlements */,
+				CB2BD6ED278E03E5004D4594 /* Runner-Bridging-Header.h */,
+				CB2BD6EC278E03AA004D4594 /* bridge_generated.h */,
 				33CC11242044D66E0003C045 /* Resources */,
 				33BA886A226E78AF003329D5 /* Configs */,
 			);
@@ -169,6 +188,11 @@
 		D73912EC22F37F3D000D13A0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CB2BD6F8278E04AB004D4594 /* CoreMIDI.framework */,
+				CB2BD6F6278E04A1004D4594 /* AudioUnit.framework */,
+				CB2BD6F4278E0494004D4594 /* AVFAudio.framework */,
+				CB2BD6F2278E0489004D4594 /* CoreAudio.framework */,
+				CB2BD6F0278E047B004D4594 /* CoreAudioKit.framework */,
 				CB2BD6EA278D9248004D4594 /* libmetronome.a */,
 				CB6435B0277965AC00E80800 /* libmetronome.dylib */,
 				30A7F93FA9101E8FBF26BEB8 /* Pods_Runner.framework */,
@@ -213,7 +237,7 @@
 				TargetAttributes = {
 					33CC10EC2044A3C60003C045 = {
 						CreatedOnToolsVersion = 9.2;
-						LastSwiftMigration = 1100;
+						LastSwiftMigration = 1310;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Sandbox = {
@@ -428,13 +452,16 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Profile;
@@ -559,13 +586,16 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/DebugProfile.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -580,13 +610,16 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Release.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
