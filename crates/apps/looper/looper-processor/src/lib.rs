@@ -24,6 +24,8 @@ mod atomic_enum;
 mod handle;
 mod midi_map;
 
+const MAX_LOOP_LENGTH_SECS: f32 = 10.0;
+
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 enum RecordingState {
     Empty = 0,
@@ -261,7 +263,7 @@ impl AudioProcessor for LooperProcessor {
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(
             num_channels,
-            (settings.sample_rate() * 10.0) as usize,
+            (settings.sample_rate() * MAX_LOOP_LENGTH_SECS) as usize,
             AtomicF32::new(0.0),
         );
         self.handle.state.looped_clip.set(make_shared(buffer));
@@ -400,7 +402,8 @@ mod test {
     use audio_processor_testing_helpers::test_level_equivalence;
 
     use audio_processor_traits::{
-        AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
+        audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
+        VecAudioBuffer,
     };
 
     use crate::LooperProcessor;
@@ -462,5 +465,64 @@ mod test {
         looper.process(&mut audio_buffer);
 
         assert_eq!(rms_level(audio_buffer.slice()), 0.0);
+    }
+
+    #[test]
+    fn test_looper_samples_at_start() {
+        let collector = basedrop::Collector::new();
+        let mut looper = LooperProcessor::new(&collector.handle());
+        let settings = test_settings();
+        looper.prepare(settings);
+
+        let mut sample_buffer: Vec<f32> = (0..1000).map(|i| i as f32).collect();
+        let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
+        let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
+        looper.handle.start_recording();
+        looper.process(&mut sample_buffer);
+        looper.handle.stop_recording();
+        // The looper will drop the next sample, that's expected behaviour
+        {
+            let mut one_sample_buffer = VecAudioBuffer::new_with(vec![0.0], 1, 1);
+            looper.process(&mut one_sample_buffer);
+        }
+
+        // While recording, the output is muted
+        let mut empty_buffer: Vec<f32> = (0..1000).map(|i| 0.0).collect();
+        let initial_output = sample_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        assert_eq!(
+            empty_buffer, initial_output,
+            "While recording the looper wasn't silent"
+        );
+
+        let mut output_buffer: Vec<f32> = (0..1000).map(|i| 0.0).collect();
+        let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
+
+        looper.process(&mut output_buffer);
+        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let sample_vec = input_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        assert_eq!(
+            output_vec, sample_vec,
+            "After recording the looper didn't playback"
+        );
+
+        audio_buffer::clear(&mut output_buffer);
+
+        looper.process(&mut output_buffer);
+        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let sample_vec = input_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        assert_eq!(
+            output_vec, sample_vec,
+            "The looper didn't playback its recording twice"
+        );
+
+        // Stop looper
+        looper.handle.stop();
+        looper.process(&mut sample_buffer);
+        let mut empty_buffer: Vec<f32> = (0..1000).map(|i| 0.0).collect();
+        let initial_output = sample_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        assert_eq!(
+            empty_buffer, initial_output,
+            "The looper wasn't silent after stopped"
+        );
     }
 }
