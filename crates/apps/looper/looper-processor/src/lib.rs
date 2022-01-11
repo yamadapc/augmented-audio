@@ -406,7 +406,7 @@ mod test {
         VecAudioBuffer,
     };
 
-    use crate::LooperProcessor;
+    use crate::{LooperProcessor, MAX_LOOP_LENGTH_SECS};
 
     fn test_settings() -> AudioProcessorSettings {
         AudioProcessorSettings::new(44100.0, 1, 1, 512)
@@ -467,13 +467,7 @@ mod test {
         assert_eq!(rms_level(audio_buffer.slice()), 0.0);
     }
 
-    #[test]
-    fn test_looper_samples_at_start() {
-        let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle());
-        let settings = test_settings();
-        looper.prepare(settings);
-
+    fn test_looper_record_and_playback(looper: &mut LooperProcessor) {
         let mut sample_buffer: Vec<f32> = (0..1000).map(|i| i as f32).collect();
         let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
         let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
@@ -524,5 +518,48 @@ mod test {
             empty_buffer, initial_output,
             "The looper wasn't silent after stopped"
         );
+    }
+
+    fn make_silent_buffer(num_samples: usize) -> VecAudioBuffer<f32> {
+        let silent_buffer: Vec<f32> = (0..num_samples).map(|_i| 0.0).collect();
+        let mut silent_vec_buffer = VecAudioBuffer::new_with(silent_buffer, 1, num_samples);
+        silent_vec_buffer
+    }
+
+    fn test_looper_is_silent(settings: &AudioProcessorSettings, looper: &mut LooperProcessor) {
+        let num_samples = (MAX_LOOP_LENGTH_SECS * settings.sample_rate()) as usize;
+        let mut output = make_silent_buffer(num_samples);
+        looper.process(&mut output);
+        let silent_buffer = make_silent_buffer(num_samples);
+        assert_eq!(output, silent_buffer, "Looper was not silent");
+    }
+
+    #[test]
+    fn test_looper_samples_at_start() {
+        let collector = basedrop::Collector::new();
+        let mut looper = LooperProcessor::new(&collector.handle());
+        let settings = test_settings();
+        looper.prepare(settings);
+
+        test_looper_record_and_playback(&mut looper);
+        looper.handle.clear();
+        test_looper_is_silent(&settings, &mut looper);
+    }
+
+    #[test]
+    fn test_looper_samples_at_edge() {
+        let collector = basedrop::Collector::new();
+        let mut looper = LooperProcessor::new(&collector.handle());
+        let settings = test_settings();
+        looper.prepare(settings);
+
+        let num_samples = (MAX_LOOP_LENGTH_SECS * settings.sample_rate) as usize - 500;
+        let mut sample_buffer: Vec<f32> = (0..num_samples).map(|i| i as f32).collect();
+        let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
+        looper.process(&mut sample_buffer);
+
+        test_looper_record_and_playback(&mut looper);
+        looper.handle.clear();
+        test_looper_is_silent(&settings, &mut looper);
     }
 }
