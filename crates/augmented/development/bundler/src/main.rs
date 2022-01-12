@@ -1,6 +1,7 @@
 use std::fs::{copy, create_dir_all, read_to_string};
 use std::path::{Path, PathBuf};
 
+use clap::Arg;
 use cmd_lib::run_cmd;
 
 use manifests::CargoToml;
@@ -145,18 +146,35 @@ fn main() {
         .version("0.1.0")
         .author("Pedro Tacla Yamada <tacla.yamada@gmail.com>")
         .about("Package Rust plug-ins")
-        .arg(clap::Arg::from_usage(
-            "-c,--config=<PACKAGE_CARGO_TOML> 'Cargo.toml PATH for the package to bundle'",
-        ))
-        .arg(clap::Arg::from_usage(
-            "-o,--output=<OUTPUT_PATH> 'Where to write the plug-in into'",
-        ))
-        .arg(clap::Arg::from_usage(
-            "--frontend-path=[FRONTEND_PATH] 'Front-end path'",
-        ))
-        .arg(clap::Arg::from_usage(
-            "--skip-frontend-build 'Skip the front-end build'",
-        ));
+        .arg(
+            Arg::new("config")
+                .long("config")
+                .short('c')
+                .takes_value(true)
+                .required(true)
+                .help("Cargo.toml PATH for the package to bundle"),
+        )
+        .arg(
+            Arg::new("output")
+                .long("output")
+                .short('o')
+                .takes_value(true)
+                .required(true)
+                .help("Where to write the plug-in into"),
+        )
+        .arg(
+            Arg::new("frontend-path")
+                .long("frontend-path")
+                .takes_value(true)
+                .required(false)
+                .help("Frontend path"),
+        )
+        .arg(
+            Arg::new("skip-frontend-build")
+                .long("skip-frontend-build")
+                .help("Skip the front-end build")
+                .required(false),
+        );
     let matches = app.get_matches();
     let config_path = matches
         .value_of("config")

@@ -29,12 +29,12 @@ fn main() {
         .subcommand(
             clap::App::new("test-snapshots")
                 .about("Run processor snapshot tests")
-                .arg(clap::Arg::from("-u, --update-snapshots")),
+                .arg(clap::Arg::from_usage("-u, --update-snapshots")),
         )
         .subcommand(
             clap::App::new("build")
                 .about("Build a release package for a given app")
-                .arg(clap::Arg::from("-c, --crate=<PATH> 'Crate path'")),
+                .arg(clap::Arg::from_usage("-c, --crate=<PATH> 'Crate path'")),
         );
 
     let matches = app.clone().get_matches();
