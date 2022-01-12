@@ -43,11 +43,15 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, 
             continue;
         }
 
+        let other_crate_name = cargo_manifest["package"]["name"]
+            .as_str()
+            .unwrap()
+            .to_string();
         if let Some(deps) = cargo_manifest["dependencies"].as_table_mut() {
             if let Some(subdep) = deps.get_mut(&*manifest.package.name) {
                 log::info!(
                     "  => Bumping {}/dependencies/{} to {}",
-                    cargo_manifest["package"]["name"].as_str().unwrap(),
+                    other_crate_name,
                     &manifest.package.name,
                     new_version.to_string()
                 );
