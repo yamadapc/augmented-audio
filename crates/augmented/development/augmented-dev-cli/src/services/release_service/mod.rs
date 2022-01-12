@@ -29,6 +29,28 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, 
 
     let new_version = bump_prerelease(&manifest.package.name, path);
 
+    let current = std::env::current_dir().unwrap();
+    log::info!("cd {}", path);
+    std::env::set_current_dir(path).unwrap();
+
+    log::info!("cargo test");
+    cmd_lib::spawn!(cargo test).unwrap().wait().unwrap();
+    log::info!("cargo check");
+    cmd_lib::spawn!(cargo check).unwrap().wait().unwrap();
+    log::info!("cargo clippy");
+    cmd_lib::spawn!(cargo clippy).unwrap().wait().unwrap();
+    log::info!("cargo build");
+    cmd_lib::spawn!(cargo build).unwrap().wait().unwrap();
+    log::info!("cargo publish");
+    cmd_lib::spawn!(cargo publish).unwrap().wait().unwrap();
+    let commit_message = format!("{}@{}", manifest.package.name, new_version.to_string());
+    cmd_lib::spawn!(git add . && git commit -m "$commit_message" && git tag $commit_message)
+        .unwrap()
+        .wait()
+        .unwrap();
+
+    std::env::set_current_dir(current).unwrap();
+
     log::info!(
         "  => New version is {}, will now bump it throughout the repo",
         new_version.to_string()
