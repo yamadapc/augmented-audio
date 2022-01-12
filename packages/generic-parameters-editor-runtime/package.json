@@ -16,8 +16,8 @@
     "tsyringe": "^4.5.0"
   },
   "devDependencies": {
-    "@swc/core": "^1.2.105",
-    "@swc/jest": "^0.2.5",
+    "@swc/core": "^1.2.128",
+    "@swc/jest": "^0.2.15",
     "@testing-library/react": "^12.1.2",
     "@types/chroma-js": "^2.1.0",
     "@types/enzyme": "^3.10.8",
@@ -31,9 +31,7 @@
   },
   "jest": {
     "transform": {
-      "^.+\\.(t|j)sx?$": [
-        "@swc/jest"
-      ]
+      "^.+\\.(t|j)sx?$": "@swc/jest"
     },
     "testEnvironment": "jsdom",
     "collectCoverage": true,
