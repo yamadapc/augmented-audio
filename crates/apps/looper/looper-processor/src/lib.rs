@@ -1,202 +1,28 @@
-use std::marker::PhantomData;
 use std::ops::Deref;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::Ordering;
 
-use basedrop::SharedCell;
-use num::{FromPrimitive, ToPrimitive};
-use num_derive::{FromPrimitive, ToPrimitive};
+use num::FromPrimitive;
 
-use audio_garbage_collector::{make_shared, make_shared_cell, Handle, Shared};
+use atomic_enum::AtomicEnum;
+use audio_garbage_collector::{make_shared, Handle, Shared};
 use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
     MidiMessageLike, VecAudioBuffer,
 };
+pub use handle::LooperProcessorHandle;
+use handle::ProcessParameters;
+use midi_map::{Action, MidiSpec};
 
-use crate::atomic_enum::AtomicEnum;
-pub use crate::handle::LooperProcessorHandle;
-use crate::handle::ProcessParameters;
-use crate::midi_map::{Action, MidiSpec};
-use crate::RecordingState::Recording;
+use crate::state::{LooperProcessorState, RecordingState};
 
 mod atomic_enum;
 mod handle;
-mod midi_map;
+pub mod midi_map;
+mod state;
 
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;
-
-#[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
-enum RecordingState {
-    Empty = 0,
-    Recording = 1,
-    Playing = 2,
-}
-
-#[cfg(test)]
-mod test_recording_state {
-    use num::FromPrimitive;
-
-    use super::*;
-
-    #[test]
-    fn test_from_atomic() {
-        let state = 0;
-        let state = RecordingState::from_usize(state).unwrap();
-        assert_eq!(state, RecordingState::Empty);
-    }
-}
-
-struct LoopState {
-    recording_state: AtomicEnum<RecordingState>,
-    start: AtomicUsize,
-    end: AtomicUsize,
-}
-
-pub struct LooperProcessorState {
-    loop_state: LoopState,
-    looper_cursor: AtomicFloat,
-    looper_increment: AtomicFloat,
-    num_channels: AtomicUsize,
-    looped_clip: Shared<SharedCell<VecAudioBuffer<AtomicF32>>>,
-}
-
-impl LooperProcessorState {
-    pub fn new() -> Self {
-        LooperProcessorState {
-            num_channels: AtomicUsize::new(2usize),
-            looper_cursor: AtomicFloat::new(0.0),
-            looper_increment: AtomicFloat::new(1.0),
-            loop_state: LoopState {
-                recording_state: AtomicEnum::new(RecordingState::Empty),
-                start: AtomicUsize::new(0),
-                end: AtomicUsize::new(0),
-            },
-            looped_clip: make_shared(make_shared_cell(VecAudioBuffer::new())),
-        }
-    }
-
-    pub fn increment_cursor(&self) {
-        let mut looper_cursor = self.looper_cursor.get();
-        looper_cursor += self.looper_increment.get();
-
-        // This is a slowdown to stop feature that needs to be properly exposed
-        // if self.loop_state.recording_state.get() == RecordingState::Playing {
-        //     self.looper_increment
-        //         .set((self.looper_increment.get() - 0.00001134).max(0.0));
-        // }
-
-        let num_samples = self.looped_clip.get().num_samples() as f32;
-        let recording_state = self.loop_state.recording_state.get();
-        if recording_state == RecordingState::Playing {
-            let start = self.loop_state.start.load(Ordering::Relaxed) as f32;
-            let end = self.loop_state.end.load(Ordering::Relaxed) as f32;
-
-            if end > start {
-                if looper_cursor >= end {
-                    looper_cursor = start;
-                }
-            } else {
-                // End point is before start
-                let loop_length = num_samples - start + end;
-                if looper_cursor >= start {
-                    let cursor_relative_to_start = looper_cursor - start;
-                    if cursor_relative_to_start >= loop_length {
-                        looper_cursor = start;
-                    }
-                } else {
-                    let cursor_relative_to_start = looper_cursor - end + num_samples - start;
-                    if cursor_relative_to_start >= loop_length {
-                        looper_cursor = start;
-                    }
-                }
-            }
-        } else {
-            looper_cursor %= num_samples;
-        }
-
-        self.looper_cursor.set(looper_cursor as f32);
-    }
-
-    fn clear(&self) {
-        self.loop_state.recording_state.set(RecordingState::Empty);
-        self.looper_cursor.set(0.0);
-        self.loop_state.start.store(0, Ordering::Relaxed);
-        self.loop_state.end.store(0, Ordering::Relaxed);
-        for sample in self.looped_clip.get().slice() {
-            sample.set(0.0);
-        }
-    }
-
-    fn on_tick(&self, is_recording: bool, looper_cursor: usize) {
-        match self.loop_state.recording_state.get() {
-            // Loop has ended
-            RecordingState::Recording if !is_recording => {
-                self.loop_state.recording_state.set(RecordingState::Playing);
-                self.loop_state.end.store(looper_cursor, Ordering::Relaxed);
-            }
-            // Loop has started
-            RecordingState::Empty if is_recording => {
-                self.loop_state
-                    .recording_state
-                    .set(RecordingState::Recording);
-                self.loop_state
-                    .start
-                    .store(looper_cursor, Ordering::Relaxed);
-            }
-            _ => {}
-        }
-
-        self.increment_cursor();
-    }
-
-    /// Returns the size of the current loop
-    pub fn num_samples(&self) -> usize {
-        let recording_state = self.loop_state.recording_state.get();
-
-        if recording_state == RecordingState::Empty {
-            return 0;
-        }
-
-        let clip = self.looped_clip.get();
-        let start = self.loop_state.start.load(Ordering::Relaxed);
-        let end = self.end_cursor();
-
-        if end >= start {
-            end - start
-        } else {
-            clip.num_samples() - start + end
-        }
-    }
-
-    /// Either the looper cursor or the end
-    fn end_cursor(&self) -> usize {
-        let recording_state = self.loop_state.recording_state.get();
-        if recording_state == RecordingState::Recording {
-            self.looper_cursor.get() as usize
-        } else {
-            self.loop_state.end.load(Ordering::Relaxed)
-        }
-    }
-
-    pub fn loop_iterator(&self) -> impl Iterator<Item = f32> {
-        let start = self.loop_state.start.load(Ordering::Relaxed);
-        let clip = self.looped_clip.get();
-
-        (0..self.num_samples()).map(move |index| {
-            let idx = (start + index) % clip.num_samples();
-            let mut s = 0.0;
-            for channel in 0..clip.num_channels() {
-                s += unsafe { clip.get_unchecked(channel, idx).get() };
-            }
-            s
-        })
-    }
-
-    pub fn looped_clip(&self) -> &Shared<SharedCell<VecAudioBuffer<AtomicF32>>> {
-        &self.looped_clip
-    }
-}
 
 /// A single stereo looper
 pub struct LooperProcessor {
@@ -481,14 +307,14 @@ mod test {
         }
 
         // While recording, the output is muted
-        let mut empty_buffer: Vec<f32> = (0..1000).map(|i| 0.0).collect();
+        let empty_buffer: Vec<f32> = (0..1000).map(|_i| 0.0).collect();
         let initial_output = sample_buffer.slice().iter().cloned().collect::<Vec<f32>>();
         assert_eq!(
             empty_buffer, initial_output,
             "While recording the looper wasn't silent"
         );
 
-        let mut output_buffer: Vec<f32> = (0..1000).map(|i| 0.0).collect();
+        let mut output_buffer: Vec<f32> = (0..1000).map(|_i| 0.0).collect();
         let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
 
         looper.process(&mut output_buffer);
@@ -512,7 +338,7 @@ mod test {
         // Stop looper
         looper.handle.stop();
         looper.process(&mut sample_buffer);
-        let mut empty_buffer: Vec<f32> = (0..1000).map(|i| 0.0).collect();
+        let empty_buffer: Vec<f32> = (0..1000).map(|_i| 0.0).collect();
         let initial_output = sample_buffer.slice().iter().cloned().collect::<Vec<f32>>();
         assert_eq!(
             empty_buffer, initial_output,
@@ -522,8 +348,7 @@ mod test {
 
     fn make_silent_buffer(num_samples: usize) -> VecAudioBuffer<f32> {
         let silent_buffer: Vec<f32> = (0..num_samples).map(|_i| 0.0).collect();
-        let mut silent_vec_buffer = VecAudioBuffer::new_with(silent_buffer, 1, num_samples);
-        silent_vec_buffer
+        VecAudioBuffer::new_with(silent_buffer, 1, num_samples)
     }
 
     fn test_looper_is_silent(settings: &AudioProcessorSettings, looper: &mut LooperProcessor) {
