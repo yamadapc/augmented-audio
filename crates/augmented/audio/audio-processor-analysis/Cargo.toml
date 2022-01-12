@@ -15,7 +15,7 @@ wisual-logger = { path = "../../ops/wisual-logger" }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-file = { path = "../audio-processor-file" }
 image = "0.23.14"
-clap = "2.34.0"
+clap = "3.0.5"
 
 [package.metadata.augmented]
 private = true
