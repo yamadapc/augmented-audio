@@ -24,3 +24,5 @@ convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" }
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }
+
+[package.metadata.augmented]

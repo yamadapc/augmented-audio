@@ -28,3 +28,5 @@ vst = { path = "../../../vendor/vst" }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "^0.1", path = "../audio-processor-standalone-midi" }
+
+[package.metadata.augmented]

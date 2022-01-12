@@ -11,3 +11,5 @@ repository = "https://github.com/yamadapc/augmented-audio"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 plotters = { version = "0.3" }
+
+[package.metadata.augmented]
