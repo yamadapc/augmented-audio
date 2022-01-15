@@ -100,6 +100,11 @@ fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
     cmd_lib::spawn!(cargo clippy).unwrap().wait().unwrap();
     log::info!("cargo build");
     cmd_lib::spawn!(cargo build).unwrap().wait().unwrap();
+    log::info!("cargo publish --dry-run");
+    cmd_lib::spawn!(cargo publish --dry-run)
+        .unwrap()
+        .wait()
+        .unwrap();
     std::env::set_current_dir(&current).unwrap();
 
     let commit_message = format!("{}@{}", manifest.package.name, new_version.to_string());
