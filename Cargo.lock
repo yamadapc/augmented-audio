@@ -503,7 +503,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-traits"
-version = "0.3.1"
+version = "1.0.0-alpha.1"
 dependencies = [
  "augmented_oscillator",
  "criterion",

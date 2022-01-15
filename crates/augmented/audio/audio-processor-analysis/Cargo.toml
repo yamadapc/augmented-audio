@@ -6,7 +6,7 @@ edition = "2018"
 
 [dependencies]
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.2" }
-audio-processor-traits = { version = "0.3", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.1", path = "../audio-processor-traits" }
 rustfft = "6.0.1"
 
 [dev-dependencies]

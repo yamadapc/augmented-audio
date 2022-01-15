@@ -42,7 +42,7 @@ audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-an
 augmented-metrics = { path = "../../../augmented/ops/augmented-metrics" }
 audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" }
 audio-processor-standalone-midi = { version = "^0.1", path = "../../../augmented/application/audio-processor-standalone-midi" }
-audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.1", path = "../../../augmented/audio/audio-processor-traits" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
 convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.3" }

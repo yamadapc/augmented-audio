@@ -27,7 +27,7 @@ adsr-envelope = { path = "../audio/adsr-envelope" }
 audio-garbage-collector = { path = "../audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-parameter-store = { path = "../audio/audio-parameter-store" }
 audio-processor-graph = { path = "../audio/audio-processor-graph" }
-audio-processor-traits = { path = "../audio/audio-processor-traits" }
+audio-processor-traits = { path = "../audio/audio-processor-traits" , version = "1.0.0-alpha.1" }
 audio-processor-utility = { path = "../audio/audio-processor-utility" }
 augmented_oscillator = { path = "../audio/oscillator" , version = "1.0.0-alpha.3" }
 cpal = { version = "^0.13.3" }
