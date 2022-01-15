@@ -16,3 +16,6 @@ audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collecto
 atomic-queue = { path = "../../augmented/data/atomic-queue" }
 circular-data-structures = { path = "../../augmented/data/circular-data-structures" }
 audio-processor-traits = { version = "^0.3", path = "../../augmented/audio/audio-processor-traits" }
+
+[package.metadata.augmented]
+private = true
