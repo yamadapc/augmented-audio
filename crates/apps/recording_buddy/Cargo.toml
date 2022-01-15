@@ -23,7 +23,7 @@ cty = "0.2.1"
 log = "0.4"
 plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
 augmented = { path = "../../augmented/augmented" }
-wisual-logger = { path = "../../augmented/ops/wisual-logger" }
+wisual-logger = { version = "0.1", path = "../../augmented/ops/wisual-logger" }
 
 [build-dependencies]
 uniffi_build = "0.15.2"

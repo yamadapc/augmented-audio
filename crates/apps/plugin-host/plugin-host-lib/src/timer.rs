@@ -1,1 +1,1 @@
-pub use augmented_metrics::time;
+pub use augmented_audio_metrics::time;

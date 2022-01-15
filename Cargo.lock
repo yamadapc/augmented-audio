@@ -314,7 +314,7 @@ dependencies = [
 
 [[package]]
 name = "atomic-queue"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 dependencies = [
  "criterion",
  "log",
@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "audio-garbage-collector"
-version = "0.1.0"
+version = "1.0.0-alpha.2"
 dependencies = [
  "basedrop",
  "lazy_static 1.4.0",
@@ -393,13 +393,13 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-file"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
- "augmented-metrics",
- "convert-sample-rate",
+ "augmented-audio-metrics",
+ "augmented-convert-sample-rate",
  "hound",
  "log",
  "rayon",
@@ -451,7 +451,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-standalone"
-version = "0.1.5"
+version = "1.0.0-alpha.3"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-file",
@@ -470,7 +470,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-standalone-midi"
-version = "0.1.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "actix",
  "atomic-queue",
@@ -485,7 +485,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-testing-helpers"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 dependencies = [
  "audio-processor-traits",
  "augmented_oscillator",
@@ -503,7 +503,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-traits"
-version = "0.3.1"
+version = "1.0.0-alpha.1"
 dependencies = [
  "augmented_oscillator",
  "criterion",
@@ -569,11 +569,11 @@ dependencies = [
  "audio-processor-traits",
  "audio-processor-utility",
  "audio-volume",
+ "augmented-convert-sample-rate",
  "augmented-dsp-filters",
  "augmented_oscillator",
  "baseview",
  "circular-data-structures",
- "convert-sample-rate",
  "cpal",
  "iced",
  "iced-editor",
@@ -603,6 +603,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "augmented-audio-metrics"
+version = "1.0.0-alpha.1"
+dependencies = [
+ "log",
+]
+
+[[package]]
+name = "augmented-convert-sample-rate"
+version = "1.0.0-alpha.1"
+dependencies = [
+ "audio-processor-testing-helpers",
+ "augmented_oscillator",
+ "rand 0.8.4",
+]
+
+[[package]]
 name = "augmented-dev-cli"
 version = "0.1.0"
 dependencies = [
@@ -624,7 +640,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-dsp-filters"
-version = "0.2.0"
+version = "1.0.0-alpha.1"
 dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
@@ -632,15 +648,8 @@ dependencies = [
 ]
 
 [[package]]
-name = "augmented-metrics"
-version = "0.1.0"
-dependencies = [
- "log",
-]
-
-[[package]]
 name = "augmented-midi"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 dependencies = [
  "audio-processor-traits",
  "itertools 0.10.1",
@@ -659,7 +668,7 @@ dependencies = [
 
 [[package]]
 name = "augmented_oscillator"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.3"
 dependencies = [
  "criterion",
  "plotters",
@@ -1309,15 +1318,6 @@ checksum = "a06aeb73f470f66dcdbf7223caeebb85984942f22f1adb2a088cf9668146bbbc"
 dependencies = [
  "cfg-if 1.0.0",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "convert-sample-rate"
-version = "0.1.0"
-dependencies = [
- "audio-processor-testing-helpers",
- "augmented_oscillator",
- "rand 0.8.4",
 ]
 
 [[package]]
@@ -4940,13 +4940,13 @@ dependencies = [
  "audio-processor-standalone-midi",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
- "augmented-metrics",
+ "augmented-audio-metrics",
+ "augmented-convert-sample-rate",
  "augmented_oscillator",
  "basedrop",
  "circular-data-structures",
  "clap 2.34.0",
  "concread",
- "convert-sample-rate",
  "cpal",
  "criterion",
  "futures-util",
@@ -7428,7 +7428,7 @@ dependencies = [
 
 [[package]]
 name = "wisual-logger"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "chrono",
  "env_logger 0.8.4",

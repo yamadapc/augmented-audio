@@ -1,7 +1,14 @@
 [package]
-name = "augmented-metrics"
-version = "0.1.0"
+name = "augmented-audio-metrics"
+version = "1.0.0-alpha.1"
 edition = "2021"
+description = "Placeholder crate; will eventually contain metrics mechanisms for augmented audio applications."
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 log = "^0.4.14"
+
+[package.metadata.augmented]
+private = false

@@ -1,32 +1,34 @@
 [package]
 name = "audio-processor-standalone"
-version = "0.1.5"
+version = "1.0.0-alpha.3"
 edition = "2018"
 description = "Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`"
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
+readme = "README.md"
 
 [dependencies]
 # Logging & options
 clap = "^2.33.3"
 log = "^0.4.14"
-wisual-logger = "^0.1.2"
+wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }
 itertools = "0.10.1"
 
 # Augmented
-audio-processor-file = { path = "../../audio/audio-processor-file" }
-audio-garbage-collector = { path = "../../audio/audio-garbage-collector" }
-audio-processor-traits = { version = "^0.3", path = "../../audio/audio-processor-traits" }
-augmented-midi = { path = "../../data/augmented-midi" }
+audio-processor-file = { path = "../../audio/audio-processor-file" , version = "1.0.0-alpha.1" }
+audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
+audio-processor-traits = { version = "1.0.0-alpha.1", path = "../../audio/audio-processor-traits" }
+augmented-midi = { path = "../../data/augmented-midi" , version = "1.0.0-alpha.1" }
 
 # Audio
 basedrop = "^0.1.2"
 cpal = { version = "^0.13.3" }
 ringbuf = "^0.2.5"
-vst = { path = "../../../vendor/vst" }
+vst = { version = "0.2.1", path = "../../../vendor/vst" }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
-audio-processor-standalone-midi = { version = "^0.1", path = "../audio-processor-standalone-midi" }
+audio-processor-standalone-midi = { version = "1.0.0-alpha.2", path = "../audio-processor-standalone-midi" }
 
 [package.metadata.augmented]
+private = false

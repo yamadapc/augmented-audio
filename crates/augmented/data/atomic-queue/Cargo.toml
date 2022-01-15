@@ -4,14 +4,14 @@ description = "Simple bounded lock-free queue for use in Audio applications, por
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 edition = "2018"
 
 [dependencies]
 
 [dev-dependencies]
 log = "^0.4.14"
-wisual-logger = "^0.1.2"
+wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 rand = "^0.8.4"
 criterion = "^0.3"
 ringbuf = "^0.2.6"
@@ -21,3 +21,4 @@ name = "atomic_queue_benchmark"
 harness = false
 
 [package.metadata.augmented]
+private = false

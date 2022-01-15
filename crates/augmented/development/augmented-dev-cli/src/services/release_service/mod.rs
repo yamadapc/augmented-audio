@@ -1,7 +1,7 @@
 use crate::manifests::CargoToml;
 use crate::services::ListCratesService;
 use semver::{Prerelease, Version};
-use toml_edit::Item;
+use toml_edit::{Document, Item};
 
 pub fn prerelease_all_crates(list_crates_service: &ListCratesService) {
     let all_crates = list_crates_service.find_manifests();
@@ -20,14 +20,33 @@ pub fn prerelease_all_crates(list_crates_service: &ListCratesService) {
             continue;
         }
 
-        prerelease_crate(&path, &manifest, &all_crates);
+        if crate_has_changes(&path, &manifest) {
+            prerelease_crate(&path, &manifest, &all_crates);
+        }
+    }
+}
+
+fn crate_has_changes(path: &str, manifest: &CargoToml) -> bool {
+    let tag = format!("{}@{}", &*manifest.package.name, &*manifest.package.version);
+    let result = cmd_lib::run_fun!(PAGER= git diff $tag $path);
+    log::info!("git diff {} {}\n    ==> {:?}", tag, path, result);
+
+    match result {
+        Ok(s) if s.is_empty() => {
+            log::warn!("SKIPPING - NO changes in {}", path);
+            false
+        }
+        _ => {
+            log::warn!("BUMPING - Found changes in {}", path);
+            true
+        }
     }
 }
 
 fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, CargoToml)>) {
     log::info!("Running pre-release proc for {}", path);
 
-    let new_version = bump_prerelease(&manifest.package.name, path);
+    let new_version = bump_own_version_prerelease(&manifest.package.name, path);
 
     log::info!(
         "  => New version is {}, will now bump it throughout the repo",
@@ -39,35 +58,64 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, 
         let cargo_manifest_str = std::fs::read_to_string(&manifest_path).unwrap();
         let mut cargo_manifest = cargo_manifest_str.parse::<toml_edit::Document>().unwrap();
 
-        if cargo_manifest.get("dependencies").is_none() {
+        if cargo_manifest.get("dependencies").is_none()
+            && cargo_manifest.get("dev-dependencies").is_none()
+        {
             continue;
         }
 
-        let other_crate_name = cargo_manifest["package"]["name"]
-            .as_str()
-            .unwrap()
-            .to_string();
-        if let Some(deps) = cargo_manifest["dependencies"].as_table_mut() {
-            if let Some(subdep) = deps.get_mut(&*manifest.package.name) {
+        let package_name = manifest.package.name.clone();
+
+        bump_dependency(
+            &manifest_path,
+            &mut cargo_manifest,
+            package_name,
+            &new_version,
+        )
+    }
+
+    publish_and_release(path, manifest, new_version);
+}
+
+fn bump_dependency(
+    target_package_path: &String,
+    target_package_manifest: &mut Document,
+    bump_package_name: String,
+    bump_package_version: &Version,
+) {
+    let other_crate_name = target_package_manifest["package"]["name"]
+        .as_str()
+        .unwrap()
+        .to_string();
+
+    let mut bump_dep = |key| {
+        if let Some(deps) = target_package_manifest[key].as_table_mut() {
+            if let Some(subdep) = deps.get_mut(&*bump_package_name) {
                 log::info!(
                     "  => Bumping {}/dependencies/{} to {}",
                     other_crate_name,
-                    &manifest.package.name,
-                    new_version.to_string()
+                    &bump_package_name,
+                    bump_package_version.to_string()
                 );
 
                 if subdep.is_str() {
-                    deps[&*manifest.package.name] = value_from_version(&new_version);
+                    deps[&*bump_package_name] = value_from_version(&bump_package_version);
                 } else {
-                    subdep["version"] = value_from_version(&new_version);
+                    subdep["version"] = value_from_version(&bump_package_version);
                 }
 
-                let cargo_manifest_str = cargo_manifest.to_string();
-                std::fs::write(&manifest_path, cargo_manifest_str).unwrap();
+                let cargo_manifest_str = target_package_manifest.to_string();
+                std::fs::write(&target_package_path, cargo_manifest_str).unwrap();
             }
         }
-    }
+    };
 
+    bump_dep("dependencies");
+    bump_dep("dev-dependencies");
+}
+
+/// Run unit-tests and publish crate
+fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
     let current = std::env::current_dir().unwrap();
     log::info!("cd {}", path);
     std::env::set_current_dir(path).unwrap();
@@ -79,6 +127,11 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, 
     cmd_lib::spawn!(cargo clippy).unwrap().wait().unwrap();
     log::info!("cargo build");
     cmd_lib::spawn!(cargo build).unwrap().wait().unwrap();
+    log::info!("cargo publish --dry-run --allow-dirty");
+    cmd_lib::spawn!(cargo publish --dry-run --allow-dirty)
+        .unwrap()
+        .wait()
+        .unwrap();
     std::env::set_current_dir(&current).unwrap();
 
     let commit_message = format!("{}@{}", manifest.package.name, new_version.to_string());
@@ -98,7 +151,8 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, 
     std::env::set_current_dir(&current).unwrap();
 }
 
-fn bump_prerelease(name: &str, path: &str) -> Version {
+/// Modify version field in a certain manifest to be bumped to the next pre-release major version
+fn bump_own_version_prerelease(name: &str, path: &str) -> Version {
     let manifest_path = format!("{}/Cargo.toml", path);
     let cargo_manifest_str = std::fs::read_to_string(&manifest_path).unwrap();
     let mut cargo_manifest = cargo_manifest_str.parse::<toml_edit::Document>().unwrap();

@@ -8,9 +8,9 @@ processor_examples = ["gain", "mono", "pan"]
 private = true
 
 [dependencies]
-audio-processor-traits = { version = "^0.3", path = "../audio-processor-traits" }
-audio-garbage-collector = { path = "../audio-garbage-collector" }
+audio-processor-traits = { version = "1.0.0-alpha.1", path = "../audio-processor-traits" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.2" }
 
 [dev-dependencies]
-audio-processor-standalone = { version = "0.1.5", path = "../../application/audio-processor-standalone" }
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-standalone = { version = "1.0.0-alpha.3", path = "../../application/audio-processor-standalone" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.1", path = "../../testing/audio-processor-testing-helpers" }

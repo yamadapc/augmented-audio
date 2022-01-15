@@ -19,28 +19,28 @@ glow = [
 
 [dependencies]
 # application
-audio-processor-standalone = { version = "^0.1.5", path = "../application/audio-processor-standalone" }
-audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" }
+audio-processor-standalone = { version = "1.0.0-alpha.3", path = "../application/audio-processor-standalone" }
+audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" , version = "1.0.0-alpha.2" }
 
 # audio
 adsr-envelope = { path = "../audio/adsr-envelope" }
-audio-garbage-collector = { path = "../audio/audio-garbage-collector" }
+audio-garbage-collector = { path = "../audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-parameter-store = { path = "../audio/audio-parameter-store" }
 audio-processor-graph = { path = "../audio/audio-processor-graph" }
-audio-processor-traits = { path = "../audio/audio-processor-traits" }
+audio-processor-traits = { path = "../audio/audio-processor-traits" , version = "1.0.0-alpha.1" }
 audio-processor-utility = { path = "../audio/audio-processor-utility" }
-augmented_oscillator = { path = "../audio/oscillator" , version = "1.0.0-alpha.1" }
+augmented_oscillator = { path = "../audio/oscillator" , version = "1.0.0-alpha.3" }
 cpal = { version = "^0.13.3" }
 
 # data
-atomic-queue = { path = "../data/atomic-queue" }
+atomic-queue = { path = "../data/atomic-queue" , version = "1.0.0-alpha.1" }
 audio-volume = { path = "../data/audio-volume" }
 circular-data-structures = { path = "../data/circular-data-structures" }
 smooth-value = { path = "../data/smooth-value" }
 
 # dsp
-convert-sample-rate = { path = "../dsp/convert-sample-rate" }
-augmented-dsp-filters = { version = "0.2", path = "../dsp/dsp-filters" }
+augmented-convert-sample-rate = { path = "../dsp/convert-sample-rate" , version = "1.0.0-alpha.1" }
+augmented-dsp-filters = { version = "1.0.0-alpha.1", path = "../dsp/dsp-filters" }
 
 # gui
 audio-processor-iced-design-system = { path = "../gui/audio-processor-iced-design-system" }
@@ -54,10 +54,10 @@ baseview = { path = "../../vendor/baseview" }
 
 # ops
 audio-plugin-logger = { path = "../ops/audio-plugin-logger" }
-wisual-logger = { path = "../ops/wisual-logger" }
+wisual-logger = { version = "0.1", path = "../ops/wisual-logger" }
 
 # testing
-audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.1" }
 
 # plug-ins
 vst = { version = "^0.2.1", path = "../../vendor/vst" }
