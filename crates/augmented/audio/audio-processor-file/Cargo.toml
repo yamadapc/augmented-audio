@@ -2,6 +2,10 @@
 name = "audio-processor-file"
 version = "0.1.0"
 edition = "2021"
+description = "`AudioProcessor` implementations for audio file playback & writing."
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 # Error / Logging
@@ -26,3 +30,4 @@ augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-
 audio-processor-testing-helpers = { version = "1.0.0-alpha.1", path = "../../../augmented/testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
+private = false
