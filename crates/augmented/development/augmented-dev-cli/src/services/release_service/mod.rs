@@ -20,7 +20,26 @@ pub fn prerelease_all_crates(list_crates_service: &ListCratesService) {
             continue;
         }
 
-        prerelease_crate(&path, &manifest, &all_crates);
+        if crate_has_changes(&path, &manifest) {
+            prerelease_crate(&path, &manifest, &all_crates);
+        }
+    }
+}
+
+fn crate_has_changes(path: &str, manifest: &CargoToml) -> bool {
+    let tag = format!("{}@{}", &*manifest.package.name, &*manifest.package.version);
+    let result = cmd_lib::run_fun!(PAGER= git diff $tag $path);
+    log::info!("git diff {} {}\n    ==> {:?}", tag, path, result);
+
+    match result {
+        Ok(s) if s.is_empty() => {
+            log::warn!("SKIPPING - NO changes in {}", path);
+            false
+        }
+        _ => {
+            log::warn!("BUMPING - Found changes in {}", path);
+            true
+        }
     }
 }
 
