@@ -336,7 +336,7 @@ dependencies = [
 
 [[package]]
 name = "audio-garbage-collector"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "basedrop",
  "lazy_static 1.4.0",

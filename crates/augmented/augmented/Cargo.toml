@@ -24,7 +24,7 @@ audio-processor-standalone-midi = { path = "../application/audio-processor-stand
 
 # audio
 adsr-envelope = { path = "../audio/adsr-envelope" }
-audio-garbage-collector = { path = "../audio/audio-garbage-collector" , version = "1.0.0-alpha.1" }
+audio-garbage-collector = { path = "../audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-parameter-store = { path = "../audio/audio-parameter-store" }
 audio-processor-graph = { path = "../audio/audio-processor-graph" }
 audio-processor-traits = { path = "../audio/audio-processor-traits" }
