@@ -10,7 +10,7 @@ thiserror = "^1.0.26"
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.1" }
 concread = "0.2.19"
 num-traits = "0.2.14"
-augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.1" }
+augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.2" }
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
