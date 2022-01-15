@@ -100,8 +100,8 @@ fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
     cmd_lib::spawn!(cargo clippy).unwrap().wait().unwrap();
     log::info!("cargo build");
     cmd_lib::spawn!(cargo build).unwrap().wait().unwrap();
-    log::info!("cargo publish --dry-run");
-    cmd_lib::spawn!(cargo publish --dry-run)
+    log::info!("cargo publish --dry-run --allow-dirty");
+    cmd_lib::spawn!(cargo publish --dry-run --allow-dirty)
         .unwrap()
         .wait()
         .unwrap();
