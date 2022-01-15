@@ -108,7 +108,7 @@ pub fn convert_audio_file_sample_rate(
         input_rate,
         output_rate
     );
-    convert_sample_rate::convert_sample_rate(
+    augmented_convert_sample_rate::convert_sample_rate(
         input_rate,
         audio_file_channel,
         output_rate,

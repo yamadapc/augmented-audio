@@ -20,7 +20,7 @@ hound = "^3.4.0"
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-processor-traits = { version = "1.0.0-alpha.1", path = "../../../augmented/audio/audio-processor-traits" }
 augmented-metrics = { path = "../../ops/augmented-metrics" }
-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" }
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }

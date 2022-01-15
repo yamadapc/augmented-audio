@@ -398,8 +398,8 @@ dependencies = [
  "audio-garbage-collector",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
+ "augmented-convert-sample-rate",
  "augmented-metrics",
- "convert-sample-rate",
  "hound",
  "log",
  "rayon",
@@ -569,11 +569,11 @@ dependencies = [
  "audio-processor-traits",
  "audio-processor-utility",
  "audio-volume",
+ "augmented-convert-sample-rate",
  "augmented-dsp-filters",
  "augmented_oscillator",
  "baseview",
  "circular-data-structures",
- "convert-sample-rate",
  "cpal",
  "iced",
  "iced-editor",
@@ -600,6 +600,15 @@ dependencies = [
  "thiserror",
  "tokio",
  "wisual-logger",
+]
+
+[[package]]
+name = "augmented-convert-sample-rate"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-testing-helpers",
+ "augmented_oscillator",
+ "rand 0.8.4",
 ]
 
 [[package]]
@@ -1309,15 +1318,6 @@ checksum = "a06aeb73f470f66dcdbf7223caeebb85984942f22f1adb2a088cf9668146bbbc"
 dependencies = [
  "cfg-if 1.0.0",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "convert-sample-rate"
-version = "0.1.0"
-dependencies = [
- "audio-processor-testing-helpers",
- "augmented_oscillator",
- "rand 0.8.4",
 ]
 
 [[package]]
@@ -4940,13 +4940,13 @@ dependencies = [
  "audio-processor-standalone-midi",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
+ "augmented-convert-sample-rate",
  "augmented-metrics",
  "augmented_oscillator",
  "basedrop",
  "circular-data-structures",
  "clap 2.34.0",
  "concread",
- "convert-sample-rate",
  "cpal",
  "criterion",
  "futures-util",
