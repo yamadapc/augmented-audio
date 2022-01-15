@@ -18,3 +18,5 @@ basedrop = "^0.1.2"
 thiserror = "^1.0.26"
 midir = "^0.7.0"
 log = "^0.4.14"
+
+[package.metadata.augmented]

@@ -40,7 +40,7 @@ impl ListCratesService {
             .collect()
     }
 
-    fn find_manifests(&self) -> Vec<(String, CargoToml)> {
+    pub fn find_manifests(&self) -> Vec<(String, CargoToml)> {
         let crates = self.find_entries();
         self.parse_manifests(crates)
     }

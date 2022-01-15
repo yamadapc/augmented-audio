@@ -23,3 +23,6 @@ augmented_oscillator = { path = "../oscillator" }
 [[bench]]
 name = "audio_processor_traits_criterion"
 harness = false
+
+[package.metadata.augmented]
+private = true

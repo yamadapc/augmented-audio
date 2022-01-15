@@ -1,3 +1,4 @@
+use crate::services::release_service::prerelease_all_crates;
 use crate::services::snapshot_tests_service::run_all_snapshot_tests;
 
 mod manifests;
@@ -27,6 +28,9 @@ fn main() {
         .about("Development CLI for augmented projects, helps build and deploy apps")
         .subcommand(clap::App::new("list-crates").about("List crates and their published status"))
         .subcommand(
+            clap::App::new("prerelease-all").about("Bump all crates into a pre-release state"),
+        )
+        .subcommand(
             clap::App::new("test-snapshots")
                 .about("Run processor snapshot tests")
                 .arg(clap::Arg::from("-u, --update-snapshots")),
@@ -39,7 +43,10 @@ fn main() {
 
     let matches = app.clone().get_matches();
 
-    if matches.is_present("list-crates") {
+    if matches.is_present("prerelease-all") {
+        let list_crates_service = services::ListCratesService::default();
+        prerelease_all_crates(&list_crates_service);
+    } else if matches.is_present("list-crates") {
         let list_crates_service = services::ListCratesService::default();
         list_crates_service.run();
     } else if matches.is_present("build") {

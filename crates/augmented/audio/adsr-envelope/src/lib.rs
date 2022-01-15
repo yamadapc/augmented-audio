@@ -83,6 +83,7 @@ impl Default for EnvelopeState {
     }
 }
 
+/// An ADSR envelope implementation
 pub struct Envelope {
     stage: EnvelopeStage,
     state: EnvelopeState,
@@ -96,6 +97,7 @@ impl Default for Envelope {
 }
 
 impl Envelope {
+    /// Create a linear envelope with default configuration
     pub fn new() -> Self {
         Envelope {
             stage: EnvelopeStage::Idle,
@@ -104,6 +106,7 @@ impl Envelope {
         }
     }
 
+    /// Create an exponential envelope with default configuration
     pub fn exp() -> Self {
         Envelope {
             stage: EnvelopeStage::Idle,
@@ -112,6 +115,7 @@ impl Envelope {
         }
     }
 
+    /// Set the envelope sample rate, required before playback
     pub fn set_sample_rate(&mut self, sample_rate: f32) {
         self.config.sample_rate = sample_rate;
         self.config.attack.set_sample_rate(sample_rate);
@@ -119,32 +123,38 @@ impl Envelope {
         self.config.release.set_sample_rate(sample_rate);
     }
 
+    /// Set the envelope sample rate, required before playback
     pub fn set_attack(&mut self, duration: Duration) {
         self.config
             .attack
             .set_duration(self.config.sample_rate, duration);
     }
 
+    /// Set the envelope decay time
     pub fn set_decay(&mut self, duration: Duration) {
         self.config
             .decay
             .set_duration(self.config.sample_rate, duration);
     }
 
+    /// Set the envelope sustain time
     pub fn set_sustain(&mut self, sustain: f32) {
         self.config.sustain = sustain;
     }
 
+    /// Set the envelope release time
     pub fn set_release(&mut self, duration: Duration) {
         self.config
             .release
             .set_duration(self.config.sample_rate, duration);
     }
 
+    /// Get the current volume multiplier
     pub fn volume(&self) -> f32 {
         self.state.current_volume
     }
 
+    /// Update the envelope, pushing its state forwards by 1 sample
     pub fn tick(&mut self) {
         self.state.current_samples += 1.0;
         let current_samples = self.state.current_samples;
@@ -177,10 +187,13 @@ impl Envelope {
         }
     }
 
+    /// Trigger the envelope by setting its stage to the Attack phase. Does not change the current
+    /// volume, only the stage.
     pub fn note_on(&mut self) {
         self.set_stage(EnvelopeStage::Attack);
     }
 
+    /// Set the envelope stage to release.
     pub fn note_off(&mut self) {
         self.set_stage(EnvelopeStage::Release);
     }

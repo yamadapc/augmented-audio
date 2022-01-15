@@ -1,12 +1,13 @@
 [package]
 name = "augmented_oscillator"
-version = "0.1.0"
-authors = ["yamadapc <tacla.yamada@gmail.com>"]
+version = "1.0.0-alpha.1"
+authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
 edition = "2018"
 description = "Very simple implementation of an oscillator."
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-cpal = { version = "^0.13.3" }
 
 [dev-dependencies]
 criterion = "^0.3"
@@ -18,3 +19,6 @@ plotters = { version = "0.3" }
 [[bench]]
 name = "sine_oscillator_benchmark"
 harness = false
+
+[package.metadata.augmented]
+private = false

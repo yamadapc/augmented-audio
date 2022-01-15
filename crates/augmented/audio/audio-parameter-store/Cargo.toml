@@ -12,3 +12,5 @@ vst = { path = "../../../vendor/vst" }
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
+
+[package.metadata.augmented]

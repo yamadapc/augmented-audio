@@ -7,7 +7,7 @@ edition = "2021"
 crate-type = ["staticlib", "lib"]
 
 [dependencies]
-augmented_oscillator = { path = "../../augmented/audio/oscillator" }
+augmented_oscillator = { path = "../../augmented/audio/oscillator" , version = "1.0.0-alpha.1" }
 audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" }
 audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
