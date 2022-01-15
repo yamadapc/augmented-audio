@@ -1,6 +1,6 @@
 [package]
 name = "audio-garbage-collector"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 edition = "2018"
 description = "Wrapper on top of `basedrop` that provides a drop-in GC API that'll collect reference-counted values on a background thread."
 license = "MIT"

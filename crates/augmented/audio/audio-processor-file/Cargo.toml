@@ -17,7 +17,7 @@ symphonia-bundle-mp3 = "^0.4.0"
 hound = "^3.4.0"
 
 # Augmented
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.1" }
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
 augmented-metrics = { path = "../../ops/augmented-metrics" }
 convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" }

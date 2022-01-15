@@ -42,7 +42,7 @@ iced_baseview = { path = "../../../vendor/iced-baseview", default-features = fal
 iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false }
 
 augmented = { path = "../../../augmented/augmented" }
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.1" }
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
 audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
 audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
