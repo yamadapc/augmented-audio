@@ -18,11 +18,11 @@ vst = { version = "^0.2", path = "../../../vendor/vst", optional = true }
 
 [dev-dependencies]
 criterion = "^0.3.4"
-augmented_oscillator = { path = "../oscillator" }
+augmented_oscillator = { version = "1.0.0-alpha.1", path = "../oscillator" }
 
 [[bench]]
 name = "audio_processor_traits_criterion"
 harness = false
 
 [package.metadata.augmented]
-private = true
+private = false
