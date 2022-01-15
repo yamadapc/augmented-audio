@@ -2,6 +2,15 @@
 name = "augmented-midi"
 version = "0.1.0"
 edition = "2021"
+description = "Experimental MIDI file/event parser using nom combinators"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+exclude = [
+    "test-files",
+    "midir",
+    "bach_846.mid"
+]
 
 [dependencies]
 audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "1.0.0-alpha.1" }
@@ -10,5 +19,15 @@ nom = "7.1.0"
 [dev-dependencies]
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 log = "0.4.14"
-midir = { version = "0.7.0", path = "./midir" }
 itertools = "0.10.1"
+
+[dev-dependencies.midir]
+version = "0.7.0"
+path = "./midir"
+## See: https://github.com/Boddlnagg/midir/pull/95 and
+## https://github.com/Boddlnagg/midir/issues/94
+# git = "https://github.com/yamadapc/midir"
+# branch = "issue/fix-sending-midi-via-iac"
+
+[package.metadata.augmented]
+private = false
