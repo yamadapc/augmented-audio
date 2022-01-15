@@ -14,7 +14,7 @@ num-derive = "0.3.3"
 uuid = { version = "^0.8.2", features = ["v4"] }
 
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-garbage-collector" }
-audio-processor-standalone = { version = "1.0.0-alpha.2", path = "../../../augmented/application/audio-processor-standalone" }
+audio-processor-standalone = { version = "1.0.0-alpha.3", path = "../../../augmented/application/audio-processor-standalone" }
 audio-processor-traits = { version = "1.0.0-alpha.1", path = "../../../augmented/audio/audio-processor-traits" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 rimd = "^0.0.1"
