@@ -13,7 +13,7 @@ log = "^0.4.14"
 
 audio-processor-standalone = { version = "^0.1.5", path = "../../augmented/application/audio-processor-standalone" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
-atomic-queue = { path = "../../augmented/data/atomic-queue" }
+atomic-queue = { path = "../../augmented/data/atomic-queue" , version = "1.0.0-alpha.1" }
 circular-data-structures = { path = "../../augmented/data/circular-data-structures" }
 audio-processor-traits = { version = "1.0.0-alpha.1", path = "../../augmented/audio/audio-processor-traits" }
 

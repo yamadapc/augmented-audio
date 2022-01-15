@@ -9,7 +9,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 actix = "0.12.0"
-atomic-queue = { version = "^0.1", path = "../../data/atomic-queue" }
+atomic-queue = { version = "1.0.0-alpha.1", path = "../../data/atomic-queue" }
 audio-processor-traits = { version = "1.0.0-alpha.1", path = "../../audio/audio-processor-traits" }
 vst = { version = "^0.2.1", path = "../../../vendor/vst" }
 

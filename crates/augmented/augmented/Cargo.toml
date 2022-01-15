@@ -33,7 +33,7 @@ augmented_oscillator = { path = "../audio/oscillator" , version = "1.0.0-alpha.3
 cpal = { version = "^0.13.3" }
 
 # data
-atomic-queue = { path = "../data/atomic-queue" }
+atomic-queue = { path = "../data/atomic-queue" , version = "1.0.0-alpha.1" }
 audio-volume = { path = "../data/audio-volume" }
 circular-data-structures = { path = "../data/circular-data-structures" }
 smooth-value = { path = "../data/smooth-value" }
