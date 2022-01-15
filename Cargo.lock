@@ -604,7 +604,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-convert-sample-rate"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 dependencies = [
  "audio-processor-testing-helpers",
  "augmented_oscillator",
