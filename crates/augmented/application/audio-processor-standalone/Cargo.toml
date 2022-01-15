@@ -27,6 +27,6 @@ ringbuf = "^0.2.5"
 vst = { path = "../../../vendor/vst" }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
-audio-processor-standalone-midi = { version = "^0.1", path = "../audio-processor-standalone-midi" }
+audio-processor-standalone-midi = { version = "1.0.0-alpha.2", path = "../audio-processor-standalone-midi" }
 
 [package.metadata.augmented]

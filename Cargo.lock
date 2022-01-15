@@ -470,7 +470,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-standalone-midi"
-version = "0.1.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "actix",
  "atomic-queue",
