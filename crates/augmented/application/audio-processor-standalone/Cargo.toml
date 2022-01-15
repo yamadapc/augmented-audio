@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone"
-version = "0.1.5"
+version = "1.0.0-alpha.2"
 edition = "2018"
 description = "Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`"
 license = "MIT"
@@ -24,7 +24,7 @@ augmented-midi = { path = "../../data/augmented-midi" , version = "1.0.0-alpha.1
 basedrop = "^0.1.2"
 cpal = { version = "^0.13.3" }
 ringbuf = "^0.2.5"
-vst = { path = "../../../vendor/vst" }
+vst = { version = "0.2.1", path = "../../../vendor/vst" }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.0.0-alpha.2", path = "../audio-processor-standalone-midi" }
