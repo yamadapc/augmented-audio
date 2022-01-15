@@ -9,7 +9,7 @@ use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
 use symphonia::default::get_probe;
 
-use augmented_metrics as metrics;
+use augmented_audio_metrics as metrics;
 use thiserror::Error;
 
 #[derive(Error, Debug)]

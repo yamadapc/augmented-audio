@@ -398,8 +398,8 @@ dependencies = [
  "audio-garbage-collector",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
+ "augmented-audio-metrics",
  "augmented-convert-sample-rate",
- "augmented-metrics",
  "hound",
  "log",
  "rayon",
@@ -603,6 +603,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "augmented-audio-metrics"
+version = "0.1.0"
+dependencies = [
+ "log",
+]
+
+[[package]]
 name = "augmented-convert-sample-rate"
 version = "1.0.0-alpha.1"
 dependencies = [
@@ -638,13 +645,6 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "num 0.4.0",
-]
-
-[[package]]
-name = "augmented-metrics"
-version = "0.1.0"
-dependencies = [
- "log",
 ]
 
 [[package]]
@@ -4940,8 +4940,8 @@ dependencies = [
  "audio-processor-standalone-midi",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
+ "augmented-audio-metrics",
  "augmented-convert-sample-rate",
- "augmented-metrics",
  "augmented_oscillator",
  "basedrop",
  "circular-data-structures",
