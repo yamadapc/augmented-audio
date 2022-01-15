@@ -58,7 +58,9 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, 
         let cargo_manifest_str = std::fs::read_to_string(&manifest_path).unwrap();
         let mut cargo_manifest = cargo_manifest_str.parse::<toml_edit::Document>().unwrap();
 
-        if cargo_manifest.get("dependencies").is_none() {
+        if cargo_manifest.get("dependencies").is_none()
+            && cargo_manifest.get("dev-dependencies").is_none()
+        {
             continue;
         }
 
@@ -85,25 +87,31 @@ fn bump_dependency(
         .as_str()
         .unwrap()
         .to_string();
-    if let Some(deps) = target_package_manifest["dependencies"].as_table_mut() {
-        if let Some(subdep) = deps.get_mut(&*bump_package_name) {
-            log::info!(
-                "  => Bumping {}/dependencies/{} to {}",
-                other_crate_name,
-                &bump_package_name,
-                bump_package_version.to_string()
-            );
 
-            if subdep.is_str() {
-                deps[&*bump_package_name] = value_from_version(&bump_package_version);
-            } else {
-                subdep["version"] = value_from_version(&bump_package_version);
+    let mut bump_dep = |key| {
+        if let Some(deps) = target_package_manifest[key].as_table_mut() {
+            if let Some(subdep) = deps.get_mut(&*bump_package_name) {
+                log::info!(
+                    "  => Bumping {}/dependencies/{} to {}",
+                    other_crate_name,
+                    &bump_package_name,
+                    bump_package_version.to_string()
+                );
+
+                if subdep.is_str() {
+                    deps[&*bump_package_name] = value_from_version(&bump_package_version);
+                } else {
+                    subdep["version"] = value_from_version(&bump_package_version);
+                }
+
+                let cargo_manifest_str = target_package_manifest.to_string();
+                std::fs::write(&target_package_path, cargo_manifest_str).unwrap();
             }
-
-            let cargo_manifest_str = target_package_manifest.to_string();
-            std::fs::write(&target_package_path, cargo_manifest_str).unwrap();
         }
-    }
+    };
+
+    bump_dep("dependencies");
+    bump_dep("dev-dependencies");
 }
 
 /// Run unit-tests and publish crate
