@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-file"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 edition = "2021"
 description = "`AudioProcessor` implementations for audio file playback & writing."
 license = "MIT"

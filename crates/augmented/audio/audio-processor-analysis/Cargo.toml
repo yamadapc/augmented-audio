@@ -13,7 +13,7 @@ rustfft = "6.0.1"
 log = "0.4.14"
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
-audio-processor-file = { path = "../audio-processor-file" }
+audio-processor-file = { path = "../audio-processor-file" , version = "1.0.0-alpha.1" }
 image = "0.23.14"
 clap = "2.34.0"
 
