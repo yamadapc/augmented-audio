@@ -2,6 +2,10 @@
 name = "audio-garbage-collector"
 version = "0.1.0"
 edition = "2018"
+description = "Wrapper on top of `basedrop` that provides a drop-in GC API that'll collect reference-counted values on a background thread."
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 lazy_static = "1.4.0"
