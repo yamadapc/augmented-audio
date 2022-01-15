@@ -2,8 +2,11 @@
 name = "audio-processor-testing-helpers"
 version = "0.1.0"
 edition = "2018"
+description = "Collection of testing utilities for audio processors"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 audio-processor-traits = { version = "1.0.0-alpha.1", path = "../../audio/audio-processor-traits" }
@@ -11,3 +14,6 @@ augmented_oscillator = { path = "../../audio/oscillator" , version = "1.0.0-alph
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 plotters = { version = "0.3" }
+
+[package.metadata.augmented]
+private = false
