@@ -53,7 +53,7 @@ impl ListCratesService {
 
     fn find_entries_inner(&self, root: &str, crates: &mut Vec<String>) {
         log::debug!("Scanning {}", root);
-        let ignore_dirs: HashSet<&str> = ["spikes", "vendor", "target"].iter().copied().collect();
+        let ignore_dirs: HashSet<&str> = ["vendor", "target"].iter().copied().collect();
 
         let entries =
             read_dir(root).unwrap_or_else(|_| panic!("Failed to list {} directory", root));
