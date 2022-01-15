@@ -16,7 +16,7 @@ augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.3" }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-utility = { path = "../audio-processor-utility" }
 audio-processor-time = { path = "../audio-processor-time" }
-augmented-dsp-filters = { path = "../../dsp/dsp-filters" }
+augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "1.0.0-alpha.1" }
 audio-processor-standalone = { path = "../../application/audio-processor-standalone" }
 
 [package.metadata.augmented]
