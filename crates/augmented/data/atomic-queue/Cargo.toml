@@ -21,3 +21,4 @@ name = "atomic_queue_benchmark"
 harness = false
 
 [package.metadata.augmented]
+private = false

@@ -11,3 +11,5 @@ repository = "https://github.com/yamadapc/augmented-audio"
 chrono = "^0.4.19"
 env_logger = "^0.8.1"
 log = "^0.4.11"
+
+[package.metadata.augmented]
