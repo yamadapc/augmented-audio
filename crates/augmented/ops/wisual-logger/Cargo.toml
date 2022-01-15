@@ -1,13 +1,11 @@
 [package]
 name = "wisual-logger"
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
 description = "Just a pretty printer configuration for `env_logger`"
 license = "MIT"
 edition = "2018"
 repository = "https://github.com/yamadapc/augmented-audio"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 chrono = "^0.4.19"

@@ -11,5 +11,5 @@ circular-data-structures = { path = "../../data/circular-data-structures" }
 
 [dev-dependencies]
 log = "^0.4.14"
-wisual-logger = "^0.1.2"
+wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }
 rand = "^0.8.4"

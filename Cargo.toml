@@ -77,7 +77,7 @@ exclude = [
 debug = true
 
 [patch.crates-io]
-wisual-logger = { path = "crates/augmented/ops/wisual-logger" }
+wisual-logger = { version = "0.1", path = "crates/augmented/ops/wisual-logger" }
 
 # Vendor overrides
 iced = { version = "^0.3.0", path = "./crates/vendor/iced" }

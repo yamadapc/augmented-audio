@@ -32,7 +32,7 @@ tao = "0.5.2"
 thiserror = "^1.0.25"
 uuid = { version = "^0.8.2", features = [ "v4" ] }
 vst = { version = "0.2.1", path = "../../../vendor/vst" }
-wisual-logger = "^0.1.2"
+wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 itertools = "^0.10.1"
 
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }

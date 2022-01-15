@@ -26,7 +26,7 @@ augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" }
 audio-processor-utility = { path = "../../augmented/audio/audio-processor-utility" }
 audio-processor-graph = { path = "../../augmented/audio/audio-processor-graph" }
 plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }
-wisual-logger = { path = "../../augmented/ops/wisual-logger" }
+wisual-logger = { version = "0.1", path = "../../augmented/ops/wisual-logger" }
 
 [build-dependencies]
 cbindgen = "^0.20.0"

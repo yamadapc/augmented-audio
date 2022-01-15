@@ -10,6 +10,6 @@ basedrop = "^0.1.2"
 log = "^0.4.14"
 
 [dev-dependencies]
-wisual-logger = { version = "^0.1.2", path = "../../ops/wisual-logger" }
+wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }
 
 [package.metadata.augmented]

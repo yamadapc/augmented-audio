@@ -8,7 +8,7 @@ audio-processor-traits = { path = "../../audio/audio-processor-traits" }
 nom = "7.1.0"
 
 [dev-dependencies]
-wisual-logger = { path = "../../ops/wisual-logger" }
+wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 log = "0.4.14"
 midir = { version = "0.7.0", path = "./midir" }
 itertools = "0.10.1"

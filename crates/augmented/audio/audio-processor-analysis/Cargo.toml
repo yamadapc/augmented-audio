@@ -11,7 +11,7 @@ rustfft = "6.0.1"
 
 [dev-dependencies]
 log = "0.4.14"
-wisual-logger = { path = "../../ops/wisual-logger" }
+wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-file = { path = "../audio-processor-file" }
 image = "0.23.14"

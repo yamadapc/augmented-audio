@@ -55,7 +55,7 @@ impl LogFormatter {
 ///! Try to set-up the logger and return a result
 pub fn try_init_from_env() -> Result<(), SetLoggerError> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
-        .format(|buf, record| LogFormatter::format(buf, record))
+        .format(LogFormatter::format)
         .try_init()
 }
 
