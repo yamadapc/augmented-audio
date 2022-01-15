@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 audio-processor-traits = { version = "0.3", path = "../../audio/audio-processor-traits" }
-augmented_oscillator = { path = "../../audio/oscillator" , version = "1.0.0-alpha.2" }
+augmented_oscillator = { path = "../../audio/oscillator" , version = "1.0.0-alpha.3" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 plotters = { version = "0.3" }
