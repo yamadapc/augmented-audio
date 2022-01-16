@@ -11,12 +11,24 @@ pub trait MidiEventHandler {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]);
 }
 
+pub struct NoopMidiEventHandler {}
+
+impl NoopMidiEventHandler {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl MidiEventHandler for NoopMidiEventHandler {
+    fn process_midi_events<Message: MidiMessageLike>(&mut self, _midi_messages: &[Message]) {}
+}
+
 /// `rust-vst` compatibility for the MidiMessageLike trait
 #[cfg(feature = "vst_support")]
 pub mod vst {
-    use super::*;
-
     use ::vst::api::{Event, EventType, MidiEvent};
+
+    use super::*;
 
     /// Cast the VST `Events` struct onto a `MidiMessageLike` slice you can pass into processors
     pub fn midi_slice_from_events(events: &::vst::api::Events) -> &[*mut Event] {

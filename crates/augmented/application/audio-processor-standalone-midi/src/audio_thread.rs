@@ -53,10 +53,13 @@ impl MidiAudioThreadHandler {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use crate::host::MidiMessageWrapper;
-    use audio_processor_traits::MidiMessageLike;
     use basedrop::{Collector, Owned};
+
+    use audio_processor_traits::MidiMessageLike;
+
+    use crate::host::MidiMessageWrapper;
+
+    use super::*;
 
     #[test]
     fn test_create_handler_and_collect_empty_messages() {

@@ -3,6 +3,7 @@ use std::ops::Deref;
 use actix::{Actor, Context, Handler, Message, MessageResponse, Supervised, SystemService};
 use basedrop::{Handle, Owned, Shared};
 use midir::{MidiInput, MidiInputConnection};
+use mockall::automock;
 use thiserror::Error;
 
 use atomic_queue::Queue;
@@ -20,6 +21,7 @@ pub struct MidiHost {
     current_messages: MidiMessageQueue,
 }
 
+#[automock]
 impl MidiHost {
     /// Create the host, linked to GC `Handle` and with queue `capacity` of messages.
     pub fn new(handle: &Handle, capacity: usize) -> Self {
