@@ -7,10 +7,6 @@ license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
-[features]
-default = ["warn_debug"]
-warn_debug = ["assert_no_alloc/warn_debug"]
-
 [dependencies]
 actix = "0.12.0"
 basedrop = "^0.1.2"
@@ -25,7 +21,7 @@ audio-processor-traits = { version = "1.0.0-alpha.1", path = "../../audio/audio-
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 
 [dev-dependencies]
-assert_no_alloc = { version = "1.1.2" }
+assert_no_alloc = { version = "1.1.2", features = ["warn_debug"] }
 
 [package.metadata.augmented]
 private = false
