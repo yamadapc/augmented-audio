@@ -8,7 +8,7 @@ Implementation of a ADSR envelope.
 ```rust
 use std::time::Duration;
 
-use adsr_envelope::Envelope;
+use augmented_adsr_envelope::Envelope;
 
 fn main() {
   let mut envelope = Envelope::exp();

@@ -1,6 +1,6 @@
 [package]
-name = "adsr-envelope"
-version = "0.1.0"
+name = "augmented-adsr-envelope"
+version = "0.1.0-alpha.1"
 edition = "2018"
 description = "ADSR envelope implementation"
 license = "MIT"
@@ -13,3 +13,4 @@ repository = "https://github.com/yamadapc/augmented-audio"
 plotters = { version = "0.3" }
 
 [package.metadata.augmented]
+private = false

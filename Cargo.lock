@@ -87,13 +87,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aae1277d39aeec15cb388266ecc24b11c80469deae6067e17a1a7aa9e5c1f234"
 
 [[package]]
-name = "adsr-envelope"
-version = "0.1.0"
-dependencies = [
- "plotters",
-]
-
-[[package]]
 name = "ahash"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -459,9 +452,11 @@ dependencies = [
 name = "audio-processor-standalone"
 version = "1.0.0-alpha.4"
 dependencies = [
+ "atomic-queue",
  "audio-garbage-collector",
  "audio-processor-file",
  "audio-processor-standalone-midi",
+ "audio-processor-testing-helpers",
  "audio-processor-traits",
  "augmented-midi",
  "basedrop",
@@ -562,7 +557,6 @@ dependencies = [
 name = "augmented"
 version = "0.1.0"
 dependencies = [
- "adsr-envelope",
  "atomic-queue",
  "audio-garbage-collector",
  "audio-parameter-store",
@@ -576,6 +570,7 @@ dependencies = [
  "audio-processor-traits",
  "audio-processor-utility",
  "audio-volume",
+ "augmented-adsr-envelope",
  "augmented-convert-sample-rate",
  "augmented-dsp-filters",
  "augmented_oscillator",
@@ -589,6 +584,13 @@ dependencies = [
  "smooth-value",
  "vst",
  "wisual-logger",
+]
+
+[[package]]
+name = "augmented-adsr-envelope"
+version = "0.1.0-alpha.1"
+dependencies = [
+ "plotters",
 ]
 
 [[package]]
@@ -3874,11 +3876,11 @@ dependencies = [
 name = "metronome"
 version = "0.1.0"
 dependencies = [
- "adsr-envelope",
  "anyhow",
  "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-traits",
+ "augmented-adsr-envelope",
  "augmented-playhead",
  "augmented_oscillator",
  "cbindgen",
@@ -4061,9 +4063,9 @@ dependencies = [
 
 [[package]]
 name = "mockall_double"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e25b78d34b2b713b1d000d629079755cfc166e6a65f9f4c1c012a94305467c5"
+checksum = "7dffc15b97456ecc84d2bde8c1df79145e154f45225828c4361f676e1b82acd6"
 dependencies = [
  "cfg-if 1.0.0",
  "proc-macro2 1.0.32",
@@ -6165,10 +6167,10 @@ dependencies = [
 name = "synth"
 version = "0.1.0"
 dependencies = [
- "adsr-envelope",
  "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-traits",
+ "augmented-adsr-envelope",
  "augmented-dsp-filters",
  "augmented_oscillator",
  "log",
