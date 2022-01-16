@@ -1,5 +1,4 @@
 use basedrop::Handle;
-use mockall_double::double;
 
 pub use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 pub use audio_processor_standalone_midi::host::MidiHost;

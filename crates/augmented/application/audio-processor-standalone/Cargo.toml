@@ -27,10 +27,6 @@ cpal = { version = "^0.13.3" }
 ringbuf = "^0.2.5"
 vst = { version = "0.2.1", path = "../../../vendor/vst" }
 
-# Mocking
-mockall = "0.11.0"
-mockall_double = "0.2.1"
-
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-processor-standalone-midi" }
 
