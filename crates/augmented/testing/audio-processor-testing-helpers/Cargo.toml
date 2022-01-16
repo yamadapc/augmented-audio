@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-testing-helpers"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 edition = "2018"
 description = "Collection of testing utilities for audio processors"
 license = "MIT"

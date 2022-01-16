@@ -32,7 +32,7 @@ audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-
 
 [dev-dependencies]
 atomic-queue = { version = "1.0.0-alpha.1", path = "../../data/atomic-queue" }
-audio-processor-testing-helpers = { version = "1.0.0-alpha.1", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.2", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = false

@@ -20,4 +20,4 @@ wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger"
 rimd = "^0.0.1"
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }
