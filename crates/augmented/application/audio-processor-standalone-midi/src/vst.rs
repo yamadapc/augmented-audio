@@ -131,8 +131,8 @@ impl MidiVSTConverter {
     unsafe fn allocate_events(capacity: usize) -> *mut Events {
         let event_ptr_size = std::mem::size_of::<*mut Event>();
         let events_layout = std::alloc::Layout::from_size_align_unchecked(
-            std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * capacity,
-            std::mem::align_of::<*mut vst::api::Events>(),
+            std::mem::size_of::<vst::api::Events>() + event_ptr_size * capacity,
+            std::mem::align_of::<vst::api::Events>(),
         );
 
         std::alloc::alloc(events_layout) as *mut vst::api::Events
@@ -141,8 +141,9 @@ impl MidiVSTConverter {
 
 #[cfg(test)]
 mod test {
-    use audio_processor_traits::MidiMessageLike;
     use basedrop::Owned;
+
+    use audio_processor_traits::MidiMessageLike;
 
     use crate::host::MidiMessageWrapper;
     use crate::test_util::assert_allocation_count;
