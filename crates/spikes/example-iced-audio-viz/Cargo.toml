@@ -12,7 +12,7 @@ log = "^0.4.14"
 cpal = { version = "^0.13.3" }
 vst = { path = "../../vendor/vst" }
 
-audio-processor-standalone = { version = "1.0.0-alpha.4", path = "../../augmented/application/audio-processor-standalone" }
+audio-processor-standalone = { version = "1.0.0-alpha.5", path = "../../augmented/application/audio-processor-standalone" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
 atomic-queue = { path = "../../augmented/data/atomic-queue" , version = "1.0.0-alpha.1" }
 circular-data-structures = { path = "../../augmented/data/circular-data-structures" }
