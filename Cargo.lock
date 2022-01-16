@@ -659,7 +659,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-midi"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 dependencies = [
  "audio-processor-traits",
  "itertools 0.10.1",
