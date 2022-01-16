@@ -1,6 +1,6 @@
 [package]
 name = "augmented-convert-sample-rate"
-version = "1.0.0-alpha.1"
+version = "1.0.0-alpha.2"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
 description = "Simplistic dev-quality implementation of audio sample-rate conversion."

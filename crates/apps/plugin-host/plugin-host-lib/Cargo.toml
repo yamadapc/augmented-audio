@@ -44,7 +44,7 @@ audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" 
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../../../augmented/application/audio-processor-standalone-midi" }
 audio-processor-traits = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-processor-traits" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
-augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.1" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.2" }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.3" }
 
 [dev-dependencies]
