@@ -138,3 +138,58 @@ impl MidiVSTConverter {
         std::alloc::alloc(events_layout) as *mut vst::api::Events
     }
 }
+
+#[cfg(test)]
+mod test {
+    use audio_processor_traits::MidiMessageLike;
+    use basedrop::Owned;
+
+    use crate::host::MidiMessageWrapper;
+    use crate::test_util::assert_allocation_count;
+
+    use super::*;
+
+    #[test]
+    fn test_create_converter() {
+        let _midi_vst_converter = MidiVSTConverter::new(10);
+    }
+
+    #[test]
+    fn test_allocate_event() {
+        // Just leak the event ptr
+        let _event_ptr = unsafe { MidiVSTConverter::allocate_event() };
+    }
+
+    #[test]
+    fn test_accept_events() {
+        let mut converter = MidiVSTConverter::new(10);
+        let buffer = [
+            MidiMessageEntry(Owned::new(
+                audio_garbage_collector::handle(),
+                MidiMessageWrapper {
+                    timestamp: 0,
+                    message_data: [10, 20, 30],
+                },
+            )),
+            MidiMessageEntry(Owned::new(
+                audio_garbage_collector::handle(),
+                MidiMessageWrapper {
+                    timestamp: 10,
+                    message_data: [30, 40, 50],
+                },
+            )),
+        ];
+
+        let events = assert_allocation_count(0, || converter.accept(&buffer));
+        assert_eq!(events.num_events, 2);
+
+        let event = events.events[0];
+        assert_eq!(event.is_midi(), true);
+        let msg = [10_u8, 20, 30];
+        assert_eq!(event.bytes(), Some(&msg as &[u8]));
+        let event = events.events[1];
+        assert_eq!(event.is_midi(), true);
+        let msg = [30_u8, 40, 50];
+        assert_eq!(event.bytes(), Some(&msg as &[u8]));
+    }
+}

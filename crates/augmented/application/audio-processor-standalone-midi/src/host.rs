@@ -199,3 +199,89 @@ fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext
     ));
     context.messages.push(message);
 }
+
+#[cfg(test)]
+mod test {
+    use audio_garbage_collector::make_shared;
+
+    use crate::test_util::assert_allocation_count;
+
+    use super::*;
+
+    #[test]
+    fn test_create_midi_host() {
+        let _host = MidiHost::new(audio_garbage_collector::handle(), 10);
+    }
+
+    #[test]
+    fn test_create_default_midi_host() {
+        let _host = MidiHost::default_with_handle(audio_garbage_collector::handle());
+    }
+
+    #[test]
+    fn test_create_default_midi_host_with_queue() {
+        let queue = make_shared(Queue::new(10));
+        let _host = MidiHost::default_with_queue(audio_garbage_collector::handle(), queue);
+    }
+
+    #[test]
+    fn test_get_message_queue() {
+        let queue = make_shared(Queue::new(10));
+        let host = MidiHost::default_with_queue(audio_garbage_collector::handle(), queue.clone());
+        assert_eq!(
+            host.messages().clone().deref() as *const Queue<MidiMessageEntry>,
+            queue.deref() as *const Queue<MidiMessageEntry>
+        );
+    }
+
+    #[cfg(target_os = "macos")]
+    #[test]
+    fn test_start_midi_callback() {
+        let mut host = MidiHost::default();
+        host.start_midi().unwrap();
+    }
+
+    #[test]
+    fn test_midi_callback_on_long_message_drops_message() {
+        let queue = make_shared(Queue::new(10));
+        let mut context =
+            MidiCallbackContext::new(audio_garbage_collector::handle().clone(), queue.clone());
+        let bytes: [u8; 4] = [10, 20, 30, 40];
+
+        assert_allocation_count(0, || {
+            midi_callback(0, &bytes, &mut context);
+        });
+
+        assert_eq!(queue.len(), 0);
+    }
+
+    #[test]
+    fn test_midi_callback_on_message() {
+        let queue = make_shared(Queue::new(10));
+        let mut context =
+            MidiCallbackContext::new(audio_garbage_collector::handle().clone(), queue.clone());
+        let bytes: [u8; 3] = [10, 20, 30];
+
+        assert_allocation_count(1, || {
+            midi_callback(0, &bytes, &mut context);
+        });
+        assert_eq!(queue.len(), 1);
+        let msg = queue.pop().unwrap();
+        assert_eq!(msg.message_data, bytes);
+    }
+
+    #[cfg(target_os = "macos")]
+    #[actix::test]
+    async fn test_midi_handler_actor_start() {
+        let source_queue = make_shared(Queue::new(10));
+        let addr =
+            MidiHost::default_with_queue(audio_garbage_collector::handle(), source_queue.clone())
+                .start();
+        let _result = addr.send(StartMessage).await.unwrap().unwrap();
+        let GetQueueMessageResult(queue) = addr.send(GetQueueMessage).await.unwrap();
+        assert_eq!(
+            queue.deref() as *const Queue<MidiMessageEntry>,
+            source_queue.deref() as *const Queue<MidiMessageEntry>
+        );
+    }
+}
