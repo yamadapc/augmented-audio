@@ -55,6 +55,7 @@ impl MidiAudioThreadHandler {
 mod test {
     use super::*;
     use crate::host::MidiMessageWrapper;
+    use crate::test_util::assert_allocation_count;
     use audio_processor_traits::MidiMessageLike;
     use basedrop::{Collector, Owned};
 
@@ -101,7 +102,11 @@ mod test {
         )));
 
         let mut midi_audio_thread_handler = MidiAudioThreadHandler::default();
-        let num_messages = midi_audio_thread_handler.collect_midi_messages(&queue);
+
+        let num_messages = assert_allocation_count(0, || {
+            midi_audio_thread_handler.collect_midi_messages(&queue)
+        });
+
         assert_eq!(num_messages, 3);
         let buffer = midi_audio_thread_handler.buffer();
         assert_eq!(buffer.len(), 3);
@@ -127,7 +132,9 @@ mod test {
         )));
 
         let mut midi_audio_thread_handler = MidiAudioThreadHandler::default();
-        let num_messages = midi_audio_thread_handler.collect_midi_messages(&queue);
+        let num_messages = assert_allocation_count(0, || {
+            midi_audio_thread_handler.collect_midi_messages(&queue)
+        });
         assert_eq!(num_messages, 1);
         let buffer = midi_audio_thread_handler.buffer();
         assert_eq!(buffer.len(), 1);

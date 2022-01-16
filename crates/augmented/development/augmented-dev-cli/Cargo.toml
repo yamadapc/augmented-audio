@@ -17,6 +17,7 @@ urlencoding = "2.1.0"
 plist = "^1.1.0"
 mockall = "0.10.2"
 crates_io_api = "0.7.3"
+daggy = "0.8.0"
 semver = "1.0.4"
 toml_edit = "0.12.4"
 
