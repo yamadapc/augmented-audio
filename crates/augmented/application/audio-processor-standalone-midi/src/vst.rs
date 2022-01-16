@@ -131,10 +131,66 @@ impl MidiVSTConverter {
     unsafe fn allocate_events(capacity: usize) -> *mut Events {
         let event_ptr_size = std::mem::size_of::<*mut Event>();
         let events_layout = std::alloc::Layout::from_size_align_unchecked(
-            std::mem::size_of::<*mut vst::api::Events>() + event_ptr_size * capacity,
-            std::mem::align_of::<*mut vst::api::Events>(),
+            std::mem::size_of::<vst::api::Events>() + event_ptr_size * capacity,
+            std::mem::align_of::<vst::api::Events>(),
         );
 
         std::alloc::alloc(events_layout) as *mut vst::api::Events
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use basedrop::Owned;
+
+    use audio_processor_traits::MidiMessageLike;
+
+    use crate::host::MidiMessageWrapper;
+    use crate::test_util::assert_allocation_count;
+
+    use super::*;
+
+    #[test]
+    fn test_create_converter() {
+        let _midi_vst_converter = MidiVSTConverter::new(10);
+    }
+
+    #[test]
+    fn test_allocate_event() {
+        // Just leak the event ptr
+        let _event_ptr = unsafe { MidiVSTConverter::allocate_event() };
+    }
+
+    #[test]
+    fn test_accept_events() {
+        let mut converter = MidiVSTConverter::new(10);
+        let buffer = [
+            MidiMessageEntry(Owned::new(
+                audio_garbage_collector::handle(),
+                MidiMessageWrapper {
+                    timestamp: 0,
+                    message_data: [10, 20, 30],
+                },
+            )),
+            MidiMessageEntry(Owned::new(
+                audio_garbage_collector::handle(),
+                MidiMessageWrapper {
+                    timestamp: 10,
+                    message_data: [30, 40, 50],
+                },
+            )),
+        ];
+
+        let events = assert_allocation_count(0, || converter.accept(&buffer));
+        assert_eq!(events.num_events, 2);
+
+        let event = events.events[0];
+        assert_eq!(event.is_midi(), true);
+        let msg = [10_u8, 20, 30];
+        assert_eq!(event.bytes(), Some(&msg as &[u8]));
+        let event = events.events[1];
+        assert_eq!(event.is_midi(), true);
+        let msg = [30_u8, 40, 50];
+        assert_eq!(event.bytes(), Some(&msg as &[u8]));
     }
 }

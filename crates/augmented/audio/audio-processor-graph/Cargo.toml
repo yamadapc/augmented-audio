@@ -17,6 +17,6 @@ audio-processor-testing-helpers = { path = "../../testing/audio-processor-testin
 audio-processor-utility = { path = "../audio-processor-utility" }
 audio-processor-time = { path = "../audio-processor-time" }
 augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "1.0.0-alpha.1" }
-audio-processor-standalone = { path = "../../application/audio-processor-standalone" , version = "1.0.0-alpha.3" }
+audio-processor-standalone = { path = "../../application/audio-processor-standalone" , version = "1.0.0-alpha.4" }
 
 [package.metadata.augmented]

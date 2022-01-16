@@ -22,9 +22,11 @@ In this repository I'll push some experiments trying to use Rust for audio progr
 
 ## Binary downloads
 * [See releases to download binaries](https://github.com/yamadapc/augmented-audio/releases)
+* [Simple Metronome on App Store](https://apps.apple.com/au/app/simple-metronome/id1604183938?mt=12)
 
 ## Blog posts
 * [Initial 'Test Plugin Host' post](https://beijaflor.io/blog/07-2021/rust-audio-experiments-2/)
+* [Simple Metronome release](https://beijaflor.io/blog/01-2022/rust-audio-experiments-3/)
 
 - - -
 
