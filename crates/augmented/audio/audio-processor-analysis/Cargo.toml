@@ -1,8 +1,11 @@
 [package]
 name = "audio-processor-analysis"
-description = "Analysis AudioProcessors"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 edition = "2018"
+description = "Audio analysis processors"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.2" }
@@ -18,4 +21,4 @@ image = "0.23.14"
 clap = "2.34.0"
 
 [package.metadata.augmented]
-private = true
+private = false

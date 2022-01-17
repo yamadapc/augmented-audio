@@ -377,7 +377,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-analysis"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-file",
@@ -496,7 +496,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-time"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-standalone",
@@ -534,13 +534,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "audio-volume"
-version = "0.1.0"
-dependencies = [
- "audio-processor-testing-helpers",
-]
-
-[[package]]
 name = "audiounit"
 version = "0.1.0"
 dependencies = [
@@ -569,8 +562,8 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "audio-processor-utility",
- "audio-volume",
  "augmented-adsr-envelope",
+ "augmented-audio-volume",
  "augmented-convert-sample-rate",
  "augmented-dsp-filters",
  "augmented_oscillator",
@@ -616,6 +609,13 @@ name = "augmented-audio-metrics"
 version = "1.0.0-alpha.1"
 dependencies = [
  "log",
+]
+
+[[package]]
+name = "augmented-audio-volume"
+version = "0.1.0-alpha.1"
+dependencies = [
+ "audio-processor-testing-helpers",
 ]
 
 [[package]]
@@ -4929,8 +4929,8 @@ dependencies = [
  "audio-processor-iced-storybook",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
- "audio-volume",
  "augmented",
+ "augmented-audio-volume",
  "augmented_oscillator",
  "baseview",
  "cocoa 0.24.0",
