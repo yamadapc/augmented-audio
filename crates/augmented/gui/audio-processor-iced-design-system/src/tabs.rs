@@ -46,20 +46,23 @@ impl State {
                 .zip(&mut self.buttons)
                 .enumerate()
                 .map(|(index, (tab, button_state))| {
-                    Button::new(button_state, Text::new(&tab.title))
-                        .style(
-                            style::button::Button::default().set_active(iced::button::Style {
-                                background: if index == selected_tab {
-                                    Some(Background::Color(Color::BLACK))
-                                } else {
-                                    None
-                                },
-                                border_width: 0.0,
-                                ..style::button::button_base_style()
-                            }),
-                        )
-                        .on_press(Message::SetTab(index))
-                        .into()
+                    Button::new(
+                        button_state,
+                        Text::new(&tab.title).size(Spacing::small_font_size()),
+                    )
+                    .style(
+                        style::button::Button::default().set_active(iced::button::Style {
+                            background: if index == selected_tab {
+                                Some(Background::Color(Color::BLACK))
+                            } else {
+                                None
+                            },
+                            border_width: 0.0,
+                            ..style::button::button_base_style()
+                        }),
+                    )
+                    .on_press(Message::SetTab(index))
+                    .into()
                 })
                 .collect(),
         );
@@ -74,7 +77,7 @@ impl State {
                 .into(),
             element,
         ]))
-        .padding(16)
+        .style(crate::style::Container0::default())
         .width(Length::Fill)
         .height(Length::Fill)
         .into()

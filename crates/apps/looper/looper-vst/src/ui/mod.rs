@@ -6,6 +6,7 @@ use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::Container0;
 use audio_processor_iced_design_system::style::Container1;
+use audio_processor_iced_design_system::tabs;
 use iced_baseview::{executor, Subscription, WindowSubs};
 use iced_baseview::{Application, Command, Element};
 use looper_processor::LooperProcessorHandle;
@@ -28,6 +29,7 @@ pub struct LooperApplication {
     host_callback: Option<HostCallback>,
     looper_visualization: LooperVisualizationView,
     knobs_view: bottom_panel::BottomPanelView,
+    tabs_view: tabs::State,
 }
 
 #[derive(Clone, Debug)]
@@ -37,9 +39,15 @@ pub enum Message {
     None,
 }
 
+#[derive(Clone, Debug)]
+pub enum WrapperMessage {
+    Inner(Message),
+    TabsView(tabs::Message<Message>),
+}
+
 impl Application for LooperApplication {
     type Executor = executor::Default;
-    type Message = Message;
+    type Message = WrapperMessage;
     type Flags = Flags;
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
@@ -48,6 +56,7 @@ impl Application for LooperApplication {
                 host_callback: flags.host_callback,
                 looper_visualization: LooperVisualizationView::new(flags.processor_handle.clone()),
                 knobs_view: bottom_panel::BottomPanelView::new(flags.processor_handle),
+                tabs_view: tabs::State::new(),
             },
             Command::none(),
         )
@@ -55,21 +64,12 @@ impl Application for LooperApplication {
 
     fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
         match message {
-            Message::BottomPanel(message) => {
-                match &message {
-                    bottom_panel::Message::ClearPressed => {
-                        self.looper_visualization.clear_visualization()
-                    }
-                    _ => {}
-                }
-
-                self.knobs_view.update(message).map(Message::BottomPanel)
-            }
-            Message::VisualizationTick => {
-                self.looper_visualization.tick_visualization();
+            WrapperMessage::Inner(message) => self.update_inner(message),
+            WrapperMessage::TabsView(tabs::Message::Inner(message)) => self.update_inner(message),
+            WrapperMessage::TabsView(message) => {
+                self.tabs_view.update(message);
                 Command::none()
             }
-            Message::None => Command::none(),
         }
     }
 
@@ -77,7 +77,8 @@ impl Application for LooperApplication {
         &self,
         _window_subs: &mut WindowSubs<Self::Message>,
     ) -> Subscription<Self::Message> {
-        iced::time::every(Duration::from_millis(64)).map(|_| Message::VisualizationTick)
+        iced::time::every(Duration::from_millis(64))
+            .map(|_| WrapperMessage::Inner(Message::VisualizationTick))
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
@@ -96,26 +97,67 @@ impl Application for LooperApplication {
             "Free tempo".into()
         };
 
-        Container::new(Column::with_children(vec![
-            Text::new(status_message).into(),
-            Container::new(
-                Container::new(self.looper_visualization.view().map(|_| Message::None))
+        self.tabs_view
+            .view(vec![
+                tabs::Tab::new(
+                    "Main",
+                    Container::new(Column::with_children(vec![
+                        Text::new(status_message).into(),
+                        Container::new(
+                            Container::new(self.looper_visualization.view().map(|_| Message::None))
+                                .width(Length::Fill)
+                                .height(Length::Fill)
+                                .style(Container0::default().border_width(1.)),
+                        )
+                        .padding(Spacing::base_spacing())
+                        .style(Container1::default())
+                        .width(Length::Fill)
+                        .height(Length::Fill)
+                        .into(),
+                        self.knobs_view.view().map(Message::BottomPanel),
+                    ]))
+                    .center_x()
+                    .center_y()
+                    .style(ContainerStyle)
                     .width(Length::Fill)
-                    .height(Length::Fill)
-                    .style(Container0::default().border_width(1.)),
-            )
-            .padding(Spacing::base_spacing())
-            .style(Container1::default())
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .into(),
-            self.knobs_view.view().map(Message::BottomPanel),
-        ]))
-        .center_x()
-        .center_y()
-        .style(ContainerStyle)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .into()
+                    .height(Length::Fill),
+                ),
+                // tabs::Tab::new(
+                //     "Settings",
+                //     Container::new(Text::new("Settings"))
+                //         .center_x()
+                //         .center_y()
+                //         .style(ContainerStyle)
+                //         .width(Length::Fill)
+                //         .height(Length::Fill),
+                // ),
+            ])
+            .map(|msg| WrapperMessage::TabsView(msg))
+            .into()
+    }
+}
+
+impl LooperApplication {
+    fn update_inner(&mut self, message: Message) -> Command<WrapperMessage> {
+        match message {
+            Message::BottomPanel(message) => {
+                match &message {
+                    bottom_panel::Message::ClearPressed => {
+                        self.looper_visualization.clear_visualization()
+                    }
+                    _ => {}
+                }
+
+                self.knobs_view
+                    .update(message)
+                    .map(Message::BottomPanel)
+                    .map(WrapperMessage::Inner)
+            }
+            Message::VisualizationTick => {
+                self.looper_visualization.tick_visualization();
+                Command::none()
+            }
+            Message::None => Command::none(),
+        }
     }
 }

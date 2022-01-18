@@ -1,6 +1,7 @@
 pub mod charts;
 pub mod colors;
 pub mod container;
+pub mod dropdown_with_label;
 pub mod knob;
 pub mod menu_list;
 pub mod router;
