@@ -179,15 +179,15 @@ impl ButtonsView {
         Row::with_children(vec![
             Button::new(&mut self.record_state, Text::new(record_text))
                 .on_press(Message::RecordPressed)
-                .style(audio_style::Button)
+                .style(audio_style::Button::default())
                 .into(),
             Button::new(&mut self.clear_state, Text::new("Clear"))
                 .on_press(Message::ClearPressed)
-                .style(audio_style::Button)
+                .style(audio_style::Button::default())
                 .into(),
             Button::new(&mut self.stop_state, Text::new(stop_text))
                 .on_press(Message::StopPressed)
-                .style(audio_style::Button)
+                .style(audio_style::Button::default())
                 .into(),
         ])
         .into()

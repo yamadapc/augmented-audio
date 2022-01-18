@@ -14,7 +14,7 @@ pub mod button {
 
     use crate::colors::Colors;
 
-    fn button_base_style() -> Style {
+    pub fn button_base_style() -> Style {
         Style {
             shadow_offset: Default::default(),
             background: Some(Background::Color(Colors::background_level0())),
@@ -25,36 +25,88 @@ pub mod button {
         }
     }
 
-    pub struct Button;
+    pub struct Button {
+        active_style: Style,
+        hovered_style: Style,
+        pressed_style: Style,
+        disabled_style: Style,
+    }
+
+    impl Button {
+        pub fn set_active(mut self, style: Style) -> Self {
+            self.active_style = style;
+            self
+        }
+
+        pub fn set_hovered(mut self, style: Style) -> Self {
+            self.hovered_style = style;
+            self
+        }
+
+        pub fn set_pressed(mut self, style: Style) -> Self {
+            self.pressed_style = style;
+            self
+        }
+
+        pub fn disabled(mut self, style: Style) -> Self {
+            self.disabled_style = style;
+            self
+        }
+    }
+
+    impl Default for Button {
+        fn default() -> Self {
+            Self::new(true)
+        }
+    }
+
+    impl Button {
+        pub fn new(bordered: bool) -> Self {
+            Button {
+                active_style: Style {
+                    border_width: if bordered { 1.0 } else { 0.0 },
+                    ..button_base_style()
+                },
+                hovered_style: Style {
+                    background: Some(Background::Color(Colors::hover_opacity(
+                        Colors::background_level0(),
+                    ))),
+                    border_color: Colors::active_border_color(),
+                    border_width: if bordered { 1.0 } else { 0.0 },
+                    ..button_base_style()
+                },
+                pressed_style: Style {
+                    background: Some(Background::Color(Colors::pressed_opacity(
+                        Colors::background_level0(),
+                    ))),
+                    border_color: Colors::pressed_opacity(Colors::active_border_color()),
+                    text_color: Colors::hover_opacity(Colors::text()),
+                    border_width: if bordered { 1.0 } else { 0.0 },
+                    ..button_base_style()
+                },
+                disabled_style: Style {
+                    border_width: if bordered { 1.0 } else { 0.0 },
+                    ..button_base_style()
+                },
+            }
+        }
+    }
 
     impl iced::button::StyleSheet for Button {
         fn active(&self) -> Style {
-            button_base_style()
+            self.active_style.clone()
         }
 
         fn hovered(&self) -> Style {
-            Style {
-                background: Some(Background::Color(Colors::hover_opacity(
-                    Colors::background_level0(),
-                ))),
-                border_color: Colors::active_border_color(),
-                ..button_base_style()
-            }
+            self.hovered_style.clone()
         }
 
         fn pressed(&self) -> Style {
-            Style {
-                background: Some(Background::Color(Colors::pressed_opacity(
-                    Colors::background_level0(),
-                ))),
-                border_color: Colors::pressed_opacity(Colors::active_border_color()),
-                text_color: Colors::hover_opacity(Colors::text()),
-                ..button_base_style()
-            }
+            self.pressed_style.clone()
         }
 
         fn disabled(&self) -> Style {
-            button_base_style()
+            self.disabled_style.clone()
         }
     }
 

@@ -9,6 +9,7 @@ use audio_processor_iced_design_system::container::HoverContainer;
 use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
+use audio_processor_iced_design_system::tabs;
 use audio_processor_iced_design_system::{knob as audio_knob, menu_list, tree_view};
 use iced_audio::NormalParam;
 
@@ -121,6 +122,7 @@ enum ContentMessage {
     PickList(String),
     TreeView(tree_view::Message<()>),
     Selected(ContentView),
+    TabsView(tabs::Message<()>),
     None,
 }
 
@@ -132,6 +134,7 @@ struct Content {
     pick_list_state_3: pick_list::State<String>,
     selected_option: usize,
     buttons_view: ButtonsView,
+    tabs_view: tabs::State,
     knobs_view: KnobsView,
 }
 
@@ -141,6 +144,7 @@ enum ContentView {
     SlidersAndKnobs,
     TreeView,
     Buttons,
+    Tabs,
 }
 
 impl Content {
@@ -161,15 +165,17 @@ impl Content {
             tree_view::ItemState::child(String::from("Heading 3")),
         ];
         let tree_view = tree_view::State::new(items);
+        let tabs_view = tabs::State::new();
 
         Content {
-            content_view: ContentView::SlidersAndKnobs,
+            content_view: ContentView::Tabs,
             tree_view,
             pick_list_state_1: pick_list::State::default(),
             pick_list_state_2: pick_list::State::default(),
             pick_list_state_3: pick_list::State::default(),
             selected_option: 0,
             buttons_view: ButtonsView::new(),
+            tabs_view,
             knobs_view: KnobsView::new(),
         }
     }
@@ -183,6 +189,7 @@ impl Content {
             ContentMessage::Selected(content_view) => {
                 self.content_view = content_view;
             }
+            ContentMessage::TabsView(message) => self.tabs_view.update(message),
             _ => {}
         }
     }
@@ -242,6 +249,14 @@ impl Content {
                 .buttons_view
                 .view()
                 .map(|_| Message::Content(ContentMessage::None)),
+            ContentView::Tabs => self
+                .tabs_view
+                .view(vec![
+                    tabs::Tab::new("Tab 1", Text::new("Tab 1 content")),
+                    tabs::Tab::new("Tab 2", Text::new("Tab 2 content")),
+                    tabs::Tab::new("Tab 3", Text::new("Tab 3 content")),
+                ])
+                .map(|msg| Message::Content(ContentMessage::TabsView(msg))),
         }
     }
 }
@@ -369,7 +384,7 @@ impl ButtonsView {
                 Container::new(
                     Button::new(&mut self.default_button_state, Text::new("Default button"))
                         .on_press(())
-                        .style(audio_style::Button),
+                        .style(audio_style::Button::default()),
                 )
                 .padding([0, 0, Spacing::base_spacing(), 0])
                 .into(),
@@ -379,7 +394,7 @@ impl ButtonsView {
                         Text::new("Tiny button").size(Spacing::small_font_size()),
                     )
                     .on_press(())
-                    .style(audio_style::Button),
+                    .style(audio_style::Button::default()),
                 )
                 .padding([0, 0, Spacing::base_spacing(), 0])
                 .into(),
@@ -440,6 +455,7 @@ impl Sidebar {
         Sidebar {
             menu_list: menu_list::State::new(
                 vec![
+                    (String::from("Tabs"), ContentView::Tabs),
                     (
                         String::from("Sliders and Knobs"),
                         ContentView::SlidersAndKnobs,

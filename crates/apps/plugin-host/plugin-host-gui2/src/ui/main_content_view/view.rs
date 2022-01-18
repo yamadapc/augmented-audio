@@ -275,6 +275,6 @@ fn start_stop_view(start_stop_button_state: &mut StartStopViewModel) -> Element<
         },
     )
     .on_press(Message::StartStopButtonClicked)
-    .style(audio_processor_iced_design_system::style::Button)
+    .style(audio_processor_iced_design_system::style::Button::default())
     .into()
 }

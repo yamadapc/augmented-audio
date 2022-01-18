@@ -198,7 +198,7 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
                     }),
                 )
                 .on_press(Message::ToggleLogging)
-                .style(style::Button)
+                .style(style::Button::default())
                 .into(),
             ])
             .into(),
