@@ -11,7 +11,7 @@ mod ui;
 fn main() {
     augmented::ops::wisual_logger::init_from_env();
 
-    let loopi_processor = LooperProcessor::new(audio_garbage_collector::handle());
+    let loopi_processor = LooperProcessor::new(audio_garbage_collector::handle(), None);
     let processor_handle = loopi_processor.handle();
     let _audio_handles = augmented::application::audio_processor_start_with_midi(
         loopi_processor,
