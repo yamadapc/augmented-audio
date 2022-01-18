@@ -5,6 +5,7 @@ use num::FromPrimitive;
 
 use atomic_enum::AtomicEnum;
 use audio_garbage_collector::{make_shared, Handle, Shared};
+use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{
@@ -19,6 +20,7 @@ use crate::state::{LooperProcessorState, RecordingState};
 
 mod atomic_enum;
 mod handle;
+mod loop_quantization;
 pub mod midi_map;
 mod state;
 
@@ -27,14 +29,16 @@ const MAX_LOOP_LENGTH_SECS: f32 = 10.0;
 /// A single stereo looper
 pub struct LooperProcessor {
     id: String,
+    host_callback: Option<HostCallback>,
     handle: Shared<LooperProcessorHandle>,
 }
 
 impl LooperProcessor {
-    pub fn new(handle: &Handle) -> Self {
+    pub fn new(handle: &Handle, host_callback: Option<HostCallback>) -> Self {
         let state = LooperProcessorState::new();
         LooperProcessor {
             id: uuid::Uuid::new_v4().to_string(),
+            host_callback,
             handle: Shared::new(handle, LooperProcessorHandle::new(handle, state)),
         }
     }
@@ -241,7 +245,7 @@ mod test {
     #[test]
     fn test_looper_produces_silence_when_started() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle());
+        let mut looper = LooperProcessor::new(&collector.handle(), None);
         let settings = test_settings();
 
         looper.prepare(settings);
@@ -259,7 +263,7 @@ mod test {
     #[test]
     fn test_looper_plays_its_input_back() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle());
+        let mut looper = LooperProcessor::new(&collector.handle(), None);
         looper.handle.set_dry_volume(1.0);
         let settings = test_settings();
         looper.prepare(settings);
@@ -275,7 +279,7 @@ mod test {
     #[test]
     fn test_looper_does_not_play_back_input_if_specified() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle());
+        let mut looper = LooperProcessor::new(&collector.handle(), None);
         let settings = test_settings();
         looper.prepare(settings);
 
@@ -362,7 +366,7 @@ mod test {
     #[test]
     fn test_looper_samples_at_start() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle());
+        let mut looper = LooperProcessor::new(&collector.handle(), None);
         let settings = test_settings();
         looper.prepare(settings);
 
@@ -374,7 +378,7 @@ mod test {
     #[test]
     fn test_looper_samples_at_edge() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle());
+        let mut looper = LooperProcessor::new(&collector.handle(), None);
         let settings = test_settings();
         looper.prepare(settings);
 

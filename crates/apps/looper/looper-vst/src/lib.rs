@@ -43,7 +43,10 @@ impl Plugin for LoopiPlugin {
     {
         audio_plugin_logger::init("loopi.log");
 
-        let processor = LooperProcessor::new(audio_garbage_collector::handle());
+        let processor = LooperProcessor::new(
+            audio_garbage_collector::handle(),
+            Some(host_callback.clone()),
+        );
 
         LoopiPlugin {
             processor,
