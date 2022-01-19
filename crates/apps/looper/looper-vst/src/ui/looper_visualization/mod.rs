@@ -1,10 +1,10 @@
+use std::borrow::Borrow;
+use std::cell::RefCell;
+
 use iced::canvas::{Frame, Stroke};
 use iced::{Column, Point};
 use iced_baseview::canvas::{Cursor, Geometry, Program};
 use iced_baseview::{Canvas, Element, Length, Rectangle};
-use std::borrow::Borrow;
-use std::cell::{Ref, RefCell};
-use std::ops::Deref;
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;

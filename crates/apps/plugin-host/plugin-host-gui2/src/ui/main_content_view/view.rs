@@ -3,6 +3,7 @@
 use iced::{button, Button, Column, Container, Element, Length, Row, Rule, Text};
 
 use audio_processor_iced_design_system::spacing::Spacing;
+use audio_processor_iced_design_system::style;
 use audio_processor_iced_design_system::style::{Container0, Container1};
 
 use crate::ui::audio_io_settings;
@@ -66,9 +67,7 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
     let content_view = match route {
         Route::Development => Row::with_children(vec![Column::with_children(vec![
             plugin_content_container(plugin_content),
-            Rule::horizontal(1)
-                .style(audio_processor_iced_design_system::style::Rule)
-                .into(),
+            Rule::horizontal(1).style(style::Rule).into(),
             bottom_visualisation_content_container(BottomVisualisationViewModel {
                 audio_chart,
                 volume_meter_state,
@@ -84,17 +83,11 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
 
     Row::with_children(vec![Column::with_children(vec![
         navigation_header(route, navigation_header_state, start_stop_button_state),
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
+        Rule::horizontal(1).style(style::Rule).into(),
         content_view,
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
+        Rule::horizontal(1).style(style::Rule).into(),
         transport_controls_container(transport_controls),
-        Rule::horizontal(1)
-            .style(audio_processor_iced_design_system::style::Rule)
-            .into(),
+        Rule::horizontal(1).style(style::Rule).into(),
         status_message_container(status_message),
     ])
     .into()])
@@ -197,7 +190,7 @@ fn navigation_header<'a>(
         Button::new(button_state, Text::new(label))
             .style(route_button_style::RouteButtonStyle {
                 is_active,
-                button: audio_processor_iced_design_system::style::button::Button,
+                button: style::button::Button::default(),
             })
             .on_press(Message::SetRoute(route))
             .into()
@@ -230,6 +223,7 @@ fn navigation_header<'a>(
 }
 
 mod route_button_style {
+    use audio_processor_iced_design_system::style;
     use iced::widget::button;
 
     use augmented::gui::design::colors::Colors;
@@ -237,7 +231,7 @@ mod route_button_style {
 
     pub struct RouteButtonStyle {
         pub is_active: bool,
-        pub button: audio_processor_iced_design_system::style::button::Button::default(),
+        pub button: style::button::Button,
     }
 
     impl button::StyleSheet for RouteButtonStyle {
@@ -277,6 +271,6 @@ fn start_stop_view(start_stop_button_state: &mut StartStopViewModel) -> Element<
         },
     )
     .on_press(Message::StartStopButtonClicked)
-    .style(audio_processor_iced_design_system::style::Button::default())
+    .style(style::Button::default())
     .into()
 }

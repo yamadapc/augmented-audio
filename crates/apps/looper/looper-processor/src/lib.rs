@@ -120,6 +120,7 @@ impl<TimeInfoProviderType: TimeInfoProvider> AudioProcessor
 
             if self.handle.is_playing_back() || self.handle.is_recording() {
                 self.time_info_provider.tick();
+                self.handle.force_stop_if_overflowing(looper_cursor + 1);
             }
         }
     }
