@@ -38,7 +38,7 @@ pub(crate) struct LooperProcessorState {
     pub(crate) looper_increment: AtomicFloat,
     pub(crate) num_channels: AtomicUsize,
     pub(crate) looped_clip: Shared<SharedCell<VecAudioBuffer<AtomicF32>>>,
-    quantization_mode: AtomicEnum<LooperQuantizationModeType>,
+    pub(crate) quantization_mode: AtomicEnum<LooperQuantizationModeType>,
 }
 
 impl LooperProcessorState {
@@ -188,7 +188,7 @@ impl LooperProcessorState {
             LooperQuantizationModeType::SnapNext => LoopQuantizerMode::SnapNext { beats: 4 },
             LooperQuantizationModeType::SnapClosest => LoopQuantizerMode::SnapClosest {
                 beats: 4,
-                threshold_ms: 100.0,
+                threshold_ms: 1000.0,
             },
         });
         let time_info = time_info_provider.get_time_info();

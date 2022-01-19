@@ -4,7 +4,7 @@ use audio_garbage_collector::Handle;
 use audio_processor_traits::{AtomicF32, AudioBuffer};
 use state::LooperProcessorState;
 
-use crate::handle::state::LoopState;
+use crate::handle::state::{LoopState, LooperQuantizationModeType};
 use crate::midi_map::MidiMap;
 use crate::{AtomicEnum, RecordingState};
 
@@ -147,6 +147,22 @@ impl LooperProcessorHandle {
         self.loop_volume.set(value);
     }
 
+    pub fn playback_speed(&self) -> f32 {
+        self.state.looper_increment.get()
+    }
+
+    pub fn set_playback_speed(&self, speed: f32) {
+        self.state.looper_increment.set(speed);
+    }
+
+    pub fn quantization_mode(&self) -> LooperQuantizationModeType {
+        self.state.quantization_mode.get()
+    }
+
+    pub fn set_quantization_mode(&self, mode: LooperQuantizationModeType) {
+        self.state.quantization_mode.set(mode);
+    }
+
     pub fn playhead(&self) -> usize {
         let start = self.state.loop_state.start.load(Ordering::Relaxed);
         let end = self.state.loop_state.end.load(Ordering::Relaxed);
@@ -161,13 +177,11 @@ impl LooperProcessorHandle {
 
     pub fn debug(&self) -> String {
         format!(
-            "cursor={}/{} start={} end={} state={:?} length={}",
+            "cursor={}/{} start={} end={}",
             self.state.looper_cursor.get(),
             self.state.looped_clip.get().num_samples(),
             self.state.loop_state.start.load(Ordering::Relaxed),
             self.state.loop_state.end.load(Ordering::Relaxed),
-            self.state.loop_state.recording_state.get(),
-            self.state.num_samples()
         )
     }
 }

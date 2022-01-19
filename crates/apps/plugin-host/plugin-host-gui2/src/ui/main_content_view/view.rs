@@ -230,15 +230,17 @@ fn navigation_header<'a>(
 }
 
 mod route_button_style {
+    use iced::widget::button;
+
     use augmented::gui::design::colors::Colors;
     use augmented::gui::iced::button::Style;
 
     pub struct RouteButtonStyle {
         pub is_active: bool,
-        pub button: audio_processor_iced_design_system::style::button::Button,
+        pub button: audio_processor_iced_design_system::style::button::Button::default(),
     }
 
-    impl iced::button::StyleSheet for RouteButtonStyle {
+    impl button::StyleSheet for RouteButtonStyle {
         fn active(&self) -> Style {
             Style {
                 border_color: if self.is_active {
@@ -246,20 +248,20 @@ mod route_button_style {
                 } else {
                     Colors::border_color()
                 },
-                ..self.button.active()
+                ..button::StyleSheet::active(&self.button)
             }
         }
 
         fn hovered(&self) -> Style {
-            self.button.hovered()
+            button::StyleSheet::hovered(&self.button)
         }
 
         fn pressed(&self) -> Style {
-            self.button.pressed()
+            button::StyleSheet::pressed(&self.button)
         }
 
         fn disabled(&self) -> Style {
-            self.button.disabled()
+            button::StyleSheet::disabled(&self.button)
         }
     }
 }
