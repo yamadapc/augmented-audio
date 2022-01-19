@@ -11,6 +11,7 @@ use audio_processor_iced_design_system::colors::Colors;
 use looper_processor::LooperProcessorHandle;
 
 struct LoopCache {
+    // TODO: This is not the right cache key as overdubs won't render properly
     num_samples: usize,
     iterator: Vec<(usize, f32)>,
 }
