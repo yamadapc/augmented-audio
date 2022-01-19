@@ -102,8 +102,10 @@ impl Application for LooperApplication {
                 tabs::Tab::new(
                     "Main",
                     Container::new(Column::with_children(vec![
-                        Text::new(status_message)
-                            .size(Spacing::small_font_size())
+                        Container::new(Text::new(status_message).size(Spacing::small_font_size()))
+                            .padding(Spacing::base_spacing())
+                            .style(Container0::default())
+                            .width(Length::Fill)
                             .into(),
                         Container::new(
                             Container::new(self.looper_visualization.view().map(|_| Message::None))
