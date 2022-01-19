@@ -41,7 +41,7 @@ pub struct Queue<T> {
     states: Vec<AtomicI8>,
 }
 
-unsafe impl<T> Send for Queue<T> {}
+unsafe impl<T: Send> Send for Queue<T> {}
 unsafe impl<T> Sync for Queue<T> {}
 
 impl<T> Queue<T> {

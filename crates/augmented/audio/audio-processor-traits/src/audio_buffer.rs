@@ -158,7 +158,7 @@ impl<'a, SampleType> AudioBuffer for InterleavedAudioBuffer<'a, SampleType> {
 
     #[inline]
     fn slice_mut(&mut self) -> &mut [Self::SampleType] {
-        &mut self.inner
+        self.inner
     }
 
     #[inline]

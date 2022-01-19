@@ -21,6 +21,7 @@ use handle::state::{LooperProcessorState, RecordingState};
 mod handle;
 mod loop_quantization;
 pub mod midi_map;
+mod playhead_provider;
 mod util;
 
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;
@@ -97,12 +98,12 @@ impl AudioProcessor for LooperProcessor {
                 )
             }
 
-            if self.handle.is_playing_back() || self.handle.is_recording() {
-                if self.handle.force_stop_if_overflowing(looper_cursor) {
-                    self.handle
-                        .state
-                        .on_tick(parameters.is_recording, looper_cursor);
-                }
+            if (self.handle.is_playing_back() || self.handle.is_recording())
+                && self.handle.force_stop_if_overflowing(looper_cursor)
+            {
+                self.handle
+                    .state
+                    .on_tick(parameters.is_recording, looper_cursor);
             }
         }
     }

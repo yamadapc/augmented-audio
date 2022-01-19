@@ -1,16 +1,26 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use num_derive::{FromPrimitive, ToPrimitive};
+
 use audio_garbage_collector::Handle;
 use audio_processor_traits::{AtomicF32, AudioBuffer};
+use state::LooperProcessorState;
 
 use crate::midi_map::MidiMap;
-use crate::RecordingState;
-use state::LooperProcessorState;
+use crate::{AtomicEnum, RecordingState};
 
 pub mod state;
 
+#[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
+pub enum LooperQuantizationModeType {
+    None = 0,
+    SnapNext = 1,
+    SnapClosest = 2,
+}
+
 /// Public API types, which should be thread-safe
 pub struct LooperProcessorHandle {
+    quantization_mode: AtomicEnum<LooperQuantizationModeType>,
     is_recording: AtomicBool,
     is_playing_back: AtomicBool,
     playback_input: AtomicBool,
@@ -24,6 +34,7 @@ pub struct LooperProcessorHandle {
 impl LooperProcessorHandle {
     pub(crate) fn new(handle: &Handle, state: LooperProcessorState) -> Self {
         LooperProcessorHandle {
+            quantization_mode: AtomicEnum::new(LooperQuantizationModeType::None),
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
             playback_input: AtomicBool::new(true),
@@ -36,16 +47,49 @@ impl LooperProcessorHandle {
         }
     }
 
+    pub(crate) fn state(&self) -> &LooperProcessorState {
+        &self.state
+    }
+
+    pub(crate) fn set_should_clear(&self, _value: bool) {
+        self.should_clear.store(false, Ordering::Relaxed);
+    }
+
+    pub(crate) fn midi_map(&self) -> &MidiMap {
+        &self.midi_map
+    }
+
+    pub(crate) fn force_stop_if_overflowing(&self, looper_cursor: usize) -> bool {
+        // STOP looper if going above max duration
+        if self.is_recording()
+            && self.state.num_samples() >= self.state.looped_clip.get().num_samples() - 1
+        {
+            self.state
+                .loop_state
+                .recording_state
+                .set(RecordingState::Playing);
+            self.state
+                .looper_cursor
+                .set(self.state.loop_state.start.load(Ordering::Relaxed) as f32);
+            self.state
+                .loop_state
+                .end
+                .store(looper_cursor - 1, Ordering::Relaxed);
+            self.stop_recording();
+            false
+        } else {
+            true
+        }
+    }
+}
+
+impl LooperProcessorHandle {
     pub fn num_samples(&self) -> usize {
         self.state.num_samples()
     }
 
     pub fn loop_iterator(&self) -> impl Iterator<Item = f32> {
         self.state.loop_iterator()
-    }
-
-    pub(crate) fn state(&self) -> &LooperProcessorState {
-        &self.state
     }
 
     pub fn store_playback_input(&self, value: bool) {
@@ -125,14 +169,6 @@ impl LooperProcessorHandle {
         }
     }
 
-    pub(crate) fn set_should_clear(&self, _value: bool) {
-        self.should_clear.store(false, Ordering::Relaxed);
-    }
-
-    pub(crate) fn midi_map(&self) -> &MidiMap {
-        &self.midi_map
-    }
-
     pub fn debug(&self) -> String {
         format!(
             "cursor={}/{} start={} end={} state={:?} length={}",
@@ -143,29 +179,6 @@ impl LooperProcessorHandle {
             self.state.loop_state.recording_state.get(),
             self.state.num_samples()
         )
-    }
-
-    pub(crate) fn force_stop_if_overflowing(&self, looper_cursor: usize) -> bool {
-        // STOP looper if going above max duration
-        if self.is_recording()
-            && self.state.num_samples() >= self.state.looped_clip.get().num_samples() - 1
-        {
-            self.state
-                .loop_state
-                .recording_state
-                .set(RecordingState::Playing);
-            self.state
-                .looper_cursor
-                .set(self.state.loop_state.start.load(Ordering::Relaxed) as f32);
-            self.state
-                .loop_state
-                .end
-                .store(looper_cursor - 1, Ordering::Relaxed);
-            self.stop_recording();
-            false
-        } else {
-            true
-        }
     }
 }
 

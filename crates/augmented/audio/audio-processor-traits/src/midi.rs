@@ -13,6 +13,12 @@ pub trait MidiEventHandler {
 
 pub struct NoopMidiEventHandler {}
 
+impl Default for NoopMidiEventHandler {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl NoopMidiEventHandler {
     pub fn new() -> Self {
         Self {}
