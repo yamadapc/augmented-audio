@@ -65,12 +65,29 @@ impl PackagerService for PackagerServiceImpl {
         if let Some(macos_config) = macos_config {
             let target_path =
                 Self::build_target_path(&input.cargo_toml.package.name, &input.release_json.key);
-            match macos_config {
+            let result = match macos_config {
                 MacosAppConfig::AppTemplate(config) => {
                     AppTemplateHandler::handle(target_path, &input, config)
                 }
                 MacosAppConfig::Vst(vst) => VstHandler::handle(target_path, &input, vst),
-            }
+            };
+
+            log::info!("Updating latest symlink");
+            let package_name = &input.cargo_toml.package.name;
+            let release_key = &input.release_json.key;
+            let release_path = Path::new(release_key);
+            let latest_path = Path::new("./target/apps/macos/")
+                .join(package_name)
+                .join("release-latest");
+            cmd_lib::run_cmd!(rm -f $latest_path).unwrap();
+            log::info!(
+                "ln -s {} {}",
+                release_path.to_str().unwrap(),
+                latest_path.to_str().unwrap()
+            );
+            cmd_lib::run_cmd!(ln -s $release_path/ $latest_path).unwrap();
+
+            result
         } else {
             log::error!("There's no package config");
             None

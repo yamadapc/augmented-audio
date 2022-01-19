@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use basedrop::{Shared, SharedCell};
@@ -5,15 +6,24 @@ use num_derive::{FromPrimitive, ToPrimitive};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{AtomicF32, AudioBuffer, VecAudioBuffer};
+use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 
-use crate::{AtomicEnum, AtomicFloat};
+use crate::loop_quantization::{LoopQuantizer, LoopQuantizerMode, QuantizeInput};
+use crate::time_info_provider::TimeInfoProvider;
+use crate::{AtomicEnum, AtomicFloat, TimeInfoProviderImpl};
 
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub(crate) enum RecordingState {
     Empty = 0,
     Recording = 1,
     Playing = 2,
+}
+
+#[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
+pub enum LooperQuantizationModeType {
+    None = 0,
+    SnapNext = 1,
+    SnapClosest = 2,
 }
 
 pub(crate) struct LoopState {
@@ -28,6 +38,7 @@ pub(crate) struct LooperProcessorState {
     pub(crate) looper_increment: AtomicFloat,
     pub(crate) num_channels: AtomicUsize,
     pub(crate) looped_clip: Shared<SharedCell<VecAudioBuffer<AtomicF32>>>,
+    quantization_mode: AtomicEnum<LooperQuantizationModeType>,
 }
 
 impl LooperProcessorState {
@@ -42,6 +53,7 @@ impl LooperProcessorState {
                 end: AtomicUsize::new(0),
             },
             looped_clip: make_shared(make_shared_cell(VecAudioBuffer::new())),
+            quantization_mode: AtomicEnum::new(LooperQuantizationModeType::SnapClosest),
         }
     }
 
@@ -97,26 +109,108 @@ impl LooperProcessorState {
         }
     }
 
-    pub(crate) fn on_tick(&self, is_recording: bool, looper_cursor: usize) {
+    pub(crate) fn on_tick(
+        &self,
+        settings: &AudioProcessorSettings,
+        time_info_provider: &impl TimeInfoProvider,
+        is_recording: bool,
+        looper_cursor: usize,
+    ) {
         match self.loop_state.recording_state.get() {
             // Loop has ended
             RecordingState::Recording if !is_recording => {
-                self.loop_state.recording_state.set(RecordingState::Playing);
-                self.loop_state.end.store(looper_cursor, Ordering::Relaxed);
+                let quantized_cursor =
+                    self.get_quantized_cursor(settings, time_info_provider, looper_cursor);
+                // log::info!(
+                //     "Loop stop cursor={} quantized_cursor={}",
+                //     looper_cursor,
+                //     quantized_cursor
+                // );
+
+                if looper_cursor >= quantized_cursor {
+                    self.loop_state.recording_state.set(RecordingState::Playing);
+                }
+                self.loop_state
+                    .end
+                    .store(quantized_cursor, Ordering::Relaxed);
             }
             // Loop has started
             RecordingState::Empty if is_recording => {
-                self.loop_state
-                    .recording_state
-                    .set(RecordingState::Recording);
+                let quantized_cursor =
+                    self.get_quantized_cursor(settings, time_info_provider, looper_cursor);
+                // log::info!(
+                //     "Loop start cursor={} quantized_cursor={}",
+                //     looper_cursor,
+                //     quantized_cursor
+                // );
+
+                if looper_cursor >= quantized_cursor {
+                    self.loop_state
+                        .recording_state
+                        .set(RecordingState::Recording);
+                }
                 self.loop_state
                     .start
-                    .store(looper_cursor, Ordering::Relaxed);
+                    .store(quantized_cursor, Ordering::Relaxed);
             }
             _ => {}
         }
 
         self.increment_cursor();
+    }
+
+    fn get_quantized_cursor(
+        &self,
+        settings: &AudioProcessorSettings,
+        time_info_provider: &impl TimeInfoProvider,
+        looper_cursor: usize,
+    ) -> usize {
+        let num_samples = self.looped_clip.get().num_samples();
+        let quantized_cursor = Self::build_quantized_cursor(
+            self.quantization_mode.get(),
+            settings,
+            time_info_provider,
+            num_samples,
+            looper_cursor,
+        );
+        quantized_cursor
+    }
+
+    fn build_quantized_cursor(
+        quantization_mode: LooperQuantizationModeType,
+        settings: &AudioProcessorSettings,
+        time_info_provider: &impl TimeInfoProvider,
+        num_samples: usize,
+        looper_cursor: usize,
+    ) -> usize {
+        let quantizer = LoopQuantizer::new(match quantization_mode {
+            LooperQuantizationModeType::None => LoopQuantizerMode::None,
+            LooperQuantizationModeType::SnapNext => LoopQuantizerMode::SnapNext { beats: 4 },
+            LooperQuantizationModeType::SnapClosest => LoopQuantizerMode::SnapClosest {
+                beats: 4,
+                threshold_ms: 100.0,
+            },
+        });
+        let time_info = time_info_provider.get_time_info();
+        let quantized_cursor =
+            if let Some((tempo, position_beats)) = time_info.tempo.zip(time_info.position_beats) {
+                let result = quantizer.quantize(QuantizeInput {
+                    tempo: tempo as f32,
+                    sample_rate: settings.sample_rate,
+                    position_beats: position_beats as f32,
+                    position_samples: looper_cursor,
+                });
+
+                // TODO: Clean-up this mess
+                if result < 0 {
+                    (num_samples + result.abs() as usize) % num_samples
+                } else {
+                    (result % num_samples as i32) as usize
+                }
+            } else {
+                looper_cursor
+            };
+        quantized_cursor
     }
 
     /// Either the looper cursor or the end
@@ -142,6 +236,12 @@ impl LooperProcessorState {
 
         let clip = self.looped_clip.get();
         let start = self.loop_state.start.load(Ordering::Relaxed);
+
+        let cursor = self.looper_cursor.get();
+        if cursor < start as f32 {
+            return 0;
+        }
+
         let end = self.end_cursor();
 
         if end >= start {
@@ -168,9 +268,90 @@ impl LooperProcessorState {
 
 #[cfg(test)]
 mod test {
+    use crate::LooperProcessorHandle;
     use num::FromPrimitive;
 
+    use crate::time_info_provider::{MockTimeInfoProvider, TimeInfo};
+
     use super::*;
+
+    #[test]
+    fn test_get_quantized_cursor_zero() {
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 1000.0;
+        let mut time_info_provider = MockTimeInfoProvider::new();
+        time_info_provider
+            .expect_get_time_info()
+            .returning(|| TimeInfo {
+                tempo: Some(60.0),     // 1 beat per second, 1000 samples per beat
+                position_samples: 0.0, // we're at beat 0
+                position_beats: Some(0.0),
+            });
+
+        let loop_len = 10_000;
+        let looper_cursor = 0;
+
+        let result = LooperProcessorState::build_quantized_cursor(
+            LooperQuantizationModeType::SnapClosest,
+            &settings,
+            &time_info_provider,
+            loop_len,
+            looper_cursor,
+        );
+        assert_eq!(result, 0);
+    }
+
+    #[test]
+    fn test_get_quantized_cursor_next_bar() {
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 1000.0;
+        let mut time_info_provider = MockTimeInfoProvider::new();
+        time_info_provider
+            .expect_get_time_info()
+            .returning(|| TimeInfo {
+                tempo: Some(60.0),        // 1 beat per second, 1000 samples per beat
+                position_samples: 1000.0, // we're at beat 1
+                position_beats: Some(1.0),
+            });
+
+        let loop_len = 10_000;
+        let looper_cursor = 1000;
+
+        let result = LooperProcessorState::build_quantized_cursor(
+            LooperQuantizationModeType::SnapClosest,
+            &settings,
+            &time_info_provider,
+            loop_len,
+            looper_cursor,
+        );
+        assert_eq!(result, 4000);
+    }
+
+    #[test]
+    fn test_get_quantized_cursor_overflowing() {
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 1000.0;
+        let mut time_info_provider = MockTimeInfoProvider::new();
+        time_info_provider
+            .expect_get_time_info()
+            .returning(|| TimeInfo {
+                tempo: Some(60.0),        // 1 beat per second, 1000 samples per beat
+                position_samples: 9000.0, // we're at beat 1
+                position_beats: Some(1.0),
+            });
+
+        let loop_len = 10_000;
+        let looper_cursor = 9000;
+
+        let result = LooperProcessorState::build_quantized_cursor(
+            LooperQuantizationModeType::SnapClosest,
+            &settings,
+            &time_info_provider,
+            loop_len,
+            looper_cursor,
+        );
+        assert_eq!(result, 2000);
+    }
 
     #[test]
     fn test_from_atomic() {

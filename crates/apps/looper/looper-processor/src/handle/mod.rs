@@ -1,26 +1,18 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use num_derive::{FromPrimitive, ToPrimitive};
-
 use audio_garbage_collector::Handle;
 use audio_processor_traits::{AtomicF32, AudioBuffer};
 use state::LooperProcessorState;
 
+use crate::handle::state::LoopState;
 use crate::midi_map::MidiMap;
 use crate::{AtomicEnum, RecordingState};
 
 pub mod state;
 
-#[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
-pub enum LooperQuantizationModeType {
-    None = 0,
-    SnapNext = 1,
-    SnapClosest = 2,
-}
-
 /// Public API types, which should be thread-safe
 pub struct LooperProcessorHandle {
-    quantization_mode: AtomicEnum<LooperQuantizationModeType>,
+    pub(crate) state: LooperProcessorState,
     is_recording: AtomicBool,
     is_playing_back: AtomicBool,
     playback_input: AtomicBool,
@@ -28,13 +20,11 @@ pub struct LooperProcessorHandle {
     dry_volume: AtomicF32,
     loop_volume: AtomicF32,
     midi_map: MidiMap,
-    pub(crate) state: LooperProcessorState,
 }
 
 impl LooperProcessorHandle {
     pub(crate) fn new(handle: &Handle, state: LooperProcessorState) -> Self {
         LooperProcessorHandle {
-            quantization_mode: AtomicEnum::new(LooperQuantizationModeType::None),
             is_recording: AtomicBool::new(false),
             is_playing_back: AtomicBool::new(false),
             playback_input: AtomicBool::new(true),
@@ -204,7 +194,7 @@ impl LooperProcessorHandle {
             should_clear: self.should_clear.load(Ordering::Relaxed),
             playback_input: self.playback_input.load(Ordering::Relaxed),
             is_playing_back: self.is_playing_back.load(Ordering::Relaxed),
-            is_recording: self.is_recording.load(Ordering::Relaxed),
+            is_recording: self.state.loop_state.recording_state.get() == RecordingState::Recording,
             loop_volume: self.loop_volume.get(),
             dry_volume: self.dry_volume.get(),
         }

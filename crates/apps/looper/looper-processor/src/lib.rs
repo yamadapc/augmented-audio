@@ -16,30 +16,38 @@ use handle::ProcessParameters;
 use midi_map::{Action, MidiSpec};
 use util::atomic_enum::AtomicEnum;
 
+use crate::time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
 use handle::state::{LooperProcessorState, RecordingState};
 
 mod handle;
 mod loop_quantization;
 pub mod midi_map;
-mod playhead_provider;
+mod time_info_provider;
 mod util;
 
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;
 
+pub type LooperProcessor = RawLooperProcessor<TimeInfoProviderImpl>;
+
 /// A single stereo looper
-pub struct LooperProcessor {
+pub struct RawLooperProcessor<TimeInfoProviderType: TimeInfoProvider> {
     id: String,
     host_callback: Option<HostCallback>,
     handle: Shared<LooperProcessorHandle>,
+    settings: AudioProcessorSettings,
+    time_info_provider: TimeInfoProviderType,
 }
 
-impl LooperProcessor {
+impl RawLooperProcessor<TimeInfoProviderImpl> {
     pub fn new(handle: &Handle, host_callback: Option<HostCallback>) -> Self {
         let state = LooperProcessorState::new();
-        LooperProcessor {
+        let time_info_provider = TimeInfoProviderImpl::new(host_callback.clone());
+        RawLooperProcessor {
             id: uuid::Uuid::new_v4().to_string(),
             host_callback,
             handle: Shared::new(handle, LooperProcessorHandle::new(handle, state)),
+            settings: AudioProcessorSettings::default(),
+            time_info_provider,
         }
     }
 
@@ -48,7 +56,9 @@ impl LooperProcessor {
     }
 }
 
-impl AudioProcessor for LooperProcessor {
+impl<TimeInfoProviderType: TimeInfoProvider> AudioProcessor
+    for RawLooperProcessor<TimeInfoProviderType>
+{
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
@@ -70,6 +80,8 @@ impl AudioProcessor for LooperProcessor {
             AtomicF32::new(0.0),
         );
         self.handle.state.looped_clip.set(make_shared(buffer));
+
+        self.settings = settings;
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -85,7 +97,8 @@ impl AudioProcessor for LooperProcessor {
                 self.handle.state.clear();
             }
 
-            let looper_cursor = self.handle.state.looper_cursor.get() as usize;
+            let looper_cursor =
+                self.handle.state.looper_cursor.get() as usize % looped_clip.num_samples();
             let flooper_cursor = looper_cursor as f32;
             for channel_num in 0..data.num_channels() {
                 process_sample(
@@ -98,12 +111,15 @@ impl AudioProcessor for LooperProcessor {
                 )
             }
 
-            if (self.handle.is_playing_back() || self.handle.is_recording())
-                && self.handle.force_stop_if_overflowing(looper_cursor)
-            {
-                self.handle
-                    .state
-                    .on_tick(parameters.is_recording, looper_cursor);
+            self.handle.state.on_tick(
+                &self.settings,
+                &self.time_info_provider,
+                self.handle.is_recording(),
+                looper_cursor,
+            );
+
+            if self.handle.is_playing_back() || self.handle.is_recording() {
+                self.time_info_provider.tick();
             }
         }
     }
@@ -147,8 +163,10 @@ fn process_sample(
     };
 
     // RECORDING SECTION:
-    if is_recording {
-        // When recording starts we'll store samples in the looper buffer
+    if !is_playing_back && !is_recording {
+        let sample = looped_clip.get(channel_num, looper_cursor);
+        sample.set(*data.get(channel_num, sample_index));
+    } else if is_recording {
         let sample = looped_clip.get(channel_num, looper_cursor);
         sample.set(*data.get(channel_num, sample_index) + sample.get());
     }
@@ -158,7 +176,9 @@ fn process_sample(
     data.set(channel_num, sample_index, mixed_output);
 }
 
-impl MidiEventHandler for LooperProcessor {
+impl<TimeInfoProviderType: TimeInfoProvider> MidiEventHandler
+    for RawLooperProcessor<TimeInfoProviderType>
+{
     fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
         for message in midi_messages {
             let status = message
@@ -198,18 +218,24 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
+    use std::sync::atomic::Ordering;
     use std::time::Duration;
 
+    use audio_garbage_collector::make_shared;
     use audio_processor_testing_helpers::rms_level;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
+    use log::Record;
 
     use audio_processor_traits::{
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
         VecAudioBuffer,
     };
 
-    use crate::{LooperProcessor, MAX_LOOP_LENGTH_SECS};
+    use crate::{
+        LooperProcessorHandle, LooperProcessorState, RawLooperProcessor, RecordingState,
+        TimeInfoProvider, TimeInfoProviderImpl, MAX_LOOP_LENGTH_SECS,
+    };
 
     fn test_settings() -> AudioProcessorSettings {
         AudioProcessorSettings::new(44100.0, 1, 1, 512)
@@ -218,7 +244,7 @@ mod test {
     #[test]
     fn test_looper_produces_silence_when_started() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle(), None);
+        let mut looper = RawLooperProcessor::new(&collector.handle(), None);
         let settings = test_settings();
 
         looper.prepare(settings);
@@ -236,7 +262,7 @@ mod test {
     #[test]
     fn test_looper_plays_its_input_back() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle(), None);
+        let mut looper = RawLooperProcessor::new(&collector.handle(), None);
         looper.handle.set_dry_volume(1.0);
         let settings = test_settings();
         looper.prepare(settings);
@@ -252,7 +278,7 @@ mod test {
     #[test]
     fn test_looper_does_not_play_back_input_if_specified() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle(), None);
+        let mut looper = RawLooperProcessor::new(&collector.handle(), None);
         let settings = test_settings();
         looper.prepare(settings);
 
@@ -270,7 +296,9 @@ mod test {
         assert_eq!(rms_level(audio_buffer.slice()), 0.0);
     }
 
-    fn test_looper_record_and_playback(looper: &mut LooperProcessor) {
+    fn test_looper_record_and_playback<TimeInfoProviderType: TimeInfoProvider>(
+        looper: &mut RawLooperProcessor<TimeInfoProviderType>,
+    ) {
         let mut sample_buffer: Vec<f32> = (0..1000).map(|i| i as f32).collect();
         let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
         let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
@@ -278,10 +306,7 @@ mod test {
         looper.process(&mut sample_buffer);
         looper.handle.stop_recording();
         // The looper will drop the next sample, that's expected behaviour
-        {
-            let mut one_sample_buffer = VecAudioBuffer::new_with(vec![0.0], 1, 1);
-            looper.process(&mut one_sample_buffer);
-        }
+        skip_one_sample(looper);
 
         // While recording, the output is muted
         let empty_buffer: Vec<f32> = (0..1000).map(|_i| 0.0).collect();
@@ -323,13 +348,30 @@ mod test {
         );
     }
 
+    fn skip_one_sample<TimeInfoProviderType: TimeInfoProvider>(
+        looper: &mut RawLooperProcessor<TimeInfoProviderType>,
+    ) {
+        let mut one_sample_buffer = VecAudioBuffer::new_with(vec![0.0], 1, 1);
+        looper.process(&mut one_sample_buffer);
+    }
+
     fn make_silent_buffer(num_samples: usize) -> VecAudioBuffer<f32> {
         let silent_buffer: Vec<f32> = (0..num_samples).map(|_i| 0.0).collect();
         VecAudioBuffer::new_with(silent_buffer, 1, num_samples)
     }
 
-    fn test_looper_is_silent(settings: &AudioProcessorSettings, looper: &mut LooperProcessor) {
+    fn test_looper_is_silent<TimeInfoProviderType: TimeInfoProvider>(
+        settings: &AudioProcessorSettings,
+        looper: &mut RawLooperProcessor<TimeInfoProviderType>,
+    ) {
         let num_samples = (MAX_LOOP_LENGTH_SECS * settings.sample_rate()) as usize;
+        test_looper_is_silent_for(looper, num_samples);
+    }
+
+    fn test_looper_is_silent_for<TimeInfoProviderType: TimeInfoProvider>(
+        looper: &mut RawLooperProcessor<TimeInfoProviderType>,
+        num_samples: usize,
+    ) {
         let mut output = make_silent_buffer(num_samples);
         looper.process(&mut output);
         let silent_buffer = make_silent_buffer(num_samples);
@@ -339,7 +381,7 @@ mod test {
     #[test]
     fn test_looper_samples_at_start() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle(), None);
+        let mut looper = RawLooperProcessor::new(&collector.handle(), None);
         let settings = test_settings();
         looper.prepare(settings);
 
@@ -351,7 +393,7 @@ mod test {
     #[test]
     fn test_looper_samples_at_edge() {
         let collector = basedrop::Collector::new();
-        let mut looper = LooperProcessor::new(&collector.handle(), None);
+        let mut looper = RawLooperProcessor::new(&collector.handle(), None);
         let settings = test_settings();
         looper.prepare(settings);
 
@@ -363,5 +405,71 @@ mod test {
         test_looper_record_and_playback(&mut looper);
         looper.handle.clear();
         test_looper_is_silent(&settings, &mut looper);
+    }
+
+    #[test]
+    fn test_looper_with_quantization() {
+        use crate::time_info_provider::{MockTimeInfoProvider, TimeInfo};
+
+        let collector = basedrop::Collector::new();
+        let mut time_info_provider = TimeInfoProviderImpl::new(None);
+        let settings = AudioProcessorSettings::new(1000.0, 1, 1, 512);
+        time_info_provider.set_sample_rate(settings.sample_rate);
+        time_info_provider.set_tempo(60);
+
+        let mut looper = RawLooperProcessor {
+            id: "".to_string(),
+            host_callback: None,
+            handle: make_shared(LooperProcessorHandle::new(
+                audio_garbage_collector::handle(),
+                LooperProcessorState::new(),
+            )),
+            settings: Default::default(),
+            time_info_provider,
+        };
+        looper.prepare(settings);
+
+        let mut sample_buffer: Vec<f32> = (0..1000).map(|i| i as f32).collect();
+        let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
+        let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
+
+        looper.handle.start_recording();
+        assert_eq!(
+            looper.handle.state.loop_state.start.load(Ordering::Relaxed),
+            0
+        );
+
+        looper.process(&mut sample_buffer);
+        looper.handle.stop_recording();
+        skip_one_sample(&mut looper);
+        assert_eq!(
+            looper.handle.state.loop_state.start.load(Ordering::Relaxed),
+            0
+        );
+        assert_eq!(
+            looper.handle.state.loop_state.end.load(Ordering::Relaxed),
+            4000
+        );
+
+        assert_eq!(
+            looper.handle.state.loop_state.recording_state.get(),
+            RecordingState::Recording
+        );
+        test_looper_is_silent_for(&mut looper, 2999);
+        assert_eq!(
+            looper.handle.state.loop_state.recording_state.get(),
+            RecordingState::Playing
+        );
+
+        let mut output_buffer: Vec<f32> = (0..1000).map(|_i| 0.0).collect();
+        let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
+
+        looper.process(&mut output_buffer);
+        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let sample_vec = input_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        assert_eq!(
+            output_vec, sample_vec,
+            "After recording the looper didn't playback"
+        );
     }
 }

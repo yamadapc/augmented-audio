@@ -5,10 +5,10 @@ pub enum LoopQuantizerMode {
 }
 
 pub struct QuantizeInput {
-    tempo: f32,
-    sample_rate: f32,
-    position_beats: f32,
-    position_samples: usize,
+    pub tempo: f32,
+    pub sample_rate: f32,
+    pub position_beats: f32,
+    pub position_samples: usize,
 }
 
 pub struct LoopQuantizer {
@@ -28,12 +28,11 @@ impl LoopQuantizer {
         self.mode = mode;
     }
 
-    pub fn quantize(&self, input: QuantizeInput) -> usize {
+    pub fn quantize(&self, input: QuantizeInput) -> i32 {
         match &self.mode {
-            LoopQuantizerMode::None => input.position_samples,
+            LoopQuantizerMode::None => input.position_samples as i32,
             LoopQuantizerMode::SnapNext { beats } => {
                 let quantized_position_beats = snap_next_beat(*beats, input.position_beats);
-
                 Self::build_result_position_samples(&input, quantized_position_beats)
             }
             LoopQuantizerMode::SnapClosest {
@@ -47,10 +46,7 @@ impl LoopQuantizer {
         }
     }
 
-    fn build_result_position_samples(
-        input: &QuantizeInput,
-        quantized_position_beats: f32,
-    ) -> usize {
+    fn build_result_position_samples(input: &QuantizeInput, quantized_position_beats: f32) -> i32 {
         let delta_beats = quantized_position_beats - input.position_beats;
         let secs_per_beat = 1.0 / (input.tempo / 60.0);
         let samples_per_beat = input.sample_rate * secs_per_beat;
@@ -58,7 +54,7 @@ impl LoopQuantizer {
         let position_samples = input.position_samples as i32;
         let delta_samples = (delta_beats * samples_per_beat) as i32;
 
-        (position_samples + delta_samples) as usize
+        position_samples + delta_samples
     }
 }
 

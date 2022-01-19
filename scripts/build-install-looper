@@ -1,0 +1,1 @@
+./scripts/dev.sh build --crate ./crates/apps/looper/looper-vst && rm -rf ~/Library/Audio/Plug-Ins/VST/Loopi.vst/ && mv ./target/apps/macos/looper-vst/release-latest/artifacts/Loopi.vst ~/Library/Audio/Plug-Ins/VST/Loopi.vst
