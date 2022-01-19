@@ -111,12 +111,18 @@ impl<TimeInfoProviderType: TimeInfoProvider> AudioProcessor
                 )
             }
 
-            self.handle.state.on_tick(
-                &self.settings,
-                &self.time_info_provider,
-                self.handle.is_recording(),
-                looper_cursor,
-            );
+            let recording_state = self.handle.state.loop_state.recording_state.get();
+            if recording_state.is_empty()
+                || self.handle.is_playing_back()
+                || self.handle.is_recording()
+            {
+                self.handle.state.on_tick(
+                    &self.settings,
+                    &self.time_info_provider,
+                    self.handle.is_recording(),
+                    looper_cursor,
+                );
+            }
 
             if self.handle.is_playing_back() || self.handle.is_recording() {
                 self.time_info_provider.tick();

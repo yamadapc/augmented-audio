@@ -19,6 +19,12 @@ pub(crate) enum RecordingState {
     Playing = 2,
 }
 
+impl RecordingState {
+    pub fn is_empty(&self) -> bool {
+        matches!(self, RecordingState::Empty)
+    }
+}
+
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum LooperQuantizationModeType {
     None = 0,
