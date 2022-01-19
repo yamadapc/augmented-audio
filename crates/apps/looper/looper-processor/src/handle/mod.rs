@@ -4,7 +4,10 @@ use audio_garbage_collector::Handle;
 use audio_processor_traits::{AtomicF32, AudioBuffer};
 
 use crate::midi_map::MidiMap;
-use crate::state::LooperProcessorState;
+use crate::RecordingState;
+use state::LooperProcessorState;
+
+pub mod state;
 
 /// Public API types, which should be thread-safe
 pub struct LooperProcessorHandle {
@@ -33,7 +36,15 @@ impl LooperProcessorHandle {
         }
     }
 
-    pub fn state(&self) -> &LooperProcessorState {
+    pub fn num_samples(&self) -> usize {
+        self.state.num_samples()
+    }
+
+    pub fn loop_iterator(&self) -> impl Iterator<Item = f32> {
+        self.state.loop_iterator()
+    }
+
+    pub(crate) fn state(&self) -> &LooperProcessorState {
         &self.state
     }
 
@@ -132,6 +143,29 @@ impl LooperProcessorHandle {
             self.state.loop_state.recording_state.get(),
             self.state.num_samples()
         )
+    }
+
+    pub(crate) fn force_stop_if_overflowing(&self, looper_cursor: usize) -> bool {
+        // STOP looper if going above max duration
+        if self.is_recording()
+            && self.state.num_samples() >= self.state.looped_clip.get().num_samples() - 1
+        {
+            self.state
+                .loop_state
+                .recording_state
+                .set(RecordingState::Playing);
+            self.state
+                .looper_cursor
+                .set(self.state.loop_state.start.load(Ordering::Relaxed) as f32);
+            self.state
+                .loop_state
+                .end
+                .store(looper_cursor - 1, Ordering::Relaxed);
+            self.stop_recording();
+            false
+        } else {
+            true
+        }
     }
 }
 

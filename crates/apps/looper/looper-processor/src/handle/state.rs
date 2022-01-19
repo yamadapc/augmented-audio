@@ -22,7 +22,7 @@ pub(crate) struct LoopState {
     pub(crate) end: AtomicUsize,
 }
 
-pub struct LooperProcessorState {
+pub(crate) struct LooperProcessorState {
     pub(crate) loop_state: LoopState,
     pub(crate) looper_cursor: AtomicFloat,
     pub(crate) looper_increment: AtomicFloat,

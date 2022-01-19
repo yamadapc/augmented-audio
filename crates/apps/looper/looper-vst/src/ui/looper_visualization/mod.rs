@@ -53,8 +53,7 @@ impl Program<()> for LooperVisualizationView {
         let mut frame = Frame::new(bounds.size());
 
         let is_recording = self.processor_handle.is_recording();
-        let looper_state = self.processor_handle.state();
-        let num_samples = looper_state.num_samples() as f32;
+        let num_samples = self.processor_handle.num_samples() as f32;
         let has_valid_cache = self
             .loop_cache
             .borrow()
@@ -64,7 +63,8 @@ impl Program<()> for LooperVisualizationView {
 
         let loop_cache = if !has_valid_cache {
             let step = 400;
-            let iterator = looper_state
+            let iterator = self
+                .processor_handle
                 .loop_iterator()
                 .enumerate()
                 .step_by(step)

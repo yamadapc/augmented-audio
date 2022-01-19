@@ -3,7 +3,6 @@ use std::sync::atomic::Ordering;
 
 use num::FromPrimitive;
 
-use atomic_enum::AtomicEnum;
 use audio_garbage_collector::{make_shared, Handle, Shared};
 use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
@@ -15,14 +14,14 @@ use audio_processor_traits::{
 pub use handle::LooperProcessorHandle;
 use handle::ProcessParameters;
 use midi_map::{Action, MidiSpec};
+use util::atomic_enum::AtomicEnum;
 
-use crate::state::{LooperProcessorState, RecordingState};
+use handle::state::{LooperProcessorState, RecordingState};
 
-mod atomic_enum;
 mod handle;
 mod loop_quantization;
 pub mod midi_map;
-mod state;
+mod util;
 
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;
 
@@ -45,33 +44,6 @@ impl LooperProcessor {
 
     pub fn handle(&self) -> Shared<LooperProcessorHandle> {
         self.handle.clone()
-    }
-
-    fn force_stop(&mut self, looper_cursor: usize) -> bool {
-        // STOP looper if going above max duration
-        if self.handle.is_recording()
-            && self.handle.state.num_samples()
-                >= self.handle.state.looped_clip.get().num_samples() - 1
-        {
-            self.handle
-                .state
-                .loop_state
-                .recording_state
-                .set(RecordingState::Playing);
-            self.handle
-                .state
-                .looper_cursor
-                .set(self.handle.state.loop_state.start.load(Ordering::Relaxed) as f32);
-            self.handle
-                .state
-                .loop_state
-                .end
-                .store(looper_cursor - 1, Ordering::Relaxed);
-            self.handle.stop_recording();
-            false
-        } else {
-            true
-        }
     }
 }
 
@@ -126,7 +98,7 @@ impl AudioProcessor for LooperProcessor {
             }
 
             if self.handle.is_playing_back() || self.handle.is_recording() {
-                if self.force_stop(looper_cursor) {
+                if self.handle.force_stop_if_overflowing(looper_cursor) {
                     self.handle
                         .state
                         .on_tick(parameters.is_recording, looper_cursor);
