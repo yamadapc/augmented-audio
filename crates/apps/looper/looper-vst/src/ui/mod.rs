@@ -9,7 +9,7 @@ use audio_processor_iced_design_system::style::Container1;
 use audio_processor_iced_design_system::tabs;
 use iced_baseview::{executor, Subscription, WindowSubs};
 use iced_baseview::{Application, Command, Element};
-use looper_processor::LooperProcessorHandle;
+use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
 use vst::host::Host;
@@ -23,6 +23,7 @@ mod style;
 pub struct Flags {
     pub host_callback: Option<HostCallback>,
     pub processor_handle: Shared<LooperProcessorHandle>,
+    pub sequencer_handle: Shared<LoopSequencerProcessorHandle>,
 }
 
 pub struct LooperApplication {
@@ -57,7 +58,10 @@ impl Application for LooperApplication {
                 processor_handle: flags.processor_handle.clone(),
                 host_callback: flags.host_callback,
                 looper_visualization: LooperVisualizationView::new(flags.processor_handle.clone()),
-                knobs_view: bottom_panel::BottomPanelView::new(flags.processor_handle),
+                knobs_view: bottom_panel::BottomPanelView::new(
+                    flags.processor_handle,
+                    flags.sequencer_handle,
+                ),
                 tabs_view: tabs::State::new(),
             },
             Command::none(),

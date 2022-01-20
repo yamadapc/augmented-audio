@@ -13,6 +13,7 @@ fn main() {
 
     let loopi_processor = LooperProcessor::new(audio_garbage_collector::handle(), None);
     let processor_handle = loopi_processor.handle();
+    let sequencer_handle = loopi_processor.sequencer_handle();
     let _audio_handles = augmented::application::audio_processor_start_with_midi(
         loopi_processor,
         audio_garbage_collector::handle(),
@@ -22,13 +23,14 @@ fn main() {
         window: WindowOpenOptions {
             title: "Looper".to_string(),
             size: Size {
-                width: 500.0,
+                width: 700.0,
                 height: 300.0,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
         },
         flags: Flags {
             processor_handle,
+            sequencer_handle,
             host_callback: None,
         },
     });

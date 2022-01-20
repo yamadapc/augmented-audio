@@ -83,10 +83,14 @@ impl Plugin for LoopiPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        Some(Box::new(IcedEditor::<LooperApplication>::new(ui::Flags {
-            processor_handle: self.processor.handle(),
-            host_callback: Some(self.host_callback.clone()),
-        })))
+        Some(Box::new(IcedEditor::<LooperApplication>::new_with(
+            ui::Flags {
+                processor_handle: self.processor.handle(),
+                sequencer_handle: self.processor.sequencer_handle(),
+                host_callback: Some(self.host_callback.clone()),
+            },
+            (300, 700),
+        )))
     }
 }
 

@@ -3711,6 +3711,7 @@ dependencies = [
  "num 0.4.0",
  "num-derive",
  "num-traits 0.2.14",
+ "rand 0.8.4",
  "rimd",
  "uuid 0.8.2",
  "wisual-logger",

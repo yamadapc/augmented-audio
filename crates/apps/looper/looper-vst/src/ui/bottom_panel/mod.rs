@@ -9,7 +9,8 @@ use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
-use looper_processor::LooperProcessorHandle;
+use looper_processor::sequencer::LoopSequencerParams;
+use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 
 #[derive(Eq, PartialEq, Debug, Clone, Copy)]
 pub enum ParameterId {
@@ -44,39 +45,60 @@ pub enum Message {
     RecordPressed,
     ClearPressed,
     StopPressed,
+    SequencePressed,
+    QuantizeModePressed,
 }
 
 pub struct BottomPanelView {
     processor_handle: Shared<LooperProcessorHandle>,
+    sequencer_handle: Shared<LoopSequencerProcessorHandle>,
     parameter_states: Vec<ParameterViewModel>,
     buttons_view: ButtonsView,
+    sequence_button_state: iced::button::State,
 }
 
 impl BottomPanelView {
-    pub fn new(processor_handle: Shared<LooperProcessorHandle>) -> Self {
+    pub fn new(
+        processor_handle: Shared<LooperProcessorHandle>,
+        sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    ) -> Self {
         BottomPanelView {
             processor_handle: processor_handle.clone(),
+            sequencer_handle: sequencer_handle.clone(),
             parameter_states: vec![
                 ParameterViewModel::new(
                     ParameterId::LoopVolume,
                     String::from("Loop"),
                     String::from(""),
-                    1.0,
+                    processor_handle.loop_volume(),
                 ),
                 ParameterViewModel::new(
                     ParameterId::DryVolume,
                     String::from("Dry"),
                     String::from(""),
-                    0.0,
+                    processor_handle.dry_volume(),
                 ),
                 ParameterViewModel::new(
                     ParameterId::PlaybackSpeed,
-                    String::from("SPEED"),
+                    String::from("Speed"),
                     String::from("x"),
                     1.0,
                 ),
+                ParameterViewModel::new(
+                    ParameterId::PlaybackSpeed,
+                    String::from("Seq. Slices"),
+                    String::from(""),
+                    4.0,
+                ),
+                ParameterViewModel::new(
+                    ParameterId::PlaybackSpeed,
+                    String::from("Seq. Steps"),
+                    String::from(""),
+                    8.0,
+                ),
             ],
             buttons_view: ButtonsView::new(processor_handle),
+            sequence_button_state: iced::button::State::new(),
         }
     }
 
@@ -110,6 +132,12 @@ impl BottomPanelView {
             Message::StopPressed => {
                 self.processor_handle.toggle_playback();
             }
+            Message::SequencePressed => self.sequencer_handle.set_params(LoopSequencerParams {
+                num_slices: 8,
+                sequence_length: 16,
+                num_samples: self.processor_handle.num_samples(),
+            }),
+            _ => {}
         }
         Command::none()
     }
@@ -132,6 +160,17 @@ impl BottomPanelView {
                 .center_y()
                 .width(Length::Fill)
                 .into(),
+                Container::new(
+                    Button::new(
+                        &mut self.sequence_button_state,
+                        Text::new("Sequence").size(Spacing::small_font_size()),
+                    )
+                    .on_press(Message::SequencePressed)
+                    .style(audio_style::Button::default()),
+                )
+                .center_x()
+                .center_y()
+                .into(),
             ])
             .spacing(Spacing::base_spacing()),
         )
@@ -150,6 +189,7 @@ struct ButtonsView {
     record_state: iced::button::State,
     clear_state: iced::button::State,
     stop_state: iced::button::State,
+    quantize_mode_state: iced::button::State,
 }
 
 impl ButtonsView {
@@ -159,6 +199,7 @@ impl ButtonsView {
             record_state: iced::button::State::default(),
             clear_state: iced::button::State::default(),
             stop_state: iced::button::State::default(),
+            quantize_mode_state: iced::button::State::default(),
         }
     }
 }
@@ -196,6 +237,13 @@ impl ButtonsView {
                 Text::new(stop_text).size(Spacing::small_font_size()),
             )
             .on_press(Message::StopPressed)
+            .style(audio_style::Button::default())
+            .into(),
+            Button::new(
+                &mut self.quantize_mode_state,
+                Text::new("Free tempo").size(Spacing::small_font_size()),
+            )
+            .on_press(Message::QuantizeModePressed)
             .style(audio_style::Button::default())
             .into(),
         ])

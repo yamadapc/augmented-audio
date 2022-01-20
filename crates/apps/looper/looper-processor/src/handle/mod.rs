@@ -139,6 +139,14 @@ impl LooperProcessorHandle {
         self.is_playing_back.store(true, Ordering::Relaxed);
     }
 
+    pub fn dry_volume(&self) -> f32 {
+        self.dry_volume.get()
+    }
+
+    pub fn loop_volume(&self) -> f32 {
+        self.loop_volume.get()
+    }
+
     pub fn set_dry_volume(&self, value: f32) {
         self.dry_volume.set(value);
     }

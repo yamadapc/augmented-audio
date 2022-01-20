@@ -11,17 +11,18 @@ use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
     MidiMessageLike, VecAudioBuffer,
 };
+use handle::state::{LooperProcessorState, RecordingState};
 pub use handle::LooperProcessorHandle;
 use handle::ProcessParameters;
 use midi_map::{Action, MidiSpec};
+pub use sequencer::LoopSequencerProcessorHandle;
+use time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
 use util::atomic_enum::AtomicEnum;
-
-use crate::time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
-use handle::state::{LooperProcessorState, RecordingState};
 
 mod handle;
 mod loop_quantization;
 pub mod midi_map;
+pub mod sequencer;
 mod time_info_provider;
 mod util;
 
@@ -32,23 +33,29 @@ pub type LooperProcessor = RawLooperProcessor<TimeInfoProviderImpl>;
 /// A single stereo looper
 pub struct RawLooperProcessor<TimeInfoProviderType: TimeInfoProvider> {
     id: String,
-    host_callback: Option<HostCallback>,
     handle: Shared<LooperProcessorHandle>,
     settings: AudioProcessorSettings,
     time_info_provider: TimeInfoProviderType,
+    sequencer: sequencer::LoopSequencerProcessor,
 }
 
 impl RawLooperProcessor<TimeInfoProviderImpl> {
     pub fn new(handle: &Handle, host_callback: Option<HostCallback>) -> Self {
         let state = LooperProcessorState::new();
         let time_info_provider = TimeInfoProviderImpl::new(host_callback.clone());
+        let handle = Shared::new(handle, LooperProcessorHandle::new(handle, state));
+        let sequencer = sequencer::LoopSequencerProcessor::new(handle.clone());
         RawLooperProcessor {
             id: uuid::Uuid::new_v4().to_string(),
-            host_callback,
-            handle: Shared::new(handle, LooperProcessorHandle::new(handle, state)),
+            handle,
             settings: AudioProcessorSettings::default(),
             time_info_provider,
+            sequencer,
         }
+    }
+
+    pub fn sequencer_handle(&self) -> Shared<LoopSequencerProcessorHandle> {
+        self.sequencer.handle().clone()
     }
 
     pub fn handle(&self) -> Shared<LooperProcessorHandle> {
@@ -129,6 +136,8 @@ impl<TimeInfoProviderType: TimeInfoProvider> AudioProcessor
                 self.handle.force_stop_if_overflowing(looper_cursor + 1);
             }
         }
+
+        self.sequencer.process(data);
     }
 }
 
@@ -228,17 +237,18 @@ mod test {
     use std::sync::atomic::Ordering;
     use std::time::Duration;
 
-    use audio_garbage_collector::make_shared;
     use audio_processor_testing_helpers::rms_level;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
     use log::Record;
 
+    use audio_garbage_collector::make_shared;
     use audio_processor_traits::{
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
         VecAudioBuffer,
     };
 
+    use crate::sequencer::LoopSequencerProcessor;
     use crate::{
         LooperProcessorHandle, LooperProcessorState, RawLooperProcessor, RecordingState,
         TimeInfoProvider, TimeInfoProviderImpl, MAX_LOOP_LENGTH_SECS,
@@ -416,21 +426,20 @@ mod test {
 
     #[test]
     fn test_looper_with_quantization() {
-        use crate::time_info_provider::{MockTimeInfoProvider, TimeInfo};
-
         let collector = basedrop::Collector::new();
         let mut time_info_provider = TimeInfoProviderImpl::new(None);
         let settings = AudioProcessorSettings::new(1000.0, 1, 1, 512);
         time_info_provider.set_sample_rate(settings.sample_rate);
         time_info_provider.set_tempo(60);
 
+        let handle = make_shared(LooperProcessorHandle::new(
+            audio_garbage_collector::handle(),
+            LooperProcessorState::new(),
+        ));
         let mut looper = RawLooperProcessor {
             id: "".to_string(),
-            host_callback: None,
-            handle: make_shared(LooperProcessorHandle::new(
-                audio_garbage_collector::handle(),
-                LooperProcessorState::new(),
-            )),
+            handle: handle.clone(),
+            sequencer: LoopSequencerProcessor::new(handle),
             settings: Default::default(),
             time_info_provider,
         };

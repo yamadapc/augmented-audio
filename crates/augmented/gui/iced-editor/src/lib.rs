@@ -29,10 +29,14 @@ where
     App: Application,
 {
     pub fn new(flags: App::Flags) -> Self {
+        Self::new_with(flags, (500, 300))
+    }
+
+    pub fn new_with(flags: App::Flags, size: (i32, i32)) -> Self {
         IcedEditor {
             flags,
             handle: None,
-            size: (500, 300),
+            size,
             position: (0, 0),
         }
     }
