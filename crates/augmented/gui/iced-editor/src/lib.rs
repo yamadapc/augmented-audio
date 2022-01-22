@@ -60,8 +60,8 @@ where
         let window_open_options = WindowOpenOptions {
             title: "Iced Editor".to_string(),
             size: Size {
-                width: 500.0,
-                height: 300.0,
+                width: self.size.0 as f64,
+                height: self.size.1 as f64,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
         };

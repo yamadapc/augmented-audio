@@ -1,5 +1,5 @@
 use iced::{Alignment, Button, Column, Container, Length, Row, Text};
-use iced_audio::{Normal, NormalParam};
+use iced_audio::{IntRange, Normal, NormalParam};
 use iced_baseview::{Command, Element};
 
 use audio_garbage_collector::Shared;
@@ -17,6 +17,8 @@ pub enum ParameterId {
     LoopVolume,
     DryVolume,
     PlaybackSpeed,
+    SeqSlices,
+    SeqSteps,
 }
 
 pub struct ParameterViewModel {
@@ -25,23 +27,39 @@ pub struct ParameterViewModel {
     suffix: String,
     value: f32,
     knob_state: iced_audio::knob::State,
+    int_range: Option<IntRange>,
+    range: (f32, f32),
 }
 
 impl ParameterViewModel {
-    pub fn new(id: ParameterId, name: String, suffix: String, value: f32) -> Self {
+    pub fn new(
+        id: ParameterId,
+        name: String,
+        suffix: String,
+        value: f32,
+        range: (f32, f32),
+    ) -> Self {
         ParameterViewModel {
             id,
             name,
             suffix,
             value,
             knob_state: iced_audio::knob::State::new(NormalParam::from(value)),
+            int_range: None,
+            range,
         }
+    }
+
+    pub fn snap_int(mut self) -> Self {
+        let range = IntRange::new(self.range.0 as i32, self.range.1 as i32);
+        self.int_range = Some(range);
+        self
     }
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    KnobChange(ParameterId, Normal),
+    KnobChange(ParameterId, f32),
     RecordPressed,
     ClearPressed,
     StopPressed,
@@ -71,31 +89,38 @@ impl BottomPanelView {
                     String::from("Loop"),
                     String::from(""),
                     processor_handle.loop_volume(),
+                    (0.0, 1.0),
                 ),
                 ParameterViewModel::new(
                     ParameterId::DryVolume,
                     String::from("Dry"),
                     String::from(""),
                     processor_handle.dry_volume(),
+                    (0.0, 1.0),
                 ),
                 ParameterViewModel::new(
                     ParameterId::PlaybackSpeed,
                     String::from("Speed"),
                     String::from("x"),
                     1.0,
+                    (0.0, 2.0),
                 ),
                 ParameterViewModel::new(
-                    ParameterId::PlaybackSpeed,
+                    ParameterId::SeqSlices,
                     String::from("Seq. Slices"),
                     String::from(""),
                     4.0,
-                ),
+                    (1.0, 32.0),
+                )
+                .snap_int(),
                 ParameterViewModel::new(
-                    ParameterId::PlaybackSpeed,
+                    ParameterId::SeqSteps,
                     String::from("Seq. Steps"),
                     String::from(""),
-                    8.0,
-                ),
+                    4.0,
+                    (1.0, 32.0),
+                )
+                .snap_int(),
             ],
             buttons_view: ButtonsView::new(processor_handle),
             sequence_button_state: iced::button::State::new(),
@@ -104,13 +129,17 @@ impl BottomPanelView {
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
-            Message::KnobChange(id, normal) => {
+            Message::KnobChange(id, value) => {
                 if let Some(state) = self
                     .parameter_states
                     .iter_mut()
                     .find(|param| param.id == id)
                 {
-                    state.value = normal.as_f32();
+                    state.value = value;
+
+                    if let Some(int_range) = &state.int_range {
+                        state.knob_state.snap_visible_to(int_range);
+                    }
 
                     match state.id {
                         ParameterId::LoopVolume => {
@@ -119,7 +148,27 @@ impl BottomPanelView {
                         ParameterId::DryVolume => {
                             self.processor_handle.set_dry_volume(state.value);
                         }
-                        ParameterId::PlaybackSpeed => {}
+                        ParameterId::PlaybackSpeed => {
+                            self.processor_handle.set_playback_speed(state.value);
+                        }
+                        ParameterId::SeqSlices => {
+                            if let Some(params) = self.sequencer_handle.params() {
+                                if params.num_slices != state.value as usize {
+                                    self.flush_params();
+                                }
+                            } else {
+                                self.flush_params();
+                            }
+                        }
+                        ParameterId::SeqSteps => {
+                            if let Some(params) = self.sequencer_handle.params() {
+                                if params.sequence_length != state.value as usize {
+                                    self.flush_params();
+                                }
+                            } else {
+                                self.flush_params();
+                            }
+                        }
                     }
                 }
             }
@@ -132,14 +181,28 @@ impl BottomPanelView {
             Message::StopPressed => {
                 self.processor_handle.toggle_playback();
             }
-            Message::SequencePressed => self.sequencer_handle.set_params(LoopSequencerParams {
-                num_slices: 8,
-                sequence_length: 16,
-                num_samples: self.processor_handle.num_samples(),
-            }),
+            Message::SequencePressed => self.flush_params(),
             _ => {}
         }
         Command::none()
+    }
+
+    fn flush_params(&self) {
+        self.sequencer_handle.set_params(LoopSequencerParams {
+            num_slices: self
+                .parameter_states
+                .iter()
+                .find(|param| param.id == ParameterId::SeqSlices)
+                .unwrap()
+                .value as usize,
+            sequence_length: self
+                .parameter_states
+                .iter()
+                .find(|param| param.id == ParameterId::SeqSteps)
+                .unwrap()
+                .value as usize,
+            num_samples: self.processor_handle.num_samples(),
+        });
     }
 
     pub fn view(&mut self) -> Element<Message> {
@@ -252,21 +315,39 @@ impl ButtonsView {
 }
 
 fn parameter_view(parameter_view_model: &mut ParameterViewModel) -> Element<Message> {
+    let range = parameter_view_model.range;
     let parameter_id = parameter_view_model.id.clone();
+    let mapped_value = parameter_view_model.value;
+    let int_range = parameter_view_model.int_range.clone();
+
     HoverContainer::new(
         Column::with_children(vec![
             Text::new(&parameter_view_model.name)
                 .size(Spacing::small_font_size())
                 .into(),
             Knob::new(&mut parameter_view_model.knob_state, move |value| {
-                Message::KnobChange(parameter_id, value)
+                let value = if let Some(int_range) = int_range {
+                    int_range.snapped(value)
+                } else {
+                    value
+                };
+                let n_value = range.0 + value.as_f32() * (range.1 - range.0);
+                log::info!(
+                    "id={:?} range={:?} value={} nvalue={}",
+                    parameter_id,
+                    range,
+                    value.as_f32(),
+                    n_value
+                );
+
+                Message::KnobChange(parameter_id, n_value)
             })
             .size(Length::Units(Spacing::base_control_size()))
             .style(audio_knob::style::Knob)
             .into(),
             Text::new(format!(
                 "{:.2}{}",
-                parameter_view_model.value, parameter_view_model.suffix
+                mapped_value, parameter_view_model.suffix
             ))
             .size(Spacing::small_font_size())
             .into(),

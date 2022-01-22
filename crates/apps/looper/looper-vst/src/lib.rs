@@ -89,7 +89,7 @@ impl Plugin for LoopiPlugin {
                 sequencer_handle: self.processor.sequencer_handle(),
                 host_callback: Some(self.host_callback.clone()),
             },
-            (300, 700),
+            (700, 300),
         )))
     }
 }

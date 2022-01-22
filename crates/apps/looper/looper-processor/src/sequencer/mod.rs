@@ -7,7 +7,9 @@ use audio_processor_traits::{
 use basedrop::{Shared, SharedCell};
 use std::ops::Deref;
 use std::sync::atomic::Ordering;
+use std::time::Duration;
 
+#[derive(Clone)]
 pub struct LoopSequencerParams {
     pub num_slices: usize,
     pub sequence_length: usize,
@@ -28,6 +30,7 @@ pub struct LoopSequencerOutput {
 pub struct LoopSequencerProcessorHandle {
     looped_clip: SharedCell<VecAudioBuffer<f32>>,
     looper_handle: Shared<LooperProcessorHandle>,
+    params: SharedCell<Option<LoopSequencerParams>>,
     sequencer_output: SharedCell<Option<LoopSequencerOutput>>,
 }
 
@@ -36,8 +39,13 @@ impl LoopSequencerProcessorHandle {
         self.looped_clip.set(make_shared(clip));
     }
 
+    pub fn params(&self) -> Option<LoopSequencerParams> {
+        let o = self.params.get();
+        (*o).clone()
+    }
+
     pub fn set_params(&self, params: LoopSequencerParams) {
-        let output = run_sequencer(params);
+        let output = run_sequencer(&params);
         let clip = self.looper_handle.state.looped_clip.get();
         let num_samples = self.looper_handle.state.num_samples();
         let max_samples = clip.num_samples();
@@ -62,6 +70,7 @@ impl LoopSequencerProcessorHandle {
 
         self.set_clip(own_buffer);
         self.sequencer_output.set(make_shared(Some(output)));
+        self.params.set(make_shared(Some(params)));
     }
 }
 
@@ -77,6 +86,7 @@ impl LoopSequencerProcessor {
             handle: make_shared(LoopSequencerProcessorHandle {
                 looped_clip: make_shared_cell(VecAudioBuffer::new()),
                 looper_handle,
+                params: make_shared_cell(None),
                 sequencer_output: make_shared_cell(None),
             }),
         }
@@ -113,10 +123,12 @@ impl AudioProcessor for LoopSequencerProcessor {
                 let VirtualLoopSection { start, .. } = &sequence[sequence_step_index];
                 let overflow = cursor % sequence_step_size;
                 let index = (start + overflow) % num_samples;
+                let start_volume = (overflow as f32 / 80.0).min(1.0);
+                let end_volume = ((sequence_step_size - overflow) as f32 / 80.0).min(1.0);
 
                 for (channel, sample) in frame.iter_mut().enumerate() {
                     let output_sample = clip.get(channel, index);
-                    *sample = *output_sample;
+                    *sample = *output_sample * start_volume * end_volume;
                 }
 
                 self.cursor += 1;
@@ -128,7 +140,14 @@ impl AudioProcessor for LoopSequencerProcessor {
     }
 }
 
-pub fn run_sequencer(params: LoopSequencerParams) -> LoopSequencerOutput {
+pub fn run_sequencer(params: &LoopSequencerParams) -> LoopSequencerOutput {
+    if params.sequence_length == 0 || params.num_slices == 0 {
+        return LoopSequencerOutput {
+            sequence: vec![],
+            sequence_step_size: 0,
+        };
+    }
+
     let slice_len = params.num_samples / params.num_slices;
     let max_step_len = params.num_samples / params.sequence_length;
 
