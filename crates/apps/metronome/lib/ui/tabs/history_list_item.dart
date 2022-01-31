@@ -13,8 +13,8 @@ String leftPad(String target, int length) {
 
 String formatDuration(Duration duration) {
   var hours = duration.inHours;
-  var minutes = duration.inMinutes;
-  var seconds = duration.inSeconds;
+  var minutes = duration.inMinutes - hours * 60;
+  var seconds = duration.inSeconds - hours * (60 * 60) - minutes * 60;
   if (hours == 0) {
     return "${leftPad(minutes.toString(), 2)}:${leftPad(seconds.toString(), 2)}";
   }
@@ -22,19 +22,20 @@ String formatDuration(Duration duration) {
 }
 
 class HistoryListItem extends StatelessWidget {
-  final Session session;
+  final AggregatedSession session;
 
   const HistoryListItem({Key? key, required this.session}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm");
+    DateFormat dateFormat = DateFormat("yyyy-MM-dd");
     final formattedDate = dateFormat
         .format(DateTime.fromMillisecondsSinceEpoch(session.timestampMs));
     final duration = Duration(milliseconds: session.durationMs);
+    final timeSignature = "${session.beatsPerBar}/4";
 
     return Container(
-        padding: EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: const BoxDecoration(
           border: Border(
               bottom: BorderSide(color: CupertinoColors.opaqueSeparator)),
@@ -47,7 +48,7 @@ class HistoryListItem extends StatelessWidget {
                   style: const TextStyle(
                       fontSize: 24, fontWeight: FontWeight.bold)),
             ),
-            Text("${session.tempo.floor()}bpm"),
+            Text("$timeSignature - ${session.tempo.floor()}bpm"),
           ])
         ]));
   }

@@ -14,7 +14,7 @@ class HistoryStateController {
   }
 
   Future<void> refresh() async {
-    final sessions = await _sessionDao.findAllSessions();
+    final sessions = await _sessionDao.findAggregatedSessions();
     logger.i("Refreshing sessions from DB length=${sessions.length}");
 
     runInAction(() {

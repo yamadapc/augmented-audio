@@ -66,7 +66,7 @@ class _$MetronomeDatabase extends MetronomeDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 2,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -82,7 +82,10 @@ class _$MetronomeDatabase extends MetronomeDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Session` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `timestampMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `tempo` REAL NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `Session` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `timestampMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `tempo` REAL NOT NULL, `beatsPerBar` INTEGER NOT NULL)');
+
+        await database.execute(
+            'CREATE VIEW IF NOT EXISTS `AggregatedSession` AS SELECT\n  SUM(durationMs) as durationMs,\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,\n  tempo,\n  beatsPerBar\nFROM session\nGROUP BY\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),\n  tempo,\n  beatsPerBar\nORDER BY timestampMs DESC LIMIT 100\n  ');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -106,7 +109,8 @@ class _$SessionDao extends SessionDao {
                   'id': item.id,
                   'timestampMs': item.timestampMs,
                   'durationMs': item.durationMs,
-                  'tempo': item.tempo
+                  'tempo': item.tempo,
+                  'beatsPerBar': item.beatsPerBar
                 }),
         _sessionUpdateAdapter = UpdateAdapter(
             database,
@@ -116,7 +120,8 @@ class _$SessionDao extends SessionDao {
                   'id': item.id,
                   'timestampMs': item.timestampMs,
                   'durationMs': item.durationMs,
-                  'tempo': item.tempo
+                  'tempo': item.tempo,
+                  'beatsPerBar': item.beatsPerBar
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -132,12 +137,24 @@ class _$SessionDao extends SessionDao {
   @override
   Future<List<Session>> findAllSessions() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM Session ORDER BY timestampMs DESC',
+        'SELECT * FROM Session ORDER BY timestampMs DESC LIMIT 100',
         mapper: (Map<String, Object?> row) => Session(
             row['id'] as int?,
             row['timestampMs'] as int,
             row['durationMs'] as int,
-            row['tempo'] as double));
+            row['tempo'] as double,
+            row['beatsPerBar'] as int));
+  }
+
+  @override
+  Future<List<AggregatedSession>> findAggregatedSessions() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM AggregatedSession ORDER BY timestampMs DESC LIMIT 100',
+        mapper: (Map<String, Object?> row) => AggregatedSession(
+            row['durationMs'] as int,
+            row['timestampMs'] as int,
+            row['tempo'] as double,
+            row['beatsPerBar'] as int));
   }
 
   @override

@@ -15,7 +15,7 @@ class Visualisation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 120,
+      height: 80,
       width: double.infinity,
       child: SceneBuilderWidget(
         builder: () => SceneController(

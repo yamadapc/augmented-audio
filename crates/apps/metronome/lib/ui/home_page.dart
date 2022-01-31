@@ -37,10 +37,8 @@ class _HomePageState extends State<HomePage> {
     metronome.initialize();
 
     logger.i("Opening SQLite database");
-    $FloorMetronomeDatabase
-        .databaseBuilder('metronome_database.db')
-        .build()
-        .then((database) {
+    var databasePromise = buildDatabase();
+    databasePromise.then((database) {
       logger.i("Setting-up controllers");
 
       historyStateController =

@@ -1,4 +1,4 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use std::time::Duration;
 
 use audio_garbage_collector::{make_shared, Shared};
@@ -16,6 +16,7 @@ pub struct MetronomeProcessorHandle {
     tempo: AtomicF32,
     volume: AtomicF32,
     position_beats: AtomicF32,
+    beats_per_bar: AtomicI32,
 }
 
 struct MetronomeProcessorState {
@@ -51,6 +52,7 @@ impl MetronomeProcessor {
                 tempo: AtomicF32::new(120.0),
                 volume: AtomicF32::new(1.0),
                 position_beats: AtomicF32::new(0.0),
+                beats_per_bar: AtomicI32::new(4),
             }),
             state: MetronomeProcessorState {
                 last_position: 0.0,
@@ -104,6 +106,8 @@ impl AudioProcessor for MetronomeProcessor {
             self.state.playhead.set_tempo(tempo);
         }
 
+        let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
+        let f_beats_per_bar = beats_per_bar as f32;
         let mut last_position = self.state.last_position;
         for frame in data.frames_mut() {
             self.state.playhead.accept_samples(1);
@@ -113,7 +117,7 @@ impl AudioProcessor for MetronomeProcessor {
             self.state.oscillator.tick();
 
             if !self.state.playing {
-                if position % 4.0 < 1.0 {
+                if beats_per_bar != 1 && position % f_beats_per_bar < 1.0 {
                     self.state.oscillator.set_frequency(880.0);
                 } else {
                     self.state.oscillator.set_frequency(440.0);
