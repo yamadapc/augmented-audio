@@ -3,22 +3,31 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:metronome/modules/history/session_entity.dart';
 
-String leftPad(String target, int length) {
-  final diff = length - target.length;
-  for (var i = 0; i < diff; i++) {
-    target = "0" + target;
+String formatDurationNumber(String postfix, int value) {
+  if (value == 0) {
+    return "";
+  } else {
+    return "$value$postfix";
   }
-  return target;
 }
 
 String formatDuration(Duration duration) {
   var hours = duration.inHours;
   var minutes = duration.inMinutes - hours * 60;
   var seconds = duration.inSeconds - hours * (60 * 60) - minutes * 60;
-  if (hours == 0) {
-    return "${leftPad(minutes.toString(), 2)}:${leftPad(seconds.toString(), 2)}";
+
+  if (hours == 0 && minutes == 0) {
+    return formatDurationNumber("s", seconds);
+  } else if (hours == 0) {
+    var fminutes = formatDurationNumber("m", minutes);
+    var fseconds = formatDurationNumber("s", seconds);
+    return [fminutes, fseconds].join("");
   }
-  return "${leftPad(hours.toString(), 2)}:${leftPad(minutes.toString(), 2)}:${leftPad(seconds.toString(), 2)}";
+
+  var fhours = formatDurationNumber("h", hours);
+  var fminutes = formatDurationNumber("m", minutes);
+  var fseconds = formatDurationNumber("s", seconds);
+  return [fhours, fminutes, fseconds].join("");
 }
 
 class HistoryListItem extends StatelessWidget {
@@ -46,7 +55,7 @@ class HistoryListItem extends StatelessWidget {
             Expanded(
               child: Text(formatDuration(duration),
                   style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold)),
+                      fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             Text("$timeSignature - ${session.tempo.floor()}bpm"),
           ])
