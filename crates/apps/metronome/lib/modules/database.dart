@@ -8,7 +8,7 @@ import 'history/session_entity.dart';
 
 part 'database.g.dart';
 
-@Database(version: 3, entities: [Session], views: [AggregatedSession])
+@Database(version: 4, entities: [Session], views: [AggregatedSession])
 abstract class MetronomeDatabase extends FloorDatabase {
   SessionDao get sessionDao;
 }
