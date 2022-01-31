@@ -8,5 +8,5 @@ class HistoryStateModel = _HistoryStateModel with _$HistoryStateModel;
 
 abstract class _HistoryStateModel with Store {
   @observable
-  ObservableList<Session> sessions = ObservableList.of([]);
+  ObservableList<AggregatedSession> sessions = ObservableList.of([]);
 }

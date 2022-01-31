@@ -69,6 +69,21 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
     });
   }
 
+  final _$beatsPerBarAtom = Atom(name: '_MetronomeStateModel.beatsPerBar');
+
+  @override
+  int get beatsPerBar {
+    _$beatsPerBarAtom.reportRead();
+    return super.beatsPerBar;
+  }
+
+  @override
+  set beatsPerBar(int value) {
+    _$beatsPerBarAtom.reportWrite(value, super.beatsPerBar, () {
+      super.beatsPerBar = value;
+    });
+  }
+
   final _$_MetronomeStateModelActionController =
       ActionController(name: '_MetronomeStateModel');
 
@@ -117,12 +132,24 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
   }
 
   @override
+  void setBeatsPerBar(int value) {
+    final _$actionInfo = _$_MetronomeStateModelActionController.startAction(
+        name: '_MetronomeStateModel.setBeatsPerBar');
+    try {
+      return super.setBeatsPerBar(value);
+    } finally {
+      _$_MetronomeStateModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 isPlaying: ${isPlaying},
 volume: ${volume},
 tempo: ${tempo},
-playhead: ${playhead}
+playhead: ${playhead},
+beatsPerBar: ${beatsPerBar}
     ''';
   }
 }

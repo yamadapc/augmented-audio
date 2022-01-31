@@ -22,6 +22,7 @@ pub struct LoopiPlugin {
     parameters: Arc<ParameterStore>,
     processor: LooperProcessor,
     settings: AudioProcessorSettings,
+    host_callback: HostCallback,
 }
 
 impl Plugin for LoopiPlugin {
@@ -36,7 +37,7 @@ impl Plugin for LoopiPlugin {
         }
     }
 
-    fn new(_host: HostCallback) -> Self
+    fn new(host_callback: HostCallback) -> Self
     where
         Self: Sized,
     {
@@ -46,6 +47,7 @@ impl Plugin for LoopiPlugin {
 
         LoopiPlugin {
             processor,
+            host_callback,
             parameters: Arc::new(ParameterStore::default()),
             settings: AudioProcessorSettings::default(),
         }
@@ -80,6 +82,7 @@ impl Plugin for LoopiPlugin {
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
         Some(Box::new(IcedEditor::<LooperApplication>::new(ui::Flags {
             processor_handle: self.processor.handle(),
+            host_callback: Some(self.host_callback.clone()),
         })))
     }
 }

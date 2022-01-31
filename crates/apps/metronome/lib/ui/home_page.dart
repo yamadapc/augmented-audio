@@ -37,10 +37,8 @@ class _HomePageState extends State<HomePage> {
     metronome.initialize();
 
     logger.i("Opening SQLite database");
-    $FloorMetronomeDatabase
-        .databaseBuilder('metronome_database.db')
-        .build()
-        .then((database) {
+    var databasePromise = buildDatabase();
+    databasePromise.then((database) {
       logger.i("Setting-up controllers");
 
       historyStateController =
@@ -69,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     if (metronomeStateController == null) {
-      return Center(child: Text("Loading..."));
+      return const Center(child: Text("Loading..."));
     }
 
     return CupertinoTabScaffold(

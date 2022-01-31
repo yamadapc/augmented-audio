@@ -17,6 +17,9 @@ abstract class _MetronomeStateModel with Store {
   @observable
   double playhead = 0.0;
 
+  @observable
+  int beatsPerBar = 4;
+
   @action
   void setPlayhead(double value) {
     if (playhead == value) {
@@ -39,5 +42,10 @@ abstract class _MetronomeStateModel with Store {
   @action
   void setVolume(double value) {
     volume = value;
+  }
+
+  @action
+  void setBeatsPerBar(int value) {
+    beatsPerBar = value;
   }
 }

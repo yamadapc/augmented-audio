@@ -1,4 +1,6 @@
+use std::sync::Arc;
 pub use vst;
+use vst::plugin::PluginParameters;
 use vst::{
     buffer::AudioBuffer as VSTAudioBuffer,
     plugin::{HostCallback, Info},
@@ -121,4 +123,12 @@ where
             }
         }
     }
+
+    fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
+        Arc::new(DummyPluginParameters)
+    }
 }
+
+struct DummyPluginParameters;
+
+impl PluginParameters for DummyPluginParameters {}
