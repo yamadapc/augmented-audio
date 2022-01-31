@@ -8,7 +8,7 @@ import 'history/session_entity.dart';
 
 part 'database.g.dart';
 
-@Database(version: 4, entities: [Session], views: [AggregatedSession])
+@Database(version: 3, entities: [Session], views: [AggregatedSession])
 abstract class MetronomeDatabase extends FloorDatabase {
   SessionDao get sessionDao;
 }
@@ -32,7 +32,7 @@ CREATE VIEW IF NOT EXISTS AggregatedSession AS
     ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),
     tempo,
     beatsPerBar
-  ORDER BY timestampMs DESC LIMIT 100
+  ORDER BY timestampMs DESC
  """);
 });
 

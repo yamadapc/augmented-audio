@@ -28,7 +28,7 @@ GROUP BY
   ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),
   tempo,
   beatsPerBar
-ORDER BY timestampMs DESC LIMIT 100
+ORDER BY timestampMs DESC
   """, viewName: "AggregatedSession")
 class AggregatedSession {
   final int durationMs;
