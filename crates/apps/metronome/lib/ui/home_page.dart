@@ -67,7 +67,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     if (metronomeStateController == null) {
-      return Center(child: Text("Loading..."));
+      return const Center(child: Text("Loading..."));
     }
 
     return CupertinoTabScaffold(
