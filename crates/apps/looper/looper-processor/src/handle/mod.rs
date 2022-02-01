@@ -208,15 +208,19 @@ pub struct ProcessParameters<F: num::Float> {
     pub loop_volume: F,
     /// The volume of the dry signal
     pub dry_volume: F,
+    /// The current recording state of the looper
+    pub state: RecordingState,
 }
 
 impl LooperProcessorHandle {
     pub fn parameters(&self) -> ProcessParameters<f32> {
+        let state = self.state.loop_state.recording_state.get();
         ProcessParameters {
+            state,
             should_clear: self.should_clear.load(Ordering::Relaxed),
             playback_input: self.playback_input.load(Ordering::Relaxed),
             is_playing_back: self.is_playing_back.load(Ordering::Relaxed),
-            is_recording: self.state.loop_state.recording_state.get() == RecordingState::Recording,
+            is_recording: state == RecordingState::Recording,
             loop_volume: self.loop_volume.get(),
             dry_volume: self.dry_volume.get(),
         }

@@ -13,7 +13,7 @@ use crate::time_info_provider::TimeInfoProvider;
 use crate::{AtomicEnum, AtomicFloat, TimeInfoProviderImpl};
 
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
-pub(crate) enum RecordingState {
+pub enum RecordingState {
     Empty = 0,
     Recording = 1,
     Playing = 2,
@@ -243,10 +243,10 @@ impl LooperProcessorState {
         let clip = self.looped_clip.get();
         let start = self.loop_state.start.load(Ordering::Relaxed);
 
-        let cursor = self.looper_cursor.get();
-        if cursor < start as f32 {
-            return 0;
-        }
+        // let cursor = self.looper_cursor.get();
+        // if cursor < start as f32 {
+        //     return 0;
+        // }
 
         let end = self.end_cursor();
 
