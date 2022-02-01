@@ -108,6 +108,8 @@ jobs:
         if: always()
         with:
           report_paths: 'junit/*.xml'
+          fail_on_failure: true
+          require_tests: true
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
