@@ -66,7 +66,11 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources
+              --exclude macos-bundle-resources \
+              -- -Z unstable-options --format json | tee cargo-output.json
+          cargo install --force --version 0.1.10 cargo2junit
+          mkdir -p junit
+          cat cargo-output.json | cargo2junit > junit/results.xml
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -94,7 +98,16 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources
+              --exclude macos-bundle-resources \
+              -- -Z unstable-options --format json | tee cargo-output.json
+          cargo install --force --version 0.1.10 cargo2junit
+          mkdir -p junit
+          cat cargo-output.json | cargo2junit > junit/results.xml
+      - name: JUnit Report Action
+        uses: mikepenz/action-junit-report@v2.9.0
+        if: always()
+        with:
+          report_paths: 'junit/*.xml'
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
