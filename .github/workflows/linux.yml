@@ -107,9 +107,10 @@ jobs:
         uses: mikepenz/action-junit-report@v2.9.0
         if: always()
         with:
-          report_paths: 'junit/*.xml'
+          report_paths: '**/junit/*.xml'
           fail_on_failure: true
           require_tests: true
+          token: ${{ secrets.GITHUB_TOKEN }}
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
