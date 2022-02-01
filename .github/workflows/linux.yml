@@ -111,6 +111,14 @@ jobs:
           fail_on_failure: true
           require_tests: true
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Rust unit-tests - Linux
+          path: junit/*.xml
+          reporter: java-junit
+
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
