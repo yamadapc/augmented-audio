@@ -40,7 +40,7 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
-          cargo tarpaulin --skip-clean --workspace --verbose \
+          cargo tarpaulin --skip-clean --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
               --exclude-files "*crates/vendor/*" \
@@ -146,7 +146,7 @@ jobs:
       run: ./scripts/install-ubuntu-rust-dependencies.sh
     - name: Build release
       run: |
-        cargo build --release --verbose --workspace \
+        cargo build --release --workspace \
             --exclude augmented-ui \
             --exclude audiounit \
             --exclude example-iced-xcode-integration \
