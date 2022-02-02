@@ -127,12 +127,6 @@ impl LooperProcessorState {
             RecordingState::Recording if !is_recording => {
                 let quantized_cursor =
                     self.get_quantized_cursor(settings, time_info_provider, looper_cursor);
-                // log::info!(
-                //     "Loop stop cursor={} quantized_cursor={}",
-                //     looper_cursor,
-                //     quantized_cursor
-                // );
-
                 if looper_cursor >= quantized_cursor {
                     self.loop_state.recording_state.set(RecordingState::Playing);
                 }
@@ -144,12 +138,6 @@ impl LooperProcessorState {
             RecordingState::Empty if is_recording => {
                 let quantized_cursor =
                     self.get_quantized_cursor(settings, time_info_provider, looper_cursor);
-                // log::info!(
-                //     "Loop start cursor={} quantized_cursor={}",
-                //     looper_cursor,
-                //     quantized_cursor
-                // );
-
                 if looper_cursor >= quantized_cursor {
                     self.loop_state
                         .recording_state

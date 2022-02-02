@@ -323,6 +323,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "atomic_refcell"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73b5e5f48b927f04e952dedc932f31995a65a0bf65ec971c74436e51bf6e970d"
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3700,6 +3706,7 @@ checksum = "b3bd0dd2cd90571056fdb71f6275fada10131182f84899f4b2a916e565d81d86"
 name = "looper-processor"
 version = "0.1.0"
 dependencies = [
+ "atomic_refcell",
  "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-testing-helpers",
@@ -3707,6 +3714,7 @@ dependencies = [
  "augmented-adsr-envelope",
  "augmented-playhead",
  "basedrop",
+ "criterion",
  "log",
  "mockall 0.11.0",
  "num 0.4.0",

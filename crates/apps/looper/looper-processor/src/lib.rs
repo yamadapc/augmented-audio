@@ -22,6 +22,7 @@ use util::atomic_enum::AtomicEnum;
 mod handle;
 mod loop_quantization;
 pub mod midi_map;
+mod new_processor;
 pub mod sequencer;
 mod time_info_provider;
 mod util;

@@ -371,3 +371,30 @@ pub mod vst {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use std::sync::Arc;
+    use std::thread;
+
+    use super::*;
+
+    #[test]
+    fn test_vec_is_send() {
+        let mut vec = VecAudioBuffer::new();
+        vec.resize(2, 1000, 0.0);
+        let handle = thread::spawn(move || println!("HELLO VEC {:?}", vec));
+        handle.join();
+    }
+
+    #[test]
+    fn test_vec_is_sync() {
+        let mut vec = VecAudioBuffer::new();
+        vec.resize(2, 1000, 0.0);
+        let vec = Arc::new(vec);
+        let vec_2 = vec.clone();
+        let handle = thread::spawn(move || println!("HELLO VEC {:?}", vec));
+        println!("HELLO VEC {:?}", vec_2);
+        handle.join();
+    }
+}

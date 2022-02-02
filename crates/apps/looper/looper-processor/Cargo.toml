@@ -22,6 +22,12 @@ audio-processor-standalone = { version = "1.0.0-alpha.5", path = "../../../augme
 audio-processor-traits = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-processor-traits" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 mockall = "0.11.0"
+atomic_refcell = "0.1.8"
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }
+criterion = "^0.3.4"
+
+[[bench]]
+name = "looper_processor_criterion"
+harness = false
