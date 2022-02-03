@@ -83,6 +83,21 @@ pub extern "C" fn wire_set_volume(port_: i64, value: f32) {
 }
 
 #[no_mangle]
+pub extern "C" fn wire_set_beats_per_bar(port_: i64, value: i32) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "set_beats_per_bar",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_value = value.wire2api();
+            move |task_callback| set_beats_per_bar(api_value)
+        },
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_get_playhead(port_: i64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -127,6 +142,12 @@ impl Wire2Api<bool> for bool {
 
 impl Wire2Api<f32> for f32 {
     fn wire2api(self) -> f32 {
+        self
+    }
+}
+
+impl Wire2Api<i32> for i32 {
+    fn wire2api(self) -> i32 {
         self
     }
 }

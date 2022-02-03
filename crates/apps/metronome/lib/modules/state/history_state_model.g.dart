@@ -12,13 +12,13 @@ mixin _$HistoryStateModel on _HistoryStateModel, Store {
   final _$sessionsAtom = Atom(name: '_HistoryStateModel.sessions');
 
   @override
-  ObservableList<Session> get sessions {
+  ObservableList<AggregatedSession> get sessions {
     _$sessionsAtom.reportRead();
     return super.sessions;
   }
 
   @override
-  set sessions(ObservableList<Session> value) {
+  set sessions(ObservableList<AggregatedSession> value) {
     _$sessionsAtom.reportWrite(value, super.sessions, () {
       super.sessions = value;
     });

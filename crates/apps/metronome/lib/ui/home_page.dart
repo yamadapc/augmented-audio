@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+// import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/logger.dart';
@@ -32,15 +33,18 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    // var performance = FirebasePerformance.instance;
+    // var trace = performance.newTrace("init-sequence");
+    // trace.start();
+
     logger.i("Initializing metronome bridge");
     metronome = Metronome(DynamicLibrary.executable());
     metronome.initialize();
 
     logger.i("Opening SQLite database");
-    $FloorMetronomeDatabase
-        .databaseBuilder('metronome_database.db')
-        .build()
-        .then((database) {
+    var databasePromise = buildDatabase();
+
+    databasePromise.then((database) {
       logger.i("Setting-up controllers");
 
       historyStateController =
@@ -52,6 +56,8 @@ class _HomePageState extends State<HomePage> {
         metronomeStateController = MetronomeStateController(
             metronomeStateModel, metronome, historyController);
         metronomeStateController?.setup();
+
+        // trace.stop();
       });
     }).catchError((err) {
       logger.e("ERROR: $err");
@@ -69,7 +75,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     if (metronomeStateController == null) {
-      return Center(child: Text("Loading..."));
+      return const Center(child: Text("Loading..."));
     }
 
     return CupertinoTabScaffold(

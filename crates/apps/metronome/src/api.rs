@@ -94,6 +94,15 @@ pub fn set_volume(value: f32) -> Result<i32> {
     })
 }
 
+pub fn set_beats_per_bar(value: i32) -> Result<i32> {
+    with_state0(|state| {
+        state
+            .processor_handle
+            .beats_per_bar
+            .store(value, Ordering::Relaxed);
+    })
+}
+
 pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
     with_state(|state| {
         let handle = state.processor_handle.clone();

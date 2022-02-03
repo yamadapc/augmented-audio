@@ -4,6 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../bridge_generated.dart';
 import 'metronome_state_model.dart';
 
+class PreferenceKey {
+  static const String tempo = "tempo";
+  static const String volume = "volume";
+  static const String beatsPerBar = "beatsPerBar";
+}
+
 class MetronomeStateController {
   final MetronomeStateModel model;
   final Metronome metronome;
@@ -17,10 +23,13 @@ class MetronomeStateController {
     });
 
     SharedPreferences.getInstance().then((sharedPreferences) {
-      var tempo = sharedPreferences.getDouble("tempo") ?? 120.0;
-      var volume = sharedPreferences.getDouble("volume") ?? 0.3;
+      var tempo = sharedPreferences.getDouble(PreferenceKey.tempo) ?? 120.0;
+      var volume = sharedPreferences.getDouble(PreferenceKey.volume) ?? 0.3;
+      var beatsPerBar =
+          sharedPreferences.getInt(PreferenceKey.beatsPerBar) ?? 4;
       setTempo(tempo);
       setVolume(volume);
+      setBeatsPerBar(beatsPerBar);
     });
   }
 
@@ -29,7 +38,7 @@ class MetronomeStateController {
     model.setTempo(value);
 
     SharedPreferences.getInstance().then((sharedPreferences) async {
-      await sharedPreferences.setDouble("tempo", value);
+      await sharedPreferences.setDouble(PreferenceKey.tempo, value);
     });
   }
 
@@ -38,7 +47,7 @@ class MetronomeStateController {
     model.setVolume(value);
 
     SharedPreferences.getInstance().then((sharedPreferences) async {
-      await sharedPreferences.setDouble("volume", value);
+      await sharedPreferences.setDouble(PreferenceKey.volume, value);
     });
   }
 
@@ -56,5 +65,14 @@ class MetronomeStateController {
   void toggleIsPlaying() {
     var isPlaying = !model.isPlaying;
     setIsPlaying(isPlaying);
+  }
+
+  void setBeatsPerBar(int value) {
+    model.setBeatsPerBar(value);
+    metronome.setBeatsPerBar(value: value);
+
+    SharedPreferences.getInstance().then((sharedPreferences) async {
+      await sharedPreferences.setInt(PreferenceKey.beatsPerBar, value);
+    });
   }
 }

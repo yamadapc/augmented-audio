@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -20,6 +21,9 @@ class BottomRow extends StatelessWidget {
                 color: CupertinoColors.activeBlue,
                 onPressed: () {
                   stateController.toggleIsPlaying();
+
+                  var analytics = FirebaseAnalytics.instance;
+                  analytics.logEvent(name: "BottomRow__toggleIsPlaying");
                 },
                 child: Observer(
                   builder: (_) => Text(model.isPlaying ? "Stop" : "Start",

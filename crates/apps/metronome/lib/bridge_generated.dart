@@ -24,6 +24,8 @@ abstract class Metronome extends FlutterRustBridgeBase<MetronomeWire> {
 
   Future<int> setVolume({required double value, dynamic hint});
 
+  Future<int> setBeatsPerBar({required int value, dynamic hint});
+
   Stream<double> getPlayhead({dynamic hint});
 }
 
@@ -94,6 +96,19 @@ class MetronomeImpl extends Metronome {
         hint: hint,
       ));
 
+  Future<int> setBeatsPerBar({required int value, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port) =>
+            inner.wire_set_beats_per_bar(port, _api2wire_i32(value)),
+        parseSuccessData: _wire2api_i32,
+        constMeta: const FlutterRustBridgeTaskConstMeta(
+          debugName: "set_beats_per_bar",
+          argNames: ["value"],
+        ),
+        argValues: [value],
+        hint: hint,
+      ));
+
   Stream<double> getPlayhead({dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port) => inner.wire_get_playhead(port),
@@ -112,6 +127,10 @@ class MetronomeImpl extends Metronome {
   }
 
   double _api2wire_f32(double raw) {
+    return raw;
+  }
+
+  int _api2wire_i32(int raw) {
     return raw;
   }
 
@@ -225,6 +244,22 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
           'wire_set_volume');
   late final _wire_set_volume =
       _wire_set_volumePtr.asFunction<void Function(int, double)>();
+
+  void wire_set_beats_per_bar(
+    int port_,
+    int value,
+  ) {
+    return _wire_set_beats_per_bar(
+      port_,
+      value,
+    );
+  }
+
+  late final _wire_set_beats_per_barPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+          'wire_set_beats_per_bar');
+  late final _wire_set_beats_per_bar =
+      _wire_set_beats_per_barPtr.asFunction<void Function(int, int)>();
 
   void wire_get_playhead(
     int port_,
