@@ -33,7 +33,6 @@
 		CB2BD6F5278E0494004D4594 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F4278E0494004D4594 /* AVFAudio.framework */; };
 		CB2BD6F7278E04A1004D4594 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F6278E04A1004D4594 /* AudioUnit.framework */; };
 		CB2BD6F9278E04AB004D4594 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F8278E04AB004D4594 /* CoreMIDI.framework */; };
-		CBA52DE527AB6E4C00DCD388 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = CBA52DE427AB6E4C00DCD388 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,7 +88,6 @@
 		CB2BD6F6278E04A1004D4594 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		CB2BD6F8278E04AB004D4594 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		CB6435B0277965AC00E80800 /* libmetronome.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmetronome.dylib; path = ../../../../target/release/libmetronome.dylib; sourceTree = "<group>"; };
-		CBA52DE427AB6E4C00DCD388 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -169,7 +167,6 @@
 				33CC11122044BFA00003C045 /* MainFlutterWindow.swift */,
 				33E51913231747F40026EE4D /* DebugProfile.entitlements */,
 				33E51914231749380026EE4D /* Release.entitlements */,
-				CBA52DE427AB6E4C00DCD388 /* GoogleService-Info.plist */,
 				CB2BD6ED278E03E5004D4594 /* Runner-Bridging-Header.h */,
 				CB2BD6EC278E03AA004D4594 /* bridge_generated.h */,
 				33CC11242044D66E0003C045 /* Resources */,
@@ -284,7 +281,6 @@
 			files = (
 				33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */,
 				33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */,
-				CBA52DE527AB6E4C00DCD388 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
