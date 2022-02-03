@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
@@ -50,6 +51,10 @@ class _TempoControlState extends State<TempoControl> {
                     onPressed: () {
                       widget.stateController
                           .setTempo(widget.stateController.model.tempo - 10);
+
+                      var analytics = FirebaseAnalytics.instance;
+                      analytics.logEvent(
+                          name: "TempoControl__quickTempoChange");
                     }),
                 Expanded(
                   child: CupertinoTextField.borderless(
@@ -68,6 +73,10 @@ class _TempoControlState extends State<TempoControl> {
                     onPressed: () {
                       widget.stateController
                           .setTempo(widget.stateController.model.tempo + 10);
+
+                      var analytics = FirebaseAnalytics.instance;
+                      analytics.logEvent(
+                          name: "TempoControl__quickTempoChange");
                     }),
               ]),
               SizedBox(
@@ -77,6 +86,11 @@ class _TempoControlState extends State<TempoControl> {
                     onChanged: (value) {
                       widget.stateController.setTempo(value);
                     }, // onTempoChanged,
+                    onChangeEnd: (_value) {
+                      var analytics = FirebaseAnalytics.instance;
+                      analytics.logEvent(
+                          name: "TempoControl__sliderTempoChanged");
+                    },
                     min: 30,
                     max: 250),
               )
@@ -84,14 +98,19 @@ class _TempoControlState extends State<TempoControl> {
   }
 
   void onTempoTextChanged(String value) {
-    var model = widget.stateController.model;
     _onChangeDebounce.run(() {
       double tempo = Math.max(Math.min(double.parse(value), 250), 30);
       widget.stateController.setTempo(tempo);
+
+      var analytics = FirebaseAnalytics.instance;
+      analytics.logEvent(name: "TempoControl__onTempoTextChanged");
     });
   }
 
   void onTempoTextEditingComplete() {
     _onChangeDebounce.flush();
+
+    var analytics = FirebaseAnalytics.instance;
+    analytics.logEvent(name: "TempoControl__onTempoTextEditingComplete");
   }
 }

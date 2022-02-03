@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronome/modules/state/history_state_controller.dart';
@@ -20,6 +21,14 @@ class _HistoryPageTabState extends State<HistoryPageTab> {
   void initState() {
     widget.stateController.refresh();
     super.initState();
+  }
+
+  @override
+  void activate() {
+    super.activate();
+    var analytics = FirebaseAnalytics.instance;
+    analytics.logScreenView(
+        screenClass: "HistoryPageTab", screenName: "History Page");
   }
 
   @override
