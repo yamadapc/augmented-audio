@@ -58,7 +58,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1068438521597',
     projectId: 'simple-metronome-eb182',
     storageBucket: 'simple-metronome-eb182.appspot.com',
-    iosClientId: '1068438521597-9gpffcgl4r0iin7cohli2s674cn5o624.apps.googleusercontent.com',
+    iosClientId:
+        '1068438521597-9gpffcgl4r0iin7cohli2s674cn5o624.apps.googleusercontent.com',
     iosBundleId: 'com.beijaflor.metronome',
   );
 
@@ -68,7 +69,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1068438521597',
     projectId: 'simple-metronome-eb182',
     storageBucket: 'simple-metronome-eb182.appspot.com',
-    iosClientId: '1068438521597-9gpffcgl4r0iin7cohli2s674cn5o624.apps.googleusercontent.com',
+    iosClientId:
+        '1068438521597-9gpffcgl4r0iin7cohli2s674cn5o624.apps.googleusercontent.com',
     iosBundleId: 'com.beijaflor.metronome',
   );
 }
