@@ -85,7 +85,7 @@ class _$MetronomeDatabase extends MetronomeDatabase {
             'CREATE TABLE IF NOT EXISTS `Session` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `timestampMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `tempo` REAL NOT NULL, `beatsPerBar` INTEGER NOT NULL)');
 
         await database.execute(
-            'CREATE VIEW IF NOT EXISTS `AggregatedSession` AS SELECT\n  SUM(durationMs) as durationMs,\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,\n  tempo,\n  beatsPerBar\nFROM session\nGROUP BY\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),\n  tempo,\n  beatsPerBar\nORDER BY timestampMs DESC LIMIT 100\n  ');
+            'CREATE VIEW IF NOT EXISTS `AggregatedSession` AS SELECT\n  SUM(durationMs) as durationMs,\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,\n  tempo,\n  beatsPerBar\nFROM session\nGROUP BY\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),\n  tempo,\n  beatsPerBar\nORDER BY timestampMs DESC\n  ');
 
         await callback?.onCreate?.call(database, version);
       },
