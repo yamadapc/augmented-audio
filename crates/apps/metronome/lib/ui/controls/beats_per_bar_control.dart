@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
@@ -28,6 +29,9 @@ class BeatsPerBarControl extends StatelessWidget {
           padding: const EdgeInsets.all(0.0),
           onValueChanged: (int value) {
             stateController.setBeatsPerBar(value);
+
+            var analytics = FirebaseAnalytics.instance;
+            analytics.logEvent(name: "BeatsPerBarControl__onValueChanged");
           }),
     );
   }

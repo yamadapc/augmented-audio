@@ -51,8 +51,9 @@ class Visualisation extends StatelessWidget {
                   return const Text("0/0");
                 }
 
-                var beat = Math.floor((model.playhead) % 4)! + 1;
-                var bar = Math.floor(model.playhead / 4)!;
+                var beatsPerBar = model.beatsPerBar;
+                var beat = Math.floor((model.playhead) % beatsPerBar)! + 1;
+                var bar = Math.floor(model.playhead / beatsPerBar)!;
 
                 return Text(
                     "${beat.toStringAsFixed(0)}/${bar.toStringAsFixed(0)}");

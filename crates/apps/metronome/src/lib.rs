@@ -41,10 +41,10 @@ impl Default for MetronomeProcessor {
 impl MetronomeProcessor {
     pub fn new() -> Self {
         let mut envelope = Envelope::new();
-        envelope.set_attack(Duration::from_millis(5));
-        envelope.set_decay(Duration::from_millis(200));
+        envelope.set_attack(Duration::from_millis(3));
+        envelope.set_decay(Duration::from_millis(10));
         envelope.set_sustain(0.0);
-        envelope.set_release(Duration::from_millis(200));
+        envelope.set_release(Duration::from_millis(10));
 
         MetronomeProcessor {
             handle: make_shared(MetronomeProcessorHandle {
@@ -63,7 +63,7 @@ impl MetronomeProcessor {
                 }),
                 oscillator: Oscillator::new_with_sample_rate(
                     44100.0,
-                    augmented_oscillator::generators::square_generator,
+                    augmented_oscillator::generators::sine_generator,
                 ),
                 playing: false,
                 envelope,
