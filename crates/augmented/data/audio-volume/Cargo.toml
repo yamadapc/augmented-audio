@@ -1,8 +1,11 @@
 [package]
-name = "audio-volume"
-version = "0.1.0"
+name = "augmented-audio-volume"
+version = "0.1.0-alpha.2"
 edition = "2018"
-description = "Provides a data-type for volume"
+description = "Provides a data-type for representing audio volume"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 
@@ -11,4 +14,7 @@ default = []
 f64 = []
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }
+
+[package.metadata.augmented]
+private = false

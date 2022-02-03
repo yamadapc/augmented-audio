@@ -28,22 +28,22 @@ shaku = { version = "^0.6.1", features = ["derive"] }
 
 augmented = { path = "../../../augmented/augmented", features = ["glow"] }
 
-audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
+audio-processor-traits = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-processor-traits" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", features = ["glow"], default-features = false }
-audio-volume = { path = "../../../augmented/data/audio-volume" }
+augmented-audio-volume = { path = "../../../augmented/data/audio-volume" , version = "0.1.0-alpha.2" }
 iced = { version = "^0.3.0", path = "../../../vendor/iced", features = ["debug", "glow", "glow_canvas"], default-features = false }
 iced_core = { version = "^0.4", path = "../../../vendor/iced/core", default-features = false  }
 iced_native = { version = "^0.4", path = "../../../vendor/iced/native", default-features = false }
 iced_futures = { version = "^0.3", path = "../../../vendor/iced/futures" }
 plugin-host-lib = { path = "../plugin-host-lib" }
-wisual-logger = { path = "../../../augmented/ops/wisual-logger" }
+wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" }
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "^0.24.0"

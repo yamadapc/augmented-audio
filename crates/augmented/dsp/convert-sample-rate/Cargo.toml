@@ -1,14 +1,19 @@
 [package]
-name = "convert-sample-rate"
-version = "0.1.0"
+name = "augmented-convert-sample-rate"
+version = "1.0.0-alpha.2"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Simplistic dev-quality implementation of audio sample-rate conversion."
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 
 [dev-dependencies]
 rand = "^0.8.3"
-augmented_oscillator = { path = "../../audio/oscillator" }
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
+augmented_oscillator = { version = "1.0.0-alpha.3", path = "../../audio/oscillator" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.2", path = "../../testing/audio-processor-testing-helpers" }
+
+[package.metadata.augmented]
+private = false

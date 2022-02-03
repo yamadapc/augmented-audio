@@ -7,6 +7,7 @@ class AppDelegate: FlutterAppDelegate {
     let result = dummy_method_to_enforce_bundling()
     print("Initialized \(result)")
   }
+
   override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     return true
   }

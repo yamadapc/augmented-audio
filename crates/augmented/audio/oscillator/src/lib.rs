@@ -8,10 +8,7 @@ fn get_phase_step(sample_rate: f32, frequency: f32) -> f32 {
 }
 
 #[derive(Clone)]
-pub struct Oscillator<T>
-where
-    T: cpal::Sample,
-{
+pub struct Oscillator<T> {
     /// The sample rate to output with
     sample_rate: f32,
     /// A function from `phase` to `sample`
@@ -30,10 +27,7 @@ impl Oscillator<f32> {
     }
 }
 
-impl<T> Oscillator<T>
-where
-    T: cpal::Sample,
-{
+impl<T> Oscillator<T> {
     /// Construct a new oscillator with a given sample rate
     pub fn new_with_sample_rate(sample_rate: f32, generator_fn: fn(T) -> T) -> Self {
         let frequency = 440.;
@@ -53,10 +47,7 @@ where
     }
 }
 
-impl<T> Oscillator<T>
-where
-    T: cpal::Sample,
-{
+impl<T> Oscillator<T> {
     /// Set the sample rate
     pub fn set_sample_rate(&mut self, sample_rate: f32) {
         self.sample_rate = sample_rate;
@@ -64,10 +55,7 @@ where
     }
 }
 
-impl<T> Oscillator<T>
-where
-    T: cpal::Sample,
-{
+impl<T> Oscillator<T> {
     /// Get the oscillator frequency
     pub fn get_frequency(&self) -> f32 {
         self.frequency
@@ -86,7 +74,7 @@ where
 
 impl<T> Oscillator<T>
 where
-    T: cpal::Sample,
+    T: From<f32>,
 {
     pub fn phase(&self) -> f32 {
         self.phase
@@ -107,14 +95,12 @@ where
     }
 
     pub fn value_for_phase(&self, phase: T) -> T {
-        let sample = (self.generator_fn)(phase);
-        T::from(&sample)
+        (self.generator_fn)(phase)
     }
 
     pub fn get(&self) -> T {
         // User provided function from phase to a sample
-        let sample = (self.generator_fn)(T::from(&self.phase));
-        T::from(&sample)
+        (self.generator_fn)(T::from(self.phase))
     }
 }
 

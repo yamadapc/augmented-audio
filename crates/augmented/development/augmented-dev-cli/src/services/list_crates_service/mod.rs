@@ -1,8 +1,11 @@
-use std::collections::HashSet;
+mod dependency_graph;
+
+use std::collections::{HashMap, HashSet};
 use std::fs::read_dir;
 
 use crate::manifests::CargoToml;
 use crate::services::cargo_toml_reader::{CargoTomlReader, CargoTomlReaderImpl};
+use crate::services::list_crates_service::dependency_graph::DependencyGraph;
 use crates_io_api::SyncClient;
 
 pub struct ListCratesService {
@@ -40,9 +43,10 @@ impl ListCratesService {
             .collect()
     }
 
-    fn find_manifests(&self) -> Vec<(String, CargoToml)> {
+    pub fn find_manifests(&self) -> Vec<(String, CargoToml)> {
         let crates = self.find_entries();
-        self.parse_manifests(crates)
+        let result = self.parse_manifests(crates);
+        Self::order_crates(&result)
     }
 
     fn find_entries(&self) -> Vec<String> {
@@ -53,7 +57,7 @@ impl ListCratesService {
 
     fn find_entries_inner(&self, root: &str, crates: &mut Vec<String>) {
         log::debug!("Scanning {}", root);
-        let ignore_dirs: HashSet<&str> = ["spikes", "vendor", "target"].iter().copied().collect();
+        let ignore_dirs: HashSet<&str> = ["vendor", "target"].iter().copied().collect();
 
         let entries =
             read_dir(root).unwrap_or_else(|_| panic!("Failed to list {} directory", root));
@@ -142,5 +146,69 @@ impl ListCratesService {
                 panic!("Failed to list crates");
             }
         }
+    }
+
+    fn order_crates(result: &Vec<(String, CargoToml)>) -> Vec<(String, CargoToml)> {
+        let mut graph = DependencyGraph::default();
+        for (_path, manifest) in result {
+            graph.add_crate(&manifest.package.name);
+        }
+
+        let mut dependency_map: HashMap<String, Vec<String>> = HashMap::new();
+        for (path, _manifest) in result {
+            Self::add_crate_to_graph(path, &mut dependency_map, &mut graph);
+        }
+        let ordered_crates = graph.order_crates();
+        let result_map: HashMap<String, (String, CargoToml)> = result
+            .into_iter()
+            .map(|(path, manifest)| {
+                (
+                    manifest.package.name.clone(),
+                    (path.clone(), manifest.clone()),
+                )
+            })
+            .collect();
+
+        for target in &ordered_crates {
+            let deps_list = &dependency_map[target];
+            log::info!("{} - Dependencies: {:?}", target, deps_list)
+        }
+
+        ordered_crates
+            .into_iter()
+            .map(|name| result_map[&name].clone())
+            .collect()
+    }
+
+    fn add_crate_to_graph(
+        path: &String,
+        dependency_map: &mut HashMap<String, Vec<String>>,
+        graph: &mut DependencyGraph,
+    ) {
+        let manifest_path = format!("{}/Cargo.toml", path);
+        let manifest = std::fs::read_to_string(&manifest_path).unwrap();
+        let manifest = manifest.parse::<toml_edit::Document>().unwrap();
+        let target = manifest["package"]["name"].as_str().unwrap();
+        let mut deps_list = vec![];
+
+        let mut add_dep = |dep| {
+            if graph.has_crate(dep) {
+                graph.add_dependency(target, dep);
+                deps_list.push(dep.into());
+            }
+        };
+
+        if manifest.contains_key("dependencies") {
+            for (dep, _spec) in manifest["dependencies"].as_table().unwrap().iter() {
+                add_dep(dep);
+            }
+        }
+        if manifest.contains_key("dev-dependencies") {
+            for (dep, _spec) in manifest["dev-dependencies"].as_table().unwrap().iter() {
+                add_dep(dep);
+            }
+        }
+
+        dependency_map.insert(target.into(), deps_list);
     }
 }

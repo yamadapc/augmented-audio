@@ -4,7 +4,7 @@ use audio_garbage_collector::Handle;
 use audio_processor_traits::{AtomicF32, AudioBuffer};
 
 use crate::midi_map::MidiMap;
-use crate::LooperProcessorState;
+use crate::state::LooperProcessorState;
 
 /// Public API types, which should be thread-safe
 pub struct LooperProcessorHandle {

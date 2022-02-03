@@ -1,7 +1,7 @@
 [package]
 name = "audio-processor-traits"
 description = "Traits for audio processor types and audio buffer types. Heavily subject to change."
-version = "0.3.1"
+version = "1.0.0-alpha.2"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
 license = "MIT"
@@ -18,8 +18,11 @@ vst = { version = "^0.2", path = "../../../vendor/vst", optional = true }
 
 [dev-dependencies]
 criterion = "^0.3.4"
-augmented_oscillator = { path = "../oscillator" }
+augmented_oscillator = { version = "1.0.0-alpha.1", path = "../oscillator" }
 
 [[bench]]
 name = "audio_processor_traits_criterion"
 harness = false
+
+[package.metadata.augmented]
+private = false

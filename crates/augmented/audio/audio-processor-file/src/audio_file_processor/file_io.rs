@@ -9,7 +9,7 @@ use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
 use symphonia::default::get_probe;
 
-use augmented_metrics as metrics;
+use augmented_audio_metrics as metrics;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -108,7 +108,7 @@ pub fn convert_audio_file_sample_rate(
         input_rate,
         output_rate
     );
-    convert_sample_rate::convert_sample_rate(
+    augmented_convert_sample_rate::convert_sample_rate(
         input_rate,
         audio_file_channel,
         output_rate,

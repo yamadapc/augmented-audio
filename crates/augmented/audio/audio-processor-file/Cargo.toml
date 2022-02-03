@@ -1,7 +1,11 @@
 [package]
 name = "audio-processor-file"
-version = "0.1.0"
+version = "1.0.0-alpha.2"
 edition = "2021"
+description = "`AudioProcessor` implementations for audio file playback & writing."
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 # Error / Logging
@@ -17,10 +21,13 @@ symphonia-bundle-mp3 = "^0.4.0"
 hound = "^3.4.0"
 
 # Augmented
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
-audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
-augmented-metrics = { path = "../../ops/augmented-metrics" }
-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
+audio-processor-traits = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-processor-traits" }
+augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.1" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.2" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.2", path = "../../../augmented/testing/audio-processor-testing-helpers" }
+
+[package.metadata.augmented]
+private = false

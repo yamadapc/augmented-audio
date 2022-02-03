@@ -13,3 +13,6 @@ baseview = { path = "../../vendor/baseview" }
 raw-window-handle = "^0.3.3"
 objc = "^0.2.7"
 cocoa = "^0.24.0"
+
+[package.metadata.augmented]
+private = true

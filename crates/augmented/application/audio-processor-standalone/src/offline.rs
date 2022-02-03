@@ -10,15 +10,21 @@ use itertools::Itertools;
 
 use crate::StandaloneProcessor;
 
+/// Offline rendering options
 pub struct OfflineRenderOptions<'a, Processor: StandaloneProcessor> {
+    /// The audio/MIDI processor
     pub app: Processor,
+    /// GC handle, see <https://crates.io/crates/audio-garbage-collector>
     pub handle: Option<&'a Handle>,
+    /// Input audio file path
     pub input_path: &'a str,
+    /// Output audio file path
     pub output_path: &'a str,
+    /// MIDI input file path
     pub midi_input_file: Option<MIDIFile<String, Vec<u8>>>,
 }
 
-/// Render a processor offline into a file
+/// Render a processor offline into a file.
 pub fn run_offline_render<Processor>(options: OfflineRenderOptions<Processor>)
 where
     Processor: StandaloneProcessor,
@@ -228,13 +234,30 @@ fn get_delta_time_ticks(
 
 #[cfg(test)]
 mod test {
-    use audio_processor_traits::AudioProcessorSettings;
+    use crate::StandaloneAudioOnlyProcessor;
+    use audio_processor_testing_helpers::relative_path;
+    use audio_processor_traits::{AudioProcessorSettings, NoopAudioProcessor};
     use augmented_midi::{
         MIDIFile, MIDIFileChunk, MIDIFileDivision, MIDIFileFormat, MIDIFileHeader, MIDITrackEvent,
         MIDITrackInner,
     };
 
     use super::*;
+
+    #[test]
+    fn test_run_offline_render() {
+        let _ = wisual_logger::try_init_from_env();
+        let input_path = relative_path!("../../../../input-files/1sec-sine.mp3");
+        let output_path = relative_path!("./test-output/offline-render-test-output.wav");
+        let options = OfflineRenderOptions {
+            app: StandaloneAudioOnlyProcessor::new(NoopAudioProcessor::new()),
+            handle: Some(audio_garbage_collector::handle()),
+            input_path: &input_path,
+            output_path: &output_path,
+            midi_input_file: None,
+        };
+        run_offline_render(options);
+    }
 
     #[test]
     fn test_build_midi_input_blocks_with_no_blocks() {

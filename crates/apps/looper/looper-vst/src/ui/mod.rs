@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use iced::{Column, Container, Length};
+use iced::{Column, Container, Length, Text};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
@@ -11,6 +11,8 @@ use iced_baseview::{Application, Command, Element};
 use looper_processor::LooperProcessorHandle;
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
+use vst::host::Host;
+use vst::plugin::HostCallback;
 
 mod bottom_panel;
 mod looper_visualization;
@@ -18,12 +20,12 @@ mod style;
 
 #[derive(Clone)]
 pub struct Flags {
+    pub host_callback: Option<HostCallback>,
     pub processor_handle: Shared<LooperProcessorHandle>,
 }
 
 pub struct LooperApplication {
-    #[allow(dead_code)]
-    processor_handle: Shared<LooperProcessorHandle>,
+    host_callback: Option<HostCallback>,
     looper_visualization: LooperVisualizationView,
     knobs_view: bottom_panel::BottomPanelView,
 }
@@ -43,7 +45,7 @@ impl Application for LooperApplication {
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
             LooperApplication {
-                processor_handle: flags.processor_handle.clone(),
+                host_callback: flags.host_callback,
                 looper_visualization: LooperVisualizationView::new(flags.processor_handle.clone()),
                 knobs_view: bottom_panel::BottomPanelView::new(flags.processor_handle),
             },
@@ -79,7 +81,23 @@ impl Application for LooperApplication {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
+        let time_info = self
+            .host_callback
+            .map(|cb| {
+                cb.get_time_info(
+                    (vst::api::TimeInfoFlags::TEMPO_VALID | vst::api::TimeInfoFlags::PPQ_POS_VALID)
+                        .bits(),
+                )
+            })
+            .flatten();
+        let status_message = if let Some(time_info) = time_info {
+            format!("{}bpm {:.1}", time_info.tempo, time_info.ppq_pos,)
+        } else {
+            "Free tempo".into()
+        };
+
         Container::new(Column::with_children(vec![
+            Text::new(status_message).into(),
             Container::new(
                 Container::new(self.looper_visualization.view().map(|_| Message::None))
                     .width(Length::Fill)

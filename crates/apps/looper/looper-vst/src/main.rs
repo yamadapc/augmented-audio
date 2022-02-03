@@ -27,6 +27,9 @@ fn main() {
             },
             scale: WindowScalePolicy::SystemScaleFactor,
         },
-        flags: Flags { processor_handle },
+        flags: Flags {
+            processor_handle,
+            host_callback: None,
+        },
     });
 }

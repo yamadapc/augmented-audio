@@ -6,4 +6,4 @@ edition = "2021"
 [dependencies]
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }

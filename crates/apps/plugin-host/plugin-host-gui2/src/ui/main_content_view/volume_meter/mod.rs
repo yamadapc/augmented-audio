@@ -9,7 +9,7 @@ use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
-use audio_volume::{Amplitude, Decibels};
+use augmented_audio_volume::{Amplitude, Decibels};
 use plugin_host_lib::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use plugin_host_lib::processors::test_host_processor::TestHostProcessorHandle;
 use plugin_host_lib::processors::volume_meter_processor::VolumeMeterProcessorHandle;

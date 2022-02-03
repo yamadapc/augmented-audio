@@ -1,9 +1,9 @@
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use std::time::Duration;
 
-use adsr_envelope::Envelope;
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use augmented_adsr_envelope::Envelope;
 use augmented_oscillator::Oscillator;
 use augmented_playhead::{PlayHead, PlayHeadOptions};
 pub use bridge_generated::*;
@@ -16,6 +16,7 @@ pub struct MetronomeProcessorHandle {
     tempo: AtomicF32,
     volume: AtomicF32,
     position_beats: AtomicF32,
+    beats_per_bar: AtomicI32,
 }
 
 struct MetronomeProcessorState {
@@ -40,10 +41,10 @@ impl Default for MetronomeProcessor {
 impl MetronomeProcessor {
     pub fn new() -> Self {
         let mut envelope = Envelope::new();
-        envelope.set_attack(Duration::from_millis(5));
-        envelope.set_decay(Duration::from_millis(200));
+        envelope.set_attack(Duration::from_millis(3));
+        envelope.set_decay(Duration::from_millis(10));
         envelope.set_sustain(0.0);
-        envelope.set_release(Duration::from_millis(200));
+        envelope.set_release(Duration::from_millis(10));
 
         MetronomeProcessor {
             handle: make_shared(MetronomeProcessorHandle {
@@ -51,6 +52,7 @@ impl MetronomeProcessor {
                 tempo: AtomicF32::new(120.0),
                 volume: AtomicF32::new(1.0),
                 position_beats: AtomicF32::new(0.0),
+                beats_per_bar: AtomicI32::new(4),
             }),
             state: MetronomeProcessorState {
                 last_position: 0.0,
@@ -61,7 +63,7 @@ impl MetronomeProcessor {
                 }),
                 oscillator: Oscillator::new_with_sample_rate(
                     44100.0,
-                    augmented_oscillator::generators::square_generator,
+                    augmented_oscillator::generators::sine_generator,
                 ),
                 playing: false,
                 envelope,
@@ -104,6 +106,8 @@ impl AudioProcessor for MetronomeProcessor {
             self.state.playhead.set_tempo(tempo);
         }
 
+        let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
+        let f_beats_per_bar = beats_per_bar as f32;
         let mut last_position = self.state.last_position;
         for frame in data.frames_mut() {
             self.state.playhead.accept_samples(1);
@@ -113,7 +117,7 @@ impl AudioProcessor for MetronomeProcessor {
             self.state.oscillator.tick();
 
             if !self.state.playing {
-                if position % 4.0 < 1.0 {
+                if beats_per_bar != 1 && position % f_beats_per_bar < 1.0 {
                     self.state.oscillator.set_frequency(880.0);
                 } else {
                     self.state.oscillator.set_frequency(440.0);

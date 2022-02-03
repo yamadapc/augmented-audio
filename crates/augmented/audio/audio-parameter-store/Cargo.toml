@@ -11,4 +11,6 @@ serde = { version = "^1.0.126", features = ["derive"] }
 vst = { path = "../../../vendor/vst" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }
+
+[package.metadata.augmented]

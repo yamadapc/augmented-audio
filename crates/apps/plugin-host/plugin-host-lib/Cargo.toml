@@ -32,24 +32,24 @@ tao = "0.5.2"
 thiserror = "^1.0.25"
 uuid = { version = "^0.8.2", features = [ "v4" ] }
 vst = { version = "0.2.1", path = "../../../vendor/vst" }
-wisual-logger = "^0.1.2"
+wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 itertools = "^0.10.1"
 
-atomic-queue = { path = "../../../augmented/data/atomic-queue" }
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" }
+atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.0-alpha.1" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" }
-audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" }
-augmented-metrics = { path = "../../../augmented/ops/augmented-metrics" }
-audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" }
-audio-processor-standalone-midi = { version = "^0.1", path = "../../../augmented/application/audio-processor-standalone-midi" }
-audio-processor-traits = { version = "^0.3", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.1.0-alpha.2" }
+augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , version = "1.0.0-alpha.1" }
+audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" , version = "1.0.0-alpha.2" }
+audio-processor-standalone-midi = { version = "1.0.0-alpha.5", path = "../../../augmented/application/audio-processor-standalone-midi" }
+audio-processor-traits = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-processor-traits" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" }
-augmented_oscillator = { path = "../../../augmented/audio/oscillator" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.2" }
+augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.3" }
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }
 
 [[bench]]
 name = "plugin_host_lib_criterion"

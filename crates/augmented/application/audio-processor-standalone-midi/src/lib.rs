@@ -73,3 +73,6 @@ pub mod constants;
 pub mod host;
 /// VST API conversion
 pub mod vst;
+
+#[cfg(test)]
+pub(crate) mod test_util;

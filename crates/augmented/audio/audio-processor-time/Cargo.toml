@@ -1,7 +1,11 @@
 [package]
 name = "audio-processor-time"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 edition = "2021"
+description = "Time based effects processors"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [[example]]
 name = "delay"
@@ -13,11 +17,11 @@ crate-type = ["cdylib"]
 [package.metadata.augmented]
 processor_examples = ["delay"]
 vst_examples = ["delay_vst"]
-private = false
+private = true
 
 [dependencies]
-audio-processor-traits = { path = "../audio-processor-traits" }
-audio-garbage-collector = { path = "../audio-garbage-collector" }
+audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0-alpha.2" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.2" }
 
 [dev-dependencies]
-audio-processor-standalone = { version = "0.1.5", path = "../../application/audio-processor-standalone" }
+audio-processor-standalone = { version = "1.0.0-alpha.5", path = "../../application/audio-processor-standalone" }

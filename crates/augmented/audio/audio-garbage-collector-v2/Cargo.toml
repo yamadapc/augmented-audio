@@ -6,10 +6,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-atomic-queue = { path = "../../data/atomic-queue" }
+atomic-queue = { path = "../../data/atomic-queue" , version = "1.0.0-alpha.1" }
 circular-data-structures = { path = "../../data/circular-data-structures" }
 
 [dev-dependencies]
 log = "^0.4.14"
-wisual-logger = "^0.1.2"
+wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }
 rand = "^0.8.4"

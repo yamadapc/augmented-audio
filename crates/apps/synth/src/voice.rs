@@ -1,5 +1,5 @@
-use adsr_envelope::Envelope;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use augmented_adsr_envelope::Envelope;
 use augmented_oscillator::Oscillator;
 
 pub struct Voice {
