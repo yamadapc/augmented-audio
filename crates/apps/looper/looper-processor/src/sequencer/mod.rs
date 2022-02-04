@@ -5,8 +5,9 @@ use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, VecAudioBuffer,
 };
 use basedrop::{Shared, SharedCell};
+use std::borrow::Borrow;
 use std::ops::Deref;
-use std::sync::atomic::Ordering;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 #[derive(Clone)]
@@ -31,6 +32,7 @@ pub struct LoopSequencerProcessorHandle {
     looped_clip: SharedCell<VecAudioBuffer<f32>>,
     looper_handle: Shared<LooperProcessorHandle>,
     params: SharedCell<Option<LoopSequencerParams>>,
+    playhead: AtomicUsize,
     sequencer_output: SharedCell<Option<LoopSequencerOutput>>,
 }
 
@@ -44,25 +46,25 @@ impl LoopSequencerProcessorHandle {
         (*o).clone()
     }
 
+    pub fn playhead(&self) -> Option<usize> {
+        self.params
+            .get()
+            .as_ref()
+            .map(|_| self.playhead.load(Ordering::Relaxed))
+    }
+
     pub fn set_params(&self, params: LoopSequencerParams) {
         let output = run_sequencer(&params);
-        let clip = self.looper_handle.state.looped_clip.get();
-        let num_samples = self.looper_handle.state.num_samples();
-        let max_samples = clip.num_samples();
-        let start = self
-            .looper_handle
-            .state
-            .loop_state
-            .start
-            .load(Ordering::Relaxed);
+        let clip = self.looper_handle.looper_clip();
+        let clip = clip.deref().borrow();
+        let num_samples = clip.num_samples();
 
         let mut own_buffer = VecAudioBuffer::new();
         own_buffer.resize(clip.num_channels(), num_samples, 0.0);
 
         for (sample_index, frame) in own_buffer.frames_mut().enumerate() {
             for (channel_index, sample) in frame.iter_mut().enumerate() {
-                let sample_index = start + sample_index;
-                let sample_index = sample_index % max_samples;
+                let sample_index = sample_index % num_samples;
                 let output = clip.get(channel_index, sample_index);
                 *sample = output.get();
             }
@@ -87,6 +89,7 @@ impl LoopSequencerProcessor {
                 looped_clip: make_shared_cell(VecAudioBuffer::new()),
                 looper_handle,
                 params: make_shared_cell(None),
+                playhead: AtomicUsize::new(0),
                 sequencer_output: make_shared_cell(None),
             }),
         }
@@ -131,6 +134,7 @@ impl AudioProcessor for LoopSequencerProcessor {
                     *sample = *output_sample * start_volume * end_volume;
                 }
 
+                self.handle.playhead.store(index, Ordering::Relaxed);
                 self.cursor += 1;
                 if self.cursor >= num_samples {
                     self.cursor = 0;

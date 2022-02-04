@@ -1,5 +1,5 @@
 use iced::{Alignment, Button, Column, Container, Length, Row, Text};
-use iced_audio::{IntRange, Normal, NormalParam};
+use iced_audio::{IntRange, NormalParam};
 use iced_baseview::{Command, Element};
 
 use audio_garbage_collector::Shared;
@@ -16,7 +16,7 @@ use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 pub enum ParameterId {
     LoopVolume,
     DryVolume,
-    PlaybackSpeed,
+    // PlaybackSpeed,
     SeqSlices,
     SeqSteps,
 }
@@ -44,7 +44,9 @@ impl ParameterViewModel {
             name,
             suffix,
             value,
-            knob_state: iced_audio::knob::State::new(NormalParam::from(value)),
+            knob_state: iced_audio::knob::State::new(NormalParam::from(
+                (value - range.0) / (range.1 - range.0),
+            )),
             int_range: None,
             range,
         }
@@ -88,7 +90,7 @@ impl BottomPanelView {
                     ParameterId::LoopVolume,
                     String::from("Loop"),
                     String::from(""),
-                    processor_handle.loop_volume(),
+                    processor_handle.wet_volume(),
                     (0.0, 1.0),
                 ),
                 ParameterViewModel::new(
@@ -98,13 +100,13 @@ impl BottomPanelView {
                     processor_handle.dry_volume(),
                     (0.0, 1.0),
                 ),
-                ParameterViewModel::new(
-                    ParameterId::PlaybackSpeed,
-                    String::from("Speed"),
-                    String::from("x"),
-                    1.0,
-                    (0.0, 2.0),
-                ),
+                // ParameterViewModel::new(
+                //     ParameterId::PlaybackSpeed,
+                //     String::from("Speed"),
+                //     String::from("x"),
+                //     1.0,
+                //     (0.0, 2.0),
+                // ),
                 ParameterViewModel::new(
                     ParameterId::SeqSlices,
                     String::from("Seq. Slices"),
@@ -143,14 +145,14 @@ impl BottomPanelView {
 
                     match state.id {
                         ParameterId::LoopVolume => {
-                            self.processor_handle.set_loop_volume(state.value);
+                            self.processor_handle.set_wet_volume(state.value);
                         }
                         ParameterId::DryVolume => {
                             self.processor_handle.set_dry_volume(state.value);
                         }
-                        ParameterId::PlaybackSpeed => {
-                            self.processor_handle.set_playback_speed(state.value);
-                        }
+                        // ParameterId::PlaybackSpeed => {
+                        //     self.processor_handle.set_playback_speed(state.value);
+                        // }
                         ParameterId::SeqSlices => {
                             if let Some(params) = self.sequencer_handle.params() {
                                 if params.num_slices != state.value as usize {

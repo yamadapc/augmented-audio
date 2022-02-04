@@ -5,17 +5,20 @@ use basedrop::{Shared, SharedCell};
 use audio_garbage_collector::make_shared;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, VecAudioBuffer,
+    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
+    MidiMessageLike, VecAudioBuffer,
 };
 
 use crate::new_processor::handle::LooperHandle;
-use crate::AtomicEnum;
+use crate::sequencer::LoopSequencerProcessor;
+use crate::{AtomicEnum, LoopSequencerProcessorHandle};
 
 pub mod handle;
 mod scratch_pad;
 
 pub struct LooperProcessor {
     handle: Shared<handle::LooperHandle>,
+    sequencer: LoopSequencerProcessor,
 }
 
 impl Default for LooperProcessor {
@@ -26,13 +29,19 @@ impl Default for LooperProcessor {
 
 impl LooperProcessor {
     pub fn new(options: handle::LooperHandleOptions) -> Self {
+        let handle = make_shared(LooperHandle::new(options));
         Self {
-            handle: make_shared(LooperHandle::new(options)),
+            handle: handle.clone(),
+            sequencer: LoopSequencerProcessor::new(handle),
         }
     }
 
     pub fn handle(&self) -> &Shared<handle::LooperHandle> {
         &self.handle
+    }
+
+    pub fn sequencer_handle(&self) -> &Shared<LoopSequencerProcessorHandle> {
+        self.sequencer.handle()
     }
 }
 
@@ -41,6 +50,7 @@ impl AudioProcessor for LooperProcessor {
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         self.handle.prepare(settings);
+        self.sequencer.prepare(settings);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -53,7 +63,13 @@ impl AudioProcessor for LooperProcessor {
             }
             self.handle.after_process();
         }
+
+        self.sequencer.process(data);
     }
+}
+
+impl MidiEventHandler for LooperProcessor {
+    fn process_midi_events<Message: MidiMessageLike>(&mut self, _midi_messages: &[Message]) {}
 }
 
 #[cfg(test)]

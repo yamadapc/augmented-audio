@@ -97,12 +97,43 @@ impl LooperHandle {
         }
     }
 
+    pub fn dry_volume(&self) -> f32 {
+        self.dry_volume.get()
+    }
+
+    pub fn wet_volume(&self) -> f32 {
+        self.wet_volume.get()
+    }
+
     pub fn set_dry_volume(&self, value: f32) {
         self.dry_volume.set(value);
     }
 
     pub fn set_wet_volume(&self, value: f32) {
         self.wet_volume.set(value);
+    }
+
+    /// UI thread only
+    pub fn toggle_recording(&self) {
+        let old_state = self.state.get();
+        if old_state == LooperState::Recording || old_state == LooperState::Overdubbing {
+            self.stop_recording_allocating_loop();
+        } else {
+            self.start_recording();
+        }
+    }
+
+    pub fn toggle_playback(&self) {
+        let old_state = self.state.get();
+        if old_state == LooperState::Playing
+            || old_state == LooperState::Recording
+            || old_state == LooperState::Overdubbing
+        {
+            self.stop_recording_allocating_loop();
+            self.pause();
+        } else {
+            self.play();
+        }
     }
 
     pub fn start_recording(&self) -> LooperState {
@@ -157,6 +188,7 @@ impl LooperHandle {
             self.looper_clip
                 .set(make_shared(AtomicRefCell::new(new_buffer)));
             self.state.set(LooperState::Playing);
+            self.cursor.store(0, Ordering::Relaxed);
         } else if old_state == LooperState::Overdubbing {
             self.state.set(LooperState::Playing);
         }
@@ -179,10 +211,35 @@ impl LooperHandle {
                     &mut *result_buffer,
                 );
                 self.state.set(LooperState::Playing);
+                self.cursor.store(0, Ordering::Relaxed);
             }
         } else if old_state == LooperState::Overdubbing {
             self.state.set(LooperState::Playing);
         }
+    }
+
+    pub fn looper_clip(&self) -> Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>> {
+        self.looper_clip.get()
+    }
+
+    pub fn num_samples(&self) -> usize {
+        self.length.load(Ordering::Relaxed)
+    }
+
+    pub fn is_recording(&self) -> bool {
+        let state = self.state.get();
+        state == LooperState::Recording || state == LooperState::Overdubbing
+    }
+
+    pub fn playhead(&self) -> usize {
+        self.cursor.load(Ordering::Relaxed)
+    }
+
+    pub fn is_playing_back(&self) -> bool {
+        let state = self.state.get();
+        state == LooperState::Playing
+            || state == LooperState::Recording
+            || state == LooperState::Overdubbing
     }
 }
 
@@ -215,7 +272,7 @@ impl LooperHandle {
                 let clip = self.looper_clip.get();
                 let clip = clip.deref().borrow();
                 let cursor = self.cursor.load(Ordering::Relaxed);
-                let clip_out = clip.get(channel, cursor).get();
+                let clip_out = clip.get(channel, cursor % clip.num_samples()).get();
                 clip_out
             }
             LooperState::Overdubbing => {

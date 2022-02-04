@@ -2,6 +2,9 @@ use std::time::Duration;
 
 use iced::{Column, Container, Length, Text};
 
+use crate::ui::looper_visualization::{
+    LooperVisualizationDrawModel, LooperVisualizationDrawModelImpl,
+};
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::Container0;
@@ -27,9 +30,9 @@ pub struct Flags {
 }
 
 pub struct LooperApplication {
-    processor_handle: Shared<LooperProcessorHandle>,
+    // processor_handle: Shared<LooperProcessorHandle>,
     host_callback: Option<HostCallback>,
-    looper_visualization: LooperVisualizationView,
+    looper_visualization: LooperVisualizationView<LooperVisualizationDrawModelImpl>,
     knobs_view: bottom_panel::BottomPanelView,
     tabs_view: tabs::State,
 }
@@ -55,9 +58,14 @@ impl Application for LooperApplication {
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
             LooperApplication {
-                processor_handle: flags.processor_handle.clone(),
+                // processor_handle: flags.processor_handle.clone(),
                 host_callback: flags.host_callback,
-                looper_visualization: LooperVisualizationView::new(flags.processor_handle.clone()),
+                looper_visualization: LooperVisualizationView::new(
+                    LooperVisualizationDrawModelImpl::new(
+                        flags.processor_handle.clone(),
+                        flags.sequencer_handle.clone(),
+                    ),
+                ),
                 knobs_view: bottom_panel::BottomPanelView::new(
                     flags.processor_handle,
                     flags.sequencer_handle,
@@ -98,12 +106,13 @@ impl Application for LooperApplication {
             })
             .flatten();
         let status_message = if let Some(time_info) = time_info {
-            format!(
-                "{}bpm {:.1} / {}",
-                time_info.tempo,
-                time_info.ppq_pos,
-                &*self.processor_handle.debug()
-            )
+            format!("{}bpm {:.1}", time_info.tempo, time_info.ppq_pos,)
+            // format!(
+            //     "{}bpm {:.1} / {}",
+            //     time_info.tempo,
+            //     time_info.ppq_pos,
+            //     &*self.processor_handle.debug()
+            // )
         } else {
             "Free tempo".into()
         };

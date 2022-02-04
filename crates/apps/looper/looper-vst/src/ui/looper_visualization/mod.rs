@@ -1,5 +1,6 @@
 use std::borrow::Borrow;
 use std::cell::RefCell;
+use std::ops::Deref;
 
 use iced::canvas::{Frame, Stroke};
 use iced::{Column, Point};
@@ -8,7 +9,8 @@ use iced_baseview::{Canvas, Element, Length, Rectangle};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
-use looper_processor::LooperProcessorHandle;
+use audio_processor_traits::AudioBuffer;
+use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 
 struct LoopCache {
     // TODO: This is not the right cache key as overdubs won't render properly
@@ -19,15 +21,63 @@ struct LoopCache {
 #[derive(Debug, Clone)]
 pub enum Message {}
 
-pub struct LooperVisualizationView {
-    processor_handle: Shared<LooperProcessorHandle>,
+pub trait LooperVisualizationDrawModel {
+    fn is_recording(&self) -> bool;
+    fn num_samples(&self) -> usize;
+    fn playhead(&self) -> usize;
+    fn loop_iterator(&self) -> Vec<f32>;
+}
+
+pub struct LooperVisualizationDrawModelImpl {
+    handle: Shared<LooperProcessorHandle>,
+    sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+}
+
+impl LooperVisualizationDrawModelImpl {
+    pub fn new(
+        handle: Shared<LooperProcessorHandle>,
+        sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    ) -> Self {
+        LooperVisualizationDrawModelImpl {
+            handle,
+            sequencer_handle,
+        }
+    }
+}
+
+impl LooperVisualizationDrawModel for LooperVisualizationDrawModelImpl {
+    fn is_recording(&self) -> bool {
+        LooperProcessorHandle::is_recording(&self.handle)
+    }
+
+    fn num_samples(&self) -> usize {
+        LooperProcessorHandle::num_samples(&self.handle)
+    }
+
+    fn playhead(&self) -> usize {
+        let seq_playhead = LoopSequencerProcessorHandle::playhead(&self.sequencer_handle);
+        seq_playhead.unwrap_or_else(|| LooperProcessorHandle::playhead(&self.handle))
+    }
+
+    fn loop_iterator(&self) -> Vec<f32> {
+        let looper_clip = LooperProcessorHandle::looper_clip(&self.handle);
+        let looper_clip = looper_clip.deref().borrow();
+        looper_clip
+            .frames()
+            .map(|frame| frame[0].get() + frame[1].get())
+            .collect()
+    }
+}
+
+pub struct LooperVisualizationView<Model: LooperVisualizationDrawModel> {
+    model: Model,
     loop_cache: RefCell<Option<LoopCache>>,
 }
 
-impl LooperVisualizationView {
-    pub fn new(processor_handle: Shared<LooperProcessorHandle>) -> Self {
+impl<Model: LooperVisualizationDrawModel> LooperVisualizationView<Model> {
+    pub fn new(model: Model) -> Self {
         Self {
-            processor_handle,
+            model,
             loop_cache: RefCell::new(None),
         }
     }
@@ -37,23 +87,20 @@ impl LooperVisualizationView {
     pub fn clear_visualization(&mut self) {}
 
     pub fn view(&mut self) -> Element<()> {
-        Column::with_children(vec![
-            // Text::new(self.processor_handle.debug()).into(),
-            Canvas::new(self)
-                .height(Length::Fill)
-                .width(Length::Fill)
-                .into(),
-        ])
+        Column::with_children(vec![Canvas::new(self)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .into()])
         .into()
     }
 }
 
-impl Program<()> for LooperVisualizationView {
+impl<Model: LooperVisualizationDrawModel> Program<()> for LooperVisualizationView<Model> {
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
 
-        let is_recording = self.processor_handle.is_recording();
-        let num_samples = self.processor_handle.num_samples() as f32;
+        let is_recording = self.model.is_recording();
+        let num_samples = self.model.num_samples() as f32;
         let has_valid_cache = self
             .loop_cache
             .borrow()
@@ -64,8 +111,10 @@ impl Program<()> for LooperVisualizationView {
         let loop_cache = if !has_valid_cache {
             let step = 400;
             let iterator = self
-                .processor_handle
+                .model
                 .loop_iterator()
+                .iter()
+                .cloned()
                 .enumerate()
                 .step_by(step)
                 .collect();
@@ -88,7 +137,7 @@ impl Program<()> for LooperVisualizationView {
         );
 
         if !is_recording {
-            let playhead = self.processor_handle.playhead() as f32;
+            let playhead = self.model.playhead() as f32;
             draw_playhead(&mut frame, playhead, num_samples)
         }
 
