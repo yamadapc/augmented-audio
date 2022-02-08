@@ -1,20 +1,19 @@
 use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
-
-use handle::state::RecordingState;
-// use handle::LooperProcessorHandle;
-
 pub use new_processor::handle::LooperHandle as LooperProcessorHandle;
 pub use new_processor::handle::LooperOptions;
 pub use new_processor::LooperProcessor;
 pub use sequencer::LoopSequencerProcessorHandle;
 
-use util::atomic_enum::AtomicEnum;
+// use handle::state::RecordingState;
+// use handle::LooperProcessorHandle;
+
+// use util::atomic_enum::AtomicEnum;
 
 mod handle;
 mod loop_quantization;
-pub mod midi_map;
+mod midi_map;
 mod new_processor;
-pub mod sequencer;
+mod sequencer;
 mod time_info_provider;
 mod util;
 

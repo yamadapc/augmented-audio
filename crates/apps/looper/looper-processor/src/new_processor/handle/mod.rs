@@ -1,46 +1,21 @@
-use atomic_refcell::AtomicRefCell;
-use num_derive::{FromPrimitive, ToPrimitive};
 use std::borrow::Borrow;
-
 use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
-use audio_garbage_collector::{make_shared, make_shared_cell};
+use atomic_refcell::AtomicRefCell;
 use basedrop::{Shared, SharedCell};
+use num_derive::{FromPrimitive, ToPrimitive};
 
+use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use utils::CopyLoopClipParams;
 
-use crate::AtomicEnum;
+use crate::util::atomic_enum::AtomicEnum;
 
-use super::scratch_pad;
-
-struct CopyLoopClipParams<'a> {
-    scratch_pad: &'a scratch_pad::ScratchPad,
-    start_cursor: usize,
-    length: usize,
-}
-
-fn copy_looped_clip(params: CopyLoopClipParams, result_buffer: &mut VecAudioBuffer<AtomicF32>) {
-    let buffer = params.scratch_pad.buffer();
-
-    result_buffer.resize(buffer.num_channels(), params.length, AtomicF32::new(0.0));
-
-    for channel in 0..buffer.num_channels() {
-        for i in 0..params.length {
-            let index = (i + params.start_cursor) % buffer.num_samples();
-            let sample = buffer.get(channel, index).clone();
-            result_buffer.set(channel, i, sample);
-        }
-    }
-}
-
-fn empty_buffer(channels: usize, samples: usize) -> VecAudioBuffer<AtomicF32> {
-    let mut b = VecAudioBuffer::new();
-    b.resize(channels, samples, AtomicF32::new(0.0));
-    b
-}
+mod scratch_pad;
+mod utils;
 
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum LooperState {
@@ -177,7 +152,7 @@ impl LooperHandle {
 
             let _result_buffer = self.looper_clip.get();
             let mut new_buffer = VecAudioBuffer::new();
-            copy_looped_clip(
+            utils::copy_looped_clip(
                 CopyLoopClipParams {
                     scratch_pad: &scratch_pad,
                     start_cursor: self.start_cursor.load(Ordering::Relaxed),
@@ -202,7 +177,7 @@ impl LooperHandle {
             let result_buffer = self.looper_clip.get();
             let result_buffer = result_buffer.deref().try_borrow_mut().ok();
             if let Some(mut result_buffer) = result_buffer {
-                copy_looped_clip(
+                utils::copy_looped_clip(
                     CopyLoopClipParams {
                         scratch_pad: &scratch_pad,
                         start_cursor: self.start_cursor.load(Ordering::Relaxed),
@@ -252,12 +227,14 @@ impl LooperHandle {
         let num_channels = settings.input_channels();
 
         // Pre-allocate scratch-pad
-        let scratch_pad =
-            scratch_pad::ScratchPad::new(empty_buffer(num_channels, max_loop_length_samples));
+        let scratch_pad = scratch_pad::ScratchPad::new(utils::empty_buffer(
+            num_channels,
+            max_loop_length_samples,
+        ));
         self.scratch_pad.set(make_shared(scratch_pad));
 
         // Pre-allocate looper clip
-        let looper_clip = empty_buffer(num_channels, max_loop_length_samples);
+        let looper_clip = utils::empty_buffer(num_channels, max_loop_length_samples);
         self.looper_clip
             .set(make_shared(AtomicRefCell::new(looper_clip)));
     }

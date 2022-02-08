@@ -4,12 +4,13 @@ use basedrop::{Shared, SharedCell};
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
-use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use audio_processor_traits::{
+    AtomicF32, AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+};
 
 use crate::loop_quantization::{LoopQuantizer, LoopQuantizerMode, QuantizeInput};
 use crate::time_info_provider::TimeInfoProvider;
-use crate::{AtomicEnum, AtomicFloat};
+use crate::util::atomic_enum::AtomicEnum;
 
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum RecordingState {
@@ -39,8 +40,8 @@ pub(crate) struct LoopState {
 
 pub(crate) struct LooperProcessorState {
     pub(crate) loop_state: LoopState,
-    pub(crate) looper_cursor: AtomicFloat,
-    pub(crate) looper_increment: AtomicFloat,
+    pub(crate) looper_cursor: AtomicF32,
+    pub(crate) looper_increment: AtomicF32,
     pub(crate) num_channels: AtomicUsize,
     pub(crate) looped_clip: Shared<SharedCell<VecAudioBuffer<AtomicF32>>>,
     pub(crate) quantization_mode: AtomicEnum<LooperQuantizationModeType>,
@@ -50,8 +51,8 @@ impl LooperProcessorState {
     pub(crate) fn new() -> Self {
         LooperProcessorState {
             num_channels: AtomicUsize::new(2usize),
-            looper_cursor: AtomicFloat::new(0.0),
-            looper_increment: AtomicFloat::new(1.0),
+            looper_cursor: AtomicF32::new(0.0),
+            looper_increment: AtomicF32::new(1.0),
             loop_state: LoopState {
                 recording_state: AtomicEnum::new(RecordingState::Empty),
                 start: AtomicUsize::new(0),
@@ -260,7 +261,6 @@ impl LooperProcessorState {
 
 #[cfg(test)]
 mod test {
-
     use num::FromPrimitive;
 
     use crate::time_info_provider::{MockTimeInfoProvider, TimeInfo};

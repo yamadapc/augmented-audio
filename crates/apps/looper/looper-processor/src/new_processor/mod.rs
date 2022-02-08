@@ -11,7 +11,6 @@ use crate::sequencer::LoopSequencerProcessor;
 use crate::LoopSequencerProcessorHandle;
 
 pub mod handle;
-mod scratch_pad;
 
 pub struct LooperProcessor {
     handle: Shared<handle::LooperHandle>,
