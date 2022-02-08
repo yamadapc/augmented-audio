@@ -7,7 +7,9 @@ use atomic_refcell::AtomicRefCell;
 use basedrop::{Shared, SharedCell};
 use num_derive::{FromPrimitive, ToPrimitive};
 
+use crate::time_info_provider::TimeInfoProviderImpl;
 use audio_garbage_collector::{make_shared, make_shared_cell};
+use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use utils::CopyLoopClipParams;
@@ -41,23 +43,28 @@ pub struct LooperHandle {
     looper_clip: SharedCell<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
     /// Where playback is within the looped clip buffer
     cursor: AtomicUsize,
+    /// Provides time information
+    time_info_provider: TimeInfoProviderImpl,
     options: LooperOptions,
 }
 
 pub struct LooperOptions {
     pub max_loop_length: Duration,
+    pub host_callback: Option<HostCallback>,
 }
 
 impl Default for LooperOptions {
     fn default() -> Self {
         Self {
             max_loop_length: Duration::from_secs(10),
+            host_callback: None,
         }
     }
 }
 
 impl LooperHandle {
     pub fn new(options: LooperOptions) -> Self {
+        let time_info_provider = TimeInfoProviderImpl::new(options.host_callback.clone());
         Self {
             dry_volume: AtomicF32::new(0.0),
             wet_volume: AtomicF32::new(1.0),
@@ -68,6 +75,7 @@ impl LooperHandle {
             scratch_pad: make_shared_cell(scratch_pad::ScratchPad::new(VecAudioBuffer::new())),
             looper_clip: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
             cursor: AtomicUsize::new(0),
+            time_info_provider,
             options,
         }
     }
