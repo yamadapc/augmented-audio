@@ -77,6 +77,7 @@ fn snap_closest_beat(
     let lower = ratio.floor() * f_beats;
     let upper = ratio.ceil() * f_beats;
 
+    #[allow(clippy::float_equality_without_abs)]
     if ((lower - position_beats).abs() - threshold_beats) < f32::EPSILON {
         lower
     } else {

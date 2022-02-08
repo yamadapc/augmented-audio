@@ -1,17 +1,14 @@
-use std::sync::atomic::{AtomicUsize, Ordering};
-
-use basedrop::{Shared, SharedCell};
+use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
-    MidiMessageLike, VecAudioBuffer,
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
 
 use crate::new_processor::handle::LooperHandle;
 use crate::sequencer::LoopSequencerProcessor;
-use crate::{AtomicEnum, LoopSequencerProcessorHandle};
+use crate::LoopSequencerProcessorHandle;
 
 pub mod handle;
 mod scratch_pad;
@@ -74,15 +71,13 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
-    use std::borrow::Borrow;
-    use std::sync::atomic::Ordering;
+
     use std::time::Duration;
 
     use audio_processor_testing_helpers::rms_level;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
 
-    use audio_garbage_collector::make_shared;
     use audio_processor_traits::{
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
         VecAudioBuffer,
@@ -90,7 +85,7 @@ mod test {
 
     use crate::MAX_LOOP_LENGTH_SECS;
 
-    use super::{LooperHandle, LooperProcessor};
+    use super::LooperProcessor;
 
     fn test_settings() -> AudioProcessorSettings {
         AudioProcessorSettings::new(44100.0, 1, 1, 512)
@@ -130,7 +125,7 @@ mod test {
 
     #[test]
     fn test_looper_does_not_play_back_input_if_specified() {
-        let collector = basedrop::Collector::new();
+        let _collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         looper.prepare(settings);
@@ -161,7 +156,7 @@ mod test {
 
         // While recording, the output is muted
         let empty_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
-        let initial_output = sample_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "While recording the looper wasn't silent"
@@ -171,8 +166,8 @@ mod test {
         let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
 
         looper.process(&mut output_buffer);
-        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
-        let sample_vec = input_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let output_vec = output_buffer.slice().to_vec();
+        let sample_vec = input_buffer.slice().to_vec();
 
         looper.handle().debug();
         assert_eq!(
@@ -183,8 +178,8 @@ mod test {
         audio_buffer::clear(&mut output_buffer);
 
         looper.process(&mut output_buffer);
-        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
-        let sample_vec = input_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let output_vec = output_buffer.slice().to_vec();
+        let sample_vec = input_buffer.slice().to_vec();
         assert_eq!(
             output_vec, sample_vec,
             "The looper didn't playback its recording twice"
@@ -194,7 +189,7 @@ mod test {
         looper.handle.pause();
         looper.process(&mut sample_buffer);
         let empty_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
-        let initial_output = sample_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "The looper wasn't silent after stopped"
@@ -231,7 +226,7 @@ mod test {
 
     #[test]
     fn test_looper_samples_at_edge() {
-        let collector = basedrop::Collector::new();
+        let _collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::default();
         let settings = AudioProcessorSettings::new(100.0, 1, 1, 512);
         looper.prepare(settings);
@@ -254,7 +249,7 @@ mod test {
 
         // While recording, the output is muted
         let empty_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
-        let initial_output = sample_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "While recording the looper wasn't silent"
@@ -264,8 +259,8 @@ mod test {
         let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
 
         looper.process(&mut output_buffer);
-        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
-        let sample_vec = input_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let output_vec = output_buffer.slice().to_vec();
+        let sample_vec = input_buffer.slice().to_vec();
         assert_eq!(
             output_vec, sample_vec,
             "After recording the looper didn't playback - or played back a different input"
@@ -274,8 +269,8 @@ mod test {
         audio_buffer::clear(&mut output_buffer);
 
         looper.process(&mut output_buffer);
-        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
-        let sample_vec = input_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let output_vec = output_buffer.slice().to_vec();
+        let sample_vec = input_buffer.slice().to_vec();
         assert_eq!(
             output_vec, sample_vec,
             "The looper didn't playback its recording twice"
@@ -285,7 +280,7 @@ mod test {
         looper.handle().pause();
         looper.process(&mut sample_buffer);
         let empty_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
-        let initial_output = sample_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "The looper wasn't silent after stopped"

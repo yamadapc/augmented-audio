@@ -1,14 +1,11 @@
 use crate::LooperProcessorHandle;
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, VecAudioBuffer,
-};
+use audio_processor_traits::{AudioBuffer, AudioProcessor, VecAudioBuffer};
 use basedrop::{Shared, SharedCell};
 use std::borrow::Borrow;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::time::Duration;
 
 #[derive(Clone)]
 pub struct LoopSequencerParams {
@@ -167,7 +164,7 @@ pub fn run_sequencer(params: &LoopSequencerParams) -> LoopSequencerOutput {
         })
         .collect();
     let sequence = (0..params.sequence_length)
-        .map(|step_num| {
+        .map(|_step_num| {
             let ratio: f32 = rand::random();
             let index = (ratio * slices.len() as f32) as usize;
             let slice = slices[index].clone();

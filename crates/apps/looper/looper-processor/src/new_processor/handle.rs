@@ -1,6 +1,6 @@
 use atomic_refcell::AtomicRefCell;
 use num_derive::{FromPrimitive, ToPrimitive};
-use std::borrow::{Borrow, BorrowMut};
+use std::borrow::Borrow;
 
 use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -175,7 +175,7 @@ impl LooperHandle {
         if old_state == LooperState::Recording {
             let scratch_pad = self.scratch_pad.get();
 
-            let mut result_buffer = self.looper_clip.get();
+            let _result_buffer = self.looper_clip.get();
             let mut new_buffer = VecAudioBuffer::new();
             copy_looped_clip(
                 CopyLoopClipParams {
@@ -312,7 +312,7 @@ impl LooperHandle {
 
     pub(crate) fn debug(&self) {
         let shared = self.scratch_pad.get();
-        let buffer = shared.buffer();
+        let _buffer = shared.buffer();
         // println!("scratch_buffer={:?}", buffer);
     }
 }

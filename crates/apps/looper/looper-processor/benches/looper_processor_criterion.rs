@@ -64,7 +64,7 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
             let sine = sine_buffer(fbuffer_size, 440.0, Duration::from_millis(1000));
             let mut buffer = VecAudioBuffer::new_with(sine, 1, buffer_size);
 
-            let mut processor = LooperProcessor::new(audio_garbage_collector::handle(), None);
+            let mut processor = LooperProcessor::default();
             processor.prepare(AudioProcessorSettings::new(fbuffer_size, 1, 1, buffer_size));
 
             b.iter(|| {
@@ -83,7 +83,7 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
             let sine = sine_buffer(fbuffer_size, 440.0, Duration::from_millis(1000));
             let mut buffer = VecAudioBuffer::new_with(sine, 1, buffer_size);
 
-            let mut processor = LooperProcessor::new(audio_garbage_collector::handle(), None);
+            let mut processor = LooperProcessor::default();
             processor.prepare(AudioProcessorSettings::new(fbuffer_size, 1, 1, buffer_size));
             processor.handle().start_recording();
 
@@ -103,11 +103,11 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
             let sine = sine_buffer(fbuffer_size, 440.0, Duration::from_millis(1000));
             let mut buffer = VecAudioBuffer::new_with(sine, 1, buffer_size);
 
-            let mut processor = LooperProcessor::new(audio_garbage_collector::handle(), None);
+            let mut processor = LooperProcessor::default();
             processor.prepare(AudioProcessorSettings::new(fbuffer_size, 1, 1, buffer_size));
             processor.handle().start_recording();
             processor.process(&mut buffer);
-            processor.handle().stop_recording();
+            processor.handle().stop_recording_allocating_loop();
 
             b.iter(|| {
                 processor.process(&mut buffer);

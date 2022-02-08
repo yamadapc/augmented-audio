@@ -4,9 +4,9 @@ use audio_garbage_collector::Handle;
 use audio_processor_traits::{AtomicF32, AudioBuffer};
 use state::LooperProcessorState;
 
-use crate::handle::state::{LoopState, LooperQuantizationModeType};
+use crate::handle::state::LooperQuantizationModeType;
 use crate::midi_map::MidiMap;
-use crate::{AtomicEnum, RecordingState};
+use crate::RecordingState;
 
 pub mod state;
 

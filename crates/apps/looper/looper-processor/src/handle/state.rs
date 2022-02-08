@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
 use basedrop::{Shared, SharedCell};
@@ -10,7 +9,7 @@ use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, Vec
 
 use crate::loop_quantization::{LoopQuantizer, LoopQuantizerMode, QuantizeInput};
 use crate::time_info_provider::TimeInfoProvider;
-use crate::{AtomicEnum, AtomicFloat, TimeInfoProviderImpl};
+use crate::{AtomicEnum, AtomicFloat};
 
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum RecordingState {
@@ -160,14 +159,14 @@ impl LooperProcessorState {
         looper_cursor: usize,
     ) -> usize {
         let num_samples = self.looped_clip.get().num_samples();
-        let quantized_cursor = Self::build_quantized_cursor(
+
+        Self::build_quantized_cursor(
             self.quantization_mode.get(),
             settings,
             time_info_provider,
             num_samples,
             looper_cursor,
-        );
-        quantized_cursor
+        )
     }
 
     fn build_quantized_cursor(
@@ -186,25 +185,24 @@ impl LooperProcessorState {
             },
         });
         let time_info = time_info_provider.get_time_info();
-        let quantized_cursor =
-            if let Some((tempo, position_beats)) = time_info.tempo.zip(time_info.position_beats) {
-                let result = quantizer.quantize(QuantizeInput {
-                    tempo: tempo as f32,
-                    sample_rate: settings.sample_rate,
-                    position_beats: position_beats as f32,
-                    position_samples: looper_cursor,
-                });
 
-                // TODO: Clean-up this mess
-                if result < 0 {
-                    (num_samples + result.abs() as usize) % num_samples
-                } else {
-                    (result % num_samples as i32) as usize
-                }
+        if let Some((tempo, position_beats)) = time_info.tempo.zip(time_info.position_beats) {
+            let result = quantizer.quantize(QuantizeInput {
+                tempo: tempo as f32,
+                sample_rate: settings.sample_rate,
+                position_beats: position_beats as f32,
+                position_samples: looper_cursor,
+            });
+
+            // TODO: Clean-up this mess
+            if result < 0 {
+                (num_samples + result.abs() as usize) % num_samples
             } else {
-                looper_cursor
-            };
-        quantized_cursor
+                (result % num_samples as i32) as usize
+            }
+        } else {
+            looper_cursor
+        }
     }
 
     /// Either the looper cursor or the end
@@ -262,7 +260,7 @@ impl LooperProcessorState {
 
 #[cfg(test)]
 mod test {
-    use crate::LooperProcessorHandle;
+
     use num::FromPrimitive;
 
     use crate::time_info_provider::{MockTimeInfoProvider, TimeInfo};

@@ -1,25 +1,13 @@
-use std::ops::Deref;
-use std::sync::atomic::Ordering;
-
-use num::FromPrimitive;
-
-use audio_garbage_collector::{make_shared, Handle, Shared};
-use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
-use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
-    MidiMessageLike, VecAudioBuffer,
-};
-use handle::state::{LooperProcessorState, RecordingState};
+
+use handle::state::RecordingState;
 // use handle::LooperProcessorHandle;
-use handle::ProcessParameters;
-use midi_map::{Action, MidiSpec};
+
 pub use new_processor::handle::LooperHandle as LooperProcessorHandle;
 pub use new_processor::handle::LooperOptions;
 pub use new_processor::LooperProcessor;
 pub use sequencer::LoopSequencerProcessorHandle;
-use time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
+
 use util::atomic_enum::AtomicEnum;
 
 mod handle;
