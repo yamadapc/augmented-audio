@@ -66,14 +66,14 @@ pub struct LooperHandle {
     looper_clip: SharedCell<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
     /// Where playback is within the looped clip buffer
     cursor: AtomicUsize,
-    options: LooperHandleOptions,
+    options: LooperOptions,
 }
 
-pub struct LooperHandleOptions {
+pub struct LooperOptions {
     pub max_loop_length: Duration,
 }
 
-impl Default for LooperHandleOptions {
+impl Default for LooperOptions {
     fn default() -> Self {
         Self {
             max_loop_length: Duration::from_secs(10),
@@ -82,7 +82,7 @@ impl Default for LooperHandleOptions {
 }
 
 impl LooperHandle {
-    pub fn new(options: LooperHandleOptions) -> Self {
+    pub fn new(options: LooperOptions) -> Self {
         Self {
             dry_volume: AtomicF32::new(0.0),
             wet_volume: AtomicF32::new(1.0),

@@ -16,7 +16,7 @@ use handle::state::{LooperProcessorState, RecordingState};
 use handle::ProcessParameters;
 use midi_map::{Action, MidiSpec};
 pub use new_processor::handle::LooperHandle as LooperProcessorHandle;
-pub use new_processor::handle::LooperHandleOptions;
+pub use new_processor::handle::LooperOptions;
 pub use new_processor::LooperProcessor;
 pub use sequencer::LoopSequencerProcessorHandle;
 use time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};

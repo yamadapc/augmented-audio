@@ -5,6 +5,6 @@ use looper_processor::LooperProcessor;
 fn main() {
     wisual_logger::init_from_env();
     let garbage_collector = GarbageCollector::default();
-    let processor = LooperProcessor::new(garbage_collector.handle(), None);
+    let processor = LooperProcessor::new(Default::default());
     audio_processor_main_with_midi(processor, garbage_collector.handle());
 }

@@ -28,7 +28,7 @@ impl Default for LooperProcessor {
 }
 
 impl LooperProcessor {
-    pub fn new(options: handle::LooperHandleOptions) -> Self {
+    pub fn new(options: handle::LooperOptions) -> Self {
         let handle = make_shared(LooperHandle::new(options));
         Self {
             handle: handle.clone(),
