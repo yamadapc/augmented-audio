@@ -6,7 +6,6 @@ description = "Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`"
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
-readme = "README.md"
 
 [dependencies]
 # Logging & options
