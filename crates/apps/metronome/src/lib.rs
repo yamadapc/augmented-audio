@@ -56,11 +56,7 @@ impl MetronomeProcessor {
             }),
             state: MetronomeProcessorState {
                 last_position: 0.0,
-                playhead: PlayHead::new(PlayHeadOptions {
-                    sample_rate: Some(44100.0),
-                    ticks_per_quarter_note: Some(16),
-                    tempo: Some(120),
-                }),
+                playhead: PlayHead::new(PlayHeadOptions::new(Some(44100.0), Some(16), Some(120))),
                 oscillator: Oscillator::new_with_sample_rate(
                     44100.0,
                     augmented_oscillator::generators::sine_generator,
@@ -76,11 +72,11 @@ impl AudioProcessor for MetronomeProcessor {
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.state.playhead = PlayHead::new(PlayHeadOptions {
-            sample_rate: Some(settings.sample_rate()),
-            tempo: Some(self.handle.tempo.get() as u32),
-            ..*self.state.playhead.options()
-        });
+        self.state.playhead = PlayHead::new(PlayHeadOptions::new(
+            Some(settings.sample_rate()),
+            Some(self.handle.tempo.get() as u32),
+            self.state.playhead.options().ticks_per_quarter_note(),
+        ));
         self.state.envelope.set_sample_rate(settings.sample_rate());
         self.state
             .oscillator
@@ -102,7 +98,7 @@ impl AudioProcessor for MetronomeProcessor {
         }
 
         let tempo = self.handle.tempo.get() as u32;
-        if Some(tempo) != self.state.playhead.options().tempo {
+        if Some(tempo) != self.state.playhead.options().tempo() {
             self.state.playhead.set_tempo(tempo);
         }
 

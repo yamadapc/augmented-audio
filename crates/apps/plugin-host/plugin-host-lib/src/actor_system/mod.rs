@@ -15,6 +15,7 @@ lazy_static! {
 
 #[derive(Debug)]
 pub struct ActorSystemThread {
+    #[allow(dead_code)]
     system: actix::System,
     arbiters: Vec<ArbiterHandle>,
     counter: Arc<AtomicUsize>,

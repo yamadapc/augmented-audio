@@ -3,8 +3,6 @@ use std::time::Duration;
 use iced::{Column, Container, Length, Text};
 use iced_baseview::{executor, Subscription, WindowSubs};
 use iced_baseview::{Application, Command, Element};
-use vst::host::Host;
-use vst::plugin::HostCallback;
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;

@@ -22,7 +22,6 @@ pub struct LoopiPlugin {
     parameters: Arc<ParameterStore>,
     processor: LooperProcessor,
     settings: AudioProcessorSettings,
-    host_callback: HostCallback,
 }
 
 impl Plugin for LoopiPlugin {
@@ -37,20 +36,18 @@ impl Plugin for LoopiPlugin {
         }
     }
 
-    fn new(host_callback: HostCallback) -> Self
+    fn new(_host_callback: HostCallback) -> Self
     where
         Self: Sized,
     {
         audio_plugin_logger::init("loopi.log");
 
         let processor = LooperProcessor::from_options(LooperOptions {
-            host_callback: Some(host_callback.clone()),
             ..Default::default()
         });
 
         LoopiPlugin {
             processor,
-            host_callback,
             parameters: Arc::new(ParameterStore::default()),
             settings: AudioProcessorSettings::default(),
         }
