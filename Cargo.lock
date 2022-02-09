@@ -456,7 +456,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-standalone"
-version = "1.0.0-alpha.6"
+version = "1.0.0-alpha.7"
 dependencies = [
  "atomic-queue",
  "audio-garbage-collector",
