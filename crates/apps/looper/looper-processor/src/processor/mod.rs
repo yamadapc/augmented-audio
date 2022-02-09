@@ -1,11 +1,10 @@
-use basedrop::Shared;
-
 use audio_garbage_collector::make_shared;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
+use basedrop::Shared;
+use handle::LooperHandle;
 
-use crate::new_processor::handle::LooperHandle;
 use crate::sequencer::LoopSequencerProcessor;
 use crate::LoopSequencerProcessorHandle;
 
@@ -69,17 +68,15 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
-    use std::time::Duration;
-
     use audio_processor_testing_helpers::rms_level;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
-
     use audio_processor_traits::{
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
         VecAudioBuffer,
     };
     use handle::{LooperState, QuantizeMode};
+    use std::time::Duration;
 
     use crate::MAX_LOOP_LENGTH_SECS;
 
