@@ -222,6 +222,46 @@ mod test {
     }
 
     #[test]
+    fn test_looper_overdub() {
+        let mut looper = LooperProcessor::default();
+        let settings = test_settings();
+        looper.prepare(settings);
+
+        // Record and test output is good
+        {
+            let mut buffer: Vec<f32> = (0..100).map(|_i| 1.0).collect();
+            let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
+            looper.handle.start_recording();
+            looper.process(&mut buffer);
+            looper.handle.stop_recording_allocating_loop();
+
+            let mut buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+            let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
+            looper.process(&mut buffer);
+            let output_vec = buffer.slice().to_vec();
+            let sample_vec: Vec<f32> = (0..100).map(|_i| 1.0).collect();
+            assert_eq!(output_vec, sample_vec, "Recording didn't work");
+        }
+
+        // Run overdubbing
+        {
+            let mut buffer: Vec<f32> = (0..100).map(|_i| 1.0).collect();
+            let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
+            looper.handle.start_recording();
+            looper.process(&mut buffer);
+            looper.handle.stop_recording_allocating_loop();
+        }
+
+        // Test output is summed
+        let mut buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+        let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
+        looper.process(&mut buffer);
+        let output_vec = buffer.slice().to_vec();
+        let sample_vec: Vec<f32> = (0..100).map(|_i| 2.0).collect();
+        assert_eq!(output_vec, sample_vec, "Overdub didn't work");
+    }
+
+    #[test]
     fn test_looper_samples_at_edge() {
         let _collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::default();

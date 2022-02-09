@@ -14,7 +14,7 @@ use augmented_atomics::AtomicEnum;
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
 
-use crate::loop_quantization::{LoopQuantizer, LoopQuantizerMode, QuantizeInput};
+use crate::loop_quantization::{LoopQuantizer, QuantizeInput};
 use crate::time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
 
 mod quantize_mode;
@@ -357,7 +357,7 @@ impl LooperHandle {
             } else {
                 self.length.store(len, Ordering::Relaxed);
             }
-        } else if state == LooperState::Playing || state == LooperState::Recording {
+        } else if state == LooperState::Playing || state == LooperState::Overdubbing {
             let cursor = self.cursor.load(Ordering::Relaxed);
             let cursor = (cursor + 1) % self.length.load(Ordering::Relaxed);
             self.cursor.store(cursor, Ordering::Relaxed);
