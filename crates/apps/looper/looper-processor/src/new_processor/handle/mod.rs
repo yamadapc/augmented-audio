@@ -68,7 +68,7 @@ impl Default for LooperOptions {
 
 impl LooperHandle {
     pub fn new(options: LooperOptions) -> Self {
-        let time_info_provider = TimeInfoProviderImpl::new(options.host_callback.clone());
+        let time_info_provider = TimeInfoProviderImpl::new(options.host_callback);
         Self {
             dry_volume: AtomicF32::new(0.0),
             wet_volume: AtomicF32::new(1.0),
@@ -282,7 +282,7 @@ impl LooperHandle {
         self.looper_clip
             .set(make_shared(AtomicRefCell::new(looper_clip)));
 
-        self.settings.set(make_shared(settings.clone()));
+        self.settings.set(make_shared(settings));
     }
 
     #[inline]

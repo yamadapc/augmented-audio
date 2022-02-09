@@ -7,7 +7,7 @@ use std::time::Duration;
 
 fn gain_vec(buffer: &mut Vec<f32>) {
     for sample in buffer {
-        *sample = 0.5 * *sample;
+        *sample *= 0.5;
     }
 }
 
@@ -32,7 +32,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function("Vec<AtomicF32> apply gain", |b| {
         let sine = sine_buffer(1000.0, 440.0, Duration::from_millis(1000))
             .into_iter()
-            .map(|i| AtomicF32::new(i))
+            .map(AtomicF32::new)
             .collect();
         let mut buffer = sine;
         b.iter(|| {
@@ -53,8 +53,8 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
     println!(
         "* Calculated time limit at 44.1kHz:\n    {}ms\n    {}us\n    {}ns",
         (fbuffer_size * (1.0 / 44100.0)) * 1000.0,
-        (fbuffer_size * (1.0 / 44100.0)) * 1000_000.0,
-        (fbuffer_size * (1.0 / 44100.0)) * 1000_000_000.0
+        (fbuffer_size * (1.0 / 44100.0)) * 1_000_000.0,
+        (fbuffer_size * (1.0 / 44100.0)) * 1_000_000_000.0
     );
     println!("================================================================================");
 

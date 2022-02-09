@@ -263,7 +263,7 @@ impl LooperProcessorState {
 mod test {
     use num::FromPrimitive;
 
-    use crate::time_info_provider::{MockTimeInfoProvider, TimeInfo, TimeInfoBuilder};
+    use crate::time_info_provider::{MockTimeInfoProvider, TimeInfoBuilder};
 
     use super::*;
 
