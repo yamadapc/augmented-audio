@@ -1,5 +1,4 @@
 use iced::{Alignment, Button, Column, Container, Length, Row, Text};
-use iced_audio::{IntRange, NormalParam};
 use iced_baseview::{Command, Element};
 
 use audio_garbage_collector::Shared;
@@ -11,53 +10,9 @@ use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
 use looper_processor::LoopSequencerParams;
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
+use parameter_view_model::{ParameterId, ParameterViewModel};
 
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
-pub enum ParameterId {
-    LoopVolume,
-    DryVolume,
-    // PlaybackSpeed,
-    SeqSlices,
-    SeqSteps,
-}
-
-pub struct ParameterViewModel {
-    id: ParameterId,
-    name: String,
-    suffix: String,
-    value: f32,
-    knob_state: iced_audio::knob::State,
-    int_range: Option<IntRange>,
-    range: (f32, f32),
-}
-
-impl ParameterViewModel {
-    pub fn new(
-        id: ParameterId,
-        name: String,
-        suffix: String,
-        value: f32,
-        range: (f32, f32),
-    ) -> Self {
-        ParameterViewModel {
-            id,
-            name,
-            suffix,
-            value,
-            knob_state: iced_audio::knob::State::new(NormalParam::from(
-                (value - range.0) / (range.1 - range.0),
-            )),
-            int_range: None,
-            range,
-        }
-    }
-
-    pub fn snap_int(mut self) -> Self {
-        let range = IntRange::new(self.range.0 as i32, self.range.1 as i32);
-        self.int_range = Some(range);
-        self
-    }
-}
+mod parameter_view_model;
 
 #[derive(Debug, Clone)]
 pub enum Message {
