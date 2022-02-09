@@ -13,7 +13,7 @@ pub struct TimeInfo {
 #[automock]
 pub trait TimeInfoProvider {
     fn get_time_info(&self) -> TimeInfo;
-    fn tick(&mut self);
+    fn tick(&self);
 }
 
 pub struct TimeInfoProviderImpl {
@@ -39,17 +39,17 @@ impl TimeInfoProvider for TimeInfoProviderImpl {
             });
 
         host_time_info.unwrap_or_else(|| TimeInfo {
-            tempo: self.playhead.options().tempo.map(|t| t as f64),
+            tempo: self.playhead.options().tempo().map(|t| t as f64),
             position_samples: self.playhead.position_samples() as f64,
             position_beats: self
                 .playhead
                 .options()
-                .tempo
+                .tempo()
                 .map(|_| self.playhead.position_beats()),
         })
     }
 
-    fn tick(&mut self) {
+    fn tick(&self) {
         self.playhead.accept_samples(1);
     }
 }
@@ -58,19 +58,15 @@ impl TimeInfoProviderImpl {
     pub fn new(host_callback: Option<HostCallback>) -> Self {
         TimeInfoProviderImpl {
             host_callback,
-            playhead: PlayHead::new(PlayHeadOptions {
-                sample_rate: None,
-                tempo: None,
-                ticks_per_quarter_note: None,
-            }),
+            playhead: PlayHead::new(PlayHeadOptions::new(None, None, None)),
         }
     }
 
-    pub fn set_tempo(&mut self, tempo: u32) {
+    pub fn set_tempo(&self, tempo: u32) {
         self.playhead.set_tempo(tempo);
     }
 
-    pub fn set_sample_rate(&mut self, sample_rate: f32) {
+    pub fn set_sample_rate(&self, sample_rate: f32) {
         self.playhead.set_sample_rate(sample_rate);
     }
 }

@@ -20,6 +20,18 @@ impl PlayHeadOptions {
             ticks_per_quarter_note: ticks_per_quarter_note.into(),
         }
     }
+
+    pub fn sample_rate(&self) -> Option<f32> {
+        self.sample_rate.inner()
+    }
+
+    pub fn tempo(&self) -> Option<u32> {
+        self.tempo.inner()
+    }
+
+    pub fn ticks_per_quarter_note(&self) -> Option<u32> {
+        self.ticks_per_quarter_note.inner()
+    }
 }
 
 pub struct PlayHead {
