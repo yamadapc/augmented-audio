@@ -183,6 +183,7 @@ impl LooperHandle {
         for sample in clip.slice() {
             sample.set(0.0);
         }
+        self.length.store(0, Ordering::Relaxed);
     }
 
     pub fn play(&self) {
@@ -267,6 +268,10 @@ impl LooperHandle {
 
     pub fn quantize_options(&self) -> &QuantizeOptions {
         &self.quantize_options
+    }
+
+    pub fn time_info_provider(&self) -> &TimeInfoProviderImpl {
+        &self.time_info_provider
     }
 
     pub fn set_tempo(&self, tempo: u32) {

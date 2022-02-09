@@ -33,7 +33,6 @@ fn main() {
         flags: Flags {
             processor_handle,
             sequencer_handle,
-            host_callback: None,
         },
     });
 }

@@ -134,6 +134,7 @@ impl BottomPanelView {
             }
             Message::ClearPressed => {
                 self.processor_handle.clear();
+                self.sequencer_handle.clear();
             }
             Message::StopPressed => {
                 self.processor_handle.toggle_playback();
@@ -141,6 +142,8 @@ impl BottomPanelView {
             Message::SequencePressed => self.flush_params(),
             Message::QuantizeModePressed => {
                 self.processor_handle.set_tempo(120);
+                let quantize_options = self.processor_handle.quantize_options();
+                quantize_options.set_mode(quantize_options.mode().cycle());
             }
         }
         Command::none()
@@ -263,7 +266,10 @@ impl ButtonsView {
             .into(),
             Button::new(
                 &mut self.quantize_mode_state,
-                Text::new("Free tempo").size(Spacing::small_font_size()),
+                Text::new(quantize_mode_label(
+                    self.processor_handle.quantize_options().mode(),
+                ))
+                .size(Spacing::small_font_size()),
             )
             .on_press(Message::QuantizeModePressed)
             .style(audio_style::Button::default())
@@ -315,5 +321,16 @@ fn parameter_view(parameter_view_model: &mut ParameterViewModel) -> Element<Mess
         .spacing(Spacing::small_spacing()),
     )
     .style(audio_style::HoverContainer)
+    .into()
+}
+
+fn quantize_mode_label(mode: looper_processor::QuantizeMode) -> String {
+    use looper_processor::QuantizeMode::*;
+
+    match mode {
+        None => "Free tempo",
+        SnapNext => "Snap next",
+        SnapClosest => "Snap closest",
+    }
     .into()
 }

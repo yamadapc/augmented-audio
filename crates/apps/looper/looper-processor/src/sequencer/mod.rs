@@ -73,6 +73,11 @@ impl LoopSequencerProcessorHandle {
         self.sequencer_output.set(make_shared(Some(output)));
         self.params.set(make_shared(Some(params)));
     }
+
+    pub fn clear(&self) {
+        self.sequencer_output.set(make_shared(None));
+        self.params.set(make_shared(None));
+    }
 }
 
 pub struct LoopSequencerProcessor {

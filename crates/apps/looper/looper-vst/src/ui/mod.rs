@@ -11,7 +11,7 @@ use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::Container0;
 use audio_processor_iced_design_system::style::Container1;
 use audio_processor_iced_design_system::tabs;
-use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
+use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle, TimeInfoProvider};
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
 
@@ -23,14 +23,12 @@ mod style;
 
 #[derive(Clone)]
 pub struct Flags {
-    pub host_callback: Option<HostCallback>,
     pub processor_handle: Shared<LooperProcessorHandle>,
     pub sequencer_handle: Shared<LoopSequencerProcessorHandle>,
 }
 
 pub struct LooperApplication {
-    // processor_handle: Shared<LooperProcessorHandle>,
-    host_callback: Option<HostCallback>,
+    processor_handle: Shared<LooperProcessorHandle>,
     looper_visualization: LooperVisualizationView<LooperVisualizationDrawModelImpl>,
     knobs_view: bottom_panel::BottomPanelView,
     tabs_view: tabs::State,
@@ -57,8 +55,7 @@ impl Application for LooperApplication {
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
             LooperApplication {
-                // processor_handle: flags.processor_handle.clone(),
-                host_callback: flags.host_callback,
+                processor_handle: flags.processor_handle.clone(),
                 looper_visualization: LooperVisualizationView::new(
                     LooperVisualizationDrawModelImpl::new(
                         flags.processor_handle.clone(),
@@ -95,23 +92,12 @@ impl Application for LooperApplication {
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
-        let time_info = self
-            .host_callback
-            .map(|cb| {
-                cb.get_time_info(
-                    (vst::api::TimeInfoFlags::TEMPO_VALID | vst::api::TimeInfoFlags::PPQ_POS_VALID)
-                        .bits(),
-                )
-            })
-            .flatten();
-        let status_message = if let Some(time_info) = time_info {
-            format!("{}bpm {:.1}", time_info.tempo, time_info.ppq_pos,)
-            // format!(
-            //     "{}bpm {:.1} / {}",
-            //     time_info.tempo,
-            //     time_info.ppq_pos,
-            //     &*self.processor_handle.debug()
-            // )
+        let time_info_provider = self.processor_handle.time_info_provider();
+        let time_info = time_info_provider.get_time_info();
+        let status_message = if let Some((position_beats, tempo)) =
+            time_info.position_beats().zip(time_info.tempo())
+        {
+            format!("{}bpm {:.1}", tempo, position_beats)
         } else {
             "Free tempo".into()
         };

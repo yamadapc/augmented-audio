@@ -87,7 +87,6 @@ impl Plugin for LoopiPlugin {
             ui::Flags {
                 processor_handle: self.processor.handle().clone(),
                 sequencer_handle: self.processor.sequencer_handle().clone(),
-                host_callback: Some(self.host_callback.clone()),
             },
             (700, 300),
         )))

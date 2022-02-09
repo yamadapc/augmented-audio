@@ -1,5 +1,7 @@
 use std::sync::atomic::AtomicUsize;
 
+use num::FromPrimitive;
+use num::ToPrimitive;
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use audio_processor_traits::AtomicF32;
@@ -12,6 +14,12 @@ pub enum QuantizeMode {
     None = 0,
     SnapNext = 1,
     SnapClosest = 2,
+}
+
+impl QuantizeMode {
+    pub fn cycle(&self) -> QuantizeMode {
+        QuantizeMode::from_u32((self.to_u32().unwrap() + 1) % 3).unwrap()
+    }
 }
 
 pub struct QuantizeOptions {

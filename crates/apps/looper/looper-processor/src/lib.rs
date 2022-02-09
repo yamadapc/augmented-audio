@@ -1,7 +1,11 @@
 pub use new_processor::handle::LooperHandle as LooperProcessorHandle;
 pub use new_processor::handle::LooperOptions;
+pub use new_processor::handle::QuantizeMode;
+pub use new_processor::handle::QuantizeOptions;
 pub use new_processor::LooperProcessor;
-pub use sequencer::{LoopSequencerParams, LoopSequencerProcessorHandle};
+pub use sequencer::LoopSequencerParams;
+pub use sequencer::LoopSequencerProcessorHandle;
+pub use time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
 
 // use handle::state::RecordingState;
 // use handle::LooperProcessorHandle;

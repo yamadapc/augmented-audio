@@ -79,6 +79,10 @@ impl TimeInfoProviderImpl {
         }
     }
 
+    pub fn playhead(&self) -> &PlayHead {
+        &self.playhead
+    }
+
     pub fn set_tempo(&self, tempo: u32) {
         self.playhead.set_tempo(tempo);
     }
