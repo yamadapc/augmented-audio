@@ -11,7 +11,7 @@ mod ui;
 fn main() {
     augmented::ops::wisual_logger::init_from_env();
 
-    let loopi_processor = LooperProcessor::new(LooperOptions {
+    let loopi_processor = LooperProcessor::from_options(LooperOptions {
         ..LooperOptions::default()
     });
     let processor_handle = loopi_processor.handle().clone();

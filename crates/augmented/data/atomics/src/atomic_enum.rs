@@ -5,7 +5,7 @@ use num_traits::{FromPrimitive, ToPrimitive};
 
 /// Given an enum value deriving `FromPrimitive`/`ToPrimitive`, handles storing the value as an
 /// atomic usize.
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct AtomicEnum<Inner: FromPrimitive + ToPrimitive> {
     value: AtomicUsize,
     inner: PhantomData<Inner>,

@@ -7,10 +7,10 @@ use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
 };
+use augmented_atomics::AtomicEnum;
 
 use crate::loop_quantization::{LoopQuantizer, LoopQuantizerMode, QuantizeInput};
 use crate::time_info_provider::TimeInfoProvider;
-use crate::util::atomic_enum::AtomicEnum;
 
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum RecordingState {

@@ -6,15 +6,12 @@ pub use sequencer::{LoopSequencerParams, LoopSequencerProcessorHandle};
 // use handle::state::RecordingState;
 // use handle::LooperProcessorHandle;
 
-// use util::atomic_enum::AtomicEnum;
-
 mod handle;
 mod loop_quantization;
 mod midi_map;
 mod new_processor;
 mod sequencer;
 mod time_info_provider;
-mod util;
 
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;
 

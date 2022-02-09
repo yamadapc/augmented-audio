@@ -18,13 +18,13 @@ pub struct LooperProcessor {
 
 impl Default for LooperProcessor {
     fn default() -> Self {
-        Self::new(Default::default())
+        Self::from_options(Default::default())
     }
 }
 
 impl LooperProcessor {
-    pub fn new(options: handle::LooperOptions) -> Self {
-        let handle = make_shared(LooperHandle::new(options));
+    pub fn from_options(options: handle::LooperOptions) -> Self {
+        let handle = make_shared(LooperHandle::from_options(options));
         Self {
             handle: handle.clone(),
             sequencer: LoopSequencerProcessor::new(handle),
@@ -79,10 +79,11 @@ mod test {
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
         VecAudioBuffer,
     };
+    use handle::{LooperState, QuantizeMode};
 
     use crate::MAX_LOOP_LENGTH_SECS;
 
-    use super::LooperProcessor;
+    use super::*;
 
     fn test_settings() -> AudioProcessorSettings {
         AudioProcessorSettings::new(44100.0, 1, 1, 512)
@@ -286,45 +287,54 @@ mod test {
         test_looper_is_silent(&settings, &mut looper);
     }
 
-    // #[test]
-    // fn test_looper_with_quantization() {
-    //     let collector = basedrop::Collector::new();
-    //     let mut time_info_provider = TimeInfoProviderImpl::new(None);
-    //     let settings = AudioProcessorSettings::new(100.0, 1, 1, 512);
-    //     time_info_provider.set_sample_rate(settings.sample_rate);
-    //     time_info_provider.set_tempo(60);
-    //
-    //     let handle = make_shared(LooperProcessorHandle::new(
-    //         audio_garbage_collector::handle(),
-    //         LooperProcessorState::new(),
-    //     ));
-    //     let mut looper = LooperProcessor {
-    //         id: "".to_string(),
-    //         handle: handle.clone(),
-    //         sequencer: LoopSequencerProcessor::new(handle),
-    //         settings: Default::default(),
-    //         time_info_provider,
-    //     };
-    //     looper.prepare(settings);
-    //
-    //     let mut sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
-    //     let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
-    //     let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
-    //
-    //     looper.handle.start_recording();
-    //     looper.process(&mut sample_buffer);
-    //     looper.handle.stop_recording();
-    //     test_looper_is_silent_for(&mut looper, 299);
-    //
-    //     let mut output_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
-    //     let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
-    //
-    //     looper.process(&mut output_buffer);
-    //     let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
-    //     let sample_vec = input_buffer.slice().iter().cloned().collect::<Vec<f32>>();
-    //     assert_eq!(
-    //         output_vec, sample_vec,
-    //         "After recording the looper didn't playback"
-    //     );
-    // }
+    #[test]
+    fn test_looper_with_quantization_will_wait_until_a_beat() {
+        let settings = AudioProcessorSettings::new(100.0, 1, 1, 512);
+        let mut looper = LooperProcessor::default();
+        looper.prepare(settings);
+
+        // Setup tempo & quantization
+        looper.handle.set_tempo(60);
+        looper
+            .handle
+            .quantize_options()
+            .set_mode(QuantizeMode::SnapClosest);
+
+        {
+            let mut sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
+            let input_buffer =
+                VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
+            let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
+            // We process 1s of audio; which is 1 beat
+            looper.process(&mut sample_buffer);
+        }
+
+        looper.handle.start_recording();
+        assert_eq!(looper.handle.state(), LooperState::RecordingScheduled);
+
+        // We process 3 more beats of audio
+        test_looper_is_silent_for(&mut looper, 300);
+        // Now we're on beat 0, we should be recording
+        assert_eq!(looper.handle.state(), LooperState::Recording);
+
+        // We record some audio in
+        let mut recorded_buffer: Vec<f32> = (0..200).map(|i| i as f32).collect();
+        let mut recorded_buffer = InterleavedAudioBuffer::new(1, &mut recorded_buffer);
+        looper.process(&mut recorded_buffer);
+        looper.handle.stop_recording_allocating_loop();
+        assert_eq!(looper.handle.state(), LooperState::Playing);
+
+        // We expect audio to be played back now
+        let mut output_buffer: Vec<f32> = (0..200).map(|_i| 0.0).collect();
+        let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
+        looper.process(&mut output_buffer);
+        assert_eq!(looper.handle.state(), LooperState::Playing);
+
+        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        assert_eq!(
+            output_vec,
+            (0..200).map(|i| i as f32).collect::<Vec<f32>>(),
+            "After recording the looper didn't playback"
+        );
+    }
 }

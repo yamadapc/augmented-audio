@@ -10,12 +10,14 @@ use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use augmented_atomics::AtomicEnum;
+pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
 
 use crate::loop_quantization::{LoopQuantizer, LoopQuantizerMode, QuantizeInput};
 use crate::time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
-use crate::util::atomic_enum::AtomicEnum;
 
+mod quantize_mode;
 mod scratch_pad;
 mod utils;
 
@@ -28,6 +30,20 @@ pub enum LooperState {
     Overdubbing = 4,
 
     RecordingScheduled = 5,
+}
+
+pub struct LooperOptions {
+    pub max_loop_length: Duration,
+    pub host_callback: Option<HostCallback>,
+}
+
+impl Default for LooperOptions {
+    fn default() -> Self {
+        Self {
+            max_loop_length: Duration::from_secs(10),
+            host_callback: None,
+        }
+    }
 }
 
 pub struct LooperHandle {
@@ -50,24 +66,17 @@ pub struct LooperHandle {
     options: LooperOptions,
 
     settings: SharedCell<AudioProcessorSettings>,
+    quantize_options: QuantizeOptions,
 }
 
-pub struct LooperOptions {
-    pub max_loop_length: Duration,
-    pub host_callback: Option<HostCallback>,
-}
-
-impl Default for LooperOptions {
+impl Default for LooperHandle {
     fn default() -> Self {
-        Self {
-            max_loop_length: Duration::from_secs(10),
-            host_callback: None,
-        }
+        Self::from_options(Default::default())
     }
 }
 
 impl LooperHandle {
-    pub fn new(options: LooperOptions) -> Self {
+    pub fn from_options(options: LooperOptions) -> Self {
         let time_info_provider = TimeInfoProviderImpl::new(options.host_callback);
         Self {
             dry_volume: AtomicF32::new(0.0),
@@ -82,6 +91,7 @@ impl LooperHandle {
             time_info_provider,
             options,
             settings: make_shared_cell(Default::default()),
+            quantize_options: QuantizeOptions::default(),
         }
     }
 
@@ -153,18 +163,16 @@ impl LooperHandle {
 
     fn get_quantized_offset(&self) -> Option<i32> {
         let time_info = self.time_info_provider.get_time_info();
-        time_info
-            .tempo()
-            .zip(time_info.position_beats())
-            .map(|(tempo, position_beats)| {
-                let quantizer = LoopQuantizer::new(LoopQuantizerMode::None);
-                quantizer.quantize(QuantizeInput {
-                    tempo: tempo as f32,
-                    sample_rate: self.settings.get().sample_rate(),
-                    position_beats: position_beats as f32,
-                    position_samples: 0,
-                })
+        let beat_info = time_info.tempo().zip(time_info.position_beats());
+        beat_info.map(|(tempo, position_beats)| {
+            let quantizer = LoopQuantizer::new(self.quantize_options.inner());
+            quantizer.quantize(QuantizeInput {
+                tempo: tempo as f32,
+                sample_rate: self.settings.get().sample_rate(),
+                position_beats: position_beats as f32,
+                position_samples: 0,
             })
+        })
     }
 
     pub fn clear(&self) {
@@ -257,6 +265,10 @@ impl LooperHandle {
             || state == LooperState::Overdubbing
     }
 
+    pub fn quantize_options(&self) -> &QuantizeOptions {
+        &self.quantize_options
+    }
+
     pub fn set_tempo(&self, tempo: u32) {
         self.time_info_provider.set_tempo(tempo);
     }
@@ -282,7 +294,14 @@ impl LooperHandle {
         self.looper_clip
             .set(make_shared(AtomicRefCell::new(looper_clip)));
 
+        self.time_info_provider
+            .set_sample_rate(settings.sample_rate());
+
         self.settings.set(make_shared(settings));
+    }
+
+    pub(crate) fn state(&self) -> LooperState {
+        self.state.get()
     }
 
     #[inline]
@@ -317,6 +336,7 @@ impl LooperHandle {
     pub(crate) fn after_process(&self) {
         let scratch_pad = self.scratch_pad.get();
         scratch_pad.after_process();
+        self.time_info_provider.tick();
 
         let state = self.state.get();
         if state == LooperState::RecordingScheduled {
@@ -336,6 +356,93 @@ impl LooperHandle {
             let cursor = self.cursor.load(Ordering::Relaxed);
             let cursor = (cursor + 1) % self.length.load(Ordering::Relaxed);
             self.cursor.store(cursor, Ordering::Relaxed);
+        }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use audio_processor_testing_helpers::assert_f_eq;
+
+    use super::*;
+
+    mod get_offset {
+        use super::*;
+
+        #[test]
+        fn test_get_offset_cursor_without_tempo() {
+            let handle = LooperHandle::default();
+            handle.prepare(AudioProcessorSettings::default());
+            let quantize_options = handle.quantize_options();
+            quantize_options.set_mode(quantize_mode::QuantizeMode::SnapNext);
+
+            let offset = handle.get_quantized_offset();
+            assert!(offset.is_none());
+        }
+
+        #[test]
+        fn test_get_offset_cursor_with_tempo_but_disabled_quantize() {
+            let handle = LooperHandle::default();
+            handle.prepare(AudioProcessorSettings::new(100.0, 1, 1, 512));
+            handle.set_tempo(60);
+
+            // At the start, offset is 0
+            let offset = handle.get_quantized_offset();
+            assert_eq!(offset, Some(0));
+            handle.process(0, 0.0); // <- we tick one sample
+            handle.after_process();
+            assert_f_eq!(
+                handle.time_info_provider.get_time_info().position_samples(),
+                1.0
+            );
+            let offset = handle.get_quantized_offset();
+            assert_eq!(offset, Some(0));
+        }
+
+        #[test]
+        fn test_get_offset_cursor_with_tempo_snap_next() {
+            let handle = LooperHandle::default();
+            handle.prepare(AudioProcessorSettings::new(100.0, 1, 1, 512));
+            handle.set_tempo(60);
+            let quantize_options = handle.quantize_options();
+            quantize_options.set_mode(quantize_mode::QuantizeMode::SnapNext);
+
+            // At the start, offset is 0
+            let offset = handle.get_quantized_offset();
+            assert_eq!(offset, Some(0));
+            handle.process(0, 0.0); // <- we tick one sample
+            handle.after_process();
+            assert_f_eq!(
+                handle.time_info_provider.get_time_info().position_samples(),
+                1.0
+            );
+
+            // Now we should snap to the next beat (which is 399 samples ahead)
+            let offset = handle.get_quantized_offset();
+            assert_eq!(offset, Some(399));
+        }
+
+        #[test]
+        fn test_get_offset_cursor_with_tempo_snap_closest() {
+            let handle = LooperHandle::default();
+            handle.prepare(AudioProcessorSettings::new(100.0, 1, 1, 512));
+            handle.set_tempo(60);
+            let quantize_options = handle.quantize_options();
+            quantize_options.set_mode(quantize_mode::QuantizeMode::SnapClosest);
+
+            // At the start, offset is 0
+            let offset = handle.get_quantized_offset();
+            assert_eq!(offset, Some(0));
+            handle.process(0, 0.0); // <- we tick one sample
+            handle.after_process();
+            assert_f_eq!(
+                handle.time_info_provider.get_time_info().position_samples(),
+                1.0
+            );
+
+            // Now we should snap to the closest beat (which is one sample behind)
+            let offset = handle.get_quantized_offset();
+            assert_eq!(offset, Some(-1));
         }
     }
 }

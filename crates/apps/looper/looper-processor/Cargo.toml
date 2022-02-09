@@ -16,6 +16,7 @@ rimd = "^0.0.1"
 rand = "0.8.4"
 augmented-adsr-envelope = { version = "0.1.0-alpha.2", path = "../../../augmented/audio/adsr-envelope" }
 
+augmented-atomics = { path = "../../../augmented/data/atomics" }
 augmented-playhead = { path = "../../../augmented/data/augmented-playhead" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "1.0.0-alpha.5", path = "../../../augmented/application/audio-processor-standalone" }
