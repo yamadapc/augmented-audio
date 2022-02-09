@@ -1,6 +1,6 @@
 [package]
 name = "augmented-midi"
-version = "1.0.0-alpha.2"
+version = "1.0.0-alpha.3"
 edition = "2021"
 description = "Experimental MIDI file/event parser using nom combinators"
 license = "MIT"
