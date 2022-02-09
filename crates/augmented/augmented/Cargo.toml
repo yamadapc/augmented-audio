@@ -40,7 +40,7 @@ smooth-value = { path = "../data/smooth-value" }
 
 # dsp
 augmented-convert-sample-rate = { path = "../dsp/convert-sample-rate" , version = "1.0.0-alpha.3" }
-augmented-dsp-filters = { version = "1.0.0-alpha.2", path = "../dsp/dsp-filters" }
+augmented-dsp-filters = { version = "1.0.0-alpha.3", path = "../dsp/dsp-filters" }
 
 # gui
 audio-processor-iced-design-system = { path = "../gui/audio-processor-iced-design-system" }
