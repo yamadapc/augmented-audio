@@ -14,7 +14,7 @@ default = []
 f64 = []
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.3" }
 
 [package.metadata.augmented]
 private = false

@@ -49,7 +49,7 @@ augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version 
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.2" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.3" }
 
 [[bench]]
 name = "plugin_host_lib_criterion"

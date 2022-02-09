@@ -13,7 +13,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [dev-dependencies]
 rand = "^0.8.3"
 augmented_oscillator = { version = "1.0.0-alpha.3", path = "../../audio/oscillator" }
-audio-processor-testing-helpers = { version = "1.0.0-alpha.2", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.3", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = false
