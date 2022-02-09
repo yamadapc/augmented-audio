@@ -40,7 +40,7 @@ pub struct LooperOptions {
 impl Default for LooperOptions {
     fn default() -> Self {
         Self {
-            max_loop_length: Duration::from_secs(10),
+            max_loop_length: Duration::from_secs(crate::MAX_LOOP_LENGTH_SECS as u64),
             host_callback: None,
         }
     }

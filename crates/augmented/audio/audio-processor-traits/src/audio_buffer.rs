@@ -384,7 +384,7 @@ mod test {
         let mut vec = VecAudioBuffer::new();
         vec.resize(2, 1000, 0.0);
         let handle = thread::spawn(move || println!("HELLO VEC {:?}", vec));
-        handle.join();
+        handle.join().unwrap();
     }
 
     #[test]
@@ -395,6 +395,6 @@ mod test {
         let vec_2 = vec.clone();
         let handle = thread::spawn(move || println!("HELLO VEC {:?}", vec));
         println!("HELLO VEC {:?}", vec_2);
-        handle.join();
+        handle.join().unwrap();
     }
 }
