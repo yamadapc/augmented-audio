@@ -2,6 +2,11 @@
 name = "augmented-atomics"
 version = "0.1.0-alpha.1"
 edition = "2021"
+description = "Implements some extra types and utilities over atomics for building audio-thread / GUI synchronization"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+readme = "README.md"
 
 [dependencies]
 num-traits = "0.2.14"
