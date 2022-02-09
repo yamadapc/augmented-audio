@@ -9,7 +9,7 @@ crate-type = ["staticlib", "lib"]
 [dependencies]
 augmented_oscillator = { path = "../../augmented/audio/oscillator" , version = "1.0.0-alpha.3" }
 audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.3" }
-audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" , version = "1.0.0-alpha.5" }
+audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" , version = "1.0.0-alpha.6" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 augmented-playhead = { path = "../../augmented/data/augmented-playhead" }
 augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.2" }
