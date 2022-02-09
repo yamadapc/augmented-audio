@@ -15,7 +15,7 @@ audio-processor-standalone = { version = "1.0.0-alpha.5", path = "../../augmente
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
 atomic-queue = { path = "../../augmented/data/atomic-queue" , version = "1.0.0-alpha.1" }
 circular-data-structures = { path = "../../augmented/data/circular-data-structures" }
-audio-processor-traits = { version = "1.0.0-alpha.2", path = "../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.3", path = "../../augmented/audio/audio-processor-traits" }
 
 [package.metadata.augmented]
 private = true

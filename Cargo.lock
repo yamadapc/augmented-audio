@@ -511,7 +511,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-traits"
-version = "1.0.0-alpha.2"
+version = "1.0.0-alpha.3"
 dependencies = [
  "augmented-atomics",
  "augmented_oscillator",

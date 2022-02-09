@@ -20,7 +20,7 @@ augmented-atomics = { path = "../../../augmented/data/atomics" , version = "0.1.
 augmented-playhead = { path = "../../../augmented/data/augmented-playhead" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "1.0.0-alpha.5", path = "../../../augmented/application/audio-processor-standalone" }
-audio-processor-traits = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.3", path = "../../../augmented/audio/audio-processor-traits" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 mockall = "0.11.0"
 derive_builder = "0.10.2"
