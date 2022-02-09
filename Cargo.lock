@@ -383,7 +383,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-analysis"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-file",
