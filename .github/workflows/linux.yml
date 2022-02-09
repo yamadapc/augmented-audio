@@ -40,7 +40,7 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
-          cargo tarpaulin --skip-clean --workspace --verbose \
+          cargo tarpaulin --skip-clean --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
               --exclude-files "*crates/vendor/*" \
@@ -66,7 +66,11 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources
+              --exclude macos-bundle-resources \
+              -- -Z unstable-options --format json | tee cargo-output.json
+          cargo install --force --version 0.1.10 cargo2junit
+          mkdir -p junit
+          cat cargo-output.json | cargo2junit > junit/results.xml
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -94,7 +98,27 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources
+              --exclude macos-bundle-resources \
+              -- -Z unstable-options --format json | tee cargo-output.json
+          cargo install --force --version 0.1.10 cargo2junit
+          mkdir -p junit
+          cat cargo-output.json | cargo2junit > junit/results.xml
+      - name: JUnit Report Action
+        uses: mikepenz/action-junit-report@v2.9.0
+        if: always()
+        with:
+          report_paths: 'junit/*.xml'
+          fail_on_failure: true
+          require_tests: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: Rust unit-tests - Linux
+          path: junit/*.xml
+          reporter: java-junit
+
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -122,7 +146,7 @@ jobs:
       run: ./scripts/install-ubuntu-rust-dependencies.sh
     - name: Build release
       run: |
-        cargo build --release --verbose --workspace \
+        cargo build --release --workspace \
             --exclude augmented-ui \
             --exclude audiounit \
             --exclude example-iced-xcode-integration \

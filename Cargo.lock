@@ -323,6 +323,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "atomic_refcell"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "73b5e5f48b927f04e952dedc932f31995a65a0bf65ec971c74436e51bf6e970d"
+
+[[package]]
 name = "atty"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -507,6 +513,7 @@ dependencies = [
 name = "audio-processor-traits"
 version = "1.0.0-alpha.2"
 dependencies = [
+ "augmented-atomics",
  "augmented_oscillator",
  "criterion",
  "num 0.4.0",
@@ -593,7 +600,7 @@ dependencies = [
  "async-trait",
  "itertools 0.10.1",
  "log",
- "mockall",
+ "mockall 0.10.2",
  "mockall_double",
  "reqwest",
  "serde",
@@ -602,6 +609,14 @@ dependencies = [
  "thiserror",
  "tokio",
  "wisual-logger",
+]
+
+[[package]]
+name = "augmented-atomics"
+version = "0.1.0"
+dependencies = [
+ "num-derive",
+ "num-traits 0.2.14",
 ]
 
 [[package]]
@@ -637,7 +652,7 @@ dependencies = [
  "crates_io_api",
  "daggy 0.8.0",
  "log",
- "mockall",
+ "mockall 0.10.2",
  "plist",
  "semver 1.0.4",
  "serde",
@@ -674,6 +689,8 @@ name = "augmented-playhead"
 version = "0.1.0"
 dependencies = [
  "audio-processor-testing-helpers",
+ "audio-processor-traits",
+ "augmented-atomics",
 ]
 
 [[package]]
@@ -1757,8 +1774,18 @@ version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d706e75d87e35569db781a9b5e2416cff1236a47ed380831f959382ccd5f858"
 dependencies = [
- "darling_core",
- "darling_macro",
+ "darling_core 0.10.2",
+ "darling_macro 0.10.2",
+]
+
+[[package]]
+name = "darling"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f2c43f534ea4b0b049015d00269734195e6d3f0f6635cb692251aca6f9f8b3c"
+dependencies = [
+ "darling_core 0.12.4",
+ "darling_macro 0.12.4",
 ]
 
 [[package]]
@@ -1776,12 +1803,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "darling_core"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e91455b86830a1c21799d94524df0845183fa55bafd9aa137b01c7d1065fa36"
+dependencies = [
+ "fnv",
+ "ident_case",
+ "proc-macro2 1.0.32",
+ "quote 1.0.9",
+ "strsim 0.10.0",
+ "syn",
+]
+
+[[package]]
 name = "darling_macro"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9b5a2f4ac4969822c62224815d069952656cadc7084fdca9751e6d959189b72"
 dependencies = [
- "darling_core",
+ "darling_core 0.10.2",
+ "quote 1.0.9",
+ "syn",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29b5acf0dea37a7f66f7b25d2c5e93fd46f8f6968b1a5d7a3e02e97768afc95a"
+dependencies = [
+ "darling_core 0.12.4",
  "quote 1.0.9",
  "syn",
 ]
@@ -1867,6 +1919,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "derive_builder"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d13202debe11181040ae9063d739fa32cfcaaebe2275fe387703460ae2365b30"
+dependencies = [
+ "derive_builder_macro",
+]
+
+[[package]]
+name = "derive_builder_core"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "66e616858f6187ed828df7c64a6d71720d83767a7f19740b2d1b6fe6327b36e5"
+dependencies = [
+ "darling 0.12.4",
+ "proc-macro2 1.0.32",
+ "quote 1.0.9",
+ "syn",
+]
+
+[[package]]
+name = "derive_builder_macro"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58a94ace95092c5acb1e97a7e846b310cfbd499652f72297da7493f618a98d73"
+dependencies = [
+ "derive_builder_core",
+ "syn",
+]
+
+[[package]]
 name = "derive_more"
 version = "0.99.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1884,6 +1967,12 @@ name = "difference"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "524cbf6897b527295dff137cec09ecf3a05f4fddffd7dfcd1585403449e74198"
+
+[[package]]
+name = "difflib"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6184e33543162437515c2e2b48714794e37845ec9851711914eec9d308f6ebe8"
 
 [[package]]
 name = "digest"
@@ -1971,6 +2060,12 @@ name = "downcast"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4bb454f0228b18c7f4c3b0ebbee346ed9c52e7443b0999cd543ff3571205701d"
+
+[[package]]
+name = "downcast"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1435fa1053d8b2fbbe9be7e97eca7f33d37b28409959813daefc1446a14247f1"
 
 [[package]]
 name = "downcast-rs"
@@ -2165,6 +2260,15 @@ name = "float-cmp"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e1267f4ac4f343772758f7b1bdcbe767c218bbab93bb432acbf5162bbf85a6c4"
+dependencies = [
+ "num-traits 0.2.14",
+]
+
+[[package]]
+name = "float-cmp"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "98de4bbd547a563b716d8dfa9aad1cb19bfab00f4fa09a6a4ed21dbcf44ce9c4"
 dependencies = [
  "num-traits 0.2.14",
 ]
@@ -3679,15 +3783,23 @@ checksum = "b3bd0dd2cd90571056fdb71f6275fada10131182f84899f4b2a916e565d81d86"
 name = "looper-processor"
 version = "0.1.0"
 dependencies = [
+ "atomic_refcell",
  "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
+ "augmented-adsr-envelope",
+ "augmented-atomics",
+ "augmented-playhead",
  "basedrop",
+ "criterion",
+ "derive_builder",
  "log",
+ "mockall 0.11.0",
  "num 0.4.0",
  "num-derive",
  "num-traits 0.2.14",
+ "rand 0.8.4",
  "rimd",
  "uuid 0.8.2",
  "wisual-logger",
@@ -4041,11 +4153,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6ab571328afa78ae322493cacca3efac6a0f2e0a67305b4df31fd439ef129ac0"
 dependencies = [
  "cfg-if 1.0.0",
- "downcast",
+ "downcast 0.10.0",
  "fragile",
  "lazy_static 1.4.0",
- "mockall_derive",
- "predicates",
+ "mockall_derive 0.10.2",
+ "predicates 1.0.8",
+ "predicates-tree",
+]
+
+[[package]]
+name = "mockall"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d4d70639a72f972725db16350db56da68266ca368b2a1fe26724a903ad3d6b8"
+dependencies = [
+ "cfg-if 1.0.0",
+ "downcast 0.11.0",
+ "fragile",
+ "lazy_static 1.4.0",
+ "mockall_derive 0.11.0",
+ "predicates 2.1.1",
  "predicates-tree",
 ]
 
@@ -4054,6 +4181,18 @@ name = "mockall_derive"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7e25b214433f669161f414959594216d8e6ba83b6679d3db96899c0b4639033"
+dependencies = [
+ "cfg-if 1.0.0",
+ "proc-macro2 1.0.32",
+ "quote 1.0.9",
+ "syn",
+]
+
+[[package]]
+name = "mockall_derive"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79ef208208a0dea3f72221e26e904cdc6db2e481d9ade89081ddd494f1dbaa6b"
 dependencies = [
  "cfg-if 1.0.0",
  "proc-macro2 1.0.32",
@@ -4174,7 +4313,7 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "05d1c6307dc424d0f65b9b06e94f88248e6305726b14729fd67a5e47b2dc481d"
 dependencies = [
- "darling",
+ "darling 0.10.2",
  "proc-macro-crate 0.1.5",
  "proc-macro2 1.0.32",
  "quote 1.0.9",
@@ -5033,7 +5172,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f49cfaf7fdaa3bfacc6fa3e7054e65148878354a5cfddcf661df4c851f8021df"
 dependencies = [
  "difference",
- "float-cmp",
+ "float-cmp 0.8.0",
+ "normalize-line-endings",
+ "predicates-core",
+ "regex",
+]
+
+[[package]]
+name = "predicates"
+version = "2.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5aab5be6e4732b473071984b3164dbbfb7a3674d30ea5ff44410b6bcd960c3c"
+dependencies = [
+ "difflib",
+ "float-cmp 0.9.0",
+ "itertools 0.10.1",
  "normalize-line-endings",
  "predicates-core",
  "regex",

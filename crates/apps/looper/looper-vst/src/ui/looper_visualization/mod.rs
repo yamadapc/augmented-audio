@@ -1,3 +1,7 @@
+use std::borrow::Borrow;
+use std::cell::RefCell;
+use std::ops::Deref;
+
 use iced::canvas::{Frame, Stroke};
 use iced::{Column, Point};
 use iced_baseview::canvas::{Cursor, Geometry, Program};
@@ -5,18 +9,77 @@ use iced_baseview::{Canvas, Element, Length, Rectangle};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
-use looper_processor::LooperProcessorHandle;
+use audio_processor_traits::AudioBuffer;
+use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
+
+struct LoopCache {
+    // TODO: This is not the right cache key as overdubs won't render properly
+    num_samples: usize,
+    iterator: Vec<(usize, f32)>,
+}
 
 #[derive(Debug, Clone)]
 pub enum Message {}
 
-pub struct LooperVisualizationView {
-    processor_handle: Shared<LooperProcessorHandle>,
+pub trait LooperVisualizationDrawModel {
+    fn is_recording(&self) -> bool;
+    fn num_samples(&self) -> usize;
+    fn playhead(&self) -> usize;
+    fn loop_iterator(&self) -> Vec<f32>;
 }
 
-impl LooperVisualizationView {
-    pub fn new(processor_handle: Shared<LooperProcessorHandle>) -> Self {
-        Self { processor_handle }
+pub struct LooperVisualizationDrawModelImpl {
+    handle: Shared<LooperProcessorHandle>,
+    sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+}
+
+impl LooperVisualizationDrawModelImpl {
+    pub fn new(
+        handle: Shared<LooperProcessorHandle>,
+        sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    ) -> Self {
+        LooperVisualizationDrawModelImpl {
+            handle,
+            sequencer_handle,
+        }
+    }
+}
+
+impl LooperVisualizationDrawModel for LooperVisualizationDrawModelImpl {
+    fn is_recording(&self) -> bool {
+        LooperProcessorHandle::is_recording(&self.handle)
+    }
+
+    fn num_samples(&self) -> usize {
+        LooperProcessorHandle::num_samples(&self.handle)
+    }
+
+    fn playhead(&self) -> usize {
+        let seq_playhead = LoopSequencerProcessorHandle::playhead(&self.sequencer_handle);
+        seq_playhead.unwrap_or_else(|| LooperProcessorHandle::playhead(&self.handle))
+    }
+
+    fn loop_iterator(&self) -> Vec<f32> {
+        let looper_clip = LooperProcessorHandle::looper_clip(&self.handle);
+        let looper_clip = looper_clip.deref().borrow();
+        looper_clip
+            .frames()
+            .map(|frame| frame[0].get() + frame[1].get())
+            .collect()
+    }
+}
+
+pub struct LooperVisualizationView<Model: LooperVisualizationDrawModel> {
+    model: Model,
+    loop_cache: RefCell<Option<LoopCache>>,
+}
+
+impl<Model: LooperVisualizationDrawModel> LooperVisualizationView<Model> {
+    pub fn new(model: Model) -> Self {
+        Self {
+            model,
+            loop_cache: RefCell::new(None),
+        }
     }
 
     pub fn tick_visualization(&mut self) {}
@@ -24,33 +87,58 @@ impl LooperVisualizationView {
     pub fn clear_visualization(&mut self) {}
 
     pub fn view(&mut self) -> Element<()> {
-        Column::with_children(vec![
-            // Text::new(self.processor_handle.debug()).into(),
-            Canvas::new(self)
-                .height(Length::Fill)
-                .width(Length::Fill)
-                .into(),
-        ])
+        Column::with_children(vec![Canvas::new(self)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .into()])
         .into()
     }
 }
 
-impl Program<()> for LooperVisualizationView {
+impl<Model: LooperVisualizationDrawModel> Program<()> for LooperVisualizationView<Model> {
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
 
-        let is_recording = self.processor_handle.is_recording();
-        let looper_state = self.processor_handle.state();
-        let num_samples = looper_state.num_samples() as f32;
-        let samples_iterator = {
-            let step = 400;
-            looper_state.loop_iterator().enumerate().step_by(step)
-        };
+        let is_recording = self.model.is_recording();
+        let num_samples = self.model.num_samples() as f32;
+        let has_valid_cache = false;
+        // let has_valid_cache = self
+        //     .loop_cache
+        //     .borrow()
+        //     .as_ref()
+        //     .map(|cache| cache.num_samples == num_samples as usize)
+        //     .unwrap_or(false);
 
-        draw_audio_chart(&mut frame, num_samples, is_recording, samples_iterator);
+        let loop_cache = if !has_valid_cache {
+            let step = 400;
+            let iterator = self
+                .model
+                .loop_iterator()
+                .iter()
+                .cloned()
+                .enumerate()
+                .step_by(step)
+                .collect();
+            *self.loop_cache.borrow_mut() = Some(LoopCache {
+                iterator,
+                num_samples: num_samples as usize,
+            });
+
+            self.loop_cache.borrow()
+        } else {
+            self.loop_cache.borrow()
+        };
+        let samples_iterator = &loop_cache.borrow().as_ref().unwrap().iterator;
+
+        draw_audio_chart(
+            &mut frame,
+            num_samples,
+            is_recording,
+            samples_iterator.iter(),
+        );
 
         if !is_recording {
-            let playhead = self.processor_handle.playhead() as f32;
+            let playhead = self.model.playhead() as f32;
             draw_playhead(&mut frame, playhead, num_samples)
         }
 
@@ -58,17 +146,17 @@ impl Program<()> for LooperVisualizationView {
     }
 }
 
-fn draw_audio_chart(
+fn draw_audio_chart<'a>(
     frame: &mut Frame,
     num_samples: f32,
     is_recording: bool,
-    samples_iterator: impl Iterator<Item = (usize, f32)>,
+    samples_iterator: impl Iterator<Item = &'a (usize, f32)>,
 ) {
     let mut path = iced::canvas::path::Builder::new();
     for (index, item) in samples_iterator {
-        let f_index = index as f32;
+        let f_index = *index as f32;
         let x = ((f_index + 1.0) / num_samples) * frame.width();
-        let y = (item as f32) * frame.height() / 2.0 + frame.height() / 2.0;
+        let y = (*item as f32) * frame.height() / 2.0 + frame.height() / 2.0;
 
         if !x.is_finite() {
             continue;

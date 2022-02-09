@@ -41,7 +41,7 @@ pub struct Queue<T> {
     states: Vec<AtomicI8>,
 }
 
-unsafe impl<T> Send for Queue<T> {}
+unsafe impl<T: Send> Send for Queue<T> {}
 unsafe impl<T> Sync for Queue<T> {}
 
 impl<T> Queue<T> {
@@ -203,6 +203,7 @@ impl<T> Queue<T> {
 
 #[cfg(test)]
 mod test {
+    use std::ffi::c_void;
     use std::sync::{Arc, Mutex};
     use std::thread;
     use std::thread::JoinHandle;
@@ -210,24 +211,29 @@ mod test {
 
     use super::*;
 
-    fn mock_ptr(value: i32) -> *mut i32 {
-        value as *mut i32
+    #[derive(Eq, PartialEq, Debug, Copy, Clone)]
+    struct MockPtr(*mut c_void);
+
+    unsafe impl Send for MockPtr {}
+
+    fn mock_ptr(value: i32) -> MockPtr {
+        MockPtr(value as *mut c_void)
     }
 
     #[test]
     fn test_create_bounded_queue() {
-        let _queue = Queue::<*mut i32>::new(10);
+        let _queue = Queue::<MockPtr>::new(10);
     }
 
     #[test]
     fn test_get_empty_queue_len() {
-        let queue = Queue::<*mut i32>::new(10);
+        let queue = Queue::<MockPtr>::new(10);
         assert_eq!(queue.len(), 0);
     }
 
     #[test]
     fn test_push_element_to_queue_increments_length() {
-        let queue = Queue::<*mut i32>::new(10);
+        let queue = Queue::<MockPtr>::new(10);
         assert_eq!(queue.len(), 0);
         let ptr = mock_ptr(1);
         assert!(queue.push(ptr));
@@ -239,7 +245,7 @@ mod test {
 
     #[test]
     fn test_push_pop_push_pop() {
-        let queue = Queue::<*mut i32>::new(10);
+        let queue = Queue::<MockPtr>::new(10);
         assert_eq!(queue.len(), 0);
         {
             let ptr = mock_ptr(1);
@@ -261,7 +267,7 @@ mod test {
 
     #[test]
     fn test_overflow_will_not_break_things() {
-        let queue = Queue::<*mut i32>::new(3);
+        let queue = Queue::<MockPtr>::new(3);
         assert_eq!(queue.len(), 0);
 
         // ENTRY 1 - HEAD, ENTRY, TAIL, EMPTY, EMPTY
@@ -318,8 +324,8 @@ mod test {
         let size = 10000;
         let num_threads = 5;
 
-        let queue: Arc<Queue<*mut i32>> = Arc::new(Queue::new(size * num_threads / 3));
-        let output_queue: Arc<Queue<*mut i32>> = Arc::new(Queue::new(size * num_threads));
+        let queue: Arc<Queue<MockPtr>> = Arc::new(Queue::new(size * num_threads / 3));
+        let output_queue: Arc<Queue<MockPtr>> = Arc::new(Queue::new(size * num_threads));
 
         let is_running = Arc::new(Mutex::new(true));
         let reader_thread = {
@@ -368,7 +374,7 @@ mod test {
 
     fn spawn_writer_thread(
         size: usize,
-        queue: Arc<Queue<*mut i32>>,
+        queue: Arc<Queue<MockPtr>>,
         duration: Duration,
     ) -> JoinHandle<()> {
         thread::spawn(move || {

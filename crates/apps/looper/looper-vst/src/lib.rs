@@ -10,7 +10,7 @@ use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
 use audio_processor_traits::midi::vst::midi_slice_from_events;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 use iced_editor::IcedEditor;
-use looper_processor::LooperProcessor;
+use looper_processor::{LooperOptions, LooperProcessor};
 
 pub use crate::ui::LooperApplication;
 
@@ -22,7 +22,6 @@ pub struct LoopiPlugin {
     parameters: Arc<ParameterStore>,
     processor: LooperProcessor,
     settings: AudioProcessorSettings,
-    host_callback: HostCallback,
 }
 
 impl Plugin for LoopiPlugin {
@@ -37,17 +36,18 @@ impl Plugin for LoopiPlugin {
         }
     }
 
-    fn new(host_callback: HostCallback) -> Self
+    fn new(_host_callback: HostCallback) -> Self
     where
         Self: Sized,
     {
         audio_plugin_logger::init("loopi.log");
 
-        let processor = LooperProcessor::new(audio_garbage_collector::handle());
+        let processor = LooperProcessor::from_options(LooperOptions {
+            ..Default::default()
+        });
 
         LoopiPlugin {
             processor,
-            host_callback,
             parameters: Arc::new(ParameterStore::default()),
             settings: AudioProcessorSettings::default(),
         }
@@ -80,10 +80,13 @@ impl Plugin for LoopiPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        Some(Box::new(IcedEditor::<LooperApplication>::new(ui::Flags {
-            processor_handle: self.processor.handle(),
-            host_callback: Some(self.host_callback.clone()),
-        })))
+        Some(Box::new(IcedEditor::<LooperApplication>::new_with(
+            ui::Flags {
+                processor_handle: self.processor.handle().clone(),
+                sequencer_handle: self.processor.sequencer_handle().clone(),
+            },
+            (700, 300),
+        )))
     }
 }
 

@@ -94,21 +94,21 @@ impl View {
             if !self.plugin_is_open {
                 buttons_row.push(
                     Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
-                        .style(audio_processor_iced_design_system::style::Button)
+                        .style(audio_processor_iced_design_system::style::Button::default())
                         .on_press(Message::OpenPluginWindow)
                         .into(),
                 );
             } else {
                 buttons_row.push(
                     Button::new(&mut self.plugin_open_button, Text::new("Close editor"))
-                        .style(audio_processor_iced_design_system::style::Button)
+                        .style(audio_processor_iced_design_system::style::Button::default())
                         .on_press(Message::ClosePluginWindow)
                         .into(),
                 );
             }
             buttons_row.push(
                 Button::new(&mut self.plugin_float_button, Text::new("Float editor"))
-                    .style(audio_processor_iced_design_system::style::Button)
+                    .style(audio_processor_iced_design_system::style::Button::default())
                     .on_press(Message::FloatPluginWindow)
                     .into(),
             );
@@ -126,7 +126,7 @@ impl View {
         buttons_row.push(
             Button::new(&mut self.reload_plugin_button, Text::new("Reload plugin"))
                 .on_press(Message::ReloadPlugin)
-                .style(audio_processor_iced_design_system::style::Button)
+                .style(audio_processor_iced_design_system::style::Button::default())
                 .into(),
         );
         children.push(
@@ -165,7 +165,7 @@ impl View {
                     }),
                 )
                 .on_press(message)
-                .style(audio_processor_iced_design_system::style::Button)
+                .style(audio_processor_iced_design_system::style::Button::default())
                 .into()])
                 .align_items(Alignment::Center)
                 .spacing(Spacing::base_spacing()),

@@ -29,10 +29,14 @@ where
     App: Application,
 {
     pub fn new(flags: App::Flags) -> Self {
+        Self::new_with(flags, (500, 300))
+    }
+
+    pub fn new_with(flags: App::Flags, size: (i32, i32)) -> Self {
         IcedEditor {
             flags,
             handle: None,
-            size: (500, 300),
+            size,
             position: (0, 0),
         }
     }
@@ -56,8 +60,8 @@ where
         let window_open_options = WindowOpenOptions {
             title: "Iced Editor".to_string(),
             size: Size {
-                width: 500.0,
-                height: 300.0,
+                width: self.size.0 as f64,
+                height: self.size.1 as f64,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
         };
