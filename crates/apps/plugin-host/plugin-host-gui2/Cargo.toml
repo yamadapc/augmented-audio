@@ -32,7 +32,7 @@ audio-processor-traits = { version = "1.0.0-alpha.3", path = "../../../augmented
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", features = ["glow"], default-features = false }
-augmented-audio-volume = { path = "../../../augmented/data/audio-volume" , version = "0.1.0-alpha.2" }
+augmented-audio-volume = { path = "../../../augmented/data/audio-volume" , version = "0.1.0-alpha.3" }
 iced = { version = "^0.3.0", path = "../../../vendor/iced", features = ["debug", "glow", "glow_canvas"], default-features = false }
 iced_core = { version = "^0.4", path = "../../../vendor/iced/core", default-features = false  }
 iced_native = { version = "^0.4", path = "../../../vendor/iced/native", default-features = false }
