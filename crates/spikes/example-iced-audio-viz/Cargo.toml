@@ -14,7 +14,7 @@ vst = { path = "../../vendor/vst" }
 
 audio-processor-standalone = { version = "1.0.0-alpha.5", path = "../../augmented/application/audio-processor-standalone" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" }
-atomic-queue = { path = "../../augmented/data/atomic-queue" , version = "1.0.0-alpha.1" }
+atomic-queue = { path = "../../augmented/data/atomic-queue" , version = "1.0.0-alpha.2" }
 circular-data-structures = { path = "../../augmented/data/circular-data-structures" }
 audio-processor-traits = { version = "1.0.0-alpha.3", path = "../../augmented/audio/audio-processor-traits" }
 
