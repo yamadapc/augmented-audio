@@ -1,0 +1,10 @@
+[package]
+name = "augmented-atomics"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+num-traits = "0.2.14"
+
+[dev-dependencies]
+num-derive = "0.3.3"

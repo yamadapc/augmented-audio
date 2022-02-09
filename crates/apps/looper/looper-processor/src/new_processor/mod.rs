@@ -70,7 +70,6 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
-
     use std::time::Duration;
 
     use audio_processor_testing_helpers::rms_level;
@@ -168,7 +167,6 @@ mod test {
         let output_vec = output_buffer.slice().to_vec();
         let sample_vec = input_buffer.slice().to_vec();
 
-        looper.handle().debug();
         assert_eq!(
             output_vec, sample_vec,
             "After recording the looper didn't playback - or played back a different input"

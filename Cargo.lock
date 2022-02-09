@@ -600,21 +600,29 @@ dependencies = [
  "itertools 0.10.1",
  "log",
  "mockall 0.10.2",
- "mockall_double",
- "reqwest",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "thiserror",
- "tokio",
- "wisual-logger",
+    "mockall_double",
+    "reqwest",
+    "serde",
+    "serde_json",
+    "serde_urlencoded",
+    "thiserror",
+    "tokio",
+    "wisual-logger",
+]
+
+[[package]]
+name = "augmented-atomics"
+version = "0.1.0"
+dependencies = [
+    "num-derive",
+    "num-traits 0.2.14",
 ]
 
 [[package]]
 name = "augmented-audio-metrics"
 version = "1.0.0-alpha.1"
 dependencies = [
- "log",
+    "log",
 ]
 
 [[package]]
@@ -679,7 +687,9 @@ dependencies = [
 name = "augmented-playhead"
 version = "0.1.0"
 dependencies = [
- "audio-processor-testing-helpers",
+    "audio-processor-testing-helpers",
+    "audio-processor-traits",
+    "augmented-atomics",
 ]
 
 [[package]]

@@ -1,22 +1,21 @@
 use std::time::Duration;
 
 use iced::{Column, Container, Length, Text};
+use iced_baseview::{executor, Subscription, WindowSubs};
+use iced_baseview::{Application, Command, Element};
+use vst::host::Host;
+use vst::plugin::HostCallback;
 
-use crate::ui::looper_visualization::{
-    LooperVisualizationDrawModel, LooperVisualizationDrawModelImpl,
-};
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::Container0;
 use audio_processor_iced_design_system::style::Container1;
 use audio_processor_iced_design_system::tabs;
-use iced_baseview::{executor, Subscription, WindowSubs};
-use iced_baseview::{Application, Command, Element};
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
-use vst::host::Host;
-use vst::plugin::HostCallback;
+
+use crate::ui::looper_visualization::LooperVisualizationDrawModelImpl;
 
 mod bottom_panel;
 mod looper_visualization;

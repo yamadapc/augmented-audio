@@ -2,7 +2,7 @@ use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
 pub use new_processor::handle::LooperHandle as LooperProcessorHandle;
 pub use new_processor::handle::LooperOptions;
 pub use new_processor::LooperProcessor;
-pub use sequencer::LoopSequencerProcessorHandle;
+pub use sequencer::{LoopSequencerParams, LoopSequencerProcessorHandle};
 
 // use handle::state::RecordingState;
 // use handle::LooperProcessorHandle;

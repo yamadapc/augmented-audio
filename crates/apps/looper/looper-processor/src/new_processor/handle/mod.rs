@@ -7,13 +7,14 @@ use atomic_refcell::AtomicRefCell;
 use basedrop::{Shared, SharedCell};
 use num_derive::{FromPrimitive, ToPrimitive};
 
-use crate::time_info_provider::TimeInfoProviderImpl;
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use utils::CopyLoopClipParams;
 
+use crate::loop_quantization::{LoopQuantizer, LoopQuantizerMode, QuantizeInput};
+use crate::time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
 use crate::util::atomic_enum::AtomicEnum;
 
 mod scratch_pad;
@@ -26,6 +27,8 @@ pub enum LooperState {
     Playing = 2,
     Paused = 3,
     Overdubbing = 4,
+
+    RecordingScheduled = 5,
 }
 
 pub struct LooperHandle {
@@ -46,6 +49,8 @@ pub struct LooperHandle {
     /// Provides time information
     time_info_provider: TimeInfoProviderImpl,
     options: LooperOptions,
+
+    settings: SharedCell<AudioProcessorSettings>,
 }
 
 pub struct LooperOptions {
@@ -77,6 +82,7 @@ impl LooperHandle {
             cursor: AtomicUsize::new(0),
             time_info_provider,
             options,
+            settings: make_shared_cell(Default::default()),
         }
     }
 
@@ -123,9 +129,20 @@ impl LooperHandle {
         // Initial recording
         let old_state = self.state.get();
         if old_state == LooperState::Empty {
-            let cursor = self.scratch_pad.get().cursor();
-            self.start_cursor.store(cursor, Ordering::Relaxed);
-            self.state.set(LooperState::Recording);
+            let scratch_pad = self.scratch_pad.get();
+            let cursor = scratch_pad.cursor() as i32;
+            let quantized_offset = self.get_quantized_offset();
+            let is_recording_scheduled = quantized_offset.map(|offset| offset > 0).unwrap_or(false);
+            let cursor = quantized_offset
+                .map(|offset| (cursor + offset))
+                .unwrap_or(cursor);
+
+            self.start_cursor.store(cursor as usize, Ordering::Relaxed);
+            self.state.set(if is_recording_scheduled {
+                LooperState::RecordingScheduled
+            } else {
+                LooperState::Recording
+            });
             self.length.store(0, Ordering::Relaxed);
             // Start overdub
         } else if old_state == LooperState::Paused || old_state == LooperState::Playing {
@@ -133,6 +150,22 @@ impl LooperHandle {
         }
 
         self.state.get()
+    }
+
+    fn get_quantized_offset(&self) -> Option<i32> {
+        let time_info = self.time_info_provider.get_time_info();
+        time_info
+            .tempo
+            .zip(time_info.position_beats)
+            .map(|(tempo, position_beats)| {
+                let quantizer = LoopQuantizer::new(LoopQuantizerMode::None);
+                quantizer.quantize(QuantizeInput {
+                    tempo: tempo as f32,
+                    sample_rate: self.settings.get().sample_rate(),
+                    position_beats: position_beats as f32,
+                    position_samples: 0,
+                })
+            })
     }
 
     pub fn clear(&self) {
@@ -224,6 +257,10 @@ impl LooperHandle {
             || state == LooperState::Recording
             || state == LooperState::Overdubbing
     }
+
+    pub fn set_tempo(&self, tempo: u32) {
+        self.time_info_provider.set_tempo(tempo);
+    }
 }
 
 /// MARK: Package private methods
@@ -245,6 +282,8 @@ impl LooperHandle {
         let looper_clip = utils::empty_buffer(num_channels, max_loop_length_samples);
         self.looper_clip
             .set(make_shared(AtomicRefCell::new(looper_clip)));
+
+        self.settings.set(make_shared(settings.clone()));
     }
 
     #[inline]
@@ -281,7 +320,13 @@ impl LooperHandle {
         scratch_pad.after_process();
 
         let state = self.state.get();
-        if state == LooperState::Recording {
+        if state == LooperState::RecordingScheduled {
+            let current_scratch_cursor = scratch_pad.cursor();
+            let scheduled_start = self.start_cursor.load(Ordering::Relaxed);
+            if current_scratch_cursor >= scheduled_start {
+                self.state.set(LooperState::Recording);
+            }
+        } else if state == LooperState::Recording {
             let len = self.length.load(Ordering::Relaxed) + 1;
             if len > scratch_pad.max_len() {
                 self.stop_recording_audio_thread_only();
@@ -293,11 +338,5 @@ impl LooperHandle {
             let cursor = (cursor + 1) % self.length.load(Ordering::Relaxed);
             self.cursor.store(cursor, Ordering::Relaxed);
         }
-    }
-
-    pub(crate) fn debug(&self) {
-        let shared = self.scratch_pad.get();
-        let _buffer = shared.buffer();
-        // println!("scratch_buffer={:?}", buffer);
     }
 }

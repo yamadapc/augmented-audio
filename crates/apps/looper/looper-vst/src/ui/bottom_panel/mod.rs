@@ -9,7 +9,7 @@ use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
-use looper_processor::sequencer::LoopSequencerParams;
+use looper_processor::LoopSequencerParams;
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 
 #[derive(Eq, PartialEq, Debug, Clone, Copy)]
@@ -184,7 +184,9 @@ impl BottomPanelView {
                 self.processor_handle.toggle_playback();
             }
             Message::SequencePressed => self.flush_params(),
-            _ => {}
+            Message::QuantizeModePressed => {
+                self.processor_handle.set_tempo(120);
+            }
         }
         Command::none()
     }
