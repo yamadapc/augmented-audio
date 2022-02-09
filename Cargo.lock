@@ -613,7 +613,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-atomics"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "num-derive",
  "num-traits 0.2.14",
@@ -686,7 +686,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-playhead"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
