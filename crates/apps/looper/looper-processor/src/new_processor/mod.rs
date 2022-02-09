@@ -1,7 +1,6 @@
 use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
-use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };

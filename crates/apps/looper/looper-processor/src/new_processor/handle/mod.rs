@@ -1,4 +1,3 @@
-use std::borrow::Borrow;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
@@ -155,8 +154,8 @@ impl LooperHandle {
     fn get_quantized_offset(&self) -> Option<i32> {
         let time_info = self.time_info_provider.get_time_info();
         time_info
-            .tempo
-            .zip(time_info.position_beats)
+            .tempo()
+            .zip(time_info.position_beats())
             .map(|(tempo, position_beats)| {
                 let quantizer = LoopQuantizer::new(LoopQuantizerMode::None);
                 quantizer.quantize(QuantizeInput {

@@ -187,7 +187,7 @@ impl LooperProcessorState {
         });
         let time_info = time_info_provider.get_time_info();
 
-        if let Some((tempo, position_beats)) = time_info.tempo.zip(time_info.position_beats) {
+        if let Some((tempo, position_beats)) = time_info.tempo().zip(time_info.position_beats()) {
             let result = quantizer.quantize(QuantizeInput {
                 tempo: tempo as f32,
                 sample_rate: settings.sample_rate,
@@ -263,7 +263,7 @@ impl LooperProcessorState {
 mod test {
     use num::FromPrimitive;
 
-    use crate::time_info_provider::{MockTimeInfoProvider, TimeInfo};
+    use crate::time_info_provider::{MockTimeInfoProvider, TimeInfo, TimeInfoBuilder};
 
     use super::*;
 
@@ -272,13 +272,14 @@ mod test {
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 1000.0;
         let mut time_info_provider = MockTimeInfoProvider::new();
-        time_info_provider
-            .expect_get_time_info()
-            .returning(|| TimeInfo {
-                tempo: Some(60.0),     // 1 beat per second, 1000 samples per beat
-                position_samples: 0.0, // we're at beat 0
-                position_beats: Some(0.0),
-            });
+        time_info_provider.expect_get_time_info().returning(|| {
+            TimeInfoBuilder::default()
+                .tempo(Some(60.0))
+                .position_samples(0.0)
+                .position_beats(Some(0.0))
+                .build()
+                .unwrap()
+        });
 
         let loop_len = 10_000;
         let looper_cursor = 0;
@@ -298,13 +299,14 @@ mod test {
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 1000.0;
         let mut time_info_provider = MockTimeInfoProvider::new();
-        time_info_provider
-            .expect_get_time_info()
-            .returning(|| TimeInfo {
-                tempo: Some(60.0),        // 1 beat per second, 1000 samples per beat
-                position_samples: 1000.0, // we're at beat 1
-                position_beats: Some(1.0),
-            });
+        time_info_provider.expect_get_time_info().returning(|| {
+            TimeInfoBuilder::default()
+                .tempo(Some(60.0))
+                .position_samples(1000.0)
+                .position_beats(Some(1.0))
+                .build()
+                .unwrap()
+        });
 
         let loop_len = 10_000;
         let looper_cursor = 1000;
@@ -324,13 +326,14 @@ mod test {
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 1000.0;
         let mut time_info_provider = MockTimeInfoProvider::new();
-        time_info_provider
-            .expect_get_time_info()
-            .returning(|| TimeInfo {
-                tempo: Some(60.0),        // 1 beat per second, 1000 samples per beat
-                position_samples: 9000.0, // we're at beat 1
-                position_beats: Some(1.0),
-            });
+        time_info_provider.expect_get_time_info().returning(|| {
+            TimeInfoBuilder::default()
+                .tempo(Some(60.0))
+                .position_samples(9000.0)
+                .position_beats(Some(1.0))
+                .build()
+                .unwrap()
+        });
 
         let loop_len = 10_000;
         let looper_cursor = 9000;

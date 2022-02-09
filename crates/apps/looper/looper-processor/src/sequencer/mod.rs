@@ -1,11 +1,13 @@
-use crate::LooperProcessorHandle;
+use std::ops::Deref;
+use std::sync::atomic::{AtomicUsize, Ordering};
+
+use basedrop::{Shared, SharedCell};
+
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, VecAudioBuffer};
-use basedrop::{Shared, SharedCell};
-use std::borrow::Borrow;
-use std::ops::Deref;
-use std::sync::atomic::{AtomicUsize, Ordering};
+
+use crate::LooperProcessorHandle;
 
 #[derive(Clone)]
 pub struct LoopSequencerParams {

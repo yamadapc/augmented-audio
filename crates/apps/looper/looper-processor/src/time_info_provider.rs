@@ -1,13 +1,30 @@
+use derive_builder::Builder;
+use mockall::automock;
+
 use audio_processor_standalone::standalone_vst::vst;
 use audio_processor_standalone::standalone_vst::vst::host::Host;
 use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use augmented_playhead::{PlayHead, PlayHeadOptions};
-use mockall::automock;
 
+#[derive(Builder)]
 pub struct TimeInfo {
-    pub(crate) tempo: Option<f64>,
-    pub(crate) position_samples: f64,
-    pub(crate) position_beats: Option<f64>,
+    tempo: Option<f64>,
+    position_samples: f64,
+    position_beats: Option<f64>,
+}
+
+impl TimeInfo {
+    pub fn tempo(&self) -> Option<f64> {
+        self.tempo
+    }
+
+    pub fn position_samples(&self) -> f64 {
+        self.position_samples
+    }
+
+    pub fn position_beats(&self) -> Option<f64> {
+        self.position_beats
+    }
 }
 
 #[automock]
