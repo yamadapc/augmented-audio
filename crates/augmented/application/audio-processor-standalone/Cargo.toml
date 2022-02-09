@@ -15,7 +15,7 @@ wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }
 itertools = "0.10.1"
 
 # Augmented
-audio-processor-file = { path = "../../audio/audio-processor-file" , version = "1.0.0-alpha.2" }
+audio-processor-file = { path = "../../audio/audio-processor-file" , version = "1.0.0-alpha.3" }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-processor-traits = { version = "1.0.0-alpha.3", path = "../../audio/audio-processor-traits" }
 augmented-midi = { path = "../../data/augmented-midi" , version = "1.0.0-alpha.2" }
