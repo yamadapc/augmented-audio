@@ -10,7 +10,7 @@ use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
 use audio_processor_traits::midi::vst::midi_slice_from_events;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 use iced_editor::IcedEditor;
-use looper_processor::LooperProcessor;
+use looper_processor::{LooperOptions, LooperProcessor};
 
 pub use crate::ui::LooperApplication;
 
@@ -43,10 +43,10 @@ impl Plugin for LoopiPlugin {
     {
         audio_plugin_logger::init("loopi.log");
 
-        let processor = LooperProcessor::from_options(
-            audio_garbage_collector::handle(),
-            Some(host_callback.clone()),
-        );
+        let processor = LooperProcessor::from_options(LooperOptions {
+            host_callback: Some(host_callback.clone()),
+            ..Default::default()
+        });
 
         LoopiPlugin {
             processor,
@@ -85,8 +85,8 @@ impl Plugin for LoopiPlugin {
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
         Some(Box::new(IcedEditor::<LooperApplication>::new_with(
             ui::Flags {
-                processor_handle: self.processor.handle(),
-                sequencer_handle: self.processor.sequencer_handle(),
+                processor_handle: self.processor.handle().clone(),
+                sequencer_handle: self.processor.sequencer_handle().clone(),
                 host_callback: Some(self.host_callback.clone()),
             },
             (700, 300),
