@@ -339,8 +339,6 @@ mod test {
 
         {
             let mut sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
-            let input_buffer =
-                VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
             let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
             // We process 1s of audio; which is 1 beat
             looper.process(&mut sample_buffer);
