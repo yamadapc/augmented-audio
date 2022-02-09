@@ -15,7 +15,7 @@ vst_support = ["vst"]
 [dependencies]
 num = "^0.4.0"
 vst = { version = "^0.2", path = "../../../vendor/vst", optional = true }
-augmented-atomics = { path = "../../data/atomics" }
+augmented-atomics = { path = "../../data/atomics" , version = "0.1.0-alpha.2" }
 
 [dev-dependencies]
 criterion = "^0.3.4"
