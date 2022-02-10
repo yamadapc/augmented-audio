@@ -15,6 +15,13 @@ class Session {
 
   Session(
       this.id, this.timestampMs, this.durationMs, this.tempo, this.beatsPerBar);
+
+  Session.create(
+      {this.id,
+      required this.timestampMs,
+      required this.durationMs,
+      required this.tempo,
+      required this.beatsPerBar});
 }
 
 @DatabaseView("""

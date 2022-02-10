@@ -36,8 +36,18 @@ CREATE VIEW IF NOT EXISTS AggregatedSession AS
  """);
 });
 
+final migrations = [addBeatsPerBar, addAggregatedSession];
+
+Future<MetronomeDatabase> buildInMemoryDatabase() {
+  return $FloorMetronomeDatabase
+      .inMemoryDatabaseBuilder()
+      .addMigrations(migrations)
+      .build();
+}
+
 Future<MetronomeDatabase> buildDatabase() {
   return $FloorMetronomeDatabase
       .databaseBuilder('metronome_database.db')
-      .addMigrations([addBeatsPerBar, addAggregatedSession]).build();
+      .addMigrations(migrations)
+      .build();
 }
