@@ -3,11 +3,15 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 
 class Debounce {
-  final int _debounceMs;
+  int _debounceMs;
   Timer? _timer;
   VoidCallback? _callback;
 
   Debounce(this._debounceMs);
+
+  setDebounceMs(int value) {
+    _debounceMs = value;
+  }
 
   run(VoidCallback callback) {
     _timer?.cancel();

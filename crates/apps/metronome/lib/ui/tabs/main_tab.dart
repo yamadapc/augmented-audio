@@ -23,8 +23,18 @@ class MainPageTab extends StatefulWidget {
 
 class _MainPageTabState extends State<MainPageTab> {
   @override
+  void initState() {
+    super.initState();
+    fireViewedAnalytics();
+  }
+
+  @override
   void activate() {
     super.activate();
+    fireViewedAnalytics();
+  }
+
+  void fireViewedAnalytics() {
     var analytics = FirebaseAnalytics.instance;
     analytics.logScreenView(
         screenClass: "MainPageTab", screenName: "Main Page");

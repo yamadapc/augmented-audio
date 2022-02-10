@@ -1,4 +1,5 @@
 import 'package:metronome/modules/history/history_controller.dart';
+import 'package:metronome/modules/state/tap_tempo_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../bridge_generated.dart';
@@ -14,8 +15,11 @@ class MetronomeStateController {
   final MetronomeStateModel model;
   final Metronome metronome;
   final HistoryStartStopHandler historyController;
+  late final TapTempoController tapTempoController;
 
-  MetronomeStateController(this.model, this.metronome, this.historyController);
+  MetronomeStateController(this.model, this.metronome, this.historyController) {
+    tapTempoController = TapTempoController(this);
+  }
 
   void setup() {
     metronome.getPlayhead().forEach((element) {

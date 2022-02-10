@@ -2,6 +2,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
+import './bottom_row/tap_tempo_button.dart';
 import '../../modules/state/metronome_state_controller.dart';
 
 class BottomRow extends StatelessWidget {
@@ -29,7 +30,11 @@ class BottomRow extends StatelessWidget {
                   builder: (_) => Text(model.isPlaying ? "Stop" : "Start",
                       style: const TextStyle(color: CupertinoColors.white)),
                 )),
-          )
+          ),
+          const SizedBox(width: 10),
+          TapTempoButton(
+              tapTempoController: stateController.tapTempoController,
+              stateController: stateController)
         ]);
   }
 }
