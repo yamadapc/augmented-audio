@@ -24,8 +24,7 @@ class TapTempoButton extends StatelessWidget {
           onPressed: () {
             tapTempoController.onPress();
           },
-          child: Observer(
-            builder: (_) => Observer(builder: (_) {
+          child: Observer(builder: (_) {
               var beatToDisplay = tapTempoController.presses.length %
                   stateController.model.beatsPerBar;
               if (beatToDisplay == 0) {
@@ -38,7 +37,7 @@ class TapTempoButton extends StatelessWidget {
                       : "Tap",
                   style: const TextStyle(color: CupertinoColors.white));
             }),
-          )),
+          ),
     );
   }
 }

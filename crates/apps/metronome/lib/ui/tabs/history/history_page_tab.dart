@@ -1,10 +1,10 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:metronome/modules/state/history_state_controller.dart';
 
-import 'history_chart.dart';
-import 'history_list_item.dart';
+import './history_chart.dart';
+import './history_list_item.dart';
+import '../../../modules/state/history_state_controller.dart';
 
 class HistoryPageTab extends StatefulWidget {
   final HistoryStateController stateController;

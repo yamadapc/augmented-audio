@@ -8,7 +8,7 @@ abstract class SessionDao {
   Future<List<Session>> findAllSessions();
 
   @Query(
-      "SELECT * FROM AggregatedSession ORDER BY timestampMs WHERE timestampMs >= :startMs DESC LIMIT 100")
+      "SELECT * FROM AggregatedSession WHERE timestampMs >= :startMs ORDER BY timestampMs DESC LIMIT 100")
   Future<List<AggregatedSession>> findAggregatedSessions(int startMs);
 
   @Update(onConflict: OnConflictStrategy.replace)

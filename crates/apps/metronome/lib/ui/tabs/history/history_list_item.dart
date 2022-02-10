@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
-import 'package:metronome/modules/history/session_entity.dart';
+
+import '../../../modules/history/session_entity.dart';
 
 String formatDurationNumber(String postfix, int value) {
   if (value == 0) {
