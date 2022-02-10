@@ -66,6 +66,41 @@ impl MetronomeProcessor {
             },
         }
     }
+
+    fn process_frame(&mut self, frame: &mut [f32]) {
+        let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
+        let f_beats_per_bar = beats_per_bar as f32;
+
+        self.state.playhead.accept_samples(1);
+        let position = self.state.playhead.position_beats() as f32;
+        self.handle.position_beats.set(position);
+        self.state.envelope.tick();
+        self.state.oscillator.tick();
+
+        if !self.state.playing {
+            if beats_per_bar != 1 && position % f_beats_per_bar < 1.0 {
+                self.state.oscillator.set_frequency(880.0);
+            } else {
+                self.state.oscillator.set_frequency(440.0);
+            }
+        }
+
+        if !self.state.playing && position.floor() != self.state.last_position.floor() {
+            self.state.playing = true;
+            self.state.envelope.note_on();
+        } else {
+            self.state.playing = false;
+        }
+
+        let out =
+            self.state.oscillator.get() * self.handle.volume.get() * self.state.envelope.volume();
+
+        for sample in frame {
+            *sample = out;
+        }
+
+        self.state.last_position = position;
+    }
 }
 
 impl AudioProcessor for MetronomeProcessor {
@@ -102,42 +137,8 @@ impl AudioProcessor for MetronomeProcessor {
             self.state.playhead.set_tempo(tempo);
         }
 
-        let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
-        let f_beats_per_bar = beats_per_bar as f32;
-        let mut last_position = self.state.last_position;
         for frame in data.frames_mut() {
-            self.state.playhead.accept_samples(1);
-            let position = self.state.playhead.position_beats() as f32;
-            self.handle.position_beats.set(position);
-            self.state.envelope.tick();
-            self.state.oscillator.tick();
-
-            if !self.state.playing {
-                if beats_per_bar != 1 && position % f_beats_per_bar < 1.0 {
-                    self.state.oscillator.set_frequency(880.0);
-                } else {
-                    self.state.oscillator.set_frequency(440.0);
-                }
-            }
-
-            if !self.state.playing && position.floor() != last_position.floor() {
-                self.state.playing = true;
-                self.state.envelope.note_on();
-            } else {
-                self.state.playing = false;
-            }
-
-            let out = self.state.oscillator.get()
-                * self.handle.volume.get()
-                * self.state.envelope.volume();
-
-            for sample in frame {
-                *sample = out;
-            }
-
-            last_position = position;
+            self.process_frame(frame);
         }
-
-        self.state.last_position = last_position;
     }
 }
