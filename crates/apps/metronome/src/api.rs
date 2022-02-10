@@ -1,3 +1,4 @@
+//! This module contains the public API exposed to flutter
 use std::sync::atomic::Ordering;
 
 use std::time::Duration;
@@ -20,31 +21,23 @@ pub fn deinitialize() -> Result<i32> {
 
 pub fn set_is_playing(value: bool) -> Result<i32> {
     with_state0(|state| {
-        state
-            .processor_handle
-            .is_playing
-            .store(value, Ordering::Relaxed);
+        state.processor_handle.set_is_playing(value);
     })
 }
 
 pub fn set_tempo(value: f32) -> Result<i32> {
     with_state0(|state| {
-        state.processor_handle.tempo.set(value);
+        state.processor_handle.set_tempo(value);
     })
 }
 
 pub fn set_volume(value: f32) -> Result<i32> {
-    with_state0(|state| {
-        state.processor_handle.volume.set(value);
-    })
+    with_state0(|state| state.processor_handle.set_volume(value))
 }
 
 pub fn set_beats_per_bar(value: i32) -> Result<i32> {
     with_state0(|state| {
-        state
-            .processor_handle
-            .beats_per_bar
-            .store(value, Ordering::Relaxed);
+        state.processor_handle.set_beats_per_bar(value);
     })
 }
 
@@ -53,7 +46,7 @@ pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
         let handle = state.processor_handle.clone();
         std::thread::spawn(move || {
             loop {
-                sink.add(handle.position_beats.get());
+                sink.add(handle.position_beats());
                 std::thread::sleep(Duration::from_millis(50));
             }
             // sink.close();

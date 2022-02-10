@@ -1,3 +1,8 @@
+//! This module wraps a singleton instance of the standalone audio processor.
+//!
+//! This instance is held behind a mutex. The metronome handle itself wouldn't need locks, but is
+//! currently using a lock here for simplicity. The AudioThread reads directly from its handle
+//! without waiting on any locks.
 use std::sync::atomic::Ordering;
 use std::sync::Mutex;
 
@@ -8,8 +13,8 @@ use audio_processor_standalone::{standalone_start, StandaloneAudioOnlyProcessor}
 
 use lazy_static::lazy_static;
 
-use crate::MetronomeProcessor;
-use crate::MetronomeProcessorHandle;
+use crate::processor::MetronomeProcessor;
+use crate::processor::MetronomeProcessorHandle;
 
 pub struct State {
     _handles: audio_processor_standalone::StandaloneHandles,
@@ -24,8 +29,8 @@ unsafe impl Send for State {}
 impl State {
     pub fn new() -> Self {
         let processor = MetronomeProcessor::new();
-        let processor_handle = processor.handle.clone();
-        processor_handle.is_playing.store(false, Ordering::Relaxed);
+        let processor_handle = processor.handle().clone();
+        processor_handle.set_is_playing(false);
         let app = StandaloneAudioOnlyProcessor::new_with(
             processor,
             StandaloneOptions {
