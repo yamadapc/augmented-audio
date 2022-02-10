@@ -19,7 +19,9 @@ class HistoryStateController {
     // var trace = performance.newTrace("HistoryStateController::refresh");
     // trace.start();
 
-    final sessions = await _sessionDao.findAggregatedSessions();
+    final lastWeek =
+        DateTime.now().millisecondsSinceEpoch - 1000 * 60 * 60 * 24 * 7;
+    final sessions = await _sessionDao.findAggregatedSessions(lastWeek);
     logger.i("Refreshing sessions from DB length=${sessions.length}");
 
     runInAction(() {
