@@ -7,7 +7,7 @@ import '../../modules/state/metronome_state_controller.dart';
 class BottomRow extends StatelessWidget {
   final MetronomeStateController stateController;
 
-  BottomRow({Key? key, required this.stateController}) : super(key: key);
+  const BottomRow({Key? key, required this.stateController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

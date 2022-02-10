@@ -36,6 +36,7 @@ class _TempoControlState extends State<TempoControl> {
 
   @override
   void dispose() {
+    super.dispose();
     _onChangeDebounce.cancel();
   }
 
