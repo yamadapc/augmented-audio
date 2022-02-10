@@ -21,3 +21,7 @@ lazy_static = "1.4.0"
 [build-dependencies]
 cbindgen = "^0.20.0"
 flutter_rust_bridge_codegen = "^1.13.0"
+
+[package.metadata.augmented]
+processor_examples = ["metronome"]
+private = true
