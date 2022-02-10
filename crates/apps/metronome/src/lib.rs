@@ -68,16 +68,17 @@ impl MetronomeProcessor {
     }
 
     fn process_frame(&mut self, frame: &mut [f32]) {
-        let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
-        let f_beats_per_bar = beats_per_bar as f32;
-
         self.state.playhead.accept_samples(1);
-        let position = self.state.playhead.position_beats() as f32;
-        self.handle.position_beats.set(position);
         self.state.envelope.tick();
         self.state.oscillator.tick();
 
+        let position = self.state.playhead.position_beats() as f32;
+        self.handle.position_beats.set(position);
+
         if !self.state.playing {
+            let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
+            let f_beats_per_bar = beats_per_bar as f32;
+
             if beats_per_bar != 1 && position % f_beats_per_bar < 1.0 {
                 self.state.oscillator.set_frequency(880.0);
             } else {

@@ -17,6 +17,9 @@ struct State {
     processor_handle: Shared<MetronomeProcessorHandle>,
 }
 
+/// The `StandaloneHandles` aren't `Send`. The reason for this is that the `cpal::Stream` isn't
+/// `Send`. It should be safe to share this value between threads as long as it can't accessed.
+#[allow(clippy::non_send_fields_in_send_ty)]
 unsafe impl Send for State {}
 
 impl State {
@@ -28,7 +31,6 @@ impl State {
             processor,
             StandaloneOptions {
                 accepts_input: false,
-                ..Default::default()
             },
         );
         let handles = standalone_start(app, None);
@@ -44,8 +46,8 @@ lazy_static! {
 }
 
 pub fn initialize() -> Result<i32> {
-    let mut handles = STATE.lock().unwrap();
-    *handles = Some(State::new());
+    let mut state = STATE.lock().unwrap();
+    *state = Some(State::new());
     Ok(0)
 }
 
@@ -55,7 +57,7 @@ pub fn deinitialize() -> Result<i32> {
     Ok(0)
 }
 
-fn with_state0(f: impl FnOnce(&State) -> ()) -> Result<i32> {
+fn with_state0(f: impl FnOnce(&State)) -> Result<i32> {
     with_state(|state| {
         f(state);
         Ok(0)
@@ -63,8 +65,8 @@ fn with_state0(f: impl FnOnce(&State) -> ()) -> Result<i32> {
 }
 
 fn with_state<T>(f: impl FnOnce(&State) -> Result<T>) -> Result<T> {
-    let handles = STATE.lock().unwrap();
-    if let Some(state) = &*handles {
+    let state = STATE.lock().unwrap();
+    if let Some(state) = &*state {
         f(state)
     } else {
         Err(anyhow::Error::msg(

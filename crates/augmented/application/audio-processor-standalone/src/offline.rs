@@ -39,6 +39,7 @@ where
 
     let _ = wisual_logger::try_init_from_env();
 
+    #[allow(clippy::redundant_closure)]
     let handle = handle.unwrap_or_else(|| audio_garbage_collector::handle());
 
     log::info!(
