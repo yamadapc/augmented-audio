@@ -1,12 +1,11 @@
 use std::sync::atomic::Ordering;
 use std::sync::Mutex;
-use std::time::Duration;
 
 use anyhow::Result;
 use audio_garbage_collector::Shared;
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{standalone_start, StandaloneAudioOnlyProcessor};
-use flutter_rust_bridge::StreamSink;
+
 use lazy_static::lazy_static;
 
 use crate::MetronomeProcessor;

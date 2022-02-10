@@ -1,20 +1,12 @@
 use std::sync::atomic::Ordering;
-use std::sync::Mutex;
+
 use std::time::Duration;
 
 use anyhow::Result;
 use flutter_rust_bridge::StreamSink;
-use lazy_static::lazy_static;
-
-use audio_garbage_collector::Shared;
-use audio_processor_standalone::standalone_processor::StandaloneOptions;
-use audio_processor_standalone::{standalone_start, StandaloneAudioOnlyProcessor};
-
-use crate::MetronomeProcessor;
-use crate::MetronomeProcessorHandle;
 
 mod state;
-use state::{with_state, with_state0, State, STATE};
+use state::{with_state, with_state0};
 
 pub fn initialize() -> Result<i32> {
     state::initialize();
