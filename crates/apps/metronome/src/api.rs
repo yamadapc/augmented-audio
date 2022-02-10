@@ -1,5 +1,4 @@
 //! This module contains the public API exposed to flutter
-use std::sync::atomic::Ordering;
 
 use std::time::Duration;
 

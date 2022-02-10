@@ -3,7 +3,7 @@
 //! This instance is held behind a mutex. The metronome handle itself wouldn't need locks, but is
 //! currently using a lock here for simplicity. The AudioThread reads directly from its handle
 //! without waiting on any locks.
-use std::sync::atomic::Ordering;
+
 use std::sync::Mutex;
 
 use anyhow::Result;
