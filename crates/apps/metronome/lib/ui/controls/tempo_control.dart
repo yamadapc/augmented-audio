@@ -83,7 +83,7 @@ class _TempoControlState extends State<TempoControl> {
               SizedBox(
                 width: double.infinity,
                 child: CupertinoSlider(
-                    value: model.tempo,
+                    value: Math.min(Math.max(30, model.tempo), 250),
                     onChanged: (value) {
                       widget.stateController.setTempo(value);
                     }, // onTempoChanged,

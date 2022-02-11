@@ -48,11 +48,11 @@ class _HistoryPageTabState extends State<HistoryPageTab> {
                     historyStateModel: widget.stateController.model)),
             const Divider(),
             Expanded(
-              child: ListView(
-                  children: widget.stateController.model.sessions
-                      .map((element) => HistoryListItem(session: element))
-                      .toList()),
-            ),
+                child: ListView.builder(
+                    itemCount: widget.stateController.model.sessions.length,
+                    itemBuilder: (context, index) => HistoryListItem(
+                        session:
+                            widget.stateController.model.sessions[index]))),
           ],
         ),
       ),
