@@ -16,7 +16,7 @@ class VolumeControl extends StatelessWidget {
     return Observer(
       builder: (_) => Column(
         children: [
-          const Text("volume", textScaleFactor: 0.8),
+          const Text("Volume", textScaleFactor: 0.8),
           SizedBox(
               width: double.infinity,
               child: CupertinoSlider(

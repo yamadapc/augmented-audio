@@ -17,6 +17,8 @@ class HistoryPageTab extends StatefulWidget {
 }
 
 class _HistoryPageTabState extends State<HistoryPageTab> {
+  ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     widget.stateController.refresh();
@@ -49,6 +51,7 @@ class _HistoryPageTabState extends State<HistoryPageTab> {
             const Divider(),
             Expanded(
                 child: ListView.builder(
+                    controller: scrollController,
                     itemCount: widget.stateController.model.sessions.length,
                     itemBuilder: (context, index) => HistoryListItem(
                         session:

@@ -22,6 +22,8 @@ class MainPageTab extends StatefulWidget {
 }
 
 class _MainPageTabState extends State<MainPageTab> {
+  ScrollController scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -55,8 +57,14 @@ class _MainPageTabState extends State<MainPageTab> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    TempoControl(stateController: widget.stateController),
-                    VolumeControl(stateController: widget.stateController),
+                    SingleChildScrollView(
+                        controller: scrollController,
+                        child: Column(children: [
+                          TempoControl(stateController: widget.stateController),
+                          const Divider(thickness: 0.5),
+                          VolumeControl(
+                              stateController: widget.stateController),
+                        ])),
                     const Spacer(),
                     BottomRow(stateController: widget.stateController)
                   ],
