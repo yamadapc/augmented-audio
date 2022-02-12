@@ -36,8 +36,11 @@ class HistoryStartStopHandler {
     }
 
     logger.i("Session end durationMs=$durationMs");
-    var session = Session(null, start!.millisecondsSinceEpoch, durationMs,
-        model.tempo, model.beatsPerBar);
+    var session = Session.create(
+        timestampMs: start!.millisecondsSinceEpoch,
+        durationMs: durationMs,
+        tempo: model.tempo,
+        beatsPerBar: model.beatsPerBar);
     await sessionDao.insertSession(session);
     await historyStateController.refresh();
 

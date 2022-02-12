@@ -36,6 +36,7 @@ class _TempoControlState extends State<TempoControl> {
 
   @override
   void dispose() {
+    super.dispose();
     _onChangeDebounce.cancel();
   }
 
@@ -44,7 +45,7 @@ class _TempoControlState extends State<TempoControl> {
     var model = widget.stateController.model;
     return Observer(
         builder: (_) => Column(children: [
-              const Text("tempo", textScaleFactor: .8),
+              const Text("Tempo", textScaleFactor: .8),
               Row(children: [
                 CupertinoButton(
                     child: const Text("-10"),
@@ -82,7 +83,7 @@ class _TempoControlState extends State<TempoControl> {
               SizedBox(
                 width: double.infinity,
                 child: CupertinoSlider(
-                    value: model.tempo,
+                    value: Math.min(Math.max(30, model.tempo), 250),
                     onChanged: (value) {
                       widget.stateController.setTempo(value);
                     }, // onTempoChanged,

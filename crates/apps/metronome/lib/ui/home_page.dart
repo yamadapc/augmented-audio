@@ -1,18 +1,17 @@
 import 'dart:ffi';
 
-// import 'package:firebase_performance/firebase_performance.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:metronome/bridge_generated.dart';
-import 'package:metronome/logger.dart';
-import 'package:metronome/modules/database.dart';
-import 'package:metronome/modules/history/history_controller.dart';
-import 'package:metronome/modules/state/history_state_controller.dart';
-import 'package:metronome/modules/state/history_state_model.dart';
-import 'package:metronome/modules/state/metronome_state_controller.dart';
 
+import './tabs/history/history_page_tab.dart';
+import './tabs/main_tab.dart';
+import '../bridge_generated.dart';
+import '../logger.dart';
+import '../modules/database.dart';
+import '../modules/history/history_controller.dart';
+import '../modules/state/history_state_controller.dart';
+import '../modules/state/history_state_model.dart';
+import '../modules/state/metronome_state_controller.dart';
 import '../modules/state/metronome_state_model.dart';
-import 'tabs/history_page_tab.dart';
-import 'tabs/main_tab.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);

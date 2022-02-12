@@ -1,8 +1,9 @@
 build_and_test: FORCE
-	make build-dart-codegen
 	make build-bindings
 	make build-libs
 	cargo test
+
+	make build-dart-codegen
 	flutter test
 	dart format --fix .
 

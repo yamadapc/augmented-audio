@@ -43,7 +43,7 @@ flutter_icons:
 
 
 dependency_overrides:
-  analyzer: ^3.0.0
+  analyzer: 3.0.0
 
 flutter:
   uses-material-design: true

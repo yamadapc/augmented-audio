@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:intl/intl.dart';
 
-import '../../modules/state/history_state_model.dart';
+import '../../../modules/state/history_state_model.dart';
 
 class HistoryChart extends StatelessWidget {
   final HistoryStateModel historyStateModel;
@@ -15,19 +15,29 @@ class HistoryChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      DateFormat dateFormat = DateFormat("dd-MM");
+      DateFormat dateFormat = DateFormat("E");
       var sessions = historyStateModel.sessions;
-      var timeByDay = {};
-      for (var session in sessions) {
-        if (timeByDay[session.timestampMs] == null) {
-          timeByDay[session.timestampMs] = 0;
-        }
-        timeByDay[session.timestampMs] += session.durationMs;
+
+      Map<int, int> timeByDay = {};
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
+      for (var i = 0; i < 7; i++) {
+        final day = today.subtract(Duration(days: i));
+        timeByDay[day.millisecondsSinceEpoch] = 0;
       }
-      var data = timeByDay.entries.toList().reversed.toList();
+
+      for (var session in sessions) {
+        final timestamp =
+            DateTime.fromMillisecondsSinceEpoch(session.timestampMs);
+        final day = DateTime(timestamp.year, timestamp.month, timestamp.day);
+        timeByDay.update(day.millisecondsSinceEpoch,
+            (value) => value + session.durationMs.toInt());
+      }
+      List<MapEntry<int, int>> data = timeByDay.entries.toList();
+      data.sort((entry1, entry2) => entry1.key > entry2.key ? 1 : -1);
 
       var seriesList = [
-        Series(
+        Series<MapEntry<int, int>, String>(
             id: "Practice Sessions",
             data: data,
             domainFn: (MapEntry entry, _) {
@@ -45,7 +55,7 @@ class HistoryChart extends StatelessWidget {
           renderSpec: NoneRenderSpec(),
         ),
         domainAxis: const OrdinalAxisSpec(
-          showAxisLine: false,
+          showAxisLine: true,
           tickProviderSpec: BasicOrdinalTickProviderSpec(),
           renderSpec: SmallTickRendererSpec(),
         ),
@@ -54,6 +64,7 @@ class HistoryChart extends StatelessWidget {
             bottomMarginSpec: MarginSpec.fixedPixel(20),
             rightMarginSpec: MarginSpec.fixedPixel(0),
             topMarginSpec: MarginSpec.fixedPixel(0)),
+        defaultRenderer: BarRendererConfig(minBarLengthPx: 100),
       );
     });
   }
