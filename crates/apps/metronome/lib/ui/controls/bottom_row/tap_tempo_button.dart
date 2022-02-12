@@ -19,25 +19,23 @@ class TapTempoButton extends StatelessWidget {
     return SizedBox(
       width: 70,
       child: CupertinoButton(
-          color: CupertinoColors.activeBlue.withOpacity(0.8),
-          padding: const EdgeInsets.all(14),
-          onPressed: () {
-            tapTempoController.onPress();
-          },
-          child: Observer(builder: (_) {
-              var beatToDisplay = tapTempoController.presses.length %
-                  stateController.model.beatsPerBar;
-              if (beatToDisplay == 0) {
-                beatToDisplay = 4;
-              }
+        color: CupertinoColors.activeBlue.withOpacity(0.8),
+        padding: const EdgeInsets.all(14),
+        onPressed: () {
+          tapTempoController.onPress();
+        },
+        child: Observer(builder: (_) {
+          var beatToDisplay = tapTempoController.presses.length %
+              stateController.model.beatsPerBar;
+          if (beatToDisplay == 0) {
+            beatToDisplay = 4;
+          }
 
-              return Text(
-                  tapTempoController.presses.isNotEmpty
-                      ? "$beatToDisplay"
-                      : "Tap",
-                  style: const TextStyle(color: CupertinoColors.white));
-            }),
-          ),
+          return Text(
+              tapTempoController.presses.isNotEmpty ? "$beatToDisplay" : "Tap",
+              style: const TextStyle(color: CupertinoColors.white));
+        }),
+      ),
     );
   }
 }
