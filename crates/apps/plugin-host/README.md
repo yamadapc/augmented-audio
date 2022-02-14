@@ -1,4 +1,8 @@
 # plugin-host - A testing host for VST development
+<p align="center">
+  <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/plugin-host/screenshot.png" width="400" />
+</p>
+
 [plugin-host-cli](https://github.com/yamadapc/augmented-audio/tree/master/crates/apps/plugin-host/plugin-host-cli) is a CLI tool for
 testing VST plug-ins.
 

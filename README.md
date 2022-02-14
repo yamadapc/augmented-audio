@@ -36,7 +36,8 @@ Experiments trying to use Rust for audio programming.
 ## Screenshots
 
 <p align="center" style="display: flex;">
-  <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/Cover.png" width="100" />
+  <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/Cover.png" width="200" />
+  <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/plugin-host/screenshot.png" width="200" />
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/volume.png" />
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/picklist.png" />
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/menu_list.png" />

@@ -251,6 +251,7 @@ impl MainContentView {
         let option_handle: Option<Shared<AudioFileProcessorHandle>> =
             ProcessorHandleRegistry::current().get("audio-file");
         if let Some(audio_file_processor_handle) = option_handle {
+            log::info!("Sending play audio-file-processor message {:?}", message);
             match message {
                 transport_controls::Message::Play => {
                     audio_file_processor_handle.play();
