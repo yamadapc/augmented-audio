@@ -1,4 +1,7 @@
 use audio_garbage_collector::{make_shared, Shared};
+use audio_processor_traits::parameters::{
+    AudioProcessorHandle, ParameterSpec, ParameterType, SetParameterRequest,
+};
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 pub struct BitCrusherHandle {
@@ -21,6 +24,28 @@ impl BitCrusherHandle {
 
     pub fn set_bit_rate(&self, bit_rate: f32) {
         self.bit_rate.set(bit_rate);
+    }
+}
+
+impl AudioProcessorHandle for BitCrusherHandle {
+    fn parameter_count(&self) -> usize {
+        1
+    }
+
+    fn get_parameter_spec(&self, _index: usize) -> ParameterSpec {
+        ParameterSpec::new(
+            "Bit rate".into(),
+            ParameterType::Float {
+                range: (100.0, self.sample_rate()),
+                step: None,
+            },
+        )
+    }
+
+    fn set_parameter(&self, _index: usize, request: SetParameterRequest) {
+        if let SetParameterRequest::Float { value } = request {
+            self.set_bit_rate(value);
+        }
     }
 }
 
@@ -93,10 +118,13 @@ impl AudioProcessor for BitCrusherProcessor {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use audio_processor_testing_helpers::sine_buffer;
-    use audio_processor_traits::VecAudioBuffer;
     use std::time::Duration;
+
+    use audio_processor_testing_helpers::sine_buffer;
+
+    use audio_processor_traits::VecAudioBuffer;
+
+    use super::*;
 
     #[test]
     fn test_construct_bitcrusher() {
