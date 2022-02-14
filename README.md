@@ -30,7 +30,7 @@ Experiments trying to use Rust for audio programming.
 * [Augmented Audio Libraries](crates/augmented#readme)
 * [Applications in this repository](crates/apps#readme)
   - [Test plugin host](crates/apps/plugin-host#readme)
-  - [Test plugin host](crates/apps/metronome#readme)
+  - [Metronome](crates/apps/metronome#readme)
   - [Looper](crates/apps/looper#readme)
 
 ## Screenshots
