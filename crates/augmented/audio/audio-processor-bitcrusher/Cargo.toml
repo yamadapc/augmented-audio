@@ -1,0 +1,12 @@
+[package]
+name = "audio-processor-bitcrusher"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+audio-processor-traits = { version = "1.0.0-alpha.3", path = "../audio-processor-traits" }
+audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../audio-garbage-collector" }
+
+[dev-dependencies]
+audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../application/audio-processor-standalone" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.3", path = "../../testing/audio-processor-testing-helpers" }

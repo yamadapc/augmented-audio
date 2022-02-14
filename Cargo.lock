@@ -397,6 +397,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-bitcrusher"
+version = "0.1.0"
+dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-standalone",
+ "audio-processor-testing-helpers",
+ "audio-processor-traits",
+]
+
+[[package]]
 name = "audio-processor-file"
 version = "1.0.0-alpha.3"
 dependencies = [
