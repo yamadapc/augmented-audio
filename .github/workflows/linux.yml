@@ -46,6 +46,15 @@ jobs:
               --exclude-files "*crates/vendor/*" \
               --exclude-files "*crates/spikes/*" \
               --exclude-files "*crates/scripts/*" \
+              --exclude-files "*crates/augmented/gui/*" \
+              --exclude-files "*crates/augmented/audio/audiounit/*" \
+              --exclude-files "*crates/augmented/development/*" \
+              --exclude-files "*crates/apps/daw/*" \
+              --exclude-files "*crates/apps/demo-plugin/*" \
+              --exclude-files "*crates/apps/recording_buddy/*" \
+              --exclude-files "*crates/apps/tremolo-plugin/*" \
+              --exclude-files "*crates/apps/synth/*" \
+              --exclude-files "*/bridge_generated.rs" \
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude basedrop \
