@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-bitcrusher"
-version = "0.1.0"
+version = "0.1.0-alpha.1"
 edition = "2021"
 
 [dependencies]
@@ -10,3 +10,7 @@ audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../audio-garbage-
 [dev-dependencies]
 audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../application/audio-processor-standalone" }
 audio-processor-testing-helpers = { version = "1.0.0-alpha.3", path = "../../testing/audio-processor-testing-helpers" }
+
+[package.metadata.augmented]
+processor_examples = ["bitcrusher"]
+private = true
