@@ -36,14 +36,14 @@ Experiments trying to use Rust for audio programming.
 ## Screenshots
 
 <p align="center" style="display: flex;">
-  <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/01-main.png" width="300" />
-  <img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/volume.png" />
-  <img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/picklist.png" />
-  <img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/menu_list.png" />
-  <img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/button.png" />
-  <img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/knobs.png" />
-  <img height="250" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/sliders.png" />
-  <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/transport.png" />
+  <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/Cover.png" width="100" />
+  <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/volume.png" />
+  <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/picklist.png" />
+  <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/menu_list.png" />
+  <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/button.png" />
+  <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/knobs.png" />
+  <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/sliders.png" />
+  <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/transport.png" />
 </div>
 
 # Web GUI
