@@ -343,7 +343,7 @@ pub mod actor {
                         .await
                         .unwrap()
                     {
-                        log::error("Failed to set AudioThread MIDI queue {}", err);
+                        log::error!("Failed to set AudioThread MIDI queue {}", err);
                     }
                 }
                 .into_actor(self),

@@ -297,7 +297,7 @@ fn parameter_view(parameter_view_model: &mut ParameterViewModel) -> Element<Mess
                     value
                 };
                 let n_value = range.0 + value.as_f32() * (range.1 - range.0);
-                log::info!(
+                log::debug!(
                     "id={:?} range={:?} value={} nvalue={}",
                     parameter_id,
                     range,
