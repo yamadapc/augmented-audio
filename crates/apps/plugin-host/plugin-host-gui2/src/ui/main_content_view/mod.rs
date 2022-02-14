@@ -248,28 +248,30 @@ impl MainContentView {
         &mut self,
         message: transport_controls::Message,
     ) -> Command<Message> {
-        let audio_file_processor_handle: Shared<AudioFileProcessorHandle> =
-            ProcessorHandleRegistry::current()
-                .get("audio-file")
-                .unwrap();
-
-        match message {
-            transport_controls::Message::Play => {
-                audio_file_processor_handle.play();
+        let option_handle: Option<Shared<AudioFileProcessorHandle>> =
+            ProcessorHandleRegistry::current().get("audio-file");
+        if let Some(audio_file_processor_handle) = option_handle {
+            match message {
+                transport_controls::Message::Play => {
+                    audio_file_processor_handle.play();
+                }
+                transport_controls::Message::Pause => {
+                    audio_file_processor_handle.pause();
+                }
+                transport_controls::Message::Stop => {
+                    audio_file_processor_handle.stop();
+                }
+                _ => (),
             }
-            transport_controls::Message::Pause => {
-                audio_file_processor_handle.pause();
-            }
-            transport_controls::Message::Stop => {
-                audio_file_processor_handle.stop();
-            }
-            _ => (),
+            let children = self
+                .transport_controls
+                .update(message)
+                .map(Message::TransportControls);
+            Command::batch(vec![children])
+        } else {
+            let status = StatusBar::new("Audio-processor not running", status_bar::State::Error);
+            set_status_bar(status)
         }
-        let children = self
-            .transport_controls
-            .update(message)
-            .map(Message::TransportControls);
-        Command::batch(vec![children])
     }
 
     fn update_set_audio_file_path_response(&mut self, input_file: String) -> Command<Message> {

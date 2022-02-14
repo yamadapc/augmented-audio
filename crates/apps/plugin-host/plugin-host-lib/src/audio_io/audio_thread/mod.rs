@@ -338,10 +338,13 @@ pub mod actor {
             ctx.spawn(
                 async move {
                     let queue = midi_host.send(GetQueueMessage).await.unwrap();
-                    own_addr
+                    if let Err(err) = own_addr
                         .send(AudioThreadMessage::SetQueue(queue.0))
                         .await
-                        .unwrap();
+                        .unwrap()
+                    {
+                        log::error("Failed to set AudioThread MIDI queue {}", err);
+                    }
                 }
                 .into_actor(self),
             );
