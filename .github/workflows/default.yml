@@ -21,16 +21,16 @@ jobs:
         with:
           submodules: recursive
           lfs: true
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-test-cache
-#      - uses: Swatinem/rust-cache@v1
+#      - uses: actions/cache@v2
+#        with:
+#          path: |
+#            ~/.cargo/bin/
+#            ~/.cargo/registry/index/
+#            ~/.cargo/registry/cache/
+#            ~/.cargo/git/db/
+#            target/
+#          key: ${{ runner.os }}-test-cache
+      - uses: Swatinem/rust-cache@v1
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
@@ -48,16 +48,16 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-lint-cache
-#      - uses: Swatinem/rust-cache@v1
+#      - uses: actions/cache@v2
+#        with:
+#          path: |
+#            ~/.cargo/bin/
+#            ~/.cargo/registry/index/
+#            ~/.cargo/registry/cache/
+#            ~/.cargo/git/db/
+#            target/
+#          key: ${{ runner.os }}-lint-cache
+      - uses: Swatinem/rust-cache@v1
       - name: Run clippy
         run: ./scripts/clippy.sh
   build-rust:
@@ -71,16 +71,16 @@ jobs:
       with:
         submodules: recursive
         lfs: true
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-release-cache
-#    - uses: Swatinem/rust-cache@v1
+#    - uses: actions/cache@v2
+#      with:
+#        path: |
+#          ~/.cargo/bin/
+#          ~/.cargo/registry/index/
+#          ~/.cargo/registry/cache/
+#          ~/.cargo/git/db/
+#          target/
+#        key: ${{ runner.os }}-release-cache
+    - uses: Swatinem/rust-cache@v1
     - name: Install uniffi bindgen
       run: cargo install --force --version 0.15.2 uniffi_bindgen
     - name: Build release
