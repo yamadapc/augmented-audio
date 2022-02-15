@@ -49,7 +49,8 @@ Experiments trying to use Rust for audio programming.
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/knobs.png" />
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/sliders.png" />
   <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/transport.png" />
-</div>
+  <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/tremolo-screenshot.png" />
+</p>
 
 # Web GUI
 See [`docs/misc/WEB_GUI.md`](docs/misc/WEB_GUI.md).
