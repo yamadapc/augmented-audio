@@ -75,7 +75,7 @@
 use basedrop::Handle;
 
 use audio_processor_traits::{AudioProcessor, MidiEventHandler};
-use options::RenderingOptions;
+use options::{ParseOptionsParams, RenderingOptions};
 #[doc(inline)]
 pub use standalone_cpal::{
     audio_processor_start, audio_processor_start_with_midi, standalone_start, StandaloneHandles,
@@ -99,6 +99,9 @@ pub mod offline;
 /// VST support (VST is not compiled for iOS)
 #[cfg(not(target_os = "ios"))]
 pub mod standalone_vst;
+
+#[cfg(feature = "gui")]
+pub mod gui;
 
 /// A default main function for an [`AudioProcessor`] and [`MidiEventHandler`].
 ///
@@ -131,13 +134,15 @@ pub fn audio_processor_main_with_midi<
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
 ) {
-    let app = StandaloneAudioOnlyProcessor::new(audio_processor);
+    let app = StandaloneAudioOnlyProcessor::new(audio_processor, Default::default());
     standalone_main(app, None);
 }
 
 /// Internal main function used by `audio_processor_main`.
 fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
-    let options = options::parse_options(app.supports_midi());
+    let options = options::parse_options(ParseOptionsParams {
+        supports_midi: app.supports_midi(),
+    });
 
     let midi_input_file = options.midi().input_file.as_ref().map(|midi_input_file| {
         let file_contents = std::fs::read(midi_input_file).expect("Failed to read input MIDI file");

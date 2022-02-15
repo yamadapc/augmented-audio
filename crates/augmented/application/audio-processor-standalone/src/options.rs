@@ -31,15 +31,21 @@ impl Options {
     }
 }
 
-pub fn parse_options(supports_midi: bool) -> Options {
-    parse_options_from(supports_midi, &mut std::env::args_os())
+pub struct ParseOptionsParams {
+    pub supports_midi: bool,
 }
 
-fn parse_options_from<I, T>(supports_midi: bool, args: I) -> Options
+pub fn parse_options(params: ParseOptionsParams) -> Options {
+    parse_options_from(params, &mut std::env::args_os())
+}
+
+fn parse_options_from<I, T>(params: ParseOptionsParams, args: I) -> Options
 where
     I: IntoIterator<Item = T>,
     T: Into<OsString> + Clone,
 {
+    let supports_midi = params.supports_midi;
+
     let app = clap::App::new("audio-processor-standalone");
     let mut app = app
         .arg(clap::Arg::from_usage(
@@ -100,7 +106,12 @@ mod test {
 
     #[test]
     fn test_parse_empty_options() {
-        let options = parse_options_from::<Vec<String>, String>(false, vec![]);
+        let options = parse_options_from::<Vec<String>, String>(
+            ParseOptionsParams {
+                supports_midi: false,
+            },
+            vec![],
+        );
         assert!(options.midi().input_file.is_none());
         assert!(matches!(
             options.rendering(),
@@ -111,7 +122,9 @@ mod test {
     #[test]
     fn test_parse_online_options() {
         let options = parse_options_from::<Vec<String>, String>(
-            false,
+            ParseOptionsParams {
+                supports_midi: false,
+            },
             vec!["program".into(), "--input-file".into(), "test.mp3".into()],
         );
         assert!(options.midi().input_file.is_none());
@@ -130,7 +143,9 @@ mod test {
     #[test]
     fn test_parse_midi_options() {
         let options = parse_options_from::<Vec<String>, String>(
-            true,
+            ParseOptionsParams {
+                supports_midi: true,
+            },
             vec![
                 "program".into(),
                 "--midi-input-file".into(),
@@ -144,7 +159,9 @@ mod test {
     #[test]
     fn test_parse_offline_options() {
         let options = parse_options_from::<Vec<String>, String>(
-            false,
+            ParseOptionsParams {
+                supports_midi: false,
+            },
             vec![
                 "program".into(),
                 "--input-file".into(),

@@ -37,7 +37,7 @@ pub fn audio_processor_start_with_midi<
 pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
 ) -> StandaloneHandles {
-    let app = StandaloneAudioOnlyProcessor::new(audio_processor);
+    let app = StandaloneAudioOnlyProcessor::new(audio_processor, Default::default());
     standalone_start(app, None)
 }
 

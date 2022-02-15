@@ -251,7 +251,7 @@ mod test {
         let input_path = relative_path!("../../../../input-files/1sec-sine.mp3");
         let output_path = relative_path!("./test-output/offline-render-test-output.wav");
         let options = OfflineRenderOptions {
-            app: StandaloneAudioOnlyProcessor::new(NoopAudioProcessor::new()),
+            app: StandaloneAudioOnlyProcessor::new(NoopAudioProcessor::new(), Default::default()),
             handle: Some(audio_garbage_collector::handle()),
             input_path: &input_path,
             output_path: &output_path,

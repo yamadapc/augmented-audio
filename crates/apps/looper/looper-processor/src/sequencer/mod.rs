@@ -186,6 +186,6 @@ pub fn run_sequencer(params: &LoopSequencerParams) -> LoopSequencerOutput {
 
     LoopSequencerOutput {
         sequence,
-        sequence_step_size: max_step_len,
+        sequence_step_size: slice_len.min(max_step_len),
     }
 }
