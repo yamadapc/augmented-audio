@@ -36,7 +36,7 @@ Experiments trying to use Rust for audio programming.
 ## Screenshots
 
 <p align="center" style="display: flex;">
-  <img alt="Metronome screenshot" src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/single.png" height="300" />
+  <img alt="Metronome screenshot" src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/single.png" height="200" />
   <img alt="Test plugin host screenshot" src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/plugin-host/screenshot.png" width="300" />
   <img alt="Looper screenshot" src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/looper/screenshot.png" width="300" />
 </p>
