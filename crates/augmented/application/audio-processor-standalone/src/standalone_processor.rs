@@ -141,7 +141,8 @@ mod test {
     #[test]
     fn test_create_standalone_audio_processor() {
         let processor = NoopAudioProcessor::new();
-        let mut standalone_audio_processor = StandaloneAudioOnlyProcessor::new(processor);
+        let mut standalone_audio_processor =
+            StandaloneAudioOnlyProcessor::new(processor, Default::default());
         assert!(!standalone_audio_processor.supports_midi());
         assert!(standalone_audio_processor.midi().is_none());
         let _processor = standalone_audio_processor.processor();
