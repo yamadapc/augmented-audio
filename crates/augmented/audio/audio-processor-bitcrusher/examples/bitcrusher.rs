@@ -81,34 +81,7 @@ mod generic_gui {
                     .map(|(parameter_index, model)| {
                         let value = self.handle.get_parameter(parameter_index).unwrap();
 
-                        match (value, model.spec.ty()) {
-                            (
-                                ParameterValue::Float { value },
-                                ParameterType::Float { range, .. },
-                            ) => {
-                                let range = *range;
-
-                                Column::with_children(vec![
-                                    Text::new(model.spec.name())
-                                        .size(Spacing::small_font_size())
-                                        .into(),
-                                    Knob::new(&mut model.knob_state, move |value| {
-                                        let n_value =
-                                            range.0 + value.as_f32() * (range.1 - range.0);
-                                        Message::KnobChange(parameter_index, n_value)
-                                    })
-                                    .size(Length::Units(Spacing::base_control_size()))
-                                    .style(audio_knob::style::Knob)
-                                    .into(),
-                                    Text::new(format!("{:.2}", value))
-                                        .size(Spacing::small_font_size())
-                                        .into(),
-                                ])
-                                .align_items(Alignment::Center)
-                                .spacing(Spacing::small_spacing())
-                                .into()
-                            }
-                        }
+                        parameter_view(parameter_index, model, value)
                     })
                     .collect(),
             ))
@@ -119,6 +92,37 @@ mod generic_gui {
             .center_y()
             .style(Container1::default())
             .into()
+        }
+    }
+
+    fn parameter_view(
+        parameter_index: usize,
+        model: &mut ParameterModel,
+        value: ParameterValue,
+    ) -> Element<Message> {
+        match (value, model.spec.ty()) {
+            (ParameterValue::Float { value }, ParameterType::Float { range, .. }) => {
+                let range = *range;
+
+                Column::with_children(vec![
+                    Text::new(model.spec.name())
+                        .size(Spacing::small_font_size())
+                        .into(),
+                    Knob::new(&mut model.knob_state, move |value| {
+                        let n_value = range.0 + value.as_f32() * (range.1 - range.0);
+                        Message::KnobChange(parameter_index, n_value)
+                    })
+                    .size(Length::Units(Spacing::base_control_size()))
+                    .style(audio_knob::style::Knob)
+                    .into(),
+                    Text::new(format!("{:.2}", value))
+                        .size(Spacing::small_font_size())
+                        .into(),
+                ])
+                .align_items(Alignment::Center)
+                .spacing(Spacing::small_spacing())
+                .into()
+            }
         }
     }
 
