@@ -7,11 +7,11 @@
 use std::sync::Mutex;
 
 use anyhow::Result;
+use lazy_static::lazy_static;
+
 use audio_garbage_collector::Shared;
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{standalone_start, StandaloneAudioOnlyProcessor};
-
-use lazy_static::lazy_static;
 
 use crate::processor::MetronomeProcessor;
 use crate::processor::MetronomeProcessorHandle;
@@ -31,10 +31,11 @@ impl State {
         let processor = MetronomeProcessor::new();
         let processor_handle = processor.handle().clone();
         processor_handle.set_is_playing(false);
-        let app = StandaloneAudioOnlyProcessor::new_with(
+        let app = StandaloneAudioOnlyProcessor::new(
             processor,
             StandaloneOptions {
                 accepts_input: false,
+                ..Default::default()
             },
         );
         let handles = standalone_start(app, None);
