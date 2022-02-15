@@ -14,6 +14,7 @@ gui = [
     "iced",
     "iced_audio",
     "iced_baseview",
+    "iced-editor",
     "audio-processor-iced-design-system",
     "baseview",
     "glow",
@@ -60,6 +61,7 @@ iced_baseview = { path = "../../../vendor/iced-baseview", default-features = fal
 iced_audio = { path = "../../../vendor/iced_audio", default-features = false, optional = true }
 audio-processor-iced-design-system = { path = "../../gui/audio-processor-iced-design-system", default-features = false, optional = true }
 baseview = { path = "../../../vendor/baseview", optional = true }
+iced-editor = { path = "../../gui/iced-editor", optional = true }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-processor-standalone-midi" }

@@ -1,7 +1,7 @@
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
 use iced::{Alignment, Column, Command, Container, Length, Row, Text};
 use iced_audio::{Normal, NormalParam};
-use iced_baseview::{Element, IcedWindow, Settings};
+use iced_baseview::{Application, Element, IcedWindow, Settings};
 
 use audio_processor_iced_design_system::knob as audio_knob;
 use audio_processor_iced_design_system::knob::Knob;
@@ -11,6 +11,7 @@ use audio_processor_traits::parameters::{
     AudioProcessorHandleRef, ParameterSpec, ParameterType, ParameterValue,
 };
 
+#[derive(Clone)]
 struct Flags {
     handle: AudioProcessorHandleRef,
 }
@@ -30,7 +31,7 @@ enum Message {
     KnobChange(usize, f32),
 }
 
-impl iced_baseview::Application for GenericAudioProcessorApplication {
+impl Application for GenericAudioProcessorApplication {
     type Executor = iced::executor::Default;
     type Message = Message;
     type Flags = Flags;
@@ -121,6 +122,11 @@ fn parameter_view(
             .into()
         }
     }
+}
+
+pub fn editor(handle: AudioProcessorHandleRef) -> Box<dyn vst::editor::Editor> {
+    let editor = iced_editor::IcedEditor::<GenericAudioProcessorApplication>::new(Flags { handle });
+    Box::new(editor)
 }
 
 pub fn open(handle: AudioProcessorHandleRef) {

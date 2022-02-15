@@ -134,7 +134,7 @@ pub fn audio_processor_main_with_midi<
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
 ) {
-    let app = StandaloneAudioOnlyProcessor::new(audio_processor);
+    let app = StandaloneAudioOnlyProcessor::new(audio_processor, Default::default());
     standalone_main(app, None);
 }
 

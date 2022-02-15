@@ -1,3 +1,4 @@
+use audio_processor_traits::parameters::AudioProcessorHandleRef;
 use audio_processor_traits::{AudioProcessor, MidiEventHandler, MidiMessageLike};
 
 /// Abstract standalone processor with runtime optional MIDI handling.
@@ -16,16 +17,22 @@ pub trait StandaloneProcessor: Send + 'static {
     }
 
     fn options(&self) -> &StandaloneOptions;
+
+    fn handle(&self) -> Option<AudioProcessorHandleRef> {
+        None
+    }
 }
 
 pub struct StandaloneOptions {
     pub accepts_input: bool,
+    pub handle: Option<AudioProcessorHandleRef>,
 }
 
 impl Default for StandaloneOptions {
     fn default() -> Self {
         StandaloneOptions {
             accepts_input: true,
+            handle: None,
         }
     }
 }
@@ -43,14 +50,7 @@ pub struct StandaloneAudioOnlyProcessor<P> {
 }
 
 impl<P> StandaloneAudioOnlyProcessor<P> {
-    pub fn new(processor: P) -> Self {
-        StandaloneAudioOnlyProcessor {
-            processor,
-            options: StandaloneOptions::default(),
-        }
-    }
-
-    pub fn new_with(processor: P, options: StandaloneOptions) -> Self {
+    pub fn new(processor: P, options: StandaloneOptions) -> Self {
         StandaloneAudioOnlyProcessor { processor, options }
     }
 }
@@ -72,6 +72,10 @@ where
 
     fn options(&self) -> &StandaloneOptions {
         &self.options
+    }
+
+    fn handle(&self) -> Option<AudioProcessorHandleRef> {
+        self.options.handle.clone()
     }
 }
 
@@ -112,6 +116,10 @@ where
 
     fn options(&self) -> &StandaloneOptions {
         &self.options
+    }
+
+    fn handle(&self) -> Option<AudioProcessorHandleRef> {
+        self.options.handle.clone()
     }
 }
 

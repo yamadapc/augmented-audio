@@ -504,6 +504,7 @@ dependencies = [
  "clap 2.34.0",
  "cpal",
  "iced",
+ "iced-editor",
  "iced_audio",
  "iced_baseview",
  "itertools 0.10.1",
@@ -3330,7 +3331,7 @@ dependencies = [
 
 [[package]]
 name = "iced-editor"
-version = "0.1.0"
+version = "0.1.0-alpha.0"
 dependencies = [
  "baseview",
  "cocoa 0.24.0",

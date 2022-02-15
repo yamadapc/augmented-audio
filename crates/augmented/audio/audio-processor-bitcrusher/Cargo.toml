@@ -3,6 +3,10 @@ name = "audio-processor-bitcrusher"
 version = "0.1.0-alpha.1"
 edition = "2021"
 
+[[example]]
+name = "bitcrusher_vst"
+crate-type = ["cdylib"]
+
 [dependencies]
 audio-processor-traits = { version = "1.0.0-alpha.3", path = "../audio-processor-traits" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../audio-garbage-collector" }
@@ -13,4 +17,5 @@ audio-processor-testing-helpers = { version = "1.0.0-alpha.3", path = "../../tes
 
 [package.metadata.augmented]
 processor_examples = ["bitcrusher"]
+vst_examples = ["bitcrusher"]
 private = true

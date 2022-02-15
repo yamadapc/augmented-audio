@@ -1,3 +1,4 @@
+use std::marker::PhantomData;
 use std::sync::Arc;
 pub use vst;
 use vst::plugin::PluginParameters;
@@ -17,10 +18,14 @@ use crate::{StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcess
 pub struct StandalonePluginContext {}
 
 pub trait StandaloneProcessorFactory {
-    fn new_for_host(context: StandalonePluginContext) -> Self;
+    type Output;
+
+    fn new_for_host(context: StandalonePluginContext) -> Self::Output;
 }
 
 impl<D: Default> StandaloneProcessorFactory for D {
+    type Output = Self;
+
     fn new_for_host(_context: StandalonePluginContext) -> Self {
         Self::default()
     }
@@ -28,26 +33,31 @@ impl<D: Default> StandaloneProcessorFactory for D {
 
 impl<P> StandaloneProcessorFactory for StandaloneProcessorImpl<P>
 where
-    P: StandaloneProcessorFactory + AudioProcessor<SampleType = f32>,
+    P: StandaloneProcessorFactory<Output = P> + AudioProcessor<SampleType = f32>,
 {
-    fn new_for_host(context: StandalonePluginContext) -> Self {
+    type Output = Self;
+
+    fn new_for_host(context: StandalonePluginContext) -> Self::Output {
         StandaloneProcessorImpl::new(P::new_for_host(context))
     }
 }
 
 impl<P> StandaloneProcessorFactory for StandaloneAudioOnlyProcessor<P>
 where
-    P: StandaloneProcessorFactory + AudioProcessor<SampleType = f32>,
+    P: StandaloneProcessorFactory<Output = P> + AudioProcessor<SampleType = f32>,
 {
+    type Output = Self;
+
     fn new_for_host(context: StandalonePluginContext) -> Self {
-        StandaloneAudioOnlyProcessor::new(P::new_for_host(context))
+        StandaloneAudioOnlyProcessor::new(P::new_for_host(context), Default::default())
     }
 }
 
-pub struct StandaloneVSTPlugin<SP> {
+pub struct StandaloneVSTPlugin<SPF, SP> {
     processor: SP,
     buffer: VecAudioBuffer<f32>,
     settings: AudioProcessorSettings,
+    factory: PhantomData<SPF>,
 }
 
 #[macro_export]
@@ -58,14 +68,52 @@ macro_rules! standalone_vst {
                 ::audio_processor_standalone::standalone_processor::StandaloneAudioOnlyProcessor<
                     $t,
                 >,
+                ::audio_processor_standalone::standalone_processor::StandaloneAudioOnlyProcessor<
+                    $t,
+                >,
+            >
+        );
+    };
+    ($t:ty, $f: ty) => {
+        ::audio_processor_standalone::standalone_vst::vst::plugin_main!(
+            ::audio_processor_standalone::standalone_vst::StandaloneVSTPlugin<
+                $f,
+                ::audio_processor_standalone::standalone_processor::StandaloneAudioOnlyProcessor<
+                    $t,
+                >,
             >
         );
     };
 }
 
-impl<Processor> vst::plugin::Plugin for StandaloneVSTPlugin<Processor>
+#[macro_export]
+macro_rules! generic_standalone_vst {
+    ($t: ty) => {
+        struct StandaloneFactory {}
+        impl ::audio_processor_standalone::standalone_vst::StandaloneProcessorFactory for StandaloneFactory {
+            type Output = ::audio_processor_standalone::standalone_processor::StandaloneAudioOnlyProcessor<$t>;
+
+            fn new_for_host(
+                _context: ::audio_processor_standalone::standalone_vst::StandalonePluginContext
+            ) -> Self::Output {
+                let processor = <$t>::default();
+                let options = ::audio_processor_standalone::standalone_processor::StandaloneOptions {
+                    handle: Some(::std::sync::Arc::new(processor.generic_handle())),
+                    ..Default::default()
+                };
+                ::audio_processor_standalone::standalone_processor::StandaloneAudioOnlyProcessor::new(processor, options)
+            }
+        }
+
+        ::audio_processor_standalone::standalone_vst!($t, StandaloneFactory);
+    }
+}
+
+impl<ProcessorFactory, Processor> vst::plugin::Plugin
+    for StandaloneVSTPlugin<ProcessorFactory, Processor>
 where
-    Processor: StandaloneProcessor + StandaloneProcessorFactory,
+    ProcessorFactory: StandaloneProcessorFactory<Output = Processor> + Send,
+    Processor: StandaloneProcessor,
     <Processor as StandaloneProcessor>::Processor: AudioProcessor<SampleType = f32>,
 {
     fn get_info(&self) -> Info {
@@ -77,9 +125,10 @@ where
         Self: Sized,
     {
         Self {
-            processor: Processor::new_for_host(StandalonePluginContext {}),
+            processor: ProcessorFactory::new_for_host(StandalonePluginContext {}),
             buffer: VecAudioBuffer::new(),
             settings: AudioProcessorSettings::default(),
+            factory: PhantomData::default(),
         }
     }
 
@@ -126,6 +175,13 @@ where
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         Arc::new(DummyPluginParameters)
+    }
+
+    #[cfg(feature = "gui")]
+    fn get_editor(&mut self) -> Option<Box<dyn vst::editor::Editor>> {
+        self.processor
+            .handle()
+            .map(|handle| crate::gui::editor(handle))
     }
 }
 

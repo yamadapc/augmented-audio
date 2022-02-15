@@ -1,8 +1,10 @@
-pub type AudioProcessorHandleRef = Box<dyn AudioProcessorHandle>;
+use std::sync::Arc;
+
+pub type AudioProcessorHandleRef = Arc<dyn AudioProcessorHandle>;
 
 /// This trait can be implemented by AudioProcessor handles to provide runtime introspection on
 /// the parameters that a processor provides.
-pub trait AudioProcessorHandle: Send {
+pub trait AudioProcessorHandle: Send + Sync {
     fn parameter_count(&self) -> usize;
     fn get_parameter_spec(&self, index: usize) -> ParameterSpec;
 
