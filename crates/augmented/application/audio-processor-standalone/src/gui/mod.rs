@@ -8,7 +8,7 @@ use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::Container1;
 use audio_processor_traits::parameters::{
-    AudioProcessorHandleRef, Float, ParameterSpec, ParameterType, ParameterValue,
+    AudioProcessorHandleRef, FloatType, ParameterSpec, ParameterType, ParameterValue,
 };
 
 #[derive(Clone)]
@@ -42,9 +42,10 @@ impl Application for GenericAudioProcessorApplication {
             let spec = flags.handle.get_parameter_spec(i);
             let value = flags.handle.get_parameter(i).unwrap();
             let value = match (value, spec.ty()) {
-                (ParameterValue::Float { value }, ParameterType::Float(Float { range, .. })) => {
-                    (value - range.0) / (range.1 - range.0)
-                }
+                (
+                    ParameterValue::Float { value },
+                    ParameterType::Float(FloatType { range, .. }),
+                ) => (value - range.0) / (range.1 - range.0),
             };
             parameter_models.push(ParameterModel {
                 spec,
@@ -99,7 +100,7 @@ fn parameter_view(
     value: ParameterValue,
 ) -> Element<Message> {
     match (value, model.spec.ty()) {
-        (ParameterValue::Float { value }, ParameterType::Float(Float { range, .. })) => {
+        (ParameterValue::Float { value }, ParameterType::Float(FloatType { range, .. })) => {
             let range = *range;
 
             Column::with_children(vec![

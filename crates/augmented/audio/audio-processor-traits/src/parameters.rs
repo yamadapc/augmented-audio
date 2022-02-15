@@ -28,9 +28,8 @@ impl TryFrom<ParameterValue> for f32 {
     type Error = ();
 
     fn try_from(value: ParameterValue) -> Result<Self, Self::Error> {
-        match value {
-            ParameterValue::Float { value } => Ok(value),
-        }
+        let ParameterValue::Float { value } = value;
+        Ok(value)
     }
 }
 
