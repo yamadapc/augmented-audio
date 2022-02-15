@@ -108,3 +108,6 @@ The tool can then be used to run a criterion benchmark and generate a flamegraph
 ```shell
 cargo flamegraph --bench sine_oscillator_benchmark -- --bench
 ```
+
+### Snapshot testing audio processors
+See [`docs/monorepo-tooling/SNAPSHOT_TESTING.md`](docs/monorepo-tooling/SNAPSHOT_TESTING.md).
