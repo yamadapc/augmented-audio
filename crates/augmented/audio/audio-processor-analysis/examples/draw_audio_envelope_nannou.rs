@@ -1,7 +1,6 @@
 use std::time::Duration;
 
 use nannou::prelude::*;
-use nannou::state::mouse::ButtonPosition;
 
 use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
 use audio_processor_file::AudioFileProcessor;
@@ -20,10 +19,10 @@ struct ZoomState {
     zoom: f32,
 }
 
-fn model(app: &App) -> Model {
+fn model(_app: &App) -> Model {
     wisual_logger::init_from_env();
-    let clap_app = clap::App::new("draw-spectogram")
-        .arg_from_usage("-i, --input-file=<INPUT_FILE>")
+    let clap_app =
+        clap::App::new("draw-audio-envelope").arg_from_usage("-i, --input-file=<INPUT_FILE>");
     let matches = clap_app.get_matches();
 
     let input_file_path = matches
@@ -100,15 +99,14 @@ fn view(app: &App, model: &Model, frame: Frame) {
 }
 
 fn event(app: &App, model: &mut Model, event: Event) {
-    if let Event::WindowEvent { simple, .. } = event {
-        match simple {
-            Some(WindowEvent::MouseWheel(MouseScrollDelta::PixelDelta(delta), _)) => {
-                let delta_y = delta.y / (app.window_rect().h() / 2.0) as f64;
-                model.zoom_state.zoom += delta_y as f32;
-                model.zoom_state.zoom = model.zoom_state.zoom.min(10.0).max(0.1)
-            }
-            _ => {}
-        }
+    if let Event::WindowEvent {
+        simple: Some(WindowEvent::MouseWheel(MouseScrollDelta::PixelDelta(delta), _)),
+        ..
+    } = event
+    {
+        let delta_y = delta.y / (app.window_rect().h() / 2.0) as f64;
+        model.zoom_state.zoom += delta_y as f32;
+        model.zoom_state.zoom = model.zoom_state.zoom.min(10.0).max(0.1)
     }
 }
 

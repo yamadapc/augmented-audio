@@ -46,11 +46,8 @@ pub enum ParameterType {
 
 impl ParameterType {
     pub fn float(&self) -> Option<&FloatType> {
-        if let ParameterType::Float(inner) = self {
-            Some(inner)
-        } else {
-            None
-        }
+        let ParameterType::Float(inner) = self;
+        Some(inner)
     }
 }
 
