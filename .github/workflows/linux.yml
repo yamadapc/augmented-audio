@@ -38,7 +38,7 @@ jobs:
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        if: ${{ env.COVERALLS_TOKEN != 0 }}
+        if: ${{ env.COVERALLS_TOKEN != 0 && github.event_name != 'pull_request' }}
         run: |
           cargo tarpaulin --skip-clean --workspace \
               --features story \
@@ -83,9 +83,10 @@ jobs:
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        if: ${{ env.COVERALLS_TOKEN == 0 }}
+        if: ${{ env.COVERALLS_TOKEN == 0 && github.event_name == 'pull_request' }}
         run: |
-          cargo test --workspace \
+          cargo nextest run --workspace \
+              --profile ci \
               --features story \
               --exclude augmented-ui \
               --exclude audiounit \
@@ -107,11 +108,9 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources \
-              -- -Z unstable-options --format json | tee cargo-output.json
-          cargo install --force --version 0.1.10 cargo2junit
+              --exclude macos-bundle-resources
           mkdir -p junit
-          cat cargo-output.json | cargo2junit > junit/results.xml
+          mv target/nextest/ci/junit.xml junit/results.xml
       - name: JUnit Report Action
         uses: mikepenz/action-junit-report@v2.9.0
         if: always()
