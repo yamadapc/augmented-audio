@@ -1,6 +1,7 @@
 use audio_garbage_collector::{make_shared, Shared};
+use audio_processor_traits::parameters::ParameterValue::Float;
 use audio_processor_traits::parameters::{
-    AudioProcessorHandle, ParameterSpec, ParameterType, ParameterValue,
+    AudioProcessorHandle, FloatType, ParameterSpec, ParameterType, ParameterValue,
 };
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
@@ -37,10 +38,10 @@ impl AudioProcessorHandle for BitCrusherHandleRef {
     fn get_parameter_spec(&self, _index: usize) -> ParameterSpec {
         ParameterSpec::new(
             "Bit rate".into(),
-            ParameterType::Float {
+            ParameterType::Float(FloatType {
                 range: (100.0, self.0.sample_rate()),
                 step: None,
-            },
+            }),
         )
     }
 
