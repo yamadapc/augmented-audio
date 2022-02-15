@@ -1,6 +1,6 @@
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::parameters::{
-    AudioProcessorHandle, ParameterSpec, ParameterType, SetParameterRequest,
+    AudioProcessorHandle, ParameterSpec, ParameterType, ParameterValue,
 };
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
@@ -27,7 +27,9 @@ impl BitCrusherHandle {
     }
 }
 
-impl AudioProcessorHandle for BitCrusherHandle {
+struct BitCrusherHandleRef(Shared<BitCrusherHandle>);
+
+impl AudioProcessorHandle for BitCrusherHandleRef {
     fn parameter_count(&self) -> usize {
         1
     }
@@ -36,15 +38,21 @@ impl AudioProcessorHandle for BitCrusherHandle {
         ParameterSpec::new(
             "Bit rate".into(),
             ParameterType::Float {
-                range: (100.0, self.sample_rate()),
+                range: (100.0, self.0.sample_rate()),
                 step: None,
             },
         )
     }
 
-    fn set_parameter(&self, _index: usize, request: SetParameterRequest) {
-        if let SetParameterRequest::Float { value } = request {
-            self.set_bit_rate(value);
+    fn get_parameter(&self, _index: usize) -> Option<ParameterValue> {
+        Some(ParameterValue::Float {
+            value: self.0.bit_rate(),
+        })
+    }
+
+    fn set_parameter(&self, _index: usize, request: ParameterValue) {
+        if let ParameterValue::Float { value } = request {
+            self.0.set_bit_rate(value);
         }
     }
 }
@@ -69,6 +77,10 @@ impl BitCrusherProcessor {
 
     pub fn handle(&self) -> &Shared<BitCrusherHandle> {
         &self.handle
+    }
+
+    pub fn generic_handle(&self) -> impl AudioProcessorHandle {
+        BitCrusherHandleRef(self.handle.clone())
     }
 
     fn step_size(&self) -> usize {

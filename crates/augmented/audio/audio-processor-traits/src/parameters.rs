@@ -5,10 +5,12 @@ pub type AudioProcessorHandleRef = Box<dyn AudioProcessorHandle>;
 pub trait AudioProcessorHandle: Send {
     fn parameter_count(&self) -> usize;
     fn get_parameter_spec(&self, index: usize) -> ParameterSpec;
-    fn set_parameter(&self, index: usize, request: SetParameterRequest);
+
+    fn get_parameter(&self, index: usize) -> Option<ParameterValue>;
+    fn set_parameter(&self, index: usize, request: ParameterValue);
 }
 
-pub enum SetParameterRequest {
+pub enum ParameterValue {
     Float { value: f32 },
 }
 

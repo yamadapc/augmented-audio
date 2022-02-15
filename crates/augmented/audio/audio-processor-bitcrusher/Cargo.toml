@@ -3,6 +3,27 @@ name = "audio-processor-bitcrusher"
 version = "0.1.0-alpha.1"
 edition = "2021"
 
+[features]
+default = [
+    "glow",
+    "iced/tokio",
+    "iced_baseview/tokio",
+]
+glow = [
+    "iced/glow",
+    "iced_baseview/glow",
+    "iced/glow_canvas",
+    "iced_baseview/glow_canvas",
+    "audio-processor-iced-design-system/glow",
+]
+wgpu = [
+    "iced/wgpu",
+    "iced_baseview/wgpu",
+    "iced/canvas",
+    "iced_baseview/canvas",
+    "audio-processor-iced-design-system/wgpu",
+]
+
 [dependencies]
 audio-processor-traits = { version = "1.0.0-alpha.3", path = "../audio-processor-traits" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../audio-garbage-collector" }
@@ -10,6 +31,14 @@ audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../audio-garbage-
 [dev-dependencies]
 audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../application/audio-processor-standalone" }
 audio-processor-testing-helpers = { version = "1.0.0-alpha.3", path = "../../testing/audio-processor-testing-helpers" }
+
+# GUI
+iced = { version = "^0.3.0", path = "../../../vendor/iced", default-features = false }
+iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false }
+iced_audio = { path = "../../../vendor/iced_audio", default-features = false }
+audio-processor-iced-design-system = { path = "../../gui/audio-processor-iced-design-system", default-features = false }
+baseview = { path = "../../../vendor/baseview" }
+wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 
 [package.metadata.augmented]
 processor_examples = ["bitcrusher"]
