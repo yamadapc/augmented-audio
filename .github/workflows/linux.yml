@@ -83,7 +83,7 @@ jobs:
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        if: ${{ env.COVERALLS_TOKEN == 0 && github.event_name == 'pull_request' }}
+        if: ${{ env.COVERALLS_TOKEN == 0 || github.event_name == 'pull_request' }}
         run: |
           cargo nextest run --workspace \
               --profile ci \
