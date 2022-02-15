@@ -36,10 +36,14 @@ Experiments trying to use Rust for audio programming.
 ## Screenshots
 
 <p align="center" style="display: flex;">
-  <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/Cover.png" width="200" />
-  <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/plugin-host/screenshot.png" width="200" />
+  <img alt="Metronome screenshot" src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/Cover.png" width="300" />
+  <img alt="Test plugin host screenshot" src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/plugin-host/screenshot.png" width="300" />
+  <img alt="Looper screenshot" src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/looper/screenshot.png" width="300" />
+</p>
+
+<p align="center" style="display: flex;">
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/volume.png" />
-  <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/picklist.png" />
+  <img width="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/picklist.png" />
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/menu_list.png" />
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/button.png" />
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/ui/knobs.png" />
