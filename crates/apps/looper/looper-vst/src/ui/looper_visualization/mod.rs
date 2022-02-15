@@ -101,24 +101,17 @@ impl<Model: LooperVisualizationDrawModel> Program<()> for LooperVisualizationVie
 
         let is_recording = self.model.is_recording();
         let num_samples = self.model.num_samples() as f32;
-        let has_valid_cache = false;
-        // let has_valid_cache = self
-        //     .loop_cache
-        //     .borrow()
-        //     .as_ref()
-        //     .map(|cache| cache.num_samples == num_samples as usize)
-        //     .unwrap_or(false);
+        let has_valid_cache = self
+            .loop_cache
+            .borrow()
+            .as_ref()
+            .map(|cache| cache.num_samples == num_samples as usize)
+            .unwrap_or(false);
 
         let loop_cache = if !has_valid_cache {
-            let step = 400;
-            let iterator = self
-                .model
-                .loop_iterator()
-                .iter()
-                .cloned()
-                .enumerate()
-                .step_by(step)
-                .collect();
+            let iterator = self.model.loop_iterator();
+            let step = (iterator.len() / 1000).max(1);
+            let iterator = iterator.iter().cloned().enumerate().step_by(step).collect();
             *self.loop_cache.borrow_mut() = Some(LoopCache {
                 iterator,
                 num_samples: num_samples as usize,
