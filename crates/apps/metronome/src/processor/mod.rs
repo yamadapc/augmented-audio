@@ -7,6 +7,11 @@ use augmented_adsr_envelope::Envelope;
 use augmented_oscillator::Oscillator;
 use augmented_playhead::{PlayHead, PlayHeadOptions};
 
+const DEFAULT_CLICK_ATTACK_MS: u64 = 3;
+const DEFAULT_CLICK_DECAY_RELEASE_MS: u64 = 10;
+const DEFAULT_SAMPLE_RATE: f32 = 44100.0;
+const DEFAULT_TEMPO: u32 = 120;
+
 /// Public metronome API
 pub struct MetronomeProcessorHandle {
     is_playing: AtomicBool,
@@ -38,6 +43,7 @@ impl MetronomeProcessorHandle {
     }
 }
 
+/// Holds mutable state for the metronome
 struct MetronomeProcessorState {
     playhead: PlayHead,
     oscillator: Oscillator<f32>,
@@ -57,29 +63,30 @@ impl Default for MetronomeProcessor {
     }
 }
 
+/// Public methods
 impl MetronomeProcessor {
     pub fn new() -> Self {
-        let mut envelope = Envelope::new();
-        envelope.set_attack(Duration::from_millis(3));
-        envelope.set_decay(Duration::from_millis(10));
-        envelope.set_sustain(0.0);
-        envelope.set_release(Duration::from_millis(10));
+        let envelope = Self::build_envelope();
+
+        let sample_rate = DEFAULT_SAMPLE_RATE;
+        let tempo = DEFAULT_TEMPO;
 
         MetronomeProcessor {
             handle: make_shared(MetronomeProcessorHandle {
                 is_playing: AtomicBool::new(true),
-                tempo: AtomicF32::new(120.0),
+                tempo: AtomicF32::new(tempo as f32),
                 volume: AtomicF32::new(1.0),
                 position_beats: AtomicF32::new(0.0),
                 beats_per_bar: AtomicI32::new(4),
             }),
             state: MetronomeProcessorState {
                 last_position: 0.0,
-                playhead: PlayHead::new(PlayHeadOptions::new(Some(44100.0), Some(16), Some(120))),
-                oscillator: Oscillator::new_with_sample_rate(
-                    44100.0,
-                    augmented_oscillator::generators::sine_generator,
-                ),
+                playhead: PlayHead::new(PlayHeadOptions::new(
+                    Some(sample_rate),
+                    Some(tempo),
+                    Some(16),
+                )),
+                oscillator: Oscillator::sine(sample_rate),
                 playing: false,
                 envelope,
             },
@@ -88,42 +95,6 @@ impl MetronomeProcessor {
 
     pub fn handle(&self) -> &Shared<MetronomeProcessorHandle> {
         &self.handle
-    }
-
-    fn process_frame(&mut self, frame: &mut [f32]) {
-        self.state.playhead.accept_samples(1);
-        self.state.envelope.tick();
-        self.state.oscillator.tick();
-
-        let position = self.state.playhead.position_beats() as f32;
-        self.handle.position_beats.set(position);
-
-        if !self.state.playing {
-            let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
-            let f_beats_per_bar = beats_per_bar as f32;
-
-            if beats_per_bar != 1 && position % f_beats_per_bar < 1.0 {
-                self.state.oscillator.set_frequency(880.0);
-            } else {
-                self.state.oscillator.set_frequency(440.0);
-            }
-        }
-
-        if !self.state.playing && position.floor() != self.state.last_position.floor() {
-            self.state.playing = true;
-            self.state.envelope.note_on();
-        } else {
-            self.state.playing = false;
-        }
-
-        let out =
-            self.state.oscillator.get() * self.handle.volume.get() * self.state.envelope.volume();
-
-        for sample in frame {
-            *sample = out;
-        }
-
-        self.state.last_position = position;
     }
 }
 
@@ -163,6 +134,60 @@ impl AudioProcessor for MetronomeProcessor {
 
         for frame in data.frames_mut() {
             self.process_frame(frame);
+        }
+    }
+}
+
+/// Private methods
+impl MetronomeProcessor {
+    fn build_envelope() -> Envelope {
+        let mut envelope = Envelope::new();
+        envelope.set_attack(Duration::from_millis(DEFAULT_CLICK_ATTACK_MS));
+        envelope.set_decay(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
+        envelope.set_sustain(0.0);
+        envelope.set_release(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
+        envelope
+    }
+
+    fn process_frame(&mut self, frame: &mut [f32]) {
+        self.state.playhead.accept_samples(1);
+        self.state.envelope.tick();
+        self.state.oscillator.tick();
+
+        let position = self.state.playhead.position_beats() as f32;
+        self.handle.position_beats.set(position);
+
+        self.trigger_click(position);
+
+        let out =
+            self.state.oscillator.get() * self.handle.volume.get() * self.state.envelope.volume();
+
+        for sample in frame {
+            *sample = out;
+        }
+
+        self.state.last_position = position;
+    }
+
+    /// Triggers the envelope when beat changes and sets the oscillator frequency when on the
+    /// accented beat.
+    fn trigger_click(&mut self, position: f32) {
+        if !self.state.playing {
+            let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
+            let f_beats_per_bar = beats_per_bar as f32;
+
+            if beats_per_bar != 1 && position % f_beats_per_bar < 1.0 {
+                self.state.oscillator.set_frequency(880.0);
+            } else {
+                self.state.oscillator.set_frequency(440.0);
+            }
+        }
+
+        if !self.state.playing && position.floor() != self.state.last_position.floor() {
+            self.state.playing = true;
+            self.state.envelope.note_on();
+        } else {
+            self.state.playing = false;
         }
     }
 }
