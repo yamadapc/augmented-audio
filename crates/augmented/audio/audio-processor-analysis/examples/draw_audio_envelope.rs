@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
@@ -5,26 +7,22 @@ use audio_processor_traits::{
     audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, AudioBuffer,
     AudioProcessor, AudioProcessorSettings,
 };
-use std::time::Duration;
 
 fn main() {
     wisual_logger::init_from_env();
-    let app = clap::App::new("draw-audio-envelope")
-        .arg_from_usage("-i, --input-file=<INPUT_FILE>")
-        .arg_from_usage("-o, --output-file=<OUTPUT_FILE>");
-    let matches = app.get_matches();
+    let Options {
+        input_file_path,
+        output_file_path,
+    } = parse_options();
 
-    let input_file_path = matches
-        .value_of("input-file")
-        .expect("Please provide --input-file");
-    let output_file_path = matches
-        .value_of("output-file")
-        .expect("Please provide --output-file");
     log::info!("Reading input file input_file={}", input_file_path);
     let settings = AudioProcessorSettings::default();
-    let mut input =
-        AudioFileProcessor::from_path(audio_garbage_collector::handle(), settings, input_file_path)
-            .unwrap();
+    let mut input = AudioFileProcessor::from_path(
+        audio_garbage_collector::handle(),
+        settings,
+        &input_file_path,
+    )
+    .unwrap();
     input.prepare(settings);
 
     let mut envelope_processor =
@@ -71,4 +69,30 @@ fn main() {
 
     log::info!("Saving file output_file={}", output_file_path);
     img.save(output_file_path).unwrap();
+}
+
+struct Options {
+    input_file_path: String,
+    output_file_path: String,
+}
+
+fn parse_options() -> Options {
+    let app = clap::App::new("draw-audio-envelope")
+        .arg_from_usage("-i, --input-file=<INPUT_FILE>")
+        .arg_from_usage("-o, --output-file=<OUTPUT_FILE>");
+    let matches = app.get_matches();
+
+    let input_file_path = matches
+        .value_of("input-file")
+        .expect("Please provide --input-file")
+        .into();
+    let output_file_path = matches
+        .value_of("output-file")
+        .expect("Please provide --output-file")
+        .into();
+
+    Options {
+        input_file_path,
+        output_file_path,
+    }
 }
