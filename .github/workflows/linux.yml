@@ -40,6 +40,7 @@ jobs:
               --exclude-files "*crates/augmented/gui/*" \
               --exclude-files "*crates/augmented/audio/audiounit/*" \
               --exclude-files "*crates/augmented/development/*" \
+              --exclude-files "*crates/augmented/data/augmented-midi/midir/*" \
               --exclude-files "*crates/apps/daw/*" \
               --exclude-files "*crates/apps/demo-plugin/*" \
               --exclude-files "*crates/apps/recording_buddy/*" \
