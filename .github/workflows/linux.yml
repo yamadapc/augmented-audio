@@ -69,7 +69,11 @@ jobs:
               --exclude webview-holder \
               --exclude macos-bundle-resources \
               -- -Z unstable-options --format json | tee cargo-output.json
-          cargo install --force --version 0.1.10 cargo2junit
+
+          if ! [ -x "$(command -v cargo2junit)" ]; then
+            cargo install --force --version 0.1.10 cargo2junit
+          fi
+
           mkdir -p junit
           cat cargo-output.json | cargo2junit > junit/results.xml
       - name: Test
