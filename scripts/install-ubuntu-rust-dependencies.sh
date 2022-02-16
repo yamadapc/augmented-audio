@@ -8,7 +8,3 @@ fi
 if ! [ -x "$(command -v cargo-tarpaulin)" ]; then
   cargo install --force cargo-tarpaulin
 fi
-
-if ! [ -x "$(command -v cargo-nextest)" ]; then
-  cargo install --force cargo-nextest
-fi

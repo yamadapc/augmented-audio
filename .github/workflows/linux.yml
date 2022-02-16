@@ -21,15 +21,6 @@ jobs:
         with:
           submodules: recursive
           lfs: true
-#      - uses: actions/cache@v2
-#        with:
-#          path: |
-#            ~/.cargo/bin/
-#            ~/.cargo/registry/index/
-#            ~/.cargo/registry/cache/
-#            ~/.cargo/git/db/
-#            target/
-#          key: ${{ runner.os }}-test-cache
       - uses: Swatinem/rust-cache@v1
       - name: Install APT dependencies
         run: ./scripts/install-ubuntu-apt-dependencies.sh
@@ -85,8 +76,7 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN == 0 || github.event_name == 'pull_request' }}
         run: |
-          cargo nextest run --workspace \
-              --profile ci \
+          cargo test --workspace \
               --features story \
               --exclude augmented-ui \
               --exclude audiounit \
@@ -108,9 +98,11 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources
+              --exclude macos-bundle-resources \
+              -- -Z unstable-options --format json | tee cargo-output.json
+          cargo install --force --version 0.1.10 cargo2junit
           mkdir -p junit
-          mv target/nextest/ci/junit.xml junit/results.xml
+          cat cargo-output.json | cargo2junit > junit/results.xml
       - name: JUnit Report Action
         uses: mikepenz/action-junit-report@v2.9.0
         if: always()
@@ -138,15 +130,6 @@ jobs:
       with:
         submodules: recursive
         lfs: true
-#    - uses: actions/cache@v2
-#      with:
-#        path: |
-#          ~/.cargo/bin/
-#          ~/.cargo/registry/index/
-#          ~/.cargo/registry/cache/
-#          ~/.cargo/git/db/
-#          target/
-#        key: ${{ runner.os }}-release-cache
     - uses: Swatinem/rust-cache@v1
     - name: Install APT dependencies
       run: ./scripts/install-ubuntu-apt-dependencies.sh
