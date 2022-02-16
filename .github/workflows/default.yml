@@ -21,15 +21,6 @@ jobs:
         with:
           submodules: recursive
           lfs: true
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-test-cache
       - uses: Swatinem/rust-cache@v1
       - name: Install uniffi bindgen
         run: |
@@ -48,25 +39,9 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-lint-cache
       - uses: Swatinem/rust-cache@v1
-      - name: Install uniffi bindgen
-        run: |
-          if ! [ -x "$(command -v uniffi-bindgen)" ]; then
-            cargo install --force --version 0.15.2 uniffi_bindgen
-          fi
       - name: Run clippy
         run: ./scripts/clippy.sh
-      - name: Run check
-        run: cargo check --verbose --workspace --features story --exclude augmented-ui --exclude midir --exclude avfaudio-sys
   build-rust:
     name: Rust - Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -78,15 +53,6 @@ jobs:
       with:
         submodules: recursive
         lfs: true
-    - uses: actions/cache@v2
-      with:
-        path: |
-          ~/.cargo/bin/
-          ~/.cargo/registry/index/
-          ~/.cargo/registry/cache/
-          ~/.cargo/git/db/
-          target/
-        key: ${{ runner.os }}-release-cache
     - uses: Swatinem/rust-cache@v1
     - name: Install uniffi bindgen
       run: cargo install --force --version 0.15.2 uniffi_bindgen
