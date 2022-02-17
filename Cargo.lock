@@ -430,6 +430,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-dynamics"
+version = "0.1.0"
+dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-file",
+ "audio-processor-testing-helpers",
+ "audio-processor-traits",
+ "augmented-audio-volume",
+]
+
+[[package]]
 name = "audio-processor-file"
 version = "1.0.0-alpha.3"
 dependencies = [
