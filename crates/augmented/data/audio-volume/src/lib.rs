@@ -9,8 +9,8 @@ use std::ops::Mul;
 #[cfg(not(feature = "f64"))]
 #[cfg(feature = "f32")]
 pub type Float = f32;
+
 #[cfg(feature = "f64")]
-#[cfg(not(feature = "f32"))]
 pub type Float = f64;
 
 /// Represents a reference-less dB value.
