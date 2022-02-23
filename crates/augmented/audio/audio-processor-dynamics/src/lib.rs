@@ -1,6 +1,6 @@
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
-use augmented_audio_volume::{db_to_amplitude, Amplitude, Decibels};
+use augmented_audio_volume::db_to_amplitude;
 use handle::CompressorHandle;
 
 type FloatT = augmented_audio_volume::Float;
@@ -15,7 +15,7 @@ mod handle {
     pub fn calculate_multiplier(sample_rate: FloatT, duration_ms: FloatT) -> FloatT {
         let attack_secs = duration_ms * 0.001;
         let attack_samples = sample_rate * attack_secs;
-        FloatT::exp2((-1.0 / attack_samples))
+        FloatT::exp2(-1.0 / attack_samples)
     }
 
     pub struct CompressorHandle {
@@ -146,7 +146,7 @@ impl CompressorProcessor {
     fn apply_gain(&mut self, frame: &mut [FloatT]) {
         let gain = self.compute_gain();
         for sample in frame {
-            *sample = *sample * gain;
+            *sample *= gain;
         }
     }
 
@@ -176,14 +176,14 @@ struct PeakDetector {
 
 impl Default for PeakDetector {
     fn default() -> Self {
-        Self { value: 0.0.into() }
+        Self { value: 0.0 }
     }
 }
 
 impl PeakDetector {
     fn accept_frame(&mut self, attack_mult: FloatT, release_mult: FloatT, frame: &[FloatT]) {
         let frame_len = frame.len() as FloatT;
-        let new: FloatT = frame.into_iter().map(|f| FloatT::abs(*f)).sum::<FloatT>() / frame_len;
+        let new: FloatT = frame.iter().map(|f| FloatT::abs(*f)).sum::<FloatT>() / frame_len;
         let curr_slope = if self.value > new {
             release_mult
         } else {
@@ -196,13 +196,13 @@ impl PeakDetector {
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::charts::{
-        draw_multi_vec_charts, draw_vec_chart, BLUE, RED, YELLOW,
+        draw_multi_vec_charts, draw_vec_chart, BLUE, RED,
     };
     use audio_processor_testing_helpers::relative_path;
 
     use audio_processor_file::AudioFileProcessor;
     use audio_processor_traits::{
-        audio_buffer, Float, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer,
+        audio_buffer, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer,
     };
     use augmented_audio_volume::amplitude_to_db;
 
@@ -309,7 +309,7 @@ mod test {
 
     fn average(frame: &[FloatT]) -> FloatT {
         let num_samples = frame.len() as FloatT;
-        frame.into_iter().map(|f| *f).sum::<FloatT>() / num_samples
+        frame.iter().copied().sum::<FloatT>() / num_samples
     }
 
     fn setup_input_processor(settings: AudioProcessorSettings) -> AudioFileProcessor {
