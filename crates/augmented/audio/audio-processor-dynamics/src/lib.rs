@@ -6,11 +6,13 @@ use handle::CompressorHandle;
 type FloatT = augmented_audio_volume::Float;
 
 mod handle {
-    use audio_processor_traits::AtomicF32;
+    #[cfg(not(feature = "f64"))]
+    use audio_processor_traits::AtomicF32 as AtomicFloat;
+
+    #[cfg(feature = "f64")]
+    use audio_processor_traits::AtomicF64 as AtomicFloat;
 
     use super::FloatT;
-
-    type AtomicFloat = AtomicF32;
 
     pub fn calculate_multiplier(sample_rate: FloatT, duration_ms: FloatT) -> FloatT {
         let attack_secs = duration_ms * 0.001;
@@ -99,8 +101,6 @@ mod handle {
 
 pub struct CompressorProcessor {
     peak_detector_state: PeakDetector,
-    gain_db: FloatT,
-    gain: FloatT,
     handle: Shared<CompressorHandle>,
 }
 
@@ -108,8 +108,6 @@ impl CompressorProcessor {
     pub fn new() -> Self {
         Self {
             peak_detector_state: PeakDetector::default(),
-            gain_db: 0.0,
-            gain: 1.0,
             handle: make_shared(CompressorHandle::default()),
         }
     }
