@@ -6,8 +6,9 @@ edition = "2021"
 [dependencies]
 audio-processor-traits = { version = "1.0.0-alpha.3", path = "../audio-processor-traits" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../audio-garbage-collector" }
-augmented-audio-volume = { path = "../../data/audio-volume", default-features = false, features = [] }
+augmented-audio-volume = { path = "../../data/audio-volume", default-features = false, features = ["f32"] }
 
 [dev-dependencies]
 audio-processor-file = { version = "1.0.0-alpha.3", path = "../audio-processor-file" }
 audio-processor-testing-helpers = { version = "1.0.0-alpha.3", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../application/audio-processor-standalone" }

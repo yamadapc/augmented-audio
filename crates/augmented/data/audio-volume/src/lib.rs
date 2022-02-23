@@ -7,8 +7,10 @@
 use std::ops::Mul;
 
 #[cfg(not(feature = "f64"))]
+#[cfg(feature = "f32")]
 pub type Float = f32;
 #[cfg(feature = "f64")]
+#[cfg(not(feature = "f32"))]
 pub type Float = f64;
 
 /// Represents a reference-less dB value.
@@ -157,8 +159,9 @@ pub fn amplitude_to_db(volume: Float, reference_amplitude: Float) -> Float {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use audio_processor_testing_helpers::assert_f_eq;
+
+    use super::*;
 
     #[test]
     fn it_can_be_created() {

@@ -10,8 +10,9 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [dependencies]
 
 [features]
-default = []
+default = ["f64"]
 f64 = []
+f32 = []
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.3" }
