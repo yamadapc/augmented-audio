@@ -12,3 +12,8 @@ augmented-audio-volume = { path = "../../data/audio-volume", default-features = 
 audio-processor-file = { version = "1.0.0-alpha.3", path = "../audio-processor-file" }
 audio-processor-testing-helpers = { version = "1.0.0-alpha.3", path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../application/audio-processor-standalone" }
+
+[package.metadata.augmented]
+# uncommenting this will enable snapshot tests
+# processor_examples = ["compressor"]
+private = true
