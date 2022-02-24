@@ -24,6 +24,7 @@ Experiments trying to use Rust for audio programming.
 ## Blog posts
 * [Initial 'Test Plugin Host' post](https://beijaflor.io/blog/07-2021/rust-audio-experiments-2/)
 * [Simple Metronome release](https://beijaflor.io/blog/01-2022/rust-audio-experiments-3/)
+* [Generic AudioProcessors in Rust](https://beijaflor.io/blog/02-2022/rust-audio-experiments-4/)
 
 ## Documentation
 
