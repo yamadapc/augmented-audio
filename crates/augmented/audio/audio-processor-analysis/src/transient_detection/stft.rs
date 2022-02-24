@@ -12,8 +12,6 @@ use crate::transient_detection::stft::f_func::FFuncParams;
 ///
 /// * https://www.researchgate.net/profile/Balaji-Thoshkahna/publication/220723752_A_Transient_Detection_Algorithm_for_Audio_Using_Iterative_Analysis_of_STFT/links/0deec52e6331412aed000000/A-Transient-Detection-Algorithm-for-Audio-Using-Iterative-Analysis-of-STFT.pdf
 fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(data: &mut BufferType) -> Vec<f32> {
-    // normalize(data);
-
     log::info!("Performing FFT...");
     let fft_frames = get_fft_frames(data);
 
@@ -49,15 +47,10 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(data: &mut BufferT
         let threshold_frames = dynamic_thresholds::calculate_dynamic_thresholds(
             DynamicThresholdsParams {
                 time_spread: 3,
-                beta: 0.1,
+                beta: 2.0,
             },
             &f_frames,
         );
-        // log::info!("Sample - threshold_frames={:?}", threshold_frames.buffer[0]);
-        // log::info!(
-        //     "Sample - threshold_frames={:?}",
-        //     threshold_frames.buffer[300]
-        // );
 
         let threshold_changed_bins = 4096 / 4;
         let num_changed_bins_frames: Vec<usize> = threshold_frames
@@ -74,7 +67,6 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(data: &mut BufferT
                     .sum()
             })
             .collect();
-        // log::info!("Sample - changed_bins={:?}", num_changed_bins_frames);
 
         for i in 0..transient_spectogram_frames.len() {
             for j in 0..transient_spectogram_frames[i].len() {
@@ -387,6 +379,8 @@ mod test {
         use piet::{Color, RenderContext};
         use piet_common::{CoreGraphicsContext, Device};
 
+        use super::*;
+
         pub fn draw(output_file_path: &str, frames: &[f32], transients: &[f32]) {
             log::info!("Rendering image...");
             let width = 2000;
@@ -415,10 +409,17 @@ mod test {
             let max_transient = transients
                 .iter()
                 .max_by(|f1, f2| f1.partial_cmp(f2).unwrap());
-            let threshold = max_transient.unwrap() / 2.0;
+
+            let threshold = max_transient.unwrap() / 20.0;
             let gated_transients: Vec<f32> = transients
                 .iter()
-                .map(|transient| if *transient > threshold { 1.0 } else { 0.0 })
+                .map(|transient| {
+                    if *transient > threshold {
+                        *transient
+                    } else {
+                        0.0
+                    }
+                })
                 .collect();
             draw_line(
                 &mut render_context,
