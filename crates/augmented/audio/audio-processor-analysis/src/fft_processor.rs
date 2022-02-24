@@ -19,7 +19,8 @@ fn hann_window(size: usize) -> Vec<f32> {
 }
 
 pub struct FftProcessor {
-    buffer: Vec<Complex<f32>>,
+    input_buffer: Vec<Complex<f32>>,
+    fft_buffer: Vec<Complex<f32>>,
     scratch: Vec<Complex<f32>>,
     cursor: usize,
     window: Vec<f32>,
@@ -56,7 +57,8 @@ impl FftProcessor {
         let step_len = (size as f32 * overlap_ratio) as usize;
 
         Self {
-            buffer,
+            input_buffer: buffer.clone(),
+            fft_buffer: buffer,
             window,
             scratch,
             size,
@@ -72,7 +74,7 @@ impl FftProcessor {
     }
 
     pub fn buffer(&self) -> &Vec<Complex<f32>> {
-        &self.buffer
+        &self.fft_buffer
     }
 
     pub fn has_changed(&self) -> bool {
@@ -80,8 +82,11 @@ impl FftProcessor {
     }
 
     fn perform_fft(&mut self) {
+        for (sample_index, sample) in self.input_buffer.iter().enumerate() {
+            self.fft_buffer[sample_index] = *sample;
+        }
         self.fft
-            .process_with_scratch(&mut self.buffer, &mut self.scratch);
+            .process_with_scratch(&mut self.fft_buffer, &mut self.scratch);
     }
 }
 
@@ -90,7 +95,12 @@ impl SimpleAudioProcessor for FftProcessor {
 
     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
         self.has_changed = false;
-        self.buffer[self.cursor] = Complex::from_polar(sample * self.window[self.cursor], 0.0);
+        let magnitude = sample * self.window[self.cursor];
+        assert!(!magnitude.is_nan());
+        let complex = Complex::from_polar(magnitude, 0.0);
+        assert!(!complex.re.is_nan());
+        assert!(!complex.im.is_nan());
+        self.input_buffer[self.cursor] = complex;
         self.cursor += 1;
 
         if self.cursor == self.step_len {
@@ -139,7 +149,7 @@ mod test {
 
         println!("Drawing chart");
         let mut output: Vec<f32> = fft_processor
-            .buffer
+            .input_buffer
             .iter()
             .map(|c| 20.0 * (c.norm() / 10.0).log10())
             .collect();

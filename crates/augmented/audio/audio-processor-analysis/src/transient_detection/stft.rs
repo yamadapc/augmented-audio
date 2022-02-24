@@ -23,20 +23,22 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(data: &mut BufferT
         .map(|frame| {
             frame
                 .iter()
-                .map(|frequency_bin| frequency_bin.norm())
+                .enumerate()
+                .map(|(bin, frequency_bin)| frequency_bin.norm())
                 .collect()
         })
         .collect();
+
     let mut transient_spectogram_frames: Vec<Vec<f32>> = magnitudes
         .clone()
         .iter()
         .map(|frame| frame.iter().map(|_| 0.0).collect())
         .collect();
-    let delta_magnitude = 0.01;
+    let delta_magnitude = 0.1;
 
-    let num_iterations = 1;
+    let num_iterations = 20;
     for iteration_m in 0..num_iterations {
-        log::info!("Running iteration {}", iteration_m);
+        // log::info!("Running iteration {}", iteration_m);
         let t_results = t_func::get_t_func(&magnitudes);
         let f_frames = f_func::get_f_func(
             FFuncParams {
@@ -47,12 +49,17 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(data: &mut BufferT
         let threshold_frames = dynamic_thresholds::calculate_dynamic_thresholds(
             DynamicThresholdsParams {
                 time_spread: 3,
-                beta: 0.01,
+                beta: 0.1,
             },
             &f_frames,
         );
+        // log::info!("Sample - threshold_frames={:?}", threshold_frames.buffer[0]);
+        // log::info!(
+        //     "Sample - threshold_frames={:?}",
+        //     threshold_frames.buffer[300]
+        // );
 
-        let threshold_changed_bins = 1;
+        let threshold_changed_bins = 4096 / 4;
         let num_changed_bins_frames: Vec<usize> = threshold_frames
             .buffer
             .iter()
@@ -67,10 +74,11 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(data: &mut BufferT
                     .sum()
             })
             .collect();
+        // log::info!("Sample - changed_bins={:?}", num_changed_bins_frames);
 
         for i in 0..transient_spectogram_frames.len() {
             for j in 0..transient_spectogram_frames[i].len() {
-                if num_changed_bins_frames[i] >= threshold_changed_bins {
+                if iteration_m == 0 || num_changed_bins_frames[i] >= threshold_changed_bins {
                     transient_spectogram_frames[i][j] += delta_magnitude * magnitudes[i][j];
                     magnitudes[i][j] -= (1.0 - delta_magnitude) * magnitudes[i][j];
                 }
@@ -78,7 +86,6 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(data: &mut BufferT
         }
     }
 
-    log::info!("Running inverse FFTs...");
     let mut planner = rustfft::FftPlanner::new();
     let fft = planner.plan_fft(4096, FftDirection::Inverse);
     let scratch_size = fft.get_inplace_scratch_len();
@@ -132,6 +139,7 @@ fn get_fft_frames<BufferType: AudioBuffer<SampleType = f32>>(
 mod dynamic_thresholds {
     use super::f_func::FFuncResults;
 
+    #[derive(Debug)]
     pub struct DynamicThresholds {
         pub buffer: Vec<Vec<f32>>,
     }
@@ -342,10 +350,10 @@ mod test {
         input.prepare(settings);
         let input_buffer = input.buffer();
         let mut buffer = VecAudioBuffer::new();
-        buffer.resize(input_buffer.len(), input_buffer[0].len(), 0.0);
+        buffer.resize(1, input_buffer[0].len(), 0.0);
         for (channel_index, channel) in input_buffer.iter().enumerate() {
             for (sample_index, sample) in channel.iter().enumerate() {
-                buffer.set(channel_index, sample_index, *sample);
+                buffer.set(0, sample_index, *sample + buffer.get(0, sample_index));
             }
         }
         buffer
@@ -363,7 +371,7 @@ mod test {
         let mut input = read_input_file(&input_path);
         let transients = find_transients(&mut input);
 
-        let frames: Vec<f32> = input.frames().map(|frame| frame[0] + frame[1]).collect();
+        let frames: Vec<f32> = input.frames().map(|frame| frame[0]).collect();
 
         assert_eq!(frames.len(), transients.len());
 
@@ -425,7 +433,7 @@ mod test {
             let fheight = height as f64;
             let map_sample = |sig| {
                 let r = (sig as f64 - min_sample) / (max_sample - min_sample);
-                r * fheight
+                fheight - r * fheight
             };
 
             let mut path: Vec<PathEl> = frames
