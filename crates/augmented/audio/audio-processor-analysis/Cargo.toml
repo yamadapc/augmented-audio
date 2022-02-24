@@ -11,9 +11,9 @@ repository = "https://github.com/yamadapc/augmented-audio"
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-processor-traits = { version = "1.0.0-alpha.3", path = "../audio-processor-traits" }
 rustfft = "6.0.1"
+log = "0.4.14"
 
 [dev-dependencies]
-log = "0.4.14"
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers", version = "1.0.0-alpha.3" }
 audio-processor-file = { path = "../audio-processor-file", version = "1.0.0-alpha.3" }

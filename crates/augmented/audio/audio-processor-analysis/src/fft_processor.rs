@@ -32,7 +32,7 @@ pub struct FftProcessor {
 
 impl Default for FftProcessor {
     fn default() -> Self {
-        Self::new(8192, FftDirection::Forward, 1.0)
+        Self::new(8192, FftDirection::Forward, 0.0)
     }
 }
 
@@ -41,7 +41,8 @@ impl FftProcessor {
     ///
     /// * size: Size of the FFT
     /// * direction: Direction of the FFT
-    /// * overlap_ratio: 1.0 will do no overlap, 0.5 will do half a window of overlap and so on
+    /// * overlap_ratio: 0.0 will do no overlap, 0.5 will do half a window of overlap and 0.75 will
+    ///   do 3/4 window overlap
     pub fn new(size: usize, direction: FftDirection, overlap_ratio: f32) -> Self {
         let mut planner = FftPlanner::new();
         let fft = planner.plan_fft(size, direction);
@@ -54,7 +55,7 @@ impl FftProcessor {
         scratch.resize(scratch_size, 0.0.into());
 
         let window = hann_window(size);
-        let step_len = (size as f32 * overlap_ratio) as usize;
+        let step_len = (size as f32 * (1.0 - overlap_ratio)) as usize;
 
         Self {
             input_buffer: buffer.clone(),
