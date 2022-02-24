@@ -2,7 +2,8 @@ use std::f32::consts::PI;
 use std::sync::Arc;
 
 use rustfft::num_complex::Complex;
-use rustfft::{Fft, FftDirection, FftPlanner};
+pub use rustfft::FftDirection;
+use rustfft::{Fft, FftPlanner};
 
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 
@@ -22,18 +23,25 @@ pub struct FftProcessor {
     scratch: Vec<Complex<f32>>,
     cursor: usize,
     window: Vec<f32>,
+    step_len: usize,
     size: usize,
     fft: Arc<dyn Fft<f32>>,
+    has_changed: bool,
 }
 
 impl Default for FftProcessor {
     fn default() -> Self {
-        Self::new(8192, FftDirection::Forward)
+        Self::new(8192, FftDirection::Forward, 1.0)
     }
 }
 
 impl FftProcessor {
-    pub fn new(size: usize, direction: FftDirection) -> Self {
+    /// Constructs a new `FftProcessor`
+    ///
+    /// * size: Size of the FFT
+    /// * direction: Direction of the FFT
+    /// * overlap_ratio: 1.0 will do no overlap, 0.5 will do half a window of overlap and so on
+    pub fn new(size: usize, direction: FftDirection, overlap_ratio: f32) -> Self {
         let mut planner = FftPlanner::new();
         let fft = planner.plan_fft(size, direction);
 
@@ -45,14 +53,17 @@ impl FftProcessor {
         scratch.resize(scratch_size, 0.0.into());
 
         let window = hann_window(size);
+        let step_len = (size as f32 * overlap_ratio) as usize;
 
         Self {
             buffer,
             window,
             scratch,
             size,
+            step_len,
             cursor: 0,
             fft,
+            has_changed: false,
         }
     }
 
@@ -62,6 +73,10 @@ impl FftProcessor {
 
     pub fn buffer(&self) -> &Vec<Complex<f32>> {
         &self.buffer
+    }
+
+    pub fn has_changed(&self) -> bool {
+        self.has_changed
     }
 
     fn perform_fft(&mut self) {
@@ -74,12 +89,14 @@ impl SimpleAudioProcessor for FftProcessor {
     type SampleType = f32;
 
     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+        self.has_changed = false;
         self.buffer[self.cursor] = Complex::from_polar(sample * self.window[self.cursor], 0.0);
         self.cursor += 1;
 
-        if self.cursor == self.buffer.len() {
+        if self.cursor == self.step_len {
             self.perform_fft();
             self.cursor = 0;
+            self.has_changed = true;
         }
 
         sample
