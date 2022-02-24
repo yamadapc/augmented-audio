@@ -38,7 +38,7 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(data: &mut BufferT
 
     let num_iterations = 20;
     for iteration_m in 0..num_iterations {
-        // log::info!("Running iteration {}", iteration_m);
+        log::info!("Running iteration {}", iteration_m);
         let t_results = t_func::get_t_func(&magnitudes);
         let f_frames = f_func::get_f_func(
             FFuncParams {
@@ -367,7 +367,8 @@ mod test {
 
         let output_path = relative_path!("./src/transient_detection/stft.png");
 
-        let input_path = relative_path!("../../../../input-files/C3-loop.mp3");
+        let input_path = relative_path!("./sample.mp3");
+        // let input_path = relative_path!("../../../../input-files/C3-loop.mp3");
         let mut input = read_input_file(&input_path);
         let transients = find_transients(&mut input);
 
@@ -407,6 +408,23 @@ mod test {
                 width,
                 height,
                 transients,
+                &signal_color,
+            );
+            let signal_color = Color::rgb(0.0, 0.0, 1.0);
+
+            let max_transient = transients
+                .iter()
+                .max_by(|f1, f2| f1.partial_cmp(f2).unwrap());
+            let threshold = max_transient.unwrap() / 2.0;
+            let gated_transients: Vec<f32> = transients
+                .iter()
+                .map(|transient| if *transient > threshold { 1.0 } else { 0.0 })
+                .collect();
+            draw_line(
+                &mut render_context,
+                width,
+                height,
+                &gated_transients,
                 &signal_color,
             );
 
