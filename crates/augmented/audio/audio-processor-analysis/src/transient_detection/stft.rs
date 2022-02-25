@@ -271,6 +271,20 @@ fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
 
         cursor += (frame.len() as f32 * (1.0 - fft_overlap_ratio)) as usize;
     }
+
+    let maximum_output = output
+        .iter()
+        .map(|f| f.abs())
+        .max_by(|f1, f2| f1.partial_cmp(f2).unwrap())
+        .unwrap();
+    for sample in &mut output {
+        if sample.abs() > maximum_output * 0.05 {
+            *sample = *sample / maximum_output;
+        } else {
+            *sample = 0.0;
+        }
+    }
+
     output
 }
 
@@ -526,7 +540,7 @@ mod frame_deltas {
 mod test {
     use audio_processor_testing_helpers::relative_path;
 
-    use audio_processor_file::AudioFileProcessor;
+    use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
     use audio_processor_traits::{OwnedAudioBuffer, VecAudioBuffer};
 
     use super::*;
@@ -543,9 +557,12 @@ mod test {
         input.prepare(settings);
         let input_buffer = input.buffer();
         let mut buffer = VecAudioBuffer::new();
-        buffer.resize(1, input_buffer[0].len(), 0.0);
+
+        // We read at most 10s of audio & mono it.
+        let max_len = (settings.sample_rate() * 10.0) as usize;
+        buffer.resize(1, input_buffer[0].len().min(max_len), 0.0);
         for channel in input_buffer.iter() {
-            for (sample_index, sample) in channel.iter().enumerate() {
+            for (sample_index, sample) in channel.iter().enumerate().take(max_len) {
                 buffer.set(0, sample_index, *sample + buffer.get(0, sample_index));
             }
         }
@@ -560,23 +577,44 @@ mod test {
 
         let output_path = relative_path!("./src/transient_detection/stft.png");
 
-        let input_path = relative_path!("../../../../input-files/C3-loop.mp3");
+        // let input_path = relative_path!("../../../../input-files/C3-loop.mp3");
+        let input_path = relative_path!("./hiphop-drum-loop.mp3");
+        let transients_file_path = format!("{}.transients.wav", input_path);
         let mut input = read_input_file(&input_path);
-        let transients = find_transients(IterativeTransientDetectionParams::default(), &mut input);
-
         let frames: Vec<f32> = input.frames().map(|frame| frame[0]).collect();
+        let max_input = frames
+            .iter()
+            .map(|f| f.abs())
+            .max_by(|f1, f2| f1.partial_cmp(f2).unwrap())
+            .unwrap();
 
+        let transients = find_transients(IterativeTransientDetectionParams::default(), &mut input);
         assert_eq!(frames.len(), transients.len());
-
         draw(&output_path, &frames, &transients);
+
+        let settings = AudioProcessorSettings {
+            input_channels: 1,
+            output_channels: 1,
+            ..AudioProcessorSettings::default()
+        };
+        let mut output_processor =
+            OutputAudioFileProcessor::from_path(settings.clone(), &transients_file_path);
+        output_processor.prepare(settings);
+        // match input signal
+        let mut transients: Vec<f32> = transients.iter().map(|f| f * max_input).collect();
+        output_processor.process(&mut transients);
     }
 
     mod visualization {
         use std::cmp::Ordering;
 
-        use piet::kurbo::{PathEl, Point, Rect};
-        use piet::{Color, RenderContext};
+        use piet::kurbo::{Affine, Line, PathEl, Point, Rect};
+        use piet::{Color, RenderContext, Text, TextAttribute, TextLayoutBuilder};
         use piet_common::{CoreGraphicsContext, Device};
+
+        use audio_processor_traits::AudioProcessorSettings;
+
+        use crate::peak_detector::PeakDetector;
 
         pub fn draw(output_file_path: &str, frames: &[f32], transients: &[f32]) {
             log::info!("Rendering image...");
@@ -592,21 +630,154 @@ mod test {
                 &Color::rgb(1.0, 1.0, 1.0),
             );
             let signal_color = Color::rgb(1.0, 0.0, 0.0);
-            draw_line(&mut render_context, width, height, frames, &signal_color);
+
+            let num_charts = 5;
+
+            // Draw audio line
+            draw_line(
+                &mut render_context,
+                width,
+                height / num_charts,
+                frames,
+                &signal_color,
+            );
+            let label = "Input audio";
+            draw_text(&mut render_context, label);
+
+            // Draw transient signal
+            let _ = render_context.save();
+            render_context.transform(Affine::translate((0.0, height as f64 / num_charts as f64)));
             let signal_color = Color::rgb(0.0, 1.0, 0.0);
             draw_line(
                 &mut render_context,
                 width,
-                height,
+                height / num_charts,
                 transients,
                 &signal_color,
             );
-            let signal_color = Color::rgb(0.0, 0.0, 1.0);
+            let label = "Transient signal";
+            draw_text(&mut render_context, label);
+            let _ = render_context.restore();
 
+            // Draw transient lines
+            let _ = render_context.save();
+            render_context.transform(Affine::translate((
+                0.0,
+                2.0 * (height as f64 / num_charts as f64),
+            )));
+            let signal_color = Color::rgb(0.0, 0.0, 1.0);
+            let gated_transients = get_gated_transients(transients);
+            draw_line(
+                &mut render_context,
+                width,
+                height / num_charts,
+                &gated_transients,
+                &signal_color,
+            );
+            let label = "Transient magnitude";
+            draw_text(&mut render_context, label);
+            let _ = render_context.restore();
+
+            // Draw transients through peak detector
+            let mut peak_detector = PeakDetector::default();
+            let attack_mult = crate::peak_detector::calculate_multiplier(
+                AudioProcessorSettings::default().sample_rate,
+                0.1,
+            );
+            let release_mult = crate::peak_detector::calculate_multiplier(
+                AudioProcessorSettings::default().sample_rate,
+                15.0,
+            );
+            let _ = render_context.save();
+            let gated_transients: Vec<f32> = gated_transients
+                .iter()
+                .map(|f| {
+                    peak_detector.accept_frame(attack_mult, release_mult, &[*f]);
+                    peak_detector.value()
+                })
+                .collect();
+            render_context.transform(Affine::translate((
+                0.0,
+                3.0 * (height as f64 / num_charts as f64),
+            )));
+            draw_line(
+                &mut render_context,
+                width,
+                height / num_charts,
+                &gated_transients,
+                &Color::rgb(1.0, 0.0, 0.5),
+            );
+            let label = "Smoothed transients";
+            draw_text(&mut render_context, label);
+            let _ = render_context.restore();
+
+            render_context.transform(Affine::translate((
+                0.0,
+                4.0 * (height as f64 / num_charts as f64),
+            )));
+            let test_thresholds = [0.2, 0.1];
+            draw_line(
+                &mut render_context,
+                width,
+                height / num_charts,
+                frames,
+                &Color::rgb(0.0, 0.0, 0.0).with_alpha(0.4),
+            );
+            for (i, threshold) in test_thresholds.iter().enumerate() {
+                let mut inside_transient = false;
+                let transient_positions: Vec<f32> = gated_transients
+                    .iter()
+                    .map(|f| {
+                        if !inside_transient && *f > *threshold {
+                            inside_transient = true;
+                            1.0
+                        } else if inside_transient && *f > *threshold {
+                            0.0
+                        } else {
+                            inside_transient = false;
+                            0.0
+                        }
+                    })
+                    .collect();
+
+                let base_height = (height / num_charts) as f32;
+                let index_ratio = (test_thresholds.len() - i) as f32 / test_thresholds.len() as f32;
+                let chart_height = (base_height * index_ratio) as usize;
+                draw_transient_lines(
+                    &mut render_context,
+                    width,
+                    chart_height,
+                    &transient_positions,
+                    &Color::rgb(1.0, 0.0, 0.0),
+                );
+            }
+            let label = "Transient positions";
+            draw_text(&mut render_context, label);
+            let _ = render_context.restore();
+
+            render_context.finish().unwrap();
+            std::mem::drop(render_context);
+
+            bitmap
+                .save_to_file(output_file_path)
+                .expect("Failed to save image");
+        }
+
+        fn draw_text(render_context: &mut CoreGraphicsContext, label: &str) {
+            let text = render_context.text();
+            let layout = text
+                .new_text_layout(label.to_string())
+                .default_attribute(TextAttribute::FontSize(20.0))
+                .build()
+                .unwrap();
+            render_context.draw_text(&layout, (0.0, 0.0));
+        }
+
+        fn get_gated_transients(transients: &[f32]) -> Vec<f32> {
+            let transients: Vec<f32> = transients.iter().map(|f| f.abs()).collect();
             let max_transient = transients
                 .iter()
                 .max_by(|f1, f2| f1.partial_cmp(f2).unwrap());
-
             let threshold = max_transient.unwrap() / 20.0;
             let gated_transients: Vec<f32> = transients
                 .iter()
@@ -618,20 +789,34 @@ mod test {
                     }
                 })
                 .collect();
-            draw_line(
-                &mut render_context,
-                width,
-                height,
-                &gated_transients,
-                &signal_color,
-            );
+            gated_transients
+        }
 
-            render_context.finish().unwrap();
-            std::mem::drop(render_context);
+        fn draw_transient_lines(
+            render_context: &mut CoreGraphicsContext,
+            width: usize,
+            height: usize,
+            frames: &[f32],
+            signal_color: &Color,
+        ) {
+            let len = frames.len() as f64;
+            let order = |f1: f32, f2: f32| f1.partial_cmp(&f2).unwrap_or(Ordering::Less);
+            let min_sample = *frames.iter().min_by(|f1, f2| order(**f1, **f2)).unwrap() as f64;
+            let max_sample = *frames.iter().max_by(|f1, f2| order(**f1, **f2)).unwrap() as f64;
+            let fwidth = width as f64;
+            let fheight = height as f64;
 
-            bitmap
-                .save_to_file(output_file_path)
-                .expect("Failed to save image");
+            let mut lines: Vec<Line> = frames
+                .iter()
+                .enumerate()
+                .map(|(i, s)| ((i as f64 / len) * fwidth, *s))
+                .filter(|(_i, x)| !(x.is_nan() || x.is_infinite()))
+                .filter(|(_i, x)| *x > 0.0)
+                .map(|(x, y)| Line::new(Point::new(x, 0.0), (x, fheight)))
+                .collect();
+            for line in lines {
+                render_context.stroke(&line, signal_color, 3.0);
+            }
         }
 
         fn draw_line(
@@ -662,7 +847,7 @@ mod test {
                 .collect();
             path.insert(0, PathEl::MoveTo(Point::new(0.0, fheight / 2.0)));
             path.push(PathEl::LineTo(Point::new(fwidth, fheight / 2.0)));
-            render_context.stroke(&*path, signal_color, 0.5);
+            render_context.stroke(&*path, signal_color, 1.0);
         }
     }
 }
