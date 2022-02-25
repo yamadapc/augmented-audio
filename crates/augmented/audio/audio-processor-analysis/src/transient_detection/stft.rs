@@ -608,7 +608,7 @@ mod test {
 
         use piet::kurbo::{Affine, Line, PathEl, Point, Rect};
         use piet::{Color, RenderContext, Text, TextAttribute, TextLayoutBuilder};
-        use piet_common::{CoreGraphicsContext, Device};
+        use piet_common::Device;
 
         use audio_processor_traits::AudioProcessorSettings;
 
@@ -761,7 +761,7 @@ mod test {
                 .expect("Failed to save image");
         }
 
-        fn draw_text(render_context: &mut CoreGraphicsContext, label: &str) {
+        fn draw_text(render_context: &mut impl RenderContext, label: &str) {
             let text = render_context.text();
             let layout = text
                 .new_text_layout(label.to_string())
@@ -791,7 +791,7 @@ mod test {
         }
 
         fn draw_transient_lines(
-            render_context: &mut CoreGraphicsContext,
+            render_context: &mut impl RenderContext,
             width: usize,
             height: usize,
             frames: &[f32],
@@ -815,7 +815,7 @@ mod test {
         }
 
         fn draw_line(
-            render_context: &mut CoreGraphicsContext,
+            render_context: &mut impl RenderContext,
             width: usize,
             height: usize,
             frames: &[f32],
