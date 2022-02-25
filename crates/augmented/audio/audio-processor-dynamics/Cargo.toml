@@ -1,0 +1,24 @@
+[package]
+name = "audio-processor-dynamics"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["f32"]
+f32 = ["augmented-audio-volume/f32"]
+f64 = ["augmented-audio-volume/f64"]
+
+[dependencies]
+audio-processor-traits = { version = "1.0.0-alpha.3", path = "../audio-processor-traits" }
+audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../audio-garbage-collector" }
+augmented-audio-volume = { path = "../../data/audio-volume" }
+
+[dev-dependencies]
+audio-processor-file = { version = "1.0.0-alpha.3", path = "../audio-processor-file" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.3", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../application/audio-processor-standalone" }
+
+[package.metadata.augmented]
+# uncommenting this will enable snapshot tests
+# processor_examples = ["compressor"]
+private = true

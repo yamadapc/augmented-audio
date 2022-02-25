@@ -5,7 +5,7 @@ use crate::generators::sine_buffer;
 use crate::util::rms_level;
 use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
-use plotters::prelude::*;
+pub use plotters::prelude::*;
 
 struct FrequencyResponseResult {
     frequency: f32,
@@ -128,7 +128,15 @@ pub fn generate_frequency_response_plot<Processor>(
     println!(">>> Wrote {} chart to {:?}", plot_name, chart_filename);
 }
 
+type SeriesDef = (RGBColor, Vec<f32>);
+type MultiSeries = Vec<SeriesDef>;
+
 pub fn draw_vec_chart(filename: &str, plot_name: &str, vec: Vec<f32>) {
+    draw_multi_vec_charts(filename, plot_name, vec![(RED, vec)])
+}
+
+pub fn draw_multi_vec_charts(filename: &str, plot_name: &str, vecs: MultiSeries) {
+    let (_, vec) = &vecs[0];
     let filename = Path::new(filename);
     let chart_filename = filename.with_file_name(format!(
         "{}--{}.png",
@@ -145,11 +153,6 @@ pub fn draw_vec_chart(filename: &str, plot_name: &str, vec: Vec<f32>) {
         vec.iter().cloned().fold(-1. / 0., f32::max) as f64,
         vec.iter().cloned().fold(1. / 0., f32::min) as f64,
     );
-    let values: Vec<(usize, f64)> = vec
-        .iter()
-        .enumerate()
-        .map(|(i, s)| (i, *s as f64))
-        .collect();
 
     let mut chart = ChartBuilder::on(&drawing_area)
         .caption(plot_name, ("sans-serif", 20))
@@ -160,7 +163,14 @@ pub fn draw_vec_chart(filename: &str, plot_name: &str, vec: Vec<f32>) {
 
     chart.configure_mesh().draw().unwrap();
 
-    chart.draw_series(LineSeries::new(values, &RED)).unwrap();
+    for (color, vec) in vecs {
+        let values: Vec<(usize, f64)> = vec
+            .iter()
+            .enumerate()
+            .map(|(i, s)| (i, *s as f64))
+            .collect();
+        chart.draw_series(LineSeries::new(values, color)).unwrap();
+    }
 }
 
 #[cfg(test)]

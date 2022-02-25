@@ -36,6 +36,7 @@ members = [
     "crates/augmented/audio/audio-processor-file",
     "crates/augmented/audio/audio-processor-time",
     "crates/augmented/audio/audio-processor-bitcrusher",
+    "crates/augmented/audio/audio-processor-dynamics",
     "crates/augmented/audio/audiounit",
     "crates/augmented/audio/avfaudio-sys",
     "crates/augmented/audio/oscillator",

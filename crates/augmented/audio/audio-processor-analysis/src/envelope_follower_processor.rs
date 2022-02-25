@@ -128,8 +128,8 @@ mod test {
     fn test_draw_envelope() {
         let output_path = relative_path!("src/envelope_follower_processor");
         let input_file_path = relative_path!("../../../../input-files/C3-loop.mp3");
-        let settings = AudioProcessorSettings::default();
 
+        let settings = AudioProcessorSettings::default();
         let mut input = AudioFileProcessor::from_path(
             audio_garbage_collector::handle(),
             settings,
