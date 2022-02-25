@@ -798,7 +798,6 @@ mod test {
             signal_color: &Color,
         ) {
             let len = frames.len() as f64;
-            let order = |f1: f32, f2: f32| f1.partial_cmp(&f2).unwrap_or(Ordering::Less);
             let fwidth = width as f64;
             let fheight = height as f64;
 

@@ -11,7 +11,7 @@ use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProces
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;
-use crate::processors::audio_file_processor::{AudioFileProcessor, AudioFileSettings};
+use crate::processors::audio_file_processor::{AudioFileProcessor, InMemoryAudioFile};
 use crate::processors::running_rms_processor::{RunningRMSProcessor, RunningRMSProcessorHandle};
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::volume_meter_processor::{VolumeMeterProcessor, VolumeMeterProcessorHandle};
@@ -50,7 +50,7 @@ unsafe impl Sync for TestHostProcessor {}
 impl TestHostProcessor {
     pub fn new(
         handle: &Handle,
-        maybe_audio_file_settings: Option<AudioFileSettings>,
+        maybe_audio_file_settings: Option<InMemoryAudioFile>,
         plugin_instance: SharedProcessor<PluginInstance>,
         sample_rate: f32,
         channels: usize,

@@ -120,7 +120,7 @@ impl AudioProcessor for LoopSequencerProcessor {
             let num_samples = clip.deref().num_samples();
             let clip = clip.deref();
 
-            if num_samples == 0 {
+            if num_samples == 0 || *sequence_step_size == 0 {
                 return;
             }
 

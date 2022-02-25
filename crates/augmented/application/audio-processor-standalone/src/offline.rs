@@ -52,7 +52,7 @@ where
     let sample_rate = 44100.0;
     let audio_processor_settings = AudioProcessorSettings::new(sample_rate, 2, 2, buffer_size);
 
-    let audio_file_settings = audio_processor_file::AudioFileSettings::from_path(input_path)
+    let audio_file_settings = audio_processor_file::InMemoryAudioFile::from_path(input_path)
         .expect("Failed to read input file");
 
     // Set-up input file

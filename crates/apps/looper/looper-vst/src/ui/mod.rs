@@ -1,6 +1,8 @@
+use std::path::PathBuf;
 use std::time::Duration;
 
 use iced::{Column, Container, Length, Text};
+use iced_baseview::renderer::Renderer;
 use iced_baseview::{executor, Subscription, WindowSubs};
 use iced_baseview::{Application, Command, Element};
 
@@ -13,9 +15,11 @@ use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle, Time
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
 
+use crate::services::audio_file_manager::AudioFileManager;
 use crate::ui::looper_visualization::LooperVisualizationDrawModelImpl;
 
 mod bottom_panel;
+mod file_drag_and_drop_handler;
 mod looper_visualization;
 mod style;
 
@@ -29,6 +33,7 @@ pub struct LooperApplication {
     processor_handle: Shared<LooperProcessorHandle>,
     looper_visualization: LooperVisualizationView<LooperVisualizationDrawModelImpl>,
     knobs_view: bottom_panel::BottomPanelView,
+    audio_file_manager: AudioFileManager,
     tabs_view: tabs::State,
 }
 
@@ -36,6 +41,8 @@ pub struct LooperApplication {
 pub enum Message {
     BottomPanel(bottom_panel::Message),
     VisualizationTick,
+    FileHover(PathBuf),
+    FileDropped(PathBuf),
     None,
 }
 
@@ -54,6 +61,7 @@ impl Application for LooperApplication {
         (
             LooperApplication {
                 processor_handle: flags.processor_handle.clone(),
+                audio_file_manager: AudioFileManager::new(),
                 looper_visualization: LooperVisualizationView::new(
                     LooperVisualizationDrawModelImpl::new(
                         flags.processor_handle.clone(),
@@ -85,8 +93,8 @@ impl Application for LooperApplication {
         &self,
         _window_subs: &mut WindowSubs<Self::Message>,
     ) -> Subscription<Self::Message> {
-        iced::time::every(Duration::from_millis(64))
-            .map(|_| WrapperMessage::Inner(Message::VisualizationTick))
+        Subscription::batch([iced::time::every(Duration::from_millis(64))
+            .map(|_| WrapperMessage::Inner(Message::VisualizationTick))])
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
@@ -100,47 +108,59 @@ impl Application for LooperApplication {
             "Free tempo".into()
         };
 
-        self.tabs_view
-            .view(vec![
-                tabs::Tab::new(
-                    "Main",
-                    Container::new(Column::with_children(vec![
-                        Container::new(Text::new(status_message).size(Spacing::small_font_size()))
+        Column::with_children(vec![
+            self.tabs_view
+                .view(vec![
+                    tabs::Tab::new(
+                        "Main",
+                        Container::new(Column::with_children(vec![
+                            Container::new(
+                                Text::new(status_message).size(Spacing::small_font_size()),
+                            )
                             .padding(Spacing::base_spacing())
                             .style(Container0::default())
                             .width(Length::Fill)
                             .into(),
-                        Container::new(
-                            Container::new(self.looper_visualization.view().map(|_| Message::None))
+                            Container::new(
+                                Container::new(
+                                    self.looper_visualization.view().map(|_| Message::None),
+                                )
                                 .width(Length::Fill)
                                 .height(Length::Fill)
                                 .style(Container0::default().border_width(1.)),
-                        )
-                        .padding(Spacing::base_spacing())
-                        .style(Container1::default())
+                            )
+                            .padding(Spacing::base_spacing())
+                            .style(Container1::default())
+                            .width(Length::Fill)
+                            .height(Length::Fill)
+                            .into(),
+                            self.knobs_view.view().map(Message::BottomPanel),
+                        ]))
+                        .center_x()
+                        .center_y()
+                        .style(ContainerStyle)
                         .width(Length::Fill)
-                        .height(Length::Fill)
-                        .into(),
-                        self.knobs_view.view().map(Message::BottomPanel),
-                    ]))
-                    .center_x()
-                    .center_y()
-                    .style(ContainerStyle)
-                    .width(Length::Fill)
-                    .height(Length::Fill),
-                ),
-                // tabs::Tab::new(
-                //     "Settings",
-                //     Container::new(Text::new("Settings"))
-                //         .center_x()
-                //         .center_y()
-                //         .style(ContainerStyle)
-                //         .width(Length::Fill)
-                //         .height(Length::Fill),
-                // ),
-            ])
-            .map(|msg| WrapperMessage::TabsView(msg))
-            .into()
+                        .height(Length::Fill),
+                    ),
+                    tabs::Tab::new(
+                        "File Editor",
+                        Container::new(Column::with_children(
+                            vec![Text::new("Drop a file").into()],
+                        ))
+                        .center_x()
+                        .center_y()
+                        .style(ContainerStyle)
+                        .width(Length::Fill)
+                        .height(Length::Fill),
+                    ),
+                ])
+                .map(|msg| WrapperMessage::TabsView(msg))
+                .into(),
+            file_drag_and_drop_handler::FileDragAndDropHandler::new()
+                .view()
+                .map(WrapperMessage::Inner),
+        ])
+        .into()
     }
 }
 
@@ -164,6 +184,11 @@ impl LooperApplication {
                 self.looper_visualization.tick_visualization();
                 Command::none()
             }
+            Message::FileDropped(path) => {
+                let _file_id = self.audio_file_manager.read_file(path);
+                Command::none()
+            }
+            Message::FileHover(_path) => Command::none(),
             Message::None => Command::none(),
         }
     }

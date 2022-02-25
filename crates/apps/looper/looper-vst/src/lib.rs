@@ -14,6 +14,7 @@ use looper_processor::{LooperOptions, LooperProcessor};
 
 pub use crate::ui::LooperApplication;
 
+pub mod services;
 pub mod ui;
 
 pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";

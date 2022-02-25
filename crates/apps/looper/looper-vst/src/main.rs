@@ -6,6 +6,7 @@ use looper_processor::{LooperOptions, LooperProcessor};
 use crate::ui::Flags;
 use crate::ui::LooperApplication;
 
+mod services;
 mod ui;
 
 fn main() {

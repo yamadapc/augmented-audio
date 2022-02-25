@@ -18,7 +18,7 @@ use crate::audio_io::audio_thread::error::AudioThreadError;
 use crate::audio_io::audio_thread::options::AudioThreadOptions;
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
 use crate::processors::audio_file_processor::file_io::{default_read_audio_file, AudioFileError};
-use crate::processors::audio_file_processor::AudioFileSettings;
+use crate::processors::audio_file_processor::InMemoryAudioFile;
 use crate::processors::running_rms_processor::RunningRMSProcessorHandle;
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::test_host_processor::TestHostProcessor;
@@ -164,13 +164,13 @@ impl TestPluginHost {
         let audio_settings = &self.audio_settings;
         let maybe_audio_file_settings = self.audio_file_path.as_ref().map_or(
             Ok(None),
-            |audio_file_path| -> Result<Option<AudioFileSettings>, AudioHostPluginLoadError> {
+            |audio_file_path| -> Result<Option<InMemoryAudioFile>, AudioHostPluginLoadError> {
                 let audio_file = default_read_audio_file(
                     audio_file_path
                         .to_str()
                         .ok_or(AudioHostPluginLoadError::MissingPathError)?,
                 )?;
-                Ok(Some(AudioFileSettings::new(audio_file)))
+                Ok(Some(InMemoryAudioFile::new(audio_file)))
             },
         )?;
 
