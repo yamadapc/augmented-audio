@@ -60,8 +60,8 @@ impl Default for IterativeTransientDetectionParams {
             fft_size,
             fft_overlap_ratio: 0.75,
             power_of_change_spectral_spread: 3,
-            threshold_time_spread: 3,
-            threshold_time_spread_factor: 2.0,
+            threshold_time_spread: 2,
+            threshold_time_spread_factor: 1.5,
             iteration_magnitude_factor: 0.1,
             iteration_count: 20,
             frequency_bin_change_threshold,
@@ -172,7 +172,6 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(
             count_changed_bins_per_frame(f_frames, threshold_frames);
 
         update_output_and_magnitudes(
-            iteration,
             iteration_magnitude_factor,
             frequency_bin_change_threshold,
             num_changed_bins_frames,
@@ -193,7 +192,6 @@ fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(
 /// Last step on iteration, collect `iteration_magnitude_factor * M(frame, bin)` if this whole frame
 /// is a transient, subtract `1.0 - iteration_magnitude_factor` from the magnitude frames.
 fn update_output_and_magnitudes(
-    iteration: usize,
     iteration_magnitude_factor: f32,
     frequency_bin_change_threshold: usize,
     num_changed_bins_frames: Vec<usize>,
@@ -202,7 +200,7 @@ fn update_output_and_magnitudes(
 ) {
     for i in 0..transient_magnitude_frames.len() {
         for j in 0..transient_magnitude_frames[i].len() {
-            if iteration == 0 || num_changed_bins_frames[i] >= frequency_bin_change_threshold {
+            if num_changed_bins_frames[i] >= frequency_bin_change_threshold {
                 transient_magnitude_frames[i][j] +=
                     iteration_magnitude_factor * magnitude_frames[i][j];
                 magnitude_frames[i][j] -=
@@ -801,18 +799,16 @@ mod test {
         ) {
             let len = frames.len() as f64;
             let order = |f1: f32, f2: f32| f1.partial_cmp(&f2).unwrap_or(Ordering::Less);
-            let min_sample = *frames.iter().min_by(|f1, f2| order(**f1, **f2)).unwrap() as f64;
-            let max_sample = *frames.iter().max_by(|f1, f2| order(**f1, **f2)).unwrap() as f64;
             let fwidth = width as f64;
             let fheight = height as f64;
 
-            let mut lines: Vec<Line> = frames
+            let lines: Vec<Line> = frames
                 .iter()
                 .enumerate()
                 .map(|(i, s)| ((i as f64 / len) * fwidth, *s))
                 .filter(|(_i, x)| !(x.is_nan() || x.is_infinite()))
                 .filter(|(_i, x)| *x > 0.0)
-                .map(|(x, y)| Line::new(Point::new(x, 0.0), (x, fheight)))
+                .map(|(x, _y)| Line::new(Point::new(x, 0.0), (x, fheight)))
                 .collect();
             for line in lines {
                 render_context.stroke(&line, signal_color, 3.0);
