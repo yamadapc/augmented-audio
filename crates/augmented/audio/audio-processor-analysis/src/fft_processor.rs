@@ -150,7 +150,7 @@ mod test {
 
         println!("Drawing chart");
         let mut output: Vec<f32> = fft_processor
-            .input_buffer
+            .buffer()
             .iter()
             .map(|c| 20.0 * (c.norm() / 10.0).log10())
             .collect();
