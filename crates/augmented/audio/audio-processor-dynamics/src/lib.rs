@@ -121,7 +121,7 @@ impl AudioProcessor for CompressorProcessor {
     type SampleType = FloatT;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.handle.set_sample_rate(settings.sample_rate());
+        self.handle.set_sample_rate(settings.sample_rate().into());
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -231,8 +231,8 @@ mod test {
         let settings = AudioProcessorSettings::default();
         let mut input = setup_input_processor(settings);
         let mut processor = PeakDetector::default();
-        let attack_multi = handle::calculate_multiplier(settings.sample_rate(), 1.0);
-        let release_mult = handle::calculate_multiplier(settings.sample_rate(), 5.0);
+        let attack_multi = handle::calculate_multiplier(settings.sample_rate().into(), 1.0);
+        let release_mult = handle::calculate_multiplier(settings.sample_rate().into(), 5.0);
 
         let mut input_vec = vec![];
         let mut output_vec = vec![];

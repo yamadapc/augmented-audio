@@ -10,7 +10,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [dependencies]
 
 [features]
-default = ["f64"]
+default = []
 f64 = []
 f32 = []
 
