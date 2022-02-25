@@ -61,8 +61,8 @@ impl Default for IterativeTransientDetectionParams {
             fft_overlap_ratio: 0.75,
             power_of_change_spectral_spread: 3,
             threshold_time_spread: 2,
-            threshold_time_spread_factor: 1.5,
-            iteration_magnitude_factor: 0.1,
+            threshold_time_spread_factor: 1.8,
+            iteration_magnitude_factor: 0.05,
             iteration_count: 20,
             frequency_bin_change_threshold,
         }
