@@ -9,6 +9,7 @@ use iced::canvas::Frame;
 use iced::canvas::Geometry;
 use iced::canvas::Program;
 use iced::canvas::Stroke;
+use iced::keyboard::KeyCode;
 use iced::mouse;
 use iced::mouse::ScrollDelta;
 use iced::Canvas;
@@ -19,6 +20,7 @@ use iced::Length;
 use iced::Point;
 use iced::Rectangle;
 use iced::Text;
+use iced::{keyboard, Vector};
 
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::{AudioProcessor, InterleavedAudioBuffer, SimpleAudioProcessor};
@@ -27,6 +29,7 @@ use crate::ui::style::ContainerStyle;
 
 pub struct AudioFileModel {
     samples: Vec<f32>,
+    rms: Vec<f32>,
 }
 
 impl AudioFileModel {
@@ -40,42 +43,58 @@ impl AudioFileModel {
         let mut rms_processor =
             audio_processor_analysis::running_rms_processor::RunningRMSProcessor::new_with_duration(
                 audio_garbage_collector::handle(),
-                Duration::from_millis(3),
+                Duration::from_millis(30),
             );
 
         let mut rms_samples = vec![];
         rms_processor.prepare(Default::default());
-        for (index, sample) in samples.iter().enumerate() {
+        for sample in samples.iter() {
             rms_processor.s_process_frame(&mut [*sample]);
-            if index % 400 == 0 {
-                rms_samples.push(rms_processor.handle().calculate_rms(0));
-            }
+            rms_samples.push(rms_processor.handle().calculate_rms(0));
         }
 
         Self {
-            samples: rms_samples,
+            samples,
+            rms: rms_samples,
         }
     }
 
-    fn len(&self) -> usize {
+    fn samples_len(&self) -> usize {
         self.samples.len()
     }
 
     fn samples(&self) -> impl Iterator<Item = &f32> {
         self.samples.iter()
     }
+
+    fn rms_len(&self) -> usize {
+        self.rms.len()
+    }
+
+    fn rms(&self) -> impl Iterator<Item = &f32> {
+        self.rms.iter()
+    }
+}
+
+enum ChartMode {
+    Samples,
+    RMS,
 }
 
 struct VisualizationModel {
-    zoom: f32,
+    zoom_x: f32,
+    zoom_y: f32,
     offset: f32,
+    chart_mode: ChartMode,
 }
 
 impl Default for VisualizationModel {
     fn default() -> Self {
         Self {
-            zoom: 1.0,
+            zoom_x: 1.0,
+            zoom_y: 1.0,
             offset: 0.0,
+            chart_mode: ChartMode::Samples,
         }
     }
 }
@@ -87,6 +106,7 @@ pub enum Message {}
 pub struct AudioEditorView {
     audio_file_model: Option<AudioFileModel>,
     visualization_model: VisualizationModel,
+    shift_down: bool,
 }
 
 impl AudioEditorView {
@@ -113,40 +133,157 @@ impl Program<Message> for AudioEditorView {
     ) -> (Status, Option<Message>) {
         match event {
             Event::Mouse(mouse::Event::WheelScrolled {
-                delta: ScrollDelta::Pixels { x, .. },
+                delta: ScrollDelta::Pixels { x, y },
             }) => {
-                self.visualization_model.zoom += x;
-                self.visualization_model.zoom = self.visualization_model.zoom.min(100.0).max(0.5);
-                (Status::Captured, None)
+                if self.shift_down {
+                    self.visualization_model.zoom_x += x;
+                    self.visualization_model.zoom_x =
+                        self.visualization_model.zoom_x.min(100.0).max(1.0);
+                    self.visualization_model.zoom_y += y;
+                    self.visualization_model.zoom_y =
+                        self.visualization_model.zoom_y.min(2.0).max(1.0);
+                    (Status::Captured, None)
+                } else {
+                    self.visualization_model.offset += x;
+                    self.visualization_model.offset = self.visualization_model.offset.max(0.0);
+                    (Status::Captured, None)
+                }
+            }
+            Event::Keyboard(keyboard::Event::ModifiersChanged(modifiers)) => {
+                self.shift_down = modifiers.shift();
+                (Status::Ignored, None)
+            }
+            Event::Keyboard(keyboard::Event::KeyPressed {
+                key_code: KeyCode::M,
+                modifiers,
+            }) => {
+                if modifiers.command() {
+                    self.visualization_model.chart_mode = match self.visualization_model.chart_mode
+                    {
+                        ChartMode::RMS => ChartMode::Samples,
+                        ChartMode::Samples => ChartMode::RMS,
+                    };
+                    (Status::Captured, None)
+                } else {
+                    (Status::Ignored, None)
+                }
+            }
+            Event::Keyboard(keyboard::Event::KeyPressed {
+                key_code: KeyCode::Equals,
+                modifiers,
+            }) => {
+                if modifiers.command() {
+                    self.visualization_model.zoom_x *= 10.0;
+                    self.visualization_model.zoom_x =
+                        self.visualization_model.zoom_x.min(100.0).max(1.0);
+                    (Status::Captured, None)
+                } else {
+                    (Status::Ignored, None)
+                }
+            }
+            Event::Keyboard(keyboard::Event::KeyPressed {
+                key_code: KeyCode::Minus,
+                modifiers,
+            }) => {
+                if modifiers.command() {
+                    self.visualization_model.zoom_x /= 10.0;
+                    self.visualization_model.zoom_x =
+                        self.visualization_model.zoom_x.min(100.0).max(1.0);
+                    (Status::Captured, None)
+                } else {
+                    (Status::Ignored, None)
+                }
             }
             _ => (Status::Ignored, None),
         }
     }
 
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
-        let zoom = self.visualization_model.zoom;
+        let zoom_x = self.visualization_model.zoom_x;
+        let zoom_y = self.visualization_model.zoom_y;
         let mut frame = Frame::new(bounds.size());
         if let Some(audio_file_model) = &self.audio_file_model {
-            let width = frame.width() * zoom;
-            draw_audio_chart(
-                &mut frame,
-                width,
-                audio_file_model.len() as f32,
-                audio_file_model.samples().cloned(),
-            );
+            let width = frame.width() * zoom_x;
+            let height = frame.height() * zoom_y;
+            let offset = self.visualization_model.offset;
+
+            frame.translate(Vector::from([-offset, 0.0]));
+
+            match self.visualization_model.chart_mode {
+                ChartMode::Samples => {
+                    draw_samples_chart(
+                        &mut frame,
+                        width,
+                        height,
+                        offset,
+                        audio_file_model.samples_len() as f32,
+                        audio_file_model.samples().cloned(),
+                    );
+                }
+                ChartMode::RMS => {
+                    draw_rms_chart(
+                        &mut frame,
+                        width,
+                        height,
+                        offset,
+                        audio_file_model.rms_len() as f32,
+                        audio_file_model.rms().cloned(),
+                    );
+                }
+            }
         }
         vec![frame.into_geometry()]
     }
 }
 
-fn draw_audio_chart<'a>(
+fn draw_samples_chart(
     frame: &mut Frame,
     width: f32,
+    height: f32,
+    offset: f32,
     num_samples: f32,
     samples_iterator: impl Iterator<Item = f32>,
 ) {
     let color = Colors::active_border_color();
-    let step_size = ((num_samples / (width * 2.0)) as usize).max(1);
+    let num_pixels = (width * 8.0).max(1000.0);
+    let step_size = ((num_samples / num_pixels) as usize).max(1);
+    let mut samples = samples_iterator.collect::<Vec<f32>>();
+
+    let mut path = iced::canvas::path::Builder::new();
+    for (index, item) in samples.iter().enumerate().step_by(step_size) {
+        let f_index = index as f32;
+        let x = (f_index / num_samples) * width;
+        let y = (*item as f32) * height / 2.0 + frame.height() / 2.0;
+
+        if x < offset {
+            continue;
+        }
+
+        if x > frame.width() + offset {
+            break;
+        }
+
+        if !x.is_finite() {
+            continue;
+        }
+
+        let point = Point::new(x, y);
+        path.line_to(point);
+    }
+    frame.stroke(&path.build(), Stroke::default().with_color(color));
+}
+
+fn draw_rms_chart<'a>(
+    frame: &mut Frame,
+    width: f32,
+    height: f32,
+    offset: f32,
+    num_samples: f32,
+    samples_iterator: impl Iterator<Item = f32>,
+) {
+    let color = Colors::active_border_color();
+    let num_pixels = (width * 2.0).max(1000.0);
+    let step_size = ((num_samples / num_pixels) as usize).max(1);
     let mut samples = samples_iterator.collect::<Vec<f32>>();
 
     let mut path = iced::canvas::path::Builder::new();
@@ -154,9 +291,13 @@ fn draw_audio_chart<'a>(
     for (index, item) in samples.iter().enumerate().step_by(step_size) {
         let f_index = index as f32;
         let x = (f_index / num_samples) * width;
-        let y = (*item as f32) * frame.height() / 2.0 + frame.height() / 2.0;
+        let y = (*item as f32) * height + frame.height() / 2.0;
 
-        if x > frame.width() {
+        if x < offset {
+            continue;
+        }
+
+        if x > frame.width() + offset {
             break;
         }
 
@@ -175,9 +316,13 @@ fn draw_audio_chart<'a>(
     for (index, item) in samples.iter().enumerate().step_by(step_size) {
         let f_index = index as f32;
         let x = (f_index / num_samples) * width;
-        let y = (-item as f32) * frame.height() / 2.0 + frame.height() / 2.0;
+        let y = (-item as f32) * height + frame.height() / 2.0;
 
-        if x > frame.width() {
+        if x < offset {
+            continue;
+        }
+
+        if x > frame.width() + offset {
             break;
         }
 
@@ -227,7 +372,8 @@ pub mod story {
         let mut processor = AudioFileProcessor::from_path(
             audio_garbage_collector::handle(),
             settings,
-            &relative_path!("../../../../input-files/synthetizer-loop.mp3"),
+            &relative_path!("../../../confirmation.mp3"),
+            // &relative_path!("../../../../input-files/synthetizer-loop.mp3"),
         )
         .unwrap();
         processor.prepare(settings);
