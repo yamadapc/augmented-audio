@@ -128,7 +128,7 @@ impl Program<Message> for AudioEditorView {
     fn update(
         &mut self,
         event: Event,
-        _bounds: Rectangle,
+        bounds: Rectangle,
         _cursor: Cursor,
     ) -> (Status, Option<Message>) {
         match event {
@@ -144,8 +144,12 @@ impl Program<Message> for AudioEditorView {
                         self.visualization_model.zoom_y.min(2.0).max(1.0);
                     (Status::Captured, None)
                 } else {
-                    self.visualization_model.offset += x;
-                    self.visualization_model.offset = self.visualization_model.offset.max(0.0);
+                    let size = bounds.size();
+                    let width = size.width * self.visualization_model.zoom_x;
+                    let offset = (self.visualization_model.offset + x)
+                        .max(0.0)
+                        .min(width - size.width);
+                    self.visualization_model.offset = offset;
                     (Status::Captured, None)
                 }
             }
@@ -205,8 +209,7 @@ impl Program<Message> for AudioEditorView {
         if let Some(audio_file_model) = &self.audio_file_model {
             let width = frame.width() * zoom_x;
             let height = frame.height() * zoom_y;
-            let offset = self.visualization_model.offset;
-
+            let offset = self.visualization_model.offset.min(width - frame.width());
             frame.translate(Vector::from([-offset, 0.0]));
 
             match self.visualization_model.chart_mode {
