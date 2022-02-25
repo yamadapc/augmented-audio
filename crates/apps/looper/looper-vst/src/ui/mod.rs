@@ -16,8 +16,10 @@ use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
 
 use crate::services::audio_file_manager::AudioFileManager;
+use crate::ui::audio_editor_view::AudioEditorView;
 use crate::ui::looper_visualization::LooperVisualizationDrawModelImpl;
 
+pub mod audio_editor_view;
 mod bottom_panel;
 mod file_drag_and_drop_handler;
 mod looper_visualization;
@@ -34,6 +36,7 @@ pub struct LooperApplication {
     looper_visualization: LooperVisualizationView<LooperVisualizationDrawModelImpl>,
     knobs_view: bottom_panel::BottomPanelView,
     audio_file_manager: AudioFileManager,
+    audio_editor_view: AudioEditorView,
     tabs_view: tabs::State,
 }
 
@@ -62,6 +65,7 @@ impl Application for LooperApplication {
             LooperApplication {
                 processor_handle: flags.processor_handle.clone(),
                 audio_file_manager: AudioFileManager::new(),
+                audio_editor_view: AudioEditorView::default(),
                 looper_visualization: LooperVisualizationView::new(
                     LooperVisualizationDrawModelImpl::new(
                         flags.processor_handle.clone(),
@@ -112,6 +116,10 @@ impl Application for LooperApplication {
             self.tabs_view
                 .view(vec![
                     tabs::Tab::new(
+                        "File Editor",
+                        self.audio_editor_view.view().map(|_msg| Message::None),
+                    ),
+                    tabs::Tab::new(
                         "Main",
                         Container::new(Column::with_children(vec![
                             Container::new(
@@ -136,17 +144,6 @@ impl Application for LooperApplication {
                             .into(),
                             self.knobs_view.view().map(Message::BottomPanel),
                         ]))
-                        .center_x()
-                        .center_y()
-                        .style(ContainerStyle)
-                        .width(Length::Fill)
-                        .height(Length::Fill),
-                    ),
-                    tabs::Tab::new(
-                        "File Editor",
-                        Container::new(Column::with_children(
-                            vec![Text::new("Drop a file").into()],
-                        ))
                         .center_x()
                         .center_y()
                         .style(ContainerStyle)
