@@ -123,7 +123,7 @@ impl AudioEditorView {
         self.visualization_model.zoom_x += x;
         self.visualization_model.zoom_x = self.visualization_model.zoom_x.min(100.0).max(1.0);
         self.visualization_model.zoom_y += y;
-        self.visualization_model.zoom_y = self.visualization_model.zoom_y.min(2.0).max(1.0);
+        self.visualization_model.zoom_y = self.visualization_model.zoom_y.min(2.0).max(0.2);
     }
 
     fn on_scroll(&mut self, bounds: Rectangle, x: f32) {
@@ -140,16 +140,6 @@ impl AudioEditorView {
             ChartMode::RMS => ChartMode::Samples,
             ChartMode::Samples => ChartMode::RMS,
         };
-    }
-
-    fn increase_zoom(&mut self) {
-        self.visualization_model.zoom_x *= 10.0;
-        self.visualization_model.zoom_x = self.visualization_model.zoom_x.min(100.0).max(1.0);
-    }
-
-    fn decrease_zoom(&mut self) {
-        self.visualization_model.zoom_x /= 10.0;
-        self.visualization_model.zoom_x = self.visualization_model.zoom_x.min(100.0).max(1.0);
     }
 }
 
@@ -191,8 +181,15 @@ impl Program<Message> for AudioEditorView {
                 key_code: KeyCode::Equals,
                 modifiers,
             }) => {
-                if modifiers.command() {
-                    self.increase_zoom();
+                if modifiers.shift() && modifiers.command() {
+                    self.visualization_model.zoom_y += 0.1;
+                    self.visualization_model.zoom_y =
+                        self.visualization_model.zoom_y.min(2.0).max(0.2);
+                    (Status::Captured, None)
+                } else if modifiers.command() {
+                    self.visualization_model.zoom_x *= 10.0;
+                    self.visualization_model.zoom_x =
+                        self.visualization_model.zoom_x.min(100.0).max(1.0);
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)
@@ -202,8 +199,15 @@ impl Program<Message> for AudioEditorView {
                 key_code: KeyCode::Minus,
                 modifiers,
             }) => {
-                if modifiers.command() {
-                    self.decrease_zoom();
+                if modifiers.shift() && modifiers.command() {
+                    self.visualization_model.zoom_y -= 0.1;
+                    self.visualization_model.zoom_y =
+                        self.visualization_model.zoom_y.min(2.0).max(0.2);
+                    (Status::Captured, None)
+                } else if modifiers.command() {
+                    self.visualization_model.zoom_x /= 10.0;
+                    self.visualization_model.zoom_x =
+                        self.visualization_model.zoom_x.min(100.0).max(1.0);
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)

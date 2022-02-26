@@ -29,10 +29,10 @@ impl Default for Story {
             let mut markers = vec![];
             let mut inside_transient = false;
             for (index, sample) in transients.iter().cloned().enumerate() {
-                if sample >= 0.2 && !inside_transient {
+                if sample >= 0.4 && !inside_transient {
                     inside_transient = true;
                     markers.push(index);
-                } else if sample < 0.2 {
+                } else if sample < 0.4 {
                     inside_transient = false;
                 }
             }
@@ -55,7 +55,7 @@ fn get_example_file_buffer(settings: AudioProcessorSettings) -> Vec<f32> {
     let mut processor = AudioFileProcessor::from_path(
         audio_garbage_collector::handle(),
         settings,
-        &relative_path!("../../../confirmation.mp3"),
+        &relative_path!("../../../augmented/audio/audio-processor-analysis/hiphop-drum-loop.mp3"),
         // &relative_path!("../../../../input-files/synthetizer-loop.mp3"),
     )
     .unwrap();
