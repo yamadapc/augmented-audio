@@ -10,12 +10,12 @@ use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 
 use crate::ui::common::parameter_view;
 use crate::ui::common::parameter_view::parameter_view_model::ParameterViewModel;
+use crate::ui::common::parameter_view::MultiParameterView;
 
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+#[derive(Eq, PartialEq, Debug, Clone, Copy, Hash)]
 pub enum ParameterId {
     LoopVolume,
     DryVolume,
-    // PlaybackSpeed,
     SeqSlices,
     SeqSteps,
 }
@@ -33,7 +33,7 @@ pub enum Message {
 pub struct BottomPanelView {
     processor_handle: Shared<LooperProcessorHandle>,
     sequencer_handle: Shared<LoopSequencerProcessorHandle>,
-    parameter_states: Vec<ParameterViewModel<ParameterId>>,
+    parameters_view: MultiParameterView<ParameterId>,
     buttons_view: ButtonsView,
     sequence_button_state: iced::button::State,
 }
@@ -43,48 +43,44 @@ impl BottomPanelView {
         processor_handle: Shared<LooperProcessorHandle>,
         sequencer_handle: Shared<LoopSequencerProcessorHandle>,
     ) -> Self {
+        let parameters = vec![
+            ParameterViewModel::new(
+                ParameterId::LoopVolume,
+                String::from("Loop"),
+                String::from(""),
+                processor_handle.wet_volume(),
+                (0.0, 1.0),
+            ),
+            ParameterViewModel::new(
+                ParameterId::DryVolume,
+                String::from("Dry"),
+                String::from(""),
+                processor_handle.dry_volume(),
+                (0.0, 1.0),
+            ),
+            ParameterViewModel::new(
+                ParameterId::SeqSlices,
+                String::from("Seq. Slices"),
+                String::from(""),
+                4.0,
+                (1.0, 32.0),
+            )
+            .snap_int(),
+            ParameterViewModel::new(
+                ParameterId::SeqSteps,
+                String::from("Seq. Steps"),
+                String::from(""),
+                4.0,
+                (1.0, 32.0),
+            )
+            .snap_int(),
+        ];
+        let parameters_view = MultiParameterView::new(parameters);
+
         BottomPanelView {
             processor_handle: processor_handle.clone(),
             sequencer_handle: sequencer_handle.clone(),
-            parameter_states: vec![
-                ParameterViewModel::new(
-                    ParameterId::LoopVolume,
-                    String::from("Loop"),
-                    String::from(""),
-                    processor_handle.wet_volume(),
-                    (0.0, 1.0),
-                ),
-                ParameterViewModel::new(
-                    ParameterId::DryVolume,
-                    String::from("Dry"),
-                    String::from(""),
-                    processor_handle.dry_volume(),
-                    (0.0, 1.0),
-                ),
-                // ParameterViewModel::new(
-                //     ParameterId::PlaybackSpeed,
-                //     String::from("Speed"),
-                //     String::from("x"),
-                //     1.0,
-                //     (0.0, 2.0),
-                // ),
-                ParameterViewModel::new(
-                    ParameterId::SeqSlices,
-                    String::from("Seq. Slices"),
-                    String::from(""),
-                    4.0,
-                    (1.0, 32.0),
-                )
-                .snap_int(),
-                ParameterViewModel::new(
-                    ParameterId::SeqSteps,
-                    String::from("Seq. Steps"),
-                    String::from(""),
-                    4.0,
-                    (1.0, 32.0),
-                )
-                .snap_int(),
-            ],
+            parameters_view,
             buttons_view: ButtonsView::new(processor_handle),
             sequence_button_state: iced::button::State::new(),
         }
@@ -93,17 +89,7 @@ impl BottomPanelView {
     pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::KnobChange(id, value) => {
-                if let Some(state) = self
-                    .parameter_states
-                    .iter_mut()
-                    .find(|param| param.id == id)
-                {
-                    state.value = value;
-
-                    if let Some(int_range) = &state.int_range {
-                        state.knob_state.snap_visible_to(int_range);
-                    }
-
+                if let Some(state) = self.parameters_view.update(&id, value) {
                     match state.id {
                         ParameterId::LoopVolume => {
                             self.processor_handle.set_wet_volume(state.value);
@@ -156,19 +142,12 @@ impl BottomPanelView {
     }
 
     fn on_loop_sequencer_params_changed(&self) {
+        let seq_slices = self.parameters_view.get(&ParameterId::SeqSlices).unwrap();
+        let seq_steps = self.parameters_view.get(&ParameterId::SeqSteps).unwrap();
+
         self.sequencer_handle.set_params(LoopSequencerParams {
-            num_slices: self
-                .parameter_states
-                .iter()
-                .find(|param| param.id == ParameterId::SeqSlices)
-                .unwrap()
-                .value as usize,
-            sequence_length: self
-                .parameter_states
-                .iter()
-                .find(|param| param.id == ParameterId::SeqSteps)
-                .unwrap()
-                .value as usize,
+            num_slices: seq_slices.value as usize,
+            sequence_length: seq_steps.value as usize,
             num_samples: self.processor_handle.num_samples(),
         });
     }
@@ -177,7 +156,8 @@ impl BottomPanelView {
         Container::new(Column::with_children(vec![Container::new(
             Row::with_children(vec![
                 Container::new(self.buttons_view.view()).center_y().into(),
-                parameter_view::parameters_row(&mut self.parameter_states)
+                self.parameters_view
+                    .view()
                     .map(|msg| Message::KnobChange(msg.id, msg.value)),
                 Container::new(
                     Button::new(

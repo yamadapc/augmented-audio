@@ -19,17 +19,62 @@ pub struct KnobChanged<ParameterId> {
     pub value: f32,
 }
 
-struct ParameterView<ParameterId> {
+pub struct MultiParameterView<ParameterId> {
     states: HashMap<ParameterId, ParameterViewModel<ParameterId>>,
 }
 
-pub fn parameters_row<ParameterId: 'static + Clone + Copy + Debug>(
-    parameter_states: &mut Vec<ParameterViewModel<ParameterId>>,
-) -> Element<KnobChanged<ParameterId>> {
+impl<ParameterId> MultiParameterView<ParameterId>
+where
+    ParameterId: std::hash::Hash + Clone + std::cmp::Eq + Copy + Debug + 'static,
+{
+    pub fn new(parameters: Vec<ParameterViewModel<ParameterId>>) -> Self {
+        let mut states = HashMap::new();
+        for parameter in parameters {
+            states.insert(parameter.id.clone(), parameter);
+        }
+
+        Self { states }
+    }
+
+    pub fn get(&self, parameter_id: &ParameterId) -> Option<&ParameterViewModel<ParameterId>> {
+        self.states.get(parameter_id)
+    }
+
+    pub fn get_mut(
+        &mut self,
+        parameter_id: &ParameterId,
+    ) -> Option<&mut ParameterViewModel<ParameterId>> {
+        self.states.get_mut(parameter_id)
+    }
+
+    pub fn update(
+        &mut self,
+        parameter_id: &ParameterId,
+        value: f32,
+    ) -> Option<&mut ParameterViewModel<ParameterId>> {
+        if let Some(state) = self.get_mut(parameter_id) {
+            state.value = value;
+            if let Some(int_range) = &state.int_range {
+                state.knob_state.snap_visible_to(int_range);
+            }
+            Some(state)
+        } else {
+            None
+        }
+    }
+
+    pub fn view(&mut self) -> Element<KnobChanged<ParameterId>> {
+        parameters_row(self.states.values_mut())
+    }
+}
+
+pub fn parameters_row<'a, ParameterId: 'static + Clone + Copy + Debug>(
+    parameter_states: impl IntoIterator<Item = &'a mut ParameterViewModel<ParameterId>>,
+) -> Element<'a, KnobChanged<ParameterId>> {
     use iced::{Container, Row};
 
     let knobs = parameter_states
-        .iter_mut()
+        .into_iter()
         .map(|parameter_view_model| view(parameter_view_model))
         .collect();
 
