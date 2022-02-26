@@ -7,9 +7,9 @@ use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
 use looper_processor::LoopSequencerParams;
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
-use parameter_view::parameter_view_model::ParameterViewModel;
 
-mod parameter_view;
+use crate::ui::common::parameter_view;
+use crate::ui::common::parameter_view::parameter_view_model::ParameterViewModel;
 
 #[derive(Eq, PartialEq, Debug, Clone, Copy)]
 pub enum ParameterId {

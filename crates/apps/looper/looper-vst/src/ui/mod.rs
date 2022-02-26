@@ -2,7 +2,6 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use iced::{Column, Container, Length, Text};
-
 use iced_baseview::{executor, Subscription, WindowSubs};
 use iced_baseview::{Application, Command, Element};
 
@@ -21,6 +20,7 @@ use crate::ui::looper_visualization::LooperVisualizationDrawModelImpl;
 
 pub mod audio_editor_view;
 mod bottom_panel;
+mod common;
 mod file_drag_and_drop_handler;
 mod looper_visualization;
 mod style;
