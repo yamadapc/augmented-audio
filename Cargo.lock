@@ -35,7 +35,7 @@ dependencies = [
  "futures-util",
  "log",
  "once_cell",
- "parking_lot",
+ "parking_lot 0.11.2",
  "pin-project-lite",
  "smallvec",
  "tokio",
@@ -538,7 +538,7 @@ dependencies = [
  "iced-editor",
  "iced_audio",
  "iced_baseview",
- "itertools 0.10.1",
+ "itertools 0.10.3",
  "log",
  "ringbuf",
  "vst",
@@ -668,7 +668,7 @@ name = "augmented-analytics"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "itertools 0.10.1",
+ "itertools 0.10.3",
  "log",
  "mockall 0.10.2",
  "mockall_double",
@@ -747,7 +747,7 @@ name = "augmented-midi"
 version = "1.0.0-alpha.3"
 dependencies = [
  "audio-processor-traits",
- "itertools 0.10.1",
+ "itertools 0.10.3",
  "log",
  "midir 0.7.0",
  "nom 7.1.0",
@@ -1412,7 +1412,7 @@ dependencies = [
  "crossbeam-epoch 0.9.5",
  "crossbeam-utils 0.8.5",
  "lru",
- "parking_lot",
+ "parking_lot 0.11.2",
  "rand 0.8.4",
  "smallvec",
  "tokio",
@@ -1646,7 +1646,7 @@ dependencies = [
  "ndk-glue 0.3.0",
  "nix 0.20.0",
  "oboe",
- "parking_lot",
+ "parking_lot 0.11.2",
  "stdweb",
  "thiserror",
  "web-sys",
@@ -1699,7 +1699,7 @@ dependencies = [
  "clap 2.34.0",
  "criterion-plot",
  "csv",
- "itertools 0.10.1",
+ "itertools 0.10.3",
  "lazy_static 1.4.0",
  "num-traits 0.2.14",
  "oorandom",
@@ -2440,7 +2440,7 @@ dependencies = [
  "anyhow",
  "flutter_rust_bridge_macros",
  "lazy_static 1.4.0",
- "parking_lot",
+ "parking_lot 0.11.2",
  "threadpool",
 ]
 
@@ -3004,7 +3004,7 @@ dependencies = [
  "log",
  "objc",
  "osmesa-sys",
- "parking_lot",
+ "parking_lot 0.11.2",
  "wayland-client 0.28.6",
  "wayland-egl",
  "winapi 0.3.9",
@@ -3649,9 +3649,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.10.1"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69ddb889f9d0d08a67338271fa9b62996bc788c7796a5c18cf057420aaed5eaf"
+checksum = "a9a9d19fa1e79b6215ff29b9d6880b706147f16e9b1dbb1e4e5947b5b02bc5e3"
 dependencies = [
  "either",
 ]
@@ -3833,9 +3833,9 @@ dependencies = [
 
 [[package]]
 name = "libc"
-version = "0.2.98"
+version = "0.2.119"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "320cfe77175da3a483efed4bc0adc1968ca050b098ce4f2f1c13a56626128790"
+checksum = "1bf2e165bb3457c8e098ea76f3e3bc9db55f87aa90d52d0e6be741470916aaa4"
 
 [[package]]
 name = "libloading"
@@ -3895,9 +3895,9 @@ checksum = "7fb9b38af92608140b86b693604b9ffcc5824240a484d1ecd4795bacb2fe88f3"
 
 [[package]]
 name = "lock_api"
-version = "0.4.5"
+version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "712a4d093c9976e24e7dbca41db895dabcbac38eb5f4045393d17a95bdfb1109"
+checksum = "88943dd7ef4a2e5a4bfa2753aaab3013e34ce2533d1996fb18ef591e315e2b3b"
 dependencies = [
  "scopeguard",
 ]
@@ -3933,7 +3933,7 @@ dependencies = [
  "libc",
  "log",
  "log-mdc",
- "parking_lot",
+ "parking_lot 0.11.2",
  "regex",
  "serde",
  "serde-value",
@@ -4000,10 +4000,12 @@ dependencies = [
  "iced_glow",
  "iced_native",
  "iced_wgpu",
+ "itertools 0.10.3",
  "log",
  "log4rs",
  "looper-processor",
  "thiserror",
+ "tokio",
  "vst",
 ]
 
@@ -4312,6 +4314,19 @@ name = "mio"
 version = "0.7.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8c2bdb6314ec10835cd3293dd268473a835c02b7b352e788be788b3c6ca6bb16"
+dependencies = [
+ "libc",
+ "log",
+ "miow 0.3.7",
+ "ntapi",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "mio"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ba272f85fa0b41fc91872be579b3bbe0f56b792aa361a380eb669469f68dafb2"
 dependencies = [
  "libc",
  "log",
@@ -5218,7 +5233,17 @@ checksum = "7d17b78036a60663b797adeaee46f5c9dfebb86948d1255007a1d6be0271ff99"
 dependencies = [
  "instant",
  "lock_api",
- "parking_lot_core",
+ "parking_lot_core 0.8.5",
+]
+
+[[package]]
+name = "parking_lot"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "87f5ec2493a61ac0506c0f4199f99070cbe83857b0337006a30f3e6719b8ef58"
+dependencies = [
+ "lock_api",
+ "parking_lot_core 0.9.1",
 ]
 
 [[package]]
@@ -5233,6 +5258,19 @@ dependencies = [
  "redox_syscall 0.2.9",
  "smallvec",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "parking_lot_core"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28141e0cc4143da2443301914478dc976a61ffdb3f043058310c70df2fed8954"
+dependencies = [
+ "cfg-if 1.0.0",
+ "libc",
+ "redox_syscall 0.2.9",
+ "smallvec",
+ "windows-sys",
 ]
 
 [[package]]
@@ -5589,7 +5627,7 @@ dependencies = [
  "criterion",
  "futures-util",
  "hound",
- "itertools 0.10.1",
+ "itertools 0.10.3",
  "lazy_static 1.4.0",
  "log",
  "md5",
@@ -5662,7 +5700,7 @@ checksum = "a5aab5be6e4732b473071984b3164dbbfb7a3674d30ea5ff44410b6bcd960c3c"
 dependencies = [
  "difflib",
  "float-cmp 0.9.0",
- "itertools 0.10.1",
+ "itertools 0.10.3",
  "normalize-line-endings",
  "predicates-core",
  "regex",
@@ -6581,9 +6619,9 @@ version = "0.1.0"
 
 [[package]]
 name = "socket2"
-version = "0.4.1"
+version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "765f090f0e423d2b55843402a07915add955e7d60657db13707a159727326cad"
+checksum = "66d72b759436ae32898a2af0a14218dbf55efde3feeb170eb623637db85ee1e0"
 dependencies = [
  "libc",
  "winapi 0.3.9",
@@ -6896,7 +6934,7 @@ dependencies = [
  "anyhow",
  "cfg-expr",
  "heck",
- "itertools 0.10.1",
+ "itertools 0.10.3",
  "pkg-config",
  "strum",
  "strum_macros",
@@ -6935,7 +6973,7 @@ dependencies = [
  "ndk-glue 0.4.0",
  "ndk-sys",
  "objc",
- "parking_lot",
+ "parking_lot 0.11.2",
  "raw-window-handle",
  "scopeguard",
  "tauri-libappindicator",
@@ -7144,29 +7182,29 @@ checksum = "cda74da7e1a664f795bb1f8a87ec406fb89a02522cf6e50620d016add6dbbf5c"
 
 [[package]]
 name = "tokio"
-version = "1.13.0"
+version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "588b2d10a336da58d877567cd8fb8a14b463e2104910f8132cd054b4b96e29ee"
+checksum = "2af73ac49756f3f7c01172e34a23e5d0216f6c32333757c2c61feb2bbff5a5ee"
 dependencies = [
- "autocfg",
  "bytes",
  "libc",
  "memchr",
- "mio 0.7.13",
+ "mio 0.8.0",
  "num_cpus",
  "once_cell",
- "parking_lot",
+ "parking_lot 0.12.0",
  "pin-project-lite",
  "signal-hook-registry",
+ "socket2",
  "tokio-macros",
  "winapi 0.3.9",
 ]
 
 [[package]]
 name = "tokio-macros"
-version = "1.3.0"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54473be61f4ebe4efd09cec9bd5d16fa51d70ea0192213d754d2d500457db110"
+checksum = "b557f72f448c511a979e2564e55d74e6c4432fc96ff4f6241bc6bded342643b7"
 dependencies = [
  "proc-macro2 1.0.32",
  "quote 1.0.9",
@@ -7239,7 +7277,7 @@ checksum = "30c244d60366ca501c0549e418cef09d581afbc7f18cd0b646b26484a9fae005"
 dependencies = [
  "combine",
  "indexmap",
- "itertools 0.10.1",
+ "itertools 0.10.3",
  "kstring",
 ]
 
@@ -7967,7 +8005,7 @@ dependencies = [
  "arrayvec 0.7.2",
  "js-sys",
  "log",
- "parking_lot",
+ "parking_lot 0.11.2",
  "raw-window-handle",
  "smallvec",
  "wasm-bindgen",
@@ -7991,7 +8029,7 @@ dependencies = [
  "fxhash",
  "log",
  "naga",
- "parking_lot",
+ "parking_lot 0.11.2",
  "profiling",
  "raw-window-handle",
  "smallvec",
@@ -8026,7 +8064,7 @@ dependencies = [
  "metal",
  "naga",
  "objc",
- "parking_lot",
+ "parking_lot 0.11.2",
  "profiling",
  "range-alloc",
  "raw-window-handle",
@@ -8134,6 +8172,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "windows-sys"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3df6e476185f92a12c072be4a189a0210dcdcf512a1891d6dff9edb874deadc6"
+dependencies = [
+ "windows_aarch64_msvc",
+ "windows_i686_gnu",
+ "windows_i686_msvc",
+ "windows_x86_64_gnu",
+ "windows_x86_64_msvc",
+]
+
+[[package]]
+name = "windows_aarch64_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d8e92753b1c443191654ec532f14c199742964a061be25d77d7a96f09db20bf5"
+
+[[package]]
+name = "windows_i686_gnu"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a711c68811799e017b6038e0922cb27a5e2f43a2ddb609fe0b6f3eeda9de615"
+
+[[package]]
+name = "windows_i686_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "146c11bb1a02615db74680b32a68e2d61f553cc24c4eb5b4ca10311740e44172"
+
+[[package]]
+name = "windows_x86_64_gnu"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c912b12f7454c6620635bbff3450962753834be2a594819bd5e945af18ec64bc"
+
+[[package]]
+name = "windows_x86_64_msvc"
+version = "0.32.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "504a2476202769977a040c6364301a3f65d0cc9e3fb08600b2bda150a0488316"
+
+[[package]]
 name = "winit"
 version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8155,7 +8236,7 @@ dependencies = [
  "ndk-glue 0.3.0",
  "ndk-sys",
  "objc",
- "parking_lot",
+ "parking_lot 0.11.2",
  "percent-encoding",
  "raw-window-handle",
  "scopeguard",
@@ -8186,7 +8267,7 @@ dependencies = [
  "ndk-glue 0.3.0",
  "ndk-sys",
  "objc",
- "parking_lot",
+ "parking_lot 0.11.2",
  "percent-encoding",
  "raw-window-handle",
  "smithay-client-toolkit 0.15.2",

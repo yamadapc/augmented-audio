@@ -62,6 +62,9 @@ audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
 audio-processor-file = { version = "1.0.0-alpha.3", path = "../../../augmented/audio/audio-processor-file" }
 looper-processor = { path = "../looper-processor" }
 
+tokio = "1.17.0"
+itertools = "0.10.3"
+
 [lib]
 name = "loopi"
 crate-type = ["cdylib", "lib"]

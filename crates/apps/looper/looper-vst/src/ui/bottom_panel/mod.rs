@@ -8,7 +8,6 @@ use audio_processor_iced_design_system::style::Container1;
 use looper_processor::LoopSequencerParams;
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 
-use crate::ui::common::parameter_view;
 use crate::ui::common::parameter_view::parameter_view_model::ParameterViewModel;
 use crate::ui::common::parameter_view::MultiParameterView;
 

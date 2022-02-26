@@ -4,6 +4,7 @@ use std::fmt::Debug;
 use iced::Element;
 use iced::{Alignment, Column, Length, Text};
 use iced_audio::{IntRange, Normal};
+use itertools::Itertools;
 
 use audio_processor_iced_design_system::container::HoverContainer;
 use audio_processor_iced_design_system::knob as audio_knob;
@@ -14,6 +15,7 @@ use parameter_view_model::ParameterViewModel;
 
 pub mod parameter_view_model;
 
+#[derive(Clone, Debug)]
 pub struct KnobChanged<ParameterId> {
     pub id: ParameterId,
     pub value: f32,
@@ -21,6 +23,7 @@ pub struct KnobChanged<ParameterId> {
 
 pub struct MultiParameterView<ParameterId> {
     states: HashMap<ParameterId, ParameterViewModel<ParameterId>>,
+    order: Vec<ParameterId>,
 }
 
 impl<ParameterId> MultiParameterView<ParameterId>
@@ -28,12 +31,16 @@ where
     ParameterId: std::hash::Hash + Clone + std::cmp::Eq + Copy + Debug + 'static,
 {
     pub fn new(parameters: Vec<ParameterViewModel<ParameterId>>) -> Self {
+        let parameter_order = parameters.iter().map(|parameter| parameter.id).collect();
         let mut states = HashMap::new();
         for parameter in parameters {
             states.insert(parameter.id.clone(), parameter);
         }
 
-        Self { states }
+        Self {
+            states,
+            order: parameter_order,
+        }
     }
 
     pub fn get(&self, parameter_id: &ParameterId) -> Option<&ParameterViewModel<ParameterId>> {
@@ -64,7 +71,17 @@ where
     }
 
     pub fn view(&mut self) -> Element<KnobChanged<ParameterId>> {
-        parameters_row(self.states.values_mut())
+        let order: HashMap<ParameterId, usize> = self
+            .order
+            .iter()
+            .enumerate()
+            .map(|(order, id)| (*id, order))
+            .collect();
+        let values_mut = self
+            .states
+            .values_mut()
+            .sorted_by(|v1, v2| order[&v1.id].cmp(&order[&v2.id]));
+        parameters_row(values_mut)
     }
 }
 

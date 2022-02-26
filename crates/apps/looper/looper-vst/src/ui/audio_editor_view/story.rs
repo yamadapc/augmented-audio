@@ -1,18 +1,68 @@
 use audio_processor_testing_helpers::relative_path;
-use iced::Command;
+use iced::{Column, Command, Text};
 
+use audio_processor_analysis::transient_detection::stft::{
+    find_transients, IterativeTransientDetectionParams,
+};
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_iced_storybook::StoryView;
 use audio_processor_traits::{AudioProcessorSettings, InterleavedAudioBuffer};
 
+use crate::ui::common::parameter_view::{
+    parameter_view_model::ParameterViewModel, KnobChanged, MultiParameterView,
+};
+
 use super::*;
+
+#[derive(Clone, Debug)]
+pub enum StoryMessage {
+    Inner(Message),
+    Knobs(KnobChanged<ParameterId>),
+    ProcessMarkers(usize),
+    SetMarkers(Vec<AudioFileMarker>),
+}
 
 pub fn default() -> Story {
     Story::default()
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ParameterId {
+    FFTSize,
+    FFTOverlapSize,
+    PowerOfChangeSpectralSpread,
+    ThresholdTimeSpread,
+    ThresholdTimeSpreadFactor,
+    FrequencyBinChangeThreshold,
+    IterationMagnitudeFactor,
+    IterationCount,
+}
+
+fn build_parameters() -> MultiParameterView<ParameterId> {
+    use ParameterId::*;
+    let parameters = vec![
+        ParameterViewModel::new(FFTSize, "FFT Size", "", 2048.0, (1024.0, 8192.0)).snap_int(),
+        ParameterViewModel::new(
+            IterationMagnitudeFactor,
+            "Iteration magnitude factor",
+            "",
+            0.1,
+            (0.0, 1.0),
+        ),
+        ParameterViewModel::new(IterationCount, "Iteration count", "", 20.0, (1.0, 40.0))
+            .snap_int(),
+    ];
+
+    MultiParameterView::new(parameters)
+}
+
 pub struct Story {
     editor: AudioEditorView,
+    parameters_view: MultiParameterView<ParameterId>,
+    params: IterativeTransientDetectionParams,
+    is_loading: bool,
+    audio_file_buffer: Vec<f32>,
+    cursor: usize,
 }
 
 impl Default for Story {
@@ -21,34 +71,51 @@ impl Default for Story {
         let settings = AudioProcessorSettings::default();
         log::info!("Reading audio file");
         let mut audio_file_buffer = get_example_file_buffer(settings);
-        let transients = audio_processor_analysis::transient_detection::stft::find_transients(
-            Default::default(),
-            &mut InterleavedAudioBuffer::new(1, &mut audio_file_buffer),
-        );
-        let markers_from_transients = {
-            let mut markers = vec![];
-            let mut inside_transient = false;
-            for (index, sample) in transients.iter().cloned().enumerate() {
-                if sample >= 0.4 && !inside_transient {
-                    inside_transient = true;
-                    markers.push(index);
-                } else if sample < 0.4 {
-                    inside_transient = false;
-                }
-            }
-            markers
-        };
+        let markers = build_markers(&mut audio_file_buffer);
 
         log::info!("Building editor model");
-        editor.markers = markers_from_transients
-            .into_iter()
-            .map(|position_samples| AudioFileMarker { position_samples })
-            .collect();
-        editor.audio_file_model = Some(AudioFileModel::from_buffer(settings, audio_file_buffer));
+        editor.markers = markers;
+        editor.audio_file_model = Some(AudioFileModel::from_buffer(
+            settings,
+            audio_file_buffer.clone(),
+        ));
 
+        let parameters_view = build_parameters();
         log::info!("Starting");
-        Self { editor }
+        Self {
+            editor,
+            parameters_view,
+            params: Default::default(),
+            audio_file_buffer,
+            is_loading: false,
+            cursor: 0,
+        }
     }
+}
+
+fn build_markers(mut audio_file_buffer: &mut Vec<f32>) -> Vec<AudioFileMarker> {
+    let transients = find_transients(
+        Default::default(),
+        &mut InterleavedAudioBuffer::new(1, &mut audio_file_buffer),
+    );
+    let markers_from_transients = {
+        let mut markers = vec![];
+        let mut inside_transient = false;
+        for (index, sample) in transients.iter().cloned().enumerate() {
+            if sample >= 0.4 && !inside_transient {
+                inside_transient = true;
+                markers.push(index);
+            } else if sample < 0.4 {
+                inside_transient = false;
+            }
+        }
+        markers
+    };
+    let markers = markers_from_transients
+        .into_iter()
+        .map(|position_samples| AudioFileMarker { position_samples })
+        .collect();
+    markers
 }
 
 fn get_example_file_buffer(settings: AudioProcessorSettings) -> Vec<f32> {
@@ -68,13 +135,75 @@ fn get_example_file_buffer(settings: AudioProcessorSettings) -> Vec<f32> {
     output
 }
 
-impl StoryView<Message> for Story {
-    fn update(&mut self, message: Message) -> Command<Message> {
-        self.editor.update(message);
-        Command::none()
+impl StoryView<StoryMessage> for Story {
+    fn update(&mut self, message: StoryMessage) -> Command<StoryMessage> {
+        match message {
+            StoryMessage::Inner(message) => {
+                self.editor.update(message);
+                Command::none()
+            }
+            StoryMessage::Knobs(message) => {
+                if let Some(state) = self.parameters_view.update(&message.id, message.value) {
+                    match state.id {
+                        ParameterId::FFTSize => {
+                            self.params.fft_size = ((state.value / 1024.0).floor() * 1024.0)
+                                .min(state.range.0)
+                                .max(state.range.1)
+                                as usize
+                        }
+                        ParameterId::IterationMagnitudeFactor => {
+                            self.params.iteration_magnitude_factor = state.value;
+                        }
+                        ParameterId::IterationCount => {
+                            self.params.iteration_count = state.value as usize;
+                        }
+                        _ => {}
+                    }
+
+                    self.cursor += 1;
+                    let cursor: usize = self.cursor;
+                    Command::perform(tokio::time::sleep(Duration::from_secs(1)), move |_| {
+                        StoryMessage::ProcessMarkers(cursor)
+                    })
+                } else {
+                    Command::none()
+                }
+            }
+            StoryMessage::ProcessMarkers(cursor) => {
+                if self.cursor != cursor {
+                    return Command::none();
+                }
+
+                let mut audio_file = self.audio_file_buffer.clone();
+                self.is_loading = true;
+                Command::perform(
+                    tokio::task::spawn_blocking(move || build_markers(&mut audio_file)),
+                    |result| StoryMessage::SetMarkers(result.unwrap()),
+                )
+            }
+            StoryMessage::SetMarkers(markers) => {
+                self.editor.markers = markers;
+                self.is_loading = false;
+                Command::none()
+            }
+        }
     }
 
-    fn view(&mut self) -> Element<Message> {
-        self.editor.view()
+    fn view(&mut self) -> Element<StoryMessage> {
+        let view = self.editor.view();
+
+        Column::with_children(vec![
+            view.map(|msg| StoryMessage::Inner(msg)),
+            Text::new(if self.is_loading {
+                "Loading..."
+            } else {
+                "Ready"
+            })
+            .into(),
+            self.parameters_view
+                .view()
+                .map(|msg| StoryMessage::Knobs(msg)),
+        ])
+        .into()
     }
 }

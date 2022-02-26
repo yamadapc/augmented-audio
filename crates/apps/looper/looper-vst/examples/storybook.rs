@@ -4,7 +4,7 @@ use augmented::ops::wisual_logger;
 
 #[derive(Debug, From, Clone, TryInto)]
 enum Message {
-    AudioEditorView(loopi::ui::audio_editor_view::Message),
+    AudioEditorView(loopi::ui::audio_editor_view::story::StoryMessage),
     None(()),
 }
 

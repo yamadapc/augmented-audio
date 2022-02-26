@@ -13,15 +13,15 @@ pub struct ParameterViewModel<ParameterId> {
 impl<ParameterId> ParameterViewModel<ParameterId> {
     pub fn new(
         id: ParameterId,
-        name: String,
-        suffix: String,
+        name: impl Into<String>,
+        suffix: impl Into<String>,
         value: f32,
         range: (f32, f32),
     ) -> Self {
         ParameterViewModel {
             id,
-            name,
-            suffix,
+            name: name.into(),
+            suffix: suffix.into(),
             value,
             knob_state: knob::State::new(NormalParam::from(
                 (value - range.0) / (range.1 - range.0),
