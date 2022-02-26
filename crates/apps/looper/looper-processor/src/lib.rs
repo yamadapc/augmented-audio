@@ -5,7 +5,7 @@ pub use processor::handle::QuantizeOptions;
 pub use processor::LooperProcessor;
 pub use sequencer::LoopSequencerParams;
 pub use sequencer::LoopSequencerProcessorHandle;
-pub use time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
+pub use time_info_provider::{TimeInfo, TimeInfoProvider, TimeInfoProviderImpl};
 
 mod loop_quantization;
 mod midi_map;

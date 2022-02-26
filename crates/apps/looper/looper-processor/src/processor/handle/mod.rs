@@ -155,6 +155,7 @@ impl LooperHandle {
             self.length.store(0, Ordering::Relaxed);
             // Start overdub
         } else if old_state == LooperState::Paused || old_state == LooperState::Playing {
+            self.time_info_provider.play();
             self.state.set(LooperState::Overdubbing);
         }
 
@@ -187,10 +188,14 @@ impl LooperHandle {
     }
 
     pub fn play(&self) {
+        // TODO: Looper should only affect time_info_provider if it's the master
+        self.time_info_provider.play();
         self.state.set(LooperState::Playing);
     }
 
     pub fn pause(&self) {
+        // TODO: Looper should only affect time_info_provider if it's the master
+        self.time_info_provider.pause();
         self.state.set(LooperState::Paused);
     }
 
@@ -211,6 +216,7 @@ impl LooperHandle {
             );
             self.looper_clip
                 .set(make_shared(AtomicRefCell::new(new_buffer)));
+            self.time_info_provider.play();
             self.state.set(LooperState::Playing);
             self.cursor.store(0, Ordering::Relaxed);
         } else if old_state == LooperState::Overdubbing {
@@ -234,6 +240,7 @@ impl LooperHandle {
                     },
                     &mut *result_buffer,
                 );
+                self.time_info_provider.play();
                 self.state.set(LooperState::Playing);
                 self.cursor.store(0, Ordering::Relaxed);
             }
@@ -326,7 +333,7 @@ impl LooperHandle {
                 let clip = self.looper_clip.get();
                 let clip = clip.deref().borrow();
                 let cursor = self.cursor.load(Ordering::Relaxed);
-                let clip_sample = clip.get(channel, cursor);
+                let clip_sample = clip.get(channel, cursor % clip.num_samples());
                 let clip_out = clip_sample.get();
                 clip_sample.set(clip_out + sample);
                 clip_out
@@ -358,9 +365,15 @@ impl LooperHandle {
                 self.length.store(len, Ordering::Relaxed);
             }
         } else if state == LooperState::Playing || state == LooperState::Overdubbing {
-            let cursor = self.cursor.load(Ordering::Relaxed);
-            let cursor = (cursor + 1) % self.length.load(Ordering::Relaxed);
-            self.cursor.store(cursor, Ordering::Relaxed);
+            // TODO Review this dynamic state change
+            let len = self.length.load(Ordering::Relaxed);
+            if len > 0 {
+                let cursor = self.cursor.load(Ordering::Relaxed);
+                let cursor = (cursor + 1) % len;
+                self.cursor.store(cursor, Ordering::Relaxed);
+            } else {
+                self.state.set(LooperState::Empty);
+            }
         }
     }
 }

@@ -1,3 +1,5 @@
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use derive_builder::Builder;
 use mockall::automock;
 
@@ -31,11 +33,16 @@ impl TimeInfo {
 pub trait TimeInfoProvider {
     fn get_time_info(&self) -> TimeInfo;
     fn tick(&self);
+    // Transport control; this should only be enabled when the looper is the master tempo
+    fn play(&self);
+    fn stop(&self);
+    fn pause(&self);
 }
 
 pub struct TimeInfoProviderImpl {
     host_callback: Option<HostCallback>,
     playhead: PlayHead,
+    is_playing: AtomicBool,
 }
 
 impl TimeInfoProvider for TimeInfoProviderImpl {
@@ -67,7 +74,22 @@ impl TimeInfoProvider for TimeInfoProviderImpl {
     }
 
     fn tick(&self) {
-        self.playhead.accept_samples(1);
+        if self.is_playing.load(Ordering::Relaxed) {
+            self.playhead.accept_samples(1);
+        }
+    }
+
+    fn play(&self) {
+        self.is_playing.store(true, Ordering::Relaxed);
+    }
+
+    fn stop(&self) {
+        self.is_playing.store(false, Ordering::Relaxed);
+        self.playhead.set_position_seconds(0.0);
+    }
+
+    fn pause(&self) {
+        self.is_playing.store(false, Ordering::Relaxed);
     }
 }
 
@@ -76,6 +98,7 @@ impl TimeInfoProviderImpl {
         TimeInfoProviderImpl {
             host_callback,
             playhead: PlayHead::new(PlayHeadOptions::new(None, None, None)),
+            is_playing: AtomicBool::new(false),
         }
     }
 

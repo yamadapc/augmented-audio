@@ -1,3 +1,5 @@
+//! Implements better quantization logic for live-loopers.
+
 pub enum LoopQuantizerMode {
     None,
     SnapNext { beats: usize },

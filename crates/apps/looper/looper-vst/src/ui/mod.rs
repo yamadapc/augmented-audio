@@ -104,44 +104,28 @@ impl Application for LooperApplication {
     fn view(&mut self) -> Element<'_, Self::Message> {
         let time_info_provider = self.processor_handle.time_info_provider();
         let time_info = time_info_provider.get_time_info();
-        let status_message = if let Some((position_beats, tempo)) =
-            time_info.position_beats().zip(time_info.tempo())
-        {
-            format!("{}bpm {:.1}", tempo, position_beats)
-        } else {
-            "Free tempo".into()
-        };
+        let status_bar = status_bar(time_info);
+
+        let looper_visualization = Container::new(
+            Container::new(self.looper_visualization.view().map(|_| Message::None))
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .style(Container0::default().border_width(1.)),
+        )
+        .padding(Spacing::base_spacing())
+        .style(Container1::default())
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .into();
 
         Column::with_children(vec![
             self.tabs_view
                 .view(vec![
                     tabs::Tab::new(
-                        "File Editor",
-                        self.audio_editor_view.view().map(|_msg| Message::None),
-                    ),
-                    tabs::Tab::new(
                         "Main",
                         Container::new(Column::with_children(vec![
-                            Container::new(
-                                Text::new(status_message).size(Spacing::small_font_size()),
-                            )
-                            .padding(Spacing::base_spacing())
-                            .style(Container0::default())
-                            .width(Length::Fill)
-                            .into(),
-                            Container::new(
-                                Container::new(
-                                    self.looper_visualization.view().map(|_| Message::None),
-                                )
-                                .width(Length::Fill)
-                                .height(Length::Fill)
-                                .style(Container0::default().border_width(1.)),
-                            )
-                            .padding(Spacing::base_spacing())
-                            .style(Container1::default())
-                            .width(Length::Fill)
-                            .height(Length::Fill)
-                            .into(),
+                            status_bar,
+                            looper_visualization,
                             self.knobs_view.view().map(Message::BottomPanel),
                         ]))
                         .center_x()
@@ -149,6 +133,10 @@ impl Application for LooperApplication {
                         .style(ContainerStyle)
                         .width(Length::Fill)
                         .height(Length::Fill),
+                    ),
+                    tabs::Tab::new(
+                        "File Editor",
+                        self.audio_editor_view.view().map(|_msg| Message::None),
                     ),
                 ])
                 .map(|msg| WrapperMessage::TabsView(msg))
@@ -189,4 +177,21 @@ impl LooperApplication {
             Message::None => Command::none(),
         }
     }
+}
+
+fn status_bar<'a>(time_info: looper_processor::TimeInfo) -> Element<'a, Message> {
+    let status_message = Text::new(
+        if let Some((position_beats, tempo)) = time_info.position_beats().zip(time_info.tempo()) {
+            format!("{}bpm {:.1}", tempo, position_beats)
+        } else {
+            "Free tempo".into()
+        },
+    )
+    .size(Spacing::small_font_size());
+    let status_bar = Container::new(status_message)
+        .padding(Spacing::base_spacing())
+        .style(Container0::default())
+        .width(Length::Fill)
+        .into();
+    status_bar
 }
