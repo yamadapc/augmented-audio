@@ -1,7 +1,6 @@
-use iced::canvas::Fill;
-use iced::canvas::Frame;
-use iced::canvas::Geometry;
-use iced::canvas::Stroke;
+use iced::{canvas::Fill, canvas::Frame, canvas::Stroke, Point};
+
+use audio_processor_iced_design_system::colors::Colors;
 
 pub fn draw_samples_chart(
     frame: &mut Frame,
