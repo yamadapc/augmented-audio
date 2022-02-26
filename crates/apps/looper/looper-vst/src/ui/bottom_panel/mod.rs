@@ -117,19 +117,19 @@ impl BottomPanelView {
                         ParameterId::SeqSlices => {
                             if let Some(params) = self.sequencer_handle.params() {
                                 if params.num_slices != state.value as usize {
-                                    self.flush_params();
+                                    self.on_loop_sequencer_params_changed();
                                 }
                             } else {
-                                self.flush_params();
+                                self.on_loop_sequencer_params_changed();
                             }
                         }
                         ParameterId::SeqSteps => {
                             if let Some(params) = self.sequencer_handle.params() {
                                 if params.sequence_length != state.value as usize {
-                                    self.flush_params();
+                                    self.on_loop_sequencer_params_changed();
                                 }
                             } else {
-                                self.flush_params();
+                                self.on_loop_sequencer_params_changed();
                             }
                         }
                     }
@@ -145,7 +145,7 @@ impl BottomPanelView {
             Message::StopPressed => {
                 self.processor_handle.toggle_playback();
             }
-            Message::SequencePressed => self.flush_params(),
+            Message::SequencePressed => self.on_loop_sequencer_params_changed(),
             Message::QuantizeModePressed => {
                 self.processor_handle.set_tempo(120);
                 let quantize_options = self.processor_handle.quantize_options();
@@ -155,7 +155,7 @@ impl BottomPanelView {
         Command::none()
     }
 
-    fn flush_params(&self) {
+    fn on_loop_sequencer_params_changed(&self) {
         self.sequencer_handle.set_params(LoopSequencerParams {
             num_slices: self
                 .parameter_states
@@ -174,26 +174,11 @@ impl BottomPanelView {
     }
 
     pub fn view(&mut self) -> Element<Message> {
-        let knobs = self
-            .parameter_states
-            .iter_mut()
-            .map(|parameter_view_model| {
-                parameter_view::view(parameter_view_model)
-                    .map(|msg| Message::KnobChange(msg.id, msg.value))
-            })
-            .collect();
         Container::new(Column::with_children(vec![Container::new(
             Row::with_children(vec![
                 Container::new(self.buttons_view.view()).center_y().into(),
-                Container::new(
-                    Row::with_children(knobs)
-                        .spacing(Spacing::base_spacing())
-                        .width(Length::Fill),
-                )
-                .center_x()
-                .center_y()
-                .width(Length::Fill)
-                .into(),
+                parameter_view::parameters_row(&mut self.parameter_states)
+                    .map(|msg| Message::KnobChange(msg.id, msg.value)),
                 Container::new(
                     Button::new(
                         &mut self.sequence_button_state,
