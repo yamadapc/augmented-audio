@@ -1,15 +1,6 @@
 use iced_audio::{knob, IntRange, NormalParam};
 
-#[derive(Eq, PartialEq, Debug, Clone, Copy)]
-pub enum ParameterId {
-    LoopVolume,
-    DryVolume,
-    // PlaybackSpeed,
-    SeqSlices,
-    SeqSteps,
-}
-
-pub struct ParameterViewModel {
+pub struct ParameterViewModel<ParameterId> {
     pub id: ParameterId,
     pub name: String,
     pub suffix: String,
@@ -19,7 +10,7 @@ pub struct ParameterViewModel {
     pub range: (f32, f32),
 }
 
-impl ParameterViewModel {
+impl<ParameterId> ParameterViewModel<ParameterId> {
     pub fn new(
         id: ParameterId,
         name: String,

@@ -2,17 +2,23 @@ use iced::{Button, Column, Container, Length, Row, Text};
 use iced_baseview::{Command, Element};
 
 use audio_garbage_collector::Shared;
-
-
-
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
 use looper_processor::LoopSequencerParams;
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
-use parameter_view::parameter_view_model::{ParameterId, ParameterViewModel};
+use parameter_view::parameter_view_model::ParameterViewModel;
 
 mod parameter_view;
+
+#[derive(Eq, PartialEq, Debug, Clone, Copy)]
+pub enum ParameterId {
+    LoopVolume,
+    DryVolume,
+    // PlaybackSpeed,
+    SeqSlices,
+    SeqSteps,
+}
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -27,7 +33,7 @@ pub enum Message {
 pub struct BottomPanelView {
     processor_handle: Shared<LooperProcessorHandle>,
     sequencer_handle: Shared<LoopSequencerProcessorHandle>,
-    parameter_states: Vec<ParameterViewModel>,
+    parameter_states: Vec<ParameterViewModel<ParameterId>>,
     buttons_view: ButtonsView,
     sequence_button_state: iced::button::State,
 }

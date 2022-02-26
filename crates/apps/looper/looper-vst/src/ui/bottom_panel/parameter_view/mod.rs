@@ -1,3 +1,5 @@
+use std::fmt::Debug;
+
 use iced::Element;
 use iced::{Alignment, Column, Length, Text};
 
@@ -6,16 +8,18 @@ use audio_processor_iced_design_system::knob as audio_knob;
 use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
-use parameter_view_model::{ParameterId, ParameterViewModel};
+use parameter_view_model::ParameterViewModel;
 
 pub mod parameter_view_model;
 
-pub struct KnobChanged {
+pub struct KnobChanged<ParameterId> {
     pub id: ParameterId,
     pub value: f32,
 }
 
-pub(crate) fn view(parameter_view_model: &mut ParameterViewModel) -> Element<KnobChanged> {
+pub fn view<ParameterId: 'static + Clone + Copy + Debug>(
+    parameter_view_model: &mut ParameterViewModel<ParameterId>,
+) -> Element<KnobChanged<ParameterId>> {
     let range = parameter_view_model.range;
     let parameter_id = parameter_view_model.id.clone();
     let mapped_value = parameter_view_model.value;
@@ -33,6 +37,7 @@ pub(crate) fn view(parameter_view_model: &mut ParameterViewModel) -> Element<Kno
                     value
                 };
                 let n_value = range.0 + value.as_f32() * (range.1 - range.0);
+
                 log::debug!(
                     "id={:?} range={:?} value={} nvalue={}",
                     parameter_id,
