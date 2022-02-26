@@ -98,17 +98,17 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
         let options = flags;
-        (
-            StorybookApp {
-                sidebar: sidebar::SidebarView::new(&options),
-                selected_story: None,
-                options,
-                last_messages: vec![],
-                logging_enabled: false,
-                log_button_state: Default::default(),
-            },
-            Command::none(),
-        )
+        let mut app = StorybookApp {
+            sidebar: sidebar::SidebarView::new(&options),
+            selected_story: None,
+            options,
+            last_messages: vec![],
+            logging_enabled: false,
+            log_button_state: Default::default(),
+        };
+        let command = app.select_first_story();
+
+        (app, command)
     }
 
     fn title(&self) -> String {
@@ -223,6 +223,23 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
         .height(Length::Fill)
         .style(style::Container0::default())
         .into()
+    }
+}
+
+impl<StoryMessage: 'static + Debug + Clone + Send> StorybookApp<StoryMessage> {
+    fn select_first_story(&mut self) -> Command<Message<StoryMessage>> {
+        if !self.options.stories.is_empty() {
+            let message =
+                Message::Sidebar(sidebar::Message::MenuList(menu_list::Message::Selected {
+                    index: 0,
+                    option: SelectedStory {
+                        id: self.options.stories[0].id.to_string(),
+                    },
+                }));
+            self.update(message)
+        } else {
+            Command::none()
+        }
     }
 }
 

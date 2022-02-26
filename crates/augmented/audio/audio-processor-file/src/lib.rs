@@ -1,5 +1,5 @@
 pub use audio_file_processor::{
-    file_io, AudioFileProcessor, AudioFileProcessorHandle, AudioFileSettings,
+    file_io, AudioFileProcessor, AudioFileProcessorHandle, InMemoryAudioFile,
 };
 pub use output_file_processor::{OutputAudioFileProcessor, OutputFileSettings};
 

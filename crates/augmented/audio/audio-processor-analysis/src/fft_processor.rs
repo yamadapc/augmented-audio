@@ -2,7 +2,8 @@ use std::f32::consts::PI;
 use std::sync::Arc;
 
 use rustfft::num_complex::Complex;
-use rustfft::{Fft, FftDirection, FftPlanner};
+pub use rustfft::FftDirection;
+use rustfft::{Fft, FftPlanner};
 
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 
@@ -18,22 +19,31 @@ fn hann_window(size: usize) -> Vec<f32> {
 }
 
 pub struct FftProcessor {
-    buffer: Vec<Complex<f32>>,
+    input_buffer: Vec<Complex<f32>>,
+    fft_buffer: Vec<Complex<f32>>,
     scratch: Vec<Complex<f32>>,
     cursor: usize,
     window: Vec<f32>,
+    step_len: usize,
     size: usize,
     fft: Arc<dyn Fft<f32>>,
+    has_changed: bool,
 }
 
 impl Default for FftProcessor {
     fn default() -> Self {
-        Self::new(8192, FftDirection::Forward)
+        Self::new(8192, FftDirection::Forward, 0.0)
     }
 }
 
 impl FftProcessor {
-    pub fn new(size: usize, direction: FftDirection) -> Self {
+    /// Constructs a new `FftProcessor`
+    ///
+    /// * size: Size of the FFT
+    /// * direction: Direction of the FFT
+    /// * overlap_ratio: 0.0 will do no overlap, 0.5 will do half a window of overlap and 0.75 will
+    ///   do 3/4 window overlap
+    pub fn new(size: usize, direction: FftDirection, overlap_ratio: f32) -> Self {
         let mut planner = FftPlanner::new();
         let fft = planner.plan_fft(size, direction);
 
@@ -45,14 +55,18 @@ impl FftProcessor {
         scratch.resize(scratch_size, 0.0.into());
 
         let window = hann_window(size);
+        let step_len = (size as f32 * (1.0 - overlap_ratio)) as usize;
 
         Self {
-            buffer,
+            input_buffer: buffer.clone(),
+            fft_buffer: buffer,
             window,
             scratch,
             size,
+            step_len,
             cursor: 0,
             fft,
+            has_changed: false,
         }
     }
 
@@ -61,12 +75,19 @@ impl FftProcessor {
     }
 
     pub fn buffer(&self) -> &Vec<Complex<f32>> {
-        &self.buffer
+        &self.fft_buffer
+    }
+
+    pub fn has_changed(&self) -> bool {
+        self.has_changed
     }
 
     fn perform_fft(&mut self) {
+        for (sample_index, sample) in self.input_buffer.iter().enumerate() {
+            self.fft_buffer[sample_index] = *sample;
+        }
         self.fft
-            .process_with_scratch(&mut self.buffer, &mut self.scratch);
+            .process_with_scratch(&mut self.fft_buffer, &mut self.scratch);
     }
 }
 
@@ -74,12 +95,19 @@ impl SimpleAudioProcessor for FftProcessor {
     type SampleType = f32;
 
     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
-        self.buffer[self.cursor] = Complex::from_polar(sample * self.window[self.cursor], 0.0);
+        self.has_changed = false;
+        let magnitude = sample * self.window[self.cursor];
+        assert!(!magnitude.is_nan());
+        let complex = Complex::from_polar(magnitude, 0.0);
+        assert!(!complex.re.is_nan());
+        assert!(!complex.im.is_nan());
+        self.input_buffer[self.cursor] = complex;
         self.cursor += 1;
 
-        if self.cursor == self.buffer.len() {
+        if self.cursor == self.step_len {
             self.perform_fft();
             self.cursor = 0;
+            self.has_changed = true;
         }
 
         sample
@@ -122,7 +150,7 @@ mod test {
 
         println!("Drawing chart");
         let mut output: Vec<f32> = fft_processor
-            .buffer
+            .buffer()
             .iter()
             .map(|c| 20.0 * (c.norm() / 10.0).log10())
             .collect();

@@ -7,19 +7,28 @@ license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
+[features]
+visualization = ["piet", "piet-common", "audio-processor-testing-helpers", "audio-processor-file"]
+
 [dependencies]
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.2" }
 audio-processor-traits = { version = "1.0.0-alpha.3", path = "../audio-processor-traits" }
 rustfft = "6.0.1"
+log = "0.4.14"
+piet = { version = "0.5.0", optional = true }
+piet-common = { version = "0.5.0", features = ["png"], optional = true }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers", version = "1.0.0-alpha.3", optional = true }
+audio-processor-file = { path = "../audio-processor-file", version = "1.0.0-alpha.3", optional = true }
 
 [dev-dependencies]
-log = "0.4.14"
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.3" }
-audio-processor-file = { path = "../audio-processor-file" , version = "1.0.0-alpha.3" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers", version = "1.0.0-alpha.3" }
+audio-processor-file = { path = "../audio-processor-file", version = "1.0.0-alpha.3" }
 nannou = "0.18.1"
 image = "0.23.14"
 clap = "2.34.0"
+piet = "0.5.0"
+piet-common = { version = "0.5.0", features = ["png"] }
 
 [package.metadata.augmented]
 private = false

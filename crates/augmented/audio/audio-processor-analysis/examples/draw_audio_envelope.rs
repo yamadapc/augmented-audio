@@ -1,5 +1,9 @@
 use std::time::Duration;
 
+use piet::kurbo::{PathEl, Point, Rect};
+use piet::{Color, RenderContext};
+use piet_common::Device;
+
 use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
@@ -44,31 +48,104 @@ fn main() {
         }
     }
 
-    let width = 8000;
-    let height = 1000;
-    let mut img = image::ImageBuffer::new(width, height);
-
     log::info!("Rendering chunks num_chunks={}", num_chunks);
+    draw_audio_envelope(&output_file_path, &mut frames);
+}
 
-    for (index, (sample, envelope)) in frames.iter().enumerate() {
-        let x = ((index as f32 / frames.len() as f32) * (width as f32)) as u32;
-        let fheight = height as f32;
-        let y = ((sample * fheight / 2.0 + fheight / 2.0) as u32)
-            .min(height - 1)
-            .max(0);
+fn draw_audio_envelope(output_file_path: &str, frames: &mut Vec<(f32, f32)>) {
+    if std::env::var("PIET").unwrap_or("false".into()) == "true" {
+        draw_audio_envelope_piet(output_file_path, frames);
+    } else {
+        let width = 800;
+        let height = 100;
+        let mut img = image::ImageBuffer::new(width, height);
 
-        let pixel = image::Rgb([255u8, 0, 0]);
-        img[(x, y)] = pixel;
+        for (index, (sample, envelope)) in frames.iter().enumerate() {
+            let x = ((index as f32 / frames.len() as f32) * (width as f32)) as u32;
+            let fheight = height as f32;
+            let y = ((sample * fheight / 2.0 + fheight / 2.0) as u32)
+                .min(height - 1)
+                .max(0);
 
-        let envelope_y = ((fheight - (envelope * fheight + fheight / 2.0)) as u32)
-            .min(height - 1)
-            .max(0);
-        let envelope_pixel = image::Rgb([0, 255u8, 0]);
-        img[(x, envelope_y)] = envelope_pixel;
+            let pixel = image::Rgb([255u8, 0, 0]);
+            img[(x, y)] = pixel;
+
+            let envelope_y = ((fheight - (envelope * fheight + fheight / 2.0)) as u32)
+                .min(height - 1)
+                .max(0);
+            let envelope_pixel = image::Rgb([0, 255u8, 0]);
+            img[(x, envelope_y)] = envelope_pixel;
+        }
+
+        log::info!("Saving file output_file={}", output_file_path);
+        img.save(output_file_path).unwrap();
     }
+}
 
-    log::info!("Saving file output_file={}", output_file_path);
-    img.save(output_file_path).unwrap();
+fn draw_audio_envelope_piet(output_file_path: &str, frames: &Vec<(f32, f32)>) {
+    let width = 8000;
+    let height = 2000;
+    let signal_color = Color::rgb(1.0, 0.0, 0.0);
+
+    let signal: Vec<f64> = frames.iter().map(|(sig, _)| *sig as f64).collect();
+
+    let len = frames.len() as f64;
+    let order = |f1: f64, f2: f64| f1.partial_cmp(&f2).unwrap();
+    let min_sig = *signal.iter().min_by(|f1, f2| order(**f1, **f2)).unwrap();
+    let max_sig = *signal.iter().max_by(|f1, f2| order(**f1, **f2)).unwrap();
+    let min_envelope = 0.0;
+    let max_envelope = max_sig;
+    let fwidth = width as f64;
+    let fheight = height as f64;
+
+    let map_sig = |sig| {
+        let r = (sig - min_sig) / (max_sig - min_sig);
+        r * fheight
+    };
+    let map_envelope = |env| {
+        let r = (env - min_envelope) / (max_envelope - min_envelope);
+        fheight / 2.0 - r * fheight
+    };
+
+    let mut device = Device::new().unwrap();
+    let mut bitmap = device.bitmap_target(width, height, 1.0).unwrap();
+    let mut render_context = bitmap.render_context();
+
+    render_context.fill(
+        Rect::new(0.0, 0.0, fwidth, fheight),
+        &Color::rgb(1.0, 1.0, 1.0),
+    );
+
+    let mut signal_path: Vec<PathEl> = signal
+        .iter()
+        .enumerate()
+        .map(|(i, sig)| ((i as f64 / len) * fwidth, map_sig(*sig)))
+        .map(|(x, y)| Point::new(x, y))
+        .map(|point| PathEl::LineTo(point))
+        .collect();
+    signal_path.insert(0, PathEl::MoveTo(Point::new(0.0, fheight / 2.0)));
+    signal_path.push(PathEl::LineTo(Point::new(fwidth, fheight / 2.0)));
+    render_context.stroke(&*signal_path, &signal_color, 0.5);
+
+    let mut path: Vec<PathEl> = frames
+        .iter()
+        .map(|(_, envelope)| *envelope as f64)
+        .enumerate()
+        .map(|(i, envelope)| ((i as f64 / len) * fwidth, map_envelope(envelope)))
+        .map(|(x, y)| Point::new(x, y))
+        .map(|point| PathEl::LineTo(point))
+        .collect();
+    path.insert(0, PathEl::MoveTo(Point::new(0.0, fheight / 2.0)));
+    path.push(PathEl::LineTo(Point::new(fwidth, fheight / 2.0)));
+    let envelope_color = Color::rgb(0.0, 1.0, 0.0);
+    render_context.stroke(&*path, &envelope_color, 0.5);
+
+    render_context.finish().unwrap();
+    std::mem::drop(render_context);
+
+    bitmap
+        .save_to_file(format!("{}.piet.png", output_file_path))
+        .expect("Failed to save image");
 }
 
 struct Options {

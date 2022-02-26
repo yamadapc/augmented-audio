@@ -18,6 +18,7 @@ rayon = "^1.5.1"
 # Audio read/write respectively
 symphonia = { version = "0.5.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
 symphonia-bundle-mp3 = "0.5.0"
+symphonia-format-wav = "0.5.0"
 hound = "^3.4.0"
 
 # Augmented

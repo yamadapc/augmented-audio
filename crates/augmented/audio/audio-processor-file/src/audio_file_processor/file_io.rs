@@ -8,9 +8,9 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
 use symphonia::default::get_probe;
+use thiserror::Error;
 
 use augmented_audio_metrics as metrics;
-use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum AudioFileError {
@@ -124,6 +124,7 @@ fn concat_buffers(buffers: Vec<SymphoniaAudioBuffer<f32>>) -> SymphoniaAudioBuff
         .map(|buffer| buffer.chan(0).len() as u64)
         .sum();
 
+    // TODO - Check there're buffers
     let mut output = SymphoniaAudioBuffer::new(duration, *buffers[0].spec());
     let _ = output.fill(|_, _| Ok(()));
     let mut output_cursor = 0;

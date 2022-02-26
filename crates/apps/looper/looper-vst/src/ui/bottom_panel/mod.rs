@@ -1,18 +1,23 @@
-use iced::{Alignment, Button, Column, Container, Length, Row, Text};
+use iced::{Button, Column, Container, Length, Row, Text};
 use iced_baseview::{Command, Element};
 
 use audio_garbage_collector::Shared;
-use audio_processor_iced_design_system::container::HoverContainer;
-use audio_processor_iced_design_system::knob as audio_knob;
-use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
 use looper_processor::LoopSequencerParams;
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
-use parameter_view_model::{ParameterId, ParameterViewModel};
 
-mod parameter_view_model;
+use crate::ui::common::parameter_view::parameter_view_model::ParameterViewModel;
+use crate::ui::common::parameter_view::MultiParameterView;
+
+#[derive(Eq, PartialEq, Debug, Clone, Copy, Hash)]
+pub enum ParameterId {
+    LoopVolume,
+    DryVolume,
+    SeqSlices,
+    SeqSteps,
+}
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -27,7 +32,7 @@ pub enum Message {
 pub struct BottomPanelView {
     processor_handle: Shared<LooperProcessorHandle>,
     sequencer_handle: Shared<LoopSequencerProcessorHandle>,
-    parameter_states: Vec<ParameterViewModel>,
+    parameters_view: MultiParameterView<ParameterId>,
     buttons_view: ButtonsView,
     sequence_button_state: iced::button::State,
 }
@@ -37,48 +42,44 @@ impl BottomPanelView {
         processor_handle: Shared<LooperProcessorHandle>,
         sequencer_handle: Shared<LoopSequencerProcessorHandle>,
     ) -> Self {
+        let parameters = vec![
+            ParameterViewModel::new(
+                ParameterId::LoopVolume,
+                String::from("Loop"),
+                String::from(""),
+                processor_handle.wet_volume(),
+                (0.0, 1.0),
+            ),
+            ParameterViewModel::new(
+                ParameterId::DryVolume,
+                String::from("Dry"),
+                String::from(""),
+                processor_handle.dry_volume(),
+                (0.0, 1.0),
+            ),
+            ParameterViewModel::new(
+                ParameterId::SeqSlices,
+                String::from("Seq. Slices"),
+                String::from(""),
+                4.0,
+                (1.0, 32.0),
+            )
+            .snap_int(),
+            ParameterViewModel::new(
+                ParameterId::SeqSteps,
+                String::from("Seq. Steps"),
+                String::from(""),
+                4.0,
+                (1.0, 32.0),
+            )
+            .snap_int(),
+        ];
+        let parameters_view = MultiParameterView::new(parameters);
+
         BottomPanelView {
             processor_handle: processor_handle.clone(),
             sequencer_handle: sequencer_handle.clone(),
-            parameter_states: vec![
-                ParameterViewModel::new(
-                    ParameterId::LoopVolume,
-                    String::from("Loop"),
-                    String::from(""),
-                    processor_handle.wet_volume(),
-                    (0.0, 1.0),
-                ),
-                ParameterViewModel::new(
-                    ParameterId::DryVolume,
-                    String::from("Dry"),
-                    String::from(""),
-                    processor_handle.dry_volume(),
-                    (0.0, 1.0),
-                ),
-                // ParameterViewModel::new(
-                //     ParameterId::PlaybackSpeed,
-                //     String::from("Speed"),
-                //     String::from("x"),
-                //     1.0,
-                //     (0.0, 2.0),
-                // ),
-                ParameterViewModel::new(
-                    ParameterId::SeqSlices,
-                    String::from("Seq. Slices"),
-                    String::from(""),
-                    4.0,
-                    (1.0, 32.0),
-                )
-                .snap_int(),
-                ParameterViewModel::new(
-                    ParameterId::SeqSteps,
-                    String::from("Seq. Steps"),
-                    String::from(""),
-                    4.0,
-                    (1.0, 32.0),
-                )
-                .snap_int(),
-            ],
+            parameters_view,
             buttons_view: ButtonsView::new(processor_handle),
             sequence_button_state: iced::button::State::new(),
         }
@@ -87,17 +88,7 @@ impl BottomPanelView {
     pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
             Message::KnobChange(id, value) => {
-                if let Some(state) = self
-                    .parameter_states
-                    .iter_mut()
-                    .find(|param| param.id == id)
-                {
-                    state.value = value;
-
-                    if let Some(int_range) = &state.int_range {
-                        state.knob_state.snap_visible_to(int_range);
-                    }
-
+                if let Some(state) = self.parameters_view.update(&id, value) {
                     match state.id {
                         ParameterId::LoopVolume => {
                             self.processor_handle.set_wet_volume(state.value);
@@ -105,25 +96,22 @@ impl BottomPanelView {
                         ParameterId::DryVolume => {
                             self.processor_handle.set_dry_volume(state.value);
                         }
-                        // ParameterId::PlaybackSpeed => {
-                        //     self.processor_handle.set_playback_speed(state.value);
-                        // }
                         ParameterId::SeqSlices => {
                             if let Some(params) = self.sequencer_handle.params() {
                                 if params.num_slices != state.value as usize {
-                                    self.flush_params();
+                                    self.on_loop_sequencer_params_changed();
                                 }
                             } else {
-                                self.flush_params();
+                                self.on_loop_sequencer_params_changed();
                             }
                         }
                         ParameterId::SeqSteps => {
                             if let Some(params) = self.sequencer_handle.params() {
                                 if params.sequence_length != state.value as usize {
-                                    self.flush_params();
+                                    self.on_loop_sequencer_params_changed();
                                 }
                             } else {
-                                self.flush_params();
+                                self.on_loop_sequencer_params_changed();
                             }
                         }
                     }
@@ -139,7 +127,7 @@ impl BottomPanelView {
             Message::StopPressed => {
                 self.processor_handle.toggle_playback();
             }
-            Message::SequencePressed => self.flush_params(),
+            Message::SequencePressed => self.on_loop_sequencer_params_changed(),
             Message::QuantizeModePressed => {
                 self.processor_handle.set_tempo(120);
                 let quantize_options = self.processor_handle.quantize_options();
@@ -149,42 +137,24 @@ impl BottomPanelView {
         Command::none()
     }
 
-    fn flush_params(&self) {
+    fn on_loop_sequencer_params_changed(&self) {
+        let seq_slices = self.parameters_view.get(&ParameterId::SeqSlices).unwrap();
+        let seq_steps = self.parameters_view.get(&ParameterId::SeqSteps).unwrap();
+
         self.sequencer_handle.set_params(LoopSequencerParams {
-            num_slices: self
-                .parameter_states
-                .iter()
-                .find(|param| param.id == ParameterId::SeqSlices)
-                .unwrap()
-                .value as usize,
-            sequence_length: self
-                .parameter_states
-                .iter()
-                .find(|param| param.id == ParameterId::SeqSteps)
-                .unwrap()
-                .value as usize,
+            num_slices: seq_slices.value as usize,
+            sequence_length: seq_steps.value as usize,
             num_samples: self.processor_handle.num_samples(),
         });
     }
 
     pub fn view(&mut self) -> Element<Message> {
-        let knobs = self
-            .parameter_states
-            .iter_mut()
-            .map(|parameter_view_model| parameter_view(parameter_view_model))
-            .collect();
         Container::new(Column::with_children(vec![Container::new(
             Row::with_children(vec![
                 Container::new(self.buttons_view.view()).center_y().into(),
-                Container::new(
-                    Row::with_children(knobs)
-                        .spacing(Spacing::base_spacing())
-                        .width(Length::Fill),
-                )
-                .center_x()
-                .center_y()
-                .width(Length::Fill)
-                .into(),
+                self.parameters_view
+                    .view()
+                    .map(|msg| Message::KnobChange(msg.id, msg.value)),
                 Container::new(
                     Button::new(
                         &mut self.sequence_button_state,
@@ -277,51 +247,6 @@ impl ButtonsView {
         ])
         .into()
     }
-}
-
-fn parameter_view(parameter_view_model: &mut ParameterViewModel) -> Element<Message> {
-    let range = parameter_view_model.range;
-    let parameter_id = parameter_view_model.id.clone();
-    let mapped_value = parameter_view_model.value;
-    let int_range = parameter_view_model.int_range.clone();
-
-    HoverContainer::new(
-        Column::with_children(vec![
-            Text::new(&parameter_view_model.name)
-                .size(Spacing::small_font_size())
-                .into(),
-            Knob::new(&mut parameter_view_model.knob_state, move |value| {
-                let value = if let Some(int_range) = int_range {
-                    int_range.snapped(value)
-                } else {
-                    value
-                };
-                let n_value = range.0 + value.as_f32() * (range.1 - range.0);
-                log::debug!(
-                    "id={:?} range={:?} value={} nvalue={}",
-                    parameter_id,
-                    range,
-                    value.as_f32(),
-                    n_value
-                );
-
-                Message::KnobChange(parameter_id, n_value)
-            })
-            .size(Length::Units(Spacing::base_control_size()))
-            .style(audio_knob::style::Knob)
-            .into(),
-            Text::new(format!(
-                "{:.2}{}",
-                mapped_value, parameter_view_model.suffix
-            ))
-            .size(Spacing::small_font_size())
-            .into(),
-        ])
-        .align_items(Alignment::Center)
-        .spacing(Spacing::small_spacing()),
-    )
-    .style(audio_style::HoverContainer)
-    .into()
 }
 
 fn quantize_mode_label(mode: looper_processor::QuantizeMode) -> String {

@@ -11,14 +11,13 @@ use file_io::AudioFileError;
 
 pub mod file_io;
 
-/// An audio processor which plays a file in loop
-pub struct AudioFileSettings {
+pub struct InMemoryAudioFile {
     audio_file: ProbeResult,
 }
 
-impl AudioFileSettings {
+impl InMemoryAudioFile {
     pub fn new(audio_file: ProbeResult) -> Self {
-        AudioFileSettings { audio_file }
+        InMemoryAudioFile { audio_file }
     }
 
     pub fn from_path(path: &str) -> Result<Self, AudioFileError> {
@@ -54,8 +53,9 @@ impl AudioFileProcessorHandle {
     }
 }
 
+/// An audio processor which plays a file in loop
 pub struct AudioFileProcessor {
-    audio_file_settings: AudioFileSettings,
+    audio_file_settings: InMemoryAudioFile,
     audio_settings: AudioProcessorSettings,
     buffer: Vec<Vec<f32>>,
     handle: Shared<AudioFileProcessorHandle>,
@@ -67,13 +67,13 @@ impl AudioFileProcessor {
         audio_settings: AudioProcessorSettings,
         path: &str,
     ) -> Result<Self, AudioFileError> {
-        let audio_file_settings = AudioFileSettings::new(file_io::default_read_audio_file(path)?);
+        let audio_file_settings = InMemoryAudioFile::new(file_io::default_read_audio_file(path)?);
         Ok(Self::new(handle, audio_file_settings, audio_settings))
     }
 
     pub fn new(
         gc_handle: &Handle,
-        audio_file_settings: AudioFileSettings,
+        audio_file_settings: InMemoryAudioFile,
         audio_settings: AudioProcessorSettings,
     ) -> Self {
         let handle = Shared::new(
@@ -221,14 +221,14 @@ mod test {
 
     use super::*;
 
-    fn setup() -> (GarbageCollector, AudioFileSettings) {
+    fn setup() -> (GarbageCollector, InMemoryAudioFile) {
         let garbage_collector = audio_garbage_collector::GarbageCollector::default();
         let path = format!(
             "{}{}",
             env!("CARGO_MANIFEST_DIR"),
             "/../../../../input-files/1sec-sine.mp3"
         );
-        let audio_file_settings = AudioFileSettings::from_path(&path).unwrap();
+        let audio_file_settings = InMemoryAudioFile::from_path(&path).unwrap();
         (garbage_collector, audio_file_settings)
     }
 
