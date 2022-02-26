@@ -1,31 +1,19 @@
 use std::cmp::Ordering;
 use std::time::Duration;
 
-use iced::canvas::event::Status;
-use iced::canvas::Cursor;
-use iced::canvas::Event;
-use iced::canvas::Fill;
-use iced::canvas::Frame;
-use iced::canvas::Geometry;
-use iced::canvas::Program;
-use iced::canvas::Stroke;
-use iced::keyboard::KeyCode;
-use iced::mouse;
-use iced::mouse::ScrollDelta;
-use iced::Canvas;
-use iced::Column;
-use iced::Container;
-use iced::Element;
-use iced::Length;
-use iced::Point;
-use iced::Rectangle;
-use iced::Text;
-use iced::{keyboard, Vector};
+use iced::{
+    canvas::event::Status, canvas::Cursor, canvas::Event, canvas::Fill, canvas::Frame,
+    canvas::Geometry, canvas::Program, canvas::Stroke, keyboard, keyboard::KeyCode, mouse,
+    mouse::ScrollDelta, Canvas, Column, Container, Element, Length, Point, Rectangle, Text, Vector,
+};
 
+use audio_chart::{draw_rms_chart, draw_samples_chart};
 use audio_processor_iced_design_system::colors::Colors;
-use audio_processor_traits::{AudioProcessor, InterleavedAudioBuffer, SimpleAudioProcessor};
+use audio_processor_traits::{AudioProcessor, SimpleAudioProcessor};
 
 use crate::ui::style::ContainerStyle;
+
+mod audio_chart;
 
 pub struct AudioFileModel {
     samples: Vec<f32>,
@@ -122,6 +110,39 @@ impl AudioEditorView {
             .height(Length::Fill)
             .into()
     }
+
+    fn on_scroll_zoom(&mut self, x: f32, y: f32) {
+        self.visualization_model.zoom_x += x;
+        self.visualization_model.zoom_x = self.visualization_model.zoom_x.min(100.0).max(1.0);
+        self.visualization_model.zoom_y += y;
+        self.visualization_model.zoom_y = self.visualization_model.zoom_y.min(2.0).max(1.0);
+    }
+
+    fn on_scroll(&mut self, bounds: Rectangle, x: f32) {
+        let size = bounds.size();
+        let width = size.width * self.visualization_model.zoom_x;
+        let offset = (self.visualization_model.offset + x)
+            .max(0.0)
+            .min(width - size.width);
+        self.visualization_model.offset = offset;
+    }
+
+    fn toggle_chart_mode(&mut self) {
+        self.visualization_model.chart_mode = match self.visualization_model.chart_mode {
+            ChartMode::RMS => ChartMode::Samples,
+            ChartMode::Samples => ChartMode::RMS,
+        };
+    }
+
+    fn increase_zoom(&mut self) {
+        self.visualization_model.zoom_x *= 10.0;
+        self.visualization_model.zoom_x = self.visualization_model.zoom_x.min(100.0).max(1.0);
+    }
+
+    fn decrease_zoom(&mut self) {
+        self.visualization_model.zoom_x /= 10.0;
+        self.visualization_model.zoom_x = self.visualization_model.zoom_x.min(100.0).max(1.0);
+    }
 }
 
 impl Program<Message> for AudioEditorView {
@@ -136,20 +157,10 @@ impl Program<Message> for AudioEditorView {
                 delta: ScrollDelta::Pixels { x, y },
             }) => {
                 if self.shift_down {
-                    self.visualization_model.zoom_x += x;
-                    self.visualization_model.zoom_x =
-                        self.visualization_model.zoom_x.min(100.0).max(1.0);
-                    self.visualization_model.zoom_y += y;
-                    self.visualization_model.zoom_y =
-                        self.visualization_model.zoom_y.min(2.0).max(1.0);
+                    self.on_scroll_zoom(x, y);
                     (Status::Captured, None)
                 } else {
-                    let size = bounds.size();
-                    let width = size.width * self.visualization_model.zoom_x;
-                    let offset = (self.visualization_model.offset + x)
-                        .max(0.0)
-                        .min(width - size.width);
-                    self.visualization_model.offset = offset;
+                    self.on_scroll(bounds, x);
                     (Status::Captured, None)
                 }
             }
@@ -162,11 +173,7 @@ impl Program<Message> for AudioEditorView {
                 modifiers,
             }) => {
                 if modifiers.command() {
-                    self.visualization_model.chart_mode = match self.visualization_model.chart_mode
-                    {
-                        ChartMode::RMS => ChartMode::Samples,
-                        ChartMode::Samples => ChartMode::RMS,
-                    };
+                    self.toggle_chart_mode();
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)
@@ -177,9 +184,7 @@ impl Program<Message> for AudioEditorView {
                 modifiers,
             }) => {
                 if modifiers.command() {
-                    self.visualization_model.zoom_x *= 10.0;
-                    self.visualization_model.zoom_x =
-                        self.visualization_model.zoom_x.min(100.0).max(1.0);
+                    self.increase_zoom();
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)
@@ -190,9 +195,7 @@ impl Program<Message> for AudioEditorView {
                 modifiers,
             }) => {
                 if modifiers.command() {
-                    self.visualization_model.zoom_x /= 10.0;
-                    self.visualization_model.zoom_x =
-                        self.visualization_model.zoom_x.min(100.0).max(1.0);
+                    self.decrease_zoom();
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)
@@ -237,107 +240,6 @@ impl Program<Message> for AudioEditorView {
         }
         vec![frame.into_geometry()]
     }
-}
-
-fn draw_samples_chart(
-    frame: &mut Frame,
-    width: f32,
-    height: f32,
-    offset: f32,
-    num_samples: f32,
-    samples_iterator: impl Iterator<Item = f32>,
-) {
-    let color = Colors::active_border_color();
-    let num_pixels = (width * 8.0).max(1000.0);
-    let step_size = ((num_samples / num_pixels) as usize).max(1);
-    let mut samples = samples_iterator.collect::<Vec<f32>>();
-
-    let mut path = iced::canvas::path::Builder::new();
-    for (index, item) in samples.iter().enumerate().step_by(step_size) {
-        let f_index = index as f32;
-        let x = (f_index / num_samples) * width;
-        let y = (*item as f32) * height / 2.0 + frame.height() / 2.0;
-
-        if x < offset {
-            continue;
-        }
-
-        if x > frame.width() + offset {
-            break;
-        }
-
-        if !x.is_finite() {
-            continue;
-        }
-
-        let point = Point::new(x, y);
-        path.line_to(point);
-    }
-    frame.stroke(&path.build(), Stroke::default().with_color(color));
-}
-
-fn draw_rms_chart<'a>(
-    frame: &mut Frame,
-    width: f32,
-    height: f32,
-    offset: f32,
-    num_samples: f32,
-    samples_iterator: impl Iterator<Item = f32>,
-) {
-    let color = Colors::active_border_color();
-    let num_pixels = (width * 2.0).max(1000.0);
-    let step_size = ((num_samples / num_pixels) as usize).max(1);
-    let mut samples = samples_iterator.collect::<Vec<f32>>();
-
-    let mut path = iced::canvas::path::Builder::new();
-    path.line_to(Point::new(0.0, frame.height() / 2.0));
-    for (index, item) in samples.iter().enumerate().step_by(step_size) {
-        let f_index = index as f32;
-        let x = (f_index / num_samples) * width;
-        let y = (*item as f32) * height + frame.height() / 2.0;
-
-        if x < offset {
-            continue;
-        }
-
-        if x > frame.width() + offset {
-            break;
-        }
-
-        if !x.is_finite() {
-            continue;
-        }
-
-        path.line_to(Point::new(x, y));
-    }
-    path.line_to(Point::new(frame.width(), frame.height() / 2.0));
-    path.line_to(Point::new(0.0, frame.height() / 2.0));
-    frame.fill(&path.build(), Fill::from(color));
-
-    let mut path = iced::canvas::path::Builder::new();
-    path.line_to(Point::new(0.0, frame.height() / 2.0));
-    for (index, item) in samples.iter().enumerate().step_by(step_size) {
-        let f_index = index as f32;
-        let x = (f_index / num_samples) * width;
-        let y = (-item as f32) * height + frame.height() / 2.0;
-
-        if x < offset {
-            continue;
-        }
-
-        if x > frame.width() + offset {
-            break;
-        }
-
-        if !x.is_finite() {
-            continue;
-        }
-
-        path.line_to(Point::new(x, y));
-    }
-    path.line_to(Point::new(frame.width(), frame.height() / 2.0));
-    path.line_to(Point::new(0.0, frame.height() / 2.0));
-    frame.fill(&path.build(), Fill::from(color));
 }
 
 pub mod story {
