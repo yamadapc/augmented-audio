@@ -10,9 +10,9 @@ use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
 use looper_processor::LoopSequencerParams;
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
-use parameter_view_model::{ParameterId, ParameterViewModel};
+use parameter_view::parameter_view_model::{ParameterId, ParameterViewModel};
 
-mod parameter_view_model;
+mod parameter_view;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -171,7 +171,10 @@ impl BottomPanelView {
         let knobs = self
             .parameter_states
             .iter_mut()
-            .map(|parameter_view_model| parameter_view(parameter_view_model))
+            .map(|parameter_view_model| {
+                parameter_view::view(parameter_view_model)
+                    .map(|msg| Message::KnobChange(msg.id, msg.value))
+            })
             .collect();
         Container::new(Column::with_children(vec![Container::new(
             Row::with_children(vec![
@@ -277,51 +280,6 @@ impl ButtonsView {
         ])
         .into()
     }
-}
-
-fn parameter_view(parameter_view_model: &mut ParameterViewModel) -> Element<Message> {
-    let range = parameter_view_model.range;
-    let parameter_id = parameter_view_model.id.clone();
-    let mapped_value = parameter_view_model.value;
-    let int_range = parameter_view_model.int_range.clone();
-
-    HoverContainer::new(
-        Column::with_children(vec![
-            Text::new(&parameter_view_model.name)
-                .size(Spacing::small_font_size())
-                .into(),
-            Knob::new(&mut parameter_view_model.knob_state, move |value| {
-                let value = if let Some(int_range) = int_range {
-                    int_range.snapped(value)
-                } else {
-                    value
-                };
-                let n_value = range.0 + value.as_f32() * (range.1 - range.0);
-                log::debug!(
-                    "id={:?} range={:?} value={} nvalue={}",
-                    parameter_id,
-                    range,
-                    value.as_f32(),
-                    n_value
-                );
-
-                Message::KnobChange(parameter_id, n_value)
-            })
-            .size(Length::Units(Spacing::base_control_size()))
-            .style(audio_knob::style::Knob)
-            .into(),
-            Text::new(format!(
-                "{:.2}{}",
-                mapped_value, parameter_view_model.suffix
-            ))
-            .size(Spacing::small_font_size())
-            .into(),
-        ])
-        .align_items(Alignment::Center)
-        .spacing(Spacing::small_spacing()),
-    )
-    .style(audio_style::HoverContainer)
-    .into()
 }
 
 fn quantize_mode_label(mode: looper_processor::QuantizeMode) -> String {
