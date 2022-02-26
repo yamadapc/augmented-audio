@@ -22,6 +22,7 @@ pub struct AudioFileMarker {
 }
 
 pub struct AudioFileModel {
+    #[allow(dead_code)]
     settings: AudioProcessorSettings,
     samples: Vec<f32>,
     rms: Vec<f32>,

@@ -13,6 +13,7 @@ mod power_change;
 #[cfg(any(test, feature = "visualization"))]
 pub mod visualization;
 
+#[derive(Debug, Clone)]
 pub struct IterativeTransientDetectionParams {
     /// Size of the FFT windows, defaults to 2048; at 44.1kHz each frame should be ~40ms
     pub fft_size: usize,

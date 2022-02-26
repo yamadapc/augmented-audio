@@ -61,6 +61,9 @@ where
     ) -> Option<&mut ParameterViewModel<ParameterId>> {
         if let Some(state) = self.get_mut(parameter_id) {
             state.value = value;
+            state.knob_state.set_normal(Normal::from(
+                (value - state.range.0) / (state.range.1 - state.range.0),
+            ));
             if let Some(int_range) = &state.int_range {
                 state.knob_state.snap_visible_to(int_range);
             }

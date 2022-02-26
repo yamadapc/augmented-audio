@@ -1,10 +1,12 @@
 use audio_processor_testing_helpers::relative_path;
-use iced::{Column, Command, Text};
+use iced::{Column, Command, Length, Text};
 
 use audio_processor_analysis::transient_detection::stft::{
     find_transients, IterativeTransientDetectionParams,
 };
 use audio_processor_file::AudioFileProcessor;
+use audio_processor_iced_design_system::spacing::Spacing;
+use audio_processor_iced_design_system::style::Container1;
 use audio_processor_iced_storybook::StoryView;
 use audio_processor_traits::{AudioProcessorSettings, InterleavedAudioBuffer};
 
@@ -49,6 +51,13 @@ fn build_parameters() -> MultiParameterView<ParameterId> {
             0.1,
             (0.0, 1.0),
         ),
+        ParameterViewModel::new(
+            ThresholdTimeSpreadFactor,
+            "Threshold time spread factor",
+            "",
+            2.0,
+            (0.0, 10.0),
+        ),
         ParameterViewModel::new(IterationCount, "Iteration count", "", 20.0, (1.0, 40.0))
             .snap_int(),
     ];
@@ -71,7 +80,7 @@ impl Default for Story {
         let settings = AudioProcessorSettings::default();
         log::info!("Reading audio file");
         let mut audio_file_buffer = get_example_file_buffer(settings);
-        let markers = build_markers(&mut audio_file_buffer);
+        let markers = build_markers(&mut audio_file_buffer, Default::default());
 
         log::info!("Building editor model");
         editor.markers = markers;
@@ -93,9 +102,12 @@ impl Default for Story {
     }
 }
 
-fn build_markers(mut audio_file_buffer: &mut Vec<f32>) -> Vec<AudioFileMarker> {
+fn build_markers(
+    mut audio_file_buffer: &mut Vec<f32>,
+    params: IterativeTransientDetectionParams,
+) -> Vec<AudioFileMarker> {
     let transients = find_transients(
-        Default::default(),
+        params,
         &mut InterleavedAudioBuffer::new(1, &mut audio_file_buffer),
     );
     let markers_from_transients = {
@@ -147,15 +159,20 @@ impl StoryView<StoryMessage> for Story {
                     match state.id {
                         ParameterId::FFTSize => {
                             self.params.fft_size = ((state.value / 1024.0).floor() * 1024.0)
-                                .min(state.range.0)
-                                .max(state.range.1)
-                                as usize
+                                .max(state.range.0)
+                                .min(state.range.1)
+                                as usize;
+                            self.parameters_view
+                                .update(&ParameterId::FFTSize, self.params.fft_size as f32);
                         }
                         ParameterId::IterationMagnitudeFactor => {
                             self.params.iteration_magnitude_factor = state.value;
                         }
                         ParameterId::IterationCount => {
                             self.params.iteration_count = state.value as usize;
+                        }
+                        ParameterId::ThresholdTimeSpreadFactor => {
+                            self.params.threshold_time_spread_factor = state.value;
                         }
                         _ => {}
                     }
@@ -176,8 +193,9 @@ impl StoryView<StoryMessage> for Story {
 
                 let mut audio_file = self.audio_file_buffer.clone();
                 self.is_loading = true;
+                let params = self.params.clone();
                 Command::perform(
-                    tokio::task::spawn_blocking(move || build_markers(&mut audio_file)),
+                    tokio::task::spawn_blocking(move || build_markers(&mut audio_file, params)),
                     |result| StoryMessage::SetMarkers(result.unwrap()),
                 )
             }
@@ -200,9 +218,15 @@ impl StoryView<StoryMessage> for Story {
                 "Ready"
             })
             .into(),
-            self.parameters_view
-                .view()
-                .map(|msg| StoryMessage::Knobs(msg)),
+            Container::new(
+                self.parameters_view
+                    .view()
+                    .map(|msg| StoryMessage::Knobs(msg)),
+            )
+            .padding(Spacing::base_spacing())
+            .style(Container1::default())
+            .width(Length::Fill)
+            .into(),
         ])
         .into()
     }
