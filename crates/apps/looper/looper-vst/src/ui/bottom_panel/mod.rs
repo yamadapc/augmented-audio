@@ -97,9 +97,6 @@ impl BottomPanelView {
                         ParameterId::DryVolume => {
                             self.processor_handle.set_dry_volume(state.value);
                         }
-                        // ParameterId::PlaybackSpeed => {
-                        //     self.processor_handle.set_playback_speed(state.value);
-                        // }
                         ParameterId::SeqSlices => {
                             if let Some(params) = self.sequencer_handle.params() {
                                 if params.num_slices != state.value as usize {
