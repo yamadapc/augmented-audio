@@ -9,20 +9,25 @@ use iced::{
 
 use audio_chart::{draw_rms_chart, draw_samples_chart};
 use audio_processor_iced_design_system::colors::Colors;
-use audio_processor_traits::{AudioProcessor, SimpleAudioProcessor};
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor};
 
 use crate::ui::style::ContainerStyle;
 
 mod audio_chart;
 pub mod story;
 
+pub struct AudioFileMarker {
+    pub position_samples: usize,
+}
+
 pub struct AudioFileModel {
+    settings: AudioProcessorSettings,
     samples: Vec<f32>,
     rms: Vec<f32>,
 }
 
 impl AudioFileModel {
-    fn from_buffer(samples: Vec<f32>) -> Self {
+    fn from_buffer(settings: AudioProcessorSettings, samples: Vec<f32>) -> Self {
         let max_sample = samples
             .iter()
             .cloned()
@@ -36,13 +41,14 @@ impl AudioFileModel {
             );
 
         let mut rms_samples = vec![];
-        rms_processor.prepare(Default::default());
+        rms_processor.prepare(settings);
         for sample in samples.iter() {
             rms_processor.s_process_frame(&mut [*sample]);
             rms_samples.push(rms_processor.handle().calculate_rms(0));
         }
 
         Self {
+            settings,
             samples,
             rms: rms_samples,
         }
@@ -95,6 +101,7 @@ pub enum Message {}
 pub struct AudioEditorView {
     audio_file_model: Option<AudioFileModel>,
     visualization_model: VisualizationModel,
+    markers: Vec<AudioFileMarker>,
     shift_down: bool,
 }
 
@@ -218,14 +225,19 @@ impl Program<Message> for AudioEditorView {
 
             match self.visualization_model.chart_mode {
                 ChartMode::Samples => {
+                    let num_samples = audio_file_model.samples_len() as f32;
+
                     draw_samples_chart(
                         &mut frame,
                         width,
                         height,
                         offset,
-                        audio_file_model.samples_len() as f32,
+                        num_samples,
                         audio_file_model.samples().cloned(),
                     );
+
+                    let markers = &self.markers;
+                    draw_markers(&mut frame, num_samples, width, markers);
                 }
                 ChartMode::RMS => {
                     draw_rms_chart(
@@ -239,6 +251,22 @@ impl Program<Message> for AudioEditorView {
                 }
             }
         }
+
         vec![frame.into_geometry()]
+    }
+}
+
+fn draw_markers(
+    mut frame: &mut Frame,
+    num_samples: f32,
+    total_width: f32,
+    markers: &Vec<AudioFileMarker>,
+) {
+    for marker in markers {
+        let mut path = iced::canvas::path::Builder::new();
+        let x = (marker.position_samples as f32 / num_samples) * total_width;
+        path.move_to(Point::new(x, 0.0));
+        path.line_to(Point::new(x, frame.height()));
+        frame.stroke(&path.build(), Stroke::default().with_color(Colors::error()));
     }
 }

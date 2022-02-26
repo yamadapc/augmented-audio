@@ -3,7 +3,7 @@ use iced::Command;
 
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_iced_storybook::StoryView;
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{AudioProcessorSettings, InterleavedAudioBuffer};
 
 use super::*;
 
@@ -20,9 +20,32 @@ impl Default for Story {
         let mut editor = AudioEditorView::default();
         let settings = AudioProcessorSettings::default();
         log::info!("Reading audio file");
-        let audio_file_buffer = get_example_file_buffer(settings);
+        let mut audio_file_buffer = get_example_file_buffer(settings);
+        let transients = audio_processor_analysis::transient_detection::stft::find_transients(
+            Default::default(),
+            &mut InterleavedAudioBuffer::new(1, &mut audio_file_buffer),
+        );
+        let markers_from_transients = {
+            let mut markers = vec![];
+            let mut inside_transient = false;
+            for (index, sample) in transients.iter().cloned().enumerate() {
+                if sample >= 0.2 && !inside_transient {
+                    inside_transient = true;
+                    markers.push(index);
+                } else if sample < 0.2 {
+                    inside_transient = false;
+                }
+            }
+            markers
+        };
+
         log::info!("Building editor model");
-        editor.audio_file_model = Some(AudioFileModel::from_buffer(audio_file_buffer));
+        editor.markers = markers_from_transients
+            .into_iter()
+            .map(|position_samples| AudioFileMarker { position_samples })
+            .collect();
+        editor.audio_file_model = Some(AudioFileModel::from_buffer(settings, audio_file_buffer));
+
         log::info!("Starting");
         Self { editor }
     }
