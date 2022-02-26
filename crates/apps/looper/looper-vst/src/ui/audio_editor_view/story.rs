@@ -38,6 +38,7 @@ pub enum ParameterId {
     FrequencyBinChangeThreshold,
     IterationMagnitudeFactor,
     IterationCount,
+    Gate,
 }
 
 fn build_parameters() -> MultiParameterView<ParameterId> {
@@ -58,6 +59,7 @@ fn build_parameters() -> MultiParameterView<ParameterId> {
             2.0,
             (0.0, 10.0),
         ),
+        ParameterViewModel::new(Gate, "Gate", "", 0.4, (0.0, 1.0)),
         ParameterViewModel::new(IterationCount, "Iteration count", "", 20.0, (1.0, 40.0))
             .snap_int(),
     ];
@@ -80,7 +82,7 @@ impl Default for Story {
         let settings = AudioProcessorSettings::default();
         log::info!("Reading audio file");
         let mut audio_file_buffer = get_example_file_buffer(settings);
-        let markers = build_markers(&mut audio_file_buffer, Default::default());
+        let markers = build_markers(&mut audio_file_buffer, Default::default(), 0.4);
 
         log::info!("Building editor model");
         editor.markers = markers;
@@ -105,19 +107,37 @@ impl Default for Story {
 fn build_markers(
     mut audio_file_buffer: &mut Vec<f32>,
     params: IterativeTransientDetectionParams,
+    gate: f32,
 ) -> Vec<AudioFileMarker> {
     let transients = find_transients(
         params,
         &mut InterleavedAudioBuffer::new(1, &mut audio_file_buffer),
     );
+    let mut peak_detector = audio_processor_analysis::peak_detector::PeakDetector::default();
+    let attack_mult = audio_processor_analysis::peak_detector::calculate_multiplier(
+        AudioProcessorSettings::default().sample_rate,
+        0.1,
+    );
+    let release_mult = audio_processor_analysis::peak_detector::calculate_multiplier(
+        AudioProcessorSettings::default().sample_rate,
+        15.0,
+    );
+    let transients: Vec<f32> = transients
+        .iter()
+        .map(|f| {
+            peak_detector.accept_frame(attack_mult, release_mult, &[*f]);
+            peak_detector.value()
+        })
+        .collect();
+
     let markers_from_transients = {
         let mut markers = vec![];
         let mut inside_transient = false;
         for (index, sample) in transients.iter().cloned().enumerate() {
-            if sample >= 0.4 && !inside_transient {
+            if sample >= gate && !inside_transient {
                 inside_transient = true;
                 markers.push(index);
-            } else if sample < 0.4 {
+            } else if sample < gate {
                 inside_transient = false;
             }
         }
@@ -194,8 +214,12 @@ impl StoryView<StoryMessage> for Story {
                 let mut audio_file = self.audio_file_buffer.clone();
                 self.is_loading = true;
                 let params = self.params.clone();
+
+                let gate_value = self.parameters_view.get(&ParameterId::Gate).unwrap().value;
                 Command::perform(
-                    tokio::task::spawn_blocking(move || build_markers(&mut audio_file, params)),
+                    tokio::task::spawn_blocking(move || {
+                        build_markers(&mut audio_file, params, gate_value)
+                    }),
                     |result| StoryMessage::SetMarkers(result.unwrap()),
                 )
             }
