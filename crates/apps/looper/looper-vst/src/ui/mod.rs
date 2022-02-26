@@ -2,7 +2,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 
 use iced::{Column, Container, Length, Text};
-use iced_baseview::renderer::Renderer;
+
 use iced_baseview::{executor, Subscription, WindowSubs};
 use iced_baseview::{Application, Command, Element};
 

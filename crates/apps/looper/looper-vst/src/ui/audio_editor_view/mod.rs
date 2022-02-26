@@ -2,9 +2,9 @@ use std::cmp::Ordering;
 use std::time::Duration;
 
 use iced::{
-    canvas::event::Status, canvas::Cursor, canvas::Event, canvas::Fill, canvas::Frame,
+    canvas::event::Status, canvas::Cursor, canvas::Event, canvas::Frame,
     canvas::Geometry, canvas::Program, canvas::Stroke, keyboard, keyboard::KeyCode, mouse,
-    mouse::ScrollDelta, Canvas, Column, Container, Element, Length, Point, Rectangle, Text, Vector,
+    mouse::ScrollDelta, Canvas, Container, Element, Length, Point, Rectangle, Vector,
 };
 
 use audio_chart::{draw_rms_chart, draw_samples_chart};
@@ -261,7 +261,7 @@ impl Program<Message> for AudioEditorView {
 }
 
 fn draw_markers(
-    mut frame: &mut Frame,
+    frame: &mut Frame,
     num_samples: f32,
     total_width: f32,
     markers: &Vec<AudioFileMarker>,
