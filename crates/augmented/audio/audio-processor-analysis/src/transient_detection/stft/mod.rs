@@ -1,6 +1,6 @@
 use rustfft::num_complex::Complex;
 
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor};
+use audio_processor_traits::{AudioBuffer, SimpleAudioProcessor};
 use dynamic_thresholds::{DynamicThresholds, DynamicThresholdsParams};
 use power_change::{PowerOfChangeFrames, PowerOfChangeParams};
 
@@ -9,7 +9,9 @@ use crate::fft_processor::{FftDirection, FftProcessor};
 mod dynamic_thresholds;
 mod frame_deltas;
 mod power_change;
-mod visualization;
+
+#[cfg(any(test, feature = "visualization"))]
+pub mod visualization;
 
 pub struct IterativeTransientDetectionParams {
     /// Size of the FFT windows, defaults to 2048; at 44.1kHz each frame should be ~40ms
@@ -332,7 +334,7 @@ mod test {
     use audio_processor_testing_helpers::relative_path;
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
-    use audio_processor_traits::{OwnedAudioBuffer, VecAudioBuffer};
+    use audio_processor_traits::{AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer};
 
     use super::*;
 
