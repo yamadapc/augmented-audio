@@ -1,7 +1,7 @@
 fn main() {
-    uniffi_build::generate_scaffolding("./src/augmented.udl").unwrap();
-
     let crate_dir = std::env::var("CARGO_MANIFEST_DIR").unwrap();
+
+    uniffi_build::generate_scaffolding(&format!("{}/src/augmented.udl", crate_dir)).unwrap();
 
     cbindgen::Builder::new()
         .with_crate(crate_dir.clone())
