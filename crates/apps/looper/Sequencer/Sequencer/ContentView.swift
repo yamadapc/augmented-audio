@@ -9,8 +9,9 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+        SequencerView()
+        .background(SequencerColors.black1)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
