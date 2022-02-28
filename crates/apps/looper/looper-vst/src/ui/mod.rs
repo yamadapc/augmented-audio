@@ -33,7 +33,7 @@ pub struct Flags {
 
 pub struct LooperApplication {
     processor_handle: Shared<LooperProcessorHandle>,
-    looper_visualization: LooperVisualizationView<LooperVisualizationDrawModelImpl>,
+    looper_visualizations: Vec<LooperVisualizationView<LooperVisualizationDrawModelImpl>>,
     knobs_view: bottom_panel::BottomPanelView,
     audio_file_manager: AudioFileManager,
     audio_editor_view: AudioEditorView,
@@ -66,12 +66,20 @@ impl Application for LooperApplication {
                 processor_handle: flags.processor_handle.clone(),
                 audio_file_manager: AudioFileManager::new(),
                 audio_editor_view: AudioEditorView::default(),
-                looper_visualization: LooperVisualizationView::new(
-                    LooperVisualizationDrawModelImpl::new(
+                looper_visualizations: vec![
+                    LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
                         flags.processor_handle.clone(),
                         flags.sequencer_handle.clone(),
-                    ),
-                ),
+                    )),
+                    LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
+                        flags.processor_handle.clone(),
+                        flags.sequencer_handle.clone(),
+                    )),
+                    LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
+                        flags.processor_handle.clone(),
+                        flags.sequencer_handle.clone(),
+                    )),
+                ],
                 knobs_view: bottom_panel::BottomPanelView::new(
                     flags.processor_handle,
                     flags.sequencer_handle,
@@ -106,17 +114,31 @@ impl Application for LooperApplication {
         let time_info = time_info_provider.get_time_info();
         let status_bar = status_bar(time_info);
 
-        let looper_visualization = Container::new(
-            Container::new(self.looper_visualization.view().map(|_| Message::None))
-                .width(Length::Fill)
-                .height(Length::Fill)
-                .style(Container0::default().border_width(1.)),
+        let looper_views = Column::with_children(
+            self.looper_visualizations
+                .iter_mut()
+                .map(|visualization| {
+                    let inner: Element<'_, Message> = visualization.view().map(|_| Message::None);
+
+                    Container::new(
+                        Container::new(inner)
+                            .width(Length::Fill)
+                            .height(Length::Fill)
+                            .style(Container0::default().border_width(1.)),
+                    )
+                    .padding(Spacing::base_spacing())
+                    .style(Container1::default())
+                    .width(Length::Fill)
+                    .height(Length::Fill)
+                    .into()
+                })
+                .collect(),
         )
-        .padding(Spacing::base_spacing())
-        .style(Container1::default())
-        .width(Length::Fill)
         .height(Length::Fill)
         .into();
+        let knobs = Container::new(self.knobs_view.view().map(Message::BottomPanel))
+            .height(Length::Units(100))
+            .into();
 
         Column::with_children(vec![
             self.tabs_view
@@ -125,8 +147,8 @@ impl Application for LooperApplication {
                         "Main",
                         Container::new(Column::with_children(vec![
                             status_bar,
-                            looper_visualization,
-                            self.knobs_view.view().map(Message::BottomPanel),
+                            looper_views,
+                            knobs,
                         ]))
                         .center_x()
                         .center_y()
@@ -154,9 +176,10 @@ impl LooperApplication {
         match message {
             Message::BottomPanel(message) => {
                 match &message {
-                    bottom_panel::Message::ClearPressed => {
-                        self.looper_visualization.clear_visualization()
-                    }
+                    bottom_panel::Message::ClearPressed => self
+                        .looper_visualizations
+                        .iter_mut()
+                        .for_each(|v| v.clear_visualization()),
                     _ => {}
                 }
 
@@ -166,7 +189,9 @@ impl LooperApplication {
                     .map(WrapperMessage::Inner)
             }
             Message::VisualizationTick => {
-                self.looper_visualization.tick_visualization();
+                self.looper_visualizations
+                    .iter_mut()
+                    .for_each(|v| v.tick_visualization());
                 Command::none()
             }
             Message::FileDropped(path) => {

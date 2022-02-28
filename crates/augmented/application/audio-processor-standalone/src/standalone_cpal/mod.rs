@@ -138,7 +138,6 @@ fn configure_input_device(
     let input_device = host.default_input_device().unwrap();
     log::info!("Using input: {}", input_device.name().unwrap());
     let supported_configs = input_device.supported_input_configs().unwrap();
-
     let mut supports_stereo = false;
     for config in supported_configs {
         log::info!("  INPUT Supported config: {:?}", config);
@@ -168,13 +167,18 @@ fn configure_output_device(
 ) -> (cpal::Device, StreamConfig) {
     let output_device = host.default_output_device().unwrap();
     log::info!("Using output: {}", output_device.name().unwrap());
-    let supported_configs = output_device.supported_input_configs().unwrap();
-    for config in supported_configs {
+    for config in output_device.supported_input_configs().unwrap() {
         log::info!("  OUTPUT Supported config: {:?}", config);
     }
     let output_config = output_device.default_output_config().unwrap();
     let mut output_config: StreamConfig = output_config.into();
-    output_config.channels = 2;
+    output_config.channels = output_device
+        .supported_input_configs()
+        .unwrap()
+        .map(|config| config.channels())
+        .max()
+        .unwrap_or(2)
+        .min(2);
     output_config.sample_rate = SampleRate(sample_rate as u32);
     output_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
     #[cfg(target_os = "ios")]

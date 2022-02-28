@@ -9,6 +9,7 @@ pub use time_info_provider::{TimeInfo, TimeInfoProvider, TimeInfoProviderImpl};
 
 mod loop_quantization;
 mod midi_map;
+mod multi_track_looper;
 mod processor;
 mod sequencer;
 mod time_info_provider;
