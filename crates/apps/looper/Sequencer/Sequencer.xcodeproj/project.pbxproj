@@ -16,6 +16,7 @@
 		CB1666C527CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666C427CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift */; };
 		CB1666D327CCAD2E000F9E21 /* SequencerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666D227CCAD2E000F9E21 /* SequencerView.swift */; };
 		CB1666D527CCB2CE000F9E21 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666D427CCB2CE000F9E21 /* Colors.swift */; };
+		CBAB7C9127CCC3D70016E8ED /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBAB7C9027CCC3D70016E8ED /* KnobView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +50,7 @@
 		CB1666D127CCAD18000F9E21 /* Sequencer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer.entitlements; sourceTree = "<group>"; };
 		CB1666D227CCAD2E000F9E21 /* SequencerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerView.swift; sourceTree = "<group>"; };
 		CB1666D427CCB2CE000F9E21 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		CBAB7C9027CCC3D70016E8ED /* KnobView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnobView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +106,7 @@
 				CB1666A927CCAD04000F9E21 /* ContentView.swift */,
 				CB1666D427CCB2CE000F9E21 /* Colors.swift */,
 				CB1666D227CCAD2E000F9E21 /* SequencerView.swift */,
+				CBAB7C9027CCC3D70016E8ED /* KnobView.swift */,
 				CB1666AB27CCAD07000F9E21 /* Assets.xcassets */,
 				CB1666AD27CCAD07000F9E21 /* Preview Content */,
 			);
@@ -266,6 +269,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CB1666D327CCAD2E000F9E21 /* SequencerView.swift in Sources */,
+				CBAB7C9127CCC3D70016E8ED /* KnobView.swift in Sources */,
 				CB1666D527CCB2CE000F9E21 /* Colors.swift in Sources */,
 				CB1666AA27CCAD04000F9E21 /* ContentView.swift in Sources */,
 				CB1666A827CCAD04000F9E21 /* SequencerApp.swift in Sources */,
