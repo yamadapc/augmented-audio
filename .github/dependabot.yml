@@ -17,7 +17,7 @@ updates:
     directory: "/crates/apps/plugin-host/plugin-host-gui2"
     schedule:
       interval: "daily"
-  - package-ecosystem: "npm"
-    directory: "/"
-    schedule:
-      interval: "daily"
+#   - package-ecosystem: "npm"
+#     directory: "/"
+#     schedule:
+#       interval: "daily"
