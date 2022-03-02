@@ -13,6 +13,9 @@ let BORDER_RADIUS: Double = 8
 struct SequencerView: View {
     @State
     var selectedTrack: Int = 1
+    @State
+    var selectedTab: String = "Source"
+
 
     var body: some View {
       let tracks = HStack {
@@ -20,13 +23,12 @@ struct SequencerView: View {
           Group {
             TrackButton(
               action: {
-                print("\(i) clicked")
                 selectedTrack = i
               },
               label: "\(i)",
               isSelected: selectedTrack == i
             )
-          }// .frame(maxWidth: .infinity)
+          }
         }
 
         TrackButton(
@@ -35,7 +37,7 @@ struct SequencerView: View {
           },
           label: "Master",
           isSelected: false
-        )
+        ).frame(maxWidth: .infinity)
       }
       .frame(maxWidth: .infinity, alignment: .bottomLeading)
       .padding(PADDING)
@@ -47,7 +49,8 @@ struct SequencerView: View {
 
         tracksPanelContentView
       }.frame(maxHeight: .infinity)
-        .background(SequencerColors.black1)
+        .foregroundColor(SequencerColors.white)
+        .background(SequencerColors.black)
 
       let tabs = [
         "Mix",
@@ -59,9 +62,10 @@ struct SequencerView: View {
       ]
       let tabsRow = HStack {
         ForEach(tabs, id: \.self) { tab in
+          let isSelected = tab == selectedTab
           Button(
             action: {
-              print("\(tab) clicked")
+              selectedTab = tab
             },
             label: {
               Text("\(tab)")
@@ -70,7 +74,10 @@ struct SequencerView: View {
                 .foregroundColor(SequencerColors.white)
                 .overlay(
                   RoundedRectangle(cornerRadius: BORDER_RADIUS)
-                    .stroke(SequencerColors.black3, lineWidth: 1.0)
+                    .stroke(
+                      isSelected ? SequencerColors.red : SequencerColors.black3,
+                      lineWidth: 1.0
+                    )
                 )
                 .background(
                   SequencerColors.black
