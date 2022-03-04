@@ -23,6 +23,7 @@ mod bottom_panel;
 mod common;
 mod file_drag_and_drop_handler;
 mod looper_visualization;
+mod sequencer;
 mod style;
 
 #[derive(Clone)]
@@ -35,6 +36,7 @@ pub struct LooperApplication {
     processor_handle: Shared<LooperProcessorHandle>,
     looper_visualizations: Vec<LooperVisualizationView>,
     knobs_view: bottom_panel::BottomPanelView,
+    sequencer_view: sequencer::SequencerView,
     audio_file_manager: AudioFileManager,
     audio_editor_view: AudioEditorView,
     tabs_view: tabs::State,
@@ -76,6 +78,7 @@ impl Application for LooperApplication {
                     flags.processor_handle,
                     flags.sequencer_handle,
                 ),
+                sequencer_view: sequencer::SequencerView::default(),
                 tabs_view: tabs::State::new(),
             },
             Command::none(),
@@ -132,6 +135,8 @@ impl Application for LooperApplication {
             .height(Length::Units(100))
             .into();
 
+        let sequencer_view = self.sequencer_view.view().map(|_| Message::None);
+
         Column::with_children(vec![
             self.tabs_view
                 .view(vec![
@@ -141,6 +146,7 @@ impl Application for LooperApplication {
                             status_bar,
                             looper_views,
                             knobs,
+                            sequencer_view,
                         ]))
                         .center_x()
                         .center_y()
