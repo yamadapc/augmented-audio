@@ -64,7 +64,7 @@ impl LooperVisualizationDrawModel for LooperVisualizationDrawModelImpl {
         let looper_clip = looper_clip.deref().borrow();
         looper_clip
             .frames()
-            .map(|frame| frame[0].get() + frame[1].get())
+            .map(|frame| frame.iter().map(|f| f.get()).sum())
             .collect()
     }
 }
