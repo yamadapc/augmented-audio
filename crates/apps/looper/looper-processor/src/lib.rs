@@ -1,3 +1,5 @@
+pub use atomic_refcell::AtomicRefCell;
+
 pub use processor::handle::LooperHandle as LooperProcessorHandle;
 pub use processor::handle::LooperOptions;
 pub use processor::handle::QuantizeMode;

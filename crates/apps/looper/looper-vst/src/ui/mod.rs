@@ -33,7 +33,7 @@ pub struct Flags {
 
 pub struct LooperApplication {
     processor_handle: Shared<LooperProcessorHandle>,
-    looper_visualizations: Vec<LooperVisualizationView<LooperVisualizationDrawModelImpl>>,
+    looper_visualizations: Vec<LooperVisualizationView>,
     knobs_view: bottom_panel::BottomPanelView,
     audio_file_manager: AudioFileManager,
     audio_editor_view: AudioEditorView,
