@@ -66,20 +66,12 @@ impl Application for LooperApplication {
                 processor_handle: flags.processor_handle.clone(),
                 audio_file_manager: AudioFileManager::new(),
                 audio_editor_view: AudioEditorView::default(),
-                looper_visualizations: vec![
-                    LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
+                looper_visualizations: vec![LooperVisualizationView::new(
+                    LooperVisualizationDrawModelImpl::new(
                         flags.processor_handle.clone(),
                         flags.sequencer_handle.clone(),
-                    )),
-                    LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
-                        flags.processor_handle.clone(),
-                        flags.sequencer_handle.clone(),
-                    )),
-                    LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
-                        flags.processor_handle.clone(),
-                        flags.sequencer_handle.clone(),
-                    )),
-                ],
+                    ),
+                )],
                 knobs_view: bottom_panel::BottomPanelView::new(
                     flags.processor_handle,
                     flags.sequencer_handle,
