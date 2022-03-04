@@ -22,14 +22,6 @@ impl LoopQuantizer {
         Self { mode }
     }
 
-    pub fn mode(&self) -> &LoopQuantizerMode {
-        &self.mode
-    }
-
-    pub fn set_mode(&mut self, mode: LoopQuantizerMode) {
-        self.mode = mode;
-    }
-
     pub fn quantize(&self, input: QuantizeInput) -> i32 {
         match &self.mode {
             LoopQuantizerMode::None => input.position_samples as i32,

@@ -1,7 +1,7 @@
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
-use crate::{LooperOptions, LooperProcessor, LooperProcessorHandle};
+use crate::{LooperProcessor, LooperProcessorHandle};
 
 pub struct LooperId(usize);
 

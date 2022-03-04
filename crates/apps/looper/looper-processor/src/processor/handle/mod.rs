@@ -312,6 +312,7 @@ impl LooperHandle {
         self.settings.set(make_shared(settings));
     }
 
+    #[cfg(test)]
     pub(crate) fn state(&self) -> LooperState {
         self.state.get()
     }
