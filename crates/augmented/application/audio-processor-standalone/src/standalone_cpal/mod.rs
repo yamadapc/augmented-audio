@@ -6,7 +6,7 @@ use cpal::{
 use ringbuf::{Consumer, Producer};
 
 use audio_processor_traits::{
-    AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer, MidiEventHandler,
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer, MidiEventHandler,
 };
 use midi::{flush_midi_events, initialize_midi_host, MidiContext, MidiHost};
 
@@ -72,10 +72,7 @@ pub fn standalone_start(
 
     let settings = AudioProcessorSettings::new(
         output_config.sample_rate.0 as f32,
-        input_tuple
-            .as_ref()
-            .map(|(_, input_config)| input_config.channels.into())
-            .unwrap_or(0),
+        output_config.channels.into(),
         output_config.channels.into(),
         buffer_size,
     );
@@ -83,7 +80,7 @@ pub fn standalone_start(
 
     let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
     let (mut producer, mut consumer) = buffer.split();
-    let input_stream = input_tuple.map(|(input_device, input_config)| {
+    let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
         input_device
             .build_input_stream(
                 &input_config,
@@ -98,7 +95,11 @@ pub fn standalone_start(
     });
 
     // Output callback section
-    let num_channels = output_config.channels.into();
+    let num_output_channels = output_config.channels.into();
+    let num_input_channels = input_tuple
+        .as_ref()
+        .map(|(_, input_config)| input_config.channels.into())
+        .unwrap_or(num_output_channels);
     let output_stream = output_device
         .build_output_stream(
             &output_config,
@@ -106,7 +107,8 @@ pub fn standalone_start(
                 output_stream_with_context(
                     midi_context.as_mut(),
                     &mut app,
-                    num_channels,
+                    num_input_channels,
+                    num_output_channels,
                     &mut consumer,
                     data,
                 );
@@ -197,21 +199,37 @@ fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
 fn output_stream_with_context<Processor: StandaloneProcessor>(
     midi_context: Option<&mut MidiContext>,
     processor: &mut Processor,
-    num_channels: usize,
+    // 1-2
+    num_input_channels: usize,
+    // 1-2
+    num_output_channels: usize,
     consumer: &mut Consumer<f32>,
     data: &mut [f32],
 ) {
-    for sample in data.iter_mut() {
-        if let Some(input_sample) = consumer.pop() {
-            *sample = input_sample;
+    let mut audio_buffer = InterleavedAudioBuffer::new(num_output_channels, data);
+
+    for frame in audio_buffer.frames_mut() {
+        if num_input_channels == num_output_channels {
+            for sample in frame {
+                if let Some(input_sample) = consumer.pop() {
+                    *sample = input_sample;
+                } else {
+                    break;
+                }
+            }
         } else {
-            break;
+            if let Some(input_sample) = consumer.pop() {
+                for sample in frame {
+                    *sample = input_sample
+                }
+            } else {
+                break;
+            }
         }
     }
 
     // Collect MIDI
     flush_midi_events(midi_context, processor);
 
-    let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
     processor.processor().process(&mut audio_buffer);
 }
