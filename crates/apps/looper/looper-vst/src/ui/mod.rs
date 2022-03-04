@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 use std::time::Duration;
 
-use iced::{Column, Container, Length, Text};
+use iced::{Column, Container, Element, Length, Text};
 use iced_baseview::{executor, Subscription, WindowSubs};
-use iced_baseview::{Application, Command, Element};
+use iced_baseview::{Application, Command};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
@@ -100,8 +100,12 @@ impl Application for LooperApplication {
         &self,
         _window_subs: &mut WindowSubs<Self::Message>,
     ) -> Subscription<Self::Message> {
-        Subscription::batch([iced::time::every(Duration::from_millis(64))
-            .map(|_| WrapperMessage::Inner(Message::VisualizationTick))])
+        Subscription::batch([
+            iced::time::every(Duration::from_millis(64))
+                .map(|_| WrapperMessage::Inner(Message::VisualizationTick)),
+            file_drag_and_drop_handler::drag_and_drop_subscription()
+                .map(|msg| WrapperMessage::Inner(msg)),
+        ])
     }
 
     fn view(&mut self) -> Element<'_, Self::Message> {
@@ -137,34 +141,32 @@ impl Application for LooperApplication {
 
         let sequencer_view = self.sequencer_view.view().map(|_| Message::None);
 
-        Column::with_children(vec![
-            self.tabs_view
-                .view(vec![
-                    tabs::Tab::new(
-                        "Main",
-                        Container::new(Column::with_children(vec![
-                            status_bar,
-                            looper_views,
-                            knobs,
-                            sequencer_view,
-                        ]))
-                        .center_x()
-                        .center_y()
-                        .style(ContainerStyle)
-                        .width(Length::Fill)
-                        .height(Length::Fill),
-                    ),
-                    tabs::Tab::new(
-                        "File Editor",
-                        self.audio_editor_view.view().map(|_msg| Message::None),
-                    ),
-                ])
-                .map(|msg| WrapperMessage::TabsView(msg))
-                .into(),
-            file_drag_and_drop_handler::FileDragAndDropHandler::new()
-                .view()
-                .map(WrapperMessage::Inner),
-        ])
+        let main_tab = tabs::Tab::new(
+            "Main",
+            Container::new(Column::with_children(vec![
+                status_bar,
+                looper_views,
+                knobs,
+                sequencer_view,
+            ]))
+            .center_x()
+            .center_y()
+            .style(ContainerStyle)
+            .width(Length::Fill)
+            .height(Length::Fill),
+        );
+
+        Column::with_children(vec![self
+            .tabs_view
+            .view(vec![
+                main_tab,
+                tabs::Tab::new(
+                    "File Editor",
+                    self.audio_editor_view.view().map(|_msg| Message::None),
+                ),
+            ])
+            .map(|msg| WrapperMessage::TabsView(msg))
+            .into()])
         .into()
     }
 }
