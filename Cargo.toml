@@ -4,6 +4,7 @@ members = [
     # Applications & Plug-ins
     "crates/apps/looper/looper-processor",
     "crates/apps/looper/looper-vst",
+    "crates/apps/looper/looper-udl",
     "crates/apps/plugin-host/plugin-host-cli",
     "crates/apps/plugin-host/plugin-host-gui2",
     "crates/apps/plugin-host/plugin-host-lib",
@@ -19,12 +20,12 @@ members = [
     # Demos & Experiments
     "crates/spikes/example-iced-audio-viz",
     "crates/spikes/example-iced-xcode-integration",
-
     # Augmented framework
     "crates/augmented/augmented",
     # Augmented components
     "crates/augmented/application/audio-processor-standalone",
     "crates/augmented/application/audio-processor-standalone-midi",
+    "crates/augmented/application/audio-processor-standalone-osc",
     "crates/augmented/audio/adsr-envelope",
     "crates/augmented/audio/audio-garbage-collector",
     "crates/augmented/audio/audio-garbage-collector-v2",
