@@ -3,10 +3,14 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use derive_builder::Builder;
 use mockall::automock;
 
-use audio_processor_standalone::standalone_vst::vst;
-use audio_processor_standalone::standalone_vst::vst::host::Host;
-use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
+#[cfg(not(target_os = "ios"))]
+pub use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
+#[cfg(not(target_os = "ios"))]
+use audio_processor_standalone::{standalone_vst::vst, standalone_vst::vst::host::Host};
 use augmented_playhead::{PlayHead, PlayHeadOptions};
+
+#[cfg(target_os = "ios")]
+pub type HostCallback = ();
 
 #[derive(Builder)]
 pub struct TimeInfo {
@@ -46,6 +50,12 @@ pub struct TimeInfoProviderImpl {
 }
 
 impl TimeInfoProvider for TimeInfoProviderImpl {
+    #[cfg(target_os = "ios")]
+    fn get_time_info(&self) -> TimeInfo {
+        self.playhead_timeinfo()
+    }
+
+    #[cfg(not(target_os = "ios"))]
     fn get_time_info(&self) -> TimeInfo {
         let host_time_info = self
             .host_callback
@@ -62,15 +72,7 @@ impl TimeInfoProvider for TimeInfoProviderImpl {
                 position_beats: Some(vst_time_info.ppq_pos),
             });
 
-        host_time_info.unwrap_or_else(|| TimeInfo {
-            tempo: self.playhead.options().tempo().map(|t| t as f64),
-            position_samples: self.playhead.position_samples() as f64,
-            position_beats: self
-                .playhead
-                .options()
-                .tempo()
-                .map(|_| self.playhead.position_beats()),
-        })
+        host_time_info.unwrap_or_else(|| self.playhead_timeinfo())
     }
 
     fn tick(&self) {
@@ -112,6 +114,18 @@ impl TimeInfoProviderImpl {
 
     pub fn set_sample_rate(&self, sample_rate: f32) {
         self.playhead.set_sample_rate(sample_rate);
+    }
+
+    fn playhead_timeinfo(&self) -> TimeInfo {
+        TimeInfo {
+            tempo: self.playhead.options().tempo().map(|t| t as f64),
+            position_samples: self.playhead.position_samples() as f64,
+            position_beats: self
+                .playhead
+                .options()
+                .tempo()
+                .map(|_| self.playhead.position_beats()),
+        }
     }
 }
 

@@ -1,8 +1,0 @@
-namespace looper {
-    void initialize_logger();
-};
-
-interface LooperEngine {
-    constructor();
-    void start();
-};

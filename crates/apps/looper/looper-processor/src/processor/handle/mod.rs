@@ -7,15 +7,16 @@ use basedrop::{Shared, SharedCell};
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
-use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::AtomicEnum;
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
 
-use crate::loop_quantization::{LoopQuantizer, QuantizeInput};
-use crate::time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
+use crate::{
+    loop_quantization::{LoopQuantizer, QuantizeInput},
+    time_info_provider::{HostCallback, TimeInfoProvider, TimeInfoProviderImpl},
+};
 
 mod quantize_mode;
 mod scratch_pad;

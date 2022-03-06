@@ -4117,13 +4117,17 @@ dependencies = [
 name = "looper-udl"
 version = "0.1.0"
 dependencies = [
- "cbindgen",
- "looper-processor",
- "uniffi 0.17.0",
- "uniffi_bindgen 0.17.0",
- "uniffi_build 0.17.0",
- "uniffi_macros 0.17.0",
- "wisual-logger",
+    "audio-garbage-collector",
+    "audio-processor-standalone",
+    "cbindgen",
+    "lazy_static 1.4.0",
+    "log",
+    "looper-processor",
+    "uniffi 0.17.0",
+    "uniffi_bindgen 0.17.0",
+    "uniffi_build 0.17.0",
+    "uniffi_macros 0.17.0",
+    "wisual-logger",
 ]
 
 [[package]]
