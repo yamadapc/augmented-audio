@@ -4114,23 +4114,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "looper-udl"
-version = "0.1.0"
-dependencies = [
-    "audio-garbage-collector",
-    "audio-processor-standalone",
-    "cbindgen",
-    "lazy_static 1.4.0",
-    "log",
-    "looper-processor",
-    "uniffi 0.17.0",
-    "uniffi_bindgen 0.17.0",
-    "uniffi_build 0.17.0",
-    "uniffi_macros 0.17.0",
-    "wisual-logger",
-]
-
-[[package]]
 name = "looper-vst"
 version = "0.1.0"
 dependencies = [
@@ -6202,10 +6185,10 @@ dependencies = [
  "metal",
  "objc",
  "plugin-host-lib",
- "uniffi 0.15.2",
- "uniffi_bindgen 0.15.2",
- "uniffi_build 0.15.2",
- "uniffi_macros 0.15.2",
+ "uniffi",
+ "uniffi_bindgen",
+ "uniffi_build",
+ "uniffi_macros",
  "wisual-logger",
 ]
 
@@ -7683,42 +7666,10 @@ dependencies = [
 ]
 
 [[package]]
-name = "uniffi"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c70e9d90cc703c4bfa842b5be1647c039578f00e3fd575f796d5acb90bae3fa"
-dependencies = [
- "anyhow",
- "bytes",
- "cargo_metadata",
- "lazy_static 1.4.0",
- "log",
- "paste",
- "static_assertions",
-]
-
-[[package]]
 name = "uniffi_bindgen"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc0b1d54aee6bf6ab8e13d322cd9438c559e768790d356ecb54cf73f587afadc"
-dependencies = [
- "anyhow",
- "askama",
- "cargo_metadata",
- "clap 2.34.0",
- "heck",
- "paste",
- "serde",
- "toml",
- "weedle",
-]
-
-[[package]]
-name = "uniffi_bindgen"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f70a820a6a598cd6026e097a1a1520e429fb846efe4719934f816f264d3ba96a"
 dependencies = [
  "anyhow",
  "askama",
@@ -7741,15 +7692,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "uniffi_build"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7b35d8e19c773c42176343a92ce8480443e5aa19f02deb75572acf7f8a51bbb"
-dependencies = [
- "anyhow",
-]
-
-[[package]]
 name = "uniffi_macros"
 version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7759,20 +7701,7 @@ dependencies = [
  "proc-macro2 1.0.32",
  "quote 1.0.9",
  "syn",
- "uniffi_build 0.15.2",
-]
-
-[[package]]
-name = "uniffi_macros"
-version = "0.17.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fb8e1cc005baa085499d4802f9ffe5137f8d251b1fc75045b0767372199b21d"
-dependencies = [
- "glob",
- "proc-macro2 1.0.32",
- "quote 1.0.9",
- "syn",
- "uniffi_build 0.17.0",
+ "uniffi_build",
 ]
 
 [[package]]
