@@ -10,7 +10,10 @@ use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::Container0;
 use audio_processor_iced_design_system::style::Container1;
 use audio_processor_iced_design_system::tabs;
-use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle, TimeInfoProvider};
+use looper_processor::{
+    LoopSequencerProcessorHandle, LooperId, LooperProcessorHandle, MultiTrackLooperHandle,
+    TimeInfoProvider,
+};
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
 
@@ -28,12 +31,11 @@ mod style;
 
 #[derive(Clone)]
 pub struct Flags {
-    pub processor_handle: Shared<LooperProcessorHandle>,
-    pub sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    pub processor_handle: Shared<MultiTrackLooperHandle>,
 }
 
 pub struct LooperApplication {
-    processor_handle: Shared<LooperProcessorHandle>,
+    processor_handle: Shared<MultiTrackLooperHandle>,
     looper_visualizations: Vec<LooperVisualizationView>,
     knobs_view: bottom_panel::BottomPanelView,
     sequencer_view: sequencer::SequencerView,
@@ -68,16 +70,21 @@ impl Application for LooperApplication {
                 processor_handle: flags.processor_handle.clone(),
                 audio_file_manager: AudioFileManager::new(),
                 audio_editor_view: AudioEditorView::default(),
-                looper_visualizations: vec![LooperVisualizationView::new(
-                    LooperVisualizationDrawModelImpl::new(
-                        flags.processor_handle.clone(),
-                        flags.sequencer_handle.clone(),
-                    ),
-                )],
-                knobs_view: bottom_panel::BottomPanelView::new(
-                    flags.processor_handle,
-                    flags.sequencer_handle,
-                ),
+                looper_visualizations: vec![{
+                    let voice = flags.processor_handle.inner_handle(LooperId(0)).unwrap();
+                    let looper = voice.looper().clone();
+                    let sequencer = voice.sequencer().clone();
+
+                    LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
+                        looper, sequencer,
+                    ))
+                }],
+                knobs_view: {
+                    let voice = flags.processor_handle.inner_handle(LooperId(0)).unwrap();
+                    let looper = voice.looper().clone();
+                    let sequencer = voice.sequencer().clone();
+                    bottom_panel::BottomPanelView::new(looper, sequencer)
+                },
                 sequencer_view: sequencer::SequencerView::default(),
                 tabs_view: tabs::State::new(),
             },

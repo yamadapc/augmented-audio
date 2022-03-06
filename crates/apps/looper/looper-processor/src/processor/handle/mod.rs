@@ -1,5 +1,5 @@
 use std::ops::Deref;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Duration;
 
 use atomic_refcell::AtomicRefCell;
@@ -33,6 +33,7 @@ pub enum LooperState {
     RecordingScheduled = 5,
 }
 
+#[derive(Clone)]
 pub struct LooperOptions {
     pub max_loop_length: Duration,
     pub host_callback: Option<HostCallback>,
@@ -63,7 +64,9 @@ pub struct LooperHandle {
     /// Where playback is within the looped clip buffer
     cursor: AtomicUsize,
     /// Provides time information
-    time_info_provider: TimeInfoProviderImpl,
+    time_info_provider: Shared<TimeInfoProviderImpl>,
+    pub(crate) tick_time: AtomicBool,
+
     options: LooperOptions,
 
     settings: SharedCell<AudioProcessorSettings>,
@@ -77,8 +80,7 @@ impl Default for LooperHandle {
 }
 
 impl LooperHandle {
-    pub fn from_options(options: LooperOptions) -> Self {
-        let time_info_provider = TimeInfoProviderImpl::new(options.host_callback);
+    pub fn new(options: LooperOptions, time_info_provider: Shared<TimeInfoProviderImpl>) -> Self {
         Self {
             dry_volume: AtomicF32::new(0.0),
             wet_volume: AtomicF32::new(1.0),
@@ -90,10 +92,16 @@ impl LooperHandle {
             looper_clip: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
             cursor: AtomicUsize::new(0),
             time_info_provider,
+            tick_time: AtomicBool::new(true),
             options,
             settings: make_shared_cell(Default::default()),
             quantize_options: QuantizeOptions::default(),
         }
+    }
+
+    pub fn from_options(options: LooperOptions) -> Self {
+        let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
+        Self::new(options, time_info_provider)
     }
 
     pub fn dry_volume(&self) -> f32 {
@@ -350,7 +358,9 @@ impl LooperHandle {
     pub(crate) fn after_process(&self) {
         let scratch_pad = self.scratch_pad.get();
         scratch_pad.after_process();
-        self.time_info_provider.tick();
+        if self.tick_time.load(Ordering::Relaxed) {
+            self.time_info_provider.tick();
+        }
 
         let state = self.state.get();
         if state == LooperState::RecordingScheduled {

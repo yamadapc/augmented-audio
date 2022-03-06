@@ -10,7 +10,7 @@ use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
 use audio_processor_traits::midi::vst::midi_slice_from_events;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 use iced_editor::IcedEditor;
-use looper_processor::{LooperOptions, LooperProcessor};
+use looper_processor::{LooperOptions, LooperProcessor, MultiTrackLooper};
 
 pub use crate::ui::LooperApplication;
 
@@ -21,7 +21,7 @@ pub static BUNDLE_IDENTIFIER: &str = "com.beijaflor.Loopi";
 
 pub struct LoopiPlugin {
     parameters: Arc<ParameterStore>,
-    processor: LooperProcessor,
+    processor: MultiTrackLooper,
     settings: AudioProcessorSettings,
 }
 
@@ -43,9 +43,12 @@ impl Plugin for LoopiPlugin {
     {
         audio_plugin_logger::init("loopi.log");
 
-        let processor = LooperProcessor::from_options(LooperOptions {
-            ..Default::default()
-        });
+        let processor = MultiTrackLooper::new(
+            LooperOptions {
+                ..Default::default()
+            },
+            3,
+        );
 
         LoopiPlugin {
             processor,
@@ -72,8 +75,8 @@ impl Plugin for LoopiPlugin {
     }
 
     fn process_events(&mut self, events: &Events) {
-        self.processor
-            .process_midi_events(midi_slice_from_events(events));
+        // self.processor
+        //     .process_midi_events(midi_slice_from_events(events));
     }
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
@@ -84,7 +87,6 @@ impl Plugin for LoopiPlugin {
         Some(Box::new(IcedEditor::<LooperApplication>::new_with(
             ui::Flags {
                 processor_handle: self.processor.handle().clone(),
-                sequencer_handle: self.processor.sequencer_handle().clone(),
             },
             (700, 300),
         )))
