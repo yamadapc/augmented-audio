@@ -1,8 +1,10 @@
 use std::sync::atomic::Ordering;
 
 use audio_garbage_collector::{make_shared, Shared};
+use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+    VecAudioBuffer,
 };
 
 use crate::{
@@ -49,7 +51,7 @@ impl MultiTrackLooperHandle {
 }
 
 pub struct MultiTrackLooper {
-    voices: Vec<LooperProcessor>,
+    graph: AudioProcessorGraph<VecAudioBuffer<f32>>,
     handle: Shared<MultiTrackLooperHandle>,
 }
 
@@ -78,7 +80,12 @@ impl MultiTrackLooper {
             time_info_provider,
         });
 
-        Self { voices, handle }
+        let mut graph = AudioProcessorGraph::default();
+        for voice in voices {
+            graph.add_node(Box::new(voice));
+        }
+
+        Self { graph, handle }
     }
 
     pub fn handle(&self) -> &Shared<MultiTrackLooperHandle> {
@@ -90,18 +97,14 @@ impl AudioProcessor for MultiTrackLooper {
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        for voice in &mut self.voices {
-            voice.prepare(settings);
-        }
+        self.graph.prepare(settings);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
         data: &mut BufferType,
     ) {
-        for voice in &mut self.voices {
-            voice.process(data);
-        }
+        self.graph.process(data);
     }
 }
 

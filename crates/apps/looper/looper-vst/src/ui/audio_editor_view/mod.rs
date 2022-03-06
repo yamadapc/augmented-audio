@@ -8,6 +8,7 @@ use iced::{
 };
 
 use audio_chart::{draw_rms_chart, draw_samples_chart};
+use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor};
 
@@ -36,14 +37,13 @@ impl AudioFileModel {
             .max_by(|f1, f2| f1.partial_cmp(f2).unwrap_or(Ordering::Equal))
             .unwrap_or(1.0);
         let samples: Vec<f32> = samples.iter().map(|f| f / max_sample).collect();
-        let mut rms_processor =
-            audio_processor_analysis::running_rms_processor::RunningRMSProcessor::new_with_duration(
-                audio_garbage_collector::handle(),
-                Duration::from_millis(30),
-            );
+        let mut rms_processor = RunningRMSProcessor::new_with_duration(
+            audio_garbage_collector::handle(),
+            Duration::from_millis(30),
+        );
 
         let mut rms_samples = vec![];
-        rms_processor.prepare(settings);
+        rms_processor.s_prepare(settings);
         for sample in samples.iter() {
             rms_processor.s_process_frame(&mut [*sample]);
             rms_samples.push(rms_processor.handle().calculate_rms(0));

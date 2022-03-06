@@ -3,6 +3,7 @@ use basedrop::Shared;
 use audio_garbage_collector::make_shared;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+    SimpleAudioProcessor,
 };
 use handle::LooperHandle;
 
@@ -72,6 +73,25 @@ impl AudioProcessor for LooperProcessor {
 
         if self.handle.is_playing_back() {
             self.sequencer.process(data);
+        }
+    }
+}
+
+impl SimpleAudioProcessor for LooperProcessor {
+    type SampleType = f32;
+
+    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+        self.prepare(settings);
+    }
+
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+        for (channel, sample) in frame.iter_mut().enumerate() {
+            *sample = self.handle.process(channel, *sample);
+        }
+        self.handle.after_process();
+
+        if self.handle.is_playing_back() {
+            self.sequencer.s_process_frame(frame);
         }
     }
 }
