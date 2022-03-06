@@ -65,22 +65,26 @@ impl Application for LooperApplication {
     type Flags = Flags;
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
+        let processor_handle = flags.processor_handle;
         (
             LooperApplication {
-                processor_handle: flags.processor_handle.clone(),
+                processor_handle: processor_handle.clone(),
                 audio_file_manager: AudioFileManager::new(),
                 audio_editor_view: AudioEditorView::default(),
-                looper_visualizations: vec![{
-                    let voice = flags.processor_handle.inner_handle(LooperId(0)).unwrap();
-                    let looper = voice.looper().clone();
-                    let sequencer = voice.sequencer().clone();
+                looper_visualizations: processor_handle
+                    .voices()
+                    .iter()
+                    .map(|voice| {
+                        let looper = voice.looper().clone();
+                        let sequencer = voice.sequencer().clone();
 
-                    LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
-                        looper, sequencer,
-                    ))
-                }],
+                        LooperVisualizationView::new(LooperVisualizationDrawModelImpl::new(
+                            looper, sequencer,
+                        ))
+                    })
+                    .collect(),
                 knobs_view: {
-                    let voice = flags.processor_handle.inner_handle(LooperId(0)).unwrap();
+                    let voice = processor_handle.get(LooperId(0)).unwrap();
                     let looper = voice.looper().clone();
                     let sequencer = voice.sequencer().clone();
                     bottom_panel::BottomPanelView::new(looper, sequencer)

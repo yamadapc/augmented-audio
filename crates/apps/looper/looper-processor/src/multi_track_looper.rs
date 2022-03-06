@@ -30,19 +30,23 @@ impl LooperVoice {
 }
 
 pub struct MultiTrackLooperHandle {
-    handles: Vec<LooperVoice>,
+    voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
 }
 
 impl MultiTrackLooperHandle {
     pub fn start_recording(&self, looper_id: LooperId) {
-        if let Some(handle) = self.handles.get(looper_id.0) {
+        if let Some(handle) = self.voices.get(looper_id.0) {
             handle.looper_handle.start_recording();
         }
     }
 
-    pub fn inner_handle(&self, looper_id: LooperId) -> Option<&LooperVoice> {
-        self.handles.get(looper_id.0)
+    pub fn voices(&self) -> &Vec<LooperVoice> {
+        &self.voices
+    }
+
+    pub fn get(&self, looper_id: LooperId) -> Option<&LooperVoice> {
+        self.voices.get(looper_id.0)
     }
 
     pub fn time_info_provider(&self) -> &Shared<TimeInfoProviderImpl> {
@@ -66,7 +70,7 @@ impl MultiTrackLooper {
             })
             .collect();
         let handle = make_shared(MultiTrackLooperHandle {
-            handles: voices
+            voices: voices
                 .iter()
                 .map(|voice| {
                     let looper_handle = voice.handle().clone();
@@ -81,8 +85,12 @@ impl MultiTrackLooper {
         });
 
         let mut graph = AudioProcessorGraph::default();
+        let input_node = graph.input();
+        let output_node = graph.output();
         for voice in voices {
-            graph.add_node(Box::new(voice));
+            let voice_idx = graph.add_node(Box::new(voice));
+            graph.add_connection(input_node, voice_idx);
+            graph.add_connection(voice_idx, output_node);
         }
 
         Self { graph, handle }
