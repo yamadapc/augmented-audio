@@ -7,6 +7,7 @@ use vst::plugin::Plugin;
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_standalone_midi::host::MidiMessageEntry;
 use audio_processor_standalone_midi::vst::MidiVSTConverter;
+use audio_processor_traits::simple_processor::BufferProcessor;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
@@ -39,7 +40,7 @@ pub struct TestHostProcessor {
     buffer_handler: CpalVstBufferHandler,
     maybe_audio_file_processor: Option<AudioFileProcessor>,
     volume_meter_processor: VolumeMeterProcessor,
-    running_rms_processor: RunningRMSProcessor,
+    running_rms_processor: BufferProcessor<RunningRMSProcessor>,
     midi_converter: MidiVSTConverter,
     mono_input: Option<usize>,
 }
@@ -73,10 +74,12 @@ impl TestHostProcessor {
         ProcessorHandleRegistry::current()
             .register("test-host-processor", host_processor_handle.clone());
 
-        let running_rms_processor =
-            RunningRMSProcessor::new_with_duration(handle, Duration::from_millis(300));
+        let running_rms_processor = BufferProcessor(RunningRMSProcessor::new_with_duration(
+            handle,
+            Duration::from_millis(300),
+        ));
         ProcessorHandleRegistry::current()
-            .register("rms-processor", running_rms_processor.handle().clone());
+            .register("rms-processor", running_rms_processor.0.handle().clone());
 
         let maybe_audio_file_processor = maybe_audio_file_settings.map(|audio_file_settings| {
             AudioFileProcessor::new(handle, audio_file_settings, audio_settings)
@@ -148,7 +151,7 @@ impl TestHostProcessor {
     }
 
     pub fn running_rms_processor_handle(&self) -> &Shared<RunningRMSProcessorHandle> {
-        self.running_rms_processor.handle()
+        self.running_rms_processor.0.handle()
     }
 
     pub fn set_volume(&self, volume: f32) {
