@@ -7,11 +7,13 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    var body: some View {
+public struct ContentView: View {
+    public init() {}
+
+    public var body: some View {
         SequencerView()
         .background(SequencerColors.black1)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
 }
 

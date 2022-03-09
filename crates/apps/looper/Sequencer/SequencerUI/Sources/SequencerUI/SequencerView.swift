@@ -6,15 +6,22 @@
 //
 
 import SwiftUI
+import OSCKit
 
 let PADDING: Double = 10
 let BORDER_RADIUS: Double = 8
+
+func makeOSCClient() -> OSCUdpClient {
+  return OSCUdpClient(host: "0.0.0.0", port: 1449)
+}
 
 struct SequencerView: View {
     @State
     var selectedTrack: Int = 1
     @State
     var selectedTab: String = "Source"
+
+    var oscClient = makeOSCClient()
 
 
     var body: some View {
@@ -45,6 +52,20 @@ struct SequencerView: View {
       let tracksPanel = HStack {
         let tracksPanelContentView = HStack {
           Text("Content")
+          KnobView(
+            onChanged: { value in
+              print(value)
+
+              do {
+                try oscClient.send(OSCMessage(
+                  with: "/volume",
+                  arguments: [Float(value)]
+                ))
+              } catch {
+
+              }
+            }
+          )
         }.frame(maxWidth: .infinity)
 
         tracksPanelContentView
@@ -85,6 +106,7 @@ struct SequencerView: View {
                 .cornerRadius(BORDER_RADIUS)
             }
           )
+          .buttonStyle(.plain)
         }
       }
         .padding(PADDING)
@@ -113,22 +135,43 @@ struct SequencerView: View {
                 .cornerRadius(BORDER_RADIUS)
             }
           )
+          .buttonStyle(.plain)
         }
       }
       .padding(PADDING)
       .background(SequencerColors.black0)
       .frame(maxWidth: .infinity)
 
-      let visualization = ZStack {
-        Rectangle()
-          .fill(SequencerColors.black1)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-        Rectangle()
-          .fill(SequencerColors.black)
-          .cornerRadius(BORDER_RADIUS)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          .padding(PADDING)
-      }.frame(maxHeight: 400)
+      let visualization = HStack {
+        VStack {
+          TrackButton(action: {
+            try? oscClient.send(OSCMessage(
+              with: "/looper/record"
+            ))
+          }, label: "Record", isSelected: false)
+          TrackButton(action: {
+            try? oscClient.send(OSCMessage(
+              with: "/looper/play"
+            ))
+          }, label: "Play", isSelected: false)
+          TrackButton(action: {
+            try? oscClient.send(OSCMessage(
+              with: "/looper/clear"
+            ))
+          }, label: "Clear", isSelected: false)
+        }
+        ZStack {
+          Rectangle()
+            .fill(SequencerColors.black1)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+          Rectangle()
+            .fill(SequencerColors.black)
+            .cornerRadius(BORDER_RADIUS)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+      }
+      .padding(PADDING)
+      .frame(maxHeight: 400)
 
       VStack(spacing: 0) {
         visualization
@@ -159,17 +202,18 @@ struct TrackButton: View {
         Text(label)
           .frame(width: 80.0, height: 80.0, alignment: .center)
           .contentShape(Rectangle())
-          .background(SequencerColors.black)
           .foregroundColor(SequencerColors.white)
-          .overlay(
+          .background(
             RoundedRectangle(cornerRadius: BORDER_RADIUS)
               .stroke(
                 isSelected ? SequencerColors.red : SequencerColors.black3,
                 lineWidth: 1.0
               )
+              .background(SequencerColors.black)
           )
           .cornerRadius(BORDER_RADIUS)
       }
     )
+    .buttonStyle(.plain)
   }
 }

@@ -7,16 +7,20 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CB0E1F0D27D3511B00460533 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB0E1F0C27D3511B00460533 /* AudioToolbox.framework */; };
 		CB1666A827CCAD04000F9E21 /* SequencerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666A727CCAD04000F9E21 /* SequencerApp.swift */; };
-		CB1666AA27CCAD04000F9E21 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666A927CCAD04000F9E21 /* ContentView.swift */; };
 		CB1666AC27CCAD07000F9E21 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB1666AB27CCAD07000F9E21 /* Assets.xcassets */; };
 		CB1666AF27CCAD07000F9E21 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB1666AE27CCAD07000F9E21 /* Preview Assets.xcassets */; };
 		CB1666B927CCAD07000F9E21 /* SequencerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666B827CCAD07000F9E21 /* SequencerTests.swift */; };
 		CB1666C327CCAD07000F9E21 /* SequencerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666C227CCAD07000F9E21 /* SequencerUITests.swift */; };
 		CB1666C527CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666C427CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift */; };
-		CB1666D327CCAD2E000F9E21 /* SequencerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666D227CCAD2E000F9E21 /* SequencerView.swift */; };
-		CB1666D527CCB2CE000F9E21 /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666D427CCB2CE000F9E21 /* Colors.swift */; };
-		CBAB7C9127CCC3D70016E8ED /* KnobView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBAB7C9027CCC3D70016E8ED /* KnobView.swift */; };
+		CB23AD9E27D2EDFD00C6289F /* OSCKit in Frameworks */ = {isa = PBXBuildFile; productRef = CB23AD9D27D2EDFD00C6289F /* OSCKit */; };
+		CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1727D8AE6600D7788E /* AppDelegate.swift */; };
+		CB801A1A27D8AE6600D7788E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1927D8AE6600D7788E /* ViewController.swift */; };
+		CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1B27D8AE6600D7788E /* Assets.xcassets */; };
+		CB801A1F27D8AE6600D7788E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1D27D8AE6600D7788E /* Main.storyboard */; };
+		CB801A4727D8B13F00D7788E /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CB801A4627D8B13F00D7788E /* SequencerUI */; };
+		CB801A4B27D8B24C00D7788E /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CB801A4A27D8B24C00D7788E /* SequencerUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -37,9 +41,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		CB0E1F0327D34B8A00460533 /* liblooperFFI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperFFI.a; path = "../rust-audio-software/crates/apps/looper/looper-udl/lib/macos/liblooperFFI.a"; sourceTree = "<group>"; };
+		CB0E1F0527D34BB900460533 /* liblooperFFI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperFFI.a; path = "../rust-audio-software/crates/apps/looper/looper-udl/lib/ios/liblooperFFI.a"; sourceTree = "<group>"; };
+		CB0E1F0A27D3511100460533 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
+		CB0E1F0C27D3511B00460533 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		CB1666A427CCAD04000F9E21 /* Sequencer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sequencer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB1666A727CCAD04000F9E21 /* SequencerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerApp.swift; sourceTree = "<group>"; };
-		CB1666A927CCAD04000F9E21 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CB1666AB27CCAD07000F9E21 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CB1666AE27CCAD07000F9E21 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		CB1666B427CCAD07000F9E21 /* SequencerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequencerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -48,9 +55,13 @@
 		CB1666C227CCAD07000F9E21 /* SequencerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerUITests.swift; sourceTree = "<group>"; };
 		CB1666C427CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		CB1666D127CCAD18000F9E21 /* Sequencer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer.entitlements; sourceTree = "<group>"; };
-		CB1666D227CCAD2E000F9E21 /* SequencerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerView.swift; sourceTree = "<group>"; };
-		CB1666D427CCB2CE000F9E21 /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
-		CBAB7C9027CCC3D70016E8ED /* KnobView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KnobView.swift; sourceTree = "<group>"; };
+		CB801A1527D8AE6600D7788E /* Sequencer Mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sequencer Mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		CB801A1B27D8AE6600D7788E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CB801A1E27D8AE6600D7788E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		CB801A2027D8AE6600D7788E /* Sequencer_Mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer_Mac.entitlements; sourceTree = "<group>"; };
+		CB801A4327D8B11C00D7788E /* SequencerUI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SequencerUI; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,6 +69,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB0E1F0D27D3511B00460533 /* AudioToolbox.framework in Frameworks */,
+				CB801A4727D8B13F00D7788E /* SequencerUI in Frameworks */,
+				CB23AD9E27D2EDFD00C6289F /* OSCKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,16 +89,27 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CB801A1227D8AE6600D7788E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB801A4B27D8B24C00D7788E /* SequencerUI in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		CB16669B27CCAD04000F9E21 = {
 			isa = PBXGroup;
 			children = (
+				CB801A4327D8B11C00D7788E /* SequencerUI */,
+				CB801A1627D8AE6600D7788E /* Sequencer Mac */,
 				CB1666A627CCAD04000F9E21 /* Sequencer */,
 				CB1666B727CCAD07000F9E21 /* SequencerTests */,
 				CB1666C127CCAD07000F9E21 /* SequencerUITests */,
 				CB1666A527CCAD04000F9E21 /* Products */,
+				CB23ADA227D33F4700C6289F /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -94,6 +119,7 @@
 				CB1666A427CCAD04000F9E21 /* Sequencer.app */,
 				CB1666B427CCAD07000F9E21 /* SequencerTests.xctest */,
 				CB1666BE27CCAD07000F9E21 /* SequencerUITests.xctest */,
+				CB801A1527D8AE6600D7788E /* Sequencer Mac.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -103,10 +129,6 @@
 			children = (
 				CB1666D127CCAD18000F9E21 /* Sequencer.entitlements */,
 				CB1666A727CCAD04000F9E21 /* SequencerApp.swift */,
-				CB1666A927CCAD04000F9E21 /* ContentView.swift */,
-				CB1666D427CCB2CE000F9E21 /* Colors.swift */,
-				CB1666D227CCAD2E000F9E21 /* SequencerView.swift */,
-				CBAB7C9027CCC3D70016E8ED /* KnobView.swift */,
 				CB1666AB27CCAD07000F9E21 /* Assets.xcassets */,
 				CB1666AD27CCAD07000F9E21 /* Preview Content */,
 			);
@@ -138,6 +160,29 @@
 			path = SequencerUITests;
 			sourceTree = "<group>";
 		};
+		CB23ADA227D33F4700C6289F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CB0E1F0C27D3511B00460533 /* AudioToolbox.framework */,
+				CB0E1F0A27D3511100460533 /* AudioUnit.framework */,
+				CB0E1F0327D34B8A00460533 /* liblooperFFI.a */,
+				CB0E1F0527D34BB900460533 /* liblooperFFI.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CB801A1627D8AE6600D7788E /* Sequencer Mac */ = {
+			isa = PBXGroup;
+			children = (
+				CB801A1727D8AE6600D7788E /* AppDelegate.swift */,
+				CB801A1927D8AE6600D7788E /* ViewController.swift */,
+				CB801A1B27D8AE6600D7788E /* Assets.xcassets */,
+				CB801A1D27D8AE6600D7788E /* Main.storyboard */,
+				CB801A2027D8AE6600D7788E /* Sequencer_Mac.entitlements */,
+			);
+			path = "Sequencer Mac";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -152,8 +197,13 @@
 			buildRules = (
 			);
 			dependencies = (
+				CB801A4527D8B13B00D7788E /* PBXTargetDependency */,
 			);
 			name = Sequencer;
+			packageProductDependencies = (
+				CB23AD9D27D2EDFD00C6289F /* OSCKit */,
+				CB801A4627D8B13F00D7788E /* SequencerUI */,
+			);
 			productName = Sequencer;
 			productReference = CB1666A427CCAD04000F9E21 /* Sequencer.app */;
 			productType = "com.apple.product-type.application";
@@ -194,6 +244,27 @@
 			productReference = CB1666BE27CCAD07000F9E21 /* SequencerUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		CB801A1427D8AE6600D7788E /* Sequencer Mac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB801A2327D8AE6600D7788E /* Build configuration list for PBXNativeTarget "Sequencer Mac" */;
+			buildPhases = (
+				CB801A1127D8AE6600D7788E /* Sources */,
+				CB801A1227D8AE6600D7788E /* Frameworks */,
+				CB801A1327D8AE6600D7788E /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CB801A4927D8B24800D7788E /* PBXTargetDependency */,
+			);
+			name = "Sequencer Mac";
+			packageProductDependencies = (
+				CB801A4A27D8B24C00D7788E /* SequencerUI */,
+			);
+			productName = "Sequencer Mac";
+			productReference = CB801A1527D8AE6600D7788E /* Sequencer Mac.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -215,6 +286,9 @@
 						CreatedOnToolsVersion = 13.2.1;
 						TestTargetID = CB1666A327CCAD04000F9E21;
 					};
+					CB801A1427D8AE6600D7788E = {
+						CreatedOnToolsVersion = 13.2.1;
+					};
 				};
 			};
 			buildConfigurationList = CB16669F27CCAD04000F9E21 /* Build configuration list for PBXProject "Sequencer" */;
@@ -226,6 +300,9 @@
 				Base,
 			);
 			mainGroup = CB16669B27CCAD04000F9E21;
+			packageReferences = (
+				CB23AD9C27D2EDFD00C6289F /* XCRemoteSwiftPackageReference "OSCKit" */,
+			);
 			productRefGroup = CB1666A527CCAD04000F9E21 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -233,6 +310,7 @@
 				CB1666A327CCAD04000F9E21 /* Sequencer */,
 				CB1666B327CCAD07000F9E21 /* SequencerTests */,
 				CB1666BD27CCAD07000F9E21 /* SequencerUITests */,
+				CB801A1427D8AE6600D7788E /* Sequencer Mac */,
 			);
 		};
 /* End PBXProject section */
@@ -261,6 +339,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CB801A1327D8AE6600D7788E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */,
+				CB801A1F27D8AE6600D7788E /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -268,10 +355,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB1666D327CCAD2E000F9E21 /* SequencerView.swift in Sources */,
-				CBAB7C9127CCC3D70016E8ED /* KnobView.swift in Sources */,
-				CB1666D527CCB2CE000F9E21 /* Colors.swift in Sources */,
-				CB1666AA27CCAD04000F9E21 /* ContentView.swift in Sources */,
 				CB1666A827CCAD04000F9E21 /* SequencerApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -293,6 +376,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CB801A1127D8AE6600D7788E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB801A1A27D8AE6600D7788E /* ViewController.swift in Sources */,
+				CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -306,7 +398,26 @@
 			target = CB1666A327CCAD04000F9E21 /* Sequencer */;
 			targetProxy = CB1666BF27CCAD07000F9E21 /* PBXContainerItemProxy */;
 		};
+		CB801A4527D8B13B00D7788E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = CB801A4427D8B13B00D7788E /* SequencerUI */;
+		};
+		CB801A4927D8B24800D7788E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = CB801A4827D8B24800D7788E /* SequencerUI */;
+		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		CB801A1D27D8AE6600D7788E /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CB801A1E27D8AE6600D7788E /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		CB1666C627CCAD07000F9E21 /* Debug */ = {
@@ -446,6 +557,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../rust-audio-software/crates/apps/looper/looper-udl/lib/ios";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -477,6 +589,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../rust-audio-software/crates/apps/looper/looper-udl/lib/ios";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -563,6 +676,64 @@
 			};
 			name = Release;
 		};
+		CB801A2127D8AE6600D7788E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Sequencer Mac/Sequencer_Mac.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q39U2SBP6Z;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer-Mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CB801A2227D8AE6600D7788E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = "Sequencer Mac/Sequencer_Mac.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q39U2SBP6Z;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer-Mac";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -602,7 +773,51 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		CB801A2327D8AE6600D7788E /* Build configuration list for PBXNativeTarget "Sequencer Mac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB801A2127D8AE6600D7788E /* Debug */,
+				CB801A2227D8AE6600D7788E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CB23AD9C27D2EDFD00C6289F /* XCRemoteSwiftPackageReference "OSCKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SammySmallman/OSCKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CB23AD9D27D2EDFD00C6289F /* OSCKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB23AD9C27D2EDFD00C6289F /* XCRemoteSwiftPackageReference "OSCKit" */;
+			productName = OSCKit;
+		};
+		CB801A4427D8B13B00D7788E /* SequencerUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SequencerUI;
+		};
+		CB801A4627D8B13F00D7788E /* SequencerUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SequencerUI;
+		};
+		CB801A4827D8B24800D7788E /* SequencerUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SequencerUI;
+		};
+		CB801A4A27D8B24C00D7788E /* SequencerUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SequencerUI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CB16669C27CCAD04000F9E21 /* Project object */;
 }
