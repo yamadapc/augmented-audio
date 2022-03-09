@@ -50,23 +50,34 @@ struct SequencerView: View {
       .padding(PADDING)
 
       let tracksPanel = HStack {
-        let tracksPanelContentView = HStack {
-          Text("Content")
-          KnobView(
-            onChanged: { value in
-              print(value)
+        let tracksPanelContentView = HStack(alignment: .top, spacing: 30) {
+          HStack(alignment: .center, spacing: 30) {
+            KnobView()
+            KnobView()
+            KnobView()
+            KnobView()
+            KnobView()
+            KnobView()
+            KnobView()
 
-              do {
-                try oscClient.send(OSCMessage(
-                  with: "/volume",
-                  arguments: [Float(value)]
-                ))
-              } catch {
+            KnobView(
+              onChanged: { value in
+                print(value)
 
+                do {
+                  try oscClient.send(OSCMessage(
+                    with: "/volume",
+                    arguments: [Float(value)]
+                  ))
+                } catch {
+
+                }
               }
-            }
-          )
-        }.frame(maxWidth: .infinity)
+            )
+          }
+        }
+        .padding(PADDING * 2)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
 
         tracksPanelContentView
       }.frame(maxHeight: .infinity)
@@ -173,9 +184,10 @@ struct SequencerView: View {
       .padding(PADDING)
       .frame(maxHeight: 400)
 
-      VStack(spacing: 0) {
+      VStack(alignment: .leading, spacing: 0) {
         visualization
         tabsRow
+        SceneSliderView().padding(PADDING)
         tracksPanel
         sequence
         tracks

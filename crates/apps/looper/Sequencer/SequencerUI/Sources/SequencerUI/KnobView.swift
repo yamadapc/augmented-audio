@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct KnobView: View {
-  var radius: Double = 50
-  var strokeWidth: Double = 10
+  var radius: Double = 30
+  var strokeWidth: Double = 5
   var onChanged: ((Double) -> Void)? = nil
 
   @State var value: Double = 1.0
@@ -22,9 +22,13 @@ struct KnobView: View {
       Text(String(format: "%.2f", value))
 
       ZStack {
+        Rectangle()
+          .fill(Color.red.opacity(0))
+          .position(x: radius + 5, y: radius - 5)
+          .frame(width: radius * 2 + 10, height: radius * 2 + 10)
         Circle()
           .fill(color)
-          .frame(width: 4, height: 4)
+          .frame(width: 1, height: 1)
           .position(x: radius, y: radius)
         Circle()
           .trim(from: 0.0, to: 0.75)
@@ -72,7 +76,8 @@ struct KnobView: View {
 
             self.value = newValue
             onChanged?(newValue)
-          })
+          }),
+          including: .all
         )
     }
   }
