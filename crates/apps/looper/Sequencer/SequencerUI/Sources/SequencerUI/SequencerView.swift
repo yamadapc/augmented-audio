@@ -52,9 +52,9 @@ struct SequencerView: View {
       let tracksPanel = HStack {
         let tracksPanelContentView = HStack(alignment: .top, spacing: 30) {
           HStack(alignment: .center, spacing: 30) {
-            KnobView()
-            KnobView().style(.center)
-            KnobView()
+            KnobView(label: "Normal")
+            KnobView(label: "Center").style(.center)
+            KnobView(label: "Other")
             KnobView().style(.center)
             KnobView()
             KnobView().style(.center)
@@ -122,72 +122,12 @@ struct SequencerView: View {
       .background(SequencerColors.black0)
       .frame(maxWidth: .infinity)
 
-      let sequence = HStack {
-        ForEach(0..<16) { i in
-          let isBeat = i % 4 == 0
-          Button(
-            action: {
-              print("\(i) clicked")
-            },
-            label: {
-              Text("")
-                .frame(maxWidth: .infinity, maxHeight: 50, alignment: .center)
-                .contentShape(Rectangle())
-                .foregroundColor(SequencerColors.white)
-                .overlay(
-                  RoundedRectangle(cornerRadius: BORDER_RADIUS)
-                    .stroke(SequencerColors.black3, lineWidth: 1.0)
-                )
-                .background(
-                  isBeat ? SequencerColors.black1 : SequencerColors.black
-                )
-                .cornerRadius(BORDER_RADIUS)
-            }
-          )
-          .buttonStyle(.plain)
-        }
-      }
-      .padding(PADDING)
-      .background(SequencerColors.black0)
-      .frame(maxWidth: .infinity)
-
-      let visualization = HStack {
-        VStack {
-          TrackButton(action: {
-            try? oscClient.send(OSCMessage(
-              with: "/looper/record"
-            ))
-          }, label: "Record", isSelected: false)
-          TrackButton(action: {
-            try? oscClient.send(OSCMessage(
-              with: "/looper/play"
-            ))
-          }, label: "Play", isSelected: false)
-          TrackButton(action: {
-            try? oscClient.send(OSCMessage(
-              with: "/looper/clear"
-            ))
-          }, label: "Clear", isSelected: false)
-        }
-        ZStack {
-          Rectangle()
-          .fill(SequencerColors.black1)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-          Rectangle()
-          .fill(SequencerColors.black)
-          .cornerRadius(BORDER_RADIUS)
-          .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-      }
-      .padding(PADDING)
-      .frame(maxHeight: 400)
-
       VStack(alignment: .leading, spacing: 0) {
-        visualization
+        VisualisationView(oscClient: oscClient)
         tabsRow
         SceneSliderView().padding(PADDING)
         tracksPanel
-        sequence
+        SequenceView()
         tracks
       }
     }

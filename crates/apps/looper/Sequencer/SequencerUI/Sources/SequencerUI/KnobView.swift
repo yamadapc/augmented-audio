@@ -13,6 +13,7 @@ enum KnobStyle {
 
 struct KnobView: View {
   var radius: Double = 30
+  var label: String = " "
   var strokeWidth: Double = 5
   var onChanged: ((Double) -> Void)? = nil
   var style: KnobStyle = .normal
@@ -22,6 +23,7 @@ struct KnobView: View {
   func style(_ style: KnobStyle) -> KnobView {
     KnobView(
       radius: self.radius,
+      label: self.label,
       strokeWidth: self.strokeWidth,
       onChanged: self.onChanged,
       style: self.style,
@@ -57,8 +59,10 @@ struct KnobView: View {
       .gesture(
         DragGesture(minimumDistance: 0.0)
           .onChanged({ value in self.onGestureChanged(value) }),
-          including: .all
-        )
+        including: .all
+      )
+
+      Text(label)
     }
   }
 
