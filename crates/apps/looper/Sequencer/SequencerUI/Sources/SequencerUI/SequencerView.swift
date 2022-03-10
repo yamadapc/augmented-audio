@@ -25,110 +25,23 @@ struct SequencerView: View {
 
 
     var body: some View {
-      let tracks = HStack {
-        ForEach(1..<11) { i in
-          Group {
-            TrackButton(
-              action: {
-                selectedTrack = i
-              },
-              label: "\(i)",
-              isSelected: selectedTrack == i
-            )
-          }
-        }
-
-        TrackButton(
-          action: {
-            print("")
-          },
-          label: "Master",
-          isSelected: false
-        ).frame(maxWidth: .infinity)
-      }
-      .frame(maxWidth: .infinity, alignment: .bottomLeading)
-      .padding(PADDING)
-
-      let tracksPanel = HStack {
-        let tracksPanelContentView = HStack(alignment: .top, spacing: 30) {
-          HStack(alignment: .center, spacing: 30) {
-            KnobView(label: "Normal")
-            KnobView(label: "Center").style(.center)
-            KnobView(label: "Other")
-            KnobView().style(.center)
-            KnobView()
-            KnobView().style(.center)
-            KnobView()
-
-            KnobView(
-              onChanged: { value in
-                print(value)
-
-                do {
-                  try oscClient.send(OSCMessage(
-                    with: "/volume",
-                    arguments: [Float(value)]
-                  ))
-                } catch {}
-              }
-            )
-          }
-        }
-        .padding(PADDING * 2)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-        tracksPanelContentView
-      }.frame(maxHeight: .infinity)
-        .foregroundColor(SequencerColors.white)
-        .background(SequencerColors.black)
-
-      let tabs = [
-        "Mix",
-        "Source",
-        "Slice",
-        "Envelope",
-        "FX",
-        "LFOs",
-      ]
-      let tabsRow = HStack {
-        ForEach(tabs, id: \.self) { tab in
-          let isSelected = tab == selectedTab
-          Button(
-            action: {
-              selectedTab = tab
-            },
-            label: {
-              Text("\(tab)")
-                .frame(maxWidth: .infinity, maxHeight: 50, alignment: .center)
-                .contentShape(Rectangle())
-                .foregroundColor(SequencerColors.white)
-                .overlay(
-                  RoundedRectangle(cornerRadius: BORDER_RADIUS)
-                    .stroke(
-                      isSelected ? SequencerColors.red : SequencerColors.black3,
-                      lineWidth: 1.0
-                    )
-                )
-                .background(
-                  SequencerColors.black
-                )
-                .cornerRadius(BORDER_RADIUS)
-            }
-          )
-          .buttonStyle(.plain)
-        }
-      }
-      .padding(PADDING)
-      .background(SequencerColors.black0)
-      .frame(maxWidth: .infinity)
-
       VStack(alignment: .leading, spacing: 0) {
         VisualisationView(oscClient: oscClient)
-        tabsRow
+        TabsRowView(
+          selectedTab: selectedTab,
+          onSelectTab: { tab in
+            selectedTab = tab
+          }
+        )
         SceneSliderView().padding(PADDING)
-        tracksPanel
+        TracksPanelContentView(oscClient: oscClient)
         SequenceView()
-        tracks
+        TracksView(
+            selectedTrack: selectedTrack,
+            onClickTrack: { i in
+              selectedTrack = i
+            }
+        )
       }
     }
 
