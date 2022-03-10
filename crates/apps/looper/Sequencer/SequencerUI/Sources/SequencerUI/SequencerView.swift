@@ -53,11 +53,11 @@ struct SequencerView: View {
         let tracksPanelContentView = HStack(alignment: .top, spacing: 30) {
           HStack(alignment: .center, spacing: 30) {
             KnobView()
+            KnobView().style(.center)
             KnobView()
+            KnobView().style(.center)
             KnobView()
-            KnobView()
-            KnobView()
-            KnobView()
+            KnobView().style(.center)
             KnobView()
 
             KnobView(
@@ -69,9 +69,7 @@ struct SequencerView: View {
                     with: "/volume",
                     arguments: [Float(value)]
                   ))
-                } catch {
-
-                }
+                } catch {}
               }
             )
           }
@@ -120,9 +118,9 @@ struct SequencerView: View {
           .buttonStyle(.plain)
         }
       }
-        .padding(PADDING)
-        .background(SequencerColors.black0)
-        .frame(maxWidth: .infinity)
+      .padding(PADDING)
+      .background(SequencerColors.black0)
+      .frame(maxWidth: .infinity)
 
       let sequence = HStack {
         ForEach(0..<16) { i in
@@ -173,12 +171,12 @@ struct SequencerView: View {
         }
         ZStack {
           Rectangle()
-            .fill(SequencerColors.black1)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .fill(SequencerColors.black1)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
           Rectangle()
-            .fill(SequencerColors.black)
-            .cornerRadius(BORDER_RADIUS)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+          .fill(SequencerColors.black)
+          .cornerRadius(BORDER_RADIUS)
+          .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
       }
       .padding(PADDING)
@@ -217,11 +215,11 @@ struct TrackButton: View {
           .foregroundColor(SequencerColors.white)
           .background(
             RoundedRectangle(cornerRadius: BORDER_RADIUS)
-              .stroke(
-                isSelected ? SequencerColors.red : SequencerColors.black3,
-                lineWidth: 1.0
-              )
-              .background(SequencerColors.black)
+            .stroke(
+              isSelected ? SequencerColors.red : SequencerColors.black3,
+              lineWidth: 1.0
+            )
+            .background(SequencerColors.black)
           )
           .cornerRadius(BORDER_RADIUS)
       }
