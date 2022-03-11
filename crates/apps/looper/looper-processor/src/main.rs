@@ -17,21 +17,27 @@ fn setup_osc_server(handle: Shared<LooperProcessorHandle>) {
     osc_map.add(
         "/looper/record",
         Box::new(|handle, _msg| {
+            log::info!("Toggle recording");
             handle.toggle_recording();
         }),
     );
+
     osc_map.add(
         "/looper/play",
         Box::new(|handle, _msg| {
+            log::info!("Toggle playback");
             handle.toggle_playback();
         }),
     );
+
     osc_map.add(
         "/looper/clear",
         Box::new(|handle, _msg| {
+            log::info!("Clear");
             handle.clear();
         }),
     );
+
     let osc_server = OscServer::new(handle, osc_map);
     let _ = std::thread::spawn(move || {
         osc_server.start();

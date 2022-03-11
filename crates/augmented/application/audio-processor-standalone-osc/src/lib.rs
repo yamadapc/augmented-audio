@@ -43,11 +43,11 @@ impl<C> OscServer<C> {
     }
 
     pub fn build_service(&self) -> impl TMdnsService {
-        let mut service = MdnsService::new(ServiceType::new("osclistener", "udp").unwrap(), 1449);
+        let mut service = MdnsService::new(ServiceType::new("looper", "udp").unwrap(), 1449);
         let hostname = hostname::get().unwrap();
         let hostname = hostname.to_str().unwrap();
         // service.set_host(hostname);
-        log::info!("Publishing host to {}", hostname);
+        // log::info!("Publishing host to {}", hostname);
 
         service
     }
@@ -65,7 +65,7 @@ impl<C> OscServer<C> {
         loop {
             match sock.recv_from(&mut buf) {
                 Ok((size, addr)) => {
-                    log::debug!("Received packet with size {} from: {}", size, addr);
+                    log::info!("Received packet with size {} from: {}", size, addr);
                     if let Ok(packet) = rosc::decoder::decode(&buf[..size]) {
                         self.handle_packet(packet);
                     }
