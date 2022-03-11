@@ -94,8 +94,8 @@
             filePath = "SequencerUI/Sources/SequencerUI/ui/KnobView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "121"
-            endingLineNumber = "121"
+            startingLineNumber = "136"
+            endingLineNumber = "136"
             landmarkName = "onGestureChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>

@@ -72,16 +72,31 @@ struct KnobView: View {
               .frame(width: radius * 2, height: radius * 2)
           }
 
-          let startAngle = style == .normal ? 0.75 * .pi : 0.75 * .pi * 2
-          let thumbAngle = startAngle + value * realSweepAngle()
-          let centerCoordinate = radius + strokeWidth
+          let startAngle: Double = style == .normal ? 0.75 * .pi : 0.75 * .pi * 2
+          let thumbAngle: Double = startAngle + value * realSweepAngle()
+          let centerCoordinate: Double = radius + strokeWidth
+          let knobPosition = CGPoint(
+            x: centerCoordinate + radius * cos(thumbAngle),
+            y: centerCoordinate + radius * sin(thumbAngle)
+          )
+
+          Path { builder in
+            let pathPosition = CGPoint(
+              x: centerCoordinate + (radius - strokeWidth * 1.5) * cos(thumbAngle),
+              y: centerCoordinate + (radius - strokeWidth * 1.5) * sin(thumbAngle)
+            )
+
+            builder.move(to: CGPoint(x: centerCoordinate, y: centerCoordinate))
+            builder.addLine(to: pathPosition)
+          }.stroke(SequencerColors.white.opacity(0.7), lineWidth: strokeWidth / 2)
+
           Circle()
             .fill(SequencerColors.white)
             .frame(width: strokeWidth * 2, height: strokeWidth * 2)
             .shadow(radius: 3)
             .position(
-              x: centerCoordinate + (radius) * cos(thumbAngle),
-              y: centerCoordinate + (radius) * sin(thumbAngle)
+              x: knobPosition.x,
+              y: knobPosition.y
             )
         }
       }
