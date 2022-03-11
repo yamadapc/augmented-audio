@@ -6,9 +6,55 @@
 //
 
 import SwiftUI
+import AVFAudio
 
 enum KnobStyle {
   case normal, center
+}
+
+struct TrackBackgroundView: View {
+  var trackColor: Color
+  var strokeWidth: Double
+  var radius: Double
+
+  var body: some View {
+    Circle()
+      .trim(from: 0.0, to: 0.75)
+      .rotation(Angle(radians: (1.5 * 0.25) * .pi * 2.0))
+      .stroke(trackColor, lineWidth: strokeWidth)
+      .frame(width: radius * 2, height: radius * 2)
+  }
+}
+
+struct TrackSliderView: View {
+  var style: KnobStyle
+  var value: Double
+  var strokeWidth: Double
+  var radius: Double
+  var color: Color
+
+  var body: some View {
+    switch self.style {
+    case .normal:
+      Circle()
+        .trim(from: 0.0, to: 0.75 * value)
+        .rotation(Angle(radians: (1.5 * 0.25) * .pi * 2.0))
+        .stroke(color, lineWidth: strokeWidth)
+        .frame(width: radius * 2, height: radius * 2)
+    case .center:
+      let start = 0.0
+      let end = 0.375 * fabs(value)
+      let realSweepAngle = 0.75 * .pi
+      let rotation = value >= 0
+        ? 0.75 * .pi * 2.0 // if the value is positive, we're rotated up to 12 o'clock
+        : 0.75 * .pi * 2.0 + realSweepAngle * value // if the value is negative we're rotated backwards
+      Circle()
+        .trim(from: start, to: end)
+        .rotation(Angle(radians: rotation))
+        .stroke(color, lineWidth: strokeWidth)
+        .frame(width: radius * 2, height: radius * 2)
+    }
+  }
 }
 
 struct KnobView: View {
@@ -45,59 +91,16 @@ struct KnobView: View {
           .frame(width: radius * 2 + 10, height: radius * 2 + 10)
 
         ZStack {
-          Circle()
-            .trim(from: 0.0, to: 0.75)
-            .rotation(Angle(radians: (1.5 * 0.25) * .pi * 2.0))
-            .stroke(trackColor, lineWidth: strokeWidth)
-            .frame(width: radius * 2, height: radius * 2)
-
-          switch self.style {
-          case .normal:
-            Circle()
-              .trim(from: 0.0, to: 0.75 * value)
-              .rotation(Angle(radians: (1.5 * 0.25) * .pi * 2.0))
-              .stroke(color, lineWidth: strokeWidth)
-              .frame(width: radius * 2, height: radius * 2)
-          case .center:
-            let start = 0.0
-            let end = 0.375 * fabs(value)
-            let realSweepAngle = 0.75 * .pi
-            let rotation = value >= 0
-            ? 0.75 * .pi * 2.0 // if the value is positive, we're rotated up to 12 o'clock
-            : 0.75 * .pi * 2.0 + realSweepAngle * value // if the value is negative we're rotated backwards
-            Circle()
-              .trim(from: start, to: end)
-              .rotation(Angle(radians: rotation))
-              .stroke(color, lineWidth: strokeWidth)
-              .frame(width: radius * 2, height: radius * 2)
-          }
-
-          let startAngle: Double = style == .normal ? 0.75 * .pi : 0.75 * .pi * 2
-          let thumbAngle: Double = startAngle + value * realSweepAngle()
-          let centerCoordinate: Double = radius + strokeWidth
-          let knobPosition = CGPoint(
-            x: centerCoordinate + radius * cos(thumbAngle),
-            y: centerCoordinate + radius * sin(thumbAngle)
+          TrackBackgroundView(trackColor: trackColor, strokeWidth: strokeWidth, radius: radius)
+          TrackSliderView(
+            style: style,
+            value: value,
+            strokeWidth: strokeWidth,
+            radius: radius,
+            color: color
           )
 
-          Path { builder in
-            let pathPosition = CGPoint(
-              x: centerCoordinate + (radius - strokeWidth * 1.5) * cos(thumbAngle),
-              y: centerCoordinate + (radius - strokeWidth * 1.5) * sin(thumbAngle)
-            )
-
-            builder.move(to: CGPoint(x: centerCoordinate, y: centerCoordinate))
-            builder.addLine(to: pathPosition)
-          }.stroke(SequencerColors.white.opacity(0.7), lineWidth: strokeWidth / 2)
-
-          Circle()
-            .fill(SequencerColors.white)
-            .frame(width: strokeWidth * 2, height: strokeWidth * 2)
-            .shadow(radius: 3)
-            .position(
-              x: knobPosition.x,
-              y: knobPosition.y
-            )
+          renderThumbAndPointer()
         }
       }
       .frame(width: radius * 2, height: radius * 2)
@@ -111,13 +114,45 @@ struct KnobView: View {
     }
   }
 
+  fileprivate func renderThumbAndPointer() -> some View {
+    let startAngle: Double = style == .normal ? 0.75 * .pi : 0.75 * .pi * 2
+    let thumbAngle: Double = startAngle + value * realSweepAngle()
+    let centerCoordinate: Double = radius + strokeWidth
+    let knobPosition = CGPoint(
+      x: centerCoordinate + radius * cos(thumbAngle),
+      y: centerCoordinate + radius * sin(thumbAngle)
+    )
+
+    return ZStack {
+      Path { builder in
+        let pathPosition = CGPoint(
+          x: centerCoordinate + (radius - strokeWidth * 1.5) * cos(thumbAngle),
+          y: centerCoordinate + (radius - strokeWidth * 1.5) * sin(thumbAngle)
+        )
+
+        builder.move(to: CGPoint(x: centerCoordinate, y: centerCoordinate))
+        builder.addLine(to: pathPosition)
+      }.stroke(SequencerColors.white.opacity(0.7), lineWidth: strokeWidth / 2)
+
+      Circle()
+        .fill(SequencerColors.white)
+        .frame(width: strokeWidth * 2, height: strokeWidth * 2)
+        .shadow(radius: 3)
+        .position(
+          x: knobPosition.x,
+          y: knobPosition.y
+        )
+    }
+  }
+
+  /// Actual rotation in radians between 0 and 1 for this style
   func realSweepAngle() -> Double {
     return self.style == .normal
       ? 1.5 * .pi
       : 0.75 * .pi
   }
 
-  // The value is calculated as if this was .normal style and then converted
+  /// The value is calculated as if this was .normal style and then converted
   func onGestureChanged(_ value: DragGesture.Value) {
     let location = value.location
     let centerX = radius
