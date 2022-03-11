@@ -9,27 +9,28 @@ import SwiftUI
 import OSCKit
 
 struct VisualisationView: View {
-  var oscClient: OSCUdpClient
+  @EnvironmentObject var store: Store
 
   var body: some View {
     HStack {
       VStack {
-        TrackButton(action: {
-          try? oscClient.send(OSCMessage(
-            with: "/looper/record"
-          ))
-        }, label: "Record", isSelected: false)
-        TrackButton(action: {
-          try? oscClient.send(OSCMessage(
-            with: "/looper/play"
-          ))
-        }, label: "Play", isSelected: false)
-        TrackButton(action: {
-          try? oscClient.send(OSCMessage(
-            with: "/looper/clear"
-          ))
-        }, label: "Clear", isSelected: false)
+        TrackButton(
+          action: { store.onClickRecord() },
+          label: "Record",
+          isSelected: false
+        )
+        TrackButton(
+          action: { store.onClickPlay() },
+          label: "Play",
+          isSelected: false
+        )
+        TrackButton(
+          action: { store.onClickClear() },
+          label: "Clear",
+          isSelected: false
+        )
       }
+    
       ZStack {
         Rectangle()
           .fill(SequencerColors.black1)
@@ -38,6 +39,9 @@ struct VisualisationView: View {
           .fill(SequencerColors.black)
           .cornerRadius(BORDER_RADIUS)
           .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+        VisualisationContentView()
+          .foregroundColor(SequencerColors.white)
       }
     }
     .padding(PADDING)
@@ -47,6 +51,6 @@ struct VisualisationView: View {
 
 struct VisualisationView_Previews: PreviewProvider {
   static var previews: some View {
-    VisualisationView(oscClient: makeOSCClient())
+    VisualisationView().environmentObject(Store())
   }
 }

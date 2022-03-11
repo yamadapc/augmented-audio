@@ -9,7 +9,7 @@ import SwiftUI
 import OSCKit
 
 struct TracksPanelContentView: View {
-  var oscClient: OSCUdpClient
+  @EnvironmentObject var store: Store
 
   var body: some View {
     HStack {
@@ -25,14 +25,7 @@ struct TracksPanelContentView: View {
 
           KnobView(
             onChanged: { value in
-              print(value)
-
-              do {
-                try oscClient.send(OSCMessage(
-                  with: "/volume",
-                  arguments: [Float(value)]
-                ))
-              } catch {}
+              store.setParameter(name: "volume", value: Float(value))
             }
           )
         }
@@ -48,6 +41,6 @@ struct TracksPanelContentView: View {
 
 struct TracksPanelContentView_Previews: PreviewProvider {
   static var previews: some View {
-    TracksPanelContentView(oscClient: makeOSCClient())
+    TracksPanelContentView().environmentObject(Store())
   }
 }

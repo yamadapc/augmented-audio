@@ -20,12 +20,12 @@
         }
       },
       {
-        "package": "OSCKit",
-        "repositoryURL": "https://github.com/SammySmallman/OSCKit",
+        "package": "swift-log",
+        "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
           "branch": null,
-          "revision": "f5982778ddfe573d82d9a1137dbfea17bb52989b",
-          "version": "3.1.0"
+          "revision": "5d66f7ba25daf4f94100e7022febf3c75e37a6c7",
+          "version": "1.4.2"
         }
       },
       {

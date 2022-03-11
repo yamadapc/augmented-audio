@@ -12,22 +12,15 @@ struct SequenceModel {
 }
 
 struct SequenceView: View {
-  @State var model = SequenceModel(activeSteps: Set())
+  @ObservedObject var track: TrackState
 
   var body: some View {
     HStack {
       ForEach(0..<16) { i in
-        let isActive = model.activeSteps.contains(i)
+        let isActive = track.steps.contains(i)
         let isBeat = i % 4 == 0
         Button(
-          action: {
-            print("\(i) clicked")
-            if model.activeSteps.contains(i) {
-              model.activeSteps.remove(i)
-            } else {
-              model.activeSteps.insert(i)
-            }
-          },
+          action: { track.onClickStep(i) },
           label: {
             Text("")
               .frame(maxWidth: .infinity, maxHeight: 50, alignment: .center)
@@ -56,6 +49,6 @@ struct SequenceView: View {
 
 struct SequenceView_Previews: PreviewProvider {
     static var previews: some View {
-        SequenceView()
+      SequenceView(track: TrackState(id: 1))
     }
 }

@@ -7,16 +7,33 @@
 
 import SwiftUI
 
+func renderTabValue(_ tab: TabValue) -> String {
+  switch (tab) {
+  case .mix:
+    return "Mix"
+  case .source:
+    return "Source"
+  case .slice:
+    return "Slice"
+  case .envelope:
+    return "Envelope"
+  case .fx:
+    return "FX"
+  case .lfos:
+    return "LFOs"
+  }
+}
+
 struct TabsRowView: View {
-  var selectedTab: String
-  var onSelectTab: (String) -> Void
-  var tabs = [
-    "Mix",
-    "Source",
-    "Slice",
-    "Envelope",
-    "FX",
-    "LFOs",
+  var selectedTab: TabValue
+  var onSelectTab: (TabValue) -> Void
+  var tabs: [TabValue] = [
+    .mix,
+    .source,
+    .slice,
+    .envelope,
+    .fx,
+    .lfos,
   ]
 
   var body: some View {
@@ -28,7 +45,7 @@ struct TabsRowView: View {
             onSelectTab(tab)
           },
           label: {
-            Text("\(tab)")
+            Text("\(renderTabValue(tab))")
               .frame(maxWidth: .infinity, maxHeight: 50, alignment: .center)
               .contentShape(Rectangle())
               .foregroundColor(SequencerColors.white)
@@ -56,6 +73,6 @@ struct TabsRowView: View {
 
 struct SwiftUIView_Previews: PreviewProvider {
   static var previews: some View {
-    TabsRowView(selectedTab: "Source", onSelectTab: { _ in })
+    TabsRowView(selectedTab: .source, onSelectTab: { _ in })
   }
 }

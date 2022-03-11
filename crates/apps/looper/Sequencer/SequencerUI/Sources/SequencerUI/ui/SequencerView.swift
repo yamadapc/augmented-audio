@@ -6,41 +6,29 @@
 //
 
 import SwiftUI
-import OSCKit
 
 let PADDING: Double = 10
 let BORDER_RADIUS: Double = 8
 
-func makeOSCClient() -> OSCUdpClient {
-  return OSCUdpClient(host: "0.0.0.0", port: 1449)
-}
-
 struct SequencerView: View {
-    @State
-    var selectedTrack: Int = 1
-    @State
-    var selectedTab: String = "Source"
-
-    var oscClient = makeOSCClient()
+    @EnvironmentObject var store: Store
 
 
     var body: some View {
       VStack(alignment: .leading, spacing: 0) {
-        VisualisationView(oscClient: oscClient)
+        VisualisationView()
         TabsRowView(
-          selectedTab: selectedTab,
+          selectedTab: store.selectedTab,
           onSelectTab: { tab in
-            selectedTab = tab
+            store.onSelectTab(tab)
           }
         )
         SceneSliderView().padding(PADDING)
-        TracksPanelContentView(oscClient: oscClient)
-        SequenceView()
+        TracksPanelContentView()
+        SequenceView(track: store.currentTrackState())
         TracksView(
-            selectedTrack: selectedTrack,
-            onClickTrack: { i in
-              selectedTrack = i
-            }
+          selectedTrack: store.selectedTrack,
+            onClickTrack: { i in store.onClickTrack(i) }
         )
       }
     }
