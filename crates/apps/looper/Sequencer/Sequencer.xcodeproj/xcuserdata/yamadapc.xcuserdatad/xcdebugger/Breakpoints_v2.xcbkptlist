@@ -87,16 +87,16 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "72937479-94A9-41EF-BE1C-1F1595BDDDB2"
+            uuid = "DD7DDB09-C924-48A3-9AD0-198E2E84CA73"
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "SequencerUI/Sources/SequencerUI/store/OSCClient.swift"
+            filePath = "SequencerUI/Sources/SequencerUI/ui/KnobView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "209"
-            endingLineNumber = "209"
-            landmarkName = "netServiceDidResolveAddress(_:)"
+            startingLineNumber = "121"
+            endingLineNumber = "121"
+            landmarkName = "onGestureChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

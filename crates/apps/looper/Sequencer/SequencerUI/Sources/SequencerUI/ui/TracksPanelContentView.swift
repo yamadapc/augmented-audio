@@ -16,7 +16,7 @@ struct TracksPanelContentView: View {
       let tracksPanelContentView = HStack(alignment: .top, spacing: 30) {
         HStack(alignment: .center, spacing: 30) {
           KnobView(label: "Normal")
-          KnobView(label: "Center").style(.center)
+          KnobView(label: "Center", value: 0.1).style(.center)
           KnobView(label: "Other")
           KnobView().style(.center)
           KnobView()
