@@ -9,11 +9,18 @@ import Foundation
 import OSCKit
 import Logging
 import Network
+import Combine
 
-func makeOSCClient() -> OSCUdpClient {
-  return OSCUdpClient(host: "0.0.0.0", port: 1449)
+protocol OSCSender {
+  func send(_ message: OSCMessage) throws
 }
 
+/// Wraps OSC and service discovery. Will automatically connect to services published as `_looper._udp` on the local network.
+/// If initial service browsing fails (due to lack of permissions for example), tries again every 5s.
+///
+/// Will connect to OSC clients and keep connections open until they're removed from the network or if there's a failure.
+///
+/// Broadcasts OSC messages onto each connection.
 class OSCClient: NSObject {
   let logger = Logger(label: "com.beijaflor.sequencerui.store.OSCClient")
 
@@ -21,6 +28,7 @@ class OSCClient: NSObject {
     for: .bonjour(type: "_looper._udp", domain: nil),
     using: .udp
   )
+
   var connections: [NWEndpoint:OSCUdpClient] = [:]
   var services: [NetService:NWEndpoint] = [:]
 
@@ -28,14 +36,29 @@ class OSCClient: NSObject {
     super.init()
     start()
   }
+}
 
-  func start() {
+extension OSCClient: OSCSender {
+  func send(_ message: OSCMessage) throws {
+    for connectionPair in self.connections {
+      let (endpoint, connection) = connectionPair
+      logger.debug("Sending osc message to peer", metadata: [
+        "endpoint": .string(endpoint.debugDescription)
+      ])
+      try connection.send(message)
+    }
+  }
+}
+
+// MARK: Service discovery
+extension OSCClient {
+  private func start() {
     browser.browseResultsChangedHandler = self.onBrowseResultsChanged
     browser.stateUpdateHandler = self.onStateUpdateHandler
     browser.start(queue: DispatchQueue.global(qos: .background))
   }
 
-  func onStateUpdateHandler(_ state: NWBrowser.State) {
+  private func onStateUpdateHandler(_ state: NWBrowser.State) {
     switch state {
     case .setup:
       break
@@ -55,7 +78,7 @@ class OSCClient: NSObject {
     }
   }
 
-  func scheduleRetry() {
+  private func scheduleRetry() {
     DispatchQueue.global(qos: .background)
       .schedule(after: .init(.now().advanced(by: DispatchTimeInterval.seconds(3))), {
         self.browser = NWBrowser(
@@ -66,9 +89,8 @@ class OSCClient: NSObject {
       })
   }
 
-  func onBrowseResultsChanged(_ results: Set<NWBrowser.Result>, _ changes: Set<NWBrowser.Result.Change>) {
+  private func onBrowseResultsChanged(_ results: Set<NWBrowser.Result>, _ changes: Set<NWBrowser.Result.Change>) {
     self.logger.info("Browse results changed")
-
     for change in changes {
       switch change {
       case .added(let result):
@@ -78,27 +100,24 @@ class OSCClient: NSObject {
           "metadata": .string(result.metadata.debugDescription)
         ])
         self.addConnection(to: endpoint)
-      case .removed(_):
-        continue
-      case .changed(old: let old, new: let new, flags: let flags):
+      case .removed(let result):
+        let endpoint = result.endpoint
+        self.logger.info("Peer removed", metadata: [
+          "endpoint": .string(String(describing: endpoint)),
+          "metadata": .string(result.metadata.debugDescription)
+        ])
+        self.connections.removeValue(forKey: endpoint)
         continue
       default:
         continue
       }
     }
   }
+}
 
-  func send(_ message: OSCMessage) throws {
-    for connectionPair in self.connections {
-      let (endpoint, connection) = connectionPair
-      logger.info("Sending osc message to peer", metadata: [
-        "endpoint": .string(endpoint.debugDescription)
-      ])
-      try connection.send(message)
-    }
-  }
-
-  func addConnection(to endpoint: NWEndpoint) {
+// MARK: Endpoint resolution & connection
+extension OSCClient {
+  private func addConnection(to endpoint: NWEndpoint) {
     logger.info("Going to connect to endpoint", metadata: [
       "endpoint": .string(endpoint.debugDescription)
     ])
@@ -111,68 +130,48 @@ class OSCClient: NSObject {
       ])
 
       DispatchQueue.main.async {
-        let service = NetService(domain: domain, type: type, name: name)
-        service.delegate = self
-        service.resolve(withTimeout: 1)
+        let service = NetService(
+          domain: domain,
+          type: type,
+          name: name
+        )
         self.services[service] = endpoint
+        service.delegate = self
+        service.resolve(withTimeout: 3)
       }
-      return
     }
+  }
 
-    let connection = NWConnection(to: endpoint, using: .udp)
-    connection.stateUpdateHandler = { state in
-      switch state {
-      case .ready:
-        self.logger.info("Got endpoint", metadata: [
-          "innerEndpoint": .string(connection.currentPath?.remoteEndpoint.debugDescription ?? "")
+  func connectToService(_ endpoint: NWEndpoint, _ service: NetService) {
+    logger.info("Built NetService", metadata: [
+      "hostName": .string(service.hostName ?? "<unknown>"),
+      "port": .string(service.port.description),
+      "addresses": .string(service.addresses?.description ?? "<unknown>"),
+    ])
+
+    if let address = service.addresses?.first {
+      do {
+        let resolvedAddress = try resolveAddress(address)
+
+        logger.info("Resolved IP for endpoint", metadata: [
+          "endpoint": .string(endpoint.debugDescription),
+          "resolvedAddress": .string(resolvedAddress)
         ])
 
-        if let innerEndpoint = connection.currentPath?.remoteEndpoint,
-           case .hostPort(let host, let port) = innerEndpoint
-        {
-          var url: String? = nil
-          switch(host) {
-          case .name(_, _):
-            break
-          case .ipv4(let ip):
-            url = ip.debugDescription
-            break
-          case .ipv6(let ip):
-            let ipStr = ip.debugDescription
-            let trimIndex = ipStr.firstIndex(of: "%")!.utf16Offset(in: ipStr) - 1
-            let trimStrIndex = String.Index(utf16Offset: trimIndex, in: ipStr)
-            url = "[\(ipStr[ipStr.startIndex...trimStrIndex])]"
-            break
-          default:
-            break
-          }
-
-          if url == nil {
-            self.logger.error("Failed to resolve address")
-            return
-          }
-
-          self.logger.info("Connecting to peer", metadata: [
-            "host": .string(url ?? ""),
-            "port": .string(port.rawValue.description),
-          ])
-          let client = OSCUdpClient(
-            // interface: //innerEndpoint.interface?.name,
-            host: "192.168.1.113",
-            port: 1449, // port.rawValue,
-            delegate: self
-          )
-          self.connections[endpoint] = client
-        }
-      default:
-        break
+        self.connections[endpoint] = OSCUdpClient(
+          host: resolvedAddress,
+          port: 1449
+        )
+      } catch {
+        logger.error("Failed to resolve address", metadata: [
+          "endpoint": .string(endpoint.debugDescription),
+          "hostName": .string(service.hostName ?? "<unknown>"),
+          "error": .string(error.localizedDescription)
+        ])
       }
     }
-    connection.start(queue: .global(qos: .background))
   }
-}
 
-extension OSCClient {
   /// Resolve address for Data
   func resolveAddress(_ address: Data) throws -> String  {
     var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
@@ -197,39 +196,15 @@ extension OSCClient {
   }
 }
 
+// MARK: Endpoint resolution - NetServiceDelegate
 extension OSCClient: NetServiceDelegate {
   func netServiceDidResolveAddress(_ sender: NetService) {
     defer {
       self.services.removeValue(forKey: sender)
     }
 
-    logger.info("Resolved address", metadata: [
-      "hostName": .string(sender.hostName ?? "<unknown>"),
-      "port": .string(sender.port.description),
-      "addresses": .string(sender.addresses?.description ?? "<unknown>"),
-    ])
-
-    if let address = sender.addresses?.first,
-       let endpoint = self.services[sender] {
-      do {
-        let resolvedAddress = try resolveAddress(address)
-
-        logger.info("Resolved IP for endpoint", metadata: [
-          "endpoint": .string(endpoint.debugDescription),
-          "resolvedAddress": .string(resolvedAddress)
-        ])
-
-        self.connections[endpoint] = OSCUdpClient(
-          host: resolvedAddress,
-          port: 1449
-        )
-      } catch {
-        logger.error("Failed to resolve address", metadata: [
-          "endpoint": .string(endpoint.debugDescription),
-          "hostName": .string(sender.hostName ?? "<unknown>"),
-          "error": .string(error.localizedDescription)
-        ])
-      }
+    if let endpoint = self.services[sender] {
+      self.connectToService(endpoint, sender)
     }
   }
 
@@ -244,9 +219,10 @@ extension OSCClient: NetServiceDelegate {
   }
 }
 
+// MARK: OSC Delegate
 extension OSCClient: OSCUdpClientDelegate {
   func client(_ client: OSCUdpClient, didSendPacket packet: OSCPacket, fromHost host: String?, port: UInt16?) {
-    logger.info("OSC Message sent to peer", metadata: [
+    logger.debug("OSC Message sent to peer", metadata: [
       "host": .string(host ?? "<unknown>"),
       "port": .string(port.debugDescription)
     ])
