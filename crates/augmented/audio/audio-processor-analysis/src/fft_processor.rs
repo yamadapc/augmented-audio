@@ -7,16 +7,7 @@ use rustfft::{Fft, FftPlanner};
 
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 
-fn hann_window(size: usize) -> Vec<f32> {
-    let mut result = Vec::with_capacity(size);
-    let fsize = size as f32;
-    for i in 0..size {
-        let fi = i as f32;
-        let value = 0.5 * (1.0 - (2.0 * PI * (fi / fsize)).cos());
-        result.push(value);
-    }
-    result
-}
+use crate::window_functions::make_hann_vec;
 
 pub struct FftProcessor {
     input_buffer: Vec<f32>,
@@ -56,7 +47,7 @@ impl FftProcessor {
         let mut scratch = Vec::with_capacity(scratch_size);
         scratch.resize(scratch_size, 0.0.into());
 
-        let window = hann_window(size);
+        let window = make_hann_vec(size);
         let step_len = (size as f32 * (1.0 - overlap_ratio)) as usize;
 
         Self {
@@ -134,16 +125,6 @@ mod test {
     use audio_processor_traits::simple_processor::process_buffer;
 
     use super::*;
-
-    #[test]
-    fn test_draw_hann_window() {
-        let window = hann_window(2048);
-        draw_vec_chart(
-            &*relative_path!("src/fft_processor.png"),
-            "HannWindow",
-            window,
-        );
-    }
 
     #[test]
     fn test_draw_fft() {
