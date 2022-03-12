@@ -110,9 +110,7 @@ impl ListCratesService {
         );
 
         let is_private_package = package
-            .metadata
-            .map(|m| m.augmented.map(|a| a.private))
-            .flatten()
+            .metadata.and_then(|m| m.augmented.map(|a| a.private))
             .flatten()
             .unwrap_or(false);
         if is_private_package {
@@ -160,7 +158,7 @@ impl ListCratesService {
         }
         let ordered_crates = graph.order_crates();
         let result_map: HashMap<String, (String, CargoToml)> = result
-            .into_iter()
+            .iter()
             .map(|(path, manifest)| {
                 (
                     manifest.package.name.clone(),

@@ -9,7 +9,6 @@ members = [
     "crates/apps/plugin-host/plugin-host-lib",
     "crates/apps/synth",
     "crates/apps/tremolo-plugin",
-    "crates/apps/recording_buddy",
     "crates/apps/demo-plugin",
     "crates/apps/metronome",
     "crates/apps/daw",
@@ -19,12 +18,12 @@ members = [
     # Demos & Experiments
     "crates/spikes/example-iced-audio-viz",
     "crates/spikes/example-iced-xcode-integration",
-
     # Augmented framework
     "crates/augmented/augmented",
     # Augmented components
     "crates/augmented/application/audio-processor-standalone",
     "crates/augmented/application/audio-processor-standalone-midi",
+    "crates/augmented/application/audio-processor-standalone-osc",
     "crates/augmented/audio/adsr-envelope",
     "crates/augmented/audio/audio-garbage-collector",
     "crates/augmented/audio/audio-garbage-collector-v2",

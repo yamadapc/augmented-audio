@@ -22,6 +22,7 @@ sudo apt-get install --fix-missing -y \
     libx11-xcb-dev \
     libxcb-icccm4-dev \
     libxcb-dri2-0-dev \
+    libavahi-client-dev \
     nvidia-utils-465 \
     lame \
     libgtk-3-dev

@@ -1,5 +1,5 @@
 use std::ops::Deref;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Duration;
 
 use atomic_refcell::AtomicRefCell;
@@ -7,15 +7,16 @@ use basedrop::{Shared, SharedCell};
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
-use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::AtomicEnum;
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
 
-use crate::loop_quantization::{LoopQuantizer, QuantizeInput};
-use crate::time_info_provider::{TimeInfoProvider, TimeInfoProviderImpl};
+use crate::{
+    loop_quantization::{LoopQuantizer, QuantizeInput},
+    time_info_provider::{HostCallback, TimeInfoProvider, TimeInfoProviderImpl},
+};
 
 mod quantize_mode;
 mod scratch_pad;
@@ -32,6 +33,7 @@ pub enum LooperState {
     RecordingScheduled = 5,
 }
 
+#[derive(Clone)]
 pub struct LooperOptions {
     pub max_loop_length: Duration,
     pub host_callback: Option<HostCallback>,
@@ -62,7 +64,9 @@ pub struct LooperHandle {
     /// Where playback is within the looped clip buffer
     cursor: AtomicUsize,
     /// Provides time information
-    time_info_provider: TimeInfoProviderImpl,
+    time_info_provider: Shared<TimeInfoProviderImpl>,
+    pub(crate) tick_time: AtomicBool,
+
     options: LooperOptions,
 
     settings: SharedCell<AudioProcessorSettings>,
@@ -76,8 +80,7 @@ impl Default for LooperHandle {
 }
 
 impl LooperHandle {
-    pub fn from_options(options: LooperOptions) -> Self {
-        let time_info_provider = TimeInfoProviderImpl::new(options.host_callback);
+    pub fn new(options: LooperOptions, time_info_provider: Shared<TimeInfoProviderImpl>) -> Self {
         Self {
             dry_volume: AtomicF32::new(0.0),
             wet_volume: AtomicF32::new(1.0),
@@ -89,10 +92,16 @@ impl LooperHandle {
             looper_clip: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
             cursor: AtomicUsize::new(0),
             time_info_provider,
+            tick_time: AtomicBool::new(true),
             options,
             settings: make_shared_cell(Default::default()),
             quantize_options: QuantizeOptions::default(),
         }
+    }
+
+    pub fn from_options(options: LooperOptions) -> Self {
+        let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
+        Self::new(options, time_info_provider)
     }
 
     pub fn dry_volume(&self) -> f32 {
@@ -155,6 +164,7 @@ impl LooperHandle {
             self.length.store(0, Ordering::Relaxed);
             // Start overdub
         } else if old_state == LooperState::Paused || old_state == LooperState::Playing {
+            self.time_info_provider.play();
             self.state.set(LooperState::Overdubbing);
         }
 
@@ -187,10 +197,14 @@ impl LooperHandle {
     }
 
     pub fn play(&self) {
+        // TODO: Looper should only affect time_info_provider if it's the master
+        self.time_info_provider.play();
         self.state.set(LooperState::Playing);
     }
 
     pub fn pause(&self) {
+        // TODO: Looper should only affect time_info_provider if it's the master
+        self.time_info_provider.pause();
         self.state.set(LooperState::Paused);
     }
 
@@ -211,6 +225,7 @@ impl LooperHandle {
             );
             self.looper_clip
                 .set(make_shared(AtomicRefCell::new(new_buffer)));
+            self.time_info_provider.play();
             self.state.set(LooperState::Playing);
             self.cursor.store(0, Ordering::Relaxed);
         } else if old_state == LooperState::Overdubbing {
@@ -234,6 +249,7 @@ impl LooperHandle {
                     },
                     &mut *result_buffer,
                 );
+                self.time_info_provider.play();
                 self.state.set(LooperState::Playing);
                 self.cursor.store(0, Ordering::Relaxed);
             }
@@ -276,6 +292,7 @@ impl LooperHandle {
 
     pub fn set_tempo(&self, tempo: u32) {
         self.time_info_provider.set_tempo(tempo);
+        self.time_info_provider.play();
     }
 }
 
@@ -305,6 +322,7 @@ impl LooperHandle {
         self.settings.set(make_shared(settings));
     }
 
+    #[cfg(test)]
     pub(crate) fn state(&self) -> LooperState {
         self.state.get()
     }
@@ -326,7 +344,7 @@ impl LooperHandle {
                 let clip = self.looper_clip.get();
                 let clip = clip.deref().borrow();
                 let cursor = self.cursor.load(Ordering::Relaxed);
-                let clip_sample = clip.get(channel, cursor);
+                let clip_sample = clip.get(channel, cursor % clip.num_samples());
                 let clip_out = clip_sample.get();
                 clip_sample.set(clip_out + sample);
                 clip_out
@@ -341,7 +359,9 @@ impl LooperHandle {
     pub(crate) fn after_process(&self) {
         let scratch_pad = self.scratch_pad.get();
         scratch_pad.after_process();
-        self.time_info_provider.tick();
+        if self.tick_time.load(Ordering::Relaxed) {
+            self.time_info_provider.tick();
+        }
 
         let state = self.state.get();
         if state == LooperState::RecordingScheduled {
@@ -358,9 +378,15 @@ impl LooperHandle {
                 self.length.store(len, Ordering::Relaxed);
             }
         } else if state == LooperState::Playing || state == LooperState::Overdubbing {
-            let cursor = self.cursor.load(Ordering::Relaxed);
-            let cursor = (cursor + 1) % self.length.load(Ordering::Relaxed);
-            self.cursor.store(cursor, Ordering::Relaxed);
+            // TODO Review this dynamic state change
+            let len = self.length.load(Ordering::Relaxed);
+            if len > 0 {
+                let cursor = self.cursor.load(Ordering::Relaxed);
+                let cursor = (cursor + 1) % len;
+                self.cursor.store(cursor, Ordering::Relaxed);
+            } else {
+                self.state.set(LooperState::Empty);
+            }
         }
     }
 }

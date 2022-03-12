@@ -78,7 +78,7 @@ impl BottomPanelView {
 
         BottomPanelView {
             processor_handle: processor_handle.clone(),
-            sequencer_handle: sequencer_handle.clone(),
+            sequencer_handle,
             parameters_view,
             buttons_view: ButtonsView::new(processor_handle),
             sequence_button_state: iced::button::State::new(),

@@ -1,12 +1,14 @@
+use basedrop::Shared;
+
 use audio_garbage_collector::make_shared;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+    SimpleAudioProcessor,
 };
-use basedrop::Shared;
 use handle::LooperHandle;
 
 use crate::sequencer::LoopSequencerProcessor;
-use crate::LoopSequencerProcessorHandle;
+use crate::{LoopSequencerProcessorHandle, TimeInfoProviderImpl};
 
 pub mod handle;
 
@@ -22,6 +24,17 @@ impl Default for LooperProcessor {
 }
 
 impl LooperProcessor {
+    pub fn new(
+        options: handle::LooperOptions,
+        time_info_provider: Shared<TimeInfoProviderImpl>,
+    ) -> Self {
+        let handle = make_shared(LooperHandle::new(options, time_info_provider));
+        Self {
+            handle: handle.clone(),
+            sequencer: LoopSequencerProcessor::new(handle),
+        }
+    }
+
     pub fn from_options(options: handle::LooperOptions) -> Self {
         let handle = make_shared(LooperHandle::from_options(options));
         Self {
@@ -58,7 +71,28 @@ impl AudioProcessor for LooperProcessor {
             self.handle.after_process();
         }
 
-        self.sequencer.process(data);
+        if self.handle.is_playing_back() {
+            self.sequencer.process(data);
+        }
+    }
+}
+
+impl SimpleAudioProcessor for LooperProcessor {
+    type SampleType = f32;
+
+    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+        self.prepare(settings);
+    }
+
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+        for (channel, sample) in frame.iter_mut().enumerate() {
+            *sample = self.handle.process(channel, *sample);
+        }
+        self.handle.after_process();
+
+        if self.handle.is_playing_back() {
+            self.sequencer.s_process_frame(frame);
+        }
     }
 }
 
@@ -68,15 +102,17 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
+    use std::time::Duration;
+
     use audio_processor_testing_helpers::rms_level;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
+
     use audio_processor_traits::{
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
         VecAudioBuffer,
     };
     use handle::{LooperState, QuantizeMode};
-    use std::time::Duration;
 
     use crate::MAX_LOOP_LENGTH_SECS;
 
@@ -127,8 +163,6 @@ mod test {
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         assert_ne!(sine_buffer.len(), 0);
-        println!("Sine samples: {:?}", sine_buffer);
-        println!("Sine RMS: {}", rms_level(&sine_buffer));
         assert_ne!(rms_level(&sine_buffer), 0.0);
 
         let mut audio_buffer = sine_buffer;
@@ -365,7 +399,7 @@ mod test {
         looper.process(&mut output_buffer);
         assert_eq!(looper.handle.state(), LooperState::Playing);
 
-        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let output_vec = output_buffer.slice().to_vec();
         assert_eq!(
             output_vec,
             (0..200).map(|i| i as f32).collect::<Vec<f32>>(),

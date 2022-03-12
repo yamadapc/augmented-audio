@@ -562,6 +562,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-standalone-osc"
+version = "0.1.0"
+dependencies = [
+ "hostname",
+ "log",
+ "rosc",
+ "wisual-logger",
+ "zeroconf",
+]
+
+[[package]]
 name = "audio-processor-testing-helpers"
 version = "1.0.0-alpha.3"
 dependencies = [
@@ -791,6 +802,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "avahi-sys"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f792866e533338be173a9dd8b3510591c69ed43998eb0829890486d4bbd39cf"
+dependencies = [
+ "bindgen 0.55.1",
+ "libc",
+]
+
+[[package]]
 name = "avfaudio-sys"
 version = "0.1.0"
 dependencies = [
@@ -827,6 +848,30 @@ dependencies = [
  "x11",
  "xcb",
  "xcb-util",
+]
+
+[[package]]
+name = "bindgen"
+version = "0.55.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75b13ce559e6433d360c26305643803cb52cfbabbc2b9c47ce04a58493dfb443"
+dependencies = [
+ "bitflags",
+ "cexpr 0.4.0",
+ "cfg-if 0.1.10",
+ "clang-sys",
+ "clap 2.34.0",
+ "env_logger 0.7.1",
+ "lazy_static 1.4.0",
+ "lazycell",
+ "log",
+ "peeking_take_while",
+ "proc-macro2 1.0.32",
+ "quote 1.0.9",
+ "regex",
+ "rustc-hash",
+ "shlex 0.1.1",
+ "which",
 ]
 
 [[package]]
@@ -917,6 +962,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4152116fd6e9dadb291ae18fc1ec3575ed6d84c29642d97890f4b4a3417297e4"
 dependencies = [
  "generic-array",
+]
+
+[[package]]
+name = "bonjour-sys"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fb769a9e04063943874cd92039ee81eee55adca48bb9615bc3dff73b57cd5aa"
+dependencies = [
+ "bindgen 0.55.1",
+ "libc",
 ]
 
 [[package]]
@@ -2046,12 +2101,59 @@ dependencies = [
 ]
 
 [[package]]
+name = "derive-getters"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c5905670fd9c320154f3a4a01c9e609733cd7b753f3c58777ab7d5ce26686b3"
+dependencies = [
+ "proc-macro2 1.0.32",
+ "quote 1.0.9",
+ "syn",
+]
+
+[[package]]
+name = "derive-new"
+version = "0.5.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3418329ca0ad70234b9735dc4ceed10af4df60eff9c8e7b06cb5e520d92c3535"
+dependencies = [
+ "proc-macro2 1.0.32",
+ "quote 1.0.9",
+ "syn",
+]
+
+[[package]]
+name = "derive_builder"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2658621297f2cf68762a6f7dc0bb7e1ff2cfd6583daef8ee0fed6f7ec468ec0"
+dependencies = [
+ "darling 0.10.2",
+ "derive_builder_core 0.9.0",
+ "proc-macro2 1.0.32",
+ "quote 1.0.9",
+ "syn",
+]
+
+[[package]]
 name = "derive_builder"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d13202debe11181040ae9063d739fa32cfcaaebe2275fe387703460ae2365b30"
 dependencies = [
  "derive_builder_macro",
+]
+
+[[package]]
+name = "derive_builder_core"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2791ea3e372c8495c0bc2033991d76b512cd799d07491fbd6890124db9458bef"
+dependencies = [
+ "darling 0.10.2",
+ "proc-macro2 1.0.32",
+ "quote 1.0.9",
+ "syn",
 ]
 
 [[package]]
@@ -2072,7 +2174,7 @@ version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "58a94ace95092c5acb1e97a7e846b310cfbd499652f72297da7493f618a98d73"
 dependencies = [
- "derive_builder_core",
+ "derive_builder_core 0.10.2",
  "syn",
 ]
 
@@ -2253,12 +2355,25 @@ dependencies = [
 
 [[package]]
 name = "env_logger"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "44533bbbb3bb3c1fa17d9f2e4e38bbbaf8396ba82193c4cb1b6445d711445d36"
+dependencies = [
+ "atty",
+ "humantime 1.3.0",
+ "log",
+ "regex",
+ "termcolor",
+]
+
+[[package]]
+name = "env_logger"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a19187fea3ac7e84da7dacf48de0c45d63c6a76f9490dae389aead16c243fce3"
 dependencies = [
  "atty",
- "humantime",
+ "humantime 2.1.0",
  "log",
  "regex",
  "termcolor",
@@ -2271,7 +2386,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b2cf0344971ee6c64c31be0d530793fba457d322dfec2810c453d0ef228f9c3"
 dependencies = [
  "atty",
- "humantime",
+ "humantime 2.1.0",
  "log",
  "regex",
  "termcolor",
@@ -3274,6 +3389,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dfa686283ad6dd069f105e5ab091b04c62850d3e4cf5d67debad1933f55023df"
 
 [[package]]
+name = "hostname"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c731c3e10504cc8ed35cfe2f1db4c9274c3d35fa486e3b31df46f068ef3e867"
+dependencies = [
+ "libc",
+ "match_cfg",
+ "winapi 0.3.9",
+]
+
+[[package]]
 name = "hound"
 version = "3.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3312,6 +3438,15 @@ name = "httpdate"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6456b8a6c8f33fee7d958fcd1b60d55b11940a79e63ae87013e6d22e26034440"
+
+[[package]]
+name = "humantime"
+version = "1.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df004cfca50ef23c36850aaaa59ad52cc70d0e90243c3c7737a4dd32dc7a3c4f"
+dependencies = [
+ "quick-error",
+]
 
 [[package]]
 name = "humantime"
@@ -3929,7 +4064,7 @@ dependencies = [
  "chrono",
  "derivative",
  "fnv",
- "humantime",
+ "humantime 2.1.0",
  "libc",
  "log",
  "log-mdc",
@@ -3957,7 +4092,9 @@ version = "0.1.0"
 dependencies = [
  "atomic_refcell",
  "audio-garbage-collector",
+ "audio-processor-graph",
  "audio-processor-standalone",
+ "audio-processor-standalone-osc",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "augmented-adsr-envelope",
@@ -3965,7 +4102,7 @@ dependencies = [
  "augmented-playhead",
  "basedrop",
  "criterion",
- "derive_builder",
+ "derive_builder 0.10.2",
  "log",
  "mockall 0.11.0",
  "num 0.4.0",
@@ -3997,9 +4134,7 @@ dependencies = [
  "iced-editor",
  "iced_audio",
  "iced_baseview",
- "iced_glow",
  "iced_native",
- "iced_wgpu",
  "itertools 0.10.3",
  "log",
  "log4rs",
@@ -4094,6 +4229,12 @@ checksum = "62bb907fe88d54d8d9ce32a3cceab4218ed2f6b7d35617cafe9adf84e43919cb"
 dependencies = [
  "libc",
 ]
+
+[[package]]
+name = "match_cfg"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffbee8634e0d45d258acb448e7eaab3fce7a0a467395d4d9f228e3c1f01fb2e4"
 
 [[package]]
 name = "matches"
@@ -5811,6 +5952,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "87dfd5592a8eed7e74f56ad7b125f8234763b805c30f0c7c95c486920026a6ec"
 
 [[package]]
+name = "quick-error"
+version = "1.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a1d01941d82fa2ab50be1e79e6714289dd7cde78eba4c074bc5a4374f650dfe0"
+
+[[package]]
 name = "quote"
 version = "0.6.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6162,6 +6309,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6c60f3923939c33e6c543ddbff14d0ee6a407fcd186d560be37282559616adf3"
 dependencies = [
  "cache-padded",
+]
+
+[[package]]
+name = "rosc"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c2f26c70ce40ebff952464df4aa64817459de5ddf8ed7bbc2913adff8b9b31a0"
+dependencies = [
+ "byteorder 1.4.3",
+ "nom 7.1.0",
+ "regex",
 ]
 
 [[package]]
@@ -8461,4 +8619,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56c1936c4cc7a1c9ab21a1ebb602eb942ba868cbd44a99cb7cdc5892335e1c85"
 dependencies = [
  "linked-hash-map",
+]
+
+[[package]]
+name = "zeroconf"
+version = "0.10.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec8ad5bc28603702df1cf8d36c9419c0c0882d3644400c46fe77ff0b3936d1ef"
+dependencies = [
+ "avahi-sys",
+ "bonjour-sys",
+ "derive-getters",
+ "derive-new",
+ "derive_builder 0.9.0",
+ "libc",
+ "log",
+ "serde",
+ "zeroconf-macros",
+]
+
+[[package]]
+name = "zeroconf-macros"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d96e11117337f1d3f4b11938b88ef8eb9144dbe05aa3129a11cb191e95685b55"
+dependencies = [
+ "quote 1.0.9",
+ "syn",
 ]

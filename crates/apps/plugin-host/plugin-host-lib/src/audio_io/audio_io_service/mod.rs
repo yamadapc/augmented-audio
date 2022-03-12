@@ -92,13 +92,11 @@ impl AudioIOService {
             })
             .map(move |_, this, _| {
                 let maybe_input_device = Self::input_devices(Some(this.state.host.clone()))
-                    .ok()
-                    .map(|input_devices| {
+                    .ok().and_then(|input_devices| {
                         input_devices
                             .into_iter()
                             .find(|input_device| input_device.name == input_device_id)
-                    })
-                    .flatten();
+                    });
                 if let Some(input_device) = maybe_input_device {
                     this.state.input_device = Some(input_device);
                 }
@@ -123,13 +121,11 @@ impl AudioIOService {
             })
             .map(move |_, this, _| {
                 let maybe_output_device = Self::output_devices(Some(this.state.host.clone()))
-                    .ok()
-                    .map(|output_devices| {
+                    .ok().and_then(|output_devices| {
                         output_devices
                             .into_iter()
                             .find(|output_device| output_device.name == output_device_id)
-                    })
-                    .flatten();
+                    });
 
                 if let Some(output_device) = maybe_output_device {
                     this.state.output_device = Some(output_device);
@@ -143,18 +139,14 @@ impl AudioIOService {
         let host = cpal::default_host();
         let input_device = host.default_input_device();
 
-        input_device
-            .map(|d| AudioDevice::from_device(d).ok())
-            .flatten()
+        input_device.and_then(|d| AudioDevice::from_device(d).ok())
     }
 
     pub fn default_output_device() -> Option<AudioDevice> {
         let host = cpal::default_host();
         let input_device = host.default_output_device();
 
-        input_device
-            .map(|d| AudioDevice::from_device(d).ok())
-            .flatten()
+        input_device.and_then(|d| AudioDevice::from_device(d).ok())
     }
 
     pub fn default_host() -> AudioHost {
@@ -203,13 +195,11 @@ impl AudioIOService {
 
     pub fn host(host_id: &Option<AudioHost>) -> AudioIOServiceResult<cpal::Host> {
         let host_id = host_id
-            .as_ref()
-            .map(|host_id| {
+            .as_ref().and_then(|host_id| {
                 cpal::available_hosts()
                     .into_iter()
                     .find(|host| host.name() == host_id)
             })
-            .flatten()
             .unwrap_or_else(|| cpal::default_host().id());
         cpal::host_from_id(host_id).map_err(|_| AudioIOServiceError::HostUnavailableError)
     }

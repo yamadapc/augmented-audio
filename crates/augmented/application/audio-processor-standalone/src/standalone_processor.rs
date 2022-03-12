@@ -127,7 +127,7 @@ where
 mod test {
     use audio_processor_standalone_midi::host::MidiMessageEntry;
     use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-    use audio_processor_traits::NoopAudioProcessor;
+    use audio_processor_traits::{BufferProcessor, NoopAudioProcessor};
 
     use super::*;
 
@@ -140,7 +140,7 @@ mod test {
 
     #[test]
     fn test_create_standalone_audio_processor() {
-        let processor = NoopAudioProcessor::new();
+        let processor = BufferProcessor(NoopAudioProcessor::new());
         let mut standalone_audio_processor =
             StandaloneAudioOnlyProcessor::new(processor, Default::default());
         assert!(!standalone_audio_processor.supports_midi());
@@ -163,7 +163,8 @@ mod test {
         }
 
         let processor = MockProcessor {};
-        let mut standalone_audio_processor = StandaloneProcessorImpl::new(processor);
+        let mut standalone_audio_processor =
+            StandaloneProcessorImpl::new(BufferProcessor(processor));
         assert!(standalone_audio_processor.supports_midi());
         assert!(standalone_audio_processor.midi().is_some());
         let _processor = standalone_audio_processor.processor();

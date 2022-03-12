@@ -99,9 +99,9 @@ fn bump_dependency(
                 );
 
                 if subdep.is_str() {
-                    deps[&*bump_package_name] = value_from_version(&bump_package_version);
+                    deps[&*bump_package_name] = value_from_version(bump_package_version);
                 } else {
-                    subdep["version"] = value_from_version(&bump_package_version);
+                    subdep["version"] = value_from_version(bump_package_version);
                 }
 
                 let cargo_manifest_str = target_package_manifest.to_string();
@@ -134,7 +134,7 @@ fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
         .unwrap();
     std::env::set_current_dir(&current).unwrap();
 
-    let commit_message = format!("{}@{}", manifest.package.name, new_version.to_string());
+    let commit_message = format!("{}@{}", manifest.package.name, new_version);
     cmd_lib::spawn!(git add .).unwrap().wait().unwrap();
     cmd_lib::spawn!(git commit -m "$commit_message")
         .unwrap()
@@ -178,7 +178,7 @@ fn prerelease_bump(sem_version: Version) -> Version {
     let next_version = if !sem_version.pre.is_empty() {
         let mut next_version =
             Version::new(sem_version.major, sem_version.minor, sem_version.patch);
-        let old_bump: i32 = sem_version.pre.split(".").collect::<Vec<&str>>()[1]
+        let old_bump: i32 = sem_version.pre.split('.').collect::<Vec<&str>>()[1]
             .parse()
             .unwrap();
         next_version.pre = Prerelease::new(&*format!("alpha.{}", old_bump + 1)).unwrap();

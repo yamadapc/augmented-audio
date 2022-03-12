@@ -40,11 +40,7 @@ impl PackagerService for PackagerServiceImpl {
             .cargo_toml
             .package
             .metadata
-            .clone()
-            .map(|m| m.app)
-            .flatten()
-            .map(|a| a.macos)
-            .flatten();
+            .clone().and_then(|m| m.app).and_then(|a| a.macos);
 
         if let Some(example) = input.example_name {
             let target_path =
@@ -55,8 +51,8 @@ impl PackagerService for PackagerServiceImpl {
                 VstConfig {
                     identifier: format!(
                         "com.beijaflor.{}__{}",
-                        input.cargo_toml.package.name.replace("-", "_"),
-                        example.replace("-", "_")
+                        input.cargo_toml.package.name.replace('-', "_"),
+                        example.replace('-', "_")
                     ),
                 },
             );

@@ -1,4 +1,6 @@
-use crate::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use crate::{
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+};
 
 /// Represents an audio processing node.
 ///
@@ -28,7 +30,23 @@ pub trait SimpleAudioProcessor {
     }
 }
 
-impl<Processor> AudioProcessor for Processor
+/// Wrapper over `SimpleAudioProcessor` to provide an `AudioProcessor` impl.
+#[derive(Clone, Default, Debug)]
+pub struct BufferProcessor<Processor>(pub Processor);
+
+/// Process a buffer of samples with a `SimpleAudioProcessor`
+pub fn process_buffer<Processor, BufferType>(processor: &mut Processor, data: &mut BufferType)
+where
+    Processor: SimpleAudioProcessor,
+    <Processor as SimpleAudioProcessor>::SampleType: Copy,
+    BufferType: AudioBuffer<SampleType = Processor::SampleType>,
+{
+    for frame in data.frames_mut() {
+        processor.s_process_frame(frame);
+    }
+}
+
+impl<Processor> AudioProcessor for BufferProcessor<Processor>
 where
     Processor: SimpleAudioProcessor,
     <Processor as SimpleAudioProcessor>::SampleType: Copy,
@@ -36,15 +54,22 @@ where
     type SampleType = <Processor as SimpleAudioProcessor>::SampleType;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.s_prepare(settings);
+        self.0.s_prepare(settings);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
         data: &mut BufferType,
     ) {
-        for frame in data.frames_mut() {
-            self.s_process_frame(frame);
-        }
+        process_buffer(&mut self.0, data)
+    }
+}
+
+impl<Processor> MidiEventHandler for BufferProcessor<Processor>
+where
+    Processor: MidiEventHandler,
+{
+    fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
+        self.0.process_midi_events(midi_messages)
     }
 }

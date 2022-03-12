@@ -1,7 +1,7 @@
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{
-    audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, AudioProcessor,
-    AudioProcessorSettings,
+    audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, simple_processor,
+    AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
 
 use audio_processor_analysis::fft_processor::FftProcessor;
@@ -28,7 +28,7 @@ fn main() {
     input.prepare(settings);
 
     let mut fft_processor = FftProcessor::default();
-    fft_processor.prepare(settings);
+    fft_processor.s_prepare(settings);
 
     let mut buffer = VecAudioBuffer::new();
     buffer.resize(1, fft_processor.size(), 0.0);
@@ -39,7 +39,7 @@ fn main() {
     for _chunk_idx in 0..num_chunks {
         audio_buffer::clear(&mut buffer);
         input.process(&mut buffer);
-        fft_processor.process(&mut buffer);
+        simple_processor::process_buffer(&mut fft_processor, &mut buffer);
         frames.push(fft_processor.buffer().clone());
     }
 

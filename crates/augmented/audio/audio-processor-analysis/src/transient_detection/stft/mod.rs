@@ -283,7 +283,7 @@ fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
         .unwrap();
     for sample in &mut output {
         if sample.abs() > maximum_output * 0.05 {
-            *sample = *sample / maximum_output;
+            *sample /= maximum_output;
         } else {
             *sample = 0.0;
         }
@@ -345,7 +345,7 @@ mod test {
         let mut input = AudioFileProcessor::from_path(
             audio_garbage_collector::handle(),
             settings,
-            &input_file_path,
+            input_file_path,
         )
         .unwrap();
         input.prepare(settings);
@@ -382,7 +382,13 @@ mod test {
             .max_by(|f1, f2| f1.partial_cmp(f2).unwrap())
             .unwrap();
 
-        let transients = find_transients(IterativeTransientDetectionParams::default(), &mut input);
+        let transients = find_transients(
+            IterativeTransientDetectionParams {
+                iteration_count: 2,
+                ..IterativeTransientDetectionParams::default()
+            },
+            &mut input,
+        );
         assert_eq!(frames.len(), transients.len());
         draw(&output_path, &frames, &transients);
 
@@ -392,7 +398,7 @@ mod test {
             ..AudioProcessorSettings::default()
         };
         let mut output_processor =
-            OutputAudioFileProcessor::from_path(settings.clone(), &transients_file_path);
+            OutputAudioFileProcessor::from_path(settings, &transients_file_path);
         output_processor.prepare(settings);
         // match input signal
         let mut transients: Vec<f32> = transients.iter().map(|f| f * max_input).collect();

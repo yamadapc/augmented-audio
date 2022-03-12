@@ -34,7 +34,7 @@ where
         let parameter_order = parameters.iter().map(|parameter| parameter.id).collect();
         let mut states = HashMap::new();
         for parameter in parameters {
-            states.insert(parameter.id.clone(), parameter);
+            states.insert(parameter.id, parameter);
         }
 
         Self {
@@ -113,9 +113,9 @@ pub fn view<ParameterId: 'static + Clone + Copy + Debug>(
     parameter_view_model: &mut ParameterViewModel<ParameterId>,
 ) -> Element<KnobChanged<ParameterId>> {
     let range = parameter_view_model.range;
-    let parameter_id = parameter_view_model.id.clone();
+    let parameter_id = parameter_view_model.id;
     let mapped_value = parameter_view_model.value;
-    let int_range = parameter_view_model.int_range.clone();
+    let int_range = parameter_view_model.int_range;
     let label = &parameter_view_model.name;
     let value_label = format!("{:.2}{}", mapped_value, parameter_view_model.suffix);
 

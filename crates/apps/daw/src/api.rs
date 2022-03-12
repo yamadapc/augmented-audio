@@ -11,7 +11,7 @@ use audio_processor_graph::{NodeIndex, NodeType};
 use audio_thread::actor::AudioThreadMessage;
 use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_graph;
-use plugin_host_lib::audio_io::audio_graph::{AudioGraphManager};
+use plugin_host_lib::audio_io::audio_graph::AudioGraphManager;
 use plugin_host_lib::audio_io::audio_thread;
 use plugin_host_lib::audio_io::audio_thread::options::{AudioDeviceId, AudioHostId};
 use plugin_host_lib::audio_io::audio_thread::AudioThread;
@@ -109,7 +109,8 @@ pub fn audio_thread_set_options(input_device_id: String, output_device_id: Strin
                 },
             })
             .await
-            .unwrap().unwrap();
+            .unwrap()
+            .unwrap();
     });
     Ok(0)
 }
@@ -121,7 +122,11 @@ pub fn audio_graph_setup() -> Result<i32> {
         let manager = AudioGraphManager::from_registry();
         manager.send(audio_graph::SetupGraphMessage).await.unwrap();
         let audio_thread = AudioThread::from_registry();
-        audio_thread.send(AudioThreadMessage::Start).await.unwrap().unwrap();
+        audio_thread
+            .send(AudioThreadMessage::Start)
+            .await
+            .unwrap()
+            .unwrap();
     });
     Ok(0)
 }

@@ -1,5 +1,8 @@
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{
+    simple_processor::process_buffer, AtomicF32, AudioBuffer, AudioProcessorSettings,
+    SimpleAudioProcessor,
+};
 use criterion::{black_box, Criterion};
 use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessor;
 use std::time::Duration;
@@ -44,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         garbage_collector.handle(),
         Duration::from_millis(300),
     );
-    processor.prepare(AudioProcessorSettings {
+    processor.s_prepare(AudioProcessorSettings {
         sample_rate: 44100.,
         input_channels: 2,
         output_channels: 2,
@@ -53,7 +56,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     group.bench_function("process", |b| {
         b.iter(|| {
-            processor.process(&mut audio_buffer);
+            process_buffer(&mut processor, &mut audio_buffer);
             black_box(&mut audio_buffer);
         })
     });

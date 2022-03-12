@@ -5,7 +5,9 @@ use basedrop::{Shared, SharedCell};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, VecAudioBuffer};
+use audio_processor_traits::{
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, VecAudioBuffer,
+};
 
 use crate::LooperProcessorHandle;
 
@@ -111,6 +113,20 @@ impl AudioProcessor for LoopSequencerProcessor {
         &mut self,
         data: &mut BufferType,
     ) {
+        for frame in data.frames_mut() {
+            self.s_process_frame(frame);
+        }
+    }
+}
+
+impl SimpleAudioProcessor for LoopSequencerProcessor {
+    type SampleType = f32;
+
+    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+        self.prepare(settings);
+    }
+
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
         if let Some(LoopSequencerOutput {
             sequence,
             sequence_step_size,
@@ -124,25 +140,23 @@ impl AudioProcessor for LoopSequencerProcessor {
                 return;
             }
 
-            for frame in data.frames_mut() {
-                let cursor = self.cursor % num_samples;
-                let sequence_step_index = (cursor / sequence_step_size) % sequence.len();
-                let VirtualLoopSection { start, .. } = &sequence[sequence_step_index];
-                let overflow = cursor % sequence_step_size;
-                let index = (start + overflow) % num_samples;
-                let start_volume = (overflow as f32 / 80.0).min(1.0);
-                let end_volume = ((sequence_step_size - overflow) as f32 / 80.0).min(1.0);
+            let cursor = self.cursor % num_samples;
+            let sequence_step_index = (cursor / sequence_step_size) % sequence.len();
+            let VirtualLoopSection { start, .. } = &sequence[sequence_step_index];
+            let overflow = cursor % sequence_step_size;
+            let index = (start + overflow) % num_samples;
+            let start_volume = (overflow as f32 / 80.0).min(1.0);
+            let end_volume = ((sequence_step_size - overflow) as f32 / 80.0).min(1.0);
 
-                for (channel, sample) in frame.iter_mut().enumerate() {
-                    let output_sample = clip.get(channel, index);
-                    *sample = *output_sample * start_volume * end_volume;
-                }
+            for (channel, sample) in frame.iter_mut().enumerate() {
+                let output_sample = clip.get(channel, index);
+                *sample = *output_sample * start_volume * end_volume;
+            }
 
-                self.handle.playhead.store(index, Ordering::Relaxed);
-                self.cursor += 1;
-                if self.cursor >= num_samples {
-                    self.cursor = 0;
-                }
+            self.handle.playhead.store(index, Ordering::Relaxed);
+            self.cursor += 1;
+            if self.cursor >= num_samples {
+                self.cursor = 0;
             }
         }
     }

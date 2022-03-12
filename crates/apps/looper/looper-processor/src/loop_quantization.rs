@@ -1,3 +1,5 @@
+//! Implements better quantization logic for live-loopers.
+
 pub enum LoopQuantizerMode {
     None,
     SnapNext { beats: usize },
@@ -18,14 +20,6 @@ pub struct LoopQuantizer {
 impl LoopQuantizer {
     pub fn new(mode: LoopQuantizerMode) -> Self {
         Self { mode }
-    }
-
-    pub fn mode(&self) -> &LoopQuantizerMode {
-        &self.mode
-    }
-
-    pub fn set_mode(&mut self, mode: LoopQuantizerMode) {
-        self.mode = mode;
     }
 
     pub fn quantize(&self, input: QuantizeInput) -> i32 {

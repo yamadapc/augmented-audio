@@ -125,7 +125,7 @@ impl SimpleAudioProcessor for RunningRMSProcessor {
 #[cfg(test)]
 mod test {
     use audio_garbage_collector::GarbageCollector;
-    use audio_processor_traits::AudioProcessor;
+    use audio_processor_traits::simple_processor::process_buffer;
 
     use super::*;
 
@@ -137,8 +137,8 @@ mod test {
         let mut test_buffer = VecAudioBuffer::new();
 
         test_buffer.resize(2, 1000, 1.0);
-        processor.prepare(AudioProcessorSettings::default());
-        processor.process(&mut test_buffer);
+        processor.s_prepare(AudioProcessorSettings::default());
+        process_buffer(&mut processor, &mut test_buffer);
         let rms = processor.handle.calculate_rms(0);
         assert!(rms > 0.0);
     }
