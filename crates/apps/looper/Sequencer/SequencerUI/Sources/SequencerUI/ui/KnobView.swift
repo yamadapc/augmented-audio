@@ -57,12 +57,21 @@ struct TrackSliderView: View {
   }
 }
 
+struct KnobRenderOptions {
+  let renderLine: Bool
+  let renderThumb: Bool
+}
+
 struct KnobView: View {
   var radius: Double = 30
   var label: String = " "
   var strokeWidth: Double = 5
   var onChanged: ((Double) -> Void)? = nil
   var style: KnobStyle = .normal
+  var renderOptions: KnobRenderOptions = KnobRenderOptions(
+    renderLine: true,
+    renderThumb: false
+  )
 
   @State var value: Double = 1.0
 
@@ -104,8 +113,9 @@ struct KnobView: View {
         }
       }
       .frame(width: radius * 2, height: radius * 2)
+      .contentShape(Rectangle())
       .gesture(
-        DragGesture(minimumDistance: 0.0)
+        DragGesture(minimumDistance: 3.0)
           .onChanged({ value in self.onGestureChanged(value) }),
         including: .all
       )
@@ -124,24 +134,28 @@ struct KnobView: View {
     )
 
     return ZStack {
-      Path { builder in
-        let pathPosition = CGPoint(
-          x: centerCoordinate + (radius - strokeWidth * 1.5) * cos(thumbAngle),
-          y: centerCoordinate + (radius - strokeWidth * 1.5) * sin(thumbAngle)
-        )
+      if renderOptions.renderLine {
+        Path { builder in
+          let pathPosition = CGPoint(
+            x: centerCoordinate + (radius - strokeWidth * 1.5) * cos(thumbAngle),
+            y: centerCoordinate + (radius - strokeWidth * 1.5) * sin(thumbAngle)
+          )
 
-        builder.move(to: CGPoint(x: centerCoordinate, y: centerCoordinate))
-        builder.addLine(to: pathPosition)
-      }.stroke(SequencerColors.white.opacity(0.7), lineWidth: strokeWidth / 2)
+          builder.move(to: CGPoint(x: centerCoordinate, y: centerCoordinate))
+          builder.addLine(to: pathPosition)
+        }.stroke(SequencerColors.white.opacity(0.7), lineWidth: strokeWidth / 2)
+      }
 
-      Circle()
-        .fill(SequencerColors.white)
-        .frame(width: strokeWidth * 2, height: strokeWidth * 2)
-        .shadow(radius: 3)
-        .position(
-          x: knobPosition.x,
-          y: knobPosition.y
-        )
+      if renderOptions.renderThumb {
+        Circle()
+          .fill(SequencerColors.white)
+          .frame(width: strokeWidth * 2, height: strokeWidth * 2)
+          .shadow(radius: 3)
+          .position(
+            x: knobPosition.x,
+            y: knobPosition.y
+          )
+      }
     }
   }
 

@@ -44,7 +44,7 @@ struct VisualisationView: View {
           .foregroundColor(SequencerColors.white)
       }
     }
-    .padding(PADDING)
+    .padding(EdgeInsets(top: 0, leading: PADDING, bottom: PADDING, trailing: PADDING))
     .frame(maxHeight: 400)
   }
 }

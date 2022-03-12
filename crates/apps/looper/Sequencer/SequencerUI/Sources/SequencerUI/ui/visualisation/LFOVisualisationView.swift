@@ -31,7 +31,7 @@ struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
             .onChanged { drag in
               let currentTranslation = drag.translation
 
-              model.amount += (currentTranslation.height - lastTranslation.height) / (geometry.size.height / 2)
+              model.amount -= (currentTranslation.height - lastTranslation.height) / (geometry.size.height / 2)
               model.amount = max(min(model.amount, 1), 0)
 
               model.frequency -= (currentTranslation.width - lastTranslation.width) / (geometry.size.width / 2)
