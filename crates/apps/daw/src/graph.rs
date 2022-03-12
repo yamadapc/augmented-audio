@@ -1,5 +1,5 @@
 use actix::SystemService;
-use audio_processor_graph::{NodeType};
+use audio_processor_graph::NodeType;
 use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_graph;
 use plugin_host_lib::audio_io::audio_graph::{AudioGraphManager, ProcessorSpec};
@@ -18,4 +18,3 @@ pub fn audio_node_create_raw(processor: NodeType<f32>) -> usize {
     });
     index
 }
-

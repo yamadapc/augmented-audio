@@ -1,7 +1,7 @@
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 use audio_processor_traits::{
-    simple_processor::process_buffer, AtomicF32, AudioBuffer,
-    AudioProcessorSettings, SimpleAudioProcessor,
+    simple_processor::process_buffer, AtomicF32, AudioBuffer, AudioProcessorSettings,
+    SimpleAudioProcessor,
 };
 use criterion::{black_box, Criterion};
 use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessor;

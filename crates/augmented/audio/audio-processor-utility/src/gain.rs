@@ -77,8 +77,8 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
+    use audio_processor_traits::simple_processor;
     use audio_processor_traits::InterleavedAudioBuffer;
-    use audio_processor_traits::{simple_processor};
 
     use super::*;
 

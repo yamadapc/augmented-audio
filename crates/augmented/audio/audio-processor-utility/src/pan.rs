@@ -71,7 +71,7 @@ mod test {
     use audio_processor_testing_helpers::assert_f_eq;
     use audio_processor_traits::simple_processor::process_buffer;
     use audio_processor_traits::AudioBuffer;
-    
+
     use audio_processor_traits::InterleavedAudioBuffer;
 
     use super::*;
