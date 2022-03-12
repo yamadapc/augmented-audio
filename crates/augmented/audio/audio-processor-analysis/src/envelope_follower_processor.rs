@@ -139,7 +139,7 @@ mod test {
         input.prepare(settings);
 
         let mut envelope_follower = EnvelopeFollowerProcessor::default();
-        envelope_follower.prepare(settings);
+        envelope_follower.s_prepare(settings);
 
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, settings.block_size(), 0.0);

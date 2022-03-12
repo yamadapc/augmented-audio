@@ -77,8 +77,8 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
-    use audio_processor_traits::AudioProcessor;
     use audio_processor_traits::InterleavedAudioBuffer;
+    use audio_processor_traits::{simple_processor, AudioProcessor};
 
     use super::*;
 
@@ -88,7 +88,7 @@ mod test {
         let mut samples = [1., 1., 1., 1., 1., 1.];
         let mut input = InterleavedAudioBuffer::new(1, &mut samples);
 
-        gain.process(&mut input);
+        simple_processor::process_buffer(&mut gain, &mut input);
 
         for sample in samples {
             assert_f_eq!(sample, 0.8);
@@ -102,7 +102,7 @@ mod test {
         let mut samples = [1., 1., 1., 1., 1., 1.];
         let mut input = InterleavedAudioBuffer::new(1, &mut samples);
 
-        gain.process(&mut input);
+        simple_processor::process_buffer(&mut gain, &mut input);
 
         for sample in samples {
             assert_f_eq!(sample, 0.8);

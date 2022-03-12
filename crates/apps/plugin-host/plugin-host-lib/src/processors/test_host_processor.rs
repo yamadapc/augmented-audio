@@ -7,8 +7,10 @@ use vst::plugin::Plugin;
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_standalone_midi::host::MidiMessageEntry;
 use audio_processor_standalone_midi::vst::MidiVSTConverter;
-use audio_processor_traits::simple_processor::BufferProcessor;
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{
+    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, BufferProcessor,
+    SimpleAudioProcessor,
+};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;

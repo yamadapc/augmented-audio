@@ -338,7 +338,7 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
 ///
 /// ```
 /// use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-/// use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+/// use audio_processor_traits::{AudioProcessor, BufferProcessor, AudioProcessorSettings};
 /// use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 ///
 /// let mut audio_buffer = VecAudioBuffer::new();
@@ -352,6 +352,7 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
 /// filter_processor.set_cutoff(880.0);
 /// filter_processor.set_q(1.0);
 ///
+/// let mut filter_processor = BufferProcessor(processor);
 /// filter_processor.prepare(settings);
 ///
 /// filter_processor.process(&mut audio_buffer);
@@ -497,6 +498,7 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::charts::*;
+    use audio_processor_traits::simple_processor::BufferProcessor;
 
     use super::*;
 
@@ -517,6 +519,7 @@ mod test {
         for (filter_name, filter_type) in filters {
             let mut processor = FilterProcessor::new(filter_type);
             processor.set_cutoff(880.0);
+            let mut processor = BufferProcessor(processor);
             generate_frequency_response_plot(
                 &*format!("{}{}", env!("CARGO_MANIFEST_DIR"), "/src/rbj.rs"),
                 &*format!("{}-880hz-frequency-response", filter_name),

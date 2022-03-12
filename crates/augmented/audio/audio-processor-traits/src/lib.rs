@@ -17,7 +17,7 @@ pub use num::Zero;
 pub use atomic_float::{AtomicF32, AtomicF64};
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
 pub use midi::{MidiEventHandler, MidiMessageLike, NoopMidiEventHandler};
-pub use simple_processor::SimpleAudioProcessor;
+pub use simple_processor::{BufferProcessor, SimpleAudioProcessor};
 
 /// Atomic F32 implementation with `num` trait implementations
 pub mod atomic_float;

@@ -2,7 +2,8 @@ use num::FromPrimitive;
 use rimd::Status;
 
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, BufferProcessor, MidiEventHandler,
+    MidiMessageLike, SimpleAudioProcessor,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 use voice::Voice;
@@ -12,7 +13,7 @@ mod voice;
 pub struct Synthesizer {
     current_voice: usize,
     voices: [Voice; 4],
-    filter: FilterProcessor<f32>,
+    filter: BufferProcessor<FilterProcessor<f32>>,
 }
 
 impl Default for Synthesizer {
@@ -32,7 +33,7 @@ impl Synthesizer {
                 Voice::new(sample_rate),
                 Voice::new(sample_rate),
             ],
-            filter: FilterProcessor::new(FilterType::LowPass),
+            filter: BufferProcessor(FilterProcessor::new(FilterType::LowPass)),
         }
     }
 }
@@ -92,10 +93,12 @@ impl Synthesizer {
             }
             Status::ControlChange => {
                 if bytes[1] == 21 {
-                    self.filter.set_cutoff(22000.0 * (bytes[2] as f32 / 127.0));
+                    self.filter
+                        .0
+                        .set_cutoff(22000.0 * (bytes[2] as f32 / 127.0));
                 }
                 if bytes[1] == 22 {
-                    self.filter.set_q(1.0 + (bytes[2] as f32 / 127.0));
+                    self.filter.0.set_q(1.0 + (bytes[2] as f32 / 127.0));
                 }
             }
             _ => {}

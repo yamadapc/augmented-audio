@@ -123,6 +123,7 @@ mod test {
     };
 
     use audio_processor_traits::audio_buffer::VecAudioBuffer;
+    use audio_processor_traits::simple_processor::process_buffer;
     use audio_processor_traits::AudioProcessor;
 
     use super::*;
@@ -146,7 +147,7 @@ mod test {
 
         println!("Processing");
         let mut fft_processor = FftProcessor::default();
-        fft_processor.process(&mut signal);
+        process_buffer(&mut fft_processor, &mut signal);
 
         println!("Drawing chart");
         let mut output: Vec<f32> = fft_processor

@@ -31,7 +31,7 @@ fn main() {
 
     let mut envelope_processor =
         EnvelopeFollowerProcessor::new(Duration::from_millis(10), Duration::from_millis(2));
-    envelope_processor.prepare(settings);
+    envelope_processor.s_prepare(settings);
 
     let mut buffer = VecAudioBuffer::new();
 
