@@ -9,7 +9,6 @@ members = [
     "crates/apps/plugin-host/plugin-host-lib",
     "crates/apps/synth",
     "crates/apps/tremolo-plugin",
-    "crates/apps/recording_buddy",
     "crates/apps/demo-plugin",
     "crates/apps/metronome",
     "crates/apps/daw",
