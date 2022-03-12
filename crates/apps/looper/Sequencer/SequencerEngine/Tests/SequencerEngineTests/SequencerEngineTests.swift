@@ -1,5 +1,5 @@
-import XCTest
 @testable import SequencerEngine
+import XCTest
 
 final class SequencerEngineTests: XCTestCase {
     func testExample() throws {
