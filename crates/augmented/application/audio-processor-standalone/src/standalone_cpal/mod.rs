@@ -83,7 +83,7 @@ pub fn standalone_start(
     let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
         input_device
             .build_input_stream(
-                &input_config,
+                input_config,
                 move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
                     input_stream_callback(&mut producer, data)
                 },
@@ -217,14 +217,12 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
                     break;
                 }
             }
-        } else {
-            if let Some(input_sample) = consumer.pop() {
-                for sample in frame {
-                    *sample = input_sample
-                }
-            } else {
-                break;
+        } else if let Some(input_sample) = consumer.pop() {
+            for sample in frame {
+                *sample = input_sample
             }
+        } else {
+            break;
         }
     }
 

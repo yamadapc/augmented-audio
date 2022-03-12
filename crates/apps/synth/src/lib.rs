@@ -72,7 +72,7 @@ impl MidiEventHandler for Synthesizer {
             let maybe_bytes = message.bytes();
             // TODO Write a better MIDI parser
             // (rimd allocates on parse, so we can't parse the whole message; only the status byte)
-            let maybe_status = maybe_bytes.map(|b| rimd::Status::from_u8(b[0])).flatten();
+            let maybe_status = maybe_bytes.and_then(|b| rimd::Status::from_u8(b[0]));
             if let Some((status, bytes)) = maybe_status.zip(maybe_bytes) {
                 self.handle_midi_message(status, bytes);
             }

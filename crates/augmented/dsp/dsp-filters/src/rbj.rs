@@ -348,11 +348,11 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
 ///     ..AudioProcessorSettings::default()
 /// };
 ///
-/// let mut filter_processor = FilterProcessor::new(FilterType::LowPass);
+/// let mut filter_processor: FilterProcessor<f32> = FilterProcessor::new(FilterType::LowPass);
 /// filter_processor.set_cutoff(880.0);
 /// filter_processor.set_q(1.0);
 ///
-/// let mut filter_processor = BufferProcessor(processor);
+/// let mut filter_processor = BufferProcessor(filter_processor);
 /// filter_processor.prepare(settings);
 ///
 /// filter_processor.process(&mut audio_buffer);

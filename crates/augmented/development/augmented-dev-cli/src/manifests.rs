@@ -82,14 +82,12 @@ impl CargoToml {
     pub fn has_snapshot_tests(&self) -> bool {
         self.package
             .metadata
-            .as_ref()
-            .map(|metadata| {
+            .as_ref().and_then(|metadata| {
                 metadata.augmented.as_ref().map(|augmented| {
                     augmented.processor_examples.is_some()
                         && !augmented.processor_examples.as_ref().unwrap().is_empty()
                 })
             })
-            .flatten()
             .unwrap_or(false)
     }
 

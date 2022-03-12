@@ -8,15 +8,12 @@ fn find_cpal_host_by_name(host_name: &str) -> Option<cpal::Host> {
     let maybe_id = cpal::available_hosts()
         .into_iter()
         .find(|host| host.name() == host_name);
-    maybe_id
-        .map(|host_id| cpal::host_from_id(host_id).ok())
-        .flatten()
+    maybe_id.and_then(|host_id| cpal::host_from_id(host_id).ok())
 }
 
 fn find_cpal_output_device_by_name(host: &Host, id: &str) -> Option<Device> {
     host.output_devices()
-        .ok()
-        .map(|mut devices| {
+        .ok().and_then(|mut devices| {
             devices.find(|device| {
                 let name = device.name();
                 match name {
@@ -25,13 +22,11 @@ fn find_cpal_output_device_by_name(host: &Host, id: &str) -> Option<Device> {
                 }
             })
         })
-        .flatten()
 }
 
 fn find_cpal_input_device_by_name(host: &Host, id: &str) -> Option<Device> {
     host.input_devices()
-        .ok()
-        .map(|mut devices| {
+        .ok().and_then(|mut devices| {
             devices.find(|device| {
                 let name = device.name();
                 log::info!("Looking for {} in {:?}", id, &name);
@@ -41,7 +36,6 @@ fn find_cpal_input_device_by_name(host: &Host, id: &str) -> Option<Device> {
                 }
             })
         })
-        .flatten()
 }
 
 pub fn get_cpal_host(host_id: &AudioHostId) -> cpal::Host {

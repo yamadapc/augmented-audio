@@ -58,14 +58,12 @@ impl TimeInfoProvider for TimeInfoProviderImpl {
     #[cfg(not(target_os = "ios"))]
     fn get_time_info(&self) -> TimeInfo {
         let host_time_info = self
-            .host_callback
-            .map(|cb| {
+            .host_callback.and_then(|cb| {
                 cb.get_time_info(
                     (vst::api::TimeInfoFlags::TEMPO_VALID | vst::api::TimeInfoFlags::PPQ_POS_VALID)
                         .bits(),
                 )
             })
-            .flatten()
             .map(|vst_time_info| TimeInfo {
                 tempo: Some(vst_time_info.tempo),
                 position_samples: vst_time_info.sample_pos,

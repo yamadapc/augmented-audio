@@ -121,7 +121,7 @@ fn draw_audio_envelope_piet(output_file_path: &str, frames: &Vec<(f32, f32)>) {
         .enumerate()
         .map(|(i, sig)| ((i as f64 / len) * fwidth, map_sig(*sig)))
         .map(|(x, y)| Point::new(x, y))
-        .map(|point| PathEl::LineTo(point))
+        .map(PathEl::LineTo)
         .collect();
     signal_path.insert(0, PathEl::MoveTo(Point::new(0.0, fheight / 2.0)));
     signal_path.push(PathEl::LineTo(Point::new(fwidth, fheight / 2.0)));
@@ -133,7 +133,7 @@ fn draw_audio_envelope_piet(output_file_path: &str, frames: &Vec<(f32, f32)>) {
         .enumerate()
         .map(|(i, envelope)| ((i as f64 / len) * fwidth, map_envelope(envelope)))
         .map(|(x, y)| Point::new(x, y))
-        .map(|point| PathEl::LineTo(point))
+        .map(PathEl::LineTo)
         .collect();
     path.insert(0, PathEl::MoveTo(Point::new(0.0, fheight / 2.0)));
     path.push(PathEl::LineTo(Point::new(fwidth, fheight / 2.0)));

@@ -112,7 +112,7 @@ impl Application for LooperApplication {
             iced::time::every(Duration::from_millis(64))
                 .map(|_| WrapperMessage::Inner(Message::VisualizationTick)),
             file_drag_and_drop_handler::drag_and_drop_subscription()
-                .map(|msg| WrapperMessage::Inner(msg)),
+                .map(WrapperMessage::Inner),
         ])
     }
 
@@ -173,8 +173,7 @@ impl Application for LooperApplication {
                     self.audio_editor_view.view().map(|_msg| Message::None),
                 ),
             ])
-            .map(|msg| WrapperMessage::TabsView(msg))
-            .into()])
+            .map(WrapperMessage::TabsView)])
         .into()
     }
 }

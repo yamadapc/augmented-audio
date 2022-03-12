@@ -91,9 +91,7 @@ impl Handler<GetSystemIndexesMessage> for AudioGraphManager {
 
     fn handle(&mut self, _msg: GetSystemIndexesMessage, _ctx: &mut Self::Context) -> Self::Result {
         let result = self
-            .input_idx
-            .map(|idx| self.output_idx.map(|oidx| (idx, oidx)))
-            .flatten();
+            .input_idx.and_then(|idx| self.output_idx.map(|oidx| (idx, oidx)));
         MessageResult(result)
     }
 }

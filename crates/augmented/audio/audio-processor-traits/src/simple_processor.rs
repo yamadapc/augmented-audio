@@ -30,9 +30,11 @@ pub trait SimpleAudioProcessor {
     }
 }
 
+/// Wrapper over `SimpleAudioProcessor` to provide an `AudioProcessor` impl.
 #[derive(Clone, Default, Debug)]
 pub struct BufferProcessor<Processor>(pub Processor);
 
+/// Process a buffer of samples with a `SimpleAudioProcessor`
 pub fn process_buffer<Processor, BufferType>(processor: &mut Processor, data: &mut BufferType)
 where
     Processor: SimpleAudioProcessor,

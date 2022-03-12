@@ -51,10 +51,7 @@ impl BuildCommandService {
             .expect("No package.metadata section found");
         let vst_examples = metadata
             .augmented
-            .as_ref()
-            .map(|a| a.vst_examples.clone())
-            .flatten()
-            .unwrap_or(vec![]);
+            .as_ref().and_then(|a| a.vst_examples.clone()).unwrap_or_default();
 
         for example in vst_examples {
             let package_name = &cargo_toml.package.name;
@@ -75,7 +72,7 @@ impl BuildCommandService {
             let public_path = self.get_public_path(&release_key, public_name);
             self.run_build_and_publish(
                 crate_path,
-                &public_name,
+                public_name,
                 &public_path,
                 &cargo_toml,
                 &release_key,
@@ -111,12 +108,12 @@ impl BuildCommandService {
         if let Some(local_package) = self.packager_service.create_local_package(PackagerInput {
             public_name,
             crate_path,
-            cargo_toml: &cargo_toml,
+            cargo_toml,
             release_json: &release_json,
             example_name,
         }) {
             self.release_service.release(ReleaseInput {
-                cargo_toml: &cargo_toml,
+                cargo_toml,
                 local_package: &local_package,
                 release_json: &release_json,
             })

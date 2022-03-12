@@ -77,7 +77,7 @@ mod test {
     impl MidiEventHandler for MockMidiEventHandler {
         fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
             let mut messages: Vec<MidiMessageWrapper> = midi_messages
-                .into_iter()
+                .iter()
                 .filter_map(|msg| msg.bytes())
                 .map(|bytes| MidiMessageWrapper {
                     timestamp: 0,

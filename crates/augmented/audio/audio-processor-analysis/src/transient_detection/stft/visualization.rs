@@ -232,7 +232,7 @@ fn draw_line(
         .map(|(i, s)| ((i as f64 / len) * fwidth, map_sample(*s)))
         .filter(|(_i, x)| !(x.is_nan() || x.is_infinite()))
         .map(|(x, y)| Point::new(x, y))
-        .map(|point| PathEl::LineTo(point))
+        .map(PathEl::LineTo)
         .collect();
     path.insert(0, PathEl::MoveTo(Point::new(0.0, fheight / 2.0)));
     path.push(PathEl::LineTo(Point::new(fwidth, fheight / 2.0)));

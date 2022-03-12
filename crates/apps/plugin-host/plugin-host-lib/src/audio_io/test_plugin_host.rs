@@ -259,15 +259,13 @@ impl TestPluginHost {
 
     fn host_processor(&self) -> Option<&TestHostProcessor> {
         self.processor
-            .as_ref()
-            .map(|processor| {
+            .as_ref().and_then(|processor| {
                 if let AudioThreadProcessor::Active(host) = processor.deref() {
                     Some(host)
                 } else {
                     None
                 }
             })
-            .flatten()
     }
 
     pub fn volume_handle(&self) -> Option<Shared<VolumeMeterProcessorHandle>> {

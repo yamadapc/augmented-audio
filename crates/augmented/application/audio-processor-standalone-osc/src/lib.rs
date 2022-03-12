@@ -23,7 +23,7 @@ impl<C> Default for OscMap<C> {
 
 impl<C> OscMap<C> {
     pub fn add(&mut self, addr: impl Into<String>, handler: OscHandler<C>) {
-        self.map.insert(addr.into(), handler.into());
+        self.map.insert(addr.into(), handler);
     }
 
     pub fn get(&self, addr: &str) -> Option<&OscHandler<C>> {

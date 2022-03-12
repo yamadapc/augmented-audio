@@ -399,7 +399,7 @@ mod test {
         looper.process(&mut output_buffer);
         assert_eq!(looper.handle.state(), LooperState::Playing);
 
-        let output_vec = output_buffer.slice().iter().cloned().collect::<Vec<f32>>();
+        let output_vec = output_buffer.slice().to_vec();
         assert_eq!(
             output_vec,
             (0..200).map(|i| i as f32).collect::<Vec<f32>>(),

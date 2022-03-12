@@ -106,13 +106,13 @@ impl Default for Story {
 
 // TODO: This should be inside of audio-processor-analysis
 fn build_markers(
-    mut audio_file_buffer: &mut Vec<f32>,
+    audio_file_buffer: &mut Vec<f32>,
     params: IterativeTransientDetectionParams,
     gate: f32,
 ) -> Vec<AudioFileMarker> {
     let transients = find_transients(
         params,
-        &mut InterleavedAudioBuffer::new(1, &mut audio_file_buffer),
+        &mut InterleavedAudioBuffer::new(1, audio_file_buffer),
     );
     let mut peak_detector = audio_processor_analysis::peak_detector::PeakDetector::default();
     let attack_mult = audio_processor_analysis::peak_detector::calculate_multiplier(
@@ -144,11 +144,11 @@ fn build_markers(
         }
         markers
     };
-    let markers = markers_from_transients
+    
+    markers_from_transients
         .into_iter()
         .map(|position_samples| AudioFileMarker { position_samples })
-        .collect();
-    markers
+        .collect()
 }
 
 fn get_example_file_buffer(settings: AudioProcessorSettings) -> Vec<f32> {
@@ -236,7 +236,7 @@ impl StoryView<StoryMessage> for Story {
         let view = self.editor.view();
 
         Column::with_children(vec![
-            view.map(|msg| StoryMessage::Inner(msg)),
+            view.map(StoryMessage::Inner),
             Text::new(if self.is_loading {
                 "Loading..."
             } else {
@@ -246,7 +246,7 @@ impl StoryView<StoryMessage> for Story {
             Container::new(
                 self.parameters_view
                     .view()
-                    .map(|msg| StoryMessage::Knobs(msg)),
+                    .map(StoryMessage::Knobs),
             )
             .padding(Spacing::base_spacing())
             .style(Container1::default())
