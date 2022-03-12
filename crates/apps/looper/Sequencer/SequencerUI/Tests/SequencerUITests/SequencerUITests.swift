@@ -1,11 +1,11 @@
-import XCTest
 @testable import SequencerUI
+import ViewInspector
+import XCTest
 
 final class SequencerUITests: XCTestCase {
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(SequencerUI().text, "Hello, World!")
-    }
+    //  func testBasicRendering() throws {
+//    let view = SequencerView().environmentObject(Store())
+//    let recordText = try! view.inspect().find(text: "Record").string()
+//    XCTAssertEqual(recordText, "Record")
+    //  }
 }

@@ -23,10 +23,10 @@ import AudioKit
 import AudioKitEX
 import AudioKitUI
 import AudioToolbox
+import AVFAudio
+import AVFoundation
 import SoundpipeAudioKit
 import SwiftUI
-import AVFoundation
-import AVFAudio
 
 struct TunerData {
     var pitch: Float = 0.0
@@ -58,7 +58,7 @@ class TunerConductor: ObservableObject {
         print(engine.avEngine.inputNode.inputFormat(forBus: 0))
         guard let input = engine.input else { fatalError() }
 
-      guard let device: AudioKit.Device = engine.inputDevice else { fatalError() }
+        guard let device: AudioKit.Device = engine.inputDevice else { fatalError() }
 
         initialDevice = device
 
@@ -91,7 +91,7 @@ class TunerConductor: ObservableObject {
             frequency *= 2.0
         }
 
-        var minDistance: Float = 10_000.0
+        var minDistance: Float = 10000.0
         var index = 0
 
         for possibleIndex in 0 ..< noteFrequencies.count {

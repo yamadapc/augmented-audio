@@ -6,8 +6,8 @@ import PackageDescription
 let package = Package(
     name: "SequencerUI",
     platforms: [
-      .macOS(.v10_15),
-      .iOS(.v15)
+        .macOS(.v10_15),
+        .iOS(.v15),
     ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
@@ -19,8 +19,9 @@ let package = Package(
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
-      .package(url: "https://github.com/sammysmallman/OSCKit", from: "3.1.0"),
-      .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
+        .package(url: "https://github.com/sammysmallman/OSCKit", from: "3.1.0"),
+        .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
+        .package(url: "https://github.com/nalexn/ViewInspector", from: "0.9.1"),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -28,11 +29,16 @@ let package = Package(
         .target(
             name: "SequencerUI",
             dependencies: [
-              .productItem(name: "OSCKit", package: "OSCKit", condition: nil),
-              .product(name: "Logging", package: "swift-log")
-            ]),
+                .productItem(name: "OSCKit", package: "OSCKit", condition: nil),
+                .product(name: "Logging", package: "swift-log"),
+            ]
+        ),
         .testTarget(
             name: "SequencerUITests",
-            dependencies: ["SequencerUI"]),
+            dependencies: [
+                "SequencerUI",
+                "ViewInspector",
+            ]
+        ),
     ]
 )

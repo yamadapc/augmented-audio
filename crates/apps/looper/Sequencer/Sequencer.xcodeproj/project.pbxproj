@@ -63,6 +63,7 @@
 		CB801A2027D8AE6600D7788E /* Sequencer_Mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer_Mac.entitlements; sourceTree = "<group>"; };
 		CB801A4327D8B11C00D7788E /* SequencerUI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SequencerUI; sourceTree = "<group>"; };
 		CB801A4F27DB696F00D7788E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		CB801A5027DC5B7A00D7788E /* SequencerEngine */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SequencerEngine; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +105,7 @@
 		CB16669B27CCAD04000F9E21 = {
 			isa = PBXGroup;
 			children = (
+				CB801A5027DC5B7A00D7788E /* SequencerEngine */,
 				CB801A4327D8B11C00D7788E /* SequencerUI */,
 				CB801A1627D8AE6600D7788E /* Sequencer Mac */,
 				CB1666A627CCAD04000F9E21 /* Sequencer */,
