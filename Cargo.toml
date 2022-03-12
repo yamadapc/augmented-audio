@@ -31,6 +31,7 @@ members = [
     "crates/augmented/audio/audio-processor-analysis",
     "crates/augmented/audio/audio-processor-graph",
     "crates/augmented/audio/audio-processor-traits",
+    "crates/augmented/audio/audio-processor-traits-derive",
     "crates/augmented/audio/audio-processor-utility",
     "crates/augmented/audio/audio-processor-file",
     "crates/augmented/audio/audio-processor-time",

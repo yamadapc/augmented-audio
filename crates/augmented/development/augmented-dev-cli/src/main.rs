@@ -23,22 +23,24 @@ fn main() {
     );
 
     let version = get_cli_version();
-    let mut app = clap::App::new("augmented-dev-cli")
+    let mut app = clap::Command::new("augmented-dev-cli")
         .version(&*version)
         .about("Development CLI for augmented projects, helps build and deploy apps")
-        .subcommand(clap::App::new("list-crates").about("List crates and their published status"))
         .subcommand(
-            clap::App::new("prerelease-all").about("Bump all crates into a pre-release state"),
+            clap::Command::new("list-crates").about("List crates and their published status"),
         )
         .subcommand(
-            clap::App::new("test-snapshots")
+            clap::Command::new("prerelease-all").about("Bump all crates into a pre-release state"),
+        )
+        .subcommand(
+            clap::Command::new("test-snapshots")
                 .about("Run processor snapshot tests")
-                .arg(clap::Arg::from("-u, --update-snapshots")),
+                .arg(clap::Arg::new("-u, --update-snapshots")),
         )
         .subcommand(
-            clap::App::new("build")
+            clap::Command::new("build")
                 .about("Build a release package for a given app")
-                .arg(clap::Arg::from("-c, --crate=<PATH> 'Crate path'")),
+                .arg(clap::Arg::new("-c, --crate=<PATH> 'Crate path'")),
         );
 
     let matches = app.clone().get_matches();
