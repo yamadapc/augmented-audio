@@ -4,7 +4,8 @@ use audio_processor_traits::{AudioBuffer, SimpleAudioProcessor};
 use dynamic_thresholds::{DynamicThresholds, DynamicThresholdsParams};
 use power_change::{PowerOfChangeFrames, PowerOfChangeParams};
 
-use crate::fft_processor::{FftDirection, FftProcessor};
+use crate::fft_processor::{FftDirection, FftProcessor, FftProcessorOptions};
+use crate::window_functions::WindowFunctionType;
 
 mod dynamic_thresholds;
 mod frame_deltas;
@@ -317,7 +318,14 @@ fn get_fft_frames<BufferType: AudioBuffer<SampleType = f32>>(
     fft_overlap_ratio: f32,
     data: &mut BufferType,
 ) -> Vec<Vec<Complex<f32>>> {
-    let mut fft = FftProcessor::new(fft_size, FftDirection::Forward, fft_overlap_ratio);
+    let mut fft = FftProcessor::new(FftProcessorOptions {
+        size: fft_size,
+        direction: FftDirection::Forward,
+        overlap_ratio: fft_overlap_ratio,
+        // On the paper this is a blackman-harris window; maybe it can be configurable at another
+        // point
+        window_function: WindowFunctionType::Hann,
+    });
     let mut fft_frames = vec![];
 
     for frame in data.frames_mut() {

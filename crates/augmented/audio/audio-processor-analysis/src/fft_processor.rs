@@ -7,7 +7,25 @@ use rustfft::{Fft, FftPlanner};
 
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 
-use crate::window_functions::make_hann_vec;
+use crate::window_functions::{make_hann_vec, make_window_vec, WindowFunctionType};
+
+pub struct FftProcessorOptions {
+    pub size: usize,
+    pub direction: FftDirection,
+    pub overlap_ratio: f32,
+    pub window_function: WindowFunctionType,
+}
+
+impl Default for FftProcessorOptions {
+    fn default() -> Self {
+        Self {
+            size: 8192,
+            direction: FftDirection::Forward,
+            overlap_ratio: 0.0,
+            window_function: WindowFunctionType::Hann,
+        }
+    }
+}
 
 pub struct FftProcessor {
     input_buffer: Vec<f32>,
@@ -23,7 +41,7 @@ pub struct FftProcessor {
 
 impl Default for FftProcessor {
     fn default() -> Self {
-        Self::new(8192, FftDirection::Forward, 0.0)
+        Self::new(Default::default())
     }
 }
 
@@ -34,7 +52,14 @@ impl FftProcessor {
     /// * direction: Direction of the FFT
     /// * overlap_ratio: 0.0 will do no overlap, 0.5 will do half a window of overlap and 0.75 will
     ///   do 3/4 window overlap
-    pub fn new(size: usize, direction: FftDirection, overlap_ratio: f32) -> Self {
+    /// * window_function: The window function to use
+    pub fn new(options: FftProcessorOptions) -> Self {
+        let FftProcessorOptions {
+            size,
+            direction,
+            overlap_ratio,
+            window_function,
+        } = options;
         let mut planner = FftPlanner::new();
         let fft = planner.plan_fft(size, direction);
 
@@ -47,7 +72,7 @@ impl FftProcessor {
         let mut scratch = Vec::with_capacity(scratch_size);
         scratch.resize(scratch_size, 0.0.into());
 
-        let window = make_hann_vec(size);
+        let window = make_window_vec(size, window_function);
         let step_len = (size as f32 * (1.0 - overlap_ratio)) as usize;
 
         Self {
