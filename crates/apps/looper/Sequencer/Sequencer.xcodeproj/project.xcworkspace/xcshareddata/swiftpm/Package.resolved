@@ -47,6 +47,15 @@
         }
       },
       {
+        "package": "SwiftFormat",
+        "repositoryURL": "https://github.com/nicklockwood/SwiftFormat",
+        "state": {
+          "branch": null,
+          "revision": "a07e7dca002072f1761bae8d5c53fa64462b2c2a",
+          "version": "0.49.5"
+        }
+      },
+      {
         "package": "ViewInspector",
         "repositoryURL": "https://github.com/nalexn/ViewInspector",
         "state": {
