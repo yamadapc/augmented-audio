@@ -7,10 +7,10 @@ use vst::plugin_main;
 
 use audio_parameter_store::ParameterStore;
 use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
-use audio_processor_traits::midi::vst::midi_slice_from_events;
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
+
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 use iced_editor::IcedEditor;
-use looper_processor::{LooperOptions, LooperProcessor, MultiTrackLooper};
+use looper_processor::{LooperOptions, MultiTrackLooper};
 
 pub use crate::ui::LooperApplication;
 
@@ -74,7 +74,7 @@ impl Plugin for LoopiPlugin {
         self.processor.process(&mut vst_buffer);
     }
 
-    fn process_events(&mut self, events: &Events) {
+    fn process_events(&mut self, _events: &Events) {
         // self.processor
         //     .process_midi_events(midi_slice_from_events(events));
     }

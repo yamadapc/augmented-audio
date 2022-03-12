@@ -49,7 +49,7 @@ where
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
     use audio_processor_traits::{
-        simple_processor, AudioBuffer, AudioProcessor, InterleavedAudioBuffer,
+        simple_processor, AudioBuffer, InterleavedAudioBuffer,
     };
 
     use super::*;

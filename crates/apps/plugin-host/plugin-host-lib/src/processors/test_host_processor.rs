@@ -9,7 +9,6 @@ use audio_processor_standalone_midi::host::MidiMessageEntry;
 use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, BufferProcessor,
-    SimpleAudioProcessor,
 };
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;

@@ -124,7 +124,7 @@ mod test {
 
     use audio_processor_traits::audio_buffer::VecAudioBuffer;
     use audio_processor_traits::simple_processor::process_buffer;
-    use audio_processor_traits::AudioProcessor;
+    
 
     use super::*;
 

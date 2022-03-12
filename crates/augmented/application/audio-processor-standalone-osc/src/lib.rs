@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
-use std::str::FromStr;
-use std::sync::{Arc, Mutex};
+
+
 use std::time::Duration;
 
 use rosc::{OscMessage, OscPacket};
 use zeroconf::prelude::*;
-use zeroconf::{MdnsService, ServiceRegistration, ServiceType};
+use zeroconf::{MdnsService, ServiceType};
 
 pub type OscHandler<C> = Box<dyn Fn(&C, OscMessage) + Send>;
 
@@ -43,9 +43,9 @@ impl<C> OscServer<C> {
     }
 
     pub fn build_service(&self) -> impl TMdnsService {
-        let mut service = MdnsService::new(ServiceType::new("looper", "udp").unwrap(), 1449);
+        let service = MdnsService::new(ServiceType::new("looper", "udp").unwrap(), 1449);
         let hostname = hostname::get().unwrap();
-        let hostname = hostname.to_str().unwrap();
+        let _hostname = hostname.to_str().unwrap();
         // service.set_host(hostname);
         // log::info!("Publishing host to {}", hostname);
 

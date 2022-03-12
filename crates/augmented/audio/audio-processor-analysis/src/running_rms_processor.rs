@@ -126,7 +126,7 @@ impl SimpleAudioProcessor for RunningRMSProcessor {
 mod test {
     use audio_garbage_collector::GarbageCollector;
     use audio_processor_traits::simple_processor::process_buffer;
-    use audio_processor_traits::{AudioProcessor, BufferProcessor};
+    
 
     use super::*;
 

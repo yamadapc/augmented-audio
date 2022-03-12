@@ -2,7 +2,7 @@ use audio_garbage_collector::{GarbageCollector, Shared};
 use audio_processor_standalone::audio_processor_main_with_midi;
 use audio_processor_standalone_osc::{OscMap, OscServer};
 use looper_processor::{
-    LooperId, LooperProcessor, LooperProcessorHandle, MultiTrackLooper, MultiTrackLooperHandle,
+    LooperId, MultiTrackLooper, MultiTrackLooperHandle,
 };
 
 fn main() {
