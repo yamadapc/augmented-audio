@@ -138,6 +138,7 @@ mod test {
     #[test]
     fn test_time_info_provider_without_tempo_doesnt_move() {
         let time_info_provider = TimeInfoProviderImpl::new(None);
+        time_info_provider.play();
         time_info_provider.set_sample_rate(1000.0);
         time_info_provider.tick();
         time_info_provider.tick();
@@ -153,6 +154,7 @@ mod test {
     #[test]
     fn test_time_info_provider_with_tempo_keep_track_of_beats() {
         let time_info_provider = TimeInfoProviderImpl::new(None);
+        time_info_provider.play();
         time_info_provider.set_sample_rate(100.0);
         time_info_provider.set_tempo(60);
 

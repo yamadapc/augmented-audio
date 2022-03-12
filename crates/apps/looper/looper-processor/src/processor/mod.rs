@@ -163,8 +163,6 @@ mod test {
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         assert_ne!(sine_buffer.len(), 0);
-        println!("Sine samples: {:?}", sine_buffer);
-        println!("Sine RMS: {}", rms_level(&sine_buffer));
         assert_ne!(rms_level(&sine_buffer), 0.0);
 
         let mut audio_buffer = sine_buffer;

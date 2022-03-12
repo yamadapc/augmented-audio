@@ -292,6 +292,7 @@ impl LooperHandle {
 
     pub fn set_tempo(&self, tempo: u32) {
         self.time_info_provider.set_tempo(tempo);
+        self.time_info_provider.play();
     }
 }
 

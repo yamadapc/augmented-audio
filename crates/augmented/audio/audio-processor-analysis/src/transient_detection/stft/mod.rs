@@ -382,7 +382,13 @@ mod test {
             .max_by(|f1, f2| f1.partial_cmp(f2).unwrap())
             .unwrap();
 
-        let transients = find_transients(IterativeTransientDetectionParams::default(), &mut input);
+        let transients = find_transients(
+            IterativeTransientDetectionParams {
+                iteration_count: 2,
+                ..IterativeTransientDetectionParams::default()
+            },
+            &mut input,
+        );
         assert_eq!(frames.len(), transients.len());
         draw(&output_path, &frames, &transients);
 
