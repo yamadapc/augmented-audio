@@ -41,6 +41,18 @@ impl MultiTrackLooperHandle {
         }
     }
 
+    pub fn toggle_playback(&self, looper_id: LooperId) {
+        if let Some(handle) = self.voices.get(looper_id.0) {
+            handle.looper_handle.toggle_playback();
+        }
+    }
+
+    pub fn clear(&self, looper_id: LooperId) {
+        if let Some(handle) = self.voices.get(looper_id.0) {
+            handle.looper_handle.clear();
+        }
+    }
+
     pub fn voices(&self) -> &Vec<LooperVoice> {
         &self.voices
     }
