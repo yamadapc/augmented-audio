@@ -13,24 +13,10 @@ struct VisualisationView: View {
 
   var body: some View {
     HStack {
-      VStack {
-        TrackButton(
-          action: { store.onClickRecord() },
-          label: "Record",
-          isSelected: false
-        )
-        TrackButton(
-          action: { store.onClickPlay() },
-          label: "Play",
-          isSelected: false
-        )
-        TrackButton(
-          action: { store.onClickClear() },
-          label: "Clear",
-          isSelected: false
-        )
-      }
-    
+      RecordingButtonsView(
+        store: store,
+        looperState: store.currentTrackState().looperState
+      )
       ZStack {
         Rectangle()
           .fill(SequencerColors.black1)

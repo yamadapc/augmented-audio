@@ -46,7 +46,9 @@ struct SequencerView_Previews: PreviewProvider {
 struct TrackButton: View {
   var action: () -> Void
   var label: String
+  var isDisabled: Bool = false
   var isSelected: Bool
+  var backgroundColor: Color?
 
   var body: some View {
     Button(
@@ -62,11 +64,12 @@ struct TrackButton: View {
               isSelected ? SequencerColors.red : SequencerColors.black3,
               lineWidth: 1.0
             )
-            .background(SequencerColors.black)
+              .background(self.backgroundColor ?? SequencerColors.black)
           )
           .cornerRadius(BORDER_RADIUS)
       }
     )
+    .disabled(isDisabled)
     .buttonStyle(.plain)
   }
 }

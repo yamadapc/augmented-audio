@@ -12,9 +12,18 @@ enum TabValue {
   case mix, source, slice, envelope, fx, lfos
 }
 
+class LooperState: ObservableObject {
+  @Published var isRecording: Bool = false
+  @Published var isPlaying: Bool = false
+  @Published var isEmpty: Bool = true
+
+  init() {}
+}
+
 class TrackState: ObservableObject {
   @Published var id: Int
   @Published var steps: Set<Int> = Set()
+  @Published var looperState: LooperState = LooperState()
 
   init(id: Int) {
     self.id = id
@@ -22,12 +31,20 @@ class TrackState: ObservableObject {
 }
 
 extension TrackState {
+  func onClickRecord() {
+    let wasRecording = looperState.isRecording
+    looperState.isRecording = !looperState.isRecording
+    if !looperState.isPlaying && wasRecording {
+      looperState.isPlaying = true
+    }
+  }
+
   func onClickStep(_ step: Int) {
-    self.objectWillChange.send()
-    if self.steps.contains(step) {
-      self.steps.remove(step)
+    objectWillChange.send()
+    if steps.contains(step) {
+      steps.remove(step)
     } else {
-      self.steps.insert(step)
+      steps.insert(step)
     }
   }
 }
@@ -86,6 +103,7 @@ extension Store: RecordingController {
     try? oscClient.send(OSCMessage(
       with: "/looper/record"
     ))
+    self.currentTrackState().onClickRecord()
   }
 
   func onClickPlay() {
