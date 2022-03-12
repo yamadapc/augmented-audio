@@ -19,7 +19,7 @@ fn hann_window(size: usize) -> Vec<f32> {
 }
 
 pub struct FftProcessor {
-    input_buffer: Vec<Complex<f32>>,
+    input_buffer: Vec<f32>,
     fft_buffer: Vec<Complex<f32>>,
     scratch: Vec<Complex<f32>>,
     cursor: usize,
@@ -47,8 +47,10 @@ impl FftProcessor {
         let mut planner = FftPlanner::new();
         let fft = planner.plan_fft(size, direction);
 
-        let mut buffer = Vec::with_capacity(size);
-        buffer.resize(size, 0.0.into());
+        let mut input_buffer = Vec::with_capacity(size);
+        input_buffer.resize(size, 0.0.into());
+        let mut fft_buffer = Vec::with_capacity(size);
+        fft_buffer.resize(size, 0.0.into());
 
         let scratch_size = fft.get_inplace_scratch_len();
         let mut scratch = Vec::with_capacity(scratch_size);
@@ -58,8 +60,8 @@ impl FftProcessor {
         let step_len = (size as f32 * (1.0 - overlap_ratio)) as usize;
 
         Self {
-            input_buffer: buffer.clone(),
-            fft_buffer: buffer,
+            input_buffer,
+            fft_buffer,
             window,
             scratch,
             size,
@@ -83,9 +85,20 @@ impl FftProcessor {
     }
 
     fn perform_fft(&mut self) {
-        for (sample_index, sample) in self.input_buffer.iter().enumerate() {
-            self.fft_buffer[sample_index] = *sample;
+        let start_idx = ((self.cursor as i32) - 1 - self.size as i32) as usize % self.size;
+        for i in 0..self.size {
+            let index = (start_idx + i) % self.size;
+            let sample = self.input_buffer[index];
+
+            let magnitude = sample * self.window[i];
+            assert!(!magnitude.is_nan());
+            let complex = Complex::from_polar(magnitude, 0.0);
+            assert!(!complex.re.is_nan());
+            assert!(!complex.im.is_nan());
+
+            self.fft_buffer[i] = complex;
         }
+
         self.fft
             .process_with_scratch(&mut self.fft_buffer, &mut self.scratch);
     }
@@ -96,12 +109,7 @@ impl SimpleAudioProcessor for FftProcessor {
 
     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
         self.has_changed = false;
-        let magnitude = sample * self.window[self.cursor];
-        assert!(!magnitude.is_nan());
-        let complex = Complex::from_polar(magnitude, 0.0);
-        assert!(!complex.re.is_nan());
-        assert!(!complex.im.is_nan());
-        self.input_buffer[self.cursor] = complex;
+        self.input_buffer[self.cursor] = sample;
         self.cursor += 1;
 
         if self.cursor == self.step_len {
@@ -162,5 +170,12 @@ mod test {
             "FFT_sine_440Hz",
             output,
         );
+    }
+
+    #[test]
+    fn test_usize_cast() {
+        let i = -1;
+        let i = i as usize % 2;
+        assert_eq!(i, 1)
     }
 }
