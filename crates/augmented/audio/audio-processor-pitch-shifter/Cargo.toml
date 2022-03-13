@@ -1,0 +1,17 @@
+[package]
+name = "audio-processor-pitch-shifter"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata.augmented]
+private = true
+
+[dependencies]
+audio-processor-analysis = { path = "../audio-processor-analysis" }
+audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0-alpha.3" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.2" }
+
+[dev-dependencies]
+audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../application/audio-processor-standalone" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-file = { path = "../audio-processor-file" }

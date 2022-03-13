@@ -73,7 +73,7 @@ impl FftProcessor {
         scratch.resize(scratch_size, 0.0.into());
 
         let window = make_window_vec(size, window_function);
-        let step_len = (size as f32 * (1.0 - overlap_ratio)) as usize;
+        let step_len = Self::calculate_hop_size(size, overlap_ratio);
 
         Self {
             input_buffer,
@@ -88,6 +88,10 @@ impl FftProcessor {
         }
     }
 
+    fn calculate_hop_size(size: usize, overlap_ratio: f32) -> usize {
+        (size as f32 * (1.0 - overlap_ratio)) as usize
+    }
+
     pub fn size(&self) -> usize {
         self.size
     }
@@ -96,19 +100,30 @@ impl FftProcessor {
         &self.fft_buffer
     }
 
+    pub fn buffer_mut(&mut self) -> &mut Vec<Complex<f32>> {
+        &mut self.fft_buffer
+    }
+
+    pub fn step_len(&self) -> usize {
+        self.step_len
+    }
+
+    pub fn process_fft_buffer(&mut self, samples: &mut [Complex<f32>]) {
+        self.fft.process_with_scratch(samples, &mut self.scratch);
+    }
+
     pub fn has_changed(&self) -> bool {
         self.has_changed
     }
 
-    fn perform_fft(&mut self) {
-        let start_idx = ((self.cursor as i32) - 1 - self.size as i32) as usize % self.size;
+    pub fn perform_fft(&mut self, start_idx: usize) {
         for i in 0..self.size {
             let index = (start_idx + i) % self.size;
             let sample = self.input_buffer[index];
 
             let magnitude = sample * self.window[i];
             assert!(!magnitude.is_nan());
-            let complex = Complex::from_polar(magnitude, 0.0);
+            let complex = Complex::new(magnitude, 0.0);
             assert!(!complex.re.is_nan());
             assert!(!complex.im.is_nan());
 
@@ -126,13 +141,16 @@ impl SimpleAudioProcessor for FftProcessor {
     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
         self.has_changed = false;
         self.input_buffer[self.cursor] = sample;
-        self.cursor += 1;
 
-        if self.cursor == self.step_len {
-            self.perform_fft();
-            self.cursor = 0;
+        if self.cursor % self.step_len == 0 {
+            // Offset FFT so it's reading from the input buffer at the start of this window
+            let start_idx = (self.cursor as i32 - self.size as i32) as usize % self.size;
+            self.perform_fft(start_idx);
             self.has_changed = true;
         }
+
+        self.cursor = self.cursor + 1;
+        self.cursor = self.cursor % self.size;
 
         sample
     }
@@ -143,13 +161,21 @@ mod test {
     use std::time::Duration;
 
     use audio_processor_testing_helpers::{
-        charts::draw_vec_chart, oscillator_buffer, relative_path, sine_generator,
+        assert_f_eq, charts::draw_vec_chart, oscillator_buffer, relative_path, sine_generator,
     };
 
     use audio_processor_traits::audio_buffer::VecAudioBuffer;
     use audio_processor_traits::simple_processor::process_buffer;
 
     use super::*;
+
+    #[test]
+    fn test_hop_size_is_correct() {
+        let hop_size = FftProcessor::calculate_hop_size(2048, 0.75);
+        assert_eq!(hop_size, 512);
+        let hop_size = FftProcessor::calculate_hop_size(2048, 0.875);
+        assert_eq!(hop_size, 256);
+    }
 
     #[test]
     fn test_draw_fft() {

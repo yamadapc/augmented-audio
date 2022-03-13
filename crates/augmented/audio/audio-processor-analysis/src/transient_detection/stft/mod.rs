@@ -347,6 +347,7 @@ mod test {
 
     use super::*;
 
+    /// Read an input file for testing
     fn read_input_file(input_file_path: &str) -> impl AudioBuffer<SampleType = f32> {
         log::info!("Reading input file input_file={}", input_file_path);
         let settings = AudioProcessorSettings::default();

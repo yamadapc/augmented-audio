@@ -460,6 +460,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-pitch-shifter"
+version = "0.1.0"
+dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-analysis",
+ "audio-processor-file",
+ "audio-processor-standalone",
+ "audio-processor-testing-helpers",
+ "audio-processor-traits",
+]
+
+[[package]]
 name = "audio-processor-sampler"
 version = "0.1.0"
 dependencies = [
