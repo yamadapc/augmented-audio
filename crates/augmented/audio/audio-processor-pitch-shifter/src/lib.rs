@@ -8,6 +8,7 @@ use audio_processor_analysis::window_functions::{
 use audio_processor_traits::num::Complex;
 use audio_processor_traits::{
     simple_processor, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
+    Zero,
 };
 
 fn make_vec(size: usize) -> Vec<f32> {
@@ -71,8 +72,71 @@ impl NormalPhaseVocoder {
     }
 }
 
+struct PhaseLockedVocoder {
+    last_output_phase: Vec<f32>,
+    last_input_phase: Vec<f32>,
+    scratch: Vec<Complex<f32>>,
+}
+
+impl PhaseLockedVocoder {
+    fn new(fft_size: usize) -> Self {
+        Self {
+            last_output_phase: make_vec(fft_size),
+            last_input_phase: make_vec(fft_size),
+            scratch: make_vec(fft_size).iter().map(|_| Complex::zero()).collect(),
+        }
+    }
+
+    fn update_phases(&mut self, params: PhaseCorrectionParams) {
+        let PhaseCorrectionParams {
+            step_len,
+            fft_frequency_domain,
+            pitch_shift_ratio,
+        } = params;
+
+        let step_len = step_len as f32;
+        let fft_size = fft_frequency_domain.len() as f32;
+        for bin in 0..fft_frequency_domain.len() {
+            if bin <= (fft_size as usize) / 2 {
+                let value = fft_frequency_domain[bin];
+                let (magnitude, partial_phase) = value.to_polar();
+                let phase = if bin == 0 {
+                    partial_phase
+                } else {
+                    let v1 = value;
+                    let v2 = fft_frequency_domain[bin - 1];
+                    let v3 = fft_frequency_domain[bin + 1];
+                    let (_, phase) = (v1 + v2 + v3).to_polar();
+                    phase
+                };
+
+                let bin_frequency = 2.0 * PI * bin as f32 / fft_size;
+                let expected_bin_phase = bin_frequency * step_len;
+                let phase_delta = phase - self.last_input_phase[bin];
+                let bin_deviation = phase_delta - expected_bin_phase;
+                let bin_frequency = expected_bin_phase + princ_arg(bin_deviation);
+
+                let last_output_phase = self.last_output_phase[bin];
+                let new_phase =
+                    princ_arg(last_output_phase + bin_frequency * pitch_shift_ratio * step_len);
+
+                self.last_input_phase[bin] = phase;
+                self.last_output_phase[bin] = new_phase;
+                self.scratch[bin] = Complex::from_polar(magnitude, new_phase);
+            } else {
+                fft_frequency_domain[bin] = Complex::new(0.0, 0.0);
+            }
+        }
+
+        for bin in 0..self.scratch.len() {
+            fft_frequency_domain[bin] = self.scratch[bin];
+        }
+    }
+}
+
 enum PhaseProcessingStrategy {
     Normal(NormalPhaseVocoder),
+    PhaseLocking(PhaseLockedVocoder),
 }
 
 struct PitchShifterProcessorHandle {
@@ -125,9 +189,9 @@ impl PitchShifterProcessor {
                 direction: FftDirection::Inverse,
                 ..Default::default()
             }),
-            phase_processing_strategy: PhaseProcessingStrategy::Normal(NormalPhaseVocoder::new(
-                fft_size,
-            )),
+            phase_processing_strategy: PhaseProcessingStrategy::PhaseLocking(
+                PhaseLockedVocoder::new(fft_size),
+            ),
             handle: make_shared(PitchShifterProcessorHandle { shift_steps: 12.0 }),
         }
     }
@@ -153,14 +217,14 @@ impl PitchShifterProcessor {
     }
 
     fn update_phases(&mut self) {
+        let params = PhaseCorrectionParams {
+            step_len: self.fft_processor.step_len(),
+            fft_frequency_domain: self.fft_processor.buffer_mut(),
+            pitch_shift_ratio: self.pitch_shift_ratio,
+        };
         match &mut self.phase_processing_strategy {
-            PhaseProcessingStrategy::Normal(normal) => {
-                normal.update_phases(PhaseCorrectionParams {
-                    step_len: self.fft_processor.step_len(),
-                    fft_frequency_domain: self.fft_processor.buffer_mut(),
-                    pitch_shift_ratio: self.pitch_shift_ratio,
-                })
-            }
+            PhaseProcessingStrategy::Normal(normal) => normal.update_phases(params),
+            PhaseProcessingStrategy::PhaseLocking(strategy) => strategy.update_phases(params),
         }
     }
 
