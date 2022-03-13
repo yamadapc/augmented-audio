@@ -76,26 +76,10 @@ impl PitchShifterProcessor {
         self.update_phases();
         self.inverse_fft_processor
             .process_fft_buffer(self.fft_processor.buffer_mut());
+
         let fft_time_domain = self.fft_processor.buffer();
-        let multiplier = 0.03 / 200.0;
-
-        let ratio = fft_time_domain.len() as f32 / self.resample_buffer_size as f32;
-
-        for i in 0..self.resample_buffer_size {
-            let fft_index = i as f32 * ratio;
-            let fft_index_floor = fft_index.floor();
-            let delta = fft_index - fft_index_floor;
-            let sample1 = fft_time_domain[fft_index_floor as usize].re;
-            let sample2 = fft_time_domain
-                .get(((fft_index_floor + 1.0) as usize))
-                .map(|c| c.re)
-                .unwrap_or(0.0);
-            let sample = sample1 + delta * (sample2 - sample1);
-            assert!(!sample.is_nan());
-            assert!(!(sample * multiplier).is_nan());
-            self.resample_buffer[i] = sample * multiplier;
-        }
-
+        self.resample_fft(&fft_time_domain);
+        // Read resampled output into output buffer, apply Hann window here
         let fft_size = fft_time_domain.len();
         for i in 0..fft_size {
             let resample_idx = i % self.resample_buffer_size;
@@ -137,6 +121,25 @@ impl PitchShifterProcessor {
             } else {
                 *value = Complex::new(0.0, 0.0);
             }
+        }
+    }
+
+    fn resample_fft(&mut self, fft_time_domain: &Buffer<FftProcessor, _>) {
+        let multiplier = 0.03 / 200.0;
+        let ratio = fft_time_domain.len() as f32 / self.resample_buffer_size as f32;
+        for i in 0..self.resample_buffer_size {
+            let fft_index = i as f32 * ratio;
+            let fft_index_floor = fft_index.floor();
+            let delta = fft_index - fft_index_floor;
+            let sample1 = fft_time_domain[fft_index_floor as usize].re;
+            let sample2 = fft_time_domain
+                .get(((fft_index_floor + 1.0) as usize))
+                .map(|c| c.re)
+                .unwrap_or(0.0);
+            let sample = sample1 + delta * (sample2 - sample1);
+            assert!(!sample.is_nan());
+            assert!(!(sample * multiplier).is_nan());
+            self.resample_buffer[i] = sample * multiplier;
         }
     }
 }
