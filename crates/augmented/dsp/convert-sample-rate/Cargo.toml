@@ -9,6 +9,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
+samplerate = "0.2.4"
 
 [dev-dependencies]
 rand = "^0.8.3"
