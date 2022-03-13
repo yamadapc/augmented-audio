@@ -41,16 +41,21 @@ pub unsafe extern "C" fn looper_engine__num_loopers(engine: *mut LooperEngine) -
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__record(engine: *mut LooperEngine, looper_id: usize) {
-    (*engine).handle.start_recording(LooperId(looper_id));
+    log::info!("looper_engine - Recording {}", looper_id);
+    if let Some(voice) = (*engine).handle.get(LooperId(looper_id)) {
+        voice.looper().toggle_recording();
+    }
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__play(engine: *mut LooperEngine, looper_id: usize) {
+    log::info!("looper_engine - Playing {}", looper_id);
     (*engine).handle.toggle_playback(LooperId(looper_id));
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__clear(engine: *mut LooperEngine, looper_id: usize) {
+    log::info!("looper_engine - Clearing {}", looper_id);
     (*engine).handle.clear(LooperId(looper_id));
 }
 
