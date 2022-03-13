@@ -37,3 +37,6 @@
 [submodule "crates/daisy/libDaisy"]
 	path = crates/daisy/libDaisy
 	url = https://github.com/electro-smith/libDaisy
+[submodule "crates/vendor/libsamplerate-sys"]
+	path = crates/vendor/libsamplerate-sys
+	url = git@github.com:yamadapc/libsamplerate-sys

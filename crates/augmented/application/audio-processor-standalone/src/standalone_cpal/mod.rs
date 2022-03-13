@@ -43,9 +43,10 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send 
 
 /// Handles to the CPAL streams and MIDI host. Playback will stop when these are dropped.
 pub struct StandaloneHandles {
-    pub input_stream: Option<cpal::Stream>,
-    pub output_stream: cpal::Stream,
-    pub midi_host: Option<MidiHost>,
+    handle: std::thread::JoinHandle<()>,
+    // input_stream: Option<cpal::Stream>,
+    // output_stream: cpal::Stream,
+    midi_host: Option<MidiHost>,
 }
 
 /// Start a processor using CPAL.
@@ -78,58 +79,60 @@ pub fn standalone_start(
     );
     app.processor().prepare(settings);
 
-    let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
-    let (mut producer, mut consumer) = buffer.split();
-    let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
-        input_device
-            .build_input_stream(
-                input_config,
-                move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
-                    input_stream_callback(&mut producer, data)
+    // On iOS start takes over the calling thread, so this needs to be spawned in order for this
+    // function to exit
+    let handle = std::thread::spawn(move || {
+        let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
+        let (mut producer, mut consumer) = buffer.split();
+        let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
+            input_device
+                .build_input_stream(
+                    input_config,
+                    move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
+                        input_stream_callback(&mut producer, data)
+                    },
+                    |err| {
+                        log::error!("Input error: {:?}", err);
+                    },
+                )
+                .unwrap()
+        });
+
+        // Output callback section
+        let num_output_channels = output_config.channels.into();
+        let num_input_channels = input_tuple
+            .as_ref()
+            .map(|(_, input_config)| input_config.channels.into())
+            .unwrap_or(num_output_channels);
+        let output_stream = output_device
+            .build_output_stream(
+                &output_config,
+                move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
+                    output_stream_with_context(
+                        midi_context.as_mut(),
+                        &mut app,
+                        num_input_channels,
+                        num_output_channels,
+                        &mut consumer,
+                        data,
+                    );
                 },
                 |err| {
-                    log::error!("Input error: {:?}", err);
+                    log::error!("Playback error: {:?}", err);
                 },
             )
-            .unwrap()
+            .unwrap();
+        log::info!("Audio streams starting on audio-thread");
+        output_stream.play().unwrap();
+        if let Some(input_stream) = &input_stream {
+            input_stream.play().unwrap();
+        }
+
+        log::info!("Audio streams started");
+        std::thread::park();
     });
 
-    // Output callback section
-    let num_output_channels = output_config.channels.into();
-    let num_input_channels = input_tuple
-        .as_ref()
-        .map(|(_, input_config)| input_config.channels.into())
-        .unwrap_or(num_output_channels);
-    let output_stream = output_device
-        .build_output_stream(
-            &output_config,
-            move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-                output_stream_with_context(
-                    midi_context.as_mut(),
-                    &mut app,
-                    num_input_channels,
-                    num_output_channels,
-                    &mut consumer,
-                    data,
-                );
-            },
-            |err| {
-                log::error!("Playback error: {:?}", err);
-            },
-        )
-        .unwrap();
-
-    output_stream.play().unwrap();
-    if let Some(input_stream) = &input_stream {
-        input_stream.play().unwrap();
-    }
-    log::info!("Audio streams started");
-
-    StandaloneHandles {
-        input_stream,
-        output_stream,
-        midi_host,
-    }
+    StandaloneHandles { handle, midi_host }
 }
 
 fn configure_input_device(
