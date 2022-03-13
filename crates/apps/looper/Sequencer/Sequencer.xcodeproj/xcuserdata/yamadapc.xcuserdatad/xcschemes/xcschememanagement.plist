@@ -14,10 +14,38 @@
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
+		<key>SequencerEngine.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>SequencerEngine_ios.xcscheme_^#shared#^_</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
 		<key>SequencerKit.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>3</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>CB1666A327CCAD04000F9E21</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CB1666B327CCAD07000F9E21</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>CB1666BD27CCAD07000F9E21</key>
+		<dict>
+			<key>primary</key>
+			<true/>
 		</dict>
 	</dict>
 </dict>

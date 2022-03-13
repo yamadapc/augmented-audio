@@ -64,13 +64,15 @@ import MetalKit
     }
 #endif
 
-func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _ tick: Int) {
+func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _: Int, _ buffer: UnsafeBufferPointer<Float32>) {
     let height = geometry.size.height
     let width = Int(geometry.size.width)
 
     for x in 0 ... width {
-        let value = sin(Double(x + tick) / (Double(width) / 32))
-        let h = value * height / 2 + height / 2
+        let index = Int(Double(x) / Double(width) * Double(buffer.count))
+        let value: Float = buffer[index % buffer.count] / 2.0
+
+        let h = Double(value) * height / 2 + height / 2
 
         if x == 0 {
             path.move(to: CGPoint(x: Double(x), y: h))
@@ -80,6 +82,7 @@ func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _ tick: Int) {
 }
 
 struct LoopVisualisationView: View {
+    @ObservedObject var trackState: TrackState
     @State var tick: Int = 0
 
     var body: some View {
@@ -94,19 +97,25 @@ struct LoopVisualisationView: View {
     }
 
     func renderInner(tick: Int) -> some View {
-        GeometryReader { geometry in
-            Path { path in
-                buildPath(geometry, &path, tick)
+        ZStack {
+            if let buffer = trackState.buffer {
+                GeometryReader { geometry in
+                    Path { path in
+                        buildPath(geometry, &path, tick, buffer)
+                    }
+                    .stroke(SequencerColors.blue, lineWidth: 2)
+                }
+                .padding()
+            } else {
+                Text("No loop buffer")
             }
-            .stroke(SequencerColors.blue, lineWidth: 2)
         }
-        .padding()
     }
 }
 
 struct LoopVisualisationView_Previews: PreviewProvider {
     static var previews: some View {
-        LoopVisualisationView()
+        LoopVisualisationView(trackState: TrackState(id: 0))
             .cornerRadius(BORDER_RADIUS)
     }
 }

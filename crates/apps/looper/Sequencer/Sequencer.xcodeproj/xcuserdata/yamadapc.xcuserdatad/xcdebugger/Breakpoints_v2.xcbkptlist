@@ -84,5 +84,165 @@
             landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "27DCE9A1-8500-4C60-96D2-823FC2056EE2"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerEngine/SequencerEngine.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "44"
+            endingLineNumber = "44"
+            landmarkName = "init()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "27DCE9A1-8500-4C60-96D2-823FC2056EE2 - 8cba3924bcd8002b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerEngine.EngineController.loadExampleFileBuffer() -&gt; ()"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "46"
+                  endingLineNumber = "46"
+                  offsetFromSymbolStart = "252">
+               </Location>
+               <Location
+                  uuid = "27DCE9A1-8500-4C60-96D2-823FC2056EE2 - e79461c24b71613a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerEngine.EngineController.init() -&gt; SequencerEngine.EngineController"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "44"
+                  endingLineNumber = "44"
+                  offsetFromSymbolStart = "68">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B9EEE931-9220-4590-94EA-2BB55C05A7E9"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerEngine/SequencerEngine.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "26"
+            endingLineNumber = "26"
+            landmarkName = "onClickRecord(track:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "B9EEE931-9220-4590-94EA-2BB55C05A7E9 - f8a9db85ef8905af"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerEngine.EngineImpl.onClickPlay(track: Swift.Int) -&gt; ()"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "28"
+                  endingLineNumber = "28"
+                  offsetFromSymbolStart = "36">
+               </Location>
+               <Location
+                  uuid = "B9EEE931-9220-4590-94EA-2BB55C05A7E9 - 4ff2db9a79ce057d"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerEngine.EngineImpl.onClickRecord(track: Swift.Int) -&gt; ()"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "232">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DE891A81-1FF9-410F-9C63-4EDEF6E5AB11"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerEngine/SequencerEngine.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "19"
+            endingLineNumber = "19"
+            landmarkName = "init()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "33BF95AB-E889-4BEC-881C-1CE000251B64"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerEngine/SequencerEngine.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "17"
+            endingLineNumber = "17"
+            landmarkName = "init()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "33BF95AB-E889-4BEC-881C-1CE000251B64 - e54cdf75d52d7291"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in SequencerEngine.EngineImpl.init() -&gt; SequencerEngine.EngineImpl"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "17"
+                  endingLineNumber = "17"
+                  offsetFromSymbolStart = "28">
+               </Location>
+               <Location
+                  uuid = "33BF95AB-E889-4BEC-881C-1CE000251B64 - e54cdf75d52d7291"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in SequencerEngine.EngineImpl.init() -&gt; SequencerEngine.EngineImpl"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "17"
+                  endingLineNumber = "17"
+                  offsetFromSymbolStart = "56">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

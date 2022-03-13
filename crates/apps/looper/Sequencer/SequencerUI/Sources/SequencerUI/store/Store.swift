@@ -24,6 +24,7 @@ class TrackState: ObservableObject {
     @Published var id: Int
     @Published var steps: Set<Int> = Set()
     @Published var looperState: LooperState = .init()
+    @Published var buffer: UnsafeBufferPointer<Float32>? = nil
 
     init(id: Int) {
         self.id = id
@@ -112,6 +113,12 @@ extension Store {
     }
 }
 
+public extension Store {
+    func setTrackBuffer(trackId: Int, buffer: UnsafeBufferPointer<Float32>) {
+        trackStates[trackId].buffer = buffer
+    }
+}
+
 protocol RecordingController {
     func onClickRecord()
     func onClickPlay()
@@ -153,5 +160,5 @@ extension Store {
                 arguments: [value]
             ))
         } catch {}
-      }
+    }
 }
