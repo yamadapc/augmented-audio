@@ -42,6 +42,6 @@ struct TracksPanelContentView: View {
 
 struct TracksPanelContentView_Previews: PreviewProvider {
     static var previews: some View {
-        TracksPanelContentView().environmentObject(Store())
+        TracksPanelContentView().environmentObject(Store(engine: nil))
     }
 }

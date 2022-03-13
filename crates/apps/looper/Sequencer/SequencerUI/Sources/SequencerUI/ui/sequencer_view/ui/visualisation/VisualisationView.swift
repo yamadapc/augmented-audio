@@ -37,6 +37,6 @@ struct VisualisationView: View {
 
 struct VisualisationView_Previews: PreviewProvider {
     static var previews: some View {
-        VisualisationView().environmentObject(Store())
+        VisualisationView().environmentObject(Store(engine: nil))
     }
 }

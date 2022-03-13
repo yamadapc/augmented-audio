@@ -65,7 +65,13 @@ class LFOState: ObservableObject, LFOVisualisationViewModel {
     @Published var amount: Double = 1
 }
 
-class Store: ObservableObject {
+public protocol SequencerEngine {
+    func onClickRecord(track: Int)
+    func onClickPlay(track: Int)
+    func onClickClear(track: Int)
+}
+
+public class Store: ObservableObject {
     @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source
 
@@ -81,7 +87,11 @@ class Store: ObservableObject {
 
     var oscClient = OSCClient()
 
-    init() {}
+    var engine: SequencerEngine?
+
+    public init(engine: SequencerEngine?) {
+        self.engine = engine
+    }
 }
 
 extension Store {
@@ -110,24 +120,28 @@ protocol RecordingController {
 
 extension Store: RecordingController {
     func onClickRecord() {
-        try? oscClient.send(OSCMessage(
-            with: "/looper/record"
-        ))
+        // try? oscClient.send(OSCMessage(
+        //     with: "/looper/record"
+        // ))
+
         currentTrackState().onClickRecord()
+        engine?.onClickRecord(track: selectedTrack)
     }
 
     func onClickPlay() {
-        try? oscClient.send(OSCMessage(
-            with: "/looper/play"
-        ))
+        // try? oscClient.send(OSCMessage(
+        //     with: "/looper/play"
+        // ))
         currentTrackState().onClickPlay()
+        engine?.onClickPlay(track: selectedTrack)
     }
 
     func onClickClear() {
-        try? oscClient.send(OSCMessage(
-            with: "/looper/clear"
-        ))
+        // try? oscClient.send(OSCMessage(
+        //     with: "/looper/clear"
+        // ))
         currentTrackState().onClickClear()
+        engine?.onClickClear(track: selectedTrack)
     }
 }
 
@@ -139,5 +153,5 @@ extension Store {
                 arguments: [value]
             ))
         } catch {}
-    }
+      }
 }
