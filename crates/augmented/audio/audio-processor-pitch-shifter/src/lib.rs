@@ -35,7 +35,7 @@ impl Default for PitchShifterProcessor {
 
 impl PitchShifterProcessor {
     fn new() -> Self {
-        let fft_size = 4096;
+        let fft_size = 8192;
         let fft_processor = FftProcessor::new(FftProcessorOptions {
             size: fft_size,
             overlap_ratio: 0.875,
