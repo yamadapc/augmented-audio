@@ -48,7 +48,7 @@ impl PitchShifterProcessor {
             v
         };
         let step_len = fft_processor.step_len() as f32;
-        let pitch_shift_ratio = 1.0;
+        let pitch_shift_ratio = 2.0;
         let resample_buffer_size = fft_size as f32 / pitch_shift_ratio;
         let resample_buffer_size = ((resample_buffer_size * step_len).round() / step_len) as usize;
 
@@ -100,38 +100,32 @@ impl AudioProcessor for PitchShifterProcessor {
             self.fft_processor.s_process_frame(frame);
             if self.fft_processor.has_changed() {
                 let step_len = self.fft_processor.step_len() as f32;
-                // assert!(step_len - 2048.0 < f32::EPSILON);
                 let fft_frequency_domain: &mut Vec<Complex<f32>> = self.fft_processor.buffer_mut();
 
-                // let fft_size = fft_frequency_domain.len() as f32;
-                // let ratio = (self.pitch_shift_ratio * step_len).round() / step_len;
-                // for (bin, value) in fft_frequency_domain.iter_mut().enumerate() {
-                //     let value: &mut Complex<f32> = value;
-                //     let (magnitude, phase) = value.to_polar();
-                //
-                //     let bin_frequency = 2.0 * PI * bin as f32 / fft_size;
-                //     let expected_bin_phase = bin_frequency * step_len;
-                //     let phase_delta = phase - self.last_input_phase[bin];
-                //     let bin_deviation = phase_delta - expected_bin_phase;
-                //     let bin_frequency = expected_bin_phase + princ_arg(bin_deviation);
-                //
-                //     let last_output_phase = self.last_output_phase[bin];
-                //     let new_phase = princ_arg(
-                //         last_output_phase + bin_frequency * self.pitch_shift_ratio * step_len,
-                //     );
-                //
-                //     *value = Complex::from_polar(magnitude, new_phase);
-                //
-                //     self.last_output_phase[bin] = new_phase;
-                //     self.last_input_phase[bin] = phase;
-                // }
-                {
-                    let bounds = fft_frequency_domain.len() / 2;
-                    for (bin, c) in fft_frequency_domain.iter_mut().enumerate() {
-                        if bin > bounds {
-                            c.re = 0.0;
-                            c.im = 0.0;
-                        }
+                let fft_size = fft_frequency_domain.len() as f32;
+                let ratio = self.pitch_shift_ratio;
+                for (bin, value) in fft_frequency_domain.iter_mut().enumerate() {
+                    if bin <= (fft_size as usize) / 2 {
+                        let value: &mut Complex<f32> = value;
+                        let (magnitude, phase) = value.to_polar();
+
+                        let bin_frequency = 2.0 * PI * bin as f32 / fft_size;
+                        let expected_bin_phase = bin_frequency * step_len;
+                        let phase_delta = phase - self.last_input_phase[bin];
+                        let bin_deviation = phase_delta - expected_bin_phase;
+                        let bin_frequency = expected_bin_phase + princ_arg(bin_deviation);
+
+                        let last_output_phase = self.last_output_phase[bin];
+                        let new_phase = princ_arg(
+                            last_output_phase + bin_frequency * self.pitch_shift_ratio * step_len,
+                        );
+
+                        *value = Complex::from_polar(magnitude, new_phase);
+
+                        self.last_output_phase[bin] = new_phase;
+                        self.last_input_phase[bin] = phase;
+                    } else {
+                        *value = Complex::new(0.0, 0.0);
                     }
                 }
 
@@ -139,39 +133,31 @@ impl AudioProcessor for PitchShifterProcessor {
                     .process_fft_buffer(fft_frequency_domain);
 
                 let fft_time_domain = fft_frequency_domain;
-                let multiplier = 0.01 / 200.0;
+                let multiplier = 0.03 / 200.0;
 
-                assert_eq!(self.resample_buffer_size, fft_time_domain.len());
                 let ratio = fft_time_domain.len() as f32 / self.resample_buffer_size as f32;
 
-                // for i in 0..self.resample_buffer_size {
-                //     assert!(ratio - 1.0 < f32::EPSILON);
-                //     let fft_index = i as f32 * ratio;
-                //     let fft_index_floor = fft_index.floor();
-                //     let delta = fft_index - fft_index_floor;
-                //     let sample1 = fft_time_domain[fft_index_floor as usize].re;
-                //     // let sample2 = fft_time_domain
-                //     //     .get(((fft_index_floor + 1.0) as usize))
-                //     //     .map(|c| c.re)
-                //     //     .unwrap_or(0.0);
-                //     // let sample = sample1 + delta * (sample2 - sample1);
-                //     // assert!(!sample.is_nan());
-                //     // assert!(!(sample * multiplier).is_nan());
-                //     self.resample_buffer[i] = sample1 * multiplier;
-                // }
-                // for i in 0..self.resample_buffer_size {
-                //     let resample_idx = i % self.resample_buffer_size;
-                //     let s = self.resample_buffer[resample_idx];
-                //     let output_idx = (self.output_write_cursor + i) % self.output_buffer.len();
-                //     assert!(!s.is_nan());
-                //     self.output_buffer[output_idx] += s;
-                // }
+                for i in 0..self.resample_buffer_size {
+                    let fft_index = i as f32 * ratio;
+                    let fft_index_floor = fft_index.floor();
+                    let delta = fft_index - fft_index_floor;
+                    let sample1 = fft_time_domain[fft_index_floor as usize].re;
+                    let sample2 = fft_time_domain
+                        .get(((fft_index_floor + 1.0) as usize))
+                        .map(|c| c.re)
+                        .unwrap_or(0.0);
+                    let sample = sample1 + delta * (sample2 - sample1);
+                    assert!(!sample.is_nan());
+                    assert!(!(sample * multiplier).is_nan());
+                    self.resample_buffer[i] = sample * multiplier;
+                }
 
-                for i in 0..fft_time_domain.len() {
-                    let s = fft_time_domain[i].re;
+                for i in 0..(fft_size as usize) {
+                    let resample_idx = i % self.resample_buffer_size;
+                    let s = self.resample_buffer[resample_idx];
                     let output_idx = (self.output_write_cursor + i) % self.output_buffer.len();
                     assert!(!s.is_nan());
-                    self.output_buffer[output_idx] += s * multiplier;
+                    self.output_buffer[output_idx] += s * hann(i as f32, fft_size as f32);
                 }
 
                 self.output_write_cursor = (self.output_write_cursor
@@ -230,13 +216,13 @@ mod test {
         let mut input = read_input_file(&input_path);
         let input_rms = rms_level(input.slice());
 
-        // let mut pitch_shifter = PitchShifterProcessor::default();
-        // pitch_shifter.prepare(AudioProcessorSettings::default());
-        // pitch_shifter.process(&mut input);
+        let mut pitch_shifter = PitchShifterProcessor::default();
+        pitch_shifter.prepare(AudioProcessorSettings::default());
+        pitch_shifter.process(&mut input);
         let output_rms = rms_level(input.slice());
         let diff = (input_rms - output_rms).abs();
         println!("diff={} input={} output={}", diff, input_rms, output_rms);
-        // assert!(diff.abs() < 0.1);
+        assert!(diff.abs() < 0.1);
 
         let output_path = relative_path!("./output_test.wav");
         let mut output_file_processor =
