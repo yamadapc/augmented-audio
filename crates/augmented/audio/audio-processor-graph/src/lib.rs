@@ -317,6 +317,12 @@ where
 
         // Push outputs out
         let inputs = dag.parents(self.output_node);
+
+        // Clear input
+        for d in data.slice_mut() {
+            *d = BufferType::SampleType::zero();
+        }
+
         for (connection_id, _) in inputs.iter(dag) {
             if let Some(buffer_ref) = dag
                 .edge_weight(connection_id)
@@ -325,10 +331,6 @@ where
                 let buffer = buffer_ref.deref().0.get();
 
                 unsafe {
-                    for d in data.slice_mut() {
-                        *d = BufferType::SampleType::zero();
-                    }
-
                     for (s, d) in (&*buffer).slice().iter().zip(data.slice_mut()) {
                         *d = *s + *d;
                     }
@@ -504,6 +506,49 @@ mod test {
             1000,
             f32::EPSILON,
         );
+    }
+
+    #[test]
+    fn test_two_nodes_get_summed_if_connected_to_output() {
+        type BufferType = VecAudioBuffer<f32>;
+        let settings = AudioProcessorSettings::default();
+
+        struct Node1;
+        impl SimpleAudioProcessor for Node1 {
+            type SampleType = f32;
+            fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+                sample + 1.0
+            }
+        }
+
+        struct Node2;
+        impl SimpleAudioProcessor for Node2 {
+            type SampleType = f32;
+            fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+                sample + 2.0
+            }
+        }
+
+        let node1 = Node1 {};
+        let node2 = Node2 {};
+
+        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        graph.prepare(settings);
+
+        let input_idx = graph.input();
+        let output_idx = graph.output();
+        let node1_idx = graph.add_node(Box::new(node1));
+        let node2_idx = graph.add_node(Box::new(node2));
+        graph.add_connection(input_idx, node1_idx);
+        graph.add_connection(input_idx, node2_idx);
+        graph.add_connection(node1_idx, output_idx);
+        graph.add_connection(node2_idx, output_idx);
+
+        let mut process_buffer = VecAudioBuffer::new();
+        process_buffer.resize(1, 3, 0.0);
+        graph.process(&mut process_buffer);
+        let output = process_buffer.slice().to_vec();
+        assert_eq!(output, vec![3.0, 3.0, 3.0]);
     }
 
     #[test]
