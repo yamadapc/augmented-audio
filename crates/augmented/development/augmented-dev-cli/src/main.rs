@@ -24,8 +24,6 @@ fn main() {
 
     let version = get_cli_version();
     let mut app = clap::Command::new("augmented-dev-cli")
-        .version(&*version)
-        .about("Development CLI for augmented projects, helps build and deploy apps")
         .subcommand(
             clap::Command::new("list-crates").about("List crates and their published status"),
         )
@@ -35,30 +33,30 @@ fn main() {
         .subcommand(
             clap::Command::new("test-snapshots")
                 .about("Run processor snapshot tests")
-                .arg(clap::Arg::new("-u, --update-snapshots")),
+                .arg(clap::Arg::new("update-snapshots").short('u')),
         )
         .subcommand(
             clap::Command::new("build")
                 .about("Build a release package for a given app")
-                .arg(clap::Arg::new("-c, --crate=<PATH> 'Crate path'")),
-        );
+                .arg(clap::Arg::new("crate").takes_value(true)),
+        )
+        .version(&*version)
+        .about("Development CLI for augmented projects, helps build and deploy apps");
 
     let matches = app.clone().get_matches();
 
-    if matches.is_present("prerelease-all") {
+    if matches.subcommand_matches("prerelease-all").is_some() {
         let list_crates_service = services::ListCratesService::default();
         prerelease_all_crates(&list_crates_service);
-    } else if matches.is_present("list-crates") {
+    } else if matches.subcommand_matches("list-crates").is_some() {
         let list_crates_service = services::ListCratesService::default();
         list_crates_service.run();
-    } else if matches.is_present("build") {
-        let matches = matches.subcommand_matches("build").unwrap();
+    } else if let Some(matches) = matches.subcommand_matches("build") {
         let mut build_service = services::BuildCommandService::default();
         let crate_path = matches.value_of("crate").unwrap();
 
         build_service.run_build(crate_path);
-    } else if matches.is_present("test-snapshots") {
-        let matches = matches.subcommand_matches("test-snapshots").unwrap();
+    } else if let Some(matches) = matches.subcommand_matches("test-snapshots") {
         run_all_snapshot_tests(Default::default(), matches.is_present("update-snapshots"));
     } else {
         app.print_help().unwrap();

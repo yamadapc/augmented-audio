@@ -5,7 +5,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-clap = "^3.0.0-beta.2"
+clap = "3.1.6"
 log = "^0.4.14"
 wisual-logger = { version = "^0.1.3", path = "../../ops/wisual-logger" }
 cmd_lib = "^1.3.0"
