@@ -10,6 +10,71 @@ use audio_processor_traits::{
     simple_processor, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
 
+fn make_vec(size: usize) -> Vec<f32> {
+    let mut v = Vec::with_capacity(size);
+    v.resize(size, 0.0);
+    v
+}
+
+struct PhaseCorrectionParams<'a> {
+    /// The hop size of the FFT
+    step_len: usize,
+    fft_frequency_domain: &'a mut [Complex<f32>],
+    pitch_shift_ratio: f32,
+}
+
+struct NormalPhaseVocoder {
+    last_output_phase: Vec<f32>,
+    last_input_phase: Vec<f32>,
+}
+
+impl NormalPhaseVocoder {
+    fn new(fft_size: usize) -> Self {
+        Self {
+            last_output_phase: make_vec(fft_size),
+            last_input_phase: make_vec(fft_size),
+        }
+    }
+
+    fn update_phases(&mut self, params: PhaseCorrectionParams) {
+        let PhaseCorrectionParams {
+            step_len,
+            fft_frequency_domain,
+            pitch_shift_ratio,
+        } = params;
+
+        let step_len = step_len as f32;
+        let fft_size = fft_frequency_domain.len() as f32;
+        for (bin, value) in fft_frequency_domain.iter_mut().enumerate() {
+            if bin <= (fft_size as usize) / 2 {
+                let value: &mut Complex<f32> = value;
+                let (magnitude, phase) = value.to_polar();
+
+                let bin_frequency = 2.0 * PI * bin as f32 / fft_size;
+                let expected_bin_phase = bin_frequency * step_len;
+                let phase_delta = phase - self.last_input_phase[bin];
+                let bin_deviation = phase_delta - expected_bin_phase;
+                let bin_frequency = expected_bin_phase + princ_arg(bin_deviation);
+
+                let last_output_phase = self.last_output_phase[bin];
+                let new_phase =
+                    princ_arg(last_output_phase + bin_frequency * pitch_shift_ratio * step_len);
+
+                *value = Complex::from_polar(magnitude, new_phase);
+
+                self.last_output_phase[bin] = new_phase;
+                self.last_input_phase[bin] = phase;
+            } else {
+                *value = Complex::new(0.0, 0.0);
+            }
+        }
+    }
+}
+
+enum PhaseProcessingStrategy {
+    Normal(NormalPhaseVocoder),
+}
+
 struct PitchShifterProcessorHandle {
     shift_steps: f32,
 }
@@ -21,8 +86,7 @@ struct PitchShifterProcessor {
     output_buffer: Vec<f32>,
     output_read_cursor: usize,
     output_write_cursor: usize,
-    last_output_phase: Vec<f32>,
-    last_input_phase: Vec<f32>,
+    phase_processing_strategy: PhaseProcessingStrategy,
     fft_processor: FftProcessor,
     inverse_fft_processor: FftProcessor,
     handle: Shared<PitchShifterProcessorHandle>,
@@ -43,11 +107,6 @@ impl PitchShifterProcessor {
             window_function: WindowFunctionType::Hann,
             ..Default::default()
         });
-        let make_vec = || {
-            let mut v = Vec::with_capacity(fft_size);
-            v.resize(fft_size, 0.0);
-            v
-        };
         let step_len = fft_processor.step_len() as f32;
         let pitch_shift_ratio = 2.0;
         let resample_buffer_size = fft_size as f32 / pitch_shift_ratio;
@@ -55,9 +114,9 @@ impl PitchShifterProcessor {
 
         Self {
             pitch_shift_ratio,
-            resample_buffer: make_vec(),
+            resample_buffer: make_vec(fft_size),
             resample_buffer_size,
-            output_buffer: make_vec(),
+            output_buffer: make_vec(fft_size),
             output_read_cursor: 0,
             output_write_cursor: 0,
             fft_processor,
@@ -66,8 +125,9 @@ impl PitchShifterProcessor {
                 direction: FftDirection::Inverse,
                 ..Default::default()
             }),
-            last_output_phase: make_vec(),
-            last_input_phase: make_vec(),
+            phase_processing_strategy: PhaseProcessingStrategy::Normal(NormalPhaseVocoder::new(
+                fft_size,
+            )),
             handle: make_shared(PitchShifterProcessorHandle { shift_steps: 12.0 }),
         }
     }
@@ -77,10 +137,9 @@ impl PitchShifterProcessor {
         self.inverse_fft_processor
             .process_fft_buffer(self.fft_processor.buffer_mut());
 
-        let fft_time_domain = self.fft_processor.buffer();
-        self.resample_fft(&fft_time_domain);
+        self.resample_fft();
         // Read resampled output into output buffer, apply Hann window here
-        let fft_size = fft_time_domain.len();
+        let fft_size = self.fft_processor.buffer().len();
         for i in 0..fft_size {
             let resample_idx = i % self.resample_buffer_size;
             let s = self.resample_buffer[resample_idx];
@@ -94,37 +153,20 @@ impl PitchShifterProcessor {
     }
 
     fn update_phases(&mut self) {
-        let step_len = self.fft_processor.step_len() as f32;
-        let fft_frequency_domain: &mut Vec<Complex<f32>> = self.fft_processor.buffer_mut();
-
-        let fft_size = fft_frequency_domain.len() as f32;
-        for (bin, value) in fft_frequency_domain.iter_mut().enumerate() {
-            if bin <= (fft_size as usize) / 2 {
-                let value: &mut Complex<f32> = value;
-                let (magnitude, phase) = value.to_polar();
-
-                let bin_frequency = 2.0 * PI * bin as f32 / fft_size;
-                let expected_bin_phase = bin_frequency * step_len;
-                let phase_delta = phase - self.last_input_phase[bin];
-                let bin_deviation = phase_delta - expected_bin_phase;
-                let bin_frequency = expected_bin_phase + princ_arg(bin_deviation);
-
-                let last_output_phase = self.last_output_phase[bin];
-                let new_phase = princ_arg(
-                    last_output_phase + bin_frequency * self.pitch_shift_ratio * step_len,
-                );
-
-                *value = Complex::from_polar(magnitude, new_phase);
-
-                self.last_output_phase[bin] = new_phase;
-                self.last_input_phase[bin] = phase;
-            } else {
-                *value = Complex::new(0.0, 0.0);
+        match &mut self.phase_processing_strategy {
+            PhaseProcessingStrategy::Normal(normal) => {
+                normal.update_phases(PhaseCorrectionParams {
+                    step_len: self.fft_processor.step_len(),
+                    fft_frequency_domain: self.fft_processor.buffer_mut(),
+                    pitch_shift_ratio: self.pitch_shift_ratio,
+                })
             }
         }
     }
 
-    fn resample_fft(&mut self, fft_time_domain: &Buffer<FftProcessor, _>) {
+    fn resample_fft(&mut self) {
+        let fft_time_domain = self.fft_processor.buffer();
+
         let multiplier = 0.03 / 200.0;
         let ratio = fft_time_domain.len() as f32 / self.resample_buffer_size as f32;
         for i in 0..self.resample_buffer_size {
