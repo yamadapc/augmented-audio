@@ -61,7 +61,8 @@ impl MultiTrackLooperHandle {
                             Default::default(),
                             self.sample_rate.get(),
                             handle.looper_handle.num_samples(),
-                        );
+                        )
+                        .tempo;
                         log::info!("Setting global tempo to {}", estimated_tempo);
                         self.time_info_provider.set_tempo(estimated_tempo);
                         self.time_info_provider.play();
