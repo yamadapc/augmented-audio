@@ -6,20 +6,29 @@ use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
     VecAudioBuffer,
 };
+use augmented_atomics::AtomicF32;
 
+use crate::processor::handle::{LooperState, ToggleRecordingResult};
+use crate::tempo_estimation::estimate_tempo;
+use crate::trigger_model::TrackTriggerModel;
 use crate::{
     LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, LooperProcessorHandle,
-    TimeInfoProviderImpl,
+    QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl,
 };
 
 pub struct LooperId(pub usize);
 
 pub struct LooperVoice {
+    triggers: Shared<TrackTriggerModel>,
     looper_handle: Shared<LooperProcessorHandle>,
     sequencer_handle: Shared<LoopSequencerProcessorHandle>,
 }
 
 impl LooperVoice {
+    pub fn triggers(&self) -> &Shared<TrackTriggerModel> {
+        &self.triggers
+    }
+
     pub fn looper(&self) -> &Shared<LooperProcessorHandle> {
         &self.looper_handle
     }
@@ -32,6 +41,7 @@ impl LooperVoice {
 pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
+    sample_rate: AtomicF32,
 }
 
 impl MultiTrackLooperHandle {
@@ -41,9 +51,56 @@ impl MultiTrackLooperHandle {
         }
     }
 
+    pub fn toggle_recording(&self, looper_id: LooperId) {
+        if let Some(handle) = self.voices.get(looper_id.0) {
+            let was_empty = self.was_empty(looper_id);
+            match handle.looper_handle.toggle_recording() {
+                ToggleRecordingResult::StoppedRecording => {
+                    if was_empty {
+                        let estimated_tempo = estimate_tempo(
+                            Default::default(),
+                            self.sample_rate.get(),
+                            handle.looper_handle.num_samples(),
+                        );
+                        log::info!("Setting global tempo to {}", estimated_tempo);
+                        self.time_info_provider.set_tempo(estimated_tempo);
+                        self.time_info_provider.play();
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    pub fn get_position_percent(&self, looper_id: LooperId) -> f32 {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            let playhead = voice.looper_handle.playhead() as f32;
+            let size = voice.looper_handle.num_samples();
+            if size == 0 {
+                0.0
+            } else {
+                playhead / size as f32
+            }
+        } else {
+            0.0
+        }
+    }
+
+    fn was_empty(&self, looper_id: LooperId) -> bool {
+        self.voices.iter().enumerate().all(|(i, voice)| {
+            i == looper_id.0 || matches!(voice.looper_handle.state(), LooperState::Empty)
+        })
+    }
+
     pub fn toggle_playback(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
             handle.looper_handle.toggle_playback();
+        }
+    }
+
+    pub fn set_volume(&self, looper_id: LooperId, volume: f32) {
+        if let Some(handle) = self.voices.get(looper_id.0) {
+            handle.looper_handle.set_dry_volume(volume);
         }
     }
 
@@ -51,6 +108,10 @@ impl MultiTrackLooperHandle {
         if let Some(handle) = self.voices.get(looper_id.0) {
             handle.looper_handle.clear();
         }
+    }
+
+    pub fn num_voices(&self) -> usize {
+        self.voices.len()
     }
 
     pub fn voices(&self) -> &Vec<LooperVoice> {
@@ -77,6 +138,10 @@ impl MultiTrackLooper {
         let voices: Vec<LooperProcessor> = (0..num_voices)
             .map(|_| {
                 let voice = LooperProcessor::new(options.clone(), time_info_provider.clone());
+                voice
+                    .handle()
+                    .quantize_options()
+                    .set_mode(QuantizeMode::SnapClosest);
                 voice.handle().tick_time.store(false, Ordering::Relaxed);
                 voice
             })
@@ -87,13 +152,17 @@ impl MultiTrackLooper {
                 .map(|voice| {
                     let looper_handle = voice.handle().clone();
                     let sequencer_handle = voice.sequencer_handle().clone();
+                    let triggers = make_shared(TrackTriggerModel::default());
+
                     LooperVoice {
                         looper_handle,
                         sequencer_handle,
+                        triggers,
                     }
                 })
                 .collect(),
             time_info_provider,
+            sample_rate: AtomicF32::new(44100.0),
         });
 
         let mut graph = AudioProcessorGraph::default();
@@ -118,6 +187,7 @@ impl AudioProcessor for MultiTrackLooper {
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         self.graph.prepare(settings);
+        self.handle.sample_rate.set(settings.sample_rate());
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -125,9 +195,23 @@ impl AudioProcessor for MultiTrackLooper {
         data: &mut BufferType,
     ) {
         self.graph.process(data);
+        for _sample in data.frames() {
+            self.handle.time_info_provider.tick();
+        }
     }
 }
 
 impl MidiEventHandler for MultiTrackLooper {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, _midi_messages: &[Message]) {}
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_starts_empty() {
+        let looper = MultiTrackLooper::new(Default::default(), 8);
+        assert_eq!(looper.handle.was_empty(LooperId(0)), true);
+    }
 }

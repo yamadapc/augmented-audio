@@ -365,7 +365,7 @@ mod test {
         looper.prepare(settings);
 
         // Setup tempo & quantization
-        looper.handle.set_tempo(60);
+        looper.handle.set_tempo(60.0);
         looper
             .handle
             .quantize_options()

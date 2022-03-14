@@ -18,6 +18,7 @@ rand = "0.8.4"
 mockall = "0.11.0"
 derive_builder = "0.10.2"
 atomic_refcell = "0.1.8"
+im = "15.0.0"
 
 augmented-adsr-envelope = { version = "0.1.0-alpha.2", path = "../../../augmented/audio/adsr-envelope" }
 augmented-atomics = { path = "../../../augmented/data/atomics" , version = "0.1.0-alpha.3" }

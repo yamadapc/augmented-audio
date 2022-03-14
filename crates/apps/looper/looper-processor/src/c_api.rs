@@ -1,15 +1,24 @@
+use std::ptr::null;
+
 use basedrop::Shared;
 
 use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::AudioProcessorSettings;
 
 use crate::multi_track_looper::LooperVoice;
+use crate::trigger_model::{TrackTriggerModel, Trigger, TriggerPosition};
 use crate::{
     setup_osc_server, LooperId, LooperOptions, LooperProcessorHandle, MultiTrackLooper,
-    MultiTrackLooperHandle,
+    MultiTrackLooperHandle, TimeInfoProvider,
 };
 
 pub struct SharedPtr<T>(*mut Shared<T>);
+
+impl<T> From<Shared<T>> for SharedPtr<T> {
+    fn from(ptr: Shared<T>) -> Self {
+        SharedPtr(Box::into_raw(Box::new(ptr)))
+    }
+}
 
 pub struct LooperEngine {
     handle: Shared<MultiTrackLooperHandle>,
@@ -43,9 +52,7 @@ pub unsafe extern "C" fn looper_engine__num_loopers(engine: *mut LooperEngine) -
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__record(engine: *mut LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Recording {}", looper_id);
-    if let Some(voice) = (*engine).handle.get(LooperId(looper_id)) {
-        voice.looper().toggle_recording();
-    }
+    (*engine).handle.toggle_recording(LooperId(looper_id));
 }
 
 #[no_mangle]
@@ -61,6 +68,14 @@ pub unsafe extern "C" fn looper_engine__clear(engine: *mut LooperEngine, looper_
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_looper_position(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) -> f32 {
+    (*engine).handle.get_position_percent(LooperId(looper_id))
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_voice(
     engine: *mut LooperEngine,
     looper_id: usize,
@@ -69,11 +84,96 @@ pub unsafe extern "C" fn looper_engine__get_voice(
     voice as *const LooperVoice as *mut _
 }
 
+#[repr(C)]
+#[no_mangle]
+pub struct CTimeInfo {
+    position_samples: f64,
+    position_beats: f64,
+    // -1 means none
+    tempo: f64, // -1 means none
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__playhead_stop(engine: *mut LooperEngine) {
+    (*engine).handle.time_info_provider().stop();
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__playhead_play(engine: *mut LooperEngine) {
+    (*engine).handle.time_info_provider().play();
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_playhead_position(
+    engine: *mut LooperEngine,
+) -> CTimeInfo {
+    let time_info_provider = (*engine).handle.time_info_provider();
+    let time_info = time_info_provider.get_time_info();
+
+    CTimeInfo {
+        position_samples: time_info.position_samples(),
+        position_beats: time_info.position_beats().unwrap_or(-1.0),
+        tempo: time_info.tempo().unwrap_or(-1.0),
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_volume(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    volume: f32,
+) {
+    log::info!("looper_engine - Clearing {}", looper_id);
+    (*engine).handle.set_volume(LooperId(looper_id), volume);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_voice__get_triggers(
+    voice: *mut LooperVoice,
+) -> SharedPtr<TrackTriggerModel> {
+    SharedPtr::from((*voice).triggers().clone())
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn track_trigger_model__get_len(
+    track_trigger_model: SharedPtr<TrackTriggerModel>,
+) -> usize {
+    (*track_trigger_model.0).len()
+}
+
+pub unsafe extern "C" fn track_trigger_model__add_trigger(
+    track_trigger_model: SharedPtr<TrackTriggerModel>,
+    position_beats: usize,
+) {
+    let mut trigger = Trigger::default();
+    trigger.set_position(TriggerPosition::BeatsUsize {
+        pos: position_beats.into(),
+    });
+    (*track_trigger_model.0).add_trigger(trigger);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn trigger_get_beats(trigger: *const Trigger) -> f32 {
+    (*trigger).beats()
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn track_trigger_model__get_elem(
+    track_trigger_model: SharedPtr<TrackTriggerModel>,
+    index: usize,
+) -> *const Trigger {
+    if let Some(trigger) = (*track_trigger_model.0).triggers().get(index) {
+        trigger as *const Trigger
+    } else {
+        null() as *const Trigger
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn looper_voice__get_looper_handle(
     voice: *mut LooperVoice,
 ) -> SharedPtr<LooperProcessorHandle> {
-    SharedPtr(Box::into_raw(Box::new((*voice).looper().clone())))
+    SharedPtr::from((*voice).looper().clone())
 }
 
 #[no_mangle]

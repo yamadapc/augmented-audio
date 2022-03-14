@@ -19,6 +19,8 @@ mod multi_track_looper;
 mod osc_server;
 mod processor;
 mod sequencer;
+mod tempo_estimation;
 mod time_info_provider;
+mod trigger_model;
 
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;

@@ -10,7 +10,7 @@ use augmented_playhead::{PlayHead, PlayHeadOptions};
 const DEFAULT_CLICK_ATTACK_MS: u64 = 3;
 const DEFAULT_CLICK_DECAY_RELEASE_MS: u64 = 10;
 const DEFAULT_SAMPLE_RATE: f32 = 44100.0;
-const DEFAULT_TEMPO: u32 = 120;
+const DEFAULT_TEMPO: f32 = 120.0;
 
 /// Public metronome API
 pub struct MetronomeProcessorHandle {
@@ -104,7 +104,7 @@ impl AudioProcessor for MetronomeProcessor {
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         self.state.playhead = PlayHead::new(PlayHeadOptions::new(
             Some(settings.sample_rate()),
-            Some(self.handle.tempo.get() as u32),
+            Some(self.handle.tempo.get()),
             self.state.playhead.options().ticks_per_quarter_note(),
         ));
         self.state.envelope.set_sample_rate(settings.sample_rate());
@@ -127,7 +127,7 @@ impl AudioProcessor for MetronomeProcessor {
             return;
         }
 
-        let tempo = self.handle.tempo.get() as u32;
+        let tempo = self.handle.tempo.get();
         if Some(tempo) != self.state.playhead.options().tempo() {
             self.state.playhead.set_tempo(tempo);
         }

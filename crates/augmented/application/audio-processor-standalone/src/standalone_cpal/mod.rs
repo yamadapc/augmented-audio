@@ -122,6 +122,7 @@ pub fn standalone_start(
                 },
             )
             .unwrap();
+
         log::info!("Audio streams starting on audio-thread");
         output_stream.play().unwrap();
         if let Some(input_stream) = &input_stream {

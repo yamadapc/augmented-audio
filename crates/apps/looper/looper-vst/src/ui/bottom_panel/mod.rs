@@ -129,7 +129,7 @@ impl BottomPanelView {
             }
             Message::SequencePressed => self.on_loop_sequencer_params_changed(),
             Message::QuantizeModePressed => {
-                self.processor_handle.set_tempo(120);
+                self.processor_handle.set_tempo(120.0);
                 let quantize_options = self.processor_handle.quantize_options();
                 quantize_options.set_mode(quantize_options.mode().cycle());
             }

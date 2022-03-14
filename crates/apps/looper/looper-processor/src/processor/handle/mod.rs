@@ -79,6 +79,11 @@ impl Default for LooperHandle {
     }
 }
 
+pub enum ToggleRecordingResult {
+    StartedRecording,
+    StoppedRecording,
+}
+
 impl LooperHandle {
     pub fn new(options: LooperOptions, time_info_provider: Shared<TimeInfoProviderImpl>) -> Self {
         Self {
@@ -121,12 +126,14 @@ impl LooperHandle {
     }
 
     /// UI thread only
-    pub fn toggle_recording(&self) {
+    pub fn toggle_recording(&self) -> ToggleRecordingResult {
         let old_state = self.state.get();
         if old_state == LooperState::Recording || old_state == LooperState::Overdubbing {
             self.stop_recording_allocating_loop();
+            ToggleRecordingResult::StoppedRecording
         } else {
             self.start_recording();
+            ToggleRecordingResult::StartedRecording
         }
     }
 
@@ -290,7 +297,7 @@ impl LooperHandle {
         &self.time_info_provider
     }
 
-    pub fn set_tempo(&self, tempo: u32) {
+    pub fn set_tempo(&self, tempo: f32) {
         self.time_info_provider.set_tempo(tempo);
         self.time_info_provider.play();
     }
@@ -322,8 +329,7 @@ impl LooperHandle {
         self.settings.set(make_shared(settings));
     }
 
-    #[cfg(test)]
-    pub(crate) fn state(&self) -> LooperState {
+    pub fn state(&self) -> LooperState {
         self.state.get()
     }
 
@@ -415,7 +421,7 @@ mod test {
         fn test_get_offset_cursor_with_tempo_but_disabled_quantize() {
             let handle = LooperHandle::default();
             handle.prepare(AudioProcessorSettings::new(100.0, 1, 1, 512));
-            handle.set_tempo(60);
+            handle.set_tempo(60.0);
 
             // At the start, offset is 0
             let offset = handle.get_quantized_offset();
@@ -434,7 +440,7 @@ mod test {
         fn test_get_offset_cursor_with_tempo_snap_next() {
             let handle = LooperHandle::default();
             handle.prepare(AudioProcessorSettings::new(100.0, 1, 1, 512));
-            handle.set_tempo(60);
+            handle.set_tempo(60.0);
             let quantize_options = handle.quantize_options();
             quantize_options.set_mode(quantize_mode::QuantizeMode::SnapNext);
 
@@ -457,7 +463,7 @@ mod test {
         fn test_get_offset_cursor_with_tempo_snap_closest() {
             let handle = LooperHandle::default();
             handle.prepare(AudioProcessorSettings::new(100.0, 1, 1, 512));
-            handle.set_tempo(60);
+            handle.set_tempo(60.0);
             let quantize_options = handle.quantize_options();
             quantize_options.set_mode(quantize_mode::QuantizeMode::SnapClosest);
 

@@ -58,7 +58,8 @@ impl TimeInfoProvider for TimeInfoProviderImpl {
     #[cfg(not(target_os = "ios"))]
     fn get_time_info(&self) -> TimeInfo {
         let host_time_info = self
-            .host_callback.and_then(|cb| {
+            .host_callback
+            .and_then(|cb| {
                 cb.get_time_info(
                     (vst::api::TimeInfoFlags::TEMPO_VALID | vst::api::TimeInfoFlags::PPQ_POS_VALID)
                         .bits(),
@@ -106,7 +107,7 @@ impl TimeInfoProviderImpl {
         &self.playhead
     }
 
-    pub fn set_tempo(&self, tempo: u32) {
+    pub fn set_tempo(&self, tempo: f32) {
         self.playhead.set_tempo(tempo);
     }
 
@@ -154,7 +155,7 @@ mod test {
         let time_info_provider = TimeInfoProviderImpl::new(None);
         time_info_provider.play();
         time_info_provider.set_sample_rate(100.0);
-        time_info_provider.set_tempo(60);
+        time_info_provider.set_tempo(60.0);
 
         let time_info = time_info_provider.get_time_info();
         assert!(time_info.position_beats().is_some());
