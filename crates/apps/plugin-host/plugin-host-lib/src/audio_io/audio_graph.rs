@@ -1,6 +1,6 @@
 use actix::{Actor, Context, Handler, Message, MessageResult, Supervised, SystemService};
-use audio_garbage_collector::Shared;
 
+use audio_garbage_collector::Shared;
 use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, NodeIndex, NodeType};
 use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use audio_processor_traits::AudioProcessor;
@@ -58,7 +58,9 @@ impl Handler<SetupGraphMessage> for AudioGraphManager {
 }
 
 pub enum ProcessorSpec {
-    RawProcessor { value: NodeType<f32> },
+    RawProcessor {
+        value: NodeType<VecAudioBuffer<f32>>,
+    },
 }
 
 #[derive(Message)]
@@ -91,7 +93,8 @@ impl Handler<GetSystemIndexesMessage> for AudioGraphManager {
 
     fn handle(&mut self, _msg: GetSystemIndexesMessage, _ctx: &mut Self::Context) -> Self::Result {
         let result = self
-            .input_idx.and_then(|idx| self.output_idx.map(|oidx| (idx, oidx)));
+            .input_idx
+            .and_then(|idx| self.output_idx.map(|oidx| (idx, oidx)));
         MessageResult(result)
     }
 }

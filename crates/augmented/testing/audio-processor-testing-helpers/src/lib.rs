@@ -46,7 +46,14 @@ pub fn test_level_equivalence(
         let output_level = util::rms_level(output_chunk);
         let diff = (input_level - output_level).abs();
 
-        assert!(diff < threshold);
+        assert!(
+            diff < threshold,
+            "diff={} threshold={} input_level={} output_level={}",
+            diff,
+            threshold,
+            input_level,
+            output_level
+        );
     }
 }
 

@@ -1,12 +1,13 @@
 use std::sync::atomic::Ordering;
 
 use audio_garbage_collector::{make_shared, Shared};
-use audio_processor_graph::AudioProcessorGraph;
+use audio_processor_graph::{AudioProcessorGraph, NodeType};
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
     VecAudioBuffer,
 };
 use augmented_atomics::AtomicF32;
+use metronome::MetronomeProcessorHandle;
 
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::tempo_estimation::estimate_tempo;
@@ -42,6 +43,7 @@ pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
     sample_rate: AtomicF32,
+    metronome_handle: Shared<MetronomeProcessorHandle>,
 }
 
 impl MultiTrackLooperHandle {
@@ -65,11 +67,21 @@ impl MultiTrackLooperHandle {
                         .tempo;
                         log::info!("Setting global tempo to {}", estimated_tempo);
                         self.time_info_provider.set_tempo(estimated_tempo);
+                        self.metronome_handle.set_tempo(estimated_tempo);
+                        self.metronome_handle.set_is_playing(true);
                         self.time_info_provider.play();
                     }
                 }
                 _ => {}
             }
+        }
+    }
+
+    pub fn get_num_samples(&self, looper_id: LooperId) -> usize {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            voice.looper_handle.num_samples()
+        } else {
+            0
         }
     }
 
@@ -147,6 +159,10 @@ impl MultiTrackLooper {
                 voice
             })
             .collect();
+
+        let metronome = metronome::MetronomeProcessor::new();
+        let metronome_handle = metronome.handle().clone();
+
         let handle = make_shared(MultiTrackLooperHandle {
             voices: voices
                 .iter()
@@ -164,13 +180,19 @@ impl MultiTrackLooper {
                 .collect(),
             time_info_provider,
             sample_rate: AtomicF32::new(44100.0),
+            metronome_handle,
         });
 
         let mut graph = AudioProcessorGraph::default();
         let input_node = graph.input();
         let output_node = graph.output();
+
+        let metronome_idx = graph.add_node(NodeType::Buffer(Box::new(metronome)));
+        graph.add_connection(input_node, metronome_idx);
+        graph.add_connection(metronome_idx, output_node);
+
         for voice in voices {
-            let voice_idx = graph.add_node(Box::new(voice));
+            let voice_idx = graph.add_node(NodeType::Simple(Box::new(voice)));
             graph.add_connection(input_node, voice_idx);
             graph.add_connection(voice_idx, output_node);
         }

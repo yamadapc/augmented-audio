@@ -7,7 +7,7 @@ use flutter_rust_bridge::StreamSink;
 
 use audio_garbage_collector::Shared;
 use audio_processor_graph::{NodeIndex, NodeType};
-
+use audio_processor_traits::VecAudioBuffer;
 use audio_thread::actor::AudioThreadMessage;
 use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_graph;
@@ -161,17 +161,21 @@ pub fn audio_graph_connect(input_index: u32, output_index: u32) -> Result<u32> {
 }
 
 pub fn audio_node_create(audio_processor_name: String) -> Result<u32> {
-    let processor: Result<NodeType<f32>> = match audio_processor_name.as_str() {
-        "delay" => Ok(Box::new(audio_processor_time::MonoDelayProcessor::default())),
-        "filter" => Ok(Box::new(augmented_dsp_filters::rbj::FilterProcessor::new(
-            augmented_dsp_filters::rbj::FilterType::LowPass,
+    let processor: Result<NodeType<VecAudioBuffer<f32>>> = match audio_processor_name.as_str() {
+        "delay" => Ok(NodeType::Simple(Box::new(
+            audio_processor_time::MonoDelayProcessor::default(),
         ))),
-        "gain" => Ok(Box::new(
+        "filter" => Ok(NodeType::Simple(Box::new(
+            augmented_dsp_filters::rbj::FilterProcessor::new(
+                augmented_dsp_filters::rbj::FilterType::LowPass,
+            ),
+        ))),
+        "gain" => Ok(NodeType::Simple(Box::new(
             audio_processor_utility::gain::GainProcessor::default(),
-        )),
-        "pan" => Ok(Box::new(
+        ))),
+        "pan" => Ok(NodeType::Simple(Box::new(
             audio_processor_utility::pan::PanProcessor::default(),
-        )),
+        ))),
         _ => Err(anyhow::Error::msg("Failed to create processor")),
     };
     let processor = processor?;

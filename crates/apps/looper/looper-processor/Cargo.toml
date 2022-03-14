@@ -20,9 +20,11 @@ derive_builder = "0.10.2"
 atomic_refcell = "0.1.8"
 im = "15.0.0"
 
+metronome = { path = "../../metronome" }
+atomic-queue = { path = "../../../augmented/data/atomic-queue" }
 augmented-adsr-envelope = { version = "0.1.0-alpha.2", path = "../../../augmented/audio/adsr-envelope" }
-augmented-atomics = { path = "../../../augmented/data/atomics" , version = "0.1.0-alpha.3" }
-augmented-playhead = { path = "../../../augmented/data/augmented-playhead" , version = "0.1.0-alpha.3" }
+augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.1.0-alpha.3" }
+augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.1.0-alpha.3" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../../augmented/application/audio-processor-standalone" }
 audio-processor-standalone-osc = { path = "../../../augmented/application/audio-processor-standalone-osc" }

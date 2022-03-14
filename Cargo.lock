@@ -4075,6 +4075,7 @@ checksum = "b3bd0dd2cd90571056fdb71f6275fada10131182f84899f4b2a916e565d81d86"
 name = "looper-processor"
 version = "0.1.0"
 dependencies = [
+ "atomic-queue",
  "atomic_refcell",
  "audio-garbage-collector",
  "audio-processor-file",
@@ -4091,6 +4092,7 @@ dependencies = [
  "derive_builder 0.10.2",
  "im",
  "log",
+ "metronome",
  "mockall 0.11.0",
  "num 0.4.0",
  "num-derive",

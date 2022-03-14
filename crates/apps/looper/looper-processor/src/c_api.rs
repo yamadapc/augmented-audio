@@ -68,6 +68,14 @@ pub unsafe extern "C" fn looper_engine__clear(engine: *mut LooperEngine, looper_
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_looper_num_samples(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) -> usize {
+    (*engine).handle.get_num_samples(LooperId(looper_id))
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_looper_position(
     engine: *mut LooperEngine,
     looper_id: usize,
