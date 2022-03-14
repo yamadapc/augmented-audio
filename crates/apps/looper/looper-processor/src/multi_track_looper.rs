@@ -154,7 +154,7 @@ impl MultiTrackLooper {
                 voice
                     .handle()
                     .quantize_options()
-                    .set_mode(QuantizeMode::SnapClosest);
+                    .set_mode(QuantizeMode::SnapNext);
                 voice.handle().tick_time.store(false, Ordering::Relaxed);
                 voice
             })
@@ -162,6 +162,7 @@ impl MultiTrackLooper {
 
         let metronome = metronome::MetronomeProcessor::new();
         let metronome_handle = metronome.handle().clone();
+        metronome_handle.set_is_playing(false);
 
         let handle = make_shared(MultiTrackLooperHandle {
             voices: voices

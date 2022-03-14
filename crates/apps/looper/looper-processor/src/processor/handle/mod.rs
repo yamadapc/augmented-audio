@@ -392,10 +392,13 @@ impl LooperHandle {
             if current_scratch_cursor >= scheduled_playback {
                 log::info!("stopping recording");
                 self.stop_recording_audio_thread_only();
+            } else {
+                self.length.fetch_add(1, Ordering::Relaxed);
             }
         } else if state == LooperState::RecordingScheduled {
             let current_scratch_cursor = scratch_pad.cursor();
             let scheduled_start = self.start_cursor.load(Ordering::Relaxed);
+
             if current_scratch_cursor >= scheduled_start {
                 self.state.set(LooperState::Recording);
             }
