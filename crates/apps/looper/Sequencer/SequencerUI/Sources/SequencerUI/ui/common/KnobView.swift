@@ -72,8 +72,10 @@ struct KnobView: View {
         renderLine: true,
         renderThumb: false
     )
+    var formatValue: ((Double) -> String)? = nil
+    var value: Double = 1.0
 
-    @State var value: Double = 1.0
+    // @State var value: Double = 1.0
 
     func style(_ style: KnobStyle) -> KnobView {
         KnobView(
@@ -91,7 +93,7 @@ struct KnobView: View {
         let trackColor = SequencerColors.black1
 
         VStack {
-            Text(String(format: "%.2f", value))
+            Text(self.getFormattedValue())
 
             ZStack {
                 Rectangle()
@@ -122,6 +124,13 @@ struct KnobView: View {
 
             Text(label)
         }
+    }
+
+    fileprivate func getFormattedValue() -> String {
+        if let formatValue = formatValue {
+            return formatValue(value)
+        }
+        return String(format: "%.2f", value)
     }
 
     fileprivate func renderThumbAndPointer() -> some View {
@@ -200,8 +209,8 @@ struct KnobView: View {
             ? newValue
             : newValue * 2 + -1
 
-        self.value = styledValue
-        onChanged?(newValue)
+        // self.value = styledValue
+        onChanged?(styledValue)
     }
 }
 

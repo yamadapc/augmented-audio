@@ -35,7 +35,7 @@ struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
                             model.amount = max(min(model.amount, 1), 0)
 
                             model.frequency -= (currentTranslation.width - lastTranslation.width) / (geometry.size.width / 2)
-                            model.frequency = min(max(model.frequency, 0.01), 30)
+                            model.frequency = min(max(model.frequency, 0.01), 20)
 
                             self.lastTranslation = currentTranslation
                         }
@@ -46,7 +46,7 @@ struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
 
                 VStack(alignment: .trailing) {
                     Text("Amount: \(String(format: "%.0f", model.amount * 100))%")
-                    Text("Frequency: \(String(format: "%.1f", model.frequency))Hz")
+                    Text("Frequency: \(String(format: "%.2f", model.frequency))Hz")
                 }
                 .padding()
                 .border(SequencerColors.blue.opacity(0.5), width: 1)

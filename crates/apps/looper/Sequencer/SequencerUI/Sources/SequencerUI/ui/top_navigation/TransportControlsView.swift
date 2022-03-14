@@ -25,6 +25,6 @@ struct TransportControlsView: View {
                 }
             }.buttonStyle(.plain).frame(maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: 50)
     }
 }

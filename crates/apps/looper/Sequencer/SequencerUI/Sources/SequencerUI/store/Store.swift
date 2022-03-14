@@ -26,6 +26,9 @@ class TrackState: ObservableObject {
     @Published var looperState: LooperState = .init()
     @Published var buffer: UnsafeBufferPointer<Float32>? = nil
 
+    @Published var lfo1: LFOState = .init()
+    @Published var lfo2: LFOState = .init()
+
     init(id: Int) {
         self.id = id
     }
@@ -82,10 +85,6 @@ public class Store: ObservableObject {
         )
     }
 
-    @Published var lfoStates: [LFOState] = (1 ... 9).map { _ in
-        LFOState()
-    }
-
     var oscClient = OSCClient()
 
     var engine: SequencerEngine?
@@ -106,10 +105,6 @@ extension Store {
 
     func currentTrackState() -> TrackState {
         return trackStates[selectedTrack]
-    }
-
-    func currentLFOState() -> LFOState {
-        return lfoStates[selectedTrack]
     }
 }
 
