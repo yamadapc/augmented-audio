@@ -13,10 +13,7 @@ class EngineImpl {
     var engine: OpaquePointer!
 
     init() {
-        DispatchQueue.global(qos: .background).async {
-            print(self.engine.debugDescription)
-            self.engine = looper_engine__new()
-        }
+        engine = looper_engine__new()
     }
 }
 
@@ -33,6 +30,14 @@ extension EngineImpl: SequencerEngine {
     func onClickClear(track: Int) {
         looper_engine__clear(engine, UInt(track - 1))
     }
+
+    func onClickPlayheadStop() {
+        looper_engine__playhead_stop(engine)
+    }
+
+    func onClickPlayheadPlay() {
+        looper_engine__playhead_play(engine)
+    }
 }
 
 public class EngineController {
@@ -42,6 +47,10 @@ public class EngineController {
     public init() {
         engine = EngineImpl()
         store = Store(engine: engine)
+
+        DispatchQueue.main.async {
+            self.flushTimeInfo()
+        }
     }
 
     public func loadExampleFileBuffer() {
@@ -54,6 +63,23 @@ public class EngineController {
             DispatchQueue.main.async {
                 self.store.setTrackBuffer(trackId: 1, buffer: bufferPtr)
             }
+        }
+    }
+
+    func flushTimeInfo() {
+        let playhead = looper_engine__get_playhead_position(engine.engine)
+
+        store.timeInfo.positionSamples = playhead.position_samples
+        store.timeInfo.positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
+        store.timeInfo.tempo = playhead.tempo == -1 ? nil : playhead.tempo
+
+        for (i, trackState) in store.trackStates.enumerated() {
+            trackState.numSamples = looper_engine__get_looper_num_samples(engine.engine, UInt(i))
+            trackState.positionPercent = looper_engine__get_looper_position(engine.engine, UInt(i))
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16))) {
+            self.flushTimeInfo()
         }
     }
 }

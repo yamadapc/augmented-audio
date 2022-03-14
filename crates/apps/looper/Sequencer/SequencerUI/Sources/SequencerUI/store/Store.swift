@@ -20,7 +20,7 @@ class LooperState: ObservableObject {
     init() {}
 }
 
-class TrackState: ObservableObject {
+public class TrackState: ObservableObject {
     @Published var id: Int
     @Published var steps: Set<Int> = Set()
     @Published var looperState: LooperState = .init()
@@ -28,6 +28,9 @@ class TrackState: ObservableObject {
 
     @Published var lfo1: LFOState = .init()
     @Published var lfo2: LFOState = .init()
+
+    @Published public var numSamples: UInt = 0
+    @Published public var positionPercent: Float = 0.0
 
     init(id: Int) {
         self.id = id
@@ -70,20 +73,34 @@ class LFOState: ObservableObject, LFOVisualisationViewModel {
 }
 
 public protocol SequencerEngine {
+    func onClickPlayheadStop()
+    func onClickPlayheadPlay()
+
     func onClickRecord(track: Int)
     func onClickPlay(track: Int)
     func onClickClear(track: Int)
+}
+
+public class TimeInfo: ObservableObject {
+    @Published public var positionSamples: Double = 0.0
+    @Published public var positionBeats: Double? = nil
+    @Published public var tempo: Double? = nil
+
+    init() {}
 }
 
 public class Store: ObservableObject {
     @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source
 
-    @Published var trackStates: [TrackState] = (1 ... 9).map { i in
+    @Published public var trackStates: [TrackState] = (1 ... 9).map { i in
         TrackState(
             id: i
         )
     }
+
+    @Published public var timeInfo: TimeInfo = .init()
+    @Published var isPlaying: Bool = false
 
     var oscClient = OSCClient()
 
@@ -118,6 +135,18 @@ protocol RecordingController {
     func onClickRecord()
     func onClickPlay()
     func onClickClear()
+}
+
+extension Store {
+    func onClickPlayheadStop() {
+        engine?.onClickPlayheadStop()
+        isPlaying = false
+    }
+
+    func onClickPlayheadPlay() {
+        engine?.onClickPlayheadPlay()
+        isPlaying = true
+    }
 }
 
 extension Store: RecordingController {

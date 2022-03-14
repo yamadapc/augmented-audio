@@ -58,12 +58,12 @@ struct TracksPanelContentView: View {
 
                 case .source:
                     HStack(alignment: .center, spacing: 30) {
-                      KnobView(label: "Start", value: 0)
+                        KnobView(label: "Start", value: 0)
                         KnobView(label: "End")
-                      KnobView(label: "Fade start", value: 0)
-                      KnobView(label: "Fade end", value: 0)
-                      KnobView(label: "Pitch", value: 0).style(.center)
-                      KnobView(label: "Speed", value: 0).style(.center)
+                        KnobView(label: "Fade start", value: 0)
+                        KnobView(label: "Fade end", value: 0)
+                        KnobView(label: "Pitch", value: 0).style(.center)
+                        KnobView(label: "Speed", value: 0).style(.center)
                     }
 
                 default:

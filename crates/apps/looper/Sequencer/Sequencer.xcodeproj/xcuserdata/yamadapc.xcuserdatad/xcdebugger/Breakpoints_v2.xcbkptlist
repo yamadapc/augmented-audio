@@ -94,8 +94,8 @@
             filePath = "SequencerEngine/SequencerEngine.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "44"
-            endingLineNumber = "44"
+            startingLineNumber = "50"
+            endingLineNumber = "50"
             landmarkName = "init()"
             landmarkType = "7">
             <Locations>
@@ -142,8 +142,8 @@
             filePath = "SequencerEngine/SequencerEngine.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
+            startingLineNumber = "23"
+            endingLineNumber = "23"
             landmarkName = "onClickRecord(track:)"
             landmarkType = "7">
             <Locations>
@@ -190,58 +190,10 @@
             filePath = "SequencerEngine/SequencerEngine.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "19"
-            endingLineNumber = "19"
-            landmarkName = "init()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "33BF95AB-E889-4BEC-881C-1CE000251B64"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SequencerEngine/SequencerEngine.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
             startingLineNumber = "17"
             endingLineNumber = "17"
             landmarkName = "init()"
             landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "33BF95AB-E889-4BEC-881C-1CE000251B64 - e54cdf75d52d7291"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in SequencerEngine.EngineImpl.init() -&gt; SequencerEngine.EngineImpl"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "17"
-                  endingLineNumber = "17"
-                  offsetFromSymbolStart = "28">
-               </Location>
-               <Location
-                  uuid = "33BF95AB-E889-4BEC-881C-1CE000251B64 - e54cdf75d52d7291"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "closure #1 () -&gt; () in SequencerEngine.EngineImpl.init() -&gt; SequencerEngine.EngineImpl"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "17"
-                  endingLineNumber = "17"
-                  offsetFromSymbolStart = "56">
-               </Location>
-            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
