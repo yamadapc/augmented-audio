@@ -18,7 +18,7 @@ struct TrackOverlay: View {
                 .scaleEffect(x: CGFloat(trackState.positionPercent), y: 1.0, anchor: .leading)
                 .cornerRadius(BORDER_RADIUS)
                 .allowsHitTesting(false)
-            Text("num_samples=\(trackState.numSamples)")
+            // Text("num_samples=\(trackState.numSamples)")
         }
     }
 }

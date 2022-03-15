@@ -9,27 +9,27 @@ import SwiftUI
 
 struct RecordingButtonsView: View {
     var store: Store
-    @ObservedObject var looperState: LooperState
+    @ObservedObject var trackState: TrackState
 
     var body: some View {
         VStack {
             TrackButton(
                 action: { store.onClickRecord() },
                 label: "Record",
-                isSelected: looperState.isRecording,
-                backgroundColor: looperState.isRecording ? SequencerColors.red : nil
+                isSelected: trackState.looperState.isRecording,
+                backgroundColor: trackState.looperState.isRecording ? SequencerColors.red : nil
             )
             TrackButton(
                 action: { store.onClickPlay() },
                 label: "Play",
-                isDisabled: looperState.isEmpty,
+                isDisabled: trackState.looperState.isEmpty,
                 isSelected: false,
-                backgroundColor: looperState.isPlaying ? SequencerColors.green : nil
+                backgroundColor: trackState.looperState.isPlaying ? SequencerColors.green : nil
             )
             TrackButton(
                 action: { store.onClickClear() },
                 label: "Clear",
-                isDisabled: looperState.isEmpty,
+                isDisabled: trackState.looperState.isEmpty,
                 isSelected: false
             )
         }

@@ -7,12 +7,13 @@
 
 import SwiftUI
 
-struct TransportInfoView: View {
-    @ObservedObject var timeInfo: TimeInfo
+struct TransportInfoViewInner: View {
+    var tempo: Double?
+    var positionBeats: Double?
 
     var body: some View {
         HStack {
-            if let tempo = timeInfo.tempo {
+            if let tempo = tempo {
                 if #available(macOS 12.0, *) {
                     Text("\(String(format: "%.1f", tempo))bpm")
                         .monospacedDigit()
@@ -23,7 +24,7 @@ struct TransportInfoView: View {
                 Text("Free tempo")
             }
             Rectangle().fill(SequencerColors.black3).frame(width: 1.0, height: 10.0)
-            if let beats = timeInfo.positionBeats {
+            if let beats = positionBeats {
                 if #available(macOS 12.0, *) {
                     Text("\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))")
                         .monospacedDigit()
@@ -37,6 +38,17 @@ struct TransportInfoView: View {
                     .frame(width: 25.0, alignment: .trailing)
             }
         }.frame(width: 200.0)
+    }
+}
+
+struct TransportInfoView: View {
+    @ObservedObject var timeInfo: TimeInfo
+
+    var body: some View {
+        TransportInfoViewInner(
+            tempo: timeInfo.tempo,
+            positionBeats: timeInfo.positionBeats
+        )
     }
 }
 

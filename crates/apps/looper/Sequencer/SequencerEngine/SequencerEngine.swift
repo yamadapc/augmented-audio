@@ -49,7 +49,7 @@ public class EngineController {
         store = Store(engine: engine)
 
         DispatchQueue.main.async {
-            self.flushTimeInfo()
+            self.flushPollInfo()
         }
     }
 
@@ -66,20 +66,55 @@ public class EngineController {
         }
     }
 
-    func flushTimeInfo() {
+    func flushPollInfo() {
         let playhead = looper_engine__get_playhead_position(engine.engine)
 
-        store.timeInfo.positionSamples = playhead.position_samples
-        store.timeInfo.positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
-        store.timeInfo.tempo = playhead.tempo == -1 ? nil : playhead.tempo
+        // Updating ObservableObject at 60fps causes high CPU usage
+        if store.timeInfo.positionSamples != playhead.position_samples {
+            store.timeInfo.positionSamples = playhead.position_samples
+        }
+        let positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
+        if store.timeInfo.positionBeats != positionBeats {
+            store.timeInfo.positionBeats = positionBeats
+        }
+        let tempo = playhead.tempo == -1 ? nil : playhead.tempo
+        if store.timeInfo.tempo != tempo {
+            store.timeInfo.tempo = tempo
+        }
 
         for (i, trackState) in store.trackStates.enumerated() {
-            trackState.numSamples = looper_engine__get_looper_num_samples(engine.engine, UInt(i))
-            trackState.positionPercent = looper_engine__get_looper_position(engine.engine, UInt(i))
+            // trackState.numSamples = looper_engine__get_looper_num_samples(engine.engine, UInt(i))
+            let positionPercent = looper_engine__get_looper_position(engine.engine, UInt(i))
+            if trackState.positionPercent != positionPercent {
+                trackState.positionPercent = positionPercent
+            }
+            let looperState = convertState(looperState: looper_engine__get_looper_state(engine.engine, UInt(i)))
+            if trackState.looperState != looperState {
+                trackState.looperState = looperState
+            }
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16))) {
-            self.flushTimeInfo()
+            self.flushPollInfo()
         }
+    }
+}
+
+func convertState(looperState: SequencerEngine_private.LooperState) -> SequencerUI.LooperState {
+    switch looperState {
+    case SequencerEngine_private.Recording:
+        return SequencerUI.LooperState.recording
+    case SequencerEngine_private.Playing:
+        return SequencerUI.LooperState.playing
+    case SequencerEngine_private.Paused:
+        return SequencerUI.LooperState.paused
+    case SequencerEngine_private.Overdubbing:
+        return SequencerUI.LooperState.overdubbing
+    case SequencerEngine_private.RecordingScheduled:
+        return SequencerUI.LooperState.recordingScheduled
+    case SequencerEngine_private.PlayingScheduled:
+        return SequencerUI.LooperState.playingScheduled
+    default:
+        return SequencerUI.LooperState.empty
     }
 }

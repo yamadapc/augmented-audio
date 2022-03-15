@@ -12,22 +12,25 @@ enum TabValue {
     case mix, source, slice, envelope, fx, lfos
 }
 
-class LooperState: ObservableObject {
-    @Published var isRecording: Bool = false
-    @Published var isPlaying: Bool = false
-    @Published var isEmpty: Bool = true
+public enum LooperState {
+    case empty, recording, playing, paused, overdubbing, recordingScheduled, playingScheduled
+}
 
-    init() {}
+extension LooperState {
+    var isRecording: Bool { self == .recording || self == .overdubbing }
+    var isPlaying: Bool { self == .playing || self == .overdubbing }
+    var isEmpty: Bool { self == .empty || self == .recordingScheduled || self == .playingScheduled }
 }
 
 public class TrackState: ObservableObject {
     @Published var id: Int
     @Published var steps: Set<Int> = Set()
-    @Published var looperState: LooperState = .init()
     @Published var buffer: UnsafeBufferPointer<Float32>? = nil
 
     @Published var lfo1: LFOState = .init()
     @Published var lfo2: LFOState = .init()
+
+    @Published public var looperState: LooperState = .empty
 
     @Published public var numSamples: UInt = 0
     @Published public var positionPercent: Float = 0.0
@@ -38,25 +41,6 @@ public class TrackState: ObservableObject {
 }
 
 extension TrackState {
-    func onClickRecord() {
-        let wasRecording = looperState.isRecording
-        looperState.isRecording.toggle()
-        if !looperState.isPlaying, wasRecording {
-            looperState.isPlaying = true
-            looperState.isEmpty = false
-        }
-    }
-
-    func onClickPlay() {
-        looperState.isPlaying.toggle()
-    }
-
-    func onClickClear() {
-        looperState.isPlaying = false
-        looperState.isRecording = false
-        looperState.isEmpty = true
-    }
-
     func onClickStep(_ step: Int) {
         objectWillChange.send()
         if steps.contains(step) {
@@ -93,7 +77,7 @@ public class Store: ObservableObject {
     @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source
 
-    @Published public var trackStates: [TrackState] = (1 ... 9).map { i in
+    @Published public var trackStates: [TrackState] = (1 ... 8).map { i in
         TrackState(
             id: i
         )
@@ -121,7 +105,7 @@ extension Store {
     }
 
     func currentTrackState() -> TrackState {
-        return trackStates[selectedTrack]
+        return trackStates[selectedTrack - 1]
     }
 }
 
@@ -155,7 +139,6 @@ extension Store: RecordingController {
         //     with: "/looper/record"
         // ))
 
-        currentTrackState().onClickRecord()
         engine?.onClickRecord(track: selectedTrack)
     }
 
@@ -163,7 +146,6 @@ extension Store: RecordingController {
         // try? oscClient.send(OSCMessage(
         //     with: "/looper/play"
         // ))
-        currentTrackState().onClickPlay()
         engine?.onClickPlay(track: selectedTrack)
     }
 
@@ -171,7 +153,6 @@ extension Store: RecordingController {
         // try? oscClient.send(OSCMessage(
         //     with: "/looper/clear"
         // ))
-        currentTrackState().onClickClear()
         engine?.onClickClear(track: selectedTrack)
     }
 }

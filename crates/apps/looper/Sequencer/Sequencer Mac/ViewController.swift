@@ -20,6 +20,9 @@ class ViewController: NSViewController {
             .environmentObject(engineController.store)
         let hostingView = NSHostingView(rootView: contentView)
         view = hostingView
+        for constraint in hostingView.constraints {
+            constraint.isActive = false
+        }
         engineController.loadExampleFileBuffer()
     }
 }

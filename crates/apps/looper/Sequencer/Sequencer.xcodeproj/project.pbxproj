@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CB0E1F0D27D3511B00460533 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB0E1F0C27D3511B00460533 /* AudioToolbox.framework */; };
+		CB0F71C527E1204E00C08404 /* liblooperengine.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB0F71C427E1204800C08404 /* liblooperengine.a */; };
 		CB1666A827CCAD04000F9E21 /* SequencerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666A727CCAD04000F9E21 /* SequencerApp.swift */; };
 		CB1666AC27CCAD07000F9E21 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB1666AB27CCAD07000F9E21 /* Assets.xcassets */; };
 		CB1666AF27CCAD07000F9E21 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB1666AE27CCAD07000F9E21 /* Preview Assets.xcassets */; };
@@ -23,7 +24,6 @@
 		CBA4DA9727DDF21800A530E3 /* SequencerEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CBA4DA9F27DDF22700A530E3 /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CBA4DA9E27DDF22700A530E3 /* SequencerUI */; };
 		CBA4DAA027DDF23600A530E3 /* SequencerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */; };
-		CBA4DAA527DDF4ED00A530E3 /* liblooper_processor.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DA6B27DDDEA100A530E3 /* liblooper_processor.a */; };
 		CBA4DAAE27DDF67700A530E3 /* SequencerEngine_ios.h in Headers */ = {isa = PBXBuildFile; fileRef = CBA4DAAD27DDF67700A530E3 /* SequencerEngine_ios.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CBA4DAB127DDF67700A530E3 /* SequencerEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */; };
 		CBA4DAB227DDF67700A530E3 /* SequencerEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -92,6 +92,7 @@
 		CB0E1F0527D34BB900460533 /* liblooperFFI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperFFI.a; path = "../rust-audio-software/crates/apps/looper/looper-udl/lib/ios/liblooperFFI.a"; sourceTree = "<group>"; };
 		CB0E1F0A27D3511100460533 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		CB0E1F0C27D3511B00460533 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		CB0F71C427E1204800C08404 /* liblooperengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine.a; path = "../rust-audio-software/crates/apps/looper/looper-processor/public/lib/macos/liblooperengine.a"; sourceTree = "<group>"; };
 		CB1666A427CCAD04000F9E21 /* Sequencer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sequencer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB1666A727CCAD04000F9E21 /* SequencerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerApp.swift; sourceTree = "<group>"; };
 		CB1666AB27CCAD07000F9E21 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -162,8 +163,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB0F71C527E1204E00C08404 /* liblooperengine.a in Frameworks */,
 				CBA4DA9F27DDF22700A530E3 /* SequencerUI in Frameworks */,
-				CBA4DAA527DDF4ED00A530E3 /* liblooper_processor.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -247,6 +248,7 @@
 		CB23ADA227D33F4700C6289F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CB0F71C427E1204800C08404 /* liblooperengine.a */,
 				CBA4DABF27DE948400A530E3 /* liblooperengine_sim.a */,
 				CBA4DABC27DE015200A530E3 /* liblooper_processor.a */,
 				CBA4DABE27DE93B200A530E3 /* liblooper_processor.a */,
@@ -406,7 +408,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				CBA4DA9D27DDF22300A530E3 /* PBXTargetDependency */,
 			);
 			name = SequencerEngine;
 			packageProductDependencies = (
@@ -637,10 +638,6 @@
 			isa = PBXTargetDependency;
 			target = CBA4DA8F27DDF21800A530E3 /* SequencerEngine */;
 			targetProxy = CBA4DA9427DDF21800A530E3 /* PBXContainerItemProxy */;
-		};
-		CBA4DA9D27DDF22300A530E3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = CBA4DA9C27DDF22300A530E3 /* SequencerUI */;
 		};
 		CBA4DAB027DDF67700A530E3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -946,6 +943,7 @@
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Looper app";
@@ -977,6 +975,7 @@
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Looper app";
@@ -1015,6 +1014,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/crates/apps/looper/looper-processor/public/lib/macos/";
 				MACOSX_DEPLOYMENT_TARGET = 12.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerEngine";
@@ -1051,6 +1051,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/crates/apps/looper/looper-processor/public/lib/macos/";
 				MACOSX_DEPLOYMENT_TARGET = 12.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerEngine";
@@ -1224,10 +1225,6 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		CB801A4427D8B13B00D7788E /* SequencerUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SequencerUI;
-		};
-		CBA4DA9C27DDF22300A530E3 /* SequencerUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SequencerUI;
 		};

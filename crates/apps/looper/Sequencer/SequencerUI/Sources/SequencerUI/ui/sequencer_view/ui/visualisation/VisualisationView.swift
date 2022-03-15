@@ -15,7 +15,7 @@ struct VisualisationView: View {
         HStack {
             RecordingButtonsView(
                 store: store,
-                looperState: store.currentTrackState().looperState
+                trackState: store.currentTrackState()
             )
             ZStack {
                 Rectangle()
