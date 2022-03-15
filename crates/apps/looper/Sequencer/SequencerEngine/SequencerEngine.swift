@@ -18,8 +18,11 @@ class EngineImpl {
 }
 
 extension EngineImpl: SequencerEngine {
+    func setVolume(track: Int, volume: Float) {
+        looper_engine__set_volume(engine, UInt(track - 1), volume)
+    }
+
     func onClickRecord(track: Int) {
-        print(engine.debugDescription)
         looper_engine__record(engine, UInt(track - 1))
     }
 

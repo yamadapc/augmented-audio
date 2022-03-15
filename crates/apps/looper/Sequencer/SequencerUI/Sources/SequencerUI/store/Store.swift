@@ -27,6 +27,8 @@ public class TrackState: ObservableObject {
     @Published var steps: Set<Int> = Set()
     @Published var buffer: UnsafeBufferPointer<Float32>? = nil
 
+    @Published var volume: Float = 1.0
+
     @Published var lfo1: LFOState = .init()
     @Published var lfo2: LFOState = .init()
 
@@ -59,6 +61,8 @@ class LFOState: ObservableObject, LFOVisualisationViewModel {
 public protocol SequencerEngine {
     func onClickPlayheadStop()
     func onClickPlayheadPlay()
+
+    func setVolume(track: Int, volume: Float)
 
     func onClickRecord(track: Int)
     func onClickPlay(track: Int)
@@ -158,6 +162,11 @@ extension Store: RecordingController {
 }
 
 extension Store {
+    func setVolume(track: Int, volume: Float) {
+        trackStates[track - 1].volume = volume
+        engine?.setVolume(track: track, volume: volume)
+    }
+
     func setParameter(name: String, value: Float) {
         do {
             try oscClient.send(OSCMessage(

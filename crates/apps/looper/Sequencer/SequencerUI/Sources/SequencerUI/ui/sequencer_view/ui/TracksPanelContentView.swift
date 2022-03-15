@@ -36,6 +36,34 @@ struct LFOKnobsView: View {
     }
 }
 
+struct MixKnobView: View {
+    @EnvironmentObject var store: Store
+    var trackId: Int
+    @ObservedObject var trackState: TrackState
+
+    var body: some View {
+        KnobView(
+            label: "Volume \(trackId)",
+            onChanged: { volume in
+                store.setVolume(track: trackId, volume: Float(volume))
+            },
+            value: Double(trackState.volume)
+        )
+    }
+}
+
+struct MixPanelContentView: View {
+    @EnvironmentObject var store: Store
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 30) {
+            ForEach(1 ..< 9) { i in
+                MixKnobView(trackId: i, trackState: store.trackStates[i - 1])
+            }
+        }
+    }
+}
+
 struct TracksPanelContentView: View {
     @EnvironmentObject var store: Store
 
@@ -50,12 +78,7 @@ struct TracksPanelContentView: View {
                     }
 
                 case .mix:
-                    HStack(alignment: .center, spacing: 30) {
-                        ForEach(1 ..< 9) { i in
-                            KnobView(label: "Volume \(i)")
-                        }
-                    }
-
+                    MixPanelContentView()
                 case .source:
                     HStack(alignment: .center, spacing: 30) {
                         KnobView(label: "Start", value: 0)
