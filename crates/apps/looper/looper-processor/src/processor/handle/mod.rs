@@ -22,6 +22,8 @@ mod quantize_mode;
 mod scratch_pad;
 mod utils;
 
+#[no_mangle]
+#[repr(C)]
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum LooperState {
     Empty = 0,
@@ -29,7 +31,6 @@ pub enum LooperState {
     Playing = 2,
     Paused = 3,
     Overdubbing = 4,
-
     RecordingScheduled = 5,
     PlayingScheduled = 6,
 }

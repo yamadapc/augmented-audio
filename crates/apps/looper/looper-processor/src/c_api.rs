@@ -6,6 +6,7 @@ use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::AudioProcessorSettings;
 
 use crate::multi_track_looper::LooperVoice;
+use crate::processor::handle::LooperState;
 use crate::trigger_model::{TrackTriggerModel, Trigger, TriggerPosition};
 use crate::{
     setup_osc_server, LooperId, LooperOptions, LooperProcessorHandle, MultiTrackLooper,
@@ -76,6 +77,14 @@ pub unsafe extern "C" fn looper_engine__get_looper_num_samples(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_looper_state(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) -> LooperState {
+    (*engine).handle.get_looper_state(LooperId(looper_id))
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_looper_position(
     engine: *mut LooperEngine,
     looper_id: usize,
@@ -103,12 +112,12 @@ pub struct CTimeInfo {
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__playhead_stop(engine: *mut LooperEngine) {
-    (*engine).handle.time_info_provider().stop();
+    (*engine).handle.stop();
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__playhead_play(engine: *mut LooperEngine) {
-    (*engine).handle.time_info_provider().play();
+    (*engine).handle.play();
 }
 
 #[no_mangle]

@@ -55,7 +55,7 @@ impl MultiTrackLooperHandle {
 
     pub fn toggle_recording(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
-            let was_empty = self.was_empty(looper_id);
+            let was_empty = self.all_loopers_empty_other_than(looper_id);
             match handle.looper_handle.toggle_recording() {
                 ToggleRecordingResult::StoppedRecording => {
                     if was_empty {
@@ -85,6 +85,10 @@ impl MultiTrackLooperHandle {
         }
     }
 
+    pub fn get_looper_state(&self, looper_id: LooperId) -> LooperState {
+        self.voices[looper_id.0].looper().state()
+    }
+
     pub fn get_position_percent(&self, looper_id: LooperId) -> f32 {
         if let Some(voice) = self.voices.get(looper_id.0) {
             let playhead = voice.looper_handle.playhead() as f32;
@@ -99,10 +103,22 @@ impl MultiTrackLooperHandle {
         }
     }
 
-    fn was_empty(&self, looper_id: LooperId) -> bool {
+    fn all_loopers_empty_other_than(&self, looper_id: LooperId) -> bool {
         self.voices.iter().enumerate().all(|(i, voice)| {
             i == looper_id.0 || matches!(voice.looper_handle.state(), LooperState::Empty)
         })
+    }
+
+    pub fn play(&self) {
+        self.time_info_provider.play();
+        if self.time_info_provider.get_time_info().tempo().is_some() {
+            self.metronome_handle.set_is_playing(true);
+        }
+    }
+
+    pub fn stop(&self) {
+        self.metronome_handle.set_is_playing(false);
+        self.time_info_provider.stop();
     }
 
     pub fn toggle_playback(&self, looper_id: LooperId) {
@@ -120,6 +136,9 @@ impl MultiTrackLooperHandle {
     pub fn clear(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
             handle.looper_handle.clear();
+            if self.all_loopers_empty_other_than(looper_id) {
+                self.stop();
+            }
         }
     }
 
@@ -236,6 +255,9 @@ mod test {
     #[test]
     fn test_starts_empty() {
         let looper = MultiTrackLooper::new(Default::default(), 8);
-        assert_eq!(looper.handle.was_empty(LooperId(0)), true);
+        assert_eq!(
+            looper.handle.all_loopers_empty_other_than(LooperId(0)),
+            true
+        );
     }
 }

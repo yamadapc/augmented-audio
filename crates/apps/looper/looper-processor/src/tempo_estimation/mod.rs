@@ -47,6 +47,24 @@ pub fn estimate_tempo(
 #[cfg(test)]
 mod test {
     use super::*;
+    use rand::seq::index::sample;
+
+    #[test]
+    fn smoke_test_tempo_estimation_with_0to1hour() {
+        let sample_rate = 44100.0;
+        let max_duration_ms = (60 * 60) * 1000;
+        for duration_ms in 2000..max_duration_ms {
+            let length_samples = ((duration_ms as f32 / 1000.0) * sample_rate) as usize;
+            let result = estimate_tempo(Default::default(), sample_rate, length_samples);
+            assert!(
+                result.tempo < 300.0,
+                "tempo={} length={} duration_ms={}",
+                result.tempo,
+                length_samples,
+                duration_ms
+            );
+        }
+    }
 
     #[test]
     fn test_tempo_estimation() {
