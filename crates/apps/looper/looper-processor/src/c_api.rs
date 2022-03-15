@@ -140,7 +140,6 @@ pub unsafe extern "C" fn looper_engine__set_volume(
     looper_id: usize,
     volume: f32,
 ) {
-    log::info!("looper_engine - Clearing {}", looper_id);
     (*engine).handle.set_volume(LooperId(looper_id), volume);
 }
 

@@ -129,7 +129,7 @@ impl MultiTrackLooperHandle {
 
     pub fn set_volume(&self, looper_id: LooperId, volume: f32) {
         if let Some(handle) = self.voices.get(looper_id.0) {
-            handle.looper_handle.set_dry_volume(volume);
+            handle.looper_handle.set_wet_volume(volume);
         }
     }
 
