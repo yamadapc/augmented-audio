@@ -7,6 +7,7 @@
 
 import Foundation
 import OSCKit
+import Logging
 
 enum TabValue {
     case mix, source, slice, envelope, fx, lfos
@@ -78,6 +79,8 @@ public class TimeInfo: ObservableObject {
 }
 
 public class Store: ObservableObject {
+    var logger: Logger = Logger(label: "com.beijaflor.sequencerui.store.Store")
+
     @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source
 
@@ -115,7 +118,10 @@ extension Store {
 
 public extension Store {
     func setTrackBuffer(trackId: Int, buffer: UnsafeBufferPointer<Float32>) {
-        trackStates[trackId].buffer = buffer
+        logger.info("Updating track buffer", metadata: [
+          "trackId": .stringConvertible(trackId)
+        ])
+        trackStates[trackId - 1].buffer = buffer
     }
 }
 
