@@ -60,6 +60,8 @@ struct MixPanelContentView: View {
             ForEach(1 ..< 9) { i in
                 MixKnobView(trackId: i, trackState: store.trackStates[i - 1])
             }
+
+            ParameterKnobView(parameter: store.metronomeVolume)
         }
     }
 }

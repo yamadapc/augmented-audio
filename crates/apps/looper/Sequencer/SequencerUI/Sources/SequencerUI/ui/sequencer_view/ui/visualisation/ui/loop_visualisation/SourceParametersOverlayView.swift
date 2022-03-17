@@ -40,8 +40,8 @@ struct SliceHandleView: View {
 
 struct SourceParametersOverlayView: View {
     @ObservedObject var sourceParameters: SourceParametersState
-    @ObservedObject var start: FloatParameter
-    @ObservedObject var end: FloatParameter
+    @ObservedObject var start: SourceParameter
+    @ObservedObject var end: SourceParameter
 
     init(sourceParameters: SourceParametersState) {
         self.sourceParameters = sourceParameters
@@ -83,7 +83,7 @@ struct SourceParametersOverlayView: View {
         }
     }
 
-    func buildGesture(parameter: FloatParameter, geometry: GeometryProxy, valueMin: Float, valueMax: Float) -> some Gesture {
+    func buildGesture(parameter: SourceParameter, geometry: GeometryProxy, valueMin: Float, valueMax: Float) -> some Gesture {
         return DragGesture(minimumDistance: 0)
             .onChanged { dragValue in
                 var percX = dragValue.location.x / geometry.size.width

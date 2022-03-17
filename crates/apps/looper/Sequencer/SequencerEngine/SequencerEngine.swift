@@ -85,6 +85,10 @@ public class EngineController {
             }
         }
 
+        store.metronomeVolume.objectWillChange.sink(receiveValue: {
+            looper_engine__set_metronome_volume(self.engine.engine, self.store.metronomeVolume.value)
+        }).store(in: &cancellables)
+
         DispatchQueue.main.async {
             self.flushPollInfo()
         }

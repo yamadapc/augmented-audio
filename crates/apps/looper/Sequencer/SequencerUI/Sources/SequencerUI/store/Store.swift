@@ -49,35 +49,35 @@ extension UnsafeBufferTrackBuffer: TrackBuffer {
     }
 }
 
-public class FloatParameter: ObservableObject, Identifiable {
-    public var id: SourceParameterId
+public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
+    public var id: ParameterId
     @Published var label: String
     @Published public var value: Float = 0.0
     var defaultValue: Float
     var range: (Float, Float) = (0.0, 1.0)
     var style: KnobStyle = .normal
 
-    init(id: SourceParameterId, label: String) {
+    init(id: ParameterId, label: String) {
         self.id = id
         self.label = label
         defaultValue = 0.0
     }
 
-  convenience init(id: SourceParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
+    convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
         self.init(id: id, label: label)
         self.style = style
         self.range = range
-    self.value = initialValue
-    self.defaultValue = initialValue
+        value = initialValue
+        defaultValue = initialValue
     }
 
-    convenience init(id: SourceParameterId, label: String, style: KnobStyle, range: (Float, Float)) {
+    convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float)) {
         self.init(id: id, label: label)
         self.style = style
         self.range = range
     }
 
-    convenience init(id: SourceParameterId, label: String, initialValue: Float) {
+    convenience init(id: ParameterId, label: String, initialValue: Float) {
         self.init(id: id, label: label)
         value = initialValue
         defaultValue = initialValue
@@ -88,15 +88,17 @@ public enum SourceParameterId {
     case start, end, fadeStart, fadeEnd, pitch, speed
 }
 
-public class SourceParametersState: ObservableObject {
-    var start = FloatParameter(id: .start, label: "Start")
-    var end = FloatParameter(id: .end, label: "End", initialValue: 1.0)
-    var fadeStart = FloatParameter(id: .fadeStart, label: "Fade start")
-    var fadeEnd = FloatParameter(id: .fadeEnd, label: "Fade end")
-    var pitch = FloatParameter(id: .pitch, label: "Pitch", style: .center, range: (-1.0, 1.0))
-    var speed = FloatParameter(id: .speed, label: "Speed", style: .center, range: (-2.0, 2.0), initialValue: 1.0)
+public typealias SourceParameter = FloatParameter<SourceParameterId>
 
-    public var parameters: [FloatParameter] {
+public class SourceParametersState: ObservableObject {
+    var start = SourceParameter(id: .start, label: "Start")
+    var end = SourceParameter(id: .end, label: "End", initialValue: 1.0)
+    var fadeStart = SourceParameter(id: .fadeStart, label: "Fade start")
+    var fadeEnd = SourceParameter(id: .fadeEnd, label: "Fade end")
+    var pitch = SourceParameter(id: .pitch, label: "Pitch", style: .center, range: (-1.0, 1.0))
+    var speed = SourceParameter(id: .speed, label: "Speed", style: .center, range: (-2.0, 2.0), initialValue: 1.0)
+
+    public var parameters: [SourceParameter] {
         [
             start,
             end,
@@ -182,6 +184,10 @@ public class Store: ObservableObject {
 
     @Published public var timeInfo: TimeInfo = .init()
     @Published var isPlaying: Bool = false
+
+    public var metronomeVolume: FloatParameter = .init(
+        id: 0, label: "Metronome volume", initialValue: 1.0
+    )
 
     var oscClient = OSCClient()
 
