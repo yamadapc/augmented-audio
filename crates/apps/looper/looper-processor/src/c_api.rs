@@ -126,7 +126,8 @@ pub unsafe extern "C" fn looper_engine__playhead_play(engine: *mut LooperEngine)
 pub unsafe extern "C" fn looper_engine__get_playhead_position(
     engine: *mut LooperEngine,
 ) -> CTimeInfo {
-    let time_info_provider = (*engine).handle.time_info_provider();
+    let handle = &(*engine).handle;
+    let time_info_provider = handle.time_info_provider();
     let time_info = time_info_provider.get_time_info();
 
     CTimeInfo {
