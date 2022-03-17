@@ -84,6 +84,8 @@ struct KnobView: View {
             strokeWidth: strokeWidth,
             onChanged: onChanged,
             style: style,
+            renderOptions: self.renderOptions,
+            formatValue: self.formatValue,
             value: value
         )
     }

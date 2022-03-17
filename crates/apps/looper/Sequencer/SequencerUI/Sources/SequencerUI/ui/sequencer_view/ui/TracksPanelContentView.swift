@@ -91,7 +91,7 @@ struct TracksPanelContentView: View {
 
                 case .mix:
                     MixPanelContentView()
-                case .source:
+                case .source, .slice:
                     SourcePanelContentView(
                         sourceParameters: store.currentTrackState().sourceParameters
                     )

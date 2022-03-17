@@ -94,8 +94,8 @@
             filePath = "SequencerEngine/SequencerEngine.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "55"
-            endingLineNumber = "55"
+            startingLineNumber = "75"
+            endingLineNumber = "75"
             landmarkName = "init()"
             landmarkType = "7">
             <Locations>
@@ -142,8 +142,8 @@
             filePath = "SequencerEngine/SequencerEngine.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "23"
-            endingLineNumber = "23"
+            startingLineNumber = "24"
+            endingLineNumber = "24"
             landmarkName = "setVolume(track:volume:)"
             landmarkType = "7">
             <Locations>
@@ -190,8 +190,8 @@
             filePath = "SequencerEngine/SequencerEngine.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "17"
-            endingLineNumber = "17"
+            startingLineNumber = "18"
+            endingLineNumber = "18"
             landmarkName = "init()"
             landmarkType = "7">
          </BreakpointContent>

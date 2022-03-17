@@ -23,6 +23,6 @@ class ViewController: NSViewController {
         for constraint in hostingView.constraints {
             constraint.isActive = false
         }
-        engineController.loadExampleFileBuffer()
+        // engineController.loadExampleFileBuffer()
     }
 }

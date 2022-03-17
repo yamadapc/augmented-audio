@@ -5,6 +5,7 @@
 //  Created by Pedro Tacla Yamada on 13/3/2022.
 //
 
+import Combine
 import Foundation
 import SequencerEngine_private
 import SequencerUI
@@ -48,13 +49,41 @@ extension EngineImpl: SequencerEngine {
     }
 }
 
+func getParameterId(_ id: SourceParameterId) -> SequencerEngine_private.SourceParameter {
+    switch id {
+    case .start:
+        return Start
+    case .end:
+        return End
+    case .fadeStart:
+        return FadeStart
+    case .fadeEnd:
+        return FadeEnd
+    case .pitch:
+        return Pitch
+    case .speed:
+        return Speed
+    }
+}
+
 public class EngineController {
     let engine: EngineImpl
     public let store: Store
 
+    var cancellables: Set<AnyCancellable> = Set()
+
     public init() {
         engine = EngineImpl()
         store = Store(engine: engine)
+
+        store.trackStates.enumerated().forEach { i, trackState in
+            trackState.sourceParameters.parameters.forEach { parameter in
+                parameter.objectWillChange.sink(receiveValue: {
+                    let rustParameterId = getParameterId(parameter.id)
+                    looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, parameter.value)
+                }).store(in: &cancellables)
+            }
+        }
 
         DispatchQueue.main.async {
             self.flushPollInfo()

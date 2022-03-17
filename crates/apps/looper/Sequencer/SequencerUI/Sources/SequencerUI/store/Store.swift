@@ -52,16 +52,35 @@ extension UnsafeBufferTrackBuffer: TrackBuffer {
 public class FloatParameter: ObservableObject, Identifiable {
     public var id: SourceParameterId
     @Published var label: String
-    @Published var value: Float = 0.0
+    @Published public var value: Float = 0.0
+    var defaultValue: Float
+    var range: (Float, Float) = (0.0, 1.0)
+    var style: KnobStyle = .normal
 
     init(id: SourceParameterId, label: String) {
         self.id = id
         self.label = label
+        defaultValue = 0.0
+    }
+
+  convenience init(id: SourceParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
+        self.init(id: id, label: label)
+        self.style = style
+        self.range = range
+    self.value = initialValue
+    self.defaultValue = initialValue
+    }
+
+    convenience init(id: SourceParameterId, label: String, style: KnobStyle, range: (Float, Float)) {
+        self.init(id: id, label: label)
+        self.style = style
+        self.range = range
     }
 
     convenience init(id: SourceParameterId, label: String, initialValue: Float) {
         self.init(id: id, label: label)
         value = initialValue
+        defaultValue = initialValue
     }
 }
 
@@ -74,10 +93,10 @@ public class SourceParametersState: ObservableObject {
     var end = FloatParameter(id: .end, label: "End", initialValue: 1.0)
     var fadeStart = FloatParameter(id: .fadeStart, label: "Fade start")
     var fadeEnd = FloatParameter(id: .fadeEnd, label: "Fade end")
-    var pitch = FloatParameter(id: .pitch, label: "Pitch")
-    var speed = FloatParameter(id: .speed, label: "Speed")
+    var pitch = FloatParameter(id: .pitch, label: "Pitch", style: .center, range: (-1.0, 1.0))
+    var speed = FloatParameter(id: .speed, label: "Speed", style: .center, range: (-2.0, 2.0), initialValue: 1.0)
 
-    var parameters: [FloatParameter] {
+    public var parameters: [FloatParameter] {
         [
             start,
             end,
@@ -95,7 +114,7 @@ public class TrackState: ObservableObject {
     @Published var id: Int
     @Published var steps: Set<Int> = Set()
     @Published var buffer: TrackBuffer? = nil
-    @Published var sourceParameters: SourceParametersState = .init()
+    @Published public var sourceParameters: SourceParametersState = .init()
 
     @Published var volume: Float = 1.0
 
