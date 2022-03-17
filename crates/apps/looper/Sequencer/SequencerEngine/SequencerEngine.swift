@@ -69,7 +69,7 @@ public class EngineController {
                 count: Int(exampleBuffer.count)
             )
             DispatchQueue.main.async {
-                self.store.setTrackBuffer(trackId: 1, buffer: bufferPtr)
+                self.store.setTrackBuffer(trackId: 1, fromUnsafePointer: bufferPtr)
             }
         }
     }
@@ -99,11 +99,36 @@ public class EngineController {
             let looperState = convertState(looperState: looper_engine__get_looper_state(engine.engine, UInt(i)))
             if trackState.looperState != looperState {
                 trackState.looperState = looperState
+                if trackState.looperState == .playing {
+                    let buffer = looper_engine__get_looper_buffer(engine.engine, UInt(i))
+                    let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
+                    // TODO: here we should free the previous buffer if it exists
+                    store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: trackBuffer)
+                }
             }
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16))) {
             self.flushPollInfo()
+        }
+    }
+}
+
+struct LooperBufferTrackBuffer {
+    var inner: OpaquePointer
+}
+
+extension LooperBufferTrackBuffer: TrackBuffer {
+    var count: Int { Int(looper_buffer__num_samples(inner)) }
+    subscript(index: Int) -> Float {
+        looper_buffer__get(inner, UInt(index))
+    }
+
+    func equals(other: TrackBuffer) -> Bool {
+        if let otherBuffer = other as? LooperBufferTrackBuffer {
+            return inner == otherBuffer.inner
+        } else {
+            return false
         }
     }
 }

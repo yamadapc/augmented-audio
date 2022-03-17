@@ -25,10 +25,7 @@ struct SequencerView: View {
             )
             SceneSliderView().padding(PADDING)
             TracksPanelContentView()
-            SequenceView(
-              timeInfo: store.timeInfo,
-              track: store.currentTrackState()
-            )
+            SequenceView()
             TracksView(
                 selectedTrack: store.selectedTrack,
                 onClickTrack: { i in store.onClickTrack(i) }

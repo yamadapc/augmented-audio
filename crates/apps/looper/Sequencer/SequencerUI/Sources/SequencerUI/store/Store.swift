@@ -6,8 +6,8 @@
 //
 
 import Foundation
-import OSCKit
 import Logging
+import OSCKit
 
 enum TabValue {
     case mix, source, slice, envelope, fx, lfos
@@ -23,10 +23,79 @@ extension LooperState {
     var isEmpty: Bool { self == .empty || self == .recordingScheduled || self == .playingScheduled }
 }
 
+public protocol TrackBuffer {
+    var count: Int { get }
+    subscript(_: Int) -> Float { get }
+
+    func equals(other: TrackBuffer) -> Bool
+}
+
+struct UnsafeBufferTrackBuffer {
+    let inner: UnsafeBufferPointer<Float32>
+}
+
+extension UnsafeBufferTrackBuffer: TrackBuffer {
+    var count: Int { inner.count }
+    subscript(index: Int) -> Float {
+        inner[index]
+    }
+
+    func equals(other: TrackBuffer) -> Bool {
+        if let otherBuffer = other as? UnsafeBufferTrackBuffer {
+            return inner.baseAddress == otherBuffer.inner.baseAddress
+        } else {
+            return false
+        }
+    }
+}
+
+public class FloatParameter: ObservableObject, Identifiable {
+    public var id: SourceParameterId
+    @Published var label: String
+    @Published var value: Float = 0.0
+
+    init(id: SourceParameterId, label: String) {
+        self.id = id
+        self.label = label
+    }
+
+  convenience init(id: SourceParameterId, label: String, initialValue: Float) {
+    self.init(id: id, label: label)
+        value = initialValue
+    }
+}
+
+public enum SourceParameterId {
+  case start, end, fadeStart, fadeEnd, pitch, speed
+}
+
+public class SourceParametersState: ObservableObject {
+  var start = FloatParameter(id: .start, label: "Start")
+  var end = FloatParameter(id: .end, label: "End", initialValue: 1.0)
+  var fadeStart = FloatParameter(id: .fadeStart, label: "Fade start")
+  var fadeEnd = FloatParameter(id: .fadeEnd, label: "Fade end")
+  var pitch = FloatParameter(id: .pitch, label: "Pitch")
+  var speed = FloatParameter(id: .speed, label: "Speed")
+
+    var parameters: [FloatParameter] {
+        [
+            start,
+            end,
+            fadeStart,
+            fadeEnd,
+            pitch,
+            speed,
+        ]
+    }
+
+    init() {}
+}
+
 public class TrackState: ObservableObject {
     @Published var id: Int
     @Published var steps: Set<Int> = Set()
-    @Published var buffer: UnsafeBufferPointer<Float32>? = nil
+    @Published var buffer: TrackBuffer? = nil
+    @Published var sourceParameters: SourceParametersState = .init()
 
     @Published var volume: Float = 1.0
 
@@ -81,7 +150,7 @@ public class TimeInfo: ObservableObject {
 }
 
 public class Store: ObservableObject {
-    var logger: Logger = Logger(label: "com.beijaflor.sequencerui.store.Store")
+    var logger: Logger = .init(label: "com.beijaflor.sequencerui.store.Store")
 
     @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source
@@ -124,11 +193,15 @@ extension Store {
 }
 
 public extension Store {
-    func setTrackBuffer(trackId: Int, buffer: UnsafeBufferPointer<Float32>) {
-        logger.info("Updating track buffer", metadata: [
-          "trackId": .stringConvertible(trackId)
-        ])
+    func setTrackBuffer(trackId: Int, fromAbstractBuffer buffer: TrackBuffer) {
         trackStates[trackId - 1].buffer = buffer
+    }
+
+    func setTrackBuffer(trackId: Int, fromUnsafePointer buffer: UnsafeBufferPointer<Float32>) {
+        logger.info("Updating track buffer", metadata: [
+            "trackId": .stringConvertible(trackId),
+        ])
+        trackStates[trackId - 1].buffer = UnsafeBufferTrackBuffer(inner: buffer)
     }
 }
 

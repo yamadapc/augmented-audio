@@ -64,6 +64,18 @@ struct MixPanelContentView: View {
     }
 }
 
+struct SourcePanelContentView: View {
+    @ObservedObject var sourceParameters: SourceParametersState
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 30) {
+            ForEach(sourceParameters.parameters) { parameter in
+                ParameterKnobView(parameter: parameter)
+            }
+        }
+    }
+}
+
 struct TracksPanelContentView: View {
     @EnvironmentObject var store: Store
 
@@ -80,15 +92,9 @@ struct TracksPanelContentView: View {
                 case .mix:
                     MixPanelContentView()
                 case .source:
-                    HStack(alignment: .center, spacing: 30) {
-                        KnobView(label: "Start", value: 0)
-                        KnobView(label: "End")
-                        KnobView(label: "Fade start", value: 0)
-                        KnobView(label: "Fade end", value: 0)
-                        KnobView(label: "Pitch", value: 0).style(.center)
-                        KnobView(label: "Speed", value: 0).style(.center)
-                    }
-
+                    SourcePanelContentView(
+                        sourceParameters: store.currentTrackState().sourceParameters
+                    )
                 default:
                     HStack(alignment: .center, spacing: 30) {
                         KnobView(label: "Normal")

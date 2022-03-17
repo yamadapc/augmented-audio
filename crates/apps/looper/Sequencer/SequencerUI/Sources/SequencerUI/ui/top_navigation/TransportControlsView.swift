@@ -7,48 +7,48 @@
 
 import SwiftUI
 
-struct TransportInfoViewInner: View {
-    var tempo: Double?
-    var positionBeats: Double?
+struct TransportTempoView: View {
+    @ObservedObject var timeInfo: TimeInfo
 
     var body: some View {
-        HStack {
-            if let tempo = tempo {
-                if #available(macOS 12.0, *) {
-                    Text("\(String(format: "%.1f", tempo))bpm")
-                        .monospacedDigit()
-                } else {
-                    Text("\(String(format: "%.1f", tempo))bpm")
-                }
+        if let tempo = timeInfo.tempo {
+            if #available(macOS 12.0, *) {
+                Text("\(String(format: "%.1f", tempo))bpm")
+                    .monospacedDigit()
             } else {
-                Text("Free tempo")
+                Text("\(String(format: "%.1f", tempo))bpm")
             }
-            Rectangle().fill(SequencerColors.black3).frame(width: 1.0, height: 10.0)
-            if let beats = positionBeats {
-                if #available(macOS 12.0, *) {
-                    Text("\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))")
-                        .monospacedDigit()
-                        .frame(width: 25.0, alignment: .trailing)
-                } else {
-                    Text("\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))")
-                        .frame(width: 25.0, alignment: .trailing)
-                }
+        } else {
+            Text("Free tempo")
+        }
+    }
+}
+
+struct TransportBeatsView: View {
+    @ObservedObject var timeInfo: TimeInfo
+
+    var body: some View {
+        if let beats = timeInfo.positionBeats {
+            if #available(macOS 12.0, *) {
+                Text("\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))")
+                    .monospacedDigit()
             } else {
-                Text("0.0")
-                    .frame(width: 25.0, alignment: .trailing)
+                Text("\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))")
             }
-        }.frame(width: 200.0)
+        } else {
+            Text("0.0")
+        }
     }
 }
 
 struct TransportInfoView: View {
-    @ObservedObject var timeInfo: TimeInfo
-
+    @EnvironmentObject var store: Store
     var body: some View {
-        TransportInfoViewInner(
-            tempo: timeInfo.tempo,
-            positionBeats: timeInfo.positionBeats
-        )
+        HStack {
+            TransportTempoView(timeInfo: store.timeInfo).frame(width: 80, alignment: .trailing)
+            Rectangle().fill(SequencerColors.black3).frame(width: 1.0, height: 10.0)
+            TransportBeatsView(timeInfo: store.timeInfo).frame(width: 30, alignment: .trailing)
+        }.frame(width: 200.0)
     }
 }
 
@@ -57,7 +57,7 @@ struct TransportControlsView: View {
 
     var body: some View {
         HStack(alignment: .center) {
-            TransportInfoView(timeInfo: store.timeInfo)
+            TransportInfoView()
 
             Button(action: {
                 store.onClickPlayheadPlay()

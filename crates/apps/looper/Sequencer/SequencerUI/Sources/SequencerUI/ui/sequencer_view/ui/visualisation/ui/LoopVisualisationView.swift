@@ -64,7 +64,7 @@ import MetalKit
     }
 #endif
 
-func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _: Int, _ buffer: UnsafeBufferPointer<Float32>) {
+func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _: Int, _ buffer: TrackBuffer) {
     let height = geometry.size.height
     let width = Int(geometry.size.width)
 
@@ -73,7 +73,7 @@ func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _: Int, _ buffer: 
         let x = Double(overSampledX) / 2.0
         let index = Int(x / Double(width) * Double(buffer.count))
         var value: Float = 0.0
-        for j in 0..<step {
+        for j in 0 ..< step {
             value += buffer[(index + j) % buffer.count]
         }
         value /= Float(step)
@@ -84,6 +84,25 @@ func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _: Int, _ buffer: 
             path.move(to: CGPoint(x: x, y: h))
         }
         path.addLine(to: CGPoint(x: x, y: h))
+    }
+}
+
+struct AudioPath: View {
+    var tick: Int
+    var buffer: TrackBuffer
+    var geometry: GeometryProxy
+
+    var body: some View {
+        Path { path in
+            buildPath(geometry, &path, tick, buffer)
+        }
+        .stroke(SequencerColors.blue, lineWidth: 1)
+    }
+}
+
+extension AudioPath: Equatable {
+    static func == (lhs: AudioPath, rhs: AudioPath) -> Bool {
+        lhs.buffer.equals(other: rhs.buffer)
     }
 }
 
@@ -106,16 +125,32 @@ struct LoopVisualisationView: View {
         ZStack {
             if let buffer = trackState.buffer {
                 GeometryReader { geometry in
-                    Path { path in
-                        buildPath(geometry, &path, tick, buffer)
+                    ZStack {
+                        AudioPath(tick: tick, buffer: buffer, geometry: geometry)
+                            .equatable()
+                        Playhead(trackState: trackState, size: geometry.size)
                     }
-                    .stroke(SequencerColors.blue, lineWidth: 1)
                 }
                 .padding()
             } else {
                 Text("No loop buffer")
             }
         }
+    }
+}
+
+struct Playhead: View {
+    @ObservedObject var trackState: TrackState
+    var size: CGSize
+
+    var body: some View {
+        Rectangle()
+            .fill(SequencerColors.green)
+            .frame(width: 1.0, height: size.height)
+            // y is set to an arbitrary nº
+            .position(x: 0.0, y: 110)
+            .transformEffect(
+                .init(translationX: size.width * CGFloat(trackState.positionPercent), y: 0.0))
     }
 }
 
