@@ -137,6 +137,8 @@ public class EngineController {
                     let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
                     // TODO: here we should free the previous buffer if it exists
                     store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: trackBuffer)
+                } else if trackState.looperState == .empty {
+                    store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: nil)
                 }
             }
         }
