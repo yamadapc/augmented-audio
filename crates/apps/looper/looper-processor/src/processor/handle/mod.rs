@@ -141,6 +141,10 @@ impl LooperHandle {
         }
     }
 
+    pub fn trigger(&self) {
+        self.cursor.set(0);
+    }
+
     pub fn toggle_playback(&self) {
         let old_state = self.state.get();
         if old_state == LooperState::Playing

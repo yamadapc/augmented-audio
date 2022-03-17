@@ -93,12 +93,14 @@ pub unsafe extern "C" fn looper_engine__get_looper_position(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_voice(
+pub unsafe extern "C" fn looper_engine__toggle_trigger(
     engine: *mut LooperEngine,
     looper_id: usize,
-) -> *mut LooperVoice {
-    let voice = &(*engine).handle.voices()[looper_id];
-    voice as *const LooperVoice as *mut _
+    position_beats: usize,
+) {
+    (*engine)
+        .handle
+        .toggle_trigger(LooperId(looper_id), position_beats)
 }
 
 #[repr(C)]
@@ -141,74 +143,6 @@ pub unsafe extern "C" fn looper_engine__set_volume(
     volume: f32,
 ) {
     (*engine).handle.set_volume(LooperId(looper_id), volume);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_voice__get_triggers(
-    voice: *mut LooperVoice,
-) -> SharedPtr<TrackTriggerModel> {
-    SharedPtr::from((*voice).triggers().clone())
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn track_trigger_model__get_len(
-    track_trigger_model: SharedPtr<TrackTriggerModel>,
-) -> usize {
-    (*track_trigger_model.0).len()
-}
-
-pub unsafe extern "C" fn track_trigger_model__add_trigger(
-    track_trigger_model: SharedPtr<TrackTriggerModel>,
-    position_beats: usize,
-) {
-    let mut trigger = Trigger::default();
-    trigger.set_position(TriggerPosition::BeatsUsize {
-        pos: position_beats.into(),
-    });
-    (*track_trigger_model.0).add_trigger(trigger);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn trigger_get_beats(trigger: *const Trigger) -> f32 {
-    (*trigger).beats()
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn track_trigger_model__get_elem(
-    track_trigger_model: SharedPtr<TrackTriggerModel>,
-    index: usize,
-) -> *const Trigger {
-    if let Some(trigger) = (*track_trigger_model.0).triggers().get(index) {
-        trigger as *const Trigger
-    } else {
-        null() as *const Trigger
-    }
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_voice__get_looper_handle(
-    voice: *mut LooperVoice,
-) -> SharedPtr<LooperProcessorHandle> {
-    SharedPtr::from((*voice).looper().clone())
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_handle__free(handle: SharedPtr<LooperProcessorHandle>) {
-    std::mem::drop(Box::from_raw(handle.0));
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_handle__is_recording(
-    handle: SharedPtr<LooperProcessorHandle>,
-) -> bool {
-    (*handle.0).is_recording()
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_handle__is_playing_back(
-    handle: SharedPtr<LooperProcessorHandle>,
-) -> bool {
-    (*handle.0).is_playing_back()
 }
 
 #[repr(C)]

@@ -1,3 +1,4 @@
+use num::iter::range_step_from;
 use std::sync::atomic::Ordering;
 
 use audio_garbage_collector::{make_shared, Shared};
@@ -11,7 +12,8 @@ use metronome::MetronomeProcessorHandle;
 
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::tempo_estimation::estimate_tempo;
-use crate::trigger_model::TrackTriggerModel;
+use crate::trigger_model::step_tracker::StepTracker;
+use crate::trigger_model::{find_current_beat_trigger, TrackTriggerModel, Trigger};
 use crate::{
     LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, LooperProcessorHandle,
     QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl,
@@ -89,6 +91,12 @@ impl MultiTrackLooperHandle {
         self.voices[looper_id.0].looper().state()
     }
 
+    pub fn toggle_trigger(&self, looper_id: LooperId, position_beats: usize) {
+        self.voices[looper_id.0]
+            .triggers
+            .toggle_trigger(position_beats);
+    }
+
     pub fn get_position_percent(&self, looper_id: LooperId) -> f32 {
         if let Some(voice) = self.voices.get(looper_id.0) {
             let playhead = voice.looper_handle.playhead() as f32;
@@ -162,6 +170,7 @@ impl MultiTrackLooperHandle {
 pub struct MultiTrackLooper {
     graph: AudioProcessorGraph<VecAudioBuffer<f32>>,
     handle: Shared<MultiTrackLooperHandle>,
+    step_trackers: Vec<StepTracker>,
 }
 
 impl MultiTrackLooper {
@@ -211,13 +220,19 @@ impl MultiTrackLooper {
         graph.add_connection(input_node, metronome_idx);
         graph.add_connection(metronome_idx, output_node);
 
+        let step_trackers = voices.iter().map(|_| StepTracker::default()).collect();
+
         for voice in voices {
             let voice_idx = graph.add_node(NodeType::Simple(Box::new(voice)));
             graph.add_connection(input_node, voice_idx);
             graph.add_connection(voice_idx, output_node);
         }
 
-        Self { graph, handle }
+        Self {
+            graph,
+            handle,
+            step_trackers,
+        }
     }
 
     pub fn handle(&self) -> &Shared<MultiTrackLooperHandle> {
@@ -237,7 +252,25 @@ impl AudioProcessor for MultiTrackLooper {
         &mut self,
         data: &mut BufferType,
     ) {
+        if let Some(position_beats) = self
+            .handle
+            .time_info_provider
+            .get_time_info()
+            .position_beats()
+        {
+            for (voice, step_tracker) in self.handle.voices.iter().zip(&mut self.step_trackers) {
+                let triggers = voice.triggers();
+
+                if let Some(_trigger) =
+                    find_current_beat_trigger(triggers, step_tracker, position_beats)
+                {
+                    voice.looper_handle.trigger();
+                }
+            }
+        }
+
         self.graph.process(data);
+
         for _sample in data.frames() {
             self.handle.time_info_provider.tick();
         }

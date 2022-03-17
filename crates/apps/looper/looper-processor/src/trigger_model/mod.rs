@@ -1,3 +1,5 @@
+pub mod step_tracker;
+
 use std::ops::Deref;
 use std::sync::atomic::AtomicUsize;
 
@@ -6,6 +8,23 @@ use im::Vector;
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use augmented_atomics::{AtomicF32, AtomicValue};
+use step_tracker::StepTracker;
+
+pub fn find_current_beat_trigger(
+    track_trigger_model: &TrackTriggerModel,
+    step_tracker: &mut StepTracker,
+    position_beats: f64,
+) -> Option<Trigger> {
+    step_tracker
+        .accept(
+            track_trigger_model.pattern_step_beats,
+            position_beats
+                % (track_trigger_model.pattern_length as f64
+                    * track_trigger_model.pattern_step_beats),
+        )
+        .map(|step| track_trigger_model.find_step(step))
+        .flatten()
+}
 
 #[derive(Default, Clone, PartialEq, Eq, Debug)]
 pub struct LoopTrigger {}
@@ -16,57 +35,37 @@ pub enum TriggerInner {
 }
 
 #[derive(Debug)]
-pub enum TriggerPosition {
-    BeatsUsize { pos: AtomicUsize },
-    BeatsF32 { pos: AtomicF32 },
+pub struct TriggerPosition {
+    step: AtomicUsize,
+    position: AtomicF32,
 }
 
 impl Default for TriggerPosition {
     fn default() -> Self {
-        Self::BeatsF32 { pos: 0.0.into() }
+        Self {
+            step: 0.into(),
+            position: 0.0.into(),
+        }
     }
 }
 
 impl PartialEq for TriggerPosition {
     fn eq(&self, other: &Self) -> bool {
-        use TriggerPosition::*;
-        match self {
-            BeatsUsize { pos } => {
-                if let BeatsUsize { pos: pos2 } = other {
-                    pos.get() == pos2.get()
-                } else {
-                    false
-                }
-            }
-            BeatsF32 { pos } => {
-                if let BeatsF32 { pos: pos2 } = other {
-                    pos.get() == pos2.get()
-                } else {
-                    false
-                }
-            }
-        }
+        self.position.get() == other.position.get() && self.step.get() == other.step.get()
     }
 }
 
 impl TriggerPosition {
     fn beats(&self) -> f32 {
-        match self {
-            TriggerPosition::BeatsUsize { pos } => pos.get() as f32,
-            TriggerPosition::BeatsF32 { pos } => pos.get(),
-        }
+        self.position.get()
     }
 }
 
 impl Clone for TriggerPosition {
     fn clone(&self) -> Self {
-        use TriggerPosition::*;
-
-        match self {
-            BeatsUsize { pos } => BeatsUsize {
-                pos: pos.get().into(),
-            },
-            BeatsF32 { pos } => BeatsF32 { pos: pos.clone() },
+        Self {
+            step: self.step.get().into(),
+            position: self.position.get().into(),
         }
     }
 }
@@ -97,20 +96,57 @@ impl Trigger {
 }
 
 pub struct TrackTriggerModel {
+    pattern_length: usize,
+    pattern_step_beats: f64,
     triggers: SharedCell<Vector<Trigger>>,
 }
 
 impl Default for TrackTriggerModel {
     fn default() -> Self {
         Self {
+            pattern_length: 16,
+            pattern_step_beats: 0.25,
             triggers: make_shared_cell(Vector::default()),
         }
     }
 }
 
 impl TrackTriggerModel {
-    pub fn len(&self) -> usize {
+    pub fn num_triggers(&self) -> usize {
         self.triggers.get().len()
+    }
+
+    pub fn find_step(&self, step: usize) -> Option<Trigger> {
+        let triggers = self.triggers.get();
+        triggers
+            .iter()
+            .find(|trigger| trigger.position.step.get() == step)
+            .cloned()
+    }
+
+    pub fn toggle_trigger(&self, position_beats: usize) {
+        let triggers = self.triggers.get();
+        let mut triggers: Vector<Trigger> = (*triggers).clone();
+
+        let indexes: Vec<usize> = triggers
+            .iter()
+            .enumerate()
+            .filter(|(idx, trigger)| trigger.position.step.get() == position_beats)
+            .map(|(idx, _)| idx)
+            .collect();
+        if !indexes.is_empty() {
+            for index in indexes {
+                triggers.remove(index);
+            }
+            self.triggers.set(make_shared(triggers));
+        } else {
+            let mut trigger = Trigger::default();
+            trigger.set_position(TriggerPosition {
+                step: position_beats.into(),
+                position: (position_beats as f32).into(),
+            });
+            self.add_trigger(trigger);
+        }
     }
 
     pub fn add_trigger(&self, trigger: Trigger) {
@@ -136,13 +172,28 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_toggle_trigger_with_empty_model() {
+        let trigger_model = TrackTriggerModel::default();
+        trigger_model.toggle_trigger(10);
+        assert_eq!(trigger_model.num_triggers(), 1);
+    }
+
+    #[test]
+    fn test_toggle_trigger_twice_is_noop() {
+        let trigger_model = TrackTriggerModel::default();
+        trigger_model.toggle_trigger(10);
+        trigger_model.toggle_trigger(10);
+        assert_eq!(trigger_model.num_triggers(), 0);
+    }
+
+    #[test]
     fn test_create_and_add_triggers() {
         let trigger_model = TrackTriggerModel::default();
         trigger_model.add_trigger(Trigger::default());
         let triggers = trigger_model.triggers();
         assert_eq!(triggers.len(), 1);
         assert_eq!(triggers.get(0).cloned(), Some(Trigger::default()));
-        assert_eq!(trigger_model.len(), 1);
+        assert_eq!(trigger_model.num_triggers(), 1);
     }
 
     #[test]
@@ -150,7 +201,7 @@ mod test {
         let trigger_model = TrackTriggerModel::default();
         trigger_model.add_triggers(&[Trigger::default(), Trigger::default(), Trigger::default()]);
         let triggers = trigger_model.triggers();
-        assert_eq!(trigger_model.len(), 3);
+        assert_eq!(trigger_model.num_triggers(), 3);
         assert_eq!(triggers.len(), 3);
         assert_eq!(triggers.get(0).cloned(), Some(Trigger::default()));
         assert_eq!(triggers.get(1).cloned(), Some(Trigger::default()));
