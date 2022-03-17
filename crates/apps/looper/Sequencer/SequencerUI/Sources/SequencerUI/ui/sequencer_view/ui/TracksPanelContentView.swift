@@ -90,6 +90,14 @@ struct EnvelopePanelContentView: View {
     }
 }
 
+struct EffectsPanelContentView: View {
+    var body: some View {
+        HStack {
+            Text("Hello world")
+        }
+    }
+}
+
 struct TracksPanelContentView: View {
     @EnvironmentObject var store: Store
 
@@ -114,22 +122,8 @@ struct TracksPanelContentView: View {
                     EnvelopePanelContentView(
                         envelope: store.currentTrackState().envelope
                     )
-                default:
-                    HStack(alignment: .center, spacing: 30) {
-                        KnobView(label: "Normal")
-                        KnobView(label: "Center", value: 0.1).style(.center)
-                        KnobView(label: "Other")
-                        KnobView().style(.center)
-                        KnobView()
-                        KnobView().style(.center)
-                        KnobView()
-
-                        KnobView(
-                            onChanged: { value in
-                                store.setParameter(name: "volume", value: Float(value))
-                            }
-                        )
-                    }
+                case .fx:
+                    EffectsPanelContentView()
                 }
             }
             .padding(PADDING * 2)

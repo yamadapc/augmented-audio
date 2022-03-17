@@ -27,11 +27,11 @@ struct EnvelopeVisualisationView: View {
             y: CGFloat(1 - model.sustain.value) * size.height
         ))
         path.addLine(to: CGPoint(
-          x: CGFloat(model.attack.value + model.decay.value + 0.3) * size.width,
+            x: CGFloat(model.attack.value + model.decay.value + 0.3) * size.width,
             y: CGFloat(1 - model.sustain.value) * size.height
         ))
         path.addLine(to: CGPoint(
-          x: CGFloat(model.attack.value + model.decay.value + 0.3 + model.release.value) * size.width,
+            x: CGFloat(model.attack.value + model.decay.value + 0.3 + model.release.value) * size.width,
             y: size.height
         ))
     }
