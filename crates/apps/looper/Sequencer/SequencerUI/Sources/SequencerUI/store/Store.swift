@@ -59,23 +59,23 @@ public class FloatParameter: ObservableObject, Identifiable {
         self.label = label
     }
 
-  convenience init(id: SourceParameterId, label: String, initialValue: Float) {
-    self.init(id: id, label: label)
+    convenience init(id: SourceParameterId, label: String, initialValue: Float) {
+        self.init(id: id, label: label)
         value = initialValue
     }
 }
 
 public enum SourceParameterId {
-  case start, end, fadeStart, fadeEnd, pitch, speed
+    case start, end, fadeStart, fadeEnd, pitch, speed
 }
 
 public class SourceParametersState: ObservableObject {
-  var start = FloatParameter(id: .start, label: "Start")
-  var end = FloatParameter(id: .end, label: "End", initialValue: 1.0)
-  var fadeStart = FloatParameter(id: .fadeStart, label: "Fade start")
-  var fadeEnd = FloatParameter(id: .fadeEnd, label: "Fade end")
-  var pitch = FloatParameter(id: .pitch, label: "Pitch")
-  var speed = FloatParameter(id: .speed, label: "Speed")
+    var start = FloatParameter(id: .start, label: "Start")
+    var end = FloatParameter(id: .end, label: "End", initialValue: 1.0)
+    var fadeStart = FloatParameter(id: .fadeStart, label: "Fade start")
+    var fadeEnd = FloatParameter(id: .fadeEnd, label: "Fade end")
+    var pitch = FloatParameter(id: .pitch, label: "Pitch")
+    var speed = FloatParameter(id: .speed, label: "Speed")
 
     var parameters: [FloatParameter] {
         [

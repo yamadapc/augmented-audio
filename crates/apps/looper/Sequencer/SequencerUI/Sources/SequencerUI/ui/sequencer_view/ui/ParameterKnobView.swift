@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Pedro Tacla Yamada on 17/3/2022.
 //
@@ -19,4 +19,3 @@ struct ParameterKnobView: View {
         )
     }
 }
-
