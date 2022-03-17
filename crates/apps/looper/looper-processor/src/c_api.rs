@@ -212,6 +212,14 @@ pub unsafe extern "C" fn looper_engine__set_volume(
     (*engine).handle.set_volume(LooperId(looper_id), volume);
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_metronome_volume(
+    engine: *mut LooperEngine,
+    volume: f32,
+) {
+    (*engine).handle.set_metronome_volume(volume);
+}
+
 #[repr(C)]
 #[no_mangle]
 pub struct ExampleBuffer {
