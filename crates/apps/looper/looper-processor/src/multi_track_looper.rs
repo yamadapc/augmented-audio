@@ -22,10 +22,37 @@ use crate::{
 
 pub struct LooperId(pub usize);
 
+#[repr(C)]
+#[no_mangle]
+pub enum SourceParameter {
+    Start = 0,
+    End = 1,
+    FadeStart = 2,
+    FadeEnd = 3,
+    Pitch = 4,
+    Speed = 5,
+}
+
+struct LFOHandle {
+    amount: AtomicF32,
+    frequency: AtomicF32,
+}
+
+impl Default for LFOHandle {
+    fn default() -> Self {
+        LFOHandle {
+            amount: 1.0.into(),
+            frequency: 1.0.into(),
+        }
+    }
+}
+
 pub struct LooperVoice {
     triggers: Shared<TrackTriggerModel>,
     looper_handle: Shared<LooperProcessorHandle>,
     sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    lfo1_handle: Shared<LFOHandle>,
+    lfo2_handle: Shared<LFOHandle>,
 }
 
 impl LooperVoice {
@@ -74,6 +101,62 @@ impl MultiTrackLooperHandle {
                         self.metronome_handle.set_is_playing(true);
                         self.time_info_provider.play();
                     }
+                }
+                _ => {}
+            }
+        }
+    }
+
+    pub fn set_source_parameter(
+        &self,
+        looper_id: LooperId,
+        parameter: SourceParameter,
+        value: f32,
+    ) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            match parameter {
+                SourceParameter::Start => {
+                    voice.looper_handle.set_start_offset(value);
+                }
+                SourceParameter::End => {
+                    voice.looper_handle.set_end_offset(value);
+                }
+                SourceParameter::FadeStart => {
+                    voice.looper_handle.set_fade_start(value);
+                }
+                SourceParameter::FadeEnd => {
+                    voice.looper_handle.set_fade_end(value);
+                }
+                SourceParameter::Pitch => {}
+                SourceParameter::Speed => {
+                    voice.looper_handle.set_speed(value);
+                }
+            }
+        }
+    }
+
+    pub fn set_lfo_frequency(&self, looper_id: LooperId, lfo: usize, value: f32) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            match lfo {
+                1 => {
+                    voice.lfo1_handle.frequency.set(value);
+                }
+                2 => {
+                    voice.lfo2_handle.frequency.set(value);
+                }
+                _ => {}
+            }
+        }
+    }
+
+    pub fn set_lfo_amount(&self, looper_id: LooperId, lfo: usize, value: f32) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            match lfo {
+                1 => {
+                    voice.lfo1_handle.amount.set(value);
+                }
+                2 => {
+                    voice.lfo2_handle.amount.set(value);
                 }
                 _ => {}
             }
@@ -216,6 +299,8 @@ impl MultiTrackLooper {
                         looper_handle,
                         sequencer_handle,
                         triggers,
+                        lfo1_handle: make_shared(LFOHandle::default()),
+                        lfo2_handle: make_shared(LFOHandle::default()),
                     }
                 })
                 .collect(),

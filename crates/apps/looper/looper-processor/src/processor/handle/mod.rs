@@ -51,9 +51,23 @@ impl Default for LooperOptions {
 }
 
 pub struct LooperHandle {
-    /// Public params
+    // Public params
+    /// Volume of loop playback
     dry_volume: AtomicF32,
+    /// Passthrough volume
     wet_volume: AtomicF32,
+
+    /// A number between 0 and 1 representing an offset from loop to start
+    start_offset: AtomicF32,
+    /// A number between 0 and 1 representing an offset from loop to end
+    end_offset: AtomicF32,
+    /// The loop will linearly fade in from position 0 to this position
+    fade_start: AtomicF32,
+    /// The loop will linearly fade out from this position until the end
+    fade_end: AtomicF32,
+    /// Playback speed, 1 means 1x playback, 0 means no playback, -1 means reverse playback
+    /// and so on
+    speed: AtomicF32,
 
     /// This looper's playback state
     state: AtomicEnum<LooperState>,
@@ -65,7 +79,7 @@ pub struct LooperHandle {
     /// The current clip being played back
     looper_clip: SharedCell<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
     /// Where playback is within the looped clip buffer
-    cursor: AtomicUsize,
+    cursor: AtomicF32,
     /// Provides time information
     time_info_provider: Shared<TimeInfoProviderImpl>,
     pub(crate) tick_time: AtomicBool,
@@ -93,13 +107,19 @@ impl LooperHandle {
             dry_volume: AtomicF32::new(0.0),
             wet_volume: AtomicF32::new(1.0),
 
+            start_offset: AtomicF32::new(0.0),
+            end_offset: AtomicF32::new(1.0),
+            fade_start: AtomicF32::new(0.0),
+            fade_end: AtomicF32::new(0.0),
+            speed: AtomicF32::new(1.0),
+
             state: AtomicEnum::new(LooperState::Empty),
             start_cursor: AtomicUsize::new(0),
             length: AtomicUsize::new(0),
             scratch_pad: make_shared_cell(scratch_pad::ScratchPad::new(VecAudioBuffer::new())),
             looper_clip: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
             scheduled_playback: AtomicUsize::new(0),
-            cursor: AtomicUsize::new(0),
+            cursor: AtomicF32::new(0.0),
             time_info_provider,
             tick_time: AtomicBool::new(true),
             options,
@@ -129,6 +149,26 @@ impl LooperHandle {
         self.wet_volume.set(value);
     }
 
+    pub fn set_start_offset(&self, value: f32) {
+        self.start_offset.set(value);
+    }
+
+    pub fn set_end_offset(&self, value: f32) {
+        self.end_offset.set(value);
+    }
+
+    pub fn set_fade_start(&self, value: f32) {
+        self.fade_start.set(value);
+    }
+
+    pub fn set_fade_end(&self, value: f32) {
+        self.fade_start.set(value);
+    }
+
+    pub fn set_speed(&self, value: f32) {
+        self.speed.set(value);
+    }
+
     /// UI thread only
     pub fn toggle_recording(&self) -> ToggleRecordingResult {
         let old_state = self.state.get();
@@ -142,7 +182,16 @@ impl LooperHandle {
     }
 
     pub fn trigger(&self) {
-        self.cursor.set(0);
+        self.cursor.set(self.get_start_samples());
+    }
+
+    /// Return the real start cursor based on start offset & length
+    fn get_start_samples(&self) -> f32 {
+        (self.start_offset.get() * self.length.get() as f32)
+    }
+
+    fn get_end_samples(&self) -> f32 {
+        (self.end_offset.get() * self.length.get() as f32)
     }
 
     pub fn toggle_playback(&self) {
@@ -254,7 +303,7 @@ impl LooperHandle {
                     .set(make_shared(AtomicRefCell::new(new_buffer)));
                 self.time_info_provider.play();
                 self.state.set(LooperState::Playing);
-                self.cursor.store(0, Ordering::Relaxed);
+                self.cursor.set(0.0);
             }
         } else if old_state == LooperState::Overdubbing {
             self.state.set(LooperState::Playing);
@@ -279,7 +328,7 @@ impl LooperHandle {
                 );
                 self.time_info_provider.play();
                 self.state.set(LooperState::Playing);
-                self.cursor.store(0, Ordering::Relaxed);
+                self.cursor.set(0.0);
             }
         } else if old_state == LooperState::Overdubbing {
             self.state.set(LooperState::Playing);
@@ -300,7 +349,7 @@ impl LooperHandle {
     }
 
     pub fn playhead(&self) -> usize {
-        self.cursor.load(Ordering::Relaxed)
+        self.cursor.get() as usize
     }
 
     pub fn is_playing_back(&self) -> bool {
@@ -363,16 +412,25 @@ impl LooperHandle {
             LooperState::Playing => {
                 let clip = self.looper_clip.get();
                 let clip = clip.deref().borrow();
-                let cursor = self.cursor.load(Ordering::Relaxed);
-                let clip_out = clip.get(channel, cursor % clip.num_samples()).get();
+
+                // interpolation with next sample
+                let cursor = self.cursor.get();
+                let delta_next_sample = cursor - cursor.floor();
+                let cursor = cursor as usize;
+                let clip_out1 = clip.get(channel, cursor % clip.num_samples()).get();
+                let clip_out2 = clip.get(channel, (cursor + 1) % clip.num_samples()).get();
+                let clip_out = clip_out1 + delta_next_sample * (clip_out2 - clip_out1);
+
                 clip_out
             }
             LooperState::Overdubbing => {
                 let clip = self.looper_clip.get();
                 let clip = clip.deref().borrow();
-                let cursor = self.cursor.load(Ordering::Relaxed);
+                // TODO - There should be separate read/write cursors (?)
+                let cursor = self.cursor.get() as usize;
                 let clip_sample = clip.get(channel, cursor % clip.num_samples());
                 let clip_out = clip_sample.get();
+
                 clip_sample.set(clip_out + sample);
                 clip_out
             }
@@ -415,12 +473,20 @@ impl LooperHandle {
                 self.length.store(len, Ordering::Relaxed);
             }
         } else if state == LooperState::Playing || state == LooperState::Overdubbing {
-            // TODO Review this dynamic state change
-            let len = self.length.load(Ordering::Relaxed);
-            if len > 0 {
-                let cursor = self.cursor.load(Ordering::Relaxed);
-                let cursor = (cursor + 1) % len;
-                self.cursor.store(cursor, Ordering::Relaxed);
+            let end_samples = self.get_end_samples();
+            if end_samples > 0.0 {
+                let cursor = self.cursor.get();
+                let length = self.length.get() as f32;
+                let mut cursor = (cursor + self.speed.get()) % end_samples % length;
+                let start_samples = self.get_start_samples();
+                if cursor < start_samples {
+                    cursor = if self.speed.get() > 0.0 {
+                        start_samples
+                    } else {
+                        end_samples
+                    };
+                }
+                self.cursor.set(cursor);
             } else {
                 self.state.set(LooperState::Empty);
             }

@@ -151,18 +151,17 @@ impl PlayHead {
 
     fn update_position_beats(&self, elapsed_secs: f64) {
         let position_beats = self.position_beats.get();
-        self.position_beats.set(
-            position_beats
-                + self
-                    .options
-                    .tempo
-                    .inner()
-                    .map(|tempo| {
-                        let beats_per_second = tempo as f64 / 60.0;
-                        beats_per_second * elapsed_secs
-                    })
-                    .unwrap_or(0.0),
-        );
+        let position_beats = position_beats
+            + self
+                .options
+                .tempo
+                .inner()
+                .map(|tempo| {
+                    let beats_per_second = tempo as f64 / 60.0;
+                    beats_per_second * elapsed_secs
+                })
+                .unwrap_or(0.0);
+        self.position_beats.set(position_beats);
     }
 }
 

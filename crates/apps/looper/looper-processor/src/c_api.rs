@@ -8,7 +8,7 @@ use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::AtomicF32;
 
-use crate::multi_track_looper::LooperVoice;
+use crate::multi_track_looper::{LooperVoice, SourceParameter};
 use crate::processor::handle::LooperState;
 use crate::trigger_model::{TrackTriggerModel, Trigger, TriggerPosition};
 use crate::{
@@ -174,6 +174,18 @@ pub unsafe extern "C" fn looper_buffer__get(buffer: *mut LooperBuffer, index: us
         }
         LooperBuffer::None => 0.0,
     }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_source_parameter(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    parameter_id: SourceParameter,
+    value: f32,
+) {
+    (*engine)
+        .handle
+        .set_source_parameter(LooperId(looper_id), parameter_id, value)
 }
 
 #[no_mangle]
