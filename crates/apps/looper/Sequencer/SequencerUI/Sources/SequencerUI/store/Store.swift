@@ -44,7 +44,7 @@ public class TrackState: ObservableObject {
 }
 
 extension TrackState {
-    func onClickStep(_ step: Int) {
+    func toggleStep(_ step: Int) {
         objectWillChange.send()
         if steps.contains(step) {
             steps.remove(step)
@@ -68,6 +68,8 @@ public protocol SequencerEngine {
     func onClickRecord(track: Int)
     func onClickPlay(track: Int)
     func onClickClear(track: Int)
+
+    func toggleStep(track: Int, step: Int)
 }
 
 public class TimeInfo: ObservableObject {
@@ -109,6 +111,11 @@ extension Store {
 
     func onClickTrack(_ track: Int) {
         selectedTrack = track
+    }
+
+    func onClickStep(_ trackId: Int, _ step: Int) {
+        trackStates[trackId - 1].toggleStep(step)
+        engine?.toggleStep(track: trackId, step: step)
     }
 
     func currentTrackState() -> TrackState {

@@ -41,6 +41,11 @@ extension EngineImpl: SequencerEngine {
     func onClickPlayheadPlay() {
         looper_engine__playhead_play(engine)
     }
+
+    func toggleStep(track: Int, step: Int) {
+        looper_engine__toggle_trigger(engine, UInt(track - 1), UInt(step))
+        // let voice = looper_engine__get_voice(engine, UInt(step - 1))
+    }
 }
 
 public class EngineController {
