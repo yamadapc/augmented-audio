@@ -487,8 +487,6 @@ impl LooperHandle {
                     };
                 }
                 self.cursor.set(cursor);
-            } else {
-                self.state.set(LooperState::Empty);
             }
         }
     }
