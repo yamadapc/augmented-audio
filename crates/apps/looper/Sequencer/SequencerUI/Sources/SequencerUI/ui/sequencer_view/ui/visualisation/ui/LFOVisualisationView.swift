@@ -1,10 +1,3 @@
-//
-//  File.swift
-//
-//
-//  Created by Pedro Tacla Yamada on 11/3/2022.
-//
-
 import SwiftUI
 
 protocol LFOVisualisationViewModel: ObservableObject {
