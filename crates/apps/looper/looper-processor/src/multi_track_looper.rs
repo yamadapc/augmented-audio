@@ -1,3 +1,4 @@
+use atomic_refcell::{AtomicRef, AtomicRefCell};
 use num::iter::range_step_from;
 use std::sync::atomic::Ordering;
 
@@ -84,6 +85,17 @@ impl MultiTrackLooperHandle {
             voice.looper_handle.num_samples()
         } else {
             0
+        }
+    }
+
+    pub fn get_looper_buffer(
+        &self,
+        looper_id: LooperId,
+    ) -> Option<Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>> {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            Some(voice.looper_handle.looper_clip())
+        } else {
+            None
         }
     }
 

@@ -1,9 +1,12 @@
+use atomic_refcell::{AtomicRef, AtomicRefCell};
+use std::ops::Deref;
 use std::ptr::null;
 
 use basedrop::Shared;
 
 use audio_processor_standalone::StandaloneHandles;
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use augmented_atomics::AtomicF32;
 
 use crate::multi_track_looper::LooperVoice;
 use crate::processor::handle::LooperState;
@@ -12,6 +15,10 @@ use crate::{
     setup_osc_server, LooperId, LooperOptions, LooperProcessorHandle, MultiTrackLooper,
     MultiTrackLooperHandle, TimeInfoProvider,
 };
+
+fn into_ptr<T>(value: T) -> *mut T {
+    Box::into_raw(Box::new(value))
+}
 
 pub struct SharedPtr<T>(*mut Shared<T>);
 
@@ -122,6 +129,53 @@ pub unsafe extern "C" fn looper_engine__playhead_play(engine: *mut LooperEngine)
     (*engine).handle.play();
 }
 
+pub enum LooperBuffer {
+    Some {
+        inner: Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
+    },
+    None,
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_looper_buffer(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) -> *mut LooperBuffer {
+    let engine = &(*engine);
+    into_ptr(
+        if let Some(buffer) = engine.handle.get_looper_buffer(LooperId(looper_id)) {
+            LooperBuffer::Some { inner: buffer }
+        } else {
+            LooperBuffer::None
+        },
+    )
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_buffer__num_samples(buffer: *mut LooperBuffer) -> usize {
+    let buffer = &(*buffer);
+    match buffer {
+        LooperBuffer::Some { inner } => inner.borrow().num_samples(),
+        LooperBuffer::None => 0,
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_buffer__get(buffer: *mut LooperBuffer, index: usize) -> f32 {
+    let buffer = &(*buffer);
+    match buffer {
+        LooperBuffer::Some { inner } => {
+            let inner = inner.borrow();
+            let mut total = 0.0;
+            for channel in 0..inner.num_channels() {
+                total += inner.get(channel, index).get();
+            }
+            total
+        }
+        LooperBuffer::None => 0.0,
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_playhead_position(
     engine: *mut LooperEngine,
@@ -149,7 +203,7 @@ pub unsafe extern "C" fn looper_engine__set_volume(
 #[repr(C)]
 #[no_mangle]
 pub struct ExampleBuffer {
-    pub ptr: *mut f32,
+    pub ptr: *const f32,
     pub count: usize,
 }
 
