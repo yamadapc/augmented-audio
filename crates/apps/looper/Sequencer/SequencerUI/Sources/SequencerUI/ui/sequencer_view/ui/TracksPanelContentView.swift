@@ -78,6 +78,18 @@ struct SourcePanelContentView: View {
     }
 }
 
+struct EnvelopePanelContentView: View {
+    @ObservedObject var envelope: EnvelopeState
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 30) {
+            ForEach(envelope.parameters) { parameter in
+                ParameterKnobView(parameter: parameter)
+            }
+        }
+    }
+}
+
 struct TracksPanelContentView: View {
     @EnvironmentObject var store: Store
 
@@ -96,6 +108,11 @@ struct TracksPanelContentView: View {
                 case .source, .slice:
                     SourcePanelContentView(
                         sourceParameters: store.currentTrackState().sourceParameters
+                    )
+
+                case .envelope:
+                    EnvelopePanelContentView(
+                        envelope: store.currentTrackState().envelope
                     )
                 default:
                     HStack(alignment: .center, spacing: 30) {

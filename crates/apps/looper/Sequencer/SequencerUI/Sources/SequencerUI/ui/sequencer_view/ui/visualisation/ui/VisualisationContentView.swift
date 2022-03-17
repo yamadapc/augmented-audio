@@ -24,6 +24,8 @@ struct VisualisationContentView: View {
                     .frame(maxHeight: .infinity)
                 LFOVisualisationView(model: currentTrack.lfo2)
             }
+        case .envelope:
+            EnvelopeVisualisationView(model: currentTrack.envelope)
         default:
             Text("No tab content").foregroundColor(SequencerColors.white)
         }

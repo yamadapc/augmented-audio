@@ -39,7 +39,6 @@ struct ParameterKnobView<ParameterId>: View {
                 : knobValue
         ) * (parameter.range.1 - parameter.range.0) + parameter.range.0
 
-        print("knobValue=\(knobValue) result=\(result)")
         return result
     }
 

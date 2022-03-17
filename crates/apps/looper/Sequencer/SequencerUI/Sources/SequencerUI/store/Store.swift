@@ -5,6 +5,7 @@
 //  Created by Pedro Tacla Yamada on 11/3/2022.
 //
 
+import Combine
 import Foundation
 import Logging
 import OSCKit
@@ -112,11 +113,38 @@ public class SourceParametersState: ObservableObject {
     init() {}
 }
 
+public class EnvelopeState: ObservableObject {
+    @Published var attack: FloatParameter = .init(id: 0, label: "Attack", initialValue: 0)
+    @Published var decay: FloatParameter = .init(id: 2, label: "Decay", initialValue: 0.2)
+    @Published var sustain: FloatParameter = .init(id: 3, label: "Sustain", initialValue: 0.8)
+    @Published var release: FloatParameter = .init(id: 4, label: "Release", initialValue: 0.3)
+
+    public var parameters: [FloatParameter<Int>] {
+        [
+            attack,
+            decay,
+            sustain,
+            release,
+        ]
+    }
+
+    var cancellables: Set<AnyCancellable> = Set()
+
+    init() {
+        parameters.forEach { parameter in
+            parameter.$value.sink { _ in
+                self.objectWillChange.send()
+            }.store(in: &cancellables)
+        }
+    }
+}
+
 public class TrackState: ObservableObject {
     @Published var id: Int
     @Published var steps: Set<Int> = Set()
     @Published var buffer: TrackBuffer? = nil
     @Published public var sourceParameters: SourceParametersState = .init()
+    @Published public var envelope: EnvelopeState = .init()
 
     @Published var volume: Float = 1.0
 

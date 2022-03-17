@@ -44,9 +44,7 @@ struct TracksView: View {
             }
 
             TrackButton(
-                action: {
-                    print("")
-                },
+                action: {},
                 label: "Master",
                 isSelected: false
             ).frame(maxWidth: .infinity)

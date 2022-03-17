@@ -78,15 +78,15 @@ public class EngineController {
 
         store.trackStates.enumerated().forEach { i, trackState in
             trackState.sourceParameters.parameters.forEach { parameter in
-                parameter.objectWillChange.sink(receiveValue: {
+                parameter.$value.sink(receiveValue: { value in
                     let rustParameterId = getParameterId(parameter.id)
-                    looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, parameter.value)
+                    looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, value)
                 }).store(in: &cancellables)
             }
         }
 
-        store.metronomeVolume.objectWillChange.sink(receiveValue: {
-            looper_engine__set_metronome_volume(self.engine.engine, self.store.metronomeVolume.value)
+        store.metronomeVolume.$value.sink(receiveValue: { value in
+            looper_engine__set_metronome_volume(self.engine.engine, value)
         }).store(in: &cancellables)
 
         DispatchQueue.main.async {
