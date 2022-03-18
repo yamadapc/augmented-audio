@@ -142,6 +142,12 @@ impl MultiTrackLooperHandle {
         }
     }
 
+    pub fn set_tempo(&self, tempo: f32) {
+        let time_info_provider = self.time_info_provider();
+        time_info_provider.set_tempo(tempo);
+        self.metronome_handle.set_tempo(tempo);
+    }
+
     pub fn set_lfo_frequency(&self, looper_id: LooperId, lfo: usize, value: f32) {
         if let Some(voice) = self.voices.get(looper_id.0) {
             match lfo {

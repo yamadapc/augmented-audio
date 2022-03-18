@@ -189,6 +189,12 @@ pub unsafe extern "C" fn looper_engine__set_source_parameter(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_tempo(engine: *mut LooperEngine, tempo: f32) {
+    let handle = &(*engine).handle;
+    handle.set_tempo(tempo);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_playhead_position(
     engine: *mut LooperEngine,
 ) -> CTimeInfo {
