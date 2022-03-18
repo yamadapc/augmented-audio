@@ -202,7 +202,7 @@ public class Store: ObservableObject {
     var logger: Logger = .init(label: "com.beijaflor.sequencerui.store.Store")
 
     @Published var selectedTrack: Int = 1
-    @Published var selectedTab: TabValue = .source
+    @Published var selectedTab: TabValue = .envelope
 
     @Published public var trackStates: [TrackState] = (1 ... 8).map { i in
         TrackState(
