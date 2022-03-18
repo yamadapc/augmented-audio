@@ -41,6 +41,9 @@ pub struct LooperOptions {
     pub host_callback: Option<HostCallback>,
 }
 
+pub type LooperClip = SharedCell<AtomicRefCell<VecAudioBuffer<AtomicF32>>>;
+pub type LooperClipRef = Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>;
+
 impl Default for LooperOptions {
     fn default() -> Self {
         Self {
@@ -77,7 +80,7 @@ pub struct LooperHandle {
     /// Circular buffer that is always recording
     scratch_pad: SharedCell<scratch_pad::ScratchPad>,
     /// The current clip being played back
-    looper_clip: SharedCell<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
+    looper_clip: LooperClip,
     /// Where playback is within the looped clip buffer
     cursor: AtomicF32,
     /// Provides time information

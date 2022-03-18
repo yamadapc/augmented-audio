@@ -20,6 +20,7 @@ mod multi_track_looper;
 mod osc_server;
 mod processor;
 mod sequencer;
+mod slice_worker;
 mod tempo_estimation;
 mod time_info_provider;
 mod trigger_model;
