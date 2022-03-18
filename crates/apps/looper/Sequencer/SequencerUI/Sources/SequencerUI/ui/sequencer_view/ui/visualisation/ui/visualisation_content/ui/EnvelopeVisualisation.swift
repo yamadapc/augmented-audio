@@ -8,38 +8,38 @@ struct EnvelopePositions {
 }
 
 struct EnvelopeHandleView: View {
-  var position: CGPoint
-  var onChangeLocation: (CGPoint) -> Void
+    var position: CGPoint
+    var onChangeLocation: (CGPoint) -> Void
 
-  @State var active: Bool = false
+    @State var active: Bool = false
 
-  var body: some View {
-    let size = self.active ? 12.0 : 8.0
-    Rectangle()
-      .fill(SequencerColors.blue.opacity(0.8))
-      .frame(width: size, height: size)
-      .border(SequencerColors.blue, width: 1)
-      .onHover(perform: { mouseOver in
-        self.setActive(mouseOver)
-      })
-      .position(x: position.x, y: position.y)
-      .gesture(
-        DragGesture()
-          .onEnded { _ in
-            self.setActive(false)
-          }
-          .onChanged { value in
-            self.setActive(true)
-            onChangeLocation(value.location)
-          }
-      )
-  }
-
-  func setActive(_ value: Bool) {
-    withAnimation(.interactiveSpring()) {
-      self.active = value
+    var body: some View {
+        let size = self.active ? 12.0 : 8.0
+        Rectangle()
+            .fill(SequencerColors.blue.opacity(0.8))
+            .frame(width: size, height: size)
+            .border(SequencerColors.blue, width: 1)
+            .onHover(perform: { mouseOver in
+                self.setActive(mouseOver)
+            })
+            .position(x: position.x, y: position.y)
+            .gesture(
+                DragGesture()
+                    .onEnded { _ in
+                        self.setActive(false)
+                    }
+                    .onChanged { value in
+                        self.setActive(true)
+                        onChangeLocation(value.location)
+                    }
+            )
     }
-  }
+
+    func setActive(_ value: Bool) {
+        withAnimation(.interactiveSpring()) {
+            self.active = value
+        }
+    }
 }
 
 let ATTACK_LENGTH: Float = 0.2
@@ -53,37 +53,37 @@ struct EnvelopeVisualisationView: View {
         GeometryReader { geometry in
             let positions = getPositions(geometry)
 
-          ZStack {
-            Path { path in
-                buildPath(geometry, positions, &path)
+            ZStack {
+                Path { path in
+                    buildPath(geometry, positions, &path)
+                }
+                .stroke(SequencerColors.blue.opacity(0.8), lineWidth: 2)
+
+                EnvelopeHandleView(position: positions.attack, onChangeLocation: { newLocation in
+                    let newX = newLocation.x
+                    let ratio = max(min(newX / (geometry.size.width * CGFloat(ATTACK_LENGTH)), 1.0), 0.0)
+                    model.attack.value = Float(ratio)
+                })
+                EnvelopeHandleView(position: positions.decay, onChangeLocation: { newLocation in
+                    let newX = newLocation.x - positions.attack.x
+                    let ratio = max(min(newX / (geometry.size.width * CGFloat(DECAY_LENGTH)), 1.0), 0.0)
+                    model.decay.value = Float(ratio)
+
+                    let newY = newLocation.y
+                    let sustainRatio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
+                    model.sustain.value = Float(sustainRatio)
+                })
+                EnvelopeHandleView(position: positions.sustain, onChangeLocation: { newLocation in
+                    let newY = newLocation.y
+                    let ratio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
+                    model.sustain.value = Float(ratio)
+                })
+                EnvelopeHandleView(position: positions.release, onChangeLocation: { newLocation in
+                    let newX = newLocation.x - positions.sustain.x
+                    let ratio = max(min(newX / (geometry.size.width * CGFloat(RELEASE_LENGTH)), 1.0), 0.0)
+                    model.release.value = Float(ratio)
+                })
             }
-            .stroke(SequencerColors.blue.opacity(0.8), lineWidth: 2)
-
-            EnvelopeHandleView(position: positions.attack, onChangeLocation: { newLocation in
-                let newX = newLocation.x
-                let ratio = max(min(newX / (geometry.size.width * CGFloat(ATTACK_LENGTH)), 1.0), 0.0)
-                model.attack.value = Float(ratio)
-            })
-            EnvelopeHandleView(position: positions.decay, onChangeLocation: { newLocation in
-                let newX = newLocation.x - positions.attack.x
-                let ratio = max(min(newX / (geometry.size.width * CGFloat(DECAY_LENGTH)), 1.0), 0.0)
-                model.decay.value = Float(ratio)
-
-                let newY = newLocation.y
-                let sustainRatio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
-                model.sustain.value = Float(sustainRatio)
-            })
-            EnvelopeHandleView(position: positions.sustain, onChangeLocation: { newLocation in
-                let newY = newLocation.y
-                let ratio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
-                model.sustain.value = Float(ratio)
-            })
-            EnvelopeHandleView(position: positions.release, onChangeLocation: { newLocation in
-                let newX = newLocation.x - positions.sustain.x
-                let ratio = max(min(newX / (geometry.size.width * CGFloat(RELEASE_LENGTH)), 1.0), 0.0)
-                model.release.value = Float(ratio)
-            })
-          }
         }
         .padding()
         .clipped()
@@ -103,10 +103,10 @@ struct EnvelopeVisualisationView: View {
         let releaseHandleX = sustainHandleX + CGFloat(release) * size.width
 
         return EnvelopePositions(
-          attack: CGPoint(x: attackHandleX, y: 0),
-          decay: CGPoint(x: decayHandleX, y: CGFloat(1.0 - model.sustain.value) * size.height),
-          sustain: CGPoint(x: sustainHandleX, y: CGFloat(1.0 - model.sustain.value) * size.height),
-          release: CGPoint(x: releaseHandleX, y: size.height)
+            attack: CGPoint(x: attackHandleX, y: 0),
+            decay: CGPoint(x: decayHandleX, y: CGFloat(1.0 - model.sustain.value) * size.height),
+            sustain: CGPoint(x: sustainHandleX, y: CGFloat(1.0 - model.sustain.value) * size.height),
+            release: CGPoint(x: releaseHandleX, y: size.height)
         )
     }
 
