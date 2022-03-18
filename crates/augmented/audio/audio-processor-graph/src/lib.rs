@@ -11,7 +11,7 @@ use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, Float, InterleavedAudioBuffer,
-    NoopAudioProcessor, ObjectAudioProcessor,
+    NoopAudioProcessor, ObjectAudioProcessor, SliceAudioProcessor, VecAudioBuffer,
 };
 use augmented_oscillator::Oscillator;
 
@@ -22,34 +22,24 @@ struct BufferCell<BufferType>(UnsafeCell<BufferType>);
 
 unsafe impl<BufferType> Sync for BufferCell<BufferType> {}
 
-struct ProcessorCell<BufferType: OwnedAudioBuffer>(UnsafeCell<NodeType<BufferType>>);
+struct ProcessorCell(UnsafeCell<NodeType>);
 
-unsafe impl<BufferType: OwnedAudioBuffer> Sync for ProcessorCell<BufferType> {}
+unsafe impl Sync for ProcessorCell {}
 
-fn make_processor_cell<BufferType: OwnedAudioBuffer + 'static>(
-    processor: NodeType<BufferType>,
-) -> Shared<ProcessorCell<BufferType>> {
+fn make_processor_cell(processor: NodeType) -> Shared<ProcessorCell> {
     make_shared(ProcessorCell(UnsafeCell::new(processor)))
 }
 
-pub struct AudioProcessorGraphHandle<BufferType>
-where
-    BufferType: OwnedAudioBuffer + Send + 'static,
-    BufferType::SampleType: 'static,
-{
+pub struct AudioProcessorGraphHandle {
     dag: SharedCell<daggy::Dag<(), ()>>,
     process_order: SharedCell<Vec<NodeIndex>>,
     audio_processor_settings: SharedCell<Option<AudioProcessorSettings>>,
-    processors: HashMap<NodeIndex, Shared<ProcessorCell<BufferType>>>,
-    buffers: HashMap<ConnectionIndex, Shared<BufferCell<BufferType>>>,
+    processors: HashMap<NodeIndex, Shared<ProcessorCell>>,
+    buffers: HashMap<ConnectionIndex, Shared<BufferCell<VecAudioBuffer<f32>>>>,
 }
 
-impl<BufferType> AudioProcessorGraphHandle<BufferType>
-where
-    BufferType: OwnedAudioBuffer + Send + 'static,
-    BufferType::SampleType: 'static + Copy + Float,
-{
-    pub fn add_node(&self, mut processor: NodeType<BufferType>) -> NodeIndex {
+impl AudioProcessorGraphHandle {
+    pub fn add_node(&self, mut processor: NodeType) -> NodeIndex {
         let mut tx = self.processors.write();
         let mut dag = self.dag.get().deref().clone();
         let index = dag.add_node(());
@@ -57,7 +47,7 @@ where
         if let Some(settings) = self.audio_processor_settings.get().deref() {
             match processor {
                 NodeType::Simple(ref mut processor) => processor.s_prepare(*settings),
-                NodeType::Buffer(ref mut processor) => processor.prepare_obj(*settings),
+                NodeType::Buffer(ref mut processor) => processor.prepare_slice(*settings),
             }
         }
 
@@ -83,13 +73,9 @@ where
         let new_order = daggy::petgraph::algo::toposort(&dag, None)
             .map_err(|_| AudioProcessorGraphError::WouldCycle)?;
 
-        let mut buffer = BufferType::new();
+        let mut buffer = VecAudioBuffer::new();
         if let Some(settings) = self.audio_processor_settings.get().deref() {
-            buffer.resize(
-                settings.input_channels,
-                settings.block_size as usize,
-                BufferType::SampleType::zero(),
-            );
+            buffer.resize(settings.output_channels, settings.block_size as usize, 0.0);
         }
 
         let buffer = make_shared(BufferCell(UnsafeCell::new(buffer)));
@@ -110,64 +96,43 @@ pub enum AudioProcessorGraphError {
     WouldCycle,
 }
 
-pub enum NodeType<BufferType: OwnedAudioBuffer> {
-    Simple(Box<dyn SimpleAudioProcessor<SampleType = BufferType::SampleType> + Send>),
-    Buffer(Box<dyn ObjectAudioProcessor<BufferType> + Send>),
+pub enum NodeType {
+    Simple(Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>),
+    Buffer(Box<dyn SliceAudioProcessor + Send>),
 }
 
-impl<BufferType: OwnedAudioBuffer>
-    From<Box<dyn SimpleAudioProcessor<SampleType = BufferType::SampleType> + Send>>
-    for NodeType<BufferType>
-{
-    fn from(
-        inner: Box<dyn SimpleAudioProcessor<SampleType = BufferType::SampleType> + Send>,
-    ) -> Self {
+impl From<Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>> for NodeType {
+    fn from(inner: Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>) -> Self {
         NodeType::Simple(inner)
     }
 }
 
-impl<BufferType: OwnedAudioBuffer> From<Box<dyn ObjectAudioProcessor<BufferType> + Send>>
-    for NodeType<BufferType>
-{
-    fn from(inner: Box<dyn ObjectAudioProcessor<BufferType> + Send>) -> Self {
+impl From<Box<dyn SliceAudioProcessor + Send>> for NodeType {
+    fn from(inner: Box<dyn SliceAudioProcessor + Send>) -> Self {
         NodeType::Buffer(inner)
     }
 }
 
 // pub type NodeType<SampleType> = Box<dyn SimpleAudioProcessor<SampleType = SampleType> + Send>;
 
-pub struct AudioProcessorGraph<BufferType>
-where
-    BufferType: OwnedAudioBuffer + Send + 'static,
-    BufferType::SampleType: 'static,
-{
+pub struct AudioProcessorGraph {
     input_node: NodeIndex,
     output_node: NodeIndex,
-    handle: Shared<AudioProcessorGraphHandle<BufferType>>,
-    temporary_buffer: BufferType,
+    handle: Shared<AudioProcessorGraphHandle>,
+    temporary_buffer: VecAudioBuffer<f32>,
 }
 
-impl<BufferType> Default for AudioProcessorGraph<BufferType>
-where
-    BufferType: OwnedAudioBuffer + Send + 'static,
-    BufferType::SampleType: Copy + Send + 'static + Float,
-{
+impl Default for AudioProcessorGraph {
     fn default() -> Self {
         Self::new(daggy::Dag::default())
     }
 }
 
-impl<BufferType> AudioProcessorGraph<BufferType>
-where
-    BufferType: OwnedAudioBuffer + Send + 'static,
-    BufferType::SampleType: Copy + Send + 'static + Float,
-{
+impl AudioProcessorGraph {
     fn new(mut dag: daggy::Dag<(), ()>) -> Self {
-        let input_proc: NodeType<BufferType> =
-            NodeType::Simple(Box::new(NoopAudioProcessor::default()));
+        let input_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
         let input_node = dag.add_node(());
-        let output_proc: NodeType<BufferType> =
-            NodeType::Simple(Box::new(NoopAudioProcessor::default()));
+        let output_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
         let output_node = dag.add_node(());
 
         let processors = HashMap::new();
@@ -186,7 +151,7 @@ where
                 processors: HashMap::new(),
                 buffers: HashMap::new(),
             }),
-            temporary_buffer: BufferType::new(),
+            temporary_buffer: VecAudioBuffer::new(),
         }
     }
 
@@ -198,11 +163,11 @@ where
         self.output_node
     }
 
-    pub fn handle(&self) -> &Shared<AudioProcessorGraphHandle<BufferType>> {
+    pub fn handle(&self) -> &Shared<AudioProcessorGraphHandle> {
         &self.handle
     }
 
-    pub fn add_node(&mut self, processor: NodeType<BufferType>) -> NodeIndex {
+    pub fn add_node(&mut self, processor: NodeType) -> NodeIndex {
         self.handle.add_node(processor)
     }
 
@@ -215,19 +180,12 @@ where
     }
 }
 
-impl<BufferType> AudioProcessor for AudioProcessorGraph<BufferType>
-where
-    BufferType: OwnedAudioBuffer + Send,
-    BufferType::SampleType: Copy + Float,
-{
-    type SampleType = BufferType::SampleType;
+impl AudioProcessor for AudioProcessorGraph {
+    type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.temporary_buffer.resize(
-            settings.input_channels(),
-            settings.block_size(),
-            BufferType::SampleType::zero(),
-        );
+        self.temporary_buffer
+            .resize(settings.output_channels(), settings.block_size(), 0.0);
 
         self.handle
             .audio_processor_settings
@@ -236,11 +194,7 @@ where
         for buffer_ref in buffers_tx.values() {
             let buffer = buffer_ref.deref().0.get();
             unsafe {
-                (*buffer).resize(
-                    settings.input_channels(),
-                    settings.block_size(),
-                    BufferType::SampleType::zero(),
-                );
+                (*buffer).resize(settings.output_channels(), settings.block_size(), 0.0);
             }
         }
 
@@ -263,7 +217,7 @@ where
                             processor.s_prepare(settings);
                         }
                         NodeType::Buffer(processor) => {
-                            processor.prepare_obj(settings);
+                            processor.prepare_slice(settings);
                         }
                     }
                 }
@@ -275,6 +229,11 @@ where
         &mut self,
         data: &mut InputBufferType,
     ) {
+        // TODO: this is bad, but I'm not sure how to handle variable size buffers (maybe process
+        // multiple times)
+        self.temporary_buffer
+            .resize(data.num_channels(), data.num_samples(), 0.0);
+
         let handle = self.handle.deref();
         let dag = handle.dag.get();
         let dag = dag.deref();
@@ -292,6 +251,7 @@ where
             {
                 let buffer = buffer_ref.deref().0.get();
                 unsafe {
+                    (*buffer).resize(data.num_channels(), data.num_samples(), 0.0);
                     copy_buffer(data, &mut *buffer);
                 }
             }
@@ -306,7 +266,7 @@ where
 
             // Silence the temporary buffer
             for sample in self.temporary_buffer.slice_mut() {
-                *sample = BufferType::SampleType::zero();
+                *sample = 0.0
             }
 
             let inputs = dag.parents(node_index);
@@ -344,7 +304,8 @@ where
                     }
                     NodeType::Buffer(processor) => {
                         // TODO: This is wrong as data might be smaller than temporary buffer
-                        processor.process_obj(&mut self.temporary_buffer);
+                        let temporary_buffer = self.temporary_buffer.slice_mut();
+                        processor.process_slice(data.num_channels(), temporary_buffer);
                     }
                 }
             }
@@ -368,7 +329,7 @@ where
 
         // Clear input
         for d in data.slice_mut() {
-            *d = BufferType::SampleType::zero();
+            *d = 0.0;
         }
 
         for (connection_id, _) in inputs.iter(dag) {

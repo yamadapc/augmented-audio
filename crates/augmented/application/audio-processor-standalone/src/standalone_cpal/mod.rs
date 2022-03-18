@@ -3,6 +3,7 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     BufferSize, Host, SampleRate, StreamConfig,
 };
+use log::warn;
 use ringbuf::{Consumer, Producer};
 
 use audio_processor_traits::{
@@ -62,7 +63,16 @@ pub fn standalone_start(
     let host = cpal::default_host();
     log::info!("Using host: {}", host.id().name());
     let buffer_size = 512;
-    let sample_rate = 44100;
+    let sample_rate = {
+        #[cfg(not(target_os = "ios"))]
+        {
+            44100
+        }
+        #[cfg(target_os = "ios")]
+        {
+            48000
+        }
+    };
     let accepts_input = app.options().accepts_input;
     let input_tuple = if accepts_input {
         Some(configure_input_device(&host, buffer_size, sample_rate))
@@ -71,10 +81,15 @@ pub fn standalone_start(
     };
     let (output_device, output_config) = configure_output_device(host, buffer_size, sample_rate);
 
+    let num_output_channels = output_config.channels.into();
+    let num_input_channels = input_tuple
+        .as_ref()
+        .map(|(_, input_config)| input_config.channels.into())
+        .unwrap_or(num_output_channels);
     let settings = AudioProcessorSettings::new(
         output_config.sample_rate.0 as f32,
-        output_config.channels.into(),
-        output_config.channels.into(),
+        num_input_channels,
+        num_output_channels,
         buffer_size,
     );
     app.processor().prepare(settings);
@@ -99,11 +114,12 @@ pub fn standalone_start(
         });
 
         // Output callback section
-        let num_output_channels = output_config.channels.into();
-        let num_input_channels = input_tuple
-            .as_ref()
-            .map(|(_, input_config)| input_config.channels.into())
-            .unwrap_or(num_output_channels);
+        log::info!(
+            "num_input_channels={} num_output_channels={} sample_rate={}",
+            num_input_channels,
+            num_output_channels,
+            output_config.sample_rate.0
+        );
         let output_stream = output_device
             .build_output_stream(
                 &output_config,
@@ -196,7 +212,9 @@ fn configure_output_device(
 
 fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
     for sample in data {
-        while producer.push(*sample).is_err() {}
+        while producer.push(*sample).is_err() {
+            log::warn!("OUTPUT UNDER-RUN");
+        }
     }
 }
 
@@ -218,7 +236,7 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
                 if let Some(input_sample) = consumer.pop() {
                     *sample = input_sample;
                 } else {
-                    break;
+                    log::warn!("INPUT - UNDER-RUN")
                 }
             }
         } else if let Some(input_sample) = consumer.pop() {

@@ -379,7 +379,7 @@ impl LooperHandle {
         let max_loop_length_secs = self.options.max_loop_length.as_secs_f32();
         let max_loop_length_samples =
             (settings.sample_rate() * max_loop_length_secs).ceil() as usize;
-        let num_channels = settings.input_channels();
+        let num_channels = settings.output_channels();
 
         // Pre-allocate scratch-pad
         let scratch_pad = scratch_pad::ScratchPad::new(utils::empty_buffer(

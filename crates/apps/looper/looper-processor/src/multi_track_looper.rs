@@ -95,6 +95,13 @@ impl MultiTrackLooperHandle {
                             handle.looper_handle.num_samples(),
                         )
                         .tempo;
+                        if estimated_tempo > 300.0 {
+                            log::warn!(
+                                "This loop is too short tempo is ignored {}",
+                                estimated_tempo
+                            );
+                            return;
+                        }
                         log::info!("Setting global tempo to {}", estimated_tempo);
                         self.time_info_provider.set_tempo(estimated_tempo);
                         self.metronome_handle.set_tempo(estimated_tempo);
@@ -267,7 +274,7 @@ impl MultiTrackLooperHandle {
 }
 
 pub struct MultiTrackLooper {
-    graph: AudioProcessorGraph<VecAudioBuffer<f32>>,
+    graph: AudioProcessorGraph,
     handle: Shared<MultiTrackLooperHandle>,
     step_trackers: Vec<StepTracker>,
 }
