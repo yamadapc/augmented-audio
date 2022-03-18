@@ -8,6 +8,8 @@ struct VisualisationContentView: View {
         switch store.selectedTab {
         case .source:
             LoopVisualisationView(trackState: currentTrack)
+        case .slice:
+            SliceVisualisationView(trackState: currentTrack)
         case .lfos:
             HStack {
                 LFOVisualisationView(model: currentTrack.lfo1)

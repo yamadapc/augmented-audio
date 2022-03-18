@@ -13,7 +13,7 @@ public struct ContentView: View {
     public var body: some View {
         SequencerView()
             .background(SequencerColors.black1)
-            .frame(maxWidth: .infinity, minHeight: 800, maxHeight: .infinity)
+            .frame(maxWidth: .infinity, minHeight: 850, maxHeight: .infinity)
     }
 }
 

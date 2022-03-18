@@ -64,6 +64,7 @@ struct EnvelopeVisualisationView: View {
                     let ratio = max(min(newX / (geometry.size.width * CGFloat(ATTACK_LENGTH)), 1.0), 0.0)
                     model.attack.value = Float(ratio)
                 })
+
                 EnvelopeHandleView(position: positions.decay, onChangeLocation: { newLocation in
                     let newX = newLocation.x - positions.attack.x
                     let ratio = max(min(newX / (geometry.size.width * CGFloat(DECAY_LENGTH)), 1.0), 0.0)
@@ -73,11 +74,13 @@ struct EnvelopeVisualisationView: View {
                     let sustainRatio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
                     model.sustain.value = Float(sustainRatio)
                 })
+
                 EnvelopeHandleView(position: positions.sustain, onChangeLocation: { newLocation in
                     let newY = newLocation.y
                     let ratio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
                     model.sustain.value = Float(ratio)
                 })
+
                 EnvelopeHandleView(position: positions.release, onChangeLocation: { newLocation in
                     let newX = newLocation.x - positions.sustain.x
                     let ratio = max(min(newX / (geometry.size.width * CGFloat(RELEASE_LENGTH)), 1.0), 0.0)

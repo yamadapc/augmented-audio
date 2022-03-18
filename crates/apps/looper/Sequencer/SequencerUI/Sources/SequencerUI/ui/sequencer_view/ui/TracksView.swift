@@ -31,16 +31,16 @@ struct TracksView: View {
     var body: some View {
         HStack {
             ForEach(1 ..< 9) { i in
-                ZStack {
-                    TrackButton(
-                        action: {
-                            onClickTrack(i)
-                        },
-                        label: "\(i)",
-                        isSelected: selectedTrack == i
-                    )
+                TrackButton(
+                    action: {
+                        onClickTrack(i)
+                    },
+                    label: "\(i)",
+                    isSelected: selectedTrack == i
+                )
+                .overlay(
                     TrackOverlay(trackState: store.trackStates[i - 1])
-                }
+                )
             }
 
             TrackButton(

@@ -10,6 +10,8 @@ import SwiftUI
 struct ParameterKnobView<ParameterId>: View {
     @ObservedObject var parameter: FloatParameter<ParameterId>
 
+    @EnvironmentObject var store: Store
+
     var body: some View {
         KnobView(
             label: parameter.label,
@@ -30,6 +32,7 @@ struct ParameterKnobView<ParameterId>: View {
                 parameter.value = parameter.defaultValue
             }
         )
+        .bindToParameter(store: store, parameter: parameter)
     }
 
     func parameterFromKnobValue(knobValue: Double) -> Float {
@@ -50,5 +53,17 @@ struct ParameterKnobView<ParameterId>: View {
         }
 
         return value
+    }
+}
+
+extension View {
+    func bindToParameter<ParameterId>(store: Store, parameter: FloatParameter<ParameterId>) -> some View {
+        return onHover(perform: { value in
+            if value {
+                store.focusState.mouseOverObject = parameter.globalId
+            } else if !value, store.focusState.mouseOverObject == parameter.globalId {
+                store.focusState.mouseOverObject = nil
+            }
+        })
     }
 }

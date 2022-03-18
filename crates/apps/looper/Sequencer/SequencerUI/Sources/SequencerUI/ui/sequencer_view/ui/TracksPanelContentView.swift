@@ -9,6 +9,7 @@ import OSCKit
 import SwiftUI
 
 struct LFOKnobsView: View {
+    @EnvironmentObject var store: Store
     @ObservedObject var lfoState: LFOState
 
     var body: some View {
@@ -22,6 +23,7 @@ struct LFOKnobsView: View {
             },
             value: lfoState.amount
         )
+        .bindToParameter(store: store, parameter: lfoState.amountParameter)
         KnobView(
             label: "LFO frequency",
             onChanged: { value in
@@ -33,6 +35,7 @@ struct LFOKnobsView: View {
             },
             value: (lfoState.frequency - 0.01) / (20 - 0.01)
         )
+        .bindToParameter(store: store, parameter: lfoState.amountParameter)
     }
 }
 
@@ -42,13 +45,7 @@ struct MixKnobView: View {
     @ObservedObject var trackState: TrackState
 
     var body: some View {
-        KnobView(
-            label: "Volume \(trackId)",
-            onChanged: { volume in
-                store.setVolume(track: trackId, volume: Float(volume))
-            },
-            value: Double(trackState.volume)
-        )
+        ParameterKnobView(parameter: trackState.volumeParameter)
     }
 }
 
@@ -72,7 +69,9 @@ struct SourcePanelContentView: View {
     var body: some View {
         HStack(alignment: .center, spacing: 30) {
             ForEach(sourceParameters.parameters) { parameter in
-                ParameterKnobView(parameter: parameter)
+                ParameterKnobView(
+                    parameter: parameter
+                )
             }
         }
     }

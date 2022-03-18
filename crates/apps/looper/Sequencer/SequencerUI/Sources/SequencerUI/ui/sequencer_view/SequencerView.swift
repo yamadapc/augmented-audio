@@ -15,7 +15,8 @@ struct SequencerView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            TransportControlsView()
+            TopBarView()
+            Rectangle().fill(Color.white.opacity(0)).frame(height: PADDING)
             VisualisationView()
             TabsRowView(
                 selectedTab: store.selectedTab,
@@ -30,7 +31,10 @@ struct SequencerView: View {
                 selectedTrack: store.selectedTrack,
                 onClickTrack: { i in store.onClickTrack(i) }
             )
+
+            StatusBarView()
         }
+        .focusable()
         .foregroundColor(SequencerColors.white)
     }
 }
