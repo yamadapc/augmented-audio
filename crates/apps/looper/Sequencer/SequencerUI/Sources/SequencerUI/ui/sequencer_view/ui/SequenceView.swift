@@ -15,6 +15,7 @@ struct TrackButtonView: View {
     var isBeat: Bool
     var isActive: Bool
     var isPlaying: Bool
+    var hasLocks: Bool
 
     var onClick: () -> Void
 
@@ -32,7 +33,9 @@ struct TrackButtonView: View {
                     )
                     .background(
                         (
-                            isActive
+                            hasLocks
+                            ? SequencerColors.green
+                            : isActive
                                 ? SequencerColors.blue
                                 : isBeat ? SequencerColors.black1 : SequencerColors.black
                         ).opacity(isPlaying ? 1.0 : 0.8)
@@ -46,7 +49,7 @@ struct TrackButtonView: View {
 
 extension TrackButtonView: Equatable {
     static func == (lhs: TrackButtonView, rhs: TrackButtonView) -> Bool {
-        lhs.isPlaying == rhs.isPlaying && lhs.isBeat == rhs.isBeat && lhs.isActive == rhs.isActive
+        lhs.isPlaying == rhs.isPlaying && lhs.isBeat == rhs.isBeat && lhs.isActive == rhs.isActive && lhs.hasLocks == rhs.hasLocks
     }
 }
 
@@ -58,36 +61,70 @@ struct ConnectedStepButtonView: View {
     @ObservedObject var track: TrackState
 
     var body: some View {
-        let isActive = track.steps.contains(index)
+        let isActive = track.steps[index] != nil
         let isPlaying = Int((timeInfo.positionBeats ?? -1.0).truncatingRemainder(dividingBy: 4.0) * 4) == index
         let isBeat = index % 4 == 0
+        let hasLocks = track.steps[index]?.parameterLocks.count ?? 0 > 0
 
         TrackButtonView(
             isBeat: isBeat,
             isActive: isActive,
             isPlaying: isPlaying,
+            hasLocks: hasLocks,
             onClick: { store.onClickStep(track.id, index) }
         ).equatable()
-        .bindToParameterId(store: store, parameterId: .stepButton(trackId: track.id, stepId: index))
+            .bindToParameterId(store: store, parameterId: .stepButton(trackId: track.id, stepId: index))
     }
 }
 
 struct SequenceView: View {
+    struct DragState {
+        let step: Int
+        let position: CGPoint
+    }
+
     @EnvironmentObject var store: Store
+    @State var dragState: DragState?
 
     var body: some View {
-        HStack {
-            ForEach(0 ..< 16) { i in
+        ZStack {
+            HStack {
+                ForEach(0 ..< 16) { i in
+                    ConnectedStepButtonView(
+                        index: i,
+                        store: store,
+                        timeInfo: store.timeInfo,
+                        track: store.currentTrackState()
+                    )
+                    .highPriorityGesture(
+                        DragGesture(coordinateSpace: .named("SequenceViewZStack"))
+                            .onChanged { drag in
+                                self.store.startSequencerStepDrag(i)
+                                self.dragState = DragState(step: i, position: drag.location)
+                            }
+                            .onEnded { _ in
+                                self.store.endSequencerStepDrag()
+                                self.dragState = nil
+                            }
+                    )
+                }
+            }
+            .padding(PADDING)
+            .background(SequencerColors.black0)
+            .frame(maxWidth: .infinity)
+
+            if let dragState = self.dragState {
                 ConnectedStepButtonView(
-                    index: i,
+                    index: dragState.step,
                     store: store,
                     timeInfo: store.timeInfo,
                     track: store.currentTrackState()
                 )
+                .frame(width: 45, height: 45)
+                .position(dragState.position)
             }
         }
-        .padding(PADDING)
-        .background(SequencerColors.black0)
-        .frame(maxWidth: .infinity)
+        .coordinateSpace(name: "SequenceViewZStack")
+        .frame(height: 40 + PADDING * 2)
     }
 }

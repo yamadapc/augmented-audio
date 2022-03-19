@@ -71,10 +71,10 @@ func getSourceParameterRustId(_ id: SourceParameterId) -> SequencerEngine_privat
 }
 
 let RUST_ENVELOPE_IDS: [EnvelopeParameterId: SequencerEngine_private.EnvelopeParameter] = [
-  EnvelopeParameterId.attack: Attack,
-  EnvelopeParameterId.decay: Decay,
-  EnvelopeParameterId.release: Release,
-  EnvelopeParameterId.sustain: Sustain
+    EnvelopeParameterId.attack: Attack,
+    EnvelopeParameterId.decay: Decay,
+    EnvelopeParameterId.release: Release,
+    EnvelopeParameterId.sustain: Sustain,
 ]
 
 public class EngineController {
@@ -98,10 +98,11 @@ public class EngineController {
             trackState.envelope.parameters.forEach { parameter in
                 parameter.$value.sink(receiveValue: { value in
                     let rustParameterId = RUST_ENVELOPE_IDS[parameter.id]!
-                  looper_engine__set_envelope_parameter(
-                    self.engine.engine,
-                    UInt(trackState.id - 1),
-                    rustParameterId, value)
+                    looper_engine__set_envelope_parameter(
+                        self.engine.engine,
+                        UInt(trackState.id - 1),
+                        rustParameterId, value
+                    )
                 }).store(in: &cancellables)
             }
         }

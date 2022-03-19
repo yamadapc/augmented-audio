@@ -85,7 +85,7 @@ struct TransportControlsView: View {
                     Text("Play")
                 }
             }.buttonStyle(.plain).frame(maxHeight: .infinity)
-            .bindToParameterId(store: store, parameterId: .transportPlay)
+                .bindToParameterId(store: store, parameterId: .transportPlay)
 
             Button(action: {
                 store.onClickPlayheadStop()
@@ -96,7 +96,7 @@ struct TransportControlsView: View {
                     Text("Stop")
                 }
             }.buttonStyle(.plain).frame(maxHeight: .infinity)
-            .bindToParameterId(store: store, parameterId: .transportStop)
+                .bindToParameterId(store: store, parameterId: .transportStop)
         }
         .frame(maxHeight: 30)
     }

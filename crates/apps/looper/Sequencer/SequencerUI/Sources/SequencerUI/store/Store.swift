@@ -25,12 +25,24 @@ enum ObjectId: Equatable {
         transportPlay,
         transportStop,
 
-
         metronomeVolume
+}
+
+class ParameterLockState: ObservableObject {
+    let parameterId: ObjectId
+    let stepId: Int
+
+    @Published var newValue: Float?
+
+    init(parameterId: ObjectId, stepId: Int) {
+        self.parameterId = parameterId
+        self.stepId = stepId
+    }
 }
 
 class FocusState: ObservableObject {
     @Published var mouseOverObject: ObjectId?
+    @Published var draggingStep: Int?
 
     init() {}
 }
@@ -81,6 +93,9 @@ public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
 
     @Published var label: String
     @Published public var value: Float = 0.0
+
+    @Published var parameterLockProgress: ParameterLockState?
+
     var defaultValue: Float
     var range: (Float, Float) = (0.0, 1.0)
     var style: KnobStyle = .normal
@@ -110,6 +125,15 @@ public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
         self.init(id: id, globalId: globalId, label: label)
         value = initialValue
         defaultValue = initialValue
+    }
+
+    func setValue(_ value: Float) {
+      if let parameterLockState = self.parameterLockProgress {
+          parameterLockState.newValue = value
+          self.objectWillChange.send()
+      } else {
+          self.value = value
+      }
     }
 }
 
@@ -240,9 +264,18 @@ public class EnvelopeState: ObservableObject {
     }
 }
 
+public class SequencerStepState: ObservableObject {
+    var index: Int
+    @Published var parameterLocks: [ParameterLockState] = []
+
+  init(index: Int) {
+    self.index = index
+  }
+}
+
 public class TrackState: ObservableObject {
     @Published public var id: Int
-    @Published var steps: Set<Int> = Set()
+    @Published var steps: [SequencerStepState?] = (0...16).map { _ in nil }
     @Published var buffer: TrackBuffer? = nil
     @Published public var sourceParameters: SourceParametersState
     @Published public var envelope: EnvelopeState
@@ -275,10 +308,10 @@ public class TrackState: ObservableObject {
 extension TrackState {
     func toggleStep(_ step: Int) {
         objectWillChange.send()
-        if steps.contains(step) {
-            steps.remove(step)
+        if steps[step] != nil {
+            steps[step] = nil
         } else {
-            steps.insert(step)
+            steps[step] = SequencerStepState(index: step)
         }
     }
 }
@@ -378,7 +411,7 @@ public class Store: ObservableObject {
         id: 0,
         globalId: .metronomeVolume,
         label: "Metronome volume",
-        initialValue: 1.0
+        initialValue: 0.7
     )
 
     var oscClient = OSCClient()
@@ -387,6 +420,53 @@ public class Store: ObservableObject {
 
     public init(engine: SequencerEngine?) {
         self.engine = engine
+    }
+}
+
+extension Store {
+    func startSequencerStepDrag(_ index: Int) {
+        focusState.draggingStep = index
+    }
+
+    func endSequencerStepDrag() {
+        if let hoveredId = focusState.mouseOverObject,
+           let stepId = focusState.draggingStep
+        {
+            self.startParameterLock(hoveredId, parameterLockProgress: ParameterLockState(
+                parameterId: hoveredId,
+                stepId: stepId
+            ))
+        }
+        focusState.draggingStep = nil
+    }
+
+    func startParameterLock(_ id: ObjectId, parameterLockProgress: ParameterLockState) {
+        switch id
+        {
+        case .sourceParameter(trackId: let trackId, parameterId: _):
+          self.trackStates[trackId - 1].sourceParameters.parameters
+            .first(where: { parameter in parameter.globalId == id })?.parameterLockProgress = parameterLockProgress
+        case .envelopeParameter(trackId: let trackId, parameterId: _):
+          self.trackStates[trackId - 1].envelope.parameters
+            .first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+        default:
+          return
+        }
+    }
+
+    func endParameterLock<ParameterId>(_ parameter: FloatParameter<ParameterId>) {
+      if let progress = parameter.parameterLockProgress {
+        parameter.parameterLockProgress = nil
+        parameter.objectWillChange.send()
+
+        let track = self.currentTrackState()
+        if let existingLock = track.steps[progress.stepId]?.parameterLocks.first(where: { $0.parameterId == progress.parameterId }) {
+            existingLock.newValue = progress.newValue
+        } else {
+            track.steps[progress.stepId]?.parameterLocks.append(progress)
+        }
+        track.objectWillChange.send()
+      }
     }
 }
 

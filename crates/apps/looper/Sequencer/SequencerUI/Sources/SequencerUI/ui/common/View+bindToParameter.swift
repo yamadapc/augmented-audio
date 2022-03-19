@@ -12,6 +12,6 @@ extension View {
     }
 
     func bindToParameter<ParameterId>(store: Store, parameter: FloatParameter<ParameterId>) -> some View {
-      return self.bindToParameterId(store: store, parameterId: parameter.globalId)
+        return bindToParameterId(store: store, parameterId: parameter.globalId)
     }
 }

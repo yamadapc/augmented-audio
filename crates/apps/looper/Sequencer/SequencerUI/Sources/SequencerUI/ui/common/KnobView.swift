@@ -67,6 +67,7 @@ struct KnobView: View {
     var label: String = " "
     var strokeWidth: Double = 5
     var onChanged: ((Double) -> Void)? = nil
+    var onEnded: (() -> Void)? = nil
     var style: KnobStyle = .normal
     var renderOptions: KnobRenderOptions = .init(
         renderLine: true,
@@ -83,6 +84,7 @@ struct KnobView: View {
             label: label,
             strokeWidth: strokeWidth,
             onChanged: onChanged,
+            onEnded: onEnded,
             style: style,
             renderOptions: renderOptions,
             formatValue: formatValue,
@@ -120,7 +122,8 @@ struct KnobView: View {
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 3.0)
-                    .onChanged { value in self.onGestureChanged(value) },
+                    .onChanged { value in self.onGestureChanged(value) }
+                    .onEnded { _ in self.onEnded?() },
                 including: .all
             )
 
