@@ -36,7 +36,7 @@ struct KnobSliderView: View {
                         .frame(maxHeight: .infinity)
 
                     Rectangle()
-                        .fill(SequencerColors.red)
+                        .fill(SequencerColors.blue)
                         .frame(width: 2, height: 0.7 * geometry.size.height)
                 }
                 .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
@@ -62,6 +62,7 @@ struct KnobSliderView: View {
             })
         }
         .padding(EdgeInsets(top: PADDING, leading: handleWidth / 2.0, bottom: PADDING, trailing: handleWidth / 2.0))
+        .frame(maxHeight: 90)
     }
 }
 
