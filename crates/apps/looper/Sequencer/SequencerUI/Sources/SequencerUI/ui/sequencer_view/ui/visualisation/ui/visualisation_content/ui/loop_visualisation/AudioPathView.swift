@@ -58,6 +58,7 @@ import MetalKit
     }
 #endif
 
+// This is technically bad as it will cache across heights
 let PATH_CACHE: LRUCache<Int, Path> = LRUCache(
     totalCostLimit: 10,
     countLimit: 10
