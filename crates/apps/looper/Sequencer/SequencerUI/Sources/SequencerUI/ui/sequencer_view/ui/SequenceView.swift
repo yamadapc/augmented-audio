@@ -50,7 +50,7 @@ extension TrackButtonView: Equatable {
     }
 }
 
-struct ConnectedTrackButtonView: View {
+struct ConnectedStepButtonView: View {
     var index: Int
     var store: Store
 
@@ -68,6 +68,7 @@ struct ConnectedTrackButtonView: View {
             isPlaying: isPlaying,
             onClick: { store.onClickStep(track.id, index) }
         ).equatable()
+        .bindToParameterId(store: store, parameterId: .stepButton(trackId: track.id, stepId: index))
     }
 }
 
@@ -77,8 +78,11 @@ struct SequenceView: View {
     var body: some View {
         HStack {
             ForEach(0 ..< 16) { i in
-                ConnectedTrackButtonView(
-                    index: i, store: store, timeInfo: store.timeInfo, track: store.currentTrackState()
+                ConnectedStepButtonView(
+                    index: i,
+                    store: store,
+                    timeInfo: store.timeInfo,
+                    track: store.currentTrackState()
                 )
             }
         }

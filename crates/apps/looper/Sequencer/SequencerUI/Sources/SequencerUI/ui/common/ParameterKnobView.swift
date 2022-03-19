@@ -55,15 +55,3 @@ struct ParameterKnobView<ParameterId>: View {
         return value
     }
 }
-
-extension View {
-    func bindToParameter<ParameterId>(store: Store, parameter: FloatParameter<ParameterId>) -> some View {
-        return onHover(perform: { value in
-            if value {
-                store.focusState.mouseOverObject = parameter.globalId
-            } else if !value, store.focusState.mouseOverObject == parameter.globalId {
-                store.focusState.mouseOverObject = nil
-            }
-        })
-    }
-}

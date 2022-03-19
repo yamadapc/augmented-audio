@@ -16,6 +16,16 @@ enum ObjectId: Equatable {
         envelopeParameter(trackId: Int, parameterId: EnvelopeParameterId),
         lfoParameter(trackId: Int, lfo: UInt, parameterId: LFOParameterId),
         trackVolume(trackId: Int),
+
+        recordButton(trackId: Int?),
+        playButton(trackId: Int?),
+        clearButton(trackId: Int?),
+        trackButton(trackId: Int),
+        stepButton(trackId: Int, stepId: Int),
+        transportPlay,
+        transportStop,
+
+
         metronomeVolume
 }
 
@@ -157,7 +167,8 @@ public class SourceParametersState: ObservableObject {
             globalId: .sourceParameter(trackId: trackId, parameterId: .pitch),
             label: "Pitch",
             style: .center,
-            range: (-1.0, 1.0)
+            range: (0.25, 4.0),
+            initialValue: 1.0
         )
         speed = SourceParameter(
             id: .speed,
@@ -230,7 +241,7 @@ public class EnvelopeState: ObservableObject {
 }
 
 public class TrackState: ObservableObject {
-    @Published var id: Int
+    @Published public var id: Int
     @Published var steps: Set<Int> = Set()
     @Published var buffer: TrackBuffer? = nil
     @Published public var sourceParameters: SourceParametersState

@@ -41,6 +41,7 @@ struct TracksView: View {
                 .overlay(
                     TrackOverlay(trackState: store.trackStates[i - 1])
                 )
+                .bindToParameterId(store: store, parameterId: .trackButton(trackId: i))
             }
 
             TrackButton(
