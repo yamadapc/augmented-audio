@@ -8,17 +8,16 @@
 import SwiftUI
 
 struct TrackOverlay: View {
-    @ObservedObject var trackState: TrackState
+    @ObservedObject var position: LoopPosition
 
     var body: some View {
         ZStack {
             Rectangle()
                 .fill(SequencerColors.green.opacity(0.4))
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .scaleEffect(x: CGFloat(trackState.positionPercent), y: 1.0, anchor: .leading)
+                .scaleEffect(x: CGFloat(position.positionPercent), y: 1.0, anchor: .leading)
                 .cornerRadius(BORDER_RADIUS)
                 .allowsHitTesting(false)
-            // Text("num_samples=\(trackState.numSamples)")
         }
     }
 }
@@ -39,9 +38,13 @@ struct TracksView: View {
                     isSelected: selectedTrack == i
                 )
                 .overlay(
-                    TrackOverlay(trackState: store.trackStates[i - 1])
+                    TrackOverlay(position: store.trackStates[i - 1].position)
                 )
-                .bindToParameterId(store: store, parameterId: .trackButton(trackId: i))
+                .bindToParameterId(
+                    store: store,
+                    parameterId: .trackButton(trackId: i),
+                    showSelectionOverlay: false
+                )
             }
 
             TrackButton(

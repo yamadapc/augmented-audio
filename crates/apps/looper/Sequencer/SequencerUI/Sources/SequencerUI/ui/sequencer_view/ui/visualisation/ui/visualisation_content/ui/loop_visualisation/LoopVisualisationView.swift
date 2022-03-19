@@ -22,7 +22,7 @@ struct LoopVisualisationView: View {
                     ZStack(alignment: .topLeading) {
                         AudioPathView(tick: tick, buffer: buffer, geometry: geometry)
                             .equatable()
-                        PlayheadView(trackState: trackState, size: geometry.size)
+                        PlayheadView(position: trackState.position, size: geometry.size)
                         SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
                     }
                 }

@@ -42,6 +42,7 @@ class ParameterLockState: ObservableObject {
 
 class FocusState: ObservableObject {
     @Published var mouseOverObject: ObjectId?
+    @Published var selectedObject: ObjectId?
     @Published var draggingStep: Int?
 
     init() {}
@@ -273,6 +274,12 @@ public class SequencerStepState: ObservableObject {
     }
 }
 
+public class LoopPosition: ObservableObject {
+    @Published public var positionPercent: Float = 0.0
+
+    init() {}
+}
+
 public class TrackState: ObservableObject {
     @Published public var id: Int
     @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
@@ -288,7 +295,14 @@ public class TrackState: ObservableObject {
     @Published public var looperState: LooperState = .empty
 
     @Published public var numSamples: UInt = 0
-    @Published public var positionPercent: Float = 0.0
+
+    let position: LoopPosition = .init()
+    public var positionPercent: Float {
+        get { position.positionPercent }
+        set {
+            position.positionPercent = newValue
+        }
+    }
 
     init(id: Int) {
         self.id = id
@@ -307,12 +321,12 @@ public class TrackState: ObservableObject {
 
 extension TrackState {
     func toggleStep(_ step: Int) {
-        objectWillChange.send()
         if steps[step] != nil {
             steps[step] = nil
         } else {
             steps[step] = SequencerStepState(index: step)
         }
+        objectWillChange.send()
     }
 }
 
@@ -384,7 +398,6 @@ public protocol SequencerEngine {
 }
 
 public class TimeInfo: ObservableObject {
-    @Published public var positionSamples: Double = 0.0
     @Published public var positionBeats: Double? = nil
     @Published public var tempo: Double? = nil
 

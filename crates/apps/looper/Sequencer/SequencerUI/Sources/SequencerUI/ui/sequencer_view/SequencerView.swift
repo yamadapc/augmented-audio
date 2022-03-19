@@ -43,33 +43,47 @@ struct SequencerView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             TopBarView()
+                .bindToNilParameter(store: store)
 
             HStack {
                 VStack(alignment: .leading, spacing: 0) {
                     Rectangle().fill(Color.white.opacity(0)).frame(height: PADDING)
                     VisualisationView()
+                        .bindToNilParameter(store: store)
+
                     TabsRowView(
                         selectedTab: store.selectedTab,
                         onSelectTab: { tab in
                             store.onSelectTab(tab)
                         }
                     )
+                    .bindToNilParameter(store: store)
+
                     SceneSliderView().padding(PADDING)
+                        .bindToNilParameter(store: store)
+
                     TracksPanelContentView()
+                        .bindToNilParameter(store: store)
+
                     SequenceView()
+                        .bindToNilParameter(store: store)
+
                     TracksView(
                         selectedTrack: store.selectedTrack,
                         onClickTrack: { i in store.onClickTrack(i) }
                     )
+                    .bindToNilParameter(store: store)
                 }
                 if store.midiMappingActive {
                     MIDIMappingPanelView()
+                        .bindToNilParameter(store: store)
                 }
             }
 
             StatusBarView()
+                .bindToNilParameter(store: store)
         }
-        .focusable()
+        .bindToNilParameter(store: store)
         .foregroundColor(SequencerColors.white)
         .overlay(buildKeyWatcher())
     }

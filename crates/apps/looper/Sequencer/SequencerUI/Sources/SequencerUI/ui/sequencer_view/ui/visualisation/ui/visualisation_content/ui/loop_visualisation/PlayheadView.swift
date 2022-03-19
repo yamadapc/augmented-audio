@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct PlayheadView: View {
-    @ObservedObject var trackState: TrackState
+    @ObservedObject var position: LoopPosition
     var size: CGSize
 
     var body: some View {
@@ -11,7 +11,7 @@ struct PlayheadView: View {
                 .frame(width: 1.0, height: size.height)
                 .position(x: 0.0, y: geometry.size.height / 2)
                 .transformEffect(
-                    .init(translationX: size.width * CGFloat(trackState.positionPercent), y: 0.0))
+                    .init(translationX: size.width * CGFloat(position.positionPercent), y: 0.0))
         }
     }
 }

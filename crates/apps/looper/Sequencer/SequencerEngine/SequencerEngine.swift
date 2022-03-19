@@ -164,11 +164,8 @@ public class EngineController {
         let playhead = looper_engine__get_playhead_position(engine.engine)
 
         // Updating ObservableObject at 60fps causes high CPU usage
-        if store.timeInfo.positionSamples != playhead.position_samples {
-            store.timeInfo.positionSamples = playhead.position_samples
-        }
         let positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
-        if store.timeInfo.positionBeats != positionBeats {
+        if abs((store.timeInfo.positionBeats ?? 0.0) - (positionBeats ?? 0.0)) > 0.1 {
             store.timeInfo.positionBeats = positionBeats
         }
         let tempo = playhead.tempo == -1 ? nil : playhead.tempo

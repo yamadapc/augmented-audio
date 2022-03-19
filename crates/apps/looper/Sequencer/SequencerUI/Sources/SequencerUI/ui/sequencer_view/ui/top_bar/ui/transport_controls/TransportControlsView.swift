@@ -52,15 +52,30 @@ struct TransportTempoView: View {
     }
 }
 
+struct TransportBeatsInnerView: View {
+    var text: String
+    var body: some View {
+        Text(text)
+            .monospacedDigitCompat()
+    }
+}
+
+extension TransportBeatsInnerView: Equatable {}
+
 struct TransportBeatsView: View {
     @ObservedObject var timeInfo: TimeInfo
 
     var body: some View {
+        let text = getText()
+        TransportBeatsInnerView(text: text)
+            .equatable()
+    }
+
+    func getText() -> String {
         if let beats = timeInfo.positionBeats {
-            Text("\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))")
-                .monospacedDigitCompat()
+            return "\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))"
         } else {
-            Text("0.0")
+            return "0.0"
         }
     }
 }
@@ -84,8 +99,14 @@ struct TransportControlsView: View {
                 } else {
                     Text("Play")
                 }
-            }.buttonStyle(.plain).frame(maxHeight: .infinity)
-                .bindToParameterId(store: store, parameterId: .transportPlay)
+            }
+            .buttonStyle(.plain)
+            .frame(maxHeight: .infinity)
+            .bindToParameterId(
+                store: store,
+                parameterId: .transportPlay,
+                showSelectionOverlay: false
+            )
 
             Button(action: {
                 store.onClickPlayheadStop()
@@ -95,8 +116,14 @@ struct TransportControlsView: View {
                 } else {
                     Text("Stop")
                 }
-            }.buttonStyle(.plain).frame(maxHeight: .infinity)
-                .bindToParameterId(store: store, parameterId: .transportStop)
+            }
+            .buttonStyle(.plain)
+            .frame(maxHeight: .infinity)
+            .bindToParameterId(
+                store: store,
+                parameterId: .transportStop,
+                showSelectionOverlay: false
+            )
         }
         .frame(maxHeight: 30)
     }
