@@ -48,15 +48,15 @@ extension EngineImpl: SequencerEngine {
     }
 
     func addParameterLock(track: Int, step: Int, parameterId: ObjectId, value: Float) {
-      if let rustParameterId = getObjectIdRust(parameterId) {
-        looper_engine__add_parameter_lock(
-          engine,
-          UInt(track - 1),
-          UInt(step),
-          rustParameterId,
-          value
-        )
-      }
+        if let rustParameterId = getObjectIdRust(parameterId) {
+            looper_engine__add_parameter_lock(
+                engine,
+                UInt(track - 1),
+                UInt(step),
+                rustParameterId,
+                value
+            )
+        }
     }
 
     func toggleStep(track: Int, step: Int) {
@@ -66,19 +66,19 @@ extension EngineImpl: SequencerEngine {
 }
 
 func getObjectIdRust(_ id: ObjectId) -> ParameterId? {
-  switch id {
-  case .sourceParameter(trackId: _, parameterId: let parameterId):
-    return looper_engine__source_parameter_id(getSourceParameterRustId(parameterId))
-  case .envelopeParameter(trackId: _, parameterId: let parameterId):
-    return looper_engine__envelope_parameter_id(RUST_ENVELOPE_IDS[parameterId]!)
-  case .lfoParameter(trackId: _, lfo: let lfo, parameterId: let parameterId):
-    return looper_engine__lfo_parameter_id(lfo, LFO_PARAMETER_IDS[parameterId]!)
-  default:
-    return nil
-  }
+    switch id {
+    case .sourceParameter(trackId: _, parameterId: let parameterId):
+        return looper_engine__source_parameter_id(getSourceParameterRustId(parameterId))
+    case .envelopeParameter(trackId: _, parameterId: let parameterId):
+        return looper_engine__envelope_parameter_id(RUST_ENVELOPE_IDS[parameterId]!)
+    case .lfoParameter(trackId: _, lfo: let lfo, parameterId: let parameterId):
+        return looper_engine__lfo_parameter_id(lfo, LFO_PARAMETER_IDS[parameterId]!)
+    default:
+        return nil
+    }
 }
 
-// TODO - write as hash-map
+// TODO: - write as hash-map
 func getSourceParameterRustId(_ id: SourceParameterId) -> SequencerEngine_private.SourceParameter {
     switch id {
     case .start:
@@ -97,8 +97,8 @@ func getSourceParameterRustId(_ id: SourceParameterId) -> SequencerEngine_privat
 }
 
 let LFO_PARAMETER_IDS: [LFOParameterId: SequencerEngine_private.LFOParameter] = [
-  LFOParameterId.frequency: Frequency,
-  LFOParameterId.amount: Amount
+    LFOParameterId.frequency: Frequency,
+    LFOParameterId.amount: Amount,
 ]
 
 let RUST_ENVELOPE_IDS: [EnvelopeParameterId: SequencerEngine_private.EnvelopeParameter] = [

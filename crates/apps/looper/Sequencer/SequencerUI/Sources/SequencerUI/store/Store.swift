@@ -128,12 +128,12 @@ public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
     }
 
     func setValue(_ value: Float) {
-      if let parameterLockState = self.parameterLockProgress {
-          parameterLockState.newValue = value
-          self.objectWillChange.send()
-      } else {
-          self.value = value
-      }
+        if let parameterLockState = parameterLockProgress {
+            parameterLockState.newValue = value
+            objectWillChange.send()
+        } else {
+            self.value = value
+        }
     }
 }
 
@@ -268,14 +268,14 @@ public class SequencerStepState: ObservableObject {
     var index: Int
     @Published var parameterLocks: [ParameterLockState] = []
 
-  init(index: Int) {
-    self.index = index
-  }
+    init(index: Int) {
+        self.index = index
+    }
 }
 
 public class TrackState: ObservableObject {
     @Published public var id: Int
-    @Published var steps: [SequencerStepState?] = (0...16).map { _ in nil }
+    @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
     @Published var buffer: TrackBuffer? = nil
     @Published public var sourceParameters: SourceParametersState
     @Published public var envelope: EnvelopeState
@@ -433,7 +433,7 @@ extension Store {
         if let hoveredId = focusState.mouseOverObject,
            let stepId = focusState.draggingStep
         {
-            self.startParameterLock(hoveredId, parameterLockProgress: ParameterLockState(
+            startParameterLock(hoveredId, parameterLockProgress: ParameterLockState(
                 parameterId: hoveredId,
                 stepId: stepId
             ))
@@ -442,38 +442,37 @@ extension Store {
     }
 
     func startParameterLock(_ id: ObjectId, parameterLockProgress: ParameterLockState) {
-        switch id
-        {
+        switch id {
         case .sourceParameter(trackId: let trackId, parameterId: _):
-          self.trackStates[trackId - 1].sourceParameters.parameters
-            .first(where: { parameter in parameter.globalId == id })?.parameterLockProgress = parameterLockProgress
+            trackStates[trackId - 1].sourceParameters.parameters
+                .first(where: { parameter in parameter.globalId == id })?.parameterLockProgress = parameterLockProgress
         case .envelopeParameter(trackId: let trackId, parameterId: _):
-          self.trackStates[trackId - 1].envelope.parameters
-            .first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+            trackStates[trackId - 1].envelope.parameters
+                .first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
         default:
-          return
+            return
         }
     }
 
     func endParameterLock<ParameterId>(_ parameter: FloatParameter<ParameterId>) {
-      if let progress = parameter.parameterLockProgress {
-        parameter.parameterLockProgress = nil
-        parameter.objectWillChange.send()
+        if let progress = parameter.parameterLockProgress {
+            parameter.parameterLockProgress = nil
+            parameter.objectWillChange.send()
 
-        let track = self.currentTrackState()
-        if let existingLock = track.steps[progress.stepId]?.parameterLocks.first(where: { $0.parameterId == progress.parameterId }) {
-            existingLock.newValue = progress.newValue
-        } else {
-            track.steps[progress.stepId]?.parameterLocks.append(progress)
+            let track = currentTrackState()
+            if let existingLock = track.steps[progress.stepId]?.parameterLocks.first(where: { $0.parameterId == progress.parameterId }) {
+                existingLock.newValue = progress.newValue
+            } else {
+                track.steps[progress.stepId]?.parameterLocks.append(progress)
+            }
+            engine?.addParameterLock(
+                track: track.id,
+                step: progress.stepId,
+                parameterId: progress.parameterId,
+                value: progress.newValue!
+            )
+            track.objectWillChange.send()
         }
-        engine?.addParameterLock(
-          track: track.id,
-          step: progress.stepId,
-          parameterId: progress.parameterId,
-          value: progress.newValue!
-        )
-        track.objectWillChange.send()
-      }
     }
 }
 

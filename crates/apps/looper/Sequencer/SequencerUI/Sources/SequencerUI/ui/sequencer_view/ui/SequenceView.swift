@@ -34,8 +34,8 @@ struct TrackButtonView: View {
                     .background(
                         (
                             hasLocks
-                            ? SequencerColors.green
-                            : isActive
+                                ? SequencerColors.green
+                                : isActive
                                 ? SequencerColors.blue
                                 : isBeat ? SequencerColors.black1 : SequencerColors.black
                         ).opacity(isPlaying ? 1.0 : 0.8)
