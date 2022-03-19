@@ -10,7 +10,7 @@ import Foundation
 import Logging
 import OSCKit
 
-enum ObjectId: Equatable {
+public enum ObjectId: Equatable {
     case
         sourceParameter(trackId: Int, parameterId: SourceParameterId),
         envelopeParameter(trackId: Int, parameterId: EnvelopeParameterId),
@@ -316,7 +316,7 @@ extension TrackState {
     }
 }
 
-enum LFOParameterId {
+public enum LFOParameterId {
     case frequency, amount
 }
 
@@ -380,6 +380,7 @@ public protocol SequencerEngine {
     func onClickClear(track: Int)
 
     func toggleStep(track: Int, step: Int)
+    func addParameterLock(track: Int, step: Int, parameterId: ObjectId, value: Float)
 }
 
 public class TimeInfo: ObservableObject {
@@ -465,6 +466,12 @@ extension Store {
         } else {
             track.steps[progress.stepId]?.parameterLocks.append(progress)
         }
+        engine?.addParameterLock(
+          track: track.id,
+          step: progress.stepId,
+          parameterId: progress.parameterId,
+          value: progress.newValue!
+        )
         track.objectWillChange.send()
       }
     }
