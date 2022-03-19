@@ -1,11 +1,12 @@
 pub mod step_tracker;
 
-use std::ops::Deref;
+use std::ops::{Add, Deref};
 use std::sync::atomic::AtomicUsize;
 
 use basedrop::{Shared, SharedCell};
-use im::Vector;
+use im::{HashMap, Vector};
 
+use crate::multi_track_looper::ParameterId;
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use augmented_atomics::{AtomicF32, AtomicValue};
 use step_tracker::StepTracker;
@@ -26,10 +27,23 @@ pub fn find_current_beat_trigger(
         .flatten()
 }
 
-#[derive(Default, Clone, PartialEq, Eq, Debug)]
-pub struct LoopTrigger {}
+#[derive(Default, Clone, PartialEq, Debug)]
+pub struct TriggerLock {
+    value: f32,
+}
 
-#[derive(Clone, PartialEq, Debug, Eq)]
+impl TriggerLock {
+    pub fn value(&self) -> f32 {
+        self.value
+    }
+}
+
+#[derive(Default, Clone, PartialEq, Debug)]
+pub struct LoopTrigger {
+    locks: HashMap<ParameterId, TriggerLock>,
+}
+
+#[derive(Clone, PartialEq, Debug)]
 pub enum TriggerInner {
     LoopTrigger(LoopTrigger),
 }
@@ -93,6 +107,18 @@ impl Trigger {
     pub fn set_position(&mut self, position: TriggerPosition) {
         self.position = position;
     }
+
+    pub fn add_lock(&mut self, parameter_id: ParameterId, value: f32) {
+        let TriggerInner::LoopTrigger(loop_trigger) = &mut self.inner;
+        loop_trigger
+            .locks
+            .insert(parameter_id, TriggerLock { value });
+    }
+
+    pub fn locks(&self) -> impl Iterator<Item = (&ParameterId, &TriggerLock)> {
+        let TriggerInner::LoopTrigger(loop_trigger) = &self.inner;
+        loop_trigger.locks.iter()
+    }
 }
 
 pub struct TrackTriggerModel {
@@ -122,6 +148,18 @@ impl TrackTriggerModel {
             .iter()
             .find(|trigger| trigger.position.step.get() == step)
             .cloned()
+    }
+
+    pub fn add_lock(&self, position_beats: usize, parameter_id: ParameterId, value: f32) {
+        let triggers = self.triggers.get();
+        let mut triggers: Vector<Trigger> = (*triggers).clone();
+        if let Some(trigger) = triggers
+            .iter_mut()
+            .find(|trigger| trigger.position.step.get() == position_beats)
+        {
+            trigger.add_lock(parameter_id, value);
+        }
+        self.triggers.set(make_shared(triggers));
     }
 
     pub fn toggle_trigger(&self, position_beats: usize) {

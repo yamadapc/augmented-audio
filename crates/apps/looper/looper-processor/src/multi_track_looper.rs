@@ -27,7 +27,17 @@ use crate::{
 pub struct LooperId(pub usize);
 
 #[repr(C)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash)]
 #[no_mangle]
+pub enum ParameterId {
+    ParameterIdSource { parameter: SourceParameter },
+    ParameterIdEnvelope { parameter: EnvelopeParameter },
+    ParameterIdLFO { lfo: usize, parameter: LFOParameter },
+}
+
+#[repr(C)]
+#[no_mangle]
+#[derive(Debug, PartialEq, Clone, Eq, Hash)]
 pub enum SourceParameter {
     Start = 0,
     End = 1,
@@ -38,6 +48,7 @@ pub enum SourceParameter {
 }
 
 #[repr(C)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash)]
 #[no_mangle]
 pub enum EnvelopeParameter {
     Attack = 0,
@@ -47,6 +58,7 @@ pub enum EnvelopeParameter {
 }
 
 #[repr(C)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash)]
 #[no_mangle]
 pub enum LFOParameter {
     Frequency = 0,
@@ -260,6 +272,18 @@ impl MultiTrackLooperHandle {
         self.voices[looper_id.0].looper().state()
     }
 
+    pub fn add_parameter_lock(
+        &self,
+        looper_id: LooperId,
+        position_beats: usize,
+        parameter_id: ParameterId,
+        value: f32,
+    ) {
+        self.voices[looper_id.0]
+            .triggers
+            .add_lock(position_beats, parameter_id, value);
+    }
+
     pub fn toggle_trigger(&self, looper_id: LooperId, position_beats: usize) {
         self.voices[looper_id.0]
             .triggers
@@ -366,6 +390,7 @@ impl MultiTrackLooper {
         let metronome = metronome::MetronomeProcessor::new();
         let metronome_handle = metronome.handle().clone();
         metronome_handle.set_is_playing(false);
+        metronome_handle.set_volume(0.7);
 
         let handle = make_shared(MultiTrackLooperHandle {
             voices: processors
@@ -441,10 +466,35 @@ impl AudioProcessor for MultiTrackLooper {
             for (voice, step_tracker) in self.handle.voices.iter().zip(&mut self.step_trackers) {
                 let triggers = voice.triggers();
 
-                if let Some(_trigger) =
+                if let Some(trigger) =
                     find_current_beat_trigger(triggers, step_tracker, position_beats)
                 {
                     voice.looper_handle.trigger();
+                    for (parameter_id, lock) in trigger.locks() {
+                        match parameter_id {
+                            ParameterId::ParameterIdSource { parameter } => match parameter {
+                                SourceParameter::Start => {
+                                    voice.looper_handle.set_start_offset(lock.value());
+                                }
+                                SourceParameter::End => {
+                                    voice.looper_handle.set_end_offset(lock.value());
+                                }
+                                SourceParameter::FadeStart => {
+                                    voice.looper_handle.set_fade_start(lock.value());
+                                }
+                                SourceParameter::FadeEnd => {
+                                    voice.looper_handle.set_fade_end(lock.value());
+                                }
+                                SourceParameter::Pitch => {
+                                    voice.pitch_shifter_handle.set_ratio(lock.value());
+                                }
+                                SourceParameter::Speed => {
+                                    voice.looper_handle.set_speed(lock.value());
+                                }
+                            },
+                            _ => {}
+                        }
+                    }
                 }
             }
         }

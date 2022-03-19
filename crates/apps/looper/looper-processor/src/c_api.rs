@@ -8,7 +8,7 @@ use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::AtomicF32;
 
-use crate::multi_track_looper::{LFOParameter, LooperVoice, SourceParameter};
+use crate::multi_track_looper::{LFOParameter, LooperVoice, ParameterId, SourceParameter};
 use crate::processor::handle::LooperState;
 use crate::trigger_model::{TrackTriggerModel, Trigger, TriggerPosition};
 use crate::{
@@ -108,6 +108,39 @@ pub unsafe extern "C" fn looper_engine__toggle_trigger(
     (*engine)
         .handle
         .toggle_trigger(LooperId(looper_id), position_beats)
+}
+
+#[no_mangle]
+pub extern "C" fn looper_engine__source_parameter_id(parameter: SourceParameter) -> ParameterId {
+    ParameterId::ParameterIdSource { parameter }
+}
+
+#[no_mangle]
+pub extern "C" fn looper_engine__envelope_parameter_id(
+    parameter: EnvelopeParameter,
+) -> ParameterId {
+    ParameterId::ParameterIdEnvelope { parameter }
+}
+
+#[no_mangle]
+pub extern "C" fn looper_engine__lfo_parameter_id(
+    lfo: usize,
+    parameter: LFOParameter,
+) -> ParameterId {
+    ParameterId::ParameterIdLFO { lfo, parameter }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__add_parameter_lock(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    position_beats: usize,
+    parameter_id: ParameterId,
+    value: f32,
+) {
+    (*engine)
+        .handle
+        .add_parameter_lock(LooperId(looper_id), position_beats, parameter_id, value);
 }
 
 #[repr(C)]
