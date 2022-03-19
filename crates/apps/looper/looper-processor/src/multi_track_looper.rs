@@ -1,8 +1,10 @@
 use atomic_refcell::{AtomicRef, AtomicRefCell};
+use basedrop::SharedCell;
 use num::iter::range_step_from;
+use std::ops::Deref;
 use std::sync::atomic::Ordering;
 
-use audio_garbage_collector::{make_shared, Shared};
+use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
 use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
@@ -18,7 +20,9 @@ use metronome::MetronomeProcessorHandle;
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::tempo_estimation::estimate_tempo;
 use crate::trigger_model::step_tracker::StepTracker;
-use crate::trigger_model::{find_current_beat_trigger, TrackTriggerModel, Trigger};
+use crate::trigger_model::{
+    find_current_beat_trigger, find_running_beat_trigger, TrackTriggerModel, Trigger,
+};
 use crate::{
     LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, LooperProcessorHandle,
     QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl,
@@ -97,7 +101,13 @@ impl Default for EnvelopeHandle {
     }
 }
 
+#[derive(Clone, Debug)]
+struct ParameterValue {
+    value: f32,
+}
+
 pub struct LooperVoice {
+    parameter_values: SharedCell<im::HashMap<ParameterId, ParameterValue>>,
     triggers: Shared<TrackTriggerModel>,
     looper_handle: Shared<LooperProcessorHandle>,
     sequencer_handle: Shared<LoopSequencerProcessorHandle>,
@@ -193,6 +203,42 @@ impl MultiTrackLooperHandle {
                     voice.looper_handle.set_speed(value);
                 }
             }
+
+            let parameter_id = ParameterId::ParameterIdSource { parameter };
+            Self::update_parameter_table(value, voice, parameter_id);
+        }
+    }
+
+    fn update_parameter_table(value: f32, voice: &LooperVoice, parameter_id: ParameterId) {
+        let parameter_values = voice.parameter_values.get();
+        let mut parameter_values = parameter_values.deref().clone();
+        parameter_values.insert(parameter_id, ParameterValue { value });
+        voice.parameter_values.set(make_shared(parameter_values));
+    }
+
+    fn update_handle(&self, voice: &LooperVoice, parameter_id: ParameterId, value: f32) {
+        match parameter_id {
+            ParameterId::ParameterIdSource { parameter } => match parameter {
+                SourceParameter::Start => {
+                    voice.looper_handle.set_start_offset(value);
+                }
+                SourceParameter::End => {
+                    voice.looper_handle.set_end_offset(value);
+                }
+                SourceParameter::FadeStart => {
+                    voice.looper_handle.set_fade_start(value);
+                }
+                SourceParameter::FadeEnd => {
+                    voice.looper_handle.set_fade_end(value);
+                }
+                SourceParameter::Pitch => {
+                    voice.pitch_shifter_handle.set_ratio(value);
+                }
+                SourceParameter::Speed => {
+                    voice.looper_handle.set_speed(value);
+                }
+            },
+            _ => {}
         }
     }
 
@@ -215,6 +261,13 @@ impl MultiTrackLooperHandle {
                 EnvelopeParameter::Release => voice.envelope.release.set(value),
                 EnvelopeParameter::Sustain => voice.envelope.sustain.set(value),
             }
+            Self::update_parameter_table(
+                value,
+                &voice,
+                ParameterId::ParameterIdEnvelope {
+                    parameter: parameter_id,
+                },
+            );
         }
     }
 
@@ -246,6 +299,15 @@ impl MultiTrackLooperHandle {
                     _ => {}
                 },
             }
+
+            Self::update_parameter_table(
+                value,
+                &voice,
+                ParameterId::ParameterIdLFO {
+                    lfo,
+                    parameter: parameter_id,
+                },
+            );
         }
     }
 
@@ -401,6 +463,7 @@ impl MultiTrackLooper {
                     let triggers = make_shared(TrackTriggerModel::default());
 
                     LooperVoice {
+                        parameter_values: make_shared_cell(Default::default()),
                         looper_handle,
                         sequencer_handle,
                         triggers,
@@ -466,34 +529,23 @@ impl AudioProcessor for MultiTrackLooper {
             for (voice, step_tracker) in self.handle.voices.iter().zip(&mut self.step_trackers) {
                 let triggers = voice.triggers();
 
-                if let Some(trigger) =
+                let parameter_values = voice.parameter_values.get();
+                for (parameter_id, parameter_value) in parameter_values.deref().iter() {
+                    self.handle
+                        .update_handle(voice, parameter_id.clone(), parameter_value.value);
+                }
+
+                if let Some(_trigger) =
                     find_current_beat_trigger(triggers, step_tracker, position_beats)
                 {
                     voice.looper_handle.trigger();
+                }
+
+                let triggers_vec = triggers.triggers();
+                for trigger in find_running_beat_trigger(triggers, &triggers_vec, position_beats) {
                     for (parameter_id, lock) in trigger.locks() {
-                        match parameter_id {
-                            ParameterId::ParameterIdSource { parameter } => match parameter {
-                                SourceParameter::Start => {
-                                    voice.looper_handle.set_start_offset(lock.value());
-                                }
-                                SourceParameter::End => {
-                                    voice.looper_handle.set_end_offset(lock.value());
-                                }
-                                SourceParameter::FadeStart => {
-                                    voice.looper_handle.set_fade_start(lock.value());
-                                }
-                                SourceParameter::FadeEnd => {
-                                    voice.looper_handle.set_fade_end(lock.value());
-                                }
-                                SourceParameter::Pitch => {
-                                    voice.pitch_shifter_handle.set_ratio(lock.value());
-                                }
-                                SourceParameter::Speed => {
-                                    voice.looper_handle.set_speed(lock.value());
-                                }
-                            },
-                            _ => {}
-                        }
+                        self.handle
+                            .update_handle(voice, parameter_id.clone(), lock.value());
                     }
                 }
             }

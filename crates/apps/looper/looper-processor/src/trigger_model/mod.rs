@@ -11,6 +11,23 @@ use audio_garbage_collector::{make_shared, make_shared_cell};
 use augmented_atomics::{AtomicF32, AtomicValue};
 use step_tracker::StepTracker;
 
+pub fn find_running_beat_trigger<'a>(
+    track_trigger_model: &TrackTriggerModel,
+    triggers: &'a Shared<Vector<Trigger>>,
+    position_beats: f64,
+) -> impl Iterator<Item = Trigger> + 'a {
+    let position_beats = position_beats
+        % (track_trigger_model.pattern_length as f64 * track_trigger_model.pattern_step_beats);
+    let step_length_beats = track_trigger_model.pattern_step_beats;
+    let current_step = (position_beats / step_length_beats) as usize;
+
+    triggers
+        .deref()
+        .iter()
+        .filter(move |trigger| trigger.position.step.get() == current_step)
+        .map(|trigger| trigger.clone())
+}
+
 pub fn find_current_beat_trigger(
     track_trigger_model: &TrackTriggerModel,
     step_tracker: &mut StepTracker,
