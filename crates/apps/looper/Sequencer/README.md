@@ -1,2 +1,3 @@
 # Sequencer
-UI only for iOS sequencer/looping app
+Implementation of a live-looper and performance sampler similar to the
+Octatrack.
