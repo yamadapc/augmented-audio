@@ -18,15 +18,17 @@ struct SliceHandleView: View {
 
     var body: some View {
         ZStack {
-            Triangle()
-                .rotationEffect(Angle(degrees: inverted ? -90.0 : 90.0))
-                .frame(width: 10, height: 10)
-                .position(x: inverted ? -5 : 5, y: inverted ? 220 : 0)
+            GeometryReader { geometry in
+                Triangle()
+                    .rotationEffect(Angle(degrees: inverted ? -90.0 : 90.0))
+                    .frame(width: 10, height: 10)
+                    .position(x: inverted ? -5 : 5, y: inverted ? geometry.size.height : 0)
 
-            Rectangle()
-                .frame(width: 1.0)
-                .frame(maxHeight: .infinity)
-                .position(x: 0, y: 110)
+                Rectangle()
+                    .frame(width: 1.0)
+                    .frame(maxHeight: .infinity)
+                    .position(x: 0, y: geometry.size.height / 2.0)
+            }
         }
     }
 }

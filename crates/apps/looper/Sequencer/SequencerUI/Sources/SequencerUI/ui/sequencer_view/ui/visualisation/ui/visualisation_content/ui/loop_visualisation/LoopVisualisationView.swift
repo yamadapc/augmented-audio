@@ -16,7 +16,7 @@ struct LoopVisualisationView: View {
     }
 
     func renderInner(tick: Int) -> some View {
-        ZStack {
+        VStack {
             if let buffer = trackState.buffer {
                 GeometryReader { geometry in
                     ZStack(alignment: .topLeading) {
@@ -26,11 +26,30 @@ struct LoopVisualisationView: View {
                         SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
                     }
                 }
-                .padding()
             } else {
                 Text("No loop buffer")
+                    .frame(maxHeight: .infinity)
             }
+
+            HStack {
+                Button("Loop", action: {})
+                    .buttonStyle(.plain)
+                    .padding(PADDING)
+                    .border(SequencerColors.blue, width: 1.0)
+
+                Button("Quantization mode", action: {})
+                    .buttonStyle(.plain)
+                    .padding(PADDING)
+                    .border(SequencerColors.blue, width: 1.0)
+
+                Button("Set global tempo", action: {})
+                    .buttonStyle(.plain)
+                    .padding(PADDING)
+                    .border(SequencerColors.blue, width: 1.0)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .padding()
     }
 }
 

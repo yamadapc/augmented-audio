@@ -408,6 +408,8 @@ public class Store: ObservableObject {
 
     @Published var focusState = FocusState()
 
+    @Published var midiMappingActive = false
+
     public var metronomeVolume: FloatParameter = .init(
         id: 0,
         globalId: .metronomeVolume,

@@ -10,68 +10,85 @@ import SwiftUI
 let PADDING: Double = 10
 let BORDER_RADIUS: Double = 8
 
+struct MIDIMappingPanelView: View {
+    var body: some View {
+        VStack(alignment: .leading) {
+            VStack {
+                Text("MIDI Map")
+                    .bold()
+                    .padding(PADDING)
+                    .frame(maxWidth: .infinity)
+                    .background(SequencerColors.black3)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+            VStack {
+                Text("MIDI Monitor")
+                    .bold()
+                    .padding(PADDING)
+                    .frame(maxWidth: .infinity)
+                    .background(SequencerColors.black3)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        }
+        .frame(width: 200, alignment: .topLeading)
+        .frame(maxHeight: .infinity, alignment: .topLeading)
+        .background(SequencerColors.black)
+    }
+}
+
 struct SequencerView: View {
     @EnvironmentObject var store: Store
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             TopBarView()
-            Rectangle().fill(Color.white.opacity(0)).frame(height: PADDING)
-            VisualisationView()
-            TabsRowView(
-                selectedTab: store.selectedTab,
-                onSelectTab: { tab in
-                    store.onSelectTab(tab)
+
+            HStack {
+                VStack(alignment: .leading, spacing: 0) {
+                    Rectangle().fill(Color.white.opacity(0)).frame(height: PADDING)
+                    VisualisationView()
+                    TabsRowView(
+                        selectedTab: store.selectedTab,
+                        onSelectTab: { tab in
+                            store.onSelectTab(tab)
+                        }
+                    )
+                    SceneSliderView().padding(PADDING)
+                    TracksPanelContentView()
+                    SequenceView()
+                    TracksView(
+                        selectedTrack: store.selectedTrack,
+                        onClickTrack: { i in store.onClickTrack(i) }
+                    )
                 }
-            )
-            SceneSliderView().padding(PADDING)
-            TracksPanelContentView()
-            SequenceView()
-            TracksView(
-                selectedTrack: store.selectedTrack,
-                onClickTrack: { i in store.onClickTrack(i) }
-            )
+                if store.midiMappingActive {
+                    MIDIMappingPanelView()
+                }
+            }
 
             StatusBarView()
         }
         .focusable()
         .foregroundColor(SequencerColors.white)
+        .overlay(buildKeyWatcher())
+    }
+
+    func buildKeyWatcher() -> some View {
+        ZStack {
+            if #available(macOS 11.0, *) {
+                KeyWatcher(
+                    onEvent: { key, modifiers in
+                        print("key=\(key) modifiers=\(modifiers)")
+                    }
+                )
+            } else {}
+        }.allowsHitTesting(false)
     }
 }
 
 struct SequencerView_Previews: PreviewProvider {
     static var previews: some View {
         SequencerView()
-    }
-}
-
-struct TrackButton: View {
-    var action: () -> Void
-    var label: String
-    var isDisabled: Bool = false
-    var isSelected: Bool
-    var backgroundColor: Color?
-
-    var body: some View {
-        Button(
-            action: action,
-            label: {
-                Text(label)
-                    .frame(width: 80.0, height: 80.0, alignment: .center)
-                    .contentShape(Rectangle())
-                    .foregroundColor(SequencerColors.white)
-                    .background(
-                        RoundedRectangle(cornerRadius: BORDER_RADIUS)
-                            .stroke(
-                                isSelected ? SequencerColors.red : SequencerColors.black3,
-                                lineWidth: 1.0
-                            )
-                            .background(self.backgroundColor ?? SequencerColors.black)
-                    )
-                    .cornerRadius(BORDER_RADIUS)
-            }
-        )
-        .disabled(isDisabled)
-        .buttonStyle(.plain)
     }
 }

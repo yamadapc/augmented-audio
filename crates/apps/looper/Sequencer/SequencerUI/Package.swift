@@ -21,6 +21,7 @@ let package = Package(
         // .package(url: /* package url */, from: "1.0.0"),
         .package(url: "https://github.com/sammysmallman/OSCKit", from: "3.1.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
+        .package(url: "https://github.com/sindresorhus/KeyboardShortcuts", from: "1.4.0"),
         .package(url: "https://github.com/nalexn/ViewInspector", from: "0.9.1"),
     ],
     targets: [
@@ -31,6 +32,7 @@ let package = Package(
             dependencies: [
                 .productItem(name: "OSCKit", package: "OSCKit", condition: nil),
                 .product(name: "Logging", package: "swift-log"),
+                .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts"),
             ]
         ),
         .testTarget(

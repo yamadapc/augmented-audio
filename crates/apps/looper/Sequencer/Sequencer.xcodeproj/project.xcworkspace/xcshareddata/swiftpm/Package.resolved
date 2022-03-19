@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "KeyboardShortcuts",
+        "repositoryURL": "https://github.com/sindresorhus/KeyboardShortcuts",
+        "state": {
+          "branch": null,
+          "revision": "9bc72c441c713362a137ecbb4104920655a9aa5e",
+          "version": "1.4.0"
+        }
+      },
+      {
         "package": "OSCKit",
         "repositoryURL": "https://github.com/SammySmallman/OSCKit",
         "state": {

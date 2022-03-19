@@ -20,10 +20,12 @@ struct TopBarView: View {
 
                 Button(
                     "MIDI",
-                    action: {}
+                    action: {
+                        store.midiMappingActive.toggle()
+                    }
                 )
                 .padding(PADDING * 0.5)
-                .background(SequencerColors.black3)
+                .background(store.midiMappingActive ? SequencerColors.yellow : SequencerColors.black3)
                 .buttonStyle(.plain)
             }
             .padding(PADDING)

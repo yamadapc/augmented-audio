@@ -14,6 +14,7 @@ public struct ContentView: View {
         SequencerView()
             .background(SequencerColors.black1)
             .frame(maxWidth: .infinity, minHeight: 850, maxHeight: .infinity)
+            .frame(idealWidth: 900, idealHeight: 850)
     }
 }
 
