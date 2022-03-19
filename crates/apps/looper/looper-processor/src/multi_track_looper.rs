@@ -4,6 +4,10 @@ use std::sync::atomic::Ordering;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
+use audio_processor_pitch_shifter::{
+    MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
+    PitchShifterProcessor,
+};
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
     VecAudioBuffer,
@@ -33,6 +37,22 @@ pub enum SourceParameter {
     Speed = 5,
 }
 
+#[repr(C)]
+#[no_mangle]
+pub enum EnvelopeParameter {
+    Attack = 0,
+    Decay = 1,
+    Release = 2,
+    Sustain = 3,
+}
+
+#[repr(C)]
+#[no_mangle]
+pub enum LFOParameter {
+    Frequency = 0,
+    Amount = 1,
+}
+
 struct LFOHandle {
     amount: AtomicF32,
     frequency: AtomicF32,
@@ -47,10 +67,30 @@ impl Default for LFOHandle {
     }
 }
 
+struct EnvelopeHandle {
+    attack: AtomicF32,
+    decay: AtomicF32,
+    release: AtomicF32,
+    sustain: AtomicF32,
+}
+
+impl Default for EnvelopeHandle {
+    fn default() -> Self {
+        Self {
+            attack: 0.0.into(),
+            decay: 0.0.into(),
+            release: 1.0.into(),
+            sustain: 0.0.into(),
+        }
+    }
+}
+
 pub struct LooperVoice {
     triggers: Shared<TrackTriggerModel>,
     looper_handle: Shared<LooperProcessorHandle>,
     sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    pitch_shifter_handle: Shared<MultiChannelPitchShifterProcessorHandle>,
+    envelope: Shared<EnvelopeHandle>,
     lfo1_handle: Shared<LFOHandle>,
     lfo2_handle: Shared<LFOHandle>,
 }
@@ -134,7 +174,9 @@ impl MultiTrackLooperHandle {
                 SourceParameter::FadeEnd => {
                     voice.looper_handle.set_fade_end(value);
                 }
-                SourceParameter::Pitch => {}
+                SourceParameter::Pitch => {
+                    voice.pitch_shifter_handle.set_ratio(value);
+                }
                 SourceParameter::Speed => {
                     voice.looper_handle.set_speed(value);
                 }
@@ -148,30 +190,49 @@ impl MultiTrackLooperHandle {
         self.metronome_handle.set_tempo(tempo);
     }
 
-    pub fn set_lfo_frequency(&self, looper_id: LooperId, lfo: usize, value: f32) {
+    pub fn set_envelope_parameter(
+        &self,
+        looper_id: LooperId,
+        parameter_id: EnvelopeParameter,
+        value: f32,
+    ) {
         if let Some(voice) = self.voices.get(looper_id.0) {
-            match lfo {
-                1 => {
-                    voice.lfo1_handle.frequency.set(value);
-                }
-                2 => {
-                    voice.lfo2_handle.frequency.set(value);
-                }
-                _ => {}
+            match parameter_id {
+                EnvelopeParameter::Attack => voice.envelope.attack.set(value),
+                EnvelopeParameter::Decay => voice.envelope.decay.set(value),
+                EnvelopeParameter::Release => voice.envelope.release.set(value),
+                EnvelopeParameter::Sustain => voice.envelope.sustain.set(value),
             }
         }
     }
 
-    pub fn set_lfo_amount(&self, looper_id: LooperId, lfo: usize, value: f32) {
+    pub fn set_lfo_parameter(
+        &self,
+        looper_id: LooperId,
+        lfo: usize,
+        parameter_id: LFOParameter,
+        value: f32,
+    ) {
         if let Some(voice) = self.voices.get(looper_id.0) {
-            match lfo {
-                1 => {
-                    voice.lfo1_handle.amount.set(value);
-                }
-                2 => {
-                    voice.lfo2_handle.amount.set(value);
-                }
-                _ => {}
+            match parameter_id {
+                LFOParameter::Frequency => match lfo {
+                    1 => {
+                        voice.lfo1_handle.frequency.set(value);
+                    }
+                    2 => {
+                        voice.lfo2_handle.frequency.set(value);
+                    }
+                    _ => {}
+                },
+                LFOParameter::Amount => match lfo {
+                    1 => {
+                        voice.lfo1_handle.amount.set(value);
+                    }
+                    2 => {
+                        voice.lfo2_handle.amount.set(value);
+                    }
+                    _ => {}
+                },
             }
         }
     }
@@ -288,15 +349,17 @@ pub struct MultiTrackLooper {
 impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
-        let voices: Vec<LooperProcessor> = (0..num_voices)
+        let processors: Vec<(LooperProcessor, MultiChannelPitchShifterProcessor)> = (0..num_voices)
             .map(|_| {
-                let voice = LooperProcessor::new(options.clone(), time_info_provider.clone());
-                voice
+                let looper = LooperProcessor::new(options.clone(), time_info_provider.clone());
+                looper
                     .handle()
                     .quantize_options()
                     .set_mode(QuantizeMode::SnapNext);
-                voice.handle().tick_time.store(false, Ordering::Relaxed);
-                voice
+                looper.handle().tick_time.store(false, Ordering::Relaxed);
+
+                let pitch_shifter = MultiChannelPitchShifterProcessor::default();
+                (looper, pitch_shifter)
             })
             .collect();
 
@@ -305,19 +368,21 @@ impl MultiTrackLooper {
         metronome_handle.set_is_playing(false);
 
         let handle = make_shared(MultiTrackLooperHandle {
-            voices: voices
+            voices: processors
                 .iter()
-                .map(|voice| {
-                    let looper_handle = voice.handle().clone();
-                    let sequencer_handle = voice.sequencer_handle().clone();
+                .map(|(looper, pitch_shifter)| {
+                    let looper_handle = looper.handle().clone();
+                    let sequencer_handle = looper.sequencer_handle().clone();
                     let triggers = make_shared(TrackTriggerModel::default());
 
                     LooperVoice {
                         looper_handle,
                         sequencer_handle,
                         triggers,
+                        pitch_shifter_handle: pitch_shifter.handle().clone(),
                         lfo1_handle: make_shared(LFOHandle::default()),
                         lfo2_handle: make_shared(LFOHandle::default()),
+                        envelope: make_shared(EnvelopeHandle::default()),
                     }
                 })
                 .collect(),
@@ -327,19 +392,20 @@ impl MultiTrackLooper {
         });
 
         let mut graph = AudioProcessorGraph::default();
-        let input_node = graph.input();
-        let output_node = graph.output();
 
         let metronome_idx = graph.add_node(NodeType::Buffer(Box::new(metronome)));
-        graph.add_connection(input_node, metronome_idx);
-        graph.add_connection(metronome_idx, output_node);
+        graph.add_connection(graph.input(), metronome_idx);
+        graph.add_connection(metronome_idx, graph.output());
 
-        let step_trackers = voices.iter().map(|_| StepTracker::default()).collect();
+        let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
 
-        for voice in voices {
-            let voice_idx = graph.add_node(NodeType::Simple(Box::new(voice)));
-            graph.add_connection(input_node, voice_idx);
-            graph.add_connection(voice_idx, output_node);
+        for (looper, pitch_shifter) in processors {
+            let looper_idx = graph.add_node(NodeType::Simple(Box::new(looper)));
+            let pitch_shifter_idx = graph.add_node(NodeType::Buffer(Box::new(pitch_shifter)));
+
+            graph.add_connection(graph.input(), looper_idx);
+            graph.add_connection(looper_idx, pitch_shifter_idx);
+            graph.add_connection(pitch_shifter_idx, graph.output());
         }
 
         Self {

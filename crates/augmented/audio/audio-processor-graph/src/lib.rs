@@ -381,18 +381,18 @@ mod test {
 
     #[test]
     fn test_create_graph() {
-        let _ = AudioProcessorGraph::<VecAudioBuffer<f32>>::default();
+        let _ = AudioProcessorGraph::default();
     }
 
     #[test]
     fn test_create_graph_and_add_node() {
-        let mut graph = AudioProcessorGraph::<VecAudioBuffer<f32>>::default();
+        let mut graph = AudioProcessorGraph::default();
         graph.add_node(NodeType::Simple(Box::new(GainProcessor::default())));
     }
 
     #[test]
     fn test_create_graph_and_add_2_nodes() {
-        let mut graph = AudioProcessorGraph::<VecAudioBuffer<f32>>::default();
+        let mut graph = AudioProcessorGraph::default();
         let gain1 = graph.add_node(NodeType::Simple(Box::new(GainProcessor::default())));
         let gain2 = graph.add_node(NodeType::Simple(Box::new(GainProcessor::default())));
         let _connection_id = graph.add_connection(gain1, gain2).unwrap();
@@ -402,7 +402,7 @@ mod test {
     fn test_create_heterogeneous_graph() {
         type BufferType = VecAudioBuffer<f32>;
 
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
         let gain = Box::new(GainProcessor::default());
         let gain = graph.add_node(NodeType::Simple(gain));
         let pan = graph.add_node(NodeType::Simple(Box::new(PanProcessor::default())));
@@ -417,7 +417,7 @@ mod test {
 
         let mut empty_buffer = BufferType::new();
         empty_buffer.resize(1, 1000, 0.0);
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
 
         assert!(rms_level(empty_buffer.slice()) - 0.0 < f32::EPSILON);
 
@@ -445,7 +445,7 @@ mod test {
         buffer.set(0, 2, 3.0);
         buffer.set(0, 3, 4.0);
 
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
         graph.add_connection(graph.input(), graph.output());
         graph.prepare(settings);
         graph.process(&mut buffer);
@@ -477,7 +477,7 @@ mod test {
 
         let sum_10_node = Sum10Node {};
 
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
         let sum_10_node = graph.add_node(NodeType::Simple(Box::new(sum_10_node)));
         graph.add_connection(graph.input(), sum_10_node);
         graph.add_connection(sum_10_node, graph.output());
@@ -491,6 +491,177 @@ mod test {
     }
 
     #[test]
+    fn test_series_node_graph() {
+        type BufferType = VecAudioBuffer<f32>;
+        let settings = AudioProcessorSettings::default();
+        let mut buffer = VecAudioBuffer::new();
+        buffer.resize(1, 4, 0.0);
+        buffer.set(0, 0, 1.0);
+        buffer.set(0, 1, 2.0);
+        buffer.set(0, 2, 3.0);
+        buffer.set(0, 3, 4.0);
+
+        #[derive(Clone)]
+        struct Mult10Node {}
+        impl SimpleAudioProcessor for Mult10Node {
+            type SampleType = f32;
+            fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+                sample * 10.0
+            }
+        }
+
+        let mult_10_node = Mult10Node {};
+
+        let mut graph = AudioProcessorGraph::default();
+        let node1 = graph.add_node(NodeType::Simple(Box::new(mult_10_node.clone())));
+        let node2 = graph.add_node(NodeType::Simple(Box::new(mult_10_node.clone())));
+        graph.add_connection(graph.input(), node1);
+        graph.add_connection(node1, node2);
+        graph.add_connection(node2, graph.output());
+        graph.prepare(settings);
+        graph.process(&mut buffer);
+        println!("{:?}", buffer);
+        assert_f_eq!(*buffer.get(0, 0), 100.0);
+        assert_f_eq!(*buffer.get(0, 1), 200.0);
+        assert_f_eq!(*buffer.get(0, 2), 300.0);
+        assert_f_eq!(*buffer.get(0, 3), 400.0);
+    }
+
+    #[test]
+    fn test_buffer_in_series() {
+        type BufferType = VecAudioBuffer<f32>;
+        let settings = AudioProcessorSettings::default();
+        let mut buffer = VecAudioBuffer::new();
+        buffer.resize(1, 4, 0.0);
+        buffer.set(0, 0, 1.0);
+        buffer.set(0, 1, 2.0);
+        buffer.set(0, 2, 3.0);
+        buffer.set(0, 3, 4.0);
+
+        #[derive(Clone)]
+        struct Mult10Node {}
+        impl AudioProcessor for Mult10Node {
+            type SampleType = f32;
+            fn process<BufferType: AudioBuffer<SampleType = f32>>(
+                &mut self,
+                buffer: &mut BufferType,
+            ) {
+                for sample in buffer.slice_mut() {
+                    *sample = *sample * 10.0
+                }
+            }
+        }
+
+        let mult_10_node = Mult10Node {};
+
+        let mut graph = AudioProcessorGraph::default();
+        let node1 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        let node2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        graph.add_connection(graph.input(), node1);
+        graph.add_connection(node1, node2);
+        graph.add_connection(node2, graph.output());
+        graph.prepare(settings);
+        graph.process(&mut buffer);
+        println!("{:?}", buffer);
+        assert_f_eq!(*buffer.get(0, 0), 100.0);
+        assert_f_eq!(*buffer.get(0, 1), 200.0);
+        assert_f_eq!(*buffer.get(0, 2), 300.0);
+        assert_f_eq!(*buffer.get(0, 3), 400.0);
+    }
+
+    #[test]
+    fn test_buffer_in_parallel() {
+        type BufferType = VecAudioBuffer<f32>;
+        let settings = AudioProcessorSettings::default();
+        let mut buffer = VecAudioBuffer::new();
+        buffer.resize(1, 4, 0.0);
+        buffer.set(0, 0, 1.0);
+        buffer.set(0, 1, 2.0);
+        buffer.set(0, 2, 3.0);
+        buffer.set(0, 3, 4.0);
+
+        #[derive(Clone)]
+        struct Mult10Node {}
+        impl AudioProcessor for Mult10Node {
+            type SampleType = f32;
+            fn process<BufferType: AudioBuffer<SampleType = f32>>(
+                &mut self,
+                buffer: &mut BufferType,
+            ) {
+                for sample in buffer.slice_mut() {
+                    *sample = *sample * 10.0
+                }
+            }
+        }
+
+        let mult_10_node = Mult10Node {};
+
+        let mut graph = AudioProcessorGraph::default();
+        let node1 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        let node2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        graph.add_connection(graph.input(), node1);
+        graph.add_connection(node1, graph.output());
+        graph.add_connection(graph.input(), node2);
+        graph.add_connection(node2, graph.output());
+        graph.prepare(settings);
+        graph.process(&mut buffer);
+        println!("{:?}", buffer);
+        assert_f_eq!(*buffer.get(0, 0), 20.0);
+        assert_f_eq!(*buffer.get(0, 1), 40.0);
+        assert_f_eq!(*buffer.get(0, 2), 60.0);
+        assert_f_eq!(*buffer.get(0, 3), 80.0);
+    }
+
+    #[test]
+    fn test_more_complex_graph() {
+        // input -> mult-10 -> mult-10 -> output
+        //     \> mult-10 -> mult-10 ----/
+        type BufferType = VecAudioBuffer<f32>;
+        let settings = AudioProcessorSettings::default();
+        let mut buffer = VecAudioBuffer::new();
+        buffer.resize(1, 4, 0.0);
+        buffer.set(0, 0, 1.0);
+        buffer.set(0, 1, 2.0);
+        buffer.set(0, 2, 3.0);
+        buffer.set(0, 3, 4.0);
+
+        #[derive(Clone)]
+        struct Mult10Node {}
+        impl AudioProcessor for Mult10Node {
+            type SampleType = f32;
+            fn process<BufferType: AudioBuffer<SampleType = f32>>(
+                &mut self,
+                buffer: &mut BufferType,
+            ) {
+                for sample in buffer.slice_mut() {
+                    *sample = *sample * 10.0
+                }
+            }
+        }
+
+        let mult_10_node = Mult10Node {};
+
+        let mut graph = AudioProcessorGraph::default();
+        let nodeA1 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        let nodeA2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        let nodeB1 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        let nodeB2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        graph.add_connection(graph.input(), nodeA1);
+        graph.add_connection(nodeA1, nodeA2);
+        graph.add_connection(nodeA2, graph.output());
+        graph.add_connection(graph.input(), nodeB1);
+        graph.add_connection(nodeB1, nodeB2);
+        graph.add_connection(nodeB2, graph.output());
+        graph.prepare(settings);
+        graph.process(&mut buffer);
+        println!("{:?}", buffer);
+        assert_f_eq!(*buffer.get(0, 0), 200.0);
+        assert_f_eq!(*buffer.get(0, 1), 400.0);
+        assert_f_eq!(*buffer.get(0, 2), 600.0);
+        assert_f_eq!(*buffer.get(0, 3), 800.0);
+    }
+
+    #[test]
     fn test_process_empty_graph_passes_through_sine() {
         type BufferType = VecAudioBuffer<f32>;
 
@@ -501,7 +672,7 @@ mod test {
             sine_buffer(settings.sample_rate, 440.0, Duration::from_millis(3)).into();
         assert_eq!(sine_buffer.num_channels(), 1);
 
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
         graph.add_connection(graph.input(), graph.output());
 
         let mut process_buffer = sine_buffer.clone();
@@ -533,7 +704,7 @@ mod test {
         process_buffer.resize(1, 1000, 0.0);
 
         // Unconnected
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
         graph.prepare(settings);
         let _oscillator_idx = graph.add_node(NodeType::Simple(Box::new(oscillator)));
         graph.process(&mut process_buffer);
@@ -563,7 +734,7 @@ mod test {
         process_buffer.resize(1, 1000, 0.0);
 
         // Connected to input only
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
         graph.prepare(settings);
         let oscillator_idx = graph.add_node(NodeType::Simple(Box::new(oscillator)));
         graph
@@ -604,7 +775,7 @@ mod test {
         let node1 = Node1 {};
         let node2 = Node2 {};
 
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
         graph.prepare(settings);
 
         let input_idx = graph.input();
@@ -642,7 +813,7 @@ mod test {
         let mut process_buffer = VecAudioBuffer::new();
         process_buffer.resize(1, 1000, 0.0);
 
-        let mut graph = AudioProcessorGraph::<BufferType>::default();
+        let mut graph = AudioProcessorGraph::default();
         graph.prepare(settings);
         let oscillator_idx = graph.add_node(NodeType::Simple(Box::new(oscillator)));
         graph

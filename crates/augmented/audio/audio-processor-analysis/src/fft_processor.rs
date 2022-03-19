@@ -116,6 +116,10 @@ impl FftProcessor {
         self.has_changed
     }
 
+    pub fn input_buffer_sum(&self) -> f32 {
+        self.input_buffer.iter().map(|f| f.abs()).sum()
+    }
+
     pub fn perform_fft(&mut self, start_idx: usize) {
         for i in 0..self.size {
             let index = (start_idx + i) % self.size;

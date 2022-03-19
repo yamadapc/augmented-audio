@@ -1,7 +1,9 @@
 pub use atomic_refcell::AtomicRefCell;
 
 pub use c_api::*;
-pub use multi_track_looper::{LooperId, MultiTrackLooper, MultiTrackLooperHandle};
+pub use multi_track_looper::{
+    EnvelopeParameter, LooperId, MultiTrackLooper, MultiTrackLooperHandle,
+};
 pub use osc_server::setup_osc_server;
 pub use processor::handle::LooperHandle as LooperProcessorHandle;
 pub use processor::handle::LooperOptions;

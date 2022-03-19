@@ -8,12 +8,12 @@ use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::AtomicF32;
 
-use crate::multi_track_looper::{LooperVoice, SourceParameter};
+use crate::multi_track_looper::{LFOParameter, LooperVoice, SourceParameter};
 use crate::processor::handle::LooperState;
 use crate::trigger_model::{TrackTriggerModel, Trigger, TriggerPosition};
 use crate::{
-    setup_osc_server, LooperId, LooperOptions, LooperProcessorHandle, MultiTrackLooper,
-    MultiTrackLooperHandle, TimeInfoProvider,
+    setup_osc_server, EnvelopeParameter, LooperId, LooperOptions, LooperProcessorHandle,
+    MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider,
 };
 
 fn into_ptr<T>(value: T) -> *mut T {
@@ -134,6 +134,33 @@ pub enum LooperBuffer {
         inner: Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
     },
     None,
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_envelope_parameter(
+    engine: *mut LooperEngine,
+    track_id: usize,
+    envelope_parameter_id: EnvelopeParameter,
+    value: f32,
+) {
+    let engine = &(*engine);
+    engine
+        .handle
+        .set_envelope_parameter(LooperId(track_id), envelope_parameter_id, value);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
+    engine: *mut LooperEngine,
+    track_id: usize,
+    lfo: usize,
+    parameter_id: LFOParameter,
+    value: f32,
+) {
+    let engine = &(*engine);
+    engine
+        .handle
+        .set_lfo_parameter(LooperId(track_id), lfo, parameter_id, value);
 }
 
 #[no_mangle]
