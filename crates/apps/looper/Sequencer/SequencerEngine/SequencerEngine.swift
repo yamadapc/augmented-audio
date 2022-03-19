@@ -68,7 +68,7 @@ extension EngineImpl: SequencerEngine {
 func getObjectIdRust(_ id: ObjectId) -> ParameterId? {
     switch id {
     case .sourceParameter(trackId: _, parameterId: let parameterId):
-        return looper_engine__source_parameter_id(getSourceParameterRustId(parameterId))
+        return looper_engine__source_parameter_id(SOURCE_PARAMETER_IDS[parameterId]!)
     case .envelopeParameter(trackId: _, parameterId: let parameterId):
         return looper_engine__envelope_parameter_id(RUST_ENVELOPE_IDS[parameterId]!)
     case .lfoParameter(trackId: _, lfo: let lfo, parameterId: let parameterId):
@@ -79,22 +79,15 @@ func getObjectIdRust(_ id: ObjectId) -> ParameterId? {
 }
 
 // TODO: - write as hash-map
-func getSourceParameterRustId(_ id: SourceParameterId) -> SequencerEngine_private.SourceParameter {
-    switch id {
-    case .start:
-        return Start
-    case .end:
-        return End
-    case .fadeStart:
-        return FadeStart
-    case .fadeEnd:
-        return FadeEnd
-    case .pitch:
-        return Pitch
-    case .speed:
-        return Speed
-    }
-}
+let SOURCE_PARAMETER_IDS: [SourceParameterId: SequencerEngine_private.SourceParameter] = [
+    .start: Start,
+    .end: End,
+    .fadeStart: FadeStart,
+    .fadeEnd: FadeEnd,
+    .pitch: Pitch,
+    .speed: Speed,
+    .loopEnabled: LoopEnabled,
+]
 
 let LFO_PARAMETER_IDS: [LFOParameterId: SequencerEngine_private.LFOParameter] = [
     LFOParameterId.frequency: Frequency,
@@ -121,7 +114,7 @@ public class EngineController {
         store.trackStates.enumerated().forEach { i, trackState in
             trackState.sourceParameters.parameters.forEach { parameter in
                 parameter.$value.sink(receiveValue: { value in
-                    let rustParameterId = getSourceParameterRustId(parameter.id)
+                    let rustParameterId = SOURCE_PARAMETER_IDS[parameter.id]!
                     looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, value)
                 }).store(in: &cancellables)
             }
@@ -204,6 +197,7 @@ struct LooperBufferTrackBuffer {
 }
 
 extension LooperBufferTrackBuffer: TrackBuffer {
+    var id: Int { inner.hashValue }
     var count: Int { Int(looper_buffer__num_samples(inner)) }
     subscript(index: Int) -> Float {
         looper_buffer__get(inner, UInt(index))

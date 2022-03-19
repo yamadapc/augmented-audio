@@ -13,6 +13,7 @@ import OSCKit
 public enum ObjectId: Equatable {
     case
         sourceParameter(trackId: Int, parameterId: SourceParameterId),
+
         envelopeParameter(trackId: Int, parameterId: EnvelopeParameterId),
         lfoParameter(trackId: Int, lfo: UInt, parameterId: LFOParameterId),
         trackVolume(trackId: Int),
@@ -63,6 +64,7 @@ extension LooperState {
 }
 
 public protocol TrackBuffer {
+    var id: Int { get }
     var count: Int { get }
     subscript(_: Int) -> Float { get }
 
@@ -74,6 +76,7 @@ struct UnsafeBufferTrackBuffer {
 }
 
 extension UnsafeBufferTrackBuffer: TrackBuffer {
+    var id: Int { inner.baseAddress?.hashValue ?? 0 }
     var count: Int { inner.count }
     subscript(index: Int) -> Float {
         inner[index]
@@ -85,6 +88,22 @@ extension UnsafeBufferTrackBuffer: TrackBuffer {
         } else {
             return false
         }
+    }
+}
+
+public class BooleanParameter: ObservableObject {
+    var id: ObjectId
+    var label: String
+    @Published var value: Bool = false
+
+    init(
+        id: ObjectId,
+        label: String,
+        value: Bool
+    ) {
+        self.id = id
+        self.label = label
+        self.value = value
     }
 }
 
@@ -139,7 +158,7 @@ public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
 }
 
 public enum SourceParameterId {
-    case start, end, fadeStart, fadeEnd, pitch, speed
+    case start, end, fadeStart, fadeEnd, pitch, speed, loopEnabled
 }
 
 public typealias SourceParameter = FloatParameter<SourceParameterId>
@@ -152,6 +171,7 @@ public class SourceParametersState: ObservableObject {
     var fadeEnd: SourceParameter
     var pitch: SourceParameter
     var speed: SourceParameter
+    var loopEnabled: BooleanParameter
 
     public var parameters: [SourceParameter] {
         [
@@ -202,6 +222,12 @@ public class SourceParametersState: ObservableObject {
             style: .center,
             range: (-2.0, 2.0),
             initialValue: 1.0
+        )
+
+        loopEnabled = BooleanParameter(
+            id: .sourceParameter(trackId: trackId, parameterId: .loopEnabled),
+            label: "Loop",
+            value: true
         )
     }
 }

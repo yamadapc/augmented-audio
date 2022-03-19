@@ -5,6 +5,7 @@ import MetalKit
 
 #if !os(iOS)
     import Cocoa
+    import LRUCache
 
     struct MTKVisualizationView: NSViewRepresentable {
         typealias NSViewType = MTKView
@@ -57,7 +58,17 @@ import MetalKit
     }
 #endif
 
-func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _: Int, _ buffer: TrackBuffer) {
+let PATH_CACHE: LRUCache<Int, Path> = LRUCache(
+    totalCostLimit: 10,
+    countLimit: 10
+)
+
+func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
+    if let cachedPath = PATH_CACHE.value(forKey: buffer.id) {
+        return cachedPath
+    }
+
+    var path = Path()
     let height = geometry.size.height
     let width = Int(geometry.size.width)
 
@@ -92,6 +103,9 @@ func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _: Int, _ buffer: 
         }
         path.addLine(to: CGPoint(x: x, y: h))
     }
+
+    PATH_CACHE.setValue(path, forKey: buffer.id)
+    return path
 }
 
 struct AudioPathView: View {
@@ -101,7 +115,7 @@ struct AudioPathView: View {
 
     var body: some View {
         Path { path in
-            buildPath(geometry, &path, tick, buffer)
+            path.addPath(buildPath(geometry, buffer))
         }
         .stroke(SequencerColors.blue, lineWidth: 1)
     }
