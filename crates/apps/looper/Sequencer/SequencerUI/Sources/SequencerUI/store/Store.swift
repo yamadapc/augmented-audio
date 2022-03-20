@@ -92,9 +92,9 @@ extension UnsafeBufferTrackBuffer: TrackBuffer {
 }
 
 public class BooleanParameter: ObservableObject {
-    var id: ObjectId
+    public var id: ObjectId
     var label: String
-    @Published var value: Bool = false
+    @Published public var value: Bool = false
 
     init(
         id: ObjectId,
@@ -184,6 +184,12 @@ public class SourceParametersState: ObservableObject {
         ]
     }
 
+    public var toggles: [BooleanParameter] {
+        [
+            loopEnabled,
+        ]
+    }
+
     init(trackId: Int) {
         self.trackId = trackId
         start = SourceParameter(
@@ -233,13 +239,14 @@ public class SourceParametersState: ObservableObject {
 }
 
 public enum EnvelopeParameterId {
-    case attack, decay, release, sustain
+    case attack, decay, release, sustain, enabled
 }
 
 public typealias EnvelopeParameter = FloatParameter<EnvelopeParameterId>
 
 public class EnvelopeState: ObservableObject {
     var trackId: Int
+    @Published var enabled: BooleanParameter
     @Published var attack: EnvelopeParameter
     @Published var decay: EnvelopeParameter
     @Published var sustain: EnvelopeParameter
@@ -254,10 +261,21 @@ public class EnvelopeState: ObservableObject {
         ]
     }
 
+    public var toggles: [BooleanParameter] {
+        [
+            enabled,
+        ]
+    }
+
     var cancellables: Set<AnyCancellable> = Set()
 
     init(trackId: Int) {
         self.trackId = trackId
+        enabled = .init(
+            id: .envelopeParameter(trackId: trackId, parameterId: .enabled),
+            label: "Envelope enabled",
+            value: false
+        )
         attack = .init(
             id: .attack,
             globalId: .envelopeParameter(trackId: trackId, parameterId: .attack),

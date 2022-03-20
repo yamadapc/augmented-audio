@@ -32,10 +32,7 @@ struct LoopVisualisationView: View {
             }
 
             HStack {
-                Button("Loop", action: {})
-                    .buttonStyle(.plain)
-                    .padding(PADDING)
-                    .border(SequencerColors.blue, width: 1.0)
+                ToggleParameterView(parameter: trackState.sourceParameters.loopEnabled)
 
                 Button("Quantization mode", action: {})
                     .buttonStyle(.plain)

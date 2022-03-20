@@ -70,7 +70,7 @@ func getObjectIdRust(_ id: ObjectId) -> ParameterId? {
     case .sourceParameter(trackId: _, parameterId: let parameterId):
         return looper_engine__source_parameter_id(SOURCE_PARAMETER_IDS[parameterId]!)
     case .envelopeParameter(trackId: _, parameterId: let parameterId):
-        return looper_engine__envelope_parameter_id(RUST_ENVELOPE_IDS[parameterId]!)
+        return looper_engine__envelope_parameter_id(ENVELOPE_PARAMETER_IDS[parameterId]!)
     case .lfoParameter(trackId: _, lfo: let lfo, parameterId: let parameterId):
         return looper_engine__lfo_parameter_id(lfo, LFO_PARAMETER_IDS[parameterId]!)
     default:
@@ -94,11 +94,12 @@ let LFO_PARAMETER_IDS: [LFOParameterId: SequencerEngine_private.LFOParameter] = 
     LFOParameterId.amount: Amount,
 ]
 
-let RUST_ENVELOPE_IDS: [EnvelopeParameterId: SequencerEngine_private.EnvelopeParameter] = [
+let ENVELOPE_PARAMETER_IDS: [EnvelopeParameterId: SequencerEngine_private.EnvelopeParameter] = [
     EnvelopeParameterId.attack: Attack,
     EnvelopeParameterId.decay: Decay,
     EnvelopeParameterId.release: Release,
     EnvelopeParameterId.sustain: Sustain,
+    EnvelopeParameterId.enabled: EnvelopeEnabled,
 ]
 
 public class EngineController {
@@ -119,14 +120,40 @@ public class EngineController {
                 }).store(in: &cancellables)
             }
 
+            trackState.sourceParameters.toggles.forEach { toggle in
+                toggle.$value.sink(receiveValue: { value in
+                    if let rustParameterId = getObjectIdRust(toggle.id) {
+                        looper_engine__set_boolean_parameter(
+                            self.engine.engine,
+                            UInt(i),
+                            rustParameterId,
+                            value
+                        )
+                    }
+                }).store(in: &cancellables)
+            }
+
             trackState.envelope.parameters.forEach { parameter in
                 parameter.$value.sink(receiveValue: { value in
-                    let rustParameterId = RUST_ENVELOPE_IDS[parameter.id]!
+                    let rustParameterId = ENVELOPE_PARAMETER_IDS[parameter.id]!
                     looper_engine__set_envelope_parameter(
                         self.engine.engine,
-                        UInt(trackState.id - 1),
-                        rustParameterId, value
+                        UInt(i),
+                        rustParameterId,
+                        value
                     )
+                }).store(in: &cancellables)
+            }
+            trackState.envelope.toggles.forEach { toggle in
+                toggle.$value.sink(receiveValue: { value in
+                    if let rustParameterId = getObjectIdRust(toggle.id) {
+                        looper_engine__set_boolean_parameter(
+                            self.engine.engine,
+                            UInt(i),
+                            rustParameterId,
+                            value
+                        )
+                    }
                 }).store(in: &cancellables)
             }
         }

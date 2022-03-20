@@ -50,43 +50,50 @@ struct EnvelopeVisualisationView: View {
     @ObservedObject var model: EnvelopeState
 
     var body: some View {
-        GeometryReader { geometry in
-            let positions = getPositions(geometry)
+        VStack {
+            GeometryReader { geometry in
+                let positions = getPositions(geometry)
 
-            ZStack {
-                Path { path in
-                    buildPath(geometry, positions, &path)
+                ZStack {
+                    Path { path in
+                        buildPath(geometry, positions, &path)
+                    }
+                    .stroke(SequencerColors.blue.opacity(0.8), lineWidth: 2)
+
+                    EnvelopeHandleView(position: positions.attack, onChangeLocation: { newLocation in
+                        let newX = newLocation.x
+                        let ratio = max(min(newX / (geometry.size.width * CGFloat(ATTACK_LENGTH)), 1.0), 0.0)
+                        model.attack.value = Float(ratio)
+                    })
+
+                    EnvelopeHandleView(position: positions.decay, onChangeLocation: { newLocation in
+                        let newX = newLocation.x - positions.attack.x
+                        let ratio = max(min(newX / (geometry.size.width * CGFloat(DECAY_LENGTH)), 1.0), 0.0)
+                        model.decay.value = Float(ratio)
+
+                        let newY = newLocation.y
+                        let sustainRatio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
+                        model.sustain.value = Float(sustainRatio)
+                    })
+
+                    EnvelopeHandleView(position: positions.sustain, onChangeLocation: { newLocation in
+                        let newY = newLocation.y
+                        let ratio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
+                        model.sustain.value = Float(ratio)
+                    })
+
+                    EnvelopeHandleView(position: positions.release, onChangeLocation: { newLocation in
+                        let newX = newLocation.x - positions.sustain.x
+                        let ratio = max(min(newX / (geometry.size.width * CGFloat(RELEASE_LENGTH)), 1.0), 0.0)
+                        model.release.value = Float(ratio)
+                    })
                 }
-                .stroke(SequencerColors.blue.opacity(0.8), lineWidth: 2)
-
-                EnvelopeHandleView(position: positions.attack, onChangeLocation: { newLocation in
-                    let newX = newLocation.x
-                    let ratio = max(min(newX / (geometry.size.width * CGFloat(ATTACK_LENGTH)), 1.0), 0.0)
-                    model.attack.value = Float(ratio)
-                })
-
-                EnvelopeHandleView(position: positions.decay, onChangeLocation: { newLocation in
-                    let newX = newLocation.x - positions.attack.x
-                    let ratio = max(min(newX / (geometry.size.width * CGFloat(DECAY_LENGTH)), 1.0), 0.0)
-                    model.decay.value = Float(ratio)
-
-                    let newY = newLocation.y
-                    let sustainRatio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
-                    model.sustain.value = Float(sustainRatio)
-                })
-
-                EnvelopeHandleView(position: positions.sustain, onChangeLocation: { newLocation in
-                    let newY = newLocation.y
-                    let ratio = 1.0 - max(min(newY / geometry.size.height, 1.0), 0.0)
-                    model.sustain.value = Float(ratio)
-                })
-
-                EnvelopeHandleView(position: positions.release, onChangeLocation: { newLocation in
-                    let newX = newLocation.x - positions.sustain.x
-                    let ratio = max(min(newX / (geometry.size.width * CGFloat(RELEASE_LENGTH)), 1.0), 0.0)
-                    model.release.value = Float(ratio)
-                })
             }
+
+            HStack {
+                ToggleParameterView(parameter: model.enabled)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding()
         .clipped()
