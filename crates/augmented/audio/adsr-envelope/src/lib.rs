@@ -1,5 +1,8 @@
+use augmented_atomics::{AtomicEnum, AtomicF32};
+use num_derive::{FromPrimitive, ToPrimitive};
 use std::time::Duration;
 
+#[derive(FromPrimitive, ToPrimitive)]
 enum EnvelopeStage {
     Idle,
     Attack,
@@ -9,8 +12,8 @@ enum EnvelopeStage {
 }
 
 struct StageConfig {
-    samples: f32,
-    duration: Duration,
+    samples: AtomicF32,
+    duration_secs: AtomicF32,
 }
 
 impl Default for StageConfig {
@@ -21,26 +24,31 @@ impl Default for StageConfig {
 
 impl StageConfig {
     fn new(samples: f32, duration: Duration) -> Self {
-        StageConfig { samples, duration }
+        StageConfig {
+            samples: samples.into(),
+            duration_secs: duration.as_secs_f32().into(),
+        }
     }
 
-    fn set_sample_rate(&mut self, sample_rate: f32) {
-        self.samples = samples_for_duration(sample_rate, &self.duration);
+    fn set_sample_rate(&self, sample_rate: f32) {
+        self.samples
+            .set(samples_for_duration(sample_rate, self.duration_secs.get()));
     }
 
-    fn set_duration(&mut self, sample_rate: f32, duration: Duration) {
-        self.duration = duration;
-        self.samples = samples_for_duration(sample_rate, &self.duration);
+    fn set_duration(&self, sample_rate: f32, duration: Duration) {
+        self.duration_secs.set(duration.as_secs_f32());
+        self.samples
+            .set(samples_for_duration(sample_rate, self.duration_secs.get()));
     }
 }
 
 struct EnvelopeConfig {
     attack: StageConfig,
-    attack_level: f32,
+    attack_level: AtomicF32,
     decay: StageConfig,
-    sustain: f32,
+    sustain: AtomicF32,
     release: StageConfig,
-    sample_rate: f32,
+    sample_rate: AtomicF32,
     is_exp: bool,
 }
 
@@ -48,11 +56,11 @@ impl Default for EnvelopeConfig {
     fn default() -> Self {
         EnvelopeConfig {
             attack: StageConfig::new(0.0, Duration::from_secs_f32(0.2)),
-            attack_level: 1.0,
+            attack_level: 1.0.into(),
             decay: StageConfig::new(0.0, Duration::from_secs_f32(0.3)),
-            sustain: 0.8,
+            sustain: 0.8.into(),
             release: StageConfig::new(0.0, Duration::from_secs_f32(0.1)),
-            sample_rate: 0.0,
+            sample_rate: 0.0.into(),
             is_exp: false,
         }
     }
@@ -68,24 +76,24 @@ impl EnvelopeConfig {
 }
 
 struct EnvelopeState {
-    current_samples: f32,
-    stage_start_volume: f32,
-    current_volume: f32,
+    current_samples: AtomicF32,
+    stage_start_volume: AtomicF32,
+    current_volume: AtomicF32,
 }
 
 impl Default for EnvelopeState {
     fn default() -> Self {
         EnvelopeState {
-            current_samples: 0.0,
-            stage_start_volume: 0.0,
-            current_volume: 0.0,
+            current_samples: 0.0.into(),
+            stage_start_volume: 0.0.into(),
+            current_volume: 0.0.into(),
         }
     }
 }
 
 /// An ADSR envelope implementation
 pub struct Envelope {
-    stage: EnvelopeStage,
+    stage: AtomicEnum<EnvelopeStage>,
     state: EnvelopeState,
     config: EnvelopeConfig,
 }
@@ -100,7 +108,7 @@ impl Envelope {
     /// Create a linear envelope with default configuration
     pub fn new() -> Self {
         Envelope {
-            stage: EnvelopeStage::Idle,
+            stage: EnvelopeStage::Idle.into(),
             state: EnvelopeState::default(),
             config: EnvelopeConfig::default(),
         }
@@ -109,79 +117,87 @@ impl Envelope {
     /// Create an exponential envelope with default configuration
     pub fn exp() -> Self {
         Envelope {
-            stage: EnvelopeStage::Idle,
+            stage: EnvelopeStage::Idle.into(),
             state: EnvelopeState::default(),
             config: EnvelopeConfig::exp(),
         }
     }
 
     /// Set the envelope sample rate, required before playback
-    pub fn set_sample_rate(&mut self, sample_rate: f32) {
-        self.config.sample_rate = sample_rate;
+    pub fn set_sample_rate(&self, sample_rate: f32) {
+        self.config.sample_rate.set(sample_rate);
         self.config.attack.set_sample_rate(sample_rate);
         self.config.decay.set_sample_rate(sample_rate);
         self.config.release.set_sample_rate(sample_rate);
     }
 
     /// Set the envelope sample rate, required before playback
-    pub fn set_attack(&mut self, duration: Duration) {
+    pub fn set_attack(&self, duration: Duration) {
         self.config
             .attack
-            .set_duration(self.config.sample_rate, duration);
+            .set_duration(self.config.sample_rate.get(), duration);
     }
 
     /// Set the envelope decay time
-    pub fn set_decay(&mut self, duration: Duration) {
+    pub fn set_decay(&self, duration: Duration) {
         self.config
             .decay
-            .set_duration(self.config.sample_rate, duration);
+            .set_duration(self.config.sample_rate.get(), duration);
     }
 
     /// Set the envelope sustain time
-    pub fn set_sustain(&mut self, sustain: f32) {
-        self.config.sustain = sustain;
+    pub fn set_sustain(&self, sustain: f32) {
+        self.config.sustain.set(sustain);
     }
 
     /// Set the envelope release time
-    pub fn set_release(&mut self, duration: Duration) {
+    pub fn set_release(&self, duration: Duration) {
         self.config
             .release
-            .set_duration(self.config.sample_rate, duration);
+            .set_duration(self.config.sample_rate.get(), duration);
     }
 
     /// Get the current volume multiplier
     pub fn volume(&self) -> f32 {
-        self.state.current_volume
+        self.state.current_volume.get()
     }
 
     /// Update the envelope, pushing its state forwards by 1 sample
-    pub fn tick(&mut self) {
-        self.state.current_samples += 1.0;
-        let current_samples = self.state.current_samples;
-        let maybe_stage_config = match self.stage {
-            EnvelopeStage::Idle => None,
-            EnvelopeStage::Attack => {
-                self.state.current_volume =
-                    self.calculate_volume(self.config.attack_level, self.config.attack.samples);
-                Some(&self.config.attack)
-            }
-            EnvelopeStage::Decay => {
-                self.state.current_volume =
-                    self.calculate_volume(self.config.sustain, self.config.decay.samples);
-                Some(&self.config.decay)
-            }
-            EnvelopeStage::Sustain => {
-                self.state.current_volume = self.config.sustain;
-                None
-            }
-            EnvelopeStage::Release => {
-                self.state.current_volume = self.calculate_volume(0.0, self.config.release.samples);
-                Some(&self.config.release)
-            }
-        };
+    pub fn tick(&self) {
+        let current_samples = self.state.current_samples.get() + 1.0;
+        self.state.current_samples.set(current_samples);
+
+        let maybe_stage_config =
+            match self.stage.get() {
+                EnvelopeStage::Idle => None,
+                EnvelopeStage::Attack => {
+                    self.state.current_volume.set(self.calculate_volume(
+                        self.config.attack_level.get(),
+                        self.config.attack.samples.get(),
+                    ));
+                    Some(&self.config.attack)
+                }
+                EnvelopeStage::Decay => {
+                    self.state.current_volume.set(self.calculate_volume(
+                        self.config.sustain.get(),
+                        self.config.decay.samples.get(),
+                    ));
+                    Some(&self.config.decay)
+                }
+                EnvelopeStage::Sustain => {
+                    self.state.current_volume.set(self.config.sustain.get());
+                    None
+                }
+                EnvelopeStage::Release => {
+                    self.state
+                        .current_volume
+                        .set(self.calculate_volume(0.0, self.config.release.samples.get()));
+                    Some(&self.config.release)
+                }
+            };
 
         if let Some(stage_config) = maybe_stage_config {
-            if current_samples >= stage_config.samples {
+            if current_samples >= stage_config.samples.get() {
                 self.next_stage();
             }
         }
@@ -189,17 +205,17 @@ impl Envelope {
 
     /// Trigger the envelope by setting its stage to the Attack phase. Does not change the current
     /// volume, only the stage.
-    pub fn note_on(&mut self) {
+    pub fn note_on(&self) {
         self.set_stage(EnvelopeStage::Attack);
     }
 
     /// Set the envelope stage to release.
-    pub fn note_off(&mut self) {
+    pub fn note_off(&self) {
         self.set_stage(EnvelopeStage::Release);
     }
 
-    fn next_stage(&mut self) {
-        match self.stage {
+    fn next_stage(&self) {
+        match self.stage.get() {
             EnvelopeStage::Attack => {
                 self.set_stage(EnvelopeStage::Decay);
             }
@@ -216,18 +232,20 @@ impl Envelope {
         }
     }
 
-    fn set_stage(&mut self, stage: EnvelopeStage) {
-        self.state.stage_start_volume = self.state.current_volume;
-        self.state.current_samples = 0.0;
-        self.stage = stage;
+    fn set_stage(&self, stage: EnvelopeStage) {
+        self.state
+            .stage_start_volume
+            .set(self.state.current_volume.get());
+        self.state.current_samples.set(0.0);
+        self.stage.set(stage);
     }
 
     fn calculate_volume(&self, target: f32, duration_samples: f32) -> f32 {
-        let start = self.state.stage_start_volume;
-        let current_samples = self.state.current_samples;
+        let start = self.state.stage_start_volume.get();
+        let current_samples = self.state.current_samples.get();
 
         if self.config.is_exp {
-            let start = self.state.stage_start_volume;
+            let start = self.state.stage_start_volume.get();
             let target = target;
             let diff = target - start;
             let perc = (current_samples / duration_samples).powf(if diff >= 0.0 {
@@ -244,8 +262,8 @@ impl Envelope {
     }
 }
 
-fn samples_for_duration(sample_rate: f32, duration: &Duration) -> f32 {
-    sample_rate * duration.as_secs_f32()
+fn samples_for_duration(sample_rate: f32, duration_secs: f32) -> f32 {
+    sample_rate * duration_secs
 }
 
 #[cfg(test)]
@@ -263,13 +281,13 @@ mod test {
 
         let mut envelope_buffer = Vec::new();
         envelope.note_on();
-        for i in 0..(samples_for_duration(44100.0, &Duration::from_secs_f32(2.0)) as i32) {
+        for i in 0..(samples_for_duration(44100.0, 2.0) as i32) {
             envelope_buffer.push((i, envelope.volume()));
             envelope.tick();
         }
         envelope.note_off();
         let start = envelope_buffer.len() as i32;
-        for i in 0..(samples_for_duration(44100.0, &Duration::from_secs_f32(1.0)) as i32) {
+        for i in 0..(samples_for_duration(44100.0, 1.0) as i32) {
             envelope_buffer.push((start + i, envelope.volume()));
             envelope.tick();
         }
@@ -284,13 +302,13 @@ mod test {
 
         let mut envelope_buffer = Vec::new();
         envelope.note_on();
-        for i in 0..(samples_for_duration(44100.0, &Duration::from_secs_f32(2.0)) as i32) {
+        for i in 0..(samples_for_duration(44100.0, 2.0) as i32) {
             envelope_buffer.push((i, envelope.volume()));
             envelope.tick();
         }
         envelope.note_off();
         let start = envelope_buffer.len() as i32;
-        for i in 0..(samples_for_duration(44100.0, &Duration::from_secs_f32(1.0)) as i32) {
+        for i in 0..(samples_for_duration(44100.0, 1.0) as i32) {
             envelope_buffer.push((start + i, envelope.volume()));
             envelope.tick();
         }

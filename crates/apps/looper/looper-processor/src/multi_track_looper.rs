@@ -2,7 +2,8 @@ use atomic_refcell::{AtomicRef, AtomicRefCell};
 use basedrop::SharedCell;
 use num::iter::range_step_from;
 use std::ops::Deref;
-use std::sync::atomic::Ordering;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::Duration;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
@@ -49,6 +50,7 @@ pub enum SourceParameter {
     FadeEnd = 3,
     Pitch = 4,
     Speed = 5,
+    LoopEnabled = 6,
 }
 
 #[repr(C)]
@@ -59,6 +61,57 @@ pub enum EnvelopeParameter {
     Decay = 1,
     Release = 2,
     Sustain = 3,
+    EnvelopeEnabled = 4,
+}
+
+struct EnvelopeHandle {
+    adsr_envelope: augmented_adsr_envelope::Envelope,
+    enabled: AtomicBool,
+}
+
+struct EnvelopeProcessor {
+    handle: Shared<EnvelopeHandle>,
+}
+
+impl Default for EnvelopeProcessor {
+    fn default() -> Self {
+        let mut envelope = augmented_adsr_envelope::Envelope::new();
+        envelope.set_attack(Duration::from_secs_f32(0.0));
+        envelope.set_decay(Duration::from_secs_f32(0.0));
+        envelope.set_sustain(1.0);
+        envelope.set_release(Duration::from_secs_f32(1_000_000.0));
+        Self {
+            handle: make_shared(EnvelopeHandle {
+                adsr_envelope: envelope,
+                enabled: AtomicBool::new(false),
+            }),
+        }
+    }
+}
+
+impl AudioProcessor for EnvelopeProcessor {
+    type SampleType = f32;
+
+    fn prepare(&mut self, settings: AudioProcessorSettings) {
+        self.handle
+            .adsr_envelope
+            .set_sample_rate(settings.sample_rate());
+    }
+
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        data: &mut BufferType,
+    ) {
+        if self.handle.enabled.load(Ordering::Relaxed) {
+            for frame in data.frames_mut() {
+                let volume = self.handle.adsr_envelope.volume();
+                for sample in frame {
+                    *sample = *sample * volume;
+                }
+                self.handle.adsr_envelope.tick();
+            }
+        }
+    }
 }
 
 #[repr(C)]
@@ -79,24 +132,6 @@ impl Default for LFOHandle {
         LFOHandle {
             amount: 1.0.into(),
             frequency: 1.0.into(),
-        }
-    }
-}
-
-struct EnvelopeHandle {
-    attack: AtomicF32,
-    decay: AtomicF32,
-    release: AtomicF32,
-    sustain: AtomicF32,
-}
-
-impl Default for EnvelopeHandle {
-    fn default() -> Self {
-        Self {
-            attack: 0.0.into(),
-            decay: 0.0.into(),
-            release: 1.0.into(),
-            sustain: 0.0.into(),
         }
     }
 }
@@ -202,17 +237,22 @@ impl MultiTrackLooperHandle {
                 SourceParameter::Speed => {
                     voice.looper_handle.set_speed(value);
                 }
+                _ => {}
             }
 
             let parameter_id = ParameterId::ParameterIdSource { parameter };
-            Self::update_parameter_table(value, voice, parameter_id);
+            Self::update_parameter_table(voice, parameter_id, ParameterValue { value });
         }
     }
 
-    fn update_parameter_table(value: f32, voice: &LooperVoice, parameter_id: ParameterId) {
+    fn update_parameter_table(
+        voice: &LooperVoice,
+        parameter_id: ParameterId,
+        value: ParameterValue,
+    ) {
         let parameter_values = voice.parameter_values.get();
         let mut parameter_values = parameter_values.deref().clone();
-        parameter_values.insert(parameter_id, ParameterValue { value });
+        parameter_values.insert(parameter_id, value);
         voice.parameter_values.set(make_shared(parameter_values));
     }
 
@@ -237,6 +277,23 @@ impl MultiTrackLooperHandle {
                 SourceParameter::Speed => {
                     voice.looper_handle.set_speed(value);
                 }
+                _ => {}
+            },
+            ParameterId::ParameterIdEnvelope { parameter } => match parameter {
+                EnvelopeParameter::Attack => voice
+                    .envelope
+                    .adsr_envelope
+                    .set_attack(Duration::from_secs_f32(value)),
+                EnvelopeParameter::Decay => voice
+                    .envelope
+                    .adsr_envelope
+                    .set_decay(Duration::from_secs_f32(value)),
+                EnvelopeParameter::Release => voice
+                    .envelope
+                    .adsr_envelope
+                    .set_release(Duration::from_secs_f32(value)),
+                EnvelopeParameter::Sustain => voice.envelope.adsr_envelope.set_sustain(value),
+                _ => {}
             },
             _ => {}
         }
@@ -256,17 +313,28 @@ impl MultiTrackLooperHandle {
     ) {
         if let Some(voice) = self.voices.get(looper_id.0) {
             match parameter_id {
-                EnvelopeParameter::Attack => voice.envelope.attack.set(value),
-                EnvelopeParameter::Decay => voice.envelope.decay.set(value),
-                EnvelopeParameter::Release => voice.envelope.release.set(value),
-                EnvelopeParameter::Sustain => voice.envelope.sustain.set(value),
+                EnvelopeParameter::Attack => voice
+                    .envelope
+                    .adsr_envelope
+                    .set_attack(Duration::from_secs_f32(value)),
+                EnvelopeParameter::Decay => voice
+                    .envelope
+                    .adsr_envelope
+                    .set_decay(Duration::from_secs_f32(value)),
+                EnvelopeParameter::Release => voice
+                    .envelope
+                    .adsr_envelope
+                    .set_release(Duration::from_secs_f32(value)),
+                EnvelopeParameter::Sustain => voice.envelope.adsr_envelope.set_sustain(value),
+                _ => {}
             }
+
             Self::update_parameter_table(
-                value,
                 &voice,
                 ParameterId::ParameterIdEnvelope {
                     parameter: parameter_id,
                 },
+                ParameterValue { value },
             );
         }
     }
@@ -301,12 +369,12 @@ impl MultiTrackLooperHandle {
             }
 
             Self::update_parameter_table(
-                value,
                 &voice,
                 ParameterId::ParameterIdLFO {
                     lfo,
                     parameter: parameter_id,
                 },
+                ParameterValue { value },
             );
         }
     }
@@ -332,6 +400,31 @@ impl MultiTrackLooperHandle {
 
     pub fn get_looper_state(&self, looper_id: LooperId) -> LooperState {
         self.voices[looper_id.0].looper().state()
+    }
+
+    pub fn set_boolean_parameter(
+        &self,
+        looper_id: LooperId,
+        parameter_id: ParameterId,
+        value: bool,
+    ) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            match parameter_id {
+                ParameterId::ParameterIdSource { parameter } => match parameter {
+                    SourceParameter::LoopEnabled => {
+                        voice.looper_handle.set_loop_enabled(value);
+                    }
+                    _ => {}
+                },
+                ParameterId::ParameterIdEnvelope { parameter } => match parameter {
+                    EnvelopeParameter::EnvelopeEnabled => {
+                        voice.envelope.enabled.store(value, Ordering::Relaxed);
+                    }
+                    _ => {}
+                },
+                _ => {}
+            }
+        }
     }
 
     pub fn add_parameter_lock(
@@ -432,10 +525,16 @@ pub struct MultiTrackLooper {
     step_trackers: Vec<StepTracker>,
 }
 
+struct VoiceProcessors {
+    looper: LooperProcessor,
+    pitch_shifter: MultiChannelPitchShifterProcessor,
+    envelope: EnvelopeProcessor,
+}
+
 impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
-        let processors: Vec<(LooperProcessor, MultiChannelPitchShifterProcessor)> = (0..num_voices)
+        let processors: Vec<VoiceProcessors> = (0..num_voices)
             .map(|_| {
                 let looper = LooperProcessor::new(options.clone(), time_info_provider.clone());
                 looper
@@ -445,7 +544,13 @@ impl MultiTrackLooper {
                 looper.handle().tick_time.store(false, Ordering::Relaxed);
 
                 let pitch_shifter = MultiChannelPitchShifterProcessor::default();
-                (looper, pitch_shifter)
+                let envelope = EnvelopeProcessor::default();
+
+                VoiceProcessors {
+                    looper,
+                    pitch_shifter,
+                    envelope,
+                }
             })
             .collect();
 
@@ -457,7 +562,12 @@ impl MultiTrackLooper {
         let handle = make_shared(MultiTrackLooperHandle {
             voices: processors
                 .iter()
-                .map(|(looper, pitch_shifter)| {
+                .map(|voice_processors| {
+                    let VoiceProcessors {
+                        looper,
+                        pitch_shifter,
+                        envelope,
+                    } = voice_processors;
                     let looper_handle = looper.handle().clone();
                     let sequencer_handle = looper.sequencer_handle().clone();
                     let triggers = make_shared(TrackTriggerModel::default());
@@ -470,7 +580,7 @@ impl MultiTrackLooper {
                         pitch_shifter_handle: pitch_shifter.handle().clone(),
                         lfo1_handle: make_shared(LFOHandle::default()),
                         lfo2_handle: make_shared(LFOHandle::default()),
-                        envelope: make_shared(EnvelopeHandle::default()),
+                        envelope: envelope.handle.clone(),
                     }
                 })
                 .collect(),
@@ -487,13 +597,20 @@ impl MultiTrackLooper {
 
         let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
 
-        for (looper, pitch_shifter) in processors {
+        for VoiceProcessors {
+            looper,
+            pitch_shifter,
+            envelope,
+        } in processors
+        {
             let looper_idx = graph.add_node(NodeType::Simple(Box::new(looper)));
             let pitch_shifter_idx = graph.add_node(NodeType::Buffer(Box::new(pitch_shifter)));
+            let envelope_idx = graph.add_node(NodeType::Buffer(Box::new(envelope)));
 
             graph.add_connection(graph.input(), looper_idx);
             graph.add_connection(looper_idx, pitch_shifter_idx);
-            graph.add_connection(pitch_shifter_idx, graph.output());
+            graph.add_connection(pitch_shifter_idx, envelope_idx);
+            graph.add_connection(envelope_idx, graph.output());
         }
 
         Self {
@@ -539,15 +656,23 @@ impl AudioProcessor for MultiTrackLooper {
                     find_current_beat_trigger(triggers, step_tracker, position_beats)
                 {
                     voice.looper_handle.trigger();
+                    voice.envelope.adsr_envelope.note_on();
                 }
 
                 let triggers_vec = triggers.triggers();
-                for trigger in find_running_beat_trigger(triggers, &triggers_vec, position_beats) {
+                let triggers = find_running_beat_trigger(triggers, &triggers_vec, position_beats);
+                // let mut has_triggers = false;
+                for trigger in triggers {
+                    // has_triggers = true;
                     for (parameter_id, lock) in trigger.locks() {
                         self.handle
                             .update_handle(voice, parameter_id.clone(), lock.value());
                     }
                 }
+
+                // if !has_triggers {
+                //     voice.envelope.adsr_envelope.note_off();
+                // }
             }
         }
 

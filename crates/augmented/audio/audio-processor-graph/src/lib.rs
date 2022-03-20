@@ -662,6 +662,54 @@ mod test {
     }
 
     #[test]
+    fn test_30_node_graph() {
+        // input -> mult-10 -> mult-10 -> output
+        //     \> mult-10 -> mult-10 ----/
+        type BufferType = VecAudioBuffer<f32>;
+        let settings = AudioProcessorSettings::default();
+        let mut buffer = VecAudioBuffer::new();
+        buffer.resize(1, 4, 0.0);
+        buffer.set(0, 0, 1.0);
+        buffer.set(0, 1, 2.0);
+        buffer.set(0, 2, 3.0);
+        buffer.set(0, 3, 4.0);
+
+        #[derive(Clone)]
+        struct Mult10Node {}
+        impl AudioProcessor for Mult10Node {
+            type SampleType = f32;
+            fn process<BufferType: AudioBuffer<SampleType = f32>>(
+                &mut self,
+                buffer: &mut BufferType,
+            ) {
+                for sample in buffer.slice_mut() {
+                    *sample = *sample * 10.0
+                }
+            }
+        }
+
+        let mult_10_node = Mult10Node {};
+
+        let mut graph = AudioProcessorGraph::default();
+        for i in 0..10 {
+            let mut current_idx = graph.input();
+            for i in 0..3 {
+                let node = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+                graph.add_connection(current_idx, node);
+                current_idx = node;
+            }
+            graph.add_connection(current_idx, graph.output());
+        }
+        graph.prepare(settings);
+        graph.process(&mut buffer);
+        println!("{:?}", buffer);
+        assert_f_eq!(*buffer.get(0, 0), 10000.0);
+        assert_f_eq!(*buffer.get(0, 1), 20000.0);
+        assert_f_eq!(*buffer.get(0, 2), 30000.0);
+        assert_f_eq!(*buffer.get(0, 3), 40000.0);
+    }
+
+    #[test]
     fn test_process_empty_graph_passes_through_sine() {
         type BufferType = VecAudioBuffer<f32>;
 

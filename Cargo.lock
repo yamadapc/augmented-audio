@@ -644,6 +644,9 @@ dependencies = [
 name = "augmented-adsr-envelope"
 version = "0.1.0-alpha.2"
 dependencies = [
+ "augmented-atomics",
+ "num-derive",
+ "num-traits 0.2.14",
  "plotters",
 ]
 

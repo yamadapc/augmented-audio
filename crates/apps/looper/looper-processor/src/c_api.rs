@@ -131,6 +131,18 @@ pub extern "C" fn looper_engine__lfo_parameter_id(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_boolean_parameter(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    parameter_id: ParameterId,
+    value: bool,
+) {
+    (*engine)
+        .handle
+        .set_boolean_parameter(LooperId(looper_id), parameter_id, value);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_parameter_lock(
     engine: *mut LooperEngine,
     looper_id: usize,

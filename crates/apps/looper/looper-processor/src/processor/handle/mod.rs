@@ -71,6 +71,8 @@ pub struct LooperHandle {
     /// Playback speed, 1 means 1x playback, 0 means no playback, -1 means reverse playback
     /// and so on
     speed: AtomicF32,
+    /// Defaults to true, if false the loop will not repeat until triggered.
+    loop_enabled: AtomicBool,
 
     /// This looper's playback state
     state: AtomicEnum<LooperState>,
@@ -115,6 +117,7 @@ impl LooperHandle {
             fade_start: AtomicF32::new(0.0),
             fade_end: AtomicF32::new(0.0),
             speed: AtomicF32::new(1.0),
+            loop_enabled: AtomicBool::new(true),
 
             state: AtomicEnum::new(LooperState::Empty),
             start_cursor: AtomicUsize::new(0),
@@ -170,6 +173,10 @@ impl LooperHandle {
 
     pub fn set_speed(&self, value: f32) {
         self.speed.set(value);
+    }
+
+    pub fn set_loop_enabled(&self, value: bool) {
+        self.loop_enabled.store(value, Ordering::Relaxed);
     }
 
     /// UI thread only
@@ -480,15 +487,24 @@ impl LooperHandle {
             if end_samples > 0.0 {
                 let cursor = self.cursor.get();
                 let length = self.length.get() as f32;
+
+                if !self.loop_enabled.load(Ordering::Relaxed)
+                    && (cursor + self.speed.get()) >= end_samples
+                {
+                    return;
+                }
+
                 let mut cursor = (cursor + self.speed.get()) % end_samples % length;
                 let start_samples = self.get_start_samples();
-                if cursor < start_samples {
+                let loop_has_finished = cursor < start_samples;
+                if loop_has_finished {
                     cursor = if self.speed.get() > 0.0 {
                         start_samples
                     } else {
                         end_samples
                     };
                 }
+
                 self.cursor.set(cursor);
             }
         }
