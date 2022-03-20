@@ -26,6 +26,10 @@ public enum ObjectId: Equatable {
         transportPlay,
         transportStop,
 
+        quantizationMode(trackId: Int),
+        tempoControl(trackId: Int),
+
+        sceneSlider,
         metronomeVolume
 }
 
@@ -324,12 +328,67 @@ public class LoopPosition: ObservableObject {
     init() {}
 }
 
+struct EnumParameterOption<OptionT> {
+    let label: String
+    let value: OptionT
+}
+
+class EnumParameter<OptionT>: ObservableObject {
+    var id: ObjectId
+    var label: String
+    @Published var value: OptionT
+    var options: [EnumParameterOption<OptionT>]
+
+    init(id: ObjectId, label: String, value: OptionT, options: [EnumParameterOption<OptionT>]) {
+        self.id = id
+        self.label = label
+        self.value = value
+        self.options = options
+    }
+}
+
+enum QuantizationMode {
+    case snapNext, snapClosest, none
+}
+
+enum TempoControlMode {
+    case setAndFollowGlobalTempo, none
+}
+
+public class QuantizationParameters: ObservableObject {
+    var quantizationMode: EnumParameter<QuantizationMode>
+    var tempoControlMode: EnumParameter<TempoControlMode>
+
+    init(trackId: Int) {
+        quantizationMode = EnumParameter(
+            id: .quantizationMode(trackId: trackId),
+            label: "Quantization",
+            value: .snapNext,
+            options: [
+                EnumParameterOption(label: "Snap next", value: .snapNext),
+                EnumParameterOption(label: "Snap closest", value: .snapClosest),
+                EnumParameterOption(label: "None", value: .none),
+            ]
+        )
+        tempoControlMode = EnumParameter(
+            id: .tempoControl(trackId: trackId),
+            label: "Tempo ctrl.",
+            value: .setAndFollowGlobalTempo,
+            options: [
+                EnumParameterOption(label: "Set & follow tempo", value: .setAndFollowGlobalTempo),
+                EnumParameterOption(label: "None", value: .none),
+            ]
+        )
+    }
+}
+
 public class TrackState: ObservableObject {
     @Published public var id: Int
     @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
     @Published var buffer: TrackBuffer? = nil
     @Published public var sourceParameters: SourceParametersState
     @Published public var envelope: EnvelopeState
+    @Published public var quantizationParameters: QuantizationParameters
 
     @Published var volumeParameter: FloatParameter<Int>
 
@@ -357,6 +416,7 @@ public class TrackState: ObservableObject {
             initialValue: 1.0
         )
         sourceParameters = .init(trackId: id)
+        quantizationParameters = .init(trackId: id)
         envelope = .init(trackId: id)
         lfo1 = .init(trackId: id, index: 0)
         lfo2 = .init(trackId: id, index: 1)
@@ -448,6 +508,18 @@ public class TimeInfo: ObservableObject {
     init() {}
 }
 
+class SceneState: ObservableObject {
+    @Published var sceneSlider = FloatParameter(
+      id: 0,
+      globalId: .sceneSlider,
+      label: "Scene slider",
+      style: .center,
+      range: (-1.0, 1.0)
+    )
+
+  init() {}
+}
+
 public class Store: ObservableObject {
     var logger: Logger = .init(label: "com.beijaflor.sequencerui.store.Store")
 
@@ -464,7 +536,7 @@ public class Store: ObservableObject {
     @Published var isPlaying: Bool = false
 
     @Published var focusState = FocusState()
-
+    @Published var sceneState = SceneState()
     @Published var midiMappingActive = false
 
     public var metronomeVolume: FloatParameter = .init(

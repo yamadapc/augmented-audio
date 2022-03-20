@@ -1,5 +1,24 @@
 import SwiftUI
 
+struct EnumParameterView<OptionT: Hashable>: View {
+    @ObservedObject var parameter: EnumParameter<OptionT>
+    @EnvironmentObject var store: Store
+
+    var body: some View {
+        if #available(macOS 11.0, *) {
+            Picker(parameter.label, selection: $parameter.value, content: {
+                ForEach(parameter.options, id: \.value) { option in
+                    Text(option.label).tag(option.value)
+                }
+            })
+            .pickerStyle(.menu)
+            .padding(PADDING - 2)
+            .border(SequencerColors.blue, width: 1.0)
+            .bindToParameterId(store: store, parameterId: parameter.id, showSelectionOverlay: false)
+        } else {}
+    }
+}
+
 struct LoopVisualisationView: View {
     @ObservedObject var trackState: TrackState
     @State var tick: Int = 0
@@ -33,16 +52,8 @@ struct LoopVisualisationView: View {
 
             HStack {
                 ToggleParameterView(parameter: trackState.sourceParameters.loopEnabled)
-
-                Button("Quantization mode", action: {})
-                    .buttonStyle(.plain)
-                    .padding(PADDING)
-                    .border(SequencerColors.blue, width: 1.0)
-
-                Button("Set global tempo", action: {})
-                    .buttonStyle(.plain)
-                    .padding(PADDING)
-                    .border(SequencerColors.blue, width: 1.0)
+                EnumParameterView(parameter: trackState.quantizationParameters.quantizationMode)
+                EnumParameterView(parameter: trackState.quantizationParameters.tempoControlMode)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }

@@ -59,7 +59,7 @@ struct SequencerView: View {
                     )
                     .bindToNilParameter(store: store)
 
-                    SceneSliderView().padding(PADDING)
+                    SceneSliderView(sceneState: store.sceneState).padding(PADDING)
                         .bindToNilParameter(store: store)
 
                     TracksPanelContentView()

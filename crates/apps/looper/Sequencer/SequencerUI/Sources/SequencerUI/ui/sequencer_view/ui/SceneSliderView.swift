@@ -8,19 +8,15 @@
 import SwiftUI
 
 struct SceneSliderView: View {
-    @State var value: Double = 0
+  @ObservedObject var sceneState: SceneState
+  @EnvironmentObject var store: Store
 
     var body: some View {
         HStack {
             TrackButton(action: {}, label: "A", isSelected: false)
-            KnobSliderView(value: $value)
+            KnobSliderView(value: $sceneState.sceneSlider.value)
+              .bindToParameter(store: store, parameter: sceneState.sceneSlider)
             TrackButton(action: {}, label: "B", isSelected: false)
         }
-    }
-}
-
-struct SceneSliderView_Previews: PreviewProvider {
-    static var previews: some View {
-        SceneSliderView()
     }
 }

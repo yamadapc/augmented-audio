@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct KnobSliderView: View {
-    @Binding var value: Double
+    @Binding var value: Float
 
     var body: some View {
         let handleWidth = 30.0
@@ -33,7 +33,7 @@ struct KnobSliderView: View {
                         .frame(width: 2, height: 0.7 * geometry.size.height)
                 }
                 .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
-                .transformEffect(.init(translationX: value * geometry.size.width / 2.0, y: 0))
+                .transformEffect(.init(translationX: Double(value) * geometry.size.width / 2.0, y: 0))
                 .gesture(
                     TapGesture(count: 2).onEnded {
                         self.value = -1.0
@@ -43,7 +43,7 @@ struct KnobSliderView: View {
                     DragGesture(minimumDistance: 0)
                         .onChanged { drag in
                             let value = (drag.location.x / geometry.size.width) * 2.0 + -1.0
-                            self.value = min(max(value, -1.0), 1.0)
+                            self.value = Float(min(max(value, -1.0), 1.0))
                         }
                 )
             }
@@ -51,7 +51,7 @@ struct KnobSliderView: View {
             .frame(maxWidth: .infinity)
             .gesture(DragGesture(minimumDistance: 0).onChanged { drag in
                 let value = (drag.location.x / geometry.size.width) * 2.0 + -1.0
-                self.value = min(max(value, -1.0), 1.0)
+                self.value = Float(min(max(value, -1.0), 1.0))
             })
         }
         .padding(EdgeInsets(top: PADDING, leading: handleWidth / 2.0, bottom: PADDING, trailing: handleWidth / 2.0))
