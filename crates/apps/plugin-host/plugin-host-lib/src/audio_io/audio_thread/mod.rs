@@ -22,7 +22,7 @@ pub mod options;
 
 pub enum AudioThreadProcessor {
     Active(TestHostProcessor),
-    Graph(AudioProcessorGraph<VecAudioBuffer<f32>>),
+    Graph(AudioProcessorGraph),
     Silence(SilenceAudioProcessor<f32>),
 }
 

@@ -14,7 +14,7 @@ use crate::processors::shared_processor::SharedProcessor;
 pub struct AudioGraphManager {
     input_idx: Option<NodeIndex>,
     output_idx: Option<NodeIndex>,
-    graph_handle: Option<Shared<AudioProcessorGraphHandle<VecAudioBuffer<f32>>>>,
+    graph_handle: Option<Shared<AudioProcessorGraphHandle>>,
 }
 
 impl Actor for AudioGraphManager {
@@ -58,9 +58,7 @@ impl Handler<SetupGraphMessage> for AudioGraphManager {
 }
 
 pub enum ProcessorSpec {
-    RawProcessor {
-        value: NodeType<VecAudioBuffer<f32>>,
-    },
+    RawProcessor { value: NodeType },
 }
 
 #[derive(Message)]

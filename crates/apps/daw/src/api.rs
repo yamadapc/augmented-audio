@@ -161,7 +161,7 @@ pub fn audio_graph_connect(input_index: u32, output_index: u32) -> Result<u32> {
 }
 
 pub fn audio_node_create(audio_processor_name: String) -> Result<u32> {
-    let processor: Result<NodeType<VecAudioBuffer<f32>>> = match audio_processor_name.as_str() {
+    let processor: Result<NodeType> = match audio_processor_name.as_str() {
         "delay" => Ok(NodeType::Simple(Box::new(
             audio_processor_time::MonoDelayProcessor::default(),
         ))),
