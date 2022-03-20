@@ -1,4 +1,5 @@
 use atomic_refcell::{AtomicRef, AtomicRefCell};
+use std::ffi::c_void;
 use std::ops::Deref;
 use std::ptr::null;
 
@@ -31,6 +32,7 @@ impl<T> From<Shared<T>> for SharedPtr<T> {
 pub struct LooperEngine {
     handle: Shared<MultiTrackLooperHandle>,
     audio_handles: StandaloneHandles,
+    events_callback: Option<EventsCallback>,
 }
 
 #[no_mangle]
@@ -48,6 +50,7 @@ pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
     let engine = LooperEngine {
         handle,
         audio_handles,
+        events_callback: None,
     };
     Box::into_raw(Box::new(engine))
 }
@@ -153,6 +156,23 @@ pub unsafe extern "C" fn looper_engine__add_parameter_lock(
     (*engine)
         .handle
         .add_parameter_lock(LooperId(looper_id), position_beats, parameter_id, value);
+}
+
+pub enum EngineEvent {}
+
+#[repr(C)]
+#[no_mangle]
+pub struct EventsCallback {
+    userdata: *mut c_void,
+    callback: extern "C" fn(*mut c_void, *mut EngineEvent),
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_events_callback(
+    engine: *mut LooperEngine,
+    callback: EventsCallback,
+) {
+    (*engine).events_callback = Some(callback);
 }
 
 #[repr(C)]

@@ -1,6 +1,7 @@
 use atomic_queue::Queue;
-use audio_garbage_collector::make_shared;
-use basedrop::Shared;
+use audio_garbage_collector::{make_shared, make_shared_cell};
+use basedrop::{Shared, SharedCell};
+use im::HashMap;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::thread::JoinHandle;
@@ -13,10 +14,13 @@ use audio_processor_traits::{AudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
 
 use crate::processor::handle::LooperClipRef;
 
-struct SliceResult {
+#[derive(Clone)]
+pub struct SliceResult {
     id: usize,
+    result: Shared<Vec<f32>>,
 }
 
+#[derive(Clone)]
 struct SliceJob {
     id: usize,
     buffer: LooperClipRef,
@@ -24,19 +28,19 @@ struct SliceJob {
 
 struct SliceProcessorThread {
     job_queue: Shared<Queue<SliceJob>>,
-    result_queue: Shared<Queue<SliceResult>>,
+    results: Shared<SharedCell<im::HashMap<usize, SliceResult>>>,
     is_running: Shared<AtomicBool>,
 }
 
 impl SliceProcessorThread {
     fn new(
         job_queue: Shared<Queue<SliceJob>>,
-        result_queue: Shared<Queue<SliceResult>>,
+        results: Shared<SharedCell<im::HashMap<usize, SliceResult>>>,
         is_running: Shared<AtomicBool>,
     ) -> Self {
         SliceProcessorThread {
             job_queue,
-            result_queue,
+            results,
             is_running,
         }
     }
@@ -70,33 +74,40 @@ impl SliceProcessorThread {
         }
 
         // Run transient detection
-        let _result = find_transients(
+        let result = find_transients(
             IterativeTransientDetectionParams::default(),
             &mut work_buffer,
         );
+        let result = SliceResult {
+            id: job.id,
+            result: make_shared(result),
+        };
 
         log::info!(
             "Finished slicing background job on loop buffer job_id={}",
             job.id
         );
-        self.result_queue.push(SliceResult { id: job.id });
+        let results = self.results.get();
+        let mut results = results.deref().clone();
+        results.insert(job.id, result);
+        self.results.set(make_shared(results));
     }
 }
 
-struct SliceWorker {
+pub struct SliceWorker {
     job_queue: Shared<Queue<SliceJob>>,
-    result_queue: Shared<Queue<SliceResult>>,
+    results: Shared<SharedCell<im::HashMap<usize, SliceResult>>>,
     is_running: Shared<AtomicBool>,
 }
 
 impl SliceWorker {
     pub fn new() -> Self {
-        let result_queue = make_shared(Queue::new(10));
         let job_queue = make_shared(Queue::new(10));
+        let results = make_shared(make_shared_cell(HashMap::new()));
         let is_running = make_shared(AtomicBool::new(true));
 
         let s = Self {
-            result_queue,
+            results,
             job_queue,
             is_running,
         };
@@ -106,12 +117,12 @@ impl SliceWorker {
 
     fn start(&self) {
         {
-            let result_queue = self.result_queue.clone();
+            let results = self.results.clone();
             let job_queue = self.job_queue.clone();
             let is_running = self.is_running.clone();
             std::thread::spawn(move || {
                 let processor = SliceProcessorThread {
-                    result_queue,
+                    results,
                     job_queue,
                     is_running,
                 };
@@ -124,8 +135,9 @@ impl SliceWorker {
         self.job_queue.push(SliceJob { id, buffer: clip });
     }
 
-    pub fn slice_result(&self) -> Option<SliceResult> {
-        self.result_queue.pop()
+    pub fn result(&self, id: usize) -> Option<SliceResult> {
+        let results = self.results.get();
+        results.get(&id).cloned()
     }
 }
 

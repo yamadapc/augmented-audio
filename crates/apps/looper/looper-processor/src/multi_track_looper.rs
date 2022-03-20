@@ -16,9 +16,10 @@ use audio_processor_traits::{
     VecAudioBuffer,
 };
 use augmented_atomics::AtomicF32;
-use metronome::MetronomeProcessorHandle;
+use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
+use crate::slice_worker::SliceWorker;
 use crate::tempo_estimation::estimate_tempo;
 use crate::trigger_model::step_tracker::StepTracker;
 use crate::trigger_model::{
@@ -29,6 +30,7 @@ use crate::{
     QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl,
 };
 
+#[derive(Clone, Copy)]
 pub struct LooperId(pub usize);
 
 #[repr(C)]
@@ -171,6 +173,7 @@ pub struct MultiTrackLooperHandle {
     time_info_provider: Shared<TimeInfoProviderImpl>,
     sample_rate: AtomicF32,
     metronome_handle: Shared<MetronomeProcessorHandle>,
+    slice_worker: SliceWorker,
 }
 
 impl MultiTrackLooperHandle {
@@ -185,6 +188,9 @@ impl MultiTrackLooperHandle {
             let was_empty = self.all_loopers_empty_other_than(looper_id);
             match handle.looper_handle.toggle_recording() {
                 ToggleRecordingResult::StoppedRecording => {
+                    self.slice_worker
+                        .add_job(looper_id.0, handle.looper_handle.looper_clip());
+
                     if was_empty {
                         let estimated_tempo = estimate_tempo(
                             Default::default(),
@@ -535,23 +541,7 @@ impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
         let processors: Vec<VoiceProcessors> = (0..num_voices)
-            .map(|_| {
-                let looper = LooperProcessor::new(options.clone(), time_info_provider.clone());
-                looper
-                    .handle()
-                    .quantize_options()
-                    .set_mode(QuantizeMode::SnapNext);
-                looper.handle().tick_time.store(false, Ordering::Relaxed);
-
-                let pitch_shifter = MultiChannelPitchShifterProcessor::default();
-                let envelope = EnvelopeProcessor::default();
-
-                VoiceProcessors {
-                    looper,
-                    pitch_shifter,
-                    envelope,
-                }
-            })
+            .map(|_| Self::build_voice_processor(&options, &time_info_provider))
             .collect();
 
         let metronome = metronome::MetronomeProcessor::new();
@@ -559,43 +549,37 @@ impl MultiTrackLooper {
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);
 
+        let voices = processors
+            .iter()
+            .map(|voice_processors| Self::build_voice_handle(voice_processors))
+            .collect();
         let handle = make_shared(MultiTrackLooperHandle {
-            voices: processors
-                .iter()
-                .map(|voice_processors| {
-                    let VoiceProcessors {
-                        looper,
-                        pitch_shifter,
-                        envelope,
-                    } = voice_processors;
-                    let looper_handle = looper.handle().clone();
-                    let sequencer_handle = looper.sequencer_handle().clone();
-                    let triggers = make_shared(TrackTriggerModel::default());
-
-                    LooperVoice {
-                        parameter_values: make_shared_cell(Default::default()),
-                        looper_handle,
-                        sequencer_handle,
-                        triggers,
-                        pitch_shifter_handle: pitch_shifter.handle().clone(),
-                        lfo1_handle: make_shared(LFOHandle::default()),
-                        lfo2_handle: make_shared(LFOHandle::default()),
-                        envelope: envelope.handle.clone(),
-                    }
-                })
-                .collect(),
+            voices,
             time_info_provider,
             sample_rate: AtomicF32::new(44100.0),
             metronome_handle,
+            slice_worker: SliceWorker::new(),
         });
 
-        let mut graph = AudioProcessorGraph::default();
+        let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
 
+        let graph = Self::build_audio_graph(processors, metronome);
+
+        Self {
+            graph,
+            handle,
+            step_trackers,
+        }
+    }
+
+    fn build_audio_graph(
+        processors: Vec<VoiceProcessors>,
+        metronome: MetronomeProcessor,
+    ) -> AudioProcessorGraph {
+        let mut graph = AudioProcessorGraph::default();
         let metronome_idx = graph.add_node(NodeType::Buffer(Box::new(metronome)));
         graph.add_connection(graph.input(), metronome_idx);
         graph.add_connection(metronome_idx, graph.output());
-
-        let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
 
         for VoiceProcessors {
             looper,
@@ -613,30 +597,57 @@ impl MultiTrackLooper {
             graph.add_connection(envelope_idx, graph.output());
         }
 
-        Self {
-            graph,
-            handle,
-            step_trackers,
+        graph
+    }
+
+    fn build_voice_handle(voice_processors: &VoiceProcessors) -> LooperVoice {
+        let VoiceProcessors {
+            looper,
+            pitch_shifter,
+            envelope,
+        } = voice_processors;
+        let looper_handle = looper.handle().clone();
+        let sequencer_handle = looper.sequencer_handle().clone();
+        let triggers = make_shared(TrackTriggerModel::default());
+
+        LooperVoice {
+            parameter_values: make_shared_cell(Default::default()),
+            looper_handle,
+            sequencer_handle,
+            triggers,
+            pitch_shifter_handle: pitch_shifter.handle().clone(),
+            lfo1_handle: make_shared(LFOHandle::default()),
+            lfo2_handle: make_shared(LFOHandle::default()),
+            envelope: envelope.handle.clone(),
+        }
+    }
+
+    fn build_voice_processor(
+        options: &LooperOptions,
+        time_info_provider: &Shared<TimeInfoProviderImpl>,
+    ) -> VoiceProcessors {
+        let looper = LooperProcessor::new(options.clone(), time_info_provider.clone());
+        looper
+            .handle()
+            .quantize_options()
+            .set_mode(QuantizeMode::SnapNext);
+        looper.handle().tick_time.store(false, Ordering::Relaxed);
+
+        let pitch_shifter = MultiChannelPitchShifterProcessor::default();
+        let envelope = EnvelopeProcessor::default();
+
+        VoiceProcessors {
+            looper,
+            pitch_shifter,
+            envelope,
         }
     }
 
     pub fn handle(&self) -> &Shared<MultiTrackLooperHandle> {
         &self.handle
     }
-}
 
-impl AudioProcessor for MultiTrackLooper {
-    type SampleType = f32;
-
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.graph.prepare(settings);
-        self.handle.sample_rate.set(settings.sample_rate());
-    }
-
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
+    fn process_triggers(&mut self) {
         if let Some(position_beats) = self
             .handle
             .time_info_provider
@@ -675,6 +686,22 @@ impl AudioProcessor for MultiTrackLooper {
                 // }
             }
         }
+    }
+}
+
+impl AudioProcessor for MultiTrackLooper {
+    type SampleType = f32;
+
+    fn prepare(&mut self, settings: AudioProcessorSettings) {
+        self.graph.prepare(settings);
+        self.handle.sample_rate.set(settings.sample_rate());
+    }
+
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        data: &mut BufferType,
+    ) {
+        self.process_triggers();
 
         self.graph.process(data);
 
