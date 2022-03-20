@@ -1,14 +1,14 @@
 use std::time::Duration;
 
 use audio_garbage_collector::Shared;
-use audio_processor_graph::AudioProcessorGraph;
+use audio_processor_graph::{AudioProcessorGraph, NodeType};
 use audio_processor_time::{MonoDelayProcessor, MonoDelayProcessorHandle};
 use audio_processor_traits::audio_buffer::VecAudioBuffer;
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 
 fn main() {
     type BufferType = VecAudioBuffer<f32>;
-    type GraphType = AudioProcessorGraph<BufferType>;
+    type GraphType = AudioProcessorGraph;
 
     let mut graph: GraphType = AudioProcessorGraph::default();
 
@@ -23,12 +23,12 @@ fn main() {
         );
         delay.handle().set_delay_time_secs(2.0 / i);
         delay.handle().set_feedback(0.2);
-        let delay = graph.add_node(Box::new(delay));
+        let delay = graph.add_node(NodeType::Simple(Box::new(delay)));
 
         let mut low_pass_filter = FilterProcessor::new(FilterType::LowPass);
         low_pass_filter.set_cutoff(1500.0 / i);
         low_pass_filter.set_q(2.0);
-        let low_pass_filter = graph.add_node(Box::new(low_pass_filter));
+        let low_pass_filter = graph.add_node(NodeType::Simple(Box::new(low_pass_filter)));
 
         graph.add_connection(graph.input(), delay).unwrap();
         graph.add_connection(delay, low_pass_filter).unwrap();
