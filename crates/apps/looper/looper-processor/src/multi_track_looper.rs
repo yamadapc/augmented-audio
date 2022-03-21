@@ -19,7 +19,7 @@ use augmented_atomics::AtomicF32;
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
-use crate::slice_worker::SliceWorker;
+use crate::slice_worker::{SliceResult, SliceWorker};
 use crate::tempo_estimation::estimate_tempo;
 use crate::trigger_model::step_tracker::StepTracker;
 use crate::trigger_model::{
@@ -174,6 +174,7 @@ pub struct MultiTrackLooperHandle {
     sample_rate: AtomicF32,
     metronome_handle: Shared<MetronomeProcessorHandle>,
     slice_worker: SliceWorker,
+    settings: SharedCell<AudioProcessorSettings>,
 }
 
 impl MultiTrackLooperHandle {
@@ -188,8 +189,11 @@ impl MultiTrackLooperHandle {
             let was_empty = self.all_loopers_empty_other_than(looper_id);
             match handle.looper_handle.toggle_recording() {
                 ToggleRecordingResult::StoppedRecording => {
-                    self.slice_worker
-                        .add_job(looper_id.0, handle.looper_handle.looper_clip());
+                    self.slice_worker.add_job(
+                        looper_id.0,
+                        *self.settings.get(),
+                        handle.looper_handle.looper_clip(),
+                    );
 
                     if was_empty {
                         let estimated_tempo = estimate_tempo(
@@ -408,6 +412,10 @@ impl MultiTrackLooperHandle {
         self.voices[looper_id.0].looper().state()
     }
 
+    pub fn get_looper_slices(&self, looper_id: LooperId) -> Option<SliceResult> {
+        self.slice_worker.result(looper_id.0)
+    }
+
     pub fn set_boolean_parameter(
         &self,
         looper_id: LooperId,
@@ -558,6 +566,7 @@ impl MultiTrackLooper {
             time_info_provider,
             sample_rate: AtomicF32::new(44100.0),
             metronome_handle,
+            settings: make_shared_cell(AudioProcessorSettings::default()),
             slice_worker: SliceWorker::new(),
         });
 
@@ -695,6 +704,7 @@ impl AudioProcessor for MultiTrackLooper {
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         self.graph.prepare(settings);
         self.handle.sample_rate.set(settings.sample_rate());
+        self.handle.settings.set(make_shared(settings));
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(

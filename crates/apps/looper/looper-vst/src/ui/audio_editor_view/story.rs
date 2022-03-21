@@ -2,11 +2,11 @@ use audio_processor_testing_helpers::relative_path;
 use iced::{Column, Command, Length, Text};
 
 use audio_processor_analysis::transient_detection::stft::{
-    find_transients, IterativeTransientDetectionParams,
+    find_transients, markers::build_markers, markers::AudioFileMarker,
+    IterativeTransientDetectionParams,
 };
 use audio_processor_file::AudioFileProcessor;
-use audio_processor_iced_design_system::spacing::Spacing;
-use audio_processor_iced_design_system::style::Container1;
+use audio_processor_iced_design_system::{spacing::Spacing, style::Container1};
 use audio_processor_iced_storybook::StoryView;
 use audio_processor_traits::{AudioProcessorSettings, InterleavedAudioBuffer};
 
@@ -82,7 +82,7 @@ impl Default for Story {
         let settings = AudioProcessorSettings::default();
         log::info!("Reading audio file");
         let mut audio_file_buffer = get_example_file_buffer(settings);
-        let markers = build_markers(&mut audio_file_buffer, Default::default(), 0.4);
+        let markers = build_markers(&settings, &mut audio_file_buffer, Default::default(), 0.4);
 
         log::info!("Building editor model");
         editor.markers = markers;
@@ -102,53 +102,6 @@ impl Default for Story {
             cursor: 0,
         }
     }
-}
-
-// TODO: This should be inside of audio-processor-analysis
-fn build_markers(
-    audio_file_buffer: &mut Vec<f32>,
-    params: IterativeTransientDetectionParams,
-    gate: f32,
-) -> Vec<AudioFileMarker> {
-    let transients = find_transients(
-        params,
-        &mut InterleavedAudioBuffer::new(1, audio_file_buffer),
-    );
-    let mut peak_detector = audio_processor_analysis::peak_detector::PeakDetector::default();
-    let attack_mult = audio_processor_analysis::peak_detector::calculate_multiplier(
-        AudioProcessorSettings::default().sample_rate,
-        0.1,
-    );
-    let release_mult = audio_processor_analysis::peak_detector::calculate_multiplier(
-        AudioProcessorSettings::default().sample_rate,
-        15.0,
-    );
-    let transients: Vec<f32> = transients
-        .iter()
-        .map(|f| {
-            peak_detector.accept_frame(attack_mult, release_mult, &[*f]);
-            peak_detector.value()
-        })
-        .collect();
-
-    let markers_from_transients = {
-        let mut markers = vec![];
-        let mut inside_transient = false;
-        for (index, sample) in transients.iter().cloned().enumerate() {
-            if sample >= gate && !inside_transient {
-                inside_transient = true;
-                markers.push(index);
-            } else if sample < gate {
-                inside_transient = false;
-            }
-        }
-        markers
-    };
-    
-    markers_from_transients
-        .into_iter()
-        .map(|position_samples| AudioFileMarker { position_samples })
-        .collect()
 }
 
 fn get_example_file_buffer(settings: AudioProcessorSettings) -> Vec<f32> {
@@ -243,15 +196,11 @@ impl StoryView<StoryMessage> for Story {
                 "Ready"
             })
             .into(),
-            Container::new(
-                self.parameters_view
-                    .view()
-                    .map(StoryMessage::Knobs),
-            )
-            .padding(Spacing::base_spacing())
-            .style(Container1::default())
-            .width(Length::Fill)
-            .into(),
+            Container::new(self.parameters_view.view().map(StoryMessage::Knobs))
+                .padding(Spacing::base_spacing())
+                .style(Container1::default())
+                .width(Length::Fill)
+                .into(),
         ])
         .into()
     }

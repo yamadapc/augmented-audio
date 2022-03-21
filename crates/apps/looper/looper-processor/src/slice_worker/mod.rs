@@ -1,28 +1,41 @@
-use atomic_queue::Queue;
-use audio_garbage_collector::{make_shared, make_shared_cell};
-use basedrop::{Shared, SharedCell};
-use im::HashMap;
 use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::thread::JoinHandle;
 use std::time::Duration;
 
+use basedrop::{Shared, SharedCell};
+use im::HashMap;
+
+use atomic_queue::Queue;
+use audio_garbage_collector::{make_shared, make_shared_cell};
+use audio_processor_analysis::transient_detection::stft::markers::{
+    build_markers, AudioFileMarker,
+};
 use audio_processor_analysis::transient_detection::stft::{
     find_transients, IterativeTransientDetectionParams,
 };
-use audio_processor_traits::{AudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
+use audio_processor_traits::{
+    AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+};
 
 use crate::processor::handle::LooperClipRef;
 
 #[derive(Clone)]
 pub struct SliceResult {
     id: usize,
-    result: Shared<Vec<f32>>,
+    result: Shared<Vec<AudioFileMarker>>,
+}
+
+impl SliceResult {
+    pub fn markers(&self) -> &Shared<Vec<AudioFileMarker>> {
+        &self.result
+    }
 }
 
 #[derive(Clone)]
 struct SliceJob {
     id: usize,
+    settings: AudioProcessorSettings,
     buffer: LooperClipRef,
 }
 
@@ -66,26 +79,33 @@ impl SliceProcessorThread {
         let buffer = buffer.deref();
 
         let mut work_buffer = VecAudioBuffer::new();
-        work_buffer.resize(buffer.num_channels(), buffer.num_samples(), 0.0);
-        for (loop_frame, work_frame) in buffer.frames().zip(work_buffer.frames_mut()) {
-            for (loop_sample, work_sample) in loop_frame.iter().zip(work_frame.iter_mut()) {
-                *work_sample = loop_sample.get();
+        work_buffer.resize(1, buffer.num_samples(), 0.0);
+        for (loop_frame, work_sample) in buffer.frames().zip(work_buffer.slice_mut()) {
+            for (loop_sample) in loop_frame {
+                *work_sample += loop_sample.get();
             }
         }
 
         // Run transient detection
-        let result = find_transients(
-            IterativeTransientDetectionParams::default(),
-            &mut work_buffer,
-        );
+        let params = IterativeTransientDetectionParams {
+            fft_size: 2048,
+            threshold_time_spread: 2,
+            threshold_time_spread_factor: 1.5,
+            power_of_change_spectral_spread: 2,
+            iteration_count: 10,
+            ..IterativeTransientDetectionParams::default()
+        };
+        let result = build_markers(&job.settings, work_buffer.slice_mut(), params, 0.05);
+        let marker_count = result.len();
         let result = SliceResult {
             id: job.id,
             result: make_shared(result),
         };
 
         log::info!(
-            "Finished slicing background job on loop buffer job_id={}",
-            job.id
+            "Finished slicing background job on loop buffer job_id={} marker_count={}",
+            job.id,
+            marker_count
         );
         let results = self.results.get();
         let mut results = results.deref().clone();
@@ -131,8 +151,12 @@ impl SliceWorker {
         };
     }
 
-    pub fn add_job(&self, id: usize, clip: LooperClipRef) {
-        self.job_queue.push(SliceJob { id, buffer: clip });
+    pub fn add_job(&self, id: usize, settings: AudioProcessorSettings, clip: LooperClipRef) {
+        self.job_queue.push(SliceJob {
+            id,
+            settings,
+            buffer: clip,
+        });
     }
 
     pub fn result(&self, id: usize) -> Option<SliceResult> {

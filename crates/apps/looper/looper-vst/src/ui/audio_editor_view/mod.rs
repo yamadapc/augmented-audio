@@ -17,11 +17,6 @@ use crate::ui::style::ContainerStyle;
 mod audio_chart;
 pub mod story;
 
-#[derive(Clone, Debug)]
-pub struct AudioFileMarker {
-    pub position_samples: usize,
-}
-
 pub struct AudioFileModel {
     #[allow(dead_code)]
     settings: AudioProcessorSettings,

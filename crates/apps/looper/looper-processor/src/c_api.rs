@@ -1,5 +1,6 @@
 use atomic_refcell::{AtomicRef, AtomicRefCell};
 use std::ffi::c_void;
+use std::hash::Hash;
 use std::ops::Deref;
 use std::ptr::null;
 
@@ -11,6 +12,7 @@ use augmented_atomics::AtomicF32;
 
 use crate::multi_track_looper::{LFOParameter, LooperVoice, ParameterId, SourceParameter};
 use crate::processor::handle::LooperState;
+use crate::slice_worker::SliceResult;
 use crate::trigger_model::{TrackTriggerModel, Trigger, TriggerPosition};
 use crate::{
     setup_osc_server, EnvelopeParameter, LooperId, LooperOptions, LooperProcessorHandle,
@@ -266,6 +268,36 @@ pub unsafe extern "C" fn looper_buffer__get(buffer: *mut LooperBuffer, index: us
         }
         LooperBuffer::None => 0.0,
     }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_looper_slices(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) -> *mut Option<SliceResult> {
+    let engine = &(*engine);
+    into_ptr(engine.handle.get_looper_slices(LooperId(looper_id)))
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn slice_buffer__length(buffer: *mut Option<SliceResult>) -> usize {
+    (*buffer)
+        .as_ref()
+        .map(|buffer| buffer.markers().len())
+        .unwrap_or(0)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn slice_buffer__get(
+    buffer: *mut Option<SliceResult>,
+    index: usize,
+) -> usize {
+    (*buffer)
+        .as_ref()
+        .map(|buffer| buffer.markers().get(index))
+        .flatten()
+        .map(|marker| marker.position_samples)
+        .unwrap_or(0)
 }
 
 #[no_mangle]

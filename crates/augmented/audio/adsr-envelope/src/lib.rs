@@ -1,8 +1,9 @@
 use augmented_atomics::{AtomicEnum, AtomicF32};
 use num_derive::{FromPrimitive, ToPrimitive};
+use std::thread::current;
 use std::time::Duration;
 
-#[derive(FromPrimitive, ToPrimitive)]
+#[derive(Debug, FromPrimitive, ToPrimitive)]
 enum EnvelopeStage {
     Idle,
     Attack,
@@ -159,6 +160,7 @@ impl Envelope {
 
     /// Get the current volume multiplier
     pub fn volume(&self) -> f32 {
+        self.update_stage(self.state.current_samples.get(), true);
         self.state.current_volume.get()
     }
 
@@ -166,7 +168,11 @@ impl Envelope {
     pub fn tick(&self) {
         let current_samples = self.state.current_samples.get() + 1.0;
         self.state.current_samples.set(current_samples);
+        self.update_stage(current_samples, false);
+    }
 
+    fn update_stage(&self, current_samples: f32, recurse: bool) {
+        // println!("update_stage(current_samples={})", current_samples);
         let maybe_stage_config =
             match self.stage.get() {
                 EnvelopeStage::Idle => None,
@@ -199,6 +205,11 @@ impl Envelope {
         if let Some(stage_config) = maybe_stage_config {
             if current_samples >= stage_config.samples.get() {
                 self.next_stage();
+
+                // Purpose is to handle 0 value envelopes
+                if recurse {
+                    self.update_stage(current_samples, true);
+                }
             }
         }
     }
@@ -217,6 +228,9 @@ impl Envelope {
     fn next_stage(&self) {
         match self.stage.get() {
             EnvelopeStage::Attack => {
+                self.state
+                    .current_volume
+                    .set(self.config.attack_level.get());
                 self.set_stage(EnvelopeStage::Decay);
             }
             EnvelopeStage::Decay => {
@@ -245,18 +259,12 @@ impl Envelope {
         let current_samples = self.state.current_samples.get();
 
         if self.config.is_exp {
-            let start = self.state.stage_start_volume.get();
-            let target = target;
-            let diff = target - start;
-            let perc = (current_samples / duration_samples).powf(if diff >= 0.0 {
-                2.0
-            } else {
-                1.0 / 2.0
-            });
-            return start + perc * diff;
+            let current_volume = self.state.current_volume.get();
+            let a = std::f32::consts::E.powf(-1.0 / (duration_samples.max(f32::EPSILON) * 0.3));
+            return a * current_volume + (1.0 - a) * target;
         }
 
-        let perc = current_samples / duration_samples;
+        let perc = current_samples / duration_samples.max(f32::EPSILON);
         let diff = target - start;
         start + perc * diff
     }
@@ -275,9 +283,60 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_0_attack_envelope_with_decay() {
+        let mut envelope = Envelope::default();
+        envelope.set_sample_rate(44100.0);
+
+        envelope.set_attack(Duration::from_secs_f32(0.0));
+        envelope.set_decay(Duration::from_secs_f32(0.2));
+
+        let mut envelope_buffer = Vec::new();
+        envelope.note_on();
+        for i in 0..(samples_for_duration(44100.0, 2.0) as i32) {
+            envelope_buffer.push((i, envelope.volume()));
+            envelope.tick();
+        }
+        envelope.note_off();
+        let start = envelope_buffer.len() as i32;
+        for i in 0..(samples_for_duration(44100.0, 1.0) as i32) {
+            envelope_buffer.push((start + i, envelope.volume()));
+            envelope.tick();
+        }
+
+        generate_plot(envelope_buffer, "zero-attack-envelope-with-decay")
+    }
+
+    #[test]
+    fn test_0_attack_envelope() {
+        let mut envelope = Envelope::default();
+        envelope.set_sample_rate(44100.0);
+
+        envelope.set_attack(Duration::from_secs_f32(0.0));
+        envelope.set_decay(Duration::from_secs_f32(0.0));
+
+        let mut envelope_buffer = Vec::new();
+        envelope.note_on();
+        for i in 0..(samples_for_duration(44100.0, 2.0) as i32) {
+            envelope_buffer.push((i, envelope.volume()));
+            envelope.tick();
+        }
+        envelope.note_off();
+        let start = envelope_buffer.len() as i32;
+        for i in 0..(samples_for_duration(44100.0, 1.0) as i32) {
+            envelope_buffer.push((start + i, envelope.volume()));
+            envelope.tick();
+        }
+
+        generate_plot(envelope_buffer, "zero-attack-envelope")
+    }
+
+    #[test]
     fn test_adsr_default_envelope() {
         let mut envelope = Envelope::default();
         envelope.set_sample_rate(44100.0);
+        envelope.set_attack(Duration::from_secs_f32(0.3));
+        envelope.set_release(Duration::from_secs_f32(0.3));
+        envelope.set_decay(Duration::from_secs_f32(0.3));
 
         let mut envelope_buffer = Vec::new();
         envelope.note_on();
@@ -299,6 +358,9 @@ mod test {
     fn test_adsr_exp_envelope() {
         let mut envelope = Envelope::exp();
         envelope.set_sample_rate(44100.0);
+        envelope.set_attack(Duration::from_secs_f32(0.3));
+        envelope.set_release(Duration::from_secs_f32(0.3));
+        envelope.set_decay(Duration::from_secs_f32(0.3));
 
         let mut envelope_buffer = Vec::new();
         envelope.note_on();
