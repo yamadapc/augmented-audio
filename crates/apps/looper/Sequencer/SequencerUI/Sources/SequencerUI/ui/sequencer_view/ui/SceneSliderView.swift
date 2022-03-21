@@ -16,21 +16,23 @@ struct SceneSliderView: View {
     var body: some View {
         HStack {
             TrackButton(
-              action: {},
-              label: "A",
-              isSelected: store.focusState.sceneDragState?.scene == 0
+                action: {},
+                label: "A",
+                isSelected: false
             )
-                .highPriorityGesture(makeDragGesture(sceneId: 0))
-                .bindToParameterId(store: store, parameterId: .sceneSlider, showSelectionOverlay: false)
+            .highPriorityGesture(makeDragGesture(sceneId: 0))
+            .bindToParameterId(store: store, parameterId: .sceneButton(sceneId: 0), showSelectionOverlay: false)
 
             KnobSliderView(value: $sceneState.sceneSlider.value)
                 .bindToParameter(store: store, parameter: sceneState.sceneSlider, showSelectionOverlay: false)
 
-            TrackButton(action: {}, label: "B",
-                        isSelected: store.focusState.sceneDragState?.scene == 1
+            TrackButton(
+                action: {},
+                label: "B",
+                isSelected: false
             )
-                .highPriorityGesture(makeDragGesture(sceneId: 1))
-                .bindToParameterId(store: store, parameterId: .sceneSlider, showSelectionOverlay: false)
+            .highPriorityGesture(makeDragGesture(sceneId: 1))
+            .bindToParameterId(store: store, parameterId: .sceneButton(sceneId: 1), showSelectionOverlay: false)
         }
     }
 
@@ -39,6 +41,7 @@ struct SceneSliderView: View {
             .onChanged { drag in
                 self.store.focusState.sceneDragState = SceneDragState(scene: sceneId, position: drag.location)
                 self.store.startSceneDrag(sceneId)
+                store.objectWillChange.send()
             }
             .onEnded { _ in
                 self.store.endParameterLockDrag()

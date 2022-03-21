@@ -96,8 +96,8 @@ struct ConnectedStepButtonView: View {
     var index: Int
     var store: Store
     var track: TrackState
-
     @ObservedObject var stepModel: StepButtonViewModel
+    var bindToParameter: Bool = true
 
     var body: some View {
         let isActive = stepModel.isActive
@@ -105,7 +105,7 @@ struct ConnectedStepButtonView: View {
         let isBeat = stepModel.isBeat
         let hasLocks = stepModel.hasLocks
 
-        TrackButtonView(
+        let view = TrackButtonView(
             isBeat: isBeat,
             isActive: isActive,
             isPlaying: isPlaying,
@@ -113,11 +113,17 @@ struct ConnectedStepButtonView: View {
             onClick: { store.onClickStep(track.id, index) }
         )
         .equatable()
-        .bindToParameterId(
-            store: store,
-            parameterId: .stepButton(trackId: track.id, stepId: index),
-            showSelectionOverlay: false
-        )
+
+        if bindToParameter {
+            view
+                .bindToParameterId(
+                    store: store,
+                    parameterId: .stepButton(trackId: track.id, stepId: index),
+                    showSelectionOverlay: false
+                )
+        } else {
+            view
+        }
     }
 }
 
@@ -170,7 +176,8 @@ struct SequenceView: View {
                         store: store,
                         track: store.currentTrackState(),
                         index: dragState.step
-                    )
+                    ),
+                    bindToParameter: false
                 )
                 .frame(width: 45, height: 45)
                 .position(dragState.position)

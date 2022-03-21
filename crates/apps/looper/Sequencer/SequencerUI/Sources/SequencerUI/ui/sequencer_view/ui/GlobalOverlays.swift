@@ -4,9 +4,11 @@ struct SceneDragRect: View {
     @EnvironmentObject var _store: Store
     var dragState: SceneDragState
     var body: some View {
-        Rectangle()
-            .fill(SequencerColors.green)
-            .frame(width: 30, height: 30)
+        TrackButton(
+            action: {},
+            label: scenes[dragState.scene],
+            isSelected: false
+        )
     }
 }
 

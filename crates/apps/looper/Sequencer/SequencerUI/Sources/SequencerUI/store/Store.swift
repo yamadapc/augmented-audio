@@ -30,6 +30,7 @@ public enum ObjectId: Equatable, Hashable {
         tempoControl(trackId: Int),
 
         sceneSlider,
+        sceneButton(sceneId: Int),
         metronomeVolume
 }
 
