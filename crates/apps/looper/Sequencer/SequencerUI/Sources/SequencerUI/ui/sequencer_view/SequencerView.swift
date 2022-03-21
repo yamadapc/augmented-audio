@@ -59,10 +59,10 @@ struct SequencerView: View {
                     )
                     .bindToNilParameter(store: store)
 
-                    SceneSliderView(sceneState: store.sceneState).padding(PADDING)
+                    TracksPanelContentView()
                         .bindToNilParameter(store: store)
 
-                    TracksPanelContentView()
+                    SceneSliderView(sceneState: store.sceneState).padding(PADDING)
                         .bindToNilParameter(store: store)
 
                     SequenceView()
@@ -86,6 +86,7 @@ struct SequencerView: View {
         .bindToNilParameter(store: store)
         .foregroundColor(SequencerColors.white)
         .overlay(buildKeyWatcher())
+        .overlay(GlobalOverlays())
     }
 
     func buildKeyWatcher() -> some View {

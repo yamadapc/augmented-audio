@@ -10,7 +10,7 @@ import Foundation
 import Logging
 import OSCKit
 
-public enum ObjectId: Equatable {
+public enum ObjectId: Equatable, Hashable {
     case
         sourceParameter(trackId: Int, parameterId: SourceParameterId),
 
@@ -33,22 +33,33 @@ public enum ObjectId: Equatable {
         metronomeVolume
 }
 
+enum ParameterLockSource {
+    case stepId(Int), sceneId(Int)
+}
+
 class ParameterLockState: ObservableObject {
     let parameterId: ObjectId
-    let stepId: Int
+    let source: ParameterLockSource
 
     @Published var newValue: Float?
 
-    init(parameterId: ObjectId, stepId: Int) {
+    init(parameterId: ObjectId, source: ParameterLockSource) {
         self.parameterId = parameterId
-        self.stepId = stepId
+        self.source = source
     }
+}
+
+struct SceneDragState {
+    let scene: Int
+    let position: CGPoint
 }
 
 class FocusState: ObservableObject {
     @Published var mouseOverObject: ObjectId?
     @Published var selectedObject: ObjectId?
-    @Published var draggingStep: Int?
+    @Published var draggingSource: ParameterLockSource?
+
+    @Published var sceneDragState: SceneDragState?
 
     init() {}
 }
@@ -73,6 +84,14 @@ public protocol TrackBuffer {
     subscript(_: Int) -> Float { get }
 
     func equals(other: TrackBuffer) -> Bool
+}
+
+public protocol SliceBuffer {
+    var id: Int { get }
+    var count: Int { get }
+    subscript(_: Int) -> UInt { get }
+
+    func equals(other: SliceBuffer) -> Bool
 }
 
 struct UnsafeBufferTrackBuffer {
@@ -386,6 +405,7 @@ public class TrackState: ObservableObject {
     @Published public var id: Int
     @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
     @Published var buffer: TrackBuffer? = nil
+    @Published public var sliceBuffer: SliceBuffer? = nil // public for ref checks
     @Published public var sourceParameters: SourceParametersState
     @Published public var envelope: EnvelopeState
     @Published public var quantizationParameters: QuantizationParameters
@@ -499,6 +519,7 @@ public protocol SequencerEngine {
 
     func toggleStep(track: Int, step: Int)
     func addParameterLock(track: Int, step: Int, parameterId: ObjectId, value: Float)
+    func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ObjectId, value: Float)
 }
 
 public class TimeInfo: ObservableObject {
@@ -508,23 +529,31 @@ public class TimeInfo: ObservableObject {
     init() {}
 }
 
-class SceneState: ObservableObject {
-    @Published var sceneSlider = FloatParameter(
-      id: 0,
-      globalId: .sceneSlider,
-      label: "Scene slider",
-      style: .center,
-      range: (-1.0, 1.0)
-    )
+class SceneModel: ObservableObject {
+    @Published var parameterLocks: [ObjectId: ParameterLockState] = [:]
 
-  init() {}
+    init() {}
+}
+
+public class SceneState: ObservableObject {
+    @Published public var sceneSlider = FloatParameter(
+        id: 0,
+        globalId: .sceneSlider,
+        label: "Scene slider",
+        style: .center,
+        range: (-1.0, 1.0),
+        initialValue: -1.0
+    )
+    @Published var scenes: [SceneModel] = [
+        SceneModel(),
+        SceneModel(),
+    ]
+
+    init() {}
 }
 
 public class Store: ObservableObject {
     var logger: Logger = .init(label: "com.beijaflor.sequencerui.store.Store")
-
-    @Published var selectedTrack: Int = 1
-    @Published var selectedTab: TabValue = .source
 
     @Published public var trackStates: [TrackState] = (1 ... 8).map { i in
         TrackState(
@@ -533,18 +562,19 @@ public class Store: ObservableObject {
     }
 
     @Published public var timeInfo: TimeInfo = .init()
-    @Published var isPlaying: Bool = false
-
-    @Published var focusState = FocusState()
-    @Published var sceneState = SceneState()
-    @Published var midiMappingActive = false
-
+    @Published public var sceneState = SceneState()
     public var metronomeVolume: FloatParameter = .init(
         id: 0,
         globalId: .metronomeVolume,
         label: "Metronome volume",
         initialValue: 0.7
     )
+
+    @Published var selectedTrack: Int = 1
+    @Published var selectedTab: TabValue = .source
+    @Published var isPlaying: Bool = false
+    @Published var focusState = FocusState()
+    @Published var midiMappingActive = false
 
     var oscClient = OSCClient()
 
@@ -557,19 +587,23 @@ public class Store: ObservableObject {
 
 extension Store {
     func startSequencerStepDrag(_ index: Int) {
-        focusState.draggingStep = index
+        focusState.draggingSource = .stepId(index)
     }
 
-    func endSequencerStepDrag() {
+    func startSceneDrag(_ sceneId: Int) {
+        focusState.draggingSource = .sceneId(sceneId)
+    }
+
+    func endParameterLockDrag() {
         if let hoveredId = focusState.mouseOverObject,
-           let stepId = focusState.draggingStep
+           let source = focusState.draggingSource
         {
             startParameterLock(hoveredId, parameterLockProgress: ParameterLockState(
                 parameterId: hoveredId,
-                stepId: stepId
+                source: source
             ))
         }
-        focusState.draggingStep = nil
+        focusState.draggingSource = nil
     }
 
     func startParameterLock(_ id: ObjectId, parameterLockProgress: ParameterLockState) {
@@ -591,17 +625,30 @@ extension Store {
             parameter.objectWillChange.send()
 
             let track = currentTrackState()
-            if let existingLock = track.steps[progress.stepId]?.parameterLocks.first(where: { $0.parameterId == progress.parameterId }) {
-                existingLock.newValue = progress.newValue
-            } else {
-                track.steps[progress.stepId]?.parameterLocks.append(progress)
+
+            switch progress.source {
+            case let .stepId(stepId):
+                if let existingLock = track.steps[stepId]?.parameterLocks.first(where: { $0.parameterId == progress.parameterId }) {
+                    existingLock.newValue = progress.newValue
+                } else {
+                    track.steps[stepId]?.parameterLocks.append(progress)
+                }
+                engine?.addParameterLock(
+                    track: track.id,
+                    step: stepId,
+                    parameterId: progress.parameterId,
+                    value: progress.newValue!
+                )
+            case let .sceneId(sceneId):
+                let scene = sceneState.scenes[sceneId]
+                scene.parameterLocks[progress.parameterId] = progress
+                engine?.addSceneParameterLock(
+                    sceneId: sceneId,
+                    track: track.id,
+                    parameterId: progress.parameterId,
+                    value: progress.newValue!
+                )
             }
-            engine?.addParameterLock(
-                track: track.id,
-                step: progress.stepId,
-                parameterId: progress.parameterId,
-                value: progress.newValue!
-            )
             track.objectWillChange.send()
         }
     }
@@ -629,6 +676,10 @@ extension Store {
 public extension Store {
     func setTrackBuffer(trackId: Int, fromAbstractBuffer buffer: TrackBuffer?) {
         trackStates[trackId - 1].buffer = buffer
+    }
+
+    func setSliceBuffer(trackId: Int, fromAbstractBuffer buffer: SliceBuffer?) {
+        trackStates[trackId - 1].sliceBuffer = buffer
     }
 
     func setTrackBuffer(trackId: Int, fromUnsafePointer buffer: UnsafeBufferPointer<Float32>) {

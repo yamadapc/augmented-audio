@@ -151,7 +151,7 @@ struct SequenceView: View {
                                 self.dragState = DragState(step: i, position: drag.location)
                             }
                             .onEnded { _ in
-                                self.store.endSequencerStepDrag()
+                                self.store.endParameterLockDrag()
                                 self.dragState = nil
                             }
                     )
@@ -174,6 +174,7 @@ struct SequenceView: View {
                 )
                 .frame(width: 45, height: 45)
                 .position(dragState.position)
+                .opacity(0.7)
             }
         }
         .coordinateSpace(name: "SequenceViewZStack")

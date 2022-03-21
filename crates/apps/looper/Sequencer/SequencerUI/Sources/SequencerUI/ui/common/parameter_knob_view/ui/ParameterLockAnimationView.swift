@@ -6,7 +6,7 @@ struct ParameterLockAnimationView: View {
     @State var isAnimating = false
 
     var body: some View {
-        if focusState.draggingStep != nil && focusState.mouseOverObject == parameterId {
+        if focusState.draggingSource != nil && focusState.mouseOverObject == parameterId {
             ZStack {
                 Circle()
                     .stroke(SequencerColors.green, lineWidth: 2)

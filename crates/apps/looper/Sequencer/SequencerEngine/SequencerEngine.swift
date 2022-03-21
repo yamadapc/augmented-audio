@@ -7,11 +7,13 @@
 
 import Combine
 import Foundation
+import Logging
 import SequencerEngine_private
 import SequencerUI
 
 class EngineImpl {
     var engine: OpaquePointer!
+    private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineImpl")
 
     init() {
         engine = looper_engine__new()
@@ -53,6 +55,19 @@ extension EngineImpl: SequencerEngine {
                 engine,
                 UInt(track - 1),
                 UInt(step),
+                rustParameterId,
+                value
+            )
+        }
+    }
+
+    func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ObjectId, value: Float) {
+        if let rustParameterId = getObjectIdRust(parameterId) {
+            logger.info("Adding scene parameter lock")
+            looper_engine__add_scene_parameter_lock(
+                engine,
+                UInt(sceneId),
+                UInt(track - 1),
                 rustParameterId,
                 value
             )
@@ -103,10 +118,11 @@ let ENVELOPE_PARAMETER_IDS: [EnvelopeParameterId: SequencerEngine_private.Envelo
 ]
 
 public class EngineController {
-    let engine: EngineImpl
     public let store: Store
 
-    var cancellables: Set<AnyCancellable> = Set()
+    private let engine: EngineImpl
+    private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineController")
+    private var cancellables: Set<AnyCancellable> = Set()
 
     public init() {
         engine = EngineImpl()
@@ -158,6 +174,11 @@ public class EngineController {
             }
         }
 
+        store.sceneState.sceneSlider.$value.sink(receiveValue: { value in
+            print(" SCENE \(value)")
+            looper_engine__set_scene_slider_value(self.engine.engine, (value + 1.0) / 2.0)
+        }).store(in: &cancellables)
+
         store.metronomeVolume.$value.sink(receiveValue: { value in
             looper_engine__set_metronome_volume(self.engine.engine, value)
         }).store(in: &cancellables)
@@ -199,6 +220,7 @@ public class EngineController {
             if trackState.positionPercent != positionPercent {
                 trackState.positionPercent = positionPercent
             }
+
             let looperState = convertState(looperState: looper_engine__get_looper_state(engine.engine, UInt(i)))
             if trackState.looperState != looperState {
                 trackState.looperState = looperState
@@ -209,6 +231,19 @@ public class EngineController {
                     store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: trackBuffer)
                 } else if trackState.looperState == .empty {
                     store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: nil)
+                }
+            }
+
+            // TODO: - this is a bad strategy; somehow the buffer should be set only on changes
+            if trackState.sliceBuffer == nil {
+                let sliceBuffer = looper_engine__get_looper_slices(engine.engine, UInt(i))
+                let sliceBufferSize = slice_buffer__length(sliceBuffer)
+                if sliceBufferSize > 0 {
+                    let nativeBuffer = NativeSliceBuffer(inner: sliceBuffer!)
+                    store.setSliceBuffer(trackId: i + 1, fromAbstractBuffer: nativeBuffer)
+                    logger.info("Received slice buffer from rust", metadata: [
+                        "slice_count": .stringConvertible(sliceBufferSize),
+                    ])
                 }
             }
         }
@@ -232,6 +267,26 @@ extension LooperBufferTrackBuffer: TrackBuffer {
 
     func equals(other: TrackBuffer) -> Bool {
         if let otherBuffer = other as? LooperBufferTrackBuffer {
+            return inner == otherBuffer.inner
+        } else {
+            return false
+        }
+    }
+}
+
+struct NativeSliceBuffer {
+    var inner: OpaquePointer
+}
+
+extension NativeSliceBuffer: SliceBuffer {
+    var id: Int { inner.hashValue }
+    var count: Int { Int(slice_buffer__length(inner)) }
+    subscript(index: Int) -> UInt {
+        slice_buffer__get(inner, UInt(index))
+    }
+
+    func equals(other: SliceBuffer) -> Bool {
+        if let otherBuffer = other as? NativeSliceBuffer {
             return inner == otherBuffer.inner
         } else {
             return false
