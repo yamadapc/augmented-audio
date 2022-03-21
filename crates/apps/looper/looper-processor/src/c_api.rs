@@ -148,6 +148,27 @@ pub unsafe extern "C" fn looper_engine__set_boolean_parameter(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_scene_slider_value(
+    engine: *mut LooperEngine,
+    value: f32,
+) {
+    (*engine).handle.set_scene_value(value);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__add_scene_parameter_lock(
+    engine: *mut LooperEngine,
+    scene_id: usize,
+    looper_id: usize,
+    parameter_id: ParameterId,
+    value: f32,
+) {
+    (*engine)
+        .handle
+        .add_scene_parameter_lock(scene_id, LooperId(looper_id), parameter_id, value);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_parameter_lock(
     engine: *mut LooperEngine,
     looper_id: usize,
