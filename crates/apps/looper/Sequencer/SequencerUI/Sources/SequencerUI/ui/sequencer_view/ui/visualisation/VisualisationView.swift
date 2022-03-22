@@ -24,7 +24,7 @@ struct VisualisationView: View {
             }
         }
         .padding(EdgeInsets(top: 0, leading: PADDING, bottom: PADDING, trailing: PADDING))
-        .frame(maxHeight: 400)
+        .frame(maxHeight: 260)
     }
 }
 

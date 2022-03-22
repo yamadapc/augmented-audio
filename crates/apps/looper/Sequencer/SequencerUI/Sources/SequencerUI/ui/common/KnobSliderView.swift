@@ -26,20 +26,20 @@ struct KnobSliderView: View {
                     Rectangle()
                         .fill(SequencerColors.black.opacity(0.6))
                         .frame(
-                          width: style == .horizontal
-                            ? 2
-                            : isLarge ? geometry.size.width * 0.7 : geometry.size.width * 0.3,
-                          height: style == .horizontal
-                            ? isLarge ? geometry.size.height * 0.7 : geometry.size.height * 0.3
-                            : 2
+                            width: style == .horizontal
+                                ? 2
+                                : isLarge ? geometry.size.width * 0.7 : geometry.size.width * 0.3,
+                            height: style == .horizontal
+                                ? isLarge ? geometry.size.height * 0.7 : geometry.size.height * 0.3
+                                : 2
                         )
                         .position(
-                          x: style == .horizontal
-                            ? (CGFloat(i) / 10.0) * geometry.size.width
-                            : geometry.size.width / 2.0,
-                          y: style == .horizontal
-                            ? geometry.size.height / 2.0
-                            : CGFloat(i) / 10.0 * geometry.size.height
+                            x: style == .horizontal
+                                ? (CGFloat(i) / 10.0) * geometry.size.width
+                                : geometry.size.width / 2.0,
+                            y: style == .horizontal
+                                ? geometry.size.height / 2.0
+                                : CGFloat(i) / 10.0 * geometry.size.height
                         )
                 }.frame(maxWidth: .infinity)
 
@@ -52,16 +52,15 @@ struct KnobSliderView: View {
                     Rectangle()
                         .fill(SequencerColors.blue)
                         .frame(
-                          width: style == .horizontal ? 2 : 0.7 * geometry.size.width,
-                          height: style == .horizontal ? 0.7 * geometry.size.height : 2
+                            width: style == .horizontal ? 2 : 0.7 * geometry.size.width,
+                            height: style == .horizontal ? 0.7 * geometry.size.height : 2
                         )
-
                 }
                 .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
                 .transformEffect(
-                  style == .horizontal
-                  ? .init(translationX: Double(value) * geometry.size.width / 2.0, y: 0)
-                  : .init(translationX: 0, y: Double(0.5 - value) * geometry.size.height)
+                    style == .horizontal
+                        ? .init(translationX: Double(value) * geometry.size.width / 2.0, y: 0)
+                        : .init(translationX: 0, y: Double(0.5 - value) * geometry.size.height)
                 )
                 .gesture(
                     TapGesture(count: 2).onEnded {
@@ -70,29 +69,29 @@ struct KnobSliderView: View {
                 )
                 .gesture(
                     DragGesture(minimumDistance: 0)
-                      .onChanged { onDrag($0, geometry) }
+                        .onChanged { onDrag($0, geometry) }
                 )
             }
             .contentShape(Rectangle())
             .frame(maxWidth: .infinity)
             .frame(maxHeight: .infinity)
-            .gesture(DragGesture(minimumDistance: 0).onChanged{ onDrag($0, geometry) })
+            .gesture(DragGesture(minimumDistance: 0).onChanged { onDrag($0, geometry) })
         }
         .padding(
-          style == .horizontal
-            ? EdgeInsets(top: PADDING, leading: handleWidth / 2.0, bottom: PADDING, trailing: handleWidth / 2.0)
-            : EdgeInsets(top: PADDING, leading: 0, bottom: 0, trailing: 0)
+            style == .horizontal
+                ? EdgeInsets(top: PADDING, leading: handleWidth / 2.0, bottom: PADDING, trailing: handleWidth / 2.0)
+                : EdgeInsets(top: PADDING, leading: 0, bottom: 0, trailing: 0)
         )
         .frame(maxHeight: style == .horizontal ? 90 : .infinity)
     }
 
-  func onDrag(_ drag: DragGesture.Value, _ geometry: GeometryProxy) {
-                if style == .horizontal {
-                    let value = (drag.location.x / geometry.size.width) * 2.0 + -1.0
-                    self.value = Float(min(max(value, -1.0), 1.0))
-                } else {
-                    let value = (drag.location.y / geometry.size.height)
-                    self.value = (1.0 - Float(min(max(value, 0.0), 1.0)))
-                }
+    func onDrag(_ drag: DragGesture.Value, _ geometry: GeometryProxy) {
+        if style == .horizontal {
+            let value = (drag.location.x / geometry.size.width) * 2.0 + -1.0
+            self.value = Float(min(max(value, -1.0), 1.0))
+        } else {
+            let value = (drag.location.y / geometry.size.height)
+            self.value = (1.0 - Float(min(max(value, 0.0), 1.0)))
+        }
     }
 }
