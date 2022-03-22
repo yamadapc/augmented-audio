@@ -354,10 +354,10 @@ struct EnumParameterOption<OptionT> {
     let value: OptionT
 }
 
-class EnumParameter<OptionT>: ObservableObject {
+public class EnumParameter<OptionT>: ObservableObject {
     var id: ObjectId
     var label: String
-    @Published var value: OptionT
+    @Published public var value: OptionT
     var options: [EnumParameterOption<OptionT>]
 
     init(id: ObjectId, label: String, value: OptionT, options: [EnumParameterOption<OptionT>]) {
@@ -368,17 +368,17 @@ class EnumParameter<OptionT>: ObservableObject {
     }
 }
 
-enum QuantizationMode {
+public enum QuantizationMode {
     case snapNext, snapClosest, none
 }
 
-enum TempoControlMode {
+public enum TempoControlMode {
     case setAndFollowGlobalTempo, none
 }
 
 public class QuantizationParameters: ObservableObject {
-    var quantizationMode: EnumParameter<QuantizationMode>
-    var tempoControlMode: EnumParameter<TempoControlMode>
+    public var quantizationMode: EnumParameter<QuantizationMode>
+    public var tempoControlMode: EnumParameter<TempoControlMode>
 
     init(trackId: Int) {
         quantizationMode = EnumParameter(
@@ -396,7 +396,7 @@ public class QuantizationParameters: ObservableObject {
             label: "Tempo ctrl.",
             value: .setAndFollowGlobalTempo,
             options: [
-                EnumParameterOption(label: "Set & follow tempo", value: .setAndFollowGlobalTempo),
+                EnumParameterOption(label: "Set global tempo", value: .setAndFollowGlobalTempo),
                 EnumParameterOption(label: "None", value: .none),
             ]
         )

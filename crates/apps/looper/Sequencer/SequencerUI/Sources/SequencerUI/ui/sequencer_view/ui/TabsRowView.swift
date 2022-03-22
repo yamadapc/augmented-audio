@@ -30,10 +30,10 @@ struct TabsRowView: View {
     var tabs: [TabValue] = [
         .mix,
         .source,
-        .slice,
+        // .slice,
         .envelope,
-        .fx,
-        .lfos,
+        // .fx,
+        // .lfos,
     ]
 
     var body: some View {

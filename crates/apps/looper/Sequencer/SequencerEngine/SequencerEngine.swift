@@ -117,6 +117,17 @@ let ENVELOPE_PARAMETER_IDS: [EnvelopeParameterId: SequencerEngine_private.Envelo
     EnvelopeParameterId.enabled: EnvelopeEnabled,
 ]
 
+let RUST_QUANTIZE_MODES: [QuantizationMode: CQuantizeMode] = [
+    .snapNext: CQuantizeModeSnapNext,
+    .snapClosest: CQuantizeModeSnapClosest,
+    .none: CQuantizeModeNone,
+]
+
+let RUST_TEMPO_CONTROL: [TempoControlMode: SequencerEngine_private.TempoControl] = [
+    .setAndFollowGlobalTempo: TempoControlSetGlobalTempo,
+    .none: TempoControlNone,
+]
+
 public class EngineController {
     public let store: Store
 
@@ -198,6 +209,14 @@ public class EngineController {
                     )
                 }
             }
+
+            trackState.quantizationParameters.quantizationMode.$value.sink(receiveValue: { value in
+                looper_engine__set_quantization_mode(self.engine.engine, UInt(i), RUST_QUANTIZE_MODES[value]!)
+            }).store(in: &cancellables)
+
+            trackState.quantizationParameters.tempoControlMode.$value.sink(receiveValue: { value in
+                looper_engine__set_tempo_control(self.engine.engine, UInt(i), RUST_TEMPO_CONTROL[value]!)
+            }).store(in: &cancellables)
         }
 
         store.sceneState.sceneSlider.$value.sink(receiveValue: { value in
