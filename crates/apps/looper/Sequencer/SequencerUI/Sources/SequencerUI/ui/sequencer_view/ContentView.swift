@@ -13,7 +13,7 @@ public struct ContentView: View {
     public var body: some View {
         let view = SequencerView()
             .background(SequencerColors.black1)
-            .frame(minWidth: 900, maxWidth: .infinity, minHeight: 850, maxHeight: .infinity)
+            .frame(minWidth: 900, maxWidth: .infinity, minHeight: 900, maxHeight: .infinity)
             .frame(idealWidth: 1000, idealHeight: 850)
 
         ZStack {

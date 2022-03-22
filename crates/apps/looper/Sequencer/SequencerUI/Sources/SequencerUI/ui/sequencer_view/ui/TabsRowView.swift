@@ -28,7 +28,7 @@ struct TabsRowView: View {
     var selectedTab: TabValue
     var onSelectTab: (TabValue) -> Void
     var tabs: [TabValue] = [
-        // .mix,
+        .mix,
         .source,
         .slice,
         .envelope,

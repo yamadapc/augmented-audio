@@ -9,13 +9,17 @@ struct KnobSliderView: View {
     var defaultValue: Float = -1.0
 
     var style: KnobSliderStyle = .horizontal
+    var tickColor = SequencerColors.black.opacity(0.6)
+    var railColor = SequencerColors.black.opacity(0.8)
+    var handleColor = SequencerColors.black
+    var handleAccentColor = SequencerColors.blue
 
     var body: some View {
         let handleWidth = 30.0
         GeometryReader { geometry in
             ZStack {
                 Rectangle()
-                    .fill(SequencerColors.black.opacity(0.8))
+                    .fill(railColor)
                     .frame(maxHeight: style == .horizontal ? 5 : .infinity)
                     .frame(maxWidth: style == .horizontal ? .infinity : 5)
                     .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
@@ -24,7 +28,7 @@ struct KnobSliderView: View {
                     let isLarge = i % 2 == 0
 
                     Rectangle()
-                        .fill(SequencerColors.black.opacity(0.6))
+                        .fill(tickColor)
                         .frame(
                             width: style == .horizontal
                                 ? 2
@@ -45,12 +49,12 @@ struct KnobSliderView: View {
 
                 ZStack {
                     Rectangle()
-                        .fill(SequencerColors.black)
+                        .fill(handleColor)
                         .frame(maxWidth: style == .horizontal ? handleWidth : .infinity)
                         .frame(maxHeight: style == .horizontal ? .infinity : handleWidth)
 
                     Rectangle()
-                        .fill(SequencerColors.blue)
+                        .fill(handleAccentColor)
                         .frame(
                             width: style == .horizontal ? 2 : 0.7 * geometry.size.width,
                             height: style == .horizontal ? 0.7 * geometry.size.height : 2

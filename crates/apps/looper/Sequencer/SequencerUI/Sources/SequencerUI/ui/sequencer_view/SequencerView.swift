@@ -49,7 +49,7 @@ struct SequencerView: View {
                 VStack(alignment: .leading, spacing: 0) {
                     Rectangle().fill(Color.white.opacity(0)).frame(height: PADDING)
 
-                    VStack {
+                    VStack(spacing: 0) {
                         VisualisationView()
                             .bindToNilParameter(store: store)
 
@@ -64,63 +64,17 @@ struct SequencerView: View {
                         SceneSliderView(sceneState: store.sceneState).padding(PADDING)
                             .bindToNilParameter(store: store)
 
+                        TracksPanelContentView()
+                            .bindToNilParameter(store: store)
+
                         SequenceView()
                             .bindToNilParameter(store: store)
 
-                        HStack {
-                            ZStack(alignment: .bottomTrailing) {
-                                ScrollView(.horizontal) {
-                                    MixPanelContentView()
-
-                                    TracksView(
-                                        selectedTrack: store.selectedTrack,
-                                        onClickTrack: { i in store.onClickTrack(i) }
-                                    )
-                                    .bindToNilParameter(store: store)
-                                }
-
-                                HStack {
-                                    Rectangle()
-                                        .fill(SequencerColors.black)
-                                        .frame(width: 1)
-                                        .frame(maxHeight: .infinity)
-
-                                    VStack {
-                                        Button(action: {}) {
-                                            if #available(macOS 11.0, *) {
-                                                Image(systemName: "play.fill")
-                                                    .renderingMode(.template)
-                                                    .foregroundColor(store.isPlaying ? SequencerColors.green : SequencerColors.white)
-                                            } else {
-                                                Text("Play")
-                                            }
-                                        }
-                                        .buttonStyle(.plain)
-                                        .frame(maxHeight: .infinity)
-                                        .bindToParameterId(
-                                            store: store,
-                                            parameterId: .transportPlay,
-                                            showSelectionOverlay: false
-                                        )
-
-                                        ParameterKnobView(parameter: store.metronomeVolume)
-
-                                        TrackButton(
-                                            action: {},
-                                            label: "Master",
-                                            isSelected: false
-                                        )
-                                    }
-                                    .frame(maxHeight: .infinity, alignment: .bottom)
-                                    .padding(PADDING)
-                                    .background(SequencerColors.black0)
-                                }
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
-
-                            TracksPanelContentView()
-                                .bindToNilParameter(store: store)
-                        }
+                        TracksView(
+                            selectedTrack: store.selectedTrack,
+                            onClickTrack: { i in store.onClickTrack(i) }
+                        )
+                        .bindToNilParameter(store: store)
                     }
                 }
                 if store.midiMappingActive {

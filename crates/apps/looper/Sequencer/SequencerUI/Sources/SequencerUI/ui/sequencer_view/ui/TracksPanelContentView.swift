@@ -60,8 +60,12 @@ struct MixKnobView: View {
             KnobSliderView(
                 value: $trackState.volumeParameter.value,
                 defaultValue: trackState.volumeParameter.defaultValue,
-                style: .vertical
+                style: .vertical,
+                tickColor: SequencerColors.black3,
+                railColor: SequencerColors.black3,
+                handleColor: SequencerColors.black0
             )
+            .bindToParameterId(store: store, parameterId: trackState.volumeParameter.globalId)
             // ParameterKnobView(parameter: trackState.volumeParameter)
         }
     }
@@ -88,6 +92,8 @@ struct MixPanelContentView: View {
                         .frame(maxHeight: .infinity)
                 }
             }
+
+            ParameterKnobView(parameter: store.metronomeVolume)
         }
         .padding(EdgeInsets(top: 0, leading: PADDING, bottom: 0, trailing: PADDING))
     }
