@@ -1,9 +1,13 @@
 use atomic_refcell::{AtomicRef, AtomicRefCell};
 use basedrop::SharedCell;
+use im::HashMap;
 use num::iter::range_step_from;
 use std::ops::Deref;
+use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Duration;
+use strum::{EnumProperty, IntoEnumIterator};
+use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
@@ -34,7 +38,7 @@ use crate::{
 pub struct LooperId(pub usize);
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants)]
 #[no_mangle]
 pub enum ParameterId {
     ParameterIdSource { parameter: SourceParameter },
@@ -42,29 +46,51 @@ pub enum ParameterId {
     ParameterIdLFO { lfo: usize, parameter: LFOParameter },
 }
 
+impl EnumProperty for ParameterId {
+    fn get_str(&self, prop: &str) -> Option<&'static str> {
+        match self {
+            ParameterId::ParameterIdSource { parameter, .. } => parameter.get_str(prop),
+            ParameterId::ParameterIdEnvelope { parameter, .. } => parameter.get_str(prop),
+            ParameterId::ParameterIdLFO { parameter, .. } => parameter.get_str(prop),
+        }
+    }
+}
+
 pub type SceneId = usize;
 
 #[repr(C)]
 #[no_mangle]
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
 pub enum SourceParameter {
+    #[strum(props(type = "float", default = "0.0"))]
     Start = 0,
+    #[strum(props(type = "float", default = "1.0"))]
     End = 1,
+    #[strum(props(type = "float", default = "0.0"))]
     FadeStart = 2,
+    #[strum(props(type = "float", default = "0.0"))]
     FadeEnd = 3,
+    #[strum(props(type = "float", default = "1.0"))]
     Pitch = 4,
+    #[strum(props(type = "float", default = "1.0"))]
     Speed = 5,
+    #[strum(props(type = "bool", default = "true"))]
     LoopEnabled = 6,
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
 #[no_mangle]
 pub enum EnvelopeParameter {
+    #[strum(props(type = "float", default = "0.0"))]
     Attack = 0,
+    #[strum(props(type = "float", default = "0.0"))]
     Decay = 1,
+    #[strum(props(type = "float", default = "0.3"))]
     Release = 2,
+    #[strum(props(type = "float", default = "1.0"))]
     Sustain = 3,
+    #[strum(props(type = "bool", default = "false"))]
     EnvelopeEnabled = 4,
 }
 
@@ -119,10 +145,12 @@ impl AudioProcessor for EnvelopeProcessor {
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
 #[no_mangle]
 pub enum LFOParameter {
+    #[strum(props(type = "float", default = "1.0"))]
     Frequency = 0,
+    #[strum(props(type = "float", default = "1.0"))]
     Amount = 1,
 }
 
@@ -141,8 +169,9 @@ impl Default for LFOHandle {
 }
 
 #[derive(Clone, Debug)]
-struct ParameterValue {
-    value: f32,
+enum ParameterValue {
+    Float(f32),
+    Bool(bool),
 }
 
 pub struct LooperVoice {
@@ -262,7 +291,7 @@ impl MultiTrackLooperHandle {
             }
 
             let parameter_id = ParameterId::ParameterIdSource { parameter };
-            Self::update_parameter_table(voice, parameter_id, ParameterValue { value });
+            Self::update_parameter_table(voice, parameter_id, ParameterValue::Float(value));
         }
     }
 
@@ -355,7 +384,7 @@ impl MultiTrackLooperHandle {
                 ParameterId::ParameterIdEnvelope {
                     parameter: parameter_id,
                 },
-                ParameterValue { value },
+                ParameterValue::Float(value),
             );
         }
     }
@@ -395,7 +424,7 @@ impl MultiTrackLooperHandle {
                     lfo,
                     parameter: parameter_id,
                 },
-                ParameterValue { value },
+                ParameterValue::Float(value),
             );
         }
     }
@@ -472,7 +501,7 @@ impl MultiTrackLooperHandle {
             .get(&scene_id)
             .cloned()
             .unwrap_or(Default::default());
-        scene_parameters.insert((looper_id, parameter_id), ParameterValue { value });
+        scene_parameters.insert((looper_id, parameter_id), ParameterValue::Float(value));
         all_scene_parameters.insert(scene_id, scene_parameters);
         self.scene_parameters.set(make_shared(all_scene_parameters));
     }
@@ -658,9 +687,10 @@ impl MultiTrackLooper {
         let looper_handle = looper.handle().clone();
         let sequencer_handle = looper.sequencer_handle().clone();
         let triggers = make_shared(TrackTriggerModel::default());
+        let parameter_values = Self::build_default_parameters();
 
         LooperVoice {
-            parameter_values: make_shared_cell(Default::default()),
+            parameter_values: make_shared_cell(parameter_values),
             looper_handle,
             sequencer_handle,
             triggers,
@@ -669,6 +699,56 @@ impl MultiTrackLooper {
             lfo2_handle: make_shared(LFOHandle::default()),
             envelope: envelope.handle.clone(),
         }
+    }
+
+    fn build_default_parameters() -> HashMap<ParameterId, ParameterValue> {
+        let source_parameters: Vec<ParameterId> = SourceParameter::iter()
+            .map(|parameter| ParameterId::ParameterIdSource { parameter })
+            .collect();
+        let envelope_parameters: Vec<ParameterId> = EnvelopeParameter::iter()
+            .map(|parameter| ParameterId::ParameterIdEnvelope { parameter })
+            .collect();
+        let lfo_parameters: Vec<ParameterId> = LFOParameter::iter()
+            .map(|parameter| ParameterId::ParameterIdLFO { lfo: 0, parameter })
+            .collect();
+        let all_parameters = source_parameters
+            .iter()
+            .chain(envelope_parameters.iter())
+            .chain(lfo_parameters.iter());
+
+        let parameter_values = all_parameters
+            .flat_map(|parameter_id| {
+                let default_value = match parameter_id.get_str("type").unwrap() {
+                    "float" => {
+                        let f_str = parameter_id.get_str("default").unwrap();
+                        let f = f32::from_str(f_str).unwrap();
+                        ParameterValue::Float(f)
+                    }
+                    "bool" => {
+                        let b_str = parameter_id.get_str("default").unwrap();
+                        ParameterValue::Bool(b_str == "true")
+                    }
+                    _ => panic!("Invalid parameter declaration"),
+                };
+
+                if let ParameterId::ParameterIdLFO { parameter, .. } = parameter_id {
+                    (0..2)
+                        .map(|lfo| {
+                            (
+                                ParameterId::ParameterIdLFO {
+                                    lfo,
+                                    parameter: parameter.clone(),
+                                },
+                                default_value.clone(),
+                            )
+                        })
+                        .collect()
+                } else {
+                    vec![(parameter_id.clone(), default_value)]
+                }
+            })
+            .collect();
+        parameter_values
     }
 
     fn build_voice_processor(
@@ -745,8 +825,9 @@ impl MultiTrackLooper {
 
         for (index, voice) in self.handle.voices.iter().enumerate() {
             let looper_id = LooperId(index);
-            let parameters = voice.parameter_values.get();
-            for (parameter_id, parameter_value) in parameters.iter() {
+            let parameter_values = voice.parameter_values.get();
+
+            for (parameter_id, parameter_value) in parameter_values.iter() {
                 let key = (looper_id, parameter_id.clone());
                 let left_value = left_parameters
                     .map(|ps| ps.get(&key))
@@ -759,12 +840,14 @@ impl MultiTrackLooper {
                     .cloned()
                     .unwrap_or(parameter_value.clone());
 
-                let left_value = left_value.value;
-                let right_value = right_value.value;
-
-                let value = left_value + scene_value * (right_value - left_value);
-                self.handle
-                    .update_handle(voice, parameter_id.clone(), value);
+                match (left_value, right_value) {
+                    (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
+                        let value = left_value + scene_value * (right_value - left_value);
+                        self.handle
+                            .update_handle(voice, parameter_id.clone(), value);
+                    }
+                    _ => {}
+                }
             }
         }
     }
