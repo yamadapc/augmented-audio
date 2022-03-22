@@ -12,7 +12,7 @@ struct ParameterLockAnimationView: View {
                     .stroke(SequencerColors.green, lineWidth: 2)
                     .frame(width: 30 * 2, height: 30 * 2)
                     .opacity(self.isAnimating ? 0.0 : 1.0)
-                    .scaleEffect(self.isAnimating ? 1.5 : 0.0, anchor: .center)
+                    .scaleEffect(self.isAnimating ? 1.5 : 0.1, anchor: .center)
                     .animation(
                         .linear(duration: 0.75).repeatForever(autoreverses: false),
                         value: self.isAnimating
@@ -21,7 +21,7 @@ struct ParameterLockAnimationView: View {
                     .stroke(SequencerColors.green, lineWidth: 2.0)
                     .frame(width: 20 * 2, height: 20 * 2)
                     .opacity(self.isAnimating ? 0.0 : 1.0)
-                    .scaleEffect(self.isAnimating ? 1.5 : 0.0, anchor: .center)
+                    .scaleEffect(self.isAnimating ? 1.5 : 0.1, anchor: .center)
                     .animation(
                         .linear(duration: 0.75).repeatForever(autoreverses: false),
                         value: self.isAnimating
@@ -30,7 +30,7 @@ struct ParameterLockAnimationView: View {
                     .stroke(SequencerColors.green, lineWidth: 2)
                     .frame(width: 10 * 2, height: 10 * 2)
                     .opacity(self.isAnimating ? 0.0 : 1.0)
-                    .scaleEffect(self.isAnimating ? 1.5 : 0.0, anchor: .center)
+                    .scaleEffect(self.isAnimating ? 1.5 : 0.1, anchor: .center)
                     .animation(
                         .linear(duration: 0.75).repeatForever(autoreverses: false),
                         value: self.isAnimating

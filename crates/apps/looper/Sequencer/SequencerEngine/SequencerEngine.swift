@@ -134,6 +134,9 @@ public class EngineController {
                     let rustParameterId = SOURCE_PARAMETER_IDS[parameter.id]!
                     looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, value)
                 }).store(in: &cancellables)
+
+                let rustParameterId = SOURCE_PARAMETER_IDS[parameter.id]!
+                looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, parameter.value)
             }
 
             trackState.sourceParameters.toggles.forEach { toggle in
@@ -147,6 +150,14 @@ public class EngineController {
                         )
                     }
                 }).store(in: &cancellables)
+                    if let rustParameterId = getObjectIdRust(toggle.id) {
+                        looper_engine__set_boolean_parameter(
+                            self.engine.engine,
+                            UInt(i),
+                            rustParameterId,
+                            toggle.value
+                        )
+                    }
             }
 
             trackState.envelope.parameters.forEach { parameter in
@@ -159,6 +170,13 @@ public class EngineController {
                         value
                     )
                 }).store(in: &cancellables)
+                    let rustParameterId = ENVELOPE_PARAMETER_IDS[parameter.id]!
+                    looper_engine__set_envelope_parameter(
+                        self.engine.engine,
+                        UInt(i),
+                        rustParameterId,
+                        parameter.value
+                    )
             }
             trackState.envelope.toggles.forEach { toggle in
                 toggle.$value.sink(receiveValue: { value in
@@ -171,11 +189,18 @@ public class EngineController {
                         )
                     }
                 }).store(in: &cancellables)
+                    if let rustParameterId = getObjectIdRust(toggle.id) {
+                        looper_engine__set_boolean_parameter(
+                            self.engine.engine,
+                            UInt(i),
+                            rustParameterId,
+                            toggle.value
+                        )
+                    }
             }
         }
 
         store.sceneState.sceneSlider.$value.sink(receiveValue: { value in
-            print(" SCENE \(value)")
             looper_engine__set_scene_slider_value(self.engine.engine, (value + 1.0) / 2.0)
         }).store(in: &cancellables)
 
