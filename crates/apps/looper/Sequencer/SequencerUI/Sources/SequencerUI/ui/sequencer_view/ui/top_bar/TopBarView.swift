@@ -12,7 +12,7 @@ struct TopBarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 0) {
-                TransportTempoView(timeInfo: store.timeInfo).frame(width: 80, alignment: .trailing)
+                TransportTempoView(timeInfo: store.timeInfo).frame(alignment: .trailing)
                 Spacer()
                 TransportControlsView()
 

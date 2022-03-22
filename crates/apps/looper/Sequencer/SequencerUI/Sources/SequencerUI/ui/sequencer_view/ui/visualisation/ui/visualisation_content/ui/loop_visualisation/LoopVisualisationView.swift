@@ -13,6 +13,8 @@ struct EnumParameterView<OptionT: Hashable>: View {
             })
             .pickerStyle(.menu)
             .padding(PADDING - 2)
+            .preferredColorScheme(.dark)
+            .foregroundColor(.white)
             .border(SequencerColors.blue, width: 1.0)
             .bindToParameterId(store: store, parameterId: parameter.id, showSelectionOverlay: false)
         } else {}
@@ -57,7 +59,7 @@ struct LoopVisualisationView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding()
+        .padding(PADDING)
     }
 }
 

@@ -146,6 +146,38 @@
             endingLineNumber = "26"
             landmarkName = "setVolume(track:volume:)"
             landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "B9EEE931-9220-4590-94EA-2BB55C05A7E9 - e095e0570b0a4004"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerEngine.EngineImpl.setVolume(track: Swift.Int, volume: Swift.Float) -&gt; ()"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "192">
+               </Location>
+               <Location
+                  uuid = "B9EEE931-9220-4590-94EA-2BB55C05A7E9 - e095e0570b0a4004"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerEngine.EngineImpl.setVolume(track: Swift.Int, volume: Swift.Float) -&gt; ()"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "26"
+                  endingLineNumber = "26"
+                  offsetFromSymbolStart = "200">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -211,6 +243,22 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "10"
             endingLineNumber = "10"
+            landmarkName = "body"
+            landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "12747709-F01B-4DA6-850C-799E072C47CF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerUI/Sources/SequencerUI/ui/common/KnobSliderView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "78"
+            endingLineNumber = "78"
             landmarkName = "body"
             landmarkType = "24">
          </BreakpointContent>

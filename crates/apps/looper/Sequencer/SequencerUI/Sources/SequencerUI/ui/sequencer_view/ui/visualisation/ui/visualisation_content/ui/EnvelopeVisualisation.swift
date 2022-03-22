@@ -95,7 +95,7 @@ struct EnvelopeVisualisationView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding()
+        .padding(PADDING)
         .clipped()
     }
 

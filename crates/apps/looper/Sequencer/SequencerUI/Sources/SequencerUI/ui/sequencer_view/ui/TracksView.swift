@@ -46,12 +46,6 @@ struct TracksView: View {
                     showSelectionOverlay: false
                 )
             }
-
-            TrackButton(
-                action: {},
-                label: "Master",
-                isSelected: false
-            ).frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, alignment: .bottomLeading)
         .padding(PADDING)

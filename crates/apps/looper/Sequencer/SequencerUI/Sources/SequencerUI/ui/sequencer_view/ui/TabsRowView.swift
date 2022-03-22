@@ -19,6 +19,8 @@ func renderTabValue(_ tab: TabValue) -> String {
         return "Envelope"
     case .fx:
         return "FX"
+    case .lfos:
+        return "LFOs"
     }
 }
 
@@ -26,11 +28,12 @@ struct TabsRowView: View {
     var selectedTab: TabValue
     var onSelectTab: (TabValue) -> Void
     var tabs: [TabValue] = [
-        .mix,
+        // .mix,
         .source,
         .slice,
         .envelope,
         .fx,
+        .lfos,
     ]
 
     var body: some View {

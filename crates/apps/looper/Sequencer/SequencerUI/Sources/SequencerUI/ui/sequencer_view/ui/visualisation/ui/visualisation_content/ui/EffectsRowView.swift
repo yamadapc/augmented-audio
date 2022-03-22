@@ -70,11 +70,11 @@ struct CreateEffectModalView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(maxWidth: .infinity)
-            .padding()
+            .padding(PADDING)
             .background(SequencerColors.black0.opacity(0.9))
             .cornerRadius(BORDER_RADIUS)
         }
-        .padding()
+        .padding(PADDING)
     }
 }
 

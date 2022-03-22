@@ -14,6 +14,11 @@ struct VisualisationContentView: View {
             EffectsRowView()
         case .envelope:
             EnvelopeVisualisationView(model: currentTrack.envelope)
+        case .lfos:
+            HStack {
+                LFOVisualisationView(model: currentTrack.lfo1)
+                LFOVisualisationView(model: currentTrack.lfo2)
+            }
         default:
             Text("No tab content").foregroundColor(SequencerColors.white)
         }

@@ -22,7 +22,7 @@ class EngineImpl {
 
 extension EngineImpl: SequencerEngine {
     func setVolume(track: Int, volume: Float) {
-        looper_engine__set_volume(engine, UInt(track - 1), volume)
+        looper_engine__set_volume(engine, UInt(track - 1), volume * 2.0)
     }
 
     func onClickRecord(track: Int) {

@@ -41,14 +41,14 @@ struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
                     Text("Amount: \(String(format: "%.0f", model.amount * 100))%")
                     Text("Frequency: \(String(format: "%.2f", model.frequency))Hz")
                 }
-                .padding()
+                .padding(PADDING)
                 .border(SequencerColors.blue.opacity(0.5), width: 1)
                 .background(SequencerColors.black.opacity(0.7))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
                 .allowsHitTesting(false)
             }
         }
-        .padding()
+        .padding(PADDING)
     }
 
     func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _ tick: Int) {

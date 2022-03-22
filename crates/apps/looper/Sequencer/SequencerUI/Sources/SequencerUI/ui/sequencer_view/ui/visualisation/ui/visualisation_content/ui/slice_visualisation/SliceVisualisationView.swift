@@ -35,7 +35,7 @@ struct SliceVisualisationView: View {
                             }
                         }
                     }
-                    .padding()
+                    .padding(PADDING)
                 } else {
                     Text("No loop buffer")
                 }

@@ -67,7 +67,7 @@ class FocusState: ObservableObject {
 }
 
 enum TabValue {
-    case mix, source, slice, envelope, fx
+    case mix, source, slice, envelope, fx, lfos
 }
 
 public enum LooperState {
@@ -606,7 +606,7 @@ public class Store: ObservableObject {
     public var metronomeVolume: FloatParameter = .init(
         id: 0,
         globalId: .metronomeVolume,
-        label: "Metronome volume",
+        label: "Metronome",
         initialValue: 0.7
     )
     public var processorMetrics = ProcessorMetrics()

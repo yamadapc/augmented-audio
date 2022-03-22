@@ -15,7 +15,6 @@ struct LFOKnobsView: View {
     var body: some View {
         HStack {
             KnobView(
-                radius: 20,
                 label: "LFO amount",
                 onChanged: { value in
                     lfoState.amount = value
@@ -28,7 +27,6 @@ struct LFOKnobsView: View {
             .bindToParameter(store: store, parameter: lfoState.amountParameter)
 
             KnobView(
-                radius: 20,
                 label: "LFO frequency",
                 onChanged: { value in
                     lfoState.frequency = value * (20 - 0.01) + 0.01
@@ -39,19 +37,33 @@ struct LFOKnobsView: View {
                 },
                 value: (lfoState.frequency - 0.01) / (20 - 0.01)
             )
-            .bindToParameter(store: store, parameter: lfoState.amountParameter)
+            .bindToParameter(store: store, parameter: lfoState.frequencyParameter)
         }
-        .padding(PADDING)
     }
 }
 
 struct MixKnobView: View {
-    @EnvironmentObject var store: Store
     var trackId: Int
+
+    @EnvironmentObject var store: Store
     @ObservedObject var trackState: TrackState
 
+    @State var value: Float = 0
+
     var body: some View {
-        ParameterKnobView(parameter: trackState.volumeParameter)
+        ZStack {
+            Text("\(trackState.volumeParameter.label)")
+            .foregroundColor(SequencerColors.white.opacity(0.4))
+            .rotationEffect(Angle(degrees: -90))
+            .transformEffect(.init(translationX: 15, y: 0))
+
+            KnobSliderView(
+              value: $trackState.volumeParameter.value,
+              defaultValue: trackState.volumeParameter.defaultValue,
+              style: .vertical
+            )
+            // ParameterKnobView(parameter: trackState.volumeParameter)
+        }
     }
 }
 
@@ -59,13 +71,26 @@ struct MixPanelContentView: View {
     @EnvironmentObject var store: Store
 
     var body: some View {
-        HStack(alignment: .center, spacing: 30) {
+        HStack {
             ForEach(1 ..< 9) { i in
-                MixKnobView(trackId: i, trackState: store.trackStates[i - 1])
-            }
+              HStack(spacing: 0) {
+              Rectangle()
+                .fill(SequencerColors.black)
+                .frame(width: 1)
+                .frame(maxHeight: .infinity)
 
-            ParameterKnobView(parameter: store.metronomeVolume)
+                MixKnobView(trackId: i, trackState: store.trackStates[i - 1])
+                .frame(width: 78)
+
+              Rectangle()
+                .fill(SequencerColors.black)
+                .frame(width: 1)
+                .frame(maxHeight: .infinity)
+
+              }
+            }
         }
+        .padding(EdgeInsets(top: 0, leading: PADDING, bottom: 0, trailing: PADDING))
     }
 }
 
@@ -123,30 +148,17 @@ struct TracksPanelContentView: View {
                     )
                 case .fx:
                     EffectsPanelContentView()
+                case .lfos:
+                    HStack(spacing: PADDING) {
+                        LFOKnobsView(lfoState: store.currentTrackState().lfo1)
+                        LFOKnobsView(lfoState: store.currentTrackState().lfo2)
+                    }
                 }
             }
             .padding(PADDING * 2)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            HStack {
-                tracksPanelContentView
-
-                HStack(spacing: 0) {
-                    VStack {
-                        LFOVisualisationView(model: store.currentTrackState().lfo1)
-                            .background(SequencerColors.black0)
-                        LFOKnobsView(lfoState: store.currentTrackState().lfo1)
-                    }
-                    .border(SequencerColors.black1, width: 1)
-
-                    VStack {
-                        LFOVisualisationView(model: store.currentTrackState().lfo2)
-                            .background(SequencerColors.black0)
-                        LFOKnobsView(lfoState: store.currentTrackState().lfo2)
-                    }
-                    .border(SequencerColors.black1, width: 1)
-                }
-            }
+            tracksPanelContentView
         }.frame(maxHeight: .infinity)
             .foregroundColor(SequencerColors.white)
             .background(SequencerColors.black)
