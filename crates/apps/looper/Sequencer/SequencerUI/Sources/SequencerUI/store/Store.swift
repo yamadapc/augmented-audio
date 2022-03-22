@@ -553,6 +553,36 @@ public class SceneState: ObservableObject {
     init() {}
 }
 
+public class ProcessorMetrics: ObservableObject {
+    @Published var inner = Stats(
+        averageCpu: 0,
+        maximumCpu: 0, averageNanos: 0, maximumNanos: 0
+    )
+
+    public func setStats(
+        averageCpu: Float,
+        maxCpu: Float,
+        averageNanos: Float,
+        maxNanos: Float
+    ) {
+        inner = Stats(
+            averageCpu: averageCpu,
+            maximumCpu: maxCpu,
+            averageNanos: averageNanos,
+            maximumNanos: maxNanos
+        )
+    }
+
+    init() {}
+
+    struct Stats {
+        let averageCpu: Float
+        let maximumCpu: Float
+        let averageNanos: Float
+        let maximumNanos: Float
+    }
+}
+
 public class Store: ObservableObject {
     var logger: Logger = .init(label: "com.beijaflor.sequencerui.store.Store")
 
@@ -570,6 +600,7 @@ public class Store: ObservableObject {
         label: "Metronome volume",
         initialValue: 0.7
     )
+    public var processorMetrics = ProcessorMetrics()
 
     @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source

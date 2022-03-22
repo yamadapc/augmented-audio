@@ -150,14 +150,14 @@ public class EngineController {
                         )
                     }
                 }).store(in: &cancellables)
-                    if let rustParameterId = getObjectIdRust(toggle.id) {
-                        looper_engine__set_boolean_parameter(
-                            self.engine.engine,
-                            UInt(i),
-                            rustParameterId,
-                            toggle.value
-                        )
-                    }
+                if let rustParameterId = getObjectIdRust(toggle.id) {
+                    looper_engine__set_boolean_parameter(
+                        self.engine.engine,
+                        UInt(i),
+                        rustParameterId,
+                        toggle.value
+                    )
+                }
             }
 
             trackState.envelope.parameters.forEach { parameter in
@@ -170,13 +170,13 @@ public class EngineController {
                         value
                     )
                 }).store(in: &cancellables)
-                    let rustParameterId = ENVELOPE_PARAMETER_IDS[parameter.id]!
-                    looper_engine__set_envelope_parameter(
-                        self.engine.engine,
-                        UInt(i),
-                        rustParameterId,
-                        parameter.value
-                    )
+                let rustParameterId = ENVELOPE_PARAMETER_IDS[parameter.id]!
+                looper_engine__set_envelope_parameter(
+                    self.engine.engine,
+                    UInt(i),
+                    rustParameterId,
+                    parameter.value
+                )
             }
             trackState.envelope.toggles.forEach { toggle in
                 toggle.$value.sink(receiveValue: { value in
@@ -189,14 +189,14 @@ public class EngineController {
                         )
                     }
                 }).store(in: &cancellables)
-                    if let rustParameterId = getObjectIdRust(toggle.id) {
-                        looper_engine__set_boolean_parameter(
-                            self.engine.engine,
-                            UInt(i),
-                            rustParameterId,
-                            toggle.value
-                        )
-                    }
+                if let rustParameterId = getObjectIdRust(toggle.id) {
+                    looper_engine__set_boolean_parameter(
+                        self.engine.engine,
+                        UInt(i),
+                        rustParameterId,
+                        toggle.value
+                    )
+                }
             }
         }
 
@@ -210,6 +210,7 @@ public class EngineController {
 
         DispatchQueue.main.async {
             self.flushPollInfo()
+            self.flushMetricsInfo()
         }
     }
 
@@ -223,6 +224,19 @@ public class EngineController {
             DispatchQueue.main.async {
                 self.store.setTrackBuffer(trackId: 1, fromUnsafePointer: bufferPtr)
             }
+        }
+    }
+
+    func flushMetricsInfo() {
+        let stats = looper_engine__get_stats(engine.engine)
+        store.processorMetrics.setStats(
+            averageCpu: stats.average_cpu,
+            maxCpu: stats.max_cpu,
+            averageNanos: stats.average_nanos,
+            maxNanos: stats.max_nanos
+        )
+        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(100))) {
+            self.flushMetricsInfo()
         }
     }
 

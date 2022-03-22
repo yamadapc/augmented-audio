@@ -27,6 +27,8 @@ struct TopBarView: View {
                 .padding(PADDING * 0.5)
                 .background(store.midiMappingActive ? SequencerColors.yellow : SequencerColors.black3)
                 .buttonStyle(.plain)
+
+                CPUMeterView(processorMetrics: store.processorMetrics)
             }
             .padding(PADDING)
 
