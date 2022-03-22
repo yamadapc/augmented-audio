@@ -22,6 +22,7 @@ use audio_processor_traits::{
 use augmented_atomics::{AtomicF32, AtomicValue};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 
+use crate::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::slice_worker::{SliceResult, SliceWorker};
 use crate::tempo_estimation::estimate_tempo;
@@ -211,6 +212,7 @@ pub struct MultiTrackLooperHandle {
     metronome_handle: Shared<MetronomeProcessorHandle>,
     slice_worker: SliceWorker,
     settings: SharedCell<AudioProcessorSettings>,
+    metrics_handle: Shared<AudioProcessorMetricsHandle>,
 }
 
 impl MultiTrackLooperHandle {
@@ -596,12 +598,17 @@ impl MultiTrackLooperHandle {
     pub fn time_info_provider(&self) -> &Shared<TimeInfoProviderImpl> {
         &self.time_info_provider
     }
+
+    pub fn metrics_handle(&self) -> &Shared<AudioProcessorMetricsHandle> {
+        &self.metrics_handle
+    }
 }
 
 pub struct MultiTrackLooper {
     graph: AudioProcessorGraph,
     handle: Shared<MultiTrackLooperHandle>,
     step_trackers: Vec<StepTracker>,
+    metrics: AudioProcessorMetrics,
 }
 
 struct VoiceProcessors {
@@ -626,6 +633,7 @@ impl MultiTrackLooper {
             .iter()
             .map(|voice_processors| Self::build_voice_handle(voice_processors))
             .collect();
+        let metrics = AudioProcessorMetrics::default();
         let handle = make_shared(MultiTrackLooperHandle {
             voices,
             time_info_provider,
@@ -637,6 +645,7 @@ impl MultiTrackLooper {
             metronome_handle,
             settings: make_shared_cell(AudioProcessorSettings::default()),
             slice_worker: SliceWorker::new(),
+            metrics_handle: metrics.handle(),
         });
 
         let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
@@ -647,6 +656,7 @@ impl MultiTrackLooper {
             graph,
             handle,
             step_trackers,
+            metrics,
         }
     }
 
@@ -859,6 +869,7 @@ impl AudioProcessor for MultiTrackLooper {
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         self.graph.prepare(settings);
         self.handle.sample_rate.set(settings.sample_rate());
+        self.handle.metrics_handle.prepare(settings);
         self.handle.settings.set(make_shared(settings));
     }
 
@@ -866,6 +877,8 @@ impl AudioProcessor for MultiTrackLooper {
         &mut self,
         data: &mut BufferType,
     ) {
+        self.metrics.on_process_start();
+
         self.process_scenes();
         self.process_triggers();
 
@@ -874,6 +887,8 @@ impl AudioProcessor for MultiTrackLooper {
         for _sample in data.frames() {
             self.handle.time_info_provider.tick();
         }
+
+        self.metrics.on_process_end();
     }
 }
 

@@ -14,6 +14,7 @@ pub use sequencer::LoopSequencerParams;
 pub use sequencer::LoopSequencerProcessorHandle;
 pub use time_info_provider::{TimeInfo, TimeInfoProvider, TimeInfoProviderImpl};
 
+mod audio_processor_metrics;
 mod audio_thread_logger;
 mod c_api;
 mod loop_quantization;

@@ -3,6 +3,7 @@ use std::ffi::c_void;
 use std::hash::Hash;
 use std::ops::Deref;
 use std::ptr::null;
+use std::sync::{Arc, Mutex};
 
 use basedrop::Shared;
 
@@ -10,6 +11,7 @@ use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::AtomicF32;
 
+use crate::audio_processor_metrics::{AudioProcessorMetricsActor, AudioProcessorMetricsStats};
 use crate::multi_track_looper::{LFOParameter, LooperVoice, ParameterId, SourceParameter};
 use crate::processor::handle::LooperState;
 use crate::slice_worker::SliceResult;
@@ -34,6 +36,7 @@ impl<T> From<Shared<T>> for SharedPtr<T> {
 pub struct LooperEngine {
     handle: Shared<MultiTrackLooperHandle>,
     audio_handles: StandaloneHandles,
+    metrics_actor: Arc<Mutex<AudioProcessorMetricsActor>>,
     events_callback: Option<EventsCallback>,
 }
 
@@ -49,9 +52,14 @@ pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
     );
     setup_osc_server(handle.clone());
 
+    let metrics_actor = Arc::new(Mutex::new(AudioProcessorMetricsActor::new(
+        handle.metrics_handle().clone(),
+    )));
+
     let engine = LooperEngine {
         handle,
         audio_handles,
+        metrics_actor,
         events_callback: None,
     };
     Box::into_raw(Box::new(engine))
@@ -376,6 +384,18 @@ pub unsafe extern "C" fn looper_engine__set_metronome_volume(
 pub struct ExampleBuffer {
     pub ptr: *const f32,
     pub count: usize,
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_stats(
+    engine: *mut LooperEngine,
+) -> AudioProcessorMetricsStats {
+    let metrics_actor = &(*engine).metrics_actor;
+    if let Ok(mut metrics_actor) = metrics_actor.lock() {
+        metrics_actor.poll()
+    } else {
+        AudioProcessorMetricsStats::default()
+    }
 }
 
 #[no_mangle]
