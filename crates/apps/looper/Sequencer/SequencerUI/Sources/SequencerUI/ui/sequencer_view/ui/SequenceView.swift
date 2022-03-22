@@ -93,9 +93,9 @@ class StepButtonViewModel: ObservableObject {
 }
 
 struct ConnectedStepButtonView: View {
+    var trackId: Int
     var index: Int
-    var store: Store
-    var track: TrackState
+    @ObservedObject var store: Store
     @ObservedObject var stepModel: StepButtonViewModel
     var bindToParameter: Bool = true
 
@@ -110,7 +110,7 @@ struct ConnectedStepButtonView: View {
             isActive: isActive,
             isPlaying: isPlaying,
             hasLocks: hasLocks,
-            onClick: { store.onClickStep(track.id, index) }
+            onClick: self.onClick
         )
         .equatable()
 
@@ -118,12 +118,16 @@ struct ConnectedStepButtonView: View {
             view
                 .bindToParameterId(
                     store: store,
-                    parameterId: .stepButton(trackId: track.id, stepId: index),
+                    parameterId: .stepButton(trackId: trackId, stepId: index),
                     showSelectionOverlay: false
                 )
         } else {
             view
         }
+    }
+
+    func onClick() {
+        store.onClickStep(store.selectedTrack, index)
     }
 }
 
@@ -141,9 +145,9 @@ struct SequenceView: View {
             HStack {
                 ForEach(0 ..< 16) { i in
                     ConnectedStepButtonView(
+                        trackId: store.selectedTrack,
                         index: i,
                         store: store,
-                        track: store.currentTrackState(),
                         stepModel: StepButtonViewModel(
                             store: store,
                             track: store.currentTrackState(),
@@ -169,9 +173,9 @@ struct SequenceView: View {
 
             if let dragState = self.dragState {
                 ConnectedStepButtonView(
+                    trackId: store.selectedTrack,
                     index: dragState.step,
                     store: store,
-                    track: store.currentTrackState(),
                     stepModel: StepButtonViewModel(
                         store: store,
                         track: store.currentTrackState(),

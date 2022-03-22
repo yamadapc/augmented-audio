@@ -693,9 +693,14 @@ extension Store {
 
     func onClickTrack(_ track: Int) {
         selectedTrack = track
+        objectWillChange.send()
     }
 
     func onClickStep(_ trackId: Int, _ step: Int) {
+        logger.info("Step button clicked", metadata: [
+            "trackId": .stringConvertible(trackId),
+            "stepId": .stringConvertible(step),
+        ])
         trackStates[trackId - 1].toggleStep(step)
         engine?.toggleStep(track: trackId, step: step)
     }

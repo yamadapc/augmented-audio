@@ -4,10 +4,10 @@ import SwiftUI
  * Apparently onHover {} doesn't work properly during drag. This is a more reliable implementation for our use-case.
  */
 struct CustomHoverView: NSViewRepresentable {
-    typealias NSViewType = NSView
+    typealias NSViewType = CustomHoverViewInner
     var onHover: (Bool) -> Void
 
-    func makeNSView(context _: Context) -> NSView {
+    func makeNSView(context _: Context) -> CustomHoverViewInner {
         let view = CustomHoverViewInner()
         view.onHover = onHover
 
@@ -32,18 +32,20 @@ struct CustomHoverView: NSViewRepresentable {
         }
     }
 
-    func updateNSView(_: NSView, context _: Context) {}
-}
-
-class CustomHoverViewInner: NSView {
-    var onHover: ((Bool) -> Void)?
-
-    override func mouseEntered(with _: NSEvent) {
-        onHover?(true)
+    func updateNSView(_ nsView: CustomHoverViewInner, context _: Context) {
+        nsView.onHover = onHover
     }
 
-    override func mouseExited(with _: NSEvent) {
-        onHover?(false)
+    class CustomHoverViewInner: NSView {
+        var onHover: ((Bool) -> Void)?
+
+        override func mouseEntered(with _: NSEvent) {
+            onHover?(true)
+        }
+
+        override func mouseExited(with _: NSEvent) {
+            onHover?(false)
+        }
     }
 }
 
