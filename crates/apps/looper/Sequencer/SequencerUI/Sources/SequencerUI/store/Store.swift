@@ -6,6 +6,7 @@
 //
 
 import Combine
+import CoreGraphics
 import Foundation
 import Logging
 import OSCKit
@@ -66,7 +67,7 @@ class FocusState: ObservableObject {
 }
 
 enum TabValue {
-    case mix, source, slice, envelope, fx, lfos
+    case mix, source, slice, envelope, fx
 }
 
 public enum LooperState {
@@ -581,6 +582,14 @@ public class ProcessorMetrics: ObservableObject {
         let averageNanos: Float
         let maximumNanos: Float
     }
+}
+
+enum MIDIMessageId: Hashable {
+    case cc(Int)
+}
+
+class MIDIMappingState: ObservableObject {
+    var midiMap: [MIDIMessageId: ObjectId] = [:]
 }
 
 public class Store: ObservableObject {

@@ -45,6 +45,7 @@ struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
                 .border(SequencerColors.blue.opacity(0.5), width: 1)
                 .background(SequencerColors.black.opacity(0.7))
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+                .allowsHitTesting(false)
             }
         }
         .padding()

@@ -33,7 +33,7 @@ let package = Package(
             dependencies: [
                 .productItem(name: "OSCKit", package: "OSCKit", condition: nil),
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts"),
+                .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts", condition: .when(platforms: [.macOS])),
                 .product(name: "LRUCache", package: "LRUCache"),
             ]
         ),

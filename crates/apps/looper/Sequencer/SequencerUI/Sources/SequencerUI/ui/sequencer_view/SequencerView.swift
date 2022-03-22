@@ -91,13 +91,15 @@ struct SequencerView: View {
 
     func buildKeyWatcher() -> some View {
         ZStack {
-            if #available(macOS 11.0, *) {
-                KeyWatcher(
-                    onEvent: { key, modifiers in
-                        print("key=\(key) modifiers=\(modifiers)")
-                    }
-                )
-            } else {}
+            #if os(macOS)
+                if #available(macOS 11.0, *) {
+                    KeyWatcher(
+                        onEvent: { key, modifiers in
+                            print("key=\(key) modifiers=\(modifiers)")
+                        }
+                    )
+                } else {}
+            #endif
         }.allowsHitTesting(false)
     }
 }

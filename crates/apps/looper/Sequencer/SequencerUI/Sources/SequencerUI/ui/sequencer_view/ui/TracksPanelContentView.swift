@@ -13,29 +13,35 @@ struct LFOKnobsView: View {
     @ObservedObject var lfoState: LFOState
 
     var body: some View {
-        KnobView(
-            label: "LFO amount",
-            onChanged: { value in
-                lfoState.amount = value
-            },
-            formatValue: { value in
-                "\(String(format: "%.0f", value * 100))%"
-            },
-            value: lfoState.amount
-        )
-        .bindToParameter(store: store, parameter: lfoState.amountParameter)
-        KnobView(
-            label: "LFO frequency",
-            onChanged: { value in
-                lfoState.frequency = value * (20 - 0.01) + 0.01
-            },
-            formatValue: { value in
-                let frequency = value * (20 - 0.01) + 0.01
-                return "\(String(format: "%.2f", frequency))Hz"
-            },
-            value: (lfoState.frequency - 0.01) / (20 - 0.01)
-        )
-        .bindToParameter(store: store, parameter: lfoState.amountParameter)
+        HStack {
+            KnobView(
+                radius: 20,
+                label: "LFO amount",
+                onChanged: { value in
+                    lfoState.amount = value
+                },
+                formatValue: { value in
+                    "\(String(format: "%.0f", value * 100))%"
+                },
+                value: lfoState.amount
+            )
+            .bindToParameter(store: store, parameter: lfoState.amountParameter)
+
+            KnobView(
+                radius: 20,
+                label: "LFO frequency",
+                onChanged: { value in
+                    lfoState.frequency = value * (20 - 0.01) + 0.01
+                },
+                formatValue: { value in
+                    let frequency = value * (20 - 0.01) + 0.01
+                    return "\(String(format: "%.2f", frequency))Hz"
+                },
+                value: (lfoState.frequency - 0.01) / (20 - 0.01)
+            )
+            .bindToParameter(store: store, parameter: lfoState.amountParameter)
+        }
+        .padding(PADDING)
     }
 }
 
@@ -104,12 +110,6 @@ struct TracksPanelContentView: View {
         HStack {
             let tracksPanelContentView = HStack(alignment: .top, spacing: 30) {
                 switch store.selectedTab {
-                case .lfos:
-                    HStack(alignment: .center, spacing: 30) {
-                        LFOKnobsView(lfoState: store.currentTrackState().lfo1)
-                        LFOKnobsView(lfoState: store.currentTrackState().lfo2)
-                    }
-
                 case .mix:
                     MixPanelContentView()
                 case .source, .slice:
@@ -128,7 +128,25 @@ struct TracksPanelContentView: View {
             .padding(PADDING * 2)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            tracksPanelContentView
+            HStack {
+                tracksPanelContentView
+
+                HStack(spacing: 0) {
+                    VStack {
+                        LFOVisualisationView(model: store.currentTrackState().lfo1)
+                            .background(SequencerColors.black0)
+                        LFOKnobsView(lfoState: store.currentTrackState().lfo1)
+                    }
+                    .border(SequencerColors.black1, width: 1)
+
+                    VStack {
+                        LFOVisualisationView(model: store.currentTrackState().lfo2)
+                            .background(SequencerColors.black0)
+                        LFOKnobsView(lfoState: store.currentTrackState().lfo2)
+                    }
+                    .border(SequencerColors.black1, width: 1)
+                }
+            }
         }.frame(maxHeight: .infinity)
             .foregroundColor(SequencerColors.white)
             .background(SequencerColors.black)

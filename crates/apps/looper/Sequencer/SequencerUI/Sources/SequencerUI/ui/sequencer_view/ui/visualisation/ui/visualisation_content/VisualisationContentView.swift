@@ -10,15 +10,6 @@ struct VisualisationContentView: View {
             LoopVisualisationView(trackState: currentTrack)
         case .slice:
             SliceVisualisationView(trackState: currentTrack)
-        case .lfos:
-            HStack {
-                LFOVisualisationView(model: currentTrack.lfo1)
-                Rectangle()
-                    .fill(SequencerColors.black3)
-                    .frame(width: 1.0)
-                    .frame(maxHeight: .infinity)
-                LFOVisualisationView(model: currentTrack.lfo2)
-            }
         case .fx:
             EffectsRowView()
         case .envelope:
