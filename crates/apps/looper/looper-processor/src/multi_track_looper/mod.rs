@@ -2,6 +2,8 @@ use atomic_refcell::{AtomicRef, AtomicRefCell};
 use basedrop::SharedCell;
 use im::HashMap;
 use num::iter::range_step_from;
+use num::{FromPrimitive, ToPrimitive};
+use num_derive::{FromPrimitive, ToPrimitive};
 use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
@@ -23,6 +25,7 @@ use augmented_atomics::{AtomicF32, AtomicValue};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 
 use crate::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
+use crate::loop_quantization::QuantizeInput;
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::slice_worker::{SliceResult, SliceWorker};
 use crate::tempo_estimation::estimate_tempo;
@@ -45,6 +48,7 @@ pub enum ParameterId {
     ParameterIdSource { parameter: SourceParameter },
     ParameterIdEnvelope { parameter: EnvelopeParameter },
     ParameterIdLFO { lfo: usize, parameter: LFOParameter },
+    ParameterIdQuantization(QuantizationParameter),
 }
 
 impl EnumProperty for ParameterId {
@@ -53,6 +57,7 @@ impl EnumProperty for ParameterId {
             ParameterId::ParameterIdSource { parameter, .. } => parameter.get_str(prop),
             ParameterId::ParameterIdEnvelope { parameter, .. } => parameter.get_str(prop),
             ParameterId::ParameterIdLFO { parameter, .. } => parameter.get_str(prop),
+            ParameterId::ParameterIdQuantization(parameter) => parameter.get_str(prop),
         }
     }
 }
@@ -77,6 +82,43 @@ pub enum SourceParameter {
     Speed = 5,
     #[strum(props(type = "bool", default = "true"))]
     LoopEnabled = 6,
+}
+
+#[repr(C)]
+#[no_mangle]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
+pub enum QuantizationParameter {
+    #[strum(props(type = "enum", default = "0"))]
+    QuantizationParameterQuantizeMode = 0,
+    #[strum(props(type = "enum", default = "0"))]
+    QuantizationParameterTempoControl = 1,
+}
+
+#[repr(C)]
+#[no_mangle]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive)]
+pub enum CQuantizeMode {
+    CQuantizeModeSnapClosest = 0,
+    CQuantizeModeSnapNext = 1,
+    CQuantizeModeNone = 2,
+}
+
+impl Into<QuantizeMode> for CQuantizeMode {
+    fn into(self: Self) -> QuantizeMode {
+        match self {
+            CQuantizeMode::CQuantizeModeSnapClosest => QuantizeMode::SnapClosest,
+            CQuantizeMode::CQuantizeModeSnapNext => QuantizeMode::SnapNext,
+            CQuantizeMode::CQuantizeModeNone => QuantizeMode::None,
+        }
+    }
+}
+
+#[repr(C)]
+#[no_mangle]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive)]
+pub enum TempoControl {
+    TempoControlSetGlobalTempo = 0,
+    TempoControlNone = 1,
 }
 
 #[repr(C)]
@@ -169,10 +211,11 @@ impl Default for LFOHandle {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, PartialEq, Debug)]
 enum ParameterValue {
     Float(f32),
     Bool(bool),
+    Enum(usize),
 }
 
 pub struct LooperVoice {
@@ -237,7 +280,17 @@ impl MultiTrackLooperHandle {
                         handle.looper_handle.looper_clip(),
                     );
 
-                    if was_empty {
+                    let parameters = handle.parameter_values.get();
+                    let tempo_control = parameters.get(&ParameterId::ParameterIdQuantization(
+                        QuantizationParameter::QuantizationParameterQuantizeMode,
+                    ));
+
+                    if was_empty
+                        && tempo_control.cloned()
+                            == Some(ParameterValue::Enum(
+                                TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap(),
+                            ))
+                    {
                         let estimated_tempo = estimate_tempo(
                             Default::default(),
                             self.sample_rate.get(),
@@ -347,6 +400,12 @@ impl MultiTrackLooperHandle {
                 EnvelopeParameter::Sustain => voice.envelope.adsr_envelope.set_sustain(value),
                 _ => {}
             },
+            // ParameterId::ParameterIdQuantization(parameter) => match parameter {
+            //     QuantizationParameter::QuantizationMode => {
+            //         voice.looper_handle.quantize_options().set_mode(value.into());
+            //     }
+            //     _ => {}
+            // },
             _ => {}
         }
     }
@@ -387,6 +446,35 @@ impl MultiTrackLooperHandle {
                     parameter: parameter_id,
                 },
                 ParameterValue::Float(value),
+            );
+        }
+    }
+
+    pub fn set_quantization_mode(&self, looper_id: LooperId, mode: CQuantizeMode) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            voice.looper_handle.quantize_options().set_mode(match mode {
+                CQuantizeMode::CQuantizeModeSnapClosest => QuantizeMode::SnapClosest,
+                CQuantizeMode::CQuantizeModeSnapNext => QuantizeMode::SnapNext,
+                CQuantizeMode::CQuantizeModeNone => QuantizeMode::None,
+            });
+            Self::update_parameter_table(
+                &voice,
+                ParameterId::ParameterIdQuantization(
+                    QuantizationParameter::QuantizationParameterQuantizeMode,
+                ),
+                ParameterValue::Enum(mode.to_usize().unwrap()),
+            )
+        }
+    }
+
+    pub fn set_tempo_control(&self, looper_id: LooperId, mode: TempoControl) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            Self::update_parameter_table(
+                &voice,
+                ParameterId::ParameterIdQuantization(
+                    QuantizationParameter::QuantizationParameterTempoControl,
+                ),
+                ParameterValue::Enum(mode.to_usize().unwrap()),
             );
         }
     }
@@ -721,10 +809,14 @@ impl MultiTrackLooper {
         let lfo_parameters: Vec<ParameterId> = LFOParameter::iter()
             .map(|parameter| ParameterId::ParameterIdLFO { lfo: 0, parameter })
             .collect();
+        let quantization_parameters: Vec<ParameterId> = QuantizationParameter::iter()
+            .map(ParameterId::ParameterIdQuantization)
+            .collect();
         let all_parameters = source_parameters
             .iter()
             .chain(envelope_parameters.iter())
-            .chain(lfo_parameters.iter());
+            .chain(lfo_parameters.iter())
+            .chain(quantization_parameters.iter());
 
         let parameter_values = all_parameters
             .flat_map(|parameter_id| {
@@ -737,6 +829,11 @@ impl MultiTrackLooper {
                     "bool" => {
                         let b_str = parameter_id.get_str("default").unwrap();
                         ParameterValue::Bool(b_str == "true")
+                    }
+                    "enum" => {
+                        let e_str = parameter_id.get_str("default").unwrap();
+                        let e = usize::from_str(e_str).unwrap();
+                        ParameterValue::Enum(e)
                     }
                     _ => panic!("Invalid parameter declaration"),
                 };
@@ -899,6 +996,11 @@ impl MidiEventHandler for MultiTrackLooper {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_build_parameters_table() {
+        let _table = MultiTrackLooper::build_default_parameters();
+    }
 
     #[test]
     fn test_set_scene_parameter_lock() {

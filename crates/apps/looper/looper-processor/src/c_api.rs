@@ -12,7 +12,9 @@ use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer
 use augmented_atomics::AtomicF32;
 
 use crate::audio_processor_metrics::{AudioProcessorMetricsActor, AudioProcessorMetricsStats};
-use crate::multi_track_looper::{LFOParameter, LooperVoice, ParameterId, SourceParameter};
+use crate::multi_track_looper::{
+    CQuantizeMode, LFOParameter, LooperVoice, ParameterId, SourceParameter, TempoControl,
+};
 use crate::processor::handle::LooperState;
 use crate::slice_worker::SliceResult;
 use crate::trigger_model::{TrackTriggerModel, Trigger, TriggerPosition};
@@ -243,6 +245,30 @@ pub unsafe extern "C" fn looper_engine__set_envelope_parameter(
     engine
         .handle
         .set_envelope_parameter(LooperId(track_id), envelope_parameter_id, value);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_quantization_mode(
+    engine: *mut LooperEngine,
+    track_id: usize,
+    quantization_mode: CQuantizeMode,
+) {
+    let engine = &(*engine);
+    engine
+        .handle
+        .set_quantization_mode(LooperId(track_id), quantization_mode)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_tempo_control(
+    engine: *mut LooperEngine,
+    track_id: usize,
+    tempo_control: TempoControl,
+) {
+    let engine = &(*engine);
+    engine
+        .handle
+        .set_tempo_control(LooperId(track_id), tempo_control)
 }
 
 #[no_mangle]
