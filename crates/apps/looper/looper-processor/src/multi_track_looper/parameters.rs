@@ -49,6 +49,8 @@ pub enum SourceParameter {
     LoopEnabled = 6,
     #[strum(props(type = "int"))]
     SliceId = 7,
+    #[strum(props(type = "bool", default = "false"))]
+    SliceEnabled = 8,
 }
 
 #[repr(C)]

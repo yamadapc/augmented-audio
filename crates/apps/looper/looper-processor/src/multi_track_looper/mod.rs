@@ -163,6 +163,24 @@ impl MultiTrackLooperHandle {
         match parameter_id {
             ParameterId::ParameterIdSource(parameter) => match parameter {
                 SourceParameter::SliceId => {
+                    let slice_enabled = voice
+                        .parameters()
+                        .get(&ParameterId::ParameterIdSource(
+                            SourceParameter::SliceEnabled,
+                        ))
+                        .map(|entry| {
+                            if let ParameterValue::Bool(v) = entry.val() {
+                                *v
+                            } else {
+                                false
+                            }
+                        })
+                        .unwrap_or(false);
+
+                    if !slice_enabled {
+                        return;
+                    }
+
                     if let Some(slice) = self.slice_worker.result(voice.id) {
                         let markers = slice.markers();
                         let num_markers = markers.len();
@@ -363,7 +381,7 @@ impl MultiTrackLooperHandle {
         value: bool,
     ) {
         if let Some(voice) = self.voices.get(looper_id.0) {
-            match parameter_id {
+            match &parameter_id {
                 ParameterId::ParameterIdSource(parameter) => match parameter {
                     SourceParameter::LoopEnabled => {
                         voice.looper().set_loop_enabled(value);
@@ -378,6 +396,9 @@ impl MultiTrackLooperHandle {
                 },
                 _ => {}
             }
+
+            let parameters = voice.parameters();
+            let _ = parameters.insert(parameter_id.clone(), ParameterValue::Bool(value));
         }
     }
 
