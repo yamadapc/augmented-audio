@@ -51,7 +51,9 @@ impl BuildCommandService {
             .expect("No package.metadata section found");
         let vst_examples = metadata
             .augmented
-            .as_ref().and_then(|a| a.vst_examples.clone()).unwrap_or_default();
+            .as_ref()
+            .and_then(|a| a.vst_examples.clone())
+            .unwrap_or_default();
 
         for example in vst_examples {
             let package_name = &cargo_toml.package.name;

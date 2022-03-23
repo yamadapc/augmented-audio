@@ -1,4 +1,4 @@
-use audio_garbage_collector::{GarbageCollector};
+use audio_garbage_collector::GarbageCollector;
 use audio_processor_standalone::audio_processor_main_with_midi;
 
 use looper_processor::{setup_osc_server, MultiTrackLooper};

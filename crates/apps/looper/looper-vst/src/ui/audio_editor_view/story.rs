@@ -2,13 +2,12 @@ use audio_processor_testing_helpers::relative_path;
 use iced::{Column, Command, Length, Text};
 
 use audio_processor_analysis::transient_detection::stft::{
-    markers::build_markers, markers::AudioFileMarker,
-    IterativeTransientDetectionParams,
+    markers::build_markers, markers::AudioFileMarker, IterativeTransientDetectionParams,
 };
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_iced_design_system::{spacing::Spacing, style::Container1};
 use audio_processor_iced_storybook::StoryView;
-use audio_processor_traits::{AudioProcessorSettings};
+use audio_processor_traits::AudioProcessorSettings;
 
 use crate::ui::common::parameter_view::{
     parameter_view_model::ParameterViewModel, KnobChanged, MultiParameterView,
@@ -31,11 +30,7 @@ pub fn default() -> Story {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum ParameterId {
     FFTSize,
-    FFTOverlapSize,
-    PowerOfChangeSpectralSpread,
-    ThresholdTimeSpread,
     ThresholdTimeSpreadFactor,
-    FrequencyBinChangeThreshold,
     IterationMagnitudeFactor,
     IterationCount,
     Gate,

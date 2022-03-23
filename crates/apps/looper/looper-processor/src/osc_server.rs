@@ -32,6 +32,8 @@ pub fn setup_osc_server(handle: Shared<MultiTrackLooperHandle>) {
 
     let osc_server = OscServer::new(handle, osc_map);
     let _ = std::thread::spawn(move || {
-        osc_server.start();
+        if let Err(err) = osc_server.start() {
+            log::error!("OscServer has exited with {}", err);
+        }
     });
 }

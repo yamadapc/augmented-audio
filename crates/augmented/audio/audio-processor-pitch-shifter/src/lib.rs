@@ -2,13 +2,10 @@ use std::f32::consts::PI;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_analysis::fft_processor::{FftDirection, FftProcessor, FftProcessorOptions};
-use audio_processor_analysis::window_functions::{
-    hann, WindowFunctionType,
-};
+use audio_processor_analysis::window_functions::{hann, WindowFunctionType};
 use audio_processor_traits::num::Complex;
 use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings,
-    SimpleAudioProcessor, Zero,
+    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, Zero,
 };
 
 fn make_vec(size: usize) -> Vec<f32> {
@@ -139,6 +136,11 @@ enum PhaseProcessingStrategy {
     PhaseLocking(PhaseLockedVocoder),
 }
 
+pub enum PhaseProcessingStrategyVariants {
+    Normal,
+    PhaseLocking,
+}
+
 pub struct PitchShifterProcessor {
     pitch_shift_ratio: f32,
     resample_buffer: Vec<f32>,
@@ -187,6 +189,21 @@ impl PitchShifterProcessor {
             phase_processing_strategy: PhaseProcessingStrategy::Normal(NormalPhaseVocoder::new(
                 fft_size,
             )),
+        }
+    }
+
+    pub fn set_strategy(&mut self, strategy: PhaseProcessingStrategyVariants) {
+        match strategy {
+            PhaseProcessingStrategyVariants::Normal => {
+                self.phase_processing_strategy = PhaseProcessingStrategy::Normal(
+                    NormalPhaseVocoder::new(self.fft_processor.size()),
+                )
+            }
+            PhaseProcessingStrategyVariants::PhaseLocking => {
+                self.phase_processing_strategy = PhaseProcessingStrategy::PhaseLocking(
+                    PhaseLockedVocoder::new(self.fft_processor.size()),
+                )
+            }
         }
     }
 
@@ -361,7 +378,6 @@ impl SimpleAudioProcessor for PitchShifterProcessor {
 
 #[cfg(test)]
 mod test {
-    
 
     use audio_processor_testing_helpers::{relative_path, rms_level};
 

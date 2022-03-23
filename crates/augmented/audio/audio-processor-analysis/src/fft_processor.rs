@@ -1,4 +1,3 @@
-
 use std::sync::Arc;
 
 use rustfft::num_complex::Complex;

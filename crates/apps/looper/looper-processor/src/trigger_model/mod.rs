@@ -1,6 +1,6 @@
 pub mod step_tracker;
 
-use std::ops::{Deref};
+use std::ops::Deref;
 use std::sync::atomic::AtomicUsize;
 
 use basedrop::{Shared, SharedCell};

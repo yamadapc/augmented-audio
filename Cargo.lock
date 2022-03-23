@@ -472,16 +472,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "audio-processor-sampler"
-version = "0.1.0"
-dependencies = [
- "audio-garbage-collector",
- "audio-processor-file",
- "audio-processor-standalone",
- "audio-processor-traits",
-]
-
-[[package]]
 name = "audio-processor-standalone"
 version = "1.0.0-alpha.7"
 dependencies = [
@@ -531,6 +521,7 @@ dependencies = [
  "hostname",
  "log",
  "rosc",
+ "thiserror",
  "wisual-logger",
  "zeroconf",
 ]

@@ -12,30 +12,28 @@ fn find_cpal_host_by_name(host_name: &str) -> Option<cpal::Host> {
 }
 
 fn find_cpal_output_device_by_name(host: &Host, id: &str) -> Option<Device> {
-    host.output_devices()
-        .ok().and_then(|mut devices| {
-            devices.find(|device| {
-                let name = device.name();
-                match name {
-                    Ok(name) => name == id,
-                    Err(_) => false,
-                }
-            })
+    host.output_devices().ok().and_then(|mut devices| {
+        devices.find(|device| {
+            let name = device.name();
+            match name {
+                Ok(name) => name == id,
+                Err(_) => false,
+            }
         })
+    })
 }
 
 fn find_cpal_input_device_by_name(host: &Host, id: &str) -> Option<Device> {
-    host.input_devices()
-        .ok().and_then(|mut devices| {
-            devices.find(|device| {
-                let name = device.name();
-                log::info!("Looking for {} in {:?}", id, &name);
-                match name {
-                    Ok(name) => name == id,
-                    Err(_) => false,
-                }
-            })
+    host.input_devices().ok().and_then(|mut devices| {
+        devices.find(|device| {
+            let name = device.name();
+            log::info!("Looking for {} in {:?}", id, &name);
+            match name {
+                Ok(name) => name == id,
+                Err(_) => false,
+            }
         })
+    })
 }
 
 pub fn get_cpal_host(host_id: &AudioHostId) -> cpal::Host {

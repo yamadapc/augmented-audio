@@ -35,8 +35,7 @@ impl AudioProcessorHandle for BitCrusherHandleRef {
     }
 
     fn set_parameter(&self, _index: usize, request: ParameterValue) {
-        if let ParameterValue::Float { value } = request {
-            self.0.set_bit_rate(value);
-        }
+        let ParameterValue::Float { value } = request;
+        self.0.set_bit_rate(value);
     }
 }

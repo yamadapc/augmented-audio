@@ -126,7 +126,6 @@ where
 /// ]
 pub struct InterleavedAudioBuffer<'a, SampleType> {
     num_channels: usize,
-    num_samples: usize,
     inner: &'a mut [SampleType],
 }
 
@@ -134,19 +133,6 @@ impl<'a, SampleType> InterleavedAudioBuffer<'a, SampleType> {
     pub fn new(num_channels: usize, inner: &'a mut [SampleType]) -> Self {
         Self {
             num_channels,
-            num_samples: inner.len(),
-            inner,
-        }
-    }
-
-    pub fn new_with_size(
-        num_channels: usize,
-        num_samples: usize,
-        inner: &'a mut [SampleType],
-    ) -> Self {
-        Self {
-            num_channels,
-            num_samples,
             inner,
         }
     }

@@ -1,4 +1,4 @@
-use atomic_refcell::{AtomicRefCell};
+use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use im::HashMap;
 
@@ -783,8 +783,12 @@ impl MultiTrackLooper {
     ) -> AudioProcessorGraph {
         let mut graph = AudioProcessorGraph::default();
         let metronome_idx = graph.add_node(NodeType::Buffer(Box::new(metronome)));
-        graph.add_connection(graph.input(), metronome_idx);
-        graph.add_connection(metronome_idx, graph.output());
+        graph
+            .add_connection(graph.input(), metronome_idx)
+            .expect("Shouldn't produce loop");
+        graph
+            .add_connection(metronome_idx, graph.output())
+            .expect("Shouldn't produce loop");
 
         for VoiceProcessors {
             looper,
@@ -796,10 +800,18 @@ impl MultiTrackLooper {
             let pitch_shifter_idx = graph.add_node(NodeType::Buffer(Box::new(pitch_shifter)));
             let envelope_idx = graph.add_node(NodeType::Buffer(Box::new(envelope)));
 
-            graph.add_connection(graph.input(), looper_idx);
-            graph.add_connection(looper_idx, pitch_shifter_idx);
-            graph.add_connection(pitch_shifter_idx, envelope_idx);
-            graph.add_connection(envelope_idx, graph.output());
+            graph
+                .add_connection(graph.input(), looper_idx)
+                .expect("Shouldn't produce loop");
+            graph
+                .add_connection(looper_idx, pitch_shifter_idx)
+                .expect("Shouldn't produce loop");
+            graph
+                .add_connection(pitch_shifter_idx, envelope_idx)
+                .expect("Shouldn't produce loop");
+            graph
+                .add_connection(envelope_idx, graph.output())
+                .expect("Shouldn't produce loop");
         }
 
         graph

@@ -110,7 +110,8 @@ impl ListCratesService {
         );
 
         let is_private_package = package
-            .metadata.and_then(|m| m.augmented.map(|a| a.private))
+            .metadata
+            .and_then(|m| m.augmented.map(|a| a.private))
             .flatten()
             .unwrap_or(false);
         if is_private_package {

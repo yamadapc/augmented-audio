@@ -1,7 +1,5 @@
-use atomic_refcell::{AtomicRefCell};
+use atomic_refcell::AtomicRefCell;
 use std::ffi::c_void;
-
-
 
 use std::sync::{Arc, Mutex};
 
@@ -19,8 +17,8 @@ use crate::processor::handle::LooperState;
 use crate::slice_worker::SliceResult;
 
 use crate::{
-    setup_osc_server, EnvelopeParameter, LooperId,
-    MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider,
+    setup_osc_server, EnvelopeParameter, LooperId, MultiTrackLooper, MultiTrackLooperHandle,
+    TimeInfoProvider,
 };
 
 fn into_ptr<T>(value: T) -> *mut T {

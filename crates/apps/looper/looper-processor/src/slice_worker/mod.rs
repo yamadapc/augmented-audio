@@ -11,9 +11,7 @@ use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_analysis::transient_detection::stft::markers::{
     build_markers, AudioFileMarker,
 };
-use audio_processor_analysis::transient_detection::stft::{
-    IterativeTransientDetectionParams,
-};
+use audio_processor_analysis::transient_detection::stft::IterativeTransientDetectionParams;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
 };

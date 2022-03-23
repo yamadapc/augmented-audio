@@ -4,6 +4,7 @@ use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
 use std::time::Duration;
 
 use rosc::{OscMessage, OscPacket};
+use thiserror::Error;
 use zeroconf::prelude::*;
 use zeroconf::{MdnsService, ServiceType};
 
@@ -31,6 +32,14 @@ impl<C> OscMap<C> {
     }
 }
 
+#[derive(Error, Debug)]
+pub enum OscServerError {
+    #[error("IO Error, failed to open socket")]
+    IOError(#[from] std::io::Error),
+    #[error("Failed to perform service discovery")]
+    ZeroConfError(#[from] zeroconf::error::Error),
+}
+
 pub struct OscServer<C> {
     context: C,
     map: OscMap<C>,
@@ -51,13 +60,13 @@ impl<C> OscServer<C> {
         service
     }
 
-    pub fn start(&self) {
+    pub fn start(&self) -> Result<(), OscServerError> {
         let mut service = self.build_service();
         let event_loop = service.register().unwrap();
 
         let addr = SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, 1449);
         let sock = UdpSocket::bind(addr).unwrap();
-        sock.set_read_timeout(Some(Duration::from_millis(500)));
+        sock.set_read_timeout(Some(Duration::from_millis(500)))?;
         let mut buf = [0u8; rosc::decoder::MTU];
 
         log::info!("Listening...");
@@ -72,7 +81,7 @@ impl<C> OscServer<C> {
                 Err(_) => {}
             }
 
-            event_loop.poll(Duration::from_secs(0)).unwrap();
+            event_loop.poll(Duration::from_secs(0))?;
         }
     }
 

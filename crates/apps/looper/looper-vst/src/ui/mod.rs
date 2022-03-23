@@ -111,8 +111,7 @@ impl Application for LooperApplication {
         Subscription::batch([
             iced::time::every(Duration::from_millis(64))
                 .map(|_| WrapperMessage::Inner(Message::VisualizationTick)),
-            file_drag_and_drop_handler::drag_and_drop_subscription()
-                .map(WrapperMessage::Inner),
+            file_drag_and_drop_handler::drag_and_drop_subscription().map(WrapperMessage::Inner),
         ])
     }
 
