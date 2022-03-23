@@ -9,6 +9,7 @@ use iced::{
 
 use audio_chart::{draw_rms_chart, draw_samples_chart};
 use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
+use audio_processor_analysis::transient_detection::stft::markers::AudioFileMarker;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor};
 

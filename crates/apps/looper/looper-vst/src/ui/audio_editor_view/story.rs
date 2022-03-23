@@ -172,7 +172,12 @@ impl StoryView<StoryMessage> for Story {
                 let gate_value = self.parameters_view.get(&ParameterId::Gate).unwrap().value;
                 Command::perform(
                     tokio::task::spawn_blocking(move || {
-                        build_markers(&mut audio_file, params, gate_value)
+                        build_markers(
+                            &AudioProcessorSettings::default(),
+                            &mut audio_file,
+                            params,
+                            gate_value,
+                        )
                     }),
                     |result| StoryMessage::SetMarkers(result.unwrap()),
                 )
