@@ -727,25 +727,24 @@ mod test {
 
     use super::*;
 
-    // #[test]
-    // fn test_build_parameters_table() {
-    //     use itertools::Itertools;
-    //     let table = MultiTrackLooper::build_default_parameters();
-    //     let parameters: Vec<ParameterId> = table.iter().map(|(id, _)| id).cloned().collect();
-    //     let start_index = parameters
-    //         .iter()
-    //         .cloned()
-    //         .find_position(|id| *id == ParameterId::ParameterIdSource(SourceParameter::Start))
-    //         .unwrap()
-    //         .0;
-    //     let slice_index = parameters
-    //         .iter()
-    //         .cloned()
-    //         .find_position(|id| *id == ParameterId::ParameterIdSource(SourceParameter::SliceId))
-    //         .unwrap()
-    //         .0;
-    //     assert!(slice_index > start_index);
-    // }
+    #[test]
+    fn test_build_parameters_table() {
+        use itertools::Itertools;
+        let (_, parameters) = parameters::build_default_parameters();
+        let start_index = parameters
+            .iter()
+            .cloned()
+            .find_position(|id| *id == ParameterId::ParameterIdSource(SourceParameter::Start))
+            .unwrap()
+            .0;
+        let slice_index = parameters
+            .iter()
+            .cloned()
+            .find_position(|id| *id == ParameterId::ParameterIdSource(SourceParameter::SliceId))
+            .unwrap()
+            .0;
+        assert!(slice_index > start_index);
+    }
 
     #[test]
     fn test_process_doesnt_alloc() {
