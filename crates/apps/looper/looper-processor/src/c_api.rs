@@ -1,8 +1,8 @@
-use atomic_refcell::{AtomicRef, AtomicRefCell};
+use atomic_refcell::{AtomicRefCell};
 use std::ffi::c_void;
-use std::hash::Hash;
-use std::ops::Deref;
-use std::ptr::null;
+
+
+
 use std::sync::{Arc, Mutex};
 
 use basedrop::Shared;
@@ -13,13 +13,13 @@ use augmented_atomics::AtomicF32;
 
 use crate::audio_processor_metrics::{AudioProcessorMetricsActor, AudioProcessorMetricsStats};
 use crate::multi_track_looper::{
-    CQuantizeMode, LFOParameter, LooperVoice, ParameterId, SourceParameter, TempoControl,
+    CQuantizeMode, LFOParameter, ParameterId, SourceParameter, TempoControl,
 };
 use crate::processor::handle::LooperState;
 use crate::slice_worker::SliceResult;
-use crate::trigger_model::{TrackTriggerModel, Trigger, TriggerPosition};
+
 use crate::{
-    setup_osc_server, EnvelopeParameter, LooperId, LooperOptions, LooperProcessorHandle,
+    setup_osc_server, EnvelopeParameter, LooperId,
     MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider,
 };
 

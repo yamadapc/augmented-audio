@@ -1,7 +1,7 @@
 use actix::SystemService;
 
 use audio_processor_graph::NodeType;
-use audio_processor_traits::VecAudioBuffer;
+
 use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_graph;
 use plugin_host_lib::audio_io::audio_graph::{AudioGraphManager, ProcessorSpec};

@@ -1,6 +1,6 @@
 use std::ops::Deref;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
-use std::thread::JoinHandle;
+use std::sync::atomic::{AtomicBool, Ordering};
+
 use std::time::Duration;
 
 use basedrop::{Shared, SharedCell};
@@ -12,7 +12,7 @@ use audio_processor_analysis::transient_detection::stft::markers::{
     build_markers, AudioFileMarker,
 };
 use audio_processor_analysis::transient_detection::stft::{
-    find_transients, IterativeTransientDetectionParams,
+    IterativeTransientDetectionParams,
 };
 use audio_processor_traits::{
     AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
@@ -81,7 +81,7 @@ impl SliceProcessorThread {
         let mut work_buffer = VecAudioBuffer::new();
         work_buffer.resize(1, buffer.num_samples(), 0.0);
         for (loop_frame, work_sample) in buffer.frames().zip(work_buffer.slice_mut()) {
-            for (loop_sample) in loop_frame {
+            for loop_sample in loop_frame {
                 *work_sample += loop_sample.get();
             }
         }

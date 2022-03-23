@@ -47,7 +47,7 @@ pub fn estimate_tempo(
 #[cfg(test)]
 mod test {
     use super::*;
-    use rand::seq::index::sample;
+    
 
     #[test]
     fn smoke_test_tempo_estimation_with_0to1hour() {

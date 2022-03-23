@@ -1,7 +1,7 @@
 use basedrop::Shared;
 use std::cmp::Ordering;
 use std::collections::VecDeque;
-use std::sync::mpsc::Receiver;
+
 use std::time::Duration;
 
 pub use audio_thread::*;

@@ -2,7 +2,7 @@ use actix::{Actor, Context, Handler, Message, MessageResult, Supervised, SystemS
 
 use audio_garbage_collector::Shared;
 use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, NodeIndex, NodeType};
-use audio_processor_traits::audio_buffer::VecAudioBuffer;
+
 use audio_processor_traits::AudioProcessor;
 
 use crate::audio_io::audio_thread;

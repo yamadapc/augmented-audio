@@ -1,7 +1,7 @@
-use atomic_refcell::{AtomicRef, AtomicRefCell};
+use atomic_refcell::{AtomicRefCell};
 use basedrop::SharedCell;
 use im::HashMap;
-use num::iter::range_step_from;
+
 use num::{FromPrimitive, ToPrimitive};
 use num_derive::{FromPrimitive, ToPrimitive};
 use std::ops::Deref;
@@ -15,7 +15,6 @@ use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
 use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
-    PitchShifterProcessor,
 };
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
@@ -25,13 +24,13 @@ use augmented_atomics::{AtomicF32, AtomicValue};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 
 use crate::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
-use crate::loop_quantization::QuantizeInput;
+
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::slice_worker::{SliceResult, SliceWorker};
 use crate::tempo_estimation::estimate_tempo;
 use crate::trigger_model::step_tracker::StepTracker;
 use crate::trigger_model::{
-    find_current_beat_trigger, find_running_beat_trigger, TrackTriggerModel, Trigger,
+    find_current_beat_trigger, find_running_beat_trigger, TrackTriggerModel,
 };
 use crate::{
     LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, LooperProcessorHandle,
@@ -150,7 +149,7 @@ struct EnvelopeProcessor {
 
 impl Default for EnvelopeProcessor {
     fn default() -> Self {
-        let mut envelope = augmented_adsr_envelope::Envelope::new();
+        let envelope = augmented_adsr_envelope::Envelope::new();
         envelope.set_attack(Duration::from_secs_f32(0.0));
         envelope.set_decay(Duration::from_secs_f32(0.0));
         envelope.set_sustain(1.0);

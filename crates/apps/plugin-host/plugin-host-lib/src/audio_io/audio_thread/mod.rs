@@ -6,7 +6,7 @@ use ringbuf::Consumer;
 use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 use audio_processor_standalone_midi::host::MidiMessageQueue;
-use audio_processor_traits::audio_buffer::VecAudioBuffer;
+
 use audio_processor_traits::{AudioBuffer, InterleavedAudioBuffer};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;

@@ -159,7 +159,7 @@ pub fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(
     let mut transient_magnitude_frames: Vec<Vec<f32>> =
         initialize_result_transient_magnitude_frames(&mut magnitude_frames);
 
-    for iteration in 0..iteration_count {
+    for _iteration in 0..iteration_count {
         let t_results = frame_deltas::calculate_deltas(&magnitude_frames);
         let f_frames = power_change::calculate_power_of_change(
             PowerOfChangeParams {

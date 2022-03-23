@@ -1,7 +1,7 @@
-use audio_garbage_collector::{GarbageCollector, Shared};
+use audio_garbage_collector::{GarbageCollector};
 use audio_processor_standalone::audio_processor_main_with_midi;
-use audio_processor_standalone_osc::{OscMap, OscServer};
-use looper_processor::{setup_osc_server, LooperId, MultiTrackLooper, MultiTrackLooperHandle};
+
+use looper_processor::{setup_osc_server, MultiTrackLooper};
 
 fn main() {
     wisual_logger::init_from_env();

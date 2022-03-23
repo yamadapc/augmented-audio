@@ -1,6 +1,6 @@
 use augmented_atomics::{AtomicEnum, AtomicF32};
 use num_derive::{FromPrimitive, ToPrimitive};
-use std::thread::current;
+
 use std::time::Duration;
 
 #[derive(Debug, FromPrimitive, ToPrimitive)]
@@ -284,7 +284,7 @@ mod test {
 
     #[test]
     fn test_0_attack_envelope_with_decay() {
-        let mut envelope = Envelope::default();
+        let envelope = Envelope::default();
         envelope.set_sample_rate(44100.0);
 
         envelope.set_attack(Duration::from_secs_f32(0.0));
@@ -308,7 +308,7 @@ mod test {
 
     #[test]
     fn test_0_attack_envelope() {
-        let mut envelope = Envelope::default();
+        let envelope = Envelope::default();
         envelope.set_sample_rate(44100.0);
 
         envelope.set_attack(Duration::from_secs_f32(0.0));
@@ -332,7 +332,7 @@ mod test {
 
     #[test]
     fn test_adsr_default_envelope() {
-        let mut envelope = Envelope::default();
+        let envelope = Envelope::default();
         envelope.set_sample_rate(44100.0);
         envelope.set_attack(Duration::from_secs_f32(0.3));
         envelope.set_release(Duration::from_secs_f32(0.3));
@@ -356,7 +356,7 @@ mod test {
 
     #[test]
     fn test_adsr_exp_envelope() {
-        let mut envelope = Envelope::exp();
+        let envelope = Envelope::exp();
         envelope.set_sample_rate(44100.0);
         envelope.set_attack(Duration::from_secs_f32(0.3));
         envelope.set_release(Duration::from_secs_f32(0.3));

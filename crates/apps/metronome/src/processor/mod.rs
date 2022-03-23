@@ -141,7 +141,7 @@ impl AudioProcessor for MetronomeProcessor {
 /// Private methods
 impl MetronomeProcessor {
     fn build_envelope() -> Envelope {
-        let mut envelope = Envelope::new();
+        let envelope = Envelope::new();
         envelope.set_attack(Duration::from_millis(DEFAULT_CLICK_ATTACK_MS));
         envelope.set_decay(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
         envelope.set_sustain(0.0);

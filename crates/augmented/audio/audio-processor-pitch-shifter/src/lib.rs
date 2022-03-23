@@ -3,11 +3,11 @@ use std::f32::consts::PI;
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_analysis::fft_processor::{FftDirection, FftProcessor, FftProcessorOptions};
 use audio_processor_analysis::window_functions::{
-    blackman_harris, hann, make_hann_vec, make_window_vec, WindowFunctionType,
+    hann, WindowFunctionType,
 };
 use audio_processor_traits::num::Complex;
 use audio_processor_traits::{
-    simple_processor, AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings,
+    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings,
     SimpleAudioProcessor, Zero,
 };
 
@@ -361,11 +361,11 @@ impl SimpleAudioProcessor for PitchShifterProcessor {
 
 #[cfg(test)]
 mod test {
-    use std::process::Output;
+    
 
     use audio_processor_testing_helpers::{relative_path, rms_level};
 
-    use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor, OutputFileSettings};
+    use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
     use audio_processor_traits::{
         AudioBuffer, AudioProcessorSettings, BufferProcessor, OwnedAudioBuffer, VecAudioBuffer,
     };
@@ -400,7 +400,7 @@ mod test {
         let input_path = relative_path!("../../../../input-files/bass.mp3");
         // let input_path = relative_path!("../../../../input-files/1sec-sine.mp3");
         // let input_path = relative_path!("../../../confirmation.mp3");
-        let transients_file_path = format!("{}.transients.wav", input_path);
+        let _transients_file_path = format!("{}.transients.wav", input_path);
         let mut input = read_input_file(&input_path);
         let input_rms = rms_level(input.slice());
 

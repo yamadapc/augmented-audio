@@ -1,6 +1,6 @@
 pub mod step_tracker;
 
-use std::ops::{Add, Deref};
+use std::ops::{Deref};
 use std::sync::atomic::AtomicUsize;
 
 use basedrop::{Shared, SharedCell};
@@ -186,7 +186,7 @@ impl TrackTriggerModel {
         let indexes: Vec<usize> = triggers
             .iter()
             .enumerate()
-            .filter(|(idx, trigger)| trigger.position.step.get() == position_beats)
+            .filter(|(_idx, trigger)| trigger.position.step.get() == position_beats)
             .map(|(idx, _)| idx)
             .collect();
         if !indexes.is_empty() {
@@ -213,7 +213,7 @@ impl TrackTriggerModel {
     }
 
     pub fn add_triggers(&self, triggers: &[Trigger]) {
-        let mut triggers: Vector<Trigger> = Vector::from(triggers);
+        let triggers: Vector<Trigger> = Vector::from(triggers);
         self.triggers.set(make_shared(triggers));
     }
 

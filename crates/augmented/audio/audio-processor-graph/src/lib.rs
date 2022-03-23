@@ -3,15 +3,15 @@ use std::ops::Deref;
 
 use concread::hashmap::HashMap;
 use daggy::Walker;
-use num_traits::Zero;
+
 use thiserror::Error;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared, SharedCell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, Float, InterleavedAudioBuffer,
-    NoopAudioProcessor, ObjectAudioProcessor, SliceAudioProcessor, VecAudioBuffer,
+    AudioBuffer, AudioProcessor, AudioProcessorSettings,
+    NoopAudioProcessor, SliceAudioProcessor, VecAudioBuffer,
 };
 use augmented_oscillator::Oscillator;
 
@@ -366,7 +366,7 @@ fn copy_buffer<SampleType, InputBufferType, OutputBufferType>(
 
 #[cfg(test)]
 mod test {
-    use std::iter::Sum;
+    
     use std::time::Duration;
 
     use audio_processor_testing_helpers::{assert_f_eq, test_level_equivalence};
@@ -691,9 +691,9 @@ mod test {
         let mult_10_node = Mult10Node {};
 
         let mut graph = AudioProcessorGraph::default();
-        for i in 0..10 {
+        for _i in 0..10 {
             let mut current_idx = graph.input();
-            for i in 0..3 {
+            for _i in 0..3 {
                 let node = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
                 graph.add_connection(current_idx, node);
                 current_idx = node;

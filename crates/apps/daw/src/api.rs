@@ -7,7 +7,7 @@ use flutter_rust_bridge::StreamSink;
 
 use audio_garbage_collector::Shared;
 use audio_processor_graph::{NodeIndex, NodeType};
-use audio_processor_traits::VecAudioBuffer;
+
 use audio_thread::actor::AudioThreadMessage;
 use plugin_host_lib::actor_system::ActorSystemThread;
 use plugin_host_lib::audio_io::audio_graph;

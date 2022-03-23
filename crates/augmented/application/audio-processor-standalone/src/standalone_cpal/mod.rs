@@ -3,7 +3,7 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     BufferSize, Host, SampleRate, StreamConfig,
 };
-use log::warn;
+
 use ringbuf::{Consumer, Producer};
 
 use audio_processor_traits::{

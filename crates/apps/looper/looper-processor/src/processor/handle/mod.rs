@@ -197,11 +197,11 @@ impl LooperHandle {
 
     /// Return the real start cursor based on start offset & length
     fn get_start_samples(&self) -> f32 {
-        (self.start_offset.get() * self.length.get() as f32)
+        self.start_offset.get() * self.length.get() as f32
     }
 
     fn get_end_samples(&self) -> f32 {
-        (self.end_offset.get() * self.length.get() as f32)
+        self.end_offset.get() * self.length.get() as f32
     }
 
     pub fn toggle_playback(&self) {
