@@ -1,6 +1,7 @@
 pub use atomic_refcell::AtomicRefCell;
 
 pub use c_api::*;
+pub use multi_track_looper::parameters;
 pub use multi_track_looper::parameters::EnvelopeParameter;
 pub use multi_track_looper::parameters::LooperId;
 pub use multi_track_looper::{MultiTrackLooper, MultiTrackLooperHandle};
