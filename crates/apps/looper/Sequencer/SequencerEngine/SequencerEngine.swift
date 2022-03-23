@@ -102,6 +102,7 @@ let SOURCE_PARAMETER_IDS: [SourceParameterId: SequencerEngine_private.SourcePara
     .pitch: Pitch,
     .speed: Speed,
     .loopEnabled: LoopEnabled,
+    .sliceId: SliceId,
 ]
 
 let LFO_PARAMETER_IDS: [LFOParameterId: SequencerEngine_private.LFOParameter] = [
@@ -148,6 +149,15 @@ public class EngineController {
 
                 let rustParameterId = SOURCE_PARAMETER_IDS[parameter.id]!
                 looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, parameter.value)
+            }
+
+            trackState.sourceParameters.intParameters.forEach { parameter in
+                parameter.$value.sink(receiveValue: { value in
+                    let rustParameterId = SOURCE_PARAMETER_IDS[parameter.localId]!
+                    looper_engine__set_source_parameter_int(self.engine.engine, UInt(i), rustParameterId, Int32(value))
+                }).store(in: &cancellables)
+                let rustParameterId = SOURCE_PARAMETER_IDS[parameter.localId]!
+                looper_engine__set_source_parameter_int(self.engine.engine, UInt(i), rustParameterId, Int32(parameter.value))
             }
 
             trackState.sourceParameters.toggles.forEach { toggle in

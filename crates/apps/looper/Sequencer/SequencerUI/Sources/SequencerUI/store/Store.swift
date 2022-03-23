@@ -132,6 +132,22 @@ public class BooleanParameter: ObservableObject {
     }
 }
 
+public class IntParameter<ParameterId>: ObservableObject, Identifiable {
+    public var id: ObjectId
+    public var localId: ParameterId
+    @Published var label: String
+    @Published public var value: Int
+    @Published var maximum: Int
+
+    init(id: ObjectId, localId: ParameterId, label: String, value: Int, maximum _: Int) {
+        self.id = id
+        self.localId = localId
+        self.label = label
+        self.value = value
+        maximum = 0
+    }
+}
+
 public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
     public var id: ParameterId
     var globalId: ObjectId
@@ -183,7 +199,7 @@ public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
 }
 
 public enum SourceParameterId {
-    case start, end, fadeStart, fadeEnd, pitch, speed, loopEnabled
+    case start, end, fadeStart, fadeEnd, pitch, speed, loopEnabled, sliceId
 }
 
 public typealias SourceParameter = FloatParameter<SourceParameterId>
@@ -197,6 +213,7 @@ public class SourceParametersState: ObservableObject {
     var pitch: SourceParameter
     var speed: SourceParameter
     var loopEnabled: BooleanParameter
+    var slice: IntParameter<SourceParameterId>
 
     public var parameters: [SourceParameter] {
         [
@@ -206,6 +223,12 @@ public class SourceParametersState: ObservableObject {
             fadeEnd,
             pitch,
             speed,
+        ]
+    }
+
+    public var intParameters: [IntParameter<SourceParameterId>] {
+        [
+            slice,
         ]
     }
 
@@ -259,6 +282,13 @@ public class SourceParametersState: ObservableObject {
             id: .sourceParameter(trackId: trackId, parameterId: .loopEnabled),
             label: "Loop",
             value: true
+        )
+        slice = IntParameter(
+            id: .sourceParameter(trackId: trackId, parameterId: .sliceId),
+            localId: .sliceId,
+            label: "Slice",
+            value: 0,
+            maximum: 1
         )
     }
 }
@@ -726,6 +756,7 @@ public extension Store {
 
     func setSliceBuffer(trackId: Int, fromAbstractBuffer buffer: SliceBuffer?) {
         trackStates[trackId - 1].sliceBuffer = buffer
+        trackStates[trackId - 1].sourceParameters.slice.maximum = (buffer?.count ?? 2) - 1
     }
 
     func setTrackBuffer(trackId: Int, fromUnsafePointer buffer: UnsafeBufferPointer<Float32>) {

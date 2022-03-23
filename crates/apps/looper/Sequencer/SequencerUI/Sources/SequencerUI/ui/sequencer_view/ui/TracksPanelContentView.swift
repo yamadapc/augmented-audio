@@ -109,6 +109,12 @@ struct SourcePanelContentView: View {
                     parameter: parameter
                 )
             }
+
+            ForEach(sourceParameters.intParameters) { parameter in
+                ParameterKnobView(
+                    parameter: parameter
+                )
+            }
         }
     }
 }
