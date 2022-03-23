@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_analysis::fft_processor::{FftDirection, FftProcessor, FftProcessorOptions};
-use audio_processor_analysis::window_functions::{hann, WindowFunctionType};
+use audio_processor_analysis::window_functions::{make_hann_vec, WindowFunctionType};
 use audio_processor_traits::num::Complex;
 use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, Zero,
@@ -152,6 +152,7 @@ pub struct PitchShifterProcessor {
     phase_processing_strategy: PhaseProcessingStrategy,
     fft_processor: FftProcessor,
     inverse_fft_processor: FftProcessor,
+    window_fn: Vec<f32>,
 }
 
 impl Default for PitchShifterProcessor {
@@ -190,6 +191,7 @@ impl PitchShifterProcessor {
             phase_processing_strategy: PhaseProcessingStrategy::Normal(NormalPhaseVocoder::new(
                 fft_size,
             )),
+            window_fn: make_hann_vec(fft_size),
         }
     }
 
@@ -231,7 +233,7 @@ impl PitchShifterProcessor {
             let s = self.resample_buffer[resample_idx];
             let output_idx = (self.output_write_cursor + i) % self.output_buffer.len();
             assert!(!s.is_nan());
-            self.output_buffer[output_idx] += s * hann(i as f32, fft_size as f32);
+            self.output_buffer[output_idx] += s * self.window_fn[i];
         }
 
         self.output_write_cursor =
@@ -344,10 +346,12 @@ impl AudioProcessor for MultiChannelPitchShifterProcessor {
 }
 
 fn princ_arg(phase: f32) -> f32 {
+    const PI_2: f32 = 2.0 * PI;
+
     if phase >= 0.0 {
-        (phase + PI) % (2.0 * PI) - PI
+        (phase + PI) % (PI_2) - PI
     } else {
-        (phase + PI) % (-2.0 * PI) + PI
+        (phase + PI) % (-PI_2) + PI
     }
 }
 
