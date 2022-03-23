@@ -79,11 +79,11 @@ impl<C> OscServer<C> {
                     }
                 }
                 Err(err) => {
-                    log::error!("Failed to recv from OSC socket {}", err);
+                    log::debug!("Failed to recv from OSC socket {}", err);
                 }
             }
 
-            event_loop.poll(Duration::from_secs(0))?;
+            event_loop.poll(Duration::from_secs(1))?;
         }
     }
 
