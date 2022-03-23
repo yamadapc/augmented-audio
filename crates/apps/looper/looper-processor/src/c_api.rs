@@ -124,14 +124,14 @@ pub unsafe extern "C" fn looper_engine__toggle_trigger(
 
 #[no_mangle]
 pub extern "C" fn looper_engine__source_parameter_id(parameter: SourceParameter) -> ParameterId {
-    ParameterId::ParameterIdSource { parameter }
+    ParameterId::ParameterIdSource(parameter)
 }
 
 #[no_mangle]
 pub extern "C" fn looper_engine__envelope_parameter_id(
     parameter: EnvelopeParameter,
 ) -> ParameterId {
-    ParameterId::ParameterIdEnvelope { parameter }
+    ParameterId::ParameterIdEnvelope(parameter)
 }
 
 #[no_mangle]
@@ -139,7 +139,7 @@ pub extern "C" fn looper_engine__lfo_parameter_id(
     lfo: usize,
     parameter: LFOParameter,
 ) -> ParameterId {
-    ParameterId::ParameterIdLFO { lfo, parameter }
+    ParameterId::ParameterIdLFO(lfo, parameter)
 }
 
 #[no_mangle]
@@ -252,9 +252,7 @@ pub unsafe extern "C" fn looper_engine__set_source_parameter_int(
     let engine = &(*engine);
     engine.handle.set_int_parameter(
         LooperId(track_id),
-        ParameterId::ParameterIdSource {
-            parameter: parameter_id,
-        },
+        ParameterId::ParameterIdSource(parameter_id),
         value,
     )
 }

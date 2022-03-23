@@ -183,7 +183,7 @@ impl MultiTrackLooperHandle {
                 _ => {}
             }
 
-            let parameter_id = ParameterId::ParameterIdSource { parameter };
+            let parameter_id = ParameterId::ParameterIdSource(parameter);
             Self::update_parameter_table(voice, parameter_id, ParameterValue::Float(value));
         }
     }
@@ -202,7 +202,7 @@ impl MultiTrackLooperHandle {
     #[allow(clippy::single_match, clippy::collapsible_match)]
     fn update_handle_int(&self, voice: &LooperVoice, parameter_id: ParameterId, value: i32) {
         match parameter_id {
-            ParameterId::ParameterIdSource { parameter } => match parameter {
+            ParameterId::ParameterIdSource(parameter) => match parameter {
                 SourceParameter::SliceId => {
                     if let Some(slice) = self.slice_worker.result(voice.id) {
                         let markers = slice.markers();
@@ -226,7 +226,7 @@ impl MultiTrackLooperHandle {
 
     fn update_handle_float(&self, voice: &LooperVoice, parameter_id: ParameterId, value: f32) {
         match parameter_id {
-            ParameterId::ParameterIdSource { parameter } => match parameter {
+            ParameterId::ParameterIdSource(parameter) => match parameter {
                 SourceParameter::Start => {
                     voice.looper_handle.set_start_offset(value);
                 }
@@ -247,7 +247,7 @@ impl MultiTrackLooperHandle {
                 }
                 _ => {}
             },
-            ParameterId::ParameterIdEnvelope { parameter } => match parameter {
+            ParameterId::ParameterIdEnvelope(parameter) => match parameter {
                 EnvelopeParameter::Attack => voice
                     .envelope
                     .adsr_envelope
@@ -299,9 +299,7 @@ impl MultiTrackLooperHandle {
 
             Self::update_parameter_table(
                 voice,
-                ParameterId::ParameterIdEnvelope {
-                    parameter: parameter_id,
-                },
+                ParameterId::ParameterIdEnvelope(parameter_id),
                 ParameterValue::Float(value),
             );
         }
@@ -367,10 +365,7 @@ impl MultiTrackLooperHandle {
 
             Self::update_parameter_table(
                 voice,
-                ParameterId::ParameterIdLFO {
-                    lfo,
-                    parameter: parameter_id,
-                },
+                ParameterId::ParameterIdLFO(lfo, parameter_id),
                 ParameterValue::Float(value),
             );
         }
@@ -410,13 +405,13 @@ impl MultiTrackLooperHandle {
     ) {
         if let Some(voice) = self.voices.get(looper_id.0) {
             match parameter_id {
-                ParameterId::ParameterIdSource { parameter } => match parameter {
+                ParameterId::ParameterIdSource(parameter) => match parameter {
                     SourceParameter::LoopEnabled => {
                         voice.looper_handle.set_loop_enabled(value);
                     }
                     _ => {}
                 },
-                ParameterId::ParameterIdEnvelope { parameter } => match parameter {
+                ParameterId::ParameterIdEnvelope(parameter) => match parameter {
                     EnvelopeParameter::EnvelopeEnabled => {
                         voice.envelope.enabled.store(value, Ordering::Relaxed);
                     }
@@ -677,13 +672,13 @@ impl MultiTrackLooper {
 
     fn build_default_parameters() -> im::HashMap<ParameterId, ParameterValue> {
         let source_parameters: Vec<ParameterId> = SourceParameter::iter()
-            .map(|parameter| ParameterId::ParameterIdSource { parameter })
+            .map(|parameter| ParameterId::ParameterIdSource(parameter))
             .collect();
         let envelope_parameters: Vec<ParameterId> = EnvelopeParameter::iter()
-            .map(|parameter| ParameterId::ParameterIdEnvelope { parameter })
+            .map(|parameter| ParameterId::ParameterIdEnvelope(parameter))
             .collect();
         let lfo_parameters: Vec<ParameterId> = LFOParameter::iter()
-            .map(|parameter| ParameterId::ParameterIdLFO { lfo: 0, parameter })
+            .map(|parameter| ParameterId::ParameterIdLFO(0, parameter))
             .collect();
         let quantization_parameters: Vec<ParameterId> = QuantizationParameter::iter()
             .map(ParameterId::ParameterIdQuantization)
@@ -722,14 +717,11 @@ impl MultiTrackLooper {
                     _ => panic!("Invalid parameter declaration"),
                 };
 
-                if let ParameterId::ParameterIdLFO { parameter, .. } = parameter_id {
+                if let ParameterId::ParameterIdLFO(_, parameter) = parameter_id {
                     (0..2)
                         .map(|lfo| {
                             (
-                                ParameterId::ParameterIdLFO {
-                                    lfo,
-                                    parameter: parameter.clone(),
-                                },
+                                ParameterId::ParameterIdLFO(lfo, parameter.clone()),
                                 default_value.clone(),
                             )
                         })
@@ -893,21 +885,13 @@ mod test {
         let start_index = parameters
             .iter()
             .cloned()
-            .find_position(|id| {
-                *id == ParameterId::ParameterIdSource {
-                    parameter: SourceParameter::Start,
-                }
-            })
+            .find_position(|id| *id == ParameterId::ParameterIdSource(SourceParameter::Start))
             .unwrap()
             .0;
         let slice_index = parameters
             .iter()
             .cloned()
-            .find_position(|id| {
-                *id == ParameterId::ParameterIdSource {
-                    parameter: SourceParameter::SliceId,
-                }
-            })
+            .find_position(|id| *id == ParameterId::ParameterIdSource(SourceParameter::SliceId))
             .unwrap()
             .0;
         assert!(slice_index > start_index);
@@ -917,9 +901,7 @@ mod test {
     fn test_set_scene_parameter_lock() {
         let mut looper = MultiTrackLooper::new(Default::default(), 8);
 
-        let start_parameter = ParameterId::ParameterIdSource {
-            parameter: SourceParameter::Start,
-        };
+        let start_parameter = ParameterId::ParameterIdSource(SourceParameter::Start);
         looper
             .handle
             .set_source_parameter(LooperId(0), SourceParameter::Start, 0.3);

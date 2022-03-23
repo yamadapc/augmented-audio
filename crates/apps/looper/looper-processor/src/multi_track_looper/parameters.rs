@@ -11,18 +11,18 @@ pub struct LooperId(pub usize);
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants)]
 #[allow(clippy::enum_variant_names)]
 pub enum ParameterId {
-    ParameterIdSource { parameter: SourceParameter },
-    ParameterIdEnvelope { parameter: EnvelopeParameter },
-    ParameterIdLFO { lfo: usize, parameter: LFOParameter },
+    ParameterIdSource(SourceParameter),
+    ParameterIdEnvelope(EnvelopeParameter),
+    ParameterIdLFO(usize, LFOParameter),
     ParameterIdQuantization(QuantizationParameter),
 }
 
 impl EnumProperty for ParameterId {
     fn get_str(&self, prop: &str) -> Option<&'static str> {
         match self {
-            ParameterId::ParameterIdSource { parameter, .. } => parameter.get_str(prop),
-            ParameterId::ParameterIdEnvelope { parameter, .. } => parameter.get_str(prop),
-            ParameterId::ParameterIdLFO { parameter, .. } => parameter.get_str(prop),
+            ParameterId::ParameterIdSource(parameter) => parameter.get_str(prop),
+            ParameterId::ParameterIdEnvelope(parameter) => parameter.get_str(prop),
+            ParameterId::ParameterIdLFO(_, parameter) => parameter.get_str(prop),
             ParameterId::ParameterIdQuantization(parameter) => parameter.get_str(prop),
         }
     }
