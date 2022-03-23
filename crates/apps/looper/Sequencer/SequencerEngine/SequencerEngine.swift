@@ -102,6 +102,7 @@ let SOURCE_PARAMETER_IDS: [SourceParameterId: SequencerEngine_private.SourcePara
     .pitch: Pitch,
     .speed: Speed,
     .loopEnabled: LoopEnabled,
+    .sliceEnabled: SliceEnabled,
     .sliceId: SliceId,
 ]
 

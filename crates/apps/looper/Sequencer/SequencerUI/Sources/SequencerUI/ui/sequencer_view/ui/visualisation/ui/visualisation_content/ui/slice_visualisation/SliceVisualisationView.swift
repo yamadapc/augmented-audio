@@ -43,7 +43,7 @@ struct SliceVisualisationView: View {
             .frame(maxHeight: .infinity)
 
             HStack {
-                Text("Auto slice enabled")
+                ToggleParameterView(parameter: trackState.sourceParameters.sliceEnabled)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(PADDING)

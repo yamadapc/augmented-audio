@@ -33,7 +33,9 @@ extension IntParameter: KnobParameterLike {
         return result
     }
 
-    func endParameterLock(_: Store) {}
+    func endParameterLock(_: Store) {
+      // TODO - Implement parameter locks for slice
+    }
 }
 
 extension FloatParameter: KnobParameterLike {
@@ -83,6 +85,8 @@ struct ParameterKnobView<ParameterT: KnobParameterLike>: View {
     @ObservedObject var parameter: ParameterT
     @EnvironmentObject var store: Store
 
+    var isDisabled: Bool = false
+
     var body: some View {
         KnobView(
             label: parameter.label,
@@ -111,5 +115,7 @@ struct ParameterKnobView<ParameterT: KnobParameterLike>: View {
             ),
             alignment: .center
         )
+        .opacity(isDisabled ? 0.5 : 1.0)
+        .allowsHitTesting(isDisabled ? false : true)
     }
 }

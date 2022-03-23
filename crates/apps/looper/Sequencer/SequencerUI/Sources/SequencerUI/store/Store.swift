@@ -199,7 +199,7 @@ public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
 }
 
 public enum SourceParameterId {
-    case start, end, fadeStart, fadeEnd, pitch, speed, loopEnabled, sliceId
+    case start, end, fadeStart, fadeEnd, pitch, speed, loopEnabled, sliceId, sliceEnabled
 }
 
 public typealias SourceParameter = FloatParameter<SourceParameterId>
@@ -213,6 +213,7 @@ public class SourceParametersState: ObservableObject {
     var pitch: SourceParameter
     var speed: SourceParameter
     var loopEnabled: BooleanParameter
+    var sliceEnabled: BooleanParameter
     var slice: IntParameter<SourceParameterId>
 
     public var parameters: [SourceParameter] {
@@ -235,6 +236,7 @@ public class SourceParametersState: ObservableObject {
     public var toggles: [BooleanParameter] {
         [
             loopEnabled,
+            sliceEnabled,
         ]
     }
 
@@ -289,6 +291,11 @@ public class SourceParametersState: ObservableObject {
             label: "Slice",
             value: 0,
             maximum: 1
+        )
+        sliceEnabled = BooleanParameter(
+            id: .sourceParameter(trackId: trackId, parameterId: .sliceEnabled),
+            label: "Slice",
+            value: false
         )
     }
 }
