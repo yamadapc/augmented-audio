@@ -90,7 +90,8 @@ class _SynthesizerViewState extends State<SynthesizerView> {
 
   @override
   void initState() {
-    var api = initialize();
+    super.initState();
+    initialize();
     synth = SynthesizerApi();
 
     setupGraph();

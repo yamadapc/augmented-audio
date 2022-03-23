@@ -17,9 +17,7 @@ abstract class _VolumeMeterModel with Store {
 }
 
 class VolumeMeter extends StatefulWidget {
-  late Timer timer;
-
-  VolumeMeter({Key? key}) : super(key: key);
+  const VolumeMeter({Key? key}) : super(key: key);
 
   @override
   State<VolumeMeter> createState() => _VolumeMeterState();
