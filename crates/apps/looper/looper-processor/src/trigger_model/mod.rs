@@ -6,7 +6,7 @@ use std::sync::atomic::AtomicUsize;
 use basedrop::{Shared, SharedCell};
 use im::{HashMap, Vector};
 
-use crate::multi_track_looper::ParameterId;
+use crate::multi_track_looper::parameters::ParameterId;
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use augmented_atomics::{AtomicF32, AtomicValue};
 use step_tracker::StepTracker;

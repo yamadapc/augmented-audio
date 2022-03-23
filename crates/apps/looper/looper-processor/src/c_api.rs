@@ -10,16 +10,14 @@ use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer
 use augmented_atomics::AtomicF32;
 
 use crate::audio_processor_metrics::{AudioProcessorMetricsActor, AudioProcessorMetricsStats};
-use crate::multi_track_looper::{
-    CQuantizeMode, LFOParameter, ParameterId, SourceParameter, TempoControl,
-};
 use crate::processor::handle::LooperState;
 use crate::slice_worker::SliceResult;
 
-use crate::{
-    setup_osc_server, EnvelopeParameter, LooperId, MultiTrackLooper, MultiTrackLooperHandle,
-    TimeInfoProvider,
+use crate::multi_track_looper::parameters::{
+    CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,
+    TempoControl,
 };
+use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider};
 
 fn into_ptr<T>(value: T) -> *mut T {
     Box::into_raw(Box::new(value))

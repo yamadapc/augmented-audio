@@ -1,14 +1,12 @@
-use atomic_refcell::AtomicRefCell;
-use basedrop::SharedCell;
-
-use num::ToPrimitive;
-use num_derive::{FromPrimitive, ToPrimitive};
 use std::ops::Deref;
 use std::str::FromStr;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Duration;
+
+use atomic_refcell::AtomicRefCell;
+use basedrop::SharedCell;
+use num::ToPrimitive;
 use strum::{EnumProperty, IntoEnumIterator};
-use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
@@ -21,9 +19,12 @@ use audio_processor_traits::{
 };
 use augmented_atomics::{AtomicF32, AtomicValue};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
+use parameters::{
+    CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
+    QuantizationParameter, SceneId, SourceParameter, TempoControl,
+};
 
 use crate::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
-
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::slice_worker::{SliceResult, SliceWorker};
 use crate::tempo_estimation::estimate_tempo;
@@ -36,100 +37,7 @@ use crate::{
     QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl,
 };
 
-#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq)]
-pub struct LooperId(pub usize);
-
-#[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants)]
-pub enum ParameterId {
-    ParameterIdSource { parameter: SourceParameter },
-    ParameterIdEnvelope { parameter: EnvelopeParameter },
-    ParameterIdLFO { lfo: usize, parameter: LFOParameter },
-    ParameterIdQuantization(QuantizationParameter),
-}
-
-impl EnumProperty for ParameterId {
-    fn get_str(&self, prop: &str) -> Option<&'static str> {
-        match self {
-            ParameterId::ParameterIdSource { parameter, .. } => parameter.get_str(prop),
-            ParameterId::ParameterIdEnvelope { parameter, .. } => parameter.get_str(prop),
-            ParameterId::ParameterIdLFO { parameter, .. } => parameter.get_str(prop),
-            ParameterId::ParameterIdQuantization(parameter) => parameter.get_str(prop),
-        }
-    }
-}
-
-pub type SceneId = usize;
-
-#[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
-pub enum SourceParameter {
-    #[strum(props(type = "float", default = "0.0"))]
-    Start = 0,
-    #[strum(props(type = "float", default = "1.0"))]
-    End = 1,
-    #[strum(props(type = "float", default = "0.0"))]
-    FadeStart = 2,
-    #[strum(props(type = "float", default = "0.0"))]
-    FadeEnd = 3,
-    #[strum(props(type = "float", default = "1.0"))]
-    Pitch = 4,
-    #[strum(props(type = "float", default = "1.0"))]
-    Speed = 5,
-    #[strum(props(type = "bool", default = "true"))]
-    LoopEnabled = 6,
-    #[strum(props(type = "int"))]
-    SliceId = 7,
-}
-
-#[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
-pub enum QuantizationParameter {
-    #[strum(props(type = "enum", default = "0"))]
-    QuantizationParameterQuantizeMode = 0,
-    #[strum(props(type = "enum", default = "0"))]
-    QuantizationParameterTempoControl = 1,
-}
-
-#[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive)]
-pub enum CQuantizeMode {
-    CQuantizeModeSnapClosest = 0,
-    CQuantizeModeSnapNext = 1,
-    CQuantizeModeNone = 2,
-}
-
-impl Into<QuantizeMode> for CQuantizeMode {
-    fn into(self: Self) -> QuantizeMode {
-        match self {
-            CQuantizeMode::CQuantizeModeSnapClosest => QuantizeMode::SnapClosest,
-            CQuantizeMode::CQuantizeModeSnapNext => QuantizeMode::SnapNext,
-            CQuantizeMode::CQuantizeModeNone => QuantizeMode::None,
-        }
-    }
-}
-
-#[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive)]
-pub enum TempoControl {
-    TempoControlSetGlobalTempo = 0,
-    TempoControlNone = 1,
-}
-
-#[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
-pub enum EnvelopeParameter {
-    #[strum(props(type = "float", default = "0.0"))]
-    Attack = 0,
-    #[strum(props(type = "float", default = "0.0"))]
-    Decay = 1,
-    #[strum(props(type = "float", default = "0.3"))]
-    Release = 2,
-    #[strum(props(type = "float", default = "1.0"))]
-    Sustain = 3,
-    #[strum(props(type = "bool", default = "false"))]
-    EnvelopeEnabled = 4,
-}
+pub mod parameters;
 
 struct EnvelopeHandle {
     adsr_envelope: augmented_adsr_envelope::Envelope,
@@ -181,15 +89,6 @@ impl AudioProcessor for EnvelopeProcessor {
     }
 }
 
-#[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
-pub enum LFOParameter {
-    #[strum(props(type = "float", default = "1.0"))]
-    Frequency = 0,
-    #[strum(props(type = "float", default = "1.0"))]
-    Amount = 1,
-}
-
 struct LFOHandle {
     amount: AtomicF32,
     frequency: AtomicF32,
@@ -202,15 +101,6 @@ impl Default for LFOHandle {
             frequency: 1.0.into(),
         }
     }
-}
-
-#[derive(Clone, PartialEq, Debug)]
-enum ParameterValue {
-    Float(f32),
-    Bool(bool),
-    Enum(usize),
-    Int(i32),
-    None,
 }
 
 pub struct LooperVoice {

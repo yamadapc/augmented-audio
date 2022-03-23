@@ -10,7 +10,8 @@ use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::Container0;
 use audio_processor_iced_design_system::style::Container1;
 use audio_processor_iced_design_system::tabs;
-use looper_processor::{LooperId, MultiTrackLooperHandle, TimeInfoProvider};
+use looper_processor::multi_track_looper::parameters::LooperId;
+use looper_processor::{MultiTrackLooperHandle, TimeInfoProvider};
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
 
