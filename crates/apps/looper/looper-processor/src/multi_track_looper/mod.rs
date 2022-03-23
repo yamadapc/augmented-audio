@@ -1,6 +1,6 @@
 use std::ops::Deref;
 use std::str::FromStr;
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use atomic_refcell::AtomicRefCell;
@@ -18,6 +18,7 @@ use audio_processor_traits::{
     VecAudioBuffer,
 };
 use augmented_atomics::{AtomicF32, AtomicValue};
+use envelope_processor::{EnvelopeHandle, EnvelopeProcessor};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 use parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
@@ -37,57 +38,8 @@ use crate::{
     QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl,
 };
 
+mod envelope_processor;
 pub mod parameters;
-
-struct EnvelopeHandle {
-    adsr_envelope: augmented_adsr_envelope::Envelope,
-    enabled: AtomicBool,
-}
-
-struct EnvelopeProcessor {
-    handle: Shared<EnvelopeHandle>,
-}
-
-impl Default for EnvelopeProcessor {
-    fn default() -> Self {
-        let envelope = augmented_adsr_envelope::Envelope::new();
-        envelope.set_attack(Duration::from_secs_f32(0.0));
-        envelope.set_decay(Duration::from_secs_f32(0.0));
-        envelope.set_sustain(1.0);
-        envelope.set_release(Duration::from_secs_f32(1_000_000.0));
-        Self {
-            handle: make_shared(EnvelopeHandle {
-                adsr_envelope: envelope,
-                enabled: AtomicBool::new(false),
-            }),
-        }
-    }
-}
-
-impl AudioProcessor for EnvelopeProcessor {
-    type SampleType = f32;
-
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.handle
-            .adsr_envelope
-            .set_sample_rate(settings.sample_rate());
-    }
-
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        data: &mut BufferType,
-    ) {
-        if self.handle.enabled.load(Ordering::Relaxed) {
-            for frame in data.frames_mut() {
-                let volume = self.handle.adsr_envelope.volume();
-                for sample in frame {
-                    *sample = *sample * volume;
-                }
-                self.handle.adsr_envelope.tick();
-            }
-        }
-    }
-}
 
 struct LFOHandle {
     amount: AtomicF32,
