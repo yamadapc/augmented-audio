@@ -361,8 +361,7 @@ pub unsafe extern "C" fn slice_buffer__get(
 ) -> usize {
     (*buffer)
         .as_ref()
-        .map(|buffer| buffer.markers().get(index))
-        .flatten()
+        .and_then(|buffer| buffer.markers().get(index))
         .map(|marker| marker.position_samples)
         .unwrap_or(0)
 }

@@ -68,7 +68,7 @@ pub enum CQuantizeMode {
 }
 
 impl Into<QuantizeMode> for CQuantizeMode {
-    fn into(self: Self) -> QuantizeMode {
+    fn into(self) -> QuantizeMode {
         match self {
             CQuantizeMode::CQuantizeModeSnapClosest => QuantizeMode::SnapClosest,
             CQuantizeMode::CQuantizeModeSnapNext => QuantizeMode::SnapNext,

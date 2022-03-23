@@ -46,7 +46,7 @@ impl AudioProcessor for EnvelopeProcessor {
             for frame in data.frames_mut() {
                 let volume = self.handle.adsr_envelope.volume();
                 for sample in frame {
-                    *sample = *sample * volume;
+                    *sample *= volume;
                 }
                 self.handle.adsr_envelope.tick();
             }

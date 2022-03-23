@@ -297,7 +297,7 @@ impl MultiTrackLooperHandle {
             }
 
             Self::update_parameter_table(
-                &voice,
+                voice,
                 ParameterId::ParameterIdEnvelope {
                     parameter: parameter_id,
                 },
@@ -314,7 +314,7 @@ impl MultiTrackLooperHandle {
                 CQuantizeMode::CQuantizeModeNone => QuantizeMode::None,
             });
             Self::update_parameter_table(
-                &voice,
+                voice,
                 ParameterId::ParameterIdQuantization(
                     QuantizationParameter::QuantizationParameterQuantizeMode,
                 ),
@@ -326,7 +326,7 @@ impl MultiTrackLooperHandle {
     pub fn set_tempo_control(&self, looper_id: LooperId, mode: TempoControl) {
         if let Some(voice) = self.voices.get(looper_id.0) {
             Self::update_parameter_table(
-                &voice,
+                voice,
                 ParameterId::ParameterIdQuantization(
                     QuantizationParameter::QuantizationParameterTempoControl,
                 ),
@@ -365,7 +365,7 @@ impl MultiTrackLooperHandle {
             }
 
             Self::update_parameter_table(
-                &voice,
+                voice,
                 ParameterId::ParameterIdLFO {
                     lfo,
                     parameter: parameter_id,
@@ -387,11 +387,9 @@ impl MultiTrackLooperHandle {
         &self,
         looper_id: LooperId,
     ) -> Option<Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>> {
-        if let Some(voice) = self.voices.get(looper_id.0) {
-            Some(voice.looper_handle.looper_clip())
-        } else {
-            None
-        }
+        self.voices
+            .get(looper_id.0)
+            .map(|voice| voice.looper_handle.looper_clip())
     }
 
     pub fn get_looper_state(&self, looper_id: LooperId) -> LooperState {
@@ -452,7 +450,7 @@ impl MultiTrackLooperHandle {
         let mut scene_parameters = all_scene_parameters
             .get(&scene_id)
             .cloned()
-            .unwrap_or(Default::default());
+            .unwrap_or_default();
         scene_parameters.insert((looper_id, parameter_id), ParameterValue::Float(value));
         all_scene_parameters.insert(scene_id, scene_parameters);
         self.scene_parameters.set(make_shared(all_scene_parameters));
@@ -820,13 +818,11 @@ impl MultiTrackLooper {
             for (parameter_id, parameter_value) in parameter_values.iter() {
                 let key = (looper_id, parameter_id.clone());
                 let left_value = left_parameters
-                    .map(|ps| ps.get(&key))
-                    .flatten()
+                    .and_then(|ps| ps.get(&key))
                     .cloned()
                     .unwrap_or(parameter_value.clone());
                 let right_value = right_parameters
-                    .map(|ps| ps.get(&key))
-                    .flatten()
+                    .and_then(|ps| ps.get(&key))
                     .cloned()
                     .unwrap_or(parameter_value.clone());
 

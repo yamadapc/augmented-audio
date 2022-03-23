@@ -428,9 +428,8 @@ impl LooperHandle {
                 let cursor = cursor as usize;
                 let clip_out1 = clip.get(channel, cursor % clip.num_samples()).get();
                 let clip_out2 = clip.get(channel, (cursor + 1) % clip.num_samples()).get();
-                let clip_out = clip_out1 + delta_next_sample * (clip_out2 - clip_out1);
 
-                clip_out
+                clip_out1 + delta_next_sample * (clip_out2 - clip_out1)
             }
             LooperState::Overdubbing => {
                 let clip = self.looper_clip.get();

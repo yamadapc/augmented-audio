@@ -25,7 +25,7 @@ pub fn find_running_beat_trigger<'a>(
         .deref()
         .iter()
         .filter(move |trigger| trigger.position.step.get() == current_step)
-        .map(|trigger| trigger.clone())
+        .cloned()
 }
 
 pub fn find_current_beat_trigger(
@@ -40,8 +40,7 @@ pub fn find_current_beat_trigger(
                 % (track_trigger_model.pattern_length as f64
                     * track_trigger_model.pattern_step_beats),
         )
-        .map(|step| track_trigger_model.find_step(step))
-        .flatten()
+        .and_then(|step| track_trigger_model.find_step(step))
 }
 
 #[derive(Default, Clone, PartialEq, Debug)]
