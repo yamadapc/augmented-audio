@@ -1,3 +1,5 @@
+use std::sync::atomic::Ordering;
+
 use basedrop::{Shared, SharedCell};
 
 use audio_processor_pitch_shifter::{
@@ -8,7 +10,10 @@ use crate::multi_track_looper::envelope_processor::{EnvelopeHandle, EnvelopeProc
 use crate::multi_track_looper::lfo_processor::LFOHandle;
 use crate::multi_track_looper::parameters::{ParameterId, ParameterValue};
 use crate::processor::handle::LooperHandle as LooperProcessorHandle;
-use crate::{LoopSequencerProcessorHandle, LooperProcessor};
+use crate::{
+    LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, QuantizeMode,
+    TimeInfoProviderImpl,
+};
 
 use super::trigger_model::TrackTriggerModel;
 
@@ -91,5 +96,26 @@ pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> Loop
         lfo1_handle: make_shared(LFOHandle::default()),
         lfo2_handle: make_shared(LFOHandle::default()),
         envelope: envelope.handle.clone(),
+    }
+}
+
+pub fn build_voice_processor(
+    options: &LooperOptions,
+    time_info_provider: &Shared<TimeInfoProviderImpl>,
+) -> VoiceProcessors {
+    let looper = LooperProcessor::new(options.clone(), time_info_provider.clone());
+    looper
+        .handle()
+        .quantize_options()
+        .set_mode(QuantizeMode::SnapNext);
+    looper.handle().tick_time.store(false, Ordering::Relaxed);
+
+    let pitch_shifter = MultiChannelPitchShifterProcessor::default();
+    let envelope = EnvelopeProcessor::default();
+
+    VoiceProcessors {
+        looper,
+        pitch_shifter,
+        envelope,
     }
 }

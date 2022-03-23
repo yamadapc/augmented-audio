@@ -8,13 +8,11 @@ use num::ToPrimitive;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
-use audio_processor_pitch_shifter::MultiChannelPitchShifterProcessor;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
     VecAudioBuffer,
 };
 use augmented_atomics::{AtomicF32, AtomicValue};
-use envelope_processor::EnvelopeProcessor;
 use looper_voice::{LooperVoice, VoiceProcessors};
 use metrics::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
@@ -28,7 +26,7 @@ use trigger_model::step_tracker::StepTracker;
 use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
-use crate::{LooperOptions, LooperProcessor, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
+use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
 mod envelope_processor;
 mod lfo_processor;
@@ -517,7 +515,7 @@ impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
         let processors: Vec<VoiceProcessors> = (0..num_voices)
-            .map(|_| Self::build_voice_processor(&options, &time_info_provider))
+            .map(|_| looper_voice::build_voice_processor(&options, &time_info_provider))
             .collect();
 
         let metronome = metronome::MetronomeProcessor::new();
@@ -595,27 +593,6 @@ impl MultiTrackLooper {
         }
 
         graph
-    }
-
-    fn build_voice_processor(
-        options: &LooperOptions,
-        time_info_provider: &Shared<TimeInfoProviderImpl>,
-    ) -> VoiceProcessors {
-        let looper = LooperProcessor::new(options.clone(), time_info_provider.clone());
-        looper
-            .handle()
-            .quantize_options()
-            .set_mode(QuantizeMode::SnapNext);
-        looper.handle().tick_time.store(false, Ordering::Relaxed);
-
-        let pitch_shifter = MultiChannelPitchShifterProcessor::default();
-        let envelope = EnvelopeProcessor::default();
-
-        VoiceProcessors {
-            looper,
-            pitch_shifter,
-            envelope,
-        }
     }
 
     pub fn handle(&self) -> &Shared<MultiTrackLooperHandle> {
