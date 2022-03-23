@@ -2,6 +2,7 @@ use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
+use assert_no_alloc::assert_no_alloc;
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use num::ToPrimitive;
@@ -28,6 +29,7 @@ use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
+mod allocator;
 mod envelope_processor;
 mod lfo_processor;
 mod looper_voice;
@@ -694,18 +696,20 @@ impl AudioProcessor for MultiTrackLooper {
         &mut self,
         data: &mut BufferType,
     ) {
-        self.metrics.on_process_start();
+        assert_no_alloc(|| {
+            self.metrics.on_process_start();
 
-        self.process_scenes();
-        self.process_triggers();
+            self.process_scenes();
+            self.process_triggers();
 
-        self.graph.process(data);
+            self.graph.process(data);
 
-        for _sample in data.frames() {
-            self.handle.time_info_provider.tick();
-        }
+            for _sample in data.frames() {
+                self.handle.time_info_provider.tick();
+            }
 
-        self.metrics.on_process_end();
+            self.metrics.on_process_end();
+        });
     }
 }
 

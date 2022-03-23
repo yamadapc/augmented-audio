@@ -6,15 +6,15 @@ use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
 };
 
-use crate::multi_track_looper::envelope_processor::{EnvelopeHandle, EnvelopeProcessor};
-use crate::multi_track_looper::lfo_processor::LFOHandle;
-use crate::multi_track_looper::parameters::{ParameterId, ParameterValue};
 use crate::processor::handle::LooperHandle as LooperProcessorHandle;
 use crate::{
     LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, QuantizeMode,
     TimeInfoProviderImpl,
 };
 
+use super::envelope_processor::{EnvelopeHandle, EnvelopeProcessor};
+use super::lfo_processor::LFOHandle;
+use super::parameters::{ParameterId, ParameterValue};
 use super::trigger_model::TrackTriggerModel;
 
 type ParameterValues = SharedCell<im::HashMap<ParameterId, ParameterValue>>;
