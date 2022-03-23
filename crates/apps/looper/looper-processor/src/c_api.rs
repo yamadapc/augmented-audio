@@ -248,6 +248,23 @@ pub unsafe extern "C" fn looper_engine__set_envelope_parameter(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_source_parameter_int(
+    engine: *mut LooperEngine,
+    track_id: usize,
+    parameter_id: SourceParameter,
+    value: i32,
+) {
+    let engine = &(*engine);
+    engine.handle.set_int_parameter(
+        LooperId(track_id),
+        ParameterId::ParameterIdSource {
+            parameter: parameter_id,
+        },
+        value,
+    )
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_quantization_mode(
     engine: *mut LooperEngine,
     track_id: usize,

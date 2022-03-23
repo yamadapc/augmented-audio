@@ -4106,6 +4106,8 @@ dependencies = [
  "criterion",
  "derive_builder 0.10.2",
  "im",
+ "itertools",
+ "lazy_static 1.4.0",
  "log",
  "metronome",
  "mockall 0.11.0",

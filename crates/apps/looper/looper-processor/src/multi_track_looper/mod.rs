@@ -82,6 +82,8 @@ pub enum SourceParameter {
     Speed = 5,
     #[strum(props(type = "bool", default = "true"))]
     LoopEnabled = 6,
+    #[strum(props(type = "int"))]
+    SliceId = 7,
 }
 
 #[repr(C)]
@@ -216,9 +218,12 @@ enum ParameterValue {
     Float(f32),
     Bool(bool),
     Enum(usize),
+    Int(i32),
+    None,
 }
 
 pub struct LooperVoice {
+    id: usize,
     parameter_values: SharedCell<im::HashMap<ParameterId, ParameterValue>>,
     triggers: Shared<TrackTriggerModel>,
     looper_handle: Shared<LooperProcessorHandle>,
@@ -361,7 +366,31 @@ impl MultiTrackLooperHandle {
         voice.parameter_values.set(make_shared(parameter_values));
     }
 
-    fn update_handle(&self, voice: &LooperVoice, parameter_id: ParameterId, value: f32) {
+    fn update_handle_int(&self, voice: &LooperVoice, parameter_id: ParameterId, value: i32) {
+        match parameter_id {
+            ParameterId::ParameterIdSource { parameter } => match parameter {
+                SourceParameter::SliceId => {
+                    if let Some(slice) = self.slice_worker.result(voice.id) {
+                        let markers = slice.markers();
+                        let num_markers = markers.len();
+                        let num_samples = voice.looper_handle.num_samples();
+
+                        if num_markers == 0 || num_samples == 0 {
+                            return;
+                        }
+
+                        let marker = &markers[(value as usize % num_markers).max(0)];
+                        let offset = marker.position_samples as f32 / num_samples as f32;
+                        voice.looper_handle.set_start_offset(offset);
+                    }
+                }
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+
+    fn update_handle_float(&self, voice: &LooperVoice, parameter_id: ParameterId, value: f32) {
         match parameter_id {
             ParameterId::ParameterIdSource { parameter } => match parameter {
                 SourceParameter::Start => {
@@ -400,12 +429,6 @@ impl MultiTrackLooperHandle {
                 EnvelopeParameter::Sustain => voice.envelope.adsr_envelope.set_sustain(value),
                 _ => {}
             },
-            // ParameterId::ParameterIdQuantization(parameter) => match parameter {
-            //     QuantizationParameter::QuantizationMode => {
-            //         voice.looper_handle.quantize_options().set_mode(value.into());
-            //     }
-            //     _ => {}
-            // },
             _ => {}
         }
     }
@@ -571,6 +594,12 @@ impl MultiTrackLooperHandle {
         }
     }
 
+    pub fn set_int_parameter(&self, looper_id: LooperId, parameter_id: ParameterId, value: i32) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            Self::update_parameter_table(voice, parameter_id, ParameterValue::Int(value));
+        }
+    }
+
     pub fn add_scene_parameter_lock(
         &self,
         scene_id: SceneId,
@@ -719,7 +748,8 @@ impl MultiTrackLooper {
 
         let voices = processors
             .iter()
-            .map(|voice_processors| Self::build_voice_handle(voice_processors))
+            .enumerate()
+            .map(|(i, voice_processors)| Self::build_voice_handle(i, voice_processors))
             .collect();
         let metrics = AudioProcessorMetrics::default();
         let handle = make_shared(MultiTrackLooperHandle {
@@ -776,7 +806,7 @@ impl MultiTrackLooper {
         graph
     }
 
-    fn build_voice_handle(voice_processors: &VoiceProcessors) -> LooperVoice {
+    fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> LooperVoice {
         let VoiceProcessors {
             looper,
             pitch_shifter,
@@ -788,6 +818,7 @@ impl MultiTrackLooper {
         let parameter_values = Self::build_default_parameters();
 
         LooperVoice {
+            id,
             parameter_values: make_shared_cell(parameter_values),
             looper_handle,
             sequencer_handle,
@@ -818,7 +849,7 @@ impl MultiTrackLooper {
             .chain(lfo_parameters.iter())
             .chain(quantization_parameters.iter());
 
-        let parameter_values = all_parameters
+        all_parameters
             .flat_map(|parameter_id| {
                 let default_value = match parameter_id.get_str("type").unwrap() {
                     "float" => {
@@ -834,6 +865,14 @@ impl MultiTrackLooper {
                         let e_str = parameter_id.get_str("default").unwrap();
                         let e = usize::from_str(e_str).unwrap();
                         ParameterValue::Enum(e)
+                    }
+                    "int" => {
+                        if let Some(i_str) = parameter_id.get_str("default") {
+                            let i = i32::from_str(i_str).unwrap();
+                            ParameterValue::Int(i)
+                        } else {
+                            ParameterValue::None
+                        }
                     }
                     _ => panic!("Invalid parameter declaration"),
                 };
@@ -854,8 +893,7 @@ impl MultiTrackLooper {
                     vec![(parameter_id.clone(), default_value)]
                 }
             })
-            .collect();
-        parameter_values
+            .collect()
     }
 
     fn build_voice_processor(
@@ -913,7 +951,7 @@ impl MultiTrackLooper {
                     // has_triggers = true;
                     for (parameter_id, lock) in trigger.locks() {
                         self.handle
-                            .update_handle(voice, parameter_id.clone(), lock.value());
+                            .update_handle_float(voice, parameter_id.clone(), lock.value());
                     }
                 }
 
@@ -951,7 +989,13 @@ impl MultiTrackLooper {
                     (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
                         let value = left_value + scene_value * (right_value - left_value);
                         self.handle
-                            .update_handle(voice, parameter_id.clone(), value);
+                            .update_handle_float(voice, parameter_id.clone(), value);
+                    }
+                    (ParameterValue::Int(left_value), ParameterValue::Int(right_value)) => {
+                        let value =
+                            left_value + (scene_value * (right_value - left_value) as f32) as i32;
+                        self.handle
+                            .update_handle_int(voice, parameter_id.clone(), value);
                     }
                     _ => {}
                 }
@@ -995,11 +1039,35 @@ impl MidiEventHandler for MultiTrackLooper {
 
 #[cfg(test)]
 mod test {
+    use itertools::Itertools;
+
     use super::*;
 
     #[test]
     fn test_build_parameters_table() {
-        let _table = MultiTrackLooper::build_default_parameters();
+        let table = MultiTrackLooper::build_default_parameters();
+        let parameters: Vec<ParameterId> = table.iter().map(|(id, _)| id).cloned().collect();
+        let start_index = parameters
+            .iter()
+            .cloned()
+            .find_position(|id| {
+                *id == ParameterId::ParameterIdSource {
+                    parameter: SourceParameter::Start,
+                }
+            })
+            .unwrap()
+            .0;
+        let slice_index = parameters
+            .iter()
+            .cloned()
+            .find_position(|id| {
+                *id == ParameterId::ParameterIdSource {
+                    parameter: SourceParameter::SliceId,
+                }
+            })
+            .unwrap()
+            .0;
+        assert!(slice_index > start_index);
     }
 
     #[test]

@@ -21,6 +21,8 @@ atomic_refcell = "0.1.8"
 im = "15.0.0"
 strum = "0.24.0"
 strum_macros = "0.24.0"
+itertools = "0.10"
+lazy_static = "1.4.0"
 
 metronome = { path = "../../metronome" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }
