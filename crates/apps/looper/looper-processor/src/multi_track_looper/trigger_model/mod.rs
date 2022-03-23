@@ -1,10 +1,11 @@
 pub mod step_tracker;
 
+use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::atomic::AtomicUsize;
 
 use basedrop::{Shared, SharedCell};
-use im::{HashMap, Vector};
+use im::Vector;
 
 use crate::multi_track_looper::parameters::ParameterId;
 use audio_garbage_collector::{make_shared, make_shared_cell};
@@ -224,6 +225,21 @@ impl TrackTriggerModel {
 #[cfg(test)]
 mod test {
     use super::*;
+    use assert_no_alloc::assert_no_alloc;
+
+    #[test]
+    fn test_triggers_iterator_does_not_allocate() {
+        let trigger_model = TrackTriggerModel::default();
+        trigger_model.toggle_trigger(10);
+
+        assert_no_alloc(|| {
+            for trigger in trigger_model.triggers().iter() {
+                for _lock in trigger.locks() {
+                    assert!(true);
+                }
+            }
+        });
+    }
 
     #[test]
     fn test_toggle_trigger_with_empty_model() {
