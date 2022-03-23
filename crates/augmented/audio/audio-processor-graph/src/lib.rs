@@ -284,7 +284,7 @@ impl AudioProcessor for AudioProcessorGraph {
                             .zip(self.temporary_buffer.slice_mut())
                             .take(data.num_samples() * data.num_channels())
                         {
-                            *d = *d + *s;
+                            *d += *s;
                         }
                     }
                 }
@@ -341,7 +341,7 @@ impl AudioProcessor for AudioProcessorGraph {
 
                 unsafe {
                     for (s, d) in (&*buffer).slice().iter().zip(data.slice_mut()) {
-                        *d = *s + *d;
+                        *d += *s;
                     }
                 }
             }
@@ -417,7 +417,7 @@ mod test {
         empty_buffer.resize(1, 1000, 0.0);
         let mut graph = AudioProcessorGraph::default();
 
-        assert!(rms_level(empty_buffer.slice()) - 0.0 < f32::EPSILON);
+        assert!((rms_level(empty_buffer.slice()) - 0.0).abs() < f32::EPSILON);
 
         let mut process_buffer = empty_buffer.clone();
         graph.prepare(settings);
@@ -509,7 +509,7 @@ mod test {
 
         let mut graph = AudioProcessorGraph::default();
         let node1 = graph.add_node(NodeType::Simple(Box::new(mult_10_node.clone())));
-        let node2 = graph.add_node(NodeType::Simple(Box::new(mult_10_node.clone())));
+        let node2 = graph.add_node(NodeType::Simple(Box::new(mult_10_node)));
         graph.add_connection(graph.input(), node1).unwrap();
         graph.add_connection(node1, node2).unwrap();
         graph.add_connection(node2, graph.output()).unwrap();
@@ -541,7 +541,7 @@ mod test {
                 buffer: &mut BufferType,
             ) {
                 for sample in buffer.slice_mut() {
-                    *sample = *sample * 10.0
+                    *sample *= 10.0
                 }
             }
         }
@@ -550,7 +550,7 @@ mod test {
 
         let mut graph = AudioProcessorGraph::default();
         let node1 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
-        let node2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        let node2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node)));
         graph.add_connection(graph.input(), node1).unwrap();
         graph.add_connection(node1, node2).unwrap();
         graph.add_connection(node2, graph.output()).unwrap();
@@ -582,7 +582,7 @@ mod test {
                 buffer: &mut BufferType,
             ) {
                 for sample in buffer.slice_mut() {
-                    *sample = *sample * 10.0
+                    *sample *= 10.0
                 }
             }
         }
@@ -591,7 +591,7 @@ mod test {
 
         let mut graph = AudioProcessorGraph::default();
         let node1 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
-        let node2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        let node2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node)));
         graph.add_connection(graph.input(), node1).unwrap();
         graph.add_connection(node1, graph.output()).unwrap();
         graph.add_connection(graph.input(), node2).unwrap();
@@ -626,7 +626,7 @@ mod test {
                 buffer: &mut BufferType,
             ) {
                 for sample in buffer.slice_mut() {
-                    *sample = *sample * 10.0
+                    *sample *= 10.0
                 }
             }
         }
@@ -637,7 +637,7 @@ mod test {
         let node_a1 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
         let node_a2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
         let node_b1 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
-        let node_b2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node.clone())));
+        let node_b2 = graph.add_node(NodeType::Buffer(Box::new(mult_10_node)));
         graph.add_connection(graph.input(), node_a1).unwrap();
         graph.add_connection(node_a1, node_a2).unwrap();
         graph.add_connection(node_a2, graph.output()).unwrap();
@@ -674,7 +674,7 @@ mod test {
                 buffer: &mut BufferType,
             ) {
                 for sample in buffer.slice_mut() {
-                    *sample = *sample * 10.0
+                    *sample *= 10.0
                 }
             }
         }
