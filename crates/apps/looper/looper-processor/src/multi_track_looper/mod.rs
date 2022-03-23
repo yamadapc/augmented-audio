@@ -19,6 +19,7 @@ use audio_processor_traits::{
 };
 use augmented_atomics::{AtomicF32, AtomicValue};
 use envelope_processor::{EnvelopeHandle, EnvelopeProcessor};
+use lfo_processor::LFOHandle;
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 use parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
@@ -39,21 +40,8 @@ use crate::{
 };
 
 mod envelope_processor;
+mod lfo_processor;
 pub mod parameters;
-
-struct LFOHandle {
-    amount: AtomicF32,
-    frequency: AtomicF32,
-}
-
-impl Default for LFOHandle {
-    fn default() -> Self {
-        LFOHandle {
-            amount: 1.0.into(),
-            frequency: 1.0.into(),
-        }
-    }
-}
 
 pub struct LooperVoice {
     id: usize,
@@ -878,12 +866,11 @@ impl MidiEventHandler for MultiTrackLooper {
 
 #[cfg(test)]
 mod test {
-    use itertools::Itertools;
-
     use super::*;
 
     // #[test]
     // fn test_build_parameters_table() {
+    //     use itertools::Itertools;
     //     let table = MultiTrackLooper::build_default_parameters();
     //     let parameters: Vec<ParameterId> = table.iter().map(|(id, _)| id).cloned().collect();
     //     let start_index = parameters
