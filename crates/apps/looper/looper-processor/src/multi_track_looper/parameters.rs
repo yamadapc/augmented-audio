@@ -119,3 +119,74 @@ pub enum ParameterValue {
     Int(i32),
     None,
 }
+
+pub fn build_default_parameters() -> im::HashMap<ParameterId, ParameterValue> {
+    use strum::IntoEnumIterator;
+
+    let source_parameters: Vec<ParameterId> = SourceParameter::iter()
+        .map(|parameter| ParameterId::ParameterIdSource(parameter))
+        .collect();
+    let envelope_parameters: Vec<ParameterId> = EnvelopeParameter::iter()
+        .map(|parameter| ParameterId::ParameterIdEnvelope(parameter))
+        .collect();
+    let lfo_parameters: Vec<ParameterId> = LFOParameter::iter()
+        .map(|parameter| ParameterId::ParameterIdLFO(0, parameter))
+        .collect();
+    let quantization_parameters: Vec<ParameterId> = QuantizationParameter::iter()
+        .map(ParameterId::ParameterIdQuantization)
+        .collect();
+    let all_parameters = source_parameters
+        .iter()
+        .chain(envelope_parameters.iter())
+        .chain(lfo_parameters.iter())
+        .chain(quantization_parameters.iter());
+
+    all_parameters
+        .flat_map(|parameter_id| {
+            let default_value = get_default_parameter_value(parameter_id);
+
+            if let ParameterId::ParameterIdLFO(_, parameter) = parameter_id {
+                (0..2)
+                    .map(|lfo| {
+                        (
+                            ParameterId::ParameterIdLFO(lfo, parameter.clone()),
+                            default_value.clone(),
+                        )
+                    })
+                    .collect()
+            } else {
+                vec![(parameter_id.clone(), default_value)]
+            }
+        })
+        .collect()
+}
+
+fn get_default_parameter_value(parameter_id: &ParameterId) -> ParameterValue {
+    use std::str::FromStr;
+
+    match parameter_id.get_str("type").unwrap() {
+        "float" => {
+            let f_str = parameter_id.get_str("default").unwrap();
+            let f = f32::from_str(f_str).unwrap();
+            ParameterValue::Float(f)
+        }
+        "bool" => {
+            let b_str = parameter_id.get_str("default").unwrap();
+            ParameterValue::Bool(b_str == "true")
+        }
+        "enum" => {
+            let e_str = parameter_id.get_str("default").unwrap();
+            let e = usize::from_str(e_str).unwrap();
+            ParameterValue::Enum(e)
+        }
+        "int" => {
+            if let Some(i_str) = parameter_id.get_str("default") {
+                let i = i32::from_str(i_str).unwrap();
+                ParameterValue::Int(i)
+            } else {
+                ParameterValue::None
+            }
+        }
+        _ => panic!("Invalid parameter declaration"),
+    }
+}

@@ -1,5 +1,4 @@
 use std::ops::Deref;
-use std::str::FromStr;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
@@ -20,6 +19,7 @@ use audio_processor_traits::{
 use augmented_atomics::{AtomicF32, AtomicValue};
 use envelope_processor::{EnvelopeHandle, EnvelopeProcessor};
 use lfo_processor::LFOHandle;
+use looper_voice::{LooperVoice, VoiceProcessors};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 use parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
@@ -41,33 +41,8 @@ use crate::{
 
 mod envelope_processor;
 mod lfo_processor;
+mod looper_voice;
 pub mod parameters;
-
-pub struct LooperVoice {
-    id: usize,
-    parameter_values: SharedCell<im::HashMap<ParameterId, ParameterValue>>,
-    triggers: Shared<TrackTriggerModel>,
-    looper_handle: Shared<LooperProcessorHandle>,
-    sequencer_handle: Shared<LoopSequencerProcessorHandle>,
-    pitch_shifter_handle: Shared<MultiChannelPitchShifterProcessorHandle>,
-    envelope: Shared<EnvelopeHandle>,
-    lfo1_handle: Shared<LFOHandle>,
-    lfo2_handle: Shared<LFOHandle>,
-}
-
-impl LooperVoice {
-    pub fn triggers(&self) -> &Shared<TrackTriggerModel> {
-        &self.triggers
-    }
-
-    pub fn looper(&self) -> &Shared<LooperProcessorHandle> {
-        &self.looper_handle
-    }
-
-    pub fn sequencer(&self) -> &Shared<LoopSequencerProcessorHandle> {
-        &self.sequencer_handle
-    }
-}
 
 type SceneParametersRef =
     SharedCell<im::HashMap<SceneId, im::HashMap<(LooperId, ParameterId), ParameterValue>>>;
@@ -89,7 +64,7 @@ pub struct MultiTrackLooperHandle {
 impl MultiTrackLooperHandle {
     pub fn start_recording(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
-            handle.looper_handle.start_recording();
+            handle.looper().start_recording();
         }
     }
 
@@ -100,15 +75,14 @@ impl MultiTrackLooperHandle {
     pub fn toggle_recording(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
             let was_empty = self.all_loopers_empty_other_than(looper_id);
-            if let ToggleRecordingResult::StoppedRecording = handle.looper_handle.toggle_recording()
-            {
+            if let ToggleRecordingResult::StoppedRecording = handle.looper().toggle_recording() {
                 self.slice_worker.add_job(
                     looper_id.0,
                     *self.settings.get(),
-                    handle.looper_handle.looper_clip(),
+                    handle.looper().looper_clip(),
                 );
 
-                let parameters = handle.parameter_values.get();
+                let parameters = handle.parameters().get();
                 let tempo_control = parameters.get(&ParameterId::ParameterIdQuantization(
                     QuantizationParameter::QuantizationParameterQuantizeMode,
                 ));
@@ -122,7 +96,7 @@ impl MultiTrackLooperHandle {
                     let estimated_tempo = estimate_tempo(
                         Default::default(),
                         self.sample_rate.get(),
-                        handle.looper_handle.num_samples(),
+                        handle.looper().num_samples(),
                     )
                     .tempo;
                     if estimated_tempo > 300.0 {
@@ -151,22 +125,22 @@ impl MultiTrackLooperHandle {
         if let Some(voice) = self.voices.get(looper_id.0) {
             match parameter {
                 SourceParameter::Start => {
-                    voice.looper_handle.set_start_offset(value);
+                    voice.looper().set_start_offset(value);
                 }
                 SourceParameter::End => {
-                    voice.looper_handle.set_end_offset(value);
+                    voice.looper().set_end_offset(value);
                 }
                 SourceParameter::FadeStart => {
-                    voice.looper_handle.set_fade_start(value);
+                    voice.looper().set_fade_start(value);
                 }
                 SourceParameter::FadeEnd => {
-                    voice.looper_handle.set_fade_end(value);
+                    voice.looper().set_fade_end(value);
                 }
                 SourceParameter::Pitch => {
-                    voice.pitch_shifter_handle.set_ratio(value);
+                    voice.pitch_shifter().set_ratio(value);
                 }
                 SourceParameter::Speed => {
-                    voice.looper_handle.set_speed(value);
+                    voice.looper().set_speed(value);
                 }
                 _ => {}
             }
@@ -181,10 +155,10 @@ impl MultiTrackLooperHandle {
         parameter_id: ParameterId,
         value: ParameterValue,
     ) {
-        let parameter_values = voice.parameter_values.get();
+        let parameter_values = voice.parameters().get();
         let mut parameter_values = parameter_values.deref().clone();
         parameter_values.insert(parameter_id, value);
-        voice.parameter_values.set(make_shared(parameter_values));
+        voice.parameters().set(make_shared(parameter_values));
     }
 
     #[allow(clippy::single_match, clippy::collapsible_match)]
@@ -195,7 +169,7 @@ impl MultiTrackLooperHandle {
                     if let Some(slice) = self.slice_worker.result(voice.id) {
                         let markers = slice.markers();
                         let num_markers = markers.len();
-                        let num_samples = voice.looper_handle.num_samples();
+                        let num_samples = voice.looper().num_samples();
 
                         if num_markers == 0 || num_samples == 0 {
                             return;
@@ -203,7 +177,7 @@ impl MultiTrackLooperHandle {
 
                         let marker = &markers[(value as usize % num_markers).max(0)];
                         let offset = marker.position_samples as f32 / num_samples as f32;
-                        voice.looper_handle.set_start_offset(offset);
+                        voice.looper().set_start_offset(offset);
                     }
                 }
                 _ => {}
@@ -216,39 +190,39 @@ impl MultiTrackLooperHandle {
         match parameter_id {
             ParameterId::ParameterIdSource(parameter) => match parameter {
                 SourceParameter::Start => {
-                    voice.looper_handle.set_start_offset(value);
+                    voice.looper().set_start_offset(value);
                 }
                 SourceParameter::End => {
-                    voice.looper_handle.set_end_offset(value);
+                    voice.looper().set_end_offset(value);
                 }
                 SourceParameter::FadeStart => {
-                    voice.looper_handle.set_fade_start(value);
+                    voice.looper().set_fade_start(value);
                 }
                 SourceParameter::FadeEnd => {
-                    voice.looper_handle.set_fade_end(value);
+                    voice.looper().set_fade_end(value);
                 }
                 SourceParameter::Pitch => {
-                    voice.pitch_shifter_handle.set_ratio(value);
+                    voice.pitch_shifter().set_ratio(value);
                 }
                 SourceParameter::Speed => {
-                    voice.looper_handle.set_speed(value);
+                    voice.looper().set_speed(value);
                 }
                 _ => {}
             },
             ParameterId::ParameterIdEnvelope(parameter) => match parameter {
                 EnvelopeParameter::Attack => voice
-                    .envelope
+                    .envelope()
                     .adsr_envelope
                     .set_attack(Duration::from_secs_f32(value)),
                 EnvelopeParameter::Decay => voice
-                    .envelope
+                    .envelope()
                     .adsr_envelope
                     .set_decay(Duration::from_secs_f32(value)),
                 EnvelopeParameter::Release => voice
-                    .envelope
+                    .envelope()
                     .adsr_envelope
                     .set_release(Duration::from_secs_f32(value)),
-                EnvelopeParameter::Sustain => voice.envelope.adsr_envelope.set_sustain(value),
+                EnvelopeParameter::Sustain => voice.envelope().adsr_envelope.set_sustain(value),
                 _ => {}
             },
             _ => {}
@@ -270,18 +244,18 @@ impl MultiTrackLooperHandle {
         if let Some(voice) = self.voices.get(looper_id.0) {
             match parameter_id {
                 EnvelopeParameter::Attack => voice
-                    .envelope
+                    .envelope()
                     .adsr_envelope
                     .set_attack(Duration::from_secs_f32(value)),
                 EnvelopeParameter::Decay => voice
-                    .envelope
+                    .envelope()
                     .adsr_envelope
                     .set_decay(Duration::from_secs_f32(value)),
                 EnvelopeParameter::Release => voice
-                    .envelope
+                    .envelope()
                     .adsr_envelope
                     .set_release(Duration::from_secs_f32(value)),
-                EnvelopeParameter::Sustain => voice.envelope.adsr_envelope.set_sustain(value),
+                EnvelopeParameter::Sustain => voice.envelope().adsr_envelope.set_sustain(value),
                 _ => {}
             }
 
@@ -295,7 +269,7 @@ impl MultiTrackLooperHandle {
 
     pub fn set_quantization_mode(&self, looper_id: LooperId, mode: CQuantizeMode) {
         if let Some(voice) = self.voices.get(looper_id.0) {
-            voice.looper_handle.quantize_options().set_mode(match mode {
+            voice.looper().quantize_options().set_mode(match mode {
                 CQuantizeMode::CQuantizeModeSnapClosest => QuantizeMode::SnapClosest,
                 CQuantizeMode::CQuantizeModeSnapNext => QuantizeMode::SnapNext,
                 CQuantizeMode::CQuantizeModeNone => QuantizeMode::None,
@@ -333,19 +307,19 @@ impl MultiTrackLooperHandle {
             match parameter_id {
                 LFOParameter::Frequency => match lfo {
                     1 => {
-                        voice.lfo1_handle.frequency.set(value);
+                        voice.lfo1().frequency.set(value);
                     }
                     2 => {
-                        voice.lfo2_handle.frequency.set(value);
+                        voice.lfo2().frequency.set(value);
                     }
                     _ => {}
                 },
                 LFOParameter::Amount => match lfo {
                     1 => {
-                        voice.lfo1_handle.amount.set(value);
+                        voice.lfo1().amount.set(value);
                     }
                     2 => {
-                        voice.lfo2_handle.amount.set(value);
+                        voice.lfo2().amount.set(value);
                     }
                     _ => {}
                 },
@@ -361,7 +335,7 @@ impl MultiTrackLooperHandle {
 
     pub fn get_num_samples(&self, looper_id: LooperId) -> usize {
         if let Some(voice) = self.voices.get(looper_id.0) {
-            voice.looper_handle.num_samples()
+            voice.looper().num_samples()
         } else {
             0
         }
@@ -373,7 +347,7 @@ impl MultiTrackLooperHandle {
     ) -> Option<Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>> {
         self.voices
             .get(looper_id.0)
-            .map(|voice| voice.looper_handle.looper_clip())
+            .map(|voice| voice.looper().looper_clip())
     }
 
     pub fn get_looper_state(&self, looper_id: LooperId) -> LooperState {
@@ -395,13 +369,13 @@ impl MultiTrackLooperHandle {
             match parameter_id {
                 ParameterId::ParameterIdSource(parameter) => match parameter {
                     SourceParameter::LoopEnabled => {
-                        voice.looper_handle.set_loop_enabled(value);
+                        voice.looper().set_loop_enabled(value);
                     }
                     _ => {}
                 },
                 ParameterId::ParameterIdEnvelope(parameter) => match parameter {
                     EnvelopeParameter::EnvelopeEnabled => {
-                        voice.envelope.enabled.store(value, Ordering::Relaxed);
+                        voice.envelope().enabled.store(value, Ordering::Relaxed);
                     }
                     _ => {}
                 },
@@ -449,20 +423,20 @@ impl MultiTrackLooperHandle {
         value: f32,
     ) {
         self.voices[looper_id.0]
-            .triggers
+            .triggers()
             .add_lock(position_beats, parameter_id, value);
     }
 
     pub fn toggle_trigger(&self, looper_id: LooperId, position_beats: usize) {
         self.voices[looper_id.0]
-            .triggers
+            .triggers()
             .toggle_trigger(position_beats);
     }
 
     pub fn get_position_percent(&self, looper_id: LooperId) -> f32 {
         if let Some(voice) = self.voices.get(looper_id.0) {
-            let playhead = voice.looper_handle.playhead() as f32;
-            let size = voice.looper_handle.num_samples();
+            let playhead = voice.looper().playhead() as f32;
+            let size = voice.looper().num_samples();
             if size == 0 {
                 0.0
             } else {
@@ -475,7 +449,7 @@ impl MultiTrackLooperHandle {
 
     fn all_loopers_empty_other_than(&self, looper_id: LooperId) -> bool {
         self.voices.iter().enumerate().all(|(i, voice)| {
-            i == looper_id.0 || matches!(voice.looper_handle.state(), LooperState::Empty)
+            i == looper_id.0 || matches!(voice.looper().state(), LooperState::Empty)
         })
     }
 
@@ -493,7 +467,7 @@ impl MultiTrackLooperHandle {
 
     pub fn toggle_playback(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
-            handle.looper_handle.toggle_playback();
+            handle.looper().toggle_playback();
         }
     }
 
@@ -503,13 +477,13 @@ impl MultiTrackLooperHandle {
 
     pub fn set_volume(&self, looper_id: LooperId, volume: f32) {
         if let Some(handle) = self.voices.get(looper_id.0) {
-            handle.looper_handle.set_wet_volume(volume);
+            handle.looper().set_wet_volume(volume);
         }
     }
 
     pub fn clear(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
-            handle.looper_handle.clear();
+            handle.looper().clear();
             if self.all_loopers_empty_other_than(looper_id) {
                 self.stop();
             }
@@ -544,12 +518,6 @@ pub struct MultiTrackLooper {
     metrics: AudioProcessorMetrics,
 }
 
-struct VoiceProcessors {
-    looper: LooperProcessor,
-    pitch_shifter: MultiChannelPitchShifterProcessor,
-    envelope: EnvelopeProcessor,
-}
-
 impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
@@ -565,7 +533,7 @@ impl MultiTrackLooper {
         let voices = processors
             .iter()
             .enumerate()
-            .map(|(i, voice_processors)| Self::build_voice_handle(i, voice_processors))
+            .map(|(i, voice_processors)| looper_voice::build_voice_handle(i, voice_processors))
             .collect();
         let metrics = AudioProcessorMetrics::default();
         let handle = make_shared(MultiTrackLooperHandle {
@@ -634,97 +602,6 @@ impl MultiTrackLooper {
         graph
     }
 
-    fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> LooperVoice {
-        let VoiceProcessors {
-            looper,
-            pitch_shifter,
-            envelope,
-        } = voice_processors;
-        let looper_handle = looper.handle().clone();
-        let sequencer_handle = looper.sequencer_handle().clone();
-        let triggers = make_shared(TrackTriggerModel::default());
-        let parameter_values = Self::build_default_parameters();
-
-        LooperVoice {
-            id,
-            parameter_values: make_shared_cell(parameter_values),
-            looper_handle,
-            sequencer_handle,
-            triggers,
-            pitch_shifter_handle: pitch_shifter.handle().clone(),
-            lfo1_handle: make_shared(LFOHandle::default()),
-            lfo2_handle: make_shared(LFOHandle::default()),
-            envelope: envelope.handle.clone(),
-        }
-    }
-
-    fn build_default_parameters() -> im::HashMap<ParameterId, ParameterValue> {
-        let source_parameters: Vec<ParameterId> = SourceParameter::iter()
-            .map(|parameter| ParameterId::ParameterIdSource(parameter))
-            .collect();
-        let envelope_parameters: Vec<ParameterId> = EnvelopeParameter::iter()
-            .map(|parameter| ParameterId::ParameterIdEnvelope(parameter))
-            .collect();
-        let lfo_parameters: Vec<ParameterId> = LFOParameter::iter()
-            .map(|parameter| ParameterId::ParameterIdLFO(0, parameter))
-            .collect();
-        let quantization_parameters: Vec<ParameterId> = QuantizationParameter::iter()
-            .map(ParameterId::ParameterIdQuantization)
-            .collect();
-        let all_parameters = source_parameters
-            .iter()
-            .chain(envelope_parameters.iter())
-            .chain(lfo_parameters.iter())
-            .chain(quantization_parameters.iter());
-
-        all_parameters
-            .flat_map(|parameter_id| {
-                let default_value = Self::get_default_parameter_value(parameter_id);
-
-                if let ParameterId::ParameterIdLFO(_, parameter) = parameter_id {
-                    (0..2)
-                        .map(|lfo| {
-                            (
-                                ParameterId::ParameterIdLFO(lfo, parameter.clone()),
-                                default_value.clone(),
-                            )
-                        })
-                        .collect()
-                } else {
-                    vec![(parameter_id.clone(), default_value)]
-                }
-            })
-            .collect()
-    }
-
-    fn get_default_parameter_value(parameter_id: &ParameterId) -> ParameterValue {
-        match parameter_id.get_str("type").unwrap() {
-            "float" => {
-                let f_str = parameter_id.get_str("default").unwrap();
-                let f = f32::from_str(f_str).unwrap();
-                ParameterValue::Float(f)
-            }
-            "bool" => {
-                let b_str = parameter_id.get_str("default").unwrap();
-                ParameterValue::Bool(b_str == "true")
-            }
-            "enum" => {
-                let e_str = parameter_id.get_str("default").unwrap();
-                let e = usize::from_str(e_str).unwrap();
-                ParameterValue::Enum(e)
-            }
-            "int" => {
-                if let Some(i_str) = parameter_id.get_str("default") {
-                    let i = i32::from_str(i_str).unwrap();
-                    ParameterValue::Int(i)
-                } else {
-                    ParameterValue::None
-                }
-            }
-            _ => panic!("Invalid parameter declaration"),
-        }
-    }
-
     fn build_voice_processor(
         options: &LooperOptions,
         time_info_provider: &Shared<TimeInfoProviderImpl>,
@@ -769,8 +646,8 @@ impl MultiTrackLooper {
                 if let Some(_trigger) =
                     find_current_beat_trigger(triggers, step_tracker, position_beats)
                 {
-                    voice.looper_handle.trigger();
-                    voice.envelope.adsr_envelope.note_on();
+                    voice.looper().trigger();
+                    voice.envelope().adsr_envelope.note_on();
                 }
 
                 let triggers_vec = triggers.triggers();
@@ -799,7 +676,7 @@ impl MultiTrackLooper {
 
         for (index, voice) in self.handle.voices.iter().enumerate() {
             let looper_id = LooperId(index);
-            let parameter_values = voice.parameter_values.get();
+            let parameter_values = voice.parameters().get();
 
             for (parameter_id, parameter_value) in parameter_values.iter() {
                 let key = (looper_id, parameter_id.clone());
