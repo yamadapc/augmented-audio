@@ -29,7 +29,7 @@ use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
-mod allocator;
+pub(crate) mod allocator;
 mod envelope_processor;
 mod lfo_processor;
 mod looper_voice;
@@ -699,10 +699,10 @@ impl AudioProcessor for MultiTrackLooper {
         assert_no_alloc(|| {
             self.metrics.on_process_start();
 
-            self.process_scenes();
-            self.process_triggers();
+            // self.process_scenes();
+            // self.process_triggers();
 
-            self.graph.process(data);
+            // self.graph.process(data);
 
             for _sample in data.frames() {
                 self.handle.time_info_provider.tick();
@@ -719,6 +719,10 @@ impl MidiEventHandler for MultiTrackLooper {
 
 #[cfg(test)]
 mod test {
+    use audio_processor_testing_helpers::sine_buffer;
+
+    use allocator::assert_allocation_count;
+
     use super::*;
 
     // #[test]
@@ -740,6 +744,17 @@ mod test {
     //         .0;
     //     assert!(slice_index > start_index);
     // }
+
+    #[test]
+    fn test_process_doesnt_alloc() {
+        let mut looper = MultiTrackLooper::new(Default::default(), 8);
+        let settings = AudioProcessorSettings::default();
+        let buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
+        let mut buffer = VecAudioBuffer::from(buffer);
+        assert_allocation_count(0, || {
+            looper.process(&mut buffer);
+        });
+    }
 
     #[test]
     fn test_set_scene_parameter_lock() {

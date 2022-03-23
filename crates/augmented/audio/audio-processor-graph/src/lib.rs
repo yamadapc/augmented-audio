@@ -3,7 +3,6 @@ use std::ops::Deref;
 
 use concread::hashmap::HashMap;
 use daggy::Walker;
-
 use thiserror::Error;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared, SharedCell};
@@ -14,6 +13,9 @@ use audio_processor_traits::{
     VecAudioBuffer,
 };
 use augmented_oscillator::Oscillator;
+
+#[cfg(test)]
+mod test_allocator;
 
 pub type NodeIndex = daggy::NodeIndex<u32>;
 pub type ConnectionIndex = daggy::EdgeIndex<u32>;
@@ -366,12 +368,12 @@ fn copy_buffer<SampleType, InputBufferType, OutputBufferType>(
 
 #[cfg(test)]
 mod test {
-
     use std::time::Duration;
 
     use audio_processor_testing_helpers::{assert_f_eq, test_level_equivalence};
     use audio_processor_testing_helpers::{rms_level, sine_buffer};
 
+    use crate::test_allocator::assert_allocation_count;
     use audio_processor_traits::audio_buffer::VecAudioBuffer;
     use audio_processor_utility::gain::GainProcessor;
     use audio_processor_utility::pan::PanProcessor;
@@ -421,7 +423,10 @@ mod test {
 
         let mut process_buffer = empty_buffer.clone();
         graph.prepare(settings);
-        graph.process(&mut process_buffer);
+
+        assert_allocation_count(0, || {
+            graph.process(&mut process_buffer);
+        });
 
         test_level_equivalence(
             empty_buffer.slice(),
@@ -445,8 +450,9 @@ mod test {
         let mut graph = AudioProcessorGraph::default();
         graph.add_connection(graph.input(), graph.output()).unwrap();
         graph.prepare(settings);
-        graph.process(&mut buffer);
-        println!("{:?}", buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut buffer);
+        });
         assert_f_eq!(*buffer.get(0, 0), 1.0);
         assert_f_eq!(*buffer.get(0, 1), 2.0);
         assert_f_eq!(*buffer.get(0, 2), 3.0);
@@ -478,8 +484,9 @@ mod test {
         graph.add_connection(graph.input(), sum_10_node).unwrap();
         graph.add_connection(sum_10_node, graph.output()).unwrap();
         graph.prepare(settings);
-        graph.process(&mut buffer);
-        println!("{:?}", buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut buffer);
+        });
         assert_f_eq!(*buffer.get(0, 0), 11.0);
         assert_f_eq!(*buffer.get(0, 1), 12.0);
         assert_f_eq!(*buffer.get(0, 2), 13.0);
@@ -514,8 +521,9 @@ mod test {
         graph.add_connection(node1, node2).unwrap();
         graph.add_connection(node2, graph.output()).unwrap();
         graph.prepare(settings);
-        graph.process(&mut buffer);
-        println!("{:?}", buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut buffer);
+        });
         assert_f_eq!(*buffer.get(0, 0), 100.0);
         assert_f_eq!(*buffer.get(0, 1), 200.0);
         assert_f_eq!(*buffer.get(0, 2), 300.0);
@@ -555,8 +563,9 @@ mod test {
         graph.add_connection(node1, node2).unwrap();
         graph.add_connection(node2, graph.output()).unwrap();
         graph.prepare(settings);
-        graph.process(&mut buffer);
-        println!("{:?}", buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut buffer);
+        });
         assert_f_eq!(*buffer.get(0, 0), 100.0);
         assert_f_eq!(*buffer.get(0, 1), 200.0);
         assert_f_eq!(*buffer.get(0, 2), 300.0);
@@ -597,8 +606,11 @@ mod test {
         graph.add_connection(graph.input(), node2).unwrap();
         graph.add_connection(node2, graph.output()).unwrap();
         graph.prepare(settings);
-        graph.process(&mut buffer);
-        println!("{:?}", buffer);
+
+        assert_allocation_count(0, || {
+            graph.process(&mut buffer);
+        });
+
         assert_f_eq!(*buffer.get(0, 0), 20.0);
         assert_f_eq!(*buffer.get(0, 1), 40.0);
         assert_f_eq!(*buffer.get(0, 2), 60.0);
@@ -645,8 +657,9 @@ mod test {
         graph.add_connection(node_b1, node_b2).unwrap();
         graph.add_connection(node_b2, graph.output()).unwrap();
         graph.prepare(settings);
-        graph.process(&mut buffer);
-        println!("{:?}", buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut buffer);
+        });
         assert_f_eq!(*buffer.get(0, 0), 200.0);
         assert_f_eq!(*buffer.get(0, 1), 400.0);
         assert_f_eq!(*buffer.get(0, 2), 600.0);
@@ -692,8 +705,9 @@ mod test {
             graph.add_connection(current_idx, graph.output()).unwrap();
         }
         graph.prepare(settings);
-        graph.process(&mut buffer);
-        println!("{:?}", buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut buffer);
+        });
         assert_f_eq!(*buffer.get(0, 0), 10000.0);
         assert_f_eq!(*buffer.get(0, 1), 20000.0);
         assert_f_eq!(*buffer.get(0, 2), 30000.0);
@@ -716,7 +730,9 @@ mod test {
 
         let mut process_buffer = sine_buffer.clone();
         graph.prepare(settings);
-        graph.process(&mut process_buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut process_buffer);
+        });
 
         test_level_equivalence(
             sine_buffer.slice(),
@@ -747,7 +763,9 @@ mod test {
         let mut graph = AudioProcessorGraph::default();
         graph.prepare(settings);
         let _oscillator_idx = graph.add_node(NodeType::Simple(Box::new(oscillator)));
-        graph.process(&mut process_buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut process_buffer);
+        });
 
         test_level_equivalence(
             empty_buffer.slice(),
@@ -779,7 +797,9 @@ mod test {
         graph
             .add_connection(graph.input_node, oscillator_idx)
             .unwrap();
-        graph.process(&mut process_buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut process_buffer);
+        });
 
         test_level_equivalence(
             empty_buffer.slice(),
@@ -827,7 +847,9 @@ mod test {
 
         let mut process_buffer = VecAudioBuffer::new();
         process_buffer.resize(1, 3, 0.0);
-        graph.process(&mut process_buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut process_buffer);
+        });
         let output = process_buffer.slice().to_vec();
         assert_eq!(output, vec![3.0, 3.0, 3.0]);
     }
@@ -860,7 +882,9 @@ mod test {
         graph
             .add_connection(oscillator_idx, graph.output_node)
             .unwrap();
-        graph.process(&mut process_buffer);
+        assert_allocation_count(0, || {
+            graph.process(&mut process_buffer);
+        });
 
         test_level_equivalence(
             reference_sine.slice(),

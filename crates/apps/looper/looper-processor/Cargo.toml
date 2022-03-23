@@ -24,7 +24,7 @@ strum_macros = "0.24.0"
 itertools = "0.10"
 lazy_static = "1.4.0"
 lockfree = "0.5.1"
-assert_no_alloc = { version = "1.1.2", features = ["warn_release"], default-features = false }
+assert_no_alloc = { version = "1.1.2", features = ["warn_release", "warn_debug"], default-features = false }
 
 metronome = { path = "../../metronome" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }
