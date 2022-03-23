@@ -26,8 +26,8 @@ struct SourcePanelContentView: View {
             ForEach(sourceParameters.intParameters) { parameter in
                 if parameter.localId == .sliceId {
                     SliceParameterKnobView(
-                      sliceEnabled: sourceParameters.sliceEnabled,
-                      parameter: parameter
+                        sliceEnabled: sourceParameters.sliceEnabled,
+                        parameter: parameter
                     )
                 } else {
                     ParameterKnobView(

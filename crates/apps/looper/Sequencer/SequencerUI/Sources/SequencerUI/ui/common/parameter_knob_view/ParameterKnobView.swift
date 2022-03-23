@@ -34,7 +34,7 @@ extension IntParameter: KnobParameterLike {
     }
 
     func endParameterLock(_: Store) {
-      // TODO - Implement parameter locks for slice
+        // TODO: - Implement parameter locks for slice
     }
 }
 
