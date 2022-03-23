@@ -23,6 +23,7 @@ strum = "0.24.0"
 strum_macros = "0.24.0"
 itertools = "0.10"
 lazy_static = "1.4.0"
+lockfree = "0.5.1"
 
 metronome = { path = "../../metronome" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }

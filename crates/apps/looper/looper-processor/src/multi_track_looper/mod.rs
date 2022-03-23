@@ -1,6 +1,5 @@
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
-use im::HashMap;
 
 use num::ToPrimitive;
 use num_derive::{FromPrimitive, ToPrimitive};
@@ -63,7 +62,7 @@ impl EnumProperty for ParameterId {
 pub type SceneId = usize;
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
 pub enum SourceParameter {
     #[strum(props(type = "float", default = "0.0"))]
     Start = 0,
@@ -834,7 +833,7 @@ impl MultiTrackLooper {
         }
     }
 
-    fn build_default_parameters() -> HashMap<ParameterId, ParameterValue> {
+    fn build_default_parameters() -> im::HashMap<ParameterId, ParameterValue> {
         let source_parameters: Vec<ParameterId> = SourceParameter::iter()
             .map(|parameter| ParameterId::ParameterIdSource { parameter })
             .collect();
