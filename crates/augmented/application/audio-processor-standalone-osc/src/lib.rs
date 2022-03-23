@@ -78,7 +78,9 @@ impl<C> OscServer<C> {
                         self.handle_packet(packet);
                     }
                 }
-                Err(_) => {}
+                Err(err) => {
+                    log::error!("Failed to recv from OSC socket {}", err);
+                }
             }
 
             event_loop.poll(Duration::from_secs(0))?;

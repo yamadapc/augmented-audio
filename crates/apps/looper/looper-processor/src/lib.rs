@@ -16,6 +16,7 @@ pub use time_info_provider::{TimeInfo, TimeInfoProvider, TimeInfoProviderImpl};
 
 mod audio_processor_metrics;
 mod audio_thread_logger;
+#[allow(clippy::missing_safety_doc)]
 mod c_api;
 mod loop_quantization;
 mod midi_map;

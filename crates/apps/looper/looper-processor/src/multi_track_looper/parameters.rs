@@ -9,6 +9,7 @@ pub struct LooperId(pub usize);
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants)]
+#[allow(clippy::enum_variant_names)]
 pub enum ParameterId {
     ParameterIdSource { parameter: SourceParameter },
     ParameterIdEnvelope { parameter: EnvelopeParameter },
@@ -52,6 +53,7 @@ pub enum SourceParameter {
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
+#[allow(clippy::enum_variant_names)]
 pub enum QuantizationParameter {
     #[strum(props(type = "enum", default = "0"))]
     QuantizationParameterQuantizeMode = 0,
@@ -61,15 +63,16 @@ pub enum QuantizationParameter {
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive)]
+#[allow(clippy::enum_variant_names)]
 pub enum CQuantizeMode {
     CQuantizeModeSnapClosest = 0,
     CQuantizeModeSnapNext = 1,
     CQuantizeModeNone = 2,
 }
 
-impl Into<QuantizeMode> for CQuantizeMode {
-    fn into(self) -> QuantizeMode {
-        match self {
+impl From<CQuantizeMode> for QuantizeMode {
+    fn from(mode: CQuantizeMode) -> QuantizeMode {
+        match mode {
             CQuantizeMode::CQuantizeModeSnapClosest => QuantizeMode::SnapClosest,
             CQuantizeMode::CQuantizeModeSnapNext => QuantizeMode::SnapNext,
             CQuantizeMode::CQuantizeModeNone => QuantizeMode::None,

@@ -125,9 +125,7 @@ impl PhaseLockedVocoder {
             }
         }
 
-        for bin in 0..self.scratch.len() {
-            fft_frequency_domain[bin] = self.scratch[bin];
-        }
+        fft_frequency_domain[..self.scratch.len()].clone_from_slice(&self.scratch[..]);
     }
 }
 

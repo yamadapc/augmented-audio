@@ -81,13 +81,15 @@ impl LooperVoice {
     }
 }
 
+type SceneParametersRef =
+    SharedCell<im::HashMap<SceneId, im::HashMap<(LooperId, ParameterId), ParameterValue>>>;
+
 pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
     sample_rate: AtomicF32,
     scene_value: AtomicF32,
-    scene_parameters:
-        SharedCell<im::HashMap<SceneId, im::HashMap<(LooperId, ParameterId), ParameterValue>>>,
+    scene_parameters: SceneParametersRef,
     left_scene_id: AtomicUsize,
     right_scene_id: AtomicUsize,
     metronome_handle: Shared<MetronomeProcessorHandle>,
@@ -110,46 +112,44 @@ impl MultiTrackLooperHandle {
     pub fn toggle_recording(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
             let was_empty = self.all_loopers_empty_other_than(looper_id);
-            match handle.looper_handle.toggle_recording() {
-                ToggleRecordingResult::StoppedRecording => {
-                    self.slice_worker.add_job(
-                        looper_id.0,
-                        *self.settings.get(),
-                        handle.looper_handle.looper_clip(),
-                    );
+            if let ToggleRecordingResult::StoppedRecording = handle.looper_handle.toggle_recording()
+            {
+                self.slice_worker.add_job(
+                    looper_id.0,
+                    *self.settings.get(),
+                    handle.looper_handle.looper_clip(),
+                );
 
-                    let parameters = handle.parameter_values.get();
-                    let tempo_control = parameters.get(&ParameterId::ParameterIdQuantization(
-                        QuantizationParameter::QuantizationParameterQuantizeMode,
-                    ));
+                let parameters = handle.parameter_values.get();
+                let tempo_control = parameters.get(&ParameterId::ParameterIdQuantization(
+                    QuantizationParameter::QuantizationParameterQuantizeMode,
+                ));
 
-                    if was_empty
-                        && tempo_control.cloned()
-                            == Some(ParameterValue::Enum(
-                                TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap(),
-                            ))
-                    {
-                        let estimated_tempo = estimate_tempo(
-                            Default::default(),
-                            self.sample_rate.get(),
-                            handle.looper_handle.num_samples(),
-                        )
-                        .tempo;
-                        if estimated_tempo > 300.0 {
-                            log::warn!(
-                                "This loop is too short tempo is ignored {}",
-                                estimated_tempo
-                            );
-                            return;
-                        }
-                        log::info!("Setting global tempo to {}", estimated_tempo);
-                        self.time_info_provider.set_tempo(estimated_tempo);
-                        self.metronome_handle.set_tempo(estimated_tempo);
-                        self.metronome_handle.set_is_playing(true);
-                        self.time_info_provider.play();
+                if was_empty
+                    && tempo_control.cloned()
+                        == Some(ParameterValue::Enum(
+                            TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap(),
+                        ))
+                {
+                    let estimated_tempo = estimate_tempo(
+                        Default::default(),
+                        self.sample_rate.get(),
+                        handle.looper_handle.num_samples(),
+                    )
+                    .tempo;
+                    if estimated_tempo > 300.0 {
+                        log::warn!(
+                            "This loop is too short tempo is ignored {}",
+                            estimated_tempo
+                        );
+                        return;
                     }
+                    log::info!("Setting global tempo to {}", estimated_tempo);
+                    self.time_info_provider.set_tempo(estimated_tempo);
+                    self.metronome_handle.set_tempo(estimated_tempo);
+                    self.metronome_handle.set_is_playing(true);
+                    self.time_info_provider.play();
                 }
-                _ => {}
             }
         }
     }
@@ -199,6 +199,7 @@ impl MultiTrackLooperHandle {
         voice.parameter_values.set(make_shared(parameter_values));
     }
 
+    #[allow(clippy::single_match, clippy::collapsible_match)]
     fn update_handle_int(&self, voice: &LooperVoice, parameter_id: ParameterId, value: i32) {
         match parameter_id {
             ParameterId::ParameterIdSource { parameter } => match parameter {
@@ -400,6 +401,7 @@ impl MultiTrackLooperHandle {
         self.slice_worker.result(looper_id.0)
     }
 
+    #[allow(clippy::single_match, clippy::collapsible_match)]
     pub fn set_boolean_parameter(
         &self,
         looper_id: LooperId,
@@ -820,11 +822,11 @@ impl MultiTrackLooper {
                 let left_value = left_parameters
                     .and_then(|ps| ps.get(&key))
                     .cloned()
-                    .unwrap_or(parameter_value.clone());
+                    .unwrap_or_else(|| parameter_value.clone());
                 let right_value = right_parameters
                     .and_then(|ps| ps.get(&key))
                     .cloned()
-                    .unwrap_or(parameter_value.clone());
+                    .unwrap_or_else(|| parameter_value.clone());
 
                 match (left_value, right_value) {
                     (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
