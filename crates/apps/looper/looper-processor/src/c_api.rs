@@ -35,9 +35,10 @@ impl<T> From<Shared<T>> for SharedPtr<T> {
 
 pub struct LooperEngine {
     handle: Shared<MultiTrackLooperHandle>,
-    audio_handles: StandaloneHandles,
     metrics_actor: Arc<Mutex<AudioProcessorMetricsActor>>,
     events_callback: Option<EventsCallback>,
+    #[allow(unused)]
+    audio_handles: StandaloneHandles,
 }
 
 #[no_mangle]
@@ -192,7 +193,6 @@ pub unsafe extern "C" fn looper_engine__add_parameter_lock(
 pub enum EngineEvent {}
 
 #[repr(C)]
-#[no_mangle]
 pub struct EventsCallback {
     userdata: *mut c_void,
     callback: extern "C" fn(*mut c_void, *mut EngineEvent),
@@ -207,7 +207,6 @@ pub unsafe extern "C" fn looper_engine__set_events_callback(
 }
 
 #[repr(C)]
-#[no_mangle]
 pub struct CTimeInfo {
     position_samples: f64,
     position_beats: f64,
@@ -421,7 +420,6 @@ pub unsafe extern "C" fn looper_engine__set_metronome_volume(
 }
 
 #[repr(C)]
-#[no_mangle]
 pub struct ExampleBuffer {
     pub ptr: *const f32,
     pub count: usize,

@@ -20,7 +20,6 @@ use crate::processor::handle::LooperClipRef;
 
 #[derive(Clone)]
 pub struct SliceResult {
-    id: usize,
     result: Shared<Vec<AudioFileMarker>>,
 }
 
@@ -96,7 +95,6 @@ impl SliceProcessorThread {
         let result = build_markers(&job.settings, work_buffer.slice_mut(), params, 0.05);
         let marker_count = result.len();
         let result = SliceResult {
-            id: job.id,
             result: make_shared(result),
         };
 
@@ -139,11 +137,7 @@ impl SliceWorker {
             let job_queue = self.job_queue.clone();
             let is_running = self.is_running.clone();
             std::thread::spawn(move || {
-                let processor = SliceProcessorThread {
-                    results,
-                    job_queue,
-                    is_running,
-                };
+                let processor = SliceProcessorThread::new(job_queue, results, is_running);
                 processor.run();
             })
         };

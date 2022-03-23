@@ -5,8 +5,7 @@ use audio_garbage_collector::{Handle, Shared, SharedCell};
 
 #[derive(Debug, Copy, PartialEq, Eq, Clone)]
 pub enum Action {
-    SetRecording(bool),
-    SetPlayback(bool),
+    #[allow(unused)]
     Clear,
 }
 
@@ -17,6 +16,7 @@ pub struct MidiSpec {
 }
 
 impl MidiSpec {
+    #[allow(dead_code)]
     pub fn new(status: u8, number: u8) -> Self {
         MidiSpec { status, number }
     }
@@ -35,11 +35,13 @@ mod test_midi_spec {
 }
 
 pub struct MidiMap {
+    #[allow(dead_code)]
     store: SharedCell<HashMap<MidiSpec, Action>>,
     handle: Handle,
 }
 
 impl MidiMap {
+    #[allow(dead_code)]
     pub fn new(handle: &Handle, store: SharedCell<HashMap<MidiSpec, Action>>) -> Self {
         MidiMap {
             handle: handle.clone(),
@@ -47,6 +49,7 @@ impl MidiMap {
         }
     }
 
+    #[allow(dead_code)]
     pub fn new_with_handle(handle: &Handle) -> Self {
         MidiMap {
             handle: handle.clone(),
@@ -54,12 +57,14 @@ impl MidiMap {
         }
     }
 
+    #[allow(dead_code)]
     pub fn add(&self, spec: MidiSpec, action: Action) {
         let mut current = (*self.store.get()).clone();
         current.insert(spec, action);
         self.store.set(Shared::new(&self.handle, current));
     }
 
+    #[allow(dead_code)]
     pub fn get(&self, spec: &MidiSpec) -> Option<Action> {
         self.store.get().deref().get(spec).cloned()
     }

@@ -1,5 +1,3 @@
-use std::borrow::Borrow;
-use std::cell::RefCell;
 use std::ops::Deref;
 
 use iced::{
@@ -11,12 +9,6 @@ use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::{AtomicF32, AudioBuffer, VecAudioBuffer};
 use looper_processor::{AtomicRefCell, LoopSequencerProcessorHandle, LooperProcessorHandle};
-
-struct LoopCache {
-    // TODO: This is not the right cache key as overdubs won't render properly
-    num_samples: usize,
-    iterator: Vec<(usize, f32)>,
-}
 
 #[derive(Debug, Clone)]
 pub enum Message {}

@@ -23,6 +23,7 @@ impl StepTracker {
         }
     }
 
+    #[allow(dead_code)]
     pub fn reset(&mut self) {
         self.last_position_beats = -1.0;
     }

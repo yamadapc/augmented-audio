@@ -2,7 +2,7 @@ use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use im::HashMap;
 
-use num::{FromPrimitive, ToPrimitive};
+use num::ToPrimitive;
 use num_derive::{FromPrimitive, ToPrimitive};
 use std::ops::Deref;
 use std::str::FromStr;
@@ -42,7 +42,6 @@ pub struct LooperId(pub usize);
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants)]
-#[no_mangle]
 pub enum ParameterId {
     ParameterIdSource { parameter: SourceParameter },
     ParameterIdEnvelope { parameter: EnvelopeParameter },
@@ -64,7 +63,6 @@ impl EnumProperty for ParameterId {
 pub type SceneId = usize;
 
 #[repr(C)]
-#[no_mangle]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
 pub enum SourceParameter {
     #[strum(props(type = "float", default = "0.0"))]
@@ -86,7 +84,6 @@ pub enum SourceParameter {
 }
 
 #[repr(C)]
-#[no_mangle]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
 pub enum QuantizationParameter {
     #[strum(props(type = "enum", default = "0"))]
@@ -96,7 +93,6 @@ pub enum QuantizationParameter {
 }
 
 #[repr(C)]
-#[no_mangle]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive)]
 pub enum CQuantizeMode {
     CQuantizeModeSnapClosest = 0,
@@ -115,7 +111,6 @@ impl Into<QuantizeMode> for CQuantizeMode {
 }
 
 #[repr(C)]
-#[no_mangle]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive)]
 pub enum TempoControl {
     TempoControlSetGlobalTempo = 0,
@@ -124,7 +119,6 @@ pub enum TempoControl {
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
-#[no_mangle]
 pub enum EnvelopeParameter {
     #[strum(props(type = "float", default = "0.0"))]
     Attack = 0,
@@ -190,7 +184,6 @@ impl AudioProcessor for EnvelopeProcessor {
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
-#[no_mangle]
 pub enum LFOParameter {
     #[strum(props(type = "float", default = "1.0"))]
     Frequency = 0,

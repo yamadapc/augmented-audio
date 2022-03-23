@@ -22,7 +22,6 @@ mod quantize_mode;
 mod scratch_pad;
 mod utils;
 
-#[no_mangle]
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum LooperState {
@@ -168,7 +167,7 @@ impl LooperHandle {
     }
 
     pub fn set_fade_end(&self, value: f32) {
-        self.fade_start.set(value);
+        self.fade_end.set(value);
     }
 
     pub fn set_speed(&self, value: f32) {

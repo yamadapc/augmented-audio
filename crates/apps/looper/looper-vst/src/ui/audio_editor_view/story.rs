@@ -23,6 +23,7 @@ pub enum StoryMessage {
     SetMarkers(Vec<AudioFileMarker>),
 }
 
+#[allow(dead_code)]
 pub fn default() -> Story {
     Story::default()
 }

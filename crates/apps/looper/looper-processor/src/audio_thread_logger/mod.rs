@@ -1,39 +1,41 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use std::thread::JoinHandle;
-
 use basedrop::Shared;
 
 use atomic_queue::Queue;
 use audio_garbage_collector::make_shared;
 
-struct LogMessage {
+pub struct LogMessage {
+    #[allow(unused)]
     message: &'static str,
 }
 
 pub struct LoggerHandle {
+    #[allow(unused)]
     queue: Queue<LogMessage>,
 }
 
 impl LoggerHandle {
+    #[allow(unused)]
     pub fn info(&self, message: &'static str) {
         self.queue.push(LogMessage { message });
     }
 }
 
 pub struct Logger {
-    logger_thread: JoinHandle<()>,
     is_running: Shared<AtomicBool>,
+    #[allow(unused)]
     handle: Shared<LoggerHandle>,
 }
 
 impl Logger {
+    #[allow(unused)]
     pub fn new() -> Self {
         let is_running = make_shared(AtomicBool::new(true));
         let handle = make_shared(LoggerHandle {
             queue: Queue::new(100),
         });
-        let logger_thread = {
+        {
             let is_running = is_running.clone();
             let handle = handle.clone();
             std::thread::spawn(move || {
@@ -42,16 +44,13 @@ impl Logger {
                         log::info!("{}", message.message);
                     }
                 }
-            })
-        };
-
-        Self {
-            logger_thread,
-            is_running,
-            handle,
+            });
         }
+
+        Self { is_running, handle }
     }
 
+    #[allow(unused)]
     pub fn handle(&self) -> &Shared<LoggerHandle> {
         &self.handle
     }

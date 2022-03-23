@@ -62,7 +62,6 @@ impl AudioProcessorMetricsActor {
 }
 
 #[repr(C)]
-#[no_mangle]
 #[derive(Default)]
 pub struct AudioProcessorMetricsStats {
     pub average_cpu: f32,
