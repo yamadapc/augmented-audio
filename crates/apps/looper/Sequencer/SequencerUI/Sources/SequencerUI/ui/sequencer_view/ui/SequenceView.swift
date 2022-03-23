@@ -135,6 +135,7 @@ struct SequenceView: View {
     struct DragState {
         let step: Int
         let position: CGPoint
+        let mode: DragMode
     }
 
     @EnvironmentObject var store: Store
@@ -156,14 +157,14 @@ struct SequenceView: View {
                     )
                     .highPriorityGesture(
                         DragGesture(coordinateSpace: .named("SequenceViewZStack"))
-                            .onChanged { drag in
-                                self.store.startSequencerStepDrag(i)
-                                self.dragState = DragState(step: i, position: drag.location)
-                            }
-                            .onEnded { _ in
-                                self.store.endParameterLockDrag()
-                                self.dragState = nil
-                            }
+                            .onChanged { drag in startDrag(i, drag, .lock) }
+                            .onEnded { _ in endDrag() }
+                    )
+                    .highPriorityGesture(
+                        DragGesture(coordinateSpace: .named("SequenceViewZStack"))
+                            .modifiers(.option)
+                            .onChanged { drag in startDrag(i, drag, .copy) }
+                            .onEnded { _ in endDrag() }
                     )
                 }
             }
@@ -172,6 +173,7 @@ struct SequenceView: View {
             .frame(maxWidth: .infinity)
 
             if let dragState = self.dragState {
+              ZStack {
                 ConnectedStepButtonView(
                     trackId: store.selectedTrack,
                     index: dragState.step,
@@ -184,11 +186,28 @@ struct SequenceView: View {
                     bindToParameter: false
                 )
                 .frame(width: 45, height: 45)
-                .position(dragState.position)
                 .opacity(0.7)
+
+                if dragState.mode == .copy {
+                    Text("COPY")
+                } else {
+                    Text("LOCK")
+                }
+              }
+              .position(dragState.position)
             }
         }
         .coordinateSpace(name: "SequenceViewZStack")
         .frame(height: 40 + PADDING * 2)
     }
+
+  func startDrag(_ i: Int, _ drag: DragGesture.Value, _ mode: DragMode) {
+    self.store.startSequencerStepDrag(i, dragMode: mode)
+    self.dragState = DragState(step: i, position: drag.location, mode: mode)
+  }
+
+  func endDrag() {
+    self.store.endGlobalDrag()
+    self.dragState = nil
+  }
 }

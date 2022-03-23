@@ -96,8 +96,8 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "140"
             endingLineNumber = "140"
-            landmarkName = "EngineController"
-            landmarkType = "3">
+            landmarkName = "init()"
+            landmarkType = "7">
             <Locations>
                <Location
                   uuid = "27DCE9A1-8500-4C60-96D2-823FC2056EE2 - c68ab91f18a14d76"
@@ -194,22 +194,6 @@
             endingLineNumber = "20"
             landmarkName = "init()"
             landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "8D3956FC-B2E1-44E4-AEBC-8013C813BB4C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/SequenceView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "188"
-            endingLineNumber = "188"
-            landmarkName = "body"
-            landmarkType = "24">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy

@@ -88,27 +88,7 @@ struct SequencerView: View {
         }
         .bindToNilParameter(store: store)
         .foregroundColor(SequencerColors.white)
-        .overlay(buildKeyWatcher())
+        .overlay(buildKeyWatcher(store: store))
         .overlay(GlobalOverlays())
-    }
-
-    func buildKeyWatcher() -> some View {
-        ZStack {
-            #if os(macOS)
-                if #available(macOS 11.0, *) {
-                    KeyWatcher(
-                        onEvent: { key, modifiers in
-                            print("key=\(key) modifiers=\(modifiers)")
-                        }
-                    )
-                } else {}
-            #endif
-        }.allowsHitTesting(false)
-    }
-}
-
-struct SequencerView_Previews: PreviewProvider {
-    static var previews: some View {
-        SequencerView()
     }
 }

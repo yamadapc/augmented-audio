@@ -44,7 +44,7 @@ struct SceneSliderView: View {
                 store.objectWillChange.send()
             }
             .onEnded { _ in
-                self.store.endParameterLockDrag()
+                self.store.endGlobalDrag()
                 self.store.focusState.sceneDragState = nil
             }
     }

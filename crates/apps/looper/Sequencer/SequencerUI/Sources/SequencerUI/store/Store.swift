@@ -56,10 +56,15 @@ struct SceneDragState {
     let position: CGPoint
 }
 
+enum DragMode {
+    case lock, copy
+}
+
 class FocusState: ObservableObject {
     @Published var mouseOverObject: ObjectId?
     @Published var selectedObject: ObjectId?
     @Published var draggingSource: ParameterLockSource?
+    @Published var dragMode: DragMode? = nil
 
     @Published var sceneDragState: SceneDragState?
 
@@ -664,23 +669,31 @@ public class Store: ObservableObject {
 }
 
 extension Store {
-    func startSequencerStepDrag(_ index: Int) {
+    func startSequencerStepDrag(_ index: Int, dragMode: DragMode) {
         focusState.draggingSource = .stepId(index)
+        focusState.dragMode = dragMode
     }
 
     func startSceneDrag(_ sceneId: Int) {
         focusState.draggingSource = .sceneId(sceneId)
+        focusState.dragMode = .lock
     }
 
-    func endParameterLockDrag() {
+    func endGlobalDrag() {
         if let hoveredId = focusState.mouseOverObject,
-           let source = focusState.draggingSource
+           let source = focusState.draggingSource,
+           focusState.dragMode == .lock
         {
             startParameterLock(hoveredId, parameterLockProgress: ParameterLockState(
                 parameterId: hoveredId,
                 source: source
             ))
+        } else if let hoveredId = focusState.mouseOverObject,
+                  let source = focusState.draggingSource,
+                  focusState.dragMode == .copy {
+            // TODO - implement copy
         }
+
         focusState.draggingSource = nil
     }
 
