@@ -383,14 +383,13 @@ impl SimpleAudioProcessor for PitchShifterProcessor {
 
 #[cfg(test)]
 mod test {
+    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::{relative_path, rms_level};
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
     use audio_processor_traits::{
         AudioBuffer, AudioProcessorSettings, BufferProcessor, OwnedAudioBuffer, VecAudioBuffer,
     };
-
-    use crate::test_allocator::assert_allocation_count;
 
     use super::*;
 
@@ -429,7 +428,7 @@ mod test {
         let mut pitch_shifter = BufferProcessor(PitchShifterProcessor::default());
         pitch_shifter.prepare(AudioProcessorSettings::default());
 
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             pitch_shifter.process(&mut input);
         });
 
