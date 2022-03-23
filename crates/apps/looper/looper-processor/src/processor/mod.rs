@@ -116,8 +116,8 @@ mod test {
     };
     use handle::{LooperState, QuantizeMode};
 
-    use crate::multi_track_looper::allocator::assert_allocation_count;
     use crate::{TimeInfoProvider, MAX_LOOP_LENGTH_SECS};
+    use assert_no_alloc::assert_no_alloc;
 
     use super::*;
 
@@ -239,7 +239,7 @@ mod test {
 
     fn test_looper_is_silent_for(looper: &mut LooperProcessor, num_samples: usize) {
         let mut output = make_silent_buffer(num_samples);
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut output);
         });
         let silent_buffer = make_silent_buffer(num_samples);
@@ -268,14 +268,14 @@ mod test {
             let mut buffer: Vec<f32> = (0..10).map(|_i| 1.0).collect();
             let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
             looper.handle.start_recording();
-            assert_allocation_count(0, || {
+            assert_no_alloc(|| {
                 looper.process(&mut buffer);
             });
             looper.handle.stop_recording_allocating_loop();
 
             let mut buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
             let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
-            assert_allocation_count(0, || {
+            assert_no_alloc(|| {
                 looper.process(&mut buffer);
             });
             let output_vec = buffer.slice().to_vec();
@@ -288,7 +288,7 @@ mod test {
             let mut buffer: Vec<f32> = (0..10).map(|_i| 1.0).collect();
             let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
             looper.handle.start_recording();
-            assert_allocation_count(0, || {
+            assert_no_alloc(|| {
                 looper.process(&mut buffer);
             });
             looper.handle.stop_recording_allocating_loop();
@@ -298,7 +298,7 @@ mod test {
         let mut buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
 
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut buffer);
         });
         let output_vec = buffer.slice().to_vec();
@@ -316,7 +316,7 @@ mod test {
         let num_samples = (MAX_LOOP_LENGTH_SECS * settings.sample_rate) as usize - 30;
         let mut sample_buffer: Vec<f32> = (0..num_samples).map(|i| i as f32).collect();
         let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut sample_buffer);
         });
 
@@ -328,7 +328,7 @@ mod test {
         let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
 
         looper.handle.start_recording();
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut sample_buffer);
         });
         looper.handle.stop_recording_audio_thread_only();
@@ -344,7 +344,7 @@ mod test {
         let mut output_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
 
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut output_buffer);
         });
         let output_vec = output_buffer.slice().to_vec();
@@ -356,7 +356,7 @@ mod test {
 
         audio_buffer::clear(&mut output_buffer);
 
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut output_buffer);
         });
         let output_vec = output_buffer.slice().to_vec();
@@ -368,7 +368,7 @@ mod test {
 
         // Stop looper
         looper.handle().pause();
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut sample_buffer);
         });
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
@@ -404,7 +404,7 @@ mod test {
             let mut sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
             let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
             // We process 1s of audio; which is 1 beat
-            assert_allocation_count(0, || {
+            assert_no_alloc(|| {
                 looper.process(&mut sample_buffer);
             });
         }
@@ -424,7 +424,7 @@ mod test {
         // We record some audio in
         let mut recorded_buffer: Vec<f32> = (0..400).map(|i| i as f32).collect();
         let mut recorded_buffer = InterleavedAudioBuffer::new(1, &mut recorded_buffer);
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut recorded_buffer);
         });
         let position_beats = get_position_beats(&mut looper);
@@ -435,7 +435,7 @@ mod test {
         // We expect audio to be played back now
         let mut output_buffer: Vec<f32> = (0..200).map(|_i| 0.0).collect();
         let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
-        assert_allocation_count(0, || {
+        assert_no_alloc(|| {
             looper.process(&mut output_buffer);
         });
         assert_eq!(looper.handle.state(), LooperState::Playing);

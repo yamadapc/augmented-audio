@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
@@ -39,8 +38,9 @@ pub(crate) mod slice_worker;
 mod tempo_estimation;
 mod trigger_model;
 
-type SceneParametersRef =
-    SharedCell<im::HashMap<SceneId, im::HashMap<(LooperId, ParameterId), ParameterValue>>>;
+type SceneParametersRef = Shared<
+    lockfree::map::Map<SceneId, lockfree::map::Map<(LooperId, ParameterId), ParameterValue>>,
+>;
 
 pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
@@ -77,16 +77,20 @@ impl MultiTrackLooperHandle {
                     handle.looper().looper_clip(),
                 );
 
-                let parameters = handle.parameters().get();
+                let parameters = handle.parameters();
                 let tempo_control = parameters.get(&ParameterId::ParameterIdQuantization(
                     QuantizationParameter::QuantizationParameterQuantizeMode,
                 ));
 
                 if was_empty
-                    && tempo_control.cloned()
-                        == Some(ParameterValue::Enum(
-                            TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap(),
-                        ))
+                    && tempo_control
+                        .map(|tempo_control| {
+                            *tempo_control.val()
+                                == ParameterValue::Enum(
+                                    TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap(),
+                                )
+                        })
+                        .unwrap_or(false)
                 {
                     let estimated_tempo = estimate_tempo(
                         Default::default(),
@@ -150,10 +154,8 @@ impl MultiTrackLooperHandle {
         parameter_id: ParameterId,
         value: ParameterValue,
     ) {
-        let parameter_values = voice.parameters().get();
-        let mut parameter_values = parameter_values.deref().clone();
-        parameter_values.insert(parameter_id, value);
-        voice.parameters().set(make_shared(parameter_values));
+        let parameter_values = voice.parameters();
+        let _ = parameter_values.insert(parameter_id, value);
     }
 
     #[allow(clippy::single_match, clippy::collapsible_match)]
@@ -399,15 +401,12 @@ impl MultiTrackLooperHandle {
             parameter_id,
             value
         );
-        let all_scene_parameters = self.scene_parameters.get();
-        let mut all_scene_parameters = all_scene_parameters.deref().clone();
-        let mut scene_parameters = all_scene_parameters
-            .get(&scene_id)
-            .cloned()
-            .unwrap_or_default();
-        scene_parameters.insert((looper_id, parameter_id), ParameterValue::Float(value));
-        all_scene_parameters.insert(scene_id, scene_parameters);
-        self.scene_parameters.set(make_shared(all_scene_parameters));
+        let all_scene_parameters = &self.scene_parameters;
+        if let Some(scene_parameters) = all_scene_parameters.get(&scene_id) {
+            scene_parameters
+                .val()
+                .insert((looper_id, parameter_id), ParameterValue::Float(value));
+        }
     }
 
     pub fn add_parameter_lock(
@@ -535,7 +534,7 @@ impl MultiTrackLooper {
             voices,
             time_info_provider,
             scene_value: AtomicF32::new(0.0),
-            scene_parameters: make_shared_cell(Default::default()),
+            scene_parameters: make_shared(Default::default()),
             left_scene_id: AtomicUsize::new(0),
             right_scene_id: AtomicUsize::new(1),
             sample_rate: AtomicF32::new(44100.0),
@@ -643,39 +642,43 @@ impl MultiTrackLooper {
     }
 
     fn process_scenes(&mut self) {
-        let all_scene_parameters = self.handle.scene_parameters.get();
+        let all_scene_parameters = &self.handle.scene_parameters;
         let left_parameters = all_scene_parameters.get(&self.handle.left_scene_id.get());
         let right_parameters = all_scene_parameters.get(&self.handle.right_scene_id.get());
         let scene_value = self.handle.scene_value.get();
 
         for (index, voice) in self.handle.voices.iter().enumerate() {
             let looper_id = LooperId(index);
-            let parameter_values = voice.parameters().get();
+            let parameter_values = voice.parameters();
 
-            for (parameter_id, parameter_value) in parameter_values.iter() {
-                let key = (looper_id, parameter_id.clone());
-                let left_value = left_parameters
-                    .and_then(|ps| ps.get(&key))
-                    .cloned()
-                    .unwrap_or_else(|| parameter_value.clone());
-                let right_value = right_parameters
-                    .and_then(|ps| ps.get(&key))
-                    .cloned()
-                    .unwrap_or_else(|| parameter_value.clone());
+            for parameter_id in voice.parameter_ids() {
+                if let Some(parameter_value) = parameter_values.get(parameter_id) {
+                    let parameter_value = parameter_value.val();
 
-                match (left_value, right_value) {
-                    (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
-                        let value = left_value + scene_value * (right_value - left_value);
-                        self.handle
-                            .update_handle_float(voice, parameter_id.clone(), value);
+                    let key = (looper_id, parameter_id.clone());
+                    let left_value = left_parameters
+                        .as_ref()
+                        .and_then(|ps| ps.val().get(&key).map(|entry| entry.val().clone()))
+                        .unwrap_or_else(|| parameter_value.clone());
+                    let right_value = right_parameters
+                        .as_ref()
+                        .and_then(|ps| ps.val().get(&key).map(|entry| entry.val().clone()))
+                        .unwrap_or_else(|| parameter_value.clone());
+
+                    match (left_value, right_value) {
+                        (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
+                            let value = left_value + scene_value * (right_value - left_value);
+                            self.handle
+                                .update_handle_float(voice, parameter_id.clone(), value);
+                        }
+                        (ParameterValue::Int(left_value), ParameterValue::Int(right_value)) => {
+                            let value = left_value
+                                + (scene_value * (right_value - left_value) as f32) as i32;
+                            self.handle
+                                .update_handle_int(voice, parameter_id.clone(), value);
+                        }
+                        _ => {}
                     }
-                    (ParameterValue::Int(left_value), ParameterValue::Int(right_value)) => {
-                        let value =
-                            left_value + (scene_value * (right_value - left_value) as f32) as i32;
-                        self.handle
-                            .update_handle_int(voice, parameter_id.clone(), value);
-                    }
-                    _ => {}
                 }
             }
         }
@@ -699,10 +702,10 @@ impl AudioProcessor for MultiTrackLooper {
         assert_no_alloc(|| {
             self.metrics.on_process_start();
 
-            // self.process_scenes();
-            // self.process_triggers();
+            self.process_scenes();
+            self.process_triggers();
 
-            // self.graph.process(data);
+            self.graph.process(data);
 
             for _sample in data.frames() {
                 self.handle.time_info_provider.tick();
@@ -720,8 +723,7 @@ impl MidiEventHandler for MultiTrackLooper {
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::sine_buffer;
-
-    use allocator::assert_allocation_count;
+    use audio_processor_traits::InterleavedAudioBuffer;
 
     use super::*;
 
@@ -749,11 +751,16 @@ mod test {
     fn test_process_doesnt_alloc() {
         let mut looper = MultiTrackLooper::new(Default::default(), 8);
         let settings = AudioProcessorSettings::default();
-        let buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
-        let mut buffer = VecAudioBuffer::from(buffer);
-        assert_allocation_count(0, || {
+        let mut buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
+
+        looper.prepare(settings);
+        let num_frames = buffer.len() / settings.block_size();
+        for frame in 0..num_frames {
+            let start_index = frame * settings.block_size();
+            let end_index = start_index + settings.block_size();
+            let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer[start_index..end_index]);
             looper.process(&mut buffer);
-        });
+        }
     }
 
     #[test]

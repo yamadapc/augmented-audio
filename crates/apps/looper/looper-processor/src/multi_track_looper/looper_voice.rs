@@ -1,6 +1,6 @@
 use std::sync::atomic::Ordering;
 
-use basedrop::{Shared, SharedCell};
+use basedrop::Shared;
 
 use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
@@ -17,11 +17,12 @@ use super::lfo_processor::LFOHandle;
 use super::parameters::{ParameterId, ParameterValue};
 use super::trigger_model::TrackTriggerModel;
 
-type ParameterValues = SharedCell<im::HashMap<ParameterId, ParameterValue>>;
+type ParameterValues = lockfree::map::Map<ParameterId, ParameterValue>;
 
 pub struct LooperVoice {
     pub id: usize,
     parameter_values: ParameterValues,
+    parameter_ids: Vec<ParameterId>,
     triggers: Shared<TrackTriggerModel>,
     looper_handle: Shared<LooperProcessorHandle>,
     sequencer_handle: Shared<LoopSequencerProcessorHandle>,
@@ -56,6 +57,10 @@ impl LooperVoice {
         &self.pitch_shifter_handle
     }
 
+    pub fn parameter_ids(&self) -> &[ParameterId] {
+        &self.parameter_ids
+    }
+
     pub fn parameters(&self) -> &ParameterValues {
         &self.parameter_values
     }
@@ -72,7 +77,7 @@ pub struct VoiceProcessors {
 }
 
 pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> LooperVoice {
-    use audio_garbage_collector::{make_shared, make_shared_cell};
+    use audio_garbage_collector::make_shared;
 
     use super::parameters::build_default_parameters;
 
@@ -84,11 +89,12 @@ pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> Loop
     let looper_handle = looper.handle().clone();
     let sequencer_handle = looper.sequencer_handle().clone();
     let triggers = make_shared(TrackTriggerModel::default());
-    let parameter_values = build_default_parameters();
+    let (parameter_values, parameter_ids) = build_default_parameters();
 
     LooperVoice {
         id,
-        parameter_values: make_shared_cell(parameter_values),
+        parameter_ids,
+        parameter_values,
         looper_handle,
         sequencer_handle,
         triggers,

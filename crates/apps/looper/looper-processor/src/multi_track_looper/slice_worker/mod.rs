@@ -3,11 +3,10 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use std::time::Duration;
 
-use basedrop::{Shared, SharedCell};
-use im::HashMap;
+use basedrop::Shared;
 
 use atomic_queue::Queue;
-use audio_garbage_collector::{make_shared, make_shared_cell};
+use audio_garbage_collector::make_shared;
 use audio_processor_analysis::transient_detection::stft::markers::{
     build_markers, AudioFileMarker,
 };
@@ -38,14 +37,14 @@ struct SliceJob {
 
 struct SliceProcessorThread {
     job_queue: Shared<Queue<SliceJob>>,
-    results: Shared<SharedCell<im::HashMap<usize, SliceResult>>>,
+    results: Shared<lockfree::map::Map<usize, SliceResult>>,
     is_running: Shared<AtomicBool>,
 }
 
 impl SliceProcessorThread {
     fn new(
         job_queue: Shared<Queue<SliceJob>>,
-        results: Shared<SharedCell<im::HashMap<usize, SliceResult>>>,
+        results: Shared<lockfree::map::Map<usize, SliceResult>>,
         is_running: Shared<AtomicBool>,
     ) -> Self {
         SliceProcessorThread {
@@ -103,23 +102,21 @@ impl SliceProcessorThread {
             job.id,
             marker_count
         );
-        let results = self.results.get();
-        let mut results = results.deref().clone();
+        let results = &self.results;
         results.insert(job.id, result);
-        self.results.set(make_shared(results));
     }
 }
 
 pub struct SliceWorker {
     job_queue: Shared<Queue<SliceJob>>,
-    results: Shared<SharedCell<im::HashMap<usize, SliceResult>>>,
+    results: Shared<lockfree::map::Map<usize, SliceResult>>,
     is_running: Shared<AtomicBool>,
 }
 
 impl SliceWorker {
     pub fn new() -> Self {
         let job_queue = make_shared(Queue::new(10));
-        let results = make_shared(make_shared_cell(HashMap::new()));
+        let results = make_shared(lockfree::map::Map::new());
         let is_running = make_shared(AtomicBool::new(true));
 
         let s = Self {
@@ -152,8 +149,7 @@ impl SliceWorker {
     }
 
     pub fn result(&self, id: usize) -> Option<SliceResult> {
-        let results = self.results.get();
-        results.get(&id).cloned()
+        self.results.get(&id).map(|entry| entry.val().clone())
     }
 }
 

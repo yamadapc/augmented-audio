@@ -8,6 +8,9 @@ use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, Zero,
 };
 
+#[cfg(test)]
+mod test_allocator;
+
 fn make_vec(size: usize) -> Vec<f32> {
     let mut v = Vec::with_capacity(size);
     v.resize(size, 0.0);
@@ -376,13 +379,14 @@ impl SimpleAudioProcessor for PitchShifterProcessor {
 
 #[cfg(test)]
 mod test {
-
     use audio_processor_testing_helpers::{relative_path, rms_level};
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
     use audio_processor_traits::{
         AudioBuffer, AudioProcessorSettings, BufferProcessor, OwnedAudioBuffer, VecAudioBuffer,
     };
+
+    use crate::test_allocator::assert_allocation_count;
 
     use super::*;
 
@@ -420,7 +424,11 @@ mod test {
 
         let mut pitch_shifter = BufferProcessor(PitchShifterProcessor::default());
         pitch_shifter.prepare(AudioProcessorSettings::default());
-        pitch_shifter.process(&mut input);
+
+        assert_allocation_count(0, || {
+            pitch_shifter.process(&mut input);
+        });
+
         let output_rms = rms_level(input.slice());
         let diff = (input_rms - output_rms).abs();
         println!("diff={} input={} output={}", diff, input_rms, output_rms);

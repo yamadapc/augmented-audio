@@ -4,11 +4,11 @@ use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
 
 use crate::QuantizeMode;
 
-#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct LooperId(pub usize);
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants, PartialOrd, Ord)]
 #[allow(clippy::enum_variant_names)]
 pub enum ParameterId {
     ParameterIdSource(SourceParameter),
@@ -52,7 +52,7 @@ pub enum SourceParameter {
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
 #[allow(clippy::enum_variant_names)]
 pub enum QuantizationParameter {
     #[strum(props(type = "enum", default = "0"))]
@@ -81,14 +81,14 @@ impl From<CQuantizeMode> for QuantizeMode {
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, FromPrimitive, ToPrimitive, PartialOrd, Ord)]
 pub enum TempoControl {
     TempoControlSetGlobalTempo = 0,
     TempoControlNone = 1,
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
 pub enum EnvelopeParameter {
     #[strum(props(type = "float", default = "0.0"))]
     Attack = 0,
@@ -103,7 +103,7 @@ pub enum EnvelopeParameter {
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
 pub enum LFOParameter {
     #[strum(props(type = "float", default = "1.0"))]
     Frequency = 0,
@@ -120,7 +120,10 @@ pub enum ParameterValue {
     None,
 }
 
-pub fn build_default_parameters() -> im::HashMap<ParameterId, ParameterValue> {
+pub fn build_default_parameters() -> (
+    lockfree::map::Map<ParameterId, ParameterValue>,
+    Vec<ParameterId>,
+) {
     use strum::IntoEnumIterator;
 
     let source_parameters: Vec<ParameterId> = SourceParameter::iter()
@@ -135,13 +138,18 @@ pub fn build_default_parameters() -> im::HashMap<ParameterId, ParameterValue> {
     let quantization_parameters: Vec<ParameterId> = QuantizationParameter::iter()
         .map(ParameterId::ParameterIdQuantization)
         .collect();
-    let all_parameters = source_parameters
+    let parameter_ids: Vec<ParameterId> = source_parameters
         .iter()
         .chain(envelope_parameters.iter())
         .chain(lfo_parameters.iter())
-        .chain(quantization_parameters.iter());
+        .chain(quantization_parameters.iter())
+        .cloned()
+        .collect();
 
-    all_parameters
+    let result = lockfree::map::Map::new();
+
+    parameter_ids
+        .iter()
         .flat_map(|parameter_id| {
             let default_value = get_default_parameter_value(parameter_id);
 
@@ -158,7 +166,11 @@ pub fn build_default_parameters() -> im::HashMap<ParameterId, ParameterValue> {
                 vec![(parameter_id.clone(), default_value)]
             }
         })
-        .collect()
+        .for_each(|(parameter_id, parameter_value)| {
+            let _ = result.insert(parameter_id, parameter_value);
+        });
+
+    (result, parameter_ids)
 }
 
 fn get_default_parameter_value(parameter_id: &ParameterId) -> ParameterValue {

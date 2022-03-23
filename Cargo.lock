@@ -422,6 +422,7 @@ dependencies = [
 name = "audio-processor-graph"
 version = "0.1.0"
 dependencies = [
+ "assert_no_alloc",
  "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-testing-helpers",
@@ -463,6 +464,7 @@ dependencies = [
 name = "audio-processor-pitch-shifter"
 version = "0.1.0"
 dependencies = [
+ "assert_no_alloc",
  "audio-garbage-collector",
  "audio-processor-analysis",
  "audio-processor-file",
