@@ -8,8 +8,9 @@ use crate::multi_track_looper::envelope_processor::{EnvelopeHandle, EnvelopeProc
 use crate::multi_track_looper::lfo_processor::LFOHandle;
 use crate::multi_track_looper::parameters::{ParameterId, ParameterValue};
 use crate::processor::handle::LooperHandle as LooperProcessorHandle;
-use crate::trigger_model::TrackTriggerModel;
 use crate::{LoopSequencerProcessorHandle, LooperProcessor};
+
+use super::trigger_model::TrackTriggerModel;
 
 type ParameterValues = SharedCell<im::HashMap<ParameterId, ParameterValue>>;
 

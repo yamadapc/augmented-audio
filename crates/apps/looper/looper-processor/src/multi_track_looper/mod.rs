@@ -8,6 +8,7 @@ use num::ToPrimitive;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
+use audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use audio_processor_pitch_shifter::MultiChannelPitchShifterProcessor;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
@@ -15,26 +16,29 @@ use audio_processor_traits::{
 };
 use augmented_atomics::{AtomicF32, AtomicValue};
 use envelope_processor::EnvelopeProcessor;
-
 use looper_voice::{LooperVoice, VoiceProcessors};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 use parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
     QuantizationParameter, SceneId, SourceParameter, TempoControl,
 };
+use slice_worker::{SliceResult, SliceWorker};
+use tempo_estimation::estimate_tempo;
+use trigger_model::step_tracker::StepTracker;
+use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 
-use crate::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
-use crate::slice_worker::{SliceResult, SliceWorker};
-use crate::tempo_estimation::estimate_tempo;
-use crate::trigger_model::step_tracker::StepTracker;
-use crate::trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 use crate::{LooperOptions, LooperProcessor, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
+pub(crate) mod audio_processor_metrics;
+mod audio_thread_logger;
 mod envelope_processor;
 mod lfo_processor;
 mod looper_voice;
 pub mod parameters;
+pub(crate) mod slice_worker;
+mod tempo_estimation;
+mod trigger_model;
 
 type SceneParametersRef =
     SharedCell<im::HashMap<SceneId, im::HashMap<(LooperId, ParameterId), ParameterValue>>>;

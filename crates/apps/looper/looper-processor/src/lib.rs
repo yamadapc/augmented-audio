@@ -14,8 +14,6 @@ pub use sequencer::LoopSequencerParams;
 pub use sequencer::LoopSequencerProcessorHandle;
 pub use time_info_provider::{TimeInfo, TimeInfoProvider, TimeInfoProviderImpl};
 
-mod audio_processor_metrics;
-mod audio_thread_logger;
 #[allow(clippy::missing_safety_doc)]
 mod c_api;
 mod loop_quantization;
@@ -24,9 +22,6 @@ mod multi_track_looper;
 mod osc_server;
 mod processor;
 mod sequencer;
-mod slice_worker;
-mod tempo_estimation;
 mod time_info_provider;
-mod trigger_model;
 
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;
