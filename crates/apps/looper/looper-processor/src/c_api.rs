@@ -8,7 +8,7 @@ use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::AtomicF32;
 
-use crate::multi_track_looper::audio_processor_metrics::{
+use crate::multi_track_looper::metrics::audio_processor_metrics::{
     AudioProcessorMetricsActor, AudioProcessorMetricsStats,
 };
 use crate::multi_track_looper::parameters::{

@@ -8,7 +8,6 @@ use num::ToPrimitive;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
-use audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use audio_processor_pitch_shifter::MultiChannelPitchShifterProcessor;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
@@ -17,6 +16,7 @@ use audio_processor_traits::{
 use augmented_atomics::{AtomicF32, AtomicValue};
 use envelope_processor::EnvelopeProcessor;
 use looper_voice::{LooperVoice, VoiceProcessors};
+use metrics::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 use parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
@@ -30,11 +30,10 @@ use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::{LooperOptions, LooperProcessor, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
-pub(crate) mod audio_processor_metrics;
-mod audio_thread_logger;
 mod envelope_processor;
 mod lfo_processor;
 mod looper_voice;
+pub(crate) mod metrics;
 pub mod parameters;
 pub(crate) mod slice_worker;
 mod tempo_estimation;
