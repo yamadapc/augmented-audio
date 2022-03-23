@@ -120,7 +120,7 @@ mod test {
     use audio_processor_testing_helpers::charts::draw_vec_chart;
     use audio_processor_testing_helpers::relative_path;
     use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-    use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+    use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
     use super::*;
 

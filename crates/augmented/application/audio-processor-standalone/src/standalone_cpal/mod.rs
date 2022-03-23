@@ -44,9 +44,12 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send 
 
 /// Handles to the CPAL streams and MIDI host. Playback will stop when these are dropped.
 pub struct StandaloneHandles {
+    // Handles contain a join handle with the thread, this might be used in the future.
+    #[allow(unused)]
     handle: std::thread::JoinHandle<()>,
     // input_stream: Option<cpal::Stream>,
     // output_stream: cpal::Stream,
+    #[allow(unused)]
     midi_host: Option<MidiHost>,
 }
 

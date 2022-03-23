@@ -9,7 +9,7 @@ use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{
     audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, AudioBuffer,
-    AudioProcessor, AudioProcessorSettings,
+    AudioProcessorSettings,
 };
 
 fn main() {
