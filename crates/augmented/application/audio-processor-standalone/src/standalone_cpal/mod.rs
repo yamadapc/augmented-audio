@@ -218,9 +218,7 @@ fn configure_output_device(
 
 fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
     for sample in data {
-        while producer.push(*sample).is_err() {
-            log::warn!("OUTPUT UNDER-RUN");
-        }
+        while producer.push(*sample).is_err() {}
     }
 }
 
@@ -242,7 +240,6 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
                 if let Some(input_sample) = consumer.pop() {
                     *sample = input_sample;
                 } else {
-                    log::warn!("INPUT - UNDER-RUN")
                 }
             }
         } else if let Some(input_sample) = consumer.pop() {

@@ -5,11 +5,13 @@ use itertools::Itertools;
 use std::collections::{HashMap, VecDeque};
 
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+use std::time::Duration;
 
 use audio_processor_traits::MidiMessageLike;
 use augmented_atomics::AtomicOption;
 use augmented_midi::{parse_midi_event, MIDIMessage, ParserState};
 
+#[repr(C)]
 #[derive(PartialEq, Eq, Debug, Clone)]
 pub struct MidiStoreValue {
     pub channel: u8,
@@ -97,6 +99,7 @@ impl MidiStoreHandle {
     }
 }
 
+#[repr(C)]
 pub enum MidiEvent {
     Value(MidiStoreValue),
 }
@@ -125,7 +128,6 @@ impl MidiStoreActor {
     }
 
     pub fn run(&mut self) {
-        let backoff = crossbeam_utils::Backoff::new();
         while self.is_running.load(Ordering::Relaxed) {
             if let Some(event) = self.events_queue.pop() {
                 self.current_cc_values
@@ -135,7 +137,7 @@ impl MidiStoreActor {
                 (self.callback)(MidiEvent::Value(event.clone()));
             }
 
-            backoff.spin();
+            std::thread::sleep(Duration::from_millis(50))
         }
     }
 }

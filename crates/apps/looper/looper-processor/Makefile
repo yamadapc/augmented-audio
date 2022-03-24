@@ -1,5 +1,5 @@
 build: FORCE
-	rm -r ./public/*
+	rm -rf ./public/*
 	bash build-headers.sh
 	cargo lipo --release --package looper-processor --targets=aarch64-apple-darwin
 	cargo lipo --release --package looper-processor --targets=x86_64-apple-darwin
