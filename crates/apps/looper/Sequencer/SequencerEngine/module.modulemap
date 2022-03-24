@@ -1,0 +1,4 @@
+module SequencerEngine_private {
+  header "private.h"
+  export *
+}
