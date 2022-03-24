@@ -896,6 +896,7 @@ mod test {
     }
 }
 
+// Testing helper
 #[derive(Clone)]
 pub struct OscillatorProcessor {
     pub oscillator: Oscillator<f32>,
