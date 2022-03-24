@@ -25,6 +25,7 @@ use tempo_estimation::estimate_tempo;
 use trigger_model::step_tracker::StepTracker;
 use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 
+use crate::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
@@ -33,6 +34,7 @@ mod envelope_processor;
 mod lfo_processor;
 mod looper_voice;
 pub(crate) mod metrics;
+mod midi_store;
 pub mod parameters;
 pub(crate) mod slice_worker;
 mod tempo_estimation;
@@ -54,6 +56,7 @@ pub struct MultiTrackLooperHandle {
     slice_worker: SliceWorker,
     settings: SharedCell<AudioProcessorSettings>,
     metrics_handle: Shared<AudioProcessorMetricsHandle>,
+    midi_store: Shared<MidiStoreHandle>,
 }
 
 impl MultiTrackLooperHandle {
@@ -563,6 +566,7 @@ impl MultiTrackLooper {
             settings: make_shared_cell(AudioProcessorSettings::default()),
             slice_worker: SliceWorker::new(),
             metrics_handle: metrics.handle(),
+            midi_store: make_shared(midi_store::MidiStoreHandle::default()),
         });
 
         let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
@@ -740,7 +744,9 @@ impl AudioProcessor for MultiTrackLooper {
 }
 
 impl MidiEventHandler for MultiTrackLooper {
-    fn process_midi_events<Message: MidiMessageLike>(&mut self, _midi_messages: &[Message]) {}
+    fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
+        self.handle.midi_store.process_midi_events(midi_messages);
+    }
 }
 
 #[cfg(test)]

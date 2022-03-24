@@ -99,58 +99,61 @@ pub fn standalone_start(
 
     // On iOS start takes over the calling thread, so this needs to be spawned in order for this
     // function to exit
-    let handle = std::thread::spawn(move || {
-        let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
-        let (mut producer, mut consumer) = buffer.split();
-        let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
-            input_device
-                .build_input_stream(
-                    input_config,
-                    move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
-                        input_stream_callback(&mut producer, data)
+    let handle = std::thread::Builder::new()
+        .name(String::from("audio-thread"))
+        .spawn(move || {
+            let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
+            let (mut producer, mut consumer) = buffer.split();
+            let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
+                input_device
+                    .build_input_stream(
+                        input_config,
+                        move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
+                            input_stream_callback(&mut producer, data)
+                        },
+                        |err| {
+                            log::error!("Input error: {:?}", err);
+                        },
+                    )
+                    .unwrap()
+            });
+
+            // Output callback section
+            log::info!(
+                "num_input_channels={} num_output_channels={} sample_rate={}",
+                num_input_channels,
+                num_output_channels,
+                output_config.sample_rate.0
+            );
+            let output_stream = output_device
+                .build_output_stream(
+                    &output_config,
+                    move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
+                        output_stream_with_context(
+                            midi_context.as_mut(),
+                            &mut app,
+                            num_input_channels,
+                            num_output_channels,
+                            &mut consumer,
+                            data,
+                        );
                     },
                     |err| {
-                        log::error!("Input error: {:?}", err);
+                        log::error!("Playback error: {:?}", err);
                     },
                 )
-                .unwrap()
-        });
+                .unwrap();
 
-        // Output callback section
-        log::info!(
-            "num_input_channels={} num_output_channels={} sample_rate={}",
-            num_input_channels,
-            num_output_channels,
-            output_config.sample_rate.0
-        );
-        let output_stream = output_device
-            .build_output_stream(
-                &output_config,
-                move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-                    output_stream_with_context(
-                        midi_context.as_mut(),
-                        &mut app,
-                        num_input_channels,
-                        num_output_channels,
-                        &mut consumer,
-                        data,
-                    );
-                },
-                |err| {
-                    log::error!("Playback error: {:?}", err);
-                },
-            )
-            .unwrap();
+            log::info!("Audio streams starting on audio-thread");
+            output_stream.play().unwrap();
+            if let Some(input_stream) = &input_stream {
+                input_stream.play().unwrap();
+            }
 
-        log::info!("Audio streams starting on audio-thread");
-        output_stream.play().unwrap();
-        if let Some(input_stream) = &input_stream {
-            input_stream.play().unwrap();
-        }
-
-        log::info!("Audio streams started");
-        std::thread::park();
-    });
+            log::info!("Audio streams started");
+            std::thread::park();
+        })
+        .unwrap();
 
     StandaloneHandles { handle, midi_host }
 }
