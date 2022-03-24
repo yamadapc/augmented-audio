@@ -32,7 +32,7 @@ impl LowpassFeedbackCombFilter {
     }
 
     pub fn process(&mut self, sample: f32) -> f32 {
-        let mut output = undenormalize(self.buffer[self.buffer_cursor]);
+        let output = undenormalize(self.buffer[self.buffer_cursor]);
 
         self.filter_store = undenormalize(output * self.damp2 + self.filter_store * self.damp1);
 
