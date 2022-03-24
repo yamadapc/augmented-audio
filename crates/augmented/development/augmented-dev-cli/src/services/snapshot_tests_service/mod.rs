@@ -36,7 +36,6 @@ fn run_example_snapshot_tests(crate_name: &str, example: &str, update_snapshots:
             run_cmd!(mv test/snapshots/${crate_name}/${example}.tmp.wav test/snapshots/${crate_name}/${example}.wav).unwrap();
         }
     } else {
-        run_cmd!(rm test/snapshots/${crate_name}/${example}.tmp.wav).unwrap();
         if md5_test != md5_commit {
             log::error!(
                 "Test failed for {}/{}\n   Expected: {:?} Received: {:?}",
@@ -46,6 +45,8 @@ fn run_example_snapshot_tests(crate_name: &str, example: &str, update_snapshots:
                 md5_test
             );
             std::process::exit(1);
+        } else {
+            run_cmd!(rm test/snapshots/${crate_name}/${example}.tmp.wav).unwrap();
         }
     }
 }
