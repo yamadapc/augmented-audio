@@ -124,11 +124,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		CB0E1F0327D34B8A00460533 /* liblooperFFI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperFFI.a; path = "../rust-audio-software/crates/apps/looper/looper-udl/lib/macos/liblooperFFI.a"; sourceTree = "<group>"; };
-		CB0E1F0527D34BB900460533 /* liblooperFFI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperFFI.a; path = "../rust-audio-software/crates/apps/looper/looper-udl/lib/ios/liblooperFFI.a"; sourceTree = "<group>"; };
+		CB0E1F0327D34B8A00460533 /* liblooperFFI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperFFI.a; path = "../looper-udl/lib/macos/liblooperFFI.a"; sourceTree = "<group>"; };
+		CB0E1F0527D34BB900460533 /* liblooperFFI.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperFFI.a; path = "../looper-udl/lib/ios/liblooperFFI.a"; sourceTree = "<group>"; };
 		CB0E1F0A27D3511100460533 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		CB0E1F0C27D3511B00460533 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
-		CB0F71C427E1204800C08404 /* liblooperengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine.a; path = "../rust-audio-software/crates/apps/looper/looper-processor/public/lib/macos/liblooperengine.a"; sourceTree = "<group>"; };
+		CB0F71C427E1204800C08404 /* liblooperengine.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine.a; path = "../looper-processor/public/lib/macos/liblooperengine.a"; sourceTree = "<group>"; };
 		CB1666A427CCAD04000F9E21 /* Sequencer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sequencer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB1666A727CCAD04000F9E21 /* SequencerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerApp.swift; sourceTree = "<group>"; };
 		CB1666AB27CCAD07000F9E21 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -163,8 +163,8 @@
 		CB801A4327D8B11C00D7788E /* SequencerUI */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = SequencerUI; sourceTree = "<group>"; };
 		CB801A4F27DB696F00D7788E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		CBA4DA6327DC5EE100A530E3 /* BuildTools */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = BuildTools; sourceTree = "<group>"; };
-		CBA4DA6527DDD79800A530E3 /* liblooper_processor.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblooper_processor.dylib; path = "../rust-audio-software/target/release/liblooper_processor.dylib"; sourceTree = "<group>"; };
-		CBA4DA6B27DDDEA100A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../rust-audio-software/target/release/liblooper_processor.a"; sourceTree = "<group>"; };
+		CBA4DA6527DDD79800A530E3 /* liblooper_processor.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblooper_processor.dylib; path = "../../../../target/release/liblooper_processor.dylib"; sourceTree = "<group>"; };
+		CBA4DA6B27DDDEA100A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../../../../target/release/liblooper_processor.a"; sourceTree = "<group>"; };
 		CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngine.swift; sourceTree = "<group>"; };
 		CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SequencerEngine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBA4DA9227DDF21800A530E3 /* SequencerEngine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SequencerEngine.h; sourceTree = "<group>"; };
@@ -173,9 +173,9 @@
 		CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SequencerEngine.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBA4DAAD27DDF67700A530E3 /* SequencerEngine_ios.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SequencerEngine_ios.h; sourceTree = "<group>"; };
 		CBA4DABA27DDF99300A530E3 /* libsamplerate.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsamplerate.a; path = "../libsamplerate/build/src/Release-maccatalyst/libsamplerate.a"; sourceTree = "<group>"; };
-		CBA4DABC27DE015200A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../rust-audio-software/target/aarch64-apple-ios/release/liblooper_processor.a"; sourceTree = "<group>"; };
-		CBA4DABE27DE93B200A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../rust-audio-software/target/aarch64-apple-ios-sim/release/liblooper_processor.a"; sourceTree = "<group>"; };
-		CBA4DABF27DE948400A530E3 /* liblooperengine_sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine_sim.a; path = "../rust-audio-software/crates/apps/looper/looper-processor/public/lib/ios-aarch64-sim/liblooperengine_sim.a"; sourceTree = "<group>"; };
+		CBA4DABC27DE015200A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../../../../target/aarch64-apple-ios/release/liblooper_processor.a"; sourceTree = "<group>"; };
+		CBA4DABE27DE93B200A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../../../../target/aarch64-apple-ios-sim/release/liblooper_processor.a"; sourceTree = "<group>"; };
+		CBA4DABF27DE948400A530E3 /* liblooperengine_sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine_sim.a; path = "../../../../crates/apps/looper/looper-processor/public/lib/ios-aarch64-sim/liblooperengine_sim.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -897,9 +897,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/crates/apps/looper/looper-processor/public/include";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../looper-processor/public/include";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
-				LIBRARY_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/target/release/";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../../../target/release";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -956,9 +956,9 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/crates/apps/looper/looper-processor/public/include";
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../looper-processor/public/include";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.2;
-				LIBRARY_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/target/release/";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../../../target/release";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -994,7 +994,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../rust-audio-software/crates/apps/looper/looper-udl/lib/ios";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../looper-udl/lib/ios";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1030,7 +1030,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../rust-audio-software/crates/apps/looper/looper-udl/lib/ios";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../looper-udl/lib/ios";
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1259,7 +1259,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/crates/apps/looper/looper-processor/public/lib/macos/";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../looper-processor/public/lib/macos/";
 				MACOSX_DEPLOYMENT_TARGET = 12.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerEngine";
@@ -1270,7 +1270,7 @@
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SequencerEngine/";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				USER_HEADER_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/crates/apps/looper/looper-processor/public/include";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../looper-processor/public/include";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -1296,7 +1296,7 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/crates/apps/looper/looper-processor/public/lib/macos/";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../looper-processor/public/lib/macos/";
 				MACOSX_DEPLOYMENT_TARGET = 12.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerEngine";
@@ -1307,7 +1307,7 @@
 				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/SequencerEngine/";
 				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_VERSION = 5.0;
-				USER_HEADER_SEARCH_PATHS = "$(HOME)/projects/rust-audio-software/crates/apps/looper/looper-processor/public/include";
+				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../looper-processor/public/include";
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -1332,8 +1332,8 @@
 					"@loader_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(HOME)/projects/rust-audio-software/target/aarch64-apple-ios/release/";
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(HOME)/projects/rust-audio-software/target/aarch64-apple-ios-sim/release/";
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../../../../target/aarch64-apple-ios/release/";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../../../../target/aarch64-apple-ios-sim/release/";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MODULEMAP_PRIVATE_FILE = "";
@@ -1370,8 +1370,8 @@
 					"@loader_path/Frameworks",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(HOME)/projects/rust-audio-software/target/aarch64-apple-ios/release/";
-				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(HOME)/projects/rust-audio-software/target/aarch64-apple-ios-sim/release/";
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*]" = "$(SRCROOT)/../../../../target/aarch64-apple-ios/release/";
+				"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*]" = "$(SRCROOT)/../../../../target/aarch64-apple-ios-sim/release/";
 				MARKETING_VERSION = 1.0;
 				MODULEMAP_FILE = "";
 				MODULEMAP_PRIVATE_FILE = "";
