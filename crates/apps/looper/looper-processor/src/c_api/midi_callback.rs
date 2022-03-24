@@ -1,14 +1,9 @@
-use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+use std::sync::atomic::AtomicBool;
 
-use basedrop::Shared;
-
-use atomic_queue::Queue;
 use audio_garbage_collector::make_shared;
 
 pub use crate::multi_track_looper::midi_store::MidiEvent;
-use crate::multi_track_looper::midi_store::{
-    MidiStoreActor, MidiStoreActorDelegate, MidiStoreValue,
-};
+use crate::multi_track_looper::midi_store::MidiStoreActor;
 
 use super::{ForeignCallback, LooperEngine};
 

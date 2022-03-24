@@ -3,9 +3,8 @@ use audio_garbage_collector::make_shared;
 use basedrop::Shared;
 use itertools::Itertools;
 use std::collections::{HashMap, VecDeque};
-use std::ops::Deref;
+
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::sync::{Arc, Mutex};
 
 use audio_processor_traits::MidiMessageLike;
 use augmented_atomics::AtomicOption;

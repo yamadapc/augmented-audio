@@ -16,7 +16,7 @@ impl<T> ForeignCallback<T> {
 }
 
 #[no_mangle]
-pub extern "C" fn get_current_time(id: usize) -> f32 {
+pub extern "C" fn get_current_time(_id: usize) -> f32 {
     SystemTime::now()
         .duration_since(SystemTime::UNIX_EPOCH)
         .unwrap()

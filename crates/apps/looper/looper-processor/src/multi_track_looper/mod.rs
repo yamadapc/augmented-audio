@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use assert_no_alloc::assert_no_alloc;
-use atomic_queue::Queue;
+
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use num::ToPrimitive;

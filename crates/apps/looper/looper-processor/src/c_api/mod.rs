@@ -1,9 +1,9 @@
 use std::ffi::c_void;
-use std::rc::Rc;
+
 use std::sync::{Arc, Mutex};
 
 use atomic_refcell::AtomicRefCell;
-use audio_garbage_collector::make_shared;
+
 use basedrop::Shared;
 
 use audio_processor_standalone::StandaloneHandles;
@@ -13,7 +13,7 @@ use augmented_atomics::AtomicF32;
 use crate::multi_track_looper::metrics::audio_processor_metrics::{
     AudioProcessorMetricsActor, AudioProcessorMetricsStats,
 };
-use crate::multi_track_looper::midi_store::{MidiStoreActor, MidiStoreHandle};
+use crate::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::multi_track_looper::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,
     TempoControl,
