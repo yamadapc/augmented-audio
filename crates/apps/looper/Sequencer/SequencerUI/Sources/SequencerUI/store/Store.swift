@@ -7,6 +7,7 @@
 
 import Combine
 import CoreGraphics
+import DequeModule
 import Foundation
 import Logging
 import OSCKit
@@ -564,6 +565,7 @@ public protocol SequencerEngine {
     func toggleStep(track: Int, step: Int)
     func addParameterLock(track: Int, step: Int, parameterId: ObjectId, value: Float)
     func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ObjectId, value: Float)
+    func addMidiMapping(controller: Int, parameterId: ObjectId)
 }
 
 public class TimeInfo: ObservableObject {
@@ -630,8 +632,55 @@ enum MIDIMessageId: Hashable {
     case cc(Int)
 }
 
-class MIDIMappingState: ObservableObject {
+extension MIDIMessageId {
+    func toString() -> String {
+        switch self {
+        case let .cc(controllerNumber):
+            return "CC \(controllerNumber)"
+        }
+    }
+}
+
+public struct MIDIMessage: Hashable {
+    let controllerNumber: Int
+    let value: Int
+
+    public init(controllerNumber: Int, value: Int) {
+        self.controllerNumber = controllerNumber
+        self.value = value
+    }
+}
+
+public class MIDIMappingState: ObservableObject {
     var midiMap: [MIDIMessageId: ObjectId] = [:]
+    var lastMidiMessages: [(Int, MIDIMessage)] = []
+    var lastMessagesMap: [Int: MIDIMessage] = [:]
+
+    var mapKeys: [MIDIMessageId] {
+        Array(midiMap.keys)
+    }
+    var currentMessageId = 0
+
+    func addMapping(id: MIDIMessageId, objectId: ObjectId) {
+        midiMap[id] = objectId
+        objectWillChange.send()
+    }
+
+    func addMidiMessage(message: MIDIMessage) {
+        if lastMessagesMap[message.controllerNumber]?.value == message.value{
+            return
+        }
+
+        self.currentMessageId += 1
+        lastMessagesMap[message.controllerNumber] = message
+        lastMidiMessages.append((self.currentMessageId, message))
+        let newLength = min(
+            lastMidiMessages.count,
+            100
+        )
+        lastMidiMessages.removeFirst(lastMidiMessages.count - newLength)
+        objectWillChange.send()
+    }
 }
 
 public class Store: ObservableObject {
@@ -652,6 +701,7 @@ public class Store: ObservableObject {
         initialValue: 0.7
     )
     public var processorMetrics = ProcessorMetrics()
+    public let midi = MIDIMappingState()
 
     @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source
@@ -665,6 +715,19 @@ public class Store: ObservableObject {
 
     public init(engine: SequencerEngine?) {
         self.engine = engine
+    }
+}
+
+extension Store {
+    public func addMidiMessage(message: MIDIMessage) {
+        midi.addMidiMessage(message: message)
+        if midiMappingActive,
+           let object = focusState.selectedObject
+        {
+            midi.addMapping(id: .cc(message.controllerNumber), objectId: object)
+            focusState.selectedObject = nil
+            engine?.addMidiMapping(controller: message.controllerNumber, parameterId: object)
+        }
     }
 }
 
@@ -690,8 +753,9 @@ extension Store {
             ))
         } else if let hoveredId = focusState.mouseOverObject,
                   let source = focusState.draggingSource,
-                  focusState.dragMode == .copy {
-            // TODO - implement copy
+                  focusState.dragMode == .copy
+        {
+            // TODO: - implement copy
         }
 
         focusState.draggingSource = nil

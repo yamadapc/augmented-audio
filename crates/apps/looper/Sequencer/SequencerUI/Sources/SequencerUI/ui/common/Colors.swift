@@ -13,6 +13,7 @@ func color(_ r: Double, _ g: Double, _ b: Double) -> Color {
 }
 
 enum SequencerColors {
+    static let transparent = Color.white.opacity(0)
     static let black = color(20, 20, 20)
     static let black0 = color(0, 0, 0)
     static let black1 = color(20 * 2, 20 * 2, 23 * 2)

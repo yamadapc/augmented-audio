@@ -25,6 +25,7 @@
 		CB3948DD27EA6BFC009A650D /* AudioUnitViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CB3948DB27EA6BFC009A650D /* AudioUnitViewController.xib */; };
 		CB3948E227EA6BFC009A650D /* Sequencer AudioUnit.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CB3948EB27EA6D9B009A650D /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CB3948EA27EA6D9B009A650D /* SequencerUI */; };
+		CB3948F127EC3B24009A650D /* ForeignCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F027EC3B24009A650D /* ForeignCallback.swift */; };
 		CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1727D8AE6600D7788E /* AppDelegate.swift */; };
 		CB801A1A27D8AE6600D7788E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1927D8AE6600D7788E /* ViewController.swift */; };
 		CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1B27D8AE6600D7788E /* Assets.xcassets */; };
@@ -152,6 +153,7 @@
 		CB3948DC27EA6BFC009A650D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/AudioUnitViewController.xib; sourceTree = "<group>"; };
 		CB3948DE27EA6BFC009A650D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB3948DF27EA6BFC009A650D /* Sequencer_AudioUnit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer_AudioUnit.entitlements; sourceTree = "<group>"; };
+		CB3948F027EC3B24009A650D /* ForeignCallback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForeignCallback.swift; sourceTree = "<group>"; };
 		CB801A1527D8AE6600D7788E /* Sequencer Mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sequencer Mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -393,6 +395,7 @@
 				CBA4DAA227DDF3A400A530E3 /* module.modulemap */,
 				CBA4DAA427DDF4BB00A530E3 /* private.h */,
 				CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */,
+				CB3948F027EC3B24009A650D /* ForeignCallback.swift */,
 			);
 			path = SequencerEngine;
 			sourceTree = "<group>";
@@ -767,6 +770,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CBA4DAA027DDF23600A530E3 /* SequencerEngine.swift in Sources */,
+				CB3948F127EC3B24009A650D /* ForeignCallback.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

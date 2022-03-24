@@ -15,8 +15,16 @@ class EngineImpl {
     var engine: OpaquePointer!
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineImpl")
 
+    var midi: AnyPublisher<MidiEvent, Never>?
+
     init() {
         engine = looper_engine__new()
+
+        midi = buildStream(
+            registerStream: { callback in
+                looper_engine__register_midi_callback(self.engine, callback)
+            }
+        )
     }
 }
 
@@ -78,6 +86,8 @@ extension EngineImpl: SequencerEngine {
         looper_engine__toggle_trigger(engine, UInt(track - 1), UInt(step))
         // let voice = looper_engine__get_voice(engine, UInt(step - 1))
     }
+
+    func addMidiMapping(controller _: Int, parameterId _: ObjectId) {}
 }
 
 func getObjectIdRust(_ id: ObjectId) -> ParameterId? {
@@ -141,6 +151,27 @@ public class EngineController {
         engine = EngineImpl()
         store = Store(engine: engine)
 
+        setupStoreSubscriptions()
+        setupMidiSubscription()
+
+        DispatchQueue.main.async {
+            self.flushPollInfo()
+            self.flushMetricsInfo()
+        }
+    }
+
+    func setupMidiSubscription() {
+        engine.midi?.sink(receiveValue: { event in
+            DispatchQueue.main.async {
+                self.store.addMidiMessage(message: MIDIMessage(
+                    controllerNumber: Int(event.value.controller_number),
+                    value: Int(event.value.value)
+                ))
+            }
+        }).store(in: &cancellables)
+    }
+
+    func setupStoreSubscriptions() {
         store.trackStates.enumerated().forEach { i, trackState in
             trackState.sourceParameters.parameters.forEach { parameter in
                 parameter.$value.sink(receiveValue: { value in
@@ -237,11 +268,6 @@ public class EngineController {
         store.metronomeVolume.$value.sink(receiveValue: { value in
             looper_engine__set_metronome_volume(self.engine.engine, value)
         }).store(in: &cancellables)
-
-        DispatchQueue.main.async {
-            self.flushPollInfo()
-            self.flushMetricsInfo()
-        }
     }
 
     public func loadExampleFileBuffer() {

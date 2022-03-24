@@ -47,7 +47,6 @@ import SwiftUI
 
 #endif
 
-
 func buildKeyWatcher(store _: Store) -> some View {
     ZStack {
         #if os(macOS)

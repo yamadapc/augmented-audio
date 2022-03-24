@@ -85,118 +85,6 @@
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "27DCE9A1-8500-4C60-96D2-823FC2056EE2"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SequencerEngine/SequencerEngine.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "140"
-            endingLineNumber = "140"
-            landmarkName = "init()"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "27DCE9A1-8500-4C60-96D2-823FC2056EE2 - c68ab91f18a14d76"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SequencerEngine.EngineController.__allocating_init() -&gt; SequencerEngine.EngineController"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "0"
-                  endingLineNumber = "0"
-                  offsetFromSymbolStart = "32">
-               </Location>
-               <Location
-                  uuid = "27DCE9A1-8500-4C60-96D2-823FC2056EE2 - e79461c24b7097ca"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SequencerEngine.EngineController.init() -&gt; SequencerEngine.EngineController"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "124"
-                  endingLineNumber = "124"
-                  offsetFromSymbolStart = "336">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "B9EEE931-9220-4590-94EA-2BB55C05A7E9"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SequencerEngine/SequencerEngine.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "26"
-            endingLineNumber = "26"
-            landmarkName = "setVolume(track:volume:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "B9EEE931-9220-4590-94EA-2BB55C05A7E9 - e095e0570b0a4004"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SequencerEngine.EngineImpl.setVolume(track: Swift.Int, volume: Swift.Float) -&gt; ()"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "26"
-                  endingLineNumber = "26"
-                  offsetFromSymbolStart = "192">
-               </Location>
-               <Location
-                  uuid = "B9EEE931-9220-4590-94EA-2BB55C05A7E9 - e095e0570b0a4004"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SequencerEngine.EngineImpl.setVolume(track: Swift.Int, volume: Swift.Float) -&gt; ()"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/Sequencer/SequencerEngine/SequencerEngine.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "26"
-                  endingLineNumber = "26"
-                  offsetFromSymbolStart = "200">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "DE891A81-1FF9-410F-9C63-4EDEF6E5AB11"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SequencerEngine/SequencerEngine.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "20"
-            endingLineNumber = "20"
-            landmarkName = "init()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.AddressBreakpoint">
          <BreakpointContent
             uuid = "50FEACF4-12A4-4768-B1A4-97204D78C9A5"
@@ -245,6 +133,22 @@
             endingLineNumber = "83"
             landmarkName = "body"
             landmarkType = "24">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "31DA3325-9EE9-4884-812B-ED3D790E9257"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerEngine/ForeignCallback.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "30"
+            endingLineNumber = "30"
+            landmarkName = "build(closure:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

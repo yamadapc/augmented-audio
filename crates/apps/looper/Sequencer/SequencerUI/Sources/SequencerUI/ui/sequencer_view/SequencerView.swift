@@ -10,33 +10,6 @@ import SwiftUI
 let PADDING: Double = 10
 let BORDER_RADIUS: Double = 8
 
-struct MIDIMappingPanelView: View {
-    var body: some View {
-        VStack(alignment: .leading) {
-            VStack {
-                Text("MIDI Map")
-                    .bold()
-                    .padding(PADDING)
-                    .frame(maxWidth: .infinity)
-                    .background(SequencerColors.black3)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-
-            VStack {
-                Text("MIDI Monitor")
-                    .bold()
-                    .padding(PADDING)
-                    .frame(maxWidth: .infinity)
-                    .background(SequencerColors.black3)
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        }
-        .frame(width: 200, alignment: .topLeading)
-        .frame(maxHeight: .infinity, alignment: .topLeading)
-        .background(SequencerColors.black)
-    }
-}
-
 struct SequencerView: View {
     @EnvironmentObject var store: Store
 
@@ -78,7 +51,7 @@ struct SequencerView: View {
                     }
                 }
                 if store.midiMappingActive {
-                    MIDIMappingPanelView()
+                    MIDIMappingPanelView(midi: store.midi)
                         .bindToNilParameter(store: store)
                 }
             }
