@@ -81,6 +81,7 @@ impl SimpleAudioProcessor for LooperProcessor {
     type SampleType = f32;
 
     fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+        log::info!("Prepare looper {:?}", settings);
         self.prepare(settings);
     }
 
@@ -102,11 +103,12 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
+    use std::sync::atomic::Ordering;
     use std::time::Duration;
 
-    use audio_processor_testing_helpers::rms_level;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
+    use audio_processor_testing_helpers::{assert_f_eq, rms_level};
 
     use audio_processor_traits::{
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
@@ -114,7 +116,8 @@ mod test {
     };
     use handle::{LooperState, QuantizeMode};
 
-    use crate::MAX_LOOP_LENGTH_SECS;
+    use crate::{TimeInfoProvider, MAX_LOOP_LENGTH_SECS};
+    use assert_no_alloc::assert_no_alloc;
 
     use super::*;
 
@@ -174,7 +177,7 @@ mod test {
     }
 
     fn test_looper_record_and_playback(looper: &mut LooperProcessor) {
-        let mut sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
+        let mut sample_buffer: Vec<f32> = (0..10).map(|i| i as f32).collect();
 
         let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
         let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
@@ -183,15 +186,15 @@ mod test {
         looper.process(&mut sample_buffer);
         looper.handle.stop_recording_audio_thread_only();
 
-        // While recording, the output is muted
-        let empty_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+        // While recording, the output is MUTED
+        let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "While recording the looper wasn't silent"
         );
 
-        let mut output_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+        let mut output_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
 
         looper.process(&mut output_buffer);
@@ -216,7 +219,7 @@ mod test {
         // Stop looper
         looper.handle.pause();
         looper.process(&mut sample_buffer);
-        let empty_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+        let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
             empty_buffer, initial_output,
@@ -236,7 +239,9 @@ mod test {
 
     fn test_looper_is_silent_for(looper: &mut LooperProcessor, num_samples: usize) {
         let mut output = make_silent_buffer(num_samples);
-        looper.process(&mut output);
+        assert_no_alloc(|| {
+            looper.process(&mut output);
+        });
         let silent_buffer = make_silent_buffer(num_samples);
         assert_eq!(output, silent_buffer, "Looper was not silent");
     }
@@ -260,35 +265,44 @@ mod test {
 
         // Record and test output is good
         {
-            let mut buffer: Vec<f32> = (0..100).map(|_i| 1.0).collect();
+            let mut buffer: Vec<f32> = (0..10).map(|_i| 1.0).collect();
             let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
             looper.handle.start_recording();
-            looper.process(&mut buffer);
+            assert_no_alloc(|| {
+                looper.process(&mut buffer);
+            });
             looper.handle.stop_recording_allocating_loop();
 
-            let mut buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+            let mut buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
             let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
-            looper.process(&mut buffer);
+            assert_no_alloc(|| {
+                looper.process(&mut buffer);
+            });
             let output_vec = buffer.slice().to_vec();
-            let sample_vec: Vec<f32> = (0..100).map(|_i| 1.0).collect();
+            let sample_vec: Vec<f32> = (0..10).map(|_i| 1.0).collect();
             assert_eq!(output_vec, sample_vec, "Recording didn't work");
         }
 
         // Run overdubbing
         {
-            let mut buffer: Vec<f32> = (0..100).map(|_i| 1.0).collect();
+            let mut buffer: Vec<f32> = (0..10).map(|_i| 1.0).collect();
             let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
             looper.handle.start_recording();
-            looper.process(&mut buffer);
+            assert_no_alloc(|| {
+                looper.process(&mut buffer);
+            });
             looper.handle.stop_recording_allocating_loop();
         }
 
         // Test output is summed
-        let mut buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+        let mut buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
-        looper.process(&mut buffer);
+
+        assert_no_alloc(|| {
+            looper.process(&mut buffer);
+        });
         let output_vec = buffer.slice().to_vec();
-        let sample_vec: Vec<f32> = (0..100).map(|_i| 2.0).collect();
+        let sample_vec: Vec<f32> = (0..10).map(|_i| 2.0).collect();
         assert_eq!(output_vec, sample_vec, "Overdub didn't work");
     }
 
@@ -296,37 +310,43 @@ mod test {
     fn test_looper_samples_at_edge() {
         let _collector = basedrop::Collector::new();
         let mut looper = LooperProcessor::default();
-        let settings = AudioProcessorSettings::new(100.0, 1, 1, 512);
+        let settings = AudioProcessorSettings::new(10.0, 1, 1, 512);
         looper.prepare(settings);
 
         let num_samples = (MAX_LOOP_LENGTH_SECS * settings.sample_rate) as usize - 30;
         let mut sample_buffer: Vec<f32> = (0..num_samples).map(|i| i as f32).collect();
         let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
-        looper.process(&mut sample_buffer);
+        assert_no_alloc(|| {
+            looper.process(&mut sample_buffer);
+        });
 
         test_looper_is_silent(&settings, &mut looper);
 
-        let mut sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
+        let mut sample_buffer: Vec<f32> = (0..10).map(|i| i as f32).collect();
 
         let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
         let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
 
         looper.handle.start_recording();
-        looper.process(&mut sample_buffer);
+        assert_no_alloc(|| {
+            looper.process(&mut sample_buffer);
+        });
         looper.handle.stop_recording_audio_thread_only();
 
-        // While recording, the output is muted
-        let empty_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+        // While recording, the output is MUTED
+        let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "While recording the looper wasn't silent"
         );
 
-        let mut output_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+        let mut output_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
 
-        looper.process(&mut output_buffer);
+        assert_no_alloc(|| {
+            looper.process(&mut output_buffer);
+        });
         let output_vec = output_buffer.slice().to_vec();
         let sample_vec = input_buffer.slice().to_vec();
         assert_eq!(
@@ -336,7 +356,9 @@ mod test {
 
         audio_buffer::clear(&mut output_buffer);
 
-        looper.process(&mut output_buffer);
+        assert_no_alloc(|| {
+            looper.process(&mut output_buffer);
+        });
         let output_vec = output_buffer.slice().to_vec();
         let sample_vec = input_buffer.slice().to_vec();
         assert_eq!(
@@ -346,8 +368,10 @@ mod test {
 
         // Stop looper
         looper.handle().pause();
-        looper.process(&mut sample_buffer);
-        let empty_buffer: Vec<f32> = (0..100).map(|_i| 0.0).collect();
+        assert_no_alloc(|| {
+            looper.process(&mut sample_buffer);
+        });
+        let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
             empty_buffer, initial_output,
@@ -360,23 +384,32 @@ mod test {
 
     #[test]
     fn test_looper_with_quantization_will_wait_until_a_beat() {
+        wisual_logger::init_from_env();
         let settings = AudioProcessorSettings::new(100.0, 1, 1, 512);
         let mut looper = LooperProcessor::default();
         looper.prepare(settings);
+        looper.handle.tick_time.store(true, Ordering::Relaxed);
 
         // Setup tempo & quantization
-        looper.handle.set_tempo(60);
+        looper.handle.set_tempo(60.0);
+        looper.handle.time_info_provider().play();
         looper
             .handle
             .quantize_options()
             .set_mode(QuantizeMode::SnapClosest);
+        let position_beats = get_position_beats(&mut looper);
+        assert_f_eq!(position_beats, 0.0);
 
         {
             let mut sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
             let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
             // We process 1s of audio; which is 1 beat
-            looper.process(&mut sample_buffer);
+            assert_no_alloc(|| {
+                looper.process(&mut sample_buffer);
+            });
         }
+        let position_beats = get_position_beats(&mut looper);
+        assert_f_eq!(position_beats, 1.0);
 
         looper.handle.start_recording();
         assert_eq!(looper.handle.state(), LooperState::RecordingScheduled);
@@ -384,19 +417,27 @@ mod test {
         // We process 3 more beats of audio
         test_looper_is_silent_for(&mut looper, 300);
         // Now we're on beat 0, we should be recording
+        let position_beats = get_position_beats(&mut looper);
+        assert_f_eq!(position_beats, 4.0);
         assert_eq!(looper.handle.state(), LooperState::Recording);
 
         // We record some audio in
-        let mut recorded_buffer: Vec<f32> = (0..200).map(|i| i as f32).collect();
+        let mut recorded_buffer: Vec<f32> = (0..400).map(|i| i as f32).collect();
         let mut recorded_buffer = InterleavedAudioBuffer::new(1, &mut recorded_buffer);
-        looper.process(&mut recorded_buffer);
+        assert_no_alloc(|| {
+            looper.process(&mut recorded_buffer);
+        });
+        let position_beats = get_position_beats(&mut looper);
+        assert!((position_beats - 8.0).abs() < 0.0001);
         looper.handle.stop_recording_allocating_loop();
         assert_eq!(looper.handle.state(), LooperState::Playing);
 
         // We expect audio to be played back now
         let mut output_buffer: Vec<f32> = (0..200).map(|_i| 0.0).collect();
         let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
-        looper.process(&mut output_buffer);
+        assert_no_alloc(|| {
+            looper.process(&mut output_buffer);
+        });
         assert_eq!(looper.handle.state(), LooperState::Playing);
 
         let output_vec = output_buffer.slice().to_vec();
@@ -405,5 +446,14 @@ mod test {
             (0..200).map(|i| i as f32).collect::<Vec<f32>>(),
             "After recording the looper didn't playback"
         );
+    }
+
+    fn get_position_beats(looper: &mut LooperProcessor) -> f64 {
+        looper
+            .handle
+            .time_info_provider()
+            .get_time_info()
+            .position_beats()
+            .unwrap()
     }
 }

@@ -144,13 +144,6 @@ fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
         supports_midi: app.supports_midi(),
     });
 
-    let midi_input_file = options.midi().input_file.as_ref().map(|midi_input_file| {
-        let file_contents = std::fs::read(midi_input_file).expect("Failed to read input MIDI file");
-        let (_, midi_file) = augmented_midi::parse_midi_file::<String, Vec<u8>>(&file_contents)
-            .expect("Failed to parse input MIDI file");
-        midi_file
-    });
-
     match options.rendering() {
         RenderingOptions::Online { .. } => {
             log::info!("Starting stand-alone online rendering with default IO config");
@@ -167,6 +160,15 @@ fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
             }
             #[cfg(not(target_os = "ios"))]
             {
+                let midi_input_file = options.midi().input_file.as_ref().map(|midi_input_file| {
+                    let file_contents =
+                        std::fs::read(midi_input_file).expect("Failed to read input MIDI file");
+                    let (_, midi_file) =
+                        augmented_midi::parse_midi_file::<String, Vec<u8>>(&file_contents)
+                            .expect("Failed to parse input MIDI file");
+                    midi_file
+                });
+
                 offline::run_offline_render(offline::OfflineRenderOptions {
                     app,
                     handle,

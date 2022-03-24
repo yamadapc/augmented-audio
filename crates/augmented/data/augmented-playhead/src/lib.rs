@@ -4,14 +4,14 @@ use augmented_atomics::{AtomicF32, AtomicF64, AtomicOption, AtomicValue};
 
 pub struct PlayHeadOptions {
     sample_rate: AtomicOption<AtomicF32>,
-    tempo: AtomicOption<AtomicU32>,
+    tempo: AtomicOption<AtomicF32>,
     ticks_per_quarter_note: AtomicOption<AtomicU32>,
 }
 
 impl PlayHeadOptions {
     pub fn new(
         sample_rate: Option<f32>,
-        tempo: Option<u32>,
+        tempo: Option<f32>,
         ticks_per_quarter_note: Option<u32>,
     ) -> Self {
         PlayHeadOptions {
@@ -25,7 +25,7 @@ impl PlayHeadOptions {
         self.sample_rate.inner()
     }
 
-    pub fn tempo(&self) -> Option<u32> {
+    pub fn tempo(&self) -> Option<f32> {
         self.tempo.inner()
     }
 
@@ -121,7 +121,7 @@ impl PlayHead {
         self.accept_samples(0);
     }
 
-    pub fn set_tempo(&self, tempo: u32) {
+    pub fn set_tempo(&self, tempo: f32) {
         self.options.tempo.set(Some(tempo));
     }
 
@@ -151,18 +151,17 @@ impl PlayHead {
 
     fn update_position_beats(&self, elapsed_secs: f64) {
         let position_beats = self.position_beats.get();
-        self.position_beats.set(
-            position_beats
-                + self
-                    .options
-                    .tempo
-                    .inner()
-                    .map(|tempo| {
-                        let beats_per_second = tempo as f64 / 60.0;
-                        beats_per_second * elapsed_secs
-                    })
-                    .unwrap_or(0.0),
-        );
+        let position_beats = position_beats
+            + self
+                .options
+                .tempo
+                .inner()
+                .map(|tempo| {
+                    let beats_per_second = tempo as f64 / 60.0;
+                    beats_per_second * elapsed_secs
+                })
+                .unwrap_or(0.0);
+        self.position_beats.set(position_beats);
     }
 }
 
@@ -172,7 +171,7 @@ mod test {
 
     #[test]
     fn test_accept_samples() {
-        let options = PlayHeadOptions::new(Some(44100.0), Some(120), Some(32));
+        let options = PlayHeadOptions::new(Some(44100.0), Some(120.0), Some(32));
         let play_head = PlayHead::new(options);
         assert_eq!(play_head.position_samples(), 0);
         assert_eq!(play_head.position_ticks(), 0);
@@ -186,7 +185,7 @@ mod test {
 
     #[test]
     fn test_accept_samples_ticks_conversion() {
-        let options = PlayHeadOptions::new(Some(44100.0), Some(120), Some(32));
+        let options = PlayHeadOptions::new(Some(44100.0), Some(120.0), Some(32));
         let play_head = PlayHead::new(options);
         assert_eq!(play_head.position_samples(), 0);
         assert_eq!(play_head.position_ticks(), 0);
@@ -201,7 +200,7 @@ mod test {
     #[test]
     fn test_accept_many_samples() {
         let sample_count = 5644800;
-        let options = PlayHeadOptions::new(Some(44100.0), Some(120), Some(32));
+        let options = PlayHeadOptions::new(Some(44100.0), Some(120.0), Some(32));
         let play_head = PlayHead::new(options);
         play_head.accept_samples(sample_count);
         assert!((play_head.position_seconds() - 128.0).abs() < f32::EPSILON);

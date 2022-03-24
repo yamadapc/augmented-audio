@@ -15,22 +15,44 @@ num-derive = "0.3.3"
 uuid = { version = "^0.8.2", features = ["v4"] }
 rimd = "^0.0.1"
 rand = "0.8.4"
-augmented-adsr-envelope = { version = "0.1.0-alpha.2", path = "../../../augmented/audio/adsr-envelope" }
+mockall = "0.11.0"
+derive_builder = "0.10.2"
+atomic_refcell = "0.1.8"
+im = "15.0.0"
+strum = "0.24.0"
+strum_macros = "0.24.0"
+itertools = "0.10"
+lazy_static = "1.4.0"
+lockfree = "0.5.1"
+assert_no_alloc = { version = "1.1.2", features = ["warn_release"], default-features = false }
+crossbeam-utils = "0.8.8"
 
-augmented-atomics = { path = "../../../augmented/data/atomics" , version = "0.1.0-alpha.3" }
-augmented-playhead = { path = "../../../augmented/data/augmented-playhead" , version = "0.1.0-alpha.3" }
+metronome = { path = "../../metronome" }
+atomic-queue = { path = "../../../augmented/data/atomic-queue" }
+augmented-adsr-envelope = { version = "0.1.0-alpha.2", path = "../../../augmented/audio/adsr-envelope" }
+augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.1.0-alpha.3" }
+augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.1.0-alpha.3" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../../augmented/application/audio-processor-standalone" }
+audio-processor-standalone-midi = { path = "../../../augmented/application/audio-processor-standalone-midi" }
 audio-processor-standalone-osc = { path = "../../../augmented/application/audio-processor-standalone-osc" }
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" }
 audio-processor-traits = { version = "1.0.0-alpha.3", path = "../../../augmented/audio/audio-processor-traits" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
-mockall = "0.11.0"
-derive_builder = "0.10.2"
-atomic_refcell = "0.1.8"
+audio-processor-file = { version = "1.0.0-alpha.3", path = "../../../augmented/audio/audio-processor-file" }
+augmented-midi = { path = "../../../augmented/data/augmented-midi" }
+
+# FX
+audio-processor-pitch-shifter = { path = "../../../augmented/audio/audio-processor-pitch-shifter" }
+audio-processor-bitcrusher = { path = "../../../augmented/audio/audio-processor-bitcrusher" }
+audio-processor-time = { path = "../../../augmented/audio/audio-processor-time" }
+audio-processor-dynamics = { path = "../../../augmented/audio/audio-processor-dynamics" }
+audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" }
+augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters" }
+
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.3" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.3" }
 criterion = "^0.3.4"
 
 [[bench]]

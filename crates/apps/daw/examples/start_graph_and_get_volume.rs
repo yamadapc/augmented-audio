@@ -1,3 +1,4 @@
+use audio_processor_graph::NodeType;
 use audio_processor_utility::mono::StereoToMonoProcessor;
 use audio_processor_utility::stereo::MonoToStereoProcessor;
 use std::time::Duration;
@@ -20,16 +21,16 @@ fn main() {
     let delay_idx = audio_node_create("delay".into()).unwrap();
 
     let stereo_to_mono_idx =
-        audio_node_create_raw(Box::new(StereoToMonoProcessor::default())) as u32;
+        audio_node_create_raw(NodeType::Simple(Box::new(StereoToMonoProcessor::default()))) as u32;
     let mono_to_stereo_idx =
-        audio_node_create_raw(Box::new(MonoToStereoProcessor::default())) as u32;
+        audio_node_create_raw(NodeType::Simple(Box::new(MonoToStereoProcessor::default()))) as u32;
 
     let rms_processor = RunningRMSProcessor::new_with_duration(
         audio_garbage_collector::handle(),
         Duration::from_millis(13),
     );
     let rms_handle = rms_processor.handle().clone();
-    let rms_processor_idx = audio_node_create_raw(Box::new(rms_processor)) as u32;
+    let rms_processor_idx = audio_node_create_raw(NodeType::Simple(Box::new(rms_processor))) as u32;
     audio_graph_connect(input_idx, stereo_to_mono_idx).unwrap();
     audio_graph_connect(stereo_to_mono_idx, delay_idx).unwrap();
     audio_graph_connect(stereo_to_mono_idx, mono_to_stereo_idx).unwrap();

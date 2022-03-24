@@ -13,14 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
-        with:
-          channel: 'beta'
       - name: Install dependencies
         run: cd ./crates/apps/daw && flutter pub get
       - name: Verify formatting
         run: cd ./crates/apps/daw && dart format --output=none --set-exit-if-changed .
       - name: Analyze project source
-        run: cd ./crates/apps/daw && dart analyze
+        run: cd ./crates/apps/daw && flutter analyze
       - name: Run tests
         run: cd ./crates/apps/daw && flutter test
 
@@ -30,8 +28,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
-        with:
-          channel: 'beta'
       - name: Install dependencies
         run: cd ./crates/apps/metronome && flutter pub get
       - name: Verify formatting

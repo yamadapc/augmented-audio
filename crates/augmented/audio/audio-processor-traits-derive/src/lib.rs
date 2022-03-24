@@ -85,7 +85,7 @@ fn expand_handle(ast: &DeriveInput) -> proc_macro2::TokenStream {
             .collect(),
         _ => vec![],
     };
-    let parameter_spec_list =
+    let _parameter_spec_list =
         CommaSeparatedTokenStreams(parameters.iter().cloned().map(|t| t.1).collect());
     let parameter_spec_getters = CommaSeparatedTokenStreams(
         parameters

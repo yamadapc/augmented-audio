@@ -19,6 +19,11 @@ impl ScratchPad {
         let cursor = self.cursor.load(Ordering::Relaxed);
         let num_samples = self.buffer.num_samples();
 
+        // TODO: Can disable on release?
+        if num_samples == 0 {
+            return;
+        }
+
         self.buffer.get(channel, cursor % num_samples).set(sample);
     }
 

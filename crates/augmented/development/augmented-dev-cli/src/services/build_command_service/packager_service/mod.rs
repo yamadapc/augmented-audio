@@ -40,7 +40,9 @@ impl PackagerService for PackagerServiceImpl {
             .cargo_toml
             .package
             .metadata
-            .clone().and_then(|m| m.app).and_then(|a| a.macos);
+            .clone()
+            .and_then(|m| m.app)
+            .and_then(|a| a.macos);
 
         if let Some(example) = input.example_name {
             let target_path =

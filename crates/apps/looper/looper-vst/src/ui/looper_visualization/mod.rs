@@ -1,5 +1,3 @@
-use std::borrow::Borrow;
-use std::cell::RefCell;
 use std::ops::Deref;
 
 use iced::{
@@ -11,12 +9,6 @@ use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::{AtomicF32, AudioBuffer, VecAudioBuffer};
 use looper_processor::{AtomicRefCell, LoopSequencerProcessorHandle, LooperProcessorHandle};
-
-struct LoopCache {
-    // TODO: This is not the right cache key as overdubs won't render properly
-    num_samples: usize,
-    iterator: Vec<(usize, f32)>,
-}
 
 #[derive(Debug, Clone)]
 pub enum Message {}
@@ -66,15 +58,11 @@ impl LooperVisualizationDrawModelImpl {
 
 pub struct LooperVisualizationView {
     model: LooperVisualizationDrawModelImpl,
-    loop_cache: RefCell<Option<LoopCache>>,
 }
 
 impl LooperVisualizationView {
     pub fn new(model: LooperVisualizationDrawModelImpl) -> Self {
-        Self {
-            model,
-            loop_cache: RefCell::new(None),
-        }
+        Self { model }
     }
 
     pub fn tick_visualization(&mut self) {}
@@ -97,31 +85,6 @@ impl Program<()> for LooperVisualizationView {
         let is_recording = self.model.is_recording();
         let num_samples = self.model.num_samples() as f32;
 
-        // let has_valid_cache = {
-        //     let sum: f32 = self.model.loop_iterator().iter().sum();
-        //     self.loop_cache
-        //         .borrow()
-        //         .as_ref()
-        //         .map(|cache| {
-        //             cache.num_samples == num_samples as usize
-        //                 && cache.iterator.iter().map(|(_, f)| *f).sum::<f32>() == sum
-        //         })
-        //         .unwrap_or(false)
-        // };
-        // let loop_cache = if !has_valid_cache {
-        //     let iterator = self.model.loop_iterator();
-        //     let step = (iterator.len() / 1000).max(1);
-        //     let iterator = iterator.iter().cloned().enumerate().step_by(step).collect();
-        //     *self.loop_cache.borrow_mut() = Some(LoopCache {
-        //         iterator,
-        //         num_samples: num_samples as usize,
-        //     });
-        //
-        //     self.loop_cache.borrow()
-        // } else {
-        //     self.loop_cache.borrow()
-        // };
-        // let samples_iterator = &loop_cache.borrow().as_ref().unwrap().iterator;
         let samples_iterator = self.model.loop_iterator();
         let samples_iterator = samples_iterator.deref().borrow();
 

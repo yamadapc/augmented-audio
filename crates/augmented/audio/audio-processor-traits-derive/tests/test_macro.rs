@@ -7,7 +7,9 @@ struct GainProcessorHandle {
     value1: AtomicF32,
     #[parameter(name = "Value 2", min = 30.0, max = 60.0)]
     value2: AtomicF32,
+    #[allow(unused)]
     value3: AtomicF32,
+    #[allow(unused)]
     value4: AtomicF32,
 }
 

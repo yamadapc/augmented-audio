@@ -85,9 +85,11 @@ pub fn get_path(
     sub_dir_name: Option<&str>,
 ) -> Option<PathBuf> {
     let resource_name = make_cfstring(resource_name)?;
-    let resource_type = resource_type.and_then(make_cfstring)
+    let resource_type = resource_type
+        .and_then(make_cfstring)
         .unwrap_or(std::ptr::null());
-    let sub_dir_name = sub_dir_name.and_then(make_cfstring)
+    let sub_dir_name = sub_dir_name
+        .and_then(make_cfstring)
         .unwrap_or(std::ptr::null());
 
     unsafe {

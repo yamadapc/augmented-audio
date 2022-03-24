@@ -72,7 +72,7 @@ class AudioIOStateProvider extends InheritedWidget {
     Key? key,
     required this.audioIOState,
     required Widget child,
-  }) : super(child: child);
+  }) : super(key: key, child: child);
 
   static AudioIOState stateOf(BuildContext context) {
     AudioIOStateProvider audioIOStateProvider = context

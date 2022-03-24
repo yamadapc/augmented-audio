@@ -10,7 +10,8 @@ use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::Container0;
 use audio_processor_iced_design_system::style::Container1;
 use audio_processor_iced_design_system::tabs;
-use looper_processor::{LooperId, MultiTrackLooperHandle, TimeInfoProvider};
+use looper_processor::parameters::LooperId;
+use looper_processor::{MultiTrackLooperHandle, TimeInfoProvider};
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
 
@@ -111,8 +112,7 @@ impl Application for LooperApplication {
         Subscription::batch([
             iced::time::every(Duration::from_millis(64))
                 .map(|_| WrapperMessage::Inner(Message::VisualizationTick)),
-            file_drag_and_drop_handler::drag_and_drop_subscription()
-                .map(WrapperMessage::Inner),
+            file_drag_and_drop_handler::drag_and_drop_subscription().map(WrapperMessage::Inner),
         ])
     }
 

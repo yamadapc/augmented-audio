@@ -8,6 +8,9 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
+augmented-atomics = { path = "../../data/atomics" }
+num-traits = "0.2.14"
+num-derive = "0.3.3"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 plotters = { version = "0.3" }

@@ -2,7 +2,8 @@ use basedrop::Shared;
 
 use audio_processor_standalone_osc::{OscMap, OscServer};
 
-use crate::{LooperId, MultiTrackLooperHandle};
+use crate::multi_track_looper::parameters::LooperId;
+use crate::MultiTrackLooperHandle;
 
 pub fn setup_osc_server(handle: Shared<MultiTrackLooperHandle>) {
     let mut osc_map: OscMap<Shared<MultiTrackLooperHandle>> = OscMap::default();
@@ -32,6 +33,8 @@ pub fn setup_osc_server(handle: Shared<MultiTrackLooperHandle>) {
 
     let osc_server = OscServer::new(handle, osc_map);
     let _ = std::thread::spawn(move || {
-        osc_server.start();
+        if let Err(err) = osc_server.start() {
+            log::error!("OscServer has exited with {}", err);
+        }
     });
 }

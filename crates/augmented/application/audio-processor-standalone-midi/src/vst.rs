@@ -146,7 +146,7 @@ mod test {
     use audio_processor_traits::MidiMessageLike;
 
     use crate::host::MidiMessageWrapper;
-    use crate::test_util::assert_allocation_count;
+    use assert_no_alloc::assert_no_alloc;
 
     use super::*;
 
@@ -181,7 +181,7 @@ mod test {
             )),
         ];
 
-        let events = assert_allocation_count(0, || converter.accept(&buffer));
+        let events = assert_no_alloc(|| converter.accept(&buffer));
         assert_eq!(events.num_events, 2);
 
         let event = events.events[0];

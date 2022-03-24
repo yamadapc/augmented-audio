@@ -22,6 +22,7 @@ impl Default for RequestExecutor {
 
 #[automock]
 impl RequestExecutor {
+    #[allow(unused)]
     pub async fn execute(
         &self,
         client: &reqwest::Client,

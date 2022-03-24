@@ -118,6 +118,28 @@ pub trait AudioProcessor {
 /// Auto-implemented object version of the audio-processor trait.
 ///
 /// Given a known buffer-type, audio-processors can be made into objects using this type.
+pub trait SliceAudioProcessor {
+    fn prepare_slice(&mut self, _settings: AudioProcessorSettings) {}
+    fn process_slice(&mut self, num_channels: usize, data: &mut [f32]);
+}
+
+impl<Processor> SliceAudioProcessor for Processor
+where
+    Processor: AudioProcessor<SampleType = f32>,
+{
+    fn prepare_slice(&mut self, settings: AudioProcessorSettings) {
+        <Processor as AudioProcessor>::prepare(self, settings);
+    }
+
+    fn process_slice(&mut self, num_channels: usize, data: &mut [f32]) {
+        let mut buffer = InterleavedAudioBuffer::new(num_channels, data);
+        <Processor as AudioProcessor>::process(self, &mut buffer);
+    }
+}
+
+/// Auto-implemented object version of the audio-processor trait.
+///
+/// Given a known buffer-type, audio-processors can be made into objects using this type.
 pub trait ObjectAudioProcessor<BufferType> {
     fn prepare_obj(&mut self, _settings: AudioProcessorSettings) {}
     fn process_obj(&mut self, data: &mut BufferType);

@@ -1,4 +1,3 @@
-use std::f32::consts::PI;
 use std::sync::Arc;
 
 use rustfft::num_complex::Complex;
@@ -7,7 +6,7 @@ use rustfft::{Fft, FftPlanner};
 
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 
-use crate::window_functions::{make_hann_vec, make_window_vec, WindowFunctionType};
+use crate::window_functions::{make_window_vec, WindowFunctionType};
 
 pub struct FftProcessorOptions {
     pub size: usize,
@@ -116,6 +115,10 @@ impl FftProcessor {
         self.has_changed
     }
 
+    pub fn input_buffer_sum(&self) -> f32 {
+        self.input_buffer.iter().map(|f| f.abs()).sum()
+    }
+
     pub fn perform_fft(&mut self, start_idx: usize) {
         for i in 0..self.size {
             let index = (start_idx + i) % self.size;
@@ -161,7 +164,7 @@ mod test {
     use std::time::Duration;
 
     use audio_processor_testing_helpers::{
-        assert_f_eq, charts::draw_vec_chart, oscillator_buffer, relative_path, sine_generator,
+        charts::draw_vec_chart, oscillator_buffer, relative_path, sine_generator,
     };
 
     use audio_processor_traits::audio_buffer::VecAudioBuffer;

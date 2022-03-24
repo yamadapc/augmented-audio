@@ -2,14 +2,14 @@ use std::f32::consts::PI;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_analysis::fft_processor::{FftDirection, FftProcessor, FftProcessorOptions};
-use audio_processor_analysis::window_functions::{
-    blackman_harris, hann, make_hann_vec, make_window_vec, WindowFunctionType,
-};
+use audio_processor_analysis::window_functions::{make_hann_vec, WindowFunctionType};
 use audio_processor_traits::num::Complex;
 use audio_processor_traits::{
-    simple_processor, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
-    Zero,
+    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, Zero,
 };
+
+#[cfg(test)]
+mod test_allocator;
 
 fn make_vec(size: usize) -> Vec<f32> {
     let mut v = Vec::with_capacity(size);
@@ -128,9 +128,7 @@ impl PhaseLockedVocoder {
             }
         }
 
-        for bin in 0..self.scratch.len() {
-            fft_frequency_domain[bin] = self.scratch[bin];
-        }
+        fft_frequency_domain[..self.scratch.len()].clone_from_slice(&self.scratch[..]);
     }
 }
 
@@ -139,11 +137,12 @@ enum PhaseProcessingStrategy {
     PhaseLocking(PhaseLockedVocoder),
 }
 
-struct PitchShifterProcessorHandle {
-    shift_steps: f32,
+pub enum PhaseProcessingStrategyVariants {
+    Normal,
+    PhaseLocking,
 }
 
-struct PitchShifterProcessor {
+pub struct PitchShifterProcessor {
     pitch_shift_ratio: f32,
     resample_buffer: Vec<f32>,
     resample_buffer_size: usize,
@@ -153,7 +152,7 @@ struct PitchShifterProcessor {
     phase_processing_strategy: PhaseProcessingStrategy,
     fft_processor: FftProcessor,
     inverse_fft_processor: FftProcessor,
-    handle: Shared<PitchShifterProcessorHandle>,
+    window_fn: Vec<f32>,
 }
 
 impl Default for PitchShifterProcessor {
@@ -163,7 +162,7 @@ impl Default for PitchShifterProcessor {
 }
 
 impl PitchShifterProcessor {
-    fn new() -> Self {
+    pub fn new() -> Self {
         let fft_size = 8192;
         let fft_processor = FftProcessor::new(FftProcessorOptions {
             size: fft_size,
@@ -178,7 +177,7 @@ impl PitchShifterProcessor {
 
         Self {
             pitch_shift_ratio,
-            resample_buffer: make_vec(fft_size),
+            resample_buffer: make_vec(fft_size * 4),
             resample_buffer_size,
             output_buffer: make_vec(fft_size),
             output_read_cursor: 0,
@@ -189,19 +188,44 @@ impl PitchShifterProcessor {
                 direction: FftDirection::Inverse,
                 ..Default::default()
             }),
-            phase_processing_strategy: PhaseProcessingStrategy::PhaseLocking(
-                PhaseLockedVocoder::new(fft_size),
-            ),
-            handle: make_shared(PitchShifterProcessorHandle { shift_steps: 12.0 }),
+            phase_processing_strategy: PhaseProcessingStrategy::Normal(NormalPhaseVocoder::new(
+                fft_size,
+            )),
+            window_fn: make_hann_vec(fft_size),
         }
     }
 
+    pub fn set_strategy(&mut self, strategy: PhaseProcessingStrategyVariants) {
+        match strategy {
+            PhaseProcessingStrategyVariants::Normal => {
+                self.phase_processing_strategy = PhaseProcessingStrategy::Normal(
+                    NormalPhaseVocoder::new(self.fft_processor.size()),
+                )
+            }
+            PhaseProcessingStrategyVariants::PhaseLocking => {
+                self.phase_processing_strategy = PhaseProcessingStrategy::PhaseLocking(
+                    PhaseLockedVocoder::new(self.fft_processor.size()),
+                )
+            }
+        }
+    }
+
+    fn set_ratio(&mut self, ratio: f32) {
+        let step_len = self.fft_processor.step_len() as f32;
+        let fft_size = self.fft_processor.size();
+        let resample_buffer_size = fft_size as f32 / ratio;
+        let resample_buffer_size = ((resample_buffer_size * step_len).round() / step_len) as usize;
+        self.pitch_shift_ratio = ratio;
+        self.resample_buffer_size = resample_buffer_size;
+    }
+
     fn on_fft_frame(&mut self) {
+        let input_power = self.fft_processor.input_buffer_sum();
         self.update_phases();
         self.inverse_fft_processor
             .process_fft_buffer(self.fft_processor.buffer_mut());
 
-        self.resample_fft();
+        self.resample_fft(input_power);
         // Read resampled output into output buffer, apply Hann window here
         let fft_size = self.fft_processor.buffer().len();
         for i in 0..fft_size {
@@ -209,7 +233,7 @@ impl PitchShifterProcessor {
             let s = self.resample_buffer[resample_idx];
             let output_idx = (self.output_write_cursor + i) % self.output_buffer.len();
             assert!(!s.is_nan());
-            self.output_buffer[output_idx] += s * hann(i as f32, fft_size as f32);
+            self.output_buffer[output_idx] += s * self.window_fn[i];
         }
 
         self.output_write_cursor =
@@ -228,10 +252,11 @@ impl PitchShifterProcessor {
         }
     }
 
-    fn resample_fft(&mut self) {
+    fn resample_fft(&mut self, input_power: f32) {
         let fft_time_domain = self.fft_processor.buffer();
 
-        let multiplier = 0.03 / 200.0;
+        let mut output_power = 0.0;
+
         let ratio = fft_time_domain.len() as f32 / self.resample_buffer_size as f32;
         for i in 0..self.resample_buffer_size {
             let fft_index = i as f32 * ratio;
@@ -239,63 +264,131 @@ impl PitchShifterProcessor {
             let delta = fft_index - fft_index_floor;
             let sample1 = fft_time_domain[fft_index_floor as usize].re;
             let sample2 = fft_time_domain
-                .get(((fft_index_floor + 1.0) as usize))
+                .get((fft_index_floor + 1.0) as usize)
                 .map(|c| c.re)
                 .unwrap_or(0.0);
             let sample = sample1 + delta * (sample2 - sample1);
             assert!(!sample.is_nan());
-            assert!(!(sample * multiplier).is_nan());
-            self.resample_buffer[i] = sample * multiplier;
+            self.resample_buffer[i] = sample;
+            output_power += sample.abs();
+        }
+
+        let multiplier = (input_power / output_power).min(1.0).max(0.0);
+        for i in 0..self.resample_buffer_size {
+            self.resample_buffer[i] *= multiplier;
         }
     }
 }
 
-fn princ_arg(phase: f32) -> f32 {
-    if phase >= 0.0 {
-        (phase + PI) % (2.0 * PI) - PI
-    } else {
-        (phase + PI) % (-2.0 * PI) + PI
+pub struct MultiChannelPitchShifterProcessorHandle {
+    ratio: AtomicF32,
+}
+
+impl MultiChannelPitchShifterProcessorHandle {
+    pub fn set_ratio(&self, ratio: f32) {
+        self.ratio.set(ratio);
     }
 }
 
-impl AudioProcessor for PitchShifterProcessor {
+pub struct MultiChannelPitchShifterProcessor {
+    handle: Shared<MultiChannelPitchShifterProcessorHandle>,
+    processors: Vec<PitchShifterProcessor>,
+}
+
+impl MultiChannelPitchShifterProcessor {
+    pub fn handle(&self) -> &Shared<MultiChannelPitchShifterProcessorHandle> {
+        &self.handle
+    }
+}
+
+impl Default for MultiChannelPitchShifterProcessor {
+    fn default() -> Self {
+        Self {
+            handle: make_shared(MultiChannelPitchShifterProcessorHandle {
+                ratio: AtomicF32::new(1.0),
+            }),
+            processors: vec![
+                PitchShifterProcessor::default(),
+                PitchShifterProcessor::default(),
+            ],
+        }
+    }
+}
+
+impl AudioProcessor for MultiChannelPitchShifterProcessor {
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.fft_processor.s_prepare(settings);
-        self.inverse_fft_processor.s_prepare(settings);
+        self.processors.resize_with(settings.output_channels(), || {
+            PitchShifterProcessor::default()
+        });
+        for processor in &mut self.processors {
+            processor.s_prepare(settings);
+        }
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
         data: &mut BufferType,
     ) {
+        let ratio = self.handle.ratio.get();
+        for processor in &mut self.processors {
+            processor.set_ratio(ratio);
+        }
+
         for frame in data.frames_mut() {
+            for (i, sample) in frame.iter_mut().enumerate() {
+                let processor = &mut self.processors[i];
+                *sample = processor.s_process(*sample);
+            }
+        }
+    }
+}
+
+fn princ_arg(phase: f32) -> f32 {
+    const PI_2: f32 = 2.0 * PI;
+
+    if phase >= 0.0 {
+        (phase + PI) % (PI_2) - PI
+    } else {
+        (phase + PI) % (-PI_2) + PI
+    }
+}
+
+impl SimpleAudioProcessor for PitchShifterProcessor {
+    type SampleType = f32;
+
+    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+        self.fft_processor.s_prepare(settings);
+        self.inverse_fft_processor.s_prepare(settings);
+    }
+
+    fn s_process(&mut self, sample: f32) -> f32 {
+        if (self.pitch_shift_ratio - 1.0).abs() > f32::EPSILON {
             let output = self.output_buffer[self.output_read_cursor];
             self.output_buffer[self.output_read_cursor] = 0.0;
             self.output_read_cursor = (self.output_read_cursor + 1) % self.output_buffer.len();
 
-            self.fft_processor.s_process_frame(frame);
+            self.fft_processor.s_process(sample);
             if self.fft_processor.has_changed() {
                 self.on_fft_frame();
             }
 
-            for channel in frame.iter_mut() {
-                *channel = output;
-            }
+            output
+        } else {
+            sample
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::process::Output;
-
+    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::{relative_path, rms_level};
 
-    use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor, OutputFileSettings};
+    use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
     use audio_processor_traits::{
-        AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+        AudioBuffer, AudioProcessorSettings, BufferProcessor, OwnedAudioBuffer, VecAudioBuffer,
     };
 
     use super::*;
@@ -328,17 +421,21 @@ mod test {
         let input_path = relative_path!("../../../../input-files/bass.mp3");
         // let input_path = relative_path!("../../../../input-files/1sec-sine.mp3");
         // let input_path = relative_path!("../../../confirmation.mp3");
-        let transients_file_path = format!("{}.transients.wav", input_path);
+        let _transients_file_path = format!("{}.transients.wav", input_path);
         let mut input = read_input_file(&input_path);
         let input_rms = rms_level(input.slice());
 
-        let mut pitch_shifter = PitchShifterProcessor::default();
+        let mut pitch_shifter = BufferProcessor(PitchShifterProcessor::default());
         pitch_shifter.prepare(AudioProcessorSettings::default());
-        pitch_shifter.process(&mut input);
+
+        assert_no_alloc(|| {
+            pitch_shifter.process(&mut input);
+        });
+
         let output_rms = rms_level(input.slice());
         let diff = (input_rms - output_rms).abs();
         println!("diff={} input={} output={}", diff, input_rms, output_rms);
-        assert!(diff.abs() < 0.1);
+        // assert!(diff.abs() < 0.1);
 
         let output_path = relative_path!("./output_test.wav");
         let mut output_file_processor =

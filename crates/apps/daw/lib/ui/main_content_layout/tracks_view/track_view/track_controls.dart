@@ -52,7 +52,7 @@ class TrackControls extends StatelessWidget {
                                 ]),
                           ),
                         ),
-                        SizedBox(width: 30, child: VolumeMeter()),
+                        const SizedBox(width: 30, child: VolumeMeter()),
                       ],
                     ),
                   ),

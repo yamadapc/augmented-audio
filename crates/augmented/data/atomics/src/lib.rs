@@ -103,6 +103,12 @@ macro_rules! atomic_float {
             }
         }
 
+        impl PartialEq for $name {
+            fn eq(&self, rhs: &Self) -> bool {
+                self.get() == rhs.get()
+            }
+        }
+
         impl Clone for $name {
             #[inline]
             fn clone(&self) -> Self {

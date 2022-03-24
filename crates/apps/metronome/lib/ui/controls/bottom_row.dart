@@ -24,6 +24,7 @@ class BottomRow extends StatelessWidget {
       actions: {
         PlayIntent: CallbackAction<PlayIntent>(onInvoke: (_) {
           stateController.toggleIsPlaying();
+          return null;
         })
       },
       child: Row(

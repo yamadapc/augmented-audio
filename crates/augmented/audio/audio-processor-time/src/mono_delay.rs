@@ -119,9 +119,7 @@ impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Samp
             .store(0, Ordering::Relaxed);
     }
 
-    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
-        let sample = frame[0];
-
+    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
         let sample_rate = self.handle.sample_rate.get();
         let delay_secs = self.handle.delay_time_secs.get() * sample_rate;
         let offset = delay_secs - delay_secs.floor();
@@ -158,6 +156,12 @@ impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Samp
             .current_write_position
             .store(current_write_position, Ordering::Relaxed);
 
+        delay_output
+    }
+
+    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+        let sample = frame[0];
+        let delay_output = self.s_process(sample);
         frame[0] = delay_output;
         frame[1] = delay_output;
     }

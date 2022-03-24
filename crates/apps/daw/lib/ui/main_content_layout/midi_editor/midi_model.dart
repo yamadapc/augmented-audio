@@ -45,6 +45,7 @@ class Note {
     return sharpNotes.contains(note);
   }
 
+  @override
   String toString() => getSymbol();
 
   Map<String, dynamic> toJson() => _$NoteToJson(this);
