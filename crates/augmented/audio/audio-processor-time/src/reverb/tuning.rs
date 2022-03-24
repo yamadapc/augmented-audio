@@ -1,6 +1,6 @@
 pub const STEREO_SPREAD: usize = 23;
 
-pub const MUTED: f32 = 0.0;
+// pub const MUTED: f32 = 0.0;
 pub const FIXED_GAIN: f32 = 0.015;
 pub const SCALEWET: f32 = 3.0;
 pub const SCALEDRY: f32 = 2.0;
@@ -12,8 +12,9 @@ pub const INITIALDAMP: f32 = 0.5;
 pub const INITIALWET: f32 = 1.0 / SCALEWET;
 pub const INITIALDRY: f32 = 0.0;
 pub const INITIALWIDTH: f32 = 1.0;
-pub const INITIALMODE: f32 = 0.0;
-pub const FREEZEMODE: f32 = 0.5;
+
+// pub const INITIALMODE: f32 = 0.0;
+// pub const FREEZEMODE: f32 = 0.5;
 
 pub const ALLPASSTUNING_L1: usize = 556;
 pub const ALLPASSTUNING_R1: usize = 556 + STEREO_SPREAD;

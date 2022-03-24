@@ -92,17 +92,21 @@ impl FreeverbProcessor {
         }
     }
 
-    fn set_roomsize(&mut self, value: f32) {
+    pub fn set_dry(&mut self, value: f32) {
+        self.dry = value * SCALEDRY;
+    }
+
+    pub fn set_roomsize(&mut self, value: f32) {
         self.roomsize = value * SCALEROOM + OFFSETROOM;
         self.update();
     }
 
-    fn set_damp(&mut self, value: f32) {
+    pub fn set_damp(&mut self, value: f32) {
         self.damp = value * SCALEDAMP;
         self.update();
     }
 
-    fn set_wet(&mut self, value: f32) {
+    pub fn set_wet(&mut self, value: f32) {
         self.wet = value * SCALEWET;
         self.update();
     }
