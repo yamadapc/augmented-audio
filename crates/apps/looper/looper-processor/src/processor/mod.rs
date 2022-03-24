@@ -186,7 +186,7 @@ mod test {
         looper.process(&mut sample_buffer);
         looper.handle.stop_recording_audio_thread_only();
 
-        // While recording, the output is muted
+        // While recording, the output is MUTED
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
@@ -333,7 +333,7 @@ mod test {
         });
         looper.handle.stop_recording_audio_thread_only();
 
-        // While recording, the output is muted
+        // While recording, the output is MUTED
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
         let initial_output = sample_buffer.slice().to_vec();
         assert_eq!(
