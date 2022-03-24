@@ -13,7 +13,7 @@ struct MIDIMonitorView: View {
             List(
                 midi.lastMidiMessages.reversed(),
                 id: \.self.0,
-                rowContent: { (id, message) in
+                rowContent: { _, message in
                     HStack {
                         Text("CC \(message.controllerNumber) = \(message.value)")
                     }

@@ -32,9 +32,11 @@ pub fn setup_osc_server(handle: Shared<MultiTrackLooperHandle>) {
     );
 
     let osc_server = OscServer::new(handle, osc_map);
-    let _ = std::thread::spawn(move || {
-        if let Err(err) = osc_server.start() {
-            log::error!("OscServer has exited with {}", err);
-        }
-    });
+    let _ = std::thread::Builder::new()
+        .name(String::from("looper_osc_server"))
+        .spawn(move || {
+            if let Err(err) = osc_server.start() {
+                log::error!("OscServer has exited with {}", err);
+            }
+        });
 }

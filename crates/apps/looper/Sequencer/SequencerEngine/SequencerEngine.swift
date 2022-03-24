@@ -18,8 +18,10 @@ class EngineImpl {
     var midi: AnyPublisher<MidiEvent, Never>?
 
     init() {
+        logger.info("Initializing rust audio engine")
         engine = looper_engine__new()
 
+        logger.info("Building rust MIDI subscription")
         midi = buildStream(
             registerStream: { callback in
                 looper_engine__register_midi_callback(self.engine, callback)
@@ -151,9 +153,11 @@ public class EngineController {
         engine = EngineImpl()
         store = Store(engine: engine)
 
+        logger.info("Setting-up store -> engine subscriptions")
         setupStoreSubscriptions()
         setupMidiSubscription()
 
+        logger.info("Setting-up store <- engine polling")
         DispatchQueue.main.async {
             self.flushPollInfo()
             self.flushMetricsInfo()

@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CB801A1427D8AE6600D7788E"
-               BuildableName = "Sequencer Mac.app"
-               BlueprintName = "Sequencer Mac"
-               ReferencedContainer = "container:Sequencer.xcodeproj">
+               BlueprintIdentifier = "SequencerUI"
+               BuildableName = "SequencerUI"
+               BlueprintName = "SequencerUI"
+               ReferencedContainer = "container:">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "CB3948F527ED24BA009A650D"
-               BuildableName = "Sequencer MacUITests.xctest"
-               BlueprintName = "Sequencer MacUITests"
-               ReferencedContainer = "container:Sequencer.xcodeproj">
+               BlueprintIdentifier = "SequencerUITests"
+               BuildableName = "SequencerUITests"
+               BlueprintName = "SequencerUITests"
+               ReferencedContainer = "container:">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -50,23 +50,6 @@
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CB801A1427D8AE6600D7788E"
-            BuildableName = "Sequencer Mac.app"
-            BlueprintName = "Sequencer Mac"
-            ReferencedContainer = "container:Sequencer.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "RUST_BACKTRACE"
-            value = "1"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -74,16 +57,15 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
+      <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "CB801A1427D8AE6600D7788E"
-            BuildableName = "Sequencer Mac.app"
-            BlueprintName = "Sequencer Mac"
-            ReferencedContainer = "container:Sequencer.xcodeproj">
+            BlueprintIdentifier = "SequencerUI"
+            BuildableName = "SequencerUI"
+            BlueprintName = "SequencerUI"
+            ReferencedContainer = "container:">
          </BuildableReference>
-      </BuildableProductRunnable>
+      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

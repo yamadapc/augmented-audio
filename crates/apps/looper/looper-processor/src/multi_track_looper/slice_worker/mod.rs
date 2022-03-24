@@ -133,10 +133,13 @@ impl SliceWorker {
             let results = self.results.clone();
             let job_queue = self.job_queue.clone();
             let is_running = self.is_running.clone();
-            std::thread::spawn(move || {
-                let processor = SliceProcessorThread::new(job_queue, results, is_running);
-                processor.run();
-            })
+            std::thread::Builder::new()
+                .name(String::from("looper_slice_worker"))
+                .spawn(move || {
+                    let processor = SliceProcessorThread::new(job_queue, results, is_running);
+                    processor.run();
+                })
+                .unwrap()
         };
     }
 

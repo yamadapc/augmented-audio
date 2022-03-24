@@ -91,19 +91,19 @@ extension OSCClient {
     }
 
     private func onBrowseResultsChanged(_: Set<NWBrowser.Result>, _ changes: Set<NWBrowser.Result.Change>) {
-        logger.info("Browse results changed")
+        logger.debug("Browse results changed")
         for change in changes {
             switch change {
             case let .added(result):
                 let endpoint = result.endpoint
-                logger.info("New peer added", metadata: [
+                logger.debug("New peer added", metadata: [
                     "endpoint": .string(String(describing: endpoint)),
                     "metadata": .string(result.metadata.debugDescription),
                 ])
                 addConnection(to: endpoint)
             case let .removed(result):
                 let endpoint = result.endpoint
-                logger.info("Peer removed", metadata: [
+                logger.debug("Peer removed", metadata: [
                     "endpoint": .string(String(describing: endpoint)),
                     "metadata": .string(result.metadata.debugDescription),
                 ])
@@ -120,11 +120,11 @@ extension OSCClient {
 
 extension OSCClient {
     private func addConnection(to endpoint: NWEndpoint) {
-        logger.info("Going to connect to endpoint", metadata: [
+        logger.debug("Going to connect to endpoint", metadata: [
             "endpoint": .string(endpoint.debugDescription),
         ])
         if case .service(name: let name, type: let type, domain: let domain, interface: _) = endpoint {
-            logger.info("Starting NetService resolution", metadata: [
+            logger.debug("Starting NetService resolution", metadata: [
                 "endpoint": .string(endpoint.debugDescription),
                 "name": .string(name),
                 "type": .string(type),
@@ -145,7 +145,7 @@ extension OSCClient {
     }
 
     func connectToService(_ endpoint: NWEndpoint, _ service: NetService) {
-        logger.info("Built NetService", metadata: [
+        logger.debug("Built NetService", metadata: [
             "hostName": .string(service.hostName ?? "<unknown>"),
             "port": .string(service.port.description),
             "addresses": .string(service.addresses?.description ?? "<unknown>"),
@@ -155,7 +155,7 @@ extension OSCClient {
             do {
                 let resolvedAddress = try resolveAddress(address)
 
-                logger.info("Resolved IP for endpoint", metadata: [
+                logger.info("Connecting to resolved IP for endpoint", metadata: [
                     "endpoint": .string(endpoint.debugDescription),
                     "resolvedAddress": .string(resolvedAddress),
                 ])

@@ -51,7 +51,11 @@ impl<C> OscServer<C> {
     }
 
     pub fn build_service(&self) -> impl TMdnsService {
-        let service = MdnsService::new(ServiceType::new("looper", "udp").unwrap(), 1449);
+        let mut service = MdnsService::new(ServiceType::new("looper", "udp").unwrap(), 1449);
+        service.set_registered_callback(Box::new(|registration, _context| match registration {
+            Ok(_) => log::info!("OSC server registered"),
+            Err(err) => log::error!("Failed to register OSC server: {}", err),
+        }));
         let hostname = hostname::get().unwrap();
         let _hostname = hostname.to_str().unwrap();
         // service.set_host(hostname);

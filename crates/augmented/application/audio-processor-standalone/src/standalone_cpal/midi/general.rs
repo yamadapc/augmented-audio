@@ -1,4 +1,5 @@
 use basedrop::Handle;
+use std::sync::{Arc, Mutex};
 
 pub use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 pub use audio_processor_standalone_midi::host::MidiHost;
@@ -9,16 +10,18 @@ use crate::StandaloneProcessor;
 
 use super::MidiContext;
 
+pub type MidiReference = Arc<Mutex<Option<MidiHost>>>;
+
 pub fn initialize_midi_host(
     app: &mut impl StandaloneProcessor,
     handle: Option<&Handle>,
-) -> (Option<MidiHost>, Option<MidiContext>) {
-    let midi_host = app.midi().and(handle).map(|handle| {
-        // MIDI set-up
-        let mut midi_host = MidiHost::default_with_handle(handle);
-        midi_host.start_midi().expect("Failed to start MIDI host");
-        midi_host
-    });
+) -> (MidiReference, Option<MidiContext>) {
+    log::info!("Initializing MIDI Host in the background");
+
+    let midi_host = app
+        .midi()
+        .and(handle)
+        .map(|handle| MidiHost::default_with_handle(handle));
     let midi_context = midi_host.as_ref().map(|midi_host| {
         let midi_message_queue = midi_host.messages().clone();
         let midi_audio_thread_handler = MidiAudioThreadHandler::default();
@@ -27,7 +30,23 @@ pub fn initialize_midi_host(
             midi_message_queue,
         }
     });
-    (midi_host, midi_context)
+
+    let midi_ref = Arc::new(Mutex::new(None));
+
+    if let Some(mut midi_host) = midi_host {
+        let midi_ref = midi_ref.clone();
+        std::thread::Builder::new()
+            .name(String::from("MIDI Host start thread"))
+            .spawn(move || {
+                midi_host.start_midi().expect("Failed to start MIDI host");
+                let mut midi_ref = midi_ref.lock().unwrap();
+                *midi_ref = Some(midi_host);
+                log::info!("MIDI Host ready");
+            })
+            .unwrap();
+    }
+
+    (midi_ref, midi_context)
 }
 
 pub fn flush_midi_events(

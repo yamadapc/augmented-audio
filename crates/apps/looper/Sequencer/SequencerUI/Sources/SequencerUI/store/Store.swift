@@ -659,6 +659,7 @@ public class MIDIMappingState: ObservableObject {
     var mapKeys: [MIDIMessageId] {
         Array(midiMap.keys)
     }
+
     var currentMessageId = 0
 
     func addMapping(id: MIDIMessageId, objectId: ObjectId) {
@@ -667,13 +668,13 @@ public class MIDIMappingState: ObservableObject {
     }
 
     func addMidiMessage(message: MIDIMessage) {
-        if lastMessagesMap[message.controllerNumber]?.value == message.value{
+        if lastMessagesMap[message.controllerNumber]?.value == message.value {
             return
         }
 
-        self.currentMessageId += 1
+        currentMessageId += 1
         lastMessagesMap[message.controllerNumber] = message
-        lastMidiMessages.append((self.currentMessageId, message))
+        lastMidiMessages.append((currentMessageId, message))
         let newLength = min(
             lastMidiMessages.count,
             100
@@ -718,8 +719,8 @@ public class Store: ObservableObject {
     }
 }
 
-extension Store {
-    public func addMidiMessage(message: MIDIMessage) {
+public extension Store {
+    func addMidiMessage(message: MIDIMessage) {
         midi.addMidiMessage(message: message)
         if midiMappingActive,
            let object = focusState.selectedObject
