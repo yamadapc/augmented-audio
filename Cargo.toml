@@ -87,3 +87,4 @@ wisual-logger = { version = "0.1", path = "crates/augmented/ops/wisual-logger" }
 iced = { version = "^0.3.0", path = "./crates/vendor/iced" }
 vst = { path = "./crates/vendor/vst" }
 libsamplerate-sys = { path = "./crates/vendor/libsamplerate-sys" }
+midir = { path = "./crates/augmented/data/augmented-midi/midir" }

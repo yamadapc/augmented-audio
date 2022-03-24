@@ -1,7 +1,9 @@
 use std::ffi::c_void;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 use atomic_refcell::AtomicRefCell;
+use audio_garbage_collector::make_shared;
 use basedrop::Shared;
 
 use audio_processor_standalone::StandaloneHandles;
@@ -11,6 +13,7 @@ use augmented_atomics::AtomicF32;
 use crate::multi_track_looper::metrics::audio_processor_metrics::{
     AudioProcessorMetricsActor, AudioProcessorMetricsStats,
 };
+use crate::multi_track_looper::midi_store::{MidiStoreActor, MidiStoreHandle};
 use crate::multi_track_looper::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,
     TempoControl,
@@ -18,6 +21,12 @@ use crate::multi_track_looper::parameters::{
 use crate::multi_track_looper::slice_worker::SliceResult;
 use crate::processor::handle::LooperState;
 use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider};
+
+pub use self::foreign_callback::*;
+pub use self::midi_callback::*;
+
+mod foreign_callback;
+mod midi_callback;
 
 fn into_ptr<T>(value: T) -> *mut T {
     Box::into_raw(Box::new(value))
@@ -34,6 +43,7 @@ impl<T> From<Shared<T>> for SharedPtr<T> {
 pub struct LooperEngine {
     handle: Shared<MultiTrackLooperHandle>,
     metrics_actor: Arc<Mutex<AudioProcessorMetricsActor>>,
+    midi_store: Shared<MidiStoreHandle>,
     events_callback: Option<EventsCallback>,
     #[allow(unused)]
     audio_handles: StandaloneHandles,
@@ -54,11 +64,13 @@ pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
     let metrics_actor = Arc::new(Mutex::new(AudioProcessorMetricsActor::new(
         handle.metrics_handle().clone(),
     )));
+    let midi_store = handle.midi().clone();
 
     let engine = LooperEngine {
         handle,
         audio_handles,
         metrics_actor,
+        midi_store,
         events_callback: None,
     };
     Box::into_raw(Box::new(engine))

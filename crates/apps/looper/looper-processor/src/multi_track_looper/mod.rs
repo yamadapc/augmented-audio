@@ -2,6 +2,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use assert_no_alloc::assert_no_alloc;
+use atomic_queue::Queue;
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use num::ToPrimitive;
@@ -34,7 +35,7 @@ mod envelope_processor;
 mod lfo_processor;
 mod looper_voice;
 pub(crate) mod metrics;
-mod midi_store;
+pub(crate) mod midi_store;
 pub mod parameters;
 pub(crate) mod slice_worker;
 mod tempo_estimation;
@@ -526,6 +527,10 @@ impl MultiTrackLooperHandle {
 
     pub fn metrics_handle(&self) -> &Shared<AudioProcessorMetricsHandle> {
         &self.metrics_handle
+    }
+
+    pub fn midi(&self) -> &Shared<MidiStoreHandle> {
+        &self.midi_store
     }
 }
 
