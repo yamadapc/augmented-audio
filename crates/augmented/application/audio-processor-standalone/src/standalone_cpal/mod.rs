@@ -1,7 +1,7 @@
 use basedrop::Handle;
 use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
-    BufferSize, Host, SampleRate, StreamConfig,
+    BufferSize, Device, Host, SampleRate, Stream, StreamConfig,
 };
 
 use ringbuf::{Consumer, Producer};
@@ -60,7 +60,7 @@ pub fn standalone_start(
 ) -> StandaloneHandles {
     let _ = wisual_logger::try_init_from_env();
 
-    let (midi_host, mut midi_context) = initialize_midi_host(&mut app, handle);
+    let (midi_host, midi_context) = initialize_midi_host(&mut app, handle);
 
     // Audio set-up
     let host = cpal::default_host();
@@ -102,60 +102,157 @@ pub fn standalone_start(
     let handle = std::thread::Builder::new()
         .name(String::from("audio-thread"))
         .spawn(move || {
-            let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
-            let (mut producer, mut consumer) = buffer.split();
-            let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
-                input_device
-                    .build_input_stream(
-                        input_config,
-                        move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
-                            input_stream_callback(&mut producer, data)
-                        },
-                        |err| {
-                            log::error!("Input error: {:?}", err);
-                        },
-                    )
-                    .unwrap()
-            });
-
-            // Output callback section
-            log::info!(
-                "num_input_channels={} num_output_channels={} sample_rate={}",
-                num_input_channels,
+            audio_thread_run(
+                app,
+                midi_context,
+                buffer_size,
                 num_output_channels,
-                output_config.sample_rate.0
+                num_input_channels,
+                output_config,
+                input_tuple,
+                output_device,
             );
-            let output_stream = output_device
-                .build_output_stream(
-                    &output_config,
-                    move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-                        output_stream_with_context(
-                            midi_context.as_mut(),
-                            &mut app,
-                            num_input_channels,
-                            num_output_channels,
-                            &mut consumer,
-                            data,
-                        );
-                    },
-                    |err| {
-                        log::error!("Playback error: {:?}", err);
-                    },
-                )
-                .unwrap();
-
-            log::info!("Audio streams starting on audio-thread");
-            output_stream.play().unwrap();
-            if let Some(input_stream) = &input_stream {
-                input_stream.play().unwrap();
-            }
-
-            log::info!("Audio streams started");
-            std::thread::park();
         })
         .unwrap();
 
     StandaloneHandles { handle, midi_host }
+}
+
+#[derive(thiserror::Error, Debug)]
+enum AudioThreadError {
+    #[error("Failed to configure input stream")]
+    BuildInputStreamError(cpal::BuildStreamError),
+    #[error("Failed to configure output stream")]
+    BuildOutputStreamError(cpal::BuildStreamError),
+    #[error("Failed to start input stream")]
+    InputStreamError(cpal::PlayStreamError),
+    #[error("Failed to start output stream")]
+    OutputStreamError(cpal::PlayStreamError),
+}
+
+// Audio-thread main
+fn audio_thread_run(
+    app: impl StandaloneProcessor,
+    midi_context: Option<MidiContext>,
+    buffer_size: usize,
+    num_output_channels: usize,
+    num_input_channels: usize,
+    output_config: StreamConfig,
+    input_tuple: Option<(Device, StreamConfig)>,
+    output_device: Device,
+) {
+    let build_streams =
+        move || -> Result<(Option<cpal::Stream>, cpal::Stream), AudioThreadError> {
+            let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
+            let (producer, consumer) = buffer.split();
+            let input_stream = build_input_stream(input_tuple, producer)?;
+            let output_stream = build_output_stream(
+                app,
+                midi_context,
+                num_output_channels,
+                num_input_channels,
+                consumer,
+                output_device,
+                output_config,
+            )?;
+
+            Ok((input_stream, output_stream))
+        };
+
+    match build_streams() {
+        Ok((input_stream, output_stream)) => {
+            log::info!("Audio streams starting on audio-thread");
+            let play = || -> Result<(), AudioThreadError> {
+                if let Some(input_stream) = &input_stream {
+                    input_stream
+                        .play()
+                        .map_err(AudioThreadError::InputStreamError)?;
+                }
+
+                output_stream
+                    .play()
+                    .map_err(AudioThreadError::OutputStreamError)?;
+
+                Ok(())
+            };
+
+            if let Err(err) = play() {
+                log::error!("Audio-thread failed to start with {}", err);
+                return;
+            }
+
+            log::info!("Audio streams started");
+            std::thread::park();
+        }
+        Err(err) => {
+            log::error!("Audio-thread failed to start with {}", err);
+        }
+    }
+}
+
+fn build_output_stream(
+    mut app: impl StandaloneProcessor,
+    mut midi_context: Option<MidiContext>,
+    num_output_channels: usize,
+    num_input_channels: usize,
+    mut input_consumer: Consumer<f32>,
+    output_device: Device,
+    output_config: StreamConfig,
+) -> Result<Stream, AudioThreadError> {
+    // Output callback section
+    log::info!(
+        "num_input_channels={} num_output_channels={} sample_rate={}",
+        num_input_channels,
+        num_output_channels,
+        output_config.sample_rate.0
+    );
+    let output_stream = output_device
+        .build_output_stream(
+            &output_config,
+            move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
+                output_stream_with_context(
+                    midi_context.as_mut(),
+                    &mut app,
+                    num_input_channels,
+                    num_output_channels,
+                    &mut input_consumer,
+                    data,
+                );
+            },
+            |err| {
+                log::error!("Playback error: {:?}", err);
+            },
+        )
+        .map_err(AudioThreadError::BuildOutputStreamError)?;
+
+    Ok(output_stream)
+}
+
+fn build_input_stream(
+    input_tuple: Option<(Device, StreamConfig)>,
+    mut producer: Producer<f32>,
+) -> Result<Option<Stream>, AudioThreadError> {
+    let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
+        input_device
+            .build_input_stream(
+                input_config,
+                move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
+                    input_stream_callback(&mut producer, data)
+                },
+                |err| {
+                    log::error!("Input error: {:?}", err);
+                },
+            )
+            .map_err(|err| AudioThreadError::BuildInputStreamError(err))
+    });
+
+    let input_stream = if let Some(input_stream) = input_stream {
+        Some(input_stream?)
+    } else {
+        None
+    };
+
+    Ok(input_stream)
 }
 
 fn configure_input_device(

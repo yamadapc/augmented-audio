@@ -227,6 +227,6 @@ mod test {
         });
 
         actor_is_running.store(false, Ordering::Relaxed);
-        handle.join();
+        handle.join().unwrap();
     }
 }

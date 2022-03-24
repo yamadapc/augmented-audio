@@ -496,6 +496,7 @@ dependencies = [
  "itertools",
  "log",
  "ringbuf",
+ "thiserror",
  "vst",
  "wisual-logger",
 ]
