@@ -48,7 +48,7 @@ audio-processor-bitcrusher = { path = "../../../augmented/audio/audio-processor-
 audio-processor-time = { path = "../../../augmented/audio/audio-processor-time" }
 audio-processor-dynamics = { path = "../../../augmented/audio/audio-processor-dynamics" }
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" }
-augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters" }
+augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.4" }
 
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.4" }
 
