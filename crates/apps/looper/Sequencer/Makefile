@@ -7,4 +7,10 @@ format: FORCE
 	swiftformat ./Sequencer\ MacUITests/**/*.swift
 	swiftformat ./SequencerEngine/**/*.swift
 
+test: FORCE
+	@echo "Checking if xcbeautify is installed"
+	$(`which xcbeautify` || brew install xcbeautify)
+	@echo "Running tests"
+	xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer Mac" test | xcbeautify
+
 FORCE:

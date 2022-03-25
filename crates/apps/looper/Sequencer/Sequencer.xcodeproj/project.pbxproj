@@ -42,6 +42,9 @@
 		CBA4DAB227DDF67700A530E3 /* SequencerEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CBA4DAB727DDF72B00A530E3 /* SequencerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */; };
 		CBA4DAB927DDF78000A530E3 /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CBA4DAB827DDF78000A530E3 /* SequencerUI */; };
+		CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
+		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
+		CBECE3BC27ED43DB0054BB43 /* SequencerEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +96,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = CBA4DAAA27DDF67700A530E3;
 			remoteInfo = SequencerEngine_ios;
+		};
+		CBECE3BD27ED43DB0054BB43 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CB16669C27CCAD04000F9E21 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CBA4DA8F27DDF21800A530E3;
+			remoteInfo = SequencerEngine;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -188,6 +198,9 @@
 		CBA4DABC27DE015200A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../../../../target/aarch64-apple-ios/release/liblooper_processor.a"; sourceTree = "<group>"; };
 		CBA4DABE27DE93B200A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../../../../target/aarch64-apple-ios-sim/release/liblooper_processor.a"; sourceTree = "<group>"; };
 		CBA4DABF27DE948400A530E3 /* liblooperengine_sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine_sim.a; path = "../../../../crates/apps/looper/looper-processor/public/lib/ios-aarch64-sim/liblooperengine_sim.a"; sourceTree = "<group>"; };
+		CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineController.swift; sourceTree = "<group>"; };
+		CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequencerEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -254,6 +267,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CBECE3B527ED43DB0054BB43 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CBECE3BC27ED43DB0054BB43 /* SequencerEngine.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -286,6 +307,7 @@
 				CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */,
 				CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */,
 				CB3948F627ED24BA009A650D /* Sequencer MacUITests.xctest */,
+				CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -425,7 +447,9 @@
 				CBA4DAA227DDF3A400A530E3 /* module.modulemap */,
 				CBA4DAA427DDF4BB00A530E3 /* private.h */,
 				CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */,
+				CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */,
 				CB3948F027EC3B24009A650D /* ForeignCallback.swift */,
+				CBECE3B927ED43DB0054BB43 /* SequencerEngineTests */,
 			);
 			path = SequencerEngine;
 			sourceTree = "<group>";
@@ -436,6 +460,14 @@
 				CBA4DAAD27DDF67700A530E3 /* SequencerEngine_ios.h */,
 			);
 			path = SequencerEngine_ios;
+			sourceTree = "<group>";
+		};
+		CBECE3B927ED43DB0054BB43 /* SequencerEngineTests */ = {
+			isa = PBXGroup;
+			children = (
+				CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */,
+			);
+			path = SequencerEngineTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -624,6 +656,24 @@
 			productReference = CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		CBECE3B727ED43DB0054BB43 /* SequencerEngineTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CBECE3BF27ED43DB0054BB43 /* Build configuration list for PBXNativeTarget "SequencerEngineTests" */;
+			buildPhases = (
+				CBECE3B427ED43DB0054BB43 /* Sources */,
+				CBECE3B527ED43DB0054BB43 /* Frameworks */,
+				CBECE3B627ED43DB0054BB43 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CBECE3BE27ED43DB0054BB43 /* PBXTargetDependency */,
+			);
+			name = SequencerEngineTests;
+			productName = SequencerEngineTests;
+			productReference = CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -661,6 +711,9 @@
 					CBA4DAAA27DDF67700A530E3 = {
 						CreatedOnToolsVersion = 13.2.1;
 					};
+					CBECE3B727ED43DB0054BB43 = {
+						CreatedOnToolsVersion = 13.3;
+					};
 				};
 			};
 			buildConfigurationList = CB16669F27CCAD04000F9E21 /* Build configuration list for PBXProject "Sequencer" */;
@@ -687,6 +740,7 @@
 				CBA4DAAA27DDF67700A530E3 /* SequencerEngine_ios */,
 				CB3948C327EA6BFC009A650D /* Sequencer AudioUnit */,
 				CB3948F527ED24BA009A650D /* Sequencer MacUITests */,
+				CBECE3B727ED43DB0054BB43 /* SequencerEngineTests */,
 			);
 		};
 /* End PBXProject section */
@@ -750,6 +804,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CBA4DAA927DDF67700A530E3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CBECE3B627ED43DB0054BB43 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -840,6 +901,7 @@
 			files = (
 				CBA4DAA027DDF23600A530E3 /* SequencerEngine.swift in Sources */,
 				CB3948F127EC3B24009A650D /* ForeignCallback.swift in Sources */,
+				CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -848,6 +910,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				CBA4DAB727DDF72B00A530E3 /* SequencerEngine.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CBECE3B427ED43DB0054BB43 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -896,6 +966,11 @@
 			isa = PBXTargetDependency;
 			target = CBA4DAAA27DDF67700A530E3 /* SequencerEngine_ios */;
 			targetProxy = CBA4DAAF27DDF67700A530E3 /* PBXContainerItemProxy */;
+		};
+		CBECE3BE27ED43DB0054BB43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CBA4DA8F27DDF21800A530E3 /* SequencerEngine */;
+			targetProxy = CBECE3BD27ED43DB0054BB43 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1499,6 +1574,40 @@
 			};
 			name = Release;
 		};
+		CBECE3C027ED43DB0054BB43 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q39U2SBP6Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerEngineTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		CBECE3C127ED43DB0054BB43 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q39U2SBP6Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerEngineTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1579,6 +1688,15 @@
 			buildConfigurations = (
 				CBA4DAB427DDF67700A530E3 /* Debug */,
 				CBA4DAB527DDF67700A530E3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CBECE3BF27ED43DB0054BB43 /* Build configuration list for PBXNativeTarget "SequencerEngineTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CBECE3C027ED43DB0054BB43 /* Debug */,
+				CBECE3C127ED43DB0054BB43 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
