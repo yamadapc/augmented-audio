@@ -22,4 +22,3 @@ public class SceneState: ObservableObject {
 
     init() {}
 }
-

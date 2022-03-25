@@ -20,4 +20,3 @@ public protocol SequencerEngine {
     func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ObjectId, value: Float)
     func addMidiMapping(controller: Int, parameterId: ObjectId)
 }
-

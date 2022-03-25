@@ -15,4 +15,3 @@ class ParameterLockState: ObservableObject {
         self.source = source
     }
 }
-

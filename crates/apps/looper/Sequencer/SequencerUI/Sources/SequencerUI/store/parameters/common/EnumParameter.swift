@@ -18,4 +18,3 @@ public class EnumParameter<OptionT>: ObservableObject {
         self.options = options
     }
 }
-

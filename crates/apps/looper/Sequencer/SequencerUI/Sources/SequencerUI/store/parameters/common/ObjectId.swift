@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Pedro Tacla Yamada on 25/3/2022.
 //
@@ -30,4 +30,3 @@ public enum ObjectId: Equatable, Hashable {
         sceneButton(sceneId: Int),
         metronomeVolume
 }
-

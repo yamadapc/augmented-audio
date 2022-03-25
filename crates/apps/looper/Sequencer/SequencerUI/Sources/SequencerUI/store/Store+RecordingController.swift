@@ -29,4 +29,3 @@ extension Store: RecordingController {
         engine?.onClickClear(track: selectedTrack)
     }
 }
-
