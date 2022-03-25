@@ -20,6 +20,7 @@ import Foundation
 import Logging
 import SequencerEngine_private
 import SequencerUI
+import QuartzCore
 
 func getObjectIdRust(_ id: SequencerUI.ParameterId) -> SequencerEngine_private.ParameterId? {
     switch id {
@@ -232,16 +233,6 @@ public class EngineController {
     func flushPollInfo() {
         let playhead = looper_engine__get_playhead_position(engine.engine)
 
-        // Updating ObservableObject at 60fps causes high CPU usage
-        let positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
-        if abs((store.timeInfo.positionBeats ?? 0.0) - (positionBeats ?? 0.0)) > 0.1 {
-            store.timeInfo.positionBeats = positionBeats
-        }
-        let tempo = playhead.tempo == -1 ? nil : playhead.tempo
-        if store.timeInfo.tempo != tempo {
-            store.timeInfo.tempo = tempo
-        }
-
         for (i, trackState) in store.trackStates.enumerated() {
             // trackState.numSamples = looper_engine__get_looper_num_samples(engine.engine, UInt(i))
             let positionPercent = looper_engine__get_looper_position(engine.engine, UInt(i))
@@ -274,6 +265,17 @@ public class EngineController {
                     ])
                 }
             }
+        }
+
+        // Updating ObservableObject at 60fps causes high CPU usage
+        let positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
+        let tempo = playhead.tempo == -1 ? nil : playhead.tempo
+        if abs((store.timeInfo.positionBeats ?? 0.0) - (positionBeats ?? 0.0)) > 0.1 ||
+            store.timeInfo.tempo != tempo
+        {
+            store.timeInfo.positionBeats = positionBeats
+            store.timeInfo.tempo = tempo
+            store.timeInfo.objectWillChange.send()
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16))) {

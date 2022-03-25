@@ -40,7 +40,7 @@ public class Store: ObservableObject {
 
     public let timeInfo: TimeInfo = .init()
     public let sceneState = SceneState()
-    public var metronomeVolume: FloatParameter = .init(
+    public let metronomeVolume: FloatParameter = .init(
         id: 0,
         globalId: .metronomeVolume,
         label: "Metronome",
@@ -52,11 +52,10 @@ public class Store: ObservableObject {
     @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source
     @Published var isPlaying: Bool = false
-    @Published var focusState = FocusState()
     @Published var midiMappingActive = false
 
+    let focusState = FocusState()
     var oscClient = OSCClient()
-
     var engine: SequencerEngine?
 
     public init(engine: SequencerEngine?) {
@@ -162,7 +161,6 @@ extension Store {
 
     func onClickTrack(_ track: Int) {
         selectedTrack = track
-        objectWillChange.send()
     }
 
     func onClickStep(_ trackId: Int, _ step: Int) {

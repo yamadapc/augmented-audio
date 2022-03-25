@@ -15,25 +15,26 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-import Cocoa
-import SequencerEngine
-import SequencerUI
 import SwiftUI
 
-class CachingNSView<V: View>: NSHostingView<V> {}
+struct EnumParameterView<OptionT: Hashable>: View {
+    @ObservedObject var parameter: EnumParameter<OptionT>
+    @EnvironmentObject var store: Store
 
-class ViewController: NSViewController {
-    var engineController = EngineController()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        let contentView = ContentView()
-            .environmentObject(engineController.store)
-
-        let cachingView = CachingNSView(rootView: contentView)
-        cachingView.translatesAutoresizingMaskIntoConstraints = true
-        cachingView.autoresizingMask = [.height, .width]
-        view = cachingView
+    var body: some View {
+        if #available(macOS 11.0, *) {
+            Text(parameter.label)
+//            Picker(parameter.label, selection: $parameter.value, content: {
+//                ForEach(parameter.options, id: \.value) { option in
+//                    Text(option.label).tag(option.value)
+//                }
+//            })
+//            .pickerStyle(.menu)
+//            .padding(PADDING - 2)
+//            .preferredColorScheme(.dark)
+//            .foregroundColor(.white)
+//            .border(SequencerColors.blue, width: 1.0)
+//            .bindToParameterId(store: store, parameterId: parameter.id, showSelectionOverlay: false)
+        } else {}
     }
 }

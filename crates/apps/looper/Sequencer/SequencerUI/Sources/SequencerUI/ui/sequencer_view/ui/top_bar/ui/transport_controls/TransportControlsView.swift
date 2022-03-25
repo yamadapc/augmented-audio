@@ -22,6 +22,7 @@
 //  Created by Pedro Tacla Yamada on 12/3/2022.
 //
 
+import Combine
 import SwiftUI
 
 extension Text {
@@ -52,9 +53,11 @@ struct TransportTempoView: View {
                     self.previousX = data.translation.width
                     tempo += Double(deltaX) / 100.0
                     store.setTempo(tempo: Float(tempo))
-                }.onEnded { _ in
+                }
+                .onEnded { _ in
                     self.previousX = 0
-                })
+                }
+                )
         }
         .padding(PADDING * 0.5)
         .background(SequencerColors.black3)
@@ -77,15 +80,49 @@ struct TransportBeatsInnerView: View {
     }
 }
 
+final class NativeTransportBeats: NSViewRepresentable {
+    var timeInfo: TimeInfo
+    var cancellables: Set<AnyCancellable> = Set()
+
+    init(timeInfo: TimeInfo) {
+        self.timeInfo = timeInfo
+    }
+
+    func makeNSView(context _: Context) -> some NSView {
+        let view = NSTextView()
+        view.string = getText()
+        view.isEditable = false
+        view.isSelectable = false
+        view.isRichText = false
+        view.drawsBackground = false
+        timeInfo.objectWillChange.sink(receiveValue: {
+            view.string = self.getText()
+        }).store(in: &cancellables)
+        return view
+    }
+
+    func updateNSView(_: NSViewType, context _: Context) {}
+
+    func getText() -> String {
+        if let beats = timeInfo.positionBeats {
+            return "\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))"
+        } else {
+            return "0.0"
+        }
+    }
+}
+
 extension TransportBeatsInnerView: Equatable {}
 
 struct TransportBeatsView: View {
-    @ObservedObject var timeInfo: TimeInfo
+    var timeInfo: TimeInfo
 
     var body: some View {
-        let text = getText()
-        TransportBeatsInnerView(text: text)
-            .equatable()
+        // let text = getText()
+//        TransportBeatsInnerView(text: text)
+//            .equatable()
+
+        NativeTransportBeats(timeInfo: timeInfo)
     }
 
     func getText() -> String {

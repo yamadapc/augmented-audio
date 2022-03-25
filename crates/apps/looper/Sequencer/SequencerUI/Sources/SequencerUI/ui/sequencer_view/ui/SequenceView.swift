@@ -56,15 +56,15 @@ struct TrackButtonView: View {
                             ? SequencerColors.blue
                             : isBeat ? SequencerColors.black0 : SequencerColors.black
                     )
-                    .opacity(
-                        isPlaying
-                            ? 0.3
-                            : 1.0
-                    )
                     .cornerRadius(BORDER_RADIUS)
             }
         )
         .buttonStyle(.plain)
+        .opacity(
+            isPlaying
+                ? 0.3
+                : 1.0
+        )
     }
 }
 
@@ -112,27 +112,74 @@ class StepButtonViewModel: ObservableObject {
     }
 }
 
+final class NativeStepButtonView: NSViewRepresentable {
+    typealias NSViewType = NSView
+
+    var isBeat: Bool = false
+    var isActive: Bool
+    var isPlaying: Bool
+    var hasLocks: Bool
+    var stepModel: StepButtonViewModel
+
+    var cancellables: Set<AnyCancellable> = Set()
+
+    init(
+        stepModel: StepButtonViewModel
+    ) {
+        isBeat = stepModel.isBeat
+        isActive = stepModel.isActive
+        isPlaying = stepModel.isPlaying
+        hasLocks = stepModel.hasLocks
+        self.stepModel = stepModel
+    }
+
+    func updateNSView(_ nsView: NSView, context _: Context) {
+        setViewProperties(nsView)
+    }
+
+    func makeNSView(context _: Context) -> NSView {
+        let view = NSView()
+        setViewProperties(view)
+        stepModel.objectWillChange.sink(receiveValue: {
+            self.isBeat = self.stepModel.isBeat
+            self.isActive = self.stepModel.isActive
+            self.isPlaying = self.stepModel.isPlaying
+            self.hasLocks = self.stepModel.hasLocks
+            self.setViewProperties(view)
+        }).store(in: &cancellables)
+        return view
+    }
+
+    private func setViewProperties(_ view: NSView) {
+        view.wantsLayer = true
+
+        let backgroundColor = hasLocks
+            ? SequencerColors.green
+            : isActive ? SequencerColors.blue
+            : isBeat ? SequencerColors.black : SequencerColors.black0
+        view.layer?.cornerRadius = BORDER_RADIUS
+        if #available(macOS 11, *) {
+            view.layer?.backgroundColor = isPlaying
+                ? backgroundColor.opacity(0.3).cgColor!
+                : backgroundColor.cgColor!
+        } else {}
+    }
+}
+
 struct ConnectedStepButtonView: View {
     var trackId: Int
     var index: Int
     @ObservedObject var store: Store
-    @ObservedObject var stepModel: StepButtonViewModel
+    var stepModel: StepButtonViewModel
     var bindToParameter: Bool = true
 
     var body: some View {
-        let isActive = stepModel.isActive
-        let isPlaying = stepModel.isPlaying
-        let isBeat = stepModel.isBeat
-        let hasLocks = stepModel.hasLocks
-
-        let view = TrackButtonView(
-            isBeat: isBeat,
-            isActive: isActive,
-            isPlaying: isPlaying,
-            hasLocks: hasLocks,
-            onClick: self.onClick
+        let view = NativeStepButtonView(
+            stepModel: stepModel
         )
-        .equatable()
+        .onTapGesture {
+            onClick()
+        }
 
         if bindToParameter {
             view
@@ -191,7 +238,7 @@ struct SequenceView: View {
                 }
             }
             .padding(PADDING)
-            .background(SequencerColors.black0)
+            .background(SequencerColors.black1)
             .frame(maxWidth: .infinity)
 
             if let dragState = self.dragState {

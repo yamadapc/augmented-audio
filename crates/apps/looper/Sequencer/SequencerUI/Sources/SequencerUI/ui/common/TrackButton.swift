@@ -27,20 +27,21 @@ struct TrackButton: View {
     var body: some View {
         Button(
             action: action,
-            label: { Text(label)
-                .frame(width: 70.0, height: 70.0, alignment: .center)
-                .contentShape(Rectangle())
-                .foregroundColor(SequencerColors.white)
-                .background(
-                    RoundedRectangle(cornerRadius: BORDER_RADIUS)
-                        .stroke(
-                            isSelected ? SequencerColors.red : SequencerColors.black3.opacity(0.1),
-                            lineWidth: 1.0
-                        )
-                        .background(self.backgroundColor ?? SequencerColors.black)
-                )
-                .cornerRadius(BORDER_RADIUS)
-                .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 5)
+            label: {
+                Text(label)
+                    .frame(width: 70.0, height: 70.0, alignment: .center)
+                    .contentShape(Rectangle())
+                    .foregroundColor(SequencerColors.white)
+                    .background(
+                        RoundedRectangle(cornerRadius: BORDER_RADIUS)
+                            .stroke(
+                                isSelected ? SequencerColors.red : SequencerColors.black3.opacity(0.1),
+                                lineWidth: 1.0
+                            )
+                            .background(self.backgroundColor ?? SequencerColors.black)
+                    )
+                    .cornerRadius(BORDER_RADIUS)
+                    .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 5)
             }
         )
         .buttonStyle(.plain)
