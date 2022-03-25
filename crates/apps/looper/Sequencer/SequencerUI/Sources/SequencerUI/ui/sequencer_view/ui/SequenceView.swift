@@ -271,8 +271,10 @@ struct SequenceView: View {
     }
 
     func startDrag(_ i: Int, _ drag: DragGesture.Value, _ mode: DragMode) {
-        store.startSequencerStepDrag(i, dragMode: mode)
-        dragState = DragState(step: i, position: drag.location, mode: mode)
+        DispatchQueue.main.async {
+            store.startSequencerStepDrag(i, dragMode: mode)
+            dragState = DragState(step: i, position: drag.location, mode: mode)
+        }
     }
 
     func endDrag() {

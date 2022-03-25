@@ -54,5 +54,6 @@ struct GlobalOverlays: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .allowsHitTesting(false)
+        .drawingGroup()
     }
 }

@@ -47,16 +47,17 @@ struct TransportTempoView: View {
         HStack {
             Text(content)
                 .monospacedDigitCompat()
-                .gesture(DragGesture().onChanged { data in
-                    var tempo = timeInfo.tempo ?? 120.0
-                    let deltaX = data.translation.width - previousX
-                    self.previousX = data.translation.width
-                    tempo += Double(deltaX) / 100.0
-                    store.setTempo(tempo: Float(tempo))
-                }
-                .onEnded { _ in
-                    self.previousX = 0
-                }
+                .gesture(
+                    DragGesture().onChanged { data in
+                        var tempo = timeInfo.tempo ?? 120.0
+                        let deltaX = data.translation.width - previousX
+                        self.previousX = data.translation.width
+                        tempo += Double(deltaX) / 100.0
+                        store.setTempo(tempo: Float(tempo))
+                    }
+                    .onEnded { _ in
+                        self.previousX = 0
+                    }
                 )
         }
         .padding(PADDING * 0.5)

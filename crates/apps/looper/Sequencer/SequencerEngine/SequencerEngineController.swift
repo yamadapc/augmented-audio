@@ -278,7 +278,7 @@ public class EngineController {
             store.timeInfo.objectWillChange.send()
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16))) {
+      DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16)), qos: .userInitiated) {
             self.flushPollInfo()
         }
     }

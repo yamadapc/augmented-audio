@@ -23,18 +23,17 @@ struct EnumParameterView<OptionT: Hashable>: View {
 
     var body: some View {
         if #available(macOS 11.0, *) {
-            Text(parameter.label)
-//            Picker(parameter.label, selection: $parameter.value, content: {
-//                ForEach(parameter.options, id: \.value) { option in
-//                    Text(option.label).tag(option.value)
-//                }
-//            })
-//            .pickerStyle(.menu)
-//            .padding(PADDING - 2)
-//            .preferredColorScheme(.dark)
-//            .foregroundColor(.white)
-//            .border(SequencerColors.blue, width: 1.0)
-//            .bindToParameterId(store: store, parameterId: parameter.id, showSelectionOverlay: false)
+            Picker(parameter.label, selection: $parameter.value, content: {
+                ForEach(parameter.options, id: \.value) { option in
+                    Text(option.label).tag(option.value)
+                }
+            })
+            .pickerStyle(.menu)
+            .padding(PADDING - 2)
+            .preferredColorScheme(.dark)
+            .foregroundColor(.white)
+            .border(SequencerColors.blue, width: 1.0)
+            .bindToParameterId(store: store, parameterId: parameter.id, showSelectionOverlay: false)
         } else {}
     }
 }

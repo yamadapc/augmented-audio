@@ -58,11 +58,15 @@ import SwiftUI
             var onHover: ((Bool) -> Void)?
 
             override func mouseEntered(with _: NSEvent) {
-                onHover?(true)
+                DispatchQueue.main.async {
+                    self.onHover?(true)
+                }
             }
 
             override func mouseExited(with _: NSEvent) {
-                onHover?(false)
+                DispatchQueue.main.async {
+                    self.onHover?(false)
+                }
             }
         }
     }

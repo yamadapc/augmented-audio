@@ -17,19 +17,29 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-struct SelectedParameterOverlayView: View {
-    @ObservedObject var focusState: FocusState
-    var parameterId: ParameterId
-    var showSelectionOverlay: Bool
+struct SelectedParameterOverlayViewInner: View {
+    var isSelected: Bool
 
     var body: some View {
         ZStack {
-            if showSelectionOverlay && focusState.selectedObject == parameterId {
+            if isSelected {
                 Rectangle()
                     .stroke(SequencerColors.white.opacity(0.3))
                     .scaleEffect(1.2)
             }
         }
         .allowsHitTesting(false)
+    }
+}
+
+struct SelectedParameterOverlayView: View {
+    @ObservedObject var focusState: FocusState
+    var parameterId: ParameterId
+    var showSelectionOverlay: Bool
+
+    var body: some View {
+        SelectedParameterOverlayViewInner(
+            isSelected: showSelectionOverlay && parameterId == focusState.selectedObject
+        )
     }
 }
