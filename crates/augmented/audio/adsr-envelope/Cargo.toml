@@ -1,6 +1,6 @@
 [package]
 name = "augmented-adsr-envelope"
-version = "0.1.0-alpha.2"
+version = "0.1.0-alpha.3"
 edition = "2018"
 description = "ADSR envelope implementation"
 license = "MIT"

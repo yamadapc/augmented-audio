@@ -29,7 +29,7 @@ crossbeam-utils = "0.8.8"
 
 metronome = { path = "../../metronome" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }
-augmented-adsr-envelope = { version = "0.1.0-alpha.2", path = "../../../augmented/audio/adsr-envelope" }
+augmented-adsr-envelope = { version = "0.1.0-alpha.3", path = "../../../augmented/audio/adsr-envelope" }
 augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.1.0-alpha.4" }
 augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.1.0-alpha.3" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-garbage-collector" }
