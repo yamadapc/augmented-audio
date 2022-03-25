@@ -1,16 +1,20 @@
 [package]
 name = "audio-processor-iced-design-system"
-version = "0.1.0"
+version = "0.1.0-alpha.0"
 edition = "2018"
 
 [features]
 wgpu = ["iced/tokio", "iced/wgpu", "iced/canvas"]
 glow = ["iced/tokio", "iced/glow", "iced/glow_canvas"]
 
+[package.metadata.augmented]
+private = false
+
 [dependencies]
 log = "^0.4.14"
 
 [dependencies.iced_style]
+version = "0.3"
 path = "../../../vendor/iced/style"
 default-features = false
 
@@ -20,10 +24,12 @@ path = "../../../vendor/iced_audio"
 default-features = false
 
 [dependencies.iced_graphics]
+version = "0.2"
 path = "../../../vendor/iced/graphics"
 default-features = false
 
 [dependencies.iced_native]
+version = "0.4"
 path = "../../../vendor/iced/native"
 default-features = false
 
