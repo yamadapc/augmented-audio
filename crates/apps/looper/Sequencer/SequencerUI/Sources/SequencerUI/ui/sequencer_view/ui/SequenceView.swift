@@ -177,12 +177,14 @@ struct SequenceView: View {
                             .onChanged { drag in startDrag(i, drag, .lock) }
                             .onEnded { _ in endDrag() }
                     )
+                    #if os(macOS)
                     .highPriorityGesture(
                         DragGesture(coordinateSpace: .named("SequenceViewZStack"))
                             .modifiers(.option)
                             .onChanged { drag in startDrag(i, drag, .copy) }
                             .onEnded { _ in endDrag() }
                     )
+                    #endif
                 }
             }
             .padding(PADDING)

@@ -15,13 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  ViewController.swift
-//  Sequencer Mac
-//
-//  Created by Pedro Tacla Yamada on 9/3/2022.
-//
-
 import Cocoa
 import SequencerEngine
 import SequencerUI
@@ -40,6 +33,5 @@ class ViewController: NSViewController {
         for constraint in hostingView.constraints {
             constraint.isActive = false
         }
-        // engineController.loadExampleFileBuffer()
     }
 }
