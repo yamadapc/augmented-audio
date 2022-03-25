@@ -37,7 +37,7 @@ audio-processor-standalone = { version = "1.0.0-alpha.7", path = "../../../augme
 audio-processor-standalone-midi = { path = "../../../augmented/application/audio-processor-standalone-midi" }
 audio-processor-standalone-osc = { path = "../../../augmented/application/audio-processor-standalone-osc" }
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" }
-audio-processor-traits = { version = "1.0.0-alpha.3", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-traits" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 audio-processor-file = { version = "1.0.0-alpha.3", path = "../../../augmented/audio/audio-processor-file" }
 augmented-midi = { path = "../../../augmented/data/augmented-midi" }

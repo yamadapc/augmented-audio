@@ -9,7 +9,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.3", path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.4", path = "../../audio/audio-processor-traits" }
 augmented_oscillator = { path = "../../audio/oscillator" , version = "1.0.0-alpha.3" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
