@@ -176,7 +176,7 @@
 		CB3948F627ED24BA009A650D /* Sequencer MacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Sequencer MacUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3948F827ED24BA009A650D /* Sequencer_MacUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequencer_MacUITests.swift; sourceTree = "<group>"; };
 		CB3948FA27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequencer_MacUITestsLaunchTests.swift; sourceTree = "<group>"; };
-		CB801A1527D8AE6600D7788E /* Sequencer Mac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Sequencer Mac.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB801A1527D8AE6600D7788E /* Continuous.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Continuous.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		CB801A1B27D8AE6600D7788E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -302,7 +302,7 @@
 				CB1666A427CCAD04000F9E21 /* Sequencer.app */,
 				CB1666B427CCAD07000F9E21 /* SequencerTests.xctest */,
 				CB1666BE27CCAD07000F9E21 /* SequencerUITests.xctest */,
-				CB801A1527D8AE6600D7788E /* Sequencer Mac.app */,
+				CB801A1527D8AE6600D7788E /* Continuous.app */,
 				CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */,
 				CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */,
 				CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */,
@@ -611,7 +611,7 @@
 			packageProductDependencies = (
 			);
 			productName = "Sequencer Mac";
-			productReference = CB801A1527D8AE6600D7788E /* Sequencer Mac.app */;
+			productReference = CB801A1527D8AE6600D7788E /* Continuous.app */;
 			productType = "com.apple.product-type.application";
 		};
 		CBA4DA8F27DDF21800A530E3 /* SequencerEngine */ = {
@@ -1385,7 +1385,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer-Mac";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Continuous;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1417,7 +1417,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 12.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer-Mac";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Continuous;
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
