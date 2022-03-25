@@ -10,7 +10,13 @@ format: FORCE
 test: FORCE
 	@echo "Checking if xcbeautify is installed"
 	$(`which xcbeautify` || brew install xcbeautify)
-	@echo "Running tests"
-	xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer Mac" test | xcbeautify
+	@echo "Running SequencerUI tests"
+	xcodebuild -project Sequencer.xcodeproj -scheme "SequencerUI" test -resultBundlePath ./test-output/SequencerUI | xcbeautify
+	@echo "Running SequencerEngine tests"
+	xcodebuild -project Sequencer.xcodeproj -scheme "SequencerEngine" test -resultBundlePath ./test-output/SequencerEngine | xcbeautify
+	@echo "Running Sequencer Mac tests"
+	xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer Mac" test -resultBundlePath ./test-output/SequencerMac | xcbeautify
+	@echo "Running Sequencer tests"
+	xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer" test -resultBundlePath ./test-output/Sequencer | xcbeautify
 
 FORCE:

@@ -9,7 +9,7 @@ import XCTest
 
 class Sequencer_MacUITestsLaunchTests: XCTestCase {
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
+        false
     }
 
     override func setUpWithError() throws {
