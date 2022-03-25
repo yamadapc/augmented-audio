@@ -39,7 +39,7 @@ audio-processor-standalone-osc = { path = "../../../augmented/application/audio-
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" }
 audio-processor-traits = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-traits" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
-audio-processor-file = { version = "1.0.0-alpha.3", path = "../../../augmented/audio/audio-processor-file" }
+audio-processor-file = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-file" }
 augmented-midi = { path = "../../../augmented/data/augmented-midi" }
 
 # FX
