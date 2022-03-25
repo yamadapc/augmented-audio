@@ -4,7 +4,8 @@ import XCTest
 
 final class SequencerUITests: XCTestCase {
     func testCreateStore() {
-        let store = Store()
+      let store = Store(engine: nil)
+      XCTAssertEqual(store.focusState.selectedObject, nil)
     }
 
       func testBasicRendering() throws {
