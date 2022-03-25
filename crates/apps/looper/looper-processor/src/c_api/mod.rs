@@ -77,6 +77,11 @@ pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__free(engine: *mut LooperEngine) {
+    let _ = Box::from_raw(engine);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__num_loopers(engine: *mut LooperEngine) -> usize {
     (*engine).handle.voices().len()
 }

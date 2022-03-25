@@ -1,0 +1,97 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "CocoaAsyncSocket",
+        "repositoryURL": "https://github.com/robbiehanson/CocoaAsyncSocket",
+        "state": {
+          "branch": null,
+          "revision": "dbdc00669c1ced63b27c3c5f052ee4d28f10150c",
+          "version": "7.6.5"
+        }
+      },
+      {
+        "package": "CoreOSC",
+        "repositoryURL": "https://github.com/sammysmallman/CoreOSC.git",
+        "state": {
+          "branch": null,
+          "revision": "c8f1080e31dae7bcfbd1660018f2ed8b11228e1a",
+          "version": "1.1.0"
+        }
+      },
+      {
+        "package": "KeyboardShortcuts",
+        "repositoryURL": "https://github.com/sindresorhus/KeyboardShortcuts",
+        "state": {
+          "branch": null,
+          "revision": "9bc72c441c713362a137ecbb4104920655a9aa5e",
+          "version": "1.4.0"
+        }
+      },
+      {
+        "package": "LRUCache",
+        "repositoryURL": "https://github.com/nicklockwood/LRUCache.git",
+        "state": {
+          "branch": null,
+          "revision": "40039c212a82a044c0e2aff5c9f1daaf1f1f0624",
+          "version": "1.0.2"
+        }
+      },
+      {
+        "package": "OSCKit",
+        "repositoryURL": "https://github.com/SammySmallman/OSCKit",
+        "state": {
+          "branch": null,
+          "revision": "f5982778ddfe573d82d9a1137dbfea17bb52989b",
+          "version": "3.1.0"
+        }
+      },
+      {
+        "package": "swift-collections",
+        "repositoryURL": "https://github.com/apple/swift-collections.git",
+        "state": {
+          "branch": null,
+          "revision": "48254824bb4248676bf7ce56014ff57b142b77eb",
+          "version": "1.0.2"
+        }
+      },
+      {
+        "package": "swift-log",
+        "repositoryURL": "https://github.com/apple/swift-log.git",
+        "state": {
+          "branch": null,
+          "revision": "5d66f7ba25daf4f94100e7022febf3c75e37a6c7",
+          "version": "1.4.2"
+        }
+      },
+      {
+        "package": "NetUtils",
+        "repositoryURL": "https://github.com/svdo/swift-netutils",
+        "state": {
+          "branch": null,
+          "revision": "776909ce0b37bd9ea1fa0f2156e4e5ad07a592b8",
+          "version": "4.2.0"
+        }
+      },
+      {
+        "package": "SwiftFormat",
+        "repositoryURL": "https://github.com/nicklockwood/SwiftFormat",
+        "state": {
+          "branch": null,
+          "revision": "6f6860f43e9fb8179dd963fe627ce67e0fc8aedf",
+          "version": "0.49.6"
+        }
+      },
+      {
+        "package": "ViewInspector",
+        "repositoryURL": "https://github.com/nalexn/ViewInspector",
+        "state": {
+          "branch": null,
+          "revision": "6b88c4ec1fa20cf38f2138052e63c8e79df5d76e",
+          "version": "0.9.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

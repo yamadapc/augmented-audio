@@ -81,7 +81,7 @@ impl SimpleAudioProcessor for LooperProcessor {
     type SampleType = f32;
 
     fn s_prepare(&mut self, settings: AudioProcessorSettings) {
-        log::info!("Prepare looper {:?}", settings);
+        log::debug!("Prepare looper {:?}", settings);
         self.prepare(settings);
     }
 

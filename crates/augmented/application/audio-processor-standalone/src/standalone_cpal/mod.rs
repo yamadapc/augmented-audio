@@ -9,7 +9,7 @@ use ringbuf::{Consumer, Producer};
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer, MidiEventHandler,
 };
-use midi::{flush_midi_events, initialize_midi_host, MidiContext, MidiHost};
+use midi::{flush_midi_events, initialize_midi_host, MidiContext, MidiReference};
 
 use crate::standalone_processor::{
     StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
@@ -50,7 +50,7 @@ pub struct StandaloneHandles {
     // input_stream: Option<cpal::Stream>,
     // output_stream: cpal::Stream,
     #[allow(unused)]
-    midi_host: Option<MidiHost>,
+    midi_reference: MidiReference,
 }
 
 /// Start a processor using CPAL.
@@ -60,48 +60,49 @@ pub fn standalone_start(
 ) -> StandaloneHandles {
     let _ = wisual_logger::try_init_from_env();
 
-    let (midi_host, midi_context) = initialize_midi_host(&mut app, handle);
-
-    // Audio set-up
-    let host = cpal::default_host();
-    log::info!("Using host: {}", host.id().name());
-    let buffer_size = 512;
-    let sample_rate = {
-        #[cfg(not(target_os = "ios"))]
-        {
-            44100
-        }
-        #[cfg(target_os = "ios")]
-        {
-            48000
-        }
-    };
-    let accepts_input = app.options().accepts_input;
-    let input_tuple = if accepts_input {
-        Some(configure_input_device(&host, buffer_size, sample_rate))
-    } else {
-        None
-    };
-    let (output_device, output_config) = configure_output_device(host, buffer_size, sample_rate);
-
-    let num_output_channels = output_config.channels.into();
-    let num_input_channels = input_tuple
-        .as_ref()
-        .map(|(_, input_config)| input_config.channels.into())
-        .unwrap_or(num_output_channels);
-    let settings = AudioProcessorSettings::new(
-        output_config.sample_rate.0 as f32,
-        num_input_channels,
-        num_output_channels,
-        buffer_size,
-    );
-    app.processor().prepare(settings);
+    let (midi_reference, midi_context) = initialize_midi_host(&mut app, handle);
 
     // On iOS start takes over the calling thread, so this needs to be spawned in order for this
     // function to exit
     let handle = std::thread::Builder::new()
-        .name(String::from("audio-thread"))
+        .name(String::from("audio_thread"))
         .spawn(move || {
+            // Audio set-up
+            let host = cpal::default_host();
+            log::info!("Using host: {}", host.id().name());
+            let buffer_size = 512;
+            let sample_rate = {
+                #[cfg(not(target_os = "ios"))]
+                {
+                    44100
+                }
+                #[cfg(target_os = "ios")]
+                {
+                    48000
+                }
+            };
+            let accepts_input = app.options().accepts_input;
+            let input_tuple = if accepts_input {
+                Some(configure_input_device(&host, buffer_size, sample_rate))
+            } else {
+                None
+            };
+            let (output_device, output_config) =
+                configure_output_device(host, buffer_size, sample_rate);
+
+            let num_output_channels = output_config.channels.into();
+            let num_input_channels = input_tuple
+                .as_ref()
+                .map(|(_, input_config)| input_config.channels.into())
+                .unwrap_or(num_output_channels);
+            let settings = AudioProcessorSettings::new(
+                output_config.sample_rate.0 as f32,
+                num_input_channels,
+                num_output_channels,
+                buffer_size,
+            );
+            app.processor().prepare(settings);
+
             audio_thread_run(
                 app,
                 midi_context,
@@ -115,7 +116,10 @@ pub fn standalone_start(
         })
         .unwrap();
 
-    StandaloneHandles { handle, midi_host }
+    StandaloneHandles {
+        handle,
+        midi_reference,
+    }
 }
 
 #[derive(thiserror::Error, Debug)]
@@ -261,11 +265,10 @@ fn configure_input_device(
     sample_rate: usize,
 ) -> (cpal::Device, StreamConfig) {
     let input_device = host.default_input_device().unwrap();
-    log::info!("Using input: {}", input_device.name().unwrap());
     let supported_configs = input_device.supported_input_configs().unwrap();
     let mut supports_stereo = false;
     for config in supported_configs {
-        log::info!("  INPUT Supported config: {:?}", config);
+        log::debug!("  INPUT Supported config: {:?}", config);
         if config.channels() > 1 {
             supports_stereo = true;
         }
@@ -276,6 +279,12 @@ fn configure_input_device(
     input_config.channels = if supports_stereo { 2 } else { 1 };
     input_config.sample_rate = SampleRate(sample_rate as u32);
     input_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
+    log::info!(
+        "Using input name={} sample_rate={} buffer_size={}",
+        input_device.name().unwrap(),
+        sample_rate,
+        buffer_size
+    );
 
     #[cfg(target_os = "ios")]
     {
@@ -291,9 +300,8 @@ fn configure_output_device(
     sample_rate: usize,
 ) -> (cpal::Device, StreamConfig) {
     let output_device = host.default_output_device().unwrap();
-    log::info!("Using output: {}", output_device.name().unwrap());
     for config in output_device.supported_input_configs().unwrap() {
-        log::info!("  OUTPUT Supported config: {:?}", config);
+        log::debug!("  OUTPUT Supported config: {:?}", config);
     }
     let output_config = output_device.default_output_config().unwrap();
     let mut output_config: StreamConfig = output_config.into();
@@ -306,10 +314,18 @@ fn configure_output_device(
         .min(2);
     output_config.sample_rate = SampleRate(sample_rate as u32);
     output_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
+
     #[cfg(target_os = "ios")]
     {
         output_config.buffer_size = BufferSize::Default;
     }
+
+    log::info!(
+        "Using output name={} sample_rate={} buffer_size={:?}",
+        output_device.name().unwrap(),
+        sample_rate,
+        output_config.buffer_size
+    );
     (output_device, output_config)
 }
 

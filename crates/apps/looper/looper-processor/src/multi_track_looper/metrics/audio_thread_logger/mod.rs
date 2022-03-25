@@ -38,13 +38,15 @@ impl Logger {
         {
             let is_running = is_running.clone();
             let handle = handle.clone();
-            std::thread::spawn(move || {
-                while is_running.load(Ordering::Relaxed) {
-                    if let Some(message) = handle.queue.pop() {
-                        log::info!("{}", message.message);
+            std::thread::Builder::new()
+                .name(String::from("audio_thread_logger"))
+                .spawn(move || {
+                    while is_running.load(Ordering::Relaxed) {
+                        if let Some(message) = handle.queue.pop() {
+                            log::info!("{}", message.message);
+                        }
                     }
-                }
-            });
+                });
         }
 
         Self { is_running, handle }
