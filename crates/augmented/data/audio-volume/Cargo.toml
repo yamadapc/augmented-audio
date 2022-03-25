@@ -1,6 +1,6 @@
 [package]
 name = "augmented-audio-volume"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 edition = "2018"
 description = "Provides a data-type for representing audio volume"
 license = "MIT"
