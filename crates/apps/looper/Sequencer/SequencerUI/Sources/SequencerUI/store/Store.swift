@@ -12,87 +12,24 @@ import Foundation
 import Logging
 import OSCKit
 
-struct SceneDragState {
-    let scene: Int
-    let position: CGPoint
-}
-
-enum DragMode {
-    case lock, copy
-}
-
-class FocusState: ObservableObject {
-    @Published var mouseOverObject: ObjectId?
-    @Published var selectedObject: ObjectId?
-    @Published var draggingSource: ParameterLockSource?
-    @Published var dragMode: DragMode? = nil
-
-    @Published var sceneDragState: SceneDragState?
-
-    init() {}
-}
-
-enum TabValue {
-    case mix, source, slice, envelope, fx, lfos
-}
-
-public class SequencerStepState: ObservableObject {
-    var index: Int
-    @Published var parameterLocks: [ParameterLockState] = []
-
-    init(index: Int) {
-        self.index = index
-    }
-}
-
-public class TimeInfo: ObservableObject {
-    @Published public var positionBeats: Double? = nil
-    @Published public var tempo: Double? = nil
-
-    init() {}
-}
-
-class SceneModel: ObservableObject {
-    @Published var parameterLocks: [ObjectId: ParameterLockState] = [:]
-
-    init() {}
-}
-
-public class SceneState: ObservableObject {
-    @Published public var sceneSlider = FloatParameter(
-        id: 0,
-        globalId: .sceneSlider,
-        label: "Scene slider",
-        style: .center,
-        range: (-1.0, 1.0),
-        initialValue: -1.0
-    )
-    @Published var scenes: [SceneModel] = [
-        SceneModel(),
-        SceneModel(),
-    ]
-
-    init() {}
-}
-
 public class Store: ObservableObject {
     var logger: Logger = .init(label: "com.beijaflor.sequencerui.store.Store")
 
-    @Published public var trackStates: [TrackState] = (1 ... 8).map { i in
+    public let trackStates: [TrackState] = (1 ... 8).map { i in
         TrackState(
             id: i
         )
     }
 
-    @Published public var timeInfo: TimeInfo = .init()
-    @Published public var sceneState = SceneState()
+    public let timeInfo: TimeInfo = .init()
+    public let sceneState = SceneState()
     public var metronomeVolume: FloatParameter = .init(
         id: 0,
         globalId: .metronomeVolume,
         label: "Metronome",
         initialValue: 0.7
     )
-    public var processorMetrics = ProcessorMetrics()
+    public let processorMetrics = ProcessorMetrics()
     public let midi = MIDIMappingState()
 
     @Published var selectedTrack: Int = 1
