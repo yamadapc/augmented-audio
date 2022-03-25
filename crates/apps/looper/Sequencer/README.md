@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="design/icon/Icon@256h.png" style="max-width: 128px" />
+  <img src="design/icon/Icon@128h.png" style="max-width: 128px" />
 </p>
 
 <h1 align="center">Continuous Looper</h1>
