@@ -1,5 +1,11 @@
-# Continuous Looper
-**a live-looper and performance sampler.**
+<p align="center">
+  <img src="design/icon/Icon@256h.png" style="max-width: 128px" />
+</p>
+
+<h1 align="center">Continuous Looper</h1>
+<p align="center">
+    <strong>live-looper and performance sampler</strong>
+</p>
 
 * 8 track looper
 * Step sequence recorded loops
