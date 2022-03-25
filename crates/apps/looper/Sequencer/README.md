@@ -1,4 +1,4 @@
-# Sequencer
+# Continuous Looper
 **a live-looper and performance sampler.**
 
 * 8 track looper

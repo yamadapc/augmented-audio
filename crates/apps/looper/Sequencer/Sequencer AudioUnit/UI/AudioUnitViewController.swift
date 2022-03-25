@@ -1,37 +1,17 @@
+// = copyright ====================================================================
+// Continuous: Live-looper and performance sampler
+// Copyright (C) 2022  Pedro Tacla Yamada
 //
-//  AudioUnitViewController.swift
-//  Sequencer AudioUnit
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
-//  Created by Pedro Tacla Yamada on 23/3/2022.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
 //
-
-import CoreAudioKit
-import SequencerUI
-import SwiftUI
-
-public class AudioUnitViewController: AUViewController, AUAudioUnitFactory {
-    var audioUnit: AUAudioUnit?
-
-    override public func viewDidLoad() {
-        super.viewDidLoad()
-
-        if audioUnit == nil {
-            return
-        }
-
-        // Get the parameter tree and add observers for any parameters that the UI needs to keep in sync with the AudioUnit
-        let contentView = ContentView()
-            .environmentObject(Store(engine: nil))
-        let hostingView = NSHostingView(rootView: contentView)
-        view = hostingView
-        for constraint in hostingView.constraints {
-            constraint.isActive = false
-        }
-    }
-
-    public func createAudioUnit(with componentDescription: AudioComponentDescription) throws -> AUAudioUnit {
-        audioUnit = try Sequencer_AudioUnitAudioUnit(componentDescription: componentDescription, options: [])
-
-        return audioUnit!
-    }
-}
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+// = /copyright ===================================================================
