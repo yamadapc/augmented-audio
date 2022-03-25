@@ -6,5 +6,8 @@ Time-based effects.
 
 Contains a mono delay processor implementation and a version of "FreeVerb".
 
+## References
+* FreeVerb - https://ccrma.stanford.edu/~jos/pasp/Freeverb.html
+
 ## License
 MIT
