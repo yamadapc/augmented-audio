@@ -31,7 +31,7 @@ public struct ContentView: View {
         let view = SequencerView()
             .background(SequencerColors.black1)
             .frame(minWidth: 900, maxWidth: .infinity, minHeight: 900, maxHeight: .infinity)
-            .frame(idealWidth: 1000, idealHeight: 850)
+            .frame(idealWidth: 1000, idealHeight: 900)
 
         ZStack {
             if #available(macOS 11.0, *) {
@@ -40,5 +40,6 @@ public struct ContentView: View {
                 view
             }
         }
+        .fixedSize()
     }
 }

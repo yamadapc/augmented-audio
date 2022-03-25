@@ -1,3 +1,4 @@
+import Combine
 // = copyright ====================================================================
 // Continuous: Live-looper and performance sampler
 // Copyright (C) 2022  Pedro Tacla Yamada
@@ -17,12 +18,31 @@
 // = /copyright ===================================================================
 import SwiftUI
 
+class SelectedParameterOverlayViewModel: ObservableObject {
+    @Published var isSelected: Bool
+    private var cancellables = Set<AnyCancellable>()
+
+    init(
+        parameterId: ParameterId,
+        focusState: FocusState
+    ) {
+        isSelected = focusState.selectedObject == parameterId
+
+        focusState.objectWillChange.sink(receiveValue: {
+            let newValue = focusState.selectedObject == parameterId
+            if newValue != self.isSelected {
+                self.isSelected = newValue
+            }
+        }).store(in: &cancellables)
+    }
+}
+
 struct SelectedParameterOverlayViewInner: View {
-    var isSelected: Bool
+    @ObservedObject var model: SelectedParameterOverlayViewModel
 
     var body: some View {
         ZStack {
-            if isSelected {
+            if model.isSelected {
                 Rectangle()
                     .stroke(SequencerColors.white.opacity(0.3))
                     .scaleEffect(1.2)
@@ -33,13 +53,18 @@ struct SelectedParameterOverlayViewInner: View {
 }
 
 struct SelectedParameterOverlayView: View {
-    @ObservedObject var focusState: FocusState
+    var focusState: FocusState
     var parameterId: ParameterId
     var showSelectionOverlay: Bool
 
     var body: some View {
-        SelectedParameterOverlayViewInner(
-            isSelected: showSelectionOverlay && parameterId == focusState.selectedObject
-        )
+        if showSelectionOverlay {
+            SelectedParameterOverlayViewInner(
+                model: SelectedParameterOverlayViewModel(
+                    parameterId: parameterId,
+                    focusState: focusState
+                )
+            )
+        }
     }
 }

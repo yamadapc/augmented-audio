@@ -1,3 +1,4 @@
+import Combine
 // = copyright ====================================================================
 // Continuous: Live-looper and performance sampler
 // Copyright (C) 2022  Pedro Tacla Yamada
@@ -17,13 +18,42 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-struct ParameterLockAnimationView: View {
-    @ObservedObject var focusState: FocusState
+class ParameterLockAnimationViewModel: ObservableObject {
+    @Published var isDragingIntoThis: Bool
+
     var parameterId: ParameterId
+    var focusState: FocusState
+    var cancellables = Set<AnyCancellable>()
+
+    init(parameterId: ParameterId, focusState: FocusState) {
+        self.parameterId = parameterId
+        self.focusState = focusState
+        isDragingIntoThis = Self.readState(
+            parameterId: parameterId,
+            focusState: focusState
+        )
+        focusState.objectWillChange.sink(receiveValue: {
+            let newValue = Self.readState(
+                parameterId: self.parameterId,
+                focusState: self.focusState
+            )
+            if newValue != self.isDragingIntoThis {
+                self.isDragingIntoThis = newValue
+            }
+        }).store(in: &cancellables)
+    }
+
+    static func readState(parameterId: ParameterId, focusState: FocusState) -> Bool {
+        return focusState.draggingSource != nil && focusState.mouseOverObject == parameterId
+    }
+}
+
+struct ParameterLockAnimationViewInner: View {
+    @ObservedObject var model: ParameterLockAnimationViewModel
     @State var isAnimating = false
 
     var body: some View {
-        if focusState.draggingSource != nil && focusState.mouseOverObject == parameterId {
+        if model.isDragingIntoThis {
             ZStack {
                 Circle()
                     .stroke(SequencerColors.green, lineWidth: 2)
@@ -64,5 +94,19 @@ struct ParameterLockAnimationView: View {
                 self.isAnimating = false
             }
         }
+    }
+}
+
+struct ParameterLockAnimationView: View {
+    var focusState: FocusState
+    var parameterId: ParameterId
+
+    var body: some View {
+        ParameterLockAnimationViewInner(
+            model: ParameterLockAnimationViewModel(
+                parameterId: parameterId,
+                focusState: focusState
+            )
+        )
     }
 }
