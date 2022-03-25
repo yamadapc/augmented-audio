@@ -1,6 +1,6 @@
 [package]
 name = "augmented-atomics"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 edition = "2021"
 description = "Implements some extra types and utilities over atomics for building audio-thread / GUI synchronization"
 license = "MIT"
