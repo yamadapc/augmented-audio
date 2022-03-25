@@ -20,6 +20,15 @@
 
 ![](screenshot.png)
 
+## Building
+This app requires `looper-processor` universal C library bindings to be built:
+```
+cd ./crates/apps/looper/looper-processor
+make
+```
+
+Then the app should be able to build.
+
 ## Parsing test results
 ```
 brew install chargepoint/xcparse/xcparse
