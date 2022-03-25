@@ -6,6 +6,7 @@ format: FORCE
 	swiftformat ./Sequencer\ Mac/**/*.swift
 	swiftformat ./Sequencer\ MacUITests/**/*.swift
 	swiftformat ./SequencerEngine/**/*.swift
+	python3 ./scripts/add_license_preamble.py
 
 test: FORCE
 	@echo "Checking if xcbeautify is installed"
