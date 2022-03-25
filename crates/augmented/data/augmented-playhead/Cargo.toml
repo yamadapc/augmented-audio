@@ -12,7 +12,7 @@ audio-processor-traits = { path = "../../audio/audio-processor-traits", version 
 augmented-atomics = { path = "../atomics" , version = "0.1.0-alpha.4" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.3" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.4" }
 
 [package.metadata.augmented]
 private = false
