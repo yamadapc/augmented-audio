@@ -17,7 +17,7 @@ crate-type = ["cdylib"]
 [package.metadata.augmented]
 processor_examples = ["delay"]
 vst_examples = ["delay_vst"]
-private = true
+private = false
 
 [dependencies]
 audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0-alpha.4" }
