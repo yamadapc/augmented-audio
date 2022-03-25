@@ -10,6 +10,8 @@
 
 Experiments trying to use Rust for audio programming.
 
+Consider anything in this repository a draft.
+
 ## Goals
 * **Goal 1:** Learn & have fun
   * This is goal #1 and it's very important to keep it in mind if you end-up
