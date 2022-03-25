@@ -2,7 +2,7 @@
 name = "audio-processor-time"
 version = "0.1.0-alpha.1"
 edition = "2021"
-description = "Time based effects processors"
+description = "Time based effects processors: delay/reverb"
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
