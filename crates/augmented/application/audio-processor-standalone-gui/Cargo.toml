@@ -46,6 +46,5 @@ path = "../../gui/audio-processor-iced-design-system"
 default-features = false
 optional = true
 
-
 [package.metadata.augmented]
-private = false
+private = true
