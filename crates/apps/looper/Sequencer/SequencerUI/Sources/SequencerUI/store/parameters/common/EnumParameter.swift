@@ -22,13 +22,15 @@ struct EnumParameterOption<OptionT> {
     let value: OptionT
 }
 
-public class EnumParameter<OptionT>: ObservableObject {
-    var id: ObjectId
+public class EnumParameter<OptionT>: ObservableObject, ParameterLike {
+    var id: ParameterId
+    public var globalId: ParameterId { id }
     var label: String
     @Published public var value: OptionT
     var options: [EnumParameterOption<OptionT>]
+    var style: KnobStyle { .normal }
 
-    init(id: ObjectId, label: String, value: OptionT, options: [EnumParameterOption<OptionT>]) {
+    init(id: ParameterId, label: String, value: OptionT, options: [EnumParameterOption<OptionT>]) {
         self.id = id
         self.label = label
         self.value = value

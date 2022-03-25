@@ -33,7 +33,7 @@ public protocol SequencerEngine {
     func onClickClear(track: Int)
 
     func toggleStep(track: Int, step: Int)
-    func addParameterLock(track: Int, step: Int, parameterId: ObjectId, value: Float)
-    func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ObjectId, value: Float)
-    func addMidiMapping(controller: Int, parameterId: ObjectId)
+    func addParameterLock(track: Int, step: Int, parameterId: ParameterId, value: Float)
+    func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ParameterId, value: Float)
+    func addMidiMapping(controller: Int, parameterId: ParameterId)
 }

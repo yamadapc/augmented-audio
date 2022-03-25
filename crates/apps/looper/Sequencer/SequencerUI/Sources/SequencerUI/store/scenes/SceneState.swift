@@ -18,7 +18,7 @@
 import Combine
 
 class SceneModel: ObservableObject {
-    @Published var parameterLocks: [ObjectId: ParameterLockState] = [:]
+    @Published var parameterLocks: [ParameterId: ParameterLockState] = [:]
 
     init() {}
 }

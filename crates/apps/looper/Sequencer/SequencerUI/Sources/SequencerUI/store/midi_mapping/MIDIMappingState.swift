@@ -41,7 +41,7 @@ public struct MIDIMessage: Hashable {
 }
 
 public class MIDIMappingState: ObservableObject {
-    var midiMap: [MIDIMessageId: ObjectId] = [:]
+    var midiMap: [MIDIMessageId: ParameterId] = [:]
     var lastMidiMessages: [(Int, MIDIMessage)] = []
     var lastMessagesMap: [Int: MIDIMessage] = [:]
 
@@ -51,7 +51,7 @@ public class MIDIMappingState: ObservableObject {
 
     var currentMessageId = 0
 
-    func addMapping(id: MIDIMessageId, objectId: ObjectId) {
+    func addMapping(id: MIDIMessageId, objectId: ParameterId) {
         midiMap[id] = objectId
         objectWillChange.send()
     }

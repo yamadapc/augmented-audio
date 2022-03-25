@@ -107,7 +107,7 @@ extension Store {
         focusState.draggingSource = nil
     }
 
-    func startParameterLock(_ id: ObjectId, parameterLockProgress: ParameterLockState) {
+    func startParameterLock(_ id: ParameterId, parameterLockProgress: ParameterLockState) {
         switch id {
         case .sourceParameter(trackId: let trackId, parameterId: _):
             trackStates[trackId - 1].sourceParameters.parameters

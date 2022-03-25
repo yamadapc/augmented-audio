@@ -21,7 +21,7 @@ import Logging
 import SequencerEngine_private
 import SequencerUI
 
-func getObjectIdRust(_ id: ObjectId) -> ParameterId? {
+func getObjectIdRust(_ id: SequencerUI.ParameterId) -> SequencerEngine_private.ParameterId? {
     switch id {
     case .sourceParameter(trackId: _, parameterId: let parameterId):
         return looper_engine__source_parameter_id(SOURCE_PARAMETER_IDS[parameterId]!)

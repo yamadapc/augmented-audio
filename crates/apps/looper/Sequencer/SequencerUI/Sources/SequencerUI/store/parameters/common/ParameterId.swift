@@ -15,15 +15,35 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-import Cocoa
+//
+//  File.swift
+//
+//
+//  Created by Pedro Tacla Yamada on 25/3/2022.
+//
 
-@main
-class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_: Notification) {}
+import Foundation
 
-    func applicationWillTerminate(_: Notification) {}
+public enum ParameterId: Equatable, Hashable {
+    case
+        sourceParameter(trackId: Int, parameterId: SourceParameterId),
 
-    func applicationSupportsSecureRestorableState(_: NSApplication) -> Bool {
-        return true
-    }
+        envelopeParameter(trackId: Int, parameterId: EnvelopeParameterId),
+        lfoParameter(trackId: Int, lfo: UInt, parameterId: LFOParameterId),
+        trackVolume(trackId: Int),
+
+        recordButton(trackId: Int?),
+        playButton(trackId: Int?),
+        clearButton(trackId: Int?),
+        trackButton(trackId: Int),
+        stepButton(trackId: Int, stepId: Int),
+        transportPlay,
+        transportStop,
+
+        quantizationMode(trackId: Int),
+        tempoControl(trackId: Int),
+
+        sceneSlider,
+        sceneButton(sceneId: Int),
+        metronomeVolume
 }

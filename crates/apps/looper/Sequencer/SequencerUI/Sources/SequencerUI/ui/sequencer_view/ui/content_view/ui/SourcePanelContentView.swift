@@ -31,25 +31,68 @@ struct SliceParameterKnobView: View {
 
 struct SourcePanelContentView: View {
     @ObservedObject var sourceParameters: SourceParametersState
+    var parameters: [[Any]] {
+        var output: [[Any]] = []
+        var i = 0
+        for parameter in sourceParameters.parameters {
+            if i % 4 == 0 {
+                output.append([parameter])
+            } else {
+                output[output.count - 1].append(parameter)
+            }
+            i += 1
+        }
+        for parameter in sourceParameters.intParameters {
+            if i % 4 == 0 {
+                output.append([parameter])
+            } else {
+                output[output.count - 1].append(parameter)
+            }
+            i += 1
+        }
+        return output
+    }
 
     var body: some View {
-        HStack(alignment: .center, spacing: 30) {
-            ForEach(sourceParameters.parameters) { parameter in
-                ParameterKnobView(
-                    parameter: parameter
-                )
-            }
+        VStack(alignment: .center) {
+            self.renderParameterRows()
+        }
+    }
 
-            ForEach(sourceParameters.intParameters) { parameter in
-                if parameter.localId == .sliceId {
-                    SliceParameterKnobView(
-                        sliceEnabled: sourceParameters.sliceEnabled,
-                        parameter: parameter
-                    )
-                } else {
-                    ParameterKnobView(
-                        parameter: parameter
-                    )
+    func renderParameterRows() -> some View {
+        let parameters = self.parameters
+        return VStack(alignment: .center, spacing: 6) {
+            ForEach(0 ..< parameters.count, id: \.self) { parameterRowIndex in
+                let parameterRow = parameters[parameterRowIndex]
+
+                HStack(spacing: 30) {
+                    ForEach(0 ..< parameterRow.count, id: \.self) { parameterIndex in
+                        let parameter = parameterRow[parameterIndex]
+
+                        if let p = parameter as? SourceParameter {
+                            ParameterKnobView<SourceParameter>(
+                                parameter: p
+                            )
+                        } else if let p = parameter as? IntParameter<SourceParameterId> {
+                            if p.localId == .sliceId {
+                                SliceParameterKnobView(
+                                    sliceEnabled: sourceParameters.sliceEnabled,
+                                    parameter: p
+                                )
+                            } else {
+                                ParameterKnobView(
+                                    parameter: p
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if parameterRowIndex == 0 {
+                    Rectangle()
+                        .fill(SequencerColors.black3)
+                        .frame(height: 1)
+                        .frame(maxWidth: .infinity)
                 }
             }
         }

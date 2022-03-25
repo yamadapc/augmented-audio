@@ -19,7 +19,7 @@ import SwiftUI
 
 struct ParameterLockAnimationView: View {
     @ObservedObject var focusState: FocusState
-    var parameterId: ObjectId
+    var parameterId: ParameterId
     @State var isAnimating = false
 
     var body: some View {

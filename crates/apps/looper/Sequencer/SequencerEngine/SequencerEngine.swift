@@ -78,7 +78,7 @@ extension EngineImpl: SequencerEngine {
         looper_engine__set_tempo(engine, tempo)
     }
 
-    func addParameterLock(track: Int, step: Int, parameterId: ObjectId, value: Float) {
+  func addParameterLock(track: Int, step: Int, parameterId: SequencerUI.ParameterId, value: Float) {
         if let rustParameterId = getObjectIdRust(parameterId) {
             looper_engine__add_parameter_lock(
                 engine,
@@ -90,7 +90,7 @@ extension EngineImpl: SequencerEngine {
         }
     }
 
-    func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ObjectId, value: Float) {
+  func addSceneParameterLock(sceneId: Int, track: Int, parameterId: SequencerUI.ParameterId, value: Float) {
         if let rustParameterId = getObjectIdRust(parameterId) {
             logger.info("Adding scene parameter lock")
             looper_engine__add_scene_parameter_lock(
@@ -108,5 +108,5 @@ extension EngineImpl: SequencerEngine {
         // let voice = looper_engine__get_voice(engine, UInt(step - 1))
     }
 
-    func addMidiMapping(controller _: Int, parameterId _: ObjectId) {}
+  func addMidiMapping(controller _: Int, parameterId _: SequencerUI.ParameterId) {}
 }

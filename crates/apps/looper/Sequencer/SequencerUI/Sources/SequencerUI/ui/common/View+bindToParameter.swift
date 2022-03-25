@@ -70,7 +70,7 @@ import SwiftUI
 
 struct BindToParameter: ViewModifier {
     var store: Store
-    var parameterId: ObjectId
+    var parameterId: ParameterId
     var showSelectionOverlay: Bool = true
 
     func body(content: Content) -> some View {
@@ -111,15 +111,15 @@ extension View {
 
     func bindToParameterId(
         store: Store,
-        parameterId: ObjectId,
+        parameterId: ParameterId,
         showSelectionOverlay: Bool = true
     ) -> some View {
         return modifier(BindToParameter(store: store, parameterId: parameterId, showSelectionOverlay: showSelectionOverlay))
     }
 
-    func bindToParameter<ParameterId>(
+    func bindToParameter(
         store: Store,
-        parameter: FloatParameter<ParameterId>,
+        parameter: ParameterLike,
         showSelectionOverlay: Bool = true
     ) -> some View {
         return bindToParameterId(

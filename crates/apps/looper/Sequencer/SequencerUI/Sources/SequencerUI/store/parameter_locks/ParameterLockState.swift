@@ -22,12 +22,12 @@ enum ParameterLockSource {
 }
 
 class ParameterLockState: ObservableObject {
-    let parameterId: ObjectId
+    let parameterId: ParameterId
     let source: ParameterLockSource
 
     @Published var newValue: Float?
 
-    init(parameterId: ObjectId, source: ParameterLockSource) {
+    init(parameterId: ParameterId, source: ParameterLockSource) {
         self.parameterId = parameterId
         self.source = source
     }

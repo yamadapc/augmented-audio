@@ -50,13 +50,16 @@ struct TrackButtonView: View {
                             .stroke(SequencerColors.black3, lineWidth: 1.0)
                     )
                     .background(
-                        (
-                            hasLocks
-                                ? SequencerColors.green
-                                : isActive
-                                ? SequencerColors.blue
-                                : isBeat ? SequencerColors.black1 : SequencerColors.black
-                        ).opacity(isPlaying ? 1.0 : 0.8)
+                        hasLocks
+                            ? SequencerColors.green
+                            : isActive
+                            ? SequencerColors.blue
+                            : isBeat ? SequencerColors.black0 : SequencerColors.black
+                    )
+                    .opacity(
+                        isPlaying
+                            ? 0.3
+                            : 1.0
                     )
                     .cornerRadius(BORDER_RADIUS)
             }

@@ -15,12 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  SequencerView.swift
-//  Sequencer
-//
-//  Created by Pedro Tacla Yamada on 28/2/2022.
-//
 
 import SwiftUI
 
@@ -35,43 +29,7 @@ struct SequencerView: View {
             TopBarView()
                 .bindToNilParameter(store: store)
 
-            HStack {
-                VStack(alignment: .leading, spacing: 0) {
-                    Rectangle().fill(Color.white.opacity(0)).frame(height: PADDING)
-
-                    VStack(spacing: 0) {
-                        VisualisationView()
-                            .bindToNilParameter(store: store)
-
-                        TabsRowView(
-                            selectedTab: store.selectedTab,
-                            onSelectTab: { tab in
-                                store.onSelectTab(tab)
-                            }
-                        )
-                        .bindToNilParameter(store: store)
-
-                        SceneSliderView(sceneState: store.sceneState).padding(PADDING)
-                            .bindToNilParameter(store: store)
-
-                        TracksPanelContentView()
-                            .bindToNilParameter(store: store)
-
-                        SequenceView()
-                            .bindToNilParameter(store: store)
-
-                        TracksView(
-                            selectedTrack: store.selectedTrack,
-                            onClickTrack: { i in store.onClickTrack(i) }
-                        )
-                        .bindToNilParameter(store: store)
-                    }
-                }
-                if store.midiMappingActive {
-                    MIDIMappingPanelView(midi: store.midi)
-                        .bindToNilParameter(store: store)
-                }
-            }
+            SequencerContentView()
 
             StatusBarView()
                 .bindToNilParameter(store: store)

@@ -48,7 +48,7 @@ public class TrackState: ObservableObject {
         volumeParameter = .init(
             id: 0,
             globalId: .trackVolume(trackId: id),
-            label: "Volume \(id)",
+            label: "Vol. \(id)",
             initialValue: 1.0
         )
         sourceParameters = .init(trackId: id)

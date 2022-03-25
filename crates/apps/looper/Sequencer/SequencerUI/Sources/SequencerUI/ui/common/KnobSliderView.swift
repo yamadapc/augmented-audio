@@ -35,12 +35,14 @@ struct KnobSliderView: View {
         let handleWidth = 30.0
         GeometryReader { geometry in
             ZStack {
+                // Rail
                 Rectangle()
                     .fill(railColor)
                     .frame(maxHeight: style == .horizontal ? 5 : .infinity)
                     .frame(maxWidth: style == .horizontal ? .infinity : 5)
                     .position(x: geometry.size.width / 2.0, y: geometry.size.height / 2.0)
 
+                // Ticks
                 ForEach(0 ..< 11) { i in
                     let isLarge = i % 2 == 0
 
@@ -49,9 +51,9 @@ struct KnobSliderView: View {
                         .frame(
                             width: style == .horizontal
                                 ? 2
-                                : isLarge ? geometry.size.width * 0.7 : geometry.size.width * 0.3,
+                                : isLarge ? geometry.size.width * 0.7 : geometry.size.width * 0.5,
                             height: style == .horizontal
-                                ? isLarge ? geometry.size.height * 0.7 : geometry.size.height * 0.3
+                                ? isLarge ? geometry.size.height * 0.7 : geometry.size.height * 0.5
                                 : 2
                         )
                         .position(
@@ -64,6 +66,7 @@ struct KnobSliderView: View {
                         )
                 }.frame(maxWidth: .infinity)
 
+                // Handle
                 ZStack {
                     Rectangle()
                         .fill(handleColor)
@@ -103,7 +106,7 @@ struct KnobSliderView: View {
                 ? EdgeInsets(top: PADDING, leading: handleWidth / 2.0, bottom: PADDING, trailing: handleWidth / 2.0)
                 : EdgeInsets(top: PADDING, leading: 0, bottom: 0, trailing: 0)
         )
-        .frame(maxHeight: style == .horizontal ? 90 : .infinity)
+        .frame(maxHeight: style == .horizontal ? 80 : .infinity)
     }
 
     func onDrag(_ drag: DragGesture.Value, _ geometry: GeometryProxy) {

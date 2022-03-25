@@ -48,5 +48,6 @@ struct LFOPanelContentView: View {
             )
             .bindToParameter(store: store, parameter: lfoState.frequencyParameter)
         }
+        .padding(PADDING)
     }
 }

@@ -17,13 +17,15 @@
 // = /copyright ===================================================================
 import Combine
 
-public class BooleanParameter: ObservableObject {
-    public var id: ObjectId
+public class BooleanParameter: ObservableObject, ParameterLike {
+    public var id: ParameterId
+    public var globalId: ParameterId { id }
     var label: String
     @Published public var value: Bool = false
+    var style: KnobStyle { .normal }
 
     init(
-        id: ObjectId,
+        id: ParameterId,
         label: String,
         value: Bool
     ) {

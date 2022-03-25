@@ -50,7 +50,7 @@ struct TabsRowView: View {
         .slice,
         .envelope,
         // .fx,
-        .lfos,
+        // .lfos,
     ]
 
     var body: some View {
@@ -77,13 +77,14 @@ struct TabsRowView: View {
                                 SequencerColors.black
                             )
                             .cornerRadius(BORDER_RADIUS)
+                            .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 5)
                     }
                 )
                 .buttonStyle(.plain)
             }
         }
-        .padding(PADDING)
-        .background(SequencerColors.black0)
+        .padding(EdgeInsets(top: 0, leading: PADDING, bottom: 0, trailing: PADDING))
+        // .background(SequencerColors.black0)
         .frame(maxWidth: .infinity)
     }
 }

@@ -19,7 +19,7 @@ import SwiftUI
 
 struct SelectedParameterOverlayView: View {
     @ObservedObject var focusState: FocusState
-    var parameterId: ObjectId
+    var parameterId: ParameterId
     var showSelectionOverlay: Bool
 
     var body: some View {

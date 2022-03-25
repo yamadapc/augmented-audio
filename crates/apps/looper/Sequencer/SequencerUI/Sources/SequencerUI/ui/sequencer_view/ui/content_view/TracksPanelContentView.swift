@@ -19,6 +19,7 @@ import SwiftUI
 
 struct TracksPanelContentView: View {
     @EnvironmentObject var store: Store
+    @State var isShown: Bool = false
 
     var body: some View {
         HStack {
@@ -48,14 +49,9 @@ struct TracksPanelContentView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             tracksPanelContentView
-        }.frame(maxHeight: .infinity)
-            .foregroundColor(SequencerColors.white)
-            .background(SequencerColors.black)
-    }
-}
-
-struct TracksPanelContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        TracksPanelContentView().environmentObject(Store(engine: nil))
+        }
+        .frame(maxHeight: .infinity)
+        .foregroundColor(SequencerColors.white)
+        .background(SequencerColors.black)
     }
 }

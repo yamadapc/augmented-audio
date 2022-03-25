@@ -15,35 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  File.swift
-//
-//
-//  Created by Pedro Tacla Yamada on 25/3/2022.
-//
 
-import Foundation
+protocol ParameterLike {
+    var globalId: ParameterId { get }
+    var label: String { get }
 
-public enum ObjectId: Equatable, Hashable {
-    case
-        sourceParameter(trackId: Int, parameterId: SourceParameterId),
-
-        envelopeParameter(trackId: Int, parameterId: EnvelopeParameterId),
-        lfoParameter(trackId: Int, lfo: UInt, parameterId: LFOParameterId),
-        trackVolume(trackId: Int),
-
-        recordButton(trackId: Int?),
-        playButton(trackId: Int?),
-        clearButton(trackId: Int?),
-        trackButton(trackId: Int),
-        stepButton(trackId: Int, stepId: Int),
-        transportPlay,
-        transportStop,
-
-        quantizationMode(trackId: Int),
-        tempoControl(trackId: Int),
-
-        sceneSlider,
-        sceneButton(sceneId: Int),
-        metronomeVolume
+    var style: KnobStyle { get }
 }

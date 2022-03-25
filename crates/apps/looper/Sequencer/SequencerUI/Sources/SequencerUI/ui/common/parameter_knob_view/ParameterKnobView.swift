@@ -19,7 +19,7 @@ import SwiftUI
 
 protocol KnobParameterLike: ObservableObject {
     var label: String { get }
-    var globalId: ObjectId { get }
+    var globalId: ParameterId { get }
     var style: KnobStyle { get }
 
     func formatValue() -> String
@@ -30,7 +30,6 @@ protocol KnobParameterLike: ObservableObject {
 }
 
 extension IntParameter: KnobParameterLike {
-    var globalId: ObjectId { id }
     var style: KnobStyle { .normal }
 
     func formatValue() -> String {

@@ -17,14 +17,15 @@
 // = /copyright ===================================================================
 import Combine
 
-public class IntParameter<ParameterId>: ObservableObject, Identifiable {
-    public var id: ObjectId
-    public var localId: ParameterId
+public class IntParameter<LocalId>: ObservableObject, Identifiable, ParameterLike {
+    public var id: ParameterId
+    public var globalId: ParameterId { id }
+    public var localId: LocalId
     @Published var label: String
     @Published public var value: Int
     @Published var maximum: Int
 
-    init(id: ObjectId, localId: ParameterId, label: String, value: Int, maximum _: Int) {
+    init(id: ParameterId, localId: LocalId, label: String, value: Int, maximum _: Int) {
         self.id = id
         self.localId = localId
         self.label = label

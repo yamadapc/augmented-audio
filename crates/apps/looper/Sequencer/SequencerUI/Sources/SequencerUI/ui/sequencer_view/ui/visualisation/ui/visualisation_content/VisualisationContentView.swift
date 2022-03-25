@@ -33,8 +33,8 @@ struct VisualisationContentView: View {
             EnvelopeVisualisationView(model: currentTrack.envelope)
         case .lfos:
             HStack {
-                LFOVisualisationView(model: currentTrack.lfo1)
-                LFOVisualisationView(model: currentTrack.lfo2)
+                LFOVisualisationView(lfoState: currentTrack.lfo1)
+                LFOVisualisationView(lfoState: currentTrack.lfo2)
             }
         default:
             Text("No tab content").foregroundColor(SequencerColors.white)

@@ -23,7 +23,7 @@ protocol LFOVisualisationViewModel: ObservableObject {
 }
 
 struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
-    @ObservedObject var model: T
+    @ObservedObject var lfoState: T
 
     @State var tick: Int = 0
     @State var lastTranslation: CGSize = .zero
@@ -41,11 +41,11 @@ struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
                         .onChanged { drag in
                             let currentTranslation = drag.translation
 
-                            model.amount -= (currentTranslation.height - lastTranslation.height) / (geometry.size.height / 2)
-                            model.amount = max(min(model.amount, 1), 0)
+                            lfoState.amount -= (currentTranslation.height - lastTranslation.height) / (geometry.size.height / 2)
+                            lfoState.amount = max(min(lfoState.amount, 1), 0)
 
-                            model.frequency -= (currentTranslation.width - lastTranslation.width) / (geometry.size.width / 2)
-                            model.frequency = min(max(model.frequency, 0.01), 20)
+                            lfoState.frequency -= (currentTranslation.width - lastTranslation.width) / (geometry.size.width / 2)
+                            lfoState.frequency = min(max(lfoState.frequency, 0.01), 20)
 
                             self.lastTranslation = currentTranslation
                         }
@@ -55,8 +55,8 @@ struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
                 )
 
                 VStack(alignment: .trailing) {
-                    Text("Amount: \(String(format: "%.0f", model.amount * 100))%")
-                    Text("Frequency: \(String(format: "%.2f", model.frequency))Hz")
+                    Text("Amount: \(String(format: "%.0f", lfoState.amount * 100))%")
+                    Text("Frequency: \(String(format: "%.2f", lfoState.frequency))Hz")
                 }
                 .padding(PADDING)
                 .border(SequencerColors.blue.opacity(0.5), width: 1)
@@ -73,11 +73,11 @@ struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
         let maxH = height / 2
         let width = Int(geometry.size.width)
         let baseWidth = (Double(width) / 32) // 1Hz repr
-        let maxWidth = baseWidth / (model.frequency / 2)
+        let maxWidth = baseWidth / (lfoState.frequency / 2)
 
         for x in 0 ... width {
             let value = sin(Double(x + tick) / maxWidth)
-            let h = value * maxH * model.amount + maxH
+            let h = value * maxH * lfoState.amount + maxH
 
             if x == 0 {
                 path.move(to: CGPoint(x: Double(x), y: h))

@@ -33,8 +33,8 @@ enum DragMode {
  * This tracks what element is hovered, selected or dragged to support operations such as parameter locking and copying.
  */
 class FocusState: ObservableObject {
-    @Published var mouseOverObject: ObjectId?
-    @Published var selectedObject: ObjectId?
+    @Published var mouseOverObject: ParameterId?
+    @Published var selectedObject: ParameterId?
     @Published var draggingSource: ParameterLockSource?
     @Published var dragMode: DragMode? = nil
 

@@ -17,9 +17,9 @@
 // = /copyright ===================================================================
 import Combine
 
-public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
-    public var id: ParameterId
-    var globalId: ObjectId
+public class FloatParameter<LocalId>: ObservableObject, Identifiable, ParameterLike {
+    public var id: LocalId
+    public var globalId: ParameterId
 
     @Published var label: String
     @Published public var value: Float = 0.0
@@ -30,14 +30,14 @@ public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
     var range: (Float, Float) = (0.0, 1.0)
     var style: KnobStyle = .normal
 
-    init(id: ParameterId, globalId: ObjectId, label: String) {
+    init(id: LocalId, globalId: ParameterId, label: String) {
         self.id = id
         self.globalId = globalId
         self.label = label
         defaultValue = 0.0
     }
 
-    convenience init(id: ParameterId, globalId: ObjectId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
+    convenience init(id: LocalId, globalId: ParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
         self.init(id: id, globalId: globalId, label: label)
         self.style = style
         self.range = range
@@ -45,13 +45,13 @@ public class FloatParameter<ParameterId>: ObservableObject, Identifiable {
         defaultValue = initialValue
     }
 
-    convenience init(id: ParameterId, globalId: ObjectId, label: String, style: KnobStyle, range: (Float, Float)) {
+    convenience init(id: LocalId, globalId: ParameterId, label: String, style: KnobStyle, range: (Float, Float)) {
         self.init(id: id, globalId: globalId, label: label)
         self.style = style
         self.range = range
     }
 
-    convenience init(id: ParameterId, globalId: ObjectId, label: String, initialValue: Float) {
+    convenience init(id: LocalId, globalId: ParameterId, label: String, initialValue: Float) {
         self.init(id: id, globalId: globalId, label: label)
         value = initialValue
         defaultValue = initialValue

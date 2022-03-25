@@ -22,12 +22,12 @@
 		<key>SequencerEngine.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>2</integer>
+			<integer>3</integer>
 		</dict>
 		<key>SequencerEngine_ios.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>3</integer>
+			<integer>4</integer>
 		</dict>
 		<key>SequencerKit.xcscheme_^#shared#^_</key>
 		<dict>
@@ -40,22 +40,22 @@
 		<key>CB1666A327CCAD04000F9E21</key>
 		<dict>
 			<key>primary</key>
-			<true />
+			<true/>
 		</dict>
 		<key>CB1666B327CCAD07000F9E21</key>
 		<dict>
 			<key>primary</key>
-			<true />
+			<true/>
 		</dict>
 		<key>CB1666BD27CCAD07000F9E21</key>
 		<dict>
 			<key>primary</key>
-			<true />
+			<true/>
 		</dict>
 		<key>CB801A1427D8AE6600D7788E</key>
 		<dict>
 			<key>primary</key>
-			<true />
+			<true/>
 		</dict>
 	</dict>
 </dict>
