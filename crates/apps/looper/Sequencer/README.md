@@ -5,7 +5,10 @@
 <h1 align="center">Continuous Looper</h1>
 <p align="center">
     <strong>live-looper and performance sampler</strong>
+    <strong> [VIDEO DEMO](https://youtu.be/PcXRXFE9_So)</strong>
 </p>
+
+(Still work-in-progress, but only LFOs aren't wired-up yet)
 
 * 8 track looper
 * Step sequence recorded loops
