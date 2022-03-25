@@ -8,34 +8,6 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 readme = "README.md"
 
-[features]
-default = []
-gui = [
-    "iced",
-    "iced_audio",
-    "iced_baseview",
-    "iced-editor",
-    "audio-processor-iced-design-system",
-    "baseview",
-    "glow",
-    "iced/tokio",
-    "iced_baseview/tokio",
-]
-glow = [
-    "iced/glow",
-    "iced_baseview/glow",
-    "iced/glow_canvas",
-    "iced_baseview/glow_canvas",
-    "audio-processor-iced-design-system/glow",
-]
-wgpu = [
-    "iced/wgpu",
-    "iced_baseview/wgpu",
-    "iced/canvas",
-    "iced_baseview/canvas",
-    "audio-processor-iced-design-system/wgpu",
-]
-
 [dependencies]
 # Logging & options
 clap = "^2.33.3"
@@ -55,18 +27,6 @@ basedrop = "^0.1.2"
 cpal = { version = "^0.13.3" }
 ringbuf = "^0.2.5"
 vst = { version = "0.2.1", path = "../../../vendor/vst" }
-
-# GUI dependencies
-iced = { version = "^0.3.0", path = "../../../vendor/iced", default-features = false, optional = true }
-iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false, optional = true }
-iced_audio = { path = "../../../vendor/iced_audio", default-features = false, optional = true }
-baseview = { path = "../../../vendor/baseview", optional = true }
-iced-editor = { path = "../../gui/iced-editor", optional = true }
-
-[dependencies.audio-processor-iced-design-system]
-path = "../../gui/audio-processor-iced-design-system"
-default-features = false
-optional = true
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-processor-standalone-midi" }

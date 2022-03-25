@@ -100,9 +100,6 @@ pub mod offline;
 #[cfg(not(target_os = "ios"))]
 pub mod standalone_vst;
 
-#[cfg(feature = "gui")]
-pub mod gui;
-
 /// A default main function for an [`AudioProcessor`] and [`MidiEventHandler`].
 ///
 /// Run an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI

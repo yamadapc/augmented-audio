@@ -11,7 +11,7 @@ fn main() {
         Ok(value) if value == "true" => {
             let handle: AudioProcessorHandleRef = Arc::new(processor.generic_handle());
             let _audio_handles = audio_processor_standalone::audio_processor_start(processor);
-            audio_processor_standalone::gui::open(handle);
+            audio_processor_standalone_gui::open(handle);
         }
         _ => {
             audio_processor_standalone::audio_processor_main(processor);

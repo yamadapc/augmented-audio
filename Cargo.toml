@@ -22,6 +22,7 @@ members = [
     "crates/augmented/augmented",
     # Augmented components
     "crates/augmented/application/audio-processor-standalone",
+    "crates/augmented/application/audio-processor-standalone-gui",
     "crates/augmented/application/audio-processor-standalone-midi",
     "crates/augmented/application/audio-processor-standalone-osc",
     "crates/augmented/audio/adsr-envelope",
