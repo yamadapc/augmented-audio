@@ -34,7 +34,7 @@ augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.1.0
 augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.1.0-alpha.3" }
 audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "1.0.0-alpha.8", path = "../../../augmented/application/audio-processor-standalone" }
-audio-processor-standalone-midi = { path = "../../../augmented/application/audio-processor-standalone-midi" }
+audio-processor-standalone-midi = { path = "../../../augmented/application/audio-processor-standalone-midi" , version = "1.0.0-alpha.7" }
 audio-processor-standalone-osc = { path = "../../../augmented/application/audio-processor-standalone-osc" }
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" }
 audio-processor-traits = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-traits" }
