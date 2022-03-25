@@ -50,7 +50,7 @@ impl Default for EnvelopeFollowerProcessor {
 
 impl EnvelopeFollowerProcessor {
     pub fn new(attack_duration: Duration, release_duration: Duration) -> Self {
-        let sample_rate = AudioProcessorSettings::default().sample_rate;
+        let sample_rate = AudioProcessorSettings::default().sample_rate();
         EnvelopeFollowerProcessor {
             handle: make_shared(EnvelopeFollowerHandle {
                 envelope_state: 0.0.into(),
@@ -80,7 +80,7 @@ impl SimpleAudioProcessor for EnvelopeFollowerProcessor {
     type SampleType = f32;
 
     fn s_prepare(&mut self, settings: AudioProcessorSettings) {
-        let sample_rate = settings.sample_rate;
+        let sample_rate = settings.sample_rate();
         self.handle.sample_rate.set(sample_rate);
         self.handle.attack_multiplier.set(calculate_multiplier(
             sample_rate,

@@ -21,8 +21,8 @@ pub fn build_markers(
         &mut InterleavedAudioBuffer::new(1, audio_file_buffer),
     );
     let mut peak_detector = crate::peak_detector::PeakDetector::default();
-    let attack_mult = crate::peak_detector::calculate_multiplier(settings.sample_rate, 0.1);
-    let release_mult = crate::peak_detector::calculate_multiplier(settings.sample_rate, 15.0);
+    let attack_mult = crate::peak_detector::calculate_multiplier(settings.sample_rate(), 0.1);
+    let release_mult = crate::peak_detector::calculate_multiplier(settings.sample_rate(), 15.0);
     let transients: Vec<f32> = transients
         .iter()
         .map(|f| {

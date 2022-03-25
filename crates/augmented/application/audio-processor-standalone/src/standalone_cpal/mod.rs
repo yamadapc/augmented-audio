@@ -16,6 +16,7 @@ use crate::standalone_processor::{
 };
 
 mod midi;
+mod stream_autoconfiguration;
 
 /// Start an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
 /// messages received on all inputs to it.
@@ -124,13 +125,13 @@ pub fn standalone_start(
 
 #[derive(thiserror::Error, Debug)]
 enum AudioThreadError {
-    #[error("Failed to configure input stream")]
+    #[error("BuildInputStreamError: Failed to configure input stream: BuildStreamError::{0:?}")]
     BuildInputStreamError(cpal::BuildStreamError),
-    #[error("Failed to configure output stream")]
+    #[error("BuildOutputStreamError: Failed to configure output stream: BuildStreamError::{0:?}")]
     BuildOutputStreamError(cpal::BuildStreamError),
-    #[error("Failed to start input stream")]
+    #[error("InputStreamError: Failed to start input stream: PlayStreamError::{0:?}")]
     InputStreamError(cpal::PlayStreamError),
-    #[error("Failed to start output stream")]
+    #[error("OutputStreamError: Failed to start output stream: PlayStreamError::{0:?}")]
     OutputStreamError(cpal::PlayStreamError),
 }
 
@@ -268,7 +269,7 @@ fn configure_input_device(
     let supported_configs = input_device.supported_input_configs().unwrap();
     let mut supports_stereo = false;
     for config in supported_configs {
-        log::debug!("  INPUT Supported config: {:?}", config);
+        log::info!("  INPUT Supported config: {:?}", config);
         if config.channels() > 1 {
             supports_stereo = true;
         }
@@ -301,7 +302,7 @@ fn configure_output_device(
 ) -> (cpal::Device, StreamConfig) {
     let output_device = host.default_output_device().unwrap();
     for config in output_device.supported_input_configs().unwrap() {
-        log::debug!("  OUTPUT Supported config: {:?}", config);
+        log::info!("  OUTPUT Supported config: {:?}", config);
     }
     let output_config = output_device.default_output_config().unwrap();
     let mut output_config: StreamConfig = output_config.into();
