@@ -9,7 +9,7 @@ wgpu = ["iced/tokio", "iced/wgpu", "iced/canvas"]
 glow = ["iced/tokio", "iced/glow", "iced/glow_canvas"]
 
 [package.metadata.augmented]
-private = false
+private = true
 
 [dependencies]
 log = "^0.4.14"
