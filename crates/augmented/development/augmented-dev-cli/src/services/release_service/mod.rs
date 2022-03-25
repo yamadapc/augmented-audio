@@ -124,8 +124,7 @@ fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
     log::info!("cargo check");
     cmd_lib::spawn!(cargo check).unwrap().wait().unwrap();
     log::info!("cargo clippy");
-    let package = &manifest.package.name;
-    cmd_lib::spawn!(cargo clippy --workspace --package ${package})
+    cmd_lib::spawn!(cargo clippy --no-deps)
         .unwrap()
         .wait()
         .unwrap();
