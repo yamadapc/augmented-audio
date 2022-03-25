@@ -11,7 +11,7 @@ augmented_oscillator = { path = "../../augmented/audio/oscillator" , version = "
 audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.4" }
 audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" , version = "1.0.0-alpha.8" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
-augmented-playhead = { path = "../../augmented/data/augmented-playhead" , version = "0.1.0-alpha.3" }
+augmented-playhead = { path = "../../augmented/data/augmented-playhead" , version = "0.1.0-alpha.4" }
 augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.3" }
 anyhow = "1.0.52"
 log = "^0.4.14"
