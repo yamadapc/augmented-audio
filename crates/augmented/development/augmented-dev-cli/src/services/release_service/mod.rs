@@ -124,7 +124,11 @@ fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
     log::info!("cargo check");
     cmd_lib::spawn!(cargo check).unwrap().wait().unwrap();
     log::info!("cargo clippy");
-    cmd_lib::spawn!(cargo clippy).unwrap().wait().unwrap();
+    let package = &manifest.package.name;
+    cmd_lib::spawn!(cargo clippy --workspace --package ${package})
+        .unwrap()
+        .wait()
+        .unwrap();
     log::info!("cargo build");
     cmd_lib::spawn!(cargo build).unwrap().wait().unwrap();
     log::info!("cargo publish --dry-run --allow-dirty");
