@@ -25,4 +25,4 @@ objc = "^0.2.7"
 cocoa = "^0.24.0"
 
 [package.metadata]
-augmented.private = false
+augmented.private = true
