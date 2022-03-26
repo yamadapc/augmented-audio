@@ -135,7 +135,13 @@ pub fn build_default_parameters() -> (
         .map(|parameter| ParameterId::ParameterIdEnvelope(parameter))
         .collect();
     let lfo_parameters: Vec<ParameterId> = LFOParameter::iter()
-        .map(|parameter| ParameterId::ParameterIdLFO(0, parameter))
+        .map(|parameter| {
+            [
+                ParameterId::ParameterIdLFO(0, parameter.clone()),
+                ParameterId::ParameterIdLFO(1, parameter),
+            ]
+        })
+        .flatten()
         .collect();
     let quantization_parameters: Vec<ParameterId> = QuantizationParameter::iter()
         .map(ParameterId::ParameterIdQuantization)

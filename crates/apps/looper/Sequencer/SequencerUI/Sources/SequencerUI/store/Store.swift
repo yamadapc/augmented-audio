@@ -123,6 +123,14 @@ extension Store {
         case .envelopeParameter(trackId: let trackId, parameterId: _):
             trackStates[trackId - 1].envelope.parameters
                 .first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+        case let .lfoParameter(trackId: trackId, lfo: lfo, _):
+            print("lfo = \(lfo)")
+            if lfo == 0 {
+                trackStates[trackId - 1].lfo1.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+            }
+            if lfo == 1 {
+                trackStates[trackId - 1].lfo2.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+            }
         default:
             return
         }

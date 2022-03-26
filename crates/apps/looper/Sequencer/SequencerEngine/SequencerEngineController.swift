@@ -222,6 +222,9 @@ public class EngineController {
         }
 
         store.sceneState.sceneSlider.$value.sink(receiveValue: { value in
+            self.logger.info("Setting scene", metadata: [
+                "value": .stringConvertible(value)
+            ])
             looper_engine__set_scene_slider_value(self.engine.engine, (value + 1.0) / 2.0)
         }).store(in: &cancellables)
 

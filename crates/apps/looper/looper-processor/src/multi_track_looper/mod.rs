@@ -433,7 +433,7 @@ impl MultiTrackLooperHandle {
         let all_scene_parameters = &self.scene_parameters;
         all_scene_parameters
             .insert_with(scene_id, |_, _, prev_value| {
-                if let Some((_, map)) = prev_value {
+                if prev_value.is_some() {
                     Preview::Keep
                 } else {
                     Preview::New(Default::default())
@@ -761,10 +761,21 @@ impl MultiTrackLooper {
 
     fn process_lfos(&mut self) {
         for ((lfo1, lfo2), voice) in self.lfos.iter_mut().zip(self.handle.voices.iter()) {
+            if let ParameterValue::Float(lfo_freq_1) = self.parameters_scratch[voice.id][self
+                .parameter_scratch_indexes
+                [&ParameterId::ParameterIdLFO(0, LFOParameter::Frequency)]]
+            {
+                lfo1.set_frequency(lfo_freq_1);
+            }
+            if let ParameterValue::Float(lfo_freq_2) = self.parameters_scratch[voice.id][self
+                .parameter_scratch_indexes
+                [&ParameterId::ParameterIdLFO(1, LFOParameter::Frequency)]]
+            {
+                lfo2.set_frequency(lfo_freq_2);
+            }
+
             let lfo1_handle = voice.lfo1();
-            lfo1.set_frequency(lfo1_handle.frequency());
-            let lfo2_handle = voice.lfo1();
-            lfo2.set_frequency(lfo2_handle.frequency());
+            let lfo2_handle = voice.lfo2();
 
             let run_mapping = |parameter: &ParameterId,
                                value: &ParameterValue,

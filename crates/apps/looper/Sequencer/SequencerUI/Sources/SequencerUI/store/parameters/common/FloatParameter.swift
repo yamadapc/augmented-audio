@@ -30,6 +30,10 @@ public class FloatParameter<LocalId>: ObservableObject, Identifiable, ParameterL
     var range: (Float, Float) = (0.0, 1.0)
     var style: KnobStyle = .normal
 
+    func formatValue() -> String {
+        return String(format: "%.2f", parameterLockProgress?.newValue ?? value)
+    }
+
     init(id: LocalId, globalId: ParameterId, label: String) {
         self.id = id
         self.globalId = globalId

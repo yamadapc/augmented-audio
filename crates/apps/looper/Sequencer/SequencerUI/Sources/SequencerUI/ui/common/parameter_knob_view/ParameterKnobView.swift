@@ -55,10 +55,6 @@ extension IntParameter: KnobParameterLike {
 }
 
 extension FloatParameter: KnobParameterLike {
-    func formatValue() -> String {
-        return String(format: "%.2f", parameterLockProgress?.newValue ?? value)
-    }
-
     func endParameterLock(_ store: Store) {
         store.endParameterLock(self)
     }

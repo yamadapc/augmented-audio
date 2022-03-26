@@ -17,11 +17,22 @@
 // = /copyright ===================================================================
 import Combine
 
-public enum LFOParameterId {
+public enum LFOParameterId: Equatable {
     case frequency, amount
 }
 
-public typealias LFOParameter = FloatParameter<LFOParameterId>
+public class LFOAmountParameter: FloatParameter<LFOParameterId> {
+    override func formatValue() -> String {
+        return "\(String(format: "%.0f", value * 100))%"
+    }
+}
+
+public class LFOFrequencyParameter: FloatParameter<LFOParameterId> {
+    override func formatValue() -> String {
+        let frequency = value * (20 - 0.01) + 0.01
+        return "\(String(format: "%.2f", frequency))Hz"
+    }
+}
 
 public class LFOState: ObservableObject, LFOVisualisationViewModel {
     var trackId: Int
@@ -51,10 +62,10 @@ public class LFOState: ObservableObject, LFOVisualisationViewModel {
         }
     }
 
-    @Published var frequencyParameter: LFOParameter
-    @Published var amountParameter: LFOParameter
+    @Published var frequencyParameter: LFOFrequencyParameter
+    @Published var amountParameter: LFOAmountParameter
 
-    public var parameters: [LFOParameter] { [
+    public var parameters: [FloatParameter<LFOParameterId>] { [
         frequencyParameter,
         amountParameter,
     ] }
