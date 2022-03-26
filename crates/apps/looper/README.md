@@ -32,7 +32,7 @@ the great looper pedals.
 If there's a tempo track playing and a musician presses to start a recording at beat 3.7, the looper should wait until
 the 1st beat of the next bar. All loopers do this as expected. This is correcting for when the musician is **early**.
 
-However, if the musician instead is **early**, a lot of loopers have no threshold for correction and always wait until
+However, if the musician instead is **late**, a lot of loopers have no threshold for correction and always wait until
 the next bar! This means if I press 100ms after the beat, the looper will wait until the next bar.
 
 Of course this can be overcome with practice, however it is really inconvenient if this happens during a performance.
