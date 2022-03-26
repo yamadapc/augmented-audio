@@ -22,17 +22,14 @@ public class TrackState: ObservableObject {
     @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
     @Published var buffer: TrackBuffer? = nil
     @Published public var sliceBuffer: SliceBuffer? = nil // public for ref checks
-    @Published public var sourceParameters: SourceParametersState
-    @Published public var envelope: EnvelopeState
-    @Published public var quantizationParameters: QuantizationParameters
+    public let sourceParameters: SourceParametersState
+    public let envelope: EnvelopeState
+    public let quantizationParameters: QuantizationParameters
+    @Published public var volumeParameter: FloatParameter<Int>
 
-    @Published var volumeParameter: FloatParameter<Int>
-
-    @Published var lfo1: LFOState
-    @Published var lfo2: LFOState
-
+    let lfo1: LFOState
+    let lfo2: LFOState
     @Published public var looperState: LooperState = .empty
-
     @Published public var numSamples: UInt = 0
 
     let position: LoopPosition = .init()

@@ -107,6 +107,10 @@ public class EngineController {
 
     func setupStoreSubscriptions() {
         store.trackStates.enumerated().forEach { i, trackState in
+            trackState.volumeParameter.$value.sink(receiveValue: { volume in
+              looper_engine__set_volume(self.engine.engine, UInt(i), volume)
+            }).store(in: &cancellables)
+
             trackState.sourceParameters.parameters.forEach { parameter in
                 parameter.$value.sink(receiveValue: { value in
                     let rustParameterId = SOURCE_PARAMETER_IDS[parameter.id]!

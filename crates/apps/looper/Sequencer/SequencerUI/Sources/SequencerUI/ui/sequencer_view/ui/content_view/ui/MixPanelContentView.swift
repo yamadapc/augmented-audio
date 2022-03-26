@@ -40,7 +40,10 @@ struct MixKnobView: View {
                 railColor: SequencerColors.black3,
                 handleColor: SequencerColors.black0
             )
-            .bindToParameterId(store: store, parameterId: trackState.volumeParameter.globalId)
+            .bindToParameterId(
+                store: store,
+                parameterId: trackState.volumeParameter.globalId
+            )
             // ParameterKnobView(parameter: trackState.volumeParameter)
         }
     }
