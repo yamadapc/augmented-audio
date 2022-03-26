@@ -140,30 +140,40 @@ impl LooperHandle {
         Self::new(options, time_info_provider)
     }
 
+    /// Pass-through volume
     pub fn dry_volume(&self) -> f32 {
         self.dry_volume.get()
     }
 
+    /// Volume of the looper output
     pub fn wet_volume(&self) -> f32 {
         self.wet_volume.get()
     }
 
+    /// Playback speed, may be a negative number
     pub fn speed(&self) -> f32 {
         self.speed.get()
     }
 
+    /// Set pass-through volume
     pub fn set_dry_volume(&self, value: f32) {
         self.dry_volume.set(value);
     }
 
+    /// Set looper volume
     pub fn set_wet_volume(&self, value: f32) {
         self.wet_volume.set(value);
     }
 
+    /// Set a start offset as a percentage of the looper length (0-1)
+    ///
+    /// Whenever the looper repeats or is triggered it'll start from the sample matching this
+    /// offset.
     pub fn set_start_offset(&self, value: f32) {
         self.start_offset.set(value);
     }
 
+    /// Set an end offset as a percentage of the looper length (0-1)
     pub fn set_end_offset(&self, value: f32) {
         self.end_offset.set(value);
     }
@@ -279,6 +289,7 @@ impl LooperHandle {
         // TODO: Looper should only affect time_info_provider if it's the master
         self.time_info_provider.play();
         self.state.set(LooperState::Playing);
+        self.cursor.set(self.get_start_samples());
     }
 
     pub fn pause(&self) {
@@ -302,7 +313,7 @@ impl LooperHandle {
             }
         }
         self.state.set(LooperState::Paused);
-        self.cursor.set(0.0);
+        self.cursor.set(self.get_start_samples());
         self.length.set(new_buffer.num_samples());
         self.looper_clip.set(make_shared(new_buffer.into()));
     }
@@ -471,7 +482,22 @@ impl LooperHandle {
             _ => 0.0,
         };
 
-        self.dry_volume.get() * sample + self.wet_volume.get() * out
+        let fade_in_volume = self.get_fade_in_volume(self.cursor.get());
+        let fade_out_volume = self.get_fade_out_volume(self.cursor.get());
+        self.dry_volume.get() * sample
+            + self.wet_volume.get() * out * fade_in_volume * fade_out_volume
+    }
+
+    fn get_fade_out_volume(&self, cursor: f32) -> f32 {
+        let fade_perc = self.fade_end.get();
+        let length = self.length.get() as f32;
+        let fade_samples = fade_perc * length;
+        let distance_end = length - cursor - 1.0;
+        (distance_end / fade_samples).min(1.0).max(0.0)
+    }
+
+    fn get_fade_in_volume(&self, cursor: f32) -> f32 {
+        calculate_fade_volume(self.fade_start.get(), self.length.get(), cursor)
     }
 
     #[inline]
@@ -535,11 +561,63 @@ impl LooperHandle {
     }
 }
 
+/// Given a fade setting as a percentage of the loop length, return the current volume
+fn calculate_fade_volume(fade_perc: f32, length: usize, cursor: f32) -> f32 {
+    let fade_samples = fade_perc * length as f32;
+    // The volume is the current cursor position within the fade
+    // This is linear fade from 0 to 1.0 for the duration of the fade setting.
+    (cursor / fade_samples).min(1.0).max(0.0)
+}
+
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
 
     use super::*;
+
+    #[test]
+    fn test_get_fade_volumes_when_buffer_is_empty() {
+        let handle = LooperHandle::default();
+        assert_f_eq!(handle.get_fade_in_volume(0.0), 1.0);
+        assert_f_eq!(handle.get_fade_out_volume(0.0), 0.0);
+        assert_f_eq!(handle.get_fade_in_volume(2.0), 1.0);
+        assert_f_eq!(handle.get_fade_out_volume(2.0), 0.0);
+    }
+
+    #[test]
+    fn test_get_fade_volumes_when_theres_no_fade_set_return_1() {
+        let handle = LooperHandle::default();
+        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer.interleaved());
+        assert_f_eq!(handle.get_fade_in_volume(0.0), 1.0);
+        assert_f_eq!(handle.get_fade_out_volume(0.0), 1.0);
+        assert_f_eq!(handle.get_fade_in_volume(2.0), 1.0);
+        assert_f_eq!(handle.get_fade_out_volume(2.0), 1.0);
+    }
+
+    #[test]
+    fn test_get_fade_in_volume_when_theres_fade_in() {
+        let handle = LooperHandle::default();
+        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer.interleaved());
+        handle.set_fade_start(0.5);
+        assert_f_eq!(handle.get_fade_in_volume(0.0), 0.0);
+        assert_f_eq!(handle.get_fade_in_volume(1.0), 0.5);
+        assert_f_eq!(handle.get_fade_in_volume(2.0), 1.0);
+        assert_f_eq!(handle.get_fade_in_volume(3.0), 1.0);
+    }
+
+    #[test]
+    fn test_get_fade_out_volume_when_theres_fade_out() {
+        let handle = LooperHandle::default();
+        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer.interleaved());
+        handle.set_fade_end(0.5);
+        assert_f_eq!(handle.get_fade_out_volume(0.0), 1.0);
+        assert_f_eq!(handle.get_fade_out_volume(1.0), 1.0);
+        assert_f_eq!(handle.get_fade_out_volume(2.0), 0.5);
+        assert_f_eq!(handle.get_fade_out_volume(3.0), 0.0);
+    }
 
     mod get_offset {
         use super::*;
