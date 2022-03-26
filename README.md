@@ -19,6 +19,11 @@ Consider anything in this repository a draft.
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
+## License
+Most of this repository is published under the MIT LICENSE.
+
+Some directories which contain full applications are licensed under the AGPLv3 license. Check the `LICENSE` and `README.md` files.
+
 ## Binary downloads
 * [See releases to download binaries](https://github.com/yamadapc/augmented-audio/releases)
 * [Simple Metronome on App Store](https://apps.apple.com/au/app/simple-metronome/id1604183938?mt=12)
