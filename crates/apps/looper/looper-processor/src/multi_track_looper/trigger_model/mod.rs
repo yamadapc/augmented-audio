@@ -5,7 +5,6 @@ use std::ops::Deref;
 use std::sync::atomic::AtomicUsize;
 
 use basedrop::{Shared, SharedCell};
-use im::Vector;
 
 use crate::multi_track_looper::parameters::ParameterId;
 use audio_garbage_collector::{make_shared, make_shared_cell};
@@ -14,7 +13,7 @@ use step_tracker::StepTracker;
 
 pub fn find_running_beat_trigger<'a>(
     track_trigger_model: &TrackTriggerModel,
-    triggers: &'a Shared<Vector<Trigger>>,
+    triggers: &'a Shared<Vec<Trigger>>,
     position_beats: f64,
 ) -> impl Iterator<Item = Trigger> + 'a {
     let position_beats = position_beats
@@ -141,7 +140,7 @@ impl Trigger {
 pub struct TrackTriggerModel {
     pattern_length: usize,
     pattern_step_beats: f64,
-    triggers: SharedCell<Vector<Trigger>>,
+    triggers: SharedCell<Vec<Trigger>>,
 }
 
 impl Default for TrackTriggerModel {
@@ -149,7 +148,7 @@ impl Default for TrackTriggerModel {
         Self {
             pattern_length: 16,
             pattern_step_beats: 0.25,
-            triggers: make_shared_cell(Vector::default()),
+            triggers: make_shared_cell(Vec::default()),
         }
     }
 }
@@ -169,7 +168,7 @@ impl TrackTriggerModel {
 
     pub fn add_lock(&self, position_beats: usize, parameter_id: ParameterId, value: f32) {
         let triggers = self.triggers.get();
-        let mut triggers: Vector<Trigger> = (*triggers).clone();
+        let mut triggers: Vec<Trigger> = (*triggers).clone();
         if let Some(trigger) = triggers
             .iter_mut()
             .find(|trigger| trigger.position.step.get() == position_beats)
@@ -181,7 +180,7 @@ impl TrackTriggerModel {
 
     pub fn toggle_trigger(&self, position_beats: usize) {
         let triggers = self.triggers.get();
-        let mut triggers: Vector<Trigger> = (*triggers).clone();
+        let mut triggers: Vec<Trigger> = (*triggers).clone();
 
         let indexes: Vec<usize> = triggers
             .iter()
@@ -206,18 +205,18 @@ impl TrackTriggerModel {
 
     pub fn add_trigger(&self, trigger: Trigger) {
         let triggers = self.triggers.get();
-        let mut triggers: Vector<Trigger> = (*triggers).clone();
-        triggers.push_back(trigger);
+        let mut triggers: Vec<Trigger> = (*triggers).clone();
+        triggers.push(trigger);
         log::info!("Track triggers={:?}", triggers);
         self.triggers.set(make_shared(triggers));
     }
 
     pub fn add_triggers(&self, triggers: &[Trigger]) {
-        let triggers: Vector<Trigger> = Vector::from(triggers);
+        let triggers: Vec<Trigger> = Vec::from(triggers);
         self.triggers.set(make_shared(triggers));
     }
 
-    pub fn triggers(&self) -> Shared<Vector<Trigger>> {
+    pub fn triggers(&self) -> Shared<Vec<Trigger>> {
         self.triggers.get()
     }
 }
