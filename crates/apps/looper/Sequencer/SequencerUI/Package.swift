@@ -40,6 +40,10 @@ let package = Package(
         .package(url: "https://github.com/nalexn/ViewInspector", from: "0.9.1"),
         .package(url: "https://github.com/nicklockwood/LRUCache.git", .upToNextMinor(from: "1.0.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
+        .package(
+            url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
+            from: "1.9.0"
+        ),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -59,6 +63,7 @@ let package = Package(
             dependencies: [
                 "SequencerUI",
                 "ViewInspector",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
             ]
         ),
     ]

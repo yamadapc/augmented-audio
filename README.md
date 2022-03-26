@@ -19,6 +19,11 @@ Consider anything in this repository a draft.
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with Audio software GUI in Rust
 
+## License
+Most of this repository is published under the MIT LICENSE.
+
+Some directories which contain full applications are licensed under the AGPLv3 license. Check the `LICENSE` and `README.md` files.
+
 ## Binary downloads
 * [See releases to download binaries](https://github.com/yamadapc/augmented-audio/releases)
 * [Simple Metronome on App Store](https://apps.apple.com/au/app/simple-metronome/id1604183938?mt=12)
@@ -34,9 +39,26 @@ Consider anything in this repository a draft.
 * [Applications in this repository](crates/apps#readme)
   - [Test plugin host](crates/apps/plugin-host#readme)
   - [Metronome](crates/apps/metronome#readme)
-  - [Looper](crates/apps/looper#readme)
+  - [Continuous Looper (native macOS)](crates/apps/looper/Sequencer#readme)
+  - [Looper VST (iced)](crates/apps/looper#readme)
+
+- - -
+
+- [Simple standalone audio-app](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/application/audio-processor-standalone)
+- Effects and analysis
+  * [RMS, FFT, peak-detection, transient detection](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-analysis)
+  * [Filters](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/dsp/dsp-filters) 
+  * [Time-based effects (delay/reverb)](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-time)
+  * [Compressor](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-dynamics)
+  * [Pitch-shifter](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-pitch-shifter)
+  * [Bit-crusher](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-bitcrusher)
+  * [Utility (pan, mono, gain)](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-utility)
 
 ## Screenshots
+
+<p align="center" style="display: flex">
+  <img alt="Sequencer screenshot" src="https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/apps/looper/Sequencer/screenshot.png" width="300" /> 
+</p>
 
 <p align="center" style="display: flex;">
   <img alt="Metronome screenshot" src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/single.png" height="200" />
