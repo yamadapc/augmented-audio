@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
@@ -83,7 +84,7 @@ impl MultiTrackLooperHandle {
                     handle.looper().looper_clip(),
                 );
 
-                let parameters = handle.parameters();
+                let parameters = handle.user_parameters();
                 let tempo_control = parameters.get(&ParameterId::ParameterIdQuantization(
                     QuantizationParameter::QuantizationParameterQuantizeMode,
                 ));
@@ -160,7 +161,7 @@ impl MultiTrackLooperHandle {
         parameter_id: ParameterId,
         value: ParameterValue,
     ) {
-        let parameter_values = voice.parameters();
+        let parameter_values = voice.user_parameters();
         let _ = parameter_values.insert(parameter_id, value);
     }
 
@@ -170,7 +171,7 @@ impl MultiTrackLooperHandle {
             ParameterId::ParameterIdSource(parameter) => match parameter {
                 SourceParameter::SliceId => {
                     let slice_enabled = voice
-                        .parameters()
+                        .user_parameters()
                         .get(&ParameterId::ParameterIdSource(
                             SourceParameter::SliceEnabled,
                         ))
@@ -327,19 +328,19 @@ impl MultiTrackLooperHandle {
         if let Some(voice) = self.voices.get(looper_id.0) {
             match parameter_id {
                 LFOParameter::Frequency => match lfo {
-                    1 => {
+                    0 => {
                         voice.lfo1().set_frequency(value);
                     }
-                    2 => {
+                    1 => {
                         voice.lfo2().set_frequency(value);
                     }
                     _ => {}
                 },
                 LFOParameter::Amount => match lfo {
-                    1 => {
+                    0 => {
                         voice.lfo1().set_amount(value);
                     }
-                    2 => {
+                    1 => {
                         voice.lfo2().set_amount(value);
                     }
                     _ => {}
@@ -403,7 +404,7 @@ impl MultiTrackLooperHandle {
                 _ => {}
             }
 
-            let parameters = voice.parameters();
+            let parameters = voice.user_parameters();
             let _ = parameters.insert(parameter_id.clone(), ParameterValue::Bool(value));
         }
     }
@@ -571,6 +572,8 @@ pub struct MultiTrackLooper {
     step_trackers: Vec<StepTracker>,
     lfos: Vec<(Oscillator<f32>, Oscillator<f32>)>,
     metrics: AudioProcessorMetrics,
+    parameters_scratch: Vec<Vec<ParameterValue>>,
+    parameter_scratch_indexes: HashMap<ParameterId, usize>,
 }
 
 impl MultiTrackLooper {
@@ -585,11 +588,35 @@ impl MultiTrackLooper {
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);
 
-        let voices = processors
+        let voices: Vec<LooperVoice> = processors
             .iter()
             .enumerate()
             .map(|(i, voice_processors)| looper_voice::build_voice_handle(i, voice_processors))
             .collect();
+
+        let parameters_scratch = voices
+            .iter()
+            .map(|voice| {
+                voice
+                    .parameter_ids()
+                    .iter()
+                    .map(|id| {
+                        voice
+                            .user_parameters()
+                            .get(id)
+                            .map(|entry| entry.val().clone())
+                            .unwrap()
+                    })
+                    .collect()
+            })
+            .collect();
+        let parameter_scratch_indexes = voices[0]
+            .parameter_ids()
+            .iter()
+            .enumerate()
+            .map(|(idx, id)| (id.clone(), idx))
+            .collect();
+
         let metrics = AudioProcessorMetrics::default();
         let handle = make_shared(MultiTrackLooperHandle {
             voices,
@@ -618,6 +645,8 @@ impl MultiTrackLooper {
             graph,
             handle,
             step_trackers,
+            parameters_scratch,
+            parameter_scratch_indexes,
             lfos,
             metrics,
         }
@@ -693,13 +722,16 @@ impl MultiTrackLooper {
                     voice.envelope().adsr_envelope.note_on();
                 }
 
+                let index = voice.id;
+                let parameters_scratch = &mut self.parameters_scratch[index];
+
                 let triggers = find_running_beat_trigger(triggers, &triggers_vec, position_beats);
                 // let mut has_triggers = false;
                 for trigger in triggers {
                     // has_triggers = true;
                     for (parameter_id, lock) in trigger.locks() {
-                        self.handle
-                            .update_handle_float(voice, parameter_id.clone(), lock.value());
+                        let parameter_idx = self.parameter_scratch_indexes[parameter_id];
+                        parameters_scratch[parameter_idx] = ParameterValue::Float(lock.value());
                     }
                 }
 
@@ -717,29 +749,35 @@ impl MultiTrackLooper {
             let lfo2_handle = voice.lfo1();
             lfo2.set_frequency(lfo2_handle.frequency());
 
-            let voice_parameters = voice.parameters();
             let run_mapping = |parameter: &ParameterId,
+                               value: &ParameterValue,
                                lfo_handle: &Shared<LFOHandle>,
                                lfo: &mut Oscillator<f32>|
              -> Option<f32> {
                 let modulation_amount = lfo_handle.modulation_amount(parameter);
-                if let Some(value) = voice_parameters.get(parameter) {
-                    if let ParameterValue::Float(value) = value.val() {
-                        let value = lfo.get() * modulation_amount * 1.0 + value;
-                        return Some(value);
-                    }
+                if let ParameterValue::Float(value) = value {
+                    let value = lfo.get() * modulation_amount * lfo_handle.amount() + value;
+                    return Some(value);
                 }
                 None
             };
 
-            for parameter in voice.parameter_ids() {
-                if let Some(value) = run_mapping(parameter, lfo1_handle, lfo1) {
-                    self.handle
-                        .update_handle_float(voice, parameter.clone(), value);
+            for (parameter_idx, parameter) in voice.parameter_ids().iter().enumerate() {
+                if let Some(value) = run_mapping(
+                    parameter,
+                    &self.parameters_scratch[voice.id][parameter_idx],
+                    lfo1_handle,
+                    lfo1,
+                ) {
+                    self.parameters_scratch[voice.id][parameter_idx] = ParameterValue::Float(value);
                 }
-                if let Some(value) = run_mapping(parameter, lfo2_handle, lfo2) {
-                    self.handle
-                        .update_handle_float(voice, parameter.clone(), value);
+                if let Some(value) = run_mapping(
+                    parameter,
+                    &self.parameters_scratch[voice.id][parameter_idx],
+                    lfo2_handle,
+                    lfo2,
+                ) {
+                    self.parameters_scratch[voice.id][parameter_idx] = ParameterValue::Float(value);
                 }
             }
         }
@@ -753,7 +791,7 @@ impl MultiTrackLooper {
 
         for (index, voice) in self.handle.voices.iter().enumerate() {
             let looper_id = LooperId(index);
-            let parameter_values = voice.parameters();
+            let parameter_values = voice.user_parameters();
 
             for parameter_id in voice.parameter_ids() {
                 if let Some(parameter_value) = parameter_values.get(parameter_id) {
@@ -772,17 +810,42 @@ impl MultiTrackLooper {
                     match (left_value, right_value) {
                         (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
                             let value = left_value + scene_value * (right_value - left_value);
-                            self.handle
-                                .update_handle_float(voice, parameter_id.clone(), value);
+                            self.parameters_scratch[voice.id]
+                                [self.parameter_scratch_indexes[parameter_id]] =
+                                ParameterValue::Float(value);
                         }
                         (ParameterValue::Int(left_value), ParameterValue::Int(right_value)) => {
                             let value = left_value
                                 + (scene_value * (right_value - left_value) as f32) as i32;
-                            self.handle
-                                .update_handle_int(voice, parameter_id.clone(), value);
+                            self.parameters_scratch[voice.id]
+                                [self.parameter_scratch_indexes[parameter_id]] =
+                                ParameterValue::Int(value);
                         }
                         _ => {}
                     }
+                }
+            }
+        }
+    }
+
+    fn flush_parameters(&mut self) {
+        for (voice, values) in self
+            .handle
+            .voices
+            .iter()
+            .zip(self.parameters_scratch.iter())
+        {
+            for (parameter, parameter_value) in voice.parameter_ids().iter().zip(values.iter()) {
+                match parameter_value {
+                    ParameterValue::Float(value) => {
+                        self.handle
+                            .update_handle_float(voice, parameter.clone(), *value)
+                    }
+                    ParameterValue::Int(value) => {
+                        self.handle
+                            .update_handle_int(voice, parameter.clone(), *value)
+                    }
+                    _ => {}
                 }
             }
         }
@@ -821,6 +884,7 @@ impl AudioProcessor for MultiTrackLooper {
             self.process_scenes();
             self.process_triggers();
             self.process_lfos();
+            self.flush_parameters();
 
             self.graph.process(data);
 

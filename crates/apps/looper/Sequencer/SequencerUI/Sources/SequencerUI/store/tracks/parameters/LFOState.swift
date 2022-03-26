@@ -21,9 +21,9 @@ public enum LFOParameterId {
     case frequency, amount
 }
 
-typealias LFOParameter = FloatParameter<LFOParameterId>
+public typealias LFOParameter = FloatParameter<LFOParameterId>
 
-class LFOState: ObservableObject, LFOVisualisationViewModel {
+public class LFOState: ObservableObject, LFOVisualisationViewModel {
     var trackId: Int
     var index: UInt
 
@@ -53,6 +53,11 @@ class LFOState: ObservableObject, LFOVisualisationViewModel {
 
     @Published var frequencyParameter: LFOParameter
     @Published var amountParameter: LFOParameter
+
+    public var parameters: [LFOParameter] { [
+        frequencyParameter,
+        amountParameter,
+    ] }
 
     init(trackId: Int, index: UInt) {
         self.trackId = trackId

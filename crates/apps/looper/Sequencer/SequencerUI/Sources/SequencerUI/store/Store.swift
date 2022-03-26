@@ -92,10 +92,10 @@ extension Store {
            case let .lfoId(lfoId) = focusState.draggingSource
         {
             engine?.addLFOMapping(
-              track: selectedTrack,
-              lfo: UInt(lfoId),
-              parameterId: hoveredId,
-              value: 1.0
+                track: selectedTrack,
+                lfo: UInt(lfoId),
+                parameterId: hoveredId,
+                value: 1.0
             )
         } else if let hoveredId = focusState.mouseOverObject,
                   let source = focusState.draggingSource,

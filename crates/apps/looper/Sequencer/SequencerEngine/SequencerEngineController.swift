@@ -151,6 +151,28 @@ public class EngineController {
                 }
             }
 
+            trackState.lfo2.parameters.forEach { parameter in
+              parameter.$value.sink(receiveValue: { value in
+                if let rustParameterId = LFO_PARAMETER_IDS[parameter.id] {
+                    looper_engine__set_lfo_parameter(
+                      self.engine.engine,
+                      UInt(i),
+                      1,
+                      rustParameterId,
+                      value
+                    )
+                  }
+              }).store(in: &cancellables)
+            }
+            trackState.lfo1.parameters.forEach { parameter in
+              parameter.$value.sink(receiveValue: { value in
+                if let rustParameterId = LFO_PARAMETER_IDS[parameter.id] {
+    looper_engine__set_lfo_parameter(
+      self.engine.engine, UInt(i), 0, rustParameterId, value)
+                  }
+              }).store(in: &cancellables)
+            }
+
             trackState.envelope.parameters.forEach { parameter in
                 parameter.$value.sink(receiveValue: { value in
                     let rustParameterId = ENVELOPE_PARAMETER_IDS[parameter.id]!

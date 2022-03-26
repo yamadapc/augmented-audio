@@ -25,10 +25,10 @@ public class TrackState: ObservableObject {
     public let sourceParameters: SourceParametersState
     public let envelope: EnvelopeState
     public let quantizationParameters: QuantizationParameters
+    public let lfo1: LFOState
+    public let lfo2: LFOState
     @Published public var volumeParameter: FloatParameter<Int>
 
-    let lfo1: LFOState
-    let lfo2: LFOState
     @Published public var looperState: LooperState = .empty
     @Published public var numSamples: UInt = 0
 

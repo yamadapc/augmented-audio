@@ -61,7 +61,8 @@ impl LooperVoice {
         &self.parameter_ids
     }
 
-    pub fn parameters(&self) -> &ParameterValues {
+    /// Parameters as configured in the UI
+    pub fn user_parameters(&self) -> &ParameterValues {
         &self.parameter_values
     }
 
