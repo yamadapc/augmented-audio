@@ -50,26 +50,7 @@ struct SequencerContentView: View {
                                     .foregroundColor(SequencerColors.black3),
                                 alignment: .trailing
                             )
-
-                        HStack(spacing: 0) {
-                            VStack(spacing: 0) {
-                                LFOVisualisationView(lfoState: store.currentTrackState().lfo1)
-                                LFOPanelContentView(lfoState: store.currentTrackState().lfo1)
-                            }
-                            .background(SequencerColors.black)
-                            .overlay(
-                                Rectangle()
-                                    .frame(width: 1, height: nil, alignment: .trailing)
-                                    .foregroundColor(SequencerColors.black3),
-                                alignment: .trailing
-                            )
-
-                            VStack {
-                                LFOVisualisationView(lfoState: store.currentTrackState().lfo2)
-                                LFOPanelContentView(lfoState: store.currentTrackState().lfo2)
-                            }
-                            .background(SequencerColors.black)
-                        }
+                        LFOStateView()
                     }
 
                     SequenceView()

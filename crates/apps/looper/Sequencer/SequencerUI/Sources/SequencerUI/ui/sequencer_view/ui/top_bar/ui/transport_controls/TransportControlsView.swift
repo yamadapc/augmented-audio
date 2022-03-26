@@ -62,6 +62,7 @@ struct TransportTempoView: View {
         }
         .padding(PADDING * 0.5)
         .background(SequencerColors.black3)
+        .cornerRadius(BORDER_RADIUS / 2)
     }
 
     func getTextContent() -> String {
@@ -124,6 +125,7 @@ struct TransportBeatsView: View {
 //            .equatable()
 
         NativeTransportBeats(timeInfo: timeInfo)
+            .padding(EdgeInsets(top: PADDING, leading: 0, bottom: 0, trailing: 0))
     }
 
     func getText() -> String {

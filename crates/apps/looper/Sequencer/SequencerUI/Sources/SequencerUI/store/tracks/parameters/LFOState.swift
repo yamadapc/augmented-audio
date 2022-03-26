@@ -27,6 +27,10 @@ class LFOState: ObservableObject, LFOVisualisationViewModel {
     var trackId: Int
     var index: UInt
 
+    var label: String {
+        "LFO \(index + 1)"
+    }
+
     var frequency: Double {
         get {
             Double(frequencyParameter.value)

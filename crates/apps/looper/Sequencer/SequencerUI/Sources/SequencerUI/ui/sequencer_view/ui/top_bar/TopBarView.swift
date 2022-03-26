@@ -44,6 +44,7 @@ struct TopBarView: View {
                 .padding(PADDING * 0.5)
                 .background(store.midiMappingActive ? SequencerColors.yellow : SequencerColors.black3)
                 .buttonStyle(.plain)
+                .cornerRadius(BORDER_RADIUS / 2)
 
                 CPUMeterView(processorMetrics: store.processorMetrics)
             }

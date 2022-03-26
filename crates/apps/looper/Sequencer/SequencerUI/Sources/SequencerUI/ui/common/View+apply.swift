@@ -15,23 +15,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  File.swift
-//
-//
-//  Created by Pedro Tacla Yamada on 22/3/2022.
-//
-
 import SwiftUI
 
-struct CPUMeterView: View {
-    @ObservedObject var processorMetrics: ProcessorMetrics
-
-    var body: some View {
-        Text("\(String(format: "%.0f", processorMetrics.inner.maximumCpu * 100))%")
-            .frame(width: 50, alignment: .trailing)
-            .padding(PADDING / 2.0)
-            .background(SequencerColors.black0)
-            .cornerRadius(BORDER_RADIUS / 2)
+extension View {
+    func apply<Inner: View>(_ closure: (Self) -> Inner) -> Inner {
+        closure(self)
     }
 }

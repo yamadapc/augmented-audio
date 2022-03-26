@@ -28,8 +28,8 @@ class SelectedParameterOverlayViewModel: ObservableObject {
     ) {
         isSelected = focusState.selectedObject == parameterId
 
-        focusState.objectWillChange.sink(receiveValue: {
-            let newValue = focusState.selectedObject == parameterId
+        focusState.$selectedObject.sink(receiveValue: { selectedObject in
+            let newValue = selectedObject == parameterId
             if newValue != self.isSelected {
                 self.isSelected = newValue
             }
