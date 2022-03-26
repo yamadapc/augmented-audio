@@ -98,7 +98,7 @@ public class EngineController {
         engine.midi?.sink(receiveValue: { event in
             DispatchQueue.main.async {
                 self.store.addMidiMessage(message: MIDIMessage(
-                    controllerNumber: Int(event.value.controller_number),
+                    controllerNumber: MIDIControllerNumber(raw: Int(event.value.controller_number)),
                     value: Int(event.value.value)
                 ))
             }

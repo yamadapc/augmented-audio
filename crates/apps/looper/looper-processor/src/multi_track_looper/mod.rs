@@ -35,6 +35,7 @@ use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
 pub(crate) mod allocator;
+mod copy_paste;
 mod envelope_processor;
 mod lfo_processor;
 mod looper_voice;
@@ -62,6 +63,35 @@ pub struct MultiTrackLooperHandle {
     settings: SharedCell<AudioProcessorSettings>,
     metrics_handle: Shared<AudioProcessorMetricsHandle>,
     midi_store: Shared<MidiStoreHandle>,
+}
+
+impl MultiTrackLooperHandle {
+    pub(crate) fn get_parameter(
+        &self,
+        looper_id: LooperId,
+        id: &ParameterId,
+    ) -> Option<ParameterValue> {
+        self.voices
+            .get(looper_id.0)
+            .map(|voice| {
+                voice
+                    .user_parameters()
+                    .get(id)
+                    .map(|entry| entry.val().clone())
+            })
+            .flatten()
+    }
+
+    pub(crate) fn set_parameter(
+        &self,
+        looper_id: LooperId,
+        id: ParameterId,
+        value: ParameterValue,
+    ) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            Self::update_parameter_table(voice, id, value);
+        }
+    }
 }
 
 impl MultiTrackLooperHandle {
@@ -456,13 +486,13 @@ impl MultiTrackLooperHandle {
         value: f32,
     ) {
         self.voices[looper_id.0]
-            .triggers()
+            .trigger_model()
             .add_lock(position_beats, parameter_id, value);
     }
 
     pub fn toggle_trigger(&self, looper_id: LooperId, position_beats: usize) {
         self.voices[looper_id.0]
-            .triggers()
+            .trigger_model()
             .toggle_trigger(position_beats);
     }
 
@@ -723,7 +753,7 @@ impl MultiTrackLooper {
             .position_beats()
         {
             for (voice, step_tracker) in self.handle.voices.iter().zip(&mut self.step_trackers) {
-                let triggers = voice.triggers();
+                let triggers = voice.trigger_model();
 
                 // let parameter_values = voice.parameter_values.get();
                 // for (parameter_id, parameter_value) in parameter_values.deref().iter() {

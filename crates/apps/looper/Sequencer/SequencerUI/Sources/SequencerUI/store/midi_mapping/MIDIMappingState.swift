@@ -17,33 +17,10 @@
 // = /copyright ===================================================================
 import Combine
 
-enum MIDIMessageId: Hashable {
-    case cc(Int)
-}
-
-extension MIDIMessageId {
-    func toString() -> String {
-        switch self {
-        case let .cc(controllerNumber):
-            return "CC \(controllerNumber)"
-        }
-    }
-}
-
-public struct MIDIMessage: Hashable {
-    let controllerNumber: Int
-    let value: Int
-
-    public init(controllerNumber: Int, value: Int) {
-        self.controllerNumber = controllerNumber
-        self.value = value
-    }
-}
-
 public class MIDIMappingState: ObservableObject {
     var midiMap: [MIDIMessageId: ParameterId] = [:]
     var lastMidiMessages: [(Int, MIDIMessage)] = []
-    var lastMessagesMap: [Int: MIDIMessage] = [:]
+    var lastMessagesMap: [MIDIControllerNumber: MIDIMessage] = [:]
 
     var mapKeys: [MIDIMessageId] {
         Array(midiMap.keys)
@@ -70,5 +47,36 @@ public class MIDIMappingState: ObservableObject {
         )
         lastMidiMessages.removeFirst(lastMidiMessages.count - newLength)
         objectWillChange.send()
+    }
+}
+
+public struct MIDIControllerNumber: Hashable {
+    let raw: Int
+
+    public init(raw: Int) {
+        self.raw = raw
+    }
+}
+
+enum MIDIMessageId: Hashable {
+    case cc(MIDIControllerNumber)
+}
+
+extension MIDIMessageId {
+    func toString() -> String {
+        switch self {
+        case let .cc(controllerNumber):
+            return "CC \(controllerNumber)"
+        }
+    }
+}
+
+public struct MIDIMessage: Hashable {
+    let controllerNumber: MIDIControllerNumber
+    let value: Int
+
+    public init(controllerNumber: MIDIControllerNumber, value: Int) {
+        self.controllerNumber = controllerNumber
+        self.value = value
     }
 }

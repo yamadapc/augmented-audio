@@ -33,7 +33,7 @@ pub struct LooperVoice {
 }
 
 impl LooperVoice {
-    pub fn triggers(&self) -> &Shared<TrackTriggerModel> {
+    pub fn trigger_model(&self) -> &Shared<TrackTriggerModel> {
         &self.triggers
     }
 

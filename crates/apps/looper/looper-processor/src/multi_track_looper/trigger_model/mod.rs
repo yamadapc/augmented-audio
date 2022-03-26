@@ -120,6 +120,10 @@ impl Trigger {
         self.position.beats()
     }
 
+    pub fn step(&self) -> usize {
+        self.position.step.get()
+    }
+
     pub fn set_position(&mut self, position: TriggerPosition) {
         self.position = position;
     }
@@ -180,14 +184,14 @@ impl TrackTriggerModel {
         self.triggers.set(make_shared(triggers));
     }
 
-    pub fn toggle_trigger(&self, position_beats: usize) {
+    pub fn toggle_trigger(&self, position_step: usize) {
         let triggers = self.triggers.get();
         let mut triggers: Vec<Trigger> = (*triggers).clone();
 
         let indexes: Vec<usize> = triggers
             .iter()
             .enumerate()
-            .filter(|(_idx, trigger)| trigger.position.step.get() == position_beats)
+            .filter(|(_idx, trigger)| trigger.position.step.get() == position_step)
             .map(|(idx, _)| idx)
             .collect();
         if !indexes.is_empty() {
@@ -198,10 +202,33 @@ impl TrackTriggerModel {
         } else {
             let mut trigger = Trigger::default();
             trigger.set_position(TriggerPosition {
-                step: position_beats.into(),
-                position: (position_beats as f32).into(),
+                step: position_step.into(),
+                position: (position_step as f32).into(),
             });
             self.add_trigger(trigger);
+        }
+    }
+
+    pub fn remove_trigger(&self, position_step: usize) {
+        let triggers = self.triggers.get();
+        let mut triggers: Vec<Trigger> = (*triggers).clone();
+        let indexes: Vec<usize> = triggers
+            .iter()
+            .enumerate()
+            .filter(|(_idx, trigger)| trigger.position.step.get() == position_step)
+            .map(|(idx, _)| idx)
+            .collect();
+        let indexes: Vec<usize> = triggers
+            .iter()
+            .enumerate()
+            .filter(|(_idx, trigger)| trigger.position.step.get() == position_step)
+            .map(|(idx, _)| idx)
+            .collect();
+        if !indexes.is_empty() {
+            for index in indexes {
+                triggers.remove(index);
+            }
+            self.triggers.set(make_shared(triggers));
         }
     }
 
@@ -216,6 +243,10 @@ impl TrackTriggerModel {
     pub fn add_triggers(&self, triggers: &[Trigger]) {
         let triggers: Vec<Trigger> = Vec::from(triggers);
         self.triggers.set(make_shared(triggers));
+    }
+
+    pub fn clear(&self) {
+        self.triggers.set(make_shared(vec![]));
     }
 
     pub fn triggers(&self) -> Shared<Vec<Trigger>> {
@@ -265,6 +296,24 @@ mod test {
         assert_eq!(triggers.len(), 1);
         assert_eq!(triggers.get(0).cloned(), Some(Trigger::default()));
         assert_eq!(trigger_model.num_triggers(), 1);
+    }
+
+    #[test]
+    fn test_remove_trigger() {
+        let trigger_model = TrackTriggerModel::default();
+        trigger_model.add_trigger(Trigger::default());
+        trigger_model.remove_trigger(0);
+        let triggers = trigger_model.triggers();
+        assert_eq!(triggers.len(), 0);
+    }
+
+    #[test]
+    fn test_clear_triggers() {
+        let trigger_model = TrackTriggerModel::default();
+        trigger_model.add_trigger(Trigger::default());
+        trigger_model.clear();
+        let triggers = trigger_model.triggers();
+        assert_eq!(triggers.len(), 0);
     }
 
     #[test]

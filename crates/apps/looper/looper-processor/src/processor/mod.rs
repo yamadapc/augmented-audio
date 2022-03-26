@@ -103,6 +103,7 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
+    use std::ops::Deref;
     use std::sync::atomic::Ordering;
     use std::time::Duration;
 
@@ -112,17 +113,96 @@ mod test {
 
     use audio_processor_traits::{
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
-        VecAudioBuffer,
+        OwnedAudioBuffer, VecAudioBuffer,
     };
     use handle::{LooperState, QuantizeMode};
 
     use crate::{TimeInfoProvider, MAX_LOOP_LENGTH_SECS};
     use assert_no_alloc::assert_no_alloc;
+    use itertools::Itertools;
 
     use super::*;
 
     fn test_settings() -> AudioProcessorSettings {
         AudioProcessorSettings::new(44100.0, 1, 1, 512)
+    }
+
+    #[test]
+    fn test_create_looper() {
+        let _looper = LooperProcessor::default();
+    }
+
+    #[test]
+    fn test_looper_buffer_has_recording_contents() {
+        let mut looper = LooperProcessor::default();
+        let settings = test_settings();
+        looper.prepare(settings);
+
+        let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+
+        looper.handle.start_recording();
+        looper.process(&mut test_buffer);
+        looper.handle.stop_recording_allocating_loop();
+        looper.process(&mut test_buffer);
+
+        let looper_clip = looper.handle.looper_clip();
+        let looper_clip = looper_clip.borrow();
+        let looper_clip = looper_clip.slice().iter().map(|f| f.get()).collect_vec();
+        assert_eq!(test_buffer_vec, looper_clip);
+    }
+
+    #[test]
+    fn test_looper_buffer_can_be_set() {
+        let mut looper = LooperProcessor::default();
+        let settings = test_settings();
+        looper.prepare(settings);
+
+        let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+
+        let looper_clip = looper.handle.looper_clip();
+        let looper_clip = looper_clip.borrow();
+        let looper_clip = looper_clip.slice().iter().map(|f| f.get()).collect_vec();
+        assert_eq!(test_buffer_vec, looper_clip);
+    }
+
+    #[test]
+    fn test_looper_buffer_will_playback_if_programmatically_set() {
+        let mut looper = LooperProcessor::default();
+        let settings = test_settings();
+        looper.prepare(settings);
+
+        let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+        looper.handle.play();
+
+        let mut output_buffer = VecAudioBuffer::new();
+        output_buffer.resize(1, 8, 0.0);
+        looper.process(&mut output_buffer);
+
+        let output = output_buffer.slice().to_vec();
+        assert_eq!(output, vec![1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn test_looper_buffer_will_start_silent_after_being_set() {
+        let mut looper = LooperProcessor::default();
+        let settings = test_settings();
+        looper.prepare(settings);
+
+        let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+
+        let mut output_buffer = VecAudioBuffer::new();
+        output_buffer.resize(1, 8, 0.0);
+        looper.process(&mut output_buffer);
+
+        let output = output_buffer.slice().to_vec();
+        assert_eq!(output, vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
     }
 
     #[test]

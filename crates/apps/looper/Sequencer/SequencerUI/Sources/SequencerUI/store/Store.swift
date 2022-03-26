@@ -71,7 +71,7 @@ public extension Store {
         {
             midi.addMapping(id: .cc(message.controllerNumber), objectId: object)
             focusState.selectedObject = nil
-            engine?.addMidiMapping(controller: message.controllerNumber, parameterId: object)
+            engine?.addMidiMapping(controller: message.controllerNumber.raw, parameterId: object)
         }
     }
 }

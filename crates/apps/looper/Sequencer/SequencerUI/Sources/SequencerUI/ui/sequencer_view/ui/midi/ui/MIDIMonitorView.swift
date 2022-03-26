@@ -32,7 +32,7 @@ struct MIDIMonitorView: View {
                 id: \.self.0,
                 rowContent: { _, message in
                     HStack {
-                        Text("CC \(message.controllerNumber) = \(message.value)")
+                        Text("CC \(message.controllerNumber.raw) = \(message.value)")
                     }
                     .padding(PADDING)
                     .frame(maxWidth: .infinity, alignment: .leading)

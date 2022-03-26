@@ -8,7 +8,9 @@ use num_derive::{FromPrimitive, ToPrimitive};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use audio_processor_traits::{
+    AtomicF32, AudioBuffer, AudioProcessorSettings, InterleavedAudioBuffer, VecAudioBuffer,
+};
 use augmented_atomics::{AtomicEnum, AtomicValue};
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
@@ -283,6 +285,26 @@ impl LooperHandle {
         // TODO: Looper should only affect time_info_provider if it's the master
         self.time_info_provider.pause();
         self.state.set(LooperState::Paused);
+    }
+
+    /// Override the looper memory buffer.
+    /// Not real-time safe, must be called out of the audio-thread.
+    pub fn set_looper_buffer(&self, buffer: &InterleavedAudioBuffer<f32>) {
+        let mut new_buffer: VecAudioBuffer<AtomicF32> = VecAudioBuffer::new();
+        new_buffer.resize(
+            buffer.num_channels(),
+            buffer.num_samples(),
+            AtomicF32::new(0.0),
+        );
+        for (source_frame, dest_frame) in buffer.frames().zip(new_buffer.frames_mut()) {
+            for (source_sample, dest_sample) in source_frame.iter().zip(dest_frame) {
+                dest_sample.set(*source_sample);
+            }
+        }
+        self.state.set(LooperState::Paused);
+        self.cursor.set(0.0);
+        self.length.set(new_buffer.num_samples());
+        self.looper_clip.set(make_shared(new_buffer.into()));
     }
 
     pub fn stop_recording_allocating_loop(&self) {
