@@ -117,9 +117,9 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ${{ runner.os }}-looper-release
-          path: ./target
+          path: ./target/**/liblooper_processor.*
           retention-days: 1
-      - name: Upload target
+      - name: Upload headers & universal libs
         uses: actions/upload-artifact@v2
         with:
           name: ${{ runner.os }}-looper-public
