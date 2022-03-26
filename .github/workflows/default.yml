@@ -109,6 +109,16 @@ jobs:
       - name: Install cargo-lipo
         run: |
           cargo install cargo-lipo
+      - name: Install ARM/x86 toolchains
+        run: |
+          rustup toolchain install stable-aarch64-apple-darwin
+          rustup toolchain install stable-x86_64-apple-darwin
+          rustup toolchain install stable-aarch64-apple-ios-sim
+          rustup toolchain install stable-aarch64-apple-ios
+          rustup target add aarch64-apple-darwin
+          rustup target add x86_64-apple-darwin
+          rustup target add aarch64-apple-ios-sim
+          rustup target add aarch64-apple-ios
       - name: Build looper universal libraries
         run: |
           cd ./crates/apps/looper/looper-processor
