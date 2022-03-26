@@ -648,14 +648,14 @@ impl MultiTrackLooper {
                 //         .update_handle(voice, parameter_id.clone(), parameter_value.value);
                 // }
 
+                let triggers_vec = triggers.triggers();
                 if let Some(_trigger) =
-                    find_current_beat_trigger(triggers, step_tracker, position_beats)
+                    find_current_beat_trigger(triggers, &triggers_vec, step_tracker, position_beats)
                 {
                     voice.looper().trigger();
                     voice.envelope().adsr_envelope.note_on();
                 }
 
-                let triggers_vec = triggers.triggers();
                 let triggers = find_running_beat_trigger(triggers, &triggers_vec, position_beats);
                 // let mut has_triggers = false;
                 for trigger in triggers {

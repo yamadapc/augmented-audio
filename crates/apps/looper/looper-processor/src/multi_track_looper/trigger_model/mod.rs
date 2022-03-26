@@ -15,7 +15,7 @@ pub fn find_running_beat_trigger<'a>(
     track_trigger_model: &TrackTriggerModel,
     triggers: &'a Shared<Vec<Trigger>>,
     position_beats: f64,
-) -> impl Iterator<Item = Trigger> + 'a {
+) -> impl Iterator<Item = &'a Trigger> + 'a {
     let position_beats = position_beats
         % (track_trigger_model.pattern_length as f64 * track_trigger_model.pattern_step_beats);
     let step_length_beats = track_trigger_model.pattern_step_beats;
@@ -25,14 +25,14 @@ pub fn find_running_beat_trigger<'a>(
         .deref()
         .iter()
         .filter(move |trigger| trigger.position.step.get() == current_step)
-        .cloned()
 }
 
-pub fn find_current_beat_trigger(
-    track_trigger_model: &TrackTriggerModel,
+pub fn find_current_beat_trigger<'a>(
+    track_trigger_model: &'a TrackTriggerModel,
+    triggers: &'a Shared<Vec<Trigger>>,
     step_tracker: &mut StepTracker,
     position_beats: f64,
-) -> Option<Trigger> {
+) -> Option<&'a Trigger> {
     step_tracker
         .accept(
             track_trigger_model.pattern_step_beats,
@@ -40,7 +40,7 @@ pub fn find_current_beat_trigger(
                 % (track_trigger_model.pattern_length as f64
                     * track_trigger_model.pattern_step_beats),
         )
-        .and_then(|step| track_trigger_model.find_step(step))
+        .and_then(|step| track_trigger_model.find_step(triggers, step))
 }
 
 #[derive(Default, Clone, PartialEq, Debug)]
@@ -158,12 +158,14 @@ impl TrackTriggerModel {
         self.triggers.get().len()
     }
 
-    pub fn find_step(&self, step: usize) -> Option<Trigger> {
-        let triggers = self.triggers.get();
+    pub fn find_step<'a>(
+        &self,
+        triggers: &'a Shared<Vec<Trigger>>,
+        step: usize,
+    ) -> Option<&'a Trigger> {
         triggers
             .iter()
             .find(|trigger| trigger.position.step.get() == step)
-            .cloned()
     }
 
     pub fn add_lock(&self, position_beats: usize, parameter_id: ParameterId, value: f32) {
