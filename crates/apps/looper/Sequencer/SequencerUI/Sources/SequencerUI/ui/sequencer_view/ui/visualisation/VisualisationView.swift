@@ -47,6 +47,26 @@ struct VisualisationView: View {
 
 struct VisualisationView_Previews: PreviewProvider {
     static var previews: some View {
-        VisualisationView().environmentObject(Store(engine: nil))
+        Group {
+            VisualisationView()
+                .environmentObject(Store(engine: nil))
+                .previewDisplayName("Normal")
+
+            VisualisationView()
+                .environmentObject(Store.recordingScheduled())
+                .previewDisplayName("Recording scheduled")
+
+            VisualisationView()
+                .environmentObject(Store.recording())
+                .previewDisplayName("Recording")
+
+            VisualisationView()
+                .environmentObject(Store.playingScheduled())
+                .previewDisplayName("Playing scheduled")
+
+            VisualisationView()
+                .environmentObject(Store.playing())
+                .previewDisplayName("Playing")
+        }
     }
 }

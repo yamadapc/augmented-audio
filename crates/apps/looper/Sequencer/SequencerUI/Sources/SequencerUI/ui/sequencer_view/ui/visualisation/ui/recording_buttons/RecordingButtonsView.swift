@@ -17,28 +17,16 @@
 // = /copyright ===================================================================
 import SwiftUI
 
+let BUTTON_ANIMATION_DURATION_SECS = 0.6
+
 struct RecordingButtonsView: View {
     var store: Store
     @ObservedObject var trackState: TrackState
 
     var body: some View {
         VStack {
-            TrackButton(
-                action: { store.onClickRecord() },
-                label: "Record",
-                isSelected: trackState.looperState.isRecording,
-                backgroundColor: trackState.looperState.isRecording ? SequencerColors.red : nil
-            )
-            .bindToParameterId(store: store, parameterId: .recordButton(trackId: trackState.id))
-
-            TrackButton(
-                action: { store.onClickPlay() },
-                label: "Play",
-                isDisabled: trackState.looperState.isEmpty,
-                isSelected: false,
-                backgroundColor: trackState.looperState.isPlaying ? SequencerColors.green : nil
-            )
-            .bindToParameterId(store: store, parameterId: .playButton(trackId: trackState.id))
+            RecordButtonView(store: store, trackState: trackState)
+            PlayButtonView(store: store, trackState: trackState)
 
             TrackButton(
                 action: { store.onClickClear() },
@@ -47,6 +35,40 @@ struct RecordingButtonsView: View {
                 isSelected: false
             )
             .bindToParameterId(store: store, parameterId: .clearButton(trackId: trackState.id))
+        }
+    }
+}
+
+struct RecordingButtonsView_Preview: PreviewProvider {
+    static var previews: some View {
+        Group {
+            let store = Store(engine: nil)
+            RecordingButtonsView(
+                store: store,
+                trackState: store.currentTrackState()
+            )
+            .previewDisplayName("Normal")
+
+            let storeRecording = Store.recording()
+            RecordingButtonsView(
+                store: storeRecording,
+                trackState: storeRecording.currentTrackState()
+            )
+            .previewDisplayName("Recording")
+
+            let storePlaying = Store.playing()
+            RecordingButtonsView(
+                store: storePlaying,
+                trackState: storePlaying.currentTrackState()
+            )
+            .previewDisplayName("Playing")
+
+            let storePlayingScheduled = Store.playingScheduled()
+            RecordingButtonsView(
+                store: storePlayingScheduled,
+                trackState: storePlayingScheduled.currentTrackState()
+            )
+            .previewDisplayName("Playing scheduled")
         }
     }
 }
