@@ -773,18 +773,35 @@ impl MultiTrackLooper {
             {
                 lfo2.set_frequency(lfo_freq_2);
             }
+            let lfo1_amount = if let ParameterValue::Float(value) = self.parameters_scratch
+                [voice.id][self.parameter_scratch_indexes
+                [&ParameterId::ParameterIdLFO(0, LFOParameter::Amount)]]
+            {
+                value
+            } else {
+                1.0
+            };
+            let lfo2_amount = if let ParameterValue::Float(value) = self.parameters_scratch
+                [voice.id][self.parameter_scratch_indexes
+                [&ParameterId::ParameterIdLFO(1, LFOParameter::Amount)]]
+            {
+                value
+            } else {
+                1.0
+            };
 
             let lfo1_handle = voice.lfo1();
             let lfo2_handle = voice.lfo2();
 
             let run_mapping = |parameter: &ParameterId,
                                value: &ParameterValue,
+                               lfo_amount: f32,
                                lfo_handle: &Shared<LFOHandle>,
                                lfo: &mut Oscillator<f32>|
              -> Option<f32> {
                 let modulation_amount = lfo_handle.modulation_amount(parameter);
                 if let ParameterValue::Float(value) = value {
-                    let value = lfo.get() * modulation_amount * lfo_handle.amount() + value;
+                    let value = lfo.get() * modulation_amount * lfo_amount + value;
                     return Some(value);
                 }
                 None
@@ -794,6 +811,7 @@ impl MultiTrackLooper {
                 if let Some(value) = run_mapping(
                     parameter,
                     &self.parameters_scratch[voice.id][parameter_idx],
+                    lfo1_amount,
                     lfo1_handle,
                     lfo1,
                 ) {
@@ -802,6 +820,7 @@ impl MultiTrackLooper {
                 if let Some(value) = run_mapping(
                     parameter,
                     &self.parameters_scratch[voice.id][parameter_idx],
+                    lfo2_amount,
                     lfo2_handle,
                     lfo2,
                 ) {
