@@ -25,7 +25,6 @@ public protocol SequencerEngine {
     func onClickPlayheadStop()
     func onClickPlayheadPlay()
 
-    func setVolume(track: Int, volume: Float)
     func setTempo(tempo: Float)
 
     func onClickRecord(track: Int)

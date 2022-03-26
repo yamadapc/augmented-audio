@@ -208,11 +208,6 @@ extension Store {
 }
 
 extension Store {
-    func setVolume(track: Int, volume: Float) {
-        trackStates[track - 1].volumeParameter.value = volume
-        engine?.setVolume(track: track, volume: volume)
-    }
-
     func setTempo(tempo: Float) {
         engine?.setTempo(tempo: tempo)
     }
