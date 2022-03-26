@@ -118,57 +118,63 @@ class StepButtonViewModel: ObservableObject {
 
 final class NativeStepButtonView: NSViewRepresentable {
     typealias NSViewType = NSView
-
-    var isBeat: Bool = false
-    var isActive: Bool
-    var isPlaying: Bool
-    var hasLocks: Bool
     var stepModel: StepButtonViewModel
-
-    var cancellables: Set<AnyCancellable> = Set()
 
     init(
         stepModel: StepButtonViewModel
     ) {
-        isBeat = stepModel.isBeat
-        isActive = stepModel.isActive
-        isPlaying = stepModel.isPlaying
-        hasLocks = stepModel.hasLocks
         self.stepModel = stepModel
     }
 
-    func updateNSView(_ nsView: NSView, context _: Context) {
-        setViewProperties(nsView)
+    func makeCoordinator() -> Coordinator {
+        return Self.Coordinator(stepModel: stepModel)
     }
 
-    func makeNSView(context _: Context) -> NSView {
+    func updateNSView(_ nsView: NSView, context: Context) {
+        context.coordinator.cancellables.removeAll()
+        context.coordinator.stepModel = stepModel
+        context.coordinator.setViewProperties(nsView)
+        context.coordinator.setup(nsView)
+    }
+
+    func makeNSView(context: Context) -> NSView {
         let view = NSView()
-        setViewProperties(view)
-        stepModel.objectWillChange.sink(receiveValue: {
-            DispatchQueue.main.async {
-                self.isBeat = self.stepModel.isBeat
-                self.isActive = self.stepModel.isActive
-                self.isPlaying = self.stepModel.isPlaying
-                self.hasLocks = self.stepModel.hasLocks
-                self.setViewProperties(view)
-            }
-        }).store(in: &cancellables)
+        context.coordinator.setViewProperties(view)
         return view
     }
 
-    private func setViewProperties(_ view: NSView) {
-        view.wantsLayer = true
+    class Coordinator {
+        var stepModel: StepButtonViewModel
+        var cancellables: Set<AnyCancellable> = Set()
 
-        let backgroundColor = hasLocks
-            ? SequencerColors.green
-            : isActive ? SequencerColors.blue
-            : isBeat ? SequencerColors.black : SequencerColors.black0
-        view.layer?.cornerRadius = BORDER_RADIUS
-        if #available(macOS 11, *) {
-            view.layer?.backgroundColor = isPlaying
-                ? backgroundColor.opacity(0.3).cgColor!
-                : backgroundColor.cgColor!
-        } else {}
+        init(
+            stepModel: StepButtonViewModel
+        ) {
+            self.stepModel = stepModel
+        }
+
+        func setup(_ view: NSView) {
+            stepModel.objectWillChange.sink(receiveValue: {
+                DispatchQueue.main.async {
+                    self.setViewProperties(view)
+                }
+            }).store(in: &cancellables)
+        }
+
+        func setViewProperties(_ view: NSView) {
+            view.wantsLayer = true
+
+            let backgroundColor = stepModel.hasLocks
+                ? SequencerColors.green
+                : stepModel.isActive ? SequencerColors.blue
+                : stepModel.isBeat ? SequencerColors.black : SequencerColors.black0
+            view.layer?.cornerRadius = BORDER_RADIUS
+            if #available(macOS 11, *) {
+                view.layer?.backgroundColor = stepModel.isPlaying
+                    ? backgroundColor.opacity(0.3).cgColor!
+                    : backgroundColor.cgColor!
+            } else {}
+        }
     }
 }
 
