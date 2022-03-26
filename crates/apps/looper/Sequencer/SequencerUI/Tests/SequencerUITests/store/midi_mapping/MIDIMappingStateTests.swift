@@ -30,7 +30,10 @@ final class MIDIMappingStateStats: XCTestCase {
         let state = MIDIMappingState()
 
         state.addMidiMessage(
-            message: MIDIMessage(controllerNumber: 20, value: 80)
+            message: MIDIMessage(
+                controllerNumber: MIDIControllerNumber(20),
+                value: 80
+            )
         )
 
         XCTAssertEqual(
@@ -38,7 +41,7 @@ final class MIDIMappingStateStats: XCTestCase {
             1
         )
         XCTAssertEqual(
-            state.lastMidiMessages.last!.1.controllerNumber,
+            state.lastMidiMessages.last!.1.controllerNumber.raw,
             20
         )
     }
@@ -64,15 +67,15 @@ final class MIDIMappingStateStats: XCTestCase {
             3
         )
         XCTAssertEqual(
-            state.lastMidiMessages[0].1.controllerNumber,
+            state.lastMidiMessages[0].1.controllerNumber.raw,
             20
         )
         XCTAssertEqual(
-            state.lastMidiMessages[1].1.controllerNumber,
+            state.lastMidiMessages[1].1.controllerNumber.raw,
             30
         )
         XCTAssertEqual(
-            state.lastMidiMessages[2].1.controllerNumber,
+            state.lastMidiMessages[2].1.controllerNumber.raw,
             20
         )
     }

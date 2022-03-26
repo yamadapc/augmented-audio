@@ -17,9 +17,18 @@
 // = /copyright ===================================================================
 import Combine
 
+/**
+ * When a MIDI message is received by the rust side, it's pushed onto the UI.
+ * This object holds the last few messages & the current CC values received.
+ *
+ * The purpouse is to display a monitor of last messages/values. Message events are tagged with an internal ID,
+ * which is just an incrementing counter.
+ *
+ * This object also holds the current MIDI map.
+ */
 public class MIDIMappingState: ObservableObject {
     var midiMap: [MIDIMessageId: ParameterId] = [:]
-    var lastMidiMessages: [(Int, MIDIMessage)] = []
+    var lastMidiMessages: [(MIDIMessageIndex, MIDIMessage)] = []
     var lastMessagesMap: [MIDIControllerNumber: MIDIMessage] = [:]
 
     var mapKeys: [MIDIMessageId] {
@@ -40,13 +49,17 @@ public class MIDIMappingState: ObservableObject {
 
         currentMessageId += 1
         lastMessagesMap[message.controllerNumber] = message
-        lastMidiMessages.append((currentMessageId, message))
+        lastMidiMessages.append((MIDIMessageIndex(raw: currentMessageId), message))
         let newLength = min(
             lastMidiMessages.count,
             100
         )
         lastMidiMessages.removeFirst(lastMidiMessages.count - newLength)
         objectWillChange.send()
+    }
+
+    struct MIDIMessageIndex: Hashable {
+        let raw: Int
     }
 }
 
@@ -55,6 +68,10 @@ public struct MIDIControllerNumber: Hashable {
 
     public init(raw: Int) {
         self.raw = raw
+    }
+
+    public init(_ raw: Int) {
+        self.init(raw: raw)
     }
 }
 
@@ -77,6 +94,11 @@ public struct MIDIMessage: Hashable {
 
     public init(controllerNumber: MIDIControllerNumber, value: Int) {
         self.controllerNumber = controllerNumber
+        self.value = value
+    }
+
+    public init(controllerNumber: Int, value: Int) {
+        self.controllerNumber = MIDIControllerNumber(controllerNumber)
         self.value = value
     }
 }
