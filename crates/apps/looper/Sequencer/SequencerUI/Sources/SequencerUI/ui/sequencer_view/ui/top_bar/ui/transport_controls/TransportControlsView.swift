@@ -97,8 +97,10 @@ final class NativeTransportBeats: NSViewRepresentable {
         view.isSelectable = false
         view.isRichText = false
         view.drawsBackground = false
-        timeInfo.objectWillChange.sink(receiveValue: {
-            view.string = self.getText()
+        timeInfo.objectWillChange.sink(receiveValue: { _ in
+            DispatchQueue.main.async {
+                view.string = self.getText()
+            }
         }).store(in: &cancellables)
         return view
     }

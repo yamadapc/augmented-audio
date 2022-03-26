@@ -33,12 +33,14 @@ class ParameterLockAnimationViewModel: ObservableObject {
             focusState: focusState
         )
         focusState.objectWillChange.sink(receiveValue: {
-            let newValue = Self.readState(
-                parameterId: self.parameterId,
-                focusState: self.focusState
-            )
-            if newValue != self.isDragingIntoThis {
-                self.isDragingIntoThis = newValue
+            DispatchQueue.main.async {
+                let newValue = Self.readState(
+                    parameterId: self.parameterId,
+                    focusState: self.focusState
+                )
+                if newValue != self.isDragingIntoThis {
+                    self.isDragingIntoThis = newValue
+                }
             }
         }).store(in: &cancellables)
     }

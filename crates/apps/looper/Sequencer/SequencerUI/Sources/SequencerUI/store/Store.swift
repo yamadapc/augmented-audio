@@ -77,8 +77,8 @@ public extension Store {
 }
 
 extension Store {
-    func startSequencerStepDrag(_ index: Int, dragMode: DragMode) {
-        focusState.draggingSource = .stepId(index)
+    func startDrag(source: ParameterLockSource, dragMode: DragMode) {
+        focusState.draggingSource = source
         focusState.dragMode = dragMode
     }
 
@@ -89,8 +89,12 @@ extension Store {
 
     func endGlobalDrag() {
         if let hoveredId = focusState.mouseOverObject,
-           let source = focusState.draggingSource,
-           focusState.dragMode == .lock
+           case let .lfoId(lfoId) = focusState.draggingSource
+        {
+            print("LFO MAPPING")
+        } else if let hoveredId = focusState.mouseOverObject,
+                  let source = focusState.draggingSource,
+                  focusState.dragMode == .lock
         {
             startParameterLock(hoveredId, parameterLockProgress: ParameterLockState(
                 parameterId: hoveredId,
@@ -148,6 +152,8 @@ extension Store {
                     parameterId: progress.parameterId,
                     value: progress.newValue!
                 )
+            case let .lfoId(lfoId):
+                break
             }
             track.objectWillChange.send()
         }

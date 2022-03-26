@@ -57,7 +57,7 @@ struct SceneSliderView: View {
         return DragGesture(coordinateSpace: .global)
             .onChanged { drag in
                 self.store.focusState.sceneDragState = SceneDragState(scene: sceneId, position: drag.location)
-                self.store.startSceneDrag(sceneId)
+                self.store.startDrag(source: .sceneId(sceneId), dragMode: .lock)
                 store.objectWillChange.send()
             }
             .onEnded { _ in

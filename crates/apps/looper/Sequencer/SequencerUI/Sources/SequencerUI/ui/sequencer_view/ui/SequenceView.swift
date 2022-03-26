@@ -103,11 +103,15 @@ class StepButtonViewModel: ObservableObject {
         hasLocks = track.steps[index]?.parameterLocks.count ?? 0 > 0
 
         track.objectWillChange.sink(receiveValue: { _ in
-            self.isActive = track.steps[index] != nil
-            self.hasLocks = track.steps[index]?.parameterLocks.count ?? 0 > 0
+            DispatchQueue.main.async {
+                self.isActive = track.steps[index] != nil
+                self.hasLocks = track.steps[index]?.parameterLocks.count ?? 0 > 0
+            }
         }).store(in: &subscriptions)
         timeInfo.objectWillChange.sink(receiveValue: {
-            self.isPlaying = Int((timeInfo.positionBeats ?? -1.0).truncatingRemainder(dividingBy: 4.0) * 4) == index
+            DispatchQueue.main.async {
+                self.isPlaying = Int((timeInfo.positionBeats ?? -1.0).truncatingRemainder(dividingBy: 4.0) * 4) == index
+            }
         }).store(in: &subscriptions)
     }
 }
@@ -141,11 +145,13 @@ final class NativeStepButtonView: NSViewRepresentable {
         let view = NSView()
         setViewProperties(view)
         stepModel.objectWillChange.sink(receiveValue: {
-            self.isBeat = self.stepModel.isBeat
-            self.isActive = self.stepModel.isActive
-            self.isPlaying = self.stepModel.isPlaying
-            self.hasLocks = self.stepModel.hasLocks
-            self.setViewProperties(view)
+            DispatchQueue.main.async {
+                self.isBeat = self.stepModel.isBeat
+                self.isActive = self.stepModel.isActive
+                self.isPlaying = self.stepModel.isPlaying
+                self.hasLocks = self.stepModel.hasLocks
+                self.setViewProperties(view)
+            }
         }).store(in: &cancellables)
         return view
     }
@@ -272,7 +278,7 @@ struct SequenceView: View {
 
     func startDrag(_ i: Int, _ drag: DragGesture.Value, _ mode: DragMode) {
         DispatchQueue.main.async {
-            store.startSequencerStepDrag(i, dragMode: mode)
+            store.startDrag(source: .stepId(i), dragMode: mode)
             dragState = DragState(step: i, position: drag.location, mode: mode)
         }
     }

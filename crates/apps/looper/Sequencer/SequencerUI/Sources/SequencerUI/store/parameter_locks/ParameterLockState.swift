@@ -18,7 +18,7 @@
 import Combine
 
 enum ParameterLockSource {
-    case stepId(Int), sceneId(Int)
+    case stepId(Int), sceneId(Int), lfoId(Int)
 }
 
 class ParameterLockState: ObservableObject {
