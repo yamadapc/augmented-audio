@@ -16,27 +16,34 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
-import SwiftUI
+#if os(macOS)
+    import Cocoa
+    import KeyboardShortcuts
 
-let PADDING: Double = 10
-let BORDER_RADIUS: Double = 8
+    /**
+     * Dispatches keyboard-shortcuts as application actions.
+     */
+    class KeyboardShortcutsController {
+        private let store: Store
 
-struct SequencerView: View {
-    @EnvironmentObject var store: Store
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            TopBarView()
-                .bindToNilParameter(store: store)
-
-            SequencerContentView()
-
-            StatusBarView()
-                .bindToNilParameter(store: store)
+        init(store: Store) {
+            self.store = store
         }
-        .bindToNilParameter(store: store)
-        .foregroundColor(SequencerColors.white)
-        .overlay(KeyboardShortcutsView(store: store))
-        .overlay(GlobalOverlays())
+
+        func onKeyDown(key: KeyboardShortcuts.Key, modifiers _: NSEvent.ModifierFlags) {
+            switch key {
+            case .space:
+                if store.isPlaying {
+                    store.onClickPlayheadStop()
+                } else {
+                    store.onClickPlayheadPlay()
+                }
+            default:
+                return
+            }
+        }
+
+        func onKeyUp(key _: KeyboardShortcuts.Key, modifiers _: NSEvent.ModifierFlags) {}
     }
-}
+
+#endif

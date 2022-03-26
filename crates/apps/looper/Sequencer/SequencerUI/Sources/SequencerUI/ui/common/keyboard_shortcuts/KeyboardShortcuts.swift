@@ -64,19 +64,38 @@ import SwiftUI
 
 #endif
 
-func buildKeyWatcher(store _: Store) -> some View {
-    ZStack {
-        #if os(macOS)
-            if #available(macOS 11.0, *) {
-                KeyWatcher(
-                    onKeyDown: { key, modifiers in
-                        print("KEYDOWN - key=\(key) modifiers=\(modifiers)")
-                    },
-                    onKeyUp: { key, modifiers in
-                        print("KEYUP - key=\(key) modifiers=\(modifiers)")
-                    }
-                )
-            } else {}
-        #endif
-    }.allowsHitTesting(false)
+struct KeyboardShortcutsView: View {
+    var store: Store
+
+    #if os(macOS)
+        @State var controller: KeyboardShortcutsController
+
+        init(store: Store) {
+            self.store = store
+            controller = KeyboardShortcutsController(store: store)
+        }
+    #endif
+
+    var body: some View {
+        ZStack {
+            #if os(macOS)
+                if #available(macOS 11.0, *) {
+                    KeyWatcher(
+                        onKeyDown: { key, modifiers in
+                            controller.onKeyDown(
+                                key: key,
+                                modifiers: modifiers
+                            )
+                        },
+                        onKeyUp: { key, modifiers in
+                            controller.onKeyUp(
+                                key: key,
+                                modifiers: modifiers
+                            )
+                        }
+                    )
+                } else {}
+            #endif
+        }.allowsHitTesting(false)
+    }
 }
