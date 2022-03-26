@@ -180,6 +180,19 @@ pub unsafe extern "C" fn looper_engine__set_scene_slider_value(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__add_lfo_mapping(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    lfo_id: usize,
+    parameter_id: ParameterId,
+    value: f32,
+) {
+    (*engine)
+        .handle
+        .add_lfo_mapping(LooperId(looper_id), lfo_id, parameter_id, value)
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_scene_parameter_lock(
     engine: *mut LooperEngine,
     scene_id: usize,

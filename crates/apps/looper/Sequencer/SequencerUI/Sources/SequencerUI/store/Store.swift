@@ -91,7 +91,12 @@ extension Store {
         if let hoveredId = focusState.mouseOverObject,
            case let .lfoId(lfoId) = focusState.draggingSource
         {
-            print("LFO MAPPING")
+            engine?.addLFOMapping(
+              track: selectedTrack,
+              lfo: UInt(lfoId),
+              parameterId: hoveredId,
+              value: 1.0
+            )
         } else if let hoveredId = focusState.mouseOverObject,
                   let source = focusState.draggingSource,
                   focusState.dragMode == .lock

@@ -4117,6 +4117,7 @@ dependencies = [
  "augmented-dsp-filters",
  "augmented-midi",
  "augmented-playhead",
+ "augmented_oscillator",
  "basedrop",
  "criterion",
  "crossbeam-utils 0.8.8",

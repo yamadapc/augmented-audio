@@ -14,6 +14,7 @@ use audio_processor_traits::{
     VecAudioBuffer,
 };
 use augmented_atomics::{AtomicF32, AtomicValue};
+use augmented_oscillator::Oscillator;
 use looper_voice::{LooperVoice, VoiceProcessors};
 use metrics::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use metronome::{MetronomeProcessor, MetronomeProcessorHandle};
@@ -26,6 +27,7 @@ use tempo_estimation::estimate_tempo;
 use trigger_model::step_tracker::StepTracker;
 use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 
+use crate::multi_track_looper::lfo_processor::LFOHandle;
 use crate::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
@@ -326,19 +328,19 @@ impl MultiTrackLooperHandle {
             match parameter_id {
                 LFOParameter::Frequency => match lfo {
                     1 => {
-                        voice.lfo1().frequency.set(value);
+                        voice.lfo1().set_frequency(value);
                     }
                     2 => {
-                        voice.lfo2().frequency.set(value);
+                        voice.lfo2().set_frequency(value);
                     }
                     _ => {}
                 },
                 LFOParameter::Amount => match lfo {
                     1 => {
-                        voice.lfo1().amount.set(value);
+                        voice.lfo1().set_amount(value);
                     }
                     2 => {
-                        voice.lfo2().amount.set(value);
+                        voice.lfo2().set_amount(value);
                     }
                     _ => {}
                 },
@@ -532,12 +534,42 @@ impl MultiTrackLooperHandle {
     pub fn midi(&self) -> &Shared<MidiStoreHandle> {
         &self.midi_store
     }
+
+    pub fn add_lfo_mapping(
+        &self,
+        looper_id: LooperId,
+        lfo_id: usize,
+        parameter_id: ParameterId,
+        value: f32,
+    ) {
+        let value = if (value - 0.0).abs() > f32::EPSILON {
+            Some(value)
+        } else {
+            None
+        };
+
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            let lfo = if lfo_id == 0 {
+                voice.lfo1()
+            } else {
+                voice.lfo2()
+            };
+            log::info!(
+                "Adding mapping to LFO={} parameter={:?} looper={:?}",
+                lfo_id,
+                parameter_id,
+                looper_id
+            );
+            lfo.set_parameter_map(parameter_id, value);
+        }
+    }
 }
 
 pub struct MultiTrackLooper {
     graph: AudioProcessorGraph,
     handle: Shared<MultiTrackLooperHandle>,
     step_trackers: Vec<StepTracker>,
+    lfos: Vec<(Oscillator<f32>, Oscillator<f32>)>,
     metrics: AudioProcessorMetrics,
 }
 
@@ -575,6 +607,10 @@ impl MultiTrackLooper {
         });
 
         let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
+        let lfos = processors
+            .iter()
+            .map(|_| (Oscillator::sine(44100.0), Oscillator::sine(44100.0)))
+            .collect();
 
         let graph = Self::build_audio_graph(processors, metronome);
 
@@ -582,6 +618,7 @@ impl MultiTrackLooper {
             graph,
             handle,
             step_trackers,
+            lfos,
             metrics,
         }
     }
@@ -673,6 +710,41 @@ impl MultiTrackLooper {
         }
     }
 
+    fn process_lfos(&mut self) {
+        for ((lfo1, lfo2), voice) in self.lfos.iter_mut().zip(self.handle.voices.iter()) {
+            let lfo1_handle = voice.lfo1();
+            lfo1.set_frequency(lfo1_handle.frequency());
+            let lfo2_handle = voice.lfo1();
+            lfo2.set_frequency(lfo2_handle.frequency());
+
+            let voice_parameters = voice.parameters();
+            let run_mapping = |parameter: &ParameterId,
+                               lfo_handle: &Shared<LFOHandle>,
+                               lfo: &mut Oscillator<f32>|
+             -> Option<f32> {
+                let modulation_amount = lfo_handle.modulation_amount(parameter);
+                if let Some(value) = voice_parameters.get(parameter) {
+                    if let ParameterValue::Float(value) = value.val() {
+                        let value = lfo.get() * modulation_amount * 1.0 + value;
+                        return Some(value);
+                    }
+                }
+                None
+            };
+
+            for parameter in voice.parameter_ids() {
+                if let Some(value) = run_mapping(parameter, lfo1_handle, lfo1) {
+                    self.handle
+                        .update_handle_float(voice, parameter.clone(), value);
+                }
+                if let Some(value) = run_mapping(parameter, lfo2_handle, lfo2) {
+                    self.handle
+                        .update_handle_float(voice, parameter.clone(), value);
+                }
+            }
+        }
+    }
+
     fn process_scenes(&mut self) {
         let all_scene_parameters = &self.handle.scene_parameters;
         let left_parameters = all_scene_parameters.get(&self.handle.left_scene_id.get());
@@ -715,6 +787,13 @@ impl MultiTrackLooper {
             }
         }
     }
+
+    fn tick_lfos(&mut self) {
+        for (l1, l2) in self.lfos.iter_mut() {
+            l1.tick();
+            l2.tick();
+        }
+    }
 }
 
 impl AudioProcessor for MultiTrackLooper {
@@ -725,6 +804,11 @@ impl AudioProcessor for MultiTrackLooper {
         self.handle.sample_rate.set(settings.sample_rate());
         self.handle.metrics_handle.prepare(settings);
         self.handle.settings.set(make_shared(settings));
+
+        for (o1, o2) in self.lfos.iter_mut() {
+            o1.set_sample_rate(settings.sample_rate());
+            o2.set_sample_rate(settings.sample_rate());
+        }
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -736,11 +820,13 @@ impl AudioProcessor for MultiTrackLooper {
 
             self.process_scenes();
             self.process_triggers();
+            self.process_lfos();
 
             self.graph.process(data);
 
             for _sample in data.frames() {
                 self.handle.time_info_provider.tick();
+                self.tick_lfos();
             }
 
             self.metrics.on_process_end();

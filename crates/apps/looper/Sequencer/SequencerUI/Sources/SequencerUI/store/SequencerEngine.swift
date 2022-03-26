@@ -34,5 +34,6 @@ public protocol SequencerEngine {
     func toggleStep(track: Int, step: Int)
     func addParameterLock(track: Int, step: Int, parameterId: ParameterId, value: Float)
     func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ParameterId, value: Float)
+    func addLFOMapping(track: Int, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float)
     func addMidiMapping(controller: Int, parameterId: ParameterId)
 }

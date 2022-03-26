@@ -17,7 +17,7 @@ use super::lfo_processor::LFOHandle;
 use super::parameters::{ParameterId, ParameterValue};
 use super::trigger_model::TrackTriggerModel;
 
-type ParameterValues = lockfree::map::Map<ParameterId, ParameterValue>;
+pub type ParameterValues = lockfree::map::Map<ParameterId, ParameterValue>;
 
 pub struct LooperVoice {
     pub id: usize,
