@@ -6,6 +6,7 @@ use assert_no_alloc::assert_no_alloc;
 
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
+use lockfree::map::Preview;
 use num::ToPrimitive;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
@@ -430,6 +431,16 @@ impl MultiTrackLooperHandle {
             value
         );
         let all_scene_parameters = &self.scene_parameters;
+        all_scene_parameters
+            .insert_with(scene_id, |_, _, prev_value| {
+                if let Some((_, map)) = prev_value {
+                    Preview::Keep
+                } else {
+                    Preview::New(Default::default())
+                }
+            })
+            .created();
+
         if let Some(scene_parameters) = all_scene_parameters.get(&scene_id) {
             scene_parameters
                 .val()
@@ -574,6 +585,12 @@ pub struct MultiTrackLooper {
     metrics: AudioProcessorMetrics,
     parameters_scratch: Vec<Vec<ParameterValue>>,
     parameter_scratch_indexes: HashMap<ParameterId, usize>,
+}
+
+impl Default for MultiTrackLooper {
+    fn default() -> Self {
+        Self::new(LooperOptions::default(), 8)
+    }
 }
 
 impl MultiTrackLooper {
@@ -906,10 +923,66 @@ impl MidiEventHandler for MultiTrackLooper {
 
 #[cfg(test)]
 mod test {
-    use audio_processor_testing_helpers::sine_buffer;
+    use audio_processor_testing_helpers::{assert_f_eq, sine_buffer};
     use audio_processor_traits::InterleavedAudioBuffer;
 
     use super::*;
+
+    #[test]
+    fn test_process_scenes_will_update_parameters_scratch() {
+        let mut looper = MultiTrackLooper::default();
+        let parameter_id = ParameterId::ParameterIdSource(SourceParameter::Speed);
+
+        looper
+            .handle
+            .add_scene_parameter_lock(1, LooperId(0), parameter_id.clone(), 2.0);
+        let parameters = looper.handle.scene_parameters.get(&1);
+        assert_eq!(
+            parameters
+                .unwrap()
+                .val()
+                .get(&(
+                    LooperId(0),
+                    ParameterId::ParameterIdSource(SourceParameter::Speed)
+                ))
+                .unwrap()
+                .val()
+                .clone(),
+            ParameterValue::Float(2.0)
+        );
+
+        looper.handle.set_scene_value(0.5);
+        looper.process_scenes();
+        assert_eq!(
+            looper.parameters_scratch[0][looper.parameter_scratch_indexes[&parameter_id]],
+            ParameterValue::Float(1.5)
+        );
+    }
+
+    #[test]
+    fn test_scenes_are_respected() {
+        let mut looper = MultiTrackLooper::default();
+
+        looper.handle.set_scene_value(0.0);
+        looper.handle.add_scene_parameter_lock(
+            1,
+            LooperId(0),
+            ParameterId::ParameterIdSource(SourceParameter::Speed),
+            2.0,
+        );
+        looper.process_scenes();
+        looper.flush_parameters();
+        assert_f_eq!(looper.handle.voices[0].looper().speed(), 1.0);
+        looper.handle.set_scene_value(0.5);
+        looper.process_scenes();
+        assert_eq!(
+            looper.parameters_scratch[0][looper.parameter_scratch_indexes
+                [&ParameterId::ParameterIdSource(SourceParameter::Speed)]],
+            ParameterValue::Float(1.5)
+        );
+        looper.flush_parameters();
+        assert_f_eq!(looper.handle.voices[0].looper().speed(), 1.5);
+    }
 
     #[test]
     fn test_build_parameters_table() {

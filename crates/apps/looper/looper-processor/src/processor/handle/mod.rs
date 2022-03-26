@@ -146,6 +146,10 @@ impl LooperHandle {
         self.wet_volume.get()
     }
 
+    pub fn speed(&self) -> f32 {
+        self.speed.get()
+    }
+
     pub fn set_dry_volume(&self, value: f32) {
         self.dry_volume.set(value);
     }
