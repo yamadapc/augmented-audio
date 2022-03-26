@@ -58,12 +58,6 @@ jobs:
       run: cargo install --force --version 0.15.2 uniffi_bindgen
     - name: Build release
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
-    - name: Upload all of release
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ runner.os }}-target-release
-        path: ./target
-        retention-days: 1
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:
@@ -102,8 +96,6 @@ jobs:
       if: ${{ failure() }}
   build-looper-shared-libraries:
     name: Build looper C library
-    needs:
-      - build-rust
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -114,10 +106,6 @@ jobs:
           submodules: recursive
           lfs: true
       - uses: Swatinem/rust-cache@v1
-      - name: Download target dir
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ runner.os}}-target-release
       - name: Build looper universal libraries
         run: |
           cd ./crates/apps/looper/looper-processor
@@ -141,7 +129,6 @@ jobs:
       matrix:
         os: [macos-latest]
     needs:
-      - build-rust
       - build-looper-shared-libraries
     steps:
       - uses: actions/checkout@v2
