@@ -1045,8 +1045,35 @@ mod test {
     }
 
     #[test]
+    fn test_processor_starts_silent() {
+        let mut processor = MultiTrackLooper::default();
+        processor.prepare(AudioProcessorSettings::default());
+        let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
+        processor.process(&mut buffer);
+        assert_eq!(buffer.slice(), [0.0, 0.0, 0.0, 0.0])
+    }
+
+    #[test]
+    fn test_processor_will_playback_set_looper_buffer() {
+        let mut processor = MultiTrackLooper::new(Default::default(), 1);
+        processor.prepare(AudioProcessorSettings::default());
+
+        let looper = processor.handle().voices()[0].looper().clone();
+        let mut looper_buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        looper.set_looper_buffer(&looper_buffer.interleaved());
+        looper.play();
+
+        assert_eq!(looper.state(), LooperState::Playing);
+        let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
+        processor.process(&mut buffer);
+        assert_eq!(looper.state(), LooperState::Playing);
+        assert_eq!(buffer.slice(), [1.0, 2.0, 3.0, 4.0])
+    }
+
+    #[test]
     fn test_we_can_set_start_on_a_looper() {
         let mut processor = MultiTrackLooper::default();
+        processor.prepare(AudioProcessorSettings::default());
         processor
             .handle()
             .set_source_parameter(LooperId(0), SourceParameter::Start, 0.5);
@@ -1060,7 +1087,6 @@ mod test {
             .inner_float();
         assert_eq!(value, 0.5);
         let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
-        processor.prepare(AudioProcessorSettings::default());
         processor.process(&mut buffer);
         assert_eq!(buffer.slice(), [3.0, 4.0, 3.0, 4.0])
     }
