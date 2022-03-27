@@ -94,8 +94,8 @@ jobs:
         name: ${{ runner.os }}-snapshot-tests
         path: ./test
       if: ${{ failure() }}
-  build-looper-shared-libraries:
-    name: Build looper C library
+  build-sequencer:
+    name: Build Continuous looper
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -119,31 +119,6 @@ jobs:
         run: |
           cd ./crates/apps/looper/looper-processor
           make
-      - name: Upload target
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ runner.os }}-looper-release
-          path: ./target/**/liblooper_processor.*
-          retention-days: 1
-      - name: Upload headers & universal libs
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ runner.os }}-looper-public
-          path: ./crates/apps/looper/looper-processor/public
-          retention-days: 1
-  build-sequencer-macos:
-    name: Run Sequencer macOS app tests
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-    needs:
-      - build-looper-shared-libraries
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          lfs: true
       - uses: actions/cache@v2
         name: "Cache: Swift Package Manager"
         with:
@@ -151,14 +126,6 @@ jobs:
           key: ${{ runner.os }}-spm
           restore-keys: |
             ${{ runner.os }}-spm
-      - name: Download target dir
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ runner.os}}-looper-release
-      - name: Download looper libraries
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ runner.os}}-looper-public
       - name: Run Sequencer.app tests
         run: |
           cd ./crates/apps/looper/Sequencer
