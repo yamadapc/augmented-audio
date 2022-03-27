@@ -19,17 +19,17 @@ import Combine
 
 public class TrackState: ObservableObject {
     @Published public var id: Int
-    @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
-    @Published var buffer: TrackBuffer? = nil
     @Published public var sliceBuffer: SliceBuffer? = nil // public for ref checks
+    @Published public var volumeParameter: FloatParameter<Int>
+    @Published public var looperState: LooperState = .empty
     public let sourceParameters: SourceParametersState
     public let envelope: EnvelopeState
     public let quantizationParameters: QuantizationParameters
     public let lfo1: LFOState
     public let lfo2: LFOState
-    @Published public var volumeParameter: FloatParameter<Int>
 
-    @Published public var looperState: LooperState = .empty
+    @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
+    @Published var buffer: TrackBuffer? = nil
 
     let position: LoopPosition = .init()
     public var positionPercent: Float {
