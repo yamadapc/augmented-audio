@@ -144,6 +144,13 @@ jobs:
         with:
           submodules: recursive
           lfs: true
+      - uses: actions/cache@v2
+        name: "Cache: Swift Package Manager"
+        with:
+          path: ~/Library/Developer/Xcode/DerivedData/Sequencer-*/SourcePackages/
+          key: ${{ runner.os }}-spm
+          restore-keys: |
+            ${{ runner.os }}-spm
       - name: Download target dir
         uses: actions/download-artifact@v3
         with:
