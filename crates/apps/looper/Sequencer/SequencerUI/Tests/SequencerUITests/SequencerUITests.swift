@@ -29,12 +29,12 @@ final class SequencerUITests: XCTestCase {
 
     /* Snapshot tests don't pass on CI (maybe due to diff. macOS versions)
 
-    func testSnapshotRendering() throws {
-        let store = Store(engine: nil)
-        let content = ContentView().environmentObject(store)
-        let viewController = NSHostingController(rootView: content)
-        viewController.view.frame = .init(origin: .zero, size: .init(width: 1000, height: 900))
-        assertSnapshot(matching: viewController, as: .image(precision: 0.9))
-    }
-    */
+     func testSnapshotRendering() throws {
+         let store = Store(engine: nil)
+         let content = ContentView().environmentObject(store)
+         let viewController = NSHostingController(rootView: content)
+         viewController.view.frame = .init(origin: .zero, size: .init(width: 1000, height: 900))
+         assertSnapshot(matching: viewController, as: .image(precision: 0.9))
+     }
+     */
 }

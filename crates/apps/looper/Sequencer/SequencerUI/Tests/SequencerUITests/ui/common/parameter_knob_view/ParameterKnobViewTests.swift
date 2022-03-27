@@ -25,23 +25,23 @@ import XCTest
 final class ParameterKnobViewTests: XCTestCase {
     /* Snapshot tests don't pass on CI (maybe due to diff. macOS versions)
 
-    func testCreateParameterKnobView() {
-        let exampleParameter = FloatParameter(
-            id: 0,
-            globalId: .metronomeVolume,
-            label: "Volume"
-        )
-        let parameterKnobView = ParameterKnobView(
-            parameter: exampleParameter
-        )
-        .environmentObject(Store(engine: nil))
-        .padding(20)
-        .foregroundColor(SequencerColors.white)
-        .background(SequencerColors.black)
+     func testCreateParameterKnobView() {
+         let exampleParameter = FloatParameter(
+             id: 0,
+             globalId: .metronomeVolume,
+             label: "Volume"
+         )
+         let parameterKnobView = ParameterKnobView(
+             parameter: exampleParameter
+         )
+         .environmentObject(Store(engine: nil))
+         .padding(20)
+         .foregroundColor(SequencerColors.white)
+         .background(SequencerColors.black)
 
-        let viewController = NSHostingController(rootView: parameterKnobView)
-        viewController.view.frame = CGRect(origin: .zero, size: .init(width: 100, height: 130))
-        assertSnapshot(matching: viewController, as: .image(precision: 0.9))
-    }
-    */
+         let viewController = NSHostingController(rootView: parameterKnobView)
+         viewController.view.frame = CGRect(origin: .zero, size: .init(width: 100, height: 130))
+         assertSnapshot(matching: viewController, as: .image(precision: 0.9))
+     }
+     */
 }
