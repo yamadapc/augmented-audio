@@ -1,5 +1,4 @@
-use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
-use augmented_atomics::AtomicValue;
+use augmented_atomics::{AtomicF32, AtomicValue};
 use num_derive::{FromPrimitive, ToPrimitive};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
@@ -131,7 +130,7 @@ pub enum LFOParameter {
 
 #[derive(Debug)]
 pub enum ParameterValue {
-    Float(AtomicFloat),
+    Float(AtomicF32),
     Bool(AtomicBool),
     Enum(AtomicUsize),
     Int(AtomicI32),
