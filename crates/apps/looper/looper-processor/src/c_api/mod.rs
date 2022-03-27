@@ -341,6 +341,11 @@ pub unsafe extern "C" fn looper_engine__get_looper_buffer(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_buffer__free(buffer: *mut LooperBuffer) {
+    let _ = Box::from_raw(buffer);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_buffer__num_samples(buffer: *mut LooperBuffer) -> usize {
     let buffer = &(*buffer);
     match buffer {
@@ -372,6 +377,11 @@ pub unsafe extern "C" fn looper_engine__get_looper_slices(
 ) -> *mut Option<SliceResult> {
     let engine = &(*engine);
     into_ptr(engine.handle.get_looper_slices(LooperId(looper_id)))
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn slice_buffer__free(buffer: *mut Option<SliceResult>) {
+    let _ = Box::from_raw(buffer);
 }
 
 #[no_mangle]

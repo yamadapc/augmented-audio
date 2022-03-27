@@ -28,6 +28,9 @@
 		CB3948F127EC3B24009A650D /* ForeignCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F027EC3B24009A650D /* ForeignCallback.swift */; };
 		CB3948F927ED24BA009A650D /* Sequencer_MacUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F827ED24BA009A650D /* Sequencer_MacUITests.swift */; };
 		CB3948FB27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948FA27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift */; };
+		CB3D995927EFE4A000E5ECBA /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995827EFE4A000E5ECBA /* Parameters.swift */; };
+		CB3D995C27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */; };
+		CB3D995D27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */; };
 		CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1727D8AE6600D7788E /* AppDelegate.swift */; };
 		CB801A1A27D8AE6600D7788E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1927D8AE6600D7788E /* ViewController.swift */; };
 		CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1B27D8AE6600D7788E /* Assets.xcassets */; };
@@ -177,6 +180,8 @@
 		CB3948F827ED24BA009A650D /* Sequencer_MacUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequencer_MacUITests.swift; sourceTree = "<group>"; };
 		CB3948FA27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequencer_MacUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		CB3D995727EFD78E00E5ECBA /* Sequencer-Mac-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Sequencer-Mac-Info.plist"; sourceTree = SOURCE_ROOT; };
+		CB3D995827EFE4A000E5ECBA /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
+		CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSubscriptions.swift; sourceTree = "<group>"; };
 		CB801A1527D8AE6600D7788E /* Continuous.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Continuous.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -429,6 +434,14 @@
 			path = "Sequencer MacUITests";
 			sourceTree = "<group>";
 		};
+		CB3D995A27EFE4E300E5ECBA /* store_subscriptions */ = {
+			isa = PBXGroup;
+			children = (
+				CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */,
+			);
+			path = store_subscriptions;
+			sourceTree = "<group>";
+		};
 		CB801A1627D8AE6600D7788E /* Sequencer Mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -450,6 +463,8 @@
 				CBA4DAA427DDF4BB00A530E3 /* private.h */,
 				CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */,
 				CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */,
+				CB3D995827EFE4A000E5ECBA /* Parameters.swift */,
+				CB3D995A27EFE4E300E5ECBA /* store_subscriptions */,
 				CB3948F027EC3B24009A650D /* ForeignCallback.swift */,
 				CBECE3B927ED43DB0054BB43 /* SequencerEngineTests */,
 			);
@@ -901,9 +916,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB3D995C27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */,
 				CBA4DAA027DDF23600A530E3 /* SequencerEngine.swift in Sources */,
 				CB3948F127EC3B24009A650D /* ForeignCallback.swift in Sources */,
 				CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */,
+				CB3D995927EFE4A000E5ECBA /* Parameters.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -911,6 +928,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB3D995D27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */,
 				CBA4DAB727DDF72B00A530E3 /* SequencerEngine.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

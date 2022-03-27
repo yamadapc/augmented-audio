@@ -112,3 +112,57 @@ extension EngineImpl: SequencerEngine {
 
   func addMidiMapping(controller _: Int, parameterId _: SequencerUI.ParameterId) {}
 }
+
+extension EngineImpl {
+    func setVolume(_ looperId: UInt, volume: Float) {
+        looper_engine__set_volume(engine, looperId, volume)
+    }
+
+    func setSourceParameter(_ looperId: UInt, parameterId: SequencerEngine_private.SourceParameter, value: Float) {
+        looper_engine__set_source_parameter(engine, looperId, parameterId, value)
+    }
+
+    func setSourceParameterInt(_ looperId: UInt, parameterId: SequencerEngine_private.SourceParameter, value: Int32) {
+        looper_engine__set_source_parameter_int(engine, looperId, parameterId, value)
+    }
+
+    func setBooleanParameter(_ looperId: UInt, parameterId: SequencerEngine_private.ParameterId, value: Bool) {
+        looper_engine__set_boolean_parameter(engine, looperId, parameterId, value)
+    }
+
+    func setLFOParameter(_ looperId: UInt, parameterId: SequencerEngine_private.LFOParameter, lfoId: UInt, value: Float) {
+        looper_engine__set_lfo_parameter(engine, looperId, lfoId, parameterId, value)
+    }
+}
+
+// MARK: Helpers
+extension EngineImpl {
+  func setSourceParameter(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Float) {
+      self.setSourceParameter(
+          looperId,
+          parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
+          value: value
+      )
+  }
+
+  func setSourceParameterInt(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Int32) {
+      self.setSourceParameterInt(
+          looperId,
+          parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
+          value: value
+      )
+  }
+
+  func setBooleanParameter(_ looperId: UInt, parameterId: SequencerUI.ParameterId, value: Bool) {
+    guard let rustParameterId = getObjectIdRust(parameterId) else {
+      logger.warning("Failed to convert UI parameterID into native repr")
+      return
+    }
+    self.setBooleanParameter(looperId, parameterId: rustParameterId, value: value)
+  }
+
+  func setLFOParameter(_ looperId: UInt, parameterId: SequencerUI.LFOParameterId, lfoId: UInt, value: Float) {
+    let rustParameterId = LFO_PARAMETER_IDS[parameterId]!
+    setLFOParameter(looperId, parameterId: rustParameterId, lfoId: lfoId, value: value)
+  }
+}

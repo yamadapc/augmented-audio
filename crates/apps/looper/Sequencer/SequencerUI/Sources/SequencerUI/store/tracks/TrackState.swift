@@ -30,7 +30,6 @@ public class TrackState: ObservableObject {
     @Published public var volumeParameter: FloatParameter<Int>
 
     @Published public var looperState: LooperState = .empty
-    @Published public var numSamples: UInt = 0
 
     let position: LoopPosition = .init()
     public var positionPercent: Float {
