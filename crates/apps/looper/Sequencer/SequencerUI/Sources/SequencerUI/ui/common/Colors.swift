@@ -51,7 +51,9 @@ enum SequencerColors {
     static let black1 = color(20 * 2, 20 * 2, 23 * 2)
     static let black3 = color(20 * 3, 20 * 3, 20 * 3)
     static let white = color(245, 239, 237)
-    static let red = color(255, 103, 77)
+    private static let red = color(255, 103, 77)
+    static let recordColor = red
+    static let selectionColorHigh = red
     static let green = color(77, 139, 49)
     static let blue0 = color(8 * 0.05, 150 * 0.05, 180 * 0.05)
     static let blue = color(8, 178, 227)

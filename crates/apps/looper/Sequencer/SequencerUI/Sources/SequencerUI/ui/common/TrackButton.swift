@@ -35,7 +35,7 @@ struct TrackButton: View {
                     .background(
                         RoundedRectangle(cornerRadius: BORDER_RADIUS)
                             .stroke(
-                                isSelected ? SequencerColors.red : SequencerColors.black3.opacity(0.1),
+                                isSelected ? SequencerColors.selectionColorHigh : SequencerColors.black3.opacity(0.1),
                                 lineWidth: 1.0
                             )
                             .background(self.backgroundColor ?? SequencerColors.black)

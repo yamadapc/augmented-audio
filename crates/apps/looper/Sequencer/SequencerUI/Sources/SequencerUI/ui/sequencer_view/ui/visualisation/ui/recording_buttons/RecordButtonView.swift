@@ -48,11 +48,11 @@ struct RecordButtonView: View {
 
     func buttonColor() -> Color {
         if trackState.looperState.isRecording || trackState.looperState == .playingScheduled {
-            return SequencerColors.red
+            return SequencerColors.recordColor
         }
 
         if trackState.looperState == .recordingScheduled {
-            return isAnimating ? SequencerColors.red : SequencerColors.black
+            return isAnimating ? SequencerColors.recordColor : SequencerColors.black
         }
 
         return SequencerColors.black

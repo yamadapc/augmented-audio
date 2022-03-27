@@ -69,7 +69,7 @@ struct TabsRowView: View {
                             .overlay(
                                 RoundedRectangle(cornerRadius: BORDER_RADIUS)
                                     .stroke(
-                                        isSelected ? SequencerColors.red : SequencerColors.black3,
+                                        isSelected ? SequencerColors.selectionColorHigh : SequencerColors.black3,
                                         lineWidth: 1.0
                                     )
                             )

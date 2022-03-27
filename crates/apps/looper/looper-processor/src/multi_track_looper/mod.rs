@@ -828,11 +828,13 @@ impl MultiTrackLooper {
                 let left_value = self
                     .handle
                     .scene_parameters
-                    .get_left(looper_id, parameter_id.clone());
+                    .get_left(looper_id, parameter_id.clone())
+                    .unwrap_or(parameter_value);
                 let right_value = self
                     .handle
                     .scene_parameters
-                    .get_right(looper_id, parameter_id.clone());
+                    .get_right(looper_id, parameter_id.clone())
+                    .unwrap_or(parameter_value);
 
                 match (left_value, right_value) {
                     (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
@@ -949,7 +951,8 @@ mod test {
         let value = looper
             .handle
             .scene_parameters
-            .get_right(LooperId(0), parameter_id.clone());
+            .get_right(LooperId(0), parameter_id.clone())
+            .unwrap();
 
         assert_eq!(value.clone(), ParameterValue::Float(2.0.into()));
 
@@ -1039,6 +1042,27 @@ mod test {
             let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer[start_index..end_index]);
             looper.process(&mut buffer);
         }
+    }
+
+    #[test]
+    fn test_we_can_set_start_on_a_looper() {
+        let mut processor = MultiTrackLooper::default();
+        processor
+            .handle()
+            .set_source_parameter(LooperId(0), SourceParameter::Start, 0.5);
+        let looper = processor.handle().voices()[0].looper();
+        looper.set_looper_buffer(&VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]).interleaved());
+        looper.play();
+        let value = processor
+            .handle()
+            .get_parameter(LooperId(0), &SourceParameter::Start.into())
+            .unwrap()
+            .inner_float();
+        assert_eq!(value, 0.5);
+        let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
+        processor.prepare(AudioProcessorSettings::default());
+        processor.process(&mut buffer);
+        assert_eq!(buffer.slice(), [3.0, 4.0, 3.0, 4.0])
     }
 
     #[test]

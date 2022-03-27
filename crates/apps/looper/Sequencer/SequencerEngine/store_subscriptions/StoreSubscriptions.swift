@@ -40,7 +40,7 @@ class StoreSubscriptionsController {
         }
 
         store.sceneState.sceneSlider.$value.sink(receiveValue: { value in
-            self.logger.info("Setting scene", metadata: [
+            self.logger.debug("Setting scene", metadata: [
                 "value": .stringConvertible(value),
             ])
             looper_engine__set_scene_slider_value(self.engine.engine, (value + 1.0) / 2.0)
@@ -73,6 +73,10 @@ class StoreSubscriptionsController {
             pushFloatValue(
                 publisher: parameter.$value,
                 flush: {
+                    self.logger.info("Setting source parameter", metadata: [
+                        "id": .stringConvertible(parameter.id.debugDescription),
+                        "value": .stringConvertible($0),
+                    ])
                     self.engine.setSourceParameter(looperId, parameterId: parameter.id, value: $0)
                 },
                 initialValue: parameter.value

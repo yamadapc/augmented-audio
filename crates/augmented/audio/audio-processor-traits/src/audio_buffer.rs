@@ -195,13 +195,19 @@ pub struct VecAudioBuffer<SampleType> {
     num_samples: usize,
 }
 
-impl<SampleType> VecAudioBuffer<SampleType> {
+impl<SampleType: Clone> VecAudioBuffer<SampleType> {
     pub fn new_with(buffer: Vec<SampleType>, num_channels: usize, num_samples: usize) -> Self {
         Self {
             buffer,
             num_samples,
             num_channels,
         }
+    }
+
+    pub fn empty_with(num_channels: usize, num_samples: usize, value: SampleType) -> Self {
+        let mut result = Self::new();
+        result.resize(num_channels, num_samples, value);
+        result
     }
 }
 

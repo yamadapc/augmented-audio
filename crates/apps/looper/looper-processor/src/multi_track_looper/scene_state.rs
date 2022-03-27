@@ -49,11 +49,31 @@ impl SceneHandle {
         self.scenes[scene_id].scene_parameters[looper_id.0].set(id, value)
     }
 
-    pub fn get_left(&self, looper_id: LooperId, id: impl Into<ParameterId>) -> &ParameterValue {
-        &self.scenes[0].scene_parameters[looper_id.0].get(id)
+    pub fn get_left(
+        &self,
+        looper_id: LooperId,
+        id: impl Into<ParameterId>,
+    ) -> Option<&ParameterValue> {
+        let id = id.into();
+        let map = &self.scenes[0].scene_parameters[looper_id.0];
+        if map.has_value(id.clone()) {
+            Some(&map.get(id))
+        } else {
+            None
+        }
     }
 
-    pub fn get_right(&self, looper_id: LooperId, id: impl Into<ParameterId>) -> &ParameterValue {
-        &self.scenes[1].scene_parameters[looper_id.0].get(id)
+    pub fn get_right(
+        &self,
+        looper_id: LooperId,
+        id: impl Into<ParameterId>,
+    ) -> Option<&ParameterValue> {
+        let id = id.into();
+        let map = &self.scenes[1].scene_parameters[looper_id.0];
+        if map.has_value(id.clone()) {
+            Some(&map.get(id))
+        } else {
+            None
+        }
     }
 }

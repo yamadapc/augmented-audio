@@ -45,7 +45,7 @@ class EffectsRowViewModel: ObservableObject {
     @Published var creatingEffect: Int? = nil
     @Published var selectedEffect: Int? = nil
     var effectDefinitions: [EffectDefinition] = [
-        .init(id: .filter, label: "Filter", color: SequencerColors.red),
+        .init(id: .filter, label: "Filter", color: SequencerColors.recordColor),
         .init(id: .bitcrusher, label: "Bitcrusher", color: SequencerColors.green),
         .init(id: .delay, label: "Delay", color: SequencerColors.blue),
         .init(id: .compressor, label: "Compressor", color: SequencerColors.white),
