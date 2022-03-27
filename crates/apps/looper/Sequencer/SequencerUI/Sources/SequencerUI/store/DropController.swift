@@ -15,41 +15,33 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-
 import Logging
 import SwiftUI
 
-let PADDING: Double = 10
-let BORDER_RADIUS: Double = 8
+/**
+ * Listens to drop events on the top-level view. If an audio-file is dropped, calls into the LooperEngine to load it.
+ */
+class DropController {
+    private let store: Store
+    private let logger = Logger(label: "com.beijaflor.sequencer.ui.DropController")
+    init(store: Store) {
+        self.store = store
+    }
+}
 
-struct SequencerView: View {
-    @EnvironmentObject var store: Store
-    @State var dropController: DropController?
-
-    var body: some View {
-        let view = VStack(alignment: .leading, spacing: 0) {
-            TopBarView()
-                .bindToNilParameter(store: store)
-
-            SequencerContentView()
-
-            StatusBarView()
-                .bindToNilParameter(store: store)
+@available(macOS 11.0, *)
+extension DropController: DropDelegate {
+    func performDrop(info: DropInfo) -> Bool {
+        let audioContent = info.itemProviders(for: [.fileURL])
+        audioContent.forEach { file in
+            let _ = file.loadObject(ofClass: NSURL.self, completionHandler: { item, _ in
+                let url: NSURL?? = item as? NSURL?
+                let path: String? = url??.filePathURL?.path
+                self.logger.info("Received drop event", metadata: [
+                    "filepath": .string(path ?? "<unknown>"),
+                ])
+            })
         }
-        .bindToNilParameter(store: store)
-        .foregroundColor(SequencerColors.white)
-        .overlay(KeyboardShortcutsView(store: store))
-        .overlay(GlobalOverlays())
-        .setupCopyPasteController(store: store)
-        .onAppear {
-            dropController = DropController(store: store)
-        }
-
-        if #available(macOS 11.0, *), dropController != nil {
-            view
-                .onDrop(of: [.fileURL], delegate: dropController!)
-        } else {
-            view
-        }
+        return true
     }
 }

@@ -21,6 +21,23 @@ public enum EnvelopeParameterId {
     case attack, decay, release, sustain, enabled
 }
 
+extension EnvelopeParameterId {
+    func shortHelpString() -> String {
+        switch self {
+        case .attack:
+            return "Attack"
+        case .decay:
+            return "Decay"
+        case .release:
+            return "Release"
+        case .sustain:
+            return "Sustain"
+        case .enabled:
+            return "Enabled - If enabled, the envelope will be applied to the loop on each trigger"
+        }
+    }
+}
+
 public typealias EnvelopeParameter = FloatParameter<EnvelopeParameterId>
 
 public class EnvelopeState: ObservableObject {

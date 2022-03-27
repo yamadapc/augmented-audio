@@ -17,6 +17,7 @@ pub use time_info_provider::{TimeInfo, TimeInfoProvider, TimeInfoProviderImpl};
 
 #[allow(clippy::missing_safety_doc)]
 mod c_api;
+mod file_manager;
 mod loop_quantization;
 mod midi_map;
 mod multi_track_looper;

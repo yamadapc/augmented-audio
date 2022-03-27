@@ -16,6 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 @testable import SequencerUI
+import SnapshotTesting
+import SwiftUI
 import ViewInspector
 import XCTest
 
@@ -25,9 +27,14 @@ final class SequencerUITests: XCTestCase {
         XCTAssertEqual(store.focusState.selectedObject, nil)
     }
 
-    func testBasicRendering() throws {
-        // let view = SequencerView().environmentObject(Store())
-        // let recordText = try! view.inspect().find(text: "Record").string()
-        // XCTAssertEqual(recordText, "Record")
+    /* Snapshot tests don't pass on CI (maybe due to diff. macOS versions)
+
+    func testSnapshotRendering() throws {
+        let store = Store(engine: nil)
+        let content = ContentView().environmentObject(store)
+        let viewController = NSHostingController(rootView: content)
+        viewController.view.frame = .init(origin: .zero, size: .init(width: 1000, height: 900))
+        assertSnapshot(matching: viewController, as: .image(precision: 0.9))
     }
+    */
 }

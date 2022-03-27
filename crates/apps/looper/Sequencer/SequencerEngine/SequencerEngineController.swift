@@ -20,57 +20,6 @@ import Foundation
 import Logging
 import SequencerEngine_private
 import SequencerUI
-import QuartzCore
-
-func getObjectIdRust(_ id: SequencerUI.ParameterId) -> SequencerEngine_private.ParameterId? {
-    switch id {
-    case .sourceParameter(trackId: _, parameterId: let parameterId):
-        return looper_engine__source_parameter_id(SOURCE_PARAMETER_IDS[parameterId]!)
-    case .envelopeParameter(trackId: _, parameterId: let parameterId):
-        return looper_engine__envelope_parameter_id(ENVELOPE_PARAMETER_IDS[parameterId]!)
-    case .lfoParameter(trackId: _, lfo: let lfo, parameterId: let parameterId):
-        return looper_engine__lfo_parameter_id(lfo, LFO_PARAMETER_IDS[parameterId]!)
-    default:
-        return nil
-    }
-}
-
-// TODO: - write as hash-map
-let SOURCE_PARAMETER_IDS: [SourceParameterId: SequencerEngine_private.SourceParameter] = [
-    .start: Start,
-    .end: End,
-    .fadeStart: FadeStart,
-    .fadeEnd: FadeEnd,
-    .pitch: Pitch,
-    .speed: Speed,
-    .loopEnabled: LoopEnabled,
-    .sliceEnabled: SliceEnabled,
-    .sliceId: SliceId,
-]
-
-let LFO_PARAMETER_IDS: [LFOParameterId: SequencerEngine_private.LFOParameter] = [
-    LFOParameterId.frequency: Frequency,
-    LFOParameterId.amount: Amount,
-]
-
-let ENVELOPE_PARAMETER_IDS: [EnvelopeParameterId: SequencerEngine_private.EnvelopeParameter] = [
-    EnvelopeParameterId.attack: Attack,
-    EnvelopeParameterId.decay: Decay,
-    EnvelopeParameterId.release: Release,
-    EnvelopeParameterId.sustain: Sustain,
-    EnvelopeParameterId.enabled: EnvelopeEnabled,
-]
-
-let RUST_QUANTIZE_MODES: [QuantizationMode: CQuantizeMode] = [
-    .snapNext: CQuantizeModeSnapNext,
-    .snapClosest: CQuantizeModeSnapClosest,
-    .none: CQuantizeModeNone,
-]
-
-let RUST_TEMPO_CONTROL: [TempoControlMode: SequencerEngine_private.TempoControl] = [
-    .setAndFollowGlobalTempo: TempoControlSetGlobalTempo,
-    .none: TempoControlNone,
-]
 
 public class EngineController {
     public let store: Store
@@ -78,13 +27,18 @@ public class EngineController {
     private let engine: EngineImpl
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineController")
     private var cancellables: Set<AnyCancellable> = Set()
+    private let storeSubscriptionsController: StoreSubscriptionsController
 
     public init() {
         engine = EngineImpl()
         store = Store(engine: engine)
+        storeSubscriptionsController = StoreSubscriptionsController(
+          store: store,
+          engine: engine
+        )
 
         logger.info("Setting-up store -> engine subscriptions")
-        setupStoreSubscriptions()
+        storeSubscriptionsController.setup()
         setupMidiSubscription()
 
         logger.info("Setting-up store <- engine polling")
@@ -102,134 +56,6 @@ public class EngineController {
                     value: Int(event.value.value)
                 ))
             }
-        }).store(in: &cancellables)
-    }
-
-    func setupStoreSubscriptions() {
-        store.trackStates.enumerated().forEach { i, trackState in
-            trackState.volumeParameter.$value.sink(receiveValue: { volume in
-              looper_engine__set_volume(self.engine.engine, UInt(i), volume)
-            }).store(in: &cancellables)
-
-            trackState.sourceParameters.parameters.forEach { parameter in
-                parameter.$value.sink(receiveValue: { value in
-                    let rustParameterId = SOURCE_PARAMETER_IDS[parameter.id]!
-                    looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, value)
-                }).store(in: &cancellables)
-
-                let rustParameterId = SOURCE_PARAMETER_IDS[parameter.id]!
-                looper_engine__set_source_parameter(self.engine.engine, UInt(i), rustParameterId, parameter.value)
-            }
-
-            trackState.sourceParameters.intParameters.forEach { parameter in
-                parameter.$value.sink(receiveValue: { value in
-                    let rustParameterId = SOURCE_PARAMETER_IDS[parameter.localId]!
-                    looper_engine__set_source_parameter_int(self.engine.engine, UInt(i), rustParameterId, Int32(value))
-                }).store(in: &cancellables)
-                let rustParameterId = SOURCE_PARAMETER_IDS[parameter.localId]!
-                looper_engine__set_source_parameter_int(self.engine.engine, UInt(i), rustParameterId, Int32(parameter.value))
-            }
-
-            trackState.sourceParameters.toggles.forEach { toggle in
-                toggle.$value.sink(receiveValue: { value in
-                    if let rustParameterId = getObjectIdRust(toggle.id) {
-                        looper_engine__set_boolean_parameter(
-                            self.engine.engine,
-                            UInt(i),
-                            rustParameterId,
-                            value
-                        )
-                    }
-                }).store(in: &cancellables)
-                if let rustParameterId = getObjectIdRust(toggle.id) {
-                    looper_engine__set_boolean_parameter(
-                        self.engine.engine,
-                        UInt(i),
-                        rustParameterId,
-                        toggle.value
-                    )
-                }
-            }
-
-            trackState.lfo2.parameters.forEach { parameter in
-              parameter.$value.sink(receiveValue: { value in
-                if let rustParameterId = LFO_PARAMETER_IDS[parameter.id] {
-                    looper_engine__set_lfo_parameter(
-                      self.engine.engine,
-                      UInt(i),
-                      1,
-                      rustParameterId,
-                      value
-                    )
-                  }
-              }).store(in: &cancellables)
-            }
-            trackState.lfo1.parameters.forEach { parameter in
-              parameter.$value.sink(receiveValue: { value in
-                if let rustParameterId = LFO_PARAMETER_IDS[parameter.id] {
-    looper_engine__set_lfo_parameter(
-      self.engine.engine, UInt(i), 0, rustParameterId, value)
-                  }
-              }).store(in: &cancellables)
-            }
-
-            trackState.envelope.parameters.forEach { parameter in
-                parameter.$value.sink(receiveValue: { value in
-                    let rustParameterId = ENVELOPE_PARAMETER_IDS[parameter.id]!
-                    looper_engine__set_envelope_parameter(
-                        self.engine.engine,
-                        UInt(i),
-                        rustParameterId,
-                        value
-                    )
-                }).store(in: &cancellables)
-                let rustParameterId = ENVELOPE_PARAMETER_IDS[parameter.id]!
-                looper_engine__set_envelope_parameter(
-                    self.engine.engine,
-                    UInt(i),
-                    rustParameterId,
-                    parameter.value
-                )
-            }
-            trackState.envelope.toggles.forEach { toggle in
-                toggle.$value.sink(receiveValue: { value in
-                    if let rustParameterId = getObjectIdRust(toggle.id) {
-                        looper_engine__set_boolean_parameter(
-                            self.engine.engine,
-                            UInt(i),
-                            rustParameterId,
-                            value
-                        )
-                    }
-                }).store(in: &cancellables)
-                if let rustParameterId = getObjectIdRust(toggle.id) {
-                    looper_engine__set_boolean_parameter(
-                        self.engine.engine,
-                        UInt(i),
-                        rustParameterId,
-                        toggle.value
-                    )
-                }
-            }
-
-            trackState.quantizationParameters.quantizationMode.$value.sink(receiveValue: { value in
-                looper_engine__set_quantization_mode(self.engine.engine, UInt(i), RUST_QUANTIZE_MODES[value]!)
-            }).store(in: &cancellables)
-
-            trackState.quantizationParameters.tempoControlMode.$value.sink(receiveValue: { value in
-                looper_engine__set_tempo_control(self.engine.engine, UInt(i), RUST_TEMPO_CONTROL[value]!)
-            }).store(in: &cancellables)
-        }
-
-        store.sceneState.sceneSlider.$value.sink(receiveValue: { value in
-            self.logger.info("Setting scene", metadata: [
-                "value": .stringConvertible(value)
-            ])
-            looper_engine__set_scene_slider_value(self.engine.engine, (value + 1.0) / 2.0)
-        }).store(in: &cancellables)
-
-        store.metronomeVolume.$value.sink(receiveValue: { value in
-            looper_engine__set_metronome_volume(self.engine.engine, value)
         }).store(in: &cancellables)
     }
 
@@ -275,7 +101,6 @@ public class EngineController {
                 if trackState.looperState == .playing {
                     let buffer = looper_engine__get_looper_buffer(engine.engine, UInt(i))
                     let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
-                    // TODO: here we should free the previous buffer if it exists
                     store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: trackBuffer)
                 } else if trackState.looperState == .empty {
                     store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: nil)
@@ -287,10 +112,10 @@ public class EngineController {
                 let sliceBuffer = looper_engine__get_looper_slices(engine.engine, UInt(i))
                 let sliceBufferSize = slice_buffer__length(sliceBuffer)
                 if sliceBufferSize > 0 {
-                    let nativeBuffer = NativeSliceBuffer(inner: sliceBuffer!)
+                    let nativeBuffer = SliceBufferImpl(inner: sliceBuffer!)
                     store.setSliceBuffer(trackId: i + 1, fromAbstractBuffer: nativeBuffer)
                     logger.info("Received slice buffer from rust", metadata: [
-                        "slice_count": .stringConvertible(sliceBufferSize),
+                        "slice_count": .stringConvertible(sliceBufferSize)
                     ])
                 }
             }
@@ -300,8 +125,7 @@ public class EngineController {
         let positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
         let tempo = playhead.tempo == -1 ? nil : playhead.tempo
         if abs((store.timeInfo.positionBeats ?? 0.0) - (positionBeats ?? 0.0)) > 0.1 ||
-            store.timeInfo.tempo != tempo
-        {
+            store.timeInfo.tempo != tempo {
             store.timeInfo.positionBeats = positionBeats
             store.timeInfo.tempo = tempo
             store.timeInfo.objectWillChange.send()
@@ -313,8 +137,16 @@ public class EngineController {
     }
 }
 
-struct LooperBufferTrackBuffer {
-    var inner: OpaquePointer
+class LooperBufferTrackBuffer {
+    private var inner: OpaquePointer
+
+    init(inner: OpaquePointer) {
+        self.inner = inner
+    }
+
+    deinit {
+        looper_buffer__free(inner)
+    }
 }
 
 extension LooperBufferTrackBuffer: TrackBuffer {
@@ -333,11 +165,19 @@ extension LooperBufferTrackBuffer: TrackBuffer {
     }
 }
 
-struct NativeSliceBuffer {
-    var inner: OpaquePointer
+class SliceBufferImpl {
+    private var inner: OpaquePointer
+
+    init(inner: OpaquePointer) {
+        self.inner = inner
+    }
+
+    deinit {
+        slice_buffer__free(inner)
+    }
 }
 
-extension NativeSliceBuffer: SliceBuffer {
+extension SliceBufferImpl: SliceBuffer {
     var id: Int { inner.hashValue }
     var count: Int { Int(slice_buffer__length(inner)) }
     subscript(index: Int) -> UInt {
@@ -345,7 +185,7 @@ extension NativeSliceBuffer: SliceBuffer {
     }
 
     func equals(other: SliceBuffer) -> Bool {
-        if let otherBuffer = other as? NativeSliceBuffer {
+        if let otherBuffer = other as? SliceBufferImpl {
             return inner == otherBuffer.inner
         } else {
             return false

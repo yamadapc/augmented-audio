@@ -21,6 +21,17 @@ public enum LFOParameterId: Equatable {
     case frequency, amount
 }
 
+extension LFOParameterId {
+    func shortHelpString() -> String {
+        switch self {
+        case .frequency:
+            return "LFO Frequency"
+        case .amount:
+            return "LFO Amount"
+        }
+    }
+}
+
 public class LFOAmountParameter: FloatParameter<LFOParameterId> {
     override func formatValue() -> String {
         return "\(String(format: "%.0f", value * 100))%"

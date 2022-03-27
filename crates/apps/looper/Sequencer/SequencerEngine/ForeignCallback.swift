@@ -40,8 +40,7 @@ private class MidiEventWrapClosure {
         self.closure = closure
     }
 
-    fileprivate static func build(closure: @escaping (MidiEvent) -> Void) -> ForeignCallback_MidiEvent
-    {
+    fileprivate static func build(closure: @escaping (MidiEvent) -> Void) -> ForeignCallback_MidiEvent {
         let wrappedClosure = MidiEventWrapClosure(closure: closure)
         let context = Unmanaged.passRetained(wrappedClosure).toOpaque()
         return ForeignCallback_MidiEvent(
