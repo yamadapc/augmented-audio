@@ -6,6 +6,7 @@ use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
 };
 
+use crate::multi_track_looper::parameters_map::ParametersMap;
 use crate::processor::handle::LooperHandle as LooperProcessorHandle;
 use crate::{
     LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, QuantizeMode,
@@ -17,7 +18,7 @@ use super::lfo_processor::LFOHandle;
 use super::parameters::{ParameterId, ParameterValue};
 use super::trigger_model::TrackTriggerModel;
 
-pub type ParameterValues = lockfree::map::Map<ParameterId, ParameterValue>;
+pub type ParameterValues = ParametersMap;
 
 pub struct LooperVoice {
     pub id: usize,
@@ -95,7 +96,7 @@ pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> Loop
     LooperVoice {
         id,
         parameter_ids,
-        parameter_values,
+        parameter_values: ParametersMap::new(),
         looper_handle,
         sequencer_handle,
         triggers,

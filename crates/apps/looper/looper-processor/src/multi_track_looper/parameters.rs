@@ -1,6 +1,7 @@
 use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
 use augmented_atomics::AtomicValue;
 use num_derive::{FromPrimitive, ToPrimitive};
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
 use strum::EnumProperty;
 use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
@@ -235,10 +236,15 @@ impl ParameterValue {
     }
 }
 
-pub fn build_default_parameters() -> (
-    lockfree::map::Map<ParameterId, ParameterValue>,
-    Vec<ParameterId>,
-) {
+pub fn build_parameter_indexes(parameter_ids: &Vec<ParameterId>) -> HashMap<ParameterId, usize> {
+    parameter_ids
+        .iter()
+        .enumerate()
+        .map(|(index, id)| (id.clone(), index))
+        .collect()
+}
+
+pub fn build_default_parameters() -> (HashMap<ParameterId, ParameterValue>, Vec<ParameterId>) {
     use strum::IntoEnumIterator;
 
     let source_parameters: Vec<ParameterId> = SourceParameter::iter()
@@ -267,8 +273,7 @@ pub fn build_default_parameters() -> (
         .cloned()
         .collect();
 
-    let result = lockfree::map::Map::new();
-
+    let mut result = HashMap::new();
     parameter_ids
         .iter()
         .flat_map(|parameter_id| {
@@ -288,7 +293,7 @@ pub fn build_default_parameters() -> (
             }
         })
         .for_each(|(parameter_id, parameter_value)| {
-            let _ = result.insert(parameter_id, parameter_value);
+            result.insert(parameter_id, parameter_value);
         });
 
     (result, parameter_ids)

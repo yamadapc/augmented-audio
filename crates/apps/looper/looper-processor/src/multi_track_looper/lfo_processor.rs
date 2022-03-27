@@ -1,13 +1,15 @@
 use augmented_atomics::AtomicF32;
+use std::collections::HashMap;
 
-use crate::parameters::ParameterId;
+use crate::parameters::{build_default_parameters, build_parameter_indexes, ParameterId};
 
 type LFOMap = lockfree::map::Map<ParameterId, f32>;
 
 pub struct LFOHandle {
     amount: AtomicF32,
     frequency: AtomicF32,
-    map: LFOMap,
+    values: Vec<AtomicF32>,
+    indexes: HashMap<ParameterId, usize>,
 }
 
 impl Default for LFOHandle {
@@ -15,7 +17,12 @@ impl Default for LFOHandle {
         LFOHandle {
             amount: 1.0.into(),
             frequency: 1.0.into(),
-            map: LFOMap::default(),
+            values: build_default_parameters()
+                .1
+                .iter()
+                .map(|_| 0.0.into())
+                .collect(),
+            indexes: build_parameter_indexes(&build_default_parameters().1),
         }
     }
 }
@@ -30,10 +37,8 @@ impl LFOHandle {
     }
 
     pub fn modulation_amount(&self, parameter_id: &ParameterId) -> f32 {
-        self.map
-            .get(parameter_id)
-            .map(|v| v.val().clone())
-            .unwrap_or(0.0)
+        let index = self.indexes[parameter_id];
+        self.values[index].get()
     }
 
     pub fn set_amount(&self, value: f32) {
@@ -45,10 +50,11 @@ impl LFOHandle {
     }
 
     pub fn set_parameter_map(&self, parameter_id: ParameterId, amount: Option<f32>) {
+        let index = self.indexes[&parameter_id.into()];
         if let Some(amount) = amount {
-            self.map.insert(parameter_id, amount);
+            self.values[index].set(amount);
         } else {
-            self.map.remove(&parameter_id);
+            self.values[index].set(0.0);
         }
     }
 }

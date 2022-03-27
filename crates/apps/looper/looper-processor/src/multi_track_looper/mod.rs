@@ -6,7 +6,6 @@ use assert_no_alloc::assert_no_alloc;
 
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
-use lockfree::map::Preview;
 use num::ToPrimitive;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
@@ -49,10 +48,6 @@ pub(crate) mod slice_worker;
 mod tempo_estimation;
 mod trigger_model;
 
-type SceneParametersRef = Shared<
-    lockfree::map::Map<SceneId, lockfree::map::Map<(LooperId, ParameterId), ParameterValue>>,
->;
-
 pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
@@ -73,13 +68,7 @@ impl MultiTrackLooperHandle {
     ) -> Option<ParameterValue> {
         self.voices
             .get(looper_id.0)
-            .map(|voice| {
-                voice
-                    .user_parameters()
-                    .get(id)
-                    .map(|entry| entry.val().clone())
-            })
-            .flatten()
+            .map(|voice| voice.user_parameters().get(id.clone()).clone())
     }
 
     pub(crate) fn set_parameter(
@@ -116,17 +105,13 @@ impl MultiTrackLooperHandle {
                 );
 
                 let parameters = handle.user_parameters();
-                let tempo_control = parameters.get(&ParameterId::ParameterIdQuantization(
+                let tempo_control = parameters.get(ParameterId::ParameterIdQuantization(
                     QuantizationParameter::QuantizationParameterQuantizeMode,
                 ));
 
                 if was_empty
-                    && tempo_control
-                        .map(|tempo_control| {
-                            tempo_control.val().inner_enum()
-                                == TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap()
-                        })
-                        .unwrap_or(false)
+                    && tempo_control.inner_enum()
+                        == TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap()
                 {
                     let estimated_tempo = estimate_tempo(
                         Default::default(),
@@ -191,7 +176,7 @@ impl MultiTrackLooperHandle {
         value: ParameterValue,
     ) {
         let parameter_values = voice.user_parameters();
-        let _ = parameter_values.insert(parameter_id, value);
+        let _ = parameter_values.set(parameter_id, value);
     }
 
     #[allow(clippy::single_match, clippy::collapsible_match)]
@@ -201,17 +186,8 @@ impl MultiTrackLooperHandle {
                 SourceParameter::SliceId => {
                     let slice_enabled = voice
                         .user_parameters()
-                        .get(&ParameterId::ParameterIdSource(
-                            SourceParameter::SliceEnabled,
-                        ))
-                        .map(|entry| {
-                            if let ParameterValue::Bool(v) = entry.val() {
-                                (*v).load(Ordering::Relaxed)
-                            } else {
-                                false
-                            }
-                        })
-                        .unwrap_or(false);
+                        .get(SourceParameter::SliceEnabled)
+                        .inner_bool();
 
                     if !slice_enabled {
                         return;
@@ -434,7 +410,7 @@ impl MultiTrackLooperHandle {
             }
 
             let parameters = voice.user_parameters();
-            let _ = parameters.insert(parameter_id.clone(), ParameterValue::Bool(value.into()));
+            let _ = parameters.set(parameter_id.clone(), ParameterValue::Bool(value.into()));
         }
     }
 
@@ -631,13 +607,7 @@ impl MultiTrackLooper {
                 voice
                     .parameter_ids()
                     .iter()
-                    .map(|id| {
-                        voice
-                            .user_parameters()
-                            .get(id)
-                            .map(|entry| entry.val().clone())
-                            .unwrap()
-                    })
+                    .map(|id| voice.user_parameters().get(id.clone()).clone())
                     .collect()
             })
             .collect();
@@ -852,37 +822,34 @@ impl MultiTrackLooper {
             let parameter_values = voice.user_parameters();
 
             for parameter_id in voice.parameter_ids() {
-                if let Some(parameter_value) = parameter_values.get(parameter_id) {
-                    let parameter_value = parameter_value.val();
+                let parameter_value = parameter_values.get(parameter_id.clone());
 
-                    let key = (looper_id, parameter_id.clone());
-                    let left_value = self
-                        .handle
-                        .scene_parameters
-                        .get_left(looper_id, parameter_id.clone());
-                    let right_value = self
-                        .handle
-                        .scene_parameters
-                        .get_right(looper_id, parameter_id.clone());
+                let key = (looper_id, parameter_id.clone());
+                let left_value = self
+                    .handle
+                    .scene_parameters
+                    .get_left(looper_id, parameter_id.clone());
+                let right_value = self
+                    .handle
+                    .scene_parameters
+                    .get_right(looper_id, parameter_id.clone());
 
-                    match (left_value, right_value) {
-                        (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
-                            let value = left_value.get()
-                                + scene_value * (right_value.get() - left_value.get());
-                            self.parameters_scratch[voice.id]
-                                [self.parameter_scratch_indexes[parameter_id]] =
-                                ParameterValue::Float(value.into());
-                        }
-                        (ParameterValue::Int(left_value), ParameterValue::Int(right_value)) => {
-                            let value = left_value.get()
-                                + (scene_value * (right_value.get() - left_value.get()) as f32)
-                                    as i32;
-                            self.parameters_scratch[voice.id]
-                                [self.parameter_scratch_indexes[parameter_id]] =
-                                ParameterValue::Int(value.into());
-                        }
-                        _ => {}
+                match (left_value, right_value) {
+                    (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
+                        let value =
+                            left_value.get() + scene_value * (right_value.get() - left_value.get());
+                        self.parameters_scratch[voice.id]
+                            [self.parameter_scratch_indexes[parameter_id]] =
+                            ParameterValue::Float(value.into());
                     }
+                    (ParameterValue::Int(left_value), ParameterValue::Int(right_value)) => {
+                        let value = left_value.get()
+                            + (scene_value * (right_value.get() - left_value.get()) as f32) as i32;
+                        self.parameters_scratch[voice.id]
+                            [self.parameter_scratch_indexes[parameter_id]] =
+                            ParameterValue::Int(value.into());
+                    }
+                    _ => {}
                 }
             }
         }
