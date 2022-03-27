@@ -12,17 +12,13 @@ basedrop = "^0.1.2"
 num = "^0.4.0"
 num-traits = "0.2.14"
 num-derive = "0.3.3"
-uuid = { version = "^0.8.2", features = ["v4"] }
-rimd = "^0.0.1"
 rand = "0.8.4"
 mockall = "0.11.0"
 derive_builder = "0.10.2"
 atomic_refcell = "0.1.8"
-im = "15.0.0"
 strum = "0.24.0"
 strum_macros = "0.24.0"
 itertools = "0.10"
-lazy_static = "1.4.0"
 lockfree = "0.5.1"
 assert_no_alloc = { version = "1.1.2", features = ["warn_release"], default-features = false }
 
