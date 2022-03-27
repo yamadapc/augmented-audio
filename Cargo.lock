@@ -20,9 +20,9 @@ checksum = "a13739d7177fbd22bb0ed28badfff9f372f8bef46c863db4e1c6248f6b223b6e"
 
 [[package]]
 name = "actix"
-version = "0.12.0"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3720d0064a0ce5c0de7bd93bdb0a6caebab2a9b5668746145d7b3b0c5da02914"
+checksum = "f728064aca1c318585bf4bb04ffcfac9e75e508ab4e8b1bd9ba5dfe04e2cbed5"
 dependencies = [
  "actix-rt",
  "actix_derive",
@@ -35,11 +35,11 @@ dependencies = [
  "futures-util",
  "log",
  "once_cell",
- "parking_lot 0.11.2",
+ "parking_lot 0.12.0",
  "pin-project-lite",
  "smallvec",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.0",
 ]
 
 [[package]]
@@ -3345,7 +3345,7 @@ dependencies = [
  "indexmap",
  "slab",
  "tokio",
- "tokio-util",
+ "tokio-util 0.6.9",
  "tracing",
 ]
 
@@ -7473,7 +7473,7 @@ dependencies = [
  "futures-core",
  "pin-project-lite",
  "tokio",
- "tokio-util",
+ "tokio-util 0.6.9",
 ]
 
 [[package]]
@@ -7494,6 +7494,20 @@ name = "tokio-util"
 version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9e99e1983e5d376cd8eb4b66604d2e99e79f5bd988c3055891dcd8c9e2604cc0"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "futures-sink",
+ "log",
+ "pin-project-lite",
+ "tokio",
+]
+
+[[package]]
+name = "tokio-util"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64910e1b9c1901aaf5375561e35b9c057d95ff41a44ede043a03e09279eabaf1"
 dependencies = [
  "bytes",
  "futures-core",

@@ -17,15 +17,17 @@
 // = /copyright ===================================================================
 
 import SwiftUI
+import Logging
 
 let PADDING: Double = 10
 let BORDER_RADIUS: Double = 8
 
 struct SequencerView: View {
     @EnvironmentObject var store: Store
+    @State var dropController: DropController?
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        let view = VStack(alignment: .leading, spacing: 0) {
             TopBarView()
                 .bindToNilParameter(store: store)
 
@@ -39,5 +41,15 @@ struct SequencerView: View {
         .overlay(KeyboardShortcutsView(store: store))
         .overlay(GlobalOverlays())
         .setupCopyPasteController(store: store)
+        .onAppear {
+            dropController = DropController(store: store)
+        }
+
+        if #available(macOS 11.0, *), dropController != nil {
+          view
+            .onDrop(of: [.fileURL], delegate: dropController!)
+        } else {
+          view
+        }
     }
 }

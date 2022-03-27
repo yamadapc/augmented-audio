@@ -9,7 +9,7 @@ edition = "2021"
 crate-type = ["lib", "cdylib"]
 
 [dependencies]
-actix = "^0.12.0"
+actix = "^0.13.0"
 flutter_rust_bridge = "^1.13.0"
 anyhow = "1.0.52"
 log = "^0.4.14"
