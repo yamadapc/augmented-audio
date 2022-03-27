@@ -119,6 +119,7 @@ impl FftProcessor {
         self.input_buffer.iter().map(|f| f.abs()).sum()
     }
 
+    #[inline]
     pub fn perform_fft(&mut self, start_idx: usize) {
         for i in 0..self.size {
             let index = (start_idx + i) % self.size;
@@ -141,6 +142,7 @@ impl FftProcessor {
 impl SimpleAudioProcessor for FftProcessor {
     type SampleType = f32;
 
+    #[inline]
     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
         self.has_changed = false;
         self.input_buffer[self.cursor] = sample;

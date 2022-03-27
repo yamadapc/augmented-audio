@@ -347,6 +347,7 @@ impl AudioProcessor for MultiChannelPitchShifterProcessor {
     }
 }
 
+#[inline]
 fn princ_arg(phase: f32) -> f32 {
     const PI_2: f32 = 2.0 * PI;
 
@@ -387,7 +388,7 @@ impl SimpleAudioProcessor for PitchShifterProcessor {
 #[cfg(test)]
 mod test {
     use assert_no_alloc::assert_no_alloc;
-    use audio_processor_testing_helpers::{relative_path, rms_level};
+    use audio_processor_testing_helpers::{assert_f_eq, relative_path, rms_level};
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
     use audio_processor_traits::{
@@ -452,4 +453,18 @@ mod test {
             .collect();
         output_file_processor.process(&mut samples);
     }
+
+    // #[test]
+    // fn test_princ_arg() {
+    //     let bounds = 100;
+    //     let step = bounds as f32 / 10.0;
+    //     for x in -bounds..bounds {
+    //         let x = x as f32 / step;
+    //         let r1 = princ_arg(x);
+    //         let cx = Complex::from_polar(1.0, x);
+    //         let r2 = cx.arg();
+    //         println!("x={} r1={} r2={}", x, r1, r2);
+    //         assert!((r1 - r2).abs() < 0.1);
+    //     }
+    // }
 }
