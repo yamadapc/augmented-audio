@@ -176,6 +176,7 @@
 		CB3948F627ED24BA009A650D /* Sequencer MacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Sequencer MacUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3948F827ED24BA009A650D /* Sequencer_MacUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequencer_MacUITests.swift; sourceTree = "<group>"; };
 		CB3948FA27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequencer_MacUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		CB3D995727EFD78E00E5ECBA /* Sequencer-Mac-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Sequencer-Mac-Info.plist"; sourceTree = SOURCE_ROOT; };
 		CB801A1527D8AE6600D7788E /* Continuous.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Continuous.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -431,6 +432,7 @@
 		CB801A1627D8AE6600D7788E /* Sequencer Mac */ = {
 			isa = PBXGroup;
 			children = (
+				CB3D995727EFD78E00E5ECBA /* Sequencer-Mac-Info.plist */,
 				CB801A1727D8AE6600D7788E /* AppDelegate.swift */,
 				CB801A1927D8AE6600D7788E /* ViewController.swift */,
 				CB801A1B27D8AE6600D7788E /* Assets.xcassets */,
@@ -1377,6 +1379,7 @@
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sequencer-Mac-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
@@ -1409,6 +1412,7 @@
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				ENABLE_HARDENED_RUNTIME = NO;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "Sequencer-Mac-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;

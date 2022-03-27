@@ -38,5 +38,6 @@ struct SequencerView: View {
         .foregroundColor(SequencerColors.white)
         .overlay(KeyboardShortcutsView(store: store))
         .overlay(GlobalOverlays())
+        .setupCopyPasteController(store: store)
     }
 }
