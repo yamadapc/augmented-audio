@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 
-use audio_processor_standalone::standalone_vst::vst::util::ParameterTransfer;
 use augmented_atomics::AtomicValue;
 
 use crate::parameters::{
