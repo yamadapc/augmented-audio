@@ -18,6 +18,8 @@
 @testable import SequencerUI
 import ViewInspector
 import XCTest
+import SwiftUI
+import SnapshotTesting
 
 final class SequencerUITests: XCTestCase {
     func testCreateStore() {
@@ -25,9 +27,11 @@ final class SequencerUITests: XCTestCase {
         XCTAssertEqual(store.focusState.selectedObject, nil)
     }
 
-    func testBasicRendering() throws {
-        // let view = SequencerView().environmentObject(Store())
-        // let recordText = try! view.inspect().find(text: "Record").string()
-        // XCTAssertEqual(recordText, "Record")
+    func testSnapshotRendering() throws {
+        let store = Store(engine: nil)
+        let content = ContentView().environmentObject(store)
+        let viewController = NSHostingController(rootView: content)
+        viewController.view.frame = .init(origin: .zero, size: .init(width: 1000, height: 900))
+        assertSnapshot(matching: viewController, as: .image(precision: 0.9))
     }
 }
