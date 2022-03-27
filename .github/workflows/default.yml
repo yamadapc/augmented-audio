@@ -155,4 +155,5 @@ jobs:
       - name: Run Sequencer.app tests
         run: |
           cd ./crates/apps/looper/Sequencer
+          brew install xcbeautify
           make test
