@@ -40,3 +40,6 @@
 [submodule "crates/vendor/libsamplerate-sys"]
 	path = crates/vendor/libsamplerate-sys
 	url = git@github.com:yamadapc/libsamplerate-sys
+[submodule "crates/vendor/assert-no-alloc"]
+	path = crates/vendor/assert-no-alloc
+	url = git@github.com:yamadapc/rust-assert-no-alloc

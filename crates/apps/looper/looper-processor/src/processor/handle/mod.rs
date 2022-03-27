@@ -571,6 +571,7 @@ fn calculate_fade_volume(fade_perc: f32, length: usize, cursor: f32) -> f32 {
 
 #[cfg(test)]
 mod test {
+    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::assert_f_eq;
 
     use super::*;
@@ -617,6 +618,20 @@ mod test {
         assert_f_eq!(handle.get_fade_out_volume(1.0), 1.0);
         assert_f_eq!(handle.get_fade_out_volume(2.0), 0.5);
         assert_f_eq!(handle.get_fade_out_volume(3.0), 0.0);
+    }
+
+    #[test]
+    fn test_stop_recording_does_not_allocate() {
+        let handle = LooperHandle::default();
+        handle.start_recording();
+        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        for sample in buffer.slice() {
+            handle.process(0, *sample);
+        }
+        assert_eq!(handle.state.get(), LooperState::Recording);
+        assert_no_alloc(|| {
+            handle.stop_recording_audio_thread_only();
+        });
     }
 
     mod get_offset {

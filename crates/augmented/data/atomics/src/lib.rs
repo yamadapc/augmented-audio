@@ -40,6 +40,7 @@ std_atomic_impl!(AtomicI8, i8);
 std_atomic_impl!(AtomicI16, i16);
 std_atomic_impl!(AtomicI32, i32);
 std_atomic_impl!(AtomicI64, i64);
+std_atomic_impl!(AtomicBool, bool);
 
 macro_rules! atomic_float {
     ($name: ident, $backing: ident, $inner: ident) => {

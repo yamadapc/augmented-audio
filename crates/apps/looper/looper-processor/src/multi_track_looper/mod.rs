@@ -31,6 +31,7 @@ use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 
 use crate::multi_track_looper::lfo_processor::LFOHandle;
 use crate::multi_track_looper::midi_store::MidiStoreHandle;
+use crate::multi_track_looper::scene_state::SceneHandle;
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
@@ -42,6 +43,8 @@ mod looper_voice;
 pub(crate) mod metrics;
 pub(crate) mod midi_store;
 pub mod parameters;
+mod parameters_map;
+mod scene_state;
 pub(crate) mod slice_worker;
 mod tempo_estimation;
 mod trigger_model;
@@ -54,10 +57,7 @@ pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
     sample_rate: AtomicF32,
-    scene_value: AtomicF32,
-    scene_parameters: SceneParametersRef,
-    left_scene_id: AtomicUsize,
-    right_scene_id: AtomicUsize,
+    scene_parameters: SceneHandle,
     metronome_handle: Shared<MetronomeProcessorHandle>,
     slice_worker: SliceWorker,
     settings: SharedCell<AudioProcessorSettings>,
@@ -102,7 +102,7 @@ impl MultiTrackLooperHandle {
     }
 
     pub fn set_scene_value(&self, value: f32) {
-        self.scene_value.set(value);
+        self.scene_parameters.set_slider(value);
     }
 
     pub fn toggle_recording(&self, looper_id: LooperId) {
@@ -123,10 +123,8 @@ impl MultiTrackLooperHandle {
                 if was_empty
                     && tempo_control
                         .map(|tempo_control| {
-                            *tempo_control.val()
-                                == ParameterValue::Enum(
-                                    TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap(),
-                                )
+                            tempo_control.val().inner_enum()
+                                == TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap()
                         })
                         .unwrap_or(false)
                 {
@@ -183,7 +181,7 @@ impl MultiTrackLooperHandle {
             }
 
             let parameter_id = ParameterId::ParameterIdSource(parameter);
-            Self::update_parameter_table(voice, parameter_id, ParameterValue::Float(value));
+            Self::update_parameter_table(voice, parameter_id, ParameterValue::Float(value.into()));
         }
     }
 
@@ -208,7 +206,7 @@ impl MultiTrackLooperHandle {
                         ))
                         .map(|entry| {
                             if let ParameterValue::Bool(v) = entry.val() {
-                                *v
+                                (*v).load(Ordering::Relaxed)
                             } else {
                                 false
                             }
@@ -315,7 +313,7 @@ impl MultiTrackLooperHandle {
             Self::update_parameter_table(
                 voice,
                 ParameterId::ParameterIdEnvelope(parameter_id),
-                ParameterValue::Float(value),
+                ParameterValue::Float(value.into()),
             );
         }
     }
@@ -332,7 +330,7 @@ impl MultiTrackLooperHandle {
                 ParameterId::ParameterIdQuantization(
                     QuantizationParameter::QuantizationParameterQuantizeMode,
                 ),
-                ParameterValue::Enum(mode.to_usize().unwrap()),
+                ParameterValue::Enum(mode.to_usize().unwrap().into()),
             )
         }
     }
@@ -344,7 +342,7 @@ impl MultiTrackLooperHandle {
                 ParameterId::ParameterIdQuantization(
                     QuantizationParameter::QuantizationParameterTempoControl,
                 ),
-                ParameterValue::Enum(mode.to_usize().unwrap()),
+                ParameterValue::Enum(mode.to_usize().unwrap().into()),
             );
         }
     }
@@ -381,7 +379,7 @@ impl MultiTrackLooperHandle {
             Self::update_parameter_table(
                 voice,
                 ParameterId::ParameterIdLFO(lfo, parameter_id),
-                ParameterValue::Float(value),
+                ParameterValue::Float(value.into()),
             );
         }
     }
@@ -436,13 +434,13 @@ impl MultiTrackLooperHandle {
             }
 
             let parameters = voice.user_parameters();
-            let _ = parameters.insert(parameter_id.clone(), ParameterValue::Bool(value));
+            let _ = parameters.insert(parameter_id.clone(), ParameterValue::Bool(value.into()));
         }
     }
 
     pub fn set_int_parameter(&self, looper_id: LooperId, parameter_id: ParameterId, value: i32) {
         if let Some(voice) = self.voices.get(looper_id.0) {
-            Self::update_parameter_table(voice, parameter_id, ParameterValue::Int(value));
+            Self::update_parameter_table(voice, parameter_id, ParameterValue::Int(value.into()));
         }
     }
 
@@ -461,21 +459,7 @@ impl MultiTrackLooperHandle {
             value
         );
         let all_scene_parameters = &self.scene_parameters;
-        all_scene_parameters
-            .insert_with(scene_id, |_, _, prev_value| {
-                if prev_value.is_some() {
-                    Preview::Keep
-                } else {
-                    Preview::New(Default::default())
-                }
-            })
-            .created();
-
-        if let Some(scene_parameters) = all_scene_parameters.get(&scene_id) {
-            scene_parameters
-                .val()
-                .insert((looper_id, parameter_id), ParameterValue::Float(value));
-        }
+        all_scene_parameters.set(scene_id, looper_id, parameter_id, value);
     }
 
     pub fn add_parameter_lock(
@@ -668,10 +652,7 @@ impl MultiTrackLooper {
         let handle = make_shared(MultiTrackLooperHandle {
             voices,
             time_info_provider,
-            scene_value: AtomicF32::new(0.0),
-            scene_parameters: make_shared(Default::default()),
-            left_scene_id: AtomicUsize::new(0),
-            right_scene_id: AtomicUsize::new(1),
+            scene_parameters: SceneHandle::new(8, 2),
             sample_rate: AtomicF32::new(44100.0),
             metronome_handle,
             settings: make_shared_cell(AudioProcessorSettings::default()),
@@ -778,7 +759,8 @@ impl MultiTrackLooper {
                     // has_triggers = true;
                     for (parameter_id, lock) in trigger.locks() {
                         let parameter_idx = self.parameter_scratch_indexes[parameter_id];
-                        parameters_scratch[parameter_idx] = ParameterValue::Float(lock.value());
+                        parameters_scratch[parameter_idx] =
+                            ParameterValue::Float(lock.value().into());
                     }
                 }
 
@@ -791,31 +773,31 @@ impl MultiTrackLooper {
 
     fn process_lfos(&mut self) {
         for ((lfo1, lfo2), voice) in self.lfos.iter_mut().zip(self.handle.voices.iter()) {
-            if let ParameterValue::Float(lfo_freq_1) = self.parameters_scratch[voice.id][self
+            if let ParameterValue::Float(lfo_freq_1) = &self.parameters_scratch[voice.id][self
                 .parameter_scratch_indexes
                 [&ParameterId::ParameterIdLFO(0, LFOParameter::Frequency)]]
             {
-                lfo1.set_frequency(lfo_freq_1);
+                lfo1.set_frequency(lfo_freq_1.get());
             }
-            if let ParameterValue::Float(lfo_freq_2) = self.parameters_scratch[voice.id][self
+            if let ParameterValue::Float(lfo_freq_2) = &self.parameters_scratch[voice.id][self
                 .parameter_scratch_indexes
                 [&ParameterId::ParameterIdLFO(1, LFOParameter::Frequency)]]
             {
-                lfo2.set_frequency(lfo_freq_2);
+                lfo2.set_frequency(lfo_freq_2.get());
             }
-            let lfo1_amount = if let ParameterValue::Float(value) = self.parameters_scratch
+            let lfo1_amount = if let ParameterValue::Float(value) = &self.parameters_scratch
                 [voice.id][self.parameter_scratch_indexes
                 [&ParameterId::ParameterIdLFO(0, LFOParameter::Amount)]]
             {
-                value
+                value.get()
             } else {
                 1.0
             };
-            let lfo2_amount = if let ParameterValue::Float(value) = self.parameters_scratch
+            let lfo2_amount = if let ParameterValue::Float(value) = &self.parameters_scratch
                 [voice.id][self.parameter_scratch_indexes
                 [&ParameterId::ParameterIdLFO(1, LFOParameter::Amount)]]
             {
-                value
+                value.get()
             } else {
                 1.0
             };
@@ -831,7 +813,7 @@ impl MultiTrackLooper {
              -> Option<f32> {
                 let modulation_amount = lfo_handle.modulation_amount(parameter);
                 if let ParameterValue::Float(value) = value {
-                    let value = lfo.get() * modulation_amount * lfo_amount + value;
+                    let value = lfo.get() * modulation_amount * lfo_amount + value.get();
                     return Some(value);
                 }
                 None
@@ -845,7 +827,8 @@ impl MultiTrackLooper {
                     lfo1_handle,
                     lfo1,
                 ) {
-                    self.parameters_scratch[voice.id][parameter_idx] = ParameterValue::Float(value);
+                    self.parameters_scratch[voice.id][parameter_idx] =
+                        ParameterValue::Float(value.into());
                 }
                 if let Some(value) = run_mapping(
                     parameter,
@@ -854,17 +837,15 @@ impl MultiTrackLooper {
                     lfo2_handle,
                     lfo2,
                 ) {
-                    self.parameters_scratch[voice.id][parameter_idx] = ParameterValue::Float(value);
+                    self.parameters_scratch[voice.id][parameter_idx] =
+                        ParameterValue::Float(value.into());
                 }
             }
         }
     }
 
     fn process_scenes(&mut self) {
-        let all_scene_parameters = &self.handle.scene_parameters;
-        let left_parameters = all_scene_parameters.get(&self.handle.left_scene_id.get());
-        let right_parameters = all_scene_parameters.get(&self.handle.right_scene_id.get());
-        let scene_value = self.handle.scene_value.get();
+        let scene_value = self.handle.scene_parameters.get_slider();
 
         for (index, voice) in self.handle.voices.iter().enumerate() {
             let looper_id = LooperId(index);
@@ -875,28 +856,30 @@ impl MultiTrackLooper {
                     let parameter_value = parameter_value.val();
 
                     let key = (looper_id, parameter_id.clone());
-                    let left_value = left_parameters
-                        .as_ref()
-                        .and_then(|ps| ps.val().get(&key).map(|entry| entry.val().clone()))
-                        .unwrap_or_else(|| parameter_value.clone());
-                    let right_value = right_parameters
-                        .as_ref()
-                        .and_then(|ps| ps.val().get(&key).map(|entry| entry.val().clone()))
-                        .unwrap_or_else(|| parameter_value.clone());
+                    let left_value = self
+                        .handle
+                        .scene_parameters
+                        .get_left(looper_id, parameter_id.clone());
+                    let right_value = self
+                        .handle
+                        .scene_parameters
+                        .get_right(looper_id, parameter_id.clone());
 
                     match (left_value, right_value) {
                         (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
-                            let value = left_value + scene_value * (right_value - left_value);
+                            let value = left_value.get()
+                                + scene_value * (right_value.get() - left_value.get());
                             self.parameters_scratch[voice.id]
                                 [self.parameter_scratch_indexes[parameter_id]] =
-                                ParameterValue::Float(value);
+                                ParameterValue::Float(value.into());
                         }
                         (ParameterValue::Int(left_value), ParameterValue::Int(right_value)) => {
-                            let value = left_value
-                                + (scene_value * (right_value - left_value) as f32) as i32;
+                            let value = left_value.get()
+                                + (scene_value * (right_value.get() - left_value.get()) as f32)
+                                    as i32;
                             self.parameters_scratch[voice.id]
                                 [self.parameter_scratch_indexes[parameter_id]] =
-                                ParameterValue::Int(value);
+                                ParameterValue::Int(value.into());
                         }
                         _ => {}
                     }
@@ -916,11 +899,11 @@ impl MultiTrackLooper {
                 match parameter_value {
                     ParameterValue::Float(value) => {
                         self.handle
-                            .update_handle_float(voice, parameter.clone(), *value)
+                            .update_handle_float(voice, parameter.clone(), value.get())
                     }
                     ParameterValue::Int(value) => {
                         self.handle
-                            .update_handle_int(voice, parameter.clone(), *value)
+                            .update_handle_int(voice, parameter.clone(), value.get())
                     }
                     _ => {}
                 }
@@ -996,27 +979,33 @@ mod test {
         looper
             .handle
             .add_scene_parameter_lock(1, LooperId(0), parameter_id.clone(), 2.0);
-        let parameters = looper.handle.scene_parameters.get(&1);
-        assert_eq!(
-            parameters
-                .unwrap()
-                .val()
-                .get(&(
-                    LooperId(0),
-                    ParameterId::ParameterIdSource(SourceParameter::Speed)
-                ))
-                .unwrap()
-                .val()
-                .clone(),
-            ParameterValue::Float(2.0)
-        );
+        let value = looper
+            .handle
+            .scene_parameters
+            .get_right(LooperId(0), parameter_id.clone());
+
+        assert_eq!(value.clone(), ParameterValue::Float(2.0.into()));
 
         looper.handle.set_scene_value(0.5);
-        looper.process_scenes();
+        assert_no_alloc(|| {
+            looper.process_scenes();
+        });
         assert_eq!(
             looper.parameters_scratch[0][looper.parameter_scratch_indexes[&parameter_id]],
-            ParameterValue::Float(1.5)
+            ParameterValue::Float(1.5.into())
         );
+    }
+
+    #[test]
+    fn test_scenes_dont_allocate() {
+        let mut looper = MultiTrackLooper::default();
+        let handle = std::thread::spawn(move || {
+            assert_no_alloc(|| {
+                looper.process_scenes();
+                looper.flush_parameters();
+            });
+        });
+        handle.join().unwrap();
     }
 
     #[test]
@@ -1030,17 +1019,23 @@ mod test {
             ParameterId::ParameterIdSource(SourceParameter::Speed),
             2.0,
         );
-        looper.process_scenes();
-        looper.flush_parameters();
+        assert_no_alloc(|| {
+            looper.process_scenes();
+            looper.flush_parameters();
+        });
         assert_f_eq!(looper.handle.voices[0].looper().speed(), 1.0);
         looper.handle.set_scene_value(0.5);
-        looper.process_scenes();
+        assert_no_alloc(|| {
+            looper.process_scenes();
+        });
         assert_eq!(
             looper.parameters_scratch[0][looper.parameter_scratch_indexes
                 [&ParameterId::ParameterIdSource(SourceParameter::Speed)]],
-            ParameterValue::Float(1.5)
+            ParameterValue::Float(1.5.into())
         );
-        looper.flush_parameters();
+        assert_no_alloc(|| {
+            looper.flush_parameters();
+        });
         assert_f_eq!(looper.handle.voices[0].looper().speed(), 1.5);
     }
 

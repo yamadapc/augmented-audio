@@ -25,7 +25,7 @@
 import SwiftUI
 
 struct TrackOverlay: View {
-    var position: LoopPosition
+    @ObservedObject var position: LoopPosition
 
     var body: some View {
         ZStack {

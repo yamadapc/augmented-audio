@@ -1,4 +1,7 @@
+use audio_processor_standalone::standalone_vst::vst::util::AtomicFloat;
+use augmented_atomics::AtomicValue;
 use num_derive::{FromPrimitive, ToPrimitive};
+use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
 use strum::EnumProperty;
 use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
 
@@ -15,6 +18,18 @@ pub enum ParameterId {
     ParameterIdEnvelope(EnvelopeParameter),
     ParameterIdLFO(usize, LFOParameter),
     ParameterIdQuantization(QuantizationParameter),
+}
+
+impl From<EnvelopeParameter> for ParameterId {
+    fn from(inner: EnvelopeParameter) -> Self {
+        ParameterId::ParameterIdEnvelope(inner)
+    }
+}
+
+impl From<SourceParameter> for ParameterId {
+    fn from(inner: SourceParameter) -> Self {
+        ParameterId::ParameterIdSource(inner)
+    }
 }
 
 impl EnumProperty for ParameterId {
@@ -113,13 +128,111 @@ pub enum LFOParameter {
     Amount = 1,
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Debug)]
 pub enum ParameterValue {
-    Float(f32),
-    Bool(bool),
-    Enum(usize),
-    Int(i32),
+    Float(AtomicFloat),
+    Bool(AtomicBool),
+    Enum(AtomicUsize),
+    Int(AtomicI32),
     None,
+}
+
+impl From<i32> for ParameterValue {
+    fn from(v: i32) -> Self {
+        ParameterValue::Int(v.into())
+    }
+}
+
+impl From<usize> for ParameterValue {
+    fn from(v: usize) -> Self {
+        ParameterValue::Enum(v.into())
+    }
+}
+
+impl From<bool> for ParameterValue {
+    fn from(v: bool) -> Self {
+        ParameterValue::Bool(v.into())
+    }
+}
+
+impl From<f32> for ParameterValue {
+    fn from(v: f32) -> Self {
+        ParameterValue::Float(v.into())
+    }
+}
+
+impl PartialEq for ParameterValue {
+    fn eq(&self, other: &Self) -> bool {
+        use ParameterValue::*;
+        match (self, other) {
+            (Float(f1), Float(f2)) => (f1.get() - f2.get()).abs() < f32::EPSILON,
+            (Int(i1), Int(i2)) => i1.get() == i2.get(),
+            (Bool(b1), Bool(b2)) => b1.get() == b2.get(),
+            (Enum(e1), Enum(e2)) => e1.get() == e2.get(),
+            (None, None) => true,
+            _ => false,
+        }
+    }
+}
+
+impl Clone for ParameterValue {
+    fn clone(&self) -> Self {
+        match self {
+            ParameterValue::Float(inner) => ParameterValue::Float(inner.get().into()),
+            ParameterValue::Bool(inner) => {
+                ParameterValue::Bool(inner.load(Ordering::Relaxed).into())
+            }
+            ParameterValue::Enum(inner) => ParameterValue::Enum(inner.get().into()),
+            ParameterValue::Int(inner) => ParameterValue::Int(inner.get().into()),
+            ParameterValue::None => ParameterValue::None,
+        }
+    }
+}
+
+impl ParameterValue {
+    pub fn set_from(&self, other: &ParameterValue) {
+        match self {
+            ParameterValue::Float(f) => f.set(other.inner_float()),
+            ParameterValue::Bool(b) => b.set(other.inner_bool()),
+            ParameterValue::Enum(e) => {
+                e.set(other.inner_enum());
+            }
+            ParameterValue::Int(i) => i.set(other.inner_int()),
+            ParameterValue::None => {}
+        }
+    }
+
+    pub fn inner_int(&self) -> i32 {
+        if let ParameterValue::Int(inner) = self {
+            inner.get()
+        } else {
+            0
+        }
+    }
+
+    pub fn inner_bool(&self) -> bool {
+        if let ParameterValue::Bool(inner) = self {
+            inner.get()
+        } else {
+            false
+        }
+    }
+
+    pub fn inner_float(&self) -> f32 {
+        if let ParameterValue::Float(inner) = self {
+            inner.get()
+        } else {
+            0.0
+        }
+    }
+
+    pub fn inner_enum(&self) -> usize {
+        if let ParameterValue::Enum(inner) = self {
+            inner.get()
+        } else {
+            0
+        }
+    }
 }
 
 pub fn build_default_parameters() -> (
@@ -188,21 +301,21 @@ fn get_default_parameter_value(parameter_id: &ParameterId) -> ParameterValue {
         "float" => {
             let f_str = parameter_id.get_str("default").unwrap();
             let f = f32::from_str(f_str).unwrap();
-            ParameterValue::Float(f)
+            ParameterValue::Float(f.into())
         }
         "bool" => {
             let b_str = parameter_id.get_str("default").unwrap();
-            ParameterValue::Bool(b_str == "true")
+            ParameterValue::Bool((b_str == "true").into())
         }
         "enum" => {
             let e_str = parameter_id.get_str("default").unwrap();
             let e = usize::from_str(e_str).unwrap();
-            ParameterValue::Enum(e)
+            ParameterValue::Enum(e.into())
         }
         "int" => {
             if let Some(i_str) = parameter_id.get_str("default") {
                 let i = i32::from_str(i_str).unwrap();
-                ParameterValue::Int(i)
+                ParameterValue::Int(i.into())
             } else {
                 ParameterValue::None
             }
