@@ -83,17 +83,21 @@ mod test_midi_map {
 
     #[test]
     fn test_create_midi_map() {
-        let gc = audio_garbage_collector::GarbageCollector::default();
-        let store = SharedCell::new(Shared::new(gc.handle(), Default::default()));
-        let midi_map = MidiMap::new(gc.handle(), store);
+        let store = SharedCell::new(Shared::new(
+            audio_garbage_collector::handle(),
+            Default::default(),
+        ));
+        let midi_map = MidiMap::new(audio_garbage_collector::handle(), store);
         assert!(midi_map.is_empty());
     }
 
     #[test]
     fn test_add_entry() {
-        let gc = audio_garbage_collector::GarbageCollector::default();
-        let store = SharedCell::new(Shared::new(gc.handle(), Default::default()));
-        let midi_map = MidiMap::new(gc.handle(), store);
+        let store = SharedCell::new(Shared::new(
+            audio_garbage_collector::handle(),
+            Default::default(),
+        ));
+        let midi_map = MidiMap::new(audio_garbage_collector::handle(), store);
 
         assert!(midi_map.is_empty());
         let spec = MidiSpec::new(0xB0, 88);

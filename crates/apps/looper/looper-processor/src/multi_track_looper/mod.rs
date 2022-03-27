@@ -1113,7 +1113,7 @@ mod test {
 
         looper.prepare(settings.clone());
 
-        let buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
+        let buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(10.0));
         let mut buffer = VecAudioBuffer::from(buffer);
         looper_voice.set_looper_buffer(&buffer.interleaved());
         looper_voice.play();
