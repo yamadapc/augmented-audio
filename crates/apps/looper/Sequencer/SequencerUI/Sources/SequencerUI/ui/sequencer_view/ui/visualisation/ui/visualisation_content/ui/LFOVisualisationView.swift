@@ -17,72 +17,80 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-protocol LFOVisualisationViewModel: ObservableObject {
-    var frequency: Double { get set }
-    var amount: Double { get set }
+struct LFOVisualisationViewInner: View {
+  @ObservedObject var lfoAmount: FloatParameter<LFOParameterId>
+  @ObservedObject var lfoFrequency: FloatParameter<LFOParameterId>
+  @State var tick: Int = 0
+  @State var lastTranslation: CGSize = .zero
+
+  var body: some View {
+      GeometryReader { geometry in
+          ZStack {
+              Path { path in
+                  buildPath(geometry, &path, tick)
+              }
+              .stroke(SequencerColors.blue, lineWidth: 2)
+              .contentShape(Rectangle())
+              .gesture(
+                  DragGesture(minimumDistance: 0)
+                      .onChanged { drag in
+                          let currentTranslation = drag.translation
+
+                          var amount = CGFloat(lfoAmount.value)
+                          amount -= (currentTranslation.height - lastTranslation.height) / (geometry.size.height / 2)
+                          amount = max(min(amount, 1), 0)
+                          lfoAmount.value = Float(amount)
+
+                          var frequency = CGFloat(lfoFrequency.value)
+                          frequency -= (currentTranslation.width - lastTranslation.width) / (geometry.size.width / 2)
+                          frequency = min(max(frequency, 0.01), 20)
+                          lfoFrequency.value = Float(frequency)
+
+                          self.lastTranslation = currentTranslation
+                      }
+                      .onEnded { _ in
+                          self.lastTranslation = CGSize.zero
+                      }
+              )
+
+              VStack(alignment: .trailing) {
+                  Text("Amount: \(String(format: "%.0f", lfoAmount.value * 100))%")
+                  Text("Frequency: \(String(format: "%.2f", lfoFrequency.value))Hz")
+              }
+              .padding(PADDING)
+              .border(SequencerColors.blue.opacity(0.5), width: 1)
+              .background(SequencerColors.black.opacity(0.7))
+              .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
+              .allowsHitTesting(false)
+          }
+      }
+      .padding(PADDING)
+  }
+
+  func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _ tick: Int) {
+      let height = geometry.size.height
+      let maxH = height / 2
+      let width = Int(geometry.size.width)
+      let baseWidth = (Double(width) / 32) // 1Hz repr
+      let maxWidth = baseWidth / (CGFloat(lfoFrequency.value) / 2)
+
+      for x in 0 ... width {
+          let value = sin(Double(x + tick) / maxWidth)
+          let h = value * maxH * CGFloat(lfoAmount.value) + maxH
+
+          if x == 0 {
+              path.move(to: CGPoint(x: Double(x), y: h))
+          }
+          path.addLine(to: CGPoint(x: Double(x), y: h))
+      }
+  }
+
 }
 
-struct LFOVisualisationView<T: LFOVisualisationViewModel>: View {
-    @ObservedObject var lfoState: T
-
-    @State var tick: Int = 0
-    @State var lastTranslation: CGSize = .zero
+struct LFOVisualisationView: View {
+    var lfoState: LFOState
 
     var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                Path { path in
-                    buildPath(geometry, &path, tick)
-                }
-                .stroke(SequencerColors.blue, lineWidth: 2)
-                .contentShape(Rectangle())
-                .gesture(
-                    DragGesture(minimumDistance: 0)
-                        .onChanged { drag in
-                            let currentTranslation = drag.translation
-
-                            lfoState.amount -= (currentTranslation.height - lastTranslation.height) / (geometry.size.height / 2)
-                            lfoState.amount = max(min(lfoState.amount, 1), 0)
-
-                            lfoState.frequency -= (currentTranslation.width - lastTranslation.width) / (geometry.size.width / 2)
-                            lfoState.frequency = min(max(lfoState.frequency, 0.01), 20)
-
-                            self.lastTranslation = currentTranslation
-                        }
-                        .onEnded { _ in
-                            self.lastTranslation = CGSize.zero
-                        }
-                )
-
-                VStack(alignment: .trailing) {
-                    Text("Amount: \(String(format: "%.0f", lfoState.amount * 100))%")
-                    Text("Frequency: \(String(format: "%.2f", lfoState.frequency))Hz")
-                }
-                .padding(PADDING)
-                .border(SequencerColors.blue.opacity(0.5), width: 1)
-                .background(SequencerColors.black.opacity(0.7))
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                .allowsHitTesting(false)
-            }
-        }
-        .padding(PADDING)
-    }
-
-    func buildPath(_ geometry: GeometryProxy, _ path: inout Path, _ tick: Int) {
-        let height = geometry.size.height
-        let maxH = height / 2
-        let width = Int(geometry.size.width)
-        let baseWidth = (Double(width) / 32) // 1Hz repr
-        let maxWidth = baseWidth / (lfoState.frequency / 2)
-
-        for x in 0 ... width {
-            let value = sin(Double(x + tick) / maxWidth)
-            let h = value * maxH * lfoState.amount + maxH
-
-            if x == 0 {
-                path.move(to: CGPoint(x: Double(x), y: h))
-            }
-            path.addLine(to: CGPoint(x: Double(x), y: h))
-        }
+      LFOVisualisationViewInner(lfoAmount: lfoState.amountParameter, lfoFrequency: lfoState.frequencyParameter)
     }
 }

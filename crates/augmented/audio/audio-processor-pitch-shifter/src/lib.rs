@@ -211,6 +211,7 @@ impl PitchShifterProcessor {
     }
 
     fn set_ratio(&mut self, ratio: f32) {
+        let ratio = ratio.min(4.0).max(0.25);
         let step_len = self.fft_processor.step_len() as f32;
         let fft_size = self.fft_processor.size();
         let resample_buffer_size = fft_size as f32 / ratio;
@@ -257,25 +258,26 @@ impl PitchShifterProcessor {
 
         let mut output_power = 0.0;
 
+        let resample_buffer_len = self.resample_buffer.len();
         let ratio = fft_time_domain.len() as f32 / self.resample_buffer_size as f32;
         for i in 0..self.resample_buffer_size {
             let fft_index = i as f32 * ratio;
             let fft_index_floor = fft_index.floor();
             let delta = fft_index - fft_index_floor;
-            let sample1 = fft_time_domain[fft_index_floor as usize].re;
+            let sample1 = fft_time_domain[(fft_index_floor as usize) % fft_time_domain.len()].re;
             let sample2 = fft_time_domain
-                .get((fft_index_floor + 1.0) as usize)
+                .get((fft_index_floor + 1.0) as usize % fft_time_domain.len())
                 .map(|c| c.re)
                 .unwrap_or(0.0);
             let sample = sample1 + delta * (sample2 - sample1);
             assert!(!sample.is_nan());
-            self.resample_buffer[i] = sample;
+            self.resample_buffer[i % resample_buffer_len] = sample;
             output_power += sample.abs();
         }
 
         let multiplier = (input_power / output_power).min(1.0).max(0.0);
         for i in 0..self.resample_buffer_size {
-            self.resample_buffer[i] *= multiplier;
+            self.resample_buffer[i % resample_buffer_len] *= multiplier;
         }
     }
 }
@@ -365,9 +367,10 @@ impl SimpleAudioProcessor for PitchShifterProcessor {
 
     fn s_process(&mut self, sample: f32) -> f32 {
         if (self.pitch_shift_ratio - 1.0).abs() > f32::EPSILON {
-            let output = self.output_buffer[self.output_read_cursor];
-            self.output_buffer[self.output_read_cursor] = 0.0;
-            self.output_read_cursor = (self.output_read_cursor + 1) % self.output_buffer.len();
+            let output_len = self.output_buffer.len();
+            let output = self.output_buffer[self.output_read_cursor % output_len];
+            self.output_buffer[self.output_read_cursor % output_len] = 0.0;
+            self.output_read_cursor = (self.output_read_cursor + 1) % output_len;
 
             self.fft_processor.s_process(sample);
             if self.fft_processor.has_changed() {

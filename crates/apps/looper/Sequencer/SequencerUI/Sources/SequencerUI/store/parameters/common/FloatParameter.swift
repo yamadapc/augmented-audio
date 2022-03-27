@@ -69,4 +69,33 @@ public class FloatParameter<LocalId>: ObservableObject, Identifiable, ParameterL
             self.value = value
         }
     }
+
+    func toKnobValue() -> Float {
+        let value = parameterLockProgress?.newValue ?? value
+        let (min, max) = range
+        // number between 0-1
+        let knobValue = (value - min) / (max - min)
+        if style == .center {
+            return knobValue * 2.0 + -1.0
+        }
+
+        return knobValue
+    }
+
+    func setKnobValue(_ newValue: Double) {
+        let mappedValue = fromKnobValue(knobValue: newValue)
+        setValue(mappedValue)
+    }
+
+    func fromKnobValue(knobValue: Double) -> Float {
+        let (min, max) = range
+        // number between 0-1
+        let result = Float(
+            style == .center
+                ? (knobValue + 1.0) / 2.0
+                : knobValue
+        ) * (max - min) + min
+
+        return result
+    }
 }

@@ -1106,6 +1106,31 @@ mod test {
     }
 
     #[test]
+    fn test_map_lfo_to_pitch_modulation() {
+        let settings = AudioProcessorSettings::default();
+        let mut looper = MultiTrackLooper::new(Default::default(), 1);
+        let looper_voice = looper.handle.voices()[0].looper().clone();
+
+        looper.prepare(settings.clone());
+
+        let buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
+        let mut buffer = VecAudioBuffer::from(buffer);
+        looper_voice.set_looper_buffer(&buffer.interleaved());
+        looper_voice.play();
+
+        let pitch_parameter = ParameterId::ParameterIdSource(SourceParameter::Pitch);
+        looper
+            .handle
+            .add_lfo_mapping(LooperId(0), 0, pitch_parameter, 1.0);
+
+        let num_blocks = buffer.num_samples() as usize / settings.block_size();
+        let mut output = VecAudioBuffer::empty_with(1, settings.block_size(), 0.0);
+        for i in 0..num_blocks {
+            looper.process(&mut output);
+        }
+    }
+
+    #[test]
     fn test_starts_empty() {
         let looper = MultiTrackLooper::new(Default::default(), 8);
         assert_eq!(

@@ -40,37 +40,26 @@ public class LFOAmountParameter: FloatParameter<LFOParameterId> {
 
 public class LFOFrequencyParameter: FloatParameter<LFOParameterId> {
     override func formatValue() -> String {
-        let frequency = value * (20 - 0.01) + 0.01
+        let frequency = value
         return "\(String(format: "%.2f", frequency))Hz"
     }
+
+    override func toKnobValue() -> Float {
+        return (value - 0.01) / (20.0 - 0.01)
+    }
+
+    override func fromKnobValue(knobValue: Double) -> Float {
+        return Float(knobValue * (20.0 - 0.01) + 0.01)
+    }
+
 }
 
-public class LFOState: ObservableObject, LFOVisualisationViewModel {
+public class LFOState: ObservableObject {
     var trackId: Int
     var index: UInt
 
     var label: String {
         "LFO \(index + 1)"
-    }
-
-    var frequency: Double {
-        get {
-            Double(frequencyParameter.value)
-        }
-        set {
-            frequencyParameter.value = Float(newValue)
-            objectWillChange.send()
-        }
-    }
-
-    var amount: Double {
-        get {
-            Double(amountParameter.value)
-        }
-        set {
-            amountParameter.value = Float(newValue)
-            objectWillChange.send()
-        }
     }
 
     @Published var frequencyParameter: LFOFrequencyParameter

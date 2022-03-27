@@ -73,7 +73,7 @@ class StoreSubscriptionsController {
             pushFloatValue(
                 publisher: parameter.$value,
                 flush: {
-                    self.logger.info("Setting source parameter", metadata: [
+                    self.logger.debug("Setting source parameter", metadata: [
                         "id": .stringConvertible(parameter.id.debugDescription),
                         "value": .stringConvertible($0),
                     ])
