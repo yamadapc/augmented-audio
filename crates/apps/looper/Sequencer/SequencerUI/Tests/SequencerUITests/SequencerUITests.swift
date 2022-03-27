@@ -16,10 +16,10 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 @testable import SequencerUI
+import SnapshotTesting
+import SwiftUI
 import ViewInspector
 import XCTest
-import SwiftUI
-import SnapshotTesting
 
 final class SequencerUITests: XCTestCase {
     func testCreateStore() {

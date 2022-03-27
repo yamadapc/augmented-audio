@@ -16,8 +16,8 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
-import SwiftUI
 import Logging
+import SwiftUI
 
 let PADDING: Double = 10
 let BORDER_RADIUS: Double = 8
@@ -46,10 +46,10 @@ struct SequencerView: View {
         }
 
         if #available(macOS 11.0, *), dropController != nil {
-          view
-            .onDrop(of: [.fileURL], delegate: dropController!)
+            view
+                .onDrop(of: [.fileURL], delegate: dropController!)
         } else {
-          view
+            view
         }
     }
 }

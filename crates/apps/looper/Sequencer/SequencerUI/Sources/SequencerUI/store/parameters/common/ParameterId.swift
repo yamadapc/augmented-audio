@@ -32,9 +32,9 @@ public enum ParameterId: Equatable, Hashable {
         lfoParameter(trackId: Int, lfo: UInt, parameterId: LFOParameterId),
         trackVolume(trackId: Int),
 
-        recordButton(trackId: Int?),
-        playButton(trackId: Int?),
-        clearButton(trackId: Int?),
+        recordButton(trackId: Int),
+        playButton(trackId: Int),
+        clearButton(trackId: Int),
         trackButton(trackId: Int),
         stepButton(trackId: Int, stepId: Int),
         transportPlay,
@@ -46,4 +46,43 @@ public enum ParameterId: Equatable, Hashable {
         sceneSlider,
         sceneButton(sceneId: Int),
         metronomeVolume
+}
+
+extension ParameterId {
+    func shortHelpString() -> String {
+        switch self {
+        case let .recordButton(trackId: t):
+            return "Track \(t) >  Press once to start recording, press again to stop."
+        case let .playButton(trackId: t):
+            return "Track \(t) > Start playback"
+        case let .clearButton(trackId: t):
+            return "Track \(t) > Clear looper contents"
+        case .transportPlay:
+            return "Play the song"
+        case .transportStop:
+            return "Stop playback of the song"
+        case let .stepButton(trackId: t, stepId: s):
+            return "Track \(t) > Step \(s) - Click to toggle this step. The loop will trigger on each active step. Click and drag to parameter lock"
+        case let .lfoParameter(trackId: t, lfo: l, parameterId: p):
+            return "Track \(t) > LFO \(l + 1) > \(p.shortHelpString()) - Command-click and drag to map the LFO to a parameter"
+        case let .envelopeParameter(trackId: t, parameterId: p):
+            return "Track \(t) > Envelope > \(p.shortHelpString())"
+        case let .sourceParameter(trackId: t, parameterId: p):
+            return "Track \(t) > \(p.shortHelpString())"
+        case let .trackVolume(trackId: t):
+            return "Track \(t) > Volume"
+        case let .trackButton(trackId: t):
+            return "Track \(t)"
+        case let .quantizationMode(trackId: trackId):
+            return "Track \(trackId) > Quantization mode - 'Snap next' will quantize by waiting until the end of the bar. 'Snap closest' will snap the recording to the closest bar start/end"
+        case let .tempoControl(trackId: trackId):
+            return "Track \(trackId) > Tempo control"
+        case .sceneSlider:
+            return "Scene slider"
+        case let .sceneButton(sceneId: sceneId):
+            return "Scene \(sceneId) - Click and drag to parameter lock"
+        case .metronomeVolume:
+            return "Metronome volume"
+        }
+    }
 }

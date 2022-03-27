@@ -21,6 +21,31 @@ public enum SourceParameterId {
     case start, end, fadeStart, fadeEnd, pitch, speed, loopEnabled, sliceId, sliceEnabled
 }
 
+extension SourceParameterId {
+    func shortHelpString() -> String {
+        switch self {
+        case .start:
+            return "Start - Start of the loop playback as a percentage of its length"
+        case .end:
+            return "End - End of the loop playback as a percentage of its length"
+        case .fadeStart:
+            return "Fade-start - Fade-in for the loop as a percentage of its length"
+        case .fadeEnd:
+            return "Fade-end - Fade-out for the loop as a percentage of its length"
+        case .pitch:
+            return "Pitch - Pitch-shift ratio for the loop playback"
+        case .speed:
+            return "Speed - Playback speed ratio"
+        case .loopEnabled:
+            return "Loop enabled - Click to disable looping over the buffer. If disabled the loop will playback once when triggered"
+        case .sliceId:
+            return "Slice ID - Select a slice index"
+        case .sliceEnabled:
+            return "Slice enabled - Click to enable slice playback. If enabled, start and end will be ignored."
+        }
+    }
+}
+
 public typealias SourceParameter = FloatParameter<SourceParameterId>
 
 public class SourceParametersState: ObservableObject {

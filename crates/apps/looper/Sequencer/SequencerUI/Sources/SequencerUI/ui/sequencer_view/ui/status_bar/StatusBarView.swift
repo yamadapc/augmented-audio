@@ -22,9 +22,11 @@ struct StatusBarViewInner: View {
 
     var body: some View {
         if let focusedObject = focusState.mouseOverObject {
-            Text(String(describing: focusedObject))
+            Text(focusedObject.shortHelpString())
         } else {
-            Text("...")
+            Text(
+                "Ready - Hover over UI for help"
+            )
         }
     }
 }
