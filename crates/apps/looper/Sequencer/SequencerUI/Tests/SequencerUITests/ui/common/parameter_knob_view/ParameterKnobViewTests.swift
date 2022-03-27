@@ -39,6 +39,6 @@ final class ParameterKnobViewTests: XCTestCase {
 
         let viewController = NSHostingController(rootView: parameterKnobView)
         viewController.view.frame = CGRect(origin: .zero, size: .init(width: 100, height: 130))
-        assertSnapshot(matching: viewController, as: .image)
+        assertSnapshot(matching: viewController, as: .image(precision: 0.9))
     }
 }
