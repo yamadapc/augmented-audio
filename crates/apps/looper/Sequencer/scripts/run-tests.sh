@@ -5,7 +5,13 @@ rm -rf test-output
 ./scripts/run-unit-tests.sh
 
 echo "Running Sequencer Mac tests"
-xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer Mac" test -resultBundlePath ./test-output/SequencerMac | xcbeautify
+xcodebuild \
+  -project Sequencer.xcodeproj \
+  -scheme "Sequencer Mac" \
+  test \
+  -resultBundlePath ./test-output/SequencerMac \
+  CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED="NO" CODE_SIGNING_ALLOWED="NO" \
+  | xcbeautify
 
 # echo "Running Sequencer tests"
 #xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer" test -resultBundlePath ./test-output/Sequencer | xcbeautify

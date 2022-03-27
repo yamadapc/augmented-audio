@@ -192,6 +192,7 @@ struct ConnectedStepButtonView: View {
         .onTapGesture {
             onClick()
         }
+        .shadow(color: Color.black.opacity(0.5), radius: 2, x: 0, y: 1)
 
         if bindToParameter {
             view
@@ -234,7 +235,6 @@ struct SequenceView: View {
                             index: i
                         )
                     )
-                    .shadow(color: Color.black.opacity(0.5), radius: 2, x: 0, y: 1)
                     .highPriorityGesture(
                         DragGesture(coordinateSpace: .named("SequenceViewZStack"))
                             .onChanged { drag in startDrag(i, drag, .lock) }

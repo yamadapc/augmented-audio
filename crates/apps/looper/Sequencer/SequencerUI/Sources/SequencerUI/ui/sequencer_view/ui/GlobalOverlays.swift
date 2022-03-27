@@ -33,14 +33,18 @@ struct SceneDragOverlayView: View {
     @ObservedObject var focusState: FocusState
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .topLeading) {
             if let dragState = focusState.sceneDragState {
-                SceneDragRect(dragState: dragState)
-                    .position(dragState.position)
-                    .opacity(0.7)
+              Path { path in
+                path.move(to: dragState.startPosition)
+                path.addLine(to: dragState.position)
+              }
+              .stroke(SequencerColors.green, lineWidth: 2)
+              .offset(x: 0, y: -30)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .coordinateSpace(name: "GlobalOverlays")
         .allowsHitTesting(false)
     }
 }

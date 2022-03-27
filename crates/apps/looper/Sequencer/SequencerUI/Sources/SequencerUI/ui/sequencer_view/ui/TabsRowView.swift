@@ -42,20 +42,21 @@ func renderTabValue(_ tab: TabValue) -> String {
 }
 
 struct TabsRowView: View {
+    @EnvironmentObject var store: Store
     var selectedTab: TabValue
     var onSelectTab: (TabValue) -> Void
-    var tabs: [TabValue] = [
-        .mix,
-        .source,
-        .slice,
-        .envelope,
+    var tabs: [(TabValue, ParameterId)] = [
+        (.mix, .mixPage),
+        (.source, .sourcePage),
+        (.slice, .slicePage),
+        (.envelope, .envelopePage),
         // .fx,
         // .lfos,
     ]
 
     var body: some View {
         HStack {
-            ForEach(tabs, id: \.self) { tab in
+            ForEach(tabs, id: \.self.0) { (tab, parameterId) in
                 let isSelected = tab == selectedTab
                 Button(
                     action: {
@@ -74,13 +75,16 @@ struct TabsRowView: View {
                                     )
                             )
                             .background(
-                                SequencerColors.black
+                              isSelected
+                              ? SequencerColors.black
+                              : SequencerColors.black0
                             )
                             .cornerRadius(BORDER_RADIUS)
                             .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 5)
                     }
                 )
                 .buttonStyle(.plain)
+                .bindToParameterId(store: store, parameterId: parameterId)
             }
         }
         .padding(EdgeInsets(top: 0, leading: PADDING, bottom: 0, trailing: PADDING))

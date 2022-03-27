@@ -21,6 +21,7 @@ import CoreGraphics
 struct SceneDragState {
     let scene: Int
     let position: CGPoint
+    let startPosition: CGPoint
 }
 
 enum DragMode {

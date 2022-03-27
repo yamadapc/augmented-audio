@@ -40,6 +40,11 @@ public enum ParameterId: Equatable, Hashable {
         transportPlay,
         transportStop,
 
+        mixPage,
+        sourcePage,
+        slicePage,
+        envelopePage,
+
         quantizationMode(trackId: Int),
         tempoControl(trackId: Int),
 
@@ -83,6 +88,14 @@ extension ParameterId {
             return "Scene \(sceneId) - Click and drag to parameter lock"
         case .metronomeVolume:
             return "Metronome volume"
+        case .mixPage:
+            return "Track and metronome volumes"
+        case .sourcePage:
+            return "Source parameters"
+        case .slicePage:
+            return "Automatic slicing"
+        case .envelopePage:
+            return "ADSR Envelope"
         }
     }
 }
