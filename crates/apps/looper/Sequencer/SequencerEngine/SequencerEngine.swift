@@ -110,7 +110,33 @@ extension EngineImpl: SequencerEngine {
         // let voice = looper_engine__get_voice(engine, UInt(step - 1))
     }
 
-  func addMidiMapping(controller _: Int, parameterId _: SequencerUI.ParameterId) {}
+    func removeLock(parameterLockId: ParameterLockId) {
+      switch parameterLockId.source {
+      case let .stepId(stepId):
+          looper_engine__remove_parameter_lock(
+            engine,
+            UInt(stepId.trackId - 1),
+            UInt(stepId.stepIndex),
+            getObjectIdRust(parameterLockId.parameterId)!
+          )
+      case let .sceneId(sceneId):
+          looper_engine__remove_scene_parameter_lock(
+            engine,
+            UInt(sceneId.index),
+            getTrackId(parameterLockId.parameterId)!,
+            getObjectIdRust(parameterLockId.parameterId)!
+          )
+      case let .lfoId(lfoId):
+          looper_engine__remove_lfo_mapping(
+            engine,
+            getTrackId(parameterLockId.parameterId)!,
+            UInt(lfoId.index),
+            getObjectIdRust(parameterLockId.parameterId)!
+          )
+      }
+    }
+
+    func addMidiMapping(controller _: Int, parameterId _: SequencerUI.ParameterId) {}
 }
 
 extension EngineImpl {

@@ -62,7 +62,7 @@ struct LFOStateSingleView: View {
             DragGesture()
                 .modifiers(.command)
                 .onChanged { drag in
-                    store.startDrag(source: .lfoId(Int(lfoState.index)), dragMode: .lock)
+                    store.startDrag(source: .lfoId(lfoState.id), dragMode: .lock)
                     DispatchQueue.main.async {
                         withAnimation(.spring()) {
                             self.dragPosition = (drag.startLocation, drag.location)

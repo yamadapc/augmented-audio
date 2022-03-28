@@ -15,19 +15,21 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-import Combine
 
-fileprivate func appendInsert<K, V>(dict: inout [K: [V]], key: K, value: V) {
-  if var oldValue = dict[key] {
-    oldValue.append(value)
-  } else {
-    dict[key] = [value]
-  }
+import Combine
+import SwiftUI
+
+private func appendInsert<K, V>(dict: inout [K: [V]], key: K, value: V) {
+    if dict[key] == nil {
+        dict[key] = []
+    }
+
+    dict[key]!.append(value)
 }
 
 class ParameterLockStore: ObservableObject {
     private var locks: [ParameterLockSource: [ParameterId: ParameterLockState]] = [:]
-    private var allLocks: [ParameterId: ParameterLockState] = [:]
+    private var allLocks: [ParameterId: [ParameterLockState]] = [:]
 
     init() {}
 
@@ -36,9 +38,30 @@ class ParameterLockStore: ObservableObject {
             locks[lock.source] = [:]
         }
         locks[lock.source]![lock.parameterId] = lock
+
+        appendInsert(dict: &allLocks, key: lock.parameterId, value: lock)
+        appendInsert(dict: &allLocks, key: lock.source.toParameterId(), value: lock)
+
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
+        }
+    }
+
+    func removeLock(_ id: ParameterLockId) {
+        locks[id.source]?.removeValue(forKey: id.parameterId)
+        allLocks[id.source.toParameterId()]?.removeAll(where: { $0.parameterId == id.parameterId })
+        allLocks[id.parameterId]?.removeAll(where: { $0.source == id.source })
+
+        DispatchQueue.main.async {
+            self.objectWillChange.send()
+        }
     }
 
     func hasLocks(source: ParameterLockSource) -> Bool {
         return locks[source] != nil
+    }
+
+    func getLocks(parameterId: ParameterId) -> [ParameterLockState] {
+        return allLocks[parameterId] ?? []
     }
 }

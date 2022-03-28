@@ -200,6 +200,18 @@ pub unsafe extern "C" fn looper_engine__add_lfo_mapping(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__remove_lfo_mapping(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    lfo_id: usize,
+    parameter_id: ParameterId,
+) {
+    (*engine)
+        .handle
+        .remove_lfo_mapping(LooperId(looper_id), lfo_id, parameter_id)
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_scene_parameter_lock(
     engine: *mut LooperEngine,
     scene_id: usize,
@@ -213,6 +225,18 @@ pub unsafe extern "C" fn looper_engine__add_scene_parameter_lock(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__remove_scene_parameter_lock(
+    engine: *mut LooperEngine,
+    scene_id: usize,
+    looper_id: usize,
+    parameter_id: ParameterId,
+) {
+    (*engine)
+        .handle
+        .remove_scene_parameter_lock(scene_id, LooperId(looper_id), parameter_id);
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_parameter_lock(
     engine: *mut LooperEngine,
     looper_id: usize,
@@ -223,6 +247,18 @@ pub unsafe extern "C" fn looper_engine__add_parameter_lock(
     (*engine)
         .handle
         .add_parameter_lock(LooperId(looper_id), position_beats, parameter_id, value);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__remove_parameter_lock(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    position_beats: usize,
+    parameter_id: ParameterId,
+) {
+    (*engine)
+        .handle
+        .remove_parameter_lock(LooperId(looper_id), position_beats, parameter_id);
 }
 
 pub enum EngineEvent {}

@@ -76,6 +76,7 @@ struct BindToParameter: ViewModifier {
     var store: Store
     var parameterId: ParameterId
     var showSelectionOverlay: Bool = true
+    var showParameterLockOverlay: Bool = true
 
     func body(content: Content) -> some View {
         content
@@ -103,6 +104,12 @@ struct BindToParameter: ViewModifier {
             ),
             alignment: .center
         )
+        .overlay(
+            ParameterLockOverlayView(
+                parameterId: parameterId,
+                showParameterLockOverlay: showParameterLockOverlay
+            )
+        )
     }
 }
 
@@ -116,9 +123,15 @@ extension View {
     func bindToParameterId(
         store: Store,
         parameterId: ParameterId,
-        showSelectionOverlay: Bool = true
+        showSelectionOverlay: Bool = true,
+        showParameterLockOverlay: Bool = true
     ) -> some View {
-        return modifier(BindToParameter(store: store, parameterId: parameterId, showSelectionOverlay: showSelectionOverlay))
+        return modifier(BindToParameter(
+            store: store,
+            parameterId: parameterId,
+            showSelectionOverlay: showSelectionOverlay,
+            showParameterLockOverlay: showParameterLockOverlay
+        ))
     }
 
     func bindToParameter(

@@ -135,6 +135,11 @@ impl Trigger {
             .insert(parameter_id, TriggerLock { value });
     }
 
+    pub fn remove_lock(&mut self, parameter_id: ParameterId) {
+        let TriggerInner::LoopTrigger(loop_trigger) = &mut self.inner;
+        loop_trigger.locks.remove(&parameter_id);
+    }
+
     pub fn locks(&self) -> impl Iterator<Item = (&ParameterId, &TriggerLock)> {
         let TriggerInner::LoopTrigger(loop_trigger) = &self.inner;
         loop_trigger.locks.iter()
@@ -180,6 +185,18 @@ impl TrackTriggerModel {
             .find(|trigger| trigger.position.step.get() == position_beats)
         {
             trigger.add_lock(parameter_id, value);
+        }
+        self.triggers.set(make_shared(triggers));
+    }
+
+    pub fn remove_lock(&self, position_beats: usize, parameter_id: ParameterId) {
+        let triggers = self.triggers.get();
+        let mut triggers: Vec<Trigger> = (*triggers).clone();
+        if let Some(trigger) = triggers
+            .iter_mut()
+            .find(|trigger| trigger.position.step.get() == position_beats)
+        {
+            trigger.remove_lock(parameter_id);
         }
         self.triggers.set(make_shared(triggers));
     }

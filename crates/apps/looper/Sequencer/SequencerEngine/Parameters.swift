@@ -34,6 +34,19 @@ func getObjectIdRust(_ id: SequencerUI.ParameterId) -> SequencerEngine_private.P
     }
 }
 
+func getTrackId(_ id: SequencerUI.ParameterId) -> UInt? {
+    switch id {
+    case .sourceParameter(trackId: let trackId, parameterId: _):
+        return UInt(trackId - 1)
+    case .envelopeParameter(trackId: let trackId, parameterId: _):
+        return UInt(trackId - 1)
+    case .lfoParameter(trackId: let trackId, lfo: _, parameterId: _):
+        return UInt(trackId - 1)
+    default:
+        return nil
+    }
+}
+
 let SOURCE_PARAMETER_IDS: [SourceParameterId: SequencerEngine_private.SourceParameter] = [
     .start: Start,
     .end: End,

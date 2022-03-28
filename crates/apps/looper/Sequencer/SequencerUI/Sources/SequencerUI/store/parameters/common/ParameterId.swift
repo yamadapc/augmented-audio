@@ -24,7 +24,7 @@
 
 import Foundation
 
-public enum ParameterId: Equatable, Hashable {
+public indirect enum ParameterId: Equatable, Hashable {
     case
         sourceParameter(trackId: Int, parameterId: SourceParameterId),
 
@@ -32,11 +32,14 @@ public enum ParameterId: Equatable, Hashable {
         lfoParameter(trackId: Int, lfo: UInt, parameterId: LFOParameterId),
         trackVolume(trackId: Int),
 
+        parameterLock(source: ParameterLockSource, parameterId: ParameterId),
+
         recordButton(trackId: Int),
         playButton(trackId: Int),
         clearButton(trackId: Int),
         trackButton(trackId: Int),
         stepButton(trackId: Int, stepId: Int),
+        lfo(trackId: Int, lfoIndex: Int),
         transportPlay,
         transportStop,
 
@@ -96,6 +99,10 @@ extension ParameterId {
             return "Automatic slicing"
         case .envelopePage:
             return "ADSR Envelope"
+        case let .lfo(trackId: trackId, lfoIndex: lfoIndex):
+            return "Track \(trackId) > LFO \(lfoIndex)"
+        case let .parameterLock(source: source, parameterId: parameterId):
+            return "Parameter lock >> From \(source.toParameterId()) >> Into \(parameterId)"
         }
     }
 }

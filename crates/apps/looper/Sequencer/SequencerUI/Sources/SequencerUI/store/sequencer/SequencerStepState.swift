@@ -17,9 +17,9 @@
 // = /copyright ===================================================================
 import Combine
 
-struct StepId: Hashable {
-    let trackId: Int
-    let stepIndex: Int
+public struct StepId: Hashable {
+    public let trackId: Int
+    public let stepIndex: Int
 }
 
 public class SequencerStepState: ObservableObject {

@@ -52,6 +52,12 @@ impl ParametersMap {
         slot.set_from(&value);
         self.has_value[index].set(true);
     }
+
+    pub fn unset(&self, id: impl Into<ParameterId>) {
+        let id: ParameterId = id.into();
+        let index: usize = self.indexes[&id];
+        self.has_value[index].set(false);
+    }
 }
 
 #[cfg(test)]

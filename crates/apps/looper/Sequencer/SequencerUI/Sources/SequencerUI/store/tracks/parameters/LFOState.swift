@@ -53,9 +53,15 @@ public class LFOFrequencyParameter: FloatParameter<LFOParameterId> {
     }
 }
 
+public struct LFOId: Hashable {
+    public let trackId: Int
+    public let index: UInt
+}
+
 public class LFOState: ObservableObject {
-    var trackId: Int
-    var index: UInt
+    var id: LFOId
+    var trackId: Int { id.trackId }
+    var index: UInt { id.index }
 
     var label: String {
         "LFO \(index + 1)"
@@ -71,8 +77,7 @@ public class LFOState: ObservableObject {
     private var mapping: [ParameterId: LFOMapping] = [:]
 
     init(trackId: Int, index: UInt) {
-        self.trackId = trackId
-        self.index = index
+        id = LFOId(trackId: trackId, index: index)
 
         frequencyParameter = .init(
             id: .frequency,

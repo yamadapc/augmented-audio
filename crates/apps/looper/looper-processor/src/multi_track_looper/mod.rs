@@ -438,6 +438,22 @@ impl MultiTrackLooperHandle {
         all_scene_parameters.set(scene_id, looper_id, parameter_id, value);
     }
 
+    pub fn remove_scene_parameter_lock(
+        &self,
+        scene_id: SceneId,
+        looper_id: LooperId,
+        parameter_id: ParameterId,
+    ) {
+        log::info!(
+            "Removing scene lock scene={} looper={:?} parameter={:?}",
+            scene_id,
+            looper_id,
+            parameter_id
+        );
+        let all_scene_parameters = &self.scene_parameters;
+        all_scene_parameters.unset(scene_id, looper_id, parameter_id);
+    }
+
     pub fn add_parameter_lock(
         &self,
         looper_id: LooperId,
@@ -448,6 +464,17 @@ impl MultiTrackLooperHandle {
         self.voices[looper_id.0]
             .trigger_model()
             .add_lock(position_beats, parameter_id, value);
+    }
+
+    pub fn remove_parameter_lock(
+        &self,
+        looper_id: LooperId,
+        position_beats: usize,
+        parameter_id: ParameterId,
+    ) {
+        self.voices[looper_id.0]
+            .trigger_model()
+            .remove_lock(position_beats, parameter_id);
     }
 
     pub fn toggle_trigger(&self, looper_id: LooperId, position_beats: usize) {
@@ -563,6 +590,28 @@ impl MultiTrackLooperHandle {
                 looper_id
             );
             lfo.set_parameter_map(parameter_id, value);
+        }
+    }
+
+    pub fn remove_lfo_mapping(
+        &self,
+        looper_id: LooperId,
+        lfo_id: usize,
+        parameter_id: ParameterId,
+    ) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            let lfo = if lfo_id == 0 {
+                voice.lfo1()
+            } else {
+                voice.lfo2()
+            };
+            log::info!(
+                "Removing mapping to LFO={} parameter={:?} looper={:?}",
+                lfo_id,
+                parameter_id,
+                looper_id
+            );
+            lfo.set_parameter_map(parameter_id, None);
         }
     }
 }

@@ -15,20 +15,46 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-import Combine
 
-enum ParameterLockSource: Hashable {
-    case stepId(StepId), sceneId(SceneId), lfoId(Int)
+import Combine
+import SwiftUI
+
+public enum ParameterLockSource: Hashable {
+    case stepId(StepId), sceneId(SceneId), lfoId(LFOId)
 }
 
-class ParameterLockState: ObservableObject {
+extension ParameterLockSource {
+    func toParameterId() -> ParameterId {
+        switch self {
+        case let .stepId(stepId):
+            return ParameterId.stepButton(trackId: stepId.trackId, stepId: stepId.stepIndex)
+        case let .sceneId(sceneId):
+            return ParameterId.sceneButton(sceneId: sceneId.index)
+        case let .lfoId(lfoId):
+            return ParameterId.lfo(trackId: lfoId.trackId, lfoIndex: Int(lfoId.index))
+        }
+    }
+}
+
+public struct ParameterLockId: Hashable {
+    public let parameterId: ParameterId
+    public let source: ParameterLockSource
+}
+
+class ParameterLockState: ObservableObject, Identifiable {
+    var id: ParameterLockId {
+        ParameterLockId(parameterId: parameterId, source: source)
+    }
+
     let parameterId: ParameterId
     let source: ParameterLockSource
+    let color: Color
 
     @Published var newValue: Float?
 
     init(parameterId: ParameterId, source: ParameterLockSource) {
         self.parameterId = parameterId
         self.source = source
+        color = SequencerColors.randomColor(ParameterLockId(parameterId: parameterId, source: source))
     }
 }

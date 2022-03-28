@@ -58,8 +58,26 @@ enum SequencerColors {
     static let blue0 = color(8 * 0.05, 150 * 0.05, 180 * 0.05)
     static let blue = color(8, 178, 227)
     static let yellow = color(204, 156, 0)
+    static let purple1 = color(1, 23, 47)
 
-    // static let purple1 = color(1, 23, 47)
+    static let colors = [
+        green,
+        blue,
+        yellow,
+        green,
+        purple1,
+        color(255, 22, 84),
+        color(120, 202, 210),
+        color(238, 252, 87),
+        color(65, 64, 102),
+        color(254, 201, 241),
+        color(96, 49, 64),
+        color(48, 242, 242),
+        color(194, 0, 251),
+    ]
 
-    // static let yellow = color(245, 187, 0)
+    static func randomColor<H: Hashable>(_ id: H) -> Color {
+        let hash = abs(id.hashValue)
+        return colors[hash % colors.count]
+    }
 }

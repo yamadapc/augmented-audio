@@ -38,6 +38,10 @@
                 } else {
                     store.onClickPlayheadPlay()
                 }
+            case .delete:
+                if case let .parameterLock(source: sourceId, parameterId: parameterId) = store.focusState.selectedObject {
+                    store.removeParameterLock(ParameterLockId(parameterId: parameterId, source: sourceId))
+                }
             default:
                 return
             }

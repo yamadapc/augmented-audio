@@ -49,6 +49,10 @@ impl SceneHandle {
         self.scenes[scene_id].scene_parameters[looper_id.0].set(id, value)
     }
 
+    pub fn unset(&self, scene_id: usize, looper_id: LooperId, id: impl Into<ParameterId>) {
+        self.scenes[scene_id].scene_parameters[looper_id.0].unset(id)
+    }
+
     pub fn get_left(
         &self,
         looper_id: LooperId,

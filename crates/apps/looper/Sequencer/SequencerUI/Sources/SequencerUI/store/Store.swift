@@ -92,10 +92,16 @@ extension Store {
         if let hoveredId = focusState.mouseOverObject,
            case let .lfoId(lfoId) = focusState.draggingSource
         {
-            currentTrackState().lfos[lfoId].addMapping(parameterId: hoveredId, amount: 1.0)
+            currentTrackState().lfos[Int(lfoId.index)].addMapping(parameterId: hoveredId, amount: 1.0)
+            parameterLockStore.addLock(
+                lock: ParameterLockState(
+                    parameterId: hoveredId,
+                    source: .lfoId(lfoId)
+                )
+            )
             engine?.addLFOMapping(
                 track: selectedTrack,
-                lfo: UInt(lfoId),
+                lfo: lfoId.index,
                 parameterId: hoveredId,
                 value: 1.0
             )
@@ -126,7 +132,6 @@ extension Store {
             trackStates[trackId - 1].envelope.parameters
                 .first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
         case let .lfoParameter(trackId: trackId, lfo: lfo, _):
-            print("lfo = \(lfo)")
             if lfo == 0 {
                 trackStates[trackId - 1].lfo1.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
             }
@@ -155,15 +160,14 @@ extension Store {
                     value: progress.newValue!
                 )
             case let .sceneId(sceneId):
-                let scene = sceneState.scenes[sceneId.index]
-                scene.parameterLocks[progress.parameterId] = progress
+                parameterLockStore.addLock(lock: progress)
                 engine?.addSceneParameterLock(
                     sceneId: sceneId.index,
                     track: track.id,
                     parameterId: progress.parameterId,
                     value: progress.newValue!
                 )
-            case let .lfoId(lfoId):
+            default:
                 break
             }
             track.objectWillChange.send()
@@ -221,6 +225,11 @@ extension Store {
     func onClickPlayheadPlay() {
         engine?.onClickPlayheadPlay()
         isPlaying = true
+    }
+
+    func removeParameterLock(_ id: ParameterLockId) {
+        parameterLockStore.removeLock(id)
+        engine?.removeLock(parameterLockId: id)
     }
 }
 

@@ -15,33 +15,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-import Combine
 
-public struct SceneId: Hashable {
-    public let index: Int
-}
+import SwiftUI
 
-class SceneModel: ObservableObject {
-    let id: SceneId
+struct ConnectedStepButtonView: View {
+    var index: Int
+    @ObservedObject var store: Store
+    var stepModel: StepButtonViewModel
 
-    init(id: SceneId) {
-        self.id = id
+    var body: some View {
+        NativeStepButtonView(
+            stepModel: stepModel
+        )
+        .onTapGesture {
+            onClick()
+        }
+        .shadow(color: Color.black.opacity(0.5), radius: 2, x: 0, y: 1)
     }
-}
 
-public class SceneState: ObservableObject {
-    @Published public var sceneSlider = FloatParameter(
-        id: 0,
-        globalId: .sceneSlider,
-        label: "Scene slider",
-        style: .center,
-        range: (-1.0, 1.0),
-        initialValue: -1.0
-    )
-    @Published var scenes: [SceneModel] = [
-        SceneModel(id: SceneId(index: 0)),
-        SceneModel(id: SceneId(index: 1)),
-    ]
-
-    init() {}
+    func onClick() {
+        store.onClickStep(store.selectedTrack, index)
+    }
 }
