@@ -100,6 +100,7 @@ struct KnobSliderView: View {
             .frame(maxWidth: .infinity)
             .frame(maxHeight: .infinity)
             .gesture(DragGesture(minimumDistance: 0).onChanged { onDrag($0, geometry) })
+            .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 5)
         }
         .padding(
             style == .horizontal

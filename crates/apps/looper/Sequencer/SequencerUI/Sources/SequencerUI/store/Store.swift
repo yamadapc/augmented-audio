@@ -53,6 +53,7 @@ public class Store: ObservableObject {
     @Published var selectedTab: TabValue = .source
     @Published var isPlaying: Bool = false
     @Published var midiMappingActive = false
+    let parameterLockStore = ParameterLockStore()
 
     let focusState = FocusState()
     var oscClient = OSCClient()
@@ -82,7 +83,7 @@ extension Store {
         focusState.dragMode = dragMode
     }
 
-    func startSceneDrag(_ sceneId: Int) {
+    func startSceneDrag(_ sceneId: SceneId) {
         focusState.draggingSource = .sceneId(sceneId)
         focusState.dragMode = .lock
     }
@@ -91,6 +92,7 @@ extension Store {
         if let hoveredId = focusState.mouseOverObject,
            case let .lfoId(lfoId) = focusState.draggingSource
         {
+            currentTrackState().lfos[lfoId].addMapping(parameterId: hoveredId, amount: 1.0)
             engine?.addLFOMapping(
                 track: selectedTrack,
                 lfo: UInt(lfoId),
@@ -145,22 +147,18 @@ extension Store {
 
             switch progress.source {
             case let .stepId(stepId):
-                if let existingLock = track.steps[stepId]?.parameterLocks.first(where: { $0.parameterId == progress.parameterId }) {
-                    existingLock.newValue = progress.newValue
-                } else {
-                    track.steps[stepId]?.parameterLocks.append(progress)
-                }
+                parameterLockStore.addLock(lock: progress)
                 engine?.addParameterLock(
                     track: track.id,
-                    step: stepId,
+                    step: stepId.stepIndex,
                     parameterId: progress.parameterId,
                     value: progress.newValue!
                 )
             case let .sceneId(sceneId):
-                let scene = sceneState.scenes[sceneId]
+                let scene = sceneState.scenes[sceneId.index]
                 scene.parameterLocks[progress.parameterId] = progress
                 engine?.addSceneParameterLock(
-                    sceneId: sceneId,
+                    sceneId: sceneId.index,
                     track: track.id,
                     parameterId: progress.parameterId,
                     value: progress.newValue!

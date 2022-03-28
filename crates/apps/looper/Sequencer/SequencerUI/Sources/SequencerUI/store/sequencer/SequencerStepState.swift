@@ -17,11 +17,16 @@
 // = /copyright ===================================================================
 import Combine
 
-public class SequencerStepState: ObservableObject {
-    var index: Int
-    @Published var parameterLocks: [ParameterLockState] = []
+struct StepId: Hashable {
+    let trackId: Int
+    let stepIndex: Int
+}
 
-    init(index: Int) {
-        self.index = index
+public class SequencerStepState: ObservableObject {
+    var id: StepId
+    var index: Int { id.stepIndex }
+
+    init(trackId: Int, stepIndex: Int) {
+        id = StepId(trackId: trackId, stepIndex: stepIndex)
     }
 }

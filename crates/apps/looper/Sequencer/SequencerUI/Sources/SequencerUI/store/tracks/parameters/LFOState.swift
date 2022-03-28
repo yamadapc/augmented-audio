@@ -51,7 +51,6 @@ public class LFOFrequencyParameter: FloatParameter<LFOParameterId> {
     override func fromKnobValue(knobValue: Double) -> Float {
         return Float(knobValue * (20.0 - 0.01) + 0.01)
     }
-
 }
 
 public class LFOState: ObservableObject {
@@ -69,6 +68,7 @@ public class LFOState: ObservableObject {
         frequencyParameter,
         amountParameter,
     ] }
+    private var mapping: [ParameterId: LFOMapping] = [:]
 
     init(trackId: Int, index: UInt) {
         self.trackId = trackId
@@ -86,5 +86,14 @@ public class LFOState: ObservableObject {
             label: "Amount",
             initialValue: 1.0
         )
+    }
+
+    func addMapping(parameterId: ParameterId, amount: Float) {
+        mapping[parameterId] = LFOMapping(parameterId: parameterId, amount: amount)
+    }
+
+    struct LFOMapping {
+        let parameterId: ParameterId
+        let amount: Float
     }
 }

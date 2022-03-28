@@ -49,31 +49,38 @@ pub struct LooperEngine {
     audio_handles: StandaloneHandles,
 }
 
+impl LooperEngine {
+    fn new() -> Self {
+        wisual_logger::init_from_env();
+
+        let processor = MultiTrackLooper::new(Default::default(), 8);
+        let handle = processor.handle().clone();
+        let audio_handles = audio_processor_standalone::audio_processor_start_with_midi(
+            processor,
+            audio_garbage_collector::handle(),
+        );
+        setup_osc_server(handle.clone());
+
+        let metrics_actor = Arc::new(Mutex::new(AudioProcessorMetricsActor::new(
+            handle.metrics_handle().clone(),
+        )));
+        let midi_store = handle.midi().clone();
+
+        let engine = LooperEngine {
+            handle,
+            audio_handles,
+            metrics_actor,
+            midi_store,
+            events_callback: None,
+        };
+        engine
+    }
+}
+
 #[no_mangle]
 pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
-    wisual_logger::init_from_env();
-
-    let processor = MultiTrackLooper::new(Default::default(), 8);
-    let handle = processor.handle().clone();
-    let audio_handles = audio_processor_standalone::audio_processor_start_with_midi(
-        processor,
-        audio_garbage_collector::handle(),
-    );
-    setup_osc_server(handle.clone());
-
-    let metrics_actor = Arc::new(Mutex::new(AudioProcessorMetricsActor::new(
-        handle.metrics_handle().clone(),
-    )));
-    let midi_store = handle.midi().clone();
-
-    let engine = LooperEngine {
-        handle,
-        audio_handles,
-        metrics_actor,
-        midi_store,
-        events_callback: None,
-    };
-    Box::into_raw(Box::new(engine))
+    let engine = LooperEngine::new();
+    into_ptr(engine)
 }
 
 #[no_mangle]

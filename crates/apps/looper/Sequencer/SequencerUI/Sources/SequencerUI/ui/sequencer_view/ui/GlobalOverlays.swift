@@ -35,12 +35,12 @@ struct SceneDragOverlayView: View {
     var body: some View {
         ZStack(alignment: .topLeading) {
             if let dragState = focusState.sceneDragState {
-              Path { path in
-                path.move(to: dragState.startPosition)
-                path.addLine(to: dragState.position)
-              }
-              .stroke(SequencerColors.green, lineWidth: 2)
-              .offset(x: 0, y: -30)
+                Path { path in
+                    path.move(to: dragState.startPosition)
+                    path.addLine(to: dragState.position)
+                }
+                .stroke(SequencerColors.green, lineWidth: 2)
+                .offset(x: 0, y: -30)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

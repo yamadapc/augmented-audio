@@ -100,12 +100,14 @@ class StepButtonViewModel: ObservableObject {
         isBeat = index % 4 == 0
         isActive = track.steps[index] != nil
         isPlaying = Int((timeInfo.positionBeats ?? -1.0).truncatingRemainder(dividingBy: 4.0) * 4) == index
-        hasLocks = track.steps[index]?.parameterLocks.count ?? 0 > 0
+        let step = track.steps[index]
+        hasLocks = step != nil ? store.parameterLockStore.hasLocks(source: .stepId(step!.id)) : false
 
         track.objectWillChange.sink(receiveValue: { _ in
             DispatchQueue.main.async {
-                self.isActive = track.steps[index] != nil
-                self.hasLocks = track.steps[index]?.parameterLocks.count ?? 0 > 0
+                let step = track.steps[index]
+                self.isActive = step != nil
+                self.hasLocks = step != nil ? store.parameterLockStore.hasLocks(source: .stepId(step!.id)) : false
             }
         }).store(in: &subscriptions)
         timeInfo.objectWillChange.sink(receiveValue: {
@@ -285,7 +287,15 @@ struct SequenceView: View {
 
     func startDrag(_ i: Int, _ drag: DragGesture.Value, _ mode: DragMode) {
         DispatchQueue.main.async {
-            store.startDrag(source: .stepId(i), dragMode: mode)
+            store.startDrag(
+                source: .stepId(
+                    StepId(
+                        trackId: store.selectedTrack,
+                        stepIndex: i
+                    )
+                ),
+                dragMode: mode
+            )
             dragState = DragState(step: i, position: drag.location, mode: mode)
         }
     }

@@ -56,7 +56,7 @@ struct TabsRowView: View {
 
     var body: some View {
         HStack {
-            ForEach(tabs, id: \.self.0) { (tab, parameterId) in
+            ForEach(tabs, id: \.self.0) { tab, parameterId in
                 let isSelected = tab == selectedTab
                 Button(
                     action: {
@@ -75,9 +75,9 @@ struct TabsRowView: View {
                                     )
                             )
                             .background(
-                              isSelected
-                              ? SequencerColors.black
-                              : SequencerColors.black0
+                                isSelected
+                                    ? SequencerColors.black
+                                    : SequencerColors.black0
                             )
                             .cornerRadius(BORDER_RADIUS)
                             .shadow(color: Color.black.opacity(0.5), radius: 5, x: 0, y: 5)

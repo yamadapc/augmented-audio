@@ -17,18 +17,28 @@
 // = /copyright ===================================================================
 import Combine
 
-enum ParameterLockSource: Hashable {
-    case stepId(StepId), sceneId(SceneId), lfoId(Int)
+fileprivate func appendInsert<K, V>(dict: inout [K: [V]], key: K, value: V) {
+  if var oldValue = dict[key] {
+    oldValue.append(value)
+  } else {
+    dict[key] = [value]
+  }
 }
 
-class ParameterLockState: ObservableObject {
-    let parameterId: ParameterId
-    let source: ParameterLockSource
+class ParameterLockStore: ObservableObject {
+    private var locks: [ParameterLockSource: [ParameterId: ParameterLockState]] = [:]
+    private var allLocks: [ParameterId: ParameterLockState] = [:]
 
-    @Published var newValue: Float?
+    init() {}
 
-    init(parameterId: ParameterId, source: ParameterLockSource) {
-        self.parameterId = parameterId
-        self.source = source
+    func addLock(lock: ParameterLockState) {
+        if locks[lock.source] == nil {
+            locks[lock.source] = [:]
+        }
+        locks[lock.source]![lock.parameterId] = lock
+    }
+
+    func hasLocks(source: ParameterLockSource) -> Bool {
+        return locks[source] != nil
     }
 }

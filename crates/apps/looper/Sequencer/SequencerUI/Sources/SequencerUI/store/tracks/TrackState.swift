@@ -28,6 +28,13 @@ public class TrackState: ObservableObject {
     public let lfo1: LFOState
     public let lfo2: LFOState
 
+    public var lfos: [LFOState] {
+        [
+            lfo1,
+            lfo2,
+        ]
+    }
+
     @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
     @Published var buffer: TrackBuffer? = nil
 
@@ -60,7 +67,10 @@ extension TrackState {
         if steps[step] != nil {
             steps[step] = nil
         } else {
-            steps[step] = SequencerStepState(index: step)
+            steps[step] = SequencerStepState(
+                trackId: id,
+                stepIndex: step
+            )
         }
         objectWillChange.send()
     }

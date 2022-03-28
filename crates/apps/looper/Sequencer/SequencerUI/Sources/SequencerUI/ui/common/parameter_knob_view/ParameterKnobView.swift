@@ -62,7 +62,6 @@ extension FloatParameter: KnobParameterLike {
     func resetDefault() {
         setValue(defaultValue)
     }
-
 }
 
 struct ParameterKnobView<ParameterT: KnobParameterLike>: View {

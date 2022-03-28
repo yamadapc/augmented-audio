@@ -17,10 +17,17 @@
 // = /copyright ===================================================================
 import Combine
 
+struct SceneId: Hashable {
+    let index: Int
+}
+
 class SceneModel: ObservableObject {
+    let id: SceneId
     @Published var parameterLocks: [ParameterId: ParameterLockState] = [:]
 
-    init() {}
+    init(id: SceneId) {
+        self.id = id
+    }
 }
 
 public class SceneState: ObservableObject {
@@ -33,8 +40,8 @@ public class SceneState: ObservableObject {
         initialValue: -1.0
     )
     @Published var scenes: [SceneModel] = [
-        SceneModel(),
-        SceneModel(),
+        SceneModel(id: SceneId(index: 0)),
+        SceneModel(id: SceneId(index: 1)),
     ]
 
     init() {}

@@ -58,18 +58,18 @@ struct SceneSliderView: View {
     }
 
     func makeDragGesture(sceneId: Int) -> some Gesture {
-      return DragGesture(coordinateSpace: .global)
+        return DragGesture(coordinateSpace: .global)
             .onChanged { drag in
                 self.store.focusState.sceneDragState = SceneDragState(
-                  scene: sceneId,
-                  position: drag.location,
-                  startPosition: drag.startLocation
+                    scene: sceneId,
+                    position: drag.location,
+                    startPosition: drag.startLocation
                 )
-                self.store.startDrag(source: .sceneId(sceneId), dragMode: .lock)
+                self.store.startDrag(source: .sceneId(SceneId(index: sceneId)), dragMode: .lock)
                 store.objectWillChange.send()
-              withAnimation {
-                isDragging = sceneId
-              }
+                withAnimation {
+                    isDragging = sceneId
+                }
             }
             .onEnded { _ in
                 self.store.endGlobalDrag()
@@ -78,21 +78,21 @@ struct SceneSliderView: View {
             }
     }
 
-  func makeOverlay(sceneId: Int) -> some View {
-      ZStack(alignment: .center) {
-          Rectangle()
-              .fill(SequencerColors.blue.opacity(0.4))
-              .border(SequencerColors.white, width: 1)
-              .padding(1)
-              .cornerRadius(BORDER_RADIUS)
+    func makeOverlay(sceneId: Int) -> some View {
+        ZStack(alignment: .center) {
+            Rectangle()
+                .fill(SequencerColors.blue.opacity(0.4))
+                .border(SequencerColors.white, width: 1)
+                .padding(1)
+                .cornerRadius(BORDER_RADIUS)
 
-          Text("Map scene")
-              .bold()
-              .frame(maxWidth: .infinity, alignment: .center)
-      }
-      .opacity(isDragging == sceneId ? 1.0 : 0.0)
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
-      .padding(2)
-      .allowsHitTesting(false)
-  }
+            Text("Map scene")
+                .bold()
+                .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .opacity(isDragging == sceneId ? 1.0 : 0.0)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(2)
+        .allowsHitTesting(false)
+    }
 }
