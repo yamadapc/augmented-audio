@@ -27,10 +27,16 @@ import Combine
  * previous `N` samples and then pushed onto this ObservableObject.
  */
 public class ProcessorMetrics: ObservableObject {
-    @Published var inner = Stats(
+    @Published private var inner = Stats(
         averageCpu: 0,
         maximumCpu: 0, averageNanos: 0, maximumNanos: 0
     )
+
+    init() {}
+
+    func getStats() -> Stats {
+      return inner
+    }
 
     public func setStats(
         averageCpu: Float,
@@ -45,8 +51,6 @@ public class ProcessorMetrics: ObservableObject {
             maximumNanos: maxNanos
         )
     }
-
-    init() {}
 
     struct Stats {
         let averageCpu: Float

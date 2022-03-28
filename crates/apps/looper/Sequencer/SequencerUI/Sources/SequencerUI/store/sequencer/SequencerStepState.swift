@@ -23,10 +23,10 @@ public struct StepId: Hashable {
 }
 
 public class SequencerStepState: ObservableObject {
-    var id: StepId
+    let id: StepId
     var index: Int { id.stepIndex }
 
     init(trackId: Int, stepIndex: Int) {
-        id = StepId(trackId: trackId, stepIndex: stepIndex)
+        self.id = StepId(trackId: trackId, stepIndex: stepIndex)
     }
 }

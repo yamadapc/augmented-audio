@@ -28,7 +28,7 @@ struct MIDIMonitorView: View {
                 .background(SequencerColors.black3)
 
             List(
-                midi.lastMidiMessages.reversed(),
+                midi.getLastMidiMessages().reversed(),
                 id: \.self.0,
                 rowContent: { _, message in
                     HStack {

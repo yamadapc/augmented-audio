@@ -27,15 +27,23 @@ import Combine
  * This object also holds the current MIDI map.
  */
 public class MIDIMappingState: ObservableObject {
-    var midiMap: [MIDIMessageId: ParameterId] = [:]
-    var lastMidiMessages: [(MIDIMessageIndex, MIDIMessage)] = []
-    var lastMessagesMap: [MIDIControllerNumber: MIDIMessage] = [:]
+    private var midiMap: [MIDIMessageId: ParameterId] = [:]
+    private var lastMidiMessages: [(MIDIMessageIndex, MIDIMessage)] = []
+    private var lastMessagesMap: [MIDIControllerNumber: MIDIMessage] = [:]
 
     var mapKeys: [MIDIMessageId] {
         Array(midiMap.keys)
     }
 
     var currentMessageId = 0
+
+    func getLastMidiMessages() -> [(MIDIMessageIndex, MIDIMessage)] {
+        return self.lastMidiMessages
+    }
+
+    func getMapping(message: MIDIMessageId) -> ParameterId? {
+        return midiMap[message]
+    }
 
     func addMapping(id: MIDIMessageId, objectId: ParameterId) {
         midiMap[id] = objectId

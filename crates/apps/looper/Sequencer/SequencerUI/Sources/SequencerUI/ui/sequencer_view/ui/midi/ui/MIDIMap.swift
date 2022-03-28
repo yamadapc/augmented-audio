@@ -29,7 +29,7 @@ struct MIDIMapView: View {
                 .background(SequencerColors.black3)
 
             List(midi.mapKeys, id: \.self, rowContent: { key in
-                let entry = midi.midiMap[key]
+                let entry = midi.getMapping(message: key)
                 Text("\(key.toString()) = \(String(describing: entry))")
                     .frame(maxWidth: .infinity, alignment: .leading)
             })

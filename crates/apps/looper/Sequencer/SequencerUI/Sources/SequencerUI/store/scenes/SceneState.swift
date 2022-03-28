@@ -23,9 +23,11 @@ public struct SceneId: Hashable {
 
 class SceneModel: ObservableObject {
     let id: SceneId
+    let label: String
 
-    init(id: SceneId) {
+    init(id: SceneId, label: String) {
         self.id = id
+        self.label = label
     }
 }
 
@@ -38,9 +40,9 @@ public class SceneState: ObservableObject {
         range: (-1.0, 1.0),
         initialValue: -1.0
     )
-    @Published var scenes: [SceneModel] = [
-        SceneModel(id: SceneId(index: 0)),
-        SceneModel(id: SceneId(index: 1)),
+    let scenes: [SceneModel] = [
+        SceneModel(id: SceneId(index: 0), label: "A"),
+        SceneModel(id: SceneId(index: 1), label: "B"),
     ]
 
     init() {}
