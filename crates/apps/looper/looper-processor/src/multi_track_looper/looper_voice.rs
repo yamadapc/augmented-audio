@@ -15,7 +15,7 @@ use crate::{
 
 use super::envelope_processor::{EnvelopeHandle, EnvelopeProcessor};
 use super::lfo_processor::LFOHandle;
-use super::parameters::{ParameterId, ParameterValue};
+use super::parameters::ParameterId;
 use super::trigger_model::TrackTriggerModel;
 
 pub type ParameterValues = ParametersMap;
@@ -91,7 +91,7 @@ pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> Loop
     let looper_handle = looper.handle().clone();
     let sequencer_handle = looper.sequencer_handle().clone();
     let triggers = make_shared(TrackTriggerModel::default());
-    let (parameter_values, parameter_ids) = build_default_parameters();
+    let (_parameter_values, parameter_ids) = build_default_parameters();
 
     LooperVoice {
         id,

@@ -229,7 +229,7 @@ impl TrackTriggerModel {
     pub fn remove_trigger(&self, position_step: usize) {
         let triggers = self.triggers.get();
         let mut triggers: Vec<Trigger> = (*triggers).clone();
-        let indexes: Vec<usize> = triggers
+        let _indexes: Vec<usize> = triggers
             .iter()
             .enumerate()
             .filter(|(_idx, trigger)| trigger.position.step.get() == position_step)

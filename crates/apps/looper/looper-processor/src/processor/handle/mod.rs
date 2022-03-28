@@ -624,7 +624,7 @@ mod test {
     fn test_stop_recording_does_not_allocate() {
         let handle = LooperHandle::default();
         handle.start_recording();
-        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        let buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
         for sample in buffer.slice() {
             handle.process(0, *sample);
         }

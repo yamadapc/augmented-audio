@@ -103,7 +103,7 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
-    use std::ops::Deref;
+
     use std::sync::atomic::Ordering;
     use std::time::Duration;
 

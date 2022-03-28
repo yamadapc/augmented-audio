@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use assert_no_alloc::assert_no_alloc;
@@ -873,7 +873,7 @@ impl MultiTrackLooper {
             for parameter_id in voice.parameter_ids() {
                 let parameter_value = parameter_values.get(parameter_id.clone());
 
-                let key = (looper_id, parameter_id.clone());
+                let _key = (looper_id, parameter_id.clone());
                 let left_value = self
                     .handle
                     .scene_parameters
@@ -1174,7 +1174,7 @@ mod test {
 
         let num_blocks = buffer.num_samples() as usize / settings.block_size();
         let mut output = VecAudioBuffer::empty_with(1, settings.block_size(), 0.0);
-        for i in 0..num_blocks {
+        for _i in 0..num_blocks {
             looper.process(&mut output);
         }
     }

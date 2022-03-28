@@ -33,10 +33,10 @@ pub fn copy_paste(
         // * All LFO mapping
         (
             CopyPath::Track {
-                looper_id: source_looper,
+                looper_id: _source_looper,
             },
             CopyPath::Track {
-                looper_id: destination_looper,
+                looper_id: _destination_looper,
             },
         ) => Err(CopyPasteError::UnsupportedPaths),
         // Copy step into another step will create a step with all locks in the source at destination
@@ -47,7 +47,7 @@ pub fn copy_paste(
             },
             CopyPath::Step {
                 looper_id: destination_looper,
-                step_id: destination_step,
+                step_id: _destination_step,
             },
         ) => {
             if let (Some(source_voice), Some(destination_voice)) = (
