@@ -58,7 +58,7 @@ class ParameterLockStore: ObservableObject {
     }
 
     func hasLocks(source: ParameterLockSource) -> Bool {
-        return locks[source] != nil
+        return (locks[source]?.count ?? 0) > 0
     }
 
     func getLocks(parameterId: ParameterId) -> [ParameterLockState] {

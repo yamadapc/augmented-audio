@@ -230,6 +230,9 @@ extension Store {
     func removeParameterLock(_ id: ParameterLockId) {
         parameterLockStore.removeLock(id)
         engine?.removeLock(parameterLockId: id)
+        if focusState.selectedObject == .parameterLock(source: id.source, parameterId: id.parameterId) {
+            focusState.selectedObject = nil
+        }
     }
 }
 

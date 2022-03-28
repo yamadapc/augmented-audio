@@ -463,9 +463,9 @@
 				CBA4DAA427DDF4BB00A530E3 /* private.h */,
 				CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */,
 				CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */,
+				CB3948F027EC3B24009A650D /* ForeignCallback.swift */,
 				CB3D995827EFE4A000E5ECBA /* Parameters.swift */,
 				CB3D995A27EFE4E300E5ECBA /* store_subscriptions */,
-				CB3948F027EC3B24009A650D /* ForeignCallback.swift */,
 				CBECE3B927ED43DB0054BB43 /* SequencerEngineTests */,
 			);
 			path = SequencerEngine;
