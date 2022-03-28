@@ -283,6 +283,7 @@ pub struct CTimeInfo {
     position_beats: f64,
     // -1 means none
     tempo: f64, // -1 means none
+    is_playing: bool,
 }
 
 #[no_mangle]
@@ -477,6 +478,7 @@ pub unsafe extern "C" fn looper_engine__get_playhead_position(
         position_samples: time_info.position_samples(),
         position_beats: time_info.position_beats().unwrap_or(-1.0),
         tempo: time_info.tempo().unwrap_or(-1.0),
+        is_playing: time_info.is_playing(),
     }
 }
 

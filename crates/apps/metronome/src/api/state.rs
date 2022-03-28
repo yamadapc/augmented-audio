@@ -28,7 +28,7 @@ unsafe impl Send for State {}
 
 impl State {
     pub fn new() -> Self {
-        let processor = MetronomeProcessor::new();
+        let processor = MetronomeProcessor::default();
         let processor_handle = processor.handle().clone();
         processor_handle.set_is_playing(false);
         let app = StandaloneAudioOnlyProcessor::new(
