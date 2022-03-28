@@ -107,7 +107,7 @@ impl MultiTrackLooperHandle {
 
                 let parameters = handle.user_parameters();
                 let tempo_control = parameters.get(ParameterId::ParameterIdQuantization(
-                    QuantizationParameter::QuantizationParameterQuantizeMode,
+                    QuantizationParameter::QuantizationParameterTempoControl,
                 ));
 
                 if was_empty
@@ -518,7 +518,11 @@ impl MultiTrackLooperHandle {
 
     pub fn toggle_playback(&self, looper_id: LooperId) {
         if let Some(handle) = self.voices.get(looper_id.0) {
-            handle.looper().toggle_playback();
+            // TODO: We might want to stop the playhead
+            // Depending on whether there are other loopers playing
+            if handle.looper().toggle_playback() {
+                self.play();
+            }
         }
     }
 

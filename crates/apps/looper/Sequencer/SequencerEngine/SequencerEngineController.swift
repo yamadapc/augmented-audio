@@ -130,8 +130,11 @@ public class EngineController {
             store.timeInfo.tempo = tempo
             store.timeInfo.objectWillChange.send()
         }
+        if store.isPlaying != playhead.is_playing {
+            store.isPlaying = playhead.is_playing
+        }
 
-      DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16)), qos: .userInitiated) {
+        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16)), qos: .userInitiated) {
             self.flushPollInfo()
         }
     }

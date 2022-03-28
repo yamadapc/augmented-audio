@@ -219,7 +219,8 @@ impl LooperHandle {
         self.end_offset.get() * self.length.get() as f32
     }
 
-    pub fn toggle_playback(&self) {
+    /// Toggle playback. Return true if the looper is playing after this.
+    pub fn toggle_playback(&self) -> bool {
         let old_state = self.state.get();
         if old_state == LooperState::Playing
             || old_state == LooperState::Recording
@@ -227,8 +228,10 @@ impl LooperHandle {
         {
             self.stop_recording_allocating_loop();
             self.pause();
+            false
         } else {
             self.play();
+            true
         }
     }
 
@@ -286,15 +289,17 @@ impl LooperHandle {
     }
 
     pub fn play(&self) {
-        // TODO: Looper should only affect time_info_provider if it's the master
-        self.time_info_provider.play();
+        if self.tick_time.get() {
+            self.time_info_provider.play();
+        }
         self.state.set(LooperState::Playing);
         self.cursor.set(self.get_start_samples());
     }
 
     pub fn pause(&self) {
-        // TODO: Looper should only affect time_info_provider if it's the master
-        self.time_info_provider.pause();
+        if self.tick_time.get() {
+            self.time_info_provider.pause();
+        }
         self.state.set(LooperState::Paused);
     }
 

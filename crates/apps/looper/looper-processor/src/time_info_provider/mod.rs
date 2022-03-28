@@ -8,6 +8,7 @@ use mockall::automock;
 pub use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 #[cfg(not(target_os = "ios"))]
 use audio_processor_standalone::{standalone_vst::vst, standalone_vst::vst::host::Host};
+use augmented_atomics::AtomicValue;
 use augmented_playhead::{PlayHead, PlayHeadOptions};
 use metronome::MetronomePlayhead;
 
@@ -19,6 +20,7 @@ pub struct TimeInfo {
     tempo: Option<f64>,
     position_samples: f64,
     position_beats: Option<f64>,
+    is_playing: bool,
 }
 
 impl TimeInfo {
@@ -32,6 +34,10 @@ impl TimeInfo {
 
     pub fn position_beats(&self) -> Option<f64> {
         self.position_beats
+    }
+
+    pub fn is_playing(&self) -> bool {
+        self.is_playing
     }
 }
 
@@ -71,6 +77,9 @@ impl TimeInfoProvider for TimeInfoProviderImpl {
                 tempo: Some(vst_time_info.tempo),
                 position_samples: vst_time_info.sample_pos,
                 position_beats: Some(vst_time_info.ppq_pos),
+                is_playing: (vst_time_info.flags
+                    & vst::api::TimeInfoFlags::TRANSPORT_PLAYING.bits())
+                    != 0,
             });
 
         host_time_info.unwrap_or_else(|| self.playhead_timeinfo())
@@ -126,6 +135,7 @@ impl TimeInfoProviderImpl {
                 .options()
                 .tempo()
                 .map(|_| self.playhead.position_beats()),
+            is_playing: self.is_playing.get(),
         }
     }
 }
