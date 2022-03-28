@@ -32,6 +32,7 @@ use crate::multi_track_looper::lfo_processor::LFOHandle;
 use crate::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::multi_track_looper::scene_state::SceneHandle;
 use crate::processor::handle::{LooperState, ToggleRecordingResult};
+use crate::time_info_provider::TimeInfoMetronomePlayhead;
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
 pub(crate) mod allocator;
@@ -639,7 +640,9 @@ impl MultiTrackLooper {
             .map(|_| looper_voice::build_voice_processor(&options, &time_info_provider))
             .collect();
 
-        let metronome = metronome::MetronomeProcessor::new();
+        let metronome = metronome::MetronomeProcessor::new(TimeInfoMetronomePlayhead(
+            time_info_provider.clone(),
+        ));
         let metronome_handle = metronome.handle().clone();
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);
@@ -701,7 +704,7 @@ impl MultiTrackLooper {
 
     fn build_audio_graph(
         processors: Vec<VoiceProcessors>,
-        metronome: MetronomeProcessor,
+        metronome: MetronomeProcessor<TimeInfoMetronomePlayhead>,
     ) -> AudioProcessorGraph {
         let mut graph = AudioProcessorGraph::default();
         let metronome_idx = graph.add_node(NodeType::Buffer(Box::new(metronome)));

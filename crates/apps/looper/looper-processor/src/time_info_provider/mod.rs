@@ -1,3 +1,4 @@
+use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use derive_builder::Builder;
@@ -8,6 +9,7 @@ pub use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 #[cfg(not(target_os = "ios"))]
 use audio_processor_standalone::{standalone_vst::vst, standalone_vst::vst::host::Host};
 use augmented_playhead::{PlayHead, PlayHeadOptions};
+use metronome::MetronomePlayhead;
 
 #[cfg(target_os = "ios")]
 pub type HostCallback = ();
@@ -125,6 +127,14 @@ impl TimeInfoProviderImpl {
                 .tempo()
                 .map(|_| self.playhead.position_beats()),
         }
+    }
+}
+
+pub struct TimeInfoMetronomePlayhead(pub audio_garbage_collector::Shared<TimeInfoProviderImpl>);
+
+impl MetronomePlayhead for TimeInfoMetronomePlayhead {
+    fn position_beats(&self) -> f64 {
+        self.0.playhead().position_beats()
     }
 }
 
