@@ -38,6 +38,8 @@ jobs:
               --exclude-files "*crates/spikes/*" \
               --exclude-files "*crates/scripts/*" \
               --exclude-files "*crates/augmented/gui/*" \
+              --exclude-files "*crates/augmented/application/audio-processor-standalone/examples/*" \
+              --exclude-files "*crates/augmented/application/audio-processor-standalone-gui/*" \
               --exclude-files "*crates/augmented/audio/audiounit/*" \
               --exclude-files "*crates/augmented/development/*" \
               --exclude-files "*crates/augmented/data/augmented-midi/midir/*" \
