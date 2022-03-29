@@ -35,7 +35,7 @@ public class ProcessorMetrics: ObservableObject {
     init() {}
 
     func getStats() -> Stats {
-      return inner
+        return inner
     }
 
     public func setStats(

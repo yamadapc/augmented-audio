@@ -27,6 +27,6 @@ public class SequencerStepState: ObservableObject {
     var index: Int { id.stepIndex }
 
     init(trackId: Int, stepIndex: Int) {
-        self.id = StepId(trackId: trackId, stepIndex: stepIndex)
+        id = StepId(trackId: trackId, stepIndex: stepIndex)
     }
 }

@@ -38,7 +38,7 @@ public class MIDIMappingState: ObservableObject {
     var currentMessageId = 0
 
     func getLastMidiMessages() -> [(MIDIMessageIndex, MIDIMessage)] {
-        return self.lastMidiMessages
+        return lastMidiMessages
     }
 
     func getMapping(message: MIDIMessageId) -> ParameterId? {
