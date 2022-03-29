@@ -337,6 +337,8 @@ mod test {
         handle.join().unwrap();
     }
 
+    // This is disabled because MIDI host fails to start on current Linux CI
+    #[cfg(target_os = "macos")]
     mod midi_integration_test {
         use std::time::Duration;
 
