@@ -38,7 +38,7 @@ extension EnvelopeParameterId {
     }
 }
 
-public typealias EnvelopeParameter = FloatParameter<EnvelopeParameterId>
+public typealias EnvelopeParameter = FloatParameter
 
 public class EnvelopeState: ObservableObject {
     var trackId: Int
@@ -73,26 +73,22 @@ public class EnvelopeState: ObservableObject {
             value: false
         )
         attack = .init(
-            id: .attack,
-            globalId: .envelopeParameter(trackId: trackId, parameterId: .attack),
+            id: .envelopeParameter(trackId: trackId, parameterId: .attack),
             label: "Attack",
             initialValue: 0
         )
         decay = .init(
-            id: .decay,
-            globalId: .envelopeParameter(trackId: trackId, parameterId: .decay),
+            id: .envelopeParameter(trackId: trackId, parameterId: .decay),
             label: "Decay",
             initialValue: 0.2
         )
         sustain = .init(
-            id: .sustain,
-            globalId: .envelopeParameter(trackId: trackId, parameterId: .sustain),
+            id: .envelopeParameter(trackId: trackId, parameterId: .sustain),
             label: "Sustain",
             initialValue: 0.8
         )
         release = .init(
-            id: .release,
-            globalId: .envelopeParameter(trackId: trackId, parameterId: .release),
+            id: .envelopeParameter(trackId: trackId, parameterId: .release),
             label: "Release",
             initialValue: 0.3
         )

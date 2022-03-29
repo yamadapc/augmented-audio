@@ -41,8 +41,7 @@ public class Store: ObservableObject {
     public let timeInfo: TimeInfo = .init()
     public let sceneState = SceneState()
     public let metronomeVolume: FloatParameter = .init(
-        id: 0,
-        globalId: .metronomeVolume,
+        id: .metronomeVolume,
         label: "Metronome",
         initialValue: 0.7
     )
@@ -143,7 +142,7 @@ extension Store {
         }
     }
 
-    func endParameterLock<ParameterId>(_ parameter: FloatParameter<ParameterId>) {
+    func endParameterLock(_ parameter: FloatParameter) {
         if let progress = parameter.parameterLockProgress {
             parameter.parameterLockProgress = nil
             parameter.objectWillChange.send()

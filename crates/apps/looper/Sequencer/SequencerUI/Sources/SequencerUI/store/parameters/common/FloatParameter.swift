@@ -17,8 +17,7 @@
 // = /copyright ===================================================================
 import Combine
 
-public class FloatParameter<LocalId>: ObservableObject, Identifiable, ParameterLike {
-    public var id: LocalId
+public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
     public var globalId: ParameterId
 
     @Published var label: String
@@ -34,29 +33,28 @@ public class FloatParameter<LocalId>: ObservableObject, Identifiable, ParameterL
         return String(format: "%.2f", parameterLockProgress?.newValue ?? value)
     }
 
-    init(id: LocalId, globalId: ParameterId, label: String) {
-        self.id = id
-        self.globalId = globalId
+    init(id: ParameterId, label: String) {
+        self.globalId = id
         self.label = label
         defaultValue = 0.0
     }
 
-    convenience init(id: LocalId, globalId: ParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
-        self.init(id: id, globalId: globalId, label: label)
+    convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
+        self.init(id: id, label: label)
         self.style = style
         self.range = range
         value = initialValue
         defaultValue = initialValue
     }
 
-    convenience init(id: LocalId, globalId: ParameterId, label: String, style: KnobStyle, range: (Float, Float)) {
-        self.init(id: id, globalId: globalId, label: label)
+    convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float)) {
+        self.init(id: id, label: label)
         self.style = style
         self.range = range
     }
 
-    convenience init(id: LocalId, globalId: ParameterId, label: String, initialValue: Float) {
-        self.init(id: id, globalId: globalId, label: label)
+    convenience init(id: ParameterId, label: String, initialValue: Float) {
+        self.init(id: id, label: label)
         value = initialValue
         defaultValue = initialValue
     }

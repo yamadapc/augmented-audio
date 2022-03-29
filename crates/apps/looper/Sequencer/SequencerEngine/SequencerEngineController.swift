@@ -134,6 +134,13 @@ public class EngineController {
             store.isPlaying = playhead.is_playing
         }
 
+        // store.allParameters
+        looper_engine__get_parameter_value(
+            engine.engine,
+            0,
+            getObjectIdRust(.sourceParameter(trackId: 0, parameterId: .start))!
+        )
+
         DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16)), qos: .userInitiated) {
             self.flushPollInfo()
         }

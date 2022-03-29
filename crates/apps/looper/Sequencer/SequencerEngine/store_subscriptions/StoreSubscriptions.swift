@@ -77,7 +77,13 @@ class StoreSubscriptionsController {
                         "id": .stringConvertible(parameter.id.debugDescription),
                         "value": .stringConvertible($0),
                     ])
-                    self.engine.setSourceParameter(looperId, parameterId: parameter.id, value: $0)
+                    if case let .sourceParameter(_, parameter) = parameter.globalId {
+                        self.engine.setSourceParameter(
+                            looperId,
+                            parameterId: parameter,
+                            value: $0
+                        )
+                    }
                 },
                 initialValue: parameter.value
             )
@@ -107,12 +113,14 @@ class StoreSubscriptionsController {
             pushFloatValue(
                 publisher: parameter.$value,
                 flush: {
-                    self.engine.setLFOParameter(
-                        looperId,
-                        parameterId: parameter.id,
-                        lfoId: 0,
-                        value: $0
-                    )
+                    if case let .lfoParameter(_, _, parameter) = parameter.globalId {
+                        self.engine.setLFOParameter(
+                            looperId,
+                            parameterId: parameter,
+                            lfoId: 0,
+                            value: $0
+                        )
+                    }
                 },
                 initialValue: parameter.value
             )
@@ -121,19 +129,22 @@ class StoreSubscriptionsController {
             pushFloatValue(
                 publisher: parameter.$value,
                 flush: {
-                    self.engine.setLFOParameter(
-                        looperId,
-                        parameterId: parameter.id,
-                        lfoId: 1,
-                        value: $0
-                    )
+                    if case let .lfoParameter(_, _, parameter) = parameter.globalId {
+                        self.engine.setLFOParameter(
+                            looperId,
+                            parameterId: parameter,
+                            lfoId: 1,
+                            value: $0
+                        )
+                    }
                 },
                 initialValue: parameter.value
             )
         }
 
         trackState.envelope.parameters.forEach { parameter in
-            let rustParameterId = ENVELOPE_PARAMETER_IDS[parameter.id]!
+            guard case let .envelopeParameter(_, parameterId) = parameter.globalId
+            else { return }
 
             pushFloatValue(
                 publisher: parameter.$value,
@@ -141,7 +152,7 @@ class StoreSubscriptionsController {
                     looper_engine__set_envelope_parameter(
                         self.engine.engine,
                         looperId,
-                        rustParameterId,
+                        ENVELOPE_PARAMETER_IDS[parameterId]!,
                         $0
                     )
                 }, initialValue: parameter.value
