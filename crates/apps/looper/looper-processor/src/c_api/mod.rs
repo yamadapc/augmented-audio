@@ -22,9 +22,11 @@ use crate::multi_track_looper::slice_worker::SliceResult;
 use crate::processor::handle::LooperState;
 use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider};
 
+pub use self::entity_id::*;
 pub use self::foreign_callback::*;
 pub use self::midi_callback::*;
 
+mod entity_id;
 mod foreign_callback;
 mod midi_callback;
 

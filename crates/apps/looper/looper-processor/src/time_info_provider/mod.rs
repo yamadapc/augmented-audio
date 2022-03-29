@@ -1,4 +1,3 @@
-use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use derive_builder::Builder;

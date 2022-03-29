@@ -2,11 +2,12 @@ use std::ops::Deref;
 
 use actix::{Actor, Context, Handler, Message, MessageResponse, Supervised, SystemService};
 use basedrop::{Handle, Owned, Shared};
-use midir::{MidiInput, MidiInputConnection};
 use thiserror::Error;
 
 use atomic_queue::Queue;
 use audio_processor_traits::MidiMessageLike;
+use midir::os::unix::VirtualInput;
+use midir::{MidiInput, MidiInputConnection};
 
 use crate::constants::MIDI_BUFFER_CAPACITY;
 
@@ -51,11 +52,20 @@ impl MidiHost {
 
     /// Start the MIDI connections
     pub fn start_midi(&mut self) -> Result<(), MidiError> {
-        log::info!("Creating MIDI input `plugin-host`");
-        let input = midir::MidiInput::new("plugin-host")?;
+        log::info!("Creating virtual MIDI input `audio_processor_standalone_midi`");
 
+        log::info!("Creating MIDI input `audio_processor_standalone_midi`");
+        let input = midir::MidiInput::new("audio_processor_standalone_midi")?;
+        let virtual_input = input.create_virtual(
+            "audio_processor_standalone_midi",
+            midi_callback,
+            MidiCallbackContext::new(self.handle.clone(), self.current_messages.clone()),
+        )?;
+        self.connections.push(virtual_input);
+
+        let input = midir::MidiInput::new("audio_processor_standalone_midi")?;
         for port in &input.ports() {
-            let input = midir::MidiInput::new("plugin-host")?;
+            let input = midir::MidiInput::new("audio_processor_standalone_midi")?;
             log::debug!("MIDI input: {:?}", input.port_name(port));
             let connection = input.connect(
                 port,
@@ -203,6 +213,7 @@ fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext
 #[cfg(test)]
 mod test {
     use assert_no_alloc::assert_no_alloc;
+
     use audio_garbage_collector::make_shared;
 
     use super::*;

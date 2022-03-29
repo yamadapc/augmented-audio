@@ -4,8 +4,6 @@ use augmented_atomics::AtomicF32;
 
 use crate::parameters::{build_default_parameters, build_parameter_indexes, ParameterId};
 
-type LFOMap = lockfree::map::Map<ParameterId, f32>;
-
 pub struct LFOHandle {
     amount: AtomicF32,
     frequency: AtomicF32,
@@ -62,8 +60,9 @@ impl LFOHandle {
 
 #[cfg(test)]
 mod test {
-    use crate::parameters::SourceParameter;
     use audio_processor_testing_helpers::assert_f_eq;
+
+    use crate::parameters::SourceParameter;
 
     use super::*;
 
@@ -102,6 +101,7 @@ mod test {
     fn test_remove_modulation() {
         let handle = LFOHandle::default();
         let amount = handle.modulation_amount(&SourceParameter::Start.into());
+        assert_f_eq!(amount, 0.0);
 
         handle.set_parameter_map(SourceParameter::Start.into(), Some(0.5));
         handle.set_parameter_map(SourceParameter::Start.into(), None);

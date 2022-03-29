@@ -3,7 +3,6 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use assert_no_alloc::assert_no_alloc;
-
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use num::ToPrimitive;
@@ -985,14 +984,22 @@ impl AudioProcessor for MultiTrackLooper {
 
 impl MidiEventHandler for MultiTrackLooper {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
-        self.handle.midi_store.process_midi_events(midi_messages);
+        self.handle
+            .midi_store
+            .process_midi_events(midi_messages, &self);
     }
 }
 
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::{assert_f_eq, sine_buffer};
+    use basedrop::Owned;
+
+    use audio_processor_standalone_midi::host::{MidiMessageEntry, MidiMessageWrapper};
     use audio_processor_traits::InterleavedAudioBuffer;
+
+    use crate::midi_map::MidiControllerNumber;
+    use crate::parameters::EntityId;
 
     use super::*;
 
@@ -1192,6 +1199,33 @@ mod test {
         assert_eq!(
             looper.handle.all_loopers_empty_other_than(LooperId(0)),
             true
+        );
+    }
+
+    #[test]
+    fn test_sending_midi_will_update_mapped_parameters() {
+        let mut looper = MultiTrackLooper::default();
+        let midi = looper.handle().midi();
+        midi.midi_map().add(
+            MidiControllerNumber::new(55),
+            EntityId::EntityIdLooperParameter(LooperId(0), SourceParameter::Start.into()),
+        );
+        looper.process_midi_events(&[MidiMessageEntry(Owned::new(
+            audio_garbage_collector::handle(),
+            MidiMessageWrapper {
+                message_data: [0b1011_0001, 55, 64],
+                timestamp: 0,
+            },
+        ))]);
+        assert!(
+            (looper
+                .handle()
+                .get_parameter(LooperId(0), &SourceParameter::Start.into())
+                .unwrap()
+                .inner_float())
+            .abs()
+                - 0.5
+                < 0.01 // MIDI has ~0.008 step-size (range: 0-127, resolution: 1 / 127)
         );
     }
 }

@@ -4,7 +4,9 @@ use audio_processor_file::file_io::AudioFileError;
 use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
 
 struct AudioClipModel {
+    #[allow(dead_code)]
     path: PathBuf,
+    #[allow(dead_code)]
     contents: VecAudioBuffer<f32>,
 }
 

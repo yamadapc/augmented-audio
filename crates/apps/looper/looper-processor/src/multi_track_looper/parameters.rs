@@ -7,8 +7,16 @@ use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
 
 use crate::QuantizeMode;
 
+#[repr(transparent)]
 #[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, Ord, PartialOrd)]
 pub struct LooperId(pub usize);
+
+#[repr(C)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants, PartialOrd, Ord)]
+#[allow(clippy::enum_variant_names)]
+pub enum EntityId {
+    EntityIdLooperParameter(LooperId, ParameterId),
+}
 
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants, PartialOrd, Ord)]
