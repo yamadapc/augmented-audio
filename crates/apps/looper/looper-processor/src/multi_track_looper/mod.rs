@@ -103,15 +103,18 @@ impl MultiTrackLooperHandle {
         let looper_id = self.active_looper.get();
         let voice = &self.voices[looper_id];
         let looper_id = LooperId(looper_id);
-        if voice.looper().state() == LooperState::Empty {
+        let state = voice.looper().state();
+        if state == LooperState::Empty {
             self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
-        } else if voice.looper().state() == LooperState::Paused {
+        } else if state == LooperState::Paused {
             self.toggle_playback(looper_id)
-        } else if voice.looper().state() == LooperState::Overdubbing {
+        } else if state == LooperState::Overdubbing {
             self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
-        } else if voice.looper().state() == LooperState::Recording {
+        } else if state == LooperState::Recording {
             self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
-        }
+        } else if state == LooperState::Playing {
+            self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
+        } // TODO what else
     }
 
     pub fn stop_active_looper(&self) {
