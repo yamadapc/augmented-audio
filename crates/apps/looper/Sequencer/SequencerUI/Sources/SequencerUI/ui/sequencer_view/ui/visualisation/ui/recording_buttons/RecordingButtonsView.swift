@@ -20,7 +20,7 @@ import SwiftUI
 let BUTTON_ANIMATION_DURATION_SECS = 0.6
 
 struct RecordingButtonsView: View {
-    var store: Store
+    @ObservedObject var store: Store
     @ObservedObject var trackState: TrackState
 
     var body: some View {
@@ -31,7 +31,7 @@ struct RecordingButtonsView: View {
             TrackButton(
                 action: { store.onClickClear() },
                 label: "Clear",
-                isDisabled: trackState.looperState.isEmpty,
+                isDisabled: trackState.looperState.isEmpty || store.midiMappingActive,
                 isSelected: false
             )
             .bindToParameterId(store: store, parameterId: .clearButton(trackId: trackState.id))

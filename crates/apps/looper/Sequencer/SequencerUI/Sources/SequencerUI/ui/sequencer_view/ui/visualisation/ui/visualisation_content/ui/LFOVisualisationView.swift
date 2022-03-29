@@ -18,8 +18,8 @@
 import SwiftUI
 
 struct LFOVisualisationViewInner: View {
-    @ObservedObject var lfoAmount: FloatParameter<LFOParameterId>
-    @ObservedObject var lfoFrequency: FloatParameter<LFOParameterId>
+    @ObservedObject var lfoAmount: FloatParameter
+    @ObservedObject var lfoFrequency: FloatParameter
     @State var tick: Int = 0
     @State var lastTranslation: CGSize = .zero
 

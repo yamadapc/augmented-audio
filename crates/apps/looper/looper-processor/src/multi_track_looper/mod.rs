@@ -1,9 +1,8 @@
 use std::collections::HashMap;
-use std::sync::atomic::Ordering;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use assert_no_alloc::assert_no_alloc;
-
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use num::ToPrimitive;
@@ -29,9 +28,10 @@ use trigger_model::step_tracker::StepTracker;
 use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 
 use crate::multi_track_looper::lfo_processor::LFOHandle;
+use crate::multi_track_looper::midi_button::{MIDIButton, MIDIButtonEvent};
 use crate::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::multi_track_looper::scene_state::SceneHandle;
-use crate::processor::handle::{LooperState, ToggleRecordingResult};
+use crate::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
 use crate::time_info_provider::TimeInfoMetronomePlayhead;
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
@@ -39,8 +39,10 @@ pub(crate) mod allocator;
 mod copy_paste;
 mod envelope_processor;
 mod lfo_processor;
+mod long_backoff;
 mod looper_voice;
 pub(crate) mod metrics;
+mod midi_button;
 pub(crate) mod midi_store;
 pub mod parameters;
 mod parameters_map;
@@ -59,6 +61,7 @@ pub struct MultiTrackLooperHandle {
     settings: SharedCell<AudioProcessorSettings>,
     metrics_handle: Shared<AudioProcessorMetricsHandle>,
     midi_store: Shared<MidiStoreHandle>,
+    active_looper: AtomicUsize,
 }
 
 impl MultiTrackLooperHandle {
@@ -95,10 +98,45 @@ impl MultiTrackLooperHandle {
         self.scene_parameters.set_slider(value);
     }
 
-    pub fn toggle_recording(&self, looper_id: LooperId) {
+    /// If the active looper is empty, start recording, otherwise start playback
+    pub fn on_multi_mode_record_play_pressed(&self) {
+        let looper_id = self.active_looper.get();
+        let voice = &self.voices[looper_id];
+        let looper_id = LooperId(looper_id);
+        let state = voice.looper().state();
+        if state == LooperState::Empty {
+            self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
+        } else if state == LooperState::Paused {
+            self.toggle_playback(looper_id)
+        } else if state == LooperState::Overdubbing
+            || state == LooperState::Recording
+            || state == LooperState::Playing
+        {
+            self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
+        } // TODO what else
+    }
+
+    pub fn stop_active_looper(&self) {
+        let looper_id = self.active_looper.get();
+        if let Some(voice) = self.voices.get(looper_id) {
+            voice.looper().stop();
+        }
+    }
+
+    pub fn clear_active_looper(&self) {
+        let looper_id = self.active_looper.get();
+        self.clear(LooperId(looper_id))
+    }
+
+    pub fn set_active_looper(&self, looper_id: LooperId) {
+        self.active_looper.set(looper_id.0);
+    }
+
+    pub fn toggle_recording(&self, looper_id: LooperId, thread: LooperHandleThread) {
         if let Some(handle) = self.voices.get(looper_id.0) {
             let was_empty = self.all_loopers_empty_other_than(looper_id);
-            if let ToggleRecordingResult::StoppedRecording = handle.looper().toggle_recording() {
+            let toggle_recording_result = handle.looper().toggle_recording(thread);
+            if let ToggleRecordingResult::StoppedRecording = toggle_recording_result {
                 self.slice_worker.add_job(
                     looper_id.0,
                     *self.settings.get(),
@@ -111,7 +149,7 @@ impl MultiTrackLooperHandle {
                 ));
 
                 if was_empty
-                    && tempo_control.inner_enum()
+                    && tempo_control.as_enum()
                         == TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap()
                 {
                     let estimated_tempo = estimate_tempo(
@@ -188,7 +226,7 @@ impl MultiTrackLooperHandle {
                     let slice_enabled = voice
                         .user_parameters()
                         .get(SourceParameter::SliceEnabled)
-                        .inner_bool();
+                        .as_bool();
 
                     if !slice_enabled {
                         return;
@@ -411,7 +449,7 @@ impl MultiTrackLooperHandle {
             }
 
             let parameters = voice.user_parameters();
-            let _ = parameters.set(parameter_id.clone(), ParameterValue::Bool(value.into()));
+            let _ = parameters.set(parameter_id, ParameterValue::Bool(value.into()));
         }
     }
 
@@ -629,6 +667,7 @@ pub struct MultiTrackLooper {
     metrics: AudioProcessorMetrics,
     parameters_scratch: Vec<Vec<ParameterValue>>,
     parameter_scratch_indexes: HashMap<ParameterId, usize>,
+    record_midi_button: MIDIButton,
 }
 
 impl Default for MultiTrackLooper {
@@ -685,6 +724,7 @@ impl MultiTrackLooper {
             slice_worker: SliceWorker::new(),
             metrics_handle: metrics.handle(),
             midi_store: make_shared(midi_store::MidiStoreHandle::default()),
+            active_looper: AtomicUsize::new(0),
         });
 
         let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
@@ -703,6 +743,7 @@ impl MultiTrackLooper {
             parameter_scratch_indexes,
             lfos,
             metrics,
+            record_midi_button: MIDIButton::new(),
         }
     }
 
@@ -942,6 +983,28 @@ impl MultiTrackLooper {
             l2.tick();
         }
     }
+
+    fn on_record_button_click_midi(&mut self, value: u8) {
+        let event = self.record_midi_button.accept(value);
+        self.handle_record_midi_button_event(event);
+    }
+
+    fn handle_record_midi_button_event(&mut self, event: Option<MIDIButtonEvent>) {
+        if let Some(event) = event {
+            match event {
+                MIDIButtonEvent::ButtonDown => {
+                    self.handle.on_multi_mode_record_play_pressed();
+                }
+                MIDIButtonEvent::DoubleTap => {
+                    self.handle.stop_active_looper();
+                }
+                MIDIButtonEvent::Hold => {
+                    self.handle.clear_active_looper();
+                }
+                _ => {}
+            }
+        }
+    }
 }
 
 impl AudioProcessor for MultiTrackLooper {
@@ -985,14 +1048,24 @@ impl AudioProcessor for MultiTrackLooper {
 
 impl MidiEventHandler for MultiTrackLooper {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
-        self.handle.midi_store.process_midi_events(midi_messages);
+        let midi_store = self.handle.midi_store.clone();
+        MidiStoreHandle::process_midi_events(&midi_store, midi_messages, self);
+
+        let event = self.record_midi_button.tick();
+        self.handle_record_midi_button_event(event);
     }
 }
 
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::{assert_f_eq, sine_buffer};
+    use basedrop::Owned;
+
+    use audio_processor_standalone_midi::host::{MidiMessageEntry, MidiMessageWrapper};
     use audio_processor_traits::InterleavedAudioBuffer;
+
+    use crate::midi_map::MidiControllerNumber;
+    use crate::parameters::EntityId;
 
     use super::*;
 
@@ -1140,7 +1213,7 @@ mod test {
             .handle()
             .get_parameter(LooperId(0), &SourceParameter::Start.into())
             .unwrap()
-            .inner_float();
+            .as_float();
         assert_eq!(value, 0.5);
         let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
         processor.process(&mut buffer);
@@ -1167,7 +1240,7 @@ mod test {
         let mut looper = MultiTrackLooper::new(Default::default(), 1);
         let looper_voice = looper.handle.voices()[0].looper().clone();
 
-        looper.prepare(settings.clone());
+        looper.prepare(settings);
 
         let buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(10.0));
         let mut buffer = VecAudioBuffer::from(buffer);
@@ -1189,9 +1262,33 @@ mod test {
     #[test]
     fn test_starts_empty() {
         let looper = MultiTrackLooper::new(Default::default(), 8);
-        assert_eq!(
-            looper.handle.all_loopers_empty_other_than(LooperId(0)),
-            true
+        assert!(looper.handle.all_loopers_empty_other_than(LooperId(0)));
+    }
+
+    #[test]
+    fn test_sending_midi_will_update_mapped_parameters() {
+        let mut looper = MultiTrackLooper::default();
+        let midi = looper.handle().midi();
+        midi.midi_map().add(
+            MidiControllerNumber::new(55),
+            EntityId::EntityIdLooperParameter(LooperId(0), SourceParameter::Start.into()),
+        );
+        looper.process_midi_events(&[MidiMessageEntry(Owned::new(
+            audio_garbage_collector::handle(),
+            MidiMessageWrapper {
+                message_data: [0b1011_0001, 55, 64],
+                timestamp: 0,
+            },
+        ))]);
+        assert!(
+            (looper
+                .handle()
+                .get_parameter(LooperId(0), &SourceParameter::Start.into())
+                .unwrap()
+                .as_float())
+            .abs()
+                - 0.5
+                < 0.01 // MIDI has ~0.008 step-size (range: 0-127, resolution: 1 / 127)
         );
     }
 }

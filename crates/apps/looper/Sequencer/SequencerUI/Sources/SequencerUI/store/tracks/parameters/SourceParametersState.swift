@@ -46,7 +46,7 @@ extension SourceParameterId {
     }
 }
 
-public typealias SourceParameter = FloatParameter<SourceParameterId>
+public typealias SourceParameter = FloatParameter
 
 public class SourceParametersState: ObservableObject {
     var trackId: Int
@@ -58,7 +58,7 @@ public class SourceParametersState: ObservableObject {
     var speed: SourceParameter
     var loopEnabled: BooleanParameter
     var sliceEnabled: BooleanParameter
-    var slice: IntParameter<SourceParameterId>
+    var slice: IntParameter
 
     public var parameters: [SourceParameter] {
         [
@@ -71,7 +71,7 @@ public class SourceParametersState: ObservableObject {
         ]
     }
 
-    public var intParameters: [IntParameter<SourceParameterId>] {
+    public var intParameters: [IntParameter] {
         [
             slice,
         ]
@@ -87,37 +87,31 @@ public class SourceParametersState: ObservableObject {
     init(trackId: Int) {
         self.trackId = trackId
         start = SourceParameter(
-            id: .start,
-            globalId: .sourceParameter(trackId: trackId, parameterId: .start),
+            id: .sourceParameter(trackId: trackId, parameterId: .start),
             label: "Start"
         )
         end = SourceParameter(
-            id: .end,
-            globalId: .sourceParameter(trackId: trackId, parameterId: .end),
+            id: .sourceParameter(trackId: trackId, parameterId: .end),
             label: "End",
             initialValue: 1.0
         )
         fadeStart = SourceParameter(
-            id: .fadeStart,
-            globalId: .sourceParameter(trackId: trackId, parameterId: .fadeStart),
+            id: .sourceParameter(trackId: trackId, parameterId: .fadeStart),
             label: "Fade start"
         )
         fadeEnd = SourceParameter(
-            id: .fadeEnd,
-            globalId: .sourceParameter(trackId: trackId, parameterId: .fadeEnd),
+            id: .sourceParameter(trackId: trackId, parameterId: .fadeEnd),
             label: "Fade end"
         )
         pitch = SourceParameter(
-            id: .pitch,
-            globalId: .sourceParameter(trackId: trackId, parameterId: .pitch),
+            id: .sourceParameter(trackId: trackId, parameterId: .pitch),
             label: "Pitch",
             style: .center,
             range: (0.25, 4.0),
             initialValue: 1.0
         )
         speed = SourceParameter(
-            id: .speed,
-            globalId: .sourceParameter(trackId: trackId, parameterId: .speed),
+            id: .sourceParameter(trackId: trackId, parameterId: .speed),
             label: "Speed",
             style: .center,
             range: (-2.0, 2.0),
@@ -131,7 +125,6 @@ public class SourceParametersState: ObservableObject {
         )
         slice = IntParameter(
             id: .sourceParameter(trackId: trackId, parameterId: .sliceId),
-            localId: .sliceId,
             label: "Slice",
             value: 0,
             maximum: 1

@@ -5,7 +5,7 @@ use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
-use looper_processor::LoopSequencerParams;
+use looper_processor::{LoopSequencerParams, LooperHandleThread};
 use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
 
 use crate::ui::common::parameter_view::parameter_view_model::ParameterViewModel;
@@ -118,7 +118,8 @@ impl BottomPanelView {
                 }
             }
             Message::RecordPressed => {
-                self.processor_handle.toggle_recording();
+                self.processor_handle
+                    .toggle_recording(LooperHandleThread::OtherThread);
             }
             Message::ClearPressed => {
                 self.processor_handle.clear();

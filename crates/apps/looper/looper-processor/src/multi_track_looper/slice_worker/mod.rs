@@ -1,6 +1,5 @@
 use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
-
 use std::time::Duration;
 
 use basedrop::Shared;
@@ -170,23 +169,26 @@ impl Drop for SliceWorker {
 
 #[cfg(test)]
 mod test {
-    use super::*;
-    use atomic_refcell::AtomicRefCell;
-    use augmented_atomics::AtomicF32;
-    use itertools::Itertools;
     use std::time::Instant;
+
+    use atomic_refcell::AtomicRefCell;
+    use itertools::Itertools;
+
+    use augmented_atomics::AtomicF32;
+
+    use super::*;
 
     #[test]
     fn test_we_can_start_the_worker() {
         let _ = wisual_logger::try_init_from_env();
-        let mut worker = SliceWorker::new();
+        let worker = SliceWorker::new();
         worker.start();
     }
 
     #[test]
     fn test_we_can_post_jobs_into_the_worker() {
         let _ = wisual_logger::try_init_from_env();
-        let mut worker = SliceWorker::new();
+        let worker = SliceWorker::new();
         worker.start();
 
         let buffer = VecAudioBuffer::from(
@@ -208,8 +210,7 @@ mod test {
             }
 
             if start.elapsed().as_secs() > 2 {
-                assert!(false, "Timed-out waiting for result");
-                break;
+                panic!("Timed-out waiting for result");
             }
         }
     }

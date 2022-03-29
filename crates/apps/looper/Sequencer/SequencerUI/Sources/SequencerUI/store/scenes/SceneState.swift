@@ -33,8 +33,7 @@ class SceneModel: ObservableObject {
 
 public class SceneState: ObservableObject {
     @Published public var sceneSlider = FloatParameter(
-        id: 0,
-        globalId: .sceneSlider,
+        id: .sceneSlider,
         label: "Scene slider",
         style: .center,
         range: (-1.0, 1.0),

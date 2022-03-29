@@ -17,19 +17,19 @@
 // = /copyright ===================================================================
 import Combine
 
-public class IntParameter<LocalId>: ObservableObject, Identifiable, ParameterLike {
+public class IntParameter: ObservableObject, Identifiable, ParameterLike {
     public var id: ParameterId
     public var globalId: ParameterId { id }
-    public var localId: LocalId
     @Published var label: String
     @Published public var value: Int
     @Published var maximum: Int
 
-    init(id: ParameterId, localId: LocalId, label: String, value: Int, maximum _: Int) {
+    init(id: ParameterId, label: String, value: Int, maximum _: Int) {
         self.id = id
-        self.localId = localId
         self.label = label
         self.value = value
         maximum = 0
+
+        ALL_PARAMETERS.append(.int(self))
     }
 }

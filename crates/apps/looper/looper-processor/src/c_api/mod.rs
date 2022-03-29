@@ -8,7 +8,7 @@ use basedrop::Shared;
 
 use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
-use augmented_atomics::AtomicF32;
+use augmented_atomics::{AtomicF32, AtomicValue};
 
 use crate::multi_track_looper::metrics::audio_processor_metrics::{
     AudioProcessorMetricsActor, AudioProcessorMetricsStats,
@@ -19,12 +19,15 @@ use crate::multi_track_looper::parameters::{
     TempoControl,
 };
 use crate::multi_track_looper::slice_worker::SliceResult;
-use crate::processor::handle::LooperState;
+use crate::parameters::ParameterValue;
+use crate::processor::handle::{LooperHandleThread, LooperState};
 use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider};
 
+pub use self::entity_id::*;
 pub use self::foreign_callback::*;
 pub use self::midi_callback::*;
 
+mod entity_id;
 mod foreign_callback;
 mod midi_callback;
 
@@ -66,14 +69,13 @@ impl LooperEngine {
         )));
         let midi_store = handle.midi().clone();
 
-        let engine = LooperEngine {
+        LooperEngine {
             handle,
             audio_handles,
             metrics_actor,
             midi_store,
             events_callback: None,
-        };
-        engine
+        }
     }
 }
 
@@ -81,6 +83,44 @@ impl LooperEngine {
 pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
     let engine = LooperEngine::new();
     into_ptr(engine)
+}
+
+#[repr(C)]
+pub enum CParameterValue {
+    CParameterValueFloat(f32),
+    CParameterValueBool(bool),
+    CParameterValueEnum(usize),
+    CParameterValueInt(i32),
+    CParameterValueNone,
+}
+
+impl From<ParameterValue> for CParameterValue {
+    fn from(value: ParameterValue) -> Self {
+        use crate::c_api::CParameterValue::*;
+        use ParameterValue::*;
+
+        match value {
+            Float(f) => CParameterValueFloat(f.get()),
+            Bool(b) => CParameterValueBool(b.get()),
+            Enum(e) => CParameterValueEnum(e.get()),
+            Int(i) => CParameterValueInt(i.get()),
+            None => CParameterValueNone,
+        }
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_parameter_value(
+    engine: *mut LooperEngine,
+    looper_id: LooperId,
+    parameter_id: ParameterId,
+) -> CParameterValue {
+    let engine = &(*engine);
+    if let Some(value) = engine.handle.get_parameter(looper_id, &parameter_id) {
+        CParameterValue::from(value)
+    } else {
+        CParameterValue::CParameterValueNone
+    }
 }
 
 #[no_mangle]
@@ -96,7 +136,9 @@ pub unsafe extern "C" fn looper_engine__num_loopers(engine: *mut LooperEngine) -
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__record(engine: *mut LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Recording {}", looper_id);
-    (*engine).handle.toggle_recording(LooperId(looper_id));
+    (*engine)
+        .handle
+        .toggle_recording(LooperId(looper_id), LooperHandleThread::OtherThread)
 }
 
 #[no_mangle]
@@ -109,6 +151,14 @@ pub unsafe extern "C" fn looper_engine__play(engine: *mut LooperEngine, looper_i
 pub unsafe extern "C" fn looper_engine__clear(engine: *mut LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Clearing {}", looper_id);
     (*engine).handle.clear(LooperId(looper_id));
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_active_looper(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) {
+    (*engine).handle.set_active_looper(LooperId(looper_id));
 }
 
 #[no_mangle]

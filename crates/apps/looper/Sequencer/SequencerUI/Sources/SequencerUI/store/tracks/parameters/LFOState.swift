@@ -32,13 +32,13 @@ extension LFOParameterId {
     }
 }
 
-public class LFOAmountParameter: FloatParameter<LFOParameterId> {
+public class LFOAmountParameter: FloatParameter {
     override func formatValue() -> String {
         return "\(String(format: "%.0f", value * 100))%"
     }
 }
 
-public class LFOFrequencyParameter: FloatParameter<LFOParameterId> {
+public class LFOFrequencyParameter: FloatParameter {
     override func formatValue() -> String {
         let frequency = value
         return "\(String(format: "%.2f", frequency))Hz"
@@ -70,7 +70,7 @@ public class LFOState: ObservableObject {
     @Published var frequencyParameter: LFOFrequencyParameter
     @Published var amountParameter: LFOAmountParameter
 
-    public var parameters: [FloatParameter<LFOParameterId>] { [
+    public var parameters: [FloatParameter] { [
         frequencyParameter,
         amountParameter,
     ] }
@@ -80,14 +80,12 @@ public class LFOState: ObservableObject {
         id = LFOId(trackId: trackId, index: index)
 
         frequencyParameter = .init(
-            id: .frequency,
-            globalId: .lfoParameter(trackId: trackId, lfo: index, parameterId: .frequency),
+            id: .lfoParameter(trackId: trackId, lfo: index, parameterId: .frequency),
             label: "Frequency",
             initialValue: 1.0
         )
         amountParameter = .init(
-            id: .amount,
-            globalId: .lfoParameter(trackId: trackId, lfo: index, parameterId: .amount),
+            id: .lfoParameter(trackId: trackId, lfo: index, parameterId: .amount),
             label: "Amount",
             initialValue: 1.0
         )

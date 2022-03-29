@@ -107,6 +107,11 @@ pub enum ToggleRecordingResult {
     StoppedRecording,
 }
 
+pub enum LooperHandleThread {
+    AudioThread,
+    OtherThread,
+}
+
 impl LooperHandle {
     pub fn new(options: LooperOptions, time_info_provider: Shared<TimeInfoProviderImpl>) -> Self {
         Self {
@@ -194,11 +199,14 @@ impl LooperHandle {
         self.loop_enabled.store(value, Ordering::Relaxed);
     }
 
-    /// UI thread only
-    pub fn toggle_recording(&self) -> ToggleRecordingResult {
+    pub fn toggle_recording(&self, thread: LooperHandleThread) -> ToggleRecordingResult {
         let old_state = self.state.get();
         if old_state == LooperState::Recording || old_state == LooperState::Overdubbing {
-            self.stop_recording_allocating_loop();
+            if let LooperHandleThread::OtherThread = thread {
+                self.stop_recording_allocating_loop();
+            } else {
+                self.stop_recording_audio_thread_only();
+            }
             ToggleRecordingResult::StoppedRecording
         } else {
             self.start_recording();
@@ -293,6 +301,11 @@ impl LooperHandle {
             self.time_info_provider.play();
         }
         self.state.set(LooperState::Playing);
+        self.cursor.set(self.get_start_samples());
+    }
+
+    pub fn stop(&self) {
+        self.pause();
         self.cursor.set(self.get_start_samples());
     }
 

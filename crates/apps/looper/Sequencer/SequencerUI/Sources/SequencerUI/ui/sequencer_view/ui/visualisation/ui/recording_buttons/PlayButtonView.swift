@@ -18,7 +18,7 @@
 import SwiftUI
 
 struct PlayButtonView: View {
-    var store: Store
+    @ObservedObject var store: Store
     @ObservedObject var trackState: TrackState
     @State var isAnimating = false
 
@@ -26,7 +26,7 @@ struct PlayButtonView: View {
         let view = TrackButton(
             action: { store.onClickPlay() },
             label: "Play",
-            isDisabled: trackState.looperState.isEmpty,
+            isDisabled: trackState.looperState.isEmpty || store.midiMappingActive,
             isSelected: false,
             backgroundColor: buttonColor()
         )

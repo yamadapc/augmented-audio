@@ -38,6 +38,7 @@ class SelectedParameterOverlayViewModel: ObservableObject {
 }
 
 struct SelectedParameterOverlayViewInner: View {
+    var midiMappingActive: Bool
     @ObservedObject var model: SelectedParameterOverlayViewModel
 
     var body: some View {
@@ -47,8 +48,13 @@ struct SelectedParameterOverlayViewInner: View {
                     .stroke(SequencerColors.white.opacity(0.3))
                     .scaleEffect(1.2)
             }
+
+            if midiMappingActive && model.isSelected {
+                Rectangle()
+                    .fill(SequencerColors.blue.opacity(0.1))
+                    .scaleEffect(1.1)
+            }
         }
-        .allowsHitTesting(false)
     }
 }
 
@@ -57,9 +63,12 @@ struct SelectedParameterOverlayView: View {
     var parameterId: ParameterId
     var showSelectionOverlay: Bool
 
+    @EnvironmentObject var store: Store
+
     var body: some View {
         if showSelectionOverlay {
             SelectedParameterOverlayViewInner(
+                midiMappingActive: store.midiMappingActive,
                 model: SelectedParameterOverlayViewModel(
                     parameterId: parameterId,
                     focusState: focusState

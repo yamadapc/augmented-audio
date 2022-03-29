@@ -3,22 +3,19 @@ use std::ops::Deref;
 
 use audio_garbage_collector::{Handle, Shared, SharedCell};
 
-#[derive(Debug, Copy, PartialEq, Eq, Clone)]
-pub enum Action {
-    #[allow(unused)]
-    Clear,
-}
+use crate::parameters::EntityId;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
-pub struct MidiSpec {
-    status: u8,
-    number: u8,
+pub struct MidiControllerNumber {
+    controller_number: u8,
 }
 
-impl MidiSpec {
+impl MidiControllerNumber {
     #[allow(dead_code)]
-    pub fn new(status: u8, number: u8) -> Self {
-        MidiSpec { status, number }
+    pub fn new(number: u8) -> Self {
+        MidiControllerNumber {
+            controller_number: number,
+        }
     }
 }
 
@@ -28,21 +25,31 @@ mod test_midi_spec {
 
     #[test]
     fn test_create_midi_spec() {
-        let spec = MidiSpec::new(0xB0, 88);
-        assert_eq!(spec.status, 0xB0);
-        assert_eq!(spec.number, 88);
+        let spec = MidiControllerNumber::new(88);
+        assert_eq!(spec.controller_number, 88);
     }
 }
 
+pub type MidiMapStore = SharedCell<HashMap<MidiControllerNumber, EntityId>>;
+
 pub struct MidiMap {
     #[allow(dead_code)]
-    store: SharedCell<HashMap<MidiSpec, Action>>,
+    store: MidiMapStore,
     handle: Handle,
+}
+
+impl Default for MidiMap {
+    fn default() -> Self {
+        Self::new_with_handle(audio_garbage_collector::handle())
+    }
 }
 
 impl MidiMap {
     #[allow(dead_code)]
-    pub fn new(handle: &Handle, store: SharedCell<HashMap<MidiSpec, Action>>) -> Self {
+    pub fn new(
+        handle: &Handle,
+        store: SharedCell<HashMap<MidiControllerNumber, EntityId>>,
+    ) -> Self {
         MidiMap {
             handle: handle.clone(),
             store,
@@ -58,14 +65,14 @@ impl MidiMap {
     }
 
     #[allow(dead_code)]
-    pub fn add(&self, spec: MidiSpec, action: Action) {
+    pub fn add(&self, spec: MidiControllerNumber, action: EntityId) {
         let mut current = (*self.store.get()).clone();
         current.insert(spec, action);
         self.store.set(Shared::new(&self.handle, current));
     }
 
     #[allow(dead_code)]
-    pub fn get(&self, spec: &MidiSpec) -> Option<Action> {
+    pub fn get(&self, spec: &MidiControllerNumber) -> Option<EntityId> {
         self.store.get().deref().get(spec).cloned()
     }
 
@@ -77,9 +84,18 @@ impl MidiMap {
 
 #[cfg(test)]
 mod test_midi_map {
+    use crate::LooperId;
     use audio_garbage_collector::Shared;
 
+    use crate::parameters::SourceParameter;
+
     use super::*;
+
+    #[test]
+    fn test_create_midi_map_with_handle() {
+        let midi_map = MidiMap::new_with_handle(audio_garbage_collector::handle());
+        assert!(midi_map.is_empty());
+    }
 
     #[test]
     fn test_create_midi_map() {
@@ -100,10 +116,16 @@ mod test_midi_map {
         let midi_map = MidiMap::new(audio_garbage_collector::handle(), store);
 
         assert!(midi_map.is_empty());
-        let spec = MidiSpec::new(0xB0, 88);
-        midi_map.add(spec, Action::Clear);
+        let spec = MidiControllerNumber::new(88);
+        midi_map.add(
+            spec,
+            EntityId::EntityIdLooperParameter(LooperId(0), SourceParameter::Start.into()),
+        );
         assert!(!midi_map.is_empty());
         assert!(midi_map.get(&spec).is_some());
-        assert_eq!(midi_map.get(&spec).unwrap(), Action::Clear);
+        assert_eq!(
+            midi_map.get(&spec).unwrap(),
+            EntityId::EntityIdLooperParameter(LooperId(0), SourceParameter::Start.into())
+        );
     }
 }

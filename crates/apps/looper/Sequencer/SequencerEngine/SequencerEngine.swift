@@ -128,15 +128,24 @@ extension EngineImpl: SequencerEngine {
           )
       case let .lfoId(lfoId):
           looper_engine__remove_lfo_mapping(
-            engine,
-            getTrackId(parameterLockId.parameterId)!,
-            UInt(lfoId.index),
-            getObjectIdRust(parameterLockId.parameterId)!
+                  engine,
+                  getTrackId(parameterLockId.parameterId)!,
+                  UInt(lfoId.index),
+                  getObjectIdRust(parameterLockId.parameterId)!
           )
       }
     }
 
-    func addMidiMapping(controller _: Int, parameterId _: SequencerUI.ParameterId) {}
+    func addMidiMapping(controller: Int, parameterId: SequencerUI.ParameterId) {
+        if let entityId = getEntityIdRust(parameterId) {
+            looper_engine__add_midi_mapping(engine, Int32(controller), entityId)
+        } else {
+            logger.error("Failed to add MIDI mapping to", metadata: [
+                "controller": .string(String(describing: controller)),
+                "parameterId": .string(String(describing: parameterId))
+            ])
+        }
+    }
 }
 
 extension EngineImpl {

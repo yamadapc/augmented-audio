@@ -16,9 +16,58 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
+var ALL_PARAMETERS: [AnyParameter] = []
+
 protocol ParameterLike {
     var globalId: ParameterId { get }
     var label: String { get }
 
     var style: KnobStyle { get }
+}
+
+public enum AnyParameter {
+    case float(FloatParameter), int(IntParameter), enumP(AnyEnumParameter), boolean(BooleanParameter)
+}
+
+public extension AnyParameter {
+    var id: ParameterId {
+        switch self {
+        case let .float(parameter): return parameter.globalId
+        case let .int(parameter): return parameter.globalId
+        case let .enumP(parameter): return parameter.globalId
+        case let .boolean(parameter): return parameter.globalId
+        }
+    }
+
+    func setFloatValue(_ v: Float) {
+        guard case let .float(parameter) = self else { return }
+        if parameter.value != v {
+            parameter.value = v
+        }
+    }
+
+    func setIntValue(_ v: Int32) {
+        guard case let .int(parameter) = self else { return }
+        if parameter.value != v {
+            parameter.value = Int(v)
+        }
+    }
+
+    func setBoolValue(_ v: Bool) {
+        guard case let .boolean(parameter) = self else { return }
+        if parameter.value != v {
+            parameter.value = v
+        }
+    }
+
+    func setEnumValue(_ v: UInt) {
+        guard case var .enumP(parameter) = self else { return }
+        if parameter.rawValue != v {
+            parameter.rawValue = v
+        }
+    }
+}
+
+public func allParameters() -> [AnyParameter] {
+    return ALL_PARAMETERS
 }

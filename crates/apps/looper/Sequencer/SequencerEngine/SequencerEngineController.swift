@@ -45,6 +45,7 @@ public class EngineController {
         DispatchQueue.main.async {
             self.flushPollInfo()
             self.flushMetricsInfo()
+            self.flushParametersInfo(parameters: allParameters())
         }
     }
 
@@ -82,6 +83,34 @@ public class EngineController {
         )
         DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(100))) {
             self.flushMetricsInfo()
+        }
+    }
+
+    func flushParametersInfo(parameters: [SequencerUI.AnyParameter]) {
+        var hasChange = false
+        parameters.forEach { parameter in
+            let parameterId = parameter.id
+            guard let trackId = getTrackId(parameterId),
+                  let rustId = getObjectIdRust(parameterId)
+              else { return }
+
+            let value = looper_engine__get_parameter_value(self.engine.engine, trackId, rustId)
+            switch value.tag {
+            case CParameterValueFloat:
+              parameter.setFloatValue(value.c_parameter_value_float)
+            case CParameterValueInt:
+              parameter.setIntValue(value.c_parameter_value_int)
+            case CParameterValueEnum:
+              parameter.setEnumValue(value.c_parameter_value_enum)
+            case CParameterValueBool:
+              parameter.setBoolValue(value.c_parameter_value_bool)
+            default:
+              break
+            }
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16))) {
+            self.flushParametersInfo(parameters: parameters)
         }
     }
 
@@ -133,6 +162,8 @@ public class EngineController {
         if store.isPlaying != playhead.is_playing {
             store.isPlaying = playhead.is_playing
         }
+
+        // store.allParameters
 
         DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16)), qos: .userInitiated) {
             self.flushPollInfo()

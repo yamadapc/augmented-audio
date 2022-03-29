@@ -7,6 +7,7 @@ pub use multi_track_looper::parameters::LooperId;
 pub use multi_track_looper::{MultiTrackLooper, MultiTrackLooperHandle};
 pub use osc_server::setup_osc_server;
 pub use processor::handle::LooperHandle as LooperProcessorHandle;
+pub use processor::handle::LooperHandleThread;
 pub use processor::handle::LooperOptions;
 pub use processor::handle::QuantizeMode;
 pub use processor::handle::QuantizeOptions;

@@ -1,15 +1,19 @@
-use atomic_queue::Queue;
-use audio_garbage_collector::make_shared;
+use std::collections::{HashMap, VecDeque};
+use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
+
 use basedrop::Shared;
 use itertools::Itertools;
-use std::collections::{HashMap, VecDeque};
 
-use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::time::Duration;
-
+use atomic_queue::Queue;
+use audio_garbage_collector::make_shared;
 use audio_processor_traits::MidiMessageLike;
-use augmented_atomics::AtomicOption;
+use augmented_atomics::{AtomicF32, AtomicOption};
 use augmented_midi::{parse_midi_event, MIDIMessage, ParserState};
+
+use crate::midi_map::{MidiControllerNumber, MidiMap};
+use crate::multi_track_looper::long_backoff::LongBackoff;
+use crate::parameters::{EntityId, ParameterValue};
+use crate::MultiTrackLooper;
 
 #[repr(C)]
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -22,6 +26,7 @@ pub struct MidiStoreValue {
 pub struct MidiStoreHandle {
     cc_store: Vec<Vec<AtomicOption<AtomicU8>>>,
     events: Shared<Queue<MidiStoreValue>>,
+    midi_map: MidiMap,
 }
 
 impl Default for MidiStoreHandle {
@@ -42,7 +47,15 @@ impl MidiStoreHandle {
             })
             .collect_vec();
 
-        Self { cc_store, events }
+        Self {
+            cc_store,
+            events,
+            midi_map: MidiMap::default(),
+        }
+    }
+
+    pub fn midi_map(&self) -> &MidiMap {
+        &self.midi_map
     }
 
     pub fn queue(&self) -> &Shared<Queue<MidiStoreValue>> {
@@ -68,33 +81,68 @@ impl MidiStoreHandle {
             })
     }
 
-    pub fn process_midi_events<Message: MidiMessageLike>(&self, midi_messages: &[Message]) {
+    pub fn process_midi_events<Message: MidiMessageLike>(
+        &self,
+        midi_messages: &[Message],
+        multi_track_looper: &mut MultiTrackLooper,
+    ) {
         for message in midi_messages {
-            self.process_event(message);
+            self.push_event_to_queues(message);
+            self.update_multi_track_looper(message, multi_track_looper);
         }
     }
 
-    fn process_event<Message: MidiMessageLike>(&self, midi_message: &Message) {
+    fn update_multi_track_looper<Message: MidiMessageLike>(
+        &self,
+        message: &Message,
+        looper: &mut MultiTrackLooper,
+    ) -> Option<()> {
+        let bytes = message.bytes()?;
+        let (_, message) = parse_midi_event::<&[u8]>(bytes, &mut ParserState::default()).ok()?;
+        if let MIDIMessage::ControlChange {
+            controller_number,
+            value,
+            ..
+        } = message
+        {
+            let entity_id = self
+                .midi_map
+                .get(&MidiControllerNumber::new(controller_number))?;
+            match entity_id {
+                EntityId::EntityIdLooperParameter(looper_id, parameter_id) => {
+                    looper.handle.set_parameter(
+                        looper_id,
+                        parameter_id,
+                        ParameterValue::Float(AtomicF32::new(value as f32 / 127.0)),
+                    );
+                }
+                EntityId::EntityIdRecordButton => {
+                    looper.on_record_button_click_midi(value);
+                }
+            }
+        }
+
+        Some(())
+    }
+
+    fn push_event_to_queues<Message: MidiMessageLike>(&self, midi_message: &Message) {
         let event = midi_message
             .bytes()
-            .map(|bytes| parse_midi_event::<&[u8]>(bytes, &mut ParserState::default()).ok())
-            .flatten()
+            .and_then(|bytes| parse_midi_event::<&[u8]>(bytes, &mut ParserState::default()).ok())
             .map(|(_, event)| event);
 
-        if let Some(event) = event {
-            if let MIDIMessage::ControlChange {
+        if let Some(MIDIMessage::ControlChange {
+            channel,
+            controller_number,
+            value,
+        }) = event
+        {
+            self.cc_store[channel as usize][controller_number as usize].set(Some(value));
+            self.events.push(MidiStoreValue {
                 channel,
                 controller_number,
                 value,
-            } = event
-            {
-                self.cc_store[channel as usize][controller_number as usize].set(Some(value));
-                self.events.push(MidiStoreValue {
-                    channel,
-                    controller_number,
-                    value,
-                });
-            }
+            });
         }
     }
 }
@@ -128,17 +176,32 @@ impl MidiStoreActor {
     }
 
     pub fn run(&mut self) {
+        let mut backoff = LongBackoff::new();
         while self.is_running.load(Ordering::Relaxed) {
             if let Some(event) = self.events_queue.pop() {
-                self.current_cc_values
-                    .insert(event.controller_number, event.value);
-                self.latest_events.push_front(event.clone());
-                self.latest_events.truncate(100);
-                (self.callback)(MidiEvent::Value(event.clone()));
+                self.on_receive_event(event);
+            } else {
+                backoff.snooze();
             }
-
-            std::thread::sleep(Duration::from_millis(50))
         }
+    }
+
+    fn on_receive_event(&mut self, event: MidiStoreValue) {
+        let cc_has_not_changed = self
+            .current_cc_values
+            .get(&event.controller_number)
+            .map(|cc| event.value == *cc)
+            .unwrap_or(false);
+        self.current_cc_values
+            .insert(event.controller_number, event.value);
+        self.latest_events.push_front(event.clone());
+        self.latest_events.truncate(100);
+
+        if cc_has_not_changed {
+            return;
+        }
+
+        (self.callback)(MidiEvent::Value(event));
     }
 }
 
@@ -175,7 +238,7 @@ mod test {
         ));
 
         assert_no_alloc(|| {
-            store.process_event(&message);
+            store.push_event_to_queues(&message);
         });
 
         let values = store.values().collect_vec();
@@ -195,9 +258,53 @@ mod test {
             MidiStoreValue {
                 channel: 0,
                 controller_number: 55,
-                value: 12
+                value: 12,
             }
         );
+    }
+
+    #[test]
+    fn test_process_events() {
+        let queue = make_shared(Queue::new(100));
+        let store = MidiStoreHandle::new(queue.clone());
+        let make_message = || {
+            MidiMessageEntry(Owned::new(
+                handle(),
+                MidiMessageWrapper {
+                    message_data: [0b1011_0000, 55, 12],
+                    timestamp: 0,
+                },
+            ))
+        };
+
+        let mut looper = MultiTrackLooper::default();
+        let events = [make_message(), make_message(), make_message()];
+        assert_no_alloc(|| {
+            store.process_midi_events(&events, &mut looper);
+        });
+
+        let values = store.values().collect_vec();
+        assert_eq!(values.len(), 1);
+        assert_eq!(
+            values[0],
+            MidiStoreValue {
+                channel: 0,
+                controller_number: 55,
+                value: 12,
+            }
+        );
+
+        for _i in 0..3 {
+            let event = queue.pop().unwrap();
+            assert_eq!(
+                event,
+                MidiStoreValue {
+                    channel: 0,
+                    controller_number: 55,
+                    value: 12,
+                }
+            );
+        }
     }
 
     #[test]
@@ -217,16 +324,91 @@ mod test {
             },
         ));
         assert_no_alloc(|| {
-            store.process_event(&message);
+            store.push_event_to_queues(&message);
         });
         assert_no_alloc(|| {
-            store.process_event(&message);
+            store.push_event_to_queues(&message);
         });
         assert_no_alloc(|| {
-            store.process_event(&message);
+            store.push_event_to_queues(&message);
         });
 
         actor_is_running.store(false, Ordering::Relaxed);
         handle.join().unwrap();
+    }
+
+    // This is disabled because MIDI host fails to start on current Linux CI
+    #[cfg(target_os = "macos")]
+    mod midi_integration_test {
+        use std::time::Duration;
+
+        // This tests E2E:
+        // * Starting the MIDI host
+        // * Starting a MIDI output connection with the macOS IAC driver
+        // * Sending the IAC driver a message
+        // * Expecting the MIDI host received the message
+        // * Pulling the message out of the audio-thread queue
+        // * Parsing it and verifying it's the same
+        #[actix::test]
+        async fn test_receiving_events_will_cause() {
+            use actix::Actor;
+            use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
+            use audio_processor_standalone_midi::host;
+            use audio_processor_standalone_midi::host::MidiHost;
+            use augmented_midi::{parse_midi_event, MIDIMessage};
+
+            let _ = wisual_logger::try_init_from_env();
+
+            log::info!("Running integration test with IAC Driver");
+            let midi_host = MidiHost::default();
+            let midi_host = midi_host.start();
+            midi_host
+                .send(host::StartMessage)
+                .await
+                .unwrap()
+                .expect("Failed to start MIDI host");
+            let host::GetQueueMessageResult(queue) =
+                midi_host.send(host::GetQueueMessage).await.unwrap();
+
+            let output = midir::MidiOutput::new("looper-tests").unwrap();
+            let ports = output.ports();
+            let output_port = ports
+                .iter()
+                .find(|port| {
+                    output
+                        .port_name(port)
+                        .unwrap()
+                        .contains("audio_processor_standalone_midi")
+                })
+                .expect("Couldn't find virtual port");
+            let mut output_connection = output
+                .connect(output_port, "audio_processor_standalone_midi")
+                .expect("Couldn't connect to virtual MIDI port");
+
+            output_connection
+                .send(&[0b1011_0001, 55, 80])
+                .expect("Failed to send message to virtual port");
+            std::thread::sleep(Duration::from_secs_f32(0.5));
+
+            let mut midi_handler = MidiAudioThreadHandler::default();
+            midi_handler.collect_midi_messages(&queue);
+            let messages = midi_handler.buffer();
+            assert_eq!(messages.len(), 1);
+            let result =
+                parse_midi_event::<&[u8]>(&messages[0].message_data, &mut Default::default())
+                    .expect("Failed to parse event")
+                    .1;
+            assert!(matches!(result, MIDIMessage::ControlChange { .. }));
+            if let MIDIMessage::ControlChange {
+                channel,
+                value,
+                controller_number,
+            } = result
+            {
+                assert_eq!(channel, 1);
+                assert_eq!(value, 80);
+                assert_eq!(controller_number, 55);
+            }
+        }
     }
 }
