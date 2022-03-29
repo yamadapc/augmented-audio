@@ -159,7 +159,6 @@ pub struct MidiStoreActor {
     current_cc_values: HashMap<u8, u8>,
     is_running: Shared<AtomicBool>,
     callback: Box<dyn Fn(MidiEvent) + Send>,
-    last_call: Option<(MidiEvent, Instant)>,
 }
 
 impl MidiStoreActor {
@@ -174,7 +173,6 @@ impl MidiStoreActor {
             current_cc_values: HashMap::new(),
             is_running,
             callback,
-            last_call: None,
         }
     }
 
