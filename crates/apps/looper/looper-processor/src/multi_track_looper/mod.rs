@@ -38,6 +38,7 @@ pub(crate) mod allocator;
 mod copy_paste;
 mod envelope_processor;
 mod lfo_processor;
+mod long_backoff;
 mod looper_voice;
 pub(crate) mod metrics;
 pub(crate) mod midi_store;

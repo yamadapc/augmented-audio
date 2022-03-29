@@ -1,4 +1,5 @@
 use std::sync::atomic::AtomicBool;
+use std::time::Instant;
 
 use audio_garbage_collector::make_shared;
 

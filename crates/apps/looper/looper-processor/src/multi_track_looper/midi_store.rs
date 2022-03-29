@@ -1,6 +1,6 @@
 use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use basedrop::Shared;
 use itertools::Itertools;
@@ -12,6 +12,7 @@ use augmented_atomics::{AtomicF32, AtomicOption};
 use augmented_midi::{parse_midi_event, MIDIMessage, ParserState};
 
 use crate::midi_map::{MidiControllerNumber, MidiMap};
+use crate::multi_track_looper::long_backoff::LongBackoff;
 use crate::parameters::{EntityId, ParameterValue};
 use crate::MultiTrackLooper;
 
@@ -155,6 +156,7 @@ pub struct MidiStoreActor {
     current_cc_values: HashMap<u8, u8>,
     is_running: Shared<AtomicBool>,
     callback: Box<dyn Fn(MidiEvent) + Send>,
+    last_call: Option<(MidiEvent, Instant)>,
 }
 
 impl MidiStoreActor {
@@ -169,24 +171,36 @@ impl MidiStoreActor {
             current_cc_values: HashMap::new(),
             is_running,
             callback,
+            last_call: None,
         }
     }
 
     pub fn run(&mut self) {
+        let mut backoff = LongBackoff::new();
         while self.is_running.load(Ordering::Relaxed) {
             if let Some(event) = self.events_queue.pop() {
                 self.on_receive_event(event);
+            } else {
+                backoff.snooze();
             }
-
-            std::thread::sleep(Duration::from_millis(50))
         }
     }
 
     fn on_receive_event(&mut self, event: MidiStoreValue) {
+        let cc_has_not_changed = self
+            .current_cc_values
+            .get(&event.controller_number)
+            .map(|cc| event.value == *cc)
+            .unwrap_or(false);
         self.current_cc_values
             .insert(event.controller_number, event.value);
         self.latest_events.push_front(event.clone());
         self.latest_events.truncate(100);
+
+        if cc_has_not_changed {
+            return;
+        }
+
         (self.callback)(MidiEvent::Value(event.clone()));
     }
 }
