@@ -21,7 +21,7 @@ use crate::multi_track_looper::parameters::{
 };
 use crate::multi_track_looper::slice_worker::SliceResult;
 use crate::parameters::ParameterValue;
-use crate::processor::handle::LooperState;
+use crate::processor::handle::{LooperHandleThread, LooperState};
 use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider};
 
 pub use self::entity_id::*;
@@ -139,7 +139,9 @@ pub unsafe extern "C" fn looper_engine__num_loopers(engine: *mut LooperEngine) -
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__record(engine: *mut LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Recording {}", looper_id);
-    (*engine).handle.toggle_recording(LooperId(looper_id));
+    (*engine)
+        .handle
+        .toggle_recording(LooperId(looper_id), LooperHandleThread::OtherThread)
 }
 
 #[no_mangle]
@@ -152,6 +154,14 @@ pub unsafe extern "C" fn looper_engine__play(engine: *mut LooperEngine, looper_i
 pub unsafe extern "C" fn looper_engine__clear(engine: *mut LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Clearing {}", looper_id);
     (*engine).handle.clear(LooperId(looper_id));
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_active_looper(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) {
+    (*engine).handle.set_active_looper(LooperId(looper_id));
 }
 
 #[no_mangle]

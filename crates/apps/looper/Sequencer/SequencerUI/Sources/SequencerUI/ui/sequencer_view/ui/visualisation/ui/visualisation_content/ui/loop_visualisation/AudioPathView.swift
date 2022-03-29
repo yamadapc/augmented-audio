@@ -87,7 +87,7 @@ func buildCacheKey(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Int {
     hash.combine(buffer.id)
     hash.combine(geometry.size.height)
     hash.combine(geometry.size.width.hashValue)
-    for sample in 0..<buffer.count {
+    for sample in 0 ..< buffer.count {
         hash.combine(buffer[sample].hashValue)
     }
     return hash.finalize()

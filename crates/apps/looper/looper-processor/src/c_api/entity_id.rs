@@ -8,3 +8,8 @@ pub extern "C" fn looper_engine__entity_id__looper_parameter(
 ) -> EntityId {
     EntityId::EntityIdLooperParameter(LooperId(looper_id), parameter_id)
 }
+
+#[no_mangle]
+pub extern "C" fn looper_engine__entity_id__record_button() -> EntityId {
+    EntityId::EntityIdRecordButton
+}

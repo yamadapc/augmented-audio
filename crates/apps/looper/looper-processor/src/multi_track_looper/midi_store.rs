@@ -85,7 +85,7 @@ impl MidiStoreHandle {
     pub fn process_midi_events<Message: MidiMessageLike>(
         &self,
         midi_messages: &[Message],
-        multi_track_looper: &MultiTrackLooper,
+        multi_track_looper: &mut MultiTrackLooper,
     ) {
         for message in midi_messages {
             self.push_event_to_queues(message);
@@ -96,7 +96,7 @@ impl MidiStoreHandle {
     fn update_multi_track_looper<Message: MidiMessageLike>(
         &self,
         message: &Message,
-        looper: &MultiTrackLooper,
+        looper: &mut MultiTrackLooper,
     ) -> Option<()> {
         let bytes = message.bytes()?;
         let (_, message) = parse_midi_event::<&[u8]>(bytes, &mut ParserState::default()).ok()?;
@@ -109,12 +109,18 @@ impl MidiStoreHandle {
             let entity_id = self
                 .midi_map
                 .get(&MidiControllerNumber::new(controller_number))?;
-            let EntityId::EntityIdLooperParameter(looper_id, parameter_id) = entity_id;
-            looper.handle.set_parameter(
-                looper_id,
-                parameter_id,
-                ParameterValue::Float(AtomicF32::new(value as f32 / 127.0)),
-            );
+            match entity_id {
+                EntityId::EntityIdLooperParameter(looper_id, parameter_id) => {
+                    looper.handle.set_parameter(
+                        looper_id,
+                        parameter_id,
+                        ParameterValue::Float(AtomicF32::new(value as f32 / 127.0)),
+                    );
+                }
+                EntityId::EntityIdRecordButton => {
+                    looper.on_record_button_click_midi(value);
+                }
+            }
         }
 
         Some(())
@@ -277,10 +283,10 @@ mod test {
             ))
         };
 
-        let looper = MultiTrackLooper::default();
+        let mut looper = MultiTrackLooper::default();
         let events = [make_message(), make_message(), make_message()];
         assert_no_alloc(|| {
-            store.process_midi_events(&events, &looper);
+            store.process_midi_events(&events, &mut looper);
         });
 
         let values = store.values().collect_vec();

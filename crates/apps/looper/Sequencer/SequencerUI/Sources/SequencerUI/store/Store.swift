@@ -48,8 +48,8 @@ public class Store: ObservableObject {
     public let processorMetrics = ProcessorMetrics()
     public let midi = MIDIMappingState()
     @Published public var isPlaying: Bool = false
+    @Published public var selectedTrack: Int = 1
 
-    @Published var selectedTrack: Int = 1
     @Published var selectedTab: TabValue = .source
     @Published var midiMappingActive = false
     let parameterLockStore = ParameterLockStore()

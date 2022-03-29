@@ -16,6 +16,7 @@ pub struct LooperId(pub usize);
 #[allow(clippy::enum_variant_names)]
 pub enum EntityId {
     EntityIdLooperParameter(LooperId, ParameterId),
+    EntityIdRecordButton,
 }
 
 #[repr(C)]

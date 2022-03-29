@@ -49,6 +49,10 @@ class StoreSubscriptionsController {
         store.metronomeVolume.$value.sink(receiveValue: { value in
             looper_engine__set_metronome_volume(self.engine.engine, value)
         }).store(in: &cancellables)
+
+        store.$selectedTrack.sink(receiveValue: { value in
+            looper_engine__set_active_looper(self.engine.engine, UInt(value - 1))
+        }).store(in: &cancellables)
     }
 
     func pushFloatValue<PublisherT: Publisher>(publisher: PublisherT, flush: @escaping (_ value: Float) -> Void, initialValue: Float?)

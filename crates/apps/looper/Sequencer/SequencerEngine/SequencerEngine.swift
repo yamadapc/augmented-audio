@@ -139,6 +139,11 @@ extension EngineImpl: SequencerEngine {
     func addMidiMapping(controller: Int, parameterId: SequencerUI.ParameterId) {
         if let entityId = getEntityIdRust(parameterId) {
             looper_engine__add_midi_mapping(engine, Int32(controller), entityId)
+        } else {
+            logger.error("Failed to add MIDI mapping to", metadata: [
+                "controller": .string(String(describing: controller)),
+                "parameterId": .string(String(describing: parameterId))
+            ])
         }
     }
 }

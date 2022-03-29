@@ -27,6 +27,8 @@ func getParameterValue(engine: OpaquePointer) {
 func getEntityIdRust(_ id: SequencerUI.ParameterId) -> SequencerEngine_private.EntityId? {
     if let parameterId = getObjectIdRust(id), let looperId = getTrackId(id) {
         return looper_engine__entity_id__looper_parameter(looperId, parameterId)
+    } else if case .recordButton(trackId: _) = id {
+        return looper_engine__entity_id__record_button()
     } else {
         return nil
     }

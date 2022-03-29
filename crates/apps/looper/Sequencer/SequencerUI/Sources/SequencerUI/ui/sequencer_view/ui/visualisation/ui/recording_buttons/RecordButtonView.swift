@@ -18,7 +18,7 @@
 import SwiftUI
 
 struct RecordButtonView: View {
-    var store: Store
+    @ObservedObject var store: Store
     @ObservedObject var trackState: TrackState
     @State var isAnimating = false
 
@@ -26,6 +26,7 @@ struct RecordButtonView: View {
         let button = TrackButton(
             action: { store.onClickRecord() },
             label: "Record",
+            isDisabled: store.midiMappingActive,
             isSelected: trackState.looperState.isRecording,
             backgroundColor: buttonColor()
         )
