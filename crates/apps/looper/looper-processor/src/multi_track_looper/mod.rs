@@ -108,11 +108,10 @@ impl MultiTrackLooperHandle {
             self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
         } else if state == LooperState::Paused {
             self.toggle_playback(looper_id)
-        } else if state == LooperState::Overdubbing {
-            self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
-        } else if state == LooperState::Recording {
-            self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
-        } else if state == LooperState::Playing {
+        } else if state == LooperState::Overdubbing
+            || state == LooperState::Recording
+            || state == LooperState::Playing
+        {
             self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
         } // TODO what else
     }
@@ -450,7 +449,7 @@ impl MultiTrackLooperHandle {
             }
 
             let parameters = voice.user_parameters();
-            let _ = parameters.set(parameter_id.clone(), ParameterValue::Bool(value.into()));
+            let _ = parameters.set(parameter_id, ParameterValue::Bool(value.into()));
         }
     }
 
@@ -1241,7 +1240,7 @@ mod test {
         let mut looper = MultiTrackLooper::new(Default::default(), 1);
         let looper_voice = looper.handle.voices()[0].looper().clone();
 
-        looper.prepare(settings.clone());
+        looper.prepare(settings);
 
         let buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(10.0));
         let mut buffer = VecAudioBuffer::from(buffer);

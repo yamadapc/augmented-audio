@@ -175,7 +175,7 @@ mod test {
         looper.prepare(settings);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
         looper.handle.set_looper_buffer(&test_buffer.interleaved());
         looper.handle.set_start_offset(0.25);
         looper.handle.play();
@@ -195,7 +195,7 @@ mod test {
         looper.prepare(settings);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
         looper.handle.set_looper_buffer(&test_buffer.interleaved());
         looper.handle.set_end_offset(0.75);
         looper.handle.play();
@@ -215,7 +215,7 @@ mod test {
         looper.prepare(settings);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
         looper.handle.set_looper_buffer(&test_buffer.interleaved());
         looper.handle.set_fade_start(0.25);
         looper.handle.play();
@@ -235,7 +235,7 @@ mod test {
         looper.prepare(settings);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
         looper.handle.set_looper_buffer(&test_buffer.interleaved());
         looper.handle.play();
 
@@ -254,7 +254,7 @@ mod test {
         looper.prepare(settings);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
         looper.handle.set_looper_buffer(&test_buffer.interleaved());
 
         let mut output_buffer = VecAudioBuffer::new();

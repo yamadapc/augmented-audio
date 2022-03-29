@@ -1,5 +1,5 @@
 use std::ffi::c_void;
-use std::ptr::{null, null_mut};
+
 
 use std::sync::{Arc, Mutex};
 
@@ -70,14 +70,14 @@ impl LooperEngine {
         )));
         let midi_store = handle.midi().clone();
 
-        let engine = LooperEngine {
+        
+        LooperEngine {
             handle,
             audio_handles,
             metrics_actor,
             midi_store,
             events_callback: None,
-        };
-        engine
+        }
     }
 }
 

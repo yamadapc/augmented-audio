@@ -49,7 +49,7 @@ impl LFOHandle {
     }
 
     pub fn set_parameter_map(&self, parameter_id: ParameterId, amount: Option<f32>) {
-        let index = self.indexes[&parameter_id.into()];
+        let index = self.indexes[&parameter_id];
         if let Some(amount) = amount {
             self.values[index].set(amount);
         } else {

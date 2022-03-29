@@ -256,19 +256,17 @@ pub fn build_default_parameters() -> (HashMap<ParameterId, ParameterValue>, Vec<
     use strum::IntoEnumIterator;
 
     let source_parameters: Vec<ParameterId> = SourceParameter::iter()
-        .map(|parameter| ParameterId::ParameterIdSource(parameter))
+        .map(ParameterId::ParameterIdSource)
         .collect();
     let envelope_parameters: Vec<ParameterId> = EnvelopeParameter::iter()
-        .map(|parameter| ParameterId::ParameterIdEnvelope(parameter))
+        .map(ParameterId::ParameterIdEnvelope)
         .collect();
-    let lfo_parameters: Vec<ParameterId> = LFOParameter::iter()
-        .map(|parameter| {
+    let lfo_parameters: Vec<ParameterId> = LFOParameter::iter().flat_map(|parameter| {
             [
                 ParameterId::ParameterIdLFO(0, parameter.clone()),
                 ParameterId::ParameterIdLFO(1, parameter),
             ]
         })
-        .flatten()
         .collect();
     let quantization_parameters: Vec<ParameterId> = QuantizationParameter::iter()
         .map(ParameterId::ParameterIdQuantization)

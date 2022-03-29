@@ -61,7 +61,7 @@ impl SceneHandle {
         let id = id.into();
         let map = &self.scenes[0].scene_parameters[looper_id.0];
         if map.has_value(id.clone()) {
-            Some(&map.get(id))
+            Some(map.get(id))
         } else {
             None
         }
@@ -75,7 +75,7 @@ impl SceneHandle {
         let id = id.into();
         let map = &self.scenes[1].scene_parameters[looper_id.0];
         if map.has_value(id.clone()) {
-            Some(&map.get(id))
+            Some(map.get(id))
         } else {
             None
         }
