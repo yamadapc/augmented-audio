@@ -17,7 +17,11 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-struct EnumParameterView<OptionT: Hashable>: View {
+struct EnumParameterView<OptionT>: View
+    where
+    OptionT: Hashable,
+    OptionT: FromRawEnum
+{
     @ObservedObject var parameter: EnumParameter<OptionT>
     @EnvironmentObject var store: Store
 
@@ -33,7 +37,7 @@ struct EnumParameterView<OptionT: Hashable>: View {
             .preferredColorScheme(.dark)
             .foregroundColor(.white)
             .border(SequencerColors.blue, width: 1.0)
-            .bindToParameterId(store: store, parameterId: parameter.id, showSelectionOverlay: false)
+            .bindToParameterId(store: store, parameterId: parameter.globalId, showSelectionOverlay: false)
         } else {}
     }
 }

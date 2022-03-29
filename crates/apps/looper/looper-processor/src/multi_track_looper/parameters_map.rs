@@ -74,8 +74,8 @@ mod test {
     #[test]
     fn test_set_and_get_a_value() {
         let ps = ParametersMap::new();
-        assert_eq!(ps.get(SourceParameter::Start).inner_float(), 0.0_f32);
+        assert_eq!(ps.get(SourceParameter::Start).as_float(), 0.0_f32);
         ps.set(SourceParameter::Start, 0.5);
-        assert_eq!(ps.get(SourceParameter::Start).inner_float(), 0.5_f32);
+        assert_eq!(ps.get(SourceParameter::Start).as_float(), 0.5_f32);
     }
 }

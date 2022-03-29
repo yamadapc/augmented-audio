@@ -34,9 +34,10 @@ public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
     }
 
     init(id: ParameterId, label: String) {
-        self.globalId = id
+        globalId = id
         self.label = label
         defaultValue = 0.0
+        ALL_PARAMETERS.append(.float(self))
     }
 
     convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {

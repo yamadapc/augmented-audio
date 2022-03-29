@@ -58,7 +58,7 @@ public class SourceParametersState: ObservableObject {
     var speed: SourceParameter
     var loopEnabled: BooleanParameter
     var sliceEnabled: BooleanParameter
-    var slice: IntParameter<SourceParameterId>
+    var slice: IntParameter
 
     public var parameters: [SourceParameter] {
         [
@@ -71,7 +71,7 @@ public class SourceParametersState: ObservableObject {
         ]
     }
 
-    public var intParameters: [IntParameter<SourceParameterId>] {
+    public var intParameters: [IntParameter] {
         [
             slice,
         ]
@@ -125,7 +125,6 @@ public class SourceParametersState: ObservableObject {
         )
         slice = IntParameter(
             id: .sourceParameter(trackId: trackId, parameterId: .sliceId),
-            localId: .sliceId,
             label: "Slice",
             value: 0,
             maximum: 1

@@ -82,8 +82,20 @@ let PATH_CACHE: LRUCache<Int, Path> = LRUCache(
     countLimit: 10
 )
 
+func buildCacheKey(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Int {
+    var hash = Hasher()
+    hash.combine(buffer.id)
+    hash.combine(geometry.size.height)
+    hash.combine(geometry.size.width.hashValue)
+    for sample in 0..<buffer.count {
+        hash.combine(buffer[sample].hashValue)
+    }
+    return hash.finalize()
+}
+
 func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
-    if let cachedPath = PATH_CACHE.value(forKey: buffer.id) {
+    let cacheKey = buildCacheKey(geometry, buffer)
+    if let cachedPath = PATH_CACHE.value(forKey: cacheKey) {
         return cachedPath
     }
 
@@ -123,7 +135,7 @@ func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
         path.addLine(to: CGPoint(x: x, y: h))
     }
 
-    PATH_CACHE.setValue(path, forKey: buffer.id)
+    PATH_CACHE.setValue(path, forKey: cacheKey)
     return path
 }
 
@@ -142,6 +154,6 @@ struct AudioPathView: View {
 
 extension AudioPathView: Equatable {
     static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.buffer.equals(other: rhs.buffer)
+        lhs.buffer.equals(other: rhs.buffer) && lhs.geometry.size == rhs.geometry.size
     }
 }

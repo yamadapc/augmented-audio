@@ -1,4 +1,5 @@
 use std::ffi::c_void;
+use std::ptr::{null, null_mut};
 
 use std::sync::{Arc, Mutex};
 
@@ -8,7 +9,7 @@ use basedrop::Shared;
 
 use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
-use augmented_atomics::AtomicF32;
+use augmented_atomics::{AtomicF32, AtomicValue};
 
 use crate::multi_track_looper::metrics::audio_processor_metrics::{
     AudioProcessorMetricsActor, AudioProcessorMetricsStats,
@@ -19,6 +20,7 @@ use crate::multi_track_looper::parameters::{
     TempoControl,
 };
 use crate::multi_track_looper::slice_worker::SliceResult;
+use crate::parameters::ParameterValue;
 use crate::processor::handle::LooperState;
 use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider};
 
@@ -83,6 +85,45 @@ impl LooperEngine {
 pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
     let engine = LooperEngine::new();
     into_ptr(engine)
+}
+
+#[no_mangle]
+#[repr(C)]
+pub enum CParameterValue {
+    CParameterValueFloat(f32),
+    CParameterValueBool(bool),
+    CParameterValueEnum(usize),
+    CParameterValueInt(i32),
+    CParameterValueNone,
+}
+
+impl From<ParameterValue> for CParameterValue {
+    fn from(value: ParameterValue) -> Self {
+        use crate::c_api::CParameterValue::*;
+        use ParameterValue::*;
+
+        match value {
+            Float(f) => CParameterValueFloat(f.get()),
+            Bool(b) => CParameterValueBool(b.get()),
+            Enum(e) => CParameterValueEnum(e.get()),
+            Int(i) => CParameterValueInt(i.get()),
+            None => CParameterValueNone,
+        }
+    }
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_parameter_value(
+    engine: *mut LooperEngine,
+    looper_id: LooperId,
+    parameter_id: ParameterId,
+) -> CParameterValue {
+    let engine = &(*engine);
+    if let Some(value) = engine.handle.get_parameter(looper_id, &parameter_id) {
+        CParameterValue::from(value)
+    } else {
+        CParameterValue::CParameterValueNone
+    }
 }
 
 #[no_mangle]

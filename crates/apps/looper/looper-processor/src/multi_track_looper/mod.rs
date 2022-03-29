@@ -111,7 +111,7 @@ impl MultiTrackLooperHandle {
                 ));
 
                 if was_empty
-                    && tempo_control.inner_enum()
+                    && tempo_control.as_enum()
                         == TempoControl::TempoControlSetGlobalTempo.to_usize().unwrap()
                 {
                     let estimated_tempo = estimate_tempo(
@@ -188,7 +188,7 @@ impl MultiTrackLooperHandle {
                     let slice_enabled = voice
                         .user_parameters()
                         .get(SourceParameter::SliceEnabled)
-                        .inner_bool();
+                        .as_bool();
 
                     if !slice_enabled {
                         return;
@@ -1148,7 +1148,7 @@ mod test {
             .handle()
             .get_parameter(LooperId(0), &SourceParameter::Start.into())
             .unwrap()
-            .inner_float();
+            .as_float();
         assert_eq!(value, 0.5);
         let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
         processor.process(&mut buffer);
@@ -1223,7 +1223,7 @@ mod test {
                 .handle()
                 .get_parameter(LooperId(0), &SourceParameter::Start.into())
                 .unwrap()
-                .inner_float())
+                .as_float())
             .abs()
                 - 0.5
                 < 0.01 // MIDI has ~0.008 step-size (range: 0-127, resolution: 1 / 127)

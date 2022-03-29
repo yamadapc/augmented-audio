@@ -19,7 +19,7 @@ import SwiftUI
 
 struct SliceParameterKnobView: View {
     @ObservedObject var sliceEnabled: BooleanParameter
-    var parameter: IntParameter<SourceParameterId>
+    var parameter: IntParameter
 
     var body: some View {
         ParameterKnobView(
@@ -73,8 +73,8 @@ struct SourcePanelContentView: View {
                             ParameterKnobView<SourceParameter>(
                                 parameter: p
                             )
-                        } else if let p = parameter as? IntParameter<SourceParameterId> {
-                            if p.localId == .sliceId {
+                        } else if let p = parameter as? IntParameter {
+                            if case .sourceParameter(_, .sliceId) = p.globalId {
                                 SliceParameterKnobView(
                                     sliceEnabled: sourceParameters.sliceEnabled,
                                     parameter: p

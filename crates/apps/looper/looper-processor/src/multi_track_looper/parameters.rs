@@ -200,17 +200,17 @@ impl Clone for ParameterValue {
 impl ParameterValue {
     pub fn set_from(&self, other: &ParameterValue) {
         match self {
-            ParameterValue::Float(f) => f.set(other.inner_float()),
-            ParameterValue::Bool(b) => b.set(other.inner_bool()),
+            ParameterValue::Float(f) => f.set(other.as_float()),
+            ParameterValue::Bool(b) => b.set(other.as_bool()),
             ParameterValue::Enum(e) => {
-                e.set(other.inner_enum());
+                e.set(other.as_enum());
             }
-            ParameterValue::Int(i) => i.set(other.inner_int()),
+            ParameterValue::Int(i) => i.set(other.as_int()),
             ParameterValue::None => {}
         }
     }
 
-    pub fn inner_int(&self) -> i32 {
+    pub fn as_int(&self) -> i32 {
         if let ParameterValue::Int(inner) = self {
             inner.get()
         } else {
@@ -218,7 +218,7 @@ impl ParameterValue {
         }
     }
 
-    pub fn inner_bool(&self) -> bool {
+    pub fn as_bool(&self) -> bool {
         if let ParameterValue::Bool(inner) = self {
             inner.get()
         } else {
@@ -226,7 +226,7 @@ impl ParameterValue {
         }
     }
 
-    pub fn inner_float(&self) -> f32 {
+    pub fn as_float(&self) -> f32 {
         if let ParameterValue::Float(inner) = self {
             inner.get()
         } else {
@@ -234,7 +234,7 @@ impl ParameterValue {
         }
     }
 
-    pub fn inner_enum(&self) -> usize {
+    pub fn as_enum(&self) -> usize {
         if let ParameterValue::Enum(inner) = self {
             inner.get()
         } else {

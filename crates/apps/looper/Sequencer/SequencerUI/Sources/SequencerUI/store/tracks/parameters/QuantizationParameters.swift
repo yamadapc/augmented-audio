@@ -17,12 +17,24 @@
 // = /copyright ===================================================================
 import Combine
 
-public enum QuantizationMode {
+public enum QuantizationMode: UInt {
     case snapNext, snapClosest, none
 }
 
-public enum TempoControlMode {
+extension QuantizationMode: FromRawEnum {
+    public static func fromRaw(rawValue: UInt) -> Self {
+        QuantizationMode(rawValue: rawValue)!
+    }
+}
+
+public enum TempoControlMode: UInt {
     case setAndFollowGlobalTempo, none
+}
+
+extension TempoControlMode: FromRawEnum {
+    public static func fromRaw(rawValue: UInt) -> Self {
+        TempoControlMode(rawValue: rawValue)!
+    }
 }
 
 public class QuantizationParameters: ObservableObject {

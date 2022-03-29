@@ -32,5 +32,6 @@ public class BooleanParameter: ObservableObject, ParameterLike {
         self.id = id
         self.label = label
         self.value = value
+        ALL_PARAMETERS.append(.boolean(self))
     }
 }

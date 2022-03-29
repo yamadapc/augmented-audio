@@ -91,9 +91,11 @@ class StoreSubscriptionsController {
 
         trackState.sourceParameters.intParameters.forEach { parameter in
             let flush = { (value: Int) in
+                guard case let .sourceParameter(_, parameterId) = parameter.id
+                else { return }
                 self.engine.setSourceParameterInt(
                     looperId,
-                    parameterId: parameter.localId,
+                    parameterId: parameterId,
                     value: Int32(value)
                 )
             }

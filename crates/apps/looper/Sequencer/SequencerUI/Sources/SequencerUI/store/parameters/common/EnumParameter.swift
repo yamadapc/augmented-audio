@@ -22,18 +22,39 @@ struct EnumParameterOption<OptionT> {
     let value: OptionT
 }
 
-public class EnumParameter<OptionT>: ObservableObject, ParameterLike {
-    var id: ParameterId
-    public var globalId: ParameterId { id }
-    var label: String
+public protocol AnyEnumParameter {
+    var globalId: ParameterId { get }
+    var label: String { get }
+
+    var rawValue: UInt { get set }
+}
+
+public protocol FromRawEnum {
+    var rawValue: UInt { get }
+    static func fromRaw(rawValue: UInt) -> Self
+}
+
+public class EnumParameter<OptionT: FromRawEnum>: ObservableObject, ParameterLike, AnyEnumParameter {
+    public var globalId: ParameterId
+    public var label: String
+    public var rawValue: UInt {
+        get {
+            value.rawValue
+        }
+        set {
+            value = OptionT.fromRaw(rawValue: newValue)
+        }
+    }
+
     @Published public var value: OptionT
     var options: [EnumParameterOption<OptionT>]
     var style: KnobStyle { .normal }
 
     init(id: ParameterId, label: String, value: OptionT, options: [EnumParameterOption<OptionT>]) {
-        self.id = id
+        globalId = id
         self.label = label
         self.value = value
         self.options = options
+        ALL_PARAMETERS.append(.enumP(self))
     }
 }
