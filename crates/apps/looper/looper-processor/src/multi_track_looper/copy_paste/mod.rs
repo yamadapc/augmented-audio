@@ -2,6 +2,7 @@ use crate::parameters::ParameterId;
 use crate::{LooperId, MultiTrackLooperHandle};
 
 /// Represents a path to something that can be copy-pasted
+#[allow(dead_code)]
 pub enum CopyPath {
     Parameter {
         looper_id: LooperId,
@@ -16,10 +17,12 @@ pub enum CopyPath {
     },
 }
 
+#[allow(dead_code)]
 pub enum CopyPasteError {
     UnsupportedPaths,
 }
 
+#[allow(dead_code)]
 pub fn copy_paste(
     handle: &MultiTrackLooperHandle,
     source: CopyPath,

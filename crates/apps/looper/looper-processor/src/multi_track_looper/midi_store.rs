@@ -1,6 +1,5 @@
 use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::time::Instant;
 
 use basedrop::Shared;
 use itertools::Itertools;

@@ -12,11 +12,14 @@ struct AudioClipModel {
 
 #[derive(Default)]
 pub struct AudioClipManager {
+    #[allow(dead_code)]
     settings: AudioProcessorSettings,
+    #[allow(dead_code)]
     audio_clips: Vec<AudioClipModel>,
 }
 
 impl AudioClipManager {
+    #[allow(dead_code)]
     pub fn load_at_path(&mut self, path: &Path) -> Result<(), AudioFileError> {
         log::info!("Reading file at path {:?}", path);
         let mut audio_file =
