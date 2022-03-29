@@ -1262,10 +1262,7 @@ mod test {
     #[test]
     fn test_starts_empty() {
         let looper = MultiTrackLooper::new(Default::default(), 8);
-        assert_eq!(
-            looper.handle.all_loopers_empty_other_than(LooperId(0)),
-            true
-        );
+        assert!(looper.handle.all_loopers_empty_other_than(LooperId(0)));
     }
 
     #[test]

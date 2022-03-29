@@ -283,8 +283,8 @@ mod test {
 
         assert_no_alloc(|| {
             for trigger in trigger_model.triggers().iter() {
-                for _lock in trigger.locks() {
-                    assert!(true);
+                for (_id, lock) in trigger.locks() {
+                    assert!(lock.value > f32::NEG_INFINITY);
                 }
             }
         });

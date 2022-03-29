@@ -210,8 +210,7 @@ mod test {
             }
 
             if start.elapsed().as_secs() > 2 {
-                assert!(false, "Timed-out waiting for result");
-                break;
+                panic!("Timed-out waiting for result");
             }
         }
     }

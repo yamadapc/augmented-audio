@@ -85,7 +85,6 @@ pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
     into_ptr(engine)
 }
 
-#[no_mangle]
 #[repr(C)]
 pub enum CParameterValue {
     CParameterValueFloat(f32),

@@ -132,20 +132,18 @@ impl MidiStoreHandle {
             .and_then(|bytes| parse_midi_event::<&[u8]>(bytes, &mut ParserState::default()).ok())
             .map(|(_, event)| event);
 
-        if let Some(event) = event {
-            if let MIDIMessage::ControlChange {
+        if let Some(MIDIMessage::ControlChange {
+            channel,
+            controller_number,
+            value,
+        }) = event
+        {
+            self.cc_store[channel as usize][controller_number as usize].set(Some(value));
+            self.events.push(MidiStoreValue {
                 channel,
                 controller_number,
                 value,
-            } = event
-            {
-                self.cc_store[channel as usize][controller_number as usize].set(Some(value));
-                self.events.push(MidiStoreValue {
-                    channel,
-                    controller_number,
-                    value,
-                });
-            }
+            });
         }
     }
 }

@@ -14,6 +14,12 @@ pub struct ParametersMap {
     indexes: HashMap<ParameterId, usize>,
 }
 
+impl Default for ParametersMap {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ParametersMap {
     pub fn new() -> Self {
         let (values, parameter_ids) = build_default_parameters();
