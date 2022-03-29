@@ -14,7 +14,7 @@ use audio_processor_traits::{
     AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
 };
 
-use crate::processor::handle::LooperClipRef;
+use crate::audio::processor::handle::LooperClipRef;
 
 #[derive(Clone)]
 pub struct SliceResult {

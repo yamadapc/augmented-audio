@@ -15,7 +15,7 @@ use augmented_atomics::{AtomicEnum, AtomicValue};
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
 
-use crate::{
+use crate::audio::{
     loop_quantization::{LoopQuantizer, QuantizeInput},
     time_info_provider::{HostCallback, TimeInfoProvider, TimeInfoProviderImpl},
 };

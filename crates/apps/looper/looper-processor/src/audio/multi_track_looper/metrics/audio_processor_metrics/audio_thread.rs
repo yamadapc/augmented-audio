@@ -1,9 +1,11 @@
+use std::sync::atomic::{AtomicU64, AtomicUsize};
+use std::time::{Duration, Instant};
+
+use basedrop::Shared;
+
 use audio_garbage_collector::make_shared;
 use audio_processor_traits::AudioProcessorSettings;
 use augmented_atomics::{AtomicF32, AtomicValue};
-use basedrop::Shared;
-use std::sync::atomic::{AtomicU64, AtomicUsize};
-use std::time::{Duration, Instant};
 
 #[derive(Default)]
 pub struct AudioProcessorMetricsHandle {

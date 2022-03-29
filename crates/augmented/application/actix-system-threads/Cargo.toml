@@ -1,0 +1,13 @@
+[package]
+name = "actix-system-threads"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+actix = "0.13"
+lazy_static = "1.4"
+log = "0.4"
+num_cpus = "1.13"
+
+[dev-dependencies]
+wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }

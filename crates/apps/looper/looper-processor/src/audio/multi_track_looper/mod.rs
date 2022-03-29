@@ -27,12 +27,12 @@ use tempo_estimation::estimate_tempo;
 use trigger_model::step_tracker::StepTracker;
 use trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 
-use crate::multi_track_looper::lfo_processor::LFOHandle;
-use crate::multi_track_looper::midi_button::{MIDIButton, MIDIButtonEvent};
-use crate::multi_track_looper::midi_store::MidiStoreHandle;
-use crate::multi_track_looper::scene_state::SceneHandle;
-use crate::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
-use crate::time_info_provider::TimeInfoMetronomePlayhead;
+use crate::audio::multi_track_looper::lfo_processor::LFOHandle;
+use crate::audio::multi_track_looper::midi_button::{MIDIButton, MIDIButtonEvent};
+use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
+use crate::audio::multi_track_looper::scene_state::SceneHandle;
+use crate::audio::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
+use crate::audio::time_info_provider::TimeInfoMetronomePlayhead;
 use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
 pub(crate) mod allocator;
@@ -1064,8 +1064,8 @@ mod test {
     use audio_processor_standalone_midi::host::{MidiMessageEntry, MidiMessageWrapper};
     use audio_processor_traits::InterleavedAudioBuffer;
 
-    use crate::midi_map::MidiControllerNumber;
-    use crate::parameters::EntityId;
+    use crate::audio::midi_map::MidiControllerNumber;
+    use crate::audio::multi_track_looper::parameters::EntityId;
 
     use super::*;
 

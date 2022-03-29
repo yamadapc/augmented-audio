@@ -2,7 +2,7 @@ use basedrop::Shared;
 
 use audio_processor_standalone_osc::{OscMap, OscServer};
 
-use crate::multi_track_looper::parameters::LooperId;
+use crate::audio::multi_track_looper::parameters::LooperId;
 use crate::MultiTrackLooperHandle;
 
 pub fn setup_osc_server(handle: Shared<MultiTrackLooperHandle>) {

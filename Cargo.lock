@@ -59,8 +59,19 @@ version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ea16c295198e958ef31930a6ef37d0fb64e9ca3b6116e6b93a8bdae96ee1000"
 dependencies = [
- "futures-core",
- "tokio",
+    "futures-core",
+    "tokio",
+]
+
+[[package]]
+name = "actix-system-threads"
+version = "0.1.0"
+dependencies = [
+    "actix",
+    "lazy_static 1.4.0",
+    "log",
+    "num_cpus",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -69,9 +80,9 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6d44b8fee1ced9671ba043476deddef739dd0959bf77030b26b738cc591737a7"
 dependencies = [
- "proc-macro2 1.0.36",
- "quote 1.0.15",
- "syn",
+    "proc-macro2 1.0.36",
+    "quote 1.0.15",
+    "syn",
 ]
 
 [[package]]
@@ -5830,18 +5841,19 @@ dependencies = [
 name = "plugin-host-lib"
 version = "0.1.0"
 dependencies = [
- "actix",
- "actix-handler-macro",
- "atomic-queue",
- "audio-garbage-collector",
- "audio-processor-analysis",
- "audio-processor-file",
- "audio-processor-graph",
- "audio-processor-standalone-midi",
- "audio-processor-testing-helpers",
- "audio-processor-traits",
- "augmented-audio-metrics",
- "augmented-convert-sample-rate",
+    "actix",
+    "actix-handler-macro",
+    "actix-system-threads",
+    "atomic-queue",
+    "audio-garbage-collector",
+    "audio-processor-analysis",
+    "audio-processor-file",
+    "audio-processor-graph",
+    "audio-processor-standalone-midi",
+    "audio-processor-testing-helpers",
+    "audio-processor-traits",
+    "augmented-audio-metrics",
+    "augmented-convert-sample-rate",
  "augmented_oscillator",
  "basedrop",
  "circular-data-structures",

@@ -2,10 +2,10 @@ use std::sync::atomic::AtomicBool;
 
 use audio_garbage_collector::make_shared;
 
-use crate::midi_map::MidiControllerNumber;
-pub use crate::multi_track_looper::midi_store::MidiEvent;
-use crate::multi_track_looper::midi_store::MidiStoreActor;
-use crate::parameters::EntityId;
+use crate::audio::midi_map::MidiControllerNumber;
+pub use crate::audio::multi_track_looper::midi_store::MidiEvent;
+use crate::audio::multi_track_looper::midi_store::MidiStoreActor;
+use crate::audio::multi_track_looper::parameters::EntityId;
 use crate::ForeignCallback;
 use crate::LooperEngine;
 

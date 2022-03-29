@@ -1,8 +1,10 @@
-use audio_garbage_collector::make_shared;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
-use basedrop::Shared;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;
+
+use basedrop::Shared;
+
+use audio_garbage_collector::make_shared;
+use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
 pub struct EnvelopeHandle {
     pub adsr_envelope: augmented_adsr_envelope::Envelope,

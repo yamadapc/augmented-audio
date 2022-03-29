@@ -1,9 +1,11 @@
-use augmented_atomics::{AtomicF32, AtomicValue};
-use num_derive::{FromPrimitive, ToPrimitive};
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
+
+use num_derive::{FromPrimitive, ToPrimitive};
 use strum::EnumProperty;
 use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
+
+use augmented_atomics::{AtomicF32, AtomicValue};
 
 use crate::QuantizeMode;
 

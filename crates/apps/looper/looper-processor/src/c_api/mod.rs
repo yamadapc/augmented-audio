@@ -1,26 +1,24 @@
 use std::ffi::c_void;
-
 use std::sync::{Arc, Mutex};
 
 use atomic_refcell::AtomicRefCell;
-
 use basedrop::Shared;
 
 use audio_processor_standalone::StandaloneHandles;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
 
-use crate::multi_track_looper::metrics::audio_processor_metrics::{
+use crate::audio::multi_track_looper::metrics::audio_processor_metrics::{
     AudioProcessorMetricsActor, AudioProcessorMetricsStats,
 };
-use crate::multi_track_looper::midi_store::MidiStoreHandle;
-use crate::multi_track_looper::parameters::{
+use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
+use crate::audio::multi_track_looper::parameters::ParameterValue;
+use crate::audio::multi_track_looper::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,
     TempoControl,
 };
-use crate::multi_track_looper::slice_worker::SliceResult;
-use crate::parameters::ParameterValue;
-use crate::processor::handle::{LooperHandleThread, LooperState};
+use crate::audio::multi_track_looper::slice_worker::SliceResult;
+use crate::audio::processor::handle::{LooperHandleThread, LooperState};
 use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider};
 
 pub use self::entity_id::*;

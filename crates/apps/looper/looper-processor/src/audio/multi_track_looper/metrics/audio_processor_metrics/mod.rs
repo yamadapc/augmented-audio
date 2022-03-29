@@ -1,8 +1,8 @@
-use basedrop::Shared;
 use std::cmp::Ordering;
 use std::collections::VecDeque;
-
 use std::time::Duration;
+
+use basedrop::Shared;
 
 pub use audio_thread::*;
 

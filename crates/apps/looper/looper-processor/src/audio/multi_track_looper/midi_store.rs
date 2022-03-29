@@ -10,9 +10,9 @@ use audio_processor_traits::MidiMessageLike;
 use augmented_atomics::{AtomicF32, AtomicOption};
 use augmented_midi::{parse_midi_event, MIDIMessage, ParserState};
 
-use crate::midi_map::{MidiControllerNumber, MidiMap};
-use crate::multi_track_looper::long_backoff::LongBackoff;
-use crate::parameters::{EntityId, ParameterValue};
+use crate::audio::midi_map::{MidiControllerNumber, MidiMap};
+use crate::audio::multi_track_looper::long_backoff::LongBackoff;
+use crate::audio::multi_track_looper::parameters::{EntityId, ParameterValue};
 use crate::MultiTrackLooper;
 
 #[repr(C)]

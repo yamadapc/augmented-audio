@@ -7,7 +7,7 @@ use num_derive::{FromPrimitive, ToPrimitive};
 use audio_processor_traits::AtomicF32;
 use augmented_atomics::{AtomicEnum, AtomicValue};
 
-use crate::loop_quantization::LoopQuantizerMode;
+use crate::audio::loop_quantization::LoopQuantizerMode;
 
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum QuantizeMode {

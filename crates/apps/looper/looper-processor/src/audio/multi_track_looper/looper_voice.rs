@@ -6,8 +6,8 @@ use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
 };
 
-use crate::multi_track_looper::parameters_map::ParametersMap;
-use crate::processor::handle::LooperHandle as LooperProcessorHandle;
+use crate::audio::multi_track_looper::parameters_map::ParametersMap;
+use crate::audio::processor::handle::LooperHandle as LooperProcessorHandle;
 use crate::{
     LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, QuantizeMode,
     TimeInfoProviderImpl,

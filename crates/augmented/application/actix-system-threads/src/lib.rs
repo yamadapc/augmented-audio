@@ -30,13 +30,14 @@ impl ActorSystemThread {
         let (tx, rx) = channel();
         let (sys_tx, sys_rx) = channel();
 
-        log::info!("Starting actor system on 8 threads");
+        let num_threads = num_cpus::get();
+        log::info!("Starting actor system on {} threads", num_threads);
         std::thread::Builder::new()
             .name("actor-system-main".into())
             .spawn(move || {
                 let system = actix::System::new();
                 let mut arbiters = vec![Arbiter::current()];
-                for _ in 0..8 {
+                for _ in 0..num_threads {
                     arbiters.push(Arbiter::new().handle());
                 }
                 tx.send(arbiters).unwrap();

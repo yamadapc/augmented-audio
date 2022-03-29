@@ -1,8 +1,8 @@
-use crate::LooperId;
 use augmented_atomics::AtomicF32;
 
-use crate::multi_track_looper::parameters_map::ParametersMap;
-use crate::parameters::{ParameterId, ParameterValue};
+use crate::audio::multi_track_looper::parameters::{ParameterId, ParameterValue};
+use crate::audio::multi_track_looper::parameters_map::ParametersMap;
+use crate::LooperId;
 
 pub struct SceneHandle {
     scene_value: AtomicF32,

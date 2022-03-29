@@ -1,15 +1,16 @@
-pub mod step_tracker;
-
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::atomic::AtomicUsize;
 
 use basedrop::{Shared, SharedCell};
 
-use crate::multi_track_looper::parameters::ParameterId;
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use augmented_atomics::{AtomicF32, AtomicValue};
 use step_tracker::StepTracker;
+
+use crate::audio::multi_track_looper::parameters::ParameterId;
+
+pub mod step_tracker;
 
 pub fn find_running_beat_trigger<'a>(
     track_trigger_model: &TrackTriggerModel,
@@ -273,8 +274,9 @@ impl TrackTriggerModel {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use assert_no_alloc::assert_no_alloc;
+
+    use super::*;
 
     #[test]
     fn test_triggers_iterator_does_not_allocate() {

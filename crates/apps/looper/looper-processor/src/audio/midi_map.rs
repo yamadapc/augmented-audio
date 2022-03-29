@@ -84,10 +84,10 @@ impl MidiMap {
 
 #[cfg(test)]
 mod test_midi_map {
-    use crate::LooperId;
     use audio_garbage_collector::Shared;
 
     use crate::parameters::SourceParameter;
+    use crate::LooperId;
 
     use super::*;
 

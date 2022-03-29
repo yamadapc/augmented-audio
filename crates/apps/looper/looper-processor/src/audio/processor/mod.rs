@@ -7,7 +7,7 @@ use audio_processor_traits::{
 };
 use handle::LooperHandle;
 
-use crate::sequencer::LoopSequencerProcessor;
+use crate::audio::sequencer::LoopSequencerProcessor;
 use crate::{LoopSequencerProcessorHandle, TimeInfoProviderImpl};
 
 pub mod handle;
@@ -103,13 +103,14 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
-
     use std::sync::atomic::Ordering;
     use std::time::Duration;
 
+    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
     use audio_processor_testing_helpers::{assert_f_eq, rms_level};
+    use itertools::Itertools;
 
     use audio_processor_traits::{
         audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
@@ -118,8 +119,6 @@ mod test {
     use handle::{LooperState, QuantizeMode};
 
     use crate::{TimeInfoProvider, MAX_LOOP_LENGTH_SECS};
-    use assert_no_alloc::assert_no_alloc;
-    use itertools::Itertools;
 
     use super::*;
 

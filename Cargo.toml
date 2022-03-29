@@ -21,6 +21,7 @@ members = [
     # Augmented framework
     "crates/augmented/augmented",
     # Augmented components
+    "crates/augmented/application/actix-system-threads",
     "crates/augmented/application/audio-processor-standalone",
     "crates/augmented/application/audio-processor-standalone-gui",
     "crates/augmented/application/audio-processor-standalone-midi",
