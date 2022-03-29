@@ -261,7 +261,8 @@ pub fn build_default_parameters() -> (HashMap<ParameterId, ParameterValue>, Vec<
     let envelope_parameters: Vec<ParameterId> = EnvelopeParameter::iter()
         .map(ParameterId::ParameterIdEnvelope)
         .collect();
-    let lfo_parameters: Vec<ParameterId> = LFOParameter::iter().flat_map(|parameter| {
+    let lfo_parameters: Vec<ParameterId> = LFOParameter::iter()
+        .flat_map(|parameter| {
             [
                 ParameterId::ParameterIdLFO(0, parameter.clone()),
                 ParameterId::ParameterIdLFO(1, parameter),

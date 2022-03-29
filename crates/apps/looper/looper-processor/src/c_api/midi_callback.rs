@@ -1,6 +1,5 @@
 use std::sync::atomic::AtomicBool;
 
-
 use audio_garbage_collector::make_shared;
 
 use crate::midi_map::MidiControllerNumber;

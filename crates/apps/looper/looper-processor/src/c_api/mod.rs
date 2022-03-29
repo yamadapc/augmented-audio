@@ -1,6 +1,5 @@
 use std::ffi::c_void;
 
-
 use std::sync::{Arc, Mutex};
 
 use atomic_refcell::AtomicRefCell;
@@ -70,7 +69,6 @@ impl LooperEngine {
         )));
         let midi_store = handle.midi().clone();
 
-        
         LooperEngine {
             handle,
             audio_handles,

@@ -1,6 +1,6 @@
 use std::collections::{HashMap, VecDeque};
 use std::sync::atomic::{AtomicBool, AtomicU8, Ordering};
-use std::time::{Instant};
+use std::time::Instant;
 
 use basedrop::Shared;
 use itertools::Itertools;
@@ -128,7 +128,8 @@ impl MidiStoreHandle {
 
     fn push_event_to_queues<Message: MidiMessageLike>(&self, midi_message: &Message) {
         let event = midi_message
-            .bytes().and_then(|bytes| parse_midi_event::<&[u8]>(bytes, &mut ParserState::default()).ok())
+            .bytes()
+            .and_then(|bytes| parse_midi_event::<&[u8]>(bytes, &mut ParserState::default()).ok())
             .map(|(_, event)| event);
 
         if let Some(event) = event {
