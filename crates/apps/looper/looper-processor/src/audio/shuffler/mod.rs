@@ -1,3 +1,9 @@
+//! This is an implementation of a "shuffling-looper" similar to the one on a certain
+//! tiny multi-effects and modeling pedal.
+//!
+//! After recording a loop, this processor can be used to automatically shuffle playback.
+//!
+//! It'll randomly generate a N step sequence of M slices of the clip.
 use std::ops::Deref;
 use std::sync::atomic::{AtomicUsize, Ordering};
 
@@ -12,7 +18,7 @@ use audio_processor_traits::{
 use crate::LooperProcessorHandle;
 
 #[derive(Clone)]
-pub struct LoopSequencerParams {
+pub struct LoopShufflerParams {
     pub num_slices: usize,
     pub sequence_length: usize,
     pub num_samples: usize,
@@ -24,25 +30,25 @@ pub struct VirtualLoopSection {
     end: usize,
 }
 
-pub struct LoopSequencerOutput {
+pub struct LoopShufflerOutput {
     sequence: Vec<VirtualLoopSection>,
     sequence_step_size: usize,
 }
 
-pub struct LoopSequencerProcessorHandle {
+pub struct LoopShufflerProcessorHandle {
     looped_clip: SharedCell<VecAudioBuffer<f32>>,
     looper_handle: Shared<LooperProcessorHandle>,
-    params: SharedCell<Option<LoopSequencerParams>>,
+    params: SharedCell<Option<LoopShufflerParams>>,
     playhead: AtomicUsize,
-    sequencer_output: SharedCell<Option<LoopSequencerOutput>>,
+    sequencer_output: SharedCell<Option<LoopShufflerOutput>>,
 }
 
-impl LoopSequencerProcessorHandle {
+impl LoopShufflerProcessorHandle {
     fn set_clip(&self, clip: VecAudioBuffer<f32>) {
         self.looped_clip.set(make_shared(clip));
     }
 
-    pub fn params(&self) -> Option<LoopSequencerParams> {
+    pub fn params(&self) -> Option<LoopShufflerParams> {
         let o = self.params.get();
         (*o).clone()
     }
@@ -54,7 +60,7 @@ impl LoopSequencerProcessorHandle {
             .map(|_| self.playhead.load(Ordering::Relaxed))
     }
 
-    pub fn set_params(&self, params: LoopSequencerParams) {
+    pub fn set_params(&self, params: LoopShufflerParams) {
         let output = run_sequencer(&params);
         let clip = self.looper_handle.looper_clip();
         let clip = clip.deref().borrow();
@@ -82,16 +88,16 @@ impl LoopSequencerProcessorHandle {
     }
 }
 
-pub struct LoopSequencerProcessor {
+pub struct LoopShufflerProcessor {
     cursor: usize,
-    handle: Shared<LoopSequencerProcessorHandle>,
+    handle: Shared<LoopShufflerProcessorHandle>,
 }
 
-impl LoopSequencerProcessor {
+impl LoopShufflerProcessor {
     pub fn new(looper_handle: Shared<LooperProcessorHandle>) -> Self {
         Self {
             cursor: 0,
-            handle: make_shared(LoopSequencerProcessorHandle {
+            handle: make_shared(LoopShufflerProcessorHandle {
                 looped_clip: make_shared_cell(VecAudioBuffer::new()),
                 looper_handle,
                 params: make_shared_cell(None),
@@ -101,12 +107,12 @@ impl LoopSequencerProcessor {
         }
     }
 
-    pub fn handle(&self) -> &Shared<LoopSequencerProcessorHandle> {
+    pub fn handle(&self) -> &Shared<LoopShufflerProcessorHandle> {
         &self.handle
     }
 }
 
-impl AudioProcessor for LoopSequencerProcessor {
+impl AudioProcessor for LoopShufflerProcessor {
     type SampleType = f32;
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -119,7 +125,7 @@ impl AudioProcessor for LoopSequencerProcessor {
     }
 }
 
-impl SimpleAudioProcessor for LoopSequencerProcessor {
+impl SimpleAudioProcessor for LoopShufflerProcessor {
     type SampleType = f32;
 
     fn s_prepare(&mut self, settings: AudioProcessorSettings) {
@@ -127,7 +133,7 @@ impl SimpleAudioProcessor for LoopSequencerProcessor {
     }
 
     fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
-        if let Some(LoopSequencerOutput {
+        if let Some(LoopShufflerOutput {
             sequence,
             sequence_step_size,
         }) = self.handle.sequencer_output.get().deref()
@@ -162,9 +168,9 @@ impl SimpleAudioProcessor for LoopSequencerProcessor {
     }
 }
 
-pub fn run_sequencer(params: &LoopSequencerParams) -> LoopSequencerOutput {
+pub fn run_sequencer(params: &LoopShufflerParams) -> LoopShufflerOutput {
     if params.sequence_length == 0 || params.num_slices == 0 {
-        return LoopSequencerOutput {
+        return LoopShufflerOutput {
             sequence: vec![],
             sequence_step_size: 0,
         };
@@ -198,7 +204,7 @@ pub fn run_sequencer(params: &LoopSequencerParams) -> LoopSequencerOutput {
         })
         .collect();
 
-    LoopSequencerOutput {
+    LoopShufflerOutput {
         sequence,
         sequence_step_size: slice_len.min(max_step_len),
     }

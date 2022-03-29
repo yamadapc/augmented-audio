@@ -7,14 +7,14 @@ use audio_processor_traits::{
 };
 use handle::LooperHandle;
 
-use crate::audio::sequencer::LoopSequencerProcessor;
-use crate::{LoopSequencerProcessorHandle, TimeInfoProviderImpl};
+use crate::audio::shuffler::LoopShufflerProcessor;
+use crate::{LoopShufflerProcessorHandle, TimeInfoProviderImpl};
 
 pub mod handle;
 
 pub struct LooperProcessor {
     handle: Shared<handle::LooperHandle>,
-    sequencer: LoopSequencerProcessor,
+    sequencer: LoopShufflerProcessor,
 }
 
 impl Default for LooperProcessor {
@@ -31,7 +31,7 @@ impl LooperProcessor {
         let handle = make_shared(LooperHandle::new(options, time_info_provider));
         Self {
             handle: handle.clone(),
-            sequencer: LoopSequencerProcessor::new(handle),
+            sequencer: LoopShufflerProcessor::new(handle),
         }
     }
 
@@ -39,7 +39,7 @@ impl LooperProcessor {
         let handle = make_shared(LooperHandle::from_options(options));
         Self {
             handle: handle.clone(),
-            sequencer: LoopSequencerProcessor::new(handle),
+            sequencer: LoopShufflerProcessor::new(handle),
         }
     }
 
@@ -47,7 +47,7 @@ impl LooperProcessor {
         &self.handle
     }
 
-    pub fn sequencer_handle(&self) -> &Shared<LoopSequencerProcessorHandle> {
+    pub fn sequencer_handle(&self) -> &Shared<LoopShufflerProcessorHandle> {
         self.sequencer.handle()
     }
 }

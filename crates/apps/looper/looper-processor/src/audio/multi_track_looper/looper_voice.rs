@@ -9,8 +9,7 @@ use audio_processor_pitch_shifter::{
 use crate::audio::multi_track_looper::parameters_map::ParametersMap;
 use crate::audio::processor::handle::LooperHandle as LooperProcessorHandle;
 use crate::{
-    LoopSequencerProcessorHandle, LooperOptions, LooperProcessor, QuantizeMode,
-    TimeInfoProviderImpl,
+    LoopShufflerProcessorHandle, LooperOptions, LooperProcessor, QuantizeMode, TimeInfoProviderImpl,
 };
 
 use super::envelope_processor::{EnvelopeHandle, EnvelopeProcessor};
@@ -26,7 +25,7 @@ pub struct LooperVoice {
     parameter_ids: Vec<ParameterId>,
     triggers: Shared<TrackTriggerModel>,
     looper_handle: Shared<LooperProcessorHandle>,
-    sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    sequencer_handle: Shared<LoopShufflerProcessorHandle>,
     pitch_shifter_handle: Shared<MultiChannelPitchShifterProcessorHandle>,
     envelope: Shared<EnvelopeHandle>,
     lfo1_handle: Shared<LFOHandle>,
@@ -67,7 +66,7 @@ impl LooperVoice {
         &self.parameter_values
     }
 
-    pub fn sequencer(&self) -> &Shared<LoopSequencerProcessorHandle> {
+    pub fn sequencer(&self) -> &Shared<LoopShufflerProcessorHandle> {
         &self.sequencer_handle
     }
 }

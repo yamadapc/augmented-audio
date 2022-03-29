@@ -5,8 +5,8 @@ use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::style::Container1;
-use looper_processor::{LoopSequencerParams, LooperHandleThread};
-use looper_processor::{LoopSequencerProcessorHandle, LooperProcessorHandle};
+use looper_processor::{LoopShufflerParams, LooperHandleThread};
+use looper_processor::{LoopShufflerProcessorHandle, LooperProcessorHandle};
 
 use crate::ui::common::parameter_view::parameter_view_model::ParameterViewModel;
 use crate::ui::common::parameter_view::MultiParameterView;
@@ -31,7 +31,7 @@ pub enum Message {
 
 pub struct BottomPanelView {
     processor_handle: Shared<LooperProcessorHandle>,
-    sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    sequencer_handle: Shared<LoopShufflerProcessorHandle>,
     parameters_view: MultiParameterView<ParameterId>,
     buttons_view: ButtonsView,
     sequence_button_state: iced::button::State,
@@ -40,7 +40,7 @@ pub struct BottomPanelView {
 impl BottomPanelView {
     pub fn new(
         processor_handle: Shared<LooperProcessorHandle>,
-        sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+        sequencer_handle: Shared<LoopShufflerProcessorHandle>,
     ) -> Self {
         let parameters = vec![
             ParameterViewModel::new(
@@ -142,7 +142,7 @@ impl BottomPanelView {
         let seq_slices = self.parameters_view.get(&ParameterId::SeqSlices).unwrap();
         let seq_steps = self.parameters_view.get(&ParameterId::SeqSteps).unwrap();
 
-        self.sequencer_handle.set_params(LoopSequencerParams {
+        self.sequencer_handle.set_params(LoopShufflerParams {
             num_slices: seq_slices.value as usize,
             sequence_length: seq_steps.value as usize,
             num_samples: self.processor_handle.num_samples(),
