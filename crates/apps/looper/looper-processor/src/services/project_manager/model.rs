@@ -50,7 +50,7 @@ impl From<&LooperVoice> for LooperVoicePersist {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Project {
     pub voices: Vec<LooperVoicePersist>,
-    pub looper_clips: Vec<PathBuf>,
+    pub looper_clips: Vec<Option<PathBuf>>,
     pub midi_map: MidiMapStorePersist,
     pub scene_state: SceneHandle,
 }

@@ -22,7 +22,7 @@ pub unsafe extern "C" fn looper_engine__add_midi_mapping(
     );
     let engine = &(*engine);
 
-    let midi_store = &engine.midi_store;
+    let midi_store = &engine.midi_store();
     midi_store.midi_map().add(
         MidiControllerNumber::new(controller_number as u8),
         entity_id,
@@ -40,7 +40,7 @@ pub unsafe extern "C" fn looper_engine__register_midi_callback(
         callback.call(inner);
     });
 
-    let midi_store = &engine.midi_store;
+    let midi_store = &engine.midi_store();
     let midi_store = midi_store;
     let midi_actor_is_running = make_shared(AtomicBool::new(true));
     let mut midi_actor =

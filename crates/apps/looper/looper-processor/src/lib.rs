@@ -19,6 +19,7 @@ pub use services::osc_server::setup_osc_server;
 mod audio;
 #[allow(clippy::missing_safety_doc)]
 mod c_api;
+mod engine;
 mod services;
 
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;

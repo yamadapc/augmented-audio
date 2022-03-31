@@ -1,17 +1,17 @@
-use std::ffi::c_void;
-use std::sync::{Arc, Mutex};
+
+
 
 use atomic_refcell::AtomicRefCell;
 use basedrop::Shared;
 
-use audio_processor_standalone::StandaloneHandles;
+
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
 
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::{
-    AudioProcessorMetricsActor, AudioProcessorMetricsStats,
+    AudioProcessorMetricsStats,
 };
-use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
+
 use crate::audio::multi_track_looper::parameters::ParameterValue;
 use crate::audio::multi_track_looper::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,
@@ -19,7 +19,8 @@ use crate::audio::multi_track_looper::parameters::{
 };
 use crate::audio::multi_track_looper::slice_worker::SliceResult;
 use crate::audio::processor::handle::{LooperHandleThread, LooperState};
-use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle, TimeInfoProvider};
+pub use crate::engine::LooperEngine;
+use crate::{TimeInfoProvider};
 
 pub use self::entity_id::*;
 pub use self::foreign_callback::*;
@@ -38,42 +39,6 @@ pub struct SharedPtr<T>(*mut Shared<T>);
 impl<T> From<Shared<T>> for SharedPtr<T> {
     fn from(ptr: Shared<T>) -> Self {
         SharedPtr(Box::into_raw(Box::new(ptr)))
-    }
-}
-
-pub struct LooperEngine {
-    handle: Shared<MultiTrackLooperHandle>,
-    metrics_actor: Arc<Mutex<AudioProcessorMetricsActor>>,
-    midi_store: Shared<MidiStoreHandle>,
-    events_callback: Option<EventsCallback>,
-    #[allow(unused)]
-    audio_handles: StandaloneHandles,
-}
-
-impl LooperEngine {
-    fn new() -> Self {
-        wisual_logger::init_from_env();
-
-        let processor = MultiTrackLooper::new(Default::default(), 8);
-        let handle = processor.handle().clone();
-        let audio_handles = audio_processor_standalone::audio_processor_start_with_midi(
-            processor,
-            audio_garbage_collector::handle(),
-        );
-        setup_osc_server(handle.clone());
-
-        let metrics_actor = Arc::new(Mutex::new(AudioProcessorMetricsActor::new(
-            handle.metrics_handle().clone(),
-        )));
-        let midi_store = handle.midi().clone();
-
-        LooperEngine {
-            handle,
-            audio_handles,
-            metrics_actor,
-            midi_store,
-            events_callback: None,
-        }
     }
 }
 
@@ -114,7 +79,7 @@ pub unsafe extern "C" fn looper_engine__get_parameter_value(
     parameter_id: ParameterId,
 ) -> CParameterValue {
     let engine = &(*engine);
-    if let Some(value) = engine.handle.get_parameter(looper_id, &parameter_id) {
+    if let Some(value) = engine.handle().get_parameter(looper_id, &parameter_id) {
         CParameterValue::from(value)
     } else {
         CParameterValue::CParameterValueNone
@@ -128,27 +93,27 @@ pub unsafe extern "C" fn looper_engine__free(engine: *mut LooperEngine) {
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__num_loopers(engine: *mut LooperEngine) -> usize {
-    (*engine).handle.voices().len()
+    (*engine).handle().voices().len()
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__record(engine: *mut LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Recording {}", looper_id);
     (*engine)
-        .handle
+        .handle()
         .toggle_recording(LooperId(looper_id), LooperHandleThread::OtherThread)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__play(engine: *mut LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Playing {}", looper_id);
-    (*engine).handle.toggle_playback(LooperId(looper_id));
+    (*engine).handle().toggle_playback(LooperId(looper_id));
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__clear(engine: *mut LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Clearing {}", looper_id);
-    (*engine).handle.clear(LooperId(looper_id));
+    (*engine).handle().clear(LooperId(looper_id));
 }
 
 #[no_mangle]
@@ -156,7 +121,7 @@ pub unsafe extern "C" fn looper_engine__set_active_looper(
     engine: *mut LooperEngine,
     looper_id: usize,
 ) {
-    (*engine).handle.set_active_looper(LooperId(looper_id));
+    (*engine).handle().set_active_looper(LooperId(looper_id));
 }
 
 #[no_mangle]
@@ -164,7 +129,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_num_samples(
     engine: *mut LooperEngine,
     looper_id: usize,
 ) -> usize {
-    (*engine).handle.get_num_samples(LooperId(looper_id))
+    (*engine).handle().get_num_samples(LooperId(looper_id))
 }
 
 #[no_mangle]
@@ -172,7 +137,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_state(
     engine: *mut LooperEngine,
     looper_id: usize,
 ) -> LooperState {
-    (*engine).handle.get_looper_state(LooperId(looper_id))
+    (*engine).handle().get_looper_state(LooperId(looper_id))
 }
 
 #[no_mangle]
@@ -180,7 +145,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_position(
     engine: *mut LooperEngine,
     looper_id: usize,
 ) -> f32 {
-    (*engine).handle.get_position_percent(LooperId(looper_id))
+    (*engine).handle().get_position_percent(LooperId(looper_id))
 }
 
 #[no_mangle]
@@ -190,7 +155,7 @@ pub unsafe extern "C" fn looper_engine__toggle_trigger(
     position_beats: usize,
 ) {
     (*engine)
-        .handle
+        .handle()
         .toggle_trigger(LooperId(looper_id), position_beats)
 }
 
@@ -222,7 +187,7 @@ pub unsafe extern "C" fn looper_engine__set_boolean_parameter(
     value: bool,
 ) {
     (*engine)
-        .handle
+        .handle()
         .set_boolean_parameter(LooperId(looper_id), parameter_id, value);
 }
 
@@ -231,7 +196,7 @@ pub unsafe extern "C" fn looper_engine__set_scene_slider_value(
     engine: *mut LooperEngine,
     value: f32,
 ) {
-    (*engine).handle.set_scene_value(value);
+    (*engine).handle().set_scene_value(value);
 }
 
 #[no_mangle]
@@ -243,7 +208,7 @@ pub unsafe extern "C" fn looper_engine__add_lfo_mapping(
     value: f32,
 ) {
     (*engine)
-        .handle
+        .handle()
         .add_lfo_mapping(LooperId(looper_id), lfo_id, parameter_id, value)
 }
 
@@ -255,7 +220,7 @@ pub unsafe extern "C" fn looper_engine__remove_lfo_mapping(
     parameter_id: ParameterId,
 ) {
     (*engine)
-        .handle
+        .handle()
         .remove_lfo_mapping(LooperId(looper_id), lfo_id, parameter_id)
 }
 
@@ -268,7 +233,7 @@ pub unsafe extern "C" fn looper_engine__add_scene_parameter_lock(
     value: f32,
 ) {
     (*engine)
-        .handle
+        .handle()
         .add_scene_parameter_lock(scene_id, LooperId(looper_id), parameter_id, value);
 }
 
@@ -280,7 +245,7 @@ pub unsafe extern "C" fn looper_engine__remove_scene_parameter_lock(
     parameter_id: ParameterId,
 ) {
     (*engine)
-        .handle
+        .handle()
         .remove_scene_parameter_lock(scene_id, LooperId(looper_id), parameter_id);
 }
 
@@ -293,7 +258,7 @@ pub unsafe extern "C" fn looper_engine__add_parameter_lock(
     value: f32,
 ) {
     (*engine)
-        .handle
+        .handle()
         .add_parameter_lock(LooperId(looper_id), position_beats, parameter_id, value);
 }
 
@@ -305,24 +270,8 @@ pub unsafe extern "C" fn looper_engine__remove_parameter_lock(
     parameter_id: ParameterId,
 ) {
     (*engine)
-        .handle
+        .handle()
         .remove_parameter_lock(LooperId(looper_id), position_beats, parameter_id);
-}
-
-pub enum EngineEvent {}
-
-#[repr(C)]
-pub struct EventsCallback {
-    userdata: *mut c_void,
-    callback: extern "C" fn(*mut c_void, *mut EngineEvent),
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__set_events_callback(
-    engine: *mut LooperEngine,
-    callback: EventsCallback,
-) {
-    (*engine).events_callback = Some(callback);
 }
 
 #[repr(C)]
@@ -336,12 +285,12 @@ pub struct CTimeInfo {
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__playhead_stop(engine: *mut LooperEngine) {
-    (*engine).handle.stop();
+    (*engine).handle().stop();
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__playhead_play(engine: *mut LooperEngine) {
-    (*engine).handle.play();
+    (*engine).handle().play();
 }
 
 pub enum LooperBuffer {
@@ -360,7 +309,7 @@ pub unsafe extern "C" fn looper_engine__set_envelope_parameter(
 ) {
     let engine = &(*engine);
     engine
-        .handle
+        .handle()
         .set_envelope_parameter(LooperId(track_id), envelope_parameter_id, value);
 }
 
@@ -372,7 +321,7 @@ pub unsafe extern "C" fn looper_engine__set_source_parameter_int(
     value: i32,
 ) {
     let engine = &(*engine);
-    engine.handle.set_int_parameter(
+    engine.handle().set_int_parameter(
         LooperId(track_id),
         ParameterId::ParameterIdSource(parameter_id),
         value,
@@ -387,7 +336,7 @@ pub unsafe extern "C" fn looper_engine__set_quantization_mode(
 ) {
     let engine = &(*engine);
     engine
-        .handle
+        .handle()
         .set_quantization_mode(LooperId(track_id), quantization_mode)
 }
 
@@ -399,7 +348,7 @@ pub unsafe extern "C" fn looper_engine__set_tempo_control(
 ) {
     let engine = &(*engine);
     engine
-        .handle
+        .handle()
         .set_tempo_control(LooperId(track_id), tempo_control)
 }
 
@@ -413,7 +362,7 @@ pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
 ) {
     let engine = &(*engine);
     engine
-        .handle
+        .handle()
         .set_lfo_parameter(LooperId(track_id), lfo, parameter_id, value);
 }
 
@@ -424,7 +373,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_buffer(
 ) -> *mut LooperBuffer {
     let engine = &(*engine);
     into_ptr(
-        if let Some(buffer) = engine.handle.get_looper_buffer(LooperId(looper_id)) {
+        if let Some(buffer) = engine.handle().get_looper_buffer(LooperId(looper_id)) {
             LooperBuffer::Some { inner: buffer }
         } else {
             LooperBuffer::None
@@ -468,7 +417,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_slices(
     looper_id: usize,
 ) -> *mut Option<SliceResult> {
     let engine = &(*engine);
-    into_ptr(engine.handle.get_looper_slices(LooperId(looper_id)))
+    into_ptr(engine.handle().get_looper_slices(LooperId(looper_id)))
 }
 
 #[no_mangle]
@@ -504,13 +453,13 @@ pub unsafe extern "C" fn looper_engine__set_source_parameter(
     value: f32,
 ) {
     (*engine)
-        .handle
+        .handle()
         .set_source_parameter(LooperId(looper_id), parameter_id, value)
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_tempo(engine: *mut LooperEngine, tempo: f32) {
-    let handle = &(*engine).handle;
+    let handle = &(*engine).handle();
     handle.set_tempo(tempo);
 }
 
@@ -518,7 +467,7 @@ pub unsafe extern "C" fn looper_engine__set_tempo(engine: *mut LooperEngine, tem
 pub unsafe extern "C" fn looper_engine__get_playhead_position(
     engine: *mut LooperEngine,
 ) -> CTimeInfo {
-    let handle = &(*engine).handle;
+    let handle = &(*engine).handle();
     let time_info_provider = handle.time_info_provider();
     let time_info = time_info_provider.get_time_info();
 
@@ -536,7 +485,7 @@ pub unsafe extern "C" fn looper_engine__set_volume(
     looper_id: usize,
     volume: f32,
 ) {
-    (*engine).handle.set_volume(LooperId(looper_id), volume);
+    (*engine).handle().set_volume(LooperId(looper_id), volume);
 }
 
 #[no_mangle]
@@ -544,7 +493,7 @@ pub unsafe extern "C" fn looper_engine__set_metronome_volume(
     engine: *mut LooperEngine,
     volume: f32,
 ) {
-    (*engine).handle.set_metronome_volume(volume);
+    (*engine).handle().set_metronome_volume(volume);
 }
 
 #[repr(C)]
@@ -557,7 +506,7 @@ pub struct ExampleBuffer {
 pub unsafe extern "C" fn looper_engine__get_stats(
     engine: *mut LooperEngine,
 ) -> AudioProcessorMetricsStats {
-    let metrics_actor = &(*engine).metrics_actor;
+    let metrics_actor = &(*engine).metrics_actor();
     if let Ok(mut metrics_actor) = metrics_actor.lock() {
         metrics_actor.poll()
     } else {

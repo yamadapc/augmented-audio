@@ -4169,6 +4169,7 @@ dependencies = [
  "serde_derive",
  "strum 0.24.0",
  "strum_macros 0.24.0",
+ "tempdir",
  "thiserror",
  "tokio",
  "wisual-logger",
@@ -7321,6 +7322,16 @@ checksum = "c40a817171cf25d69dd31e3fa9360fd4367e54948e30f3356962f0b1d9f23dad"
 dependencies = [
  "gtk-sys",
  "pkg-config",
+]
+
+[[package]]
+name = "tempdir"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "15f2b5fb00ccdf689e0149d1b1b3c03fead81c2b37735d812fa8bddbbf41b6d8"
+dependencies = [
+ "rand 0.4.6",
+ "remove_dir_all",
 ]
 
 [[package]]

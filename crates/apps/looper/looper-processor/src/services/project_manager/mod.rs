@@ -7,7 +7,7 @@ use basedrop::Shared;
 use audio_garbage_collector::make_shared;
 
 use crate::services::project_manager::model::LooperVoicePersist;
-use crate::MultiTrackLooper;
+use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
 use self::model::Project;
 
@@ -19,9 +19,24 @@ pub enum ProjectManagerError {
     IOError(#[from] std::io::Error),
 }
 
-#[derive(Default)]
 pub struct ProjectManager {
+    data_path: PathBuf,
     projects: Vec<Shared<Project>>,
+}
+
+impl Default for ProjectManager {
+    fn default() -> Self {
+        Self::new(data_path())
+    }
+}
+
+impl ProjectManager {
+    fn new(data_path: PathBuf) -> Self {
+        Self {
+            data_path,
+            projects: vec![],
+        }
+    }
 }
 
 impl Actor for ProjectManager {
@@ -36,7 +51,8 @@ impl Handler<LoadLatestProjectMessage> for ProjectManager {
     type Result = ResponseActFuture<Self, Result<Shared<Project>, ProjectManagerError>>;
 
     fn handle(&mut self, _msg: LoadLatestProjectMessage, _ctx: &mut Self::Context) -> Self::Result {
-        let latest_project_fut = async { load_latest_project().await };
+        let data_path = self.data_path.clone();
+        let latest_project_fut = async { load_latest_project(data_path).await };
         let result_fut = latest_project_fut
             .into_actor(self)
             .map(|project, act, _ctx| {
@@ -58,8 +74,9 @@ fn data_path() -> PathBuf {
         .join(bundle_identifier)
 }
 
-async fn load_latest_project() -> Result<Project, ProjectManagerError> {
-    let (default_project_path, project_manifest) = default_project_manifest_path();
+async fn load_latest_project(data_path: impl AsRef<Path>) -> Result<Project, ProjectManagerError> {
+    let (default_project_path, project_manifest) =
+        default_project_manifest_path(data_path.as_ref());
 
     log::info!("Creating project directory at {:?}", default_project_path);
     tokio::fs::create_dir_all(&default_project_path).await?;
@@ -67,7 +84,7 @@ async fn load_latest_project() -> Result<Project, ProjectManagerError> {
     if let Err(err) = tokio::fs::metadata(&project_manifest).await {
         if err.kind() == std::io::ErrorKind::NotFound {
             log::warn!("project.msgpack manifest doesn't exist, creating default");
-            create_default_project().await?;
+            create_default_project(data_path.as_ref()).await?;
         } else {
             log::error!("Failed to read the project.msgpack manifest file");
             Err(err)?
@@ -82,19 +99,18 @@ async fn load_latest_project() -> Result<Project, ProjectManagerError> {
     Ok(result)
 }
 
-fn default_project_path() -> PathBuf {
-    let data_path = data_path();
+fn default_project_path(data_path: &Path) -> PathBuf {
     data_path.join("default_project")
 }
 
-fn default_project_manifest_path() -> (PathBuf, PathBuf) {
-    let default_project_path = default_project_path();
+fn default_project_manifest_path(data_path: &Path) -> (PathBuf, PathBuf) {
+    let default_project_path = default_project_path(data_path);
     let project_manifest = default_project_path.join("project.msgpack");
     (default_project_path, project_manifest)
 }
 
-async fn create_default_project() -> Result<(), std::io::Error> {
-    let default_project_path = default_project_path();
+async fn create_default_project(data_path: &Path) -> Result<(), std::io::Error> {
+    let default_project_path = default_project_path(data_path);
     let project_manifest = default_project_path.join("project.msgpack");
     let project = build_default_project();
     let buffer = rmp_serde::to_vec(&project).unwrap();
@@ -105,25 +121,30 @@ async fn create_default_project() -> Result<(), std::io::Error> {
 
 fn build_default_project() -> Project {
     let looper = MultiTrackLooper::default();
-    let project = Project {
-        voices: looper
-            .handle()
+    let looper_handle = looper.handle();
+    project_from_handle(looper_handle, vec![])
+}
+
+fn project_from_handle(
+    looper_handle: &MultiTrackLooperHandle,
+    looper_clips: Vec<Option<PathBuf>>,
+) -> Project {
+    Project {
+        voices: looper_handle
             .voices()
             .iter()
             .map(|voice| LooperVoicePersist::from(voice))
             .collect(),
-        scene_state: looper.handle().scene_handle().clone(),
-        looper_clips: vec![],
-        midi_map: looper
-            .handle()
+        scene_state: looper_handle.scene_handle().clone(),
+        looper_clips,
+        midi_map: looper_handle
             .midi()
             .midi_map()
             .store()
             .get()
             .deref()
             .clone(),
-    };
-    project
+    }
 }
 
 #[cfg(test)]
@@ -132,26 +153,20 @@ mod test {
 
     use super::*;
 
-    async fn cleanup() {
-        let (_default_project_path, project_manifest) = default_project_manifest_path();
-        tokio::fs::remove_file(project_manifest).await.unwrap();
-    }
-
     #[actix::test]
     async fn test_load_latest_project() {
         wisual_logger::init_from_env();
-        cleanup().await;
+        let data_path = tempdir::TempDir::new("looper_processor__project_manager").unwrap();
 
-        let latest_project = load_latest_project().await.unwrap();
+        let latest_project = load_latest_project(data_path.path()).await.unwrap();
         assert!(latest_project.voices.len() > 0);
     }
 
     #[actix::test]
     async fn test_actor_load_latest_project() {
         wisual_logger::init_from_env();
-        cleanup().await;
-
-        let project_manager = ProjectManager::default().start();
+        let data_path = tempdir::TempDir::new("looper_processor__project_manager").unwrap();
+        let project_manager = ProjectManager::new(data_path.path().to_path_buf()).start();
         project_manager
             .send(LoadLatestProjectMessage)
             .await
