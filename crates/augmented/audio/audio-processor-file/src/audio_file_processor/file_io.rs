@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::path::Path;
-use std::sync::mpsc::channel;
 
 use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef};
 use symphonia::core::audio::{AudioBuffer, Signal};
