@@ -45,5 +45,8 @@ mod test {
         let mut manager = AudioClipManager::default();
         let test_file_path = PathBuf::from(relative_path!("../../../../input-files/1sec-sine.mp3"));
         manager.load_at_path(&test_file_path).unwrap();
+
+        let test_file_path = PathBuf::from(relative_path!("../../../../input-files/bass.wav"));
+        manager.load_at_path(&test_file_path).unwrap();
     }
 }
