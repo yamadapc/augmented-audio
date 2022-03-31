@@ -1,7 +1,9 @@
 use std::path::{Path, PathBuf};
 
+use bytesize::ByteSize;
+
 use audio_processor_file::file_io::AudioFileError;
-use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 
 pub struct AudioClipModel {
     #[allow(dead_code)]
@@ -25,12 +27,23 @@ impl AudioClipManager {
         let mut audio_file =
             audio_processor_file::InMemoryAudioFile::from_path(path.to_str().unwrap())?;
         let audio_file = audio_file.read_into_vec_audio_buffer(&self.settings)?;
+        let byte_size = estimate_file_size(&audio_file);
+        log::info!("File takes-up ~{} of memory", byte_size);
         self.audio_clips.push(AudioClipModel {
             path: path.into(),
             contents: audio_file,
         });
         Ok(())
     }
+}
+
+fn estimate_file_size<Buffer: AudioBuffer>(audio_file: &Buffer) -> ByteSize {
+    let byte_size = ByteSize::b(
+        (audio_file.num_channels()
+            * audio_file.num_samples()
+            * std::mem::size_of::<Buffer::SampleType>()) as u64,
+    );
+    byte_size
 }
 
 #[cfg(test)]
