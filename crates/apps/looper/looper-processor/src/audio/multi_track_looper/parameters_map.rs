@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 
+use serde_derive::{Deserialize, Serialize};
+
 use augmented_atomics::AtomicValue;
 
 use crate::parameters::{
@@ -8,6 +10,7 @@ use crate::parameters::{
 };
 
 /// Storage for parameters, parameters are copied on changes
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ParametersMap {
     values: Vec<ParameterValue>,
     has_value: Vec<AtomicBool>,
@@ -63,6 +66,20 @@ impl ParametersMap {
         let id: ParameterId = id.into();
         let index: usize = self.indexes[&id];
         self.has_value[index].set(false);
+    }
+}
+
+impl Clone for ParametersMap {
+    fn clone(&self) -> Self {
+        Self {
+            values: self.values.iter().map(|value| value.clone()).collect(),
+            has_value: self
+                .has_value
+                .iter()
+                .map(|has_value| has_value.get().into())
+                .collect(),
+            indexes: self.indexes.clone(),
+        }
     }
 }
 

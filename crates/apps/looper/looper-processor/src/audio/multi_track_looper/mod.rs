@@ -22,6 +22,7 @@ use parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
     QuantizationParameter, SceneId, SourceParameter, TempoControl,
 };
+pub use parameters_map::ParametersMap;
 use slice_worker::{SliceResult, SliceWorker};
 use tempo_estimation::estimate_tempo;
 use trigger_model::step_tracker::StepTracker;
@@ -38,24 +39,24 @@ use crate::{LooperOptions, QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl}
 pub(crate) mod allocator;
 mod copy_paste;
 mod envelope_processor;
-mod lfo_processor;
+pub(crate) mod lfo_processor;
 mod long_backoff;
-mod looper_voice;
+pub(crate) mod looper_voice;
 pub(crate) mod metrics;
 mod midi_button;
 pub(crate) mod midi_store;
 pub mod parameters;
 mod parameters_map;
-mod scene_state;
+pub(crate) mod scene_state;
 pub(crate) mod slice_worker;
 mod tempo_estimation;
-mod trigger_model;
+pub(crate) mod trigger_model;
 
 pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
     sample_rate: AtomicF32,
-    scene_parameters: SceneHandle,
+    scene_handle: SceneHandle,
     metronome_handle: Shared<MetronomeProcessorHandle>,
     slice_worker: SliceWorker,
     settings: SharedCell<AudioProcessorSettings>,
@@ -95,7 +96,7 @@ impl MultiTrackLooperHandle {
     }
 
     pub fn set_scene_value(&self, value: f32) {
-        self.scene_parameters.set_slider(value);
+        self.scene_handle.set_slider(value);
     }
 
     /// If the active looper is empty, start recording, otherwise start playback
@@ -473,7 +474,7 @@ impl MultiTrackLooperHandle {
             parameter_id,
             value
         );
-        let all_scene_parameters = &self.scene_parameters;
+        let all_scene_parameters = &self.scene_handle;
         all_scene_parameters.set(scene_id, looper_id, parameter_id, value);
     }
 
@@ -489,7 +490,7 @@ impl MultiTrackLooperHandle {
             looper_id,
             parameter_id
         );
-        let all_scene_parameters = &self.scene_parameters;
+        let all_scene_parameters = &self.scene_handle;
         all_scene_parameters.unset(scene_id, looper_id, parameter_id);
     }
 
@@ -657,6 +658,10 @@ impl MultiTrackLooperHandle {
             lfo.set_parameter_map(parameter_id, None);
         }
     }
+
+    pub(crate) fn scene_handle(&self) -> &SceneHandle {
+        &self.scene_handle
+    }
 }
 
 pub struct MultiTrackLooper {
@@ -679,9 +684,6 @@ impl Default for MultiTrackLooper {
 impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
-        let processors: Vec<VoiceProcessors> = (0..num_voices)
-            .map(|_| looper_voice::build_voice_processor(&options, &time_info_provider))
-            .collect();
 
         let metronome = metronome::MetronomeProcessor::new(TimeInfoMetronomePlayhead(
             time_info_provider.clone(),
@@ -690,11 +692,7 @@ impl MultiTrackLooper {
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);
 
-        let voices: Vec<LooperVoice> = processors
-            .iter()
-            .enumerate()
-            .map(|(i, voice_processors)| looper_voice::build_voice_handle(i, voice_processors))
-            .collect();
+        let (processors, voices) = Self::build_voices(&options, num_voices, &time_info_provider);
 
         let parameters_scratch = voices
             .iter()
@@ -717,7 +715,7 @@ impl MultiTrackLooper {
         let handle = make_shared(MultiTrackLooperHandle {
             voices,
             time_info_provider,
-            scene_parameters: SceneHandle::new(8, 2),
+            scene_handle: SceneHandle::new(8, 2),
             sample_rate: AtomicF32::new(44100.0),
             metronome_handle,
             settings: make_shared_cell(AudioProcessorSettings::default()),
@@ -745,6 +743,27 @@ impl MultiTrackLooper {
             metrics,
             record_midi_button: MIDIButton::new(),
         }
+    }
+
+    pub fn handle(&self) -> &Shared<MultiTrackLooperHandle> {
+        &self.handle
+    }
+
+    fn build_voices(
+        options: &LooperOptions,
+        num_voices: usize,
+        time_info_provider: &Shared<TimeInfoProviderImpl>,
+    ) -> (Vec<VoiceProcessors>, Vec<LooperVoice>) {
+        let processors: Vec<VoiceProcessors> = (0..num_voices)
+            .map(|_| looper_voice::build_voice_processor(&options, &time_info_provider))
+            .collect();
+
+        let voices: Vec<LooperVoice> = processors
+            .iter()
+            .enumerate()
+            .map(|(i, voice_processors)| looper_voice::build_voice_handle(i, voice_processors))
+            .collect();
+        (processors, voices)
     }
 
     fn build_audio_graph(
@@ -787,10 +806,6 @@ impl MultiTrackLooper {
         }
 
         graph
-    }
-
-    pub fn handle(&self) -> &Shared<MultiTrackLooperHandle> {
-        &self.handle
     }
 
     fn process_triggers(&mut self) {
@@ -912,7 +927,7 @@ impl MultiTrackLooper {
     }
 
     fn process_scenes(&mut self) {
-        let scene_value = self.handle.scene_parameters.get_slider();
+        let scene_value = self.handle.scene_handle.get_slider();
 
         for (index, voice) in self.handle.voices.iter().enumerate() {
             let looper_id = LooperId(index);
@@ -924,12 +939,12 @@ impl MultiTrackLooper {
                 let _key = (looper_id, parameter_id.clone());
                 let left_value = self
                     .handle
-                    .scene_parameters
+                    .scene_handle
                     .get_left(looper_id, parameter_id.clone())
                     .unwrap_or(parameter_value);
                 let right_value = self
                     .handle
-                    .scene_parameters
+                    .scene_handle
                     .get_right(looper_id, parameter_id.clone())
                     .unwrap_or(parameter_value);
 
@@ -1079,7 +1094,7 @@ mod test {
             .add_scene_parameter_lock(1, LooperId(0), parameter_id.clone(), 2.0);
         let value = looper
             .handle
-            .scene_parameters
+            .scene_handle
             .get_right(LooperId(0), parameter_id.clone())
             .unwrap();
 

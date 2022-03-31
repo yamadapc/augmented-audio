@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use audio_processor_file::file_io::AudioFileError;
 use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
 
-struct AudioClipModel {
+pub struct AudioClipModel {
     #[allow(dead_code)]
     path: PathBuf,
     #[allow(dead_code)]

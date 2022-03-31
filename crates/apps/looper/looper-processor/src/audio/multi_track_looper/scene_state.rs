@@ -1,14 +1,18 @@
+use serde::{Deserialize, Serialize};
+
 use augmented_atomics::AtomicF32;
 
 use crate::audio::multi_track_looper::parameters::{ParameterId, ParameterValue};
 use crate::audio::multi_track_looper::parameters_map::ParametersMap;
 use crate::LooperId;
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SceneHandle {
     scene_value: AtomicF32,
     scenes: Vec<SceneState>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct SceneState {
     scene_parameters: Vec<ParametersMap>,
 }

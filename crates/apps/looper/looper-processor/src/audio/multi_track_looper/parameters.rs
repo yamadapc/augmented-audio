@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
 
 use num_derive::{FromPrimitive, ToPrimitive};
+use serde_derive::{Deserialize, Serialize};
 use strum::EnumProperty;
 use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
 
@@ -10,24 +11,35 @@ use augmented_atomics::{AtomicF32, AtomicValue};
 use crate::QuantizeMode;
 
 #[repr(transparent)]
-#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Debug, Clone, Copy, Hash, Eq, PartialEq, Ord, PartialOrd, Serialize, Deserialize)]
+#[serde(transparent)]
 pub struct LooperId(pub usize);
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants, PartialOrd, Ord)]
+#[derive(
+    Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants, PartialOrd, Ord, Serialize, Deserialize,
+)]
 #[allow(clippy::enum_variant_names)]
 pub enum EntityId {
+    #[serde(rename = "LP")]
     EntityIdLooperParameter(LooperId, ParameterId),
+    #[serde(rename = "RB")]
     EntityIdRecordButton,
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants, PartialOrd, Ord)]
+#[derive(
+    Debug, PartialEq, Clone, Eq, Hash, EnumDiscriminants, PartialOrd, Ord, Serialize, Deserialize,
+)]
 #[allow(clippy::enum_variant_names)]
 pub enum ParameterId {
+    #[serde(rename = "S")]
     ParameterIdSource(SourceParameter),
+    #[serde(rename = "E")]
     ParameterIdEnvelope(EnvelopeParameter),
+    #[serde(rename = "L")]
     ParameterIdLFO(usize, LFOParameter),
+    #[serde(rename = "Q")]
     ParameterIdQuantization(QuantizationParameter),
 }
 
@@ -57,7 +69,23 @@ impl EnumProperty for ParameterId {
 pub type SceneId = usize;
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
+#[derive(
+    Debug,
+    PartialEq,
+    Clone,
+    Eq,
+    Hash,
+    EnumIter,
+    EnumProperty,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+    FromPrimitive,
+    ToPrimitive,
+)]
+#[serde(try_from = "usize")]
+#[serde(into = "usize")]
 pub enum SourceParameter {
     #[strum(props(type = "float", default = "0.0"))]
     Start = 0,
@@ -80,7 +108,23 @@ pub enum SourceParameter {
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
+#[derive(
+    Debug,
+    PartialEq,
+    Clone,
+    Eq,
+    Hash,
+    EnumIter,
+    EnumProperty,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+    FromPrimitive,
+    ToPrimitive,
+)]
+#[serde(try_from = "usize")]
+#[serde(into = "usize")]
 #[allow(clippy::enum_variant_names)]
 pub enum QuantizationParameter {
     #[strum(props(type = "enum", default = "0"))]
@@ -116,7 +160,23 @@ pub enum TempoControl {
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
+#[derive(
+    Debug,
+    PartialEq,
+    Clone,
+    Eq,
+    Hash,
+    EnumIter,
+    EnumProperty,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+    FromPrimitive,
+    ToPrimitive,
+)]
+#[serde(try_from = "usize")]
+#[serde(into = "usize")]
 pub enum EnvelopeParameter {
     #[strum(props(type = "float", default = "0.0"))]
     Attack = 0,
@@ -131,7 +191,23 @@ pub enum EnvelopeParameter {
 }
 
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Eq, Hash, EnumIter, EnumProperty, PartialOrd, Ord)]
+#[derive(
+    Debug,
+    PartialEq,
+    Clone,
+    Eq,
+    Hash,
+    EnumIter,
+    EnumProperty,
+    PartialOrd,
+    Ord,
+    Serialize,
+    Deserialize,
+    FromPrimitive,
+    ToPrimitive,
+)]
+#[serde(try_from = "usize")]
+#[serde(into = "usize")]
 pub enum LFOParameter {
     #[strum(props(type = "float", default = "1.0"))]
     Frequency = 0,
@@ -139,38 +215,36 @@ pub enum LFOParameter {
     Amount = 1,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum ParameterValue {
+    #[serde(rename = "F")]
     Float(AtomicF32),
+    #[serde(rename = "B")]
     Bool(AtomicBool),
+    #[serde(rename = "E")]
     Enum(AtomicUsize),
+    #[serde(rename = "I")]
     Int(AtomicI32),
+    #[serde(rename = "N")]
     None,
 }
 
-impl From<i32> for ParameterValue {
-    fn from(v: i32) -> Self {
-        ParameterValue::Int(v.into())
-    }
+// MARK: Convert from primitive value into "boxed" parameter-value
+
+macro_rules! from_primitive {
+    ($variant: path, $primitive: ident) => {
+        impl From<$primitive> for ParameterValue {
+            fn from(v: $primitive) -> Self {
+                $variant(v.into())
+            }
+        }
+    };
 }
 
-impl From<usize> for ParameterValue {
-    fn from(v: usize) -> Self {
-        ParameterValue::Enum(v.into())
-    }
-}
-
-impl From<bool> for ParameterValue {
-    fn from(v: bool) -> Self {
-        ParameterValue::Bool(v.into())
-    }
-}
-
-impl From<f32> for ParameterValue {
-    fn from(v: f32) -> Self {
-        ParameterValue::Float(v.into())
-    }
-}
+from_primitive!(ParameterValue::Int, i32);
+from_primitive!(ParameterValue::Enum, usize);
+from_primitive!(ParameterValue::Bool, bool);
+from_primitive!(ParameterValue::Float, f32);
 
 impl PartialEq for ParameterValue {
     fn eq(&self, other: &Self) -> bool {
@@ -337,3 +411,40 @@ fn get_default_parameter_value(parameter_id: &ParameterId) -> ParameterValue {
         _ => panic!("Invalid parameter declaration"),
     }
 }
+
+// MARK: Automatic conversion to/from usize for storage
+
+#[derive(Debug, thiserror::Error)]
+pub enum FromPrimitiveError {
+    #[error("Failed to parse enum from primitive")]
+    FailedToRead,
+}
+
+macro_rules! usize_conversion {
+    ($target: ident) => {
+        impl std::convert::TryFrom<usize> for $target {
+            type Error = FromPrimitiveError;
+
+            fn try_from(u: usize) -> Result<Self, Self::Error> {
+                use num::FromPrimitive;
+                if let Some(s) = Self::from_usize(u) {
+                    Ok(s)
+                } else {
+                    Err(FromPrimitiveError::FailedToRead)
+                }
+            }
+        }
+
+        impl Into<usize> for $target {
+            fn into(self) -> usize {
+                use num::ToPrimitive;
+                self.to_usize().unwrap()
+            }
+        }
+    };
+}
+
+usize_conversion!(SourceParameter);
+usize_conversion!(QuantizationParameter);
+usize_conversion!(EnvelopeParameter);
+usize_conversion!(LFOParameter);

@@ -1,14 +1,21 @@
 use std::collections::HashMap;
 
+use serde::{Deserialize, Serialize};
+
 use augmented_atomics::AtomicF32;
 
 use crate::parameters::{build_default_parameters, build_parameter_indexes, ParameterId};
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LFOHandleMap {
+    values: Vec<AtomicF32>,
+    indexes: HashMap<ParameterId, usize>,
+}
+
 pub struct LFOHandle {
     amount: AtomicF32,
     frequency: AtomicF32,
-    values: Vec<AtomicF32>,
-    indexes: HashMap<ParameterId, usize>,
+    map: LFOHandleMap,
 }
 
 impl Default for LFOHandle {
@@ -16,12 +23,14 @@ impl Default for LFOHandle {
         LFOHandle {
             amount: 1.0.into(),
             frequency: 1.0.into(),
-            values: build_default_parameters()
-                .1
-                .iter()
-                .map(|_| 0.0.into())
-                .collect(),
-            indexes: build_parameter_indexes(&build_default_parameters().1),
+            map: LFOHandleMap {
+                values: build_default_parameters()
+                    .1
+                    .iter()
+                    .map(|_| 0.0.into())
+                    .collect(),
+                indexes: build_parameter_indexes(&build_default_parameters().1),
+            },
         }
     }
 }
@@ -44,17 +53,21 @@ impl LFOHandle {
     }
 
     pub fn modulation_amount(&self, parameter_id: &ParameterId) -> f32 {
-        let index = self.indexes[parameter_id];
-        self.values[index].get()
+        let index = self.map.indexes[parameter_id];
+        self.map.values[index].get()
     }
 
     pub fn set_parameter_map(&self, parameter_id: ParameterId, amount: Option<f32>) {
-        let index = self.indexes[&parameter_id];
+        let index = self.map.indexes[&parameter_id];
         if let Some(amount) = amount {
-            self.values[index].set(amount);
+            self.map.values[index].set(amount);
         } else {
-            self.values[index].set(0.0);
+            self.map.values[index].set(0.0);
         }
+    }
+
+    pub fn map(&self) -> &LFOHandleMap {
+        &self.map
     }
 }
 

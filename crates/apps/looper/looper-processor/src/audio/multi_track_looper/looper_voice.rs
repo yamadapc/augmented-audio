@@ -1,6 +1,7 @@
 use std::sync::atomic::Ordering;
 
 use basedrop::Shared;
+use serde::{Deserialize, Serialize, Serializer};
 
 use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,

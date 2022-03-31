@@ -698,6 +698,8 @@ version = "0.1.0-alpha.4"
 dependencies = [
  "num-derive",
  "num-traits 0.2.14",
+ "serde",
+ "serde_derive",
 ]
 
 [[package]]
@@ -4152,8 +4154,13 @@ dependencies = [
  "num-derive",
  "num-traits 0.2.14",
  "rand 0.8.5",
+ "rmp-serde",
+ "serde",
+ "serde_derive",
  "strum 0.24.0",
  "strum_macros 0.24.0",
+ "thiserror",
+ "tokio",
  "wisual-logger",
 ]
 
@@ -6366,6 +6373,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd3064490f4a0c5bc127544803fbc2bb5f77ec5170f0208f2d7b605a4f396d44"
 dependencies = [
  "cache-padded",
+]
+
+[[package]]
+name = "rmp"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f55e5fa1446c4d5dd1f5daeed2a4fe193071771a2636274d0d7a3b082aa7ad6"
+dependencies = [
+ "byteorder 1.4.3",
+ "num-traits 0.2.14",
+]
+
+[[package]]
+name = "rmp-serde"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3eedffbfcc6a428f230c04baf8f59bd73c1781361e4286111fe900849aaddaf"
+dependencies = [
+ "byteorder 1.4.3",
+ "rmp",
+ "serde",
 ]
 
 [[package]]

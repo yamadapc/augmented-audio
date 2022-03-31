@@ -3,6 +3,7 @@ use std::ops::Deref;
 use std::sync::atomic::AtomicUsize;
 
 use basedrop::{Shared, SharedCell};
+use serde::{Deserialize, Serialize};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use augmented_atomics::{AtomicF32, AtomicValue};
@@ -44,7 +45,7 @@ pub fn find_current_beat_trigger<'a>(
         .and_then(|step| track_trigger_model.find_step(triggers, step))
 }
 
-#[derive(Default, Clone, PartialEq, Debug)]
+#[derive(Default, Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct TriggerLock {
     value: f32,
 }
@@ -55,17 +56,17 @@ impl TriggerLock {
     }
 }
 
-#[derive(Default, Clone, PartialEq, Debug)]
+#[derive(Default, Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct LoopTrigger {
     locks: HashMap<ParameterId, TriggerLock>,
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub enum TriggerInner {
     LoopTrigger(LoopTrigger),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TriggerPosition {
     step: AtomicUsize,
     position: AtomicF32,
@@ -101,7 +102,7 @@ impl Clone for TriggerPosition {
     }
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub struct Trigger {
     inner: TriggerInner,
     position: TriggerPosition,
@@ -164,6 +165,14 @@ impl Default for TrackTriggerModel {
 }
 
 impl TrackTriggerModel {
+    pub fn pattern_length(&self) -> usize {
+        self.pattern_length
+    }
+
+    pub fn pattern_step_beats(&self) -> f64 {
+        self.pattern_step_beats
+    }
+
     pub fn num_triggers(&self) -> usize {
         self.triggers.get().len()
     }

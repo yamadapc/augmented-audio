@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 use std::ops::Deref;
 
+use serde::{Deserialize, Serialize};
+
 use audio_garbage_collector::{Handle, Shared, SharedCell};
 
 use crate::parameters::EntityId;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct MidiControllerNumber {
     controller_number: u8,
 }
@@ -30,7 +32,8 @@ mod test_midi_spec {
     }
 }
 
-pub type MidiMapStore = SharedCell<HashMap<MidiControllerNumber, EntityId>>;
+pub type MidiMapStorePersist = HashMap<MidiControllerNumber, EntityId>;
+pub type MidiMapStore = SharedCell<MidiMapStorePersist>;
 
 pub struct MidiMap {
     #[allow(dead_code)]
@@ -79,6 +82,10 @@ impl MidiMap {
     #[allow(dead_code)]
     pub fn is_empty(&self) -> bool {
         self.store.get().deref().is_empty()
+    }
+
+    pub fn store(&self) -> &MidiMapStore {
+        &self.store
     }
 }
 
