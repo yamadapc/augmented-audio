@@ -13,9 +13,36 @@ use nom::{
     Err, IResult,
 };
 
+mod serializer;
 mod types;
 
 pub use types::*;
+
+// The first 4 bits of the status byte indicate message type. This bitmask extracts that
+// section to match against the masks below.
+pub const STATUS_BYTE_MASK: u8 = 0b1111_0000;
+
+// Bit-masks for each of the statuses, the 2nd 4 bits indicate the MIDI channel
+pub const CONTROL_CHANGE_MASK: u8 = 0b1011_0000;
+pub const NOTE_OFF_MASK: u8 = 0b1000_0000;
+pub const NOTE_ON_MASK: u8 = 0b1001_0000;
+pub const POLYPHONIC_KEY_PRESSURE_MASK: u8 = 0b1010_0000;
+pub const PROGRAM_CHANGE_MASK: u8 = 0b1100_0000;
+pub const CHANNEL_PRESSURE_MASK: u8 = 0b1101_0000;
+pub const PITCH_WHEEL_CHANGE_MASK: u8 = 0b1110_0000;
+
+// All these messages start with 0b1111, the 2nd 4 bits are part of the status
+pub const SONG_POSITION_POINTER_MASK: u8 = 0b1111_0010;
+pub const SONG_SELECT_MASK: u8 = 0b1111_0011;
+pub const TIMING_CLOCK_MASK: u8 = 0b1111_1000;
+pub const START_MASK: u8 = 0b1111_1010;
+pub const CONTINUE_MASK: u8 = 0b1111_1011;
+pub const STOP_MASK: u8 = 0b1111_1100;
+pub const ACTIVE_SENSING_MASK: u8 = 0b1111_1110;
+pub const RESET_MASK: u8 = 0b1111_1111;
+
+pub const SYSEX_MESSAGE_MASK: u8 = 0b1111_0000;
+pub const SYSEX_MESSAGE_END_MASK: u8 = 0b11110111;
 
 type Result<'a, Output> = IResult<Input<'a>, Output>;
 
@@ -101,8 +128,8 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         Err(Err::Error(Error::new(input, ErrorKind::Fail)))
     }?;
 
-    let status_start = status & 0b1111_0000;
-    let (input, message) = if status_start == 0b1000_0000 {
+    let status_start = status & STATUS_BYTE_MASK;
+    let (input, message) = if status_start == NOTE_OFF_MASK {
         let channel = parse_channel(status);
         let (input, note) = be_u8(input)?;
         let (input, velocity) = be_u8(input)?;
@@ -114,7 +141,7 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
                 velocity,
             }),
         ))
-    } else if status_start == 0b1001_0000 {
+    } else if status_start == NOTE_ON_MASK {
         let channel = parse_channel(status);
         let (input, note) = be_u8(input)?;
         let (input, velocity) = be_u8(input)?;
@@ -126,7 +153,7 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
                 velocity,
             }),
         ))
-    } else if status_start == 0b1010_0000 {
+    } else if status_start == POLYPHONIC_KEY_PRESSURE_MASK {
         let channel = parse_channel(status);
         let (input, note) = be_u8(input)?;
         let (input, pressure) = be_u8(input)?;
@@ -138,7 +165,7 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
                 pressure,
             },
         ))
-    } else if status_start == 0b1011_0000 {
+    } else if status_start == CONTROL_CHANGE_MASK {
         // TODO - Detect channel mode change?
         let channel = parse_channel(status);
         let (input, controller_number) = be_u8(input)?;
@@ -151,7 +178,7 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
                 value,
             },
         ))
-    } else if status_start == 0b1100_0000 {
+    } else if status_start == PROGRAM_CHANGE_MASK {
         let channel = parse_channel(status);
         let (input, program_number) = be_u8(input)?;
         Ok((
@@ -161,41 +188,41 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
                 program_number,
             },
         ))
-    } else if status_start == 0b1101_0000 {
+    } else if status_start == CHANNEL_PRESSURE_MASK {
         let channel = parse_channel(status);
         let (input, pressure) = be_u8(input)?;
         Ok((input, MIDIMessage::ChannelPressure { channel, pressure }))
-    } else if status_start == 0b1110_0000 {
+    } else if status_start == PITCH_WHEEL_CHANGE_MASK {
         let channel = parse_channel(status);
         let (input, value) = parse_14bit_midi_number(input)?;
         Ok((input, MIDIMessage::PitchWheelChange { channel, value }))
-    } else if status == 0b1111_0000 {
-        let (input, sysex_message) = take_till(|b| b == 0b11110111)(input)?;
+    } else if status == SYSEX_MESSAGE_MASK {
+        let (input, sysex_message) = take_till(|b| b == SYSEX_MESSAGE_END_MASK)(input)?;
         let (input, extra) = take(1u8)(input)?;
-        assert!(extra.is_empty() && extra[0] == 0b11110111);
+        assert!(extra.is_empty() && extra[0] == SYSEX_MESSAGE_END_MASK);
         Ok((
             input,
             MIDIMessage::SysExMessage(MIDISysExEvent {
                 message: sysex_message.into(),
             }),
         ))
-    } else if status == 0b1111_0010 {
+    } else if status == SONG_POSITION_POINTER_MASK {
         let (input, value) = parse_14bit_midi_number(input)?;
         Ok((input, MIDIMessage::SongPositionPointer { beats: value }))
-    } else if status == 0b1111_0011 {
+    } else if status == SONG_SELECT_MASK {
         let (input, song) = be_u8(input)?;
         Ok((input, MIDIMessage::SongSelect { song }))
-    } else if status == 0b1111_1000 {
+    } else if status == TIMING_CLOCK_MASK {
         Ok((input, MIDIMessage::TimingClock))
-    } else if status == 0b1111_1010 {
+    } else if status == START_MASK {
         Ok((input, MIDIMessage::Start))
-    } else if status == 0b1111_1011 {
+    } else if status == CONTINUE_MASK {
         Ok((input, MIDIMessage::Continue))
-    } else if status == 0b1111_1100 {
+    } else if status == STOP_MASK {
         Ok((input, MIDIMessage::Stop))
-    } else if status == 0b1111_1110 {
+    } else if status == ACTIVE_SENSING_MASK {
         Ok((input, MIDIMessage::ActiveSensing))
-    } else if status == 0b1111_1111 {
+    } else if status == RESET_MASK {
         Ok((input, MIDIMessage::Reset))
     } else {
         Ok((input, MIDIMessage::Other { status }))

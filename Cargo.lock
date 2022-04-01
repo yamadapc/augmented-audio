@@ -761,6 +761,7 @@ name = "augmented-midi"
 version = "1.0.0-alpha.4"
 dependencies = [
  "audio-processor-traits",
+ "cookie-factory",
  "itertools",
  "log",
  "midir",
@@ -1491,6 +1492,12 @@ name = "convert_case"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb4a24b1aaf0fd0ce8b45161144d6f42cd91677fd5940fd431183eb023b3a2b8"
+
+[[package]]
+name = "cookie-factory"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "396de984970346b0d9e93d1415082923c679e5ae5c3ee3dcbd104f5610af126b"
 
 [[package]]
 name = "copyless"
