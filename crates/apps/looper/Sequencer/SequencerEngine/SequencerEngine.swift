@@ -50,6 +50,12 @@ class EngineImpl {
 }
 
 extension EngineImpl: SequencerEngine {
+    func loadFile(atPath path: String) {
+      path.withCString { cPath in
+        looper_engine__load_file(engine, cPath)
+      }
+    }
+
     func onClickRecord(track: Int) {
         looper_engine__record(engine, UInt(track - 1))
     }

@@ -4135,6 +4135,7 @@ name = "looper-processor"
 version = "0.1.0"
 dependencies = [
  "actix",
+ "actix-system-threads",
  "assert_no_alloc",
  "atomic-queue",
  "atomic_refcell",

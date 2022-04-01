@@ -1,3 +1,4 @@
+use actix::{Actor, Handler, SyncContext};
 use std::path::{Path, PathBuf};
 
 use bytesize::ByteSize;
@@ -34,6 +35,26 @@ impl AudioClipManager {
             contents: audio_file,
         });
         Ok(())
+    }
+}
+
+impl Actor for AudioClipManager {
+    type Context = SyncContext<Self>;
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub(crate) struct LoadClipMessage {
+    pub(crate) path: PathBuf,
+}
+
+impl Handler<LoadClipMessage> for AudioClipManager {
+    type Result = ();
+
+    fn handle(&mut self, msg: LoadClipMessage, _ctx: &mut Self::Context) -> Self::Result {
+        if let Err(err) = self.load_at_path(&msg.path) {
+            log::error!("Failed to load file: {}", err);
+        }
     }
 }
 

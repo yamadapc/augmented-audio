@@ -344,8 +344,8 @@ mod test {
 
         // This tests E2E:
         // * Starting the MIDI host
-        // * Starting a MIDI output connection with the macOS IAC driver
-        // * Sending the IAC driver a message
+        // * Starting a MIDI output connection on a virtual port
+        // * Sending the virtual port a message
         // * Expecting the MIDI host received the message
         // * Pulling the message out of the audio-thread queue
         // * Parsing it and verifying it's the same
@@ -359,7 +359,7 @@ mod test {
 
             let _ = wisual_logger::try_init_from_env();
 
-            log::info!("Running integration test with IAC Driver");
+            log::info!("Running integration test");
             let midi_host = MidiHost::default();
             let midi_host = midi_host.start();
             midi_host
@@ -372,23 +372,19 @@ mod test {
 
             let output = midir::MidiOutput::new("looper-tests").unwrap();
             let ports = output.ports();
+            let port_name = MidiHost::virtual_port_name();
             let output_port = ports
                 .iter()
-                .find(|port| {
-                    output
-                        .port_name(port)
-                        .unwrap()
-                        .contains("audio_processor_standalone_midi")
-                })
-                .expect("Couldn't find virtual port");
+                .find(|port| output.port_name(port).unwrap().contains(&port_name))
+                .unwrap();
             let mut output_connection = output
-                .connect(output_port, "audio_processor_standalone_midi")
+                .connect(output_port, &port_name)
                 .expect("Couldn't connect to virtual MIDI port");
 
             output_connection
                 .send(&[0b1011_0001, 55, 80])
                 .expect("Failed to send message to virtual port");
-            std::thread::sleep(Duration::from_secs_f32(0.5));
+            tokio::time::sleep(Duration::from_secs(1)).await;
 
             let mut midi_handler = MidiAudioThreadHandler::default();
             midi_handler.collect_midi_messages(&queue);

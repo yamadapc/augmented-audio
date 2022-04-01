@@ -26,6 +26,7 @@ crossbeam = "0.8"
 thiserror = "1.0"
 
 # Application / Project management things
+actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }
 actix = "0.13.0"
 tokio = { version = "1.17", features = ["fs"] }
 serde = "1.0"

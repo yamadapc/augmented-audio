@@ -52,12 +52,13 @@ impl MidiHost {
 
     /// Start the MIDI connections
     pub fn start_midi(&mut self) -> Result<(), MidiError> {
-        log::info!("Creating virtual MIDI input `audio_processor_standalone_midi`");
-
         log::info!("Creating MIDI input `audio_processor_standalone_midi`");
         let input = midir::MidiInput::new("audio_processor_standalone_midi")?;
+
+        let virtual_port_name = Self::virtual_port_name();
+        log::info!("Creating virtual MIDI input `{}`", virtual_port_name);
         let virtual_input = input.create_virtual(
-            "audio_processor_standalone_midi",
+            &*virtual_port_name,
             midi_callback,
             MidiCallbackContext::new(self.handle.clone(), self.current_messages.clone()),
         )?;
@@ -77,6 +78,15 @@ impl MidiHost {
         }
 
         Ok(())
+    }
+
+    /// For integration testing purposes `MidiHost` starts a virtual input which it'll also connect
+    /// into. This input contains the PID of the host process.
+    ///
+    /// Generating this name dynamically avoids flakiness in integration tests.
+    pub fn virtual_port_name() -> String {
+        let virtual_port_name = format!("audio_processor_standalone_midi_{}", std::process::id());
+        virtual_port_name
     }
 }
 

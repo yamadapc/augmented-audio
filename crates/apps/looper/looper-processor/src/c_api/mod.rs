@@ -1,16 +1,10 @@
-
-
-
 use atomic_refcell::AtomicRefCell;
 use basedrop::Shared;
-
 
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
 
-use crate::audio::multi_track_looper::metrics::audio_processor_metrics::{
-    AudioProcessorMetricsStats,
-};
+use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;
 
 use crate::audio::multi_track_looper::parameters::ParameterValue;
 use crate::audio::multi_track_looper::parameters::{
@@ -20,12 +14,13 @@ use crate::audio::multi_track_looper::parameters::{
 use crate::audio::multi_track_looper::slice_worker::SliceResult;
 use crate::audio::processor::handle::{LooperHandleThread, LooperState};
 pub use crate::engine::LooperEngine;
-use crate::{TimeInfoProvider};
+use crate::TimeInfoProvider;
 
 pub use self::entity_id::*;
 pub use self::foreign_callback::*;
 pub use self::midi_callback::*;
 
+mod audio_clip_manager;
 mod entity_id;
 mod foreign_callback;
 mod midi_callback;
