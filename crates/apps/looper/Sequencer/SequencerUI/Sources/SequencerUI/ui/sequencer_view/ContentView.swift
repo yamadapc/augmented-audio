@@ -40,6 +40,8 @@ public struct ContentView: View {
                 view
             }
         }
-        .fixedSize()
+                #if os(macOS)
+                .fixedSize()
+                #endif
     }
 }

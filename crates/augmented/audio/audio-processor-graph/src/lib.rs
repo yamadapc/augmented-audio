@@ -305,7 +305,6 @@ impl AudioProcessor for AudioProcessorGraph {
                         }
                     }
                     NodeType::Buffer(processor) => {
-                        // TODO: This is wrong as data might be smaller than temporary buffer
                         let temporary_buffer = self.temporary_buffer.slice_mut();
                         processor.process_slice(data.num_channels(), temporary_buffer);
                     }
@@ -368,9 +367,9 @@ fn copy_buffer<SampleType, InputBufferType, OutputBufferType>(
 
 #[cfg(test)]
 mod test {
-    use assert_no_alloc::assert_no_alloc;
     use std::time::Duration;
 
+    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::{assert_f_eq, test_level_equivalence};
     use audio_processor_testing_helpers::{rms_level, sine_buffer};
 

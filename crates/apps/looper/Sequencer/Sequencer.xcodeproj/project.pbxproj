@@ -48,6 +48,9 @@
 		CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
 		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
 		CBECE3BC27ED43DB0054BB43 /* SequencerEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */; };
+		CBEEBA0D27F6E1720075B4F1 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
+		CBEEBA0E27F6E1720075B4F1 /* ForeignCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F027EC3B24009A650D /* ForeignCallback.swift */; };
+		CBEEBA0F27F6E1720075B4F1 /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995827EFE4A000E5ECBA /* Parameters.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -513,7 +516,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CB1666C827CCAD07000F9E21 /* Build configuration list for PBXNativeTarget "Sequencer" */;
 			buildPhases = (
-				CBA4DA6427DC5EF500A530E3 /* Format all files */,
 				CB1666A027CCAD04000F9E21 /* Sources */,
 				CB1666A127CCAD04000F9E21 /* Frameworks */,
 				CB1666A227CCAD04000F9E21 /* Resources */,
@@ -836,27 +838,6 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
-/* Begin PBXShellScriptBuildPhase section */
-		CBA4DA6427DC5EF500A530E3 /* Format all files */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Format all files";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd BuildTools\nSDKROOT=(xcrun --sdk macosx --show-sdk-path)\nswift run -c release swiftformat \"$SRCROOT\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
-
 /* Begin PBXSourcesBuildPhase section */
 		CB1666A027CCAD04000F9E21 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -928,6 +909,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CBEEBA0D27F6E1720075B4F1 /* SequencerEngineController.swift in Sources */,
+				CBEEBA0E27F6E1720075B4F1 /* ForeignCallback.swift in Sources */,
+				CBEEBA0F27F6E1720075B4F1 /* Parameters.swift in Sources */,
 				CB3D995D27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */,
 				CBA4DAB727DDF72B00A530E3 /* SequencerEngine.swift in Sources */,
 			);
@@ -1171,7 +1155,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1207,7 +1191,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

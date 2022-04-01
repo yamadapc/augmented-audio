@@ -3,7 +3,6 @@ use cpal::{
     traits::{DeviceTrait, HostTrait, StreamTrait},
     BufferSize, Device, Host, SampleRate, Stream, StreamConfig,
 };
-
 use ringbuf::{Consumer, Producer};
 
 use audio_processor_traits::{
@@ -268,7 +267,7 @@ fn configure_input_device(
     let supported_configs = input_device.supported_input_configs().unwrap();
     let mut supports_stereo = false;
     for config in supported_configs {
-        log::debug!("  INPUT Supported config: {:?}", config);
+        log::info!("  INPUT Supported config: {:?}", config);
         if config.channels() > 1 {
             supports_stereo = true;
         }
@@ -279,17 +278,18 @@ fn configure_input_device(
     input_config.channels = if supports_stereo { 2 } else { 1 };
     input_config.sample_rate = SampleRate(sample_rate as u32);
     input_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
-    log::info!(
-        "Using input name={} sample_rate={} buffer_size={}",
-        input_device.name().unwrap(),
-        sample_rate,
-        buffer_size
-    );
 
     #[cfg(target_os = "ios")]
     {
         input_config.buffer_size = BufferSize::Default;
     }
+
+    log::info!(
+        "Using input name={} sample_rate={} buffer_size={:?}",
+        input_device.name().unwrap(),
+        sample_rate,
+        input_config.buffer_size
+    );
 
     (input_device, input_config)
 }
@@ -301,7 +301,7 @@ fn configure_output_device(
 ) -> (cpal::Device, StreamConfig) {
     let output_device = host.default_output_device().unwrap();
     for config in output_device.supported_input_configs().unwrap() {
-        log::debug!("  OUTPUT Supported config: {:?}", config);
+        log::info!("  OUTPUT Supported config: {:?}", config);
     }
     let output_config = output_device.default_output_config().unwrap();
     let mut output_config: StreamConfig = output_config.into();
