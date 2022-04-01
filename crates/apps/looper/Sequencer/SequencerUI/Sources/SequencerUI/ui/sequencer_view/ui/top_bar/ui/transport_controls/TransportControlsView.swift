@@ -99,14 +99,16 @@ final class NativeTransportBeats: NSViewRepresentable {
         view.isRichText = false
         view.drawsBackground = false
         timeInfo.objectWillChange.sink(receiveValue: { _ in
-            DispatchQueue.main.async {
-                view.string = self.getText()
-            }
-        }).store(in: &cancellables)
+                    DispatchQueue.main.async {
+                        view.string = self.getText()
+                    }
+                })
+                .store(in: &cancellables)
         return view
     }
 
-    func updateNSView(_: NSViewType, context _: Context) {}
+    func updateNSView(_: NSViewType, context _: Context) {
+    }
 
     func getText() -> String {
         if let beats = timeInfo.positionBeats {

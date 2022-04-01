@@ -137,8 +137,8 @@ impl SliceWorker {
                 .spawn(move || {
                     log::info!("Slice processor thread started");
                     let processor = SliceProcessorThread::new(job_queue, results, is_running);
-                    log::info!("Slice processor thread exiting");
                     processor.run();
+                    log::info!("Slice processor thread exiting");
                 })
                 .unwrap();
         }

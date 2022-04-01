@@ -87,7 +87,6 @@ public class EngineController {
     }
 
     func flushParametersInfo(parameters: [SequencerUI.AnyParameter]) {
-        var hasChange = false
         parameters.forEach { parameter in
             let parameterId = parameter.id
             guard let trackId = getTrackId(parameterId),
@@ -139,12 +138,11 @@ public class EngineController {
             // TODO: - this is a bad strategy; somehow the buffer should be set only on changes
             if trackState.sliceBuffer == nil {
                 let sliceBuffer = looper_engine__get_looper_slices(engine.engine, UInt(i))
-                let sliceBufferSize = slice_buffer__length(sliceBuffer)
-                if sliceBufferSize > 0 {
-                    let nativeBuffer = SliceBufferImpl(inner: sliceBuffer!)
+                let nativeBuffer = SliceBufferImpl(inner: sliceBuffer!)
+                if nativeBuffer.count > 0 {
                     store.setSliceBuffer(trackId: i + 1, fromAbstractBuffer: nativeBuffer)
                     logger.info("Received slice buffer from rust", metadata: [
-                        "slice_count": .stringConvertible(sliceBufferSize)
+                        "slice_count": .stringConvertible(nativeBuffer.count)
                     ])
                 }
             }

@@ -56,32 +56,34 @@ final class NativeStepButtonView: NSViewRepresentable {
         var cancellables: Set<AnyCancellable> = Set()
 
         init(
-            stepModel: StepButtonViewModel
+                stepModel: StepButtonViewModel
         ) {
             self.stepModel = stepModel
         }
 
         func setup(_ view: NSView) {
             stepModel.objectWillChange.sink(receiveValue: {
-                DispatchQueue.main.async {
-                    self.setViewProperties(view)
-                }
-            }).store(in: &cancellables)
+                        DispatchQueue.main.async {
+                            self.setViewProperties(view)
+                        }
+                    })
+                    .store(in: &cancellables)
         }
 
         func setViewProperties(_ view: NSView) {
             view.wantsLayer = true
 
             let backgroundColor = stepModel.hasLocks
-                ? SequencerColors.green
-                : stepModel.isActive ? SequencerColors.blue
-                : stepModel.isBeat ? SequencerColors.black : SequencerColors.black0
+                    ? SequencerColors.green
+                    : stepModel.isActive ? SequencerColors.blue
+                    : stepModel.isBeat ? SequencerColors.black : SequencerColors.black0
             view.layer?.cornerRadius = BORDER_RADIUS
             if #available(macOS 11, *) {
                 view.layer?.backgroundColor = stepModel.isPlaying
-                    ? backgroundColor.opacity(0.3).cgColor!
-                    : backgroundColor.cgColor!
-            } else {}
+                        ? backgroundColor.opacity(0.3).cgColor!
+                        : backgroundColor.cgColor!
+            } else {
+            }
         }
     }
 }

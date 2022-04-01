@@ -45,7 +45,7 @@ private func onPaste(_: Store, _ maybeValue: String?, _ maybeErr: Error?) {
 
 extension View {
     func setupCopyPasteController(store: Store) -> some View {
-      #if os(macOS)
+        #if os(macOS)
         return onCopyCommand(perform: {
             [
                 NSItemProvider(
@@ -56,7 +56,7 @@ extension View {
             ]
         })
                 .onPasteCommand(of: [
-            "public.plain-text",
+                    "public.plain-text",
                 ], perform: { items in
                     items.forEach { item in
                         _ = item.loadObject(

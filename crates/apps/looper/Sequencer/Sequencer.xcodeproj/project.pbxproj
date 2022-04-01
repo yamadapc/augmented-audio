@@ -637,6 +637,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CBA4DA9827DDF21800A530E3 /* Build configuration list for PBXNativeTarget "SequencerEngine" */;
 			buildPhases = (
+				CB6A7A6927F79CE700808B82 /* Build native looper macOS */,
 				CBA4DA8B27DDF21800A530E3 /* Headers */,
 				CBA4DA8C27DDF21800A530E3 /* Sources */,
 				CBA4DA8D27DDF21800A530E3 /* Frameworks */,
@@ -837,6 +838,27 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		CB6A7A6927F79CE700808B82 /* Build native looper macOS */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build native looper macOS";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "PATH=$PATH:$HOME/.cargo/bin\necho $PATH\ncd ../looper-processor && make build-macos\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		CB1666A027CCAD04000F9E21 /* Sources */ = {

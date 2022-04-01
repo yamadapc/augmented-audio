@@ -1,14 +1,16 @@
+use std::ops::Add;
 use std::sync::{Arc, Mutex};
 
 use actix::{Addr, SyncArbiter};
-use actix_system_threads::ActorSystemThread;
 use basedrop::Shared;
 
+use actix_system_threads::ActorSystemThread;
 use audio_processor_standalone::StandaloneHandles;
 
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::services::audio_clip_manager::AudioClipManager;
+use crate::services::project_manager::ProjectManager;
 use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};
 
 pub struct LooperEngine {
@@ -16,6 +18,7 @@ pub struct LooperEngine {
     metrics_actor: Arc<Mutex<AudioProcessorMetricsActor>>,
     midi_store: Shared<MidiStoreHandle>,
     audio_clip_manager: Addr<AudioClipManager>,
+    project_manager: Addr<ProjectManager>,
     #[allow(unused)]
     audio_handles: StandaloneHandles,
 }
@@ -40,6 +43,7 @@ impl LooperEngine {
 
         let audio_clip_manager = ActorSystemThread::current()
             .spawn_result(async move { SyncArbiter::start(1, || AudioClipManager::default()) });
+        let project_manager = ActorSystemThread::start(ProjectManager::default());
 
         LooperEngine {
             handle,
@@ -47,6 +51,7 @@ impl LooperEngine {
             metrics_actor,
             midi_store,
             audio_clip_manager,
+            project_manager,
         }
     }
 

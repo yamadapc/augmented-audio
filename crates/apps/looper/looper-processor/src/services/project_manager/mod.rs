@@ -1,7 +1,7 @@
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
-use actix::{Actor, ActorFutureExt, Handler, Message, ResponseActFuture, WrapFuture};
+use actix::{Actor, ActorFutureExt, AsyncContext, Handler, Message, ResponseActFuture, WrapFuture};
 use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
@@ -41,6 +41,10 @@ impl ProjectManager {
 
 impl Actor for ProjectManager {
     type Context = actix::Context<Self>;
+
+    fn started(&mut self, ctx: &mut Self::Context) {
+        ctx.address().do_send(LoadLatestProjectMessage);
+    }
 }
 
 #[derive(Message)]
@@ -51,6 +55,7 @@ impl Handler<LoadLatestProjectMessage> for ProjectManager {
     type Result = ResponseActFuture<Self, Result<Shared<Project>, ProjectManagerError>>;
 
     fn handle(&mut self, _msg: LoadLatestProjectMessage, _ctx: &mut Self::Context) -> Self::Result {
+        log::info!("Loading latest project from disk");
         let data_path = self.data_path.clone();
         let latest_project_fut = async { load_latest_project(data_path).await };
         let result_fut = latest_project_fut
@@ -94,7 +99,7 @@ async fn load_latest_project(data_path: impl AsRef<Path>) -> Result<Project, Pro
     log::info!("project.msgpack found");
     let contents = tokio::fs::read(project_manifest).await?;
     let result: Project = rmp_serde::from_slice(&contents).unwrap();
-    log::info!("  PROJECT=\n{:#?}\n", result);
+    log::debug!("  PROJECT=\n{:#?}\n", result);
 
     Ok(result)
 }
@@ -157,6 +162,7 @@ mod test {
     async fn test_load_latest_project() {
         wisual_logger::init_from_env();
         let data_path = tempdir::TempDir::new("looper_processor__project_manager").unwrap();
+        log::info!("data_path={:?}", data_path.path());
 
         let latest_project = load_latest_project(data_path.path()).await.unwrap();
         assert!(latest_project.voices.len() > 0);
@@ -166,6 +172,7 @@ mod test {
     async fn test_actor_load_latest_project() {
         wisual_logger::init_from_env();
         let data_path = tempdir::TempDir::new("looper_processor__project_manager").unwrap();
+        log::info!("data_path={:?}", data_path.path());
         let project_manager = ProjectManager::new(data_path.path().to_path_buf()).start();
         project_manager
             .send(LoadLatestProjectMessage)

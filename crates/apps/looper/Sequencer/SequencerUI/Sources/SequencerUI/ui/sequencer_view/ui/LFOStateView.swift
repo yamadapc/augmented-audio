@@ -58,7 +58,7 @@ struct LFOStateSingleView: View {
     }
 
     func buildDragGesture<C: View>(_ view: C) -> some View {
-      #if os(macOS)
+        #if os(macOS)
         view.highPriorityGesture(
                 DragGesture()
                         .modifiers(.command)
