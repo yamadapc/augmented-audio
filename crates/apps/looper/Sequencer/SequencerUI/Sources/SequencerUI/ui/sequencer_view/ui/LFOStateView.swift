@@ -59,26 +59,26 @@ struct LFOStateSingleView: View {
 
     func buildDragGesture<C: View>(_ view: C) -> some View {
         #if os(macOS)
-        view.highPriorityGesture(
+            view.highPriorityGesture(
                 DragGesture()
-                        .modifiers(.command)
-                        .onChanged { drag in
-                            store.startDrag(source: .lfoId(lfoState.id), dragMode: .lock)
-                            DispatchQueue.main.async {
-                                withAnimation(.spring()) {
-                                    self.dragPosition = (drag.startLocation, drag.location)
-                                }
+                    .modifiers(.command)
+                    .onChanged { drag in
+                        store.startDrag(source: .lfoId(lfoState.id), dragMode: .lock)
+                        DispatchQueue.main.async {
+                            withAnimation(.spring()) {
+                                self.dragPosition = (drag.startLocation, drag.location)
                             }
                         }
-                        .onEnded { _ in
-                            DispatchQueue.main.async {
-                                self.dragPosition = nil
-                                store.endGlobalDrag()
-                            }
+                    }
+                    .onEnded { _ in
+                        DispatchQueue.main.async {
+                            self.dragPosition = nil
+                            store.endGlobalDrag()
                         }
-        )
+                    }
+            )
         #else
-        return view
+            return view
         #endif
     }
 }

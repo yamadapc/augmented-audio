@@ -25,11 +25,11 @@ protocol ParameterLike {
     var style: KnobStyle { get }
 }
 
-public enum AnyParameter {
+public enum AnyParameterInner {
     case float(FloatParameter), int(IntParameter), enumP(AnyEnumParameter), boolean(BooleanParameter)
 }
 
-public extension AnyParameter {
+extension AnyParameterInner {
     var id: ParameterId {
         switch self {
         case let .float(parameter): return parameter.globalId
@@ -39,29 +39,46 @@ public extension AnyParameter {
         }
     }
 
-    func setFloatValue(_ v: Float) {
-        guard case let .float(parameter) = self else { return }
+    func into() -> AnyParameter {
+        AnyParameter(inner: self)
+    }
+}
+
+/**
+ * This is the same as the inner enum, but since ID is constantly read this struct caches the ID
+ */
+public struct AnyParameter {
+    public let id: ParameterId
+    let inner: AnyParameterInner
+
+    init(inner: AnyParameterInner) {
+        self.inner = inner
+        id = inner.id
+    }
+
+    public func setFloatValue(_ v: Float) {
+        guard case let .float(parameter) = inner else { return }
         if parameter.value != v {
             parameter.value = v
         }
     }
 
-    func setIntValue(_ v: Int32) {
-        guard case let .int(parameter) = self else { return }
+    public func setIntValue(_ v: Int32) {
+        guard case let .int(parameter) = inner else { return }
         if parameter.value != v {
             parameter.value = Int(v)
         }
     }
 
-    func setBoolValue(_ v: Bool) {
-        guard case let .boolean(parameter) = self else { return }
+    public func setBoolValue(_ v: Bool) {
+        guard case let .boolean(parameter) = inner else { return }
         if parameter.value != v {
             parameter.value = v
         }
     }
 
-    func setEnumValue(_ v: UInt) {
-        guard case var .enumP(parameter) = self else { return }
+    public func setEnumValue(_ v: UInt) {
+        guard case var .enumP(parameter) = inner else { return }
         if parameter.rawValue != v {
             parameter.rawValue = v
         }

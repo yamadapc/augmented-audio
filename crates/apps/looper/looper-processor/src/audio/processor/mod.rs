@@ -85,6 +85,7 @@ impl SimpleAudioProcessor for LooperProcessor {
         self.prepare(settings);
     }
 
+    #[inline]
     fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
         for (channel, sample) in frame.iter_mut().enumerate() {
             *sample = self.handle.process(channel, *sample);

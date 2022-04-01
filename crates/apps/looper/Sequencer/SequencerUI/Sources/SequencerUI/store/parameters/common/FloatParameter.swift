@@ -21,7 +21,7 @@ public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
     public var globalId: ParameterId
 
     @Published var label: String
-    @Published public var value: Float = 0.0
+    @FastPublished public var value: Float = 0.0
 
     @Published var parameterLockProgress: ParameterLockState?
 
@@ -37,7 +37,9 @@ public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
         globalId = id
         self.label = label
         defaultValue = 0.0
-        ALL_PARAMETERS.append(.float(self))
+        ALL_PARAMETERS.append(AnyParameterInner.float(self).into())
+
+        setupFastPublished(self)
     }
 
     convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {

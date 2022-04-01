@@ -31,11 +31,9 @@ class DropController {
 
 @available(macOS 11.0, *)
 extension DropController: DropDelegate {
-    func dropEntered(info _: DropInfo) {
-    }
+    func dropEntered(info _: DropInfo) {}
 
-    func dropExited(info _: DropInfo) {
-    }
+    func dropExited(info _: DropInfo) {}
 
     func performDrop(info: DropInfo) -> Bool {
         let audioContent = info.itemProviders(for: [.fileURL])

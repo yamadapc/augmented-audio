@@ -20,4 +20,10 @@ augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "1.0.0-alph
 audio-processor-standalone = { path = "../../application/audio-processor-standalone" , version = "1.0.0-alpha.8" }
 assert_no_alloc = { version = "1.1.2", features = ["warn_release"], default-features = false }
 
+criterion = "^0.3.4"
+
 [package.metadata.augmented]
+
+[[bench]]
+name = "graph_processor_bench"
+harness = false

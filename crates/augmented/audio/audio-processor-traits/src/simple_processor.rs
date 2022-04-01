@@ -35,6 +35,7 @@ pub trait SimpleAudioProcessor {
 pub struct BufferProcessor<Processor>(pub Processor);
 
 /// Process a buffer of samples with a `SimpleAudioProcessor`
+#[inline]
 pub fn process_buffer<Processor, BufferType>(processor: &mut Processor, data: &mut BufferType)
 where
     Processor: SimpleAudioProcessor,
@@ -57,6 +58,7 @@ where
         self.0.s_prepare(settings);
     }
 
+    #[inline]
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
         data: &mut BufferType,

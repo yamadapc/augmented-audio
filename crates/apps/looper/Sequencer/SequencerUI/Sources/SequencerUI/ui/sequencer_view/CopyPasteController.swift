@@ -46,29 +46,29 @@ private func onPaste(_: Store, _ maybeValue: String?, _ maybeErr: Error?) {
 extension View {
     func setupCopyPasteController(store: Store) -> some View {
         #if os(macOS)
-        return onCopyCommand(perform: {
-            [
-                NSItemProvider(
+            return onCopyCommand(perform: {
+                [
+                    NSItemProvider(
                         object: NSString(
-                                "continuous_looper://parameter/looper:1/source_start"
+                            "continuous_looper://parameter/looper:1/source_start"
                         )
-                ),
-            ]
-        })
-                .onPasteCommand(of: [
-                    "public.plain-text",
-                ], perform: { items in
-                    items.forEach { item in
-                        _ = item.loadObject(
-                                ofClass: String.self,
-                                completionHandler: { value, err in
-                                    onPaste(store, value, err)
-                                }
-                        )
-                    }
-                })
+                    ),
+                ]
+            })
+            .onPasteCommand(of: [
+                "public.plain-text",
+            ], perform: { items in
+                items.forEach { item in
+                    _ = item.loadObject(
+                        ofClass: String.self,
+                        completionHandler: { value, err in
+                            onPaste(store, value, err)
+                        }
+                    )
+                }
+            })
         #else
-        return self
+            return self
         #endif
     }
 }

@@ -24,11 +24,15 @@ impl ScratchPad {
             return;
         }
 
-        self.buffer.get(channel, cursor % num_samples).set(sample);
+        self.buffer.get(channel, cursor).set(sample);
     }
 
     pub fn after_process(&self) {
-        self.cursor.fetch_add(1, Ordering::Relaxed);
+        let mut new_cursor = self.cursor.load(Ordering::Relaxed) + 1;
+        if new_cursor >= self.buffer.num_samples() {
+            new_cursor = 0;
+        }
+        self.cursor.store(new_cursor, Ordering::Relaxed);
     }
 
     pub fn cursor(&self) -> usize {

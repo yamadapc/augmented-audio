@@ -785,9 +785,7 @@ impl MultiTrackLooper {
             envelope,
         } in processors
         {
-            let looper_idx = graph.add_node(NodeType::Buffer(Box::new(
-                audio_processor_traits::simple_processor::BufferProcessor(looper),
-            )));
+            let looper_idx = graph.add_node(NodeType::Buffer(Box::new(looper)));
             let pitch_shifter_idx = graph.add_node(NodeType::Buffer(Box::new(pitch_shifter)));
             let envelope_idx = graph.add_node(NodeType::Buffer(Box::new(envelope)));
 

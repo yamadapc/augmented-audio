@@ -35,6 +35,7 @@ impl SceneHandle {
         }
     }
 
+    #[inline]
     pub fn get_slider(&self) -> f32 {
         self.scene_value.get()
     }
@@ -57,6 +58,7 @@ impl SceneHandle {
         self.scenes[scene_id].scene_parameters[looper_id.0].unset(id)
     }
 
+    #[inline]
     pub fn get_left(
         &self,
         looper_id: LooperId,
@@ -67,6 +69,7 @@ impl SceneHandle {
         map.get_option(id)
     }
 
+    #[inline]
     pub fn get_right(
         &self,
         looper_id: LooperId,

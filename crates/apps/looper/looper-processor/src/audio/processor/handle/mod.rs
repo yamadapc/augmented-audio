@@ -484,7 +484,7 @@ impl LooperHandle {
                 let clip_out1 = clip.get(channel, cursor % clip.num_samples()).get();
                 let clip_out2 = clip.get(channel, (cursor + 1) % clip.num_samples()).get();
 
-                clip_out1 + delta_next_sample * (clip_out2 - clip_out1)
+                self.apply_wet_volume(clip_out1 + delta_next_sample * (clip_out2 - clip_out1))
             }
             LooperState::Overdubbing => {
                 let clip = self.looper_clip.get();
@@ -495,15 +495,19 @@ impl LooperHandle {
                 let clip_out = clip_sample.get();
 
                 clip_sample.set(clip_out + sample);
-                clip_out
+                self.apply_wet_volume(clip_out)
             }
             _ => 0.0,
         };
 
+        self.dry_volume.get() * sample + out
+    }
+
+    #[inline]
+    fn apply_wet_volume(&self, out: f32) -> f32 {
         let fade_in_volume = self.get_fade_in_volume(self.cursor.get());
         let fade_out_volume = self.get_fade_out_volume(self.cursor.get());
-        self.dry_volume.get() * sample
-            + self.wet_volume.get() * out * fade_in_volume * fade_out_volume
+        self.wet_volume.get() * out * fade_in_volume * fade_out_volume
     }
 
     fn get_fade_out_volume(&self, cursor: f32) -> f32 {

@@ -30,6 +30,6 @@ public class IntParameter: ObservableObject, Identifiable, ParameterLike {
         self.value = value
         maximum = 0
 
-        ALL_PARAMETERS.append(.int(self))
+        ALL_PARAMETERS.append(AnyParameterInner.int(self).into())
     }
 }

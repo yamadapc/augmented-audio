@@ -83,77 +83,75 @@ struct TransportBeatsInnerView: View {
 }
 
 #if os(macOS)
-final class NativeTransportBeats: NSViewRepresentable {
-    var timeInfo: TimeInfo
-    var cancellables: Set<AnyCancellable> = Set()
+    final class NativeTransportBeats: NSViewRepresentable {
+        var timeInfo: TimeInfo
+        var cancellables: Set<AnyCancellable> = Set()
 
-    init(timeInfo: TimeInfo) {
-        self.timeInfo = timeInfo
-    }
+        init(timeInfo: TimeInfo) {
+            self.timeInfo = timeInfo
+        }
 
-    func makeNSView(context _: Context) -> some NSView {
-        let view = NSTextView()
-        view.string = getText()
-        view.isEditable = false
-        view.isSelectable = false
-        view.isRichText = false
-        view.drawsBackground = false
-        timeInfo.objectWillChange.sink(receiveValue: { _ in
-                    DispatchQueue.main.async {
-                        view.string = self.getText()
-                    }
-                })
-                .store(in: &cancellables)
-        return view
-    }
+        func makeNSView(context _: Context) -> some NSView {
+            let view = NSTextView()
+            view.string = getText()
+            view.isEditable = false
+            view.isSelectable = false
+            view.isRichText = false
+            view.drawsBackground = false
+            timeInfo.objectWillChange.sink(receiveValue: { _ in
+                DispatchQueue.main.async {
+                    view.string = self.getText()
+                }
+            })
+            .store(in: &cancellables)
+            return view
+        }
 
-    func updateNSView(_: NSViewType, context _: Context) {
-    }
+        func updateNSView(_: NSViewType, context _: Context) {}
 
-    func getText() -> String {
-        if let beats = timeInfo.positionBeats {
-            return "\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))"
-        } else {
-            return "0.0"
+        func getText() -> String {
+            if let beats = timeInfo.positionBeats {
+                return "\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))"
+            } else {
+                return "0.0"
+            }
         }
     }
-}
 #else
-final class NativeTransportBeats: UIViewRepresentable {
-    typealias UIViewType = UITextView
+    final class NativeTransportBeats: UIViewRepresentable {
+        typealias UIViewType = UITextView
 
-    var timeInfo: TimeInfo
-    var cancellables: Set<AnyCancellable> = Set()
+        var timeInfo: TimeInfo
+        var cancellables: Set<AnyCancellable> = Set()
 
-    init(timeInfo: TimeInfo) {
-        self.timeInfo = timeInfo
-    }
+        init(timeInfo: TimeInfo) {
+            self.timeInfo = timeInfo
+        }
 
-    func makeUIView(context _: Context) -> UIViewType {
-        let view = UITextView()
-        view.text = getText()
-        view.isEditable = false
-        view.isSelectable = false
-        timeInfo.objectWillChange.sink(receiveValue: { _ in
-                    DispatchQueue.main.async {
-                        view.text = self.getText()
-                    }
-                })
-                .store(in: &cancellables)
-        return view
-    }
+        func makeUIView(context _: Context) -> UIViewType {
+            let view = UITextView()
+            view.text = getText()
+            view.isEditable = false
+            view.isSelectable = false
+            timeInfo.objectWillChange.sink(receiveValue: { _ in
+                DispatchQueue.main.async {
+                    view.text = self.getText()
+                }
+            })
+            .store(in: &cancellables)
+            return view
+        }
 
-    func updateUIView(_: UIViewType, context _: Context) {
-    }
+        func updateUIView(_: UIViewType, context _: Context) {}
 
-    func getText() -> String {
-        if let beats = timeInfo.positionBeats {
-            return "\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))"
-        } else {
-            return "0.0"
+        func getText() -> String {
+            if let beats = timeInfo.positionBeats {
+                return "\(String(format: "%.1f", 1.0 + Float(Int(beats * 10) % 40) / 10.0))"
+            } else {
+                return "0.0"
+            }
         }
     }
-}
 #endif
 
 extension TransportBeatsInnerView: Equatable {}

@@ -14,6 +14,7 @@ use crate::parameters::{
 pub struct ParametersMap {
     values: Vec<ParameterValue>,
     has_value: Vec<AtomicBool>,
+    // Uses fast insecure hash function (around 2x speedup)
     indexes: FxHashMap<ParameterId, usize>,
 }
 
@@ -39,12 +40,14 @@ impl ParametersMap {
         }
     }
 
+    #[inline]
     pub fn get(&self, id: impl Into<ParameterId>) -> &ParameterValue {
         let id: ParameterId = id.into();
         let index: usize = self.indexes[&id];
         &self.values[index]
     }
 
+    #[inline]
     pub fn get_option(&self, id: impl Into<ParameterId>) -> Option<&ParameterValue> {
         let id: ParameterId = id.into();
         let index: usize = self.indexes[&id];
@@ -56,12 +59,14 @@ impl ParametersMap {
     }
 
     /// Returns true if the parameter has been set after the default
+    #[inline]
     pub fn has_value(&self, id: impl Into<ParameterId>) -> bool {
         let id: ParameterId = id.into();
         let index: usize = self.indexes[&id];
         self.has_value[index].get()
     }
 
+    #[inline]
     pub fn set(&self, id: impl Into<ParameterId>, value: impl Into<ParameterValue>) {
         let id: ParameterId = id.into();
         let value: ParameterValue = value.into();
@@ -72,6 +77,7 @@ impl ParametersMap {
         self.has_value[index].set(true);
     }
 
+    #[inline]
     pub fn unset(&self, id: impl Into<ParameterId>) {
         let id: ParameterId = id.into();
         let index: usize = self.indexes[&id];

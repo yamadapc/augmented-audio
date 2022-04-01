@@ -23,7 +23,9 @@ import Combine
  * This value is pushed by the engine.
  */
 public class LoopPosition: ObservableObject {
-    @Published public var positionPercent: Float = 0.0
+    @FastPublished public var positionPercent: Float = 0.0
 
-    init() {}
+    init() {
+        setupFastPublished(self)
+    }
 }
