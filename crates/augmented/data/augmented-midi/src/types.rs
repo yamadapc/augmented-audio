@@ -1,5 +1,7 @@
+use crate::{parse_midi_event, serialize_message, ParserState};
 use std::borrow::Borrow;
 
+/// Type of node-on or note-off contents
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
 pub struct MIDIMessageNote {
     pub channel: u8,
@@ -7,11 +9,10 @@ pub struct MIDIMessageNote {
     pub velocity: u8,
 }
 
+/// Represents a MIDI message
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]
 pub enum MIDIMessage<Buffer: Borrow<[u8]>> {
-    // 0x9
     NoteOn(MIDIMessageNote),
-    // 0x8
     NoteOff(MIDIMessageNote),
     PolyphonicKeyPressure {
         channel: u8,
@@ -35,11 +36,6 @@ pub enum MIDIMessage<Buffer: Borrow<[u8]>> {
         channel: u8,
         value: u16,
     },
-    // ChannelModeMessage {
-    //     channel: u8,
-    //     controller_number: u8,
-    //     value: u8,
-    // },
     SysExMessage(MIDISysExEvent<Buffer>),
     SongPositionPointer {
         beats: u16,
@@ -60,6 +56,7 @@ pub enum MIDIMessage<Buffer: Borrow<[u8]>> {
 }
 
 impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
+    /// Helper to construct `MIDIMessage::NoteOn`
     pub fn note_on(channel: u8, note: u8, velocity: u8) -> Self {
         MIDIMessage::NoteOn(MIDIMessageNote {
             channel,
@@ -68,6 +65,7 @@ impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
         })
     }
 
+    /// Helper to construct `MIDIMessage::NoteOff`
     pub fn note_off(channel: u8, note: u8, velocity: u8) -> Self {
         MIDIMessage::NoteOff(MIDIMessageNote {
             channel,
@@ -105,6 +103,24 @@ impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
             MIDIMessage::Reset => 1,
             MIDIMessage::Other { .. } => 1,
         }
+    }
+}
+
+impl<'a> TryFrom<&'a [u8]> for MIDIMessage<&'a [u8]> {
+    type Error = nom::Err<nom::error::Error<&'a [u8]>>;
+
+    fn try_from(value: &'a [u8]) -> Result<Self, Self::Error> {
+        let mut state = ParserState::default();
+        let (_, message) = parse_midi_event(value, &mut state)?;
+        Ok(message)
+    }
+}
+
+impl<B: std::borrow::Borrow<[u8]>> Into<Vec<u8>> for MIDIMessage<B> {
+    fn into(self) -> Vec<u8> {
+        let mut output = vec![];
+        let _ = serialize_message(self, &mut output);
+        output
     }
 }
 

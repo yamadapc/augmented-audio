@@ -760,6 +760,7 @@ dependencies = [
 name = "augmented-midi"
 version = "1.0.0-alpha.4"
 dependencies = [
+ "assert_no_alloc",
  "audio-processor-traits",
  "cookie-factory",
  "itertools",

@@ -21,6 +21,7 @@ cookie-factory = "0.3"
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 log = "0.4.14"
 itertools = "0.10.1"
+assert_no_alloc = "1.1.2"
 
 [dev-dependencies.midir]
 version = "0.7.0"
