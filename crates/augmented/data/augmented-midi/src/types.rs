@@ -83,6 +83,29 @@ impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
             value,
         }
     }
+
+    pub fn size_hint(&self) -> usize {
+        match self {
+            MIDIMessage::NoteOn(_) => 3,
+            MIDIMessage::NoteOff(_) => 3,
+            MIDIMessage::PolyphonicKeyPressure { .. } => 3,
+            MIDIMessage::ControlChange { .. } => 3,
+            MIDIMessage::ProgramChange { .. } => 2,
+            MIDIMessage::ChannelPressure { .. } => 2,
+            MIDIMessage::PitchWheelChange { .. } => 3,
+            MIDIMessage::SysExMessage(inner) => 2 + inner.message.borrow().len(),
+            MIDIMessage::SongPositionPointer { .. } => 3,
+            MIDIMessage::SongSelect { .. } => 2,
+            MIDIMessage::TuneRequest => 1,
+            MIDIMessage::TimingClock => 1,
+            MIDIMessage::Start => 1,
+            MIDIMessage::Continue => 1,
+            MIDIMessage::Stop => 1,
+            MIDIMessage::ActiveSensing => 1,
+            MIDIMessage::Reset => 1,
+            MIDIMessage::Other { .. } => 1,
+        }
+    }
 }
 
 pub type Input<'a> = &'a [u8];

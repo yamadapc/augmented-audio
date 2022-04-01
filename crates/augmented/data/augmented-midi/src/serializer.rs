@@ -122,7 +122,8 @@ pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
             let status = RESET_MASK;
             gen(all([be_u8(status)].iter()), output)?
         }
-        _ => Err(GenError::NotYetImplemented)?,
+        MIDIMessage::Other { status } => gen(be_u8(status), output)?,
+        MIDIMessage::TuneRequest => Err(GenError::NotYetImplemented)?,
     };
     Ok(result)
 }
