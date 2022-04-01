@@ -7,9 +7,10 @@ use cookie_factory::{gen, GenError};
 
 use crate::{
     MIDIMessage, MIDIMessageNote, ACTIVE_SENSING_MASK, CHANNEL_PRESSURE_MASK, CONTINUE_MASK,
-    CONTROL_CHANGE_MASK, NOTE_OFF_MASK, NOTE_ON_MASK, POLYPHONIC_KEY_PRESSURE_MASK, RESET_MASK,
-    SONG_SELECT_MASK, START_MASK, STOP_MASK, SYSEX_MESSAGE_END_MASK, SYSEX_MESSAGE_MASK,
-    TIMING_CLOCK_MASK,
+    CONTROL_CHANGE_MASK, NOTE_OFF_MASK, NOTE_ON_MASK, PITCH_WHEEL_CHANGE_MASK,
+    POLYPHONIC_KEY_PRESSURE_MASK, RESET_MASK, SONG_POSITION_POINTER_MASK, SONG_SELECT_MASK,
+    START_MASK, STOP_MASK, SYSEX_MESSAGE_END_MASK, SYSEX_MESSAGE_MASK, TIMING_CLOCK_MASK,
+    TUNE_REQUEST_MASK,
 };
 
 pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
@@ -61,17 +62,10 @@ pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
             let status = CHANNEL_PRESSURE_MASK | channel;
             gen(all([be_u8(status), be_u8(pressure)].iter()), output)?
         }
-        MIDIMessage::PitchWheelChange {
-            channel: _channel,
-            value: _value,
-        } => {
-            Err(GenError::NotYetImplemented)?
-            // let mut output = [0u8; 2];
-            // let status = PITCH_WHEEL_CHANGE_MASK | channel;
-            // // TODO: This is wrong, this should be the inverse of `parse_14bit_midi_number`
-            // // let _ = be_u16(value);
-            // gen(all([be_u8(status)].iter()), &mut output[..])?;
-            // output.to_vec()
+        MIDIMessage::PitchWheelChange { channel, value } => {
+            let status = PITCH_WHEEL_CHANGE_MASK | channel;
+            let (lsb, msb) = serialize_14_bit_midi_number(value);
+            gen(all([be_u8(status), be_u8(lsb), be_u8(msb)].iter()), output)?
         }
         MIDIMessage::ControlChange {
             channel,
@@ -92,8 +86,11 @@ pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
             let (output, pos) = gen(all(message_bytes), output)?;
             (output, pos)
         }
-        // TODO - need to do 14bit serialization here
-        MIDIMessage::SongPositionPointer { .. } => Err(GenError::NotYetImplemented)?,
+        MIDIMessage::SongPositionPointer { beats } => {
+            let status = SONG_POSITION_POINTER_MASK;
+            let (lsb, msb) = serialize_14_bit_midi_number(beats);
+            gen(all([be_u8(status), be_u8(lsb), be_u8(msb)].iter()), output)?
+        }
         MIDIMessage::SongSelect { song } => {
             let status = SONG_SELECT_MASK;
             gen(all([be_u8(status), be_u8(song)].iter()), output)?
@@ -122,18 +119,40 @@ pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
             let status = RESET_MASK;
             gen(all([be_u8(status)].iter()), output)?
         }
+        MIDIMessage::TuneRequest => {
+            let status = TUNE_REQUEST_MASK;
+            gen(all([be_u8(status)].iter()), output)?
+        }
         MIDIMessage::Other { status } => gen(be_u8(status), output)?,
-        MIDIMessage::TuneRequest => Err(GenError::NotYetImplemented)?,
     };
     Ok(result)
 }
 
+/// Input is a 14-bit number
+/// 0b0lllllll - 1st 7 bits are the least significant bits
+/// 0b0mmmmmmm - 2nd 7 bits are the most significant bits
+///
+/// Returns both bytes split
+fn serialize_14_bit_midi_number(input: u16) -> (u8, u8) {
+    let value1 = input & 0b00_0000_0111_1111;
+    let value2 = (input & 0b11_1111_1000_0000) >> 7;
+    return (value1 as u8, value2 as u8);
+}
+
 #[cfg(test)]
 mod test {
-
     use crate::{parse_midi_event, MIDIMessage};
 
     use super::*;
+
+    #[test]
+    fn test_serialize_14_bit_midi_number() {
+        let (_, result) = crate::parse_14bit_midi_number(&[0x54, 0x39]).unwrap();
+        assert_eq!(result, 7380);
+        let (v1, v2) = serialize_14_bit_midi_number(result);
+        assert_eq!(v1, 0x54);
+        assert_eq!(v2, 0x39);
+    }
 
     #[test]
     fn test_serialize_cc() {

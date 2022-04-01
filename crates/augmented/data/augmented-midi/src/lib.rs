@@ -40,6 +40,7 @@ pub const CONTINUE_MASK: u8 = 0b1111_1011;
 pub const STOP_MASK: u8 = 0b1111_1100;
 pub const ACTIVE_SENSING_MASK: u8 = 0b1111_1110;
 pub const RESET_MASK: u8 = 0b1111_1111;
+pub const TUNE_REQUEST_MASK: u8 = 0b1111_0110;
 
 pub const SYSEX_MESSAGE_MASK: u8 = 0b1111_0000;
 pub const SYSEX_MESSAGE_END_MASK: u8 = 0b11110111;
@@ -166,7 +167,8 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
             },
         ))
     } else if status_start == CONTROL_CHANGE_MASK {
-        // TODO - Detect channel mode change?
+        // Could potentially detect channel mode change here, but message is the same, the
+        // applications can handle this.
         let channel = parse_channel(status);
         let (input, controller_number) = be_u8(input)?;
         let (input, value) = be_u8(input)?;
@@ -224,6 +226,8 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         Ok((input, MIDIMessage::ActiveSensing))
     } else if status == RESET_MASK {
         Ok((input, MIDIMessage::Reset))
+    } else if status == TUNE_REQUEST_MASK {
+        Ok((input, MIDIMessage::TuneRequest))
     } else {
         Ok((input, MIDIMessage::Other { status }))
     }?;
@@ -235,11 +239,14 @@ fn parse_channel(status: u8) -> u8 {
     status & 0b0000_1111
 }
 
-fn parse_14bit_midi_number(input: Input) -> Result<u16> {
+/// Input is a 14-bit number
+/// 0b0lllllll - 1st 7 bits are the least significant bits
+/// 0b0mmmmmmm - 2nd 7 bits are the most significant bits
+pub(crate) fn parse_14bit_midi_number(input: Input) -> Result<u16> {
     let (input, value1) = be_u8(input)?;
     let (input, value2) = be_u8(input)?;
-    let value1 = ((value1 & !0b1000_0000) as u16) << 7;
-    let value2 = (value2 & !0b1000_0000) as u16;
+    let value1 = (value1 & !0b1000_0000) as u16;
+    let value2 = ((value2 & !0b1000_0000) as u16) << 7;
     let value = value1 + value2;
     Ok((input, value))
 }
@@ -395,8 +402,8 @@ mod test {
     #[test]
     fn test_parse_14bit_midi_number() {
         // Example pitch change on channel 3
-        // let pitch_wheel_message = [0xE3, 0x39, 0x54];
-        let (_, result) = parse_14bit_midi_number(&[0x39, 0x54]).unwrap();
+        // let pitch_wheel_message = [0xE3, 0x54, 0x39];
+        let (_, result) = parse_14bit_midi_number(&[0x54, 0x39]).unwrap();
         assert_eq!(result, 7380);
     }
 
