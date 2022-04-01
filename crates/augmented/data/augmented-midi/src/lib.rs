@@ -3,6 +3,8 @@
 //! Thanks to the combinators this library requires no allocation for
 //! serialization/de-serialization into/from the MIDI types provided.
 //!
+//! _(This is part of [augmented-audio](https://github.com/yamadapc/augmented-audio/))_
+//!
 //! # Specification
 //! Based on MIDI 1.0 specification. [MIDI 1.0](https://www.midi.org/specifications/midi1-specifications/m1-v4-2-1-midi-1-0-detailed-specification-96-1-4.)
 //!
