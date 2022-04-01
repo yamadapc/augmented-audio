@@ -1,5 +1,8 @@
 use std::time::Duration;
 
+/// Similar to `crossbeam::utils::Backoff`, but for infrequent producers. Sleeps at exponentially
+/// increasing timeouts when no elements appear. `LongBackoff::snooze` should be called **if there
+/// was no work on this iteration**.
 pub struct LongBackoff {
     backoff: crossbeam::utils::Backoff,
     iterations: usize,
