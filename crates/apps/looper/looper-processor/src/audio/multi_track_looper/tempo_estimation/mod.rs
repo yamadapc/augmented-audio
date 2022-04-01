@@ -14,6 +14,13 @@ pub struct TempoEstimate {
     pub tempo: f32,
 }
 
+/// Performs tempo estimation into a `TimeSignature` by trying to divide a certain audio length by
+/// a power of 2 number of bars between 1 and 256.
+///
+/// Returns the lowest number of bars that is in the 80-160bpm range.
+///
+/// This function can return very high tempo estimates and the consumer should ignore setting
+/// unreasonable tempos.
 pub fn estimate_tempo(
     time_signature: TimeSignature,
     sample_rate: f32,
