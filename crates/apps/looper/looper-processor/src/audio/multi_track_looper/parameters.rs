@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, AtomicI32, AtomicUsize, Ordering};
 
 use num_derive::{FromPrimitive, ToPrimitive};
+use rustc_hash::FxHashMap;
 use serde_derive::{Deserialize, Serialize};
 use strum::EnumProperty;
 use strum_macros::{EnumDiscriminants, EnumIter, EnumProperty};
@@ -320,7 +320,7 @@ impl ParameterValue {
     }
 }
 
-pub fn build_parameter_indexes(parameter_ids: &Vec<ParameterId>) -> HashMap<ParameterId, usize> {
+pub fn build_parameter_indexes(parameter_ids: &Vec<ParameterId>) -> FxHashMap<ParameterId, usize> {
     parameter_ids
         .iter()
         .enumerate()
@@ -328,7 +328,7 @@ pub fn build_parameter_indexes(parameter_ids: &Vec<ParameterId>) -> HashMap<Para
         .collect()
 }
 
-pub fn build_default_parameters() -> (HashMap<ParameterId, ParameterValue>, Vec<ParameterId>) {
+pub fn build_default_parameters() -> (FxHashMap<ParameterId, ParameterValue>, Vec<ParameterId>) {
     use strum::IntoEnumIterator;
 
     let source_parameters: Vec<ParameterId> = SourceParameter::iter()
@@ -356,7 +356,7 @@ pub fn build_default_parameters() -> (HashMap<ParameterId, ParameterValue>, Vec<
         .cloned()
         .collect();
 
-    let mut result = HashMap::new();
+    let mut result = FxHashMap::default();
     parameter_ids
         .iter()
         .flat_map(|parameter_id| {

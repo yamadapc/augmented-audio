@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use std::sync::atomic::AtomicBool;
 
+use rustc_hash::FxHashMap;
 use serde_derive::{Deserialize, Serialize};
 
 use augmented_atomics::AtomicValue;
@@ -14,7 +14,7 @@ use crate::parameters::{
 pub struct ParametersMap {
     values: Vec<ParameterValue>,
     has_value: Vec<AtomicBool>,
-    indexes: HashMap<ParameterId, usize>,
+    indexes: FxHashMap<ParameterId, usize>,
 }
 
 impl Default for ParametersMap {
@@ -43,6 +43,16 @@ impl ParametersMap {
         let id: ParameterId = id.into();
         let index: usize = self.indexes[&id];
         &self.values[index]
+    }
+
+    pub fn get_option(&self, id: impl Into<ParameterId>) -> Option<&ParameterValue> {
+        let id: ParameterId = id.into();
+        let index: usize = self.indexes[&id];
+        if self.has_value[index].get() {
+            Some(&self.values[index])
+        } else {
+            None
+        }
     }
 
     /// Returns true if the parameter has been set after the default

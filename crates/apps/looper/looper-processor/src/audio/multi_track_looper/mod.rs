@@ -926,7 +926,7 @@ impl MultiTrackLooper {
         }
     }
 
-    fn process_scenes(&mut self) {
+    pub fn process_scenes(&mut self) {
         let scene_value = self.handle.scene_handle.get_slider();
 
         for (index, voice) in self.handle.voices.iter().enumerate() {

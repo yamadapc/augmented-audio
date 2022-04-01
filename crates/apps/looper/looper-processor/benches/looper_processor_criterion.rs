@@ -1,9 +1,11 @@
+use std::time::Duration;
+
 use audio_processor_testing_helpers::sine_buffer;
-use audio_processor_traits::{AtomicF32, AudioProcessor, AudioProcessorSettings, VecAudioBuffer};
 use criterion::measurement::WallTime;
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkGroup, Criterion};
-use looper_processor::LooperProcessor;
-use std::time::Duration;
+
+use audio_processor_traits::{AtomicF32, AudioProcessor, AudioProcessorSettings, VecAudioBuffer};
+use looper_processor::{LooperProcessor, MultiTrackLooper};
 
 fn gain_vec(buffer: &mut Vec<f32>) {
     for sample in buffer {
@@ -17,7 +19,21 @@ fn gain_atomicf32_vec(buffer: &mut Vec<AtomicF32>) {
     }
 }
 
+fn process_scenes_benchmark(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Process scenes");
+
+    group.bench_function("process_scenes", |b| {
+        let mut looper = MultiTrackLooper::default();
+        b.iter(|| {
+            looper.process_scenes();
+            black_box(&mut looper);
+        })
+    });
+}
+
 fn criterion_benchmark(c: &mut Criterion) {
+    process_scenes_benchmark(c);
+
     let mut group = c.benchmark_group("AudioBuffer - 512 samples (11ms)");
 
     group.bench_function("Vec<f32> apply gain", |b| {

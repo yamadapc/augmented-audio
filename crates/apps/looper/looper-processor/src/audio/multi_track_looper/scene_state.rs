@@ -64,11 +64,7 @@ impl SceneHandle {
     ) -> Option<&ParameterValue> {
         let id = id.into();
         let map = &self.scenes[0].scene_parameters[looper_id.0];
-        if map.has_value(id.clone()) {
-            Some(map.get(id))
-        } else {
-            None
-        }
+        map.get_option(id)
     }
 
     pub fn get_right(
@@ -78,10 +74,6 @@ impl SceneHandle {
     ) -> Option<&ParameterValue> {
         let id = id.into();
         let map = &self.scenes[1].scene_parameters[looper_id.0];
-        if map.has_value(id.clone()) {
-            Some(map.get(id))
-        } else {
-            None
-        }
+        map.get_option(id)
     }
 }

@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-
+use rustc_hash::FxHashMap;
 use serde::{Deserialize, Serialize};
 
 use augmented_atomics::AtomicF32;
@@ -9,7 +8,7 @@ use crate::parameters::{build_default_parameters, build_parameter_indexes, Param
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LFOHandleMap {
     values: Vec<AtomicF32>,
-    indexes: HashMap<ParameterId, usize>,
+    indexes: FxHashMap<ParameterId, usize>,
 }
 
 pub struct LFOHandle {

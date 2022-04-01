@@ -1,4 +1,3 @@
-use std::ops::Add;
 use std::sync::{Arc, Mutex};
 
 use actix::{Addr, SyncArbiter};
