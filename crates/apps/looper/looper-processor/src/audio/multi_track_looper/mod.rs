@@ -194,12 +194,6 @@ impl MultiTrackLooper {
             for (voice, step_tracker) in self.handle.voices().iter().zip(&mut self.step_trackers) {
                 let triggers = voice.trigger_model();
 
-                // let parameter_values = voice.parameter_values.get();
-                // for (parameter_id, parameter_value) in parameter_values.deref().iter() {
-                //     self.handle
-                //         .update_handle(voice, parameter_id.clone(), parameter_value.value);
-                // }
-
                 let triggers_vec = triggers.triggers();
                 if let Some(_trigger) =
                     find_current_beat_trigger(triggers, &triggers_vec, step_tracker, position_beats)
@@ -212,9 +206,9 @@ impl MultiTrackLooper {
                 let parameters_scratch = &mut self.parameters_scratch[index];
 
                 let triggers = find_running_beat_trigger(triggers, &triggers_vec, position_beats);
-                // let mut has_triggers = false;
+                let mut has_triggers = false;
                 for trigger in triggers {
-                    // has_triggers = true;
+                    has_triggers = true;
                     for (parameter_id, lock) in trigger.locks() {
                         let parameter_idx = self.parameter_scratch_indexes[parameter_id];
                         parameters_scratch[parameter_idx] =
@@ -222,9 +216,9 @@ impl MultiTrackLooper {
                     }
                 }
 
-                // if !has_triggers {
-                //     voice.envelope.adsr_envelope.note_off();
-                // }
+                if !has_triggers {
+                    voice.envelope().adsr_envelope.note_off();
+                }
             }
         }
     }
@@ -462,7 +456,6 @@ mod test {
     use crate::audio::midi_map::MidiControllerNumber;
     use crate::audio::multi_track_looper::parameters::EntityId;
     use crate::audio::processor::handle::LooperState;
-    use crate::parameters::ParameterId::ParameterIdSource;
     use crate::parameters::SourceParameter;
 
     use super::*;

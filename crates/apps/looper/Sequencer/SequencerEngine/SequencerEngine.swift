@@ -33,14 +33,21 @@ class EngineImpl {
     var midi: AnyPublisher<MidiEvent, Never>?
 
     init() {
-        logger.info("Initializing rust audio engine")
+        logger.info("Initializing rust audio engine", metadata: [
+            "bundleIdentifier": .string(Bundle.main.bundleIdentifier ?? "<unknown>"),
+            "applicationSupport": .stringConvertible(
+                    FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).map {
+                        $0.description
+                    }
+            )
+        ])
         engine = looper_engine__new()
 
         logger.info("Building rust MIDI subscription")
         midi = buildStream(
-            registerStream: { callback in
-                looper_engine__register_midi_callback(self.engine, callback)
-            }
+                registerStream: { callback in
+                    looper_engine__register_midi_callback(self.engine, callback)
+                }
         )
     }
 

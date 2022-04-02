@@ -37,6 +37,7 @@ pub mod c_api;
 pub mod engine;
 pub mod services;
 
+mod controllers;
 #[cfg(test)]
 pub mod integration_test;
 

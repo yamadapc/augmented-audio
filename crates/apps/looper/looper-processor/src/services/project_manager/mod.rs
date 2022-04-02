@@ -106,8 +106,9 @@ fn data_path() -> PathBuf {
     let bundle_identifier = "beijaflor-io.Sequencer-Mac";
     let home_dir = Path::new(std::env!("HOME"));
     home_dir
-        .join("Library/Application Support")
+        .join("Library/Containers")
         .join(bundle_identifier)
+        .join("Data/Library/Application Support")
 }
 
 async fn load_latest_project(data_path: impl AsRef<Path>) -> Result<Project, ProjectManagerError> {

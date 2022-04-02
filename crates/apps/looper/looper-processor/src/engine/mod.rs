@@ -8,6 +8,7 @@ use audio_processor_standalone::StandaloneHandles;
 
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
+use crate::controllers::autosave_controller::AutosaveController;
 use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
 use crate::{services, setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};
@@ -20,6 +21,8 @@ pub struct LooperEngine {
     project_manager: Addr<ProjectManager>,
     #[allow(unused)]
     audio_handles: StandaloneHandles,
+    #[allow(unused)]
+    autosave_controller: AutosaveController,
 }
 
 impl LooperEngine {
@@ -43,6 +46,11 @@ impl LooperEngine {
         let audio_clip_manager = ActorSystemThread::current()
             .spawn_result(async move { SyncArbiter::start(1, || AudioClipManager::default()) });
         let project_manager = ActorSystemThread::start(ProjectManager::default());
+        let autosave_controller = ActorSystemThread::current().spawn_result({
+            let project_manager = project_manager.clone();
+            let handle = handle.clone();
+            async move { AutosaveController::new(project_manager, handle) }
+        });
 
         LooperEngine {
             handle,
@@ -51,6 +59,7 @@ impl LooperEngine {
             midi_store,
             audio_clip_manager,
             project_manager,
+            autosave_controller,
         }
     }
 
