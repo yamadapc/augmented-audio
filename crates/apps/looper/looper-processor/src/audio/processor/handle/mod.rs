@@ -45,6 +45,21 @@ pub struct LooperOptions {
 pub type LooperClip = SharedCell<AtomicRefCell<VecAudioBuffer<AtomicF32>>>;
 pub type LooperClipRef = Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>;
 
+pub fn looper_clip_copy_to_vec_buffer(buffer: &LooperClipRef) -> VecAudioBuffer<f32> {
+    let buffer = buffer.borrow();
+    let buffer = buffer.deref();
+
+    let mut work_buffer = VecAudioBuffer::new();
+    work_buffer.resize(buffer.num_channels(), buffer.num_samples(), 0.0);
+    for (loop_frame, work_frame) in buffer.frames().zip(work_buffer.frames_mut()) {
+        for (loop_sample, work_sample) in loop_frame.iter().zip(work_frame.iter_mut()) {
+            *work_sample = loop_sample.get()
+        }
+    }
+
+    work_buffer
+}
+
 impl Default for LooperOptions {
     fn default() -> Self {
         Self {

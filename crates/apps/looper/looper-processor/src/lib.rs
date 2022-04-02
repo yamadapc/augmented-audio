@@ -22,4 +22,7 @@ mod c_api;
 mod engine;
 mod services;
 
+#[cfg(test)]
+mod integration_test;
+
 const MAX_LOOP_LENGTH_SECS: f32 = 10.0;

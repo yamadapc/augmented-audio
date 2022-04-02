@@ -1,5 +1,7 @@
 use audio_garbage_collector::{make_shared, Shared};
-use audio_processor_traits::parameters::AudioProcessorHandle;
+use audio_processor_traits::parameters::{
+    AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
+};
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
 pub use generic_handle::BitCrusherHandleRef;
 
@@ -39,6 +41,13 @@ impl Default for BitCrusherHandle {
 
 pub struct BitCrusherProcessor {
     handle: Shared<BitCrusherHandle>,
+}
+
+impl AudioProcessorHandleProvider for BitCrusherProcessor {
+    fn generic_handle(&self) -> AudioProcessorHandleRef {
+        use std::sync::Arc;
+        Arc::new(BitCrusherHandleRef::new(self.handle.clone()))
+    }
 }
 
 impl BitCrusherProcessor {

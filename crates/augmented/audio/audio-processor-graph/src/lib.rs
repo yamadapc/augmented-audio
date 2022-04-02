@@ -33,6 +33,8 @@ fn make_processor_cell(processor: NodeType) -> Shared<ProcessorCell> {
 }
 
 pub struct AudioProcessorGraphHandle {
+    input_node: NodeIndex,
+    output_node: NodeIndex,
     dag: SharedCell<daggy::Dag<(), ()>>,
     process_order: SharedCell<Vec<NodeIndex>>,
     audio_processor_settings: SharedCell<Option<AudioProcessorSettings>>,
@@ -89,6 +91,14 @@ impl AudioProcessorGraphHandle {
         self.process_order.set(make_shared(new_order));
 
         Ok(edge)
+    }
+
+    pub fn input(&self) -> NodeIndex {
+        self.input_node
+    }
+
+    pub fn output(&self) -> NodeIndex {
+        self.output_node
     }
 }
 
@@ -147,6 +157,8 @@ impl AudioProcessorGraph {
             input_node,
             output_node,
             handle: make_shared(AudioProcessorGraphHandle {
+                input_node,
+                output_node,
                 dag: make_shared_cell(dag),
                 process_order: make_shared_cell(Vec::new()),
                 audio_processor_settings: make_shared_cell(None),

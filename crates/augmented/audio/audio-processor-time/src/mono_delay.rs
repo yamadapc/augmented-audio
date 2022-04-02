@@ -1,4 +1,8 @@
 use audio_garbage_collector::Shared;
+use audio_processor_traits::parameters::{
+    AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef, FloatType,
+    ParameterSpec, ParameterType, ParameterValue,
+};
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{AtomicF32, AudioProcessorSettings, Float};
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -11,6 +15,54 @@ pub struct MonoDelayProcessorHandle {
     current_read_position: AtomicUsize,
     sample_rate: AtomicF32,
     buffer_size: AtomicUsize,
+}
+
+struct GenericHandle(Shared<MonoDelayProcessorHandle>);
+
+impl AudioProcessorHandle for GenericHandle {
+    fn parameter_count(&self) -> usize {
+        2
+    }
+
+    fn get_parameter_spec(&self, index: usize) -> ParameterSpec {
+        let specs = [
+            ParameterSpec::new(
+                "Delay".into(),
+                ParameterType::Float(FloatType {
+                    range: (0.01, 5.0),
+                    step: None,
+                }),
+            ),
+            ParameterSpec::new(
+                "Feedback".into(),
+                ParameterType::Float(FloatType {
+                    range: (0.0, 1.0),
+                    step: None,
+                }),
+            ),
+        ];
+        specs[index].clone()
+    }
+
+    fn get_parameter(&self, index: usize) -> Option<ParameterValue> {
+        if index == 0 {
+            Some(self.0.delay_time_secs.get().into())
+        } else if index == 1 {
+            Some(self.0.feedback.get().into())
+        } else {
+            None
+        }
+    }
+
+    fn set_parameter(&self, index: usize, request: ParameterValue) {
+        if let Ok(value) = request.try_into() {
+            if index == 0 {
+                self.0.delay_time_secs.set(value);
+            } else if index == 1 {
+                self.0.feedback.set(value);
+            }
+        }
+    }
 }
 
 impl Default for MonoDelayProcessorHandle {
@@ -48,6 +100,13 @@ pub struct MonoDelayProcessor<Sample> {
     delay_buffer: Vec<Sample>,
     handle: Shared<MonoDelayProcessorHandle>,
     max_delay_time: Duration,
+}
+
+impl<Sample> AudioProcessorHandleProvider for MonoDelayProcessor<Sample> {
+    fn generic_handle(&self) -> AudioProcessorHandleRef {
+        use std::sync::Arc;
+        Arc::new(GenericHandle(self.handle.clone()))
+    }
 }
 
 impl<Sample: Float + From<f32>> Default for MonoDelayProcessor<Sample> {

@@ -1,6 +1,8 @@
+use crate::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
 use crate::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
+use std::ops::Deref;
 
 /// Represents an audio processing node.
 ///
@@ -44,6 +46,23 @@ where
 {
     for frame in data.frames_mut() {
         processor.s_process_frame(frame);
+    }
+}
+
+impl<Processor> Deref for BufferProcessor<Processor> {
+    type Target = Processor;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl<Processor> AudioProcessorHandleProvider for BufferProcessor<Processor>
+where
+    Processor: AudioProcessorHandleProvider,
+{
+    fn generic_handle(&self) -> AudioProcessorHandleRef {
+        self.0.generic_handle()
     }
 }
 

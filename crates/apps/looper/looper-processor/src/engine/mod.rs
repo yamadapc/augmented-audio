@@ -10,7 +10,7 @@ use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioPro
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
-use crate::{setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};
+use crate::{services, setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};
 
 pub struct LooperEngine {
     handle: Shared<MultiTrackLooperHandle>,
@@ -72,6 +72,18 @@ impl LooperEngine {
 
     pub fn audio_clip_manager(&self) -> &Addr<AudioClipManager> {
         &self.audio_clip_manager
+    }
+}
+
+impl LooperEngine {
+    pub async fn save_project(&self) {
+        self.project_manager
+            .send(services::project_manager::SaveProjectMessage {
+                handle: self.handle.clone(),
+            })
+            .await
+            .unwrap()
+            .unwrap();
     }
 }
 

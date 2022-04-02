@@ -1,3 +1,4 @@
+use std::io::Error;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
@@ -5,7 +6,10 @@ use actix::{Actor, ActorFutureExt, AsyncContext, Handler, Message, ResponseActFu
 use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
+use audio_processor_file::OutputAudioFileProcessor;
+use audio_processor_traits::AudioBuffer;
 
+use crate::audio::processor::handle::looper_clip_copy_to_vec_buffer;
 use crate::services::project_manager::model::LooperVoicePersist;
 use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
@@ -44,6 +48,33 @@ impl Actor for ProjectManager {
 
     fn started(&mut self, ctx: &mut Self::Context) {
         ctx.address().do_send(LoadLatestProjectMessage);
+    }
+}
+
+#[derive(Message)]
+#[rtype(result = "Result<Shared<Project>, ProjectManagerError>")]
+pub struct SaveProjectMessage {
+    pub handle: Shared<MultiTrackLooperHandle>,
+}
+
+impl Handler<SaveProjectMessage> for ProjectManager {
+    type Result = ResponseActFuture<Self, Result<Shared<Project>, ProjectManagerError>>;
+
+    fn handle(&mut self, msg: SaveProjectMessage, _ctx: &mut Self::Context) -> Self::Result {
+        let result_fut = async move {
+            let (project_path, manifest_path) = default_project_manifest_path(&*data_path());
+
+            let looper_paths = persist_handle_clips(&*msg.handle, &*project_path);
+            let project = make_shared(project_from_handle(&*msg.handle, looper_paths));
+
+            write_project(manifest_path, &project).await?;
+
+            Ok(project)
+        }
+        .into_actor(self)
+        .map(|result, _, _| result.map_err(|err| ProjectManagerError::IOError(err)));
+
+        Box::pin(result_fut)
     }
 }
 
@@ -115,13 +146,45 @@ fn default_project_manifest_path(data_path: &Path) -> (PathBuf, PathBuf) {
 }
 
 async fn create_default_project(data_path: &Path) -> Result<(), std::io::Error> {
-    let default_project_path = default_project_path(data_path);
-    let project_manifest = default_project_path.join("project.msgpack");
+    let (_, project_manifest_path) = default_project_manifest_path(data_path);
     let project = build_default_project();
+    write_project(project_manifest_path, &project).await
+}
+
+async fn write_project(project_manifest_path: PathBuf, project: &Project) -> Result<(), Error> {
     let buffer = rmp_serde::to_vec(&project).unwrap();
-    log::info!("Writing: {:?}", project_manifest);
-    tokio::fs::write(project_manifest, buffer).await?;
+    log::info!("Writing: {:?}", project_manifest_path);
+    tokio::fs::write(project_manifest_path, buffer).await?;
     Ok(())
+}
+
+fn persist_handle_clips(
+    handle: &MultiTrackLooperHandle,
+    project_path: &Path,
+) -> Vec<Option<PathBuf>> {
+    handle
+        .voices()
+        .iter()
+        .map(|voice| {
+            if voice.looper().num_samples() <= 0 {
+                return None;
+            }
+
+            let clip_path = project_path.join(format!("looper_{}.wav", voice.id));
+            log::info!("Writting audio into {:?}", clip_path);
+
+            let settings = handle.settings().deref().clone();
+            let mut output_processor =
+                OutputAudioFileProcessor::from_path(settings, clip_path.to_str().unwrap());
+            output_processor.prepare(settings);
+
+            let clip = voice.looper().looper_clip();
+            let mut clip_buffer = looper_clip_copy_to_vec_buffer(&clip);
+            output_processor.process(clip_buffer.slice_mut());
+
+            Some(clip_path)
+        })
+        .collect()
 }
 
 fn build_default_project() -> Project {

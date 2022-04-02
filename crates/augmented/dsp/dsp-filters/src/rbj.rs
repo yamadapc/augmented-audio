@@ -3,6 +3,9 @@
 //! Ported from [vinniefalco/DSPFilters](https://github.com/vinniefalco/DSPFilters/)
 use std::fmt::Debug;
 
+use audio_processor_traits::parameters::{
+    AudioProcessorEmptyHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
+};
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 use num::pow::Pow;
@@ -367,6 +370,16 @@ pub struct FilterProcessor<
     q: SampleType,
     gain_db: SampleType,
     slope: SampleType,
+}
+
+impl<SampleType> AudioProcessorHandleProvider for FilterProcessor<SampleType>
+where
+    SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst,
+{
+    fn generic_handle(&self) -> AudioProcessorHandleRef {
+        use std::sync::Arc;
+        Arc::new(AudioProcessorEmptyHandle)
+    }
 }
 
 impl<SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst>

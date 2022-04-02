@@ -3,6 +3,28 @@ use std::sync::Arc;
 
 pub type AudioProcessorHandleRef = Arc<dyn AudioProcessorHandle>;
 
+pub trait AudioProcessorHandleProvider {
+    fn generic_handle(&self) -> AudioProcessorHandleRef;
+}
+
+pub struct AudioProcessorEmptyHandle;
+
+impl AudioProcessorHandle for AudioProcessorEmptyHandle {
+    fn parameter_count(&self) -> usize {
+        0
+    }
+
+    fn get_parameter_spec(&self, _index: usize) -> ParameterSpec {
+        panic!("There are no parameter specs")
+    }
+
+    fn get_parameter(&self, _index: usize) -> Option<ParameterValue> {
+        None
+    }
+
+    fn set_parameter(&self, _index: usize, _request: ParameterValue) {}
+}
+
 /// This trait can be implemented by AudioProcessor handles to provide runtime introspection on
 /// the parameters that a processor provides.
 pub trait AudioProcessorHandle: Send + Sync {
