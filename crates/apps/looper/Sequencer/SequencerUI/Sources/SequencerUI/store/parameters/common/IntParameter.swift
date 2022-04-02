@@ -24,11 +24,11 @@ public class IntParameter: ObservableObject, Identifiable, ParameterLike {
     @Published public var value: Int
     @Published var maximum: Int
 
-    init(id: ParameterId, label: String, value: Int, maximum _: Int) {
+    init(id: ParameterId, label: String, value: Int, maximum: Int) {
         self.id = id
         self.label = label
         self.value = value
-        maximum = 0
+        self.maximum = maximum
 
         ALL_PARAMETERS.append(AnyParameterInner.int(self).into())
     }

@@ -56,7 +56,7 @@ class EffectsRowViewModel: ObservableObject {
     var effectDefinitions: [EffectDefinition] = [
         .init(id: .filter, label: "Filter", color: SequencerColors.recordColor),
         .init(id: .bitcrusher, label: "Bitcrusher", color: SequencerColors.green),
-        .init(id: .bitcrusher, label: "Reverb", color: SequencerColors.purple1),
+        .init(id: .reverb, label: "Reverb", color: SequencerColors.purple1),
         .init(id: .delay, label: "Delay", color: SequencerColors.blue),
     ]
     var effectSlots: [EffectSlotModel] = (0 ..< 9).map { i in EffectSlotModel(slotId: i) }

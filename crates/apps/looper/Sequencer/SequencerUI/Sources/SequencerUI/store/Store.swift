@@ -204,7 +204,7 @@ public extension Store {
 
     func setSliceBuffer(trackId: Int, fromAbstractBuffer buffer: SliceBuffer?) {
         trackStates[trackId - 1].sliceBuffer = buffer
-        trackStates[trackId - 1].sourceParameters.slice.maximum = (buffer?.count ?? 2) - 1
+        trackStates[trackId - 1].sourceParameters.slice.maximum = buffer?.count ?? 0
     }
 
     func setTrackBuffer(trackId: Int, fromUnsafePointer buffer: UnsafeBufferPointer<Float32>) {

@@ -62,7 +62,6 @@ impl From<ParameterValue> for CParameterValue {
             Bool(b) => CParameterValueBool(b.get()),
             Enum(e) => CParameterValueEnum(e.get()),
             Int(i) => CParameterValueInt(i.get()),
-            None => CParameterValueNone,
         }
     }
 }

@@ -339,7 +339,10 @@ impl MultiTrackLooper {
                             [self.parameter_scratch_indexes[parameter_id]] =
                             ParameterValue::Int(value.into());
                     }
-                    _ => {}
+                    (other_value, _) => {
+                        self.parameters_scratch[voice.id]
+                            [self.parameter_scratch_indexes[parameter_id]] = other_value.clone();
+                    }
                 }
             }
         }
@@ -459,6 +462,7 @@ mod test {
     use crate::audio::midi_map::MidiControllerNumber;
     use crate::audio::multi_track_looper::parameters::EntityId;
     use crate::audio::processor::handle::LooperState;
+    use crate::parameters::ParameterId::ParameterIdSource;
     use crate::parameters::SourceParameter;
 
     use super::*;
@@ -626,6 +630,30 @@ mod test {
             .handle
             .add_scene_parameter_lock(0, LooperId(0), start_parameter, 0.8);
         looper.process_scenes();
+    }
+
+    #[test]
+    fn test_slicing_sets_offset() {
+        let settings = AudioProcessorSettings::default();
+        let mut looper = MultiTrackLooper::new(Default::default(), 1);
+        let slice_parameter = ParameterId::ParameterIdSource(SourceParameter::SliceId);
+        looper
+            .handle()
+            .set_int_parameter(LooperId(0), slice_parameter.clone(), 2);
+        let parameter_value = looper
+            .handle()
+            .get_parameter(LooperId(0), &slice_parameter)
+            .unwrap();
+        let parameter: i32 = parameter_value.as_int();
+        assert_eq!(parameter, 2);
+
+        looper.process_scenes();
+        looper.process_lfos();
+        looper.process_triggers();
+        let parameter = &looper.parameters_scratch[0][looper.parameter_scratch_indexes
+            [&ParameterId::ParameterIdSource(SourceParameter::SliceId)]];
+        let parameter: i32 = parameter.as_int();
+        assert_eq!(parameter, 2);
     }
 
     #[test]

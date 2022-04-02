@@ -101,7 +101,7 @@ pub enum SourceParameter {
     Speed = 5,
     #[strum(props(type = "bool", default = "true"))]
     LoopEnabled = 6,
-    #[strum(props(type = "int"))]
+    #[strum(props(type = "int", default = "0"))]
     SliceId = 7,
     #[strum(props(type = "bool", default = "false"))]
     SliceEnabled = 8,
@@ -225,8 +225,6 @@ pub enum ParameterValue {
     Enum(AtomicUsize),
     #[serde(rename = "I")]
     Int(AtomicI32),
-    #[serde(rename = "N")]
-    None,
 }
 
 // MARK: Convert from primitive value into "boxed" parameter-value
@@ -254,7 +252,6 @@ impl PartialEq for ParameterValue {
             (Int(i1), Int(i2)) => i1.get() == i2.get(),
             (Bool(b1), Bool(b2)) => b1.get() == b2.get(),
             (Enum(e1), Enum(e2)) => e1.get() == e2.get(),
-            (None, None) => true,
             _ => false,
         }
     }
@@ -269,7 +266,6 @@ impl Clone for ParameterValue {
             }
             ParameterValue::Enum(inner) => ParameterValue::Enum(inner.get().into()),
             ParameterValue::Int(inner) => ParameterValue::Int(inner.get().into()),
-            ParameterValue::None => ParameterValue::None,
         }
     }
 }
@@ -283,7 +279,6 @@ impl ParameterValue {
                 e.set(other.as_enum());
             }
             ParameterValue::Int(i) => i.set(other.as_int()),
-            ParameterValue::None => {}
         }
     }
 
@@ -401,12 +396,9 @@ fn get_default_parameter_value(parameter_id: &ParameterId) -> ParameterValue {
             ParameterValue::Enum(e.into())
         }
         "int" => {
-            if let Some(i_str) = parameter_id.get_str("default") {
-                let i = i32::from_str(i_str).unwrap();
-                ParameterValue::Int(i.into())
-            } else {
-                ParameterValue::None
-            }
+            let i_str = parameter_id.get_str("default").unwrap();
+            let i = i32::from_str(i_str).unwrap();
+            ParameterValue::Int(i.into())
         }
         _ => panic!("Invalid parameter declaration"),
     }

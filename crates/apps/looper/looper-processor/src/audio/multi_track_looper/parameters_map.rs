@@ -73,6 +73,7 @@ impl ParametersMap {
 
         let index: usize = self.indexes[&id];
         let slot: &ParameterValue = &self.values[index];
+        println!("{:?}", slot);
         slot.set_from(&value);
         self.has_value[index].set(true);
     }
@@ -108,6 +109,14 @@ mod test {
     #[test]
     fn test_create_parameters() {
         let _ps = ParametersMap::new();
+    }
+
+    #[test]
+    fn test_set_int_parameter() {
+        let ps = ParametersMap::new();
+        assert_eq!(ps.get(SourceParameter::SliceId).as_int(), 0);
+        ps.set(SourceParameter::SliceId, 2);
+        assert_eq!(ps.get(SourceParameter::SliceId).as_int(), 2);
     }
 
     #[test]

@@ -92,13 +92,20 @@ impl EffectsProcessorHandle {
         // Ideally all of this should happen at once & switch the graph up. We also didn't need to
         // rebuild the whole graph.
         self.graph_handle.clear();
+        log::info!("Rebuilding effects graph");
         let effects = self.effects.get();
 
         let mut last_index = self.graph_handle.input();
         for effect in &*effects {
+            log::info!(
+                "Connecting effect {:?} => {:?}",
+                last_index,
+                effect.node_index
+            );
             let _ = self
                 .graph_handle
                 .add_connection(last_index, effect.node_index);
+            last_index = effect.node_index;
         }
 
         let _ = self
