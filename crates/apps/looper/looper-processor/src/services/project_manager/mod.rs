@@ -10,12 +10,12 @@ use audio_processor_file::OutputAudioFileProcessor;
 use audio_processor_traits::AudioBuffer;
 
 use crate::audio::processor::handle::looper_clip_copy_to_vec_buffer;
-use crate::services::project_manager::model::LooperVoicePersist;
 use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
+use self::model::LooperVoicePersist;
 use self::model::Project;
 
-mod model;
+pub mod model;
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProjectManagerError {

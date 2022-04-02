@@ -627,7 +627,6 @@ mod test {
 
     #[test]
     fn test_slicing_sets_offset() {
-        let settings = AudioProcessorSettings::default();
         let mut looper = MultiTrackLooper::new(Default::default(), 1);
         let slice_parameter = ParameterId::ParameterIdSource(SourceParameter::SliceId);
         looper

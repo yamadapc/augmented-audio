@@ -27,6 +27,7 @@ pub enum EffectType {
 #[derive(Clone)]
 pub struct EffectNodeState {
     node_index: NodeIndex,
+    #[allow(unused)]
     handle: AudioProcessorHandleRef,
 }
 

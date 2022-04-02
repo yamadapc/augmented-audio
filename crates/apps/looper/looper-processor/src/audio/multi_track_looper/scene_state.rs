@@ -6,14 +6,18 @@ use crate::audio::multi_track_looper::parameters::{ParameterId, ParameterValue};
 use crate::audio::multi_track_looper::parameters_map::ParametersMap;
 use crate::LooperId;
 
+/// All scenes state. Contains the slider position & a list of scene states.
+///
+/// Each scene state contains a parameter map for each voice.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SceneHandle {
     scene_value: AtomicF32,
     scenes: Vec<SceneState>,
 }
 
+/// State for a single scene, this is a set of parameter maps for each voice.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct SceneState {
+pub struct SceneState {
     scene_parameters: Vec<ParametersMap>,
 }
 
@@ -22,6 +26,10 @@ impl SceneState {
         Self {
             scene_parameters: (0..num_loopers).map(|_| ParametersMap::new()).collect(),
         }
+    }
+
+    pub fn scene_parameters(&self) -> &Vec<ParametersMap> {
+        &self.scene_parameters
     }
 }
 
@@ -78,5 +86,9 @@ impl SceneHandle {
         let id = id.into();
         let map = &self.scenes[1].scene_parameters[looper_id.0];
         map.get_option(id)
+    }
+
+    pub fn scenes(&self) -> &Vec<SceneState> {
+        &self.scenes
     }
 }

@@ -1,40 +1,55 @@
 use actix::{Actor, Handler, SyncContext};
+use basedrop::Shared;
 use std::path::{Path, PathBuf};
 
+use audio_garbage_collector::make_shared;
 use bytesize::ByteSize;
 
 use audio_processor_file::file_io::AudioFileError;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 
+pub struct AudioClipId(usize);
+
 pub struct AudioClipModel {
-    #[allow(dead_code)]
+    #[allow(unused)]
+    id: AudioClipId,
+    #[allow(unused)]
     path: PathBuf,
-    #[allow(dead_code)]
     contents: VecAudioBuffer<f32>,
 }
+
+impl AudioClipModel {
+    pub fn contents(&self) -> &impl AudioBuffer<SampleType = f32> {
+        &self.contents
+    }
+}
+
+pub type AudioClipModelRef = Shared<AudioClipModel>;
 
 #[derive(Default)]
 pub struct AudioClipManager {
     #[allow(dead_code)]
     settings: AudioProcessorSettings,
     #[allow(dead_code)]
-    audio_clips: Vec<AudioClipModel>,
+    audio_clips: Vec<AudioClipModelRef>,
 }
 
 impl AudioClipManager {
-    #[allow(dead_code)]
-    pub fn load_at_path(&mut self, path: &Path) -> Result<(), AudioFileError> {
+    pub fn load_at_path(&mut self, path: &Path) -> Result<AudioClipModelRef, AudioFileError> {
         log::info!("Reading file at path {:?}", path);
         let mut audio_file =
             audio_processor_file::InMemoryAudioFile::from_path(path.to_str().unwrap())?;
         let audio_file = audio_file.read_into_vec_audio_buffer(&self.settings)?;
         let byte_size = estimate_file_size(&audio_file);
         log::info!("File takes-up ~{} of memory", byte_size);
-        self.audio_clips.push(AudioClipModel {
+
+        let clip_model = make_shared(AudioClipModel {
+            id: AudioClipId(self.audio_clips.len()),
             path: path.into(),
             contents: audio_file,
         });
-        Ok(())
+        self.audio_clips.push(clip_model.clone());
+        Ok(clip_model)
     }
 }
 
@@ -43,18 +58,16 @@ impl Actor for AudioClipManager {
 }
 
 #[derive(actix::Message)]
-#[rtype(result = "()")]
+#[rtype(result = "Result<AudioClipModelRef, AudioFileError>")]
 pub(crate) struct LoadClipMessage {
     pub(crate) path: PathBuf,
 }
 
 impl Handler<LoadClipMessage> for AudioClipManager {
-    type Result = ();
+    type Result = Result<AudioClipModelRef, AudioFileError>;
 
     fn handle(&mut self, msg: LoadClipMessage, _ctx: &mut Self::Context) -> Self::Result {
-        if let Err(err) = self.load_at_path(&msg.path) {
-            log::error!("Failed to load file: {}", err);
-        }
+        self.load_at_path(&msg.path)
     }
 }
 

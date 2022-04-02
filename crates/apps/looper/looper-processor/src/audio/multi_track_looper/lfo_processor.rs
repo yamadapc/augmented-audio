@@ -11,6 +11,12 @@ pub struct LFOHandleMap {
     indexes: FxHashMap<ParameterId, usize>,
 }
 
+impl LFOHandleMap {
+    pub fn get(&self, id: &ParameterId) -> f32 {
+        self.values[self.indexes[id]].get()
+    }
+}
+
 pub struct LFOHandle {
     amount: AtomicF32,
     frequency: AtomicF32,

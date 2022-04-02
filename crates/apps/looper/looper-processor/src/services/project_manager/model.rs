@@ -10,10 +10,10 @@ use crate::audio::multi_track_looper::scene_state::SceneHandle;
 use crate::audio::multi_track_looper::trigger_model::{TrackTriggerModel, Trigger};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-struct TrackTriggerModelPersist {
-    pattern_length: usize,
-    pattern_step_beats: f64,
-    triggers: Vec<Trigger>,
+pub struct TrackTriggerModelPersist {
+    pub pattern_length: usize,
+    pub pattern_step_beats: f64,
+    pub triggers: Vec<Trigger>,
 }
 
 impl From<&TrackTriggerModel> for TrackTriggerModelPersist {
@@ -28,11 +28,11 @@ impl From<&TrackTriggerModel> for TrackTriggerModelPersist {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct LooperVoicePersist {
-    id: usize,
-    parameter_values: ParameterValues,
-    triggers: TrackTriggerModelPersist,
-    lfo1: LFOHandleMap,
-    lfo2: LFOHandleMap,
+    pub id: usize,
+    pub parameter_values: ParameterValues,
+    pub triggers: TrackTriggerModelPersist,
+    pub lfo1: LFOHandleMap,
+    pub lfo2: LFOHandleMap,
 }
 
 impl From<&LooperVoice> for LooperVoicePersist {

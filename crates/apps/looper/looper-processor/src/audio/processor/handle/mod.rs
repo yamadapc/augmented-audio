@@ -8,9 +8,7 @@ use num_derive::{FromPrimitive, ToPrimitive};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessorSettings, InterleavedAudioBuffer, VecAudioBuffer,
-};
+use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicEnum, AtomicValue};
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
@@ -333,7 +331,7 @@ impl LooperHandle {
 
     /// Override the looper memory buffer.
     /// Not real-time safe, must be called out of the audio-thread.
-    pub fn set_looper_buffer(&self, buffer: &InterleavedAudioBuffer<f32>) {
+    pub fn set_looper_buffer(&self, buffer: &impl AudioBuffer<SampleType = f32>) {
         let mut new_buffer: VecAudioBuffer<AtomicF32> = VecAudioBuffer::new();
         new_buffer.resize(
             buffer.num_channels(),

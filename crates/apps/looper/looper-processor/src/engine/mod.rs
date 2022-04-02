@@ -6,11 +6,16 @@ use basedrop::Shared;
 use actix_system_threads::ActorSystemThread;
 use audio_processor_standalone::StandaloneHandles;
 
+use crate::audio::multi_track_looper::looper_voice::LooperVoice;
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
+use crate::audio::multi_track_looper::ParametersMap;
 use crate::controllers::autosave_controller::AutosaveController;
-use crate::services::audio_clip_manager::AudioClipManager;
-use crate::services::project_manager::ProjectManager;
+use crate::controllers::load_project_controller::load_and_hydrate_latest_project;
+use crate::parameters::{build_default_parameters, ParameterId};
+use crate::services::audio_clip_manager::{AudioClipManager, AudioClipModelRef, LoadClipMessage};
+use crate::services::project_manager::model::{LooperVoicePersist, Project};
+use crate::services::project_manager::{LoadLatestProjectMessage, ProjectManager};
 use crate::{services, setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};
 
 pub struct LooperEngine {
@@ -32,11 +37,6 @@ impl LooperEngine {
 
         let processor = MultiTrackLooper::new(Default::default(), 8);
         let handle = processor.handle().clone();
-        let audio_handles = audio_processor_standalone::audio_processor_start_with_midi(
-            processor,
-            audio_garbage_collector::handle(),
-        );
-        setup_osc_server(handle.clone());
 
         let metrics_actor = Arc::new(Mutex::new(AudioProcessorMetricsActor::new(
             handle.metrics_handle().clone(),
@@ -46,11 +46,20 @@ impl LooperEngine {
         let audio_clip_manager = ActorSystemThread::current()
             .spawn_result(async move { SyncArbiter::start(1, || AudioClipManager::default()) });
         let project_manager = ActorSystemThread::start(ProjectManager::default());
+        load_and_hydrate_latest_project(&handle, &project_manager, &audio_clip_manager);
+
         let autosave_controller = ActorSystemThread::current().spawn_result({
             let project_manager = project_manager.clone();
             let handle = handle.clone();
             async move { AutosaveController::new(project_manager, handle) }
         });
+        setup_osc_server(handle.clone());
+
+        // Start audio
+        let audio_handles = audio_processor_standalone::audio_processor_start_with_midi(
+            processor,
+            audio_garbage_collector::handle(),
+        );
 
         LooperEngine {
             handle,
