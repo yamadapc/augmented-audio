@@ -1,20 +1,20 @@
 pub use atomic_refcell::AtomicRefCell;
 
-pub use audio::multi_track_looper::parameters;
-pub use audio::multi_track_looper::parameters::EnvelopeParameter;
-pub use audio::multi_track_looper::parameters::LooperId;
-pub use audio::multi_track_looper::{MultiTrackLooper, MultiTrackLooperHandle};
-pub use audio::processor::handle::LooperHandle as LooperProcessorHandle;
-pub use audio::processor::handle::LooperHandleThread;
-pub use audio::processor::handle::LooperOptions;
-pub use audio::processor::handle::QuantizeMode;
-pub use audio::processor::handle::QuantizeOptions;
-pub use audio::processor::LooperProcessor;
-pub use audio::shuffler::LoopShufflerParams;
-pub use audio::shuffler::LoopShufflerProcessorHandle;
-pub use audio::time_info_provider::{TimeInfo, TimeInfoProvider, TimeInfoProviderImpl};
-pub use c_api::*;
-pub use services::osc_server::setup_osc_server;
+pub use self::audio::multi_track_looper::parameters;
+pub use self::audio::multi_track_looper::parameters::EnvelopeParameter;
+pub use self::audio::multi_track_looper::parameters::LooperId;
+pub use self::audio::multi_track_looper::{MultiTrackLooper, MultiTrackLooperHandle};
+pub use self::audio::processor::handle::LooperHandle as LooperProcessorHandle;
+pub use self::audio::processor::handle::LooperHandleThread;
+pub use self::audio::processor::handle::LooperOptions;
+pub use self::audio::processor::handle::QuantizeMode;
+pub use self::audio::processor::handle::QuantizeOptions;
+pub use self::audio::processor::LooperProcessor;
+pub use self::audio::shuffler::LoopShufflerParams;
+pub use self::audio::shuffler::LoopShufflerProcessorHandle;
+pub use self::audio::time_info_provider::{TimeInfo, TimeInfoProvider, TimeInfoProviderImpl};
+pub use self::c_api::*;
+pub use self::services::osc_server::setup_osc_server;
 
 mod audio;
 #[allow(clippy::missing_safety_doc)]
