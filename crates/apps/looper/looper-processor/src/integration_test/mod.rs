@@ -1,7 +1,12 @@
-use crate::audio::processor::handle::LooperState;
-use crate::{LooperEngine, LooperHandleThread, LooperId};
-use actix_system_threads::ActorSystemThread;
 use std::time::Duration;
+
+use actix_system_threads::ActorSystemThread;
+
+use crate::audio::multi_track_looper::effects_processor::EffectType;
+use crate::audio::multi_track_looper::parameters::LooperId;
+use crate::audio::processor::handle::LooperHandleThread;
+use crate::audio::processor::handle::LooperState;
+use crate::engine::LooperEngine;
 
 #[test]
 fn test_start_engine_and_record_audio() {
@@ -12,6 +17,17 @@ fn test_start_engine_and_record_audio() {
     let looper_id = LooperId(0);
     let state = engine.handle().get_looper_state(looper_id);
     assert_eq!(state, LooperState::Empty);
+
+    // Add reverb
+    engine.handle().voices()[0]
+        .effects()
+        .add_effect(EffectType::EffectTypeReverb);
+    engine.handle().voices()[0]
+        .effects()
+        .add_effect(EffectType::EffectTypeFilter);
+    engine.handle().voices()[0]
+        .effects()
+        .add_effect(EffectType::EffectTypeDelay);
 
     // Record 1s of audio
     engine

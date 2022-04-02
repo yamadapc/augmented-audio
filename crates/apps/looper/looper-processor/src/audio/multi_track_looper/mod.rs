@@ -1,21 +1,15 @@
 use std::collections::HashMap;
 
-
-
 use assert_no_alloc::assert_no_alloc;
-
-
-
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
-use augmented_atomics::{AtomicValue};
+use augmented_atomics::AtomicValue;
 use augmented_oscillator::Oscillator;
-use metronome::{MetronomeProcessor};
-
+use metronome::MetronomeProcessor;
 
 use crate::audio::time_info_provider::TimeInfoMetronomePlayhead;
 use crate::{LooperOptions, TimeInfoProvider, TimeInfoProviderImpl};
@@ -23,22 +17,17 @@ use crate::{LooperOptions, TimeInfoProvider, TimeInfoProviderImpl};
 pub use self::handle::MultiTrackLooperHandle;
 use self::lfo_processor::LFOHandle;
 use self::looper_voice::{LooperVoice, VoiceProcessors};
-use self::metrics::audio_processor_metrics::{AudioProcessorMetrics};
+use self::metrics::audio_processor_metrics::AudioProcessorMetrics;
 use self::midi_button::{MIDIButton, MIDIButtonEvent};
 use self::midi_store::MidiStoreHandle;
-use self::parameters::{
-    LFOParameter, LooperId, ParameterId, ParameterValue,
-};
+use self::parameters::{LFOParameter, LooperId, ParameterId, ParameterValue};
 pub use self::parameters_map::ParametersMap;
-
-
-
 use self::trigger_model::step_tracker::StepTracker;
 use self::trigger_model::{find_current_beat_trigger, find_running_beat_trigger};
 
 pub(crate) mod allocator;
 mod copy_paste;
-mod effects_processor;
+pub(crate) mod effects_processor;
 mod envelope_processor;
 mod handle;
 pub(crate) mod lfo_processor;
@@ -167,11 +156,13 @@ impl MultiTrackLooper {
             looper,
             pitch_shifter,
             envelope,
+            effects_processor,
         } in processors
         {
             let looper_idx = graph.add_node(NodeType::Buffer(Box::new(looper)));
             let pitch_shifter_idx = graph.add_node(NodeType::Buffer(Box::new(pitch_shifter)));
             let envelope_idx = graph.add_node(NodeType::Buffer(Box::new(envelope)));
+            let effects_idx = graph.add_node(NodeType::Buffer(Box::new(effects_processor)));
 
             graph
                 .add_connection(graph.input(), looper_idx)
@@ -183,7 +174,10 @@ impl MultiTrackLooper {
                 .add_connection(pitch_shifter_idx, envelope_idx)
                 .expect("Shouldn't produce loop");
             graph
-                .add_connection(envelope_idx, graph.output())
+                .add_connection(envelope_idx, effects_idx)
+                .expect("Shouldn't produce loop");
+            graph
+                .add_connection(effects_idx, graph.output())
                 .expect("Shouldn't produce loop");
         }
 
@@ -454,14 +448,18 @@ impl MidiEventHandler for MultiTrackLooper {
 
 #[cfg(test)]
 mod test {
+    use std::time::Duration;
+
     use audio_processor_testing_helpers::{assert_f_eq, sine_buffer};
     use basedrop::Owned;
 
     use audio_processor_standalone_midi::host::{MidiMessageEntry, MidiMessageWrapper};
-    use audio_processor_traits::InterleavedAudioBuffer;
+    use audio_processor_traits::{InterleavedAudioBuffer, VecAudioBuffer};
 
     use crate::audio::midi_map::MidiControllerNumber;
     use crate::audio::multi_track_looper::parameters::EntityId;
+    use crate::audio::processor::handle::LooperState;
+    use crate::parameters::SourceParameter;
 
     use super::*;
 

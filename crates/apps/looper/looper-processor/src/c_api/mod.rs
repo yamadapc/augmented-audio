@@ -21,6 +21,7 @@ pub use self::foreign_callback::*;
 pub use self::midi_callback::*;
 
 mod audio_clip_manager;
+mod effects;
 mod entity_id;
 mod foreign_callback;
 mod midi_callback;

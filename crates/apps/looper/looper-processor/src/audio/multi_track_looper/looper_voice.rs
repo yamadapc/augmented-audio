@@ -6,6 +6,9 @@ use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
 };
 
+use crate::audio::multi_track_looper::effects_processor::{
+    EffectsProcessor, EffectsProcessorHandle,
+};
 use crate::audio::multi_track_looper::parameters_map::ParametersMap;
 use crate::audio::processor::handle::LooperHandle as LooperProcessorHandle;
 use crate::{
@@ -30,6 +33,7 @@ pub struct LooperVoice {
     envelope: Shared<EnvelopeHandle>,
     lfo1_handle: Shared<LFOHandle>,
     lfo2_handle: Shared<LFOHandle>,
+    effects_handle: Shared<EffectsProcessorHandle>,
 }
 
 impl LooperVoice {
@@ -69,12 +73,17 @@ impl LooperVoice {
     pub fn sequencer(&self) -> &Shared<LoopShufflerProcessorHandle> {
         &self.sequencer_handle
     }
+
+    pub fn effects(&self) -> &Shared<EffectsProcessorHandle> {
+        &self.effects_handle
+    }
 }
 
 pub struct VoiceProcessors {
     pub looper: LooperProcessor,
     pub pitch_shifter: MultiChannelPitchShifterProcessor,
     pub envelope: EnvelopeProcessor,
+    pub effects_processor: EffectsProcessor,
 }
 
 pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> LooperVoice {
@@ -86,6 +95,7 @@ pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> Loop
         looper,
         pitch_shifter,
         envelope,
+        effects_processor,
     } = voice_processors;
     let looper_handle = looper.handle().clone();
     let sequencer_handle = looper.sequencer_handle().clone();
@@ -103,6 +113,7 @@ pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> Loop
         lfo1_handle: make_shared(LFOHandle::default()),
         lfo2_handle: make_shared(LFOHandle::default()),
         envelope: envelope.handle.clone(),
+        effects_handle: effects_processor.handle().clone(),
     }
 }
 
@@ -110,6 +121,7 @@ pub fn build_voice_processor(
     options: &LooperOptions,
     time_info_provider: &Shared<TimeInfoProviderImpl>,
 ) -> VoiceProcessors {
+    let effects_processor = EffectsProcessor::new();
     let looper = LooperProcessor::new(options.clone(), time_info_provider.clone());
     looper
         .handle()
@@ -124,5 +136,6 @@ pub fn build_voice_processor(
         looper,
         pitch_shifter,
         envelope,
+        effects_processor,
     }
 }

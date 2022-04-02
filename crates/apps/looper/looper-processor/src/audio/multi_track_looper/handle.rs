@@ -1,13 +1,11 @@
-
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
-
 
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use num::ToPrimitive;
 
-use super::looper_voice::{LooperVoice};
+use super::looper_voice::LooperVoice;
 use super::metrics::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use super::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
@@ -17,18 +15,12 @@ use super::parameters::{
 use super::slice_worker::{SliceResult, SliceWorker};
 use super::tempo_estimation::estimate_tempo;
 
-
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 
-use audio_processor_traits::{
-    AudioBuffer, AudioProcessorSettings,
-    VecAudioBuffer,
-};
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
 
-use metronome::{MetronomeProcessorHandle};
-
-
+use metronome::MetronomeProcessorHandle;
 
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::audio::multi_track_looper::scene_state::SceneHandle;
@@ -39,7 +31,6 @@ use crate::{QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
-    sample_rate: AtomicF32,
     scene_handle: SceneHandle,
     metronome_handle: Shared<MetronomeProcessorHandle>,
     slice_worker: SliceWorker,
@@ -60,7 +51,6 @@ impl MultiTrackLooperHandle {
             voices,
             time_info_provider,
             scene_handle: SceneHandle::new(8, 2),
-            sample_rate: AtomicF32::new(44100.0),
             metronome_handle,
             settings: make_shared_cell(AudioProcessorSettings::default()),
             slice_worker: SliceWorker::new(),

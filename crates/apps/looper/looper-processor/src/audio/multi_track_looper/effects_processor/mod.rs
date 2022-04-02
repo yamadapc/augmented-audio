@@ -2,26 +2,26 @@ use basedrop::{Shared, SharedCell};
 use std::ops::Deref;
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
-use audio_processor_bitcrusher::{BitCrusherProcessor};
+use audio_processor_bitcrusher::BitCrusherProcessor;
 use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, NodeType};
+use audio_processor_time::FreeverbProcessor;
 use audio_processor_time::MonoDelayProcessor;
-use audio_processor_time::{FreeverbProcessor};
-use audio_processor_traits::parameters::{
-    AudioProcessorHandleProvider, AudioProcessorHandleRef,
-};
+use audio_processor_traits::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
 use audio_processor_traits::{
     simple_processor, AudioBuffer, AudioProcessor, AudioProcessorSettings, SliceAudioProcessor,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 
-enum EffectType {
-    Reverb,
-    Delay,
-    Filter,
-    BitCrusher,
+#[repr(C)]
+#[derive(Clone, Debug)]
+pub enum EffectType {
+    EffectTypeReverb = 0,
+    EffectTypeDelay = 1,
+    EffectTypeFilter = 2,
+    EffectTypeBitCrusher = 3,
 }
 
-struct EffectsProcessorHandle {
+pub struct EffectsProcessorHandle {
     graph_handle: Shared<AudioProcessorGraphHandle>,
     effect_handles: SharedCell<Vec<AudioProcessorHandleRef>>,
     settings: SharedCell<AudioProcessorSettings>,
@@ -37,22 +37,22 @@ impl EffectsProcessorHandle {
 
             let mut handle: Option<AudioProcessorHandleRef> = None;
             let effect: Box<dyn SliceAudioProcessor + Send + 'static> = match effect {
-                Reverb => {
+                EffectTypeReverb => {
                     let processor = FreeverbProcessor::default();
                     handle = Some(processor.generic_handle());
                     Box::new(simple_processor::BufferProcessor(processor))
                 }
-                Delay => {
+                EffectTypeDelay => {
                     let mono_delay_processor = MonoDelayProcessor::default();
                     handle = Some(mono_delay_processor.generic_handle());
                     Box::new(simple_processor::BufferProcessor(mono_delay_processor))
                 }
-                Filter => {
+                EffectTypeFilter => {
                     let processor = FilterProcessor::new(FilterType::LowPass);
                     handle = Some(processor.generic_handle());
                     Box::new(simple_processor::BufferProcessor(processor))
                 }
-                BitCrusher => {
+                EffectTypeBitCrusher => {
                     let processor = BitCrusherProcessor::default();
                     handle = Some(AudioProcessorHandleProvider::generic_handle(&processor));
                     Box::new(processor)
@@ -78,7 +78,7 @@ impl EffectsProcessorHandle {
     }
 }
 
-struct EffectsProcessor {
+pub struct EffectsProcessor {
     handle: Shared<EffectsProcessorHandle>,
     graph: AudioProcessorGraph,
 }
@@ -97,12 +97,17 @@ impl EffectsProcessor {
             }),
         }
     }
+
+    pub fn handle(&self) -> &Shared<EffectsProcessorHandle> {
+        &self.handle
+    }
 }
 
 impl AudioProcessor for EffectsProcessor {
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
+        log::info!("Preparing EffectsProcessor");
         self.graph.prepare(settings);
         self.handle.settings.set(make_shared(settings));
     }
