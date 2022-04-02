@@ -57,7 +57,7 @@ struct EffectsRowView: View {
     @ObservedObject var model: EffectsRowViewModel
 
     init(store: Store) {
-        self.model = EffectsRowViewModel(store: store)
+        model = EffectsRowViewModel(store: store)
     }
 
     var body: some View {

@@ -38,7 +38,7 @@ pub struct EffectsProcessorHandle {
 
 impl EffectsProcessorHandle {
     pub fn add_effect(&self, effect: EffectType) {
-        let (processor, handle): (SomeEffectProcessor, AudioProcessorHandleRef) = {
+        let (mut processor, handle): (SomeEffectProcessor, AudioProcessorHandleRef) = {
             use EffectType::*;
 
             let (effect, handle): (SomeEffectProcessor, SomeHandle) = match effect {
@@ -68,7 +68,7 @@ impl EffectsProcessorHandle {
                 }
                 EffectTypeBitCrusher => {
                     let processor = BitCrusherProcessor::default();
-                    processor.handle().set_sample_rate(1000.0);
+                    processor.handle().set_sample_rate(100.0);
                     let handle = AudioProcessorHandleProvider::generic_handle(&processor);
                     (Box::new(processor), handle)
                 }
@@ -78,6 +78,8 @@ impl EffectsProcessorHandle {
             (effect, handle)
         };
 
+        let settings = self.settings.get().deref().clone();
+        processor.prepare_slice(settings);
         let node_idx = self.graph_handle.add_node(NodeType::Buffer(processor));
         let state = EffectNodeState {
             handle,

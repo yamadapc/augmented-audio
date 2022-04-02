@@ -25,40 +25,40 @@
 import SwiftUI
 
 struct MetronomeToggleButton: View {
-  @EnvironmentObject var store: Store
-  @ObservedObject var metronomeVolume: FloatParameter
+    @EnvironmentObject var store: Store
+    @ObservedObject var metronomeVolume: FloatParameter
 
-  var body: some View {
-    Button(action: {
-      if metronomeVolume.value > 0.0 {
-        metronomeVolume.value = 0.0
-      } else {
-        metronomeVolume.value = 0.7
-      }
-    }) {
-        if #available(macOS 11.0, *) {
-            Image(systemName: "metronome")
-                .renderingMode(.template)
-                .padding(2)
-                .background(
-                    metronomeVolume.value > 0.0
-                    ? SequencerColors.yellow.opacity(0.5)
-                    : SequencerColors.transparent
-                )
-                .cornerRadius(4)
-        } else {
-            Text("Metronome")
+    var body: some View {
+        Button(action: {
+            if metronomeVolume.value > 0.0 {
+                metronomeVolume.value = 0.0
+            } else {
+                metronomeVolume.value = 0.7
+            }
+        }) {
+            if #available(macOS 11.0, *) {
+                Image(systemName: "metronome")
+                    .renderingMode(.template)
+                    .padding(2)
+                    .background(
+                        metronomeVolume.value > 0.0
+                            ? SequencerColors.yellow.opacity(0.5)
+                            : SequencerColors.transparent
+                    )
+                    .cornerRadius(4)
+            } else {
+                Text("Metronome")
+            }
         }
+        .animation(.easeInOut(duration: 0.3), value: metronomeVolume.value)
+        .buttonStyle(.plain)
+        .frame(maxHeight: 30)
+        .bindToParameterId(
+            store: store,
+            parameterId: .metronomeVolume,
+            showSelectionOverlay: false
+        )
     }
-    .animation(.easeInOut(duration: 0.3), value: metronomeVolume.value)
-    .buttonStyle(.plain)
-    .frame(maxHeight: 30)
-    .bindToParameterId(
-        store: store,
-        parameterId: .metronomeVolume,
-        showSelectionOverlay: false
-    )
-  }
 }
 
 struct TopBarView: View {
