@@ -73,7 +73,6 @@ impl ParametersMap {
 
         let index: usize = self.indexes[&id];
         let slot: &ParameterValue = &self.values[index];
-        println!("{:?}", slot);
         slot.set_from(&value);
         self.has_value[index].set(true);
     }
