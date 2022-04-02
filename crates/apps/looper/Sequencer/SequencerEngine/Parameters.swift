@@ -98,3 +98,10 @@ let RUST_TEMPO_CONTROL: [TempoControlMode: SequencerEngine_private.TempoControl]
     .setAndFollowGlobalTempo: TempoControlSetGlobalTempo,
     .none: TempoControlNone
 ]
+
+let RUST_EFFECT_TYPES: [EffectId: EffectType] = [
+    .bitcrusher: EffectTypeBitCrusher,
+    .delay: EffectTypeDelay,
+    .filter: EffectTypeFilter,
+    .reverb: EffectTypeReverb,
+]

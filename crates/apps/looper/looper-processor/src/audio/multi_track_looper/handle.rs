@@ -17,7 +17,7 @@ use super::tempo_estimation::estimate_tempo;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
 
 use metronome::MetronomeProcessorHandle;

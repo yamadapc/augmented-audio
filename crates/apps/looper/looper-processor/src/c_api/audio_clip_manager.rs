@@ -1,3 +1,4 @@
+use actix_system_threads::ActorSystemThread;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
@@ -12,7 +13,11 @@ pub unsafe extern "C" fn looper_engine__load_file(
     let engine = &(*engine);
     let manager = engine.audio_clip_manager();
     let file_path = CStr::from_ptr(file_path).to_str().unwrap().to_string();
-    manager.do_send(LoadClipMessage {
-        path: file_path.into(),
+    let _ = ActorSystemThread::current().spawn_result(async move {
+        manager
+            .send(LoadClipMessage {
+                path: file_path.into(),
+            })
+            .await;
     });
 }

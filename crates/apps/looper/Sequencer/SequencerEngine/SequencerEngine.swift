@@ -152,6 +152,10 @@ extension EngineImpl: SequencerEngine {
             ])
         }
     }
+
+    func addEffect(trackId: Int, effectId: EffectId) {
+        looper_engine__add_effect(engine, UInt(trackId - 1), RUST_EFFECT_TYPES[effectId]!)
+    }
 }
 
 extension EngineImpl {

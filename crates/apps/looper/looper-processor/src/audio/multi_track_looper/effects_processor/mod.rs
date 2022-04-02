@@ -3,7 +3,7 @@ use std::ops::Deref;
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_bitcrusher::BitCrusherProcessor;
-use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, NodeType};
+use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, NodeIndex, NodeType};
 use audio_processor_time::FreeverbProcessor;
 use audio_processor_time::MonoDelayProcessor;
 use audio_processor_traits::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
@@ -11,6 +11,9 @@ use audio_processor_traits::{
     simple_processor, AudioBuffer, AudioProcessor, AudioProcessorSettings, SliceAudioProcessor,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
+
+type SomeEffectProcessor = Box<dyn SliceAudioProcessor + Send + 'static>;
+type SomeHandle = AudioProcessorHandleRef;
 
 #[repr(C)]
 #[derive(Clone, Debug)]
@@ -21,60 +24,86 @@ pub enum EffectType {
     EffectTypeBitCrusher = 3,
 }
 
+#[derive(Clone)]
+pub struct EffectNodeState {
+    node_index: NodeIndex,
+    handle: AudioProcessorHandleRef,
+}
+
 pub struct EffectsProcessorHandle {
     graph_handle: Shared<AudioProcessorGraphHandle>,
-    effect_handles: SharedCell<Vec<AudioProcessorHandleRef>>,
+    effects: SharedCell<Vec<EffectNodeState>>,
     settings: SharedCell<AudioProcessorSettings>,
 }
 
 impl EffectsProcessorHandle {
     pub fn add_effect(&self, effect: EffectType) {
-        let (processor, handle): (
-            Box<dyn SliceAudioProcessor + Send + 'static>,
-            AudioProcessorHandleRef,
-        ) = {
+        let (processor, handle): (SomeEffectProcessor, AudioProcessorHandleRef) = {
             use EffectType::*;
 
-            let mut handle: Option<AudioProcessorHandleRef> = None;
-            let effect: Box<dyn SliceAudioProcessor + Send + 'static> = match effect {
+            let (effect, handle): (SomeEffectProcessor, SomeHandle) = match effect {
                 EffectTypeReverb => {
                     let processor = FreeverbProcessor::default();
-                    handle = Some(processor.generic_handle());
-                    Box::new(simple_processor::BufferProcessor(processor))
+                    let handle = processor.generic_handle();
+                    (
+                        Box::new(simple_processor::BufferProcessor(processor)),
+                        handle,
+                    )
                 }
                 EffectTypeDelay => {
                     let mono_delay_processor = MonoDelayProcessor::default();
-                    handle = Some(mono_delay_processor.generic_handle());
-                    Box::new(simple_processor::BufferProcessor(mono_delay_processor))
+                    let handle = mono_delay_processor.generic_handle();
+                    (
+                        Box::new(simple_processor::BufferProcessor(mono_delay_processor)),
+                        handle,
+                    )
                 }
                 EffectTypeFilter => {
                     let processor = FilterProcessor::new(FilterType::LowPass);
-                    handle = Some(processor.generic_handle());
-                    Box::new(simple_processor::BufferProcessor(processor))
+                    let handle = processor.generic_handle();
+                    (
+                        Box::new(simple_processor::BufferProcessor(processor)),
+                        handle,
+                    )
                 }
                 EffectTypeBitCrusher => {
                     let processor = BitCrusherProcessor::default();
-                    handle = Some(AudioProcessorHandleProvider::generic_handle(&processor));
-                    Box::new(processor)
+                    let handle = AudioProcessorHandleProvider::generic_handle(&processor);
+                    (Box::new(processor), handle)
                 }
             };
 
-            let handle = handle.unwrap();
+            let handle = handle;
             (effect, handle)
         };
 
         let node_idx = self.graph_handle.add_node(NodeType::Buffer(processor));
-        let _ = self
-            .graph_handle
-            .add_connection(self.graph_handle.input(), node_idx);
-        let _ = self
-            .graph_handle
-            .add_connection(node_idx, self.graph_handle.output());
+        let state = EffectNodeState {
+            handle,
+            node_index: node_idx,
+        };
+        let mut effects: Vec<EffectNodeState> = (*self.effects.get().deref()).clone();
+        effects.push(state);
+        self.effects.set(make_shared(effects));
+        self.update_graph();
+    }
 
-        let mut handles_vec: Vec<AudioProcessorHandleRef> =
-            (*self.effect_handles.get().deref()).clone();
-        handles_vec.push(handle);
-        self.effect_handles.set(make_shared(handles_vec));
+    fn update_graph(&self) {
+        // Ideally all of this should happen at once & switch the graph up. We also didn't need to
+        // rebuild the whole graph.
+        self.graph_handle.clear();
+        let effects = self.effects.get();
+
+        let mut last_index = self.graph_handle.input();
+        for effect in &*effects {
+            let _ = self
+                .graph_handle
+                .add_connection(last_index, effect.node_index);
+        }
+
+        let _ = self
+            .graph_handle
+            .add_connection(last_index, self.graph_handle.output());
     }
 }
 
@@ -85,14 +114,18 @@ pub struct EffectsProcessor {
 
 impl EffectsProcessor {
     pub fn new() -> Self {
-        let graph = AudioProcessorGraph::default();
+        let mut graph = AudioProcessorGraph::default();
         let graph_handle = graph.handle().clone();
+
+        graph
+            .add_connection(graph.input(), graph.output())
+            .expect("Can't cycle");
 
         Self {
             graph,
             handle: make_shared(EffectsProcessorHandle {
                 graph_handle,
-                effect_handles: make_shared_cell(vec![]),
+                effects: make_shared_cell(vec![]),
                 settings: make_shared_cell(Default::default()),
             }),
         }

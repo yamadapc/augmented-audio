@@ -38,6 +38,6 @@ public protocol SequencerEngine {
     func addMidiMapping(controller: Int, parameterId: ParameterId)
 
     func removeLock(parameterLockId: ParameterLockId)
-
     func loadFile(atPath path: String)
+    func addEffect(trackId: Int, effectId: EffectId)
 }

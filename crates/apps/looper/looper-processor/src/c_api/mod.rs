@@ -4,8 +4,7 @@ use basedrop::Shared;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
 
-use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;
-
+pub use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;
 use crate::audio::multi_track_looper::parameters::ParameterValue;
 use crate::audio::multi_track_looper::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,

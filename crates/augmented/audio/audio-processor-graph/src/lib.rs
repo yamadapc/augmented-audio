@@ -93,6 +93,12 @@ impl AudioProcessorGraphHandle {
         Ok(edge)
     }
 
+    pub fn clear(&self) {
+        let mut dag = self.dag.get().deref().clone();
+        dag.clear_edges();
+        self.dag.set(make_shared(dag));
+    }
+
     pub fn input(&self) -> NodeIndex {
         self.input_node
     }
