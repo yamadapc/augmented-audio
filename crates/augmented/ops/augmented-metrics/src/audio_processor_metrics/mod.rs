@@ -6,9 +6,11 @@
 //!
 //! There are two sides for the usage measurement:
 //!
-//! * `AudioProcessorMetrics` should be added to the audio-processor code
-//! * `AudioProcessorMetricsActor` is a polling aggregation background worker that can aggregate the
-//!   last few measurements
+//! * [`AudioProcessorMetrics`] should be added to the audio-processor code
+//!   - Its [`AudioProcessorMetricsHandle`] reference will be shared with measurement state
+//! * [`AudioProcessorMetricsActor`] is a polling aggregation background worker that can aggregate
+//!   the last few measurements
+//!   - It'll return [`AudioProcessorMetricsStats`]
 //!
 //! # Example audio-thread integration
 //! `AudioProcessorMetrics` is a real-time safe object you can use in audio-processing code. The
