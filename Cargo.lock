@@ -707,6 +707,9 @@ dependencies = [
 name = "augmented-audio-metrics"
 version = "1.0.0-alpha.1"
 dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-traits",
+ "augmented-atomics",
  "log",
 ]
 
@@ -4155,6 +4158,7 @@ dependencies = [
  "audio-processor-traits",
  "augmented-adsr-envelope",
  "augmented-atomics",
+ "augmented-audio-metrics",
  "augmented-dsp-filters",
  "augmented-midi",
  "augmented-playhead",

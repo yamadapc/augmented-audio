@@ -52,6 +52,7 @@ wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger"
 audio-processor-file = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-file" }
 augmented-midi = { path = "../../../augmented/data/augmented-midi" , version = "1.0.0-alpha.4" }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" }
+augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" }
 
 # FX
 audio-processor-pitch-shifter = { path = "../../../augmented/audio/audio-processor-pitch-shifter" }

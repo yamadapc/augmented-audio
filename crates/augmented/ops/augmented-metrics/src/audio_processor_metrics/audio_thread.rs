@@ -1,9 +1,7 @@
 use std::sync::atomic::{AtomicU64, AtomicUsize};
 use std::time::{Duration, Instant};
 
-use basedrop::Shared;
-
-use audio_garbage_collector::make_shared;
+use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::AudioProcessorSettings;
 use augmented_atomics::{AtomicF32, AtomicValue};
 
@@ -52,6 +50,10 @@ impl Default for AudioProcessorMetrics {
 impl AudioProcessorMetrics {
     pub fn handle(&self) -> Shared<AudioProcessorMetricsHandle> {
         self.handle.clone()
+    }
+
+    pub fn prepare(&self, settings: AudioProcessorSettings) {
+        self.handle.prepare(settings);
     }
 
     pub fn on_process_start(&mut self) {
