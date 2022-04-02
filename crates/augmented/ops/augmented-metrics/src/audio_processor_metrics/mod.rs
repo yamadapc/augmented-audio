@@ -79,11 +79,11 @@
 //!     }
 //! });
 //! ```
-use audio_garbage_collector::Shared;
 use std::cmp::Ordering;
 use std::collections::VecDeque;
 use std::time::Duration;
 
+use audio_garbage_collector::Shared;
 pub use audio_thread::*;
 
 mod audio_thread;
@@ -141,7 +141,6 @@ impl AudioProcessorMetricsActor {
     }
 }
 
-#[repr(C)]
 #[derive(Default)]
 pub struct AudioProcessorMetricsStats {
     pub average_cpu: f32,
