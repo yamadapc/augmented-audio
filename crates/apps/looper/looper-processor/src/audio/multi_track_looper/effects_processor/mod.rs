@@ -68,6 +68,7 @@ impl EffectsProcessorHandle {
                 }
                 EffectTypeBitCrusher => {
                     let processor = BitCrusherProcessor::default();
+                    processor.handle().set_sample_rate(1000.0);
                     let handle = AudioProcessorHandleProvider::generic_handle(&processor);
                     (Box::new(processor), handle)
                 }
