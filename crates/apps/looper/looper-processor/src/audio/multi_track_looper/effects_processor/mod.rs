@@ -2,12 +2,12 @@ use basedrop::{Shared, SharedCell};
 use std::ops::Deref;
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
-use audio_processor_bitcrusher::{BitCrusherHandle, BitCrusherProcessor};
+use audio_processor_bitcrusher::{BitCrusherProcessor};
 use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, NodeType};
 use audio_processor_time::MonoDelayProcessor;
-use audio_processor_time::{FreeverbProcessor, MonoDelayProcessorHandle};
+use audio_processor_time::{FreeverbProcessor};
 use audio_processor_traits::parameters::{
-    AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
+    AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
 use audio_processor_traits::{
     simple_processor, AudioBuffer, AudioProcessor, AudioProcessorSettings, SliceAudioProcessor,
