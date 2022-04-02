@@ -6,16 +6,15 @@ use basedrop::Shared;
 use actix_system_threads::ActorSystemThread;
 use audio_processor_standalone::StandaloneHandles;
 
-use crate::audio::multi_track_looper::looper_voice::LooperVoice;
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
-use crate::audio::multi_track_looper::ParametersMap;
+
 use crate::controllers::autosave_controller::AutosaveController;
 use crate::controllers::load_project_controller::load_and_hydrate_latest_project;
-use crate::parameters::{build_default_parameters, ParameterId};
-use crate::services::audio_clip_manager::{AudioClipManager, AudioClipModelRef, LoadClipMessage};
-use crate::services::project_manager::model::{LooperVoicePersist, Project};
-use crate::services::project_manager::{LoadLatestProjectMessage, ProjectManager};
+
+use crate::services::audio_clip_manager::AudioClipManager;
+
+use crate::services::project_manager::ProjectManager;
 use crate::{services, setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};
 
 pub struct LooperEngine {
