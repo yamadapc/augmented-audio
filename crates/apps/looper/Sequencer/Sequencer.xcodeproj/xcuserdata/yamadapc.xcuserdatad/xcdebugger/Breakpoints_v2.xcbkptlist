@@ -186,54 +186,6 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "EE341CC8-4AB3-456C-AB8F-6CFB2917DA27"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SequencerEngine/SequencerEngine.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "141"
-            endingLineNumber = "141"
-            landmarkName = "removeLock(parameterLockId:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "EE341CC8-4AB3-456C-AB8F-6CFB2917DA27 - d4f5b70374a9210c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SequencerEngine.EngineImpl.removeLock(parameterLockId: SequencerUI.ParameterLockId) -&gt; ()"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/SequencerEngine/SequencerEngine.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "130"
-                  endingLineNumber = "130"
-                  offsetFromSymbolStart = "1824">
-               </Location>
-               <Location
-                  uuid = "EE341CC8-4AB3-456C-AB8F-6CFB2917DA27 - d4f5b70374a9210c"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SequencerEngine.EngineImpl.removeLock(parameterLockId: SequencerUI.ParameterLockId) -&gt; ()"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/SequencerEngine/SequencerEngine.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "130"
-                  endingLineNumber = "130"
-                  offsetFromSymbolStart = "1828">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
             uuid = "1B96BA26-E350-4AAB-9FEE-8E0A187E7715"
             shouldBeEnabled = "No"
             ignoreCount = "0"

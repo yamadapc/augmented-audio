@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 use actix::{Addr, SyncArbiter};
 use basedrop::Shared;
@@ -16,14 +16,11 @@ use crate::{services, setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle
 
 pub struct LooperEngine {
     handle: Shared<MultiTrackLooperHandle>,
-    metrics_actor: Arc<Mutex<AudioProcessorMetricsActor>>,
-    midi_store: Shared<MidiStoreHandle>,
+    metrics_actor: Mutex<AudioProcessorMetricsActor>,
     audio_clip_manager: Addr<AudioClipManager>,
     project_manager: Addr<ProjectManager>,
-    #[allow(unused)]
-    audio_handles: StandaloneHandles,
-    #[allow(unused)]
-    autosave_controller: AutosaveController,
+    _autosave_controller: AutosaveController,
+    _audio_handles: StandaloneHandles,
 }
 
 impl LooperEngine {
@@ -31,13 +28,11 @@ impl LooperEngine {
         wisual_logger::init_from_env();
         log::info!("LooperEngine setup sequence started");
 
-        let processor = MultiTrackLooper::new(Default::default(), 8);
+        let processor = MultiTrackLooper::default();
         let handle = processor.handle().clone();
 
-        let metrics_actor = Arc::new(Mutex::new(AudioProcessorMetricsActor::new(
-            handle.metrics_handle().clone(),
-        )));
-        let midi_store = handle.midi().clone();
+        let metrics_handle = handle.metrics_handle().clone();
+        let metrics_actor = Mutex::new(AudioProcessorMetricsActor::new(metrics_handle));
 
         let audio_clip_manager = ActorSystemThread::current()
             .spawn_result(async move { SyncArbiter::start(1, || AudioClipManager::default()) });
@@ -59,12 +54,11 @@ impl LooperEngine {
 
         LooperEngine {
             handle,
-            audio_handles,
             metrics_actor,
-            midi_store,
             audio_clip_manager,
             project_manager,
-            autosave_controller,
+            _autosave_controller: autosave_controller,
+            _audio_handles: audio_handles,
         }
     }
 
@@ -72,16 +66,12 @@ impl LooperEngine {
         &self.handle
     }
 
-    pub fn metrics_actor(&self) -> &Arc<Mutex<AudioProcessorMetricsActor>> {
+    pub fn metrics_actor(&self) -> &Mutex<AudioProcessorMetricsActor> {
         &self.metrics_actor
     }
 
     pub fn midi_store(&self) -> &Shared<MidiStoreHandle> {
-        &self.midi_store
-    }
-
-    pub fn audio_handles(&self) -> &StandaloneHandles {
-        &self.audio_handles
+        self.handle.midi()
     }
 
     pub fn audio_clip_manager(&self) -> &Addr<AudioClipManager> {

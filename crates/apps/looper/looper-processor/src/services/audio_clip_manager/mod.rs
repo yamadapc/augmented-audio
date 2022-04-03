@@ -1,10 +1,11 @@
+use std::path::{Path, PathBuf};
+use std::time::Duration;
+
 use actix::{Actor, Handler, SyncContext};
 use basedrop::Shared;
-use std::path::{Path, PathBuf};
-
-use audio_garbage_collector::make_shared;
 use bytesize::ByteSize;
 
+use audio_garbage_collector::make_shared;
 use audio_processor_file::file_io::AudioFileError;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
 
@@ -41,7 +42,13 @@ impl AudioClipManager {
             audio_processor_file::InMemoryAudioFile::from_path(path.to_str().unwrap())?;
         let audio_file = audio_file.read_into_vec_audio_buffer(&self.settings)?;
         let byte_size = estimate_file_size(&audio_file);
-        log::info!("File takes-up ~{} of memory", byte_size);
+        let duration =
+            Duration::from_secs_f32(audio_file.num_samples() as f32 / self.settings.sample_rate());
+        log::info!(
+            "File takes-up ~{} of memory, duration={:?}",
+            byte_size,
+            duration
+        );
 
         let clip_model = make_shared(AudioClipModel {
             id: AudioClipId(self.audio_clips.len()),
