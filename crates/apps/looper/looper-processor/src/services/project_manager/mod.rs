@@ -167,7 +167,7 @@ fn persist_handle_clips(
         .voices()
         .iter()
         .map(|voice| {
-            if voice.looper().num_samples() <= 0 {
+            if voice.looper().num_samples() == 0 {
                 return None;
             }
 

@@ -721,6 +721,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "augmented-codegen"
+version = "0.1.0"
+dependencies = [
+ "complexity",
+ "glob",
+ "log",
+ "syn",
+ "wisual-logger",
+]
+
+[[package]]
 name = "augmented-convert-sample-rate"
 version = "1.0.0-alpha.4"
 dependencies = [
@@ -1457,6 +1468,15 @@ checksum = "50b727aacc797f9fc28e355d21f34709ac4fc9adecfe470ad07b8f4464f53062"
 dependencies = [
  "bytes",
  "memchr",
+]
+
+[[package]]
+name = "complexity"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a36552771b8d2e57f7eadb6ebd9f57486d09cb10ebefb6475ad97d33c6aceb07"
+dependencies = [
+ "syn",
 ]
 
 [[package]]
@@ -4185,6 +4205,9 @@ dependencies = [
  "serde_derive",
  "strum 0.24.0",
  "strum_macros 0.24.0",
+ "swift-bridge",
+ "swift-bridge-build",
+ "syn",
  "tempdir",
  "thiserror",
  "tokio",
@@ -7039,6 +7062,51 @@ name = "svg_fmt"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fb1df15f412ee2e9dfc1c504260fa695c1c3f10fe9f4a6ee2d2184d7d6450e2"
+
+[[package]]
+name = "swift-bridge"
+version = "0.1.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d7cd99deee57c862fe8a06791306efd2898c2450423671b1db3dd083e07416a"
+dependencies = [
+ "swift-bridge-build",
+ "swift-bridge-macro",
+]
+
+[[package]]
+name = "swift-bridge-build"
+version = "0.1.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95cdd7d7de799e14f3636f63d7b81547fcf6b3c363343f824f56899821dc8a32"
+dependencies = [
+ "proc-macro2 1.0.36",
+ "swift-bridge-ir",
+ "syn",
+ "tempfile",
+]
+
+[[package]]
+name = "swift-bridge-ir"
+version = "0.1.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b895f7efe6173f7d7fdb55243ae6ec186904e441da490f58e92ead3d0c9bfdec"
+dependencies = [
+ "proc-macro2 1.0.36",
+ "quote 1.0.15",
+ "syn",
+]
+
+[[package]]
+name = "swift-bridge-macro"
+version = "0.1.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3488b286b2513538f05b488f81476968c237d3e1427cf94cdaffe0e7dce9cc7"
+dependencies = [
+ "proc-macro2 1.0.36",
+ "quote 1.0.15",
+ "swift-bridge-ir",
+ "syn",
+]
 
 [[package]]
 name = "symphonia"

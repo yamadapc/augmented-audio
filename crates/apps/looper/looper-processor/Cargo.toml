@@ -26,6 +26,7 @@ crossbeam = "0.8"
 anyhow = "1.0"
 thiserror = "1.0"
 rustc-hash = "1.1"
+swift-bridge = "0.1"
 
 # Application / Project management things
 actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }
@@ -67,6 +68,10 @@ audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-pro
 
 [dev-dependencies]
 criterion = "^0.3.4"
+
+[build-dependencies]
+syn = "1.0"
+swift-bridge-build = "0.1"
 
 [[bench]]
 name = "looper_processor_criterion"

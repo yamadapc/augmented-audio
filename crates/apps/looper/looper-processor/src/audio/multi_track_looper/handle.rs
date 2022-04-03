@@ -82,19 +82,18 @@ impl MultiTrackLooperHandle {
         self.scene_handle.set_slider(value);
     }
 
-    /// If the active looper is empty, start recording, otherwise start playback
     pub fn on_multi_mode_record_play_pressed(&self) {
         let looper_id = self.active_looper.get();
         let voice = &self.voices[looper_id];
         let looper_id = LooperId(looper_id);
         let state = voice.looper().state();
-        if state == LooperState::Empty {
-            self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
-        } else if state == LooperState::Paused {
+
+        if state == LooperState::Paused {
             self.toggle_playback(looper_id)
         } else if state == LooperState::Overdubbing
             || state == LooperState::Recording
             || state == LooperState::Playing
+            || state == LooperState::Empty
         {
             self.toggle_recording(looper_id, LooperHandleThread::AudioThread);
         } // TODO what else

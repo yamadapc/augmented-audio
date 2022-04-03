@@ -1,0 +1,11 @@
+[package]
+name = "augmented-codegen"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+syn = { version = "1.0", features = ["full", "extra-traits", "visit"] }
+glob = "0.3"
+wisual-logger = { path = "../../../augmented/ops/wisual-logger" }
+log = "0.4"
+complexity = "0.2"

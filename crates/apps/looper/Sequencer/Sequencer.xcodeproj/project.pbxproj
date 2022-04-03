@@ -185,6 +185,7 @@
 		CB3D995727EFD78E00E5ECBA /* Sequencer-Mac-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Sequencer-Mac-Info.plist"; sourceTree = SOURCE_ROOT; };
 		CB3D995827EFE4A000E5ECBA /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
 		CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSubscriptions.swift; sourceTree = "<group>"; };
+		CB67D2D227F9753200473155 /* Simple.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; name = Simple.playground; path = SequencerEngine/Simple.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		CB801A1527D8AE6600D7788E /* Continuous.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Continuous.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -290,6 +291,7 @@
 		CB16669B27CCAD04000F9E21 = {
 			isa = PBXGroup;
 			children = (
+				CB67D2D227F9753200473155 /* Simple.playground */,
 				CB3948C527EA6BFC009A650D /* Sequencer AudioUnit */,
 				CBA4DA9127DDF21800A530E3 /* SequencerEngine */,
 				CBA4DAAC27DDF67700A530E3 /* SequencerEngine_ios */,

@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     # Applications & Plug-ins
+    "crates/apps/looper/augmented-codegen",
     "crates/apps/looper/looper-processor",
     "crates/apps/looper/looper-vst",
     "crates/apps/plugin-host/plugin-host-cli",

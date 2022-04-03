@@ -44,14 +44,15 @@ impl AudioProcessor for EnvelopeProcessor {
         &mut self,
         data: &mut BufferType,
     ) {
-        if self.handle.enabled.load(Ordering::Relaxed) {
-            for frame in data.frames_mut() {
-                let volume = self.handle.adsr_envelope.volume();
-                for sample in frame {
-                    *sample *= volume;
-                }
-                self.handle.adsr_envelope.tick();
+        if !self.handle.enabled.load(Ordering::Relaxed) {
+            return;
+        }
+        for frame in data.frames_mut() {
+            let volume = self.handle.adsr_envelope.volume();
+            for sample in frame {
+                *sample *= volume;
             }
+            self.handle.adsr_envelope.tick();
         }
     }
 }
