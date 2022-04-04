@@ -1,5 +1,6 @@
 use std::marker::PhantomData;
 use std::sync::Arc;
+
 pub use vst;
 use vst::plugin::PluginParameters;
 use vst::{
@@ -98,7 +99,7 @@ macro_rules! generic_standalone_vst {
             ) -> Self::Output {
                 let processor = <$t>::default();
                 let options = ::audio_processor_standalone::standalone_processor::StandaloneOptions {
-                    handle: Some(::std::sync::Arc::new(processor.generic_handle())),
+                    handle: Some(::audio_processor_traits::parameters::AudioProcessorHandleProvider::generic_handle(&processor)),
                     ..Default::default()
                 };
                 ::audio_processor_standalone::standalone_processor::StandaloneAudioOnlyProcessor::new(processor, options)

@@ -183,7 +183,7 @@ mod test {
             r#"
 pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine) {
     let value: &LooperEngine = unsafe { &(*ptr) };
-    LooperEngine::trigger(value);
+    LooperEngine::trigger(value)
 }
 "#
         );
@@ -205,7 +205,7 @@ pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine) {
             r#"
 pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine, something: f32, something_else: i32) {
     let value: &LooperEngine = unsafe { &(*ptr) };
-    LooperEngine::trigger(value, something, something_else);
+    LooperEngine::trigger(value, something, something_else)
 }
 "#
         );

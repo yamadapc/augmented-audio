@@ -1,7 +1,7 @@
 use std::cell::UnsafeCell;
+use std::collections::HashMap;
 use std::ops::Deref;
 
-use concread::hashmap::HashMap;
 use daggy::Walker;
 use thiserror::Error;
 
@@ -38,13 +38,13 @@ pub struct AudioProcessorGraphHandle {
     dag: SharedCell<daggy::Dag<(), ()>>,
     process_order: SharedCell<Vec<NodeIndex>>,
     audio_processor_settings: SharedCell<Option<AudioProcessorSettings>>,
-    processors: HashMap<NodeIndex, Shared<ProcessorCell>>,
-    buffers: HashMap<ConnectionIndex, Shared<BufferCell<VecAudioBuffer<f32>>>>,
+    processors: SharedCell<HashMap<NodeIndex, Shared<ProcessorCell>>>,
+    buffers: SharedCell<HashMap<ConnectionIndex, Shared<BufferCell<VecAudioBuffer<f32>>>>>,
 }
 
 impl AudioProcessorGraphHandle {
     pub fn add_node(&self, mut processor: NodeType) -> NodeIndex {
-        let mut tx = self.processors.write();
+        let mut processors = self.processors.get().deref().clone();
         let mut dag = self.dag.get().deref().clone();
         let index = dag.add_node(());
 
@@ -56,9 +56,9 @@ impl AudioProcessorGraphHandle {
         }
 
         let processor_ref = make_processor_cell(processor);
-        tx.insert(index, processor_ref);
-        tx.commit();
+        processors.insert(index, processor_ref);
 
+        self.processors.set(make_shared(processors));
         self.dag.set(make_shared(dag));
         index
     }
@@ -68,7 +68,7 @@ impl AudioProcessorGraphHandle {
         source: NodeIndex,
         destination: NodeIndex,
     ) -> Result<ConnectionIndex, AudioProcessorGraphError> {
-        let mut tx = self.buffers.write();
+        let mut buffers = self.buffers.get().deref().clone();
 
         let mut dag = self.dag.get().deref().clone();
         let edge = dag
@@ -84,8 +84,8 @@ impl AudioProcessorGraphHandle {
 
         let buffer = make_shared(BufferCell(UnsafeCell::new(buffer)));
 
-        tx.insert(edge, buffer);
-        tx.commit();
+        buffers.insert(edge, buffer);
+        self.buffers.set(make_shared(buffers));
 
         self.dag.set(make_shared(dag));
         self.process_order.set(make_shared(new_order));
@@ -153,11 +153,11 @@ impl AudioProcessorGraph {
         let output_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
         let output_node = dag.add_node(());
 
-        let processors = HashMap::new();
-        let mut tx = processors.write();
-        tx.insert(input_node, make_processor_cell(input_proc));
-        tx.insert(output_node, make_processor_cell(output_proc));
-        tx.commit();
+        // let processors = HashMap::new();
+        // let mut tx = processors.write();
+        // tx.insert(input_node, make_processor_cell(input_proc));
+        // tx.insert(output_node, make_processor_cell(output_proc));
+        // tx.commit();
 
         AudioProcessorGraph {
             input_node,
@@ -168,8 +168,8 @@ impl AudioProcessorGraph {
                 dag: make_shared_cell(dag),
                 process_order: make_shared_cell(Vec::new()),
                 audio_processor_settings: make_shared_cell(None),
-                processors: HashMap::new(),
-                buffers: HashMap::new(),
+                processors: make_shared_cell(HashMap::new()),
+                buffers: make_shared_cell(HashMap::new()),
             }),
             temporary_buffer: VecAudioBuffer::new(),
         }
@@ -210,8 +210,8 @@ impl AudioProcessor for AudioProcessorGraph {
         self.handle
             .audio_processor_settings
             .set(make_shared(Some(settings)));
-        let buffers_tx = self.handle.buffers.read();
-        for buffer_ref in buffers_tx.values() {
+        let buffers = self.handle.buffers.get();
+        for buffer_ref in buffers.values() {
             let buffer = buffer_ref.deref().0.get();
             unsafe {
                 (*buffer).resize(settings.output_channels(), settings.block_size(), 0.0);
@@ -220,7 +220,7 @@ impl AudioProcessor for AudioProcessorGraph {
 
         let handle = self.handle.deref();
 
-        let tx = handle.processors.read();
+        let processors = handle.processors.get();
         let process_order = handle.process_order.get();
         let process_order = process_order.deref();
 
@@ -229,7 +229,7 @@ impl AudioProcessor for AudioProcessorGraph {
                 .dag
                 .get()
                 .node_weight(*node_index)
-                .and(tx.get(node_index))
+                .and(processors.get(node_index))
             {
                 unsafe {
                     match &mut *processor.deref().0.get() {
@@ -257,8 +257,8 @@ impl AudioProcessor for AudioProcessorGraph {
         let handle = self.handle.deref();
         let dag = handle.dag.get();
         let dag = dag.deref();
-        let processors = handle.processors.read();
-        let buffers = handle.buffers.read();
+        let processors = handle.processors.get();
+        let buffers = handle.buffers.get();
         let process_order = handle.process_order.get();
         let process_order = process_order.deref();
 

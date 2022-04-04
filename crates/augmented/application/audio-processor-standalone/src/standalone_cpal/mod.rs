@@ -369,3 +369,23 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
 
     processor.processor().process(&mut audio_buffer);
 }
+
+#[macro_export]
+macro_rules! generic_standalone_run {
+    ($t: ident) => {
+        match ::std::env::var("GUI") {
+            Ok(value) if value == "true" => {
+                use ::audio_processor_traits::parameters::{
+                    AudioProcessorHandleProvider, AudioProcessorHandleRef,
+                };
+                let handle: AudioProcessorHandleRef =
+                    AudioProcessorHandleProvider::generic_handle(&$t);
+                let _audio_handles = ::audio_processor_standalone::audio_processor_start($t);
+                ::audio_processor_standalone_gui::open(handle);
+            }
+            _ => {
+                ::audio_processor_standalone::audio_processor_main($t);
+            }
+        }
+    };
+}

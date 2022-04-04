@@ -19,7 +19,7 @@
 //!
 //! ```rust
 //! use audio_processor_traits::{AudioProcessor, AudioBuffer, AudioProcessorSettings};
-//! use augmented_audio_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
+//! use crate::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 //!
 //! struct TrackedProcessor {
 //!     metrics: AudioProcessorMetrics
@@ -56,7 +56,7 @@
 //! ```rust
 //! use std::time::Duration;
 //! use audio_garbage_collector::Shared;
-//! use augmented_audio_metrics::{AudioProcessorMetricsHandle, AudioProcessorMetrics, AudioProcessorMetricsActor, AudioProcessorMetricsStats};
+//! use crate::{AudioProcessorMetricsHandle, AudioProcessorMetrics, AudioProcessorMetricsActor, AudioProcessorMetricsStats};
 //!
 //! let metrics = AudioProcessorMetrics::default(); // this would be created in some processor
 //!
