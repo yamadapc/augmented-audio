@@ -5,28 +5,24 @@ use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use num::ToPrimitive;
 
+use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
+use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
+use augmented_atomics::{AtomicF32, AtomicValue};
+use metronome::MetronomeProcessorHandle;
+
+use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
+use crate::audio::multi_track_looper::scene_state::SceneHandle;
+use crate::audio::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
+use crate::{QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
+
 use super::looper_voice::LooperVoice;
 use super::metrics::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 use super::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, ParameterValue,
     QuantizationParameter, SceneId, SourceParameter, TempoControl,
 };
-
 use super::slice_worker::{SliceResult, SliceWorker};
 use super::tempo_estimation::estimate_tempo;
-
-use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
-
-use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
-use augmented_atomics::{AtomicF32, AtomicValue};
-
-use metronome::MetronomeProcessorHandle;
-
-use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
-use crate::audio::multi_track_looper::scene_state::SceneHandle;
-use crate::audio::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
-
-use crate::{QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
 pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
@@ -213,33 +209,47 @@ impl MultiTrackLooperHandle {
         match parameter_id {
             ParameterId::ParameterIdSource(parameter) => match parameter {
                 SourceParameter::SliceId => {
-                    let slice_enabled = voice
-                        .user_parameters()
-                        .get(SourceParameter::SliceEnabled)
-                        .as_bool();
-
-                    if !slice_enabled {
-                        return;
-                    }
-
-                    if let Some(slice) = self.slice_worker.result(voice.id) {
-                        let markers = slice.markers();
-                        let num_markers = markers.len();
-                        let num_samples = voice.looper().num_samples();
-
-                        if num_markers == 0 || num_samples == 0 {
-                            return;
-                        }
-
-                        let marker = &markers[(value as usize % num_markers).max(0)];
-                        let offset = marker.position_samples as f32 / num_samples as f32;
-                        voice.looper().set_start_offset(offset);
-                    }
+                    let _ = self.update_handle_slice_offset(voice, value);
                 }
                 _ => {}
             },
             _ => {}
         }
+    }
+
+    /// Do nothing if slice mode is disabled.
+    ///
+    /// Read the slice results from the worker (this loop has been auto-sliced), then use the slice
+    /// result to set the offset on the looper based on the corresponding slice ID marker's length.
+    fn update_handle_slice_offset(&self, voice: &LooperVoice, value: i32) -> Option<()> {
+        let slice_enabled = voice
+            .user_parameters()
+            .get(SourceParameter::SliceEnabled)
+            .as_bool();
+
+        if !slice_enabled {
+            return None;
+        }
+
+        let offset = self.get_slice_offset(voice, value)?;
+        voice.looper().set_start_offset(offset);
+
+        Some(())
+    }
+
+    fn get_slice_offset(&self, voice: &LooperVoice, slice_index: i32) -> Option<f32> {
+        let slice = self.slice_worker.result(voice.id)?;
+        let markers = slice.markers();
+        let num_markers = markers.len();
+        let num_samples = voice.looper().num_samples();
+
+        if markers.is_empty() || voice.looper().is_empty() {
+            return None;
+        }
+
+        let marker = &markers[(slice_index as usize % num_markers).max(0)];
+        let offset = marker.position_samples as f32 / num_samples as f32;
+        Some(offset)
     }
 
     pub fn update_handle_float(&self, voice: &LooperVoice, parameter_id: ParameterId, value: f32) {

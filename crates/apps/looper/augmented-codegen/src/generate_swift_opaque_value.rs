@@ -1,5 +1,8 @@
+use std::collections::HashSet;
 use std::fmt::format;
 use std::ops::Add;
+
+use crate::generate_swift_enum::capitalize;
 
 use super::CodegenOutput;
 
@@ -72,7 +75,17 @@ pub fn generate_opaque_method(value: OpaqueValueMethod) -> CodegenOutput {
         .map(|v| format!(" -> *mut {}", v))
         .unwrap_or("".to_string());
 
-    let body = if value.return_value.is_some() {
+    let mut primitives = HashSet::new();
+    primitives.insert("f32");
+    primitives.insert("f64");
+    primitives.insert("bool");
+    primitives.insert("i32");
+    primitives.insert("i64");
+    primitives.insert("usize");
+
+    let should_box = value.return_value.is_some()
+        && !primitives.contains(&*value.return_value.as_ref().cloned().unwrap());
+    let body = if should_box {
         format!(
             r#"let result = {}::{}(value{});
     Box::into_raw(Box::new(result))"#,
@@ -93,15 +106,69 @@ pub extern "C" fn boxed__{}__{}(ptr: *mut {}{}){} {{
 "#,
         value.parent, value.identifier, value.parent, arguments, return_value, value.parent, body
     );
+
+    let argument_names = value
+        .arguments
+        .iter()
+        .map(|(name, _)| name.clone())
+        .collect::<Vec<String>>();
+    let mut swift_code = "".to_string();
+    let swift_method_name = to_camel_case(&*value.identifier.to_string());
+    swift_code += &*format!(
+        r#"
+extension {} {{
+    func {}({}){} {{
+        boxed__{}__{}({})
+    }}
+}}
+    "#,
+        format!("Boxed${}", value.parent),
+        swift_method_name,
+        value
+            .arguments
+            .iter()
+            .map(|(identifier, ty)| { format!("{}: {}", identifier, ty) })
+            .collect::<Vec<String>>()
+            .join(", "),
+        value
+            .return_value
+            .map(|ret| format!(" -> {}", ret))
+            .unwrap_or("".to_string()),
+        value.parent,
+        value.identifier,
+        argument_names.join(", ")
+    );
+
     CodegenOutput {
         rust_code,
-        swift_code: "".to_string(),
+        swift_code,
     }
+}
+
+fn to_camel_case(identifier: &str) -> String {
+    let parts = identifier.split("_");
+    let mut result = "".to_string();
+    let mut first = true;
+    for part in parts {
+        if first {
+            result += part;
+            first = false;
+        } else {
+            result += &capitalize(part)
+        }
+    }
+    result
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_to_camel_case() {
+        let inp = "something_here";
+        assert_eq!(to_camel_case(inp), "somethingHere");
+    }
 
     #[test]
     fn test_generate_opaque_method_rust() {

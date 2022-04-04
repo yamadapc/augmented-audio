@@ -1,4 +1,5 @@
 use std::ops::Add;
+
 use syn::Variant;
 
 use super::CodegenOutput;
@@ -26,6 +27,16 @@ pub fn generate_swift_enum(i: &syn::ItemEnum) -> CodegenOutput {
 
 fn generate_variant_swift_ident(variant: &Variant) -> String {
     let result = format!("{}", variant.ident);
+    lower_case(&result)
+}
+
+pub(crate) fn capitalize(result: &str) -> String {
+    let mut chars: Vec<char> = result.chars().collect();
+    chars[0] = chars[0].to_uppercase().nth(0).unwrap();
+    chars.into_iter().collect()
+}
+
+pub(crate) fn lower_case(result: &str) -> String {
     let mut chars: Vec<char> = result.chars().collect();
     chars[0] = chars[0].to_lowercase().nth(0).unwrap();
     chars.into_iter().collect()

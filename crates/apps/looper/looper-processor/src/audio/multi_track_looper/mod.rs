@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::ops::Mul;
 
 use assert_no_alloc::assert_no_alloc;
 
@@ -43,14 +44,21 @@ pub(crate) mod slice_worker;
 mod tempo_estimation;
 pub(crate) mod trigger_model;
 
+/// During audio-processing, parameters are written into this storage to apply different phases
+/// (user-settings, scenes, triggers & LFOs; in this order). This is temporary, per-callback
+/// mutable state.
+/// TODO: This should be a struct rather than two type-aliases
+type ParametersScratch = Vec<Vec<ParameterValue>>;
+type ParametersScratchIndexes = HashMap<ParameterId, usize>;
+
 pub struct MultiTrackLooper {
     graph: AudioProcessorGraph,
     handle: Shared<MultiTrackLooperHandle>,
     step_trackers: Vec<StepTracker>,
     lfos: Vec<(Oscillator<f32>, Oscillator<f32>)>,
     metrics: AudioProcessorMetrics,
-    parameters_scratch: Vec<Vec<ParameterValue>>,
-    parameter_scratch_indexes: HashMap<ParameterId, usize>,
+    parameters_scratch: ParametersScratch,
+    parameter_scratch_indexes: ParametersScratchIndexes,
     record_midi_button: MIDIButton,
 }
 
@@ -183,7 +191,10 @@ impl MultiTrackLooper {
 
         graph
     }
+}
 
+// Sequencer parameter-locks handling
+impl MultiTrackLooper {
     fn process_triggers(&mut self) {
         if let Some(position_beats) = self
             .handle
@@ -191,111 +202,157 @@ impl MultiTrackLooper {
             .get_time_info()
             .position_beats()
         {
-            for (voice, step_tracker) in self.handle.voices().iter().zip(&mut self.step_trackers) {
-                let triggers = voice.trigger_model();
+            let mut step_trackers = &mut self.step_trackers;
+            let mut parameters_scratch = &mut self.parameters_scratch;
+            let parameters_scratch_indexes = &self.parameter_scratch_indexes;
 
-                let triggers_vec = triggers.triggers();
-                if let Some(_trigger) =
-                    find_current_beat_trigger(triggers, &triggers_vec, step_tracker, position_beats)
-                {
-                    voice.looper().trigger();
-                    voice.envelope().adsr_envelope.note_on();
-                }
-
-                let index = voice.id;
-                let parameters_scratch = &mut self.parameters_scratch[index];
-
-                let triggers = find_running_beat_trigger(triggers, &triggers_vec, position_beats);
-                let mut has_triggers = false;
-                for trigger in triggers {
-                    has_triggers = true;
-                    for (parameter_id, lock) in trigger.locks() {
-                        let parameter_idx = self.parameter_scratch_indexes[parameter_id];
-                        parameters_scratch[parameter_idx] =
-                            ParameterValue::Float(lock.value().into());
-                    }
-                }
-
-                if !has_triggers {
-                    voice.envelope().adsr_envelope.note_off();
-                }
+            for (voice, step_tracker) in self.handle.voices().iter().zip(step_trackers) {
+                Self::process_triggers_for_voice(
+                    parameters_scratch_indexes,
+                    parameters_scratch,
+                    voice,
+                    step_tracker,
+                    position_beats,
+                )
             }
         }
     }
 
+    fn process_triggers_for_voice(
+        parameters_scratch_indexes: &ParametersScratchIndexes,
+        parameters_scratch: &mut ParametersScratch,
+        voice: &LooperVoice,
+        step_tracker: &mut StepTracker,
+        position_beats: f64,
+    ) {
+        let triggers = voice.trigger_model();
+
+        let triggers_vec = triggers.triggers();
+        if let Some(_trigger) =
+            find_current_beat_trigger(triggers, &triggers_vec, step_tracker, position_beats)
+        {
+            voice.looper().trigger();
+            voice.envelope().adsr_envelope.note_on();
+        }
+
+        let index = voice.id;
+        let parameters_scratch = &mut parameters_scratch[index];
+
+        let triggers = find_running_beat_trigger(triggers, &triggers_vec, position_beats);
+        let mut has_triggers = false;
+        for trigger in triggers {
+            has_triggers = true;
+            for (parameter_id, lock) in trigger.locks() {
+                let parameter_idx = parameters_scratch_indexes[parameter_id];
+                parameters_scratch[parameter_idx] = ParameterValue::Float(lock.value().into());
+            }
+        }
+
+        if !has_triggers {
+            voice.envelope().adsr_envelope.note_off();
+        }
+    }
+}
+
+// LFOs handling
+impl MultiTrackLooper {
     fn process_lfos(&mut self) {
+        let parameters_scratch = &mut self.parameters_scratch;
+        let parameters_scratch_indexes = &self.parameter_scratch_indexes;
         for ((lfo1, lfo2), voice) in self.lfos.iter_mut().zip(self.handle.voices().iter()) {
-            if let ParameterValue::Float(lfo_freq_1) = &self.parameters_scratch[voice.id][self
-                .parameter_scratch_indexes
-                [&ParameterId::ParameterIdLFO(0, LFOParameter::Frequency)]]
-            {
-                lfo1.set_frequency(lfo_freq_1.get());
+            Self::process_lfos_for_voice(
+                parameters_scratch_indexes,
+                parameters_scratch,
+                lfo1,
+                lfo2,
+                &voice,
+            )
+        }
+    }
+
+    fn process_lfos_for_voice(
+        parameter_scratch_indexes: &ParametersScratchIndexes,
+        parameters_scratch: &mut ParametersScratch,
+        lfo1: &mut Oscillator<f32>,
+        lfo2: &mut Oscillator<f32>,
+        voice: &&LooperVoice,
+    ) {
+        let scratch = &mut parameters_scratch[voice.id];
+        if let ParameterValue::Float(lfo_freq_1) = &scratch
+            [parameter_scratch_indexes[&ParameterId::ParameterIdLFO(0, LFOParameter::Frequency)]]
+        {
+            lfo1.set_frequency(lfo_freq_1.get());
+        }
+        let lfo1_amount = if let ParameterValue::Float(value) = &scratch
+            [parameter_scratch_indexes[&ParameterId::ParameterIdLFO(0, LFOParameter::Amount)]]
+        {
+            value.get()
+        } else {
+            1.0
+        };
+        if let ParameterValue::Float(lfo_freq_2) = &scratch
+            [parameter_scratch_indexes[&ParameterId::ParameterIdLFO(1, LFOParameter::Frequency)]]
+        {
+            lfo2.set_frequency(lfo_freq_2.get());
+        }
+        let lfo2_amount = if let ParameterValue::Float(value) = &scratch
+            [parameter_scratch_indexes[&ParameterId::ParameterIdLFO(1, LFOParameter::Amount)]]
+        {
+            value.get()
+        } else {
+            1.0
+        };
+
+        let lfo1_handle = voice.lfo1();
+        let lfo2_handle = voice.lfo2();
+
+        let run_mapping = |parameter: &ParameterId,
+                           value: &ParameterValue,
+                           lfo_amount: f32,
+                           lfo_handle: &Shared<LFOHandle>,
+                           lfo: &mut Oscillator<f32>|
+         -> Option<f32> {
+            let modulation_amount = lfo_handle.modulation_amount(parameter);
+            if let ParameterValue::Float(value) = value {
+                let value = lfo.get() * modulation_amount * lfo_amount + value.get();
+                return Some(value);
             }
-            if let ParameterValue::Float(lfo_freq_2) = &self.parameters_scratch[voice.id][self
-                .parameter_scratch_indexes
-                [&ParameterId::ParameterIdLFO(1, LFOParameter::Frequency)]]
-            {
-                lfo2.set_frequency(lfo_freq_2.get());
+            None
+        };
+
+        for (parameter_idx, parameter) in voice.parameter_ids().iter().enumerate() {
+            if let Some(value) = run_mapping(
+                parameter,
+                &scratch[parameter_idx],
+                lfo1_amount,
+                lfo1_handle,
+                lfo1,
+            ) {
+                scratch[parameter_idx] = ParameterValue::Float(value.into());
             }
-            let lfo1_amount = if let ParameterValue::Float(value) = &self.parameters_scratch
-                [voice.id][self.parameter_scratch_indexes
-                [&ParameterId::ParameterIdLFO(0, LFOParameter::Amount)]]
-            {
-                value.get()
-            } else {
-                1.0
-            };
-            let lfo2_amount = if let ParameterValue::Float(value) = &self.parameters_scratch
-                [voice.id][self.parameter_scratch_indexes
-                [&ParameterId::ParameterIdLFO(1, LFOParameter::Amount)]]
-            {
-                value.get()
-            } else {
-                1.0
-            };
-
-            let lfo1_handle = voice.lfo1();
-            let lfo2_handle = voice.lfo2();
-
-            let run_mapping = |parameter: &ParameterId,
-                               value: &ParameterValue,
-                               lfo_amount: f32,
-                               lfo_handle: &Shared<LFOHandle>,
-                               lfo: &mut Oscillator<f32>|
-             -> Option<f32> {
-                let modulation_amount = lfo_handle.modulation_amount(parameter);
-                if let ParameterValue::Float(value) = value {
-                    let value = lfo.get() * modulation_amount * lfo_amount + value.get();
-                    return Some(value);
-                }
-                None
-            };
-
-            for (parameter_idx, parameter) in voice.parameter_ids().iter().enumerate() {
-                if let Some(value) = run_mapping(
-                    parameter,
-                    &self.parameters_scratch[voice.id][parameter_idx],
-                    lfo1_amount,
-                    lfo1_handle,
-                    lfo1,
-                ) {
-                    self.parameters_scratch[voice.id][parameter_idx] =
-                        ParameterValue::Float(value.into());
-                }
-                if let Some(value) = run_mapping(
-                    parameter,
-                    &self.parameters_scratch[voice.id][parameter_idx],
-                    lfo2_amount,
-                    lfo2_handle,
-                    lfo2,
-                ) {
-                    self.parameters_scratch[voice.id][parameter_idx] =
-                        ParameterValue::Float(value.into());
-                }
+            if let Some(value) = run_mapping(
+                parameter,
+                &scratch[parameter_idx],
+                lfo2_amount,
+                lfo2_handle,
+                lfo2,
+            ) {
+                scratch[parameter_idx] = ParameterValue::Float(value.into());
             }
         }
     }
 
+    fn tick_lfos(&mut self) {
+        for (l1, l2) in self.lfos.iter_mut() {
+            l1.tick();
+            l2.tick();
+        }
+    }
+}
+
+// Scenes handling
+impl MultiTrackLooper {
+    // Public for benchmarking
     pub fn process_scenes(&mut self) {
         let scene_value = self.handle.scene_handle().get_slider();
 
@@ -341,7 +398,14 @@ impl MultiTrackLooper {
             }
         }
     }
+}
 
+// Flush parameters;
+// * Each stage (triggers, lfos, scenes, etc) makes changes into a temporary parameters
+//   scratch-space
+// * After all stages, we flush the scratch space into the processor handles (actually set the
+//   parameters)
+impl MultiTrackLooper {
     fn flush_parameters(&mut self) {
         for (voice, values) in self
             .handle
@@ -364,20 +428,16 @@ impl MultiTrackLooper {
             }
         }
     }
+}
 
-    fn tick_lfos(&mut self) {
-        for (l1, l2) in self.lfos.iter_mut() {
-            l1.tick();
-            l2.tick();
-        }
-    }
-
+// MIDI record button handling
+impl MultiTrackLooper {
     fn on_record_button_click_midi(&mut self, value: u8) {
         let event = self.record_midi_button.accept(value);
         self.handle_record_midi_button_event(event);
     }
 
-    fn handle_record_midi_button_event(&mut self, event: Option<MIDIButtonEvent>) {
+    fn handle_record_midi_button_event(&self, event: Option<MIDIButtonEvent>) {
         if let Some(event) = event {
             match event {
                 MIDIButtonEvent::ButtonDown => {

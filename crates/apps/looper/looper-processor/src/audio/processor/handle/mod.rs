@@ -13,6 +13,7 @@ use augmented_atomics::{AtomicEnum, AtomicValue};
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
 
+use crate::audio::processor::handle::scratch_pad::ScratchPad;
 use crate::audio::{
     loop_quantization::{LoopQuantizer, QuantizeInput},
     time_info_provider::{HostCallback, TimeInfoProvider, TimeInfoProviderImpl},
@@ -420,6 +421,10 @@ impl LooperHandle {
         self.length.load(Ordering::Relaxed)
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.num_samples() == 0 || self.state.get() == LooperState::Empty
+    }
+
     pub fn is_recording(&self) -> bool {
         let state = self.state.get();
         state == LooperState::Recording || state == LooperState::Overdubbing
@@ -544,55 +549,89 @@ impl LooperHandle {
         }
 
         let state = self.state.get();
-        if state == LooperState::PlayingScheduled {
-            let current_scratch_cursor = scratch_pad.cursor();
-            let scheduled_playback = self.scheduled_playback.get();
-            if current_scratch_cursor >= scheduled_playback {
-                log::info!("stopping recording");
-                self.stop_recording_audio_thread_only();
-            } else {
-                self.length.fetch_add(1, Ordering::Relaxed);
-            }
-        } else if state == LooperState::RecordingScheduled {
-            let current_scratch_cursor = scratch_pad.cursor();
-            let scheduled_start = self.start_cursor.load(Ordering::Relaxed);
-
-            if current_scratch_cursor >= scheduled_start {
-                self.state.set(LooperState::Recording);
-            }
-        } else if state == LooperState::Recording {
-            let len = self.length.load(Ordering::Relaxed) + 1;
-            if len > scratch_pad.max_len() {
-                self.stop_recording_audio_thread_only();
-            } else {
-                self.length.store(len, Ordering::Relaxed);
-            }
-        } else if state == LooperState::Playing || state == LooperState::Overdubbing {
-            let end_samples = self.get_end_samples();
-            if end_samples > 0.0 {
-                let cursor = self.cursor.get();
-                let length = self.length.get() as f32;
-
-                if !self.loop_enabled.load(Ordering::Relaxed)
-                    && (cursor + self.speed.get()) >= end_samples
-                {
-                    return;
-                }
-
-                let mut cursor = (cursor + self.speed.get()) % end_samples % length;
-                let start_samples = self.get_start_samples();
-                let loop_has_finished = cursor < start_samples;
-                if loop_has_finished {
-                    cursor = if self.speed.get() > 0.0 {
-                        start_samples
-                    } else {
-                        end_samples
-                    };
-                }
-
-                self.cursor.set(cursor);
-            }
+        match state {
+            // Scheduled states, waiting for scheduled cursor
+            LooperState::PlayingScheduled => self.after_process_playing_scheduled(&scratch_pad),
+            LooperState::RecordingScheduled => self.after_process_recording_scheduled(&scratch_pad),
+            // Recording, incrementing the length
+            LooperState::Recording => self.after_process_recording(&scratch_pad),
+            // Playing states, moving/resetting the cursor
+            LooperState::Playing => self.after_process_playing(),
+            LooperState::Overdubbing => self.after_process_playing(),
+            _ => {}
         }
+    }
+
+    /// If we're in `PlayingScheduled` state, wait until the scheduled playback cursor is reached
+    /// then stop recording
+    ///
+    /// Until then, increment the length counter
+    fn after_process_playing_scheduled(&self, scratch_pad: &ScratchPad) {
+        let current_scratch_cursor = scratch_pad.cursor();
+        let scheduled_playback = self.scheduled_playback.get();
+        if current_scratch_cursor >= scheduled_playback {
+            log::info!("stopping recording");
+            self.stop_recording_audio_thread_only();
+        } else {
+            self.length.fetch_add(1, Ordering::Relaxed);
+        }
+    }
+
+    /// If we're in `RecordingScheduled` state, wait until the scheduled record start is reached
+    /// then start recording
+    fn after_process_recording_scheduled(&self, scratch_pad: &ScratchPad) {
+        let current_scratch_cursor = scratch_pad.cursor();
+        let scheduled_start = self.start_cursor.load(Ordering::Relaxed);
+
+        if current_scratch_cursor >= scheduled_start {
+            self.state.set(LooperState::Recording);
+        }
+    }
+
+    /// If we're in `Recording` state, increment the length cursor on each tick.
+    /// When the recording buffer is exhausted, quit recording.
+    fn after_process_recording(&self, scratch_pad: &ScratchPad) {
+        let len = self.length.load(Ordering::Relaxed) + 1;
+        if len > scratch_pad.max_len() {
+            self.stop_recording_audio_thread_only();
+        } else {
+            self.length.store(len, Ordering::Relaxed);
+        }
+    }
+
+    // If we're in `Playing` or `Overdubbing` states (the looper is reproducing audio).
+    //
+    // * Increment the `cursor` by `speed`
+    // * If "loop mode" is enabled, reset the cursor to the start of the playback on each tick
+    //   - Start of playback depends on the direction the loop is moving to
+    //     * If the loop is playing forwards, we'll go to the start offset parameter position
+    //     * If the loop is playing backwards, we'll go to the end offset parameter position
+    fn after_process_playing(&self) {
+        let end_samples = self.get_end_samples();
+        if end_samples <= 0.0 {
+            return;
+        }
+
+        let cursor = self.cursor.get();
+        let length = self.length.get() as f32;
+
+        if !self.loop_enabled.load(Ordering::Relaxed) && (cursor + self.speed.get()) >= end_samples
+        {
+            return;
+        }
+
+        let mut cursor = (cursor + self.speed.get()) % end_samples % length;
+        let start_samples = self.get_start_samples();
+        let loop_has_finished = cursor < start_samples;
+        if loop_has_finished {
+            cursor = if self.speed.get() > 0.0 {
+                start_samples
+            } else {
+                end_samples
+            };
+        }
+
+        self.cursor.set(cursor);
     }
 }
 

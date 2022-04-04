@@ -139,7 +139,7 @@ fn lint_file(file: &syn::File) {
                                     method.sig.ident
                                 );
                                 let complexity = method.complexity();
-                                if complexity > 4 {
+                                if complexity >= 15 {
                                     log::warn!("name={} complexity={}", name, complexity);
                                 }
                             }
