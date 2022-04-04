@@ -76,3 +76,64 @@ impl QuantizeOptions {
         self.threshold_ms.set(threshold_ms);
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use audio_processor_testing_helpers::assert_f_eq;
+
+    #[test]
+    fn test_quantize_mode_enum() {
+        let mode = QuantizeMode::None;
+        assert_eq!(mode.cycle(), QuantizeMode::SnapNext);
+        assert_eq!(mode.cycle(), QuantizeMode::SnapClosest);
+        assert_eq!(mode.cycle(), QuantizeMode::None);
+    }
+
+    #[test]
+    fn test_quantize_options() {
+        let options = QuantizeOptions::default();
+        options.set_mode(QuantizeMode::SnapNext);
+        assert_eq!(options.mode(), QuantizeMode::SnapNext);
+        options.set_beats(10);
+        assert_eq!(options.beats(), 10);
+        options.set_threshold_ms(2993.0);
+        assert_f_eq!(options.threshold_ms(), 2993.0);
+    }
+
+    #[test]
+    fn test_quantize_options_into_inner_snap_next() {
+        let options = QuantizeOptions::default();
+        options.set_mode(QuantizeMode::SnapNext);
+        options.set_beats(10);
+        options.set_threshold_ms(2993.0);
+        let inner = options.inner();
+        assert_eq!(inner, LoopQuantizerMode::SnapNext { beats: 10 })
+    }
+
+    #[test]
+    fn test_quantize_options_into_inner_none() {
+        let options = QuantizeOptions::default();
+        options.set_mode(QuantizeMode::None);
+        options.set_beats(10);
+        options.set_threshold_ms(2993.0);
+        let inner = options.inner();
+        assert_eq!(inner, LoopQuantizerMode::None)
+    }
+
+    #[test]
+    fn test_quantize_options_into_inner_snap_closest() {
+        let options = QuantizeOptions::default();
+        options.set_mode(QuantizeMode::SnapClosest);
+        options.set_beats(10);
+        options.set_threshold_ms(2993.0);
+        let inner = options.inner();
+        assert_eq!(
+            inner,
+            LoopQuantizerMode::SnapClosest {
+                beats: 10,
+                threshold_ms: 2993.0,
+            }
+        )
+    }
+}

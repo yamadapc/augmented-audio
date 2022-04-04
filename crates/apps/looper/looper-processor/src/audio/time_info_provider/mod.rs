@@ -1,5 +1,8 @@
 //! Looper representation of the play-head state. An abstract [`TimeInfo`] provider
-//! [`TimeInfoProvider`] wraps both `vst` (slave mode) and [`PlayHead`] (master mode).
+//! [`TimeInfoProvider`] wraps both `vst` (hosted mode) and [`PlayHead`] (stand-alone/host mode).
+//!
+//! * hosted-mode - The DAW provides play-head & tempo
+//! * standalone-mode - The [`TimeInfoProviderImpl`] object provides play-head & tempo
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use derive_builder::Builder;
@@ -85,14 +88,14 @@ pub struct TimeInfoProviderImpl {
 impl TimeInfoProvider for TimeInfoProviderImpl {
     #[cfg(target_os = "ios")]
     fn get_time_info(&self) -> TimeInfo {
-        self.playhead_timeinfo()
+        self.get_playhead_time_info()
     }
 
     #[cfg(not(target_os = "ios"))]
     fn get_time_info(&self) -> TimeInfo {
         let host_time_info = get_host_time_info(self.host_callback.as_ref());
 
-        host_time_info.unwrap_or_else(|| self.playhead_timeinfo())
+        host_time_info.unwrap_or_else(|| self.get_playhead_time_info())
     }
 
     fn tick_n(&self, n: u32) {
@@ -137,7 +140,8 @@ impl TimeInfoProviderImpl {
         self.playhead.set_sample_rate(sample_rate);
     }
 
-    fn playhead_timeinfo(&self) -> TimeInfo {
+    /// Same as [`get_host_time_info`] for standalone mode
+    fn get_playhead_time_info(&self) -> TimeInfo {
         TimeInfo {
             tempo: self.playhead.options().tempo().map(|t| t as f64),
             position_samples: self.playhead.position_samples() as f64,
@@ -152,6 +156,8 @@ impl TimeInfoProviderImpl {
 }
 
 /// Return the VST API time-info, converted into our object.
+///
+/// Same as [`TimeInfoProviderImpl::get_playhead_time_info`] but for hosted mode.
 #[cfg(not(target_os = "ios"))]
 fn get_host_time_info<H: vst::host::Host>(host: Option<&H>) -> Option<TimeInfo> {
     host.as_ref()

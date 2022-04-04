@@ -1,5 +1,6 @@
 //! Implements better quantization logic for live-loopers.
 
+#[derive(PartialEq, Debug)]
 pub enum LoopQuantizerMode {
     None,
     SnapNext { beats: usize },
