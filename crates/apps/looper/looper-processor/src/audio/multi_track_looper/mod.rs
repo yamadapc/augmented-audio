@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::ops::Mul;
 
 use assert_no_alloc::assert_no_alloc;
 
@@ -202,8 +201,8 @@ impl MultiTrackLooper {
             .get_time_info()
             .position_beats()
         {
-            let mut step_trackers = &mut self.step_trackers;
-            let mut parameters_scratch = &mut self.parameters_scratch;
+            let step_trackers = &mut self.step_trackers;
+            let parameters_scratch = &mut self.parameters_scratch;
             let parameters_scratch_indexes = &self.parameter_scratch_indexes;
 
             for (voice, step_tracker) in self.handle.voices().iter().zip(step_trackers) {
@@ -263,8 +262,7 @@ impl MultiTrackLooper {
             Self::process_lfos_for_voice(
                 parameters_scratch_indexes,
                 parameters_scratch,
-                lfo1,
-                lfo2,
+                &mut [(lfo1, &voice.lfo1()), (lfo2, &voice.lfo2())],
                 &voice,
             )
         }
@@ -273,71 +271,26 @@ impl MultiTrackLooper {
     fn process_lfos_for_voice(
         parameter_scratch_indexes: &ParametersScratchIndexes,
         parameters_scratch: &mut ParametersScratch,
-        lfo1: &mut Oscillator<f32>,
-        lfo2: &mut Oscillator<f32>,
+        lfos: &mut [(&mut Oscillator<f32>, &LFOHandle)],
         voice: &&LooperVoice,
     ) {
-        let scratch = &mut parameters_scratch[voice.id];
-        if let ParameterValue::Float(lfo_freq_1) = &scratch
-            [parameter_scratch_indexes[&ParameterId::ParameterIdLFO(0, LFOParameter::Frequency)]]
-        {
-            lfo1.set_frequency(lfo_freq_1.get());
-        }
-        let lfo1_amount = if let ParameterValue::Float(value) = &scratch
-            [parameter_scratch_indexes[&ParameterId::ParameterIdLFO(0, LFOParameter::Amount)]]
-        {
-            value.get()
-        } else {
-            1.0
-        };
-        if let ParameterValue::Float(lfo_freq_2) = &scratch
-            [parameter_scratch_indexes[&ParameterId::ParameterIdLFO(1, LFOParameter::Frequency)]]
-        {
-            lfo2.set_frequency(lfo_freq_2.get());
-        }
-        let lfo2_amount = if let ParameterValue::Float(value) = &scratch
-            [parameter_scratch_indexes[&ParameterId::ParameterIdLFO(1, LFOParameter::Amount)]]
-        {
-            value.get()
-        } else {
-            1.0
-        };
+        for (lfo_index, (lfo_osc, lfo_handle)) in lfos.iter_mut().enumerate() {
+            let freq_idx = ParameterId::ParameterIdLFO(lfo_index, LFOParameter::Frequency);
+            let amount_idx = ParameterId::ParameterIdLFO(lfo_index, LFOParameter::Amount);
 
-        let lfo1_handle = voice.lfo1();
-        let lfo2_handle = voice.lfo2();
+            let scratch = &mut parameters_scratch[voice.id];
 
-        let run_mapping = |parameter: &ParameterId,
-                           value: &ParameterValue,
-                           lfo_amount: f32,
-                           lfo_handle: &Shared<LFOHandle>,
-                           lfo: &mut Oscillator<f32>|
-         -> Option<f32> {
-            let modulation_amount = lfo_handle.modulation_amount(parameter);
-            if let ParameterValue::Float(value) = value {
-                let value = lfo.get() * modulation_amount * lfo_amount + value.get();
-                return Some(value);
-            }
-            None
-        };
+            let freq = scratch[parameter_scratch_indexes[&freq_idx]].as_float();
+            lfo_osc.set_frequency(freq);
+            let global_amount = scratch[parameter_scratch_indexes[&amount_idx]].as_float();
 
-        for (parameter_idx, parameter) in voice.parameter_ids().iter().enumerate() {
-            if let Some(value) = run_mapping(
-                parameter,
-                &scratch[parameter_idx],
-                lfo1_amount,
-                lfo1_handle,
-                lfo1,
-            ) {
-                scratch[parameter_idx] = ParameterValue::Float(value.into());
-            }
-            if let Some(value) = run_mapping(
-                parameter,
-                &scratch[parameter_idx],
-                lfo2_amount,
-                lfo2_handle,
-                lfo2,
-            ) {
-                scratch[parameter_idx] = ParameterValue::Float(value.into());
+            for (parameter_idx, parameter) in voice.parameter_ids().iter().enumerate() {
+                let modulation_amount = lfo_handle.modulation_amount(parameter);
+                let value = &scratch[parameter_idx];
+                if let ParameterValue::Float(value) = value {
+                    let value = lfo_osc.get() * modulation_amount * global_amount + value.get();
+                    scratch[parameter_idx] = ParameterValue::Float(value.into());
+                }
             }
         }
     }
