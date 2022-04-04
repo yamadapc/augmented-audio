@@ -20,11 +20,13 @@ impl<Inner: FromPrimitive + ToPrimitive> AtomicEnum<Inner> {
         }
     }
 
+    #[inline]
     pub fn set(&self, value: Inner) {
         let value = value.to_usize().unwrap();
         self.value.store(value, Ordering::Relaxed);
     }
 
+    #[inline]
     pub fn get(&self) -> Inner {
         let value = self.value.load(Ordering::Relaxed);
         Inner::from_usize(value).unwrap()

@@ -126,27 +126,21 @@ fn setup_multi_track_looper_bench(c: &mut Criterion) {
 fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usize) {
     let fbuffer_size = buffer_size as f32;
 
-    group.bench_function(
-        format!("LooperProcessor::process ({} samples chunk)", buffer_size),
-        |b| {
-            let sine = sine_buffer(fbuffer_size, 440.0, Duration::from_millis(1000));
-            let mut buffer = VecAudioBuffer::new_with(sine, 1, buffer_size);
+    group.bench_function(format!("LooperProcessor_process_{}", buffer_size), |b| {
+        let sine = sine_buffer(fbuffer_size, 440.0, Duration::from_millis(1000));
+        let mut buffer = VecAudioBuffer::new_with(sine, 1, buffer_size);
 
-            let mut processor = LooperProcessor::default();
-            processor.prepare(AudioProcessorSettings::new(fbuffer_size, 1, 1, buffer_size));
+        let mut processor = LooperProcessor::default();
+        processor.prepare(AudioProcessorSettings::new(fbuffer_size, 1, 1, buffer_size));
 
-            b.iter(|| {
-                processor.process(&mut buffer);
-                black_box(&mut buffer);
-            });
-        },
-    );
+        b.iter(|| {
+            processor.process(&mut buffer);
+            black_box(&mut buffer);
+        });
+    });
 
     group.bench_function(
-        format!(
-            "LooperProcessor::process recording ({} samples chunk)",
-            buffer_size
-        ),
+        format!("LooperProcessor_process_{}_recording", buffer_size),
         |b| {
             let sine = sine_buffer(fbuffer_size, 440.0, Duration::from_millis(1000));
             let mut buffer = VecAudioBuffer::new_with(sine, 1, buffer_size);
@@ -163,10 +157,7 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
     );
 
     group.bench_function(
-        format!(
-            "LooperProcessor::process playback ({} samples chunk)",
-            buffer_size
-        ),
+        format!("LooperProcessor_process_{}_playing", buffer_size),
         |b| {
             let sine = sine_buffer(fbuffer_size, 440.0, Duration::from_millis(1000));
             let mut buffer = VecAudioBuffer::new_with(sine, 1, buffer_size);

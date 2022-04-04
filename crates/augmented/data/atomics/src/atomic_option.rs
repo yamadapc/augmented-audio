@@ -22,6 +22,7 @@ impl<T: AtomicValue + Default> AtomicOption<T> {
         }
     }
 
+    #[inline]
     pub fn set(&self, value: Option<T::Inner>) {
         if let Some(value) = value {
             self.value.set(value);
@@ -31,6 +32,7 @@ impl<T: AtomicValue + Default> AtomicOption<T> {
         }
     }
 
+    #[inline]
     pub fn inner(&self) -> Option<T::Inner> {
         let is_present = self.is_present.load(Ordering::Relaxed);
         if is_present {

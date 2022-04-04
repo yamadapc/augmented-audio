@@ -614,17 +614,18 @@ impl LooperHandle {
 
         let cursor = self.cursor.get();
         let length = self.length.get() as f32;
+        let speed = self.speed.get();
 
-        if !self.loop_enabled.load(Ordering::Relaxed) && (cursor + self.speed.get()) >= end_samples
-        {
+        if !self.loop_enabled.load(Ordering::Relaxed) && (cursor + speed) >= end_samples {
             return;
         }
 
-        let mut cursor = (cursor + self.speed.get()) % end_samples % length;
+        let mut cursor = (cursor + speed) % end_samples % length;
+
         let start_samples = self.get_start_samples();
         let loop_has_finished = cursor < start_samples;
         if loop_has_finished {
-            cursor = if self.speed.get() > 0.0 {
+            cursor = if speed > 0.0 {
                 start_samples
             } else {
                 end_samples

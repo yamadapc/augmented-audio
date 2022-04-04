@@ -21,10 +21,12 @@ macro_rules! std_atomic_impl {
         impl AtomicValue for $x {
             type Inner = $inner;
 
+            #[inline]
             fn get(&self) -> Self::Inner {
                 self.load(Ordering::Relaxed)
             }
 
+            #[inline]
             fn set(&self, value: Self::Inner) {
                 self.store(value, Ordering::Relaxed)
             }
@@ -136,10 +138,12 @@ macro_rules! atomic_float {
         impl AtomicValue for $name {
             type Inner = $inner;
 
+            #[inline]
             fn get(&self) -> Self::Inner {
                 $name::get(self)
             }
 
+            #[inline]
             fn set(&self, value: Self::Inner) {
                 $name::set(self, value)
             }
@@ -153,10 +157,12 @@ atomic_float!(AtomicF64, AtomicU64, f64);
 impl<T: ToPrimitive + FromPrimitive> AtomicValue for AtomicEnum<T> {
     type Inner = T;
 
+    #[inline]
     fn get(&self) -> Self::Inner {
         Self::get(self)
     }
 
+    #[inline]
     fn set(&self, value: Self::Inner) {
         Self::set(self, value)
     }
