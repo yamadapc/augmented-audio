@@ -10,6 +10,7 @@ use crate::engine::LooperEngine;
 use crate::services::project_manager::PROJECT_MANAGER_DATA_PATH_KEY;
 
 #[test]
+#[ignore]
 fn test_start_engine_and_record_audio() {
     let data_path = tempdir::TempDir::new("test_start_engine_and_record_audio").unwrap();
     std::env::set_var(
