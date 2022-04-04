@@ -1,12 +1,13 @@
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::time::Duration;
+
 use audio_garbage_collector::Shared;
 use audio_processor_traits::parameters::{
-    AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef, FloatType,
-    ParameterSpec, ParameterType, ParameterValue,
+    make_handle_ref, AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
+    FloatType, ParameterSpec, ParameterType, ParameterValue,
 };
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{AtomicF32, AudioProcessorSettings, Float};
-use std::sync::atomic::{AtomicUsize, Ordering};
-use std::time::Duration;
 
 pub struct MonoDelayProcessorHandle {
     feedback: AtomicF32,
@@ -104,8 +105,7 @@ pub struct MonoDelayProcessor<Sample> {
 
 impl<Sample> AudioProcessorHandleProvider for MonoDelayProcessor<Sample> {
     fn generic_handle(&self) -> AudioProcessorHandleRef {
-        use std::sync::Arc;
-        Arc::new(GenericHandle(self.handle.clone()))
+        make_handle_ref(GenericHandle(self.handle.clone()))
     }
 }
 

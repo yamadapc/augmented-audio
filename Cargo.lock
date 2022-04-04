@@ -582,6 +582,7 @@ dependencies = [
 name = "audio-processor-traits"
 version = "1.0.0-alpha.4"
 dependencies = [
+ "audio-garbage-collector",
  "augmented-atomics",
  "augmented_oscillator",
  "criterion",

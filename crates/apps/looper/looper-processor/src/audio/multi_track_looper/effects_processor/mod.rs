@@ -96,12 +96,12 @@ impl EffectsProcessorHandle {
         // Ideally all of this should happen at once & switch the graph up. We also didn't need to
         // rebuild the whole graph.
         self.graph_handle.clear();
-        log::info!("Rebuilding effects graph");
+        log::debug!("Rebuilding effects graph");
         let effects = self.effects.get();
 
         let mut last_index = self.graph_handle.input();
         for effect in &*effects {
-            log::info!(
+            log::debug!(
                 "Connecting effect {:?} => {:?}",
                 last_index,
                 effect.node_index
@@ -151,7 +151,7 @@ impl AudioProcessor for EffectsProcessor {
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        log::info!("Preparing EffectsProcessor");
+        log::debug!("Preparing EffectsProcessor");
         self.graph.prepare(settings);
         self.handle.settings.set(make_shared(settings));
     }

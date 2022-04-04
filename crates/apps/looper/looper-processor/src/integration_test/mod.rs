@@ -7,9 +7,16 @@ use crate::audio::multi_track_looper::parameters::LooperId;
 use crate::audio::processor::handle::LooperHandleThread;
 use crate::audio::processor::handle::LooperState;
 use crate::engine::LooperEngine;
+use crate::services::project_manager::PROJECT_MANAGER_DATA_PATH_KEY;
 
 #[test]
 fn test_start_engine_and_record_audio() {
+    let data_path = tempdir::TempDir::new("test_start_engine_and_record_audio").unwrap();
+    std::env::set_var(
+        PROJECT_MANAGER_DATA_PATH_KEY,
+        data_path.path().to_str().unwrap(),
+    );
+
     let engine = LooperEngine::new();
     // wait for audio-thread to start
     std::thread::sleep(Duration::from_secs(3));

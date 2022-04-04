@@ -1,7 +1,7 @@
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::parameters::{
-    AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef, FloatType,
-    ParameterSpec, ParameterType, ParameterValue,
+    make_handle_ref, AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
+    FloatType, ParameterSpec, ParameterType, ParameterValue,
 };
 use audio_processor_traits::{AtomicF32, AudioProcessorSettings, SimpleAudioProcessor};
 
@@ -116,8 +116,7 @@ pub struct FreeverbProcessor {
 
 impl AudioProcessorHandleProvider for FreeverbProcessor {
     fn generic_handle(&self) -> AudioProcessorHandleRef {
-        use std::sync::Arc;
-        Arc::new(GenericHandle(self.handle.clone()))
+        make_handle_ref(GenericHandle(self.handle.clone()))
     }
 }
 

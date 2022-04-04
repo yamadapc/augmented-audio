@@ -1,7 +1,11 @@
 use std::convert::TryFrom;
-use std::sync::Arc;
 
-pub type AudioProcessorHandleRef = Arc<dyn AudioProcessorHandle>;
+use audio_garbage_collector::{make_shared, Shared};
+
+pub type AudioProcessorHandleRef = Shared<Box<dyn AudioProcessorHandle>>;
+pub fn make_handle_ref<T: AudioProcessorHandle + 'static>(v: T) -> AudioProcessorHandleRef {
+    make_shared(Box::new(v))
+}
 
 pub trait AudioProcessorHandleProvider {
     fn generic_handle(&self) -> AudioProcessorHandleRef;

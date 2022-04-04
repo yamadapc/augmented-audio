@@ -4,7 +4,8 @@
 use std::fmt::Debug;
 
 use audio_processor_traits::parameters::{
-    AudioProcessorEmptyHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
+    make_handle_ref, AudioProcessorEmptyHandle, AudioProcessorHandleProvider,
+    AudioProcessorHandleRef,
 };
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
@@ -377,8 +378,7 @@ where
     SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst,
 {
     fn generic_handle(&self) -> AudioProcessorHandleRef {
-        use std::sync::Arc;
-        Arc::new(AudioProcessorEmptyHandle)
+        make_handle_ref(AudioProcessorEmptyHandle)
     }
 }
 

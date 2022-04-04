@@ -28,9 +28,16 @@ pub struct ProjectManager {
     projects: Vec<Shared<Project>>,
 }
 
+pub const PROJECT_MANAGER_DATA_PATH_KEY: &'static str = "CONTINUOUS_DATA_PATH";
+
 impl Default for ProjectManager {
     fn default() -> Self {
-        Self::new(data_path())
+        let data_path = std::env::var(PROJECT_MANAGER_DATA_PATH_KEY)
+            .ok()
+            .map(|p| PathBuf::from(p))
+            .unwrap_or_else(|| data_path());
+        log::info!("Data-path: {:?}", data_path);
+        Self::new(data_path)
     }
 }
 
@@ -61,8 +68,9 @@ impl Handler<SaveProjectMessage> for ProjectManager {
     type Result = ResponseActFuture<Self, Result<Shared<Project>, ProjectManagerError>>;
 
     fn handle(&mut self, msg: SaveProjectMessage, _ctx: &mut Self::Context) -> Self::Result {
+        let data_path = self.data_path.clone();
         let result_fut = async move {
-            let (project_path, manifest_path) = default_project_manifest_path(&*data_path());
+            let (project_path, manifest_path) = default_project_manifest_path(&data_path);
 
             let looper_paths = persist_handle_clips(&*msg.handle, &*project_path);
             let project = make_shared(project_from_handle(&*msg.handle, looper_paths));
@@ -172,7 +180,7 @@ fn persist_handle_clips(
             }
 
             let clip_path = project_path.join(format!("looper_{}.wav", voice.id));
-            log::info!("Writting audio into {:?}", clip_path);
+            log::info!("Writing audio into {:?}", clip_path);
 
             let settings = handle.settings().deref().clone();
             let mut output_processor =
