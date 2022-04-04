@@ -28,6 +28,22 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       codeCoverageEnabled = "YES">
+      <CodeCoverageTargets>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "SequencerUI"
+            BuildableName = "SequencerUI"
+            BlueprintName = "SequencerUI"
+            ReferencedContainer = "container:">
+         </BuildableReference>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "SequencerUITests"
+            BuildableName = "SequencerUITests"
+            BlueprintName = "SequencerUITests"
+            ReferencedContainer = "container:">
+         </BuildableReference>
+      </CodeCoverageTargets>
       <Testables>
          <TestableReference
             skipped = "NO">

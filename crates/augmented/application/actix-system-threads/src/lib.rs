@@ -112,8 +112,11 @@ mod test {
 
     #[test]
     fn test_start_actor_system_thread() {
-        let _ = wisual_logger::try_init_from_env();
-        let _actor_system_thread = ActorSystemThread::with_new_system();
+        // In a block so that drop is tested as well
+        {
+            let _ = wisual_logger::try_init_from_env();
+            let _actor_system_thread = ActorSystemThread::with_new_system();
+        }
     }
 
     #[test]
