@@ -64,15 +64,15 @@ extension EngineImpl: SequencerEngine {
     }
 
     func onClickRecord(track: Int) {
-        looper_engine__record(engine, UInt(track - 1))
+        looper_engine__record(engine, UInt(track))
     }
 
     func onClickPlay(track: Int) {
-        looper_engine__play(engine, UInt(track - 1))
+        looper_engine__play(engine, UInt(track))
     }
 
     func onClickClear(track: Int) {
-        looper_engine__clear(engine, UInt(track - 1))
+        looper_engine__clear(engine, UInt(track))
     }
 
     func onClickPlayheadStop() {
@@ -91,7 +91,7 @@ extension EngineImpl: SequencerEngine {
         if let rustParameterId = getObjectIdRust(parameterId) {
             looper_engine__add_parameter_lock(
                 engine,
-                UInt(track - 1),
+                UInt(track),
                 UInt(step),
                 rustParameterId,
                 value
@@ -101,7 +101,7 @@ extension EngineImpl: SequencerEngine {
 
     func addLFOMapping(track: Int, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
       if let rustParameterId = getObjectIdRust(parameterId) {
-        looper_engine__add_lfo_mapping(engine, UInt(track - 1), lfo, rustParameterId, value)
+        looper_engine__add_lfo_mapping(engine, UInt(track), lfo, rustParameterId, value)
       }
     }
 
@@ -111,7 +111,7 @@ extension EngineImpl: SequencerEngine {
             looper_engine__add_scene_parameter_lock(
                 engine,
                 UInt(sceneId),
-                UInt(track - 1),
+                UInt(track),
                 rustParameterId,
                 value
             )
@@ -119,7 +119,7 @@ extension EngineImpl: SequencerEngine {
     }
 
     func toggleStep(track: Int, step: Int) {
-        looper_engine__toggle_trigger(engine, UInt(track - 1), UInt(step))
+        looper_engine__toggle_trigger(engine, UInt(track), UInt(step))
         // let voice = looper_engine__get_voice(engine, UInt(step - 1))
     }
 
@@ -128,7 +128,7 @@ extension EngineImpl: SequencerEngine {
       case let .stepId(stepId):
           looper_engine__remove_parameter_lock(
             engine,
-            UInt(stepId.trackId - 1),
+            UInt(stepId.trackId),
             UInt(stepId.stepIndex),
             getObjectIdRust(parameterLockId.parameterId)!
           )
@@ -161,7 +161,7 @@ extension EngineImpl: SequencerEngine {
     }
 
     func addEffect(trackId: Int, effectId: EffectId) {
-        looper_engine__add_effect(engine, UInt(trackId - 1), RUST_EFFECT_TYPES[effectId]!)
+        looper_engine__add_effect(engine, UInt(trackId), RUST_EFFECT_TYPES[effectId]!)
     }
 }
 

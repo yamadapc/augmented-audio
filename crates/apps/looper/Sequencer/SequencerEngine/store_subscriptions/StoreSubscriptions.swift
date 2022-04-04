@@ -51,7 +51,7 @@ class StoreSubscriptionsController {
         }).store(in: &cancellables)
 
         store.$selectedTrack.sink(receiveValue: { value in
-            looper_engine__set_active_looper(self.engine.engine, UInt(value - 1))
+            looper_engine__set_active_looper(self.engine.engine, UInt(value))
         }).store(in: &cancellables)
     }
 
@@ -77,8 +77,8 @@ class StoreSubscriptionsController {
             pushFloatValue(
                 publisher: parameter.$value,
                 flush: {
-                    self.logger.debug("Setting source parameter", metadata: [
-                        "id": .stringConvertible(parameter.id.debugDescription),
+                    self.logger.info("Setting source parameter", metadata: [
+                        "id": .string(String(describing: parameter.globalId)),
                         "value": .stringConvertible($0),
                     ])
                     if case let .sourceParameter(_, parameter) = parameter.globalId {

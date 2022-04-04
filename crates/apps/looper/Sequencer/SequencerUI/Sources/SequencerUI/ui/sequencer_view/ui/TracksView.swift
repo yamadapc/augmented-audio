@@ -46,16 +46,16 @@ struct TracksView: View {
 
     var body: some View {
         HStack {
-            ForEach(1 ..< 9) { i in
+            ForEach(0 ..< 8) { i in
                 TrackButton(
                     action: {
                         onClickTrack(i)
                     },
-                    label: "\(i)",
+                    label: "\(i + 1)",
                     isSelected: selectedTrack == i
                 )
                 .overlay(
-                    TrackOverlay(position: store.trackStates[i - 1].position)
+                    TrackOverlay(position: store.trackStates[i].position)
                 )
                 .bindToParameterId(
                     store: store,
@@ -63,11 +63,6 @@ struct TracksView: View {
                     showSelectionOverlay: false
                 )
             }
-            TrackButton(
-                action: {},
-                label: "Master",
-                isSelected: false
-            )
         }
         .frame(maxWidth: .infinity, alignment: .bottomLeading)
         .padding(PADDING)

@@ -37,7 +37,8 @@ impl LooperEngine {
         let audio_clip_manager = ActorSystemThread::current()
             .spawn_result(async move { SyncArbiter::start(1, || AudioClipManager::default()) });
         let project_manager = ActorSystemThread::start(ProjectManager::default());
-        load_and_hydrate_latest_project(&handle, &project_manager, &audio_clip_manager);
+        // TODO: This is disabled because it's broken, it'll break setting any user-parameter.
+        // load_and_hydrate_latest_project(&handle, &project_manager, &audio_clip_manager);
 
         let autosave_controller = ActorSystemThread::current().spawn_result({
             let project_manager = project_manager.clone();

@@ -328,26 +328,24 @@ impl MultiTrackLooper {
                     .get_right(looper_id, parameter_id.clone())
                     .unwrap_or(parameter_value);
 
-                match (left_value, right_value) {
+                let parameter_idx = self.parameter_scratch_indexes[parameter_id];
+                let parameter_slot = &mut self.parameters_scratch[voice.id][parameter_idx];
+
+                *parameter_slot = match (left_value, right_value) {
                     (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
                         let value =
                             left_value.get() + scene_value * (right_value.get() - left_value.get());
-                        self.parameters_scratch[voice.id]
-                            [self.parameter_scratch_indexes[parameter_id]] =
-                            ParameterValue::Float(value.into());
+
+                        ParameterValue::Float(value.into())
                     }
                     (ParameterValue::Int(left_value), ParameterValue::Int(right_value)) => {
                         let value = left_value.get()
                             + (scene_value * (right_value.get() - left_value.get()) as f32) as i32;
-                        self.parameters_scratch[voice.id]
-                            [self.parameter_scratch_indexes[parameter_id]] =
-                            ParameterValue::Int(value.into());
+
+                        ParameterValue::Int(value.into())
                     }
-                    (other_value, _) => {
-                        self.parameters_scratch[voice.id]
-                            [self.parameter_scratch_indexes[parameter_id]] = other_value.clone();
-                    }
-                }
+                    (other_value, _) => other_value.clone(),
+                };
             }
         }
     }
@@ -509,6 +507,20 @@ mod test {
             });
         });
         handle.join().unwrap();
+    }
+
+    #[test]
+    fn test_user_parameters_are_respected() {
+        let mut looper = MultiTrackLooper::default();
+
+        looper
+            .handle
+            .set_source_parameter(LooperId(0), SourceParameter::Speed, 2.0);
+        looper.process_scenes();
+        looper.process_triggers();
+        looper.process_lfos();
+        looper.flush_parameters();
+        assert_f_eq!(looper.handle.voices()[0].looper().speed(), 2.0);
     }
 
     #[test]

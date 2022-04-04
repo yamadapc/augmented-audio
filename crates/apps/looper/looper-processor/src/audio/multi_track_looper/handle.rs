@@ -194,12 +194,12 @@ impl MultiTrackLooperHandle {
         parameter_id: ParameterId,
         value: ParameterValue,
     ) {
-        // log::info!(
-        //     "Setting parameter voice_id={:?} parameter_id={:?} value={:?}",
-        //     voice.id,
-        //     parameter_id,
-        //     value
-        // );
+        log::info!(
+            "Setting parameter voice_id={:?} parameter_id={:?} value={:?}",
+            voice.id,
+            parameter_id,
+            value
+        );
         let parameter_values = voice.user_parameters();
         parameter_values.set(parameter_id, value);
     }

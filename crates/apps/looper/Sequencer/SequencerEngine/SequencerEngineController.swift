@@ -129,9 +129,9 @@ public class EngineController {
                 if trackState.looperState == .playing {
                     let buffer = looper_engine__get_looper_buffer(engine.engine, UInt(i))
                     let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
-                    store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: trackBuffer)
+                    store.setTrackBuffer(trackId: i, fromAbstractBuffer: trackBuffer)
                 } else if trackState.looperState == .empty {
-                    store.setTrackBuffer(trackId: i + 1, fromAbstractBuffer: nil)
+                    store.setTrackBuffer(trackId: i, fromAbstractBuffer: nil)
                 }
             }
 
@@ -140,7 +140,7 @@ public class EngineController {
                 let sliceBuffer = looper_engine__get_looper_slices(engine.engine, UInt(i))
                 let nativeBuffer = SliceBufferImpl(inner: sliceBuffer!)
                 if nativeBuffer.count > 0 {
-                    store.setSliceBuffer(trackId: i + 1, fromAbstractBuffer: nativeBuffer)
+                    store.setSliceBuffer(trackId: i, fromAbstractBuffer: nativeBuffer)
                     logger.info("Received slice buffer from rust", metadata: [
                         "slice_count": .stringConvertible(nativeBuffer.count)
                     ])

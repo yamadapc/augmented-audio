@@ -53,11 +53,11 @@ func getObjectIdRust(_ id: SequencerUI.ParameterId) -> SequencerEngine_private.P
 func getTrackId(_ id: SequencerUI.ParameterId) -> UInt? {
     switch id {
     case .sourceParameter(trackId: let trackId, parameterId: _):
-        return UInt(trackId - 1)
+        return UInt(trackId)
     case .envelopeParameter(trackId: let trackId, parameterId: _):
-        return UInt(trackId - 1)
+        return UInt(trackId)
     case .lfoParameter(trackId: let trackId, lfo: _, parameterId: _):
-        return UInt(trackId - 1)
+        return UInt(trackId)
     default:
         return nil
     }
