@@ -17,7 +17,7 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-struct TrackButton: View {
+struct ContinuousButton: View {
     var action: () -> Void
     var label: String
     var isDisabled: Bool = false
@@ -26,8 +26,8 @@ struct TrackButton: View {
 
     var body: some View {
         Button(
-            action: action,
-            label: {
+                action: action,
+                label: {
                 Text(label)
                     .frame(width: 70.0, height: 70.0, alignment: .center)
                     .contentShape(Rectangle())

@@ -15,29 +15,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-@testable import SequencerUI
-import ViewInspector
+//
+//  SequencerUIPackageIntegrationTestsUITestsLaunchTests.swift
+//  SequencerUIPackageIntegrationTestsUITests
+//
+//  Created by Pedro Tacla Yamada on 4/4/2022.
+//
+
 import XCTest
 
-final class RecordingButtonsViewTests: XCTestCase {
-    func testRendering() {
-        let store = Store(engine: nil)
-        let trackState = store.currentTrackState()
-        let buttonsView = RecordingButtonsView(
-            store: store,
-            trackState: trackState
-        )
-        let view = try! buttonsView.inspect()
-        _ = try! view.find(text: "Record")
+class SequencerUIPackageIntegrationTestsUITestsLaunchTests: XCTestCase {
+    override class var runsForEachTargetApplicationUIConfiguration: Bool {
+        true
     }
-}
 
-// TODO: - where to put this
-extension RecordingButtonsView: Inspectable {}
-extension RecordButtonView: Inspectable {}
+    override func setUpWithError() throws {
+        continueAfterFailure = false
+    }
 
-extension PlayButtonView: Inspectable {
-}
+    func testLaunch() throws {
+        let app = XCUIApplication()
+        app.launch()
 
-extension ContinuousButton: Inspectable {
+        // Insert steps here to perform after app launch but before taking a screenshot,
+        // such as logging into a test account or navigating somewhere in the app
+
+        let attachment = XCTAttachment(screenshot: app.screenshot())
+        attachment.name = "Launch Screen"
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
 }

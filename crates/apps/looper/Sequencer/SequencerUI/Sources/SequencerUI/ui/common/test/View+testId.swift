@@ -15,29 +15,18 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-@testable import SequencerUI
-import ViewInspector
-import XCTest
 
-final class RecordingButtonsViewTests: XCTestCase {
-    func testRendering() {
-        let store = Store(engine: nil)
-        let trackState = store.currentTrackState()
-        let buttonsView = RecordingButtonsView(
-            store: store,
-            trackState: trackState
-        )
-        let view = try! buttonsView.inspect()
-        _ = try! view.find(text: "Record")
+import SwiftUI
+
+extension View {
+    /**
+     * Add accessibility identifier if it is available
+     */
+    func testId(_ id: String) -> some View {
+        if #available(macOS 11.0, *) {
+            return AnyView(self.accessibilityIdentifier(id))
+        } else {
+            return AnyView(self)
+        }
     }
-}
-
-// TODO: - where to put this
-extension RecordingButtonsView: Inspectable {}
-extension RecordButtonView: Inspectable {}
-
-extension PlayButtonView: Inspectable {
-}
-
-extension ContinuousButton: Inspectable {
 }

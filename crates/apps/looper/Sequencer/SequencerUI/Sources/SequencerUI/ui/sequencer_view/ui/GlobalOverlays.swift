@@ -21,10 +21,10 @@ struct SceneDragRect: View {
     @EnvironmentObject var _store: Store
     var dragState: SceneDragState
     var body: some View {
-        TrackButton(
-            action: {},
-            label: scenes[dragState.scene],
-            isSelected: false
+        ContinuousButton(
+                action: {},
+                label: scenes[dragState.scene],
+                isSelected: false
         )
     }
 }

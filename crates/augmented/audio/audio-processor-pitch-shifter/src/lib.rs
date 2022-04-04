@@ -441,7 +441,7 @@ mod test {
         println!("diff={} input={} output={}", diff, input_rms, output_rms);
         // assert!(diff.abs() < 0.1);
 
-        let output_path = relative_path!("./output_test.wav");
+        let output_path = relative_path!("./test_pitch_shift_12steps.wav");
         let mut output_file_processor =
             OutputAudioFileProcessor::from_path(AudioProcessorSettings::default(), &output_path);
         output_file_processor.prepare(AudioProcessorSettings::default());

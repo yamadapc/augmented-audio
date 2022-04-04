@@ -15,29 +15,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-@testable import SequencerUI
-import ViewInspector
-import XCTest
+//
+//  ViewController.swift
+//  SequencerUIPackageIntegrationTests
+//
+//  Created by Pedro Tacla Yamada on 4/4/2022.
+//
 
-final class RecordingButtonsViewTests: XCTestCase {
-    func testRendering() {
-        let store = Store(engine: nil)
-        let trackState = store.currentTrackState()
-        let buttonsView = RecordingButtonsView(
-            store: store,
-            trackState: trackState
-        )
-        let view = try! buttonsView.inspect()
-        _ = try! view.find(text: "Record")
+import Cocoa
+
+class ViewController: NSViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // Do any additional setup after loading the view.
     }
-}
 
-// TODO: - where to put this
-extension RecordingButtonsView: Inspectable {}
-extension RecordButtonView: Inspectable {}
-
-extension PlayButtonView: Inspectable {
-}
-
-extension ContinuousButton: Inspectable {
+    override var representedObject: Any? {
+        didSet {
+            // Update the view, if already loaded.
+        }
+    }
 }
