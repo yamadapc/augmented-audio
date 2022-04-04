@@ -9,7 +9,7 @@ use audio_processor_standalone::StandaloneHandles;
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::controllers::autosave_controller::AutosaveController;
-use crate::controllers::load_project_controller::load_and_hydrate_latest_project;
+
 use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
 use crate::{services, setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};

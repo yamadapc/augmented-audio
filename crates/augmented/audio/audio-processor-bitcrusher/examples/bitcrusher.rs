@@ -1,8 +1,5 @@
-use std::sync::Arc;
-
 use audio_processor_bitcrusher::BitCrusherProcessor;
 use audio_processor_standalone::generic_standalone_run;
-use audio_processor_traits::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
 
 fn main() {
     let processor = BitCrusherProcessor::default();

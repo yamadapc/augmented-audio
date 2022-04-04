@@ -1,5 +1,3 @@
-use std::ops::Add;
-
 use syn::Variant;
 
 use super::CodegenOutput;

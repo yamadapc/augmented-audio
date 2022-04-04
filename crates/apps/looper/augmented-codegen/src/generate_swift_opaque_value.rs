@@ -1,6 +1,4 @@
 use std::collections::HashSet;
-use std::fmt::format;
-use std::ops::Add;
 
 use crate::generate_swift_enum::capitalize;
 

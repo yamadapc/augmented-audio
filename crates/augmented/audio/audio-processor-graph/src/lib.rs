@@ -148,9 +148,9 @@ impl Default for AudioProcessorGraph {
 
 impl AudioProcessorGraph {
     fn new(mut dag: daggy::Dag<(), ()>) -> Self {
-        let input_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
+        let _input_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
         let input_node = dag.add_node(());
-        let output_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
+        let _output_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
         let output_node = dag.add_node(());
 
         // let processors = HashMap::new();

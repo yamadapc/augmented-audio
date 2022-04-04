@@ -4,13 +4,12 @@ use std::io::Read;
 use std::ops::Deref;
 use std::path::PathBuf;
 use std::process;
-use std::process::id;
 
 use complexity::Complexity;
 use syn::visit::Visit;
 use syn::{
-    FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl, ItemMod, ItemStruct, ItemUse, Pat,
-    PatType, ReturnType, Type, UseName, UsePath, UseTree, VisPublic, Visibility,
+    FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl, ItemMod, ItemStruct, Pat, PatType,
+    ReturnType, Type, UsePath, UseTree, VisPublic, Visibility,
 };
 
 use crate::generate_swift_enum::generate_swift_enum;
@@ -71,7 +70,7 @@ impl<'ast> Visit<'ast> for CodegenVisitor {
     }
 
     fn visit_impl_item_method(&mut self, i: &'ast ImplItemMethod) {
-        let mut current_struct = self.current_impl.as_mut().unwrap();
+        let current_struct = self.current_impl.as_mut().unwrap();
         let arguments = i
             .sig
             .inputs
@@ -105,7 +104,7 @@ impl<'ast> Visit<'ast> for CodegenVisitor {
         }
     }
 
-    fn visit_item_mod(&mut self, i: &'ast ItemMod) {}
+    fn visit_item_mod(&mut self, _i: &'ast ItemMod) {}
 }
 
 fn get_filepath(i: &UsePath) -> Option<PathBuf> {
