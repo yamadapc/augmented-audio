@@ -87,11 +87,12 @@ where
         result
     }
 
+    pub fn tick_n(&mut self, n: f32) {
+        self.phase = self.phase + n * self.phase_step;
+    }
+
     pub fn tick(&mut self) {
-        self.phase += self.phase_step;
-        if self.phase >= 1.0 {
-            self.phase -= 1.0;
-        }
+        self.phase = self.phase + self.phase_step;
     }
 
     pub fn value_for_phase(&self, phase: T) -> T {

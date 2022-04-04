@@ -295,10 +295,14 @@ impl MultiTrackLooper {
         }
     }
 
-    fn tick_lfos(&mut self) {
+    /// Not the best implementation as LFOs are ticked only once per callback.
+    ///
+    /// This means resolution of the LFOs is very low (as they only update on whatever
+    /// (buffer-size / sample-rate) minimum. For example, ~10ms for 512 samples buffer.
+    fn tick_lfos(&mut self, num_samples: f32) {
         for (l1, l2) in self.lfos.iter_mut() {
-            l1.tick();
-            l2.tick();
+            l1.tick_n(num_samples);
+            l2.tick_n(num_samples);
         }
     }
 }
@@ -432,9 +436,9 @@ impl AudioProcessor for MultiTrackLooper {
 
             self.graph.process(data);
 
+            self.tick_lfos(data.num_samples() as f32);
             for _sample in data.frames() {
                 self.handle.time_info_provider().tick();
-                self.tick_lfos();
             }
 
             self.metrics.on_process_end();
