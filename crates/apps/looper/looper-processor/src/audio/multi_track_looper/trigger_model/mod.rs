@@ -1,3 +1,11 @@
+//! This module contains [`TrackTriggerModel`] and related functions.
+//!
+//! [`TrackTriggerModel`] is an object containing step-sequencer state. In particular it holds:
+//!
+//! * A list of [`Trigger`] objects, which should have some position within the sequencer
+//!   ([`TriggerPosition`]) and optionally have any number of [`TriggerLock`]s associated to
+//!   different [`ParameterId`]s
+//! * The sequencer options, such as number of steps (length) and step-size in beats
 use std::collections::HashMap;
 use std::ops::Deref;
 use std::sync::atomic::AtomicUsize;
@@ -13,6 +21,7 @@ use crate::audio::multi_track_looper::parameters::ParameterId;
 
 pub mod step_tracker;
 
+/// Return an iterator for all the triggers that are currently playing
 pub fn find_running_beat_trigger<'a>(
     track_trigger_model: &TrackTriggerModel,
     triggers: &'a Shared<Vec<Trigger>>,
@@ -29,6 +38,8 @@ pub fn find_running_beat_trigger<'a>(
         .filter(move |trigger| trigger.position.step.get() == current_step)
 }
 
+/// If a trigger has just been fired, return a reference to it.
+/// This mutates the `StepTracker`.
 pub fn find_current_beat_trigger<'a>(
     track_trigger_model: &'a TrackTriggerModel,
     triggers: &'a Shared<Vec<Trigger>>,

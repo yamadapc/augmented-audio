@@ -1,3 +1,5 @@
+//! Contains a background-thread worker that can perform automatic slicing based on transient
+//! detection in the background.
 use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::Duration;

@@ -2,6 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use basedrop::Shared;
 
+use crate::audio::multi_track_looper::long_backoff::LongBackoff;
 use atomic_queue::Queue;
 use audio_garbage_collector::make_shared;
 
@@ -41,9 +42,12 @@ impl Logger {
             std::thread::Builder::new()
                 .name(String::from("audio_thread_logger"))
                 .spawn(move || {
+                    let mut long_backoff = LongBackoff::new();
                     while is_running.load(Ordering::Relaxed) {
                         if let Some(message) = handle.queue.pop() {
                             log::info!("{}", message.message);
+                        } else {
+                            long_backoff.snooze();
                         }
                     }
                 });
