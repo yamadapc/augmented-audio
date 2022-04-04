@@ -37,11 +37,11 @@ final class MIDIMappingStateStats: XCTestCase {
         )
 
         XCTAssertEqual(
-            state.lastMidiMessages.count,
+            state.getLastMidiMessages().count,
             1
         )
         XCTAssertEqual(
-            state.lastMidiMessages.last!.1.controllerNumber.raw,
+            state.getLastMidiMessages().last!.1.controllerNumber.raw,
             20
         )
     }
@@ -63,19 +63,19 @@ final class MIDIMappingStateStats: XCTestCase {
         )
 
         XCTAssertEqual(
-            state.lastMidiMessages.count,
+            state.getLastMidiMessages().count,
             3
         )
         XCTAssertEqual(
-            state.lastMidiMessages[0].1.controllerNumber.raw,
+            state.getLastMidiMessages()[0].1.controllerNumber.raw,
             20
         )
         XCTAssertEqual(
-            state.lastMidiMessages[1].1.controllerNumber.raw,
+            state.getLastMidiMessages()[1].1.controllerNumber.raw,
             30
         )
         XCTAssertEqual(
-            state.lastMidiMessages[2].1.controllerNumber.raw,
+            state.getLastMidiMessages()[2].1.controllerNumber.raw,
             20
         )
     }
