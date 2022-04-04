@@ -20,8 +20,6 @@ import SequencerEngine
 import SequencerUI
 import SwiftUI
 
-class CachingNSView<V: View>: NSHostingView<V> {}
-
 class ViewController: NSViewController {
     var engineController = EngineController()
 
@@ -31,7 +29,7 @@ class ViewController: NSViewController {
         let contentView = ContentView()
             .environmentObject(engineController.store)
 
-        let cachingView = CachingNSView(rootView: contentView)
+        let cachingView = NSHostingView(rootView: contentView)
         cachingView.translatesAutoresizingMaskIntoConstraints = true
         cachingView.autoresizingMask = [.height, .width]
         view = cachingView
