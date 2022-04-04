@@ -436,6 +436,8 @@ impl AudioProcessor for MultiTrackLooper {
 
             self.graph.process(data);
 
+            // Ideally this wouldn't be in bulk. Perhaps this is the wrong approach and we should
+            // be just reading time from somewhere
             self.tick_lfos(data.num_samples() as f32);
             self.handle
                 .time_info_provider()
