@@ -85,9 +85,12 @@ mod test {
     #[test]
     fn test_quantize_mode_enum() {
         let mode = QuantizeMode::None;
-        assert_eq!(mode.cycle(), QuantizeMode::SnapNext);
-        assert_eq!(mode.cycle(), QuantizeMode::SnapClosest);
-        assert_eq!(mode.cycle(), QuantizeMode::None);
+        let mode = mode.cycle();
+        assert_eq!(mode, QuantizeMode::SnapNext);
+        let mode = mode.cycle();
+        assert_eq!(mode, QuantizeMode::SnapClosest);
+        let mode = mode.cycle();
+        assert_eq!(mode, QuantizeMode::None);
     }
 
     #[test]
