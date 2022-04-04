@@ -453,18 +453,4 @@ mod test {
             .collect();
         output_file_processor.process(&mut samples);
     }
-
-    // #[test]
-    // fn test_princ_arg() {
-    //     let bounds = 100;
-    //     let step = bounds as f32 / 10.0;
-    //     for x in -bounds..bounds {
-    //         let x = x as f32 / step;
-    //         let r1 = princ_arg(x);
-    //         let cx = Complex::from_polar(1.0, x);
-    //         let r2 = cx.arg();
-    //         println!("x={} r1={} r2={}", x, r1, r2);
-    //         assert!((r1 - r2).abs() < 0.1);
-    //     }
-    // }
 }
