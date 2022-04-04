@@ -38,6 +38,8 @@ pub mod engine;
 pub mod services;
 
 mod controllers;
+
+#[cfg(target_os = "macos")]
 #[cfg(test)]
 pub mod integration_test;
 
