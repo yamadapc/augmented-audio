@@ -437,9 +437,9 @@ impl AudioProcessor for MultiTrackLooper {
             self.graph.process(data);
 
             self.tick_lfos(data.num_samples() as f32);
-            for _sample in data.frames() {
-                self.handle.time_info_provider().tick();
-            }
+            self.handle
+                .time_info_provider()
+                .tick_n(data.num_samples() as u32);
 
             self.metrics.on_process_end();
         });
