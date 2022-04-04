@@ -55,6 +55,12 @@ impl From<SourceParameter> for ParameterId {
     }
 }
 
+impl From<QuantizationParameter> for ParameterId {
+    fn from(inner: QuantizationParameter) -> Self {
+        ParameterId::ParameterIdQuantization(inner)
+    }
+}
+
 impl EnumProperty for ParameterId {
     fn get_str(&self, prop: &str) -> Option<&'static str> {
         match self {

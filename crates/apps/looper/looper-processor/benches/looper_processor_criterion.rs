@@ -5,7 +5,8 @@ use criterion::measurement::WallTime;
 use criterion::{black_box, criterion_group, criterion_main, BenchmarkGroup, Criterion};
 
 use audio_processor_traits::{AtomicF32, AudioProcessor, AudioProcessorSettings, VecAudioBuffer};
-use looper_processor::{LooperProcessor, MultiTrackLooper};
+use looper_processor::parameters::{build_default_parameters, ParameterId};
+use looper_processor::{parameters, LooperProcessor, MultiTrackLooper};
 
 fn gain_vec(buffer: &mut Vec<f32>) {
     for sample in buffer {
@@ -31,8 +32,33 @@ fn process_scenes_benchmark(c: &mut Criterion) {
     });
 }
 
+fn find_parameter_benchmark(c: &mut Criterion) {
+    let mut group = c.benchmark_group("Find parameter");
+
+    group.bench_function("find_parameter_list", |b| {
+        let (_hash_map, list) = build_default_parameters();
+        let parameter_id: ParameterId =
+            parameters::QuantizationParameter::QuantizationParameterTempoControl.into();
+        b.iter(|| {
+            let result = list.iter().find(|pid| **pid == parameter_id);
+            black_box(result);
+        })
+    });
+
+    group.bench_function("find_parameter_hashmap", |b| {
+        let (hash_map, _list) = build_default_parameters();
+        let parameter_id: ParameterId =
+            parameters::QuantizationParameter::QuantizationParameterTempoControl.into();
+        b.iter(|| {
+            let result = hash_map.get(&parameter_id);
+            black_box(result);
+        })
+    });
+}
+
 fn criterion_benchmark(c: &mut Criterion) {
     process_scenes_benchmark(c);
+    find_parameter_benchmark(c);
 
     let mut group = c.benchmark_group("AudioBuffer - 512 samples (11ms)");
 

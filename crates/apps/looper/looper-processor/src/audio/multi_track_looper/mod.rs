@@ -313,7 +313,8 @@ impl MultiTrackLooper {
             let looper_id = LooperId(index);
             let parameter_values = voice.user_parameters();
 
-            for parameter_id in voice.parameter_ids() {
+            for (parameter_idx, parameter_id) in voice.parameter_ids().iter().enumerate() {
+                let parameter_slot = &mut self.parameters_scratch[voice.id][parameter_idx];
                 let parameter_value = parameter_values.get(parameter_id.clone());
 
                 let _key = (looper_id, parameter_id.clone());
@@ -327,9 +328,6 @@ impl MultiTrackLooper {
                     .scene_handle()
                     .get_right(looper_id, parameter_id.clone())
                     .unwrap_or(parameter_value);
-
-                let parameter_idx = self.parameter_scratch_indexes[parameter_id];
-                let parameter_slot = &mut self.parameters_scratch[voice.id][parameter_idx];
 
                 *parameter_slot = match (left_value, right_value) {
                     (ParameterValue::Float(left_value), ParameterValue::Float(right_value)) => {
