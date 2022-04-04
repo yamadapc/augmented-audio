@@ -572,10 +572,10 @@ dependencies = [
 name = "audio-processor-time"
 version = "0.1.0-alpha.2"
 dependencies = [
-    "audio-garbage-collector",
-    "audio-processor-standalone",
-    "audio-processor-standalone-gui",
-    "audio-processor-traits",
+ "audio-garbage-collector",
+ "audio-processor-standalone",
+ "audio-processor-standalone-gui",
+ "audio-processor-traits",
 ]
 
 [[package]]
