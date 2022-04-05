@@ -16,14 +16,12 @@ impl ScratchPad {
     }
 
     pub fn set(&self, channel: usize, sample: f32) {
-        let cursor = self.cursor.load(Ordering::Relaxed);
         let num_samples = self.buffer.num_samples();
-
-        // TODO: Can disable on release?
         if num_samples == 0 {
             return;
         }
 
+        let cursor = self.cursor.load(Ordering::Relaxed);
         self.buffer.get(channel, cursor).set(sample);
     }
 

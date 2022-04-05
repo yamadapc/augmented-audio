@@ -104,7 +104,7 @@ pub struct LooperHandle {
     cursor: AtomicF32,
     /// Provides time information
     time_info_provider: Shared<TimeInfoProviderImpl>,
-    pub(crate) tick_time: AtomicBool,
+    tick_time: AtomicBool,
 
     options: LooperOptions,
 
@@ -213,6 +213,10 @@ impl LooperHandle {
 
     pub fn set_loop_enabled(&self, value: bool) {
         self.loop_enabled.store(value, Ordering::Relaxed);
+    }
+
+    pub fn set_tick_time(&self, value: bool) {
+        self.tick_time.set(value)
     }
 
     pub fn toggle_recording(&self, thread: LooperHandleThread) -> ToggleRecordingResult {

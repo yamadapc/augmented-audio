@@ -3,7 +3,6 @@ use basedrop::Shared;
 use audio_garbage_collector::make_shared;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
-    SimpleAudioProcessor,
 };
 use handle::LooperHandle;
 
@@ -64,36 +63,16 @@ impl AudioProcessor for LooperProcessor {
         &mut self,
         data: &mut BufferType,
     ) {
+        let handle = &*self.handle;
         for frame in data.frames_mut() {
             for (channel, sample) in frame.iter_mut().enumerate() {
-                *sample = self.handle.process(channel, *sample);
+                *sample = handle.process(channel, *sample);
             }
-            self.handle.after_process();
+            handle.after_process();
         }
 
-        if self.handle.is_playing_back() {
+        if handle.is_playing_back() {
             self.sequencer.process(data);
-        }
-    }
-}
-
-impl SimpleAudioProcessor for LooperProcessor {
-    type SampleType = f32;
-
-    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
-        log::debug!("Prepare looper {:?}", settings);
-        self.prepare(settings);
-    }
-
-    #[inline]
-    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
-        for (channel, sample) in frame.iter_mut().enumerate() {
-            *sample = self.handle.process(channel, *sample);
-        }
-        self.handle.after_process();
-
-        if self.handle.is_playing_back() {
-            self.sequencer.s_process_frame(frame);
         }
     }
 }
@@ -104,7 +83,6 @@ impl MidiEventHandler for LooperProcessor {
 
 #[cfg(test)]
 mod test {
-    use std::sync::atomic::Ordering;
     use std::time::Duration;
 
     use assert_no_alloc::assert_no_alloc;
@@ -528,7 +506,7 @@ mod test {
         let settings = AudioProcessorSettings::new(100.0, 1, 1, 512);
         let mut looper = LooperProcessor::default();
         looper.prepare(settings);
-        looper.handle.tick_time.store(true, Ordering::Relaxed);
+        looper.handle.set_tick_time(true);
 
         // Setup tempo & quantization
         looper.handle.set_tempo(60.0);

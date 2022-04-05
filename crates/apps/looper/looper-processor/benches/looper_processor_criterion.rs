@@ -132,6 +132,7 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
 
         let mut processor = LooperProcessor::default();
         processor.prepare(AudioProcessorSettings::new(fbuffer_size, 1, 1, buffer_size));
+        processor.handle().set_tick_time(false);
 
         b.iter(|| {
             processor.process(&mut buffer);
@@ -147,6 +148,7 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
 
             let mut processor = LooperProcessor::default();
             processor.prepare(AudioProcessorSettings::new(fbuffer_size, 1, 1, buffer_size));
+            processor.handle().set_tick_time(false);
             processor.handle().start_recording();
 
             b.iter(|| {
@@ -164,6 +166,7 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
 
             let mut processor = LooperProcessor::default();
             processor.prepare(AudioProcessorSettings::new(fbuffer_size, 1, 1, buffer_size));
+            processor.handle().set_tick_time(false);
             processor.handle().start_recording();
             processor.process(&mut buffer);
             processor.handle().stop_recording_allocating_loop();

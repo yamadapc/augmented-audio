@@ -1,23 +1,19 @@
-use std::sync::atomic::Ordering;
-
 use basedrop::Shared;
 
 use audio_processor_pitch_shifter::{
     MultiChannelPitchShifterProcessor, MultiChannelPitchShifterProcessorHandle,
 };
 
-use crate::audio::multi_track_looper::effects_processor::{
-    EffectsProcessor, EffectsProcessorHandle,
-};
-use crate::audio::multi_track_looper::parameters_map::ParametersMap;
 use crate::audio::processor::handle::LooperHandle as LooperProcessorHandle;
 use crate::{
     LoopShufflerProcessorHandle, LooperOptions, LooperProcessor, QuantizeMode, TimeInfoProviderImpl,
 };
 
+use super::effects_processor::{EffectsProcessor, EffectsProcessorHandle};
 use super::envelope_processor::{EnvelopeHandle, EnvelopeProcessor};
 use super::lfo_processor::LFOHandle;
 use super::parameters::ParameterId;
+use super::parameters_map::ParametersMap;
 use super::trigger_model::TrackTriggerModel;
 
 pub type ParameterValues = ParametersMap;
@@ -127,7 +123,7 @@ pub fn build_voice_processor(
         .handle()
         .quantize_options()
         .set_mode(QuantizeMode::SnapNext);
-    looper.handle().tick_time.store(false, Ordering::Relaxed);
+    looper.handle().set_tick_time(false);
 
     let pitch_shifter = MultiChannelPitchShifterProcessor::default();
     let envelope = EnvelopeProcessor::default();
