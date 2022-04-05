@@ -33,14 +33,21 @@ class EngineImpl {
     var midi: AnyPublisher<MidiEvent, Never>?
 
     init() {
-        logger.info("Initializing rust audio engine")
+        logger.info("Initializing rust audio engine", metadata: [
+            "bundleIdentifier": .string(Bundle.main.bundleIdentifier ?? "<unknown>"),
+            "applicationSupport": .stringConvertible(
+                    FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).map {
+                        $0.description
+                    }
+            )
+        ])
         engine = looper_engine__new()
 
         logger.info("Building rust MIDI subscription")
         midi = buildStream(
-            registerStream: { callback in
-                looper_engine__register_midi_callback(self.engine, callback)
-            }
+                registerStream: { callback in
+                    looper_engine__register_midi_callback(self.engine, callback)
+                }
         )
     }
 
@@ -50,16 +57,22 @@ class EngineImpl {
 }
 
 extension EngineImpl: SequencerEngine {
+    func loadFile(atPath path: String) {
+      path.withCString { cPath in
+        looper_engine__load_file(engine, cPath)
+      }
+    }
+
     func onClickRecord(track: Int) {
-        looper_engine__record(engine, UInt(track - 1))
+        looper_engine__record(engine, UInt(track))
     }
 
     func onClickPlay(track: Int) {
-        looper_engine__play(engine, UInt(track - 1))
+        looper_engine__play(engine, UInt(track))
     }
 
     func onClickClear(track: Int) {
-        looper_engine__clear(engine, UInt(track - 1))
+        looper_engine__clear(engine, UInt(track))
     }
 
     func onClickPlayheadStop() {
@@ -78,7 +91,7 @@ extension EngineImpl: SequencerEngine {
         if let rustParameterId = getObjectIdRust(parameterId) {
             looper_engine__add_parameter_lock(
                 engine,
-                UInt(track - 1),
+                UInt(track),
                 UInt(step),
                 rustParameterId,
                 value
@@ -88,7 +101,7 @@ extension EngineImpl: SequencerEngine {
 
     func addLFOMapping(track: Int, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
       if let rustParameterId = getObjectIdRust(parameterId) {
-        looper_engine__add_lfo_mapping(engine, UInt(track - 1), lfo, rustParameterId, value)
+        looper_engine__add_lfo_mapping(engine, UInt(track), lfo, rustParameterId, value)
       }
     }
 
@@ -98,7 +111,7 @@ extension EngineImpl: SequencerEngine {
             looper_engine__add_scene_parameter_lock(
                 engine,
                 UInt(sceneId),
-                UInt(track - 1),
+                UInt(track),
                 rustParameterId,
                 value
             )
@@ -106,7 +119,7 @@ extension EngineImpl: SequencerEngine {
     }
 
     func toggleStep(track: Int, step: Int) {
-        looper_engine__toggle_trigger(engine, UInt(track - 1), UInt(step))
+        looper_engine__toggle_trigger(engine, UInt(track), UInt(step))
         // let voice = looper_engine__get_voice(engine, UInt(step - 1))
     }
 
@@ -115,7 +128,7 @@ extension EngineImpl: SequencerEngine {
       case let .stepId(stepId):
           looper_engine__remove_parameter_lock(
             engine,
-            UInt(stepId.trackId - 1),
+            UInt(stepId.trackId),
             UInt(stepId.stepIndex),
             getObjectIdRust(parameterLockId.parameterId)!
           )
@@ -145,6 +158,10 @@ extension EngineImpl: SequencerEngine {
                 "parameterId": .string(String(describing: parameterId))
             ])
         }
+    }
+
+    func addEffect(trackId: Int, effectId: EffectId) {
+        looper_engine__add_effect(engine, UInt(trackId), RUST_EFFECT_TYPES[effectId]!)
     }
 }
 

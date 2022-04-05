@@ -8,7 +8,7 @@ use iced::{
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_traits::{AtomicF32, AudioBuffer, VecAudioBuffer};
-use looper_processor::{AtomicRefCell, LoopSequencerProcessorHandle, LooperProcessorHandle};
+use looper_processor::{AtomicRefCell, LoopShufflerProcessorHandle, LooperProcessorHandle};
 
 #[derive(Debug, Clone)]
 pub enum Message {}
@@ -22,13 +22,13 @@ pub trait LooperVisualizationDrawModel {
 
 pub struct LooperVisualizationDrawModelImpl {
     handle: Shared<LooperProcessorHandle>,
-    sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+    sequencer_handle: Shared<LoopShufflerProcessorHandle>,
 }
 
 impl LooperVisualizationDrawModelImpl {
     pub fn new(
         handle: Shared<LooperProcessorHandle>,
-        sequencer_handle: Shared<LoopSequencerProcessorHandle>,
+        sequencer_handle: Shared<LoopShufflerProcessorHandle>,
     ) -> Self {
         LooperVisualizationDrawModelImpl {
             handle,
@@ -47,7 +47,7 @@ impl LooperVisualizationDrawModelImpl {
     }
 
     fn playhead(&self) -> usize {
-        let seq_playhead = LoopSequencerProcessorHandle::playhead(&self.sequencer_handle);
+        let seq_playhead = LoopShufflerProcessorHandle::playhead(&self.sequencer_handle);
         seq_playhead.unwrap_or_else(|| LooperProcessorHandle::playhead(&self.handle))
     }
 

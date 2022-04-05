@@ -15,11 +15,13 @@ exclude = [
 [dependencies]
 audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "1.0.0-alpha.4" }
 nom = "7.1.0"
+cookie-factory = "0.3"
 
 [dev-dependencies]
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 log = "0.4.14"
 itertools = "0.10.1"
+assert_no_alloc = { version = "1.1.2", features = ["warn_release"], default-features = false }
 
 [dev-dependencies.midir]
 version = "0.7.0"

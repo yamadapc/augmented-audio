@@ -47,6 +47,7 @@ public indirect enum ParameterId: Equatable, Hashable {
         sourcePage,
         slicePage,
         envelopePage,
+        effectsPage,
 
         quantizationMode(trackId: Int),
         tempoControl(trackId: Int),
@@ -103,6 +104,8 @@ extension ParameterId {
             return "Track \(trackId) > LFO \(lfoIndex)"
         case let .parameterLock(source: source, parameterId: parameterId):
             return "Parameter lock >> From \(source.toParameterId()) >> Into \(parameterId)"
+        case .effectsPage:
+            return "Effects"
         }
     }
 }

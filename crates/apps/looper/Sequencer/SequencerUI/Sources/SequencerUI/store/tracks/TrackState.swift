@@ -18,10 +18,10 @@
 import Combine
 
 public class TrackState: ObservableObject {
-    @Published public var id: Int
-    @Published public var sliceBuffer: SliceBuffer? = nil // public for ref checks
-    @Published public var volumeParameter: FloatParameter
-    @Published public var looperState: LooperState = .empty
+    public let id: Int
+    @FastPublished public var sliceBuffer: SliceBuffer? = nil // public for ref checks
+    @FastPublished public var looperState: LooperState = .empty
+    @FastPublished public var volumeParameter: FloatParameter
     public let sourceParameters: SourceParametersState
     public let envelope: EnvelopeState
     public let quantizationParameters: QuantizationParameters
@@ -58,6 +58,8 @@ public class TrackState: ObservableObject {
         envelope = .init(trackId: id)
         lfo1 = .init(trackId: id, index: 0)
         lfo2 = .init(trackId: id, index: 1)
+
+        setupFastPublished(self)
     }
 }
 

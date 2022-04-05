@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     # Applications & Plug-ins
+    "crates/apps/looper/augmented-codegen",
     "crates/apps/looper/looper-processor",
     "crates/apps/looper/looper-vst",
     "crates/apps/plugin-host/plugin-host-cli",
@@ -21,6 +22,7 @@ members = [
     # Augmented framework
     "crates/augmented/augmented",
     # Augmented components
+    "crates/augmented/application/actix-system-threads",
     "crates/augmented/application/audio-processor-standalone",
     "crates/augmented/application/audio-processor-standalone-gui",
     "crates/augmented/application/audio-processor-standalone-midi",
@@ -89,4 +91,4 @@ iced = { version = "^0.3.0", path = "./crates/vendor/iced" }
 vst = { path = "./crates/vendor/vst" }
 libsamplerate-sys = { path = "./crates/vendor/libsamplerate-sys" }
 midir = { path = "./crates/augmented/data/augmented-midi/midir" }
-assert_no_alloc = { path = "./crates/vendor/assert-no-alloc" }
+assert_no_alloc = { version = "1.1.2", features = ["warn_release"], default-features = false, path = "./crates/vendor/assert-no-alloc" }

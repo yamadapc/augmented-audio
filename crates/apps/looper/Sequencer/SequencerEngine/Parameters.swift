@@ -53,11 +53,11 @@ func getObjectIdRust(_ id: SequencerUI.ParameterId) -> SequencerEngine_private.P
 func getTrackId(_ id: SequencerUI.ParameterId) -> UInt? {
     switch id {
     case .sourceParameter(trackId: let trackId, parameterId: _):
-        return UInt(trackId - 1)
+        return UInt(trackId)
     case .envelopeParameter(trackId: let trackId, parameterId: _):
-        return UInt(trackId - 1)
+        return UInt(trackId)
     case .lfoParameter(trackId: let trackId, lfo: _, parameterId: _):
-        return UInt(trackId - 1)
+        return UInt(trackId)
     default:
         return nil
     }
@@ -97,4 +97,11 @@ let RUST_QUANTIZE_MODES: [QuantizationMode: CQuantizeMode] = [
 let RUST_TEMPO_CONTROL: [TempoControlMode: SequencerEngine_private.TempoControl] = [
     .setAndFollowGlobalTempo: TempoControlSetGlobalTempo,
     .none: TempoControlNone
+]
+
+let RUST_EFFECT_TYPES: [EffectId: EffectType] = [
+    .bitcrusher: EffectTypeBitCrusher,
+    .delay: EffectTypeDelay,
+    .filter: EffectTypeFilter,
+    .reverb: EffectTypeReverb,
 ]

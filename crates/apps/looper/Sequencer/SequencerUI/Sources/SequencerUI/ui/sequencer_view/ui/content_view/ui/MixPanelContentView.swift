@@ -61,7 +61,7 @@ struct MixPanelContentView: View {
                         .frame(width: 1)
                         .frame(maxHeight: .infinity)
 
-                    MixKnobView(trackId: i, trackState: store.trackStates[i - 1])
+                    MixKnobView(trackId: i, trackState: store.trackStates[i])
                         .frame(width: 50)
 
                     Rectangle()

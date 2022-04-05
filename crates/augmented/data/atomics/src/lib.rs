@@ -1,6 +1,7 @@
 use std::sync::atomic::*;
 
 use num_traits::{FromPrimitive, ToPrimitive};
+use serde_derive::{Deserialize, Serialize};
 
 pub use atomic_enum::AtomicEnum;
 pub use atomic_option::AtomicOption;
@@ -20,10 +21,12 @@ macro_rules! std_atomic_impl {
         impl AtomicValue for $x {
             type Inner = $inner;
 
+            #[inline]
             fn get(&self) -> Self::Inner {
                 self.load(Ordering::Relaxed)
             }
 
+            #[inline]
             fn set(&self, value: Self::Inner) {
                 self.store(value, Ordering::Relaxed)
             }
@@ -47,6 +50,7 @@ macro_rules! atomic_float {
         /// Simple atomic floating point variable with relaxed ordering.
         ///
         /// Fork of atomic float from rust-vst.
+        #[derive(Serialize, Deserialize)]
         pub struct $name {
             atomic: $backing,
         }
@@ -134,10 +138,12 @@ macro_rules! atomic_float {
         impl AtomicValue for $name {
             type Inner = $inner;
 
+            #[inline]
             fn get(&self) -> Self::Inner {
                 $name::get(self)
             }
 
+            #[inline]
             fn set(&self, value: Self::Inner) {
                 $name::set(self, value)
             }
@@ -151,10 +157,12 @@ atomic_float!(AtomicF64, AtomicU64, f64);
 impl<T: ToPrimitive + FromPrimitive> AtomicValue for AtomicEnum<T> {
     type Inner = T;
 
+    #[inline]
     fn get(&self) -> Self::Inner {
         Self::get(self)
     }
 
+    #[inline]
     fn set(&self, value: Self::Inner) {
         Self::set(self, value)
     }

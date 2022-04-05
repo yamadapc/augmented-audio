@@ -21,10 +21,24 @@ strum_macros = "0.24.0"
 itertools = "0.10"
 lockfree = "0.5.1"
 assert_no_alloc = { version = "1.1.2", features = ["warn_release"], default-features = false }
-actix = "0.13.0"
 midir = "^0.7.0"
 crossbeam = "0.8"
+anyhow = "1.0"
+thiserror = "1.0"
+rustc-hash = "1.1"
+swift-bridge = "0.1"
 
+# Application / Project management things
+actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }
+actix = "0.13.0"
+tokio = { version = "1.17", features = ["fs"] }
+serde = "1.0"
+serde_derive = "1.0"
+rmp-serde = "1.0"
+bytesize = { version = "1.1.0", features = ["serde"] }
+tempdir = "0.3"
+
+# Audio
 metronome = { path = "../../metronome" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" }
 augmented-adsr-envelope = { version = "0.1.0-alpha.3", path = "../../../augmented/audio/adsr-envelope" }
@@ -40,6 +54,7 @@ wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger"
 audio-processor-file = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-file" }
 augmented-midi = { path = "../../../augmented/data/augmented-midi" , version = "1.0.0-alpha.4" }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" }
+augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" }
 
 # FX
 audio-processor-pitch-shifter = { path = "../../../augmented/audio/audio-processor-pitch-shifter" }
@@ -53,6 +68,11 @@ audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-pro
 
 [dev-dependencies]
 criterion = "^0.3.4"
+iai = "0.1"
+
+[build-dependencies]
+syn = "1.0"
+swift-bridge-build = "0.1"
 
 [[bench]]
 name = "looper_processor_criterion"

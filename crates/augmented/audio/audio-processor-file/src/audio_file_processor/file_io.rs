@@ -1,8 +1,8 @@
 use std::fs::File;
 use std::path::Path;
 
-use symphonia::core::audio::Signal;
 use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef};
+use symphonia::core::audio::{AudioBuffer, Signal};
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
@@ -20,6 +20,8 @@ pub enum AudioFileError {
     FileReadError(#[from] std::io::Error),
     #[error("Failed to open read stream")]
     OpenStreamError,
+    #[error("File has no buffers")]
+    EmptyFileError,
 }
 
 /// Opens an audio file with default options & trying to guess the format
@@ -61,7 +63,7 @@ pub fn read_file_contents(
         .make(&audio_file_stream.codec_params, &Default::default())?;
     let audio_file_stream_id = audio_file_stream.id;
 
-    let mut audio_buffer: Vec<SymphoniaAudioBuffer<f32>> = Vec::new();
+    let mut channel_buffers: Vec<SymphoniaAudioBuffer<f32>> = Vec::new();
     metrics::time("AudioFileProcessor - Reading file packages", || loop {
         match audio_file.format.next_packet().ok() {
             None => break,
@@ -72,8 +74,9 @@ pub fn read_file_contents(
 
                 let decoded = decoder.decode(&packet).ok();
                 match decoded {
-                    Some(AudioBufferRef::F32(packet_buffer)) => {
-                        audio_buffer.push(packet_buffer.into_owned());
+                    Some(audio_buffer) => {
+                        let destination = convert_audio_buffer_sample_type(audio_buffer);
+                        channel_buffers.push(destination);
                     }
                     _ => break,
                 }
@@ -81,10 +84,37 @@ pub fn read_file_contents(
         }
     });
 
+    if channel_buffers.len() == 0 {
+        return Err(AudioFileError::EmptyFileError);
+    }
+
     Ok(metrics::time(
         "AudioFileProcessor - Concatenating packets",
-        || concat_buffers(audio_buffer),
+        || concat_buffers(channel_buffers),
     ))
+}
+
+fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> AudioBuffer<f32> {
+    let mut destination =
+        SymphoniaAudioBuffer::new(audio_buffer.capacity() as u64, *audio_buffer.spec());
+    let _ = destination.fill(|_, _| Ok(()));
+    destination.truncate(audio_buffer.frames());
+    assert_eq!(audio_buffer.frames(), destination.frames());
+    assert_eq!(audio_buffer.capacity(), destination.capacity());
+
+    match audio_buffer {
+        AudioBufferRef::U8(inner) => inner.convert(&mut destination),
+        AudioBufferRef::U16(inner) => inner.convert(&mut destination),
+        AudioBufferRef::U24(inner) => inner.convert(&mut destination),
+        AudioBufferRef::U32(inner) => inner.convert(&mut destination),
+        AudioBufferRef::S8(inner) => inner.convert(&mut destination),
+        AudioBufferRef::S16(inner) => inner.convert(&mut destination),
+        AudioBufferRef::S24(inner) => inner.convert(&mut destination),
+        AudioBufferRef::S32(inner) => inner.convert(&mut destination),
+        AudioBufferRef::F32(inner) => inner.convert(&mut destination),
+        AudioBufferRef::F64(inner) => inner.convert(&mut destination),
+    }
+    destination
 }
 
 pub fn convert_audio_file_sample_rate(
@@ -118,13 +148,13 @@ pub fn convert_audio_file_sample_rate(
     channel
 }
 
+/// buffers must be non-empty
 fn concat_buffers(buffers: Vec<SymphoniaAudioBuffer<f32>>) -> SymphoniaAudioBuffer<f32> {
     let duration = buffers
         .iter()
         .map(|buffer| buffer.chan(0).len() as u64)
         .sum();
 
-    // TODO - Check there're buffers
     let mut output = SymphoniaAudioBuffer::new(duration, *buffers[0].spec());
     let _ = output.fill(|_, _| Ok(()));
     let mut output_cursor = 0;

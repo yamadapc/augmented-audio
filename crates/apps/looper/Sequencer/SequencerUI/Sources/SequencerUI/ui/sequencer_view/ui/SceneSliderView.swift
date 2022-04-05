@@ -34,10 +34,10 @@ struct SceneSliderView: View {
 
     var body: some View {
         HStack {
-            TrackButton(
-                action: {},
-                label: "A",
-                isSelected: false
+            ContinuousButton(
+                    action: {},
+                    label: "A",
+                    isSelected: false
             )
             .highPriorityGesture(makeDragGesture(sceneId: 0))
             .overlay(makeOverlay(sceneId: 0))
@@ -46,10 +46,10 @@ struct SceneSliderView: View {
             KnobSliderView(value: $sceneState.sceneSlider.value)
                 .bindToParameter(store: store, parameter: sceneState.sceneSlider, showSelectionOverlay: false)
 
-            TrackButton(
-                action: {},
-                label: "B",
-                isSelected: false
+            ContinuousButton(
+                    action: {},
+                    label: "B",
+                    isSelected: false
             )
             .highPriorityGesture(makeDragGesture(sceneId: 1))
             .overlay(makeOverlay(sceneId: 1))

@@ -32,7 +32,7 @@ import OSCKit
 public class Store: ObservableObject {
     var logger: Logger = .init(label: "com.beijaflor.sequencerui.store.Store")
 
-    public let trackStates: [TrackState] = (1 ... 8).map { i in
+    public let trackStates: [TrackState] = (0 ... 7).map { i in
         TrackState(
             id: i
         )
@@ -48,7 +48,7 @@ public class Store: ObservableObject {
     public let processorMetrics = ProcessorMetrics()
     public let midi = MIDIMappingState()
     @Published public var isPlaying: Bool = false
-    @Published public var selectedTrack: Int = 1
+    @Published public var selectedTrack: Int = 0
 
     @Published var selectedTab: TabValue = .source
     @Published var midiMappingActive = false
@@ -125,17 +125,17 @@ extension Store {
     func startParameterLock(_ id: ParameterId, parameterLockProgress: ParameterLockState) {
         switch id {
         case .sourceParameter(trackId: let trackId, parameterId: _):
-            trackStates[trackId - 1].sourceParameters.parameters
+            trackStates[trackId].sourceParameters.parameters
                 .first(where: { parameter in parameter.globalId == id })?.parameterLockProgress = parameterLockProgress
         case .envelopeParameter(trackId: let trackId, parameterId: _):
-            trackStates[trackId - 1].envelope.parameters
+            trackStates[trackId].envelope.parameters
                 .first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
         case let .lfoParameter(trackId: trackId, lfo: lfo, _):
             if lfo == 0 {
-                trackStates[trackId - 1].lfo1.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+                trackStates[trackId].lfo1.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
             }
             if lfo == 1 {
-                trackStates[trackId - 1].lfo2.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+                trackStates[trackId].lfo2.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
             }
         default:
             return
@@ -188,30 +188,30 @@ extension Store {
             "trackId": .stringConvertible(trackId),
             "stepId": .stringConvertible(step),
         ])
-        trackStates[trackId - 1].toggleStep(step)
+        trackStates[trackId].toggleStep(step)
         engine?.toggleStep(track: trackId, step: step)
     }
 
     func currentTrackState() -> TrackState {
-        return trackStates[selectedTrack - 1]
+        return trackStates[selectedTrack]
     }
 }
 
 public extension Store {
     func setTrackBuffer(trackId: Int, fromAbstractBuffer buffer: TrackBuffer?) {
-        trackStates[trackId - 1].buffer = buffer
+        trackStates[trackId].buffer = buffer
     }
 
     func setSliceBuffer(trackId: Int, fromAbstractBuffer buffer: SliceBuffer?) {
-        trackStates[trackId - 1].sliceBuffer = buffer
-        trackStates[trackId - 1].sourceParameters.slice.maximum = (buffer?.count ?? 2) - 1
+        trackStates[trackId].sliceBuffer = buffer
+        trackStates[trackId].sourceParameters.slice.maximum = buffer?.count ?? 0
     }
 
     func setTrackBuffer(trackId: Int, fromUnsafePointer buffer: UnsafeBufferPointer<Float32>) {
         logger.info("Updating track buffer", metadata: [
             "trackId": .stringConvertible(trackId),
         ])
-        trackStates[trackId - 1].buffer = UnsafeBufferTrackBuffer(inner: buffer)
+        trackStates[trackId].buffer = UnsafeBufferTrackBuffer(inner: buffer)
     }
 }
 

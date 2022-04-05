@@ -49,6 +49,7 @@ jobs:
               --exclude-files "*crates/apps/tremolo-plugin/*" \
               --exclude-files "*crates/apps/synth/*" \
               --exclude-files "*/bridge_generated.rs" \
+              --exclude assert-no-alloc \
               --exclude augmented-ui \
               --exclude audiounit \
               --exclude basedrop \
@@ -87,6 +88,7 @@ jobs:
               --features story \
               --exclude augmented-ui \
               --exclude audiounit \
+              --exclude assert-no-alloc \
               --exclude basedrop \
               --exclude midir \
               --exclude gfx \

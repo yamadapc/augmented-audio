@@ -31,6 +31,10 @@ class DropController {
 
 @available(macOS 11.0, *)
 extension DropController: DropDelegate {
+    func dropEntered(info _: DropInfo) {}
+
+    func dropExited(info _: DropInfo) {}
+
     func performDrop(info: DropInfo) -> Bool {
         let audioContent = info.itemProviders(for: [.fileURL])
         audioContent.forEach { file in
@@ -40,6 +44,9 @@ extension DropController: DropDelegate {
                 self.logger.info("Received drop event", metadata: [
                     "filepath": .string(path ?? "<unknown>"),
                 ])
+                if let pathStr = path {
+                    self.store.engine?.loadFile(atPath: pathStr)
+                }
             })
         }
         return true

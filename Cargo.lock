@@ -64,6 +64,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "actix-system-threads"
+version = "0.1.0"
+dependencies = [
+ "actix",
+ "lazy_static 1.4.0",
+ "log",
+ "num_cpus",
+ "wisual-logger",
+]
+
+[[package]]
 name = "actix_derive"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -442,7 +453,7 @@ dependencies = [
  "audio-processor-utility",
  "augmented-dsp-filters",
  "augmented_oscillator",
- "concread",
+ "criterion",
  "daggy 0.7.0",
  "num-traits 0.2.14",
  "thiserror",
@@ -563,6 +574,7 @@ version = "0.1.0-alpha.2"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-standalone",
+ "audio-processor-standalone-gui",
  "audio-processor-traits",
 ]
 
@@ -570,6 +582,7 @@ dependencies = [
 name = "audio-processor-traits"
 version = "1.0.0-alpha.4"
 dependencies = [
+ "audio-garbage-collector",
  "augmented-atomics",
  "augmented_oscillator",
  "criterion",
@@ -687,12 +700,17 @@ version = "0.1.0-alpha.4"
 dependencies = [
  "num-derive",
  "num-traits 0.2.14",
+ "serde",
+ "serde_derive",
 ]
 
 [[package]]
 name = "augmented-audio-metrics"
 version = "1.0.0-alpha.1"
 dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-traits",
+ "augmented-atomics",
  "log",
 ]
 
@@ -701,6 +719,17 @@ name = "augmented-audio-volume"
 version = "0.1.0-alpha.4"
 dependencies = [
  "audio-processor-testing-helpers",
+]
+
+[[package]]
+name = "augmented-codegen"
+version = "0.1.0"
+dependencies = [
+ "complexity",
+ "glob",
+ "log",
+ "syn",
+ "wisual-logger",
 ]
 
 [[package]]
@@ -747,7 +776,9 @@ dependencies = [
 name = "augmented-midi"
 version = "1.0.0-alpha.4"
 dependencies = [
+ "assert_no_alloc",
  "audio-processor-traits",
+ "cookie-factory",
  "itertools",
  "log",
  "midir",
@@ -1028,6 +1059,15 @@ name = "bytes"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4872d67bab6358e59559027aa3b9157c53d9358c51423c17554809a8858e0f8"
+
+[[package]]
+name = "bytesize"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6c58ec36aac5066d5ca17df51b3e70279f5670a72102f5752cb7e7c856adfc70"
+dependencies = [
+ "serde",
+]
 
 [[package]]
 name = "cacao"
@@ -1432,6 +1472,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "complexity"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a36552771b8d2e57f7eadb6ebd9f57486d09cb10ebefb6475ad97d33c6aceb07"
+dependencies = [
+ "syn",
+]
+
+[[package]]
 name = "concread"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1469,6 +1518,12 @@ name = "convert_case"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fb4a24b1aaf0fd0ce8b45161144d6f42cd91677fd5940fd431183eb023b3a2b8"
+
+[[package]]
+name = "cookie-factory"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "396de984970346b0d9e93d1415082923c679e5ae5c3ee3dcbd104f5610af126b"
 
 [[package]]
 name = "copyless"
@@ -3520,6 +3575,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "iai"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "71a816c97c42258aa5834d07590b718b4c9a598944cd39a52dc25b351185d678"
+
+[[package]]
 name = "iced"
 version = "0.3.0"
 dependencies = [
@@ -4105,6 +4166,8 @@ name = "looper-processor"
 version = "0.1.0"
 dependencies = [
  "actix",
+ "actix-system-threads",
+ "anyhow",
  "assert_no_alloc",
  "atomic-queue",
  "atomic_refcell",
@@ -4123,14 +4186,17 @@ dependencies = [
  "audio-processor-traits",
  "augmented-adsr-envelope",
  "augmented-atomics",
+ "augmented-audio-metrics",
  "augmented-dsp-filters",
  "augmented-midi",
  "augmented-playhead",
  "augmented_oscillator",
  "basedrop",
+ "bytesize",
  "criterion",
  "crossbeam",
  "derive_builder 0.10.2",
+ "iai",
  "itertools",
  "lockfree",
  "log",
@@ -4141,8 +4207,18 @@ dependencies = [
  "num-derive",
  "num-traits 0.2.14",
  "rand 0.8.5",
+ "rmp-serde",
+ "rustc-hash",
+ "serde",
+ "serde_derive",
  "strum 0.24.0",
  "strum_macros 0.24.0",
+ "swift-bridge",
+ "swift-bridge-build",
+ "syn",
+ "tempdir",
+ "thiserror",
+ "tokio",
  "wisual-logger",
 ]
 
@@ -5832,6 +5908,7 @@ version = "0.1.0"
 dependencies = [
  "actix",
  "actix-handler-macro",
+ "actix-system-threads",
  "atomic-queue",
  "audio-garbage-collector",
  "audio-processor-analysis",
@@ -6354,6 +6431,27 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd3064490f4a0c5bc127544803fbc2bb5f77ec5170f0208f2d7b605a4f396d44"
 dependencies = [
  "cache-padded",
+]
+
+[[package]]
+name = "rmp"
+version = "0.8.10"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4f55e5fa1446c4d5dd1f5daeed2a4fe193071771a2636274d0d7a3b082aa7ad6"
+dependencies = [
+ "byteorder 1.4.3",
+ "num-traits 0.2.14",
+]
+
+[[package]]
+name = "rmp-serde"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3eedffbfcc6a428f230c04baf8f59bd73c1781361e4286111fe900849aaddaf"
+dependencies = [
+ "byteorder 1.4.3",
+ "rmp",
+ "serde",
 ]
 
 [[package]]
@@ -6974,6 +7072,51 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fb1df15f412ee2e9dfc1c504260fa695c1c3f10fe9f4a6ee2d2184d7d6450e2"
 
 [[package]]
+name = "swift-bridge"
+version = "0.1.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4d7cd99deee57c862fe8a06791306efd2898c2450423671b1db3dd083e07416a"
+dependencies = [
+ "swift-bridge-build",
+ "swift-bridge-macro",
+]
+
+[[package]]
+name = "swift-bridge-build"
+version = "0.1.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "95cdd7d7de799e14f3636f63d7b81547fcf6b3c363343f824f56899821dc8a32"
+dependencies = [
+ "proc-macro2 1.0.36",
+ "swift-bridge-ir",
+ "syn",
+ "tempfile",
+]
+
+[[package]]
+name = "swift-bridge-ir"
+version = "0.1.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b895f7efe6173f7d7fdb55243ae6ec186904e441da490f58e92ead3d0c9bfdec"
+dependencies = [
+ "proc-macro2 1.0.36",
+ "quote 1.0.15",
+ "syn",
+]
+
+[[package]]
+name = "swift-bridge-macro"
+version = "0.1.29"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3488b286b2513538f05b488f81476968c237d3e1427cf94cdaffe0e7dce9cc7"
+dependencies = [
+ "proc-macro2 1.0.36",
+ "quote 1.0.15",
+ "swift-bridge-ir",
+ "syn",
+]
+
+[[package]]
 name = "symphonia"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7271,6 +7414,16 @@ checksum = "c40a817171cf25d69dd31e3fa9360fd4367e54948e30f3356962f0b1d9f23dad"
 dependencies = [
  "gtk-sys",
  "pkg-config",
+]
+
+[[package]]
+name = "tempdir"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "15f2b5fb00ccdf689e0149d1b1b3c03fead81c2b37735d812fa8bddbbf41b6d8"
+dependencies = [
+ "rand 0.4.6",
+ "remove_dir_all",
 ]
 
 [[package]]

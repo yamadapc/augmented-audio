@@ -17,48 +17,6 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-enum EffectId {
-    case filter, bitcrusher, delay, compressor
-}
-
-struct EffectDefinition: Identifiable {
-    let id: EffectId
-    let label: String
-    let color: Color
-}
-
-class EffectSlotModel: ObservableObject, Identifiable {
-    var id: Int
-    @Published var definition: EffectDefinition? = nil
-
-    init(slotId: Int, definition: EffectDefinition?) {
-        id = slotId
-        self.definition = definition
-    }
-
-    convenience init(slotId: Int) {
-        self.init(slotId: slotId, definition: nil)
-    }
-}
-
-class EffectsRowViewModel: ObservableObject {
-    @Published var creatingEffect: Int? = nil
-    @Published var selectedEffect: Int? = nil
-    var effectDefinitions: [EffectDefinition] = [
-        .init(id: .filter, label: "Filter", color: SequencerColors.recordColor),
-        .init(id: .bitcrusher, label: "Bitcrusher", color: SequencerColors.green),
-        .init(id: .delay, label: "Delay", color: SequencerColors.blue),
-        .init(id: .compressor, label: "Compressor", color: SequencerColors.white),
-    ]
-    var effectSlots: [EffectSlotModel] = (0 ..< 9).map { i in EffectSlotModel(slotId: i) }
-
-    func addEffect(definition: EffectDefinition?, slotId: Int) {
-        creatingEffect = nil
-        effectSlots[slotId] = EffectSlotModel(slotId: slotId, definition: definition)
-        objectWillChange.send()
-    }
-}
-
 struct CreateEffectModalView: View {
     var slotId: Int
     @ObservedObject var model: EffectsRowViewModel
@@ -96,7 +54,11 @@ struct CreateEffectModalView: View {
 }
 
 struct EffectsRowView: View {
-    @ObservedObject var model = EffectsRowViewModel()
+    @ObservedObject var model: EffectsRowViewModel
+
+    init(store: Store) {
+        model = EffectsRowViewModel(store: store)
+    }
 
     var body: some View {
         ZStack {

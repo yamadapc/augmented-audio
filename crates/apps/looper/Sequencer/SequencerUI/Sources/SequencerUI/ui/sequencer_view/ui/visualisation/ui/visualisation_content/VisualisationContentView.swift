@@ -28,7 +28,7 @@ struct VisualisationContentView: View {
         case .slice:
             SliceVisualisationView(trackState: currentTrack)
         case .fx:
-            EffectsRowView()
+            EffectsRowView(store: store)
         case .envelope:
             EnvelopeVisualisationView(model: currentTrack.envelope)
         case .lfos:

@@ -55,6 +55,6 @@ public class EnumParameter<OptionT: FromRawEnum>: ObservableObject, ParameterLik
         self.label = label
         self.value = value
         self.options = options
-        ALL_PARAMETERS.append(.enumP(self))
+        ALL_PARAMETERS.append(AnyParameterInner.enumP(self).into())
     }
 }

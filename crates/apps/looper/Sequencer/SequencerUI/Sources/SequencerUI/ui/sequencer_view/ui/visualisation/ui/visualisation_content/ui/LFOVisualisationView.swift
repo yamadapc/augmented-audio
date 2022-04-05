@@ -90,6 +90,9 @@ struct LFOVisualisationView: View {
     var lfoState: LFOState
 
     var body: some View {
-        LFOVisualisationViewInner(lfoAmount: lfoState.amountParameter, lfoFrequency: lfoState.frequencyParameter)
+        LFOVisualisationViewInner(
+            lfoAmount: lfoState.amountParameter,
+            lfoFrequency: lfoState.frequencyParameter
+        )
     }
 }

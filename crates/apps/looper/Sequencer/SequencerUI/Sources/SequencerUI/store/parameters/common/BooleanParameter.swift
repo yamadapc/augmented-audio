@@ -21,7 +21,7 @@ public class BooleanParameter: ObservableObject, ParameterLike {
     public var id: ParameterId
     public var globalId: ParameterId { id }
     var label: String
-    @Published public var value: Bool = false
+    @FastPublished public var value: Bool = false
     var style: KnobStyle { .normal }
 
     init(
@@ -32,6 +32,8 @@ public class BooleanParameter: ObservableObject, ParameterLike {
         self.id = id
         self.label = label
         self.value = value
-        ALL_PARAMETERS.append(.boolean(self))
+        ALL_PARAMETERS.append(AnyParameterInner.boolean(self).into())
+
+        setupFastPublished(self)
     }
 }

@@ -23,17 +23,18 @@ struct RecordButtonView: View {
     @State var isAnimating = false
 
     var body: some View {
-        let button = TrackButton(
-            action: { store.onClickRecord() },
-            label: "Record",
-            isDisabled: store.midiMappingActive,
-            isSelected: trackState.looperState.isRecording,
-            backgroundColor: buttonColor()
+        let button = ContinuousButton(
+                action: { store.onClickRecord() },
+                label: "Record",
+                isDisabled: store.midiMappingActive,
+                isSelected: trackState.looperState.isRecording,
+                backgroundColor: buttonColor()
         )
-        .bindToParameterId(
-            store: store,
-            parameterId: .recordButton(trackId: trackState.id)
-        )
+                .bindToParameterId(
+                        store: store,
+                        parameterId: .recordButton(trackId: trackState.id)
+                )
+                .testId("recordButton")
 
         if trackState.looperState == .recordingScheduled {
             button
