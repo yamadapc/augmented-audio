@@ -44,26 +44,26 @@ struct LFOStateSingleView: View {
                 renderPathOverlay(start, end)
             }
         }
-                .background(SequencerColors.black)
-                .apply(buildDragGesture)
+        .background(SequencerColors.black)
+        .apply(buildDragGesture)
     }
 
     fileprivate func renderLFOMappingOverlay(_: CGPoint, _: CGPoint) -> some View {
         ZStack(alignment: .top) {
             Rectangle()
-                    .fill(SequencerColors.blue.opacity(0.4))
-                    .border(SequencerColors.white, width: 1)
+                .fill(SequencerColors.blue.opacity(0.4))
+                .border(SequencerColors.white, width: 1)
 
             Text("Map \(lfoState.label)")
-                    .bold()
-                    .padding(PADDING)
-                    .background(Rectangle().fill(SequencerColors.black0.opacity(0.8)))
-                    .cornerRadius(BORDER_RADIUS)
-                    .offset(y: PADDING)
+                .bold()
+                .padding(PADDING)
+                .background(Rectangle().fill(SequencerColors.black0.opacity(0.8)))
+                .cornerRadius(BORDER_RADIUS)
+                .offset(y: PADDING)
         }
-                .opacity(dragPosition != nil ? 1.0 : 0.0)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .padding(2)
+        .opacity(dragPosition != nil ? 1.0 : 0.0)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(2)
     }
 
     fileprivate func renderPathOverlay(_ start: CGPoint, _ end: CGPoint) -> some View {
@@ -71,20 +71,20 @@ struct LFOStateSingleView: View {
             path.move(to: start)
             path.addLine(to: end)
         }
-                .stroke(SequencerColors.green, lineWidth: 3)
+        .stroke(SequencerColors.green, lineWidth: 3)
     }
 
     fileprivate func buildDragGesture<C: View>(_ view: C) -> some View {
         #if os(macOS)
-        view.highPriorityGesture(
+            view.highPriorityGesture(
                 DragGesture()
-                        .modifiers(.command)
-                        .onChanged { drag in
-                            store.startDrag(source: .lfoId(lfoState.id), dragMode: .lock)
-                            DispatchQueue.main.async {
-                                withAnimation(.spring()) {
-                                    self.dragPosition = (drag.startLocation, drag.location)
-                                }
+                    .modifiers(.command)
+                    .onChanged { drag in
+                        store.startDrag(source: .lfoId(lfoState.id), dragMode: .lock)
+                        DispatchQueue.main.async {
+                            withAnimation(.spring()) {
+                                self.dragPosition = (drag.startLocation, drag.location)
+                            }
                         }
                     }
                     .onEnded { _ in

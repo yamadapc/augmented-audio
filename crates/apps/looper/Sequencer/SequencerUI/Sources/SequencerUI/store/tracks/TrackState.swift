@@ -35,6 +35,10 @@ public class TrackState: ObservableObject {
         ]
     }
 
+    public var hasBuffer: Bool {
+        buffer != nil
+    }
+
     @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
     @Published var buffer: TrackBuffer? = nil
 

@@ -22,9 +22,9 @@ struct SceneDragRect: View {
     var dragState: SceneDragState
     var body: some View {
         ContinuousButton(
-                action: {},
-                label: scenes[dragState.scene],
-                isSelected: false
+            action: {},
+            label: scenes[dragState.scene],
+            isSelected: false
         )
     }
 }

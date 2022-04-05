@@ -24,9 +24,9 @@ final class ViewBindToParameterTests: XCTest {
     func testBindToParameter() {
         let view = Text("Hello")
         _ = view.bindToParameterId(
-                store: Store(engine: nil),
-                parameterId: ParameterId.transportStop,
-                showSelectionOverlay: false
+            store: Store(engine: nil),
+            parameterId: ParameterId.transportStop,
+            showSelectionOverlay: false
         )
     }
 }

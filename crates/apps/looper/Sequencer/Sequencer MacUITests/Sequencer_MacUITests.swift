@@ -22,8 +22,7 @@ class Sequencer_MacUITests: XCTestCase {
         continueAfterFailure = false
     }
 
-    override func tearDownWithError() throws {
-    }
+    override func tearDownWithError() throws {}
 
     func testLaunch() throws {
         let app = XCUIApplication()

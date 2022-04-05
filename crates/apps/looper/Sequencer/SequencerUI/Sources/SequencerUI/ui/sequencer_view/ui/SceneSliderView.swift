@@ -35,39 +35,39 @@ struct SceneSliderView: View {
     var body: some View {
         HStack {
             ContinuousButton(
-                    action: {},
-                    label: "A",
-                    isSelected: false
+                action: {},
+                label: "A",
+                isSelected: false
             )
-                    .highPriorityGesture(buildDragGesture(sceneId: 0))
-                    .overlay(renderOverlay(sceneId: 0))
+            .highPriorityGesture(buildDragGesture(sceneId: 0))
+            .overlay(renderOverlay(sceneId: 0))
             .bindToParameterId(store: store, parameterId: .sceneButton(sceneId: 0), showSelectionOverlay: false)
 
             KnobSliderView(value: $sceneState.sceneSlider.value)
                 .bindToParameter(store: store, parameter: sceneState.sceneSlider, showSelectionOverlay: false)
 
             ContinuousButton(
-                    action: {},
-                    label: "B",
-                    isSelected: false
+                action: {},
+                label: "B",
+                isSelected: false
             )
-                    .highPriorityGesture(buildDragGesture(sceneId: 1))
-                    .overlay(renderOverlay(sceneId: 1))
+            .highPriorityGesture(buildDragGesture(sceneId: 1))
+            .overlay(renderOverlay(sceneId: 1))
             .bindToParameterId(store: store, parameterId: .sceneButton(sceneId: 1), showSelectionOverlay: false)
         }
     }
 
     fileprivate func buildDragGesture(sceneId: Int) -> some Gesture {
         return DragGesture(coordinateSpace: .global)
-                .onChanged { drag in
-                    self.store.focusState.sceneDragState = SceneDragState(
-                            scene: sceneId,
-                            position: drag.location,
-                            startPosition: drag.startLocation
-                    )
-                    self.store.startDrag(source: .sceneId(SceneId(index: sceneId)), dragMode: .lock)
-                    store.objectWillChange.send()
-                    withAnimation {
+            .onChanged { drag in
+                self.store.focusState.sceneDragState = SceneDragState(
+                    scene: sceneId,
+                    position: drag.location,
+                    startPosition: drag.startLocation
+                )
+                self.store.startDrag(source: .sceneId(SceneId(index: sceneId)), dragMode: .lock)
+                store.objectWillChange.send()
+                withAnimation {
                     isDragging = sceneId
                 }
             }
@@ -81,14 +81,14 @@ struct SceneSliderView: View {
     fileprivate func renderOverlay(sceneId: Int) -> some View {
         ZStack(alignment: .center) {
             Rectangle()
-                    .fill(SequencerColors.blue.opacity(0.4))
-                    .border(SequencerColors.white, width: 1)
-                    .padding(1)
-                    .cornerRadius(BORDER_RADIUS)
+                .fill(SequencerColors.blue.opacity(0.4))
+                .border(SequencerColors.white, width: 1)
+                .padding(1)
+                .cornerRadius(BORDER_RADIUS)
 
             Text("Map scene")
-                    .bold()
-                    .frame(maxWidth: .infinity, alignment: .center)
+                .bold()
+                .frame(maxWidth: .infinity, alignment: .center)
         }
         .opacity(isDragging == sceneId ? 1.0 : 0.0)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
