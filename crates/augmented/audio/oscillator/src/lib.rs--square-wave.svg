@@ -1,7 +1,7 @@
 <svg width="1000" height="1000" viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
 <rect x="0" y="0" width="999" height="999" opacity="1" fill="#FFFFFF" stroke="none"/>
 <text x="500" y="5" dy="0.76em" text-anchor="middle" font-family="sans-serif" font-size="16.129032258064516" opacity="1" fill="#000000">
-Sine oscillator
+oscillator
 </text>
 <line opacity="0.1" stroke="#000000" stroke-width="1" x1="49" y1="959" x2="49" y2="25"/>
 <line opacity="0.1" stroke="#000000" stroke-width="1" x1="59" y1="959" x2="59" y2="25"/>

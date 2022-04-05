@@ -8,6 +8,7 @@ license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
+augmented-atomics = { path = "../../data/atomics" }
 
 [dev-dependencies]
 criterion = "^0.3"

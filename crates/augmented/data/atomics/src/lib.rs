@@ -170,6 +170,12 @@ impl<T: ToPrimitive + FromPrimitive> AtomicValue for AtomicEnum<T> {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+
     #[test]
-    fn test_sample() {}
+    fn test_f32_doesnt_lose_precision() {
+        let value = 9.97732426_f32;
+        let a_value = AtomicF32::new(value);
+        assert!((a_value.get() - value) < f32::EPSILON);
+    }
 }
