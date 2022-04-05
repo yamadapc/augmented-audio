@@ -28,16 +28,16 @@ struct ContinuousButton: View {
         Button(
                 action: action,
                 label: {
-                Text(label)
-                    .frame(width: 70.0, height: 70.0, alignment: .center)
-                    .contentShape(Rectangle())
-                    .foregroundColor(SequencerColors.white)
-                    .background(
-                        RoundedRectangle(cornerRadius: BORDER_RADIUS)
-                            .stroke(
-                                isSelected ? SequencerColors.selectionColorHigh : SequencerColors.black3.opacity(0.1),
-                                lineWidth: 1.0
-                            )
+                    Text(label)
+                            .frame(width: 70.0, height: 70.0, alignment: .center)
+                            .contentShape(Rectangle())
+                            .foregroundColor(SequencerColors.white)
+                            .background(
+                                    RoundedRectangle(cornerRadius: BORDER_RADIUS)
+                                            .stroke(
+                                                    isSelected ? SequencerColors.selectionColorHigh : SequencerColors.black3.opacity(0.1),
+                                                    lineWidth: 1.0
+                                            )
                             .background(self.backgroundColor ?? SequencerColors.black)
                     )
                     .cornerRadius(BORDER_RADIUS)

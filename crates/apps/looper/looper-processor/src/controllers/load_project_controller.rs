@@ -22,7 +22,8 @@ pub fn load_and_hydrate_latest_project(
         let project_manager = project_manager.clone();
         let audio_clip_manager = audio_clip_manager.clone();
         async move {
-            let latest_project = project_manager.send(LoadLatestProjectMessage).await??;
+            let latest_project: Shared<Project> =
+                project_manager.send(LoadLatestProjectMessage).await??;
 
             log::info!("Loaded previous project, hydrating...");
             {
@@ -125,8 +126,10 @@ fn copy_parameters(
     destination_map: &ParametersMap,
 ) {
     for parameter_id in parameter_ids {
-        let value = source_map.get(parameter_id.clone());
-        destination_map.set(parameter_id.clone(), value.clone());
+        if source_map.has_value(parameter_id.clone()) {
+            let value = source_map.get(parameter_id.clone());
+            destination_map.set(parameter_id.clone(), value.clone());
+        }
     }
 }
 
@@ -150,5 +153,7 @@ mod test {
 
         copy_parameters(&parameter_ids, &parameters_map1, &parameters_map2);
         assert_f_eq!(parameters_map2.get(SourceParameter::Start).as_float(), 0.8);
+        assert!(!parameters_map1.has_value(SourceParameter::End));
+        assert!(!parameters_map2.has_value(SourceParameter::End));
     }
 }
