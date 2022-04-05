@@ -4187,6 +4187,7 @@ dependencies = [
  "augmented-adsr-envelope",
  "augmented-atomics",
  "augmented-audio-metrics",
+ "augmented-codegen",
  "augmented-dsp-filters",
  "augmented-midi",
  "augmented-playhead",

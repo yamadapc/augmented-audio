@@ -1,5 +1,4 @@
 use std::env;
-use std::fs::File;
 use std::io::Read;
 use std::ops::Deref;
 use std::path::PathBuf;
@@ -8,8 +7,8 @@ use std::process;
 use complexity::Complexity;
 use syn::visit::Visit;
 use syn::{
-    FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl, ItemMod, ItemStruct, Pat, PatType,
-    ReturnType, Type, UsePath, UseTree, VisPublic, Visibility,
+    Attribute, File, FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl, ItemMod, ItemStruct,
+    Pat, PatType, ReturnType, Type, UsePath, UseTree, VisPublic, Visibility,
 };
 
 use crate::generate_swift_enum::generate_swift_enum;
@@ -19,109 +18,6 @@ use crate::generate_swift_opaque_value::{
 
 mod generate_swift_enum;
 mod generate_swift_opaque_value;
-
-struct MethodSummary {
-    ident: Ident,
-}
-
-struct StructSummary {
-    ident: Ident,
-    methods: Vec<MethodSummary>,
-}
-
-#[derive(Default)]
-struct CodegenVisitor {
-    public_structs: Vec<Ident>,
-    summaries: Vec<StructSummary>,
-    current_impl: Option<StructSummary>,
-}
-
-impl<'ast> Visit<'ast> for CodegenVisitor {
-    fn visit_item_struct(&mut self, i: &'ast ItemStruct) {
-        if i.vis
-            == Visibility::Public(VisPublic {
-                pub_token: Default::default(),
-            })
-        {
-            println!("Public struct: {}", i.ident);
-            self.public_structs.push(i.ident.clone());
-        }
-    }
-
-    fn visit_item_impl(&mut self, i: &'ast ItemImpl) {
-        if i.trait_.is_some() {
-            return;
-        }
-        match i.self_ty.deref() {
-            Type::Path(path) => {
-                if let Some(ident) = path.path.get_ident() {
-                    println!("enter impl {}", ident);
-                    self.current_impl = Some(StructSummary {
-                        ident: ident.clone(),
-                        methods: vec![],
-                    });
-                    syn::visit::visit_item_impl(self, i);
-                    self.summaries.push(self.current_impl.take().unwrap());
-                    self.current_impl = None;
-                }
-            }
-            _ => {}
-        }
-    }
-
-    fn visit_impl_item_method(&mut self, i: &'ast ImplItemMethod) {
-        let current_struct = self.current_impl.as_mut().unwrap();
-        let arguments = i
-            .sig
-            .inputs
-            .iter()
-            .filter_map(|inp| match inp {
-                FnArg::Receiver(_) => None,
-                FnArg::Typed(ty) => match ty {
-                    PatType { ty, .. } => match ty.deref() {
-                        Type::Path(path) => path.path.get_ident(),
-                        _ => None,
-                    },
-                },
-            })
-            .cloned()
-            .collect::<Vec<Ident>>();
-        println!("Inputs: {:?}", i.sig.inputs);
-        println!(
-            "Method: {}::{}({:?})",
-            current_struct.ident, i.sig.ident, arguments
-        );
-        current_struct.methods.push(MethodSummary {
-            ident: i.sig.ident.clone(),
-        });
-    }
-
-    fn visit_use_path(&mut self, i: &'ast UsePath) {
-        if i.ident == "crate" {
-            // println!("use {:?}", i);
-            let path = get_filepath(i);
-            println!("  --> {:?}", path);
-        }
-    }
-
-    fn visit_item_mod(&mut self, _i: &'ast ItemMod) {}
-}
-
-fn get_filepath(i: &UsePath) -> Option<PathBuf> {
-    // println!("  --> {:?}", i);
-    match i.tree.deref() {
-        UseTree::Path(path) => {
-            let rest = get_filepath(path);
-            let path = PathBuf::from(path.ident.to_string());
-            if let Some(r) = rest {
-                Some(path.join(r))
-            } else {
-                Some(path)
-            }
-        }
-        _ => None,
-    }
-}
 
 fn lint_file(file: &syn::File) {
     for item in &file.items {
@@ -176,7 +72,7 @@ fn main() {
 
     for filename in glob::glob(&*format!("{}/src/**/*.rs", crate_dir)).unwrap() {
         let filename = filename.unwrap();
-        let mut file = File::open(&filename).expect("Unable to open file");
+        let mut file = std::fs::File::open(&filename).expect("Unable to open file");
         log::debug!("Processing {}", filename.to_str().unwrap());
 
         let mut src = String::new();
@@ -185,75 +81,115 @@ fn main() {
         let file = syn::parse_file(&src).expect("Unable to parse file");
         lint_file(&file);
 
-        let mut c_api_module = "".to_string();
-        let mut swift_module = "".to_string();
-        for item in file.items.iter() {
-            match item {
-                Item::Enum(en) => {
-                    log::info!("Running over {:?} / {}", filename, en.ident);
-                    let result = generate_swift_enum(en);
-                    combine_result(&mut c_api_module, &mut swift_module, result)
-                }
-                Item::Fn(_) => {}
-                Item::Impl(i) => {
-                    for item in &i.items {
-                        match item {
-                            ImplItem::Method(method) => {
-                                if let Some(result) = process_impl_method(i, method) {
-                                    combine_result(&mut c_api_module, &mut swift_module, result)
-                                }
-                            }
-                            _ => {}
+        run_codegen(filename, file)
+    }
+}
+
+fn run_codegen(filename: PathBuf, file: File) {
+    let mut c_api_module = "".to_string();
+    let mut swift_module = "".to_string();
+
+    for item in file.items.iter() {
+        collect_item(&filename, &mut c_api_module, &mut swift_module, item);
+    }
+
+    let prefix = if filename.file_name().unwrap() == "mod.rs" {
+        filename.with_file_name("")
+    } else {
+        filename.with_extension("")
+    };
+    let c_api_filename = prefix.join("generated/c_api.rs");
+    if !c_api_module.is_empty() {
+        println!("// {}", c_api_filename.to_str().unwrap());
+        println!("{}", c_api_module);
+    }
+    let swift_filename = prefix.join(format!(
+        "generated/{}.swift",
+        prefix.file_name().unwrap().to_str().unwrap()
+    ));
+    if !swift_module.is_empty() {
+        println!("// {}", swift_filename.to_str().unwrap());
+        println!("{}", swift_module);
+    }
+}
+
+fn collect_item(
+    filename: &PathBuf,
+    mut c_api_module: &mut String,
+    mut swift_module: &mut String,
+    item: &Item,
+) {
+    match item {
+        Item::Enum(en) => {
+            if !should_codegen(&en.attrs) {
+                return;
+            }
+
+            log::info!("Running over {:?} / {}", filename, en.ident);
+
+            let result = generate_swift_enum(en);
+            combine_result(&mut c_api_module, &mut swift_module, result)
+        }
+        Item::Fn(_) => {}
+        Item::Impl(i) => {
+            if !should_codegen(&i.attrs) {
+                return;
+            }
+            for item in &i.items {
+                match item {
+                    ImplItem::Method(method) => {
+                        if let Some(result) = process_impl_method(i, method) {
+                            combine_result(&mut c_api_module, &mut swift_module, result)
                         }
                     }
+                    _ => {}
                 }
-                Item::Struct(str) => {
-                    let result = generate_opaque_value(OpaqueValueInput {
-                        identifier: str.ident.to_string(),
-                    });
-                    combine_result(&mut c_api_module, &mut swift_module, result)
-                }
-                Item::Type(_) => {}
-                _ => {}
             }
         }
+        Item::Struct(str) => {
+            if !should_codegen(&str.attrs) {
+                return;
+            }
 
-        let prefix = if filename.file_name().unwrap() == "mod.rs" {
-            filename.with_file_name("")
-        } else {
-            filename.with_extension("")
-        };
-        let c_api_filename = prefix.join("generated/c_api.rs");
-        if !c_api_module.is_empty() {
-            println!("// {}", c_api_filename.to_str().unwrap());
-            println!("{}", c_api_module);
-        }
-        let swift_filename = prefix.join(format!(
-            "generated/{}.swift",
-            prefix.file_name().unwrap().to_str().unwrap()
-        ));
-        if !swift_module.is_empty() {
-            println!("// {}", swift_filename.to_str().unwrap());
-            println!("{}", swift_module);
-        }
+            if let Some(Ok(repr)) = str
+                .attrs
+                .iter()
+                .find(|attr| attr.path.is_ident("repr"))
+                .map(|attr| attr.parse_args::<Ident>())
+            {
+                if repr.to_string() == "C" || repr.to_string() == "transparent" {
+                    return;
+                }
+            }
 
-        // let mut visitor = CodegenVisitor::default();
-        // visitor.visit_file(&file);
-        // for struct_name in visitor.summaries {
-        //     println!("class Native${} {{", struct_name.ident);
-        //     println!("  var __nativePtr: OpaquePointer");
-        //     println!("  init() {{");
-        //     println!("      self.__nativePtr = __nativeInit__x1234()");
-        //     println!("  }}");
-        //     println!();
-        //     for method in struct_name.methods {
-        //         println!("  func {}() {{", method.ident);
-        //         println!("  }}");
-        //     }
-        //     println!();
-        //     println!("}}");
-        // }
+            let result = generate_opaque_value(OpaqueValueInput {
+                identifier: str.ident.to_string(),
+            });
+            combine_result(&mut c_api_module, &mut swift_module, result)
+        }
+        Item::Type(_) => {}
+        _ => {}
     }
+}
+
+fn should_codegen(attrs: &Vec<Attribute>) -> bool {
+    attrs.iter().for_each(|attr| {
+        log::debug!("ident={:?}", attr.path);
+    });
+
+    let has_codegen_attr = attrs
+        .iter()
+        .find(|attr| {
+            let idents: Vec<String> = attr
+                .path
+                .segments
+                .iter()
+                .map(|s| s.ident.to_string())
+                .collect();
+            idents == vec!["augmented_codegen".to_string(), "ffi_export".to_string()]
+        })
+        .is_some();
+    has_codegen_attr
 }
 
 fn process_impl_method(i: &ItemImpl, method: &ImplItemMethod) -> Option<CodegenOutput> {
