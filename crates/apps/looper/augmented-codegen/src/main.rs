@@ -5,10 +5,10 @@ use std::path::PathBuf;
 use std::process;
 
 use complexity::Complexity;
-use syn::visit::Visit;
+
 use syn::{
-    Attribute, File, FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl, ItemMod, ItemStruct,
-    Pat, PatType, ReturnType, Type, UsePath, UseTree, VisPublic, Visibility,
+    Attribute, File, FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl,
+    Pat, PatType, ReturnType, Type,
 };
 
 use crate::generate_swift_enum::generate_swift_enum;

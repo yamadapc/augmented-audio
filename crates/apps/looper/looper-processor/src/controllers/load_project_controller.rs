@@ -11,6 +11,7 @@ use crate::services::project_manager::model::{LooperVoicePersist, Project};
 use crate::services::project_manager::{LoadLatestProjectMessage, ProjectManager};
 use crate::MultiTrackLooperHandle;
 
+#[allow(unused)]
 pub fn load_and_hydrate_latest_project(
     handle: &Shared<MultiTrackLooperHandle>,
     project_manager: &Addr<ProjectManager>,
@@ -79,6 +80,7 @@ pub fn load_and_hydrate_latest_project(
     }
 }
 
+#[allow(unused)]
 async fn copy_clips(
     destination: &Shared<MultiTrackLooperHandle>,
     audio_clip_manager: &Addr<AudioClipManager>,
@@ -100,6 +102,7 @@ async fn copy_clips(
     Ok(())
 }
 
+#[allow(unused)]
 fn copy_lfo(
     parameter_ids: &Vec<ParameterId>,
     source_voice: &LooperVoicePersist,
@@ -115,6 +118,7 @@ fn copy_lfo(
     }
 }
 
+#[allow(unused)]
 fn copy_parameters(
     parameter_ids: &Vec<ParameterId>,
     source_map: &ParametersMap,
