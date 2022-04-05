@@ -799,6 +799,7 @@ dependencies = [
 name = "augmented_oscillator"
 version = "1.0.0-alpha.3"
 dependencies = [
+ "augmented-atomics",
  "criterion",
  "plotters",
  "ringbuf",

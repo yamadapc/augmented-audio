@@ -1,23 +1,27 @@
 pub mod generators;
+pub mod wavetable;
+
+#[cfg(test)]
+mod test_utils;
 
 /// Calculate the phase step increment between samples.
 ///
 /// This is the fraction of a period which will go through each sample tick
-fn get_phase_step(sample_rate: f32, frequency: f32) -> f32 {
+pub fn get_phase_step(sample_rate: f32, frequency: f32) -> f32 {
     frequency / sample_rate
 }
 
 #[derive(Clone)]
 pub struct Oscillator<T> {
-    /// The sample rate to output with
-    sample_rate: f32,
-    /// A function from `phase` to `sample`
-    generator_fn: fn(T) -> T,
-    /// The oscillator frequency
-    frequency: f32,
     /// Current phase of the oscillator
     phase: f32,
     phase_step: f32,
+    /// A function from `phase` to `sample`
+    generator_fn: fn(T) -> T,
+    /// The sample rate to output with
+    sample_rate: f32,
+    /// The oscillator frequency
+    frequency: f32,
 }
 
 impl Oscillator<f32> {
@@ -76,10 +80,6 @@ impl<T> Oscillator<T>
 where
     T: From<f32>,
 {
-    pub fn phase(&self) -> f32 {
-        self.phase
-    }
-
     /// Process a single sample & update the oscillator phase.
     pub fn next_sample(&mut self) -> T {
         let result = self.get();
@@ -88,11 +88,17 @@ where
     }
 
     pub fn tick_n(&mut self, n: f32) {
-        self.phase = (self.phase + n * self.phase_step) % 1.0;
+        self.phase = self.phase + n * self.phase_step;
+        if self.phase > 1.0 {
+            self.phase -= 1.0;
+        }
     }
 
     pub fn tick(&mut self) {
-        self.phase = (self.phase + self.phase_step) % 1.0;
+        self.phase = self.phase + self.phase_step;
+        if self.phase > 1.0 {
+            self.phase -= 1.0;
+        }
     }
 
     pub fn value_for_phase(&self, phase: T) -> T {
@@ -103,13 +109,16 @@ where
         // User provided function from phase to a sample
         (self.generator_fn)(T::from(self.phase))
     }
+
+    /// Return the current phase as a number between 0-1
+    pub fn phase(&self) -> f32 {
+        self.phase
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use std::path::Path;
-
-    use plotters::prelude::*;
+    use crate::test_utils::generate_plot;
 
     use super::*;
 
@@ -117,51 +126,17 @@ mod test {
 
     #[test]
     fn test_generate_plots() {
+        let root_path = format!("{}/src/lib.rs", env!("CARGO_MANIFEST_DIR"));
         let mut oscillator = Oscillator::sine(DEFAULT_SAMPLE_RATE);
-        generate_plot(&mut oscillator, "sine-wave");
+        oscillator.set_frequency(440.0);
+        generate_plot(&root_path, || oscillator.next_sample(), "sine-wave");
         let mut oscillator =
             Oscillator::new_with_sample_rate(DEFAULT_SAMPLE_RATE, generators::square_generator);
-        generate_plot(&mut oscillator, "square-wave");
+        oscillator.set_frequency(440.0);
+        generate_plot(&root_path, || oscillator.next_sample(), "square-wave");
         let mut oscillator =
             Oscillator::new_with_sample_rate(DEFAULT_SAMPLE_RATE, generators::saw_generator);
-        generate_plot(&mut oscillator, "saw-wave");
-    }
-
-    fn generate_plot(oscillator: &mut Oscillator<f32>, plot_name: &str) {
-        let filename = Path::new(file!());
-        let sine_wave_filename = filename.with_file_name(format!(
-            "{}--{}.svg",
-            filename.file_name().unwrap().to_str().unwrap(),
-            plot_name
-        ));
-        let sine_wave_filename = sine_wave_filename.as_path();
         oscillator.set_frequency(440.0);
-
-        let mut output_buffer = Vec::new();
-        let mut current_seconds = 0.0;
-        for _i in 0..440 {
-            let sample = oscillator.next_sample();
-            current_seconds += 1.0 / 44100.0; // increment time past since last sample
-            output_buffer.push((current_seconds, sample));
-        }
-
-        let svg_backend = SVGBackend::new(sine_wave_filename, (1000, 1000));
-        let drawing_area = svg_backend.into_drawing_area();
-        drawing_area.fill(&WHITE).unwrap();
-
-        let mut chart = ChartBuilder::on(&drawing_area)
-            .caption("Sine oscillator", ("sans-serif", 20))
-            .set_label_area_size(LabelAreaPosition::Left, 40)
-            .set_label_area_size(LabelAreaPosition::Bottom, 40)
-            .build_cartesian_2d(0.0..current_seconds, -1.2..1.2)
-            .unwrap();
-        chart.configure_mesh().draw().unwrap();
-
-        chart
-            .draw_series(LineSeries::new(
-                output_buffer.iter().map(|(x, y)| (*x, *y as f64)),
-                &RED,
-            ))
-            .unwrap();
+        generate_plot(&root_path, || oscillator.next_sample(), "saw-wave");
     }
 }
