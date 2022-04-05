@@ -3575,6 +3575,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "iai"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "71a816c97c42258aa5834d07590b718b4c9a598944cd39a52dc25b351185d678"
+
+[[package]]
 name = "iced"
 version = "0.3.0"
 dependencies = [
@@ -4190,6 +4196,7 @@ dependencies = [
  "criterion",
  "crossbeam",
  "derive_builder 0.10.2",
+ "iai",
  "itertools",
  "lockfree",
  "log",

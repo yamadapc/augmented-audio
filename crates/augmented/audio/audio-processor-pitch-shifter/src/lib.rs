@@ -338,6 +338,10 @@ impl AudioProcessor for MultiChannelPitchShifterProcessor {
             processor.set_ratio(ratio);
         }
 
+        if (ratio - 1.0).abs() < f32::EPSILON {
+            return;
+        }
+
         for frame in data.frames_mut() {
             for (i, sample) in frame.iter_mut().enumerate() {
                 let processor = &mut self.processors[i];
@@ -366,22 +370,19 @@ impl SimpleAudioProcessor for PitchShifterProcessor {
         self.inverse_fft_processor.s_prepare(settings);
     }
 
+    #[inline]
     fn s_process(&mut self, sample: f32) -> f32 {
-        if (self.pitch_shift_ratio - 1.0).abs() > f32::EPSILON {
-            let output_len = self.output_buffer.len();
-            let output = self.output_buffer[self.output_read_cursor % output_len];
-            self.output_buffer[self.output_read_cursor % output_len] = 0.0;
-            self.output_read_cursor = (self.output_read_cursor + 1) % output_len;
+        let output_len = self.output_buffer.len();
+        let output = self.output_buffer[self.output_read_cursor % output_len];
+        self.output_buffer[self.output_read_cursor % output_len] = 0.0;
+        self.output_read_cursor = (self.output_read_cursor + 1) % output_len;
 
-            self.fft_processor.s_process(sample);
-            if self.fft_processor.has_changed() {
-                self.on_fft_frame();
-            }
-
-            output
-        } else {
-            sample
+        self.fft_processor.s_process(sample);
+        if self.fft_processor.has_changed() {
+            self.on_fft_frame();
         }
+
+        output
     }
 }
 

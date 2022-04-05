@@ -68,6 +68,7 @@ audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-pro
 
 [dev-dependencies]
 criterion = "^0.3.4"
+iai = "0.1"
 
 [build-dependencies]
 syn = "1.0"

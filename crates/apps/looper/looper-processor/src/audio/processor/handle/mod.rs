@@ -1,3 +1,5 @@
+//! Some functions in this module are annotated with `#[inline]`. This gives us between 1-2%
+//! performance improvement.
 use std::ops::Deref;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Duration;
