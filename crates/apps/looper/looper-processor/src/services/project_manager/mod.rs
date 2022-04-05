@@ -3,13 +3,15 @@ use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
 use actix::{Actor, ActorFutureExt, AsyncContext, Handler, Message, ResponseActFuture, WrapFuture};
+use atomic_refcell::AtomicRefCell;
 use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
 use audio_processor_file::OutputAudioFileProcessor;
-use audio_processor_traits::AudioBuffer;
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use augmented_atomics::AtomicF32;
 
-use crate::audio::processor::handle::looper_clip_copy_to_vec_buffer;
+use crate::services::audio_clip_manager::write_looper_clip;
 use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
 use self::model::LooperVoicePersist;
@@ -179,17 +181,11 @@ fn persist_handle_clips(
                 return None;
             }
 
-            let clip_path = project_path.join(format!("looper_{}.wav", voice.id));
-            log::info!("Writing audio into {:?}", clip_path);
-
             let settings = handle.settings().deref().clone();
-            let mut output_processor =
-                OutputAudioFileProcessor::from_path(settings, clip_path.to_str().unwrap());
-            output_processor.prepare(settings);
-
+            let clip_path = project_path.join(format!("looper_{}.wav", voice.id));
             let clip = voice.looper().looper_clip();
-            let mut clip_buffer = looper_clip_copy_to_vec_buffer(&clip);
-            output_processor.process(clip_buffer.slice_mut());
+
+            write_looper_clip(settings, &clip_path, &clip);
 
             Some(clip_path)
         })

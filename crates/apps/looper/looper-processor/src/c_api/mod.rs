@@ -362,6 +362,18 @@ pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__has_looper_buffer(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) -> bool {
+    let engine = &(*engine);
+    engine
+        .handle()
+        .get_looper_buffer(LooperId(looper_id))
+        .is_some()
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_looper_buffer(
     engine: *mut LooperEngine,
     looper_id: usize,

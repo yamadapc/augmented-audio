@@ -116,16 +116,15 @@ public class EngineController {
     func flushPollInfo() {
         let playhead = looper_engine__get_playhead_position(engine.engine)
 
-        for (i, trackState) in store.trackStates.enumerated() {
-            pollTrackState(i, trackState)
+        for trackState in store.trackStates {
+            pollTrackState(trackState)
         }
 
         // Updating ObservableObject at 60fps causes high CPU usage
         let positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
         let tempo = playhead.tempo == -1 ? nil : playhead.tempo
         if abs((store.timeInfo.positionBeats ?? 0.0) - (positionBeats ?? 0.0)) > 0.1 ||
-            store.timeInfo.tempo != tempo
-        {
+                   store.timeInfo.tempo != tempo {
             store.timeInfo.positionBeats = positionBeats
             store.timeInfo.tempo = tempo
             store.timeInfo.objectWillChange.send()
@@ -142,14 +141,15 @@ public class EngineController {
     }
 
     // This is a super super messy approach, but it is efficient
-    fileprivate func pollTrackState(_ trackId: Int, _ trackState: TrackState) {
+    fileprivate func pollTrackState(_ trackState: TrackState) {
+        let trackId = trackState.id
+        pollLooperBuffer(trackId, trackState)
+        pollSliceBuffer(trackState, trackId)
+
         let positionPercent = looper_engine__get_looper_position(engine.engine, UInt(trackId))
         if trackState.positionPercent != positionPercent {
             trackState.positionPercent = positionPercent
         }
-
-        pollLooperBuffer(trackId, trackState)
-        pollSliceBuffer(trackState, trackId)
     }
 
     fileprivate func pollLooperBuffer(_ trackId: Int, _ trackState: TrackState) {
@@ -162,14 +162,14 @@ public class EngineController {
         }
 
         if trackState.looperState != looperState {
-            trackState.looperState = looperState
-            if trackState.looperState == .playing {
+            if looperState == .playing {
                 let buffer = looper_engine__get_looper_buffer(engine.engine, UInt(trackId))
                 let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
                 store.setTrackBuffer(trackId: trackId, fromAbstractBuffer: trackBuffer)
-            } else if trackState.looperState == .empty {
+            } else if looperState == .empty {
                 store.setTrackBuffer(trackId: trackId, fromAbstractBuffer: nil)
             }
+            trackState.looperState = looperState
         }
     }
 

@@ -110,7 +110,7 @@ func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
         let x = Double(overSampledX) / 2.0
         let index = Int(x / Double(width) * Double(buffer.count))
         var value: Float = 0.0
-        for j in 0 ..< step {
+        for j in 0..<step {
             value += abs(buffer[(index + j) % buffer.count])
         }
         value /= Float(step)
@@ -118,11 +118,15 @@ func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
         maxSample = max(maxSample, Double(value))
     }
 
-    for overSampledX in 0 ... (width * 2) {
+    if maxSample == 0.0 {
+        return path
+    }
+
+    for overSampledX in 0...(width * 2) {
         let x = Double(overSampledX) / 2.0
         let index = Int(x / Double(width) * Double(buffer.count))
         var value: Float = 0.0
-        for j in 0 ..< step {
+        for j in 0..<step {
             value += buffer[(index + j) % buffer.count]
         }
         value /= Float(step)

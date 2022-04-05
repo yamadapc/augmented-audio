@@ -7,7 +7,10 @@ use bytesize::ByteSize;
 
 use audio_garbage_collector::make_shared;
 use audio_processor_file::file_io::AudioFileError;
+use audio_processor_file::OutputAudioFileProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+
+use crate::audio::processor::handle::{looper_clip_copy_to_vec_buffer, LooperClipRef};
 
 pub struct AudioClipId(usize);
 
@@ -78,6 +81,21 @@ impl Handler<LoadClipMessage> for AudioClipManager {
     }
 }
 
+pub fn write_looper_clip(
+    settings: AudioProcessorSettings,
+    clip_path: &PathBuf,
+    clip: &LooperClipRef,
+) {
+    log::info!("Writing audio into {:?}", clip_path);
+
+    let mut output_processor =
+        OutputAudioFileProcessor::from_path(settings, clip_path.to_str().unwrap());
+    output_processor.prepare(settings);
+
+    let mut clip_buffer = looper_clip_copy_to_vec_buffer(&clip);
+    output_processor.process(clip_buffer.slice_mut());
+}
+
 fn estimate_file_size<Buffer: AudioBuffer>(audio_file: &Buffer) -> ByteSize {
     let byte_size = ByteSize::b(
         (audio_file.num_channels()
@@ -89,7 +107,7 @@ fn estimate_file_size<Buffer: AudioBuffer>(audio_file: &Buffer) -> ByteSize {
 
 #[cfg(test)]
 mod test {
-    use audio_processor_testing_helpers::relative_path;
+    use audio_processor_testing_helpers::{relative_path, rms_level, sine_buffer};
 
     use super::*;
 
@@ -101,6 +119,20 @@ mod test {
         manager.load_at_path(&test_file_path).unwrap();
 
         let test_file_path = PathBuf::from(relative_path!("../../../../input-files/bass.wav"));
-        manager.load_at_path(&test_file_path).unwrap();
+        let clip = manager.load_at_path(&test_file_path).unwrap();
+        let level = rms_level(&clip.contents().slice());
+        assert!(level > 0.1);
     }
+
+    // #[test]
+    // fn test_roundtrip_to_file() {
+    //     wisual_logger::init_from_env();
+    //     let mut data_path = tempdir::TempDir::new("looper_processor__audio_clip_manager").unwrap();
+    //
+    //     let mut manager = AudioClipManager::default();
+    //     let test_file_path = PathBuf::from(relative_path!("../../../../input-files/1sec-sine.mp3"));
+    //     let audio_file = manager.load_at_path(&test_file_path).unwrap();
+    //
+    //     let target_path = data_path.path().join("store.wav");
+    // }
 }

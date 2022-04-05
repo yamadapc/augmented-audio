@@ -57,7 +57,6 @@ pub fn looper_clip_copy_to_vec_buffer(buffer: &LooperClipRef) -> VecAudioBuffer<
             *work_sample = loop_sample.get()
         }
     }
-
     work_buffer
 }
 
@@ -350,10 +349,12 @@ impl LooperHandle {
                 dest_sample.set(*source_sample);
             }
         }
+
+        let new_length = new_buffer.num_samples();
+        self.looper_clip.set(make_shared(new_buffer.into()));
+        self.length.set(new_length);
         self.state.set(LooperState::Paused);
         self.cursor.set(self.get_start_samples());
-        self.length.set(new_buffer.num_samples());
-        self.looper_clip.set(make_shared(new_buffer.into()));
     }
 
     pub fn stop_recording_allocating_loop(&self) {
