@@ -104,7 +104,7 @@ async fn copy_clips(
 
 #[allow(unused)]
 fn copy_lfo(
-    parameter_ids: &Vec<ParameterId>,
+    parameter_ids: &[ParameterId],
     source_voice: &LooperVoicePersist,
     destination_voice: &LooperVoice,
 ) {
@@ -120,12 +120,35 @@ fn copy_lfo(
 
 #[allow(unused)]
 fn copy_parameters(
-    parameter_ids: &Vec<ParameterId>,
+    parameter_ids: &[ParameterId],
     source_map: &ParametersMap,
     destination_map: &ParametersMap,
 ) {
     for parameter_id in parameter_ids {
         let value = source_map.get(parameter_id.clone());
         destination_map.set(parameter_id.clone(), value.clone());
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use audio_processor_testing_helpers::assert_f_eq;
+
+    use crate::audio::multi_track_looper::ParametersMap;
+    use crate::controllers::load_project_controller::copy_parameters;
+    use crate::parameters::{build_parameter_ids, SourceParameter};
+
+    #[test]
+    fn test_copy_parameters() {
+        let parameter_ids = build_parameter_ids();
+
+        let parameters_map1 = ParametersMap::new();
+        parameters_map1.set(SourceParameter::Start, 0.8);
+
+        let parameters_map2 = ParametersMap::new();
+        parameters_map2.set(SourceParameter::Start, 0.5);
+
+        copy_parameters(&parameter_ids, &parameters_map1, &parameters_map2);
+        assert_f_eq!(parameters_map2.get(SourceParameter::Start).as_float(), 0.8);
     }
 }

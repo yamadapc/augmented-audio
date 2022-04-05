@@ -9,6 +9,8 @@ mod general;
 mod ios;
 
 pub struct MidiContext {
+    #[cfg(not(target_os = "ios"))]
     midi_message_queue: MidiMessageQueue,
+    #[cfg(not(target_os = "ios"))]
     midi_audio_thread_handler: MidiAudioThreadHandler,
 }

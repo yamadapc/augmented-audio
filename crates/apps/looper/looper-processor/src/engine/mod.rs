@@ -9,7 +9,7 @@ use audio_processor_standalone::StandaloneHandles;
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::controllers::autosave_controller::AutosaveController;
-
+use crate::controllers::load_project_controller;
 use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
 use crate::{services, setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};
@@ -37,8 +37,11 @@ impl LooperEngine {
         let audio_clip_manager = ActorSystemThread::current()
             .spawn_result(async move { SyncArbiter::start(1, || AudioClipManager::default()) });
         let project_manager = ActorSystemThread::start(ProjectManager::default());
-        // TODO: This is disabled because it's broken, it'll break setting any user-parameter.
-        // load_and_hydrate_latest_project(&handle, &project_manager, &audio_clip_manager);
+        load_project_controller::load_and_hydrate_latest_project(
+            &handle,
+            &project_manager,
+            &audio_clip_manager,
+        );
 
         let autosave_controller = ActorSystemThread::current().spawn_result({
             let project_manager = project_manager.clone();
