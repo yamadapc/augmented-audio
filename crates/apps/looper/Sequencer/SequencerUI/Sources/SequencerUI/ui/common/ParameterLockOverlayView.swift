@@ -88,32 +88,32 @@ struct ParameterLockOverlayView: View {
     }
 }
 
-struct ParameterLockOverlayView_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            KnobView(label: "Something")
-                .overlay(
-                    ParameterLockOverlayViewInner(
-                        parameterId: .sourceParameter(trackId: 0, parameterId: .start),
-                        parameterLocks: [
-                            .init(
-                                parameterId: .sourceParameter(trackId: 0, parameterId: .start),
-                                source: .stepId(.init(trackId: 0, stepIndex: 7))
-                            ),
-                            .init(
-                                parameterId: .sourceParameter(trackId: 0, parameterId: .end),
-                                source: .stepId(.init(trackId: 0, stepIndex: 7))
-                            ),
-                            .init(
-                                parameterId: .sourceParameter(trackId: 0, parameterId: .fadeEnd),
-                                source: .stepId(.init(trackId: 0, stepIndex: 7))
-                            ),
-                        ]
-                    )
-                )
-        }
-        .padding(PADDING)
-        .background(SequencerColors.black)
-        .foregroundColor(SequencerColors.white)
-    }
-}
+//struct ParameterLockOverlayView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        Group {
+//            KnobView(label: "Something")
+//                .overlay(
+//                    ParameterLockOverlayViewInner(
+//                        parameterId: .sourceParameter(trackId: 0, parameterId: .start),
+//                        parameterLocks: [
+//                            .init(
+//                                parameterId: .sourceParameter(trackId: 0, parameterId: .start),
+//                                source: .stepId(.init(trackId: 0, stepIndex: 7))
+//                            ),
+//                            .init(
+//                                parameterId: .sourceParameter(trackId: 0, parameterId: .end),
+//                                source: .stepId(.init(trackId: 0, stepIndex: 7))
+//                            ),
+//                            .init(
+//                                parameterId: .sourceParameter(trackId: 0, parameterId: .fadeEnd),
+//                                source: .stepId(.init(trackId: 0, stepIndex: 7))
+//                            ),
+//                        ]
+//                    )
+//                )
+//        }
+//        .padding(PADDING)
+//        .background(SequencerColors.black)
+//        .foregroundColor(SequencerColors.white)
+//    }
+//}

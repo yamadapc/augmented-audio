@@ -15,22 +15,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-
 import SwiftUI
 
-extension View {
+#if os(macOS)
     /**
-     * Add accessibility identifier if it is available
+     * The text
+     * f*ast text
      */
-    func testId(_ id: String) -> some View {
-        #if DEBUG
-            if #available(macOS 11.0, *) {
-                return AnyView(self.accessibilityIdentifier(id))
-            } else {
-                return AnyView(self)
-            }
-        #else
-            return self
-        #endif
+    struct FText: NSViewRepresentable {
+        typealias NSViewType = NSTextView
+        var text: String
+
+        func makeNSView(context _: Context) -> NSTextView {
+            let view = NSTextView()
+            view.isEditable = false
+            view.isSelectable = false
+            view.drawsBackground = false
+            view.string = text
+            return view
+        }
+
+        func updateNSView(_ nsView: NSTextView, context _: Context) {
+            nsView.string = text
+        }
     }
-}
+#endif
