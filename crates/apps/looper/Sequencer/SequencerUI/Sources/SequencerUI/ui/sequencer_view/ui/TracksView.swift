@@ -41,7 +41,7 @@ struct TrackOverlay: View {
 
 struct TracksView: View {
     @EnvironmentObject var store: Store
-    var selectedTrack: Int
+    var selectedTrack: UInt
     var onClickTrack: (Int) -> Void
 
     var body: some View {
@@ -59,7 +59,7 @@ struct TracksView: View {
                 )
                 .bindToParameterId(
                     store: store,
-                    parameterId: .trackButton(trackId: i),
+                    parameterId: .trackButton(trackId: UInt(i)),
                     showSelectionOverlay: false
                 )
                 .testId("trackButton_\(i)")

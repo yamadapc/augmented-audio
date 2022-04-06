@@ -18,7 +18,7 @@
 import Combine
 
 public class TrackState: ObservableObject {
-    public let id: Int
+    public let id: UInt
     @FastPublished public var sliceBuffer: SliceBuffer? = nil // public for ref checks
     @FastPublished public var looperState: LooperState = .empty
     @FastPublished public var volumeParameter: FloatParameter
@@ -50,7 +50,7 @@ public class TrackState: ObservableObject {
         }
     }
 
-    init(id: Int) {
+    init(id: UInt) {
         self.id = id
         volumeParameter = .init(
             id: .trackVolume(trackId: id),

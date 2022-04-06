@@ -58,7 +58,7 @@ struct SequencerContentView: View {
 
                     TracksView(
                         selectedTrack: store.selectedTrack,
-                        onClickTrack: { i in store.onClickTrack(i) }
+                        onClickTrack: { i in store.onClickTrack(UInt(i)) }
                     )
                     .bindToNilParameter(store: store)
                 }

@@ -177,8 +177,8 @@
             filePath = "SequencerUI/Sources/SequencerUI/store/Store.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "231"
-            endingLineNumber = "231"
+            startingLineNumber = "230"
+            endingLineNumber = "230"
             landmarkName = "removeParameterLock(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -339,54 +339,6 @@
                   startingLineNumber = "136"
                   endingLineNumber = "136"
                   offsetFromSymbolStart = "5516">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "BCD1DD2B-A12C-400D-820E-8CF027D36FA9"
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "SequencerUI/Sources/SequencerUI/store/Store.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "203"
-            endingLineNumber = "203"
-            landmarkName = "setTrackBuffer(trackId:fromAbstractBuffer:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  uuid = "BCD1DD2B-A12C-400D-820E-8CF027D36FA9 - 199946b005a00546"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SequencerUI.Store.setTrackBuffer(trackId: Swift.Int, fromAbstractBuffer: Swift.Optional&lt;SequencerUI.TrackBuffer&gt;) -&gt; ()"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/SequencerUI/Sources/SequencerUI/store/Store.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "203"
-                  endingLineNumber = "203"
-                  offsetFromSymbolStart = "144">
-               </Location>
-               <Location
-                  uuid = "BCD1DD2B-A12C-400D-820E-8CF027D36FA9 - 199946b005a00546"
-                  shouldBeEnabled = "Yes"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "SequencerUI.Store.setTrackBuffer(trackId: Swift.Int, fromAbstractBuffer: Swift.Optional&lt;SequencerUI.TrackBuffer&gt;) -&gt; ()"
-                  moduleName = "SequencerEngine"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/SequencerUI/Sources/SequencerUI/store/Store.swift"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "203"
-                  endingLineNumber = "203"
-                  offsetFromSymbolStart = "480">
                </Location>
             </Locations>
          </BreakpointContent>

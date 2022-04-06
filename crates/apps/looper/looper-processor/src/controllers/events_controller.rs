@@ -45,6 +45,7 @@ impl Handler<BroadcastMessage> for EventsController {
     type Result = ();
 
     fn handle(&mut self, msg: BroadcastMessage, _ctx: &mut Self::Context) -> Self::Result {
+        log::info!("Broadcasting event: {:?}", msg.0);
         for consumer in &self.consumers {
             consumer.accept(msg.0.clone());
         }
