@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 
-use actix::{Addr, SyncArbiter};
+use actix::Addr;
 use basedrop::Shared;
 
 use actix_system_threads::ActorSystemThread;
@@ -34,10 +34,9 @@ impl LooperEngine {
         let metrics_handle = handle.metrics_handle().clone();
         let metrics_actor = Mutex::new(AudioProcessorMetricsActor::new(metrics_handle));
 
-        let audio_clip_manager = ActorSystemThread::current()
-            .spawn_result(async move { SyncArbiter::start(1, || AudioClipManager::default()) });
+        let audio_clip_manager = ActorSystemThread::start(AudioClipManager::default());
         let project_manager = ActorSystemThread::start(ProjectManager::default());
-        load_project_controller::load_and_hydrate_latest_project(
+        let _ = load_project_controller::load_and_hydrate_latest_project(
             &handle,
             &project_manager,
             &audio_clip_manager,

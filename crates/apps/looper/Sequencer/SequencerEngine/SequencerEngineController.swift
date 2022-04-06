@@ -154,12 +154,6 @@ public class EngineController {
 
     fileprivate func pollLooperBuffer(_ trackId: Int, _ trackState: TrackState) {
         let looperState = convertState(looperState: looper_engine__get_looper_state(engine.engine, UInt(trackId)))
-        let bufferAvailable = looper_engine__has_looper_buffer(engine.engine, UInt(trackId)) && !trackState.hasBuffer
-        if bufferAvailable {
-            let buffer = looper_engine__get_looper_buffer(engine.engine, UInt(trackId))
-            let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
-            store.setTrackBuffer(trackId: trackId, fromAbstractBuffer: trackBuffer)
-        }
 
         if trackState.looperState != looperState {
             if looperState == .playing {

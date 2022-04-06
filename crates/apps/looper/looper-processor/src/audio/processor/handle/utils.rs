@@ -28,3 +28,18 @@ pub fn empty_buffer(channels: usize, samples: usize) -> VecAudioBuffer<AtomicF32
     b.resize(channels, samples, AtomicF32::new(0.0));
     b
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_empty_buffer() {
+        let buffer = empty_buffer(2, 10);
+        assert_eq!(buffer.num_channels(), 2);
+        assert_eq!(buffer.num_samples(), 10);
+        for sample in buffer.slice() {
+            assert_eq!(sample.get(), 0.0)
+        }
+    }
+}

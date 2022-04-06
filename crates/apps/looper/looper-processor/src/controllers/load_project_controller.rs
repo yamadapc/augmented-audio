@@ -2,6 +2,7 @@ use actix::Addr;
 use basedrop::Shared;
 
 use actix_system_threads::ActorSystemThread;
+use audio_processor_traits::AudioBuffer;
 
 use crate::audio::multi_track_looper::looper_voice::LooperVoice;
 use crate::audio::multi_track_looper::parameters::{build_default_parameters, ParameterId};
@@ -16,69 +17,77 @@ pub fn load_and_hydrate_latest_project(
     handle: &Shared<MultiTrackLooperHandle>,
     project_manager: &Addr<ProjectManager>,
     audio_clip_manager: &Addr<AudioClipManager>,
-) {
-    let result: anyhow::Result<()> = ActorSystemThread::current().spawn_result({
-        let handle = handle.clone();
-        let project_manager = project_manager.clone();
-        let audio_clip_manager = audio_clip_manager.clone();
-        async move {
-            let latest_project: Shared<Project> =
-                project_manager.send(LoadLatestProjectMessage).await??;
+) -> anyhow::Result<()> {
+    ActorSystemThread::current()
+        .spawn_result({
+            log::info!("Starting to load project from disk");
+            let handle = handle.clone();
+            let project_manager = project_manager.clone();
+            let audio_clip_manager = audio_clip_manager.clone();
+            async move {
+                log::info!("Asking for latest project");
+                let latest_project: Shared<Project> =
+                    project_manager.send(LoadLatestProjectMessage).await??;
 
-            log::info!("Loaded previous project, hydrating...");
-            {
-                // MIDI in-place copy
-                for (spec, action) in latest_project.midi_map.iter() {
-                    handle.midi().midi_map().add(*spec, action.clone());
-                }
-            }
-            {
-                // scene in-place
-                let (_, parameter_ids) = build_default_parameters();
-                let handle_scene = handle.scene_handle();
-                handle_scene.set_slider(latest_project.scene_state.get_slider());
-                for (source_scene, destination_scene) in latest_project
-                    .scene_state
-                    .scenes()
-                    .iter()
-                    .zip(handle_scene.scenes().iter())
+                log::info!("Loaded previous project, hydrating...");
                 {
-                    for (scene_source_voice, scene_destination_voice) in source_scene
-                        .scene_parameters()
-                        .iter()
-                        .zip(destination_scene.scene_parameters().iter())
-                    {
-                        copy_parameters(&parameter_ids, scene_source_voice, scene_destination_voice)
+                    // MIDI in-place copy
+                    for (spec, action) in latest_project.midi_map.iter() {
+                        handle.midi().midi_map().add(*spec, action.clone());
                     }
                 }
-            }
-            {
-                let (_, parameter_ids) = build_default_parameters();
-                // parameter in-place
-                for (source_voice, destination_voice) in
-                    latest_project.voices.iter().zip(handle.voices())
                 {
-                    copy_parameters(
-                        &parameter_ids,
-                        &source_voice.parameter_values,
-                        destination_voice.user_parameters(),
-                    );
-                    let trigger_model = destination_voice.trigger_model();
-                    trigger_model.add_triggers(&source_voice.triggers.triggers);
-                    copy_lfo(&parameter_ids, source_voice, destination_voice)
+                    // scene in-place
+                    let (_, parameter_ids) = build_default_parameters();
+                    let handle_scene = handle.scene_handle();
+                    handle_scene.set_slider(latest_project.scene_state.get_slider());
+                    for (source_scene, destination_scene) in latest_project
+                        .scene_state
+                        .scenes()
+                        .iter()
+                        .zip(handle_scene.scenes().iter())
+                    {
+                        for (scene_source_voice, scene_destination_voice) in source_scene
+                            .scene_parameters()
+                            .iter()
+                            .zip(destination_scene.scene_parameters().iter())
+                        {
+                            copy_parameters(
+                                &parameter_ids,
+                                scene_source_voice,
+                                scene_destination_voice,
+                            )
+                        }
+                    }
                 }
-            }
-            {
-                // clips in-place
-                copy_clips(&handle, &audio_clip_manager, &latest_project).await?;
-            }
+                {
+                    let (_, parameter_ids) = build_default_parameters();
+                    // parameter in-place
+                    for (source_voice, destination_voice) in
+                        latest_project.voices.iter().zip(handle.voices())
+                    {
+                        copy_parameters(
+                            &parameter_ids,
+                            &source_voice.parameter_values,
+                            destination_voice.user_parameters(),
+                        );
+                        let trigger_model = destination_voice.trigger_model();
+                        trigger_model.add_triggers(&source_voice.triggers.triggers);
+                        copy_lfo(&parameter_ids, source_voice, destination_voice)
+                    }
+                }
+                {
+                    // clips in-place
+                    copy_clips(&handle, &audio_clip_manager, &latest_project).await?;
+                }
 
-            Ok(())
-        }
-    });
-    if let Err(err) = result {
-        log::error!("Failed to load latest project: {}", err);
-    }
+                Ok(())
+            }
+        })
+        .map_err(|err| {
+            log::error!("Failed to load latest project: {}", err);
+            err
+        })
 }
 
 #[allow(unused)]
@@ -97,6 +106,11 @@ async fn copy_clips(
                 })
                 .await??;
             let buffer = clip.contents();
+            log::info!(
+                "Read clip num_channels={} num_samples={}",
+                buffer.num_channels(),
+                buffer.num_samples()
+            );
             destination_voice.looper().set_looper_buffer(buffer)
         }
     }

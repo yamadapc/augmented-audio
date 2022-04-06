@@ -199,6 +199,7 @@ extension Store {
 
 public extension Store {
     func setTrackBuffer(trackId: Int, fromAbstractBuffer buffer: TrackBuffer?) {
+        print(buffer?[10])
         trackStates[trackId].buffer = buffer
     }
 

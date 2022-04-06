@@ -3,13 +3,9 @@ use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
 use actix::{Actor, ActorFutureExt, AsyncContext, Handler, Message, ResponseActFuture, WrapFuture};
-use atomic_refcell::AtomicRefCell;
 use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
-use audio_processor_file::OutputAudioFileProcessor;
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
-use augmented_atomics::AtomicF32;
 
 use crate::services::audio_clip_manager::write_looper_clip;
 use crate::{MultiTrackLooper, MultiTrackLooperHandle};
@@ -44,7 +40,7 @@ impl Default for ProjectManager {
 }
 
 impl ProjectManager {
-    fn new(data_path: PathBuf) -> Self {
+    pub fn new(data_path: PathBuf) -> Self {
         Self {
             data_path,
             projects: vec![],
@@ -73,12 +69,14 @@ impl Handler<SaveProjectMessage> for ProjectManager {
         let data_path = self.data_path.clone();
         let result_fut = async move {
             let (project_path, manifest_path) = default_project_manifest_path(&data_path);
+            tokio::fs::create_dir_all(&project_path).await?;
 
             let looper_paths = persist_handle_clips(&*msg.handle, &*project_path);
             let project = make_shared(project_from_handle(&*msg.handle, looper_paths));
 
             write_project(manifest_path, &project).await?;
 
+            log::info!("SaveProjectMessage done");
             Ok(project)
         }
         .into_actor(self)

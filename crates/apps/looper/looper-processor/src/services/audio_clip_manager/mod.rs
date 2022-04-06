@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 
-use actix::{Actor, Handler, SyncContext};
+use actix::{Actor, Handler};
 use basedrop::Shared;
 use bytesize::ByteSize;
 
@@ -52,6 +52,12 @@ impl AudioClipManager {
             byte_size,
             duration
         );
+        let sum: f32 = audio_file
+            .frames()
+            .map(|frame| frame.iter().map(|f| f.abs()).sum::<f32>())
+            .sum();
+        let rms = sum / audio_file.num_samples() as f32;
+        log::info!("RMS level rms={}", rms);
 
         let clip_model = make_shared(AudioClipModel {
             id: AudioClipId(self.audio_clips.len()),
@@ -64,7 +70,7 @@ impl AudioClipManager {
 }
 
 impl Actor for AudioClipManager {
-    type Context = SyncContext<Self>;
+    type Context = actix::Context<Self>;
 }
 
 #[derive(actix::Message)]
@@ -107,7 +113,15 @@ fn estimate_file_size<Buffer: AudioBuffer>(audio_file: &Buffer) -> ByteSize {
 
 #[cfg(test)]
 mod test {
-    use audio_processor_testing_helpers::{relative_path, rms_level, sine_buffer};
+    use audio_processor_testing_helpers::{relative_path, rms_level};
+
+    use actix_system_threads::ActorSystemThread;
+
+    use crate::audio::multi_track_looper::looper_voice::LooperVoice;
+    use crate::services::project_manager::{
+        LoadLatestProjectMessage, ProjectManager, SaveProjectMessage,
+    };
+    use crate::MultiTrackLooper;
 
     use super::*;
 
@@ -124,15 +138,59 @@ mod test {
         assert!(level > 0.1);
     }
 
-    // #[test]
-    // fn test_roundtrip_to_file() {
-    //     wisual_logger::init_from_env();
-    //     let mut data_path = tempdir::TempDir::new("looper_processor__audio_clip_manager").unwrap();
-    //
-    //     let mut manager = AudioClipManager::default();
-    //     let test_file_path = PathBuf::from(relative_path!("../../../../input-files/1sec-sine.mp3"));
-    //     let audio_file = manager.load_at_path(&test_file_path).unwrap();
-    //
-    //     let target_path = data_path.path().join("store.wav");
-    // }
+    #[test]
+    fn test_roundtrip_to_file() {
+        wisual_logger::init_from_env();
+        let data_path = tempdir::TempDir::new("looper_processor__audio_clip_manager").unwrap();
+
+        let project_manager =
+            ActorSystemThread::start(ProjectManager::new(data_path.path().into()));
+
+        let mut input_buffer = VecAudioBuffer::empty_with(2, 5, 0.0);
+        input_buffer.set(0, 0, 0.1);
+        input_buffer.set(0, 1, 0.2);
+        input_buffer.set(0, 2, 0.3);
+        input_buffer.set(0, 3, 0.4);
+        input_buffer.set(0, 4, 0.5);
+        assert_eq!(2, input_buffer.num_channels());
+
+        // Create mock looper with mock contents
+        let looper = MultiTrackLooper::default();
+        let voice: &LooperVoice = &looper.handle().voices()[0];
+        voice.looper().set_looper_buffer(&input_buffer);
+
+        // Save its project
+        let handle = looper.handle().clone();
+        ActorSystemThread::current()
+            .spawn_result({
+                let project_manager = project_manager.clone();
+                async move { project_manager.send(SaveProjectMessage { handle }).await }
+            })
+            .unwrap()
+            .unwrap();
+
+        // Reset audioclip manager so we know we're testing for a clean state
+        let manager = ActorSystemThread::start(AudioClipManager::default());
+        // Reset the looper handle so we know we're testing a clean state
+        ActorSystemThread::current()
+            .spawn_result({
+                let project_manager = project_manager.clone();
+                async move { project_manager.send(LoadLatestProjectMessage).await }
+            })
+            .unwrap()
+            .unwrap();
+        crate::controllers::load_project_controller::load_and_hydrate_latest_project(
+            &looper.handle(),
+            &project_manager,
+            &manager,
+        )
+        .unwrap();
+
+        let voice: &LooperVoice = &looper.handle().voices()[0];
+        let buffer = voice.looper().looper_clip();
+        let buffer = looper_clip_copy_to_vec_buffer(&buffer);
+        assert_eq!(buffer.num_samples(), input_buffer.num_samples());
+        assert_eq!(buffer.num_channels(), input_buffer.num_channels());
+        assert_eq!(buffer.slice(), input_buffer.slice());
+    }
 }

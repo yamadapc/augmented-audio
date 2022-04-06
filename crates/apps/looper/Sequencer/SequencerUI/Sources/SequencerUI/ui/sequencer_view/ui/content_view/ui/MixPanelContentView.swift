@@ -54,15 +54,15 @@ struct MixPanelContentView: View {
 
     var body: some View {
         HStack {
-            ForEach(1 ..< 9) { i in
+            ForEach(0..<8) { i in
                 HStack(spacing: 0) {
                     Rectangle()
-                        .fill(SequencerColors.black)
-                        .frame(width: 1)
-                        .frame(maxHeight: .infinity)
+                            .fill(SequencerColors.black)
+                            .frame(width: 1)
+                            .frame(maxHeight: .infinity)
 
                     MixKnobView(trackId: i, trackState: store.trackStates[i])
-                        .frame(width: 50)
+                            .frame(width: 50)
 
                     Rectangle()
                         .fill(SequencerColors.black)

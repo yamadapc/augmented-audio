@@ -367,10 +367,11 @@ pub unsafe extern "C" fn looper_engine__has_looper_buffer(
     looper_id: usize,
 ) -> bool {
     let engine = &(*engine);
-    engine
-        .handle()
-        .get_looper_buffer(LooperId(looper_id))
-        .is_some()
+    let looper_id = LooperId(looper_id);
+    let state = engine.handle().get_looper_state(looper_id);
+    state != LooperState::Empty
+        && state != LooperState::RecordingScheduled
+        && engine.handle().get_looper_buffer(looper_id).is_some()
 }
 
 #[no_mangle]
