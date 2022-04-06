@@ -478,9 +478,11 @@ impl LooperHandle {
         self.scratch_pad.set(make_shared(scratch_pad));
 
         // Pre-allocate looper clip
-        let looper_clip = utils::empty_buffer(num_channels, max_loop_length_samples);
-        self.looper_clip
-            .set(make_shared(AtomicRefCell::new(looper_clip)));
+        if self.state.get() == LooperState::Empty {
+            let looper_clip = utils::empty_buffer(num_channels, max_loop_length_samples);
+            self.looper_clip
+                .set(make_shared(AtomicRefCell::new(looper_clip)));
+        }
 
         self.time_info_provider
             .set_sample_rate(settings.sample_rate());
@@ -497,7 +499,8 @@ impl LooperHandle {
         let scratch_pad = self.scratch_pad.get();
         scratch_pad.set(channel, sample);
 
-        let out = match self.state.get() {
+        let state = self.state.get();
+        let out = match state {
             LooperState::Playing => {
                 let clip = self.looper_clip.get();
                 let clip = clip.deref().borrow();
@@ -653,8 +656,10 @@ fn calculate_fade_volume(fade_perc: f32, length: usize, cursor: f32) -> f32 {
 
 #[cfg(test)]
 mod test {
+    use crate::LooperProcessor;
     use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::assert_f_eq;
+    use audio_processor_traits::AudioProcessor;
 
     use super::*;
 
@@ -676,6 +681,51 @@ mod test {
         assert_f_eq!(handle.get_fade_out_volume(0.0), 1.0);
         assert_f_eq!(handle.get_fade_in_volume(2.0), 1.0);
         assert_f_eq!(handle.get_fade_out_volume(2.0), 1.0);
+    }
+
+    #[test]
+    fn test_set_buffer_sets_internal_buffer() {
+        let handle = LooperHandle::default();
+        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer.interleaved());
+        let looper_clip_ref = handle.looper_clip();
+        let buffer = looper_clip_ref.borrow();
+        assert_f_eq!(buffer.get(0, 0).get(), 1.0);
+        assert_f_eq!(buffer.get(0, 1).get(), 2.0);
+        assert_f_eq!(buffer.get(0, 2).get(), 3.0);
+        assert_f_eq!(buffer.get(0, 3).get(), 4.0);
+    }
+
+    #[test]
+    fn test_set_buffer_sets_internal_buffer_when_handle_is_indirect() {
+        let handle = make_shared(LooperHandle::default());
+        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer.interleaved());
+        let looper_clip_ref = handle.looper_clip();
+        let buffer = looper_clip_ref.borrow();
+        assert_f_eq!(buffer.get(0, 0).get(), 1.0);
+        assert_f_eq!(buffer.get(0, 1).get(), 2.0);
+        assert_f_eq!(buffer.get(0, 2).get(), 3.0);
+        assert_f_eq!(buffer.get(0, 3).get(), 4.0);
+    }
+
+    #[test]
+    fn test_play_after_set_buffer() {
+        let mut processor = LooperProcessor::default();
+        let handle = processor.handle().clone();
+        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer.interleaved());
+        handle.play();
+
+        let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
+        processor.prepare(AudioProcessorSettings {
+            output_channels: 1,
+            block_size: 4,
+            ..Default::default()
+        });
+
+        processor.process(&mut buffer);
+        assert_eq!(buffer.slice(), &[1.0, 2.0, 3.0, 4.0]);
     }
 
     #[test]

@@ -116,14 +116,16 @@ mod test {
     use audio_processor_testing_helpers::{relative_path, rms_level};
 
     use actix_system_threads::ActorSystemThread;
+    use audio_processor_traits::AudioProcessor;
 
     use crate::audio::multi_track_looper::looper_voice::LooperVoice;
+    use crate::audio::processor::handle::LooperState;
     use crate::controllers::events_controller::EventsController;
     use crate::controllers::load_project_controller::LoadContext;
     use crate::services::project_manager::{
         LoadLatestProjectMessage, ProjectManager, SaveProjectMessage,
     };
-    use crate::MultiTrackLooper;
+    use crate::{LooperOptions, MultiTrackLooper};
 
     use super::*;
 
@@ -149,15 +151,17 @@ mod test {
             ActorSystemThread::start(ProjectManager::new(data_path.path().into()));
 
         let mut input_buffer = VecAudioBuffer::empty_with(2, 5, 0.0);
-        input_buffer.set(0, 0, 0.1);
-        input_buffer.set(0, 1, 0.2);
-        input_buffer.set(0, 2, 0.3);
-        input_buffer.set(0, 3, 0.4);
-        input_buffer.set(0, 4, 0.5);
+        for channel in 0..2 {
+            input_buffer.set(channel, 0, 0.1);
+            input_buffer.set(channel, 1, 0.2);
+            input_buffer.set(channel, 2, 0.3);
+            input_buffer.set(channel, 3, 0.4);
+            input_buffer.set(channel, 4, 0.5);
+        }
         assert_eq!(2, input_buffer.num_channels());
 
         // Create mock looper with mock contents
-        let looper = MultiTrackLooper::default();
+        let mut looper = MultiTrackLooper::new(LooperOptions::default(), 1);
         let voice: &LooperVoice = &looper.handle().voices()[0];
         voice.looper().set_looper_buffer(&input_buffer);
 
@@ -189,9 +193,26 @@ mod test {
         })
         .unwrap();
 
+        // Test buffer is properly set
         let voice: &LooperVoice = &looper.handle().voices()[0];
         let buffer = voice.looper().looper_clip();
         let buffer = looper_clip_copy_to_vec_buffer(&buffer);
+        assert_eq!(buffer.num_samples(), input_buffer.num_samples());
+        assert_eq!(buffer.num_channels(), input_buffer.num_channels());
+        assert_eq!(buffer.slice(), input_buffer.slice());
+        assert_eq!(voice.looper().state(), LooperState::Paused);
+
+        // ======================================================================
+        // Playback tests
+        looper.prepare(AudioProcessorSettings {
+            block_size: buffer.num_samples(),
+            ..Default::default()
+        });
+
+        // Test playback works
+        looper.handle().voices()[0].looper().play();
+        let mut buffer = VecAudioBuffer::empty_with(2, buffer.num_samples(), 0.0);
+        looper.process(&mut buffer);
         assert_eq!(buffer.num_samples(), input_buffer.num_samples());
         assert_eq!(buffer.num_channels(), input_buffer.num_channels());
         assert_eq!(buffer.slice(), input_buffer.slice());

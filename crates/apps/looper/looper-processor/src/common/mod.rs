@@ -1,7 +1,7 @@
 //! This module is odd, but since `Fn` traits are unstable this is required to have
 //! a uniform API between rust callbacks & FFI callbacks (`ForeignCallback`).
 #[cfg(test)]
-use self::closure_consumer::*;
+pub use self::closure_consumer::*;
 
 pub trait Consumer<T> {
     fn accept(&self, value: T);

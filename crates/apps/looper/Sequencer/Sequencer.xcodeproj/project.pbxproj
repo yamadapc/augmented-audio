@@ -477,8 +477,8 @@
 				CBA4DAA427DDF4BB00A530E3 /* private.h */,
 				CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */,
 				CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */,
-				CB59A60827FDA7DA004BC156 /* foreign_callbacks */,
 				CB3D995827EFE4A000E5ECBA /* Parameters.swift */,
+				CB59A60827FDA7DA004BC156 /* foreign_callbacks */,
 				CB3D995A27EFE4E300E5ECBA /* store_subscriptions */,
 				CBECE3B927ED43DB0054BB43 /* SequencerEngineTests */,
 			);
