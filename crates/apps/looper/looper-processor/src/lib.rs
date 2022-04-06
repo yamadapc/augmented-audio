@@ -39,6 +39,7 @@ pub mod services;
 
 mod controllers;
 
+mod common;
 #[cfg(target_os = "macos")]
 #[cfg(test)]
 pub mod integration_test;

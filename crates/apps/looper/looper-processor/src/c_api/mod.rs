@@ -17,12 +17,14 @@ use crate::TimeInfoProvider;
 
 pub use self::audio_clip_manager::*;
 pub use self::entity_id::*;
+pub use self::events::*;
 pub use self::foreign_callback::*;
 pub use self::midi_callback::*;
 
 mod audio_clip_manager;
 mod effects;
 mod entity_id;
+mod events;
 mod foreign_callback;
 mod midi_callback;
 

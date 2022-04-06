@@ -118,6 +118,8 @@ mod test {
     use actix_system_threads::ActorSystemThread;
 
     use crate::audio::multi_track_looper::looper_voice::LooperVoice;
+    use crate::controllers::events_controller::EventsController;
+    use crate::controllers::load_project_controller::LoadContext;
     use crate::services::project_manager::{
         LoadLatestProjectMessage, ProjectManager, SaveProjectMessage,
     };
@@ -170,7 +172,7 @@ mod test {
             .unwrap();
 
         // Reset audioclip manager so we know we're testing for a clean state
-        let manager = ActorSystemThread::start(AudioClipManager::default());
+        let audio_clip_manager = ActorSystemThread::start(AudioClipManager::default());
         // Reset the looper handle so we know we're testing a clean state
         ActorSystemThread::current()
             .spawn_result({
@@ -179,11 +181,12 @@ mod test {
             })
             .unwrap()
             .unwrap();
-        crate::controllers::load_project_controller::load_and_hydrate_latest_project(
-            &looper.handle(),
-            &project_manager,
-            &manager,
-        )
+        crate::controllers::load_project_controller::load_and_hydrate_latest_project(LoadContext {
+            handle: looper.handle().clone(),
+            project_manager: project_manager.clone(),
+            audio_clip_manager: audio_clip_manager.clone(),
+            events_controller: ActorSystemThread::start(EventsController::default()),
+        })
         .unwrap();
 
         let voice: &LooperVoice = &looper.handle().voices()[0];
