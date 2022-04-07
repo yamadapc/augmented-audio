@@ -78,4 +78,15 @@ mod test {
         assert_eq!(effects[2].name, "Bit-crusher");
         assert_eq!(effects[3].name, "Filter");
     }
+
+    #[test]
+    fn test_get_effect_definition() {
+        let effects = EffectsService::get_effects();
+        let reverb = effects.get(0).unwrap();
+        assert_eq!(reverb.parameters.len(), 4);
+        assert_eq!(reverb.parameters[0].spec.name(), "Dry");
+        assert_eq!(reverb.parameters[1].spec.name(), "Room size");
+        assert_eq!(reverb.parameters[2].spec.name(), "Damp");
+        assert_eq!(reverb.parameters[3].spec.name(), "Wet");
+    }
 }
