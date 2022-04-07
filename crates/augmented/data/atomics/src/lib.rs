@@ -20,6 +20,19 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! This crate is part of <https://github.com/yamadapc/augmented-audio/>. It exposes a couple of
+//! extra very limited "atomic" data types which are useful for audio development.
+//!
+//! In particular, it exposes:
+//!
+//! * `AtomicF32`
+//! * `AtomicF64`
+//! * `AtomicEnum`
+//! * `AtomicOption`
+//!
+//! In addition, an `AtomicValue` trait is provided, which allows `AtomicOption` to be available.
+
 use std::sync::atomic::*;
 
 use num_traits::{FromPrimitive, ToPrimitive};
