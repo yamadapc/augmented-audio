@@ -30,7 +30,7 @@ protocol KnobParameterLike: ObservableObject {
 }
 
 extension IntParameter: KnobParameterLike {
-    var style: KnobStyle { .normal }
+    public var style: KnobStyle { .normal }
 
     func formatValue() -> String {
         "\(value)"

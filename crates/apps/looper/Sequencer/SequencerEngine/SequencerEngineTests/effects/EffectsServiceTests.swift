@@ -15,33 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-import Combine
 
-public class BooleanParameter: ObservableObject, ParameterLike {
-    public var id: ParameterId
-    public var globalId: ParameterId { id }
-    public var label: String
-    @FastPublished public var value: Bool = false
-    public var style: KnobStyle { .normal }
+@testable import SequencerEngine
+import XCTest
+import SequencerUI
 
-    init(
-        id: ParameterId,
-        label: String,
-        value: Bool
-    ) {
-        self.id = id
-        self.label = label
-        self.value = value
-        ALL_PARAMETERS.append(AnyParameterInner.boolean(self).into())
+class EffectsServiceTests: XCTestCase {
+    func testListEffects() throws {
+        let service = EffectsServiceImpl()
+        let definitions = service.listEffects()
 
-        setupFastPublished(self)
-    }
-
-    func copy() -> BooleanParameter {
-        return BooleanParameter(
-            id: id,
-            label: label,
-            value: value
-        )
+        let effect = definitions[0]
+        let effectName = effect.label
+        XCTAssertEqual(effectName, "Reverb")
+        XCTAssertEqual(effect.parameters[0].label, "Dry")
+        XCTAssertEqual(effect.parameters[1].label, "Room size")
     }
 }

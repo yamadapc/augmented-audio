@@ -33,6 +33,7 @@
 		CB3D995D27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */; };
 		CB59A60A27FDA7EE004BC156 /* ApplicationEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */; };
 		CB59A60D27FF057E004BC156 /* EffectsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60C27FF057E004BC156 /* EffectsService.swift */; };
+		CB59A61127FFA1E3004BC156 /* EffectsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */; };
 		CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1727D8AE6600D7788E /* AppDelegate.swift */; };
 		CB801A1A27D8AE6600D7788E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1927D8AE6600D7788E /* ViewController.swift */; };
 		CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1B27D8AE6600D7788E /* Assets.xcassets */; };
@@ -189,6 +190,7 @@
 		CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSubscriptions.swift; sourceTree = "<group>"; };
 		CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationEventStream.swift; sourceTree = "<group>"; };
 		CB59A60C27FF057E004BC156 /* EffectsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsService.swift; sourceTree = "<group>"; };
+		CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsServiceTests.swift; sourceTree = "<group>"; };
 		CB801A1527D8AE6600D7788E /* Continuous.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Continuous.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -466,6 +468,14 @@
 			path = effects;
 			sourceTree = "<group>";
 		};
+		CB59A60E27FFA195004BC156 /* effects */ = {
+			isa = PBXGroup;
+			children = (
+				CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */,
+			);
+			path = effects;
+			sourceTree = "<group>";
+		};
 		CB801A1627D8AE6600D7788E /* Sequencer Mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -507,6 +517,7 @@
 		CBECE3B927ED43DB0054BB43 /* SequencerEngineTests */ = {
 			isa = PBXGroup;
 			children = (
+				CB59A60E27FFA195004BC156 /* effects */,
 				CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */,
 			);
 			path = SequencerEngineTests;
@@ -968,6 +979,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */,
+				CB59A61127FFA1E3004BC156 /* EffectsServiceTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

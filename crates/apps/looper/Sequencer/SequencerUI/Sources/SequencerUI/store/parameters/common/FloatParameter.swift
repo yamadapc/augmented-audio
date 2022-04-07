@@ -20,14 +20,14 @@ import Combine
 public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
     public var globalId: ParameterId
 
-    @Published var label: String
+    @Published public var label: String
     @FastPublished public var value: Float = 0.0
+    public var style: KnobStyle = .normal
 
     @Published var parameterLockProgress: ParameterLockState?
 
     var defaultValue: Float
     var range: (Float, Float) = (0.0, 1.0)
-    var style: KnobStyle = .normal
 
     func formatValue() -> String {
         return String(format: "%.2f", parameterLockProgress?.newValue ?? value)

@@ -51,7 +51,7 @@ public class EnumParameter<OptionT: FromRawEnum>: ObservableObject, ParameterLik
 
     @Published public var value: OptionT
     var options: [EnumParameterOption<OptionT>]
-    var style: KnobStyle { .normal }
+    public var style: KnobStyle { .normal }
 
     required init(id: ParameterId, label: String, value: OptionT, options: [EnumParameterOption<OptionT>]) {
         globalId = id

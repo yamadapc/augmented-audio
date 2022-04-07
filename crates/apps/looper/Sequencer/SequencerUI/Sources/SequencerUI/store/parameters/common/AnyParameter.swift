@@ -18,7 +18,7 @@
 
 var ALL_PARAMETERS: [AnyParameter] = []
 
-protocol ParameterLike {
+public protocol ParameterLike {
     var globalId: ParameterId { get }
     var label: String { get }
 
@@ -99,11 +99,11 @@ public struct AnyParameter: Identifiable {
 }
 
 extension AnyParameter: ParameterLike {
-    var globalId: ParameterId {
+    public var globalId: ParameterId {
         id
     }
 
-    var label: String {
+    public var label: String {
         switch inner {
         case let .float(parameter):
             return parameter.label
@@ -116,7 +116,7 @@ extension AnyParameter: ParameterLike {
         }
     }
 
-    var style: KnobStyle {
+    public var style: KnobStyle {
         switch inner {
         case let .float(parameter):
             return parameter.style

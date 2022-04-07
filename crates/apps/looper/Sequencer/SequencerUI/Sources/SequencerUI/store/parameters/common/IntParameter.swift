@@ -20,7 +20,7 @@ import Combine
 public class IntParameter: ObservableObject, Identifiable, ParameterLike {
     public var id: ParameterId
     public var globalId: ParameterId { id }
-    @Published var label: String
+    @Published public var label: String
     @Published public var value: Int
     @Published var maximum: Int
 

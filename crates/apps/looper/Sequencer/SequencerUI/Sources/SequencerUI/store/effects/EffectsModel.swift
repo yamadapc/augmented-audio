@@ -23,9 +23,9 @@ public typealias EffectId = UInt
 
 public struct EffectDefinition: Identifiable {
     public let id: EffectId
-    let label: String
+    public let label: String
+    public let parameters: [AnyParameter]
     let color: Color
-    let parameters: [AnyParameter]
 }
 
 /**
@@ -39,8 +39,8 @@ public func buildEffect(
     return EffectDefinition(
         id: id,
         label: label,
-        color: Color.red,
-        parameters: parameters
+        parameters: parameters,
+        color: Color.red
     )
 }
 
@@ -92,14 +92,14 @@ class EffectsRowViewModel: ObservableObject {
             definitionCopy = EffectDefinition(
                 id: d.id,
                 label: d.label,
-                color: d.color,
                 parameters: d.parameters.map { parameter in
                     let p = AnyParameter(
                         inner: parameter.inner.copy()
                     )
                     // p.inner.id = .effectsParameter(trackId: track.id, slotId: slotId)
                     return p
-                }
+                },
+                color: d.color
             )
         }
         track.effectSlots[Int(slotId)] = EffectSlotModel(
