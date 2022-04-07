@@ -696,7 +696,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-atomics"
-version = "0.1.0-alpha.5"
+version = "0.1.0-alpha.6"
 dependencies = [
  "num-derive",
  "num-traits 0.2.14",
