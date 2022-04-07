@@ -26,7 +26,7 @@ audio-parameter-store = { path = "../../augmented/audio/audio-parameter-store" }
 augmented_oscillator = { path = "../../augmented/audio/oscillator" , version = "1.0.0-alpha.4" }
 wisual-logger = { version = "^0.1", path = "../../augmented/ops/wisual-logger" }
 generic-parameters-editor = { path = "../../augmented/gui/generic-parameters-editor" }
-audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.4" }
+audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.5" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 macos-bundle-resources = { path = "../../augmented/gui/macos-bundle-resources" }

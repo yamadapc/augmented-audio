@@ -20,7 +20,7 @@ vst_examples = ["delay_vst"]
 private = true
 
 [dependencies]
-audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0-alpha.4" }
+audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0-alpha.5" }
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.3" }
 
 [dev-dependencies]

@@ -53,7 +53,7 @@ augmented = { path = "../../../augmented/augmented" }
 audio-processor-analysis = { version = "0.1.0-alpha.4", path = "../../../augmented/audio/audio-processor-analysis" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector", version = "1.0.0-alpha.3" }
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
-audio-processor-traits = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../../augmented/audio/audio-processor-traits" }
 audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
 audio-processor-file = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-file" }
 looper-processor = { path = "../looper-processor" }
