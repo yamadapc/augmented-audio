@@ -30,16 +30,13 @@ use num::traits::FloatConst;
 use num::Float;
 
 use audio_processor_traits::parameters::{
-    make_handle_ref, AudioProcessorHandleProvider,
-    AudioProcessorHandleRef,
+    make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-use audio_processor_traits::{AudioProcessorSettings};
+use audio_processor_traits::AudioProcessorSettings;
 use generic_handle::GenericHandle;
 
-
-
-use crate::state::{FilterState};
+use crate::state::FilterState;
 
 pub use self::filter::{Filter, FilterType};
 
