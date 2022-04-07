@@ -65,3 +65,17 @@ impl EffectsService {
         .to_vec()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_list_effects() {
+        let effects = EffectsService::get_effects();
+        assert_eq!(effects[0].name, "Reverb");
+        assert_eq!(effects[1].name, "Delay");
+        assert_eq!(effects[2].name, "Bit-crusher");
+        assert_eq!(effects[3].name, "Filter");
+    }
+}

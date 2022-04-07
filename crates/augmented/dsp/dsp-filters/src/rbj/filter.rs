@@ -18,6 +18,7 @@ pub enum FilterType {
     // TODO: BandShelf, AllPass,
 }
 
+/// Calculate low-pass coefficients
 pub fn setup_low_pass<Sample: Float + FloatConst>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
@@ -40,6 +41,7 @@ pub fn setup_low_pass<Sample: Float + FloatConst>(
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
+/// Calculate high-pass coefficients
 pub fn setup_high_pass<Sample: Float + FloatConst>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
@@ -62,6 +64,7 @@ pub fn setup_high_pass<Sample: Float + FloatConst>(
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
+/// Calculate band-pass coefficients
 pub fn setup_band_pass1<Sample: Float + FloatConst>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
@@ -84,6 +87,7 @@ pub fn setup_band_pass1<Sample: Float + FloatConst>(
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
+/// Calculate band-pass coefficients
 pub fn setup_band_pass2<Sample: Float + FloatConst>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
@@ -106,6 +110,7 @@ pub fn setup_band_pass2<Sample: Float + FloatConst>(
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
+/// Calculate band-stop coefficients
 pub fn setup_band_stop<Sample: Float + FloatConst>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
@@ -128,6 +133,7 @@ pub fn setup_band_stop<Sample: Float + FloatConst>(
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
+/// Calculate low-shelf coefficients
 pub fn setup_low_shelf<Sample: Float + FloatConst + Pow<Sample, Output = Sample>>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
@@ -156,6 +162,7 @@ pub fn setup_low_shelf<Sample: Float + FloatConst + Pow<Sample, Output = Sample>
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
+/// Calculate high-shelf coefficients
 pub fn setup_high_shelf<Sample: Float + FloatConst + Pow<Sample, Output = Sample>>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,

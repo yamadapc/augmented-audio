@@ -30,20 +30,23 @@ use num::traits::FloatConst;
 use num::Float;
 
 use audio_processor_traits::parameters::{
-    make_handle_ref, AudioProcessorEmptyHandle, AudioProcessorHandle, AudioProcessorHandleProvider,
-    AudioProcessorHandleRef, ParameterSpec, ParameterValue,
+    make_handle_ref, AudioProcessorHandleProvider,
+    AudioProcessorHandleRef,
 };
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
+use audio_processor_traits::{AudioProcessorSettings};
+use generic_handle::GenericHandle;
 
-use crate::coefficients::BiquadCoefficients;
-use crate::denormal_prevention;
-use crate::state::{DirectFormIState, FilterState};
+
+
+use crate::state::{FilterState};
 
 pub use self::filter::{Filter, FilterType};
 
 /// Raw filter
 pub mod filter;
+/// `AudioProcessorHandle` implementation, for generic processor handle
+pub mod generic_handle;
 
 /// An [`AudioProcessor`] which holds a [`Filter`]. Easy to use DSP filter.
 ///
@@ -87,28 +90,6 @@ impl Default for FilterProcessor<f32> {
     fn default() -> Self {
         Self::new(FilterType::LowPass)
     }
-}
-
-struct GenericHandle {}
-
-impl AudioProcessorHandle for GenericHandle {
-    fn name(&self) -> String {
-        "Filter".to_string()
-    }
-
-    fn parameter_count(&self) -> usize {
-        0
-    }
-
-    fn get_parameter_spec(&self, index: usize) -> ParameterSpec {
-        todo!("Not implemented")
-    }
-
-    fn get_parameter(&self, index: usize) -> Option<ParameterValue> {
-        None
-    }
-
-    fn set_parameter(&self, index: usize, request: ParameterValue) {}
 }
 
 impl<SampleType> AudioProcessorHandleProvider for FilterProcessor<SampleType>
