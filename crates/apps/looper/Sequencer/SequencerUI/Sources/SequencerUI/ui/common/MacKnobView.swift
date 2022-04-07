@@ -15,11 +15,158 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import AppKit
 import SwiftUI
 
-func buildBackgroundLayer() {}
+/**
+ * This struct represents an Arc that will be drawn for either the background or the filled track of a knob
+ */
+struct MacKnobPathArc {
+    let center: CGPoint
+    let startAngle: Double
+    let endAngle: Double
+    let radius: Double
+}
 
+/**
+ * Calculate the arc for a given value between 0-1.
+ *
+ * This arc will leave a `0.25 * .pi` radians (45º) gap at the bottom of *each side* the knob and
+ * be filled according to the `value` input.
+ *
+ * For example, if the value is 0.5, the knob should be filled between 135º and 270º.
+ *
+ * Drawing is inverted so angles are negative.
+ */
+func buildValueTrack(
+    radius: Double,
+    strokeWidth: Double,
+    value: Double
+) -> MacKnobPathArc {
+    let center = CGPoint(
+        x: radius + strokeWidth,
+        y: radius + strokeWidth
+    )
+
+    let start = 0.0 - 0.75 * .pi
+    let end = start - (0.75 * .pi * 2.0) * value
+
+    return MacKnobPathArc(
+        center: center,
+        startAngle: start,
+        endAngle: end,
+        radius: radius
+    )
+}
+
+/**
+ * Calculate the arc for a given value between -1 and +1 for a center knob.
+ *
+ * This arc will leave a 90º gap between start/end. The value `0` will be positioned mid-way between
+ * 135º and 405º, at 270º past the right x-axis start.
+ *
+ * The path is drawn by calculating what the `value * sweepAngle` total angle is between start/end
+ * then starting at the `0` point at 270º.
+ *
+ * If the value is negative, we rotate the *starting angle* counterclowise by this amount.
+ */
+func buildCenterValueTrack(
+    radius: Double,
+    strokeWidth: Double,
+    value: Double
+) -> MacKnobPathArc {
+    let sweepAngle = getSweepAngle(style: .center)
+
+    let center = CGPoint(
+        x: radius + strokeWidth,
+        y: radius + strokeWidth
+    )
+
+    // This knob is a centered knob, so 0 is at the middle and -1/+1 at each
+    // side. We will rotate the start angle either to the middle or back
+    var start = 0.0 // - 0.75 * .pi
+    if value >= 0 {
+        start -= 0.75 * .pi * 2.0
+    } else {
+        start -= 0.75 * .pi * 2.0 + sweepAngle * value
+    }
+    let end = start - sweepAngle * fabs(value)
+
+    return MacKnobPathArc(
+        center: center,
+        startAngle: start,
+        endAngle: end,
+        radius: radius
+    )
+}
+
+/**
+ * This returns the angle in radians that the value `1.0` represents.
+ *
+ * For a normal knob, the track will start at 135º and end at 405º, counting from 0º at the right side x-axis.
+ * The sweep-angle should be 270º degrees. This is the angle between start and end of the track.
+ *
+ * For a centric knob that goes from -1 to +1 this is halfed.
+ */
+func getSweepAngle(style: KnobStyle) -> Double {
+    return style == .normal
+        ? 1.5 * .pi
+        : 0.75 * .pi
+}
+
+/**
+ * This represents the two points a knob thumb go. This is the line from the center of the knob to
+ * the current value.
+ */
+struct MacKnobPointerPath {
+    let start: CGPoint
+    let end: CGPoint
+}
+
+/**
+ * Calculate the center & current knob positions for the knob.
+ *
+ * This calculation works in the following way.
+ * First we determine the start angle of the track, depending on the knob style. This is either 135º or 270º for
+ * normal and center knobs respectively.
+ *
+ * Then, we calculate the angle at which the thumb will be from the 0º by subtracting the start angle by the
+ * `value` times the total `sweepAngle` rotation for this style.
+ *
+ * Then, we calculate the positions of both the pointer along the track and the center of the path considering
+ * a `0.5 * strokeWidth` margin between the line and the circle edge and offsetting positions to account
+ * for the circle line width.
+ */
+func buildPointerPath(
+    radius: Double,
+    style: KnobStyle,
+    strokeWidth: Double,
+    value: Double
+) -> MacKnobPointerPath {
+    let startAngle: Double = style == .normal ? -0.75 * .pi : -0.75 * .pi * 2.0
+    let thumbAngle: Double = startAngle - value * getSweepAngle(style: style)
+    let centerCoordinate: Double = radius + strokeWidth
+
+    let pathPosition = CGPoint(
+        x: centerCoordinate + (radius - strokeWidth * 1.5) * cos(thumbAngle),
+        y: centerCoordinate + (radius - strokeWidth * 1.5) * sin(thumbAngle)
+    )
+
+    return MacKnobPointerPath(
+        start: CGPoint(x: centerCoordinate, y: centerCoordinate),
+        end: pathPosition
+    )
+}
+
+/**
+ * This is required because SwiftUI has poor performance for rendering the knob, found in `KnobView`.
+ *
+ * This implementation has significantly better performance and is much more responsive, because updating
+ * the SwiftUI implementation on drag causes a lot of layout operations around its ZStack and VStacks.
+ *
+ * It might be possible to optimise the SwiftUI implementation as well.
+ */
 @available(macOS 11, *)
 class MacKnobNSView: NSView {
     var value: Float = 0.0 {
@@ -62,55 +209,39 @@ class MacKnobNSView: NSView {
     }
 
     func buildPointer() -> CGPath {
-        let startAngle: Double = style == .normal ? -0.75 * .pi : -0.75 * .pi * 2.0
-        let thumbAngle: Double = startAngle - Double(value) * realSweepAngle()
-        let centerCoordinate: Double = radius + strokeWidth
-
-        let path = CGMutablePath()
-
-        let pathPosition = CGPoint(
-            x: centerCoordinate + (radius - strokeWidth * 1.5) * cos(thumbAngle),
-            y: centerCoordinate + (radius - strokeWidth * 1.5) * sin(thumbAngle)
+        let pointerPath = buildPointerPath(
+            radius: radius,
+            style: style,
+            strokeWidth: strokeWidth,
+            value: Double(value)
         )
-        path.move(to: CGPoint(x: centerCoordinate, y: centerCoordinate))
-        path.addLine(to: pathPosition)
-
+        let path = CGMutablePath()
+        path.move(to: pointerPath.start)
+        path.addLine(to: pointerPath.end)
         return path
     }
 
     func buildFilledValuePath() -> CGPath {
         switch style {
         case .normal:
-            return buildPath(Double(getNormal()))
+            return buildPath(Double(value))
         case .center:
             return buildCenterPath()
         }
     }
 
     func buildCenterPath() -> CGPath {
-        let value = Double(getNormal())
-        let path = CGMutablePath()
-
-        let center = CGPoint(
-            x: radius + strokeWidth,
-            y: radius + strokeWidth
-        )
-
-        // This knob is a centered knob, so 0 is at the middle and -1/+1 at each
-        // side. We will rotate the start angle either to the middle or back
-        var start = 0.0 // - 0.75 * .pi
-        if value >= 0 {
-            start -= 0.75 * .pi * 2.0
-        } else {
-            start -= 0.75 * .pi * 2.0 + realSweepAngle() * value
-        }
-        let end = start - realSweepAngle() * fabs(value)
-
-        path.addArc(
-            center: center,
+        let arc = buildCenterValueTrack(
             radius: radius,
-            startAngle: start,
-            endAngle: end,
+            strokeWidth: strokeWidth,
+            value: Double(value)
+        )
+        let path = CGMutablePath()
+        path.addArc(
+            center: arc.center,
+            radius: arc.radius,
+            startAngle: arc.startAngle,
+            endAngle: arc.endAngle,
             clockwise: true
         )
 
@@ -118,36 +249,22 @@ class MacKnobNSView: NSView {
     }
 
     func buildPath(_ value: Double) -> CGPath {
-        let path = CGMutablePath()
-
-        let center = CGPoint(
-            x: radius + strokeWidth,
-            y: radius + strokeWidth
+        let arc = buildValueTrack(
+            radius: radius,
+            strokeWidth: strokeWidth,
+            value: value
         )
 
-        let start = 0.0 - 0.75 * .pi
-        let end = start - (0.75 * .pi * 2.0) * value
-
+        let path = CGMutablePath()
         path.addArc(
-            center: center,
-            radius: radius,
-            startAngle: start,
-            endAngle: end,
+            center: arc.center,
+            radius: arc.radius,
+            startAngle: arc.startAngle,
+            endAngle: arc.endAngle,
             clockwise: true
         )
 
         return path
-    }
-
-    /// Actual rotation in radians between 0 and 1 for this style
-    func realSweepAngle() -> Double {
-        return style == .normal
-            ? 1.5 * .pi
-            : 0.75 * .pi
-    }
-
-    func getNormal() -> Float {
-        return value
     }
 }
 
