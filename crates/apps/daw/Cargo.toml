@@ -22,7 +22,7 @@ serde_json = "^1.0.71"
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
 audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.5" }
 audio-processor-time = { path = "../../augmented/audio/audio-processor-time" , version = "0.1.0-alpha.2" }
-augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.4" }
+augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.5" }
 audio-processor-utility = { path = "../../augmented/audio/audio-processor-utility" }
 audio-processor-graph = { path = "../../augmented/audio/audio-processor-graph" }
 plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }
