@@ -28,15 +28,15 @@ class EffectsServiceImpl: EffectsService {
         let numDefinitions = effect_definitions__count(definitions)
 
         var effects: [EffectDefinition] = []
-        for id in 0 ..< numDefinitions {
-            let definition = effect_definitions__get(definitions, id)
+        for definitionIndex in 0 ..< numDefinitions {
+            let definition = effect_definitions__get(definitions, definitionIndex)
             let name = effect_definition__name(definition)
             let nameStr = String(cString: name!)
             c_string_free(name)
 
             let parameters = getParameters(definition: definition!)
             let effect = buildEffect(
-                id: id,
+                id: definitionIndex,
                 label: nameStr,
                 parameters: parameters
             )
@@ -52,8 +52,8 @@ class EffectsServiceImpl: EffectsService {
         let numParameters = effect_parameters__count(parametersList)
 
         var result: [AnyParameter] = []
-        for i in 0 ..< numParameters {
-            let parameter = effect_parameters__get(parametersList, i)
+        for parameterIndex in 0 ..< numParameters {
+            let parameter = effect_parameters__get(parametersList, parameterIndex)
             let parameterName = effect_parameter__label(parameter)
             let parameterNameStr = String(cString: parameterName!)
             c_string_free(parameterName)
