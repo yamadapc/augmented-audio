@@ -34,7 +34,7 @@ struct RecordButtonView: View {
             store: store,
             parameterId: .recordButton(trackId: trackState.id)
         )
-        // .testId("recordButton")
+        .testId("recordButton")
 
         if trackState.looperState == .recordingScheduled {
             button

@@ -62,7 +62,7 @@ struct TracksView: View {
                     parameterId: .trackButton(trackId: UInt(i)),
                     showSelectionOverlay: false
                 )
-                // .testId("trackButton_\(i)")
+                .testId("trackButton_\(i)")
             }
         }
         .frame(maxWidth: .infinity, alignment: .bottomLeading)
