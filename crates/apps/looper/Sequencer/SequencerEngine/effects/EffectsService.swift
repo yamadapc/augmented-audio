@@ -24,6 +24,8 @@ class EffectsServiceImpl: EffectsService {
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineController")
 
     func listEffects() -> [EffectDefinition] {
+        logger.info("Listing effect definitions")
+
         let definitions = looper_engine__get_effect_definitions()
         let numDefinitions = effect_definitions__count(definitions)
 
