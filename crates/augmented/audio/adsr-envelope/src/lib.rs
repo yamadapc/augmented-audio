@@ -34,12 +34,12 @@
 //!
 //! fn main() {
 //!   let mut envelope = Envelope::exp();
-//!   envelope.set_sample_rate(44100.0);
 //!
+//!   envelope.set_sample_rate(1000.0);
 //!   envelope.set_attack(Duration::from_millis(200));
 //!
 //!   envelope.note_on();
-//!   for i in 10000 {
+//!   for i in 0..10000 {
 //!     let volume = envelope.volume();
 //!     println!("{}", volume);
 //!     envelope.tick();
