@@ -203,7 +203,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "5A6E3BBE-8983-47B2-B84E-869C7CFA2E32"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
@@ -299,7 +299,7 @@
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             uuid = "BB3A64ED-892E-45B5-8051-55C72E218AEF"
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"

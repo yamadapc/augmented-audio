@@ -65,7 +65,7 @@ extension FloatParameter: KnobParameterLike {
 }
 
 struct ParameterKnobView<ParameterT: KnobParameterLike>: View {
-    var parameter: ParameterT
+    @ObservedObject var parameter: ParameterT
     @EnvironmentObject var store: Store
 
     var isDisabled: Bool = false
@@ -104,7 +104,7 @@ struct ParameterKnobView<ParameterT: KnobParameterLike>: View {
         parameter.endParameterLock(store)
     }
 
-    func formatValue(_ value: Double) -> String {
+    func formatValue(_: Double) -> String {
         return parameter.formatValue()
     }
 }
