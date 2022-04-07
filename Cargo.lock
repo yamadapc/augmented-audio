@@ -561,7 +561,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-testing-helpers"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "audio-processor-traits",
  "augmented_oscillator",
@@ -734,7 +734,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-convert-sample-rate"
-version = "1.0.0-alpha.4"
+version = "1.0.0-alpha.5"
 dependencies = [
  "audio-processor-testing-helpers",
  "augmented_oscillator",
