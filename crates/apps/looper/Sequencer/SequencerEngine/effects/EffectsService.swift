@@ -24,7 +24,6 @@ class EffectsServiceImpl: EffectsService {
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineController")
 
     func listEffects() -> [EffectDefinition] {
-        // TODO: - This leaks memory
         let definitions = looper_engine__get_effect_definitions()
         let numDefinitions = effect_definitions__count(definitions)
 
@@ -33,6 +32,7 @@ class EffectsServiceImpl: EffectsService {
             let definition = effect_definitions__get(definitions, id)
             let name = effect_definition__name(definition)
             let nameStr = String(cString: name!)
+            c_string_free(name)
 
             let parameters = getParameters(definition: definition!)
             let effect = buildEffect(
@@ -42,6 +42,7 @@ class EffectsServiceImpl: EffectsService {
             )
             effects.append(effect)
         }
+        effect_definitions__free(definitions)
 
         return effects
     }
@@ -55,6 +56,7 @@ class EffectsServiceImpl: EffectsService {
             let parameter = effect_parameters__get(parametersList, i)
             let parameterName = effect_parameter__label(parameter)
             let parameterNameStr = String(cString: parameterName!)
+            c_string_free(parameterName)
 
             logger.info("Loaded effect", metadata: ["parameterName": .string(parameterNameStr)])
             let anyParameter = AnyParameter(
@@ -66,6 +68,8 @@ class EffectsServiceImpl: EffectsService {
 
             result.append(anyParameter)
         }
+
+        effect_parameters__free(parametersList)
         return result
     }
 }

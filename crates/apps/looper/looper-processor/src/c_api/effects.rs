@@ -28,6 +28,7 @@ use crate::c_api::into_ptr;
 use crate::services::effects_service::{EffectDefinition, EffectParameterModel, EffectsService};
 use crate::LooperEngine;
 
+#[no_mangle]
 pub unsafe extern "C" fn c_string_free(str: *mut c_char) {
     let _ = CString::from_raw(str);
 }
