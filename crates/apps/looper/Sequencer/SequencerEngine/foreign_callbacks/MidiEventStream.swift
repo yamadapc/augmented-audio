@@ -15,19 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  RustStream.swift
-//  SequencerEngine
-//
-//  Created by Pedro Tacla Yamada on 24/3/2022.
-//
 
 import Combine
 import Foundation
 import Logging
 import SequencerEngine_private
 
-@_cdecl("swift__wrap_closure_callback")
+@_cdecl("swift__midi_callback")
 private func midi_callback(userdata: UnsafeMutableRawPointer?, id: MidiEvent) {
     let wrappedClosure: MidiEventWrapClosure = Unmanaged.fromOpaque(userdata!).takeUnretainedValue()
     wrappedClosure.closure(id)

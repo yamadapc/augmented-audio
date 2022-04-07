@@ -321,7 +321,7 @@ impl ParameterValue {
     }
 }
 
-pub fn build_parameter_indexes(parameter_ids: &Vec<ParameterId>) -> FxHashMap<ParameterId, usize> {
+pub fn build_parameter_indexes(parameter_ids: &[ParameterId]) -> FxHashMap<ParameterId, usize> {
     parameter_ids
         .iter()
         .enumerate()
@@ -329,7 +329,9 @@ pub fn build_parameter_indexes(parameter_ids: &Vec<ParameterId>) -> FxHashMap<Pa
         .collect()
 }
 
-pub fn build_default_parameters() -> (FxHashMap<ParameterId, ParameterValue>, Vec<ParameterId>) {
+/// This function uses `strum` derived enumerator traits to extract all possible `ParameterId`s in
+/// order
+pub fn build_parameter_ids() -> Vec<ParameterId> {
     use strum::IntoEnumIterator;
 
     let source_parameters: Vec<ParameterId> = SourceParameter::iter()
@@ -349,13 +351,18 @@ pub fn build_default_parameters() -> (FxHashMap<ParameterId, ParameterValue>, Ve
     let quantization_parameters: Vec<ParameterId> = QuantizationParameter::iter()
         .map(ParameterId::ParameterIdQuantization)
         .collect();
-    let parameter_ids: Vec<ParameterId> = source_parameters
+
+    source_parameters
         .iter()
         .chain(envelope_parameters.iter())
         .chain(lfo_parameters.iter())
         .chain(quantization_parameters.iter())
         .cloned()
-        .collect();
+        .collect()
+}
+
+pub fn build_default_parameters() -> (FxHashMap<ParameterId, ParameterValue>, Vec<ParameterId>) {
+    let parameter_ids = build_parameter_ids();
 
     let mut result = FxHashMap::default();
     parameter_ids
@@ -363,6 +370,7 @@ pub fn build_default_parameters() -> (FxHashMap<ParameterId, ParameterValue>, Ve
         .flat_map(|parameter_id| {
             let default_value = get_default_parameter_value(parameter_id);
 
+            // Since there are two LFOs, we must create parameter ids for both of them
             if let ParameterId::ParameterIdLFO(_, parameter) = parameter_id {
                 (0..2)
                     .map(|lfo| {
@@ -433,10 +441,10 @@ macro_rules! usize_conversion {
             }
         }
 
-        impl Into<usize> for $target {
-            fn into(self) -> usize {
+        impl From<$target> for usize {
+            fn from(t: $target) -> usize {
                 use num::ToPrimitive;
-                self.to_usize().unwrap()
+                t.to_usize().unwrap()
             }
         }
     };

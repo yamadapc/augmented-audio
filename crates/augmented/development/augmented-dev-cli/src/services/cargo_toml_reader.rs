@@ -10,13 +10,8 @@ pub trait CargoTomlReader {
     fn read(&self, crate_path: &str) -> CargoToml;
 }
 
+#[derive(Default)]
 pub struct CargoTomlReaderImpl {}
-
-impl Default for CargoTomlReaderImpl {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl CargoTomlReader for CargoTomlReaderImpl {
     fn read(&self, crate_path: &str) -> CargoToml {

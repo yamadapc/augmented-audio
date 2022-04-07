@@ -194,7 +194,7 @@ impl MultiTrackLooperHandle {
         parameter_id: ParameterId,
         value: ParameterValue,
     ) {
-        log::info!(
+        log::debug!(
             "Setting parameter voice_id={:?} parameter_id={:?} value={:?}",
             voice.id,
             parameter_id,

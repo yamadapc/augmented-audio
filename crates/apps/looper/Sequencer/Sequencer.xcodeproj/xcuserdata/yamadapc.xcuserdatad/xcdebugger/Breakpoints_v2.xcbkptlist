@@ -177,8 +177,8 @@
             filePath = "SequencerUI/Sources/SequencerUI/store/Store.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "230"
-            endingLineNumber = "230"
+            startingLineNumber = "224"
+            endingLineNumber = "224"
             landmarkName = "removeParameterLock(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -197,6 +197,150 @@
             endingLineNumber = "61"
             landmarkName = "hasLocks(source:)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "5A6E3BBE-8983-47B2-B84E-869C7CFA2E32"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "106"
+            endingLineNumber = "106"
+            landmarkName = "buildPath(_:_:)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "5A6E3BBE-8983-47B2-B84E-869C7CFA2E32 - e20ad5d5cd3d0a99"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerUI.buildPath(SwiftUI.GeometryProxy, SequencerUI.TrackBuffer) -&gt; SwiftUI.Path"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "106"
+                  endingLineNumber = "106"
+                  offsetFromSymbolStart = "884">
+               </Location>
+               <Location
+                  uuid = "5A6E3BBE-8983-47B2-B84E-869C7CFA2E32 - e20ad5d5cd3d0a99"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerUI.buildPath(SwiftUI.GeometryProxy, SequencerUI.TrackBuffer) -&gt; SwiftUI.Path"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "106"
+                  endingLineNumber = "106"
+                  offsetFromSymbolStart = "932">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "19998EA4-A76B-45B1-9AAE-5221C6FEAFB7"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "127"
+            endingLineNumber = "127"
+            landmarkName = "buildPath(_:_:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8D4CDEBB-94F6-45C6-9572-45EF9E81B38A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "131"
+            endingLineNumber = "131"
+            landmarkName = "buildPath(_:_:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7810E7C0-5ABA-45A4-A993-03330470A62A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "133"
+            endingLineNumber = "133"
+            landmarkName = "buildPath(_:_:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "BB3A64ED-892E-45B5-8051-55C72E218AEF"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "136"
+            endingLineNumber = "136"
+            landmarkName = "buildPath(_:_:)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "BB3A64ED-892E-45B5-8051-55C72E218AEF - e20ad5d5cd3df633"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerUI.buildPath(SwiftUI.GeometryProxy, SequencerUI.TrackBuffer) -&gt; SwiftUI.Path"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "132"
+                  endingLineNumber = "132"
+                  offsetFromSymbolStart = "5392">
+               </Location>
+               <Location
+                  uuid = "BB3A64ED-892E-45B5-8051-55C72E218AEF - e20ad5d5cd3df6bf"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "SequencerUI.buildPath(SwiftUI.GeometryProxy, SequencerUI.TrackBuffer) -&gt; SwiftUI.Path"
+                  moduleName = "SequencerEngine"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/SequencerUI/Sources/SequencerUI/ui/sequencer_view/ui/visualisation/ui/visualisation_content/ui/loop_visualisation/AudioPathView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "136"
+                  endingLineNumber = "136"
+                  offsetFromSymbolStart = "5516">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

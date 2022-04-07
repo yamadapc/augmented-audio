@@ -26,20 +26,20 @@ import Foundation
 
 public indirect enum ParameterId: Equatable, Hashable {
     case
-        sourceParameter(trackId: Int, parameterId: SourceParameterId),
+        sourceParameter(trackId: UInt, parameterId: SourceParameterId),
 
-        envelopeParameter(trackId: Int, parameterId: EnvelopeParameterId),
-        lfoParameter(trackId: Int, lfo: UInt, parameterId: LFOParameterId),
-        trackVolume(trackId: Int),
+        envelopeParameter(trackId: UInt, parameterId: EnvelopeParameterId),
+        lfoParameter(trackId: UInt, lfo: UInt, parameterId: LFOParameterId),
+        trackVolume(trackId: UInt),
 
         parameterLock(source: ParameterLockSource, parameterId: ParameterId),
 
-        recordButton(trackId: Int),
-        playButton(trackId: Int),
-        clearButton(trackId: Int),
-        trackButton(trackId: Int),
-        stepButton(trackId: Int, stepId: Int),
-        lfo(trackId: Int, lfoIndex: Int),
+        recordButton(trackId: UInt),
+        playButton(trackId: UInt),
+        clearButton(trackId: UInt),
+        trackButton(trackId: UInt),
+        stepButton(trackId: UInt, stepId: Int),
+        lfo(trackId: UInt, lfoIndex: Int),
         transportPlay,
         transportStop,
 
@@ -49,8 +49,8 @@ public indirect enum ParameterId: Equatable, Hashable {
         envelopePage,
         effectsPage,
 
-        quantizationMode(trackId: Int),
-        tempoControl(trackId: Int),
+        quantizationMode(trackId: UInt),
+        tempoControl(trackId: UInt),
 
         sceneSlider,
         sceneButton(sceneId: Int),

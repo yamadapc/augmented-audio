@@ -43,7 +43,7 @@ fn crate_has_changes(path: &str, manifest: &CargoToml) -> bool {
     }
 }
 
-fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, CargoToml)>) {
+fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &[(String, CargoToml)]) {
     log::info!("Running pre-release proc for {}", path);
 
     let new_version = bump_own_version_prerelease(&manifest.package.name, path);
@@ -78,7 +78,7 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &Vec<(String, 
 }
 
 fn bump_dependency(
-    target_package_path: &String,
+    target_package_path: &str,
     target_package_manifest: &mut Document,
     bump_package_name: String,
     bump_package_version: &Version,

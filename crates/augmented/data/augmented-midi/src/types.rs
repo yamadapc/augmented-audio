@@ -116,10 +116,10 @@ impl<'a> TryFrom<&'a [u8]> for MIDIMessage<&'a [u8]> {
     }
 }
 
-impl<B: std::borrow::Borrow<[u8]>> Into<Vec<u8>> for MIDIMessage<B> {
-    fn into(self) -> Vec<u8> {
+impl<B: std::borrow::Borrow<[u8]>> From<MIDIMessage<B>> for Vec<u8> {
+    fn from(msg: MIDIMessage<B>) -> Vec<u8> {
         let mut output = vec![];
-        let _ = serialize_message(self, &mut output);
+        let _ = serialize_message(msg, &mut output);
         output
     }
 }

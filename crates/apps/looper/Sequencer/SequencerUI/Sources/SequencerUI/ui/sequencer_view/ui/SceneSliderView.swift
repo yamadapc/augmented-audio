@@ -35,29 +35,29 @@ struct SceneSliderView: View {
     var body: some View {
         HStack {
             ContinuousButton(
-                    action: {},
-                    label: "A",
-                    isSelected: false
+                action: {},
+                label: "A",
+                isSelected: false
             )
-            .highPriorityGesture(makeDragGesture(sceneId: 0))
-            .overlay(makeOverlay(sceneId: 0))
+            .highPriorityGesture(buildDragGesture(sceneId: 0))
+            .overlay(renderOverlay(sceneId: 0))
             .bindToParameterId(store: store, parameterId: .sceneButton(sceneId: 0), showSelectionOverlay: false)
 
             KnobSliderView(value: $sceneState.sceneSlider.value)
                 .bindToParameter(store: store, parameter: sceneState.sceneSlider, showSelectionOverlay: false)
 
             ContinuousButton(
-                    action: {},
-                    label: "B",
-                    isSelected: false
+                action: {},
+                label: "B",
+                isSelected: false
             )
-            .highPriorityGesture(makeDragGesture(sceneId: 1))
-            .overlay(makeOverlay(sceneId: 1))
+            .highPriorityGesture(buildDragGesture(sceneId: 1))
+            .overlay(renderOverlay(sceneId: 1))
             .bindToParameterId(store: store, parameterId: .sceneButton(sceneId: 1), showSelectionOverlay: false)
         }
     }
 
-    func makeDragGesture(sceneId: Int) -> some Gesture {
+    fileprivate func buildDragGesture(sceneId: Int) -> some Gesture {
         return DragGesture(coordinateSpace: .global)
             .onChanged { drag in
                 self.store.focusState.sceneDragState = SceneDragState(
@@ -78,7 +78,7 @@ struct SceneSliderView: View {
             }
     }
 
-    func makeOverlay(sceneId: Int) -> some View {
+    fileprivate func renderOverlay(sceneId: Int) -> some View {
         ZStack(alignment: .center) {
             Rectangle()
                 .fill(SequencerColors.blue.opacity(0.4))

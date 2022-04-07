@@ -182,12 +182,10 @@ impl LooperApplication {
     fn update_inner(&mut self, message: Message) -> Command<WrapperMessage> {
         match message {
             Message::BottomPanel(message) => {
-                match &message {
-                    bottom_panel::Message::ClearPressed => self
-                        .looper_visualizations
+                if let bottom_panel::Message::ClearPressed = &message {
+                    self.looper_visualizations
                         .iter_mut()
-                        .for_each(|v| v.clear_visualization()),
-                    _ => {}
+                        .for_each(|v| v.clear_visualization())
                 }
 
                 self.knobs_view

@@ -27,17 +27,17 @@ public protocol SequencerEngine {
 
     func setTempo(tempo: Float)
 
-    func onClickRecord(track: Int)
-    func onClickPlay(track: Int)
-    func onClickClear(track: Int)
+    func onClickRecord(track: UInt)
+    func onClickPlay(track: UInt)
+    func onClickClear(track: UInt)
 
-    func toggleStep(track: Int, step: Int)
-    func addParameterLock(track: Int, step: Int, parameterId: ParameterId, value: Float)
-    func addSceneParameterLock(sceneId: Int, track: Int, parameterId: ParameterId, value: Float)
-    func addLFOMapping(track: Int, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float)
+    func toggleStep(track: UInt, step: Int)
+    func addParameterLock(track: UInt, step: Int, parameterId: ParameterId, value: Float)
+    func addSceneParameterLock(sceneId: Int, track: UInt, parameterId: ParameterId, value: Float)
+    func addLFOMapping(track: UInt, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float)
     func addMidiMapping(controller: Int, parameterId: ParameterId)
 
     func removeLock(parameterLockId: ParameterLockId)
     func loadFile(atPath path: String)
-    func addEffect(trackId: Int, effectId: EffectId)
+    func addEffect(trackId: UInt, effectId: EffectId)
 }

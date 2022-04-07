@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import Combine
 import Foundation
 import Logging
@@ -63,16 +64,16 @@ extension EngineImpl: SequencerEngine {
       }
     }
 
-    func onClickRecord(track: Int) {
-        looper_engine__record(engine, UInt(track))
+    func onClickRecord(track: UInt) {
+        looper_engine__record(engine, track)
     }
 
-    func onClickPlay(track: Int) {
-        looper_engine__play(engine, UInt(track))
+    func onClickPlay(track: UInt) {
+        looper_engine__play(engine, track)
     }
 
-    func onClickClear(track: Int) {
-        looper_engine__clear(engine, UInt(track))
+    func onClickClear(track: UInt) {
+        looper_engine__clear(engine, track)
     }
 
     func onClickPlayheadStop() {
@@ -87,11 +88,11 @@ extension EngineImpl: SequencerEngine {
         looper_engine__set_tempo(engine, tempo)
     }
 
-    func addParameterLock(track: Int, step: Int, parameterId: SequencerUI.ParameterId, value: Float) {
+    func addParameterLock(track: UInt, step: Int, parameterId: SequencerUI.ParameterId, value: Float) {
         if let rustParameterId = getObjectIdRust(parameterId) {
             looper_engine__add_parameter_lock(
                 engine,
-                UInt(track),
+                track,
                 UInt(step),
                 rustParameterId,
                 value
@@ -99,28 +100,27 @@ extension EngineImpl: SequencerEngine {
         }
     }
 
-    func addLFOMapping(track: Int, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
+    func addLFOMapping(track: UInt, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
       if let rustParameterId = getObjectIdRust(parameterId) {
-        looper_engine__add_lfo_mapping(engine, UInt(track), lfo, rustParameterId, value)
+        looper_engine__add_lfo_mapping(engine, track, lfo, rustParameterId, value)
       }
     }
 
-    func addSceneParameterLock(sceneId: Int, track: Int, parameterId: SequencerUI.ParameterId, value: Float) {
+    func addSceneParameterLock(sceneId: Int, track: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
         if let rustParameterId = getObjectIdRust(parameterId) {
             logger.info("Adding scene parameter lock")
             looper_engine__add_scene_parameter_lock(
                 engine,
                 UInt(sceneId),
-                UInt(track),
+                track,
                 rustParameterId,
                 value
             )
         }
     }
 
-    func toggleStep(track: Int, step: Int) {
-        looper_engine__toggle_trigger(engine, UInt(track), UInt(step))
-        // let voice = looper_engine__get_voice(engine, UInt(step - 1))
+    func toggleStep(track: UInt, step: Int) {
+        looper_engine__toggle_trigger(engine, track, UInt(step))
     }
 
     func removeLock(parameterLockId: ParameterLockId) {
@@ -160,8 +160,8 @@ extension EngineImpl: SequencerEngine {
         }
     }
 
-    func addEffect(trackId: Int, effectId: EffectId) {
-        looper_engine__add_effect(engine, UInt(trackId), RUST_EFFECT_TYPES[effectId]!)
+    func addEffect(trackId: UInt, effectId: EffectId) {
+        looper_engine__add_effect(engine, trackId, RUST_EFFECT_TYPES[effectId]!)
     }
 }
 

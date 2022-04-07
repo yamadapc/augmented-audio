@@ -23,7 +23,7 @@ impl DeltaFrames {
 }
 
 /// Calculates `T-` and `T+`
-pub fn calculate_deltas(magnitudes: &Vec<Vec<f32>>) -> DeltaFrames {
+pub fn calculate_deltas(magnitudes: &[Vec<f32>]) -> DeltaFrames {
     if magnitudes.is_empty() {
         return DeltaFrames {
             minus: vec![],

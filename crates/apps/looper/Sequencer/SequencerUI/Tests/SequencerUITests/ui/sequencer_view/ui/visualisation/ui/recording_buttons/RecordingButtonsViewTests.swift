@@ -36,8 +36,6 @@ final class RecordingButtonsViewTests: XCTestCase {
 extension RecordingButtonsView: Inspectable {}
 extension RecordButtonView: Inspectable {}
 
-extension PlayButtonView: Inspectable {
-}
+extension PlayButtonView: Inspectable {}
 
-extension ContinuousButton: Inspectable {
-}
+extension ContinuousButton: Inspectable {}

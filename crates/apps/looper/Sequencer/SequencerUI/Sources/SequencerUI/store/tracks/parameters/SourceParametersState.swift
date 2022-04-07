@@ -49,7 +49,7 @@ extension SourceParameterId {
 public typealias SourceParameter = FloatParameter
 
 public class SourceParametersState: ObservableObject {
-    var trackId: Int
+    var trackId: UInt
     var start: SourceParameter
     var end: SourceParameter
     var fadeStart: SourceParameter
@@ -84,7 +84,7 @@ public class SourceParametersState: ObservableObject {
         ]
     }
 
-    init(trackId: Int) {
+    init(trackId: UInt) {
         self.trackId = trackId
         start = SourceParameter(
             id: .sourceParameter(trackId: trackId, parameterId: .start),

@@ -34,7 +34,7 @@ pub extern "C" fn boxed__{}__delete(ptr: *mut {}) {{
     swift_code += "    let __innerPtr: OpaquePointer\n";
     swift_code += "    init(rawPtr: OpaquePointer) { self.__innerPtr = rawPtr }\n";
     swift_code += &*format!("    deinit {{ {}(self.__innerPtr) }}\n", destructor_c_name);
-    swift_code += &*format!("}}\n");
+    swift_code += "}\n";
 
     CodegenOutput {
         rust_code,
@@ -71,7 +71,7 @@ pub fn generate_opaque_method(value: OpaqueValueMethod) -> CodegenOutput {
         .return_value
         .as_ref()
         .map(|v| format!(" -> *mut {}", v))
-        .unwrap_or("".to_string());
+        .unwrap_or_else(|| "".to_string());
 
     let mut primitives = HashSet::new();
     primitives.insert("f32");
@@ -111,7 +111,8 @@ pub extern "C" fn boxed__{}__{}(ptr: *mut {}{}){} {{
         .map(|(name, _)| name.clone())
         .collect::<Vec<String>>();
     let mut swift_code = "".to_string();
-    let swift_method_name = to_camel_case(&*value.identifier.to_string());
+    let swift_method_name = to_camel_case(&*value.identifier);
+    let parent_name = format!("Boxed${}", value.parent);
     swift_code += &*format!(
         r#"
 extension {} {{
@@ -120,7 +121,7 @@ extension {} {{
     }}
 }}
     "#,
-        format!("Boxed${}", value.parent),
+        parent_name,
         swift_method_name,
         value
             .arguments
@@ -131,7 +132,7 @@ extension {} {{
         value
             .return_value
             .map(|ret| format!(" -> {}", ret))
-            .unwrap_or("".to_string()),
+            .unwrap_or_else(|| "".to_string()),
         value.parent,
         value.identifier,
         argument_names.join(", ")
@@ -144,7 +145,7 @@ extension {} {{
 }
 
 fn to_camel_case(identifier: &str) -> String {
-    let parts = identifier.split("_");
+    let parts = identifier.split('_');
     let mut result = "".to_string();
     let mut first = true;
     for part in parts {

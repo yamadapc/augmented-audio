@@ -25,12 +25,13 @@
 		CB3948DD27EA6BFC009A650D /* AudioUnitViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CB3948DB27EA6BFC009A650D /* AudioUnitViewController.xib */; };
 		CB3948E227EA6BFC009A650D /* Sequencer AudioUnit.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		CB3948EB27EA6D9B009A650D /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CB3948EA27EA6D9B009A650D /* SequencerUI */; };
-		CB3948F127EC3B24009A650D /* ForeignCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F027EC3B24009A650D /* ForeignCallback.swift */; };
+		CB3948F127EC3B24009A650D /* MidiEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F027EC3B24009A650D /* MidiEventStream.swift */; };
 		CB3948F927ED24BA009A650D /* Sequencer_MacUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F827ED24BA009A650D /* Sequencer_MacUITests.swift */; };
 		CB3948FB27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948FA27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift */; };
 		CB3D995927EFE4A000E5ECBA /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995827EFE4A000E5ECBA /* Parameters.swift */; };
 		CB3D995C27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */; };
 		CB3D995D27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */; };
+		CB59A60A27FDA7EE004BC156 /* ApplicationEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */; };
 		CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1727D8AE6600D7788E /* AppDelegate.swift */; };
 		CB801A1A27D8AE6600D7788E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1927D8AE6600D7788E /* ViewController.swift */; };
 		CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1B27D8AE6600D7788E /* Assets.xcassets */; };
@@ -49,7 +50,7 @@
 		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
 		CBECE3BC27ED43DB0054BB43 /* SequencerEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */; };
 		CBEEBA0D27F6E1720075B4F1 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
-		CBEEBA0E27F6E1720075B4F1 /* ForeignCallback.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F027EC3B24009A650D /* ForeignCallback.swift */; };
+		CBEEBA0E27F6E1720075B4F1 /* MidiEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F027EC3B24009A650D /* MidiEventStream.swift */; };
 		CBEEBA0F27F6E1720075B4F1 /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995827EFE4A000E5ECBA /* Parameters.swift */; };
 /* End PBXBuildFile section */
 
@@ -178,13 +179,14 @@
 		CB3948DC27EA6BFC009A650D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/AudioUnitViewController.xib; sourceTree = "<group>"; };
 		CB3948DE27EA6BFC009A650D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB3948DF27EA6BFC009A650D /* Sequencer_AudioUnit.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer_AudioUnit.entitlements; sourceTree = "<group>"; };
-		CB3948F027EC3B24009A650D /* ForeignCallback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForeignCallback.swift; sourceTree = "<group>"; };
+		CB3948F027EC3B24009A650D /* MidiEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MidiEventStream.swift; sourceTree = "<group>"; };
 		CB3948F627ED24BA009A650D /* Sequencer MacUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Sequencer MacUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3948F827ED24BA009A650D /* Sequencer_MacUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequencer_MacUITests.swift; sourceTree = "<group>"; };
 		CB3948FA27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sequencer_MacUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		CB3D995727EFD78E00E5ECBA /* Sequencer-Mac-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Sequencer-Mac-Info.plist"; sourceTree = SOURCE_ROOT; };
 		CB3D995827EFE4A000E5ECBA /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
 		CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSubscriptions.swift; sourceTree = "<group>"; };
+		CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationEventStream.swift; sourceTree = "<group>"; };
 		CB801A1527D8AE6600D7788E /* Continuous.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Continuous.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -445,6 +447,15 @@
 			path = store_subscriptions;
 			sourceTree = "<group>";
 		};
+		CB59A60827FDA7DA004BC156 /* foreign_callbacks */ = {
+			isa = PBXGroup;
+			children = (
+				CB3948F027EC3B24009A650D /* MidiEventStream.swift */,
+				CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */,
+			);
+			path = foreign_callbacks;
+			sourceTree = "<group>";
+		};
 		CB801A1627D8AE6600D7788E /* Sequencer Mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -466,8 +477,8 @@
 				CBA4DAA427DDF4BB00A530E3 /* private.h */,
 				CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */,
 				CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */,
-				CB3948F027EC3B24009A650D /* ForeignCallback.swift */,
 				CB3D995827EFE4A000E5ECBA /* Parameters.swift */,
+				CB59A60827FDA7DA004BC156 /* foreign_callbacks */,
 				CB3D995A27EFE4E300E5ECBA /* store_subscriptions */,
 				CBECE3B927ED43DB0054BB43 /* SequencerEngineTests */,
 			);
@@ -921,9 +932,10 @@
 			files = (
 				CB3D995C27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */,
 				CBA4DAA027DDF23600A530E3 /* SequencerEngine.swift in Sources */,
-				CB3948F127EC3B24009A650D /* ForeignCallback.swift in Sources */,
+				CB3948F127EC3B24009A650D /* MidiEventStream.swift in Sources */,
 				CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */,
 				CB3D995927EFE4A000E5ECBA /* Parameters.swift in Sources */,
+				CB59A60A27FDA7EE004BC156 /* ApplicationEventStream.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -932,7 +944,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CBEEBA0D27F6E1720075B4F1 /* SequencerEngineController.swift in Sources */,
-				CBEEBA0E27F6E1720075B4F1 /* ForeignCallback.swift in Sources */,
+				CBEEBA0E27F6E1720075B4F1 /* MidiEventStream.swift in Sources */,
 				CBEEBA0F27F6E1720075B4F1 /* Parameters.swift in Sources */,
 				CB3D995D27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */,
 				CBA4DAB727DDF72B00A530E3 /* SequencerEngine.swift in Sources */,

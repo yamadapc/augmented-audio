@@ -21,7 +21,7 @@ impl From<&TrackTriggerModel> for TrackTriggerModelPersist {
         Self {
             pattern_length: model.pattern_length(),
             pattern_step_beats: model.pattern_step_beats(),
-            triggers: model.triggers().deref().iter().cloned().collect(),
+            triggers: model.triggers().deref().to_vec(),
         }
     }
 }

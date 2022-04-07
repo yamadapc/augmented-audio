@@ -17,12 +17,14 @@ use crate::TimeInfoProvider;
 
 pub use self::audio_clip_manager::*;
 pub use self::entity_id::*;
+pub use self::events::*;
 pub use self::foreign_callback::*;
 pub use self::midi_callback::*;
 
 mod audio_clip_manager;
 mod effects;
 mod entity_id;
+mod events;
 mod foreign_callback;
 mod midi_callback;
 
@@ -359,6 +361,19 @@ pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
     engine
         .handle()
         .set_lfo_parameter(LooperId(track_id), lfo, parameter_id, value);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__has_looper_buffer(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) -> bool {
+    let engine = &(*engine);
+    let looper_id = LooperId(looper_id);
+    let state = engine.handle().get_looper_state(looper_id);
+    state != LooperState::Empty
+        && state != LooperState::RecordingScheduled
+        && engine.handle().get_looper_buffer(looper_id).is_some()
 }
 
 #[no_mangle]

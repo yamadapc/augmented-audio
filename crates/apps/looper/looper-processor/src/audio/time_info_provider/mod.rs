@@ -80,6 +80,7 @@ pub trait TimeInfoProvider {
 /// possible to change the host's playhead via the VST APIs, but that has not been implemented or
 /// investigated.
 pub struct TimeInfoProviderImpl {
+    #[allow(unused)] // Prevent iOS warnings
     host_callback: Option<HostCallback>,
     playhead: PlayHead,
     is_playing: AtomicBool,
@@ -189,8 +190,9 @@ impl MetronomePlayhead for TimeInfoMetronomePlayhead {
 
 #[cfg(test)]
 mod test {
-    use audio_garbage_collector::make_shared;
     use audio_processor_testing_helpers::assert_f_eq;
+
+    use audio_garbage_collector::make_shared;
 
     use super::*;
 

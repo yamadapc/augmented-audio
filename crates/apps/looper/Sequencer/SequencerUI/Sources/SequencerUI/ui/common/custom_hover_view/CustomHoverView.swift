@@ -17,20 +17,20 @@
 // = /copyright ===================================================================
 
 #if os(macOS)
-import SwiftUI
+    import SwiftUI
 
-/**
+    /**
      * Apparently onHover {} doesn't work properly during drag. This is a more reliable implementation for our use-case.
      */
-struct CustomHoverView: NSViewRepresentable {
-    typealias NSViewType = CustomHoverViewInner
-    var onHover: (Bool) -> Void
+    struct CustomHoverView: NSViewRepresentable {
+        typealias NSViewType = CustomHoverViewInner
+        var onHover: (Bool) -> Void
 
-    func makeNSView(context _: Context) -> CustomHoverViewInner {
-        let view = CustomHoverViewInner()
-        view.onHover = onHover
+        func makeNSView(context _: Context) -> CustomHoverViewInner {
+            let view = CustomHoverViewInner()
+            view.onHover = onHover
 
-        let trackingArea = NSTrackingArea(
+            let trackingArea = NSTrackingArea(
                 rect: view.frame,
                 options: [
                     .activeAlways,
@@ -40,35 +40,35 @@ struct CustomHoverView: NSViewRepresentable {
                 ],
                 owner: view,
                 userInfo: [:]
-        )
-        view.addTrackingArea(trackingArea)
-        return view
-    }
-
-    static func dismantleNSView(_ nsView: NSView, coordinator _: ()) {
-        nsView.trackingAreas.forEach { trackingArea in
-            nsView.removeTrackingArea(trackingArea)
+            )
+            view.addTrackingArea(trackingArea)
+            return view
         }
-    }
 
-    func updateNSView(_ nsView: CustomHoverViewInner, context _: Context) {
-        nsView.onHover = onHover
-    }
-
-    class CustomHoverViewInner: NSView {
-        var onHover: ((Bool) -> Void)?
-
-        override func mouseEntered(with _: NSEvent) {
-            DispatchQueue.main.async {
-                self.onHover?(true)
+        static func dismantleNSView(_ nsView: NSView, coordinator _: ()) {
+            nsView.trackingAreas.forEach { trackingArea in
+                nsView.removeTrackingArea(trackingArea)
             }
         }
 
-        override func mouseExited(with _: NSEvent) {
-            DispatchQueue.main.async {
-                self.onHover?(false)
+        func updateNSView(_ nsView: CustomHoverViewInner, context _: Context) {
+            nsView.onHover = onHover
+        }
+
+        class CustomHoverViewInner: NSView {
+            var onHover: ((Bool) -> Void)?
+
+            override func mouseEntered(with _: NSEvent) {
+                DispatchQueue.main.async {
+                    self.onHover?(true)
+                }
+            }
+
+            override func mouseExited(with _: NSEvent) {
+                DispatchQueue.main.async {
+                    self.onHover?(false)
+                }
             }
         }
     }
-}
 #endif

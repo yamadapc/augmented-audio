@@ -15,18 +15,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-
-@testable import SequencerUI
 import SwiftUI
-import XCTest
 
-final class ViewBindToParameterTests: XCTest {
-    func testBindToParameter() {
-        let view = Text("Hello")
-        _ = view.bindToParameterId(
-            store: Store(engine: nil),
-            parameterId: ParameterId.transportStop,
-            showSelectionOverlay: false
-        )
+#if os(macOS)
+    /**
+     * The text
+     * f*ast text
+     */
+    struct FText: NSViewRepresentable {
+        typealias NSViewType = NSTextView
+        var text: String
+
+        func makeNSView(context _: Context) -> NSTextView {
+            let view = NSTextView()
+            view.isEditable = false
+            view.isSelectable = false
+            view.drawsBackground = false
+            view.string = text
+            return view
+        }
+
+        func updateNSView(_ nsView: NSTextView, context _: Context) {
+            nsView.string = text
+        }
     }
-}
+#endif

@@ -32,14 +32,16 @@ public class EngineController {
     public init() {
         engine = EngineImpl()
         store = Store(engine: engine)
+
         storeSubscriptionsController = StoreSubscriptionsController(
-          store: store,
-          engine: engine
+            store: store,
+            engine: engine
         )
 
         logger.info("Setting-up store -> engine subscriptions")
         storeSubscriptionsController.setup()
         setupMidiSubscription()
+        setupApplicationEventsSubscription()
 
         logger.info("Setting-up store <- engine polling")
         DispatchQueue.main.async {
@@ -47,6 +49,17 @@ public class EngineController {
             self.flushMetricsInfo()
             self.flushParametersInfo(parameters: allParameters())
         }
+
+        self.loadInitialState()
+    }
+
+    func loadInitialState() {
+      for track in self.store.trackStates {
+        let hasBuffer = looper_engine__has_looper_buffer(engine.engine, track.id)
+        if hasBuffer {
+          self.readLooperBuffer(track.id)
+        }
+      }
     }
 
     func setupMidiSubscription() {
@@ -56,6 +69,21 @@ public class EngineController {
                     controllerNumber: MIDIControllerNumber(raw: Int(event.value.controller_number)),
                     value: Int(event.value.value)
                 ))
+            }
+        }).store(in: &cancellables)
+    }
+
+    func setupApplicationEventsSubscription() {
+        logger.info("Setting-up application events")
+        let stream = buildApplicationEventStream(registerStream: { cb in looper_engine__register_events_callback(self.engine.engine, cb) })
+        stream.sink(receiveValue: { event in
+            switch event.tag {
+            case ApplicationEventLooperClipUpdated:
+                let looperId = event.application_event_looper_clip_updated.looper_id
+                self.logger.info("Looper updated event", metadata: ["looper_id": .stringConvertible(looperId)])
+                self.readLooperBuffer(looperId)
+            default:
+                break
             }
         }).store(in: &cancellables)
     }
@@ -91,20 +119,20 @@ public class EngineController {
             let parameterId = parameter.id
             guard let trackId = getTrackId(parameterId),
                   let rustId = getObjectIdRust(parameterId)
-              else { return }
+            else { return }
 
             let value = looper_engine__get_parameter_value(self.engine.engine, trackId, rustId)
             switch value.tag {
             case CParameterValueFloat:
-              parameter.setFloatValue(value.c_parameter_value_float)
+                parameter.setFloatValue(value.c_parameter_value_float)
             case CParameterValueInt:
-              parameter.setIntValue(value.c_parameter_value_int)
+                parameter.setIntValue(value.c_parameter_value_int)
             case CParameterValueEnum:
-              parameter.setEnumValue(value.c_parameter_value_enum)
+                parameter.setEnumValue(value.c_parameter_value_enum)
             case CParameterValueBool:
-              parameter.setBoolValue(value.c_parameter_value_bool)
+                parameter.setBoolValue(value.c_parameter_value_bool)
             default:
-              break
+                break
             }
         }
 
@@ -116,43 +144,16 @@ public class EngineController {
     func flushPollInfo() {
         let playhead = looper_engine__get_playhead_position(engine.engine)
 
-        for (i, trackState) in store.trackStates.enumerated() {
-            // trackState.numSamples = looper_engine__get_looper_num_samples(engine.engine, UInt(i))
-            let positionPercent = looper_engine__get_looper_position(engine.engine, UInt(i))
-            if trackState.positionPercent != positionPercent {
-                trackState.positionPercent = positionPercent
-            }
-
-            let looperState = convertState(looperState: looper_engine__get_looper_state(engine.engine, UInt(i)))
-            if trackState.looperState != looperState {
-                trackState.looperState = looperState
-                if trackState.looperState == .playing {
-                    let buffer = looper_engine__get_looper_buffer(engine.engine, UInt(i))
-                    let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
-                    store.setTrackBuffer(trackId: i, fromAbstractBuffer: trackBuffer)
-                } else if trackState.looperState == .empty {
-                    store.setTrackBuffer(trackId: i, fromAbstractBuffer: nil)
-                }
-            }
-
-            // TODO: - this is a bad strategy; somehow the buffer should be set only on changes
-            if trackState.sliceBuffer == nil {
-                let sliceBuffer = looper_engine__get_looper_slices(engine.engine, UInt(i))
-                let nativeBuffer = SliceBufferImpl(inner: sliceBuffer!)
-                if nativeBuffer.count > 0 {
-                    store.setSliceBuffer(trackId: i, fromAbstractBuffer: nativeBuffer)
-                    logger.info("Received slice buffer from rust", metadata: [
-                        "slice_count": .stringConvertible(nativeBuffer.count)
-                    ])
-                }
-            }
+        for trackState in store.trackStates {
+            pollTrackState(trackState)
         }
 
         // Updating ObservableObject at 60fps causes high CPU usage
         let positionBeats = playhead.position_beats == -1 ? nil : playhead.position_beats
         let tempo = playhead.tempo == -1 ? nil : playhead.tempo
         if abs((store.timeInfo.positionBeats ?? 0.0) - (positionBeats ?? 0.0)) > 0.1 ||
-            store.timeInfo.tempo != tempo {
+            store.timeInfo.tempo != tempo
+        {
             store.timeInfo.positionBeats = positionBeats
             store.timeInfo.tempo = tempo
             store.timeInfo.objectWillChange.send()
@@ -166,6 +167,54 @@ public class EngineController {
         DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16)), qos: .userInitiated) {
             self.flushPollInfo()
         }
+    }
+
+    // This is a super super messy approach, but it is efficient
+    fileprivate func pollTrackState(_ trackState: TrackState) {
+        let trackId = trackState.id
+        pollLooperBuffer(trackId, trackState)
+        pollSliceBuffer(trackState, trackId)
+
+        let positionPercent = looper_engine__get_looper_position(engine.engine, trackId)
+        if trackState.positionPercent != positionPercent {
+            trackState.positionPercent = positionPercent
+        }
+    }
+
+    fileprivate func pollLooperBuffer(_ trackId: UInt, _ trackState: TrackState) {
+        let looperState = convertState(looperState: looper_engine__get_looper_state(engine.engine, trackId))
+
+        if trackState.looperState != looperState {
+            if looperState == .playing {
+                readLooperBuffer(trackId)
+            } else if looperState == .empty {
+                store.setTrackBuffer(trackId: trackId, fromAbstractBuffer: nil)
+            }
+            trackState.looperState = looperState
+        }
+    }
+
+    fileprivate func pollSliceBuffer(_ trackState: TrackState, _ trackId: UInt) {
+        // TODO: - this is a bad strategy; somehow the buffer should be set only on changes
+        if trackState.sliceBuffer == nil {
+            let sliceBuffer = looper_engine__get_looper_slices(engine.engine, trackId)
+            let nativeBuffer = SliceBufferImpl(inner: sliceBuffer!)
+            if nativeBuffer.count > 0 {
+                store.setSliceBuffer(trackId: trackId, fromAbstractBuffer: nativeBuffer)
+                logger.info("Received slice buffer from rust", metadata: [
+                    "slice_count": .stringConvertible(nativeBuffer.count),
+                ])
+            }
+        }
+    }
+
+    /**
+     * Forcefully read the looper buffer from the rust side and update the store
+     */
+    fileprivate func readLooperBuffer(_ trackId: UInt) {
+        let buffer = looper_engine__get_looper_buffer(engine.engine, trackId)
+        let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
+        store.setTrackBuffer(trackId: trackId, fromAbstractBuffer: trackBuffer)
     }
 }
 

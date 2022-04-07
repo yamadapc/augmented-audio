@@ -136,7 +136,7 @@ pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
 fn serialize_14_bit_midi_number(input: u16) -> (u8, u8) {
     let value1 = input & 0b00_0000_0111_1111;
     let value2 = (input & 0b11_1111_1000_0000) >> 7;
-    return (value1 as u8, value2 as u8);
+    (value1 as u8, value2 as u8)
 }
 
 #[cfg(test)]

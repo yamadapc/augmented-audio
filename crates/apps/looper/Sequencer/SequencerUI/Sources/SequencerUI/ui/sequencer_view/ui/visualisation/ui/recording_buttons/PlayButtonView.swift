@@ -24,13 +24,13 @@ struct PlayButtonView: View {
 
     var body: some View {
         let view = ContinuousButton(
-                action: { store.onClickPlay() },
-                label: "Play",
-                isDisabled: trackState.looperState.isEmpty || store.midiMappingActive,
-                isSelected: false,
-                backgroundColor: buttonColor()
+            action: { store.onClickPlay() },
+            label: "Play",
+            isDisabled: trackState.looperState.isEmpty || store.midiMappingActive,
+            isSelected: false,
+            backgroundColor: buttonColor()
         )
-                .bindToParameterId(store: store, parameterId: .playButton(trackId: trackState.id))
+        .bindToParameterId(store: store, parameterId: .playButton(trackId: trackState.id))
 
         if trackState.looperState == .playingScheduled {
             view

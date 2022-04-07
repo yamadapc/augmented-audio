@@ -84,7 +84,7 @@ pub fn read_file_contents(
         }
     });
 
-    if channel_buffers.len() == 0 {
+    if channel_buffers.is_empty() {
         return Err(AudioFileError::EmptyFileError);
     }
 
@@ -129,7 +129,6 @@ pub fn convert_audio_file_sample_rate(
     let output_size = (audio_file_duration * output_rate).ceil() as usize;
     let mut channel = Vec::new();
     channel.resize(output_size, 0.0);
-    let audio_file_channel = audio_file_contents.chan(channel_number);
 
     // Convert sample rate from audio file to in-memory
     log::info!(

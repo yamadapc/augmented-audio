@@ -6,10 +6,8 @@ use actix::{Actor, ActorFutureExt, AsyncContext, Handler, Message, ResponseActFu
 use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
-use audio_processor_file::OutputAudioFileProcessor;
-use audio_processor_traits::AudioBuffer;
 
-use crate::audio::processor::handle::looper_clip_copy_to_vec_buffer;
+use crate::services::audio_clip_manager::write_looper_clip;
 use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
 use self::model::LooperVoicePersist;
@@ -28,21 +26,21 @@ pub struct ProjectManager {
     projects: Vec<Shared<Project>>,
 }
 
-pub const PROJECT_MANAGER_DATA_PATH_KEY: &'static str = "CONTINUOUS_DATA_PATH";
+pub const PROJECT_MANAGER_DATA_PATH_KEY: &str = "CONTINUOUS_DATA_PATH";
 
 impl Default for ProjectManager {
     fn default() -> Self {
         let data_path = std::env::var(PROJECT_MANAGER_DATA_PATH_KEY)
             .ok()
-            .map(|p| PathBuf::from(p))
-            .unwrap_or_else(|| data_path());
+            .map(PathBuf::from)
+            .unwrap_or_else(data_path);
         log::info!("Data-path: {:?}", data_path);
         Self::new(data_path)
     }
 }
 
 impl ProjectManager {
-    fn new(data_path: PathBuf) -> Self {
+    pub fn new(data_path: PathBuf) -> Self {
         Self {
             data_path,
             projects: vec![],
@@ -71,16 +69,18 @@ impl Handler<SaveProjectMessage> for ProjectManager {
         let data_path = self.data_path.clone();
         let result_fut = async move {
             let (project_path, manifest_path) = default_project_manifest_path(&data_path);
+            tokio::fs::create_dir_all(&project_path).await?;
 
             let looper_paths = persist_handle_clips(&*msg.handle, &*project_path);
             let project = make_shared(project_from_handle(&*msg.handle, looper_paths));
 
             write_project(manifest_path, &project).await?;
 
+            log::info!("SaveProjectMessage done");
             Ok(project)
         }
         .into_actor(self)
-        .map(|result, _, _| result.map_err(|err| ProjectManagerError::IOError(err)));
+        .map(|result, _, _| result.map_err(ProjectManagerError::IOError));
 
         Box::pin(result_fut)
     }
@@ -132,7 +132,7 @@ async fn load_latest_project(data_path: impl AsRef<Path>) -> Result<Project, Pro
             create_default_project(data_path.as_ref()).await?;
         } else {
             log::error!("Failed to read the project.msgpack manifest file");
-            Err(err)?
+            return Err(err.into());
         }
     }
 
@@ -179,17 +179,11 @@ fn persist_handle_clips(
                 return None;
             }
 
+            let settings = *handle.settings().deref();
             let clip_path = project_path.join(format!("looper_{}.wav", voice.id));
-            log::info!("Writing audio into {:?}", clip_path);
-
-            let settings = handle.settings().deref().clone();
-            let mut output_processor =
-                OutputAudioFileProcessor::from_path(settings, clip_path.to_str().unwrap());
-            output_processor.prepare(settings);
-
             let clip = voice.looper().looper_clip();
-            let mut clip_buffer = looper_clip_copy_to_vec_buffer(&clip);
-            output_processor.process(clip_buffer.slice_mut());
+
+            write_looper_clip(settings, &clip_path, &clip);
 
             Some(clip_path)
         })
@@ -210,7 +204,7 @@ fn project_from_handle(
         voices: looper_handle
             .voices()
             .iter()
-            .map(|voice| LooperVoicePersist::from(voice))
+            .map(LooperVoicePersist::from)
             .collect(),
         scene_state: looper_handle.scene_handle().clone(),
         looper_clips,

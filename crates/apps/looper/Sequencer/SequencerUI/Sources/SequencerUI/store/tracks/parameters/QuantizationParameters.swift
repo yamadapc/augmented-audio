@@ -41,7 +41,7 @@ public class QuantizationParameters: ObservableObject {
     public var quantizationMode: EnumParameter<QuantizationMode>
     public var tempoControlMode: EnumParameter<TempoControlMode>
 
-    init(trackId: Int) {
+    init(trackId: UInt) {
         quantizationMode = EnumParameter(
             id: .quantizationMode(trackId: trackId),
             label: "Quantization",

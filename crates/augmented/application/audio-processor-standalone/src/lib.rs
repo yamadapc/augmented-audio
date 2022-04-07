@@ -147,33 +147,32 @@ fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
             let _handles = standalone_start(app, handle);
             std::thread::park();
         }
+        #[cfg(not(target_os = "ios"))]
         RenderingOptions::Offline {
             input_file: input_path,
             output_file: output_path,
         } => {
-            #[cfg(target_os = "ios")]
-            {
-                log::error!("Offline rendering is unsupported on iOS");
-            }
-            #[cfg(not(target_os = "ios"))]
-            {
-                let midi_input_file = options.midi().input_file.as_ref().map(|midi_input_file| {
-                    let file_contents =
-                        std::fs::read(midi_input_file).expect("Failed to read input MIDI file");
-                    let (_, midi_file) =
-                        augmented_midi::parse_midi_file::<String, Vec<u8>>(&file_contents)
-                            .expect("Failed to parse input MIDI file");
-                    midi_file
-                });
+            let midi_input_file = options.midi().input_file.as_ref().map(|midi_input_file| {
+                let file_contents =
+                    std::fs::read(midi_input_file).expect("Failed to read input MIDI file");
+                let (_, midi_file) =
+                    augmented_midi::parse_midi_file::<String, Vec<u8>>(&file_contents)
+                        .expect("Failed to parse input MIDI file");
+                midi_file
+            });
 
-                offline::run_offline_render(offline::OfflineRenderOptions {
-                    app,
-                    handle,
-                    input_path,
-                    output_path,
-                    midi_input_file,
-                });
-            }
+            offline::run_offline_render(offline::OfflineRenderOptions {
+                app,
+                handle,
+                input_path,
+                output_path,
+                midi_input_file,
+            });
+        }
+        #[cfg(target_os = "ios")]
+        _ => {
+            log::error!("Offline rendering is unsupported on iOS");
+            std::process::exit(1)
         }
     }
 }

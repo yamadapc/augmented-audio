@@ -1,6 +1,6 @@
 use std::sync::Mutex;
 
-use actix::{Addr, SyncArbiter};
+use actix::Addr;
 use basedrop::Shared;
 
 use actix_system_threads::ActorSystemThread;
@@ -9,7 +9,9 @@ use audio_processor_standalone::StandaloneHandles;
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::controllers::autosave_controller::AutosaveController;
-
+use crate::controllers::events_controller::EventsController;
+use crate::controllers::load_project_controller;
+use crate::controllers::load_project_controller::LoadContext;
 use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
 use crate::{services, setup_osc_server, MultiTrackLooper, MultiTrackLooperHandle};
@@ -19,8 +21,15 @@ pub struct LooperEngine {
     metrics_actor: Mutex<AudioProcessorMetricsActor>,
     audio_clip_manager: Addr<AudioClipManager>,
     project_manager: Addr<ProjectManager>,
+    events_controller: Addr<EventsController>,
     _autosave_controller: AutosaveController,
     _audio_handles: StandaloneHandles,
+}
+
+impl Default for LooperEngine {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl LooperEngine {
@@ -34,11 +43,15 @@ impl LooperEngine {
         let metrics_handle = handle.metrics_handle().clone();
         let metrics_actor = Mutex::new(AudioProcessorMetricsActor::new(metrics_handle));
 
-        let audio_clip_manager = ActorSystemThread::current()
-            .spawn_result(async move { SyncArbiter::start(1, || AudioClipManager::default()) });
+        let events_controller = ActorSystemThread::start(EventsController::default());
+        let audio_clip_manager = ActorSystemThread::start(AudioClipManager::default());
         let project_manager = ActorSystemThread::start(ProjectManager::default());
-        // TODO: This is disabled because it's broken, it'll break setting any user-parameter.
-        // load_and_hydrate_latest_project(&handle, &project_manager, &audio_clip_manager);
+        let _ = load_project_controller::load_and_hydrate_latest_project(LoadContext {
+            events_controller: events_controller.clone(),
+            handle: handle.clone(),
+            project_manager: project_manager.clone(),
+            audio_clip_manager: audio_clip_manager.clone(),
+        });
 
         let autosave_controller = ActorSystemThread::current().spawn_result({
             let project_manager = project_manager.clone();
@@ -58,6 +71,7 @@ impl LooperEngine {
             metrics_actor,
             audio_clip_manager,
             project_manager,
+            events_controller,
             _autosave_controller: autosave_controller,
             _audio_handles: audio_handles,
         }
@@ -77,6 +91,10 @@ impl LooperEngine {
 
     pub fn audio_clip_manager(&self) -> &Addr<AudioClipManager> {
         &self.audio_clip_manager
+    }
+
+    pub fn events_controller(&self) -> &Addr<EventsController> {
+        &self.events_controller
     }
 }
 

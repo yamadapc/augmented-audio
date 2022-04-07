@@ -54,7 +54,7 @@ struct MixPanelContentView: View {
 
     var body: some View {
         HStack {
-            ForEach(1 ..< 9) { i in
+            ForEach(0 ..< 8) { i in
                 HStack(spacing: 0) {
                     Rectangle()
                         .fill(SequencerColors.black)

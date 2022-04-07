@@ -41,28 +41,28 @@ struct TrackOverlay: View {
 
 struct TracksView: View {
     @EnvironmentObject var store: Store
-    var selectedTrack: Int
+    var selectedTrack: UInt
     var onClickTrack: (Int) -> Void
 
     var body: some View {
         HStack {
             ForEach(0 ..< 8) { i in
                 ContinuousButton(
-                        action: {
-                            onClickTrack(i)
-                        },
-                        label: "\(i + 1)",
-                        isSelected: selectedTrack == i
+                    action: {
+                        onClickTrack(i)
+                    },
+                    label: "\(i + 1)",
+                    isSelected: selectedTrack == i
                 )
-                        .overlay(
-                                TrackOverlay(position: store.trackStates[i].position)
-                        )
-                        .bindToParameterId(
-                                store: store,
-                                parameterId: .trackButton(trackId: i),
-                                showSelectionOverlay: false
-                        )
-                        .testId("trackButton_\(i)")
+                .overlay(
+                    TrackOverlay(position: store.trackStates[i].position)
+                )
+                .bindToParameterId(
+                    store: store,
+                    parameterId: .trackButton(trackId: UInt(i)),
+                    showSelectionOverlay: false
+                )
+                .testId("trackButton_\(i)")
             }
         }
         .frame(maxWidth: .infinity, alignment: .bottomLeading)

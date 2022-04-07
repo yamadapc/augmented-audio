@@ -17,6 +17,7 @@ type SomeHandle = AudioProcessorHandleRef;
 
 #[repr(C)]
 #[derive(Clone, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum EffectType {
     EffectTypeReverb = 0,
     EffectTypeDelay = 1,
@@ -79,7 +80,7 @@ impl EffectsProcessorHandle {
             (effect, handle)
         };
 
-        let settings = self.settings.get().deref().clone();
+        let settings = *self.settings.get().deref();
         processor.prepare_slice(settings);
         let node_idx = self.graph_handle.add_node(NodeType::Buffer(processor));
         let state = EffectNodeState {

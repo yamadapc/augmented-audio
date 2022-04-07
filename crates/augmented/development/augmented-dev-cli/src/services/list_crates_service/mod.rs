@@ -147,7 +147,7 @@ impl ListCratesService {
         }
     }
 
-    fn order_crates(result: &Vec<(String, CargoToml)>) -> Vec<(String, CargoToml)> {
+    fn order_crates(result: &[(String, CargoToml)]) -> Vec<(String, CargoToml)> {
         let mut graph = DependencyGraph::default();
         for (_path, manifest) in result {
             graph.add_crate(&manifest.package.name);
@@ -180,7 +180,7 @@ impl ListCratesService {
     }
 
     fn add_crate_to_graph(
-        path: &String,
+        path: &str,
         dependency_map: &mut HashMap<String, Vec<String>>,
         graph: &mut DependencyGraph,
     ) {

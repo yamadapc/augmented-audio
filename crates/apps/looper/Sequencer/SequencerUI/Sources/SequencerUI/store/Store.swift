@@ -15,12 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  File.swift
-//
-//
-//  Created by Pedro Tacla Yamada on 11/3/2022.
-//
 
 import Combine
 import CoreGraphics
@@ -48,7 +42,7 @@ public class Store: ObservableObject {
     public let processorMetrics = ProcessorMetrics()
     public let midi = MIDIMappingState()
     @Published public var isPlaying: Bool = false
-    @Published public var selectedTrack: Int = 0
+    @Published public var selectedTrack: UInt = 0
 
     @Published var selectedTab: TabValue = .source
     @Published var midiMappingActive = false
@@ -125,17 +119,17 @@ extension Store {
     func startParameterLock(_ id: ParameterId, parameterLockProgress: ParameterLockState) {
         switch id {
         case .sourceParameter(trackId: let trackId, parameterId: _):
-            trackStates[trackId].sourceParameters.parameters
+            trackStates[Int(trackId)].sourceParameters.parameters
                 .first(where: { parameter in parameter.globalId == id })?.parameterLockProgress = parameterLockProgress
         case .envelopeParameter(trackId: let trackId, parameterId: _):
-            trackStates[trackId].envelope.parameters
+            trackStates[Int(trackId)].envelope.parameters
                 .first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
         case let .lfoParameter(trackId: trackId, lfo: lfo, _):
             if lfo == 0 {
-                trackStates[trackId].lfo1.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+                trackStates[Int(trackId)].lfo1.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
             }
             if lfo == 1 {
-                trackStates[trackId].lfo2.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
+                trackStates[Int(trackId)].lfo2.parameters.first(where: { $0.globalId == id })?.parameterLockProgress = parameterLockProgress
             }
         default:
             return
@@ -179,39 +173,39 @@ extension Store {
         selectedTab = tab
     }
 
-    func onClickTrack(_ track: Int) {
+    func onClickTrack(_ track: UInt) {
         selectedTrack = track
     }
 
-    func onClickStep(_ trackId: Int, _ step: Int) {
+    func onClickStep(_ trackId: UInt, _ step: Int) {
         logger.info("Step button clicked", metadata: [
             "trackId": .stringConvertible(trackId),
             "stepId": .stringConvertible(step),
         ])
-        trackStates[trackId].toggleStep(step)
+        trackStates[Int(trackId)].toggleStep(step)
         engine?.toggleStep(track: trackId, step: step)
     }
 
     func currentTrackState() -> TrackState {
-        return trackStates[selectedTrack]
+        return trackStates[Int(selectedTrack)]
     }
 }
 
 public extension Store {
-    func setTrackBuffer(trackId: Int, fromAbstractBuffer buffer: TrackBuffer?) {
-        trackStates[trackId].buffer = buffer
+    func setTrackBuffer(trackId: UInt, fromAbstractBuffer buffer: TrackBuffer?) {
+        trackStates[Int(trackId)].buffer = buffer
     }
 
-    func setSliceBuffer(trackId: Int, fromAbstractBuffer buffer: SliceBuffer?) {
-        trackStates[trackId].sliceBuffer = buffer
-        trackStates[trackId].sourceParameters.slice.maximum = buffer?.count ?? 0
+    func setSliceBuffer(trackId: UInt, fromAbstractBuffer buffer: SliceBuffer?) {
+        trackStates[Int(trackId)].sliceBuffer = buffer
+        trackStates[Int(trackId)].sourceParameters.slice.maximum = buffer?.count ?? 0
     }
 
-    func setTrackBuffer(trackId: Int, fromUnsafePointer buffer: UnsafeBufferPointer<Float32>) {
+    func setTrackBuffer(trackId: UInt, fromUnsafePointer buffer: UnsafeBufferPointer<Float32>) {
         logger.info("Updating track buffer", metadata: [
             "trackId": .stringConvertible(trackId),
         ])
-        trackStates[trackId].buffer = UnsafeBufferTrackBuffer(inner: buffer)
+        trackStates[Int(trackId)].buffer = UnsafeBufferTrackBuffer(inner: buffer)
     }
 }
 

@@ -63,7 +63,7 @@ impl FftProcessor {
         let fft = planner.plan_fft(size, direction);
 
         let mut input_buffer = Vec::with_capacity(size);
-        input_buffer.resize(size, 0.0.into());
+        input_buffer.resize(size, 0.0);
         let mut fft_buffer = Vec::with_capacity(size);
         fft_buffer.resize(size, 0.0.into());
 
@@ -154,8 +154,7 @@ impl SimpleAudioProcessor for FftProcessor {
             self.has_changed = true;
         }
 
-        self.cursor = self.cursor + 1;
-        self.cursor = self.cursor % self.size;
+        self.cursor = (self.cursor + 1) % self.size;
 
         sample
     }

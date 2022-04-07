@@ -29,10 +29,10 @@ struct RecordingButtonsView: View {
             PlayButtonView(store: store, trackState: trackState)
 
             ContinuousButton(
-                    action: { store.onClickClear() },
-                    label: "Clear",
-                    isDisabled: trackState.looperState.isEmpty || store.midiMappingActive,
-                    isSelected: false
+                action: { store.onClickClear() },
+                label: "Clear",
+                isDisabled: trackState.looperState.isEmpty || store.midiMappingActive,
+                isSelected: false
             )
             .bindToParameterId(store: store, parameterId: .clearButton(trackId: trackState.id))
         }

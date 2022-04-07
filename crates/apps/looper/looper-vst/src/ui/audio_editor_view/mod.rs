@@ -71,7 +71,7 @@ impl AudioFileModel {
 
 enum ChartMode {
     Samples,
-    RMS,
+    Rms,
 }
 
 struct VisualizationModel {
@@ -135,8 +135,8 @@ impl AudioEditorView {
 
     fn toggle_chart_mode(&mut self) {
         self.visualization_model.chart_mode = match self.visualization_model.chart_mode {
-            ChartMode::RMS => ChartMode::Samples,
-            ChartMode::Samples => ChartMode::RMS,
+            ChartMode::Rms => ChartMode::Samples,
+            ChartMode::Samples => ChartMode::Rms,
         };
     }
 }
@@ -241,7 +241,7 @@ impl Program<Message> for AudioEditorView {
                     let markers = &self.markers;
                     draw_markers(&mut frame, num_samples, width, markers);
                 }
-                ChartMode::RMS => {
+                ChartMode::Rms => {
                     draw_rms_chart(
                         &mut frame,
                         width,
@@ -262,7 +262,7 @@ fn draw_markers(
     frame: &mut Frame,
     num_samples: f32,
     total_width: f32,
-    markers: &Vec<AudioFileMarker>,
+    markers: &[AudioFileMarker],
 ) {
     for marker in markers {
         let mut path = iced::canvas::path::Builder::new();

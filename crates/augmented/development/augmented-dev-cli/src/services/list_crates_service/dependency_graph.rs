@@ -1,18 +1,10 @@
 use daggy::NodeIndex;
 use std::collections::HashMap;
 
+#[derive(Default)]
 pub struct DependencyGraph {
     graph: daggy::Dag<String, ()>,
     indexes: HashMap<String, NodeIndex>,
-}
-
-impl Default for DependencyGraph {
-    fn default() -> Self {
-        DependencyGraph {
-            graph: Default::default(),
-            indexes: Default::default(),
-        }
-    }
 }
 
 impl DependencyGraph {

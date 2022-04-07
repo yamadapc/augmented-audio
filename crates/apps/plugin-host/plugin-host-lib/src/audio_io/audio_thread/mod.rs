@@ -20,6 +20,7 @@ mod cpal_option_handling;
 pub mod error;
 pub mod options;
 
+#[allow(clippy::large_enum_variant)]
 pub enum AudioThreadProcessor {
     Active(TestHostProcessor),
     Graph(AudioProcessorGraph),

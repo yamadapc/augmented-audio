@@ -33,3 +33,24 @@ impl LongBackoff {
         }
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_backoff_pre_100() {
+        let mut backoff = LongBackoff::new();
+        for _i in 0..90 {
+            backoff.snooze();
+        }
+    }
+
+    #[test]
+    fn test_backoff_past_100() {
+        let mut backoff = LongBackoff::new();
+        for _i in 0..110 {
+            backoff.snooze();
+        }
+    }
+}

@@ -15,12 +15,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  KnobView.swift
-//  Sequencer
-//
-//  Created by Pedro Tacla Yamada on 28/2/2022.
-//
+
+// TODO: - This is too hard to optimise. I will try to rewrite it using AppKit.
+// If it is not faster then I will have to rewrite this app using yet another GUI solution. :(
 
 import AVFAudio
 import SwiftUI
@@ -29,13 +26,13 @@ enum KnobStyle {
     case normal, center
 }
 
-struct TrackBackgroundView: View {
+struct TrackBackgroundView {
     var trackColor: Color
     var strokeWidth: Double
     var radius: Double
 
     var body: some View {
-        Circle()
+        return Circle()
             .trim(from: 0.0, to: 0.75)
             .rotation(Angle(radians: (1.5 * 0.25) * .pi * 2.0))
             .stroke(trackColor, lineWidth: strokeWidth)
@@ -43,7 +40,7 @@ struct TrackBackgroundView: View {
     }
 }
 
-struct TrackSliderView: View {
+struct TrackSliderView {
     var style: KnobStyle
     var value: Double
     var strokeWidth: Double
@@ -53,7 +50,7 @@ struct TrackSliderView: View {
     var body: some View {
         switch self.style {
         case .normal:
-            Circle()
+            return Circle()
                 .trim(from: 0.0, to: 0.75 * value)
                 .rotation(Angle(radians: (1.5 * 0.25) * .pi * 2.0))
                 .stroke(color, lineWidth: strokeWidth)
@@ -65,7 +62,7 @@ struct TrackSliderView: View {
             let rotation = value >= 0
                 ? 0.75 * .pi * 2.0 // if the value is positive, we're rotated up to 12 o'clock
                 : 0.75 * .pi * 2.0 + realSweepAngle * value // if the value is negative we're rotated backwards
-            Circle()
+            return Circle()
                 .trim(from: start, to: end)
                 .rotation(Angle(radians: rotation))
                 .stroke(color, lineWidth: strokeWidth)
@@ -91,9 +88,7 @@ struct KnobView: View {
         renderThumb: false
     )
     var formatValue: ((Double) -> String)? = nil
-    var value: Double = 1.0
-
-    // @State var value: Double = 1.0
+    var value: Double = 0.0
 
     func style(_ style: KnobStyle) -> KnobView {
         KnobView(
@@ -113,29 +108,14 @@ struct KnobView: View {
         let color = SequencerColors.blue
         let trackColor = SequencerColors.black1
 
-        VStack {
-            Text(self.getFormattedValue())
-
-            ZStack {
-                Rectangle()
-                    .fill(Color.red.opacity(0))
-                    .position(x: radius + 5, y: radius - 5)
-                    .frame(width: radius * 2 + 10, height: radius * 2 + 10)
-
-                ZStack {
-                    TrackBackgroundView(trackColor: trackColor, strokeWidth: strokeWidth, radius: radius)
-                    TrackSliderView(
-                        style: style,
-                        value: value,
-                        strokeWidth: strokeWidth,
-                        radius: radius,
-                        color: color
-                    )
-
-                    renderThumbAndPointer()
-                }
-            }
-            .frame(width: radius * 2, height: radius * 2)
+        if #available(macOS 11, *) {
+            MacKnobView(
+                value: Float(self.value),
+                label: label,
+                formattedValue: getFormattedValue(),
+                style: style
+            )
+            .frame(width: radius * 2 + 10, height: radius * 2 + 40)
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 3.0)
@@ -143,8 +123,44 @@ struct KnobView: View {
                     .onEnded { _ in self.onEnded?() },
                 including: .all
             )
+        } else {
+            VStack {
+                Text(self.getFormattedValue())
 
-            Text(label)
+                ZStack {
+                    Rectangle()
+                        .fill(Color.red.opacity(0))
+                        .position(x: radius + 5, y: radius - 5)
+                        .frame(width: radius * 2 + 10, height: radius * 2 + 10)
+                    ZStack {
+                        TrackBackgroundView(
+                            trackColor: trackColor,
+                            strokeWidth: strokeWidth,
+                            radius: radius
+                        ).body
+                        TrackSliderView(
+                            style: style,
+                            value: value,
+                            strokeWidth: strokeWidth,
+                            radius: radius,
+                            color: color
+                        ).body
+
+                        renderThumbAndPointer()
+                    }
+                }
+                .frame(width: radius * 2, height: radius * 2)
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 3.0)
+                        .onChanged { value in self.onGestureChanged(value) }
+                        .onEnded { _ in self.onEnded?() },
+                    including: .all
+                )
+                .fixedSize()
+
+                Text(label)
+            }
         }
     }
 
@@ -200,8 +216,14 @@ struct KnobView: View {
     /// The value is calculated as if this was .normal style and then converted
     func onGestureChanged(_ value: DragGesture.Value) {
         let location = value.location
+
+        // If we are using the macOS native view, then
+        // the Y coordinate is offset by 20px.
         let centerX = radius
-        let centerY = radius
+        var centerY = radius
+        if #available(macOS 11, *) {
+            centerY += 20
+        }
 
         let startAngle = .pi * 0.75
         let sweepAngle = 0.75 * .pi * 2.0
@@ -231,7 +253,6 @@ struct KnobView: View {
             ? newValue
             : newValue * 2 + -1
 
-        // self.value = styledValue
         onChanged?(styledValue)
     }
 }

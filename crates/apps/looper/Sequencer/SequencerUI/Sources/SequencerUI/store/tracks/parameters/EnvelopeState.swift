@@ -41,7 +41,7 @@ extension EnvelopeParameterId {
 public typealias EnvelopeParameter = FloatParameter
 
 public class EnvelopeState: ObservableObject {
-    var trackId: Int
+    var trackId: UInt
     @Published var enabled: BooleanParameter
     @Published var attack: EnvelopeParameter
     @Published var decay: EnvelopeParameter
@@ -65,7 +65,7 @@ public class EnvelopeState: ObservableObject {
 
     var cancellables: Set<AnyCancellable> = Set()
 
-    init(trackId: Int) {
+    init(trackId: UInt) {
         self.trackId = trackId
         enabled = .init(
             id: .envelopeParameter(trackId: trackId, parameterId: .enabled),

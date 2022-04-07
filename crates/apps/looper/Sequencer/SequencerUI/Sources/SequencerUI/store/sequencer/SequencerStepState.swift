@@ -18,7 +18,7 @@
 import Combine
 
 public struct StepId: Hashable {
-    public let trackId: Int
+    public let trackId: UInt
     public let stepIndex: Int
 }
 
@@ -26,7 +26,7 @@ public class SequencerStepState: ObservableObject {
     let id: StepId
     var index: Int { id.stepIndex }
 
-    init(trackId: Int, stepIndex: Int) {
+    init(trackId: UInt, stepIndex: Int) {
         id = StepId(trackId: trackId, stepIndex: stepIndex)
     }
 }

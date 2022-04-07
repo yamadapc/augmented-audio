@@ -104,7 +104,7 @@ impl Program<()> for LooperVisualizationView {
     }
 }
 
-fn draw_audio_chart<'a>(
+fn draw_audio_chart(
     frame: &mut Frame,
     num_samples: f32,
     is_recording: bool,
