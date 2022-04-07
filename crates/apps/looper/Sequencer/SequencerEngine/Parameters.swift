@@ -18,9 +18,6 @@
 import SequencerUI
 import SequencerEngine_private
 
-func getParameterValue(engine: OpaquePointer) {
-}
-
 /**
  * Map from swift parameter type into rust entity type
  */
