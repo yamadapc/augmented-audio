@@ -1,3 +1,4 @@
+use std::time::Duration;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -44,6 +45,10 @@ pub fn prerelease_all_crates(list_crates_service: &ListCratesService) {
 
         if crate_has_changes(&path, &manifest) {
             prerelease_crate(&path, &manifest, &all_crates);
+            log::info!(
+                "Waiting for upload to finish. It takes a while before the crate is visible"
+            );
+            std::thread::sleep(Duration::from_secs(5));
         }
     }
 }
