@@ -26,14 +26,14 @@ pub struct ProjectManager {
     projects: Vec<Shared<Project>>,
 }
 
-pub const PROJECT_MANAGER_DATA_PATH_KEY: &'static str = "CONTINUOUS_DATA_PATH";
+pub const PROJECT_MANAGER_DATA_PATH_KEY: &str = "CONTINUOUS_DATA_PATH";
 
 impl Default for ProjectManager {
     fn default() -> Self {
         let data_path = std::env::var(PROJECT_MANAGER_DATA_PATH_KEY)
             .ok()
-            .map(|p| PathBuf::from(p))
-            .unwrap_or_else(|| data_path());
+            .map(PathBuf::from)
+            .unwrap_or_else(data_path);
         log::info!("Data-path: {:?}", data_path);
         Self::new(data_path)
     }
@@ -80,7 +80,7 @@ impl Handler<SaveProjectMessage> for ProjectManager {
             Ok(project)
         }
         .into_actor(self)
-        .map(|result, _, _| result.map_err(|err| ProjectManagerError::IOError(err)));
+        .map(|result, _, _| result.map_err(ProjectManagerError::IOError));
 
         Box::pin(result_fut)
     }
@@ -132,7 +132,7 @@ async fn load_latest_project(data_path: impl AsRef<Path>) -> Result<Project, Pro
             create_default_project(data_path.as_ref()).await?;
         } else {
             log::error!("Failed to read the project.msgpack manifest file");
-            Err(err)?
+            return Err(err.into())
         }
     }
 
@@ -179,7 +179,7 @@ fn persist_handle_clips(
                 return None;
             }
 
-            let settings = handle.settings().deref().clone();
+            let settings = *handle.settings().deref();
             let clip_path = project_path.join(format!("looper_{}.wav", voice.id));
             let clip = voice.looper().looper_clip();
 
@@ -204,7 +204,7 @@ fn project_from_handle(
         voices: looper_handle
             .voices()
             .iter()
-            .map(|voice| LooperVoicePersist::from(voice))
+            .map(LooperVoicePersist::from)
             .collect(),
         scene_state: looper_handle.scene_handle().clone(),
         looper_clips,

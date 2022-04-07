@@ -98,17 +98,17 @@ pub fn write_looper_clip(
         OutputAudioFileProcessor::from_path(settings, clip_path.to_str().unwrap());
     output_processor.prepare(settings);
 
-    let mut clip_buffer = looper_clip_copy_to_vec_buffer(&clip);
+    let mut clip_buffer = looper_clip_copy_to_vec_buffer(clip);
     output_processor.process(clip_buffer.slice_mut());
 }
 
 fn estimate_file_size<Buffer: AudioBuffer>(audio_file: &Buffer) -> ByteSize {
-    let byte_size = ByteSize::b(
+    
+    ByteSize::b(
         (audio_file.num_channels()
             * audio_file.num_samples()
             * std::mem::size_of::<Buffer::SampleType>()) as u64,
-    );
-    byte_size
+    )
 }
 
 #[cfg(test)]

@@ -7,7 +7,7 @@ pub trait Consumer<T> {
     fn accept(&self, value: T);
 }
 
-impl<T> Consumer<T> for dyn Fn(T) -> () {
+impl<T> Consumer<T> for dyn Fn(T) {
     fn accept(&self, value: T) {
         self(value)
     }

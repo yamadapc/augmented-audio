@@ -88,7 +88,7 @@ impl ParametersMap {
 impl Clone for ParametersMap {
     fn clone(&self) -> Self {
         Self {
-            values: self.values.iter().map(|value| value.clone()).collect(),
+            values: self.values.iter().cloned().collect(),
             has_value: self
                 .has_value
                 .iter()

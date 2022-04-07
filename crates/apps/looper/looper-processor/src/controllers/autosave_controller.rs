@@ -26,7 +26,7 @@ impl AutosaveController {
     ) -> Self {
         let is_running = Arc::new(AtomicBool::new(true));
         let task_handle = {
-            let project_manager = project_manager.clone();
+            let project_manager = project_manager;
             let is_running = is_running.clone();
             actix::spawn(async move {
                 Self::autosave_loop(is_running, project_manager, handle).await;

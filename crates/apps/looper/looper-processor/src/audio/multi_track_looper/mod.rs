@@ -135,7 +135,7 @@ impl MultiTrackLooper {
         time_info_provider: &Shared<TimeInfoProviderImpl>,
     ) -> (Vec<VoiceProcessors>, Vec<LooperVoice>) {
         let processors: Vec<VoiceProcessors> = (0..num_voices)
-            .map(|_| looper_voice::build_voice_processor(&options, &time_info_provider))
+            .map(|_| looper_voice::build_voice_processor(options, time_info_provider))
             .collect();
 
         let voices: Vec<LooperVoice> = processors
@@ -262,7 +262,7 @@ impl MultiTrackLooper {
             Self::process_lfos_for_voice(
                 parameters_scratch_indexes,
                 parameters_scratch,
-                &mut [(lfo1, &voice.lfo1()), (lfo2, &voice.lfo2())],
+                &mut [(lfo1, voice.lfo1()), (lfo2, voice.lfo2())],
                 &voice,
             )
         }

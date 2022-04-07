@@ -5,11 +5,11 @@ use crate::controllers::events_controller::{AddConsumerMessage, ApplicationEvent
 use crate::engine::LooperEngine;
 
 #[no_mangle]
-pub extern "C" fn looper_engine__register_events_callback(
+pub unsafe extern "C" fn looper_engine__register_events_callback(
     engine: *mut LooperEngine,
     callback: ForeignCallback<ApplicationEvent>,
 ) {
-    let engine = unsafe { &*engine };
+    let engine = &*engine;
     let events_controller = engine.events_controller();
     let result = ActorSystemThread::current().spawn_result(async move {
         events_controller
@@ -54,7 +54,9 @@ mod test {
         let looper_engine = LooperEngine::new();
         let looper_engine = Box::into_raw(Box::new(looper_engine));
 
-        looper_engine__register_events_callback(looper_engine, foreign_callback);
+        unsafe {
+            looper_engine__register_events_callback(looper_engine, foreign_callback);
+        }
 
         let events_controller = unsafe { (*looper_engine).events_controller() };
         ActorSystemThread::current().spawn(async move {
