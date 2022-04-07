@@ -12,12 +12,12 @@ pub fn generate_swift_enum(i: &syn::ItemEnum) -> CodegenOutput {
         let variant_code = i
             .variants
             .iter()
-            .map(|variant| generate_variant_swift_ident(variant))
+            .map(generate_variant_swift_ident)
             .collect::<Vec<String>>()
             .join(", ");
         swift_code += &*variant_code;
     }
-    swift_code += &format!(" }}");
+    swift_code += " }}";
     CodegenOutput {
         rust_code: "".to_string(),
         swift_code,
@@ -57,7 +57,7 @@ fn format_type(ty: &Type) -> String {
     match ty {
         Type::Path(pth) => {
             let ident = pth.path.get_ident().unwrap().to_string();
-            type_aliases.get(&ident).map(|s| s.clone()).unwrap_or(ident)
+            type_aliases.get(&ident).cloned().unwrap_or(ident)
         }
         // Type::Ptr(_) => {}
         // Type::Reference(_) => {}
@@ -69,13 +69,13 @@ fn format_type(ty: &Type) -> String {
 
 pub(crate) fn capitalize(result: &str) -> String {
     let mut chars: Vec<char> = result.chars().collect();
-    chars[0] = chars[0].to_uppercase().nth(0).unwrap();
+    chars[0] = chars[0].to_uppercase().next().unwrap();
     chars.into_iter().collect()
 }
 
 pub(crate) fn lower_case(result: &str) -> String {
     let mut chars: Vec<char> = result.chars().collect();
-    chars[0] = chars[0].to_lowercase().nth(0).unwrap();
+    chars[0] = chars[0].to_lowercase().next().unwrap();
     chars.into_iter().collect()
 }
 

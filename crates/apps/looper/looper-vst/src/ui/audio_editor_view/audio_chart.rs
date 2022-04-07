@@ -30,7 +30,7 @@ pub fn draw_samples_chart(
     frame.stroke(&path.build(), Stroke::default().with_color(color));
 }
 
-pub fn draw_rms_chart<'a>(
+pub fn draw_rms_chart(
     frame: &mut Frame,
     // Total width the audio file is projected to occupy
     total_width: f32,

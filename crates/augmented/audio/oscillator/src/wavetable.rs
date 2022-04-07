@@ -51,7 +51,7 @@ impl WaveTableOscillator {
         let sample_rate = 44100.0;
         Self {
             cursor: 0.0,
-            cursor_step: get_cursor_step(frequency, sample_rate, table.len() as f32).into(),
+            cursor_step: get_cursor_step(frequency, sample_rate, table.len() as f32),
             sample_rate,
             frequency,
             table_len: table.len() as f32,

@@ -18,10 +18,7 @@ pub fn initialize_midi_host(
 ) -> (MidiReference, Option<MidiContext>) {
     log::info!("Initializing MIDI Host in the background");
 
-    let midi_host = app
-        .midi()
-        .and(handle)
-        .map(|handle| MidiHost::default_with_handle(handle));
+    let midi_host = app.midi().and(handle).map(MidiHost::default_with_handle);
     let midi_context = midi_host.as_ref().map(|midi_host| {
         let midi_message_queue = midi_host.messages().clone();
         let midi_audio_thread_handler = MidiAudioThreadHandler::default();

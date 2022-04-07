@@ -84,7 +84,7 @@ pub fn read_file_contents(
         }
     });
 
-    if channel_buffers.len() == 0 {
+    if channel_buffers.is_empty() {
         return Err(AudioFileError::EmptyFileError);
     }
 

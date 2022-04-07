@@ -23,13 +23,8 @@ trait AudioFileService {
     fn load_file(&self, input_audio_path: &str) -> Result<AudioFile, AudioFileError>;
 }
 
+#[derive(Default)]
 pub struct AudioFileServiceImpl {}
-
-impl Default for AudioFileServiceImpl {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 impl AudioFileService for AudioFileServiceImpl {
     fn load_file(&self, input_audio_path: &str) -> Result<AudioFile, AudioFileError> {

@@ -103,14 +103,20 @@ pub fn standalone_start(
             app.processor().prepare(settings);
 
             audio_thread_run(
+                AudioThreadRunParams {
+                    io_hints: AudioThreadIOHints {
+                        buffer_size,
+                        num_output_channels,
+                        num_input_channels,
+                    },
+                    cpal_streams: AudioThreadCPalStreams {
+                        output_config,
+                        input_tuple,
+                        output_device,
+                    },
+                    midi_context,
+                },
                 app,
-                midi_context,
-                buffer_size,
-                num_output_channels,
-                num_input_channels,
-                output_config,
-                input_tuple,
-                output_device,
             );
         })
         .unwrap();
@@ -122,6 +128,7 @@ pub fn standalone_start(
 }
 
 #[derive(thiserror::Error, Debug)]
+#[allow(clippy::enum_variant_names)]
 enum AudioThreadError {
     #[error("Failed to configure input stream")]
     BuildInputStreamError(cpal::BuildStreamError),
@@ -133,17 +140,44 @@ enum AudioThreadError {
     OutputStreamError(cpal::PlayStreamError),
 }
 
-// Audio-thread main
-fn audio_thread_run(
-    app: impl StandaloneProcessor,
-    midi_context: Option<MidiContext>,
+/// At this point we have "negotiated" the nº of channels and buffer size.
+/// These will be used in logic on the callbacks as well as to size our ringbuffer.
+struct AudioThreadIOHints {
     buffer_size: usize,
     num_output_channels: usize,
     num_input_channels: usize,
+}
+
+struct AudioThreadCPalStreams {
     output_config: StreamConfig,
     input_tuple: Option<(Device, StreamConfig)>,
     output_device: Device,
-) {
+}
+
+struct AudioThreadRunParams {
+    midi_context: Option<MidiContext>,
+    io_hints: AudioThreadIOHints,
+    cpal_streams: AudioThreadCPalStreams,
+}
+
+// Audio-thread main
+fn audio_thread_run(params: AudioThreadRunParams, app: impl StandaloneProcessor) {
+    let AudioThreadRunParams {
+        midi_context,
+        io_hints,
+        cpal_streams,
+    } = params;
+    let AudioThreadIOHints {
+        buffer_size,
+        num_output_channels,
+        num_input_channels,
+    } = io_hints;
+    let AudioThreadCPalStreams {
+        output_config,
+        input_tuple,
+        output_device,
+    } = cpal_streams;
+
     let build_streams =
         move || -> Result<(Option<cpal::Stream>, cpal::Stream), AudioThreadError> {
             let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
@@ -246,7 +280,7 @@ fn build_input_stream(
                     log::error!("Input error: {:?}", err);
                 },
             )
-            .map_err(|err| AudioThreadError::BuildInputStreamError(err))
+            .map_err(AudioThreadError::BuildInputStreamError)
     });
 
     let input_stream = if let Some(input_stream) = input_stream {

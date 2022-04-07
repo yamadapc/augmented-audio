@@ -14,6 +14,12 @@ pub struct AudioFileManager {
     current_id: FileId,
 }
 
+impl Default for AudioFileManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AudioFileManager {
     pub fn new() -> Self {
         Self {

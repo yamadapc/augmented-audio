@@ -1,7 +1,7 @@
 use std::env;
 use std::io::Read;
 use std::ops::Deref;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process;
 
 use complexity::Complexity;
@@ -26,19 +26,17 @@ fn lint_file(file: &syn::File) {
             syn::Item::Impl(item_impl) => {
                 for impl_item in &item_impl.items {
                     if let ImplItem::Method(method) = impl_item {
-                        match &*item_impl.self_ty {
-                            Type::Path(syn::TypePath { qself: None, path }) => {
-                                let name = format!(
-                                    "{}::{}",
-                                    path.segments.last().unwrap().ident,
-                                    method.sig.ident
-                                );
-                                let complexity = method.complexity();
-                                if complexity >= 15 {
-                                    log::warn!("name={} complexity={}", name, complexity);
-                                }
+                        if let Type::Path(syn::TypePath { qself: None, path }) = &*item_impl.self_ty
+                        {
+                            let name = format!(
+                                "{}::{}",
+                                path.segments.last().unwrap().ident,
+                                method.sig.ident
+                            );
+                            let complexity = method.complexity();
+                            if complexity >= 15 {
+                                log::warn!("name={} complexity={}", name, complexity);
                             }
-                            _ => {}
                         }
                     }
                 }
@@ -114,9 +112,9 @@ fn run_codegen(filename: PathBuf, file: File) {
 }
 
 fn collect_item(
-    filename: &PathBuf,
-    mut c_api_module: &mut String,
-    mut swift_module: &mut String,
+    filename: &Path,
+    c_api_module: &mut String,
+    swift_module: &mut String,
     item: &Item,
 ) {
     match item {
@@ -128,7 +126,7 @@ fn collect_item(
             log::info!("Running over {:?} / {}", filename, en.ident);
 
             let result = generate_swift_enum(en);
-            combine_result(&mut c_api_module, &mut swift_module, result)
+            combine_result(c_api_module, swift_module, result)
         }
         Item::Fn(_) => {}
         Item::Impl(i) => {
@@ -136,13 +134,10 @@ fn collect_item(
                 return;
             }
             for item in &i.items {
-                match item {
-                    ImplItem::Method(method) => {
-                        if let Some(result) = process_impl_method(i, method) {
-                            combine_result(&mut c_api_module, &mut swift_module, result)
-                        }
+                if let ImplItem::Method(method) = item {
+                    if let Some(result) = process_impl_method(i, method) {
+                        combine_result(c_api_module, swift_module, result)
                     }
-                    _ => {}
                 }
             }
         }
@@ -157,7 +152,7 @@ fn collect_item(
                 .find(|attr| attr.path.is_ident("repr"))
                 .map(|attr| attr.parse_args::<Ident>())
             {
-                if repr.to_string() == "C" || repr.to_string() == "transparent" {
+                if repr == "C" || repr == "transparent" {
                     return;
                 }
             }
@@ -165,30 +160,27 @@ fn collect_item(
             let result = generate_opaque_value(OpaqueValueInput {
                 identifier: str.ident.to_string(),
             });
-            combine_result(&mut c_api_module, &mut swift_module, result)
+            combine_result(c_api_module, swift_module, result)
         }
         Item::Type(_) => {}
         _ => {}
     }
 }
 
-fn should_codegen(attrs: &Vec<Attribute>) -> bool {
+fn should_codegen(attrs: &[Attribute]) -> bool {
     attrs.iter().for_each(|attr| {
         log::debug!("ident={:?}", attr.path);
     });
 
-    let has_codegen_attr = attrs
-        .iter()
-        .find(|attr| {
-            let idents: Vec<String> = attr
-                .path
-                .segments
-                .iter()
-                .map(|s| s.ident.to_string())
-                .collect();
-            idents == vec!["augmented_codegen".to_string(), "ffi_export".to_string()]
-        })
-        .is_some();
+    let has_codegen_attr = attrs.iter().any(|attr| {
+        let idents: Vec<String> = attr
+            .path
+            .segments
+            .iter()
+            .map(|s| s.ident.to_string())
+            .collect();
+        idents == vec!["augmented_codegen".to_string(), "ffi_export".to_string()]
+    });
     has_codegen_attr
 }
 
@@ -198,7 +190,7 @@ fn process_impl_method(i: &ItemImpl, method: &ImplItemMethod) -> Option<CodegenO
         _ => return None,
     };
 
-    if method.sig.inputs.len() == 0 {
+    if method.sig.inputs.is_empty() {
         // Check if this is a constructor we can support
         return None;
     }

@@ -26,28 +26,26 @@ fn run_example_snapshot_tests(crate_name: &str, example: &str, update_snapshots:
         .expect("Failed to run example");
 
     let md5_commit =
-        run_fun!(md5 -q test/snapshots/${crate_name}/${example}.wav).unwrap_or("".into());
-    let md5_test =
-        run_fun!(md5 -q test/snapshots/${crate_name}/${example}.tmp.wav).unwrap_or("".into());
+        run_fun!(md5 -q test/snapshots/${crate_name}/${example}.wav).unwrap_or_else(|_| "".into());
+    let md5_test = run_fun!(md5 -q test/snapshots/${crate_name}/${example}.tmp.wav)
+        .unwrap_or_else(|_| "".into());
 
     if update_snapshots {
         if md5_test != md5_commit {
             log::warn!("Updating snapshot {}/{}", crate_name, example,);
             run_cmd!(mv test/snapshots/${crate_name}/${example}.tmp.wav test/snapshots/${crate_name}/${example}.wav).unwrap();
         }
+    } else if md5_test != md5_commit {
+        log::error!(
+            "Test failed for {}/{}\n   Expected: {:?} Received: {:?}",
+            crate_name,
+            example,
+            md5_commit,
+            md5_test
+        );
+        std::process::exit(1);
     } else {
-        if md5_test != md5_commit {
-            log::error!(
-                "Test failed for {}/{}\n   Expected: {:?} Received: {:?}",
-                crate_name,
-                example,
-                md5_commit,
-                md5_test
-            );
-            std::process::exit(1);
-        } else {
-            run_cmd!(rm test/snapshots/${crate_name}/${example}.tmp.wav).unwrap();
-        }
+        run_cmd!(rm test/snapshots/${crate_name}/${example}.tmp.wav).unwrap();
     }
 }
 

@@ -12,13 +12,8 @@ pub enum ExecutorError {
 
 pub type Result<T> = std::result::Result<T, ExecutorError>;
 
+#[derive(Default)]
 pub struct RequestExecutor;
-
-impl Default for RequestExecutor {
-    fn default() -> Self {
-        Self {}
-    }
-}
 
 #[automock]
 impl RequestExecutor {

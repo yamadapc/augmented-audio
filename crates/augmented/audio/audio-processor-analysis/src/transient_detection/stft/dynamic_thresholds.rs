@@ -37,6 +37,8 @@ pub fn calculate_dynamic_thresholds(
         result
     };
 
+    // This lint is no good
+    #[allow(clippy::needless_range_loop)]
     for i in 0..power_of_change_frames.len() {
         for j in 0..power_of_change_frames.bins() {
             let mut sum = 0.0;

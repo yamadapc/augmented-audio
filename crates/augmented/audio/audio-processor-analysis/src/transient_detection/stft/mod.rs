@@ -243,7 +243,7 @@ fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
     fft_size: usize,
     fft_overlap_ratio: f32,
     data: &mut BufferType,
-    fft_frames: &Vec<Vec<Complex<f32>>>,
+    fft_frames: &[Vec<Complex<f32>>],
     transient_magnitude_frames: &mut Vec<Vec<f32>>,
 ) -> Vec<f32> {
     let mut planner = rustfft::FftPlanner::new();
@@ -301,7 +301,7 @@ fn initialize_result_transient_magnitude_frames(magnitudes: &mut Vec<Vec<f32>>) 
         .collect()
 }
 
-fn get_magnitudes(fft_frames: &Vec<Vec<Complex<f32>>>) -> Vec<Vec<f32>> {
+fn get_magnitudes(fft_frames: &[Vec<Complex<f32>>]) -> Vec<Vec<f32>> {
     fft_frames
         .iter()
         .map(|frame| {

@@ -104,6 +104,12 @@ pub struct CompressorProcessor {
     handle: Shared<CompressorHandle>,
 }
 
+impl Default for CompressorProcessor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CompressorProcessor {
     pub fn new() -> Self {
         Self {
