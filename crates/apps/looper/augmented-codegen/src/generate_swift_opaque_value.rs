@@ -34,7 +34,7 @@ pub extern "C" fn boxed__{}__delete(ptr: *mut {}) {{
     swift_code += "    let __innerPtr: OpaquePointer\n";
     swift_code += "    init(rawPtr: OpaquePointer) { self.__innerPtr = rawPtr }\n";
     swift_code += &*format!("    deinit {{ {}(self.__innerPtr) }}\n", destructor_c_name);
-    swift_code += "}}\n";
+    swift_code += "}\n";
 
     CodegenOutput {
         rust_code,

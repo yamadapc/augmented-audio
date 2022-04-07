@@ -17,7 +17,7 @@ pub fn generate_swift_enum(i: &syn::ItemEnum) -> CodegenOutput {
             .join(", ");
         swift_code += &*variant_code;
     }
-    swift_code += " }}";
+    swift_code += " }";
     CodegenOutput {
         rust_code: "".to_string(),
         swift_code,
