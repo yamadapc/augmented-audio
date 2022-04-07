@@ -8,7 +8,7 @@ edition = "2018"
 [dependencies]
 audio-garbage-collector = { version = "1.0.0-alpha.3", path = "../../augmented/audio/audio-garbage-collector" }
 audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../augmented/audio/audio-processor-traits" }
-augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.3" }
+augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.4" }
 augmented_oscillator = { version = "1.0.0-alpha.4", path = "../../augmented/audio/oscillator" }
 audio-processor-standalone = { version = "1.0.0-alpha.9", path = "../../augmented/application/audio-processor-standalone" }
 num = "^0.4.0"

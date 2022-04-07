@@ -23,7 +23,7 @@ audio-processor-standalone = { version = "1.0.0-alpha.9", path = "../application
 audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" , version = "1.0.0-alpha.8" }
 
 # audio
-augmented-adsr-envelope = { path = "../audio/adsr-envelope" , version = "0.1.0-alpha.3" }
+augmented-adsr-envelope = { path = "../audio/adsr-envelope" , version = "0.1.0-alpha.4" }
 audio-garbage-collector = { path = "../audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
 audio-parameter-store = { path = "../audio/audio-parameter-store" }
 audio-processor-graph = { path = "../audio/audio-processor-graph" }
