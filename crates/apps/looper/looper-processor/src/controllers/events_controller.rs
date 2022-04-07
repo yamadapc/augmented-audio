@@ -20,6 +20,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! This is a global application events bus.
+//!
+//! When an application event happens it's broadcasted by this controller.
+//!
+//! It is useful for broadcasting events from the engine into the GUI.
 use actix::{Actor, Handler};
 
 use crate::common::Consumer;
@@ -36,8 +42,6 @@ pub enum ApplicationEvent {
 
 type BoxedConsumer = Box<dyn Consumer<ApplicationEvent> + Send + 'static>;
 
-/// This is a global application events bus. When an application event happens it's broadcasted by
-/// this.
 #[derive(Default)]
 pub struct EventsController {
     consumers: Vec<BoxedConsumer>,

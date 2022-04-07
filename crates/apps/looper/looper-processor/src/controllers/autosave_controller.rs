@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use std::sync::atomic::AtomicBool;
 use std::sync::Arc;
 use std::time::Duration;
@@ -36,6 +37,9 @@ use crate::MultiTrackLooperHandle;
 
 const AUTOSAVE_INTERVAL_SECS: u64 = 30;
 
+/// `AutosaveController` should continuously save the project on the background every
+/// `AUTOSAVE_INTERVAL_SECS`. It'll do this by messaging `ProjectMessage` instructing it to save
+/// the current `MultiTrackLooperHandle`.
 pub struct AutosaveController {
     is_running: Arc<AtomicBool>,
     task_handle: JoinHandle<()>,
