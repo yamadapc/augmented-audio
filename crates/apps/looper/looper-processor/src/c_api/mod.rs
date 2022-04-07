@@ -44,7 +44,7 @@ pub use self::foreign_callback::*;
 pub use self::midi_callback::*;
 
 mod audio_clip_manager;
-mod effects;
+pub mod effects;
 mod entity_id;
 mod events;
 mod foreign_callback;

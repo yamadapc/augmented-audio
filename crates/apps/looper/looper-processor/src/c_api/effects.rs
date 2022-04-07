@@ -28,9 +28,24 @@ use crate::c_api::into_ptr;
 use crate::services::effects_service::{EffectDefinition, EffectParameterModel, EffectsService};
 use crate::LooperEngine;
 
+pub unsafe extern "C" fn c_string_free(str: *mut c_char) {
+    let _ = CString::from_raw(str);
+}
+
 #[repr(C)]
 pub struct CEffectDefinitionsList {
     inner: *mut Vec<*mut EffectDefinition>,
+}
+
+impl Drop for CEffectDefinitionsList {
+    fn drop(&mut self) {
+        unsafe {
+            let v = Box::from_raw(self.inner);
+            for el in v.iter() {
+                let _ = Box::from_raw(*el);
+            }
+        }
+    }
 }
 
 #[no_mangle]
@@ -59,6 +74,12 @@ pub unsafe extern "C" fn effect_parameters__get(
     (*(*parameters).inner)[index]
 }
 
+/// Free this parameters list and all its children
+#[no_mangle]
+pub unsafe extern "C" fn effect_parameters__free(parameters: *mut CEffectParameterList) {
+    let _ = Box::from_raw(parameters);
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn effect_parameter__label(
     parameter: *mut EffectParameterModel,
@@ -69,6 +90,43 @@ pub unsafe extern "C" fn effect_parameter__label(
         .into_raw()
 }
 
+/// List parameters in a definition. This will return a heap allocated list with heap allocated
+/// `EffectParameterModel`. The list owns its children.
+///
+/// If the parent `EffectDefinition` is free-ed while this is used this have dangling pointers.
+///
+/// The caller must call `effect_parameters__free` after using this list.
+///
+/// Rust example:
+/// ```
+/// use std::ffi::CStr;
+/// use looper_processor::c_api::effects::*;
+///
+/// // for clarity, all allocating functions are indented into a block
+/// unsafe {
+///     let list = looper_engine__get_effect_definitions();
+///     let effect1 = effect_definitions__get(list, 0);
+///
+///     {
+///         let effect1_name = effect_definition__name(effect1);
+///         assert_eq!(CStr::from_ptr(effect1_name).to_str().unwrap(), "Reverb");
+///         c_string_free(effect1_name);
+///     }
+///
+///     {
+///         let parameters_list = effect_definition__parameters(effect1);
+///         let parameter1 = effect_parameters__get(parameters_list, 0);
+///         {
+///             let parameter1_name = effect_parameter__label(parameter1);
+///             assert_eq!(CStr::from_ptr(parameter1_name).to_str().unwrap(), "Dry");
+///             c_string_free(parameter1_name);
+///         }
+///         effect_parameters__free(parameters_list);
+///     }
+///
+///     effect_definitions__free(list);
+/// }
+/// ```
 #[no_mangle]
 pub unsafe extern "C" fn effect_definition__parameters(
     definition: *mut EffectDefinition,
@@ -86,6 +144,7 @@ pub unsafe extern "C" fn effect_definition__parameters(
     })
 }
 
+/// Get definition at this position
 #[no_mangle]
 pub unsafe extern "C" fn effect_definitions__get(
     list: *mut CEffectDefinitionsList,
@@ -94,11 +153,33 @@ pub unsafe extern "C" fn effect_definitions__get(
     (*(*list).inner)[index]
 }
 
+/// Get the count of effect definitions in this list
 #[no_mangle]
 pub unsafe extern "C" fn effect_definitions__count(list: *mut CEffectDefinitionsList) -> usize {
     (*(*list).inner).len()
 }
 
+/// Free the definitions list and its children.
+#[no_mangle]
+pub unsafe extern "C" fn effect_definitions__free(list: *mut CEffectDefinitionsList) {
+    let _ = Box::from_raw(list);
+}
+
+/// List all available effects and their parameters, caller must call `effect_definitions__free`
+/// when done.
+///
+/// This returns a heap allocated list of heap allocated effect definition structs. The list owns
+/// the effect definition pointers it references and freeing the list will free them.
+///
+/// Rust example:
+/// ```
+/// use looper_processor::c_api::effects::*;
+///
+/// unsafe {
+///     let list = looper_engine__get_effect_definitions();
+///     effect_definitions__free(list);
+/// }
+/// ```
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_effect_definitions() -> *mut CEffectDefinitionsList {
     let definitions = EffectsService::get_effects();
@@ -108,6 +189,7 @@ pub unsafe extern "C" fn looper_engine__get_effect_definitions() -> *mut CEffect
     })
 }
 
+/// Add an effect of type `EffectType` into the track with `LooperId`.
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_effect(
     engine: *mut LooperEngine,
