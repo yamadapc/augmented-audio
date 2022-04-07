@@ -1,10 +1,12 @@
-# ADSR Envelope
+# augmented-adsr-envelope
+
 [![crates.io](https://img.shields.io/crates/v/adsr-envelope.svg)](https://crates.io/crates/adsr-envelope)
 [![docs.rs](https://docs.rs/adsr-envelope/badge.svg)](https://docs.rs/adsr-envelope/)
 - - -
-Implementation of a ADSR envelope.
+Implementation of an ADSR envelope.
 
-## Usage
+### Usage
+
 ```rust
 use std::time::Duration;
 
@@ -13,7 +15,7 @@ use augmented_adsr_envelope::Envelope;
 fn main() {
   let mut envelope = Envelope::exp();
   envelope.set_sample_rate(44100.0);
-  
+
   envelope.set_attack(Duration::from_millis(200));
 
   envelope.note_on();
@@ -25,5 +27,4 @@ fn main() {
 }
 ```
 
-## License
-MIT
+License: MIT
