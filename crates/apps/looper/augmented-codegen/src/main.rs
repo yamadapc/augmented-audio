@@ -7,8 +7,8 @@ use std::process;
 use complexity::Complexity;
 
 use syn::{
-    Attribute, File, FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl,
-    Pat, PatType, ReturnType, Type,
+    Attribute, File, FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl, Pat, PatType,
+    ReturnType, Type,
 };
 
 use crate::generate_swift_enum::generate_swift_enum;

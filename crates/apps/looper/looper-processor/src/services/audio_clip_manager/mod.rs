@@ -103,7 +103,6 @@ pub fn write_looper_clip(
 }
 
 fn estimate_file_size<Buffer: AudioBuffer>(audio_file: &Buffer) -> ByteSize {
-    
     ByteSize::b(
         (audio_file.num_channels()
             * audio_file.num_samples()

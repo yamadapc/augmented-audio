@@ -132,7 +132,7 @@ async fn load_latest_project(data_path: impl AsRef<Path>) -> Result<Project, Pro
             create_default_project(data_path.as_ref()).await?;
         } else {
             log::error!("Failed to read the project.msgpack manifest file");
-            return Err(err.into())
+            return Err(err.into());
         }
     }
 
