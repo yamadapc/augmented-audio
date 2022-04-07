@@ -15,12 +15,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  SwiftUIView.swift
-//
-//
-//  Created by Pedro Tacla Yamada on 11/3/2022.
-//
 
 import SwiftUI
 
