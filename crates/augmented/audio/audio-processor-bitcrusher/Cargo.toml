@@ -9,7 +9,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 audio-processor-traits = { version = "1.0.0-alpha.4", path = "../audio-processor-traits" }
-audio-garbage-collector = { version = "1.0.0-alpha.2", path = "../audio-garbage-collector" }
+audio-garbage-collector = { version = "1.0.0-alpha.3", path = "../audio-garbage-collector" }
 
 [dev-dependencies]
 audio-processor-standalone = { version = "1.0.0-alpha.8", path = "../../application/audio-processor-standalone" }

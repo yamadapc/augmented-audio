@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-audio-garbage-collector = { path = "../../audio/audio-garbage-collector" }
+audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
 audio-processor-traits = { path = "../../audio/audio-processor-traits" }
 augmented-atomics = { path = "../../data/atomics" }
 log = "^0.4.14"

@@ -18,7 +18,7 @@ vst = { version = "^0.2.1", path = "../../../vendor/vst" }
 # augmented
 atomic-queue = { version = "1.0.0-alpha.2", path = "../../data/atomic-queue" }
 audio-processor-traits = { version = "1.0.0-alpha.4", path = "../../audio/audio-processor-traits" }
-audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
+audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
 
 [dev-dependencies]
 assert_no_alloc = { version = "1.1.2", features = ["warn_release"], default-features = false }

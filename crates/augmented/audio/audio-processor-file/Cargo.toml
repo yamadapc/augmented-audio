@@ -22,7 +22,7 @@ symphonia-format-wav = "0.5.0"
 hound = "^3.4.0"
 
 # Augmented
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.2" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
 audio-processor-traits = { version = "1.0.0-alpha.4", path = "../../../augmented/audio/audio-processor-traits" }
 augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.1" }
 augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.4" }
