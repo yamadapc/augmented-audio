@@ -28,7 +28,7 @@ augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.
 augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.4" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { version = "1.0.0-alpha.4", path = "../../../augmented/testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.5", path = "../../../augmented/testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = false

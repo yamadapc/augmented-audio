@@ -43,7 +43,7 @@ wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger"
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.4" }
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.4" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.5" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "^0.24.0"

@@ -64,7 +64,7 @@ audio-processor-dynamics = { path = "../../../augmented/audio/audio-processor-dy
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.1.0-alpha.4" }
 augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.4" }
 
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.4" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.5" }
 
 [dev-dependencies]
 criterion = "^0.3.4"
