@@ -36,6 +36,10 @@ impl BitCrusherHandleRef {
 }
 
 impl AudioProcessorHandle for BitCrusherHandleRef {
+    fn name(&self) -> String {
+        "Bit-crusher".to_string()
+    }
+
     fn parameter_count(&self) -> usize {
         1
     }

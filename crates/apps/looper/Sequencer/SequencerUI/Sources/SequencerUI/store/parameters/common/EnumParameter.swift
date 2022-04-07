@@ -1,3 +1,4 @@
+import CloudKit
 // = copyright ====================================================================
 // Continuous: Live-looper and performance sampler
 // Copyright (C) 2022  Pedro Tacla Yamada
@@ -27,6 +28,8 @@ public protocol AnyEnumParameter {
     var label: String { get }
 
     var rawValue: UInt { get set }
+
+    func copy() -> Self
 }
 
 public protocol FromRawEnum {
@@ -50,11 +53,15 @@ public class EnumParameter<OptionT: FromRawEnum>: ObservableObject, ParameterLik
     var options: [EnumParameterOption<OptionT>]
     var style: KnobStyle { .normal }
 
-    init(id: ParameterId, label: String, value: OptionT, options: [EnumParameterOption<OptionT>]) {
+    required init(id: ParameterId, label: String, value: OptionT, options: [EnumParameterOption<OptionT>]) {
         globalId = id
         self.label = label
         self.value = value
         self.options = options
         ALL_PARAMETERS.append(AnyParameterInner.enumP(self).into())
+    }
+
+    public func copy() -> Self {
+        return .init(id: globalId, label: label, value: value, options: options)
     }
 }

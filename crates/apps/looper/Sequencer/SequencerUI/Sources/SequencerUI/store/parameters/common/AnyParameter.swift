@@ -26,7 +26,11 @@ protocol ParameterLike {
 }
 
 public enum AnyParameterInner {
-    case float(FloatParameter), int(IntParameter), enumP(AnyEnumParameter), boolean(BooleanParameter)
+    case
+        float(FloatParameter),
+        int(IntParameter),
+        enumP(AnyEnumParameter),
+        boolean(BooleanParameter)
 }
 
 extension AnyParameterInner {
@@ -42,16 +46,25 @@ extension AnyParameterInner {
     func into() -> AnyParameter {
         AnyParameter(inner: self)
     }
+
+    func copy() -> AnyParameterInner {
+        switch self {
+        case let .float(parameter): return .float(parameter.copy())
+        case let .int(parameter): return .int(parameter.copy())
+        case let .enumP(parameter): return .enumP(parameter.copy())
+        case let .boolean(parameter): return .boolean(parameter.copy())
+        }
+    }
 }
 
 /**
  * This is the same as the inner enum, but since ID is constantly read this struct caches the ID
  */
-public struct AnyParameter {
+public struct AnyParameter: Identifiable {
     public let id: ParameterId
     let inner: AnyParameterInner
 
-    init(inner: AnyParameterInner) {
+    public init(inner: AnyParameterInner) {
         self.inner = inner
         id = inner.id
     }
@@ -81,6 +94,36 @@ public struct AnyParameter {
         guard case var .enumP(parameter) = inner else { return }
         if parameter.rawValue != v {
             parameter.rawValue = v
+        }
+    }
+}
+
+extension AnyParameter: ParameterLike {
+    var globalId: ParameterId {
+        id
+    }
+
+    var label: String {
+        switch inner {
+        case let .float(parameter):
+            return parameter.label
+        case let .int(parameter):
+            return parameter.label
+        case let .boolean(parameter):
+            return parameter.label
+        case let .enumP(parameter):
+            return parameter.label
+        }
+    }
+
+    var style: KnobStyle {
+        switch inner {
+        case let .float(parameter):
+            return parameter.style
+        case let .int(parameter):
+            return parameter.style
+        default:
+            return .normal
         }
     }
 }

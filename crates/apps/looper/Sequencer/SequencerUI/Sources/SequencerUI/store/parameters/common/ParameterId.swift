@@ -39,6 +39,7 @@ public indirect enum ParameterId: Equatable, Hashable {
         clearButton(trackId: UInt),
         trackButton(trackId: UInt),
         stepButton(trackId: UInt, stepId: Int),
+        effectsParameter(trackId: UInt, slotId: UInt),
         lfo(trackId: UInt, lfoIndex: Int),
         transportPlay,
         transportStop,
@@ -106,6 +107,8 @@ extension ParameterId {
             return "Parameter lock >> From \(source.toParameterId()) >> Into \(parameterId)"
         case .effectsPage:
             return "Effects"
+        default:
+            return "..."
         }
     }
 }

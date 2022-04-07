@@ -21,5 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 pub mod audio_clip_manager;
+pub mod effects_service;
 pub mod osc_server;
 pub mod project_manager;

@@ -54,6 +54,11 @@ impl AudioProcessorHandle for AudioProcessorEmptyHandle {
 /// This trait can be implemented by AudioProcessor handles to provide runtime introspection on
 /// the parameters that a processor provides.
 pub trait AudioProcessorHandle: Send + Sync {
+    fn name(&self) -> String {
+        "AudioProcessorHandle::name can be set at the processor handle with a name for the handle"
+            .to_string()
+    }
+
     fn parameter_count(&self) -> usize;
     fn get_parameter_spec(&self, index: usize) -> ParameterSpec;
 
@@ -81,13 +86,13 @@ impl TryFrom<ParameterValue> for f32 {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct FloatType {
     pub range: (f32, f32),
     pub step: Option<f32>,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub enum ParameterType {
     Float(FloatType),
 }
@@ -99,7 +104,7 @@ impl ParameterType {
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct ParameterSpec {
     name: String,
     ty: ParameterType,

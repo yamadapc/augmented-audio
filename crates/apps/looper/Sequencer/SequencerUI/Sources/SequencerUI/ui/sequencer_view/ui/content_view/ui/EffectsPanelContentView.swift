@@ -17,10 +17,30 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-struct EffectsPanelContentView: View {
+struct EffectsPanelContentViewInner: View {
+    @ObservedObject var trackState: TrackState
+
     var body: some View {
         HStack {
-            Text("Hello world")
+            if let definition = trackState.selectedEffect?.definition {
+                ForEach(definition.parameters, id: \.id) { parameter in
+                    if case let .float(parameter) = parameter.inner {
+                        ParameterKnobView(
+                            parameter: parameter
+                        )
+                    }
+                }
+            } else {
+                Text("Select an effect slot")
+            }
         }
+    }
+}
+
+struct EffectsPanelContentView: View {
+    @EnvironmentObject var store: Store
+
+    var body: some View {
+        EffectsPanelContentViewInner(trackState: store.currentTrackState())
     }
 }

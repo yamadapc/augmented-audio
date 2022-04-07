@@ -28,6 +28,8 @@ import SequencerUI
  * EngineImpl is a holder for  the *mut LooperEngine* pointer. It creates the audio-engine on init & destroys it when dropped.
  */
 class EngineImpl {
+    let _effectsService = EffectsServiceImpl()
+
     var engine: OpaquePointer!
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineImpl")
 
@@ -58,6 +60,11 @@ class EngineImpl {
 }
 
 extension EngineImpl: SequencerEngine {
+    var effectsService: EffectsService {
+        _effectsService
+    }
+
+
     func loadFile(atPath path: String) {
       path.withCString { cPath in
         looper_engine__load_file(engine, cPath)
@@ -161,7 +168,7 @@ extension EngineImpl: SequencerEngine {
     }
 
     func addEffect(trackId: UInt, effectId: EffectId) {
-        looper_engine__add_effect(engine, trackId, RUST_EFFECT_TYPES[effectId]!)
+        looper_engine__add_effect(engine, trackId, effectId)
     }
 }
 

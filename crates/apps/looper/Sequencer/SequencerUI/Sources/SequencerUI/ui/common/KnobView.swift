@@ -22,7 +22,7 @@
 import AVFAudio
 import SwiftUI
 
-enum KnobStyle {
+public enum KnobStyle {
     case normal, center
 }
 

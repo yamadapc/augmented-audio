@@ -19,58 +19,100 @@
 import Combine
 import SwiftUI
 
-public enum EffectId {
-    case filter, bitcrusher, delay, reverb
-}
+public typealias EffectId = UInt
 
-struct EffectDefinition: Identifiable {
-    let id: EffectId
+public struct EffectDefinition: Identifiable {
+    public let id: EffectId
     let label: String
     let color: Color
+    let parameters: [AnyParameter]
 }
 
-class EffectSlotModel: ObservableObject, Identifiable {
-    var id: Int
+/**
+ * The engine will build effect models dynamically
+ */
+public func buildEffect(
+    id: EffectId,
+    label: String,
+    parameters: [AnyParameter]
+) -> EffectDefinition {
+    return EffectDefinition(
+        id: id,
+        label: label,
+        color: Color.red,
+        parameters: parameters
+    )
+}
+
+public typealias SlotId = UInt
+
+public class EffectSlotModel: ObservableObject, Identifiable {
+    public var id: SlotId
     @Published var definition: EffectDefinition? = nil
 
-    init(slotId: Int, definition: EffectDefinition?) {
+    init(slotId: UInt, definition: EffectDefinition?) {
         id = slotId
         self.definition = definition
     }
 
-    convenience init(slotId: Int) {
+    convenience init(slotId: UInt) {
         self.init(slotId: slotId, definition: nil)
     }
 }
 
 class EffectsRowViewModel: ObservableObject {
-    @Published var creatingEffect: Int? = nil
-    @Published var selectedEffect: Int? = nil
+    @Published var creatingEffect: SlotId? = nil
+    var selectedEffect: SlotId? {
+        get { track.selectedSlot }
+        set {
+            track.selectedSlot = newValue
+        }
+    }
 
     let store: Store
+    let track: TrackState
 
     init(store: Store) {
         self.store = store
+        track = store.currentTrackState()
+        effectDefinitions = store.engine?.effectsService.listEffects() ?? []
     }
 
-    var effectDefinitions: [EffectDefinition] = [
-        .init(id: .filter, label: "Filter", color: SequencerColors.recordColor),
-        .init(id: .bitcrusher, label: "Bitcrusher", color: SequencerColors.green),
-        .init(id: .reverb, label: "Reverb", color: SequencerColors.purple1),
-        .init(id: .delay, label: "Delay", color: SequencerColors.blue),
-    ]
-    var effectSlots: [EffectSlotModel] = (0 ..< 8).map { i in
-        EffectSlotModel(slotId: i)
+    var effectSlots: [EffectSlotModel] {
+        track.effectSlots
     }
 
-    func addEffect(definition: EffectDefinition?, slotId: Int) {
+    var effectDefinitions: [EffectDefinition]
+
+    func addEffect(definition: EffectDefinition?, slotId: UInt) {
         creatingEffect = nil
-        effectSlots[slotId] = EffectSlotModel(slotId: slotId, definition: definition)
-        objectWillChange.send()
+
+        var definitionCopy: EffectDefinition?
+        if let d = definition {
+            definitionCopy = EffectDefinition(
+                id: d.id,
+                label: d.label,
+                color: d.color,
+                parameters: d.parameters.map { parameter in
+                    let p = AnyParameter(
+                        inner: parameter.inner.copy()
+                    )
+                    // p.inner.id = .effectsParameter(trackId: track.id, slotId: slotId)
+                    return p
+                }
+            )
+        }
+        track.effectSlots[Int(slotId)] = EffectSlotModel(
+            slotId: slotId,
+            definition: definitionCopy
+        )
 
         let currentTrack = store.selectedTrack
         if let effectId: EffectId = definition?.id {
-            store.engine?.addEffect(trackId: currentTrack, effectId: effectId)
+            store.engine?.addEffect(
+                trackId: currentTrack,
+                effectId: effectId
+            )
         }
     }
 }

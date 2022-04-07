@@ -33,7 +33,7 @@ public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
         return String(format: "%.2f", parameterLockProgress?.newValue ?? value)
     }
 
-    init(id: ParameterId, label: String) {
+    public init(id: ParameterId, label: String) {
         globalId = id
         self.label = label
         defaultValue = 0.0
@@ -42,7 +42,7 @@ public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
         setupFastPublished(self)
     }
 
-    convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
+    public convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float), initialValue: Float) {
         self.init(id: id, label: label)
         self.style = style
         self.range = range
@@ -50,13 +50,13 @@ public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
         defaultValue = initialValue
     }
 
-    convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float)) {
+    public convenience init(id: ParameterId, label: String, style: KnobStyle, range: (Float, Float)) {
         self.init(id: id, label: label)
         self.style = style
         self.range = range
     }
 
-    convenience init(id: ParameterId, label: String, initialValue: Float) {
+    public convenience init(id: ParameterId, label: String, initialValue: Float) {
         self.init(id: id, label: label)
         value = initialValue
         defaultValue = initialValue
@@ -98,5 +98,17 @@ public class FloatParameter: ObservableObject, Identifiable, ParameterLike {
         ) * (max - min) + min
 
         return result
+    }
+}
+
+extension FloatParameter {
+    func copy() -> FloatParameter {
+        return FloatParameter(
+            id: globalId,
+            label: label,
+            style: style,
+            range: range,
+            initialValue: value
+        )
     }
 }

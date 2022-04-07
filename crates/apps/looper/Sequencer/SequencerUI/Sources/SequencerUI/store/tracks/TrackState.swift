@@ -42,6 +42,19 @@ public class TrackState: ObservableObject {
     @Published var steps: [SequencerStepState?] = (0 ... 16).map { _ in nil }
     @Published var buffer: TrackBuffer? = nil
 
+    @Published var selectedSlot: SlotId?
+    var effectSlots: [EffectSlotModel] = (0 ..< 8).map { i in
+        EffectSlotModel(slotId: i)
+    }
+
+    var selectedEffect: EffectSlotModel? {
+        if let i = selectedSlot {
+            return effectSlots[Int(i)]
+        } else {
+            return nil
+        }
+    }
+
     let position: LoopPosition = .init()
     public var positionPercent: Float {
         get { position.positionPercent }

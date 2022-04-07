@@ -43,6 +43,10 @@ pub struct MonoDelayProcessorHandle {
 struct GenericHandle(Shared<MonoDelayProcessorHandle>);
 
 impl AudioProcessorHandle for GenericHandle {
+    fn name(&self) -> String {
+        "Delay".to_string()
+    }
+
     fn parameter_count(&self) -> usize {
         2
     }

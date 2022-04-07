@@ -18,7 +18,7 @@
 import SwiftUI
 
 struct CreateEffectModalView: View {
-    var slotId: Int
+    var slotId: SlotId
     @ObservedObject var model: EffectsRowViewModel
 
     var body: some View {

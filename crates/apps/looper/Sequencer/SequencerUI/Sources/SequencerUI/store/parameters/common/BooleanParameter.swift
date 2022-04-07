@@ -36,4 +36,12 @@ public class BooleanParameter: ObservableObject, ParameterLike {
 
         setupFastPublished(self)
     }
+
+    func copy() -> BooleanParameter {
+        return BooleanParameter(
+            id: id,
+            label: label,
+            value: value
+        )
+    }
 }

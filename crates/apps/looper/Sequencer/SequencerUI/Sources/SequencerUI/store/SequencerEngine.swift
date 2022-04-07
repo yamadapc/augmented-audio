@@ -22,6 +22,8 @@ import Foundation
  * These are the methods the UI calls when pushing data/events into the engine.
  */
 public protocol SequencerEngine {
+    var effectsService: EffectsService { get }
+
     func onClickPlayheadStop()
     func onClickPlayheadPlay()
 

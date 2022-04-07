@@ -61,6 +61,10 @@ impl FreeverbProcessorHandle {
 struct GenericHandle(Shared<FreeverbProcessorHandle>);
 
 impl AudioProcessorHandle for GenericHandle {
+    fn name(&self) -> String {
+        "Reverb".to_string()
+    }
+
     fn parameter_count(&self) -> usize {
         4
     }

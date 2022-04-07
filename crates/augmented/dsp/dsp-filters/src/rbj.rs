@@ -395,6 +395,12 @@ pub struct FilterProcessor<
     slope: SampleType,
 }
 
+impl Default for FilterProcessor<f32> {
+    fn default() -> Self {
+        Self::new(FilterType::LowPass)
+    }
+}
+
 impl<SampleType> AudioProcessorHandleProvider for FilterProcessor<SampleType>
 where
     SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst,
