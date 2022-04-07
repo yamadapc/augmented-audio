@@ -87,11 +87,7 @@ impl Handler<LoadClipMessage> for AudioClipManager {
     }
 }
 
-pub fn write_looper_clip(
-    settings: AudioProcessorSettings,
-    clip_path: &PathBuf,
-    clip: &LooperClipRef,
-) {
+pub fn write_looper_clip(settings: AudioProcessorSettings, clip_path: &Path, clip: &LooperClipRef) {
     log::info!("Writing audio into {:?}", clip_path);
 
     let mut output_processor =

@@ -26,6 +26,12 @@ pub struct LooperEngine {
     _audio_handles: StandaloneHandles,
 }
 
+impl Default for LooperEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LooperEngine {
     pub fn new() -> Self {
         wisual_logger::init_from_env();

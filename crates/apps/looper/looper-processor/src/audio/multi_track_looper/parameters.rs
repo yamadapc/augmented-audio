@@ -321,7 +321,7 @@ impl ParameterValue {
     }
 }
 
-pub fn build_parameter_indexes(parameter_ids: &Vec<ParameterId>) -> FxHashMap<ParameterId, usize> {
+pub fn build_parameter_indexes(parameter_ids: &[ParameterId]) -> FxHashMap<ParameterId, usize> {
     parameter_ids
         .iter()
         .enumerate()
@@ -441,10 +441,10 @@ macro_rules! usize_conversion {
             }
         }
 
-        impl Into<usize> for $target {
-            fn into(self) -> usize {
+        impl From<$target> for usize {
+            fn from(t: $target) -> usize {
                 use num::ToPrimitive;
-                self.to_usize().unwrap()
+                t.to_usize().unwrap()
             }
         }
     };

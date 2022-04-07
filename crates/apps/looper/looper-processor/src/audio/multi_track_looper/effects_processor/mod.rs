@@ -17,6 +17,7 @@ type SomeHandle = AudioProcessorHandleRef;
 
 #[repr(C)]
 #[derive(Clone, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum EffectType {
     EffectTypeReverb = 0,
     EffectTypeDelay = 1,
