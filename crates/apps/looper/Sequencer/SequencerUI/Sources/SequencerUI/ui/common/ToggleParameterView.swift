@@ -39,6 +39,6 @@ struct ToggleParameterView: View {
                 parameter.value ? 0.8 : 0
             )
         )
-        .bindToParameterId(store: store, parameterId: parameter.id, showSelectionOverlay: false)
+        .bindToParameterId(store: store, parameterId: parameter.globalId, showSelectionOverlay: false)
     }
 }

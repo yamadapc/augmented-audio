@@ -35,11 +35,25 @@ public enum AnyParameterInner {
 
 extension AnyParameterInner {
     var id: ParameterId {
-        switch self {
-        case let .float(parameter): return parameter.globalId
-        case let .int(parameter): return parameter.globalId
-        case let .enumP(parameter): return parameter.globalId
-        case let .boolean(parameter): return parameter.globalId
+        get {
+            switch self {
+            case let .float(parameter): return parameter.globalId
+            case let .int(parameter): return parameter.globalId
+            case let .enumP(parameter): return parameter.globalId
+            case let .boolean(parameter): return parameter.globalId
+            }
+        }
+        set {
+            switch self {
+            case let .float(parameter):
+                parameter.globalId = newValue
+            case let .int(parameter):
+                parameter.globalId = newValue
+            case var .enumP(parameter):
+                parameter.globalId = newValue
+            case let .boolean(parameter):
+                parameter.globalId = newValue
+            }
         }
     }
 
@@ -62,7 +76,7 @@ extension AnyParameterInner {
  */
 public struct AnyParameter: Identifiable {
     public let id: ParameterId
-    let inner: AnyParameterInner
+    var inner: AnyParameterInner
 
     public init(inner: AnyParameterInner) {
         self.inner = inner

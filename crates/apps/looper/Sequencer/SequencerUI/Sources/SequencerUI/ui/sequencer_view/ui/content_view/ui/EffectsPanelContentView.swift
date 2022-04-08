@@ -23,7 +23,7 @@ struct EffectsPanelContentViewInner: View {
     var body: some View {
         HStack {
             if let definition = trackState.selectedEffect?.definition {
-                ForEach(definition.parameters, id: \.id) { parameter in
+                ForEach(definition.parameters, id: \.globalId) { parameter in
                     if case let .float(parameter) = parameter.inner {
                         ParameterKnobView(
                             parameter: parameter

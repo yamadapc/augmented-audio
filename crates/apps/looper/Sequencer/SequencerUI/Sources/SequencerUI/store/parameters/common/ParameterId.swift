@@ -39,7 +39,7 @@ public indirect enum ParameterId: Equatable, Hashable {
         clearButton(trackId: UInt),
         trackButton(trackId: UInt),
         stepButton(trackId: UInt, stepId: Int),
-        effectsParameter(trackId: UInt, slotId: UInt),
+        effectsParameter(trackId: UInt, slotId: UInt, parameterId: UInt),
         lfo(trackId: UInt, lfoIndex: Int),
         transportPlay,
         transportStop,

@@ -95,7 +95,7 @@ class StoreSubscriptionsController {
 
         trackState.sourceParameters.intParameters.forEach { parameter in
             let flush = { (value: Int) in
-                guard case let .sourceParameter(_, parameterId) = parameter.id
+                guard case let .sourceParameter(_, parameterId) = parameter.globalId
                 else { return }
                 self.engine.setSourceParameterInt(
                     looperId,
@@ -109,7 +109,7 @@ class StoreSubscriptionsController {
 
         trackState.sourceParameters.toggles.forEach { toggle in
             let flush = { (value: Bool) in
-                self.engine.setBooleanParameter(looperId, parameterId: toggle.id, value: value)
+                self.engine.setBooleanParameter(looperId, parameterId: toggle.globalId, value: value)
             }
             toggle.$value.sink(receiveValue: { value in flush(value) }).store(in: &cancellables)
             flush(toggle.value)
@@ -165,7 +165,7 @@ class StoreSubscriptionsController {
             )
         }
         trackState.envelope.toggles.forEach { toggle in
-            let rustParameterId = getObjectIdRust(toggle.id)!
+            let rustParameterId = getObjectIdRust(toggle.globalId)!
             let flush = { (value: Bool) in
                 looper_engine__set_boolean_parameter(
                     self.engine.engine,

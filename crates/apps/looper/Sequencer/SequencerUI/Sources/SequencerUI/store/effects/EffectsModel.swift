@@ -92,11 +92,11 @@ class EffectsRowViewModel: ObservableObject {
             definitionCopy = EffectDefinition(
                 id: d.id,
                 label: d.label,
-                parameters: d.parameters.map { parameter in
-                    let p = AnyParameter(
+                parameters: d.parameters.enumerated().map { id, parameter in
+                    var p = AnyParameter(
                         inner: parameter.inner.copy()
                     )
-                    // p.inner.id = .effectsParameter(trackId: track.id, slotId: slotId)
+                    p.inner.id = .effectsParameter(trackId: track.id, slotId: slotId, parameterId: UInt(id))
                     return p
                 },
                 color: d.color

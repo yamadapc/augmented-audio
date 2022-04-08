@@ -24,7 +24,7 @@ struct EnumParameterOption<OptionT> {
 }
 
 public protocol AnyEnumParameter {
-    var globalId: ParameterId { get }
+    var globalId: ParameterId { get set }
     var label: String { get }
 
     var rawValue: UInt { get set }

@@ -63,7 +63,7 @@ class EffectsServiceImpl: EffectsService {
             logger.info("Loaded effect", metadata: ["parameterName": .string(parameterNameStr)])
             let anyParameter = AnyParameter(
                 inner: .float(FloatParameter(
-                    id: .effectsParameter(trackId: 0, slotId: 0),
+                    id: .effectsParameter(trackId: 0, slotId: 0, parameterId: parameterIndex),
                     label: parameterNameStr
                 ))
             )

@@ -18,14 +18,13 @@
 import Combine
 
 public class IntParameter: ObservableObject, Identifiable, ParameterLike {
-    public var id: ParameterId
-    public var globalId: ParameterId { id }
+    public var globalId: ParameterId
     @Published public var label: String
     @Published public var value: Int
     @Published var maximum: Int
 
     init(id: ParameterId, label: String, value: Int, maximum: Int) {
-        self.id = id
+        globalId = id
         self.label = label
         self.value = value
         self.maximum = maximum
@@ -37,7 +36,7 @@ public class IntParameter: ObservableObject, Identifiable, ParameterLike {
 extension IntParameter {
     func copy() -> IntParameter {
         return IntParameter(
-            id: id,
+            id: globalId,
             label: label,
             value: value,
             maximum: maximum

@@ -18,8 +18,7 @@
 import Combine
 
 public class BooleanParameter: ObservableObject, ParameterLike {
-    public var id: ParameterId
-    public var globalId: ParameterId { id }
+    public var globalId: ParameterId
     public var label: String
     @FastPublished public var value: Bool = false
     public var style: KnobStyle { .normal }
@@ -29,7 +28,7 @@ public class BooleanParameter: ObservableObject, ParameterLike {
         label: String,
         value: Bool
     ) {
-        self.id = id
+        globalId = id
         self.label = label
         self.value = value
         ALL_PARAMETERS.append(AnyParameterInner.boolean(self).into())
@@ -39,7 +38,7 @@ public class BooleanParameter: ObservableObject, ParameterLike {
 
     func copy() -> BooleanParameter {
         return BooleanParameter(
-            id: id,
+            id: globalId,
             label: label,
             value: value
         )
