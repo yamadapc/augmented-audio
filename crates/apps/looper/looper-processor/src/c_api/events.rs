@@ -73,7 +73,7 @@ mod test {
             callback: closure_forwarder,
         };
 
-        let looper_engine = LooperEngine::new();
+        let looper_engine = LooperEngine::default();
         let looper_engine = Box::into_raw(Box::new(looper_engine));
 
         unsafe {

@@ -1,0 +1,39 @@
+[package]
+name = "sequencer-vst"
+version = "0.1.0"
+edition = "2018"
+description = "Continuous Looper"
+
+[dependencies]
+log = "^0.4.14"
+
+vst = { path = "../../../vendor/vst" }
+log4rs = { version = "^1.0.0", features = ["rolling_file_appender", "compound_policy", "size_trigger"] }
+dirs = "^3.0.2"
+thiserror = "^1.0.25"
+
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.0.0-alpha.5" }
+
+# Audio
+augmented = { path = "../../../augmented/augmented" }
+audio-processor-analysis = { version = "0.1.0-alpha.5", path = "../../../augmented/audio/audio-processor-analysis" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector", version = "1.0.0-alpha.3" }
+audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
+audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../../augmented/audio/audio-processor-traits" }
+audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
+audio-processor-file = { version = "1.0.0-alpha.5", path = "../../../augmented/audio/audio-processor-file" }
+looper-processor = { path = "../looper-processor" }
+
+tokio = "1.17.0"
+itertools = "0.10.3"
+
+[lib]
+name = "sequencer_vst"
+crate-type = ["cdylib", "lib"]
+
+[package.metadata]
+app.public-name = "Sequencer"
+app.macos.type = "vst"
+app.macos.identifier = "com.beijaflor.SequencerVst"
+bundle.name = "Sequencer"
+bundle.macos.properties.CFBundleGetInfoString = "vst"

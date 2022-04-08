@@ -50,7 +50,7 @@ struct TabsRowView: View {
         (.source, .sourcePage),
         (.slice, .slicePage),
         (.envelope, .envelopePage),
-        (.fx, .effectsPage),
+        // (.fx, .effectsPage),
         // .lfos,
     ]
 

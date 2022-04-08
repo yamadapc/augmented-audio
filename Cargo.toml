@@ -5,6 +5,7 @@ members = [
     "crates/apps/looper/augmented-codegen",
     "crates/apps/looper/looper-processor",
     "crates/apps/looper/looper-vst",
+    "crates/apps/looper/sequencer-vst",
     "crates/apps/plugin-host/plugin-host-cli",
     "crates/apps/plugin-host/plugin-host-gui2",
     "crates/apps/plugin-host/plugin-host-lib",

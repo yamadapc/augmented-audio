@@ -40,7 +40,7 @@ fn test_start_engine_and_record_audio() {
         data_path.path().to_str().unwrap(),
     );
 
-    let engine = LooperEngine::new();
+    let engine = LooperEngine::default();
     // wait for audio-thread to start
     std::thread::sleep(Duration::from_secs(3));
 

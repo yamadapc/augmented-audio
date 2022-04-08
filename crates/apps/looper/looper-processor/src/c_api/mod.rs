@@ -64,7 +64,7 @@ impl<T> From<Shared<T>> for SharedPtr<T> {
 
 #[no_mangle]
 pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
-    let engine = LooperEngine::new();
+    let engine = LooperEngine::default();
     into_ptr(engine)
 }
 
