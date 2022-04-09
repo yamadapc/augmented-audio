@@ -142,6 +142,7 @@ impl Default for LooperHandle {
 pub enum ToggleRecordingResult {
     StartedRecording,
     StoppedRecording,
+    StopRecordingScheduled,
 }
 
 pub enum LooperHandleThread {
@@ -387,9 +388,10 @@ impl LooperHandle {
             let is_stop_scheduled = quantized_offset.map(|offset| offset > 0).unwrap_or(false);
 
             if is_stop_scheduled {
+                log::info!("Stop is scheduled in {:?} samples", quantized_offset);
+                let final_cursor = ((cursor as i32) + quantized_offset.unwrap_or(0)) as usize;
+                self.scheduled_playback.set(final_cursor);
                 self.state.set(LooperState::PlayingScheduled);
-                self.scheduled_playback
-                    .set(((cursor as i32) + quantized_offset.unwrap_or(0)) as usize);
             } else {
                 let scratch_pad = self.scratch_pad.get();
 

@@ -27,11 +27,11 @@ use actix::Addr;
 use basedrop::Shared;
 
 use actix_system_threads::ActorSystemThread;
-use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use audio_processor_standalone::StandaloneHandles;
 
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
+use crate::audio::time_info_provider::HostCallback;
 use crate::controllers::autosave_controller::AutosaveController;
 use crate::controllers::events_controller::EventsController;
 use crate::controllers::load_project_controller;
