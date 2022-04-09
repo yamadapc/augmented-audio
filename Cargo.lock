@@ -6670,28 +6670,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "sequencer-vst"
-version = "0.1.0"
-dependencies = [
- "audio-garbage-collector",
- "audio-parameter-store",
- "audio-plugin-logger",
- "audio-processor-analysis",
- "audio-processor-file",
- "audio-processor-testing-helpers",
- "audio-processor-traits",
- "augmented",
- "dirs 3.0.2",
- "itertools",
- "log",
- "log4rs",
- "looper-processor",
- "thiserror",
- "tokio",
- "vst",
-]
-
-[[package]]
 name = "serde"
 version = "1.0.136"
 source = "registry+https://github.com/rust-lang/crates.io-index"
