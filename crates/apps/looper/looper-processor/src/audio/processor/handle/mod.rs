@@ -388,7 +388,6 @@ impl LooperHandle {
 
             if is_stop_scheduled {
                 self.state.set(LooperState::PlayingScheduled);
-                log::info!("scheduled playback offset={:?}", quantized_offset);
                 self.scheduled_playback
                     .set(((cursor as i32) + quantized_offset.unwrap_or(0)) as usize);
             } else {
@@ -433,9 +432,11 @@ impl LooperHandle {
                     },
                     &mut *result_buffer,
                 );
-                self.time_info_provider.play();
-                self.state.set(LooperState::Playing);
+                if self.tick_time.get() {
+                    self.time_info_provider.play();
+                }
                 self.cursor.set(0.0);
+                self.state.set(LooperState::Playing);
             }
         } else if old_state == LooperState::Overdubbing {
             self.state.set(LooperState::Playing);
@@ -602,7 +603,6 @@ impl LooperHandle {
         let current_scratch_cursor = scratch_pad.cursor();
         let scheduled_playback = self.scheduled_playback.get();
         if current_scratch_cursor >= scheduled_playback {
-            log::info!("stopping recording");
             self.stop_recording_audio_thread_only();
         } else {
             self.length.fetch_add(1, Ordering::Relaxed);
@@ -678,10 +678,12 @@ fn calculate_fade_volume(fade_perc: f32, length: usize, cursor: f32) -> f32 {
 
 #[cfg(test)]
 mod test {
-    use crate::LooperProcessor;
     use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::assert_f_eq;
+
     use audio_processor_traits::AudioProcessor;
+
+    use crate::LooperProcessor;
 
     use super::*;
 
@@ -777,10 +779,12 @@ mod test {
     #[test]
     fn test_stop_recording_does_not_allocate() {
         let handle = LooperHandle::default();
+        handle.prepare(AudioProcessorSettings::default());
         handle.start_recording();
         let buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
         for sample in buffer.slice() {
             handle.process(0, *sample);
+            handle.after_process();
         }
         assert_eq!(handle.state.get(), LooperState::Recording);
         assert_no_alloc(|| {

@@ -50,12 +50,6 @@ impl LoopQuantizer {
             LoopQuantizerMode::None => input.position_samples as i32,
             LoopQuantizerMode::SnapNext { beats } => {
                 let quantized_position_beats = snap_next_beat(*beats, input.position_beats);
-                log::info!(
-                    "Quantization result beats={} input_beats={} quantized_beats={}",
-                    beats,
-                    input.position_beats,
-                    quantized_position_beats
-                );
                 Self::build_result_position_samples(&input, quantized_position_beats)
             }
             LoopQuantizerMode::SnapClosest {

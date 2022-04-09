@@ -1,3 +1,4 @@
+use assert_no_alloc::assert_no_alloc;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,8 +22,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use rustc_hash::FxHashMap as HashMap;
-
-use assert_no_alloc::assert_no_alloc;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
@@ -494,6 +493,7 @@ mod test {
     use crate::audio::multi_track_looper::parameters::EntityId;
     use crate::audio::processor::handle::LooperState;
     use crate::parameters::SourceParameter;
+    use crate::LooperHandleThread;
 
     use super::*;
 
@@ -660,6 +660,159 @@ mod test {
         let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
         processor.process(&mut buffer);
         assert_eq!(buffer.slice(), [3.0, 4.0, 3.0, 4.0])
+    }
+
+    #[test]
+    fn test_record_into_single_looper() {
+        let mut processor = MultiTrackLooper::default();
+        processor.prepare(AudioProcessorSettings {
+            sample_rate: 10.0, // 10 samples per sec
+            ..AudioProcessorSettings::default()
+        });
+        // "4 seconds" of audio;
+        let num_samples = 40;
+
+        processor
+            .handle()
+            .toggle_recording(LooperId(0), LooperHandleThread::OtherThread);
+        // Record 0..40 into the first looper
+        let mut buffer = range_buffer(num_samples);
+        processor.process(&mut buffer);
+
+        // Stop recording and check output
+        processor
+            .handle()
+            .toggle_recording(LooperId(0), LooperHandleThread::OtherThread);
+        let mut buffer = VecAudioBuffer::empty_with(1, num_samples, 0.0);
+        processor.process(&mut buffer);
+
+        assert_eq!(
+            buffer.slice(),
+            &(0..num_samples)
+                .into_iter()
+                .map(|i| i as f32)
+                .collect::<Vec<f32>>()
+        );
+        // Check internal state
+        assert_eq!(
+            processor
+                .handle()
+                .time_info_provider()
+                .get_time_info()
+                .is_playing(),
+            true
+        );
+        assert_eq!(
+            processor
+                .handle()
+                .time_info_provider()
+                .get_time_info()
+                .tempo(),
+            Some(120.0)
+        );
+    }
+
+    #[test]
+    fn test_record_into_two_synced_loopers() {
+        let mut processor = MultiTrackLooper::default();
+        processor.prepare(AudioProcessorSettings {
+            sample_rate: 10.0, // 10 samples per sec
+            ..AudioProcessorSettings::default()
+        });
+        // "4 seconds" of audio; this is going to be 2 bars at 120 bpm
+        // each beat is 5 samples, each bar is 20 samples
+        let num_samples = 40;
+
+        processor
+            .handle()
+            .toggle_recording(LooperId(0), LooperHandleThread::OtherThread);
+        // Record 0..40 into the first looper
+        let mut buffer = range_buffer(num_samples);
+        processor.process(&mut buffer);
+
+        // Stop recording
+        processor
+            .handle()
+            .toggle_recording(LooperId(0), LooperHandleThread::OtherThread);
+
+        // Advance by 10 samples
+        let mut buffer = VecAudioBuffer::empty_with(1, 10, 0.0);
+        processor.process(&mut buffer);
+
+        // Trigger recording second looper
+        processor
+            .handle()
+            .toggle_recording(LooperId(1), LooperHandleThread::OtherThread);
+        assert_eq!(
+            processor.handle().get_looper_state(LooperId(1)),
+            LooperState::RecordingScheduled
+        );
+
+        // Tick 10 samples
+        for _i in 0..10 {
+            assert_eq!(
+                processor.handle().get_looper_state(LooperId(1)),
+                LooperState::RecordingScheduled
+            );
+            let mut buffer = VecAudioBuffer::empty_with(1, 1, 0.0);
+            processor.process(&mut buffer);
+        }
+
+        assert_eq!(
+            processor.handle().get_looper_state(LooperId(1)),
+            LooperState::Recording
+        );
+
+        // Record 30 samples in
+        let mut buffer = range_buffer(30);
+        processor.process(&mut buffer);
+        processor
+            .handle()
+            .toggle_recording(LooperId(1), LooperHandleThread::OtherThread);
+
+        // Advance 10 samples
+        for i in 0..10 {
+            assert_eq!(
+                processor.handle().get_looper_state(LooperId(1)),
+                LooperState::PlayingScheduled
+            );
+            let mut buffer = VecAudioBuffer::empty_with(1, 1, 0.0);
+            buffer.set(0, 0, i as f32);
+            processor.process(&mut buffer);
+        }
+
+        assert_eq!(
+            processor.handle().get_looper_state(LooperId(1)),
+            LooperState::Playing
+        );
+
+        // Test output; mute looper 0
+        processor.handle().set_volume(LooperId(0), 0.0);
+        let mut buffer = VecAudioBuffer::empty_with(1, 40, 0.0);
+        processor.process(&mut buffer);
+        assert_eq!(
+            &buffer
+                .slice()
+                .into_iter()
+                .map(|f| (f * 10.0) as usize)
+                // TODO - This is broken; the clip should be 40 samples long
+                .take(39)
+                .collect::<Vec<usize>>(),
+            &(0..30)
+                .into_iter()
+                .chain((0..9).into_iter())
+                .map(|i| i as f32)
+                .map(|f| (f * 10.0) as usize)
+                .collect::<Vec<usize>>()
+        );
+    }
+
+    fn range_buffer(num_samples: usize) -> VecAudioBuffer<f32> {
+        let mut buffer = VecAudioBuffer::empty_with(1, num_samples, 0.0);
+        for i in 0..num_samples {
+            buffer.set(0, i, i as f32);
+        }
+        buffer
     }
 
     #[test]
