@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "CB801A1427D8AE6600D7788E"
-               BuildableName = "Continuous.app"
-               BlueprintName = "Sequencer Mac"
+               BuildableName = "Continuous Looper.app"
+               BlueprintName = "Continuous Looper"
                ReferencedContainer = "container:Sequencer.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -55,8 +55,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CB801A1427D8AE6600D7788E"
-            BuildableName = "Continuous.app"
-            BlueprintName = "Sequencer Mac"
+            BuildableName = "Continuous Looper.app"
+            BlueprintName = "Continuous Looper"
             ReferencedContainer = "container:Sequencer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -79,8 +79,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "CB801A1427D8AE6600D7788E"
-            BuildableName = "Continuous.app"
-            BlueprintName = "Sequencer Mac"
+            BuildableName = "Continuous Looper.app"
+            BlueprintName = "Continuous Looper"
             ReferencedContainer = "container:Sequencer.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

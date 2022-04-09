@@ -191,7 +191,7 @@
 		CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationEventStream.swift; sourceTree = "<group>"; };
 		CB59A60C27FF057E004BC156 /* EffectsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsService.swift; sourceTree = "<group>"; };
 		CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsServiceTests.swift; sourceTree = "<group>"; };
-		CB801A1527D8AE6600D7788E /* Continuous.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Continuous.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB801A1527D8AE6600D7788E /* Continuous Looper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Continuous Looper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		CB801A1B27D8AE6600D7788E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -317,7 +317,7 @@
 				CB1666A427CCAD04000F9E21 /* Sequencer.app */,
 				CB1666B427CCAD07000F9E21 /* SequencerTests.xctest */,
 				CB1666BE27CCAD07000F9E21 /* SequencerUITests.xctest */,
-				CB801A1527D8AE6600D7788E /* Continuous.app */,
+				CB801A1527D8AE6600D7788E /* Continuous Looper.app */,
 				CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */,
 				CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */,
 				CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */,
@@ -643,9 +643,9 @@
 			productReference = CB3948F627ED24BA009A650D /* Sequencer MacUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		CB801A1427D8AE6600D7788E /* Sequencer Mac */ = {
+		CB801A1427D8AE6600D7788E /* Continuous Looper */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = CB801A2327D8AE6600D7788E /* Build configuration list for PBXNativeTarget "Sequencer Mac" */;
+			buildConfigurationList = CB801A2327D8AE6600D7788E /* Build configuration list for PBXNativeTarget "Continuous Looper" */;
 			buildPhases = (
 				CB801A1127D8AE6600D7788E /* Sources */,
 				CB801A1227D8AE6600D7788E /* Frameworks */,
@@ -659,11 +659,11 @@
 				CBA4DA9527DDF21800A530E3 /* PBXTargetDependency */,
 				CB3948E127EA6BFC009A650D /* PBXTargetDependency */,
 			);
-			name = "Sequencer Mac";
+			name = "Continuous Looper";
 			packageProductDependencies = (
 			);
 			productName = "Sequencer Mac";
-			productReference = CB801A1527D8AE6600D7788E /* Continuous.app */;
+			productReference = CB801A1527D8AE6600D7788E /* Continuous Looper.app */;
 			productType = "com.apple.product-type.application";
 		};
 		CBA4DA8F27DDF21800A530E3 /* SequencerEngine */ = {
@@ -788,7 +788,7 @@
 				CB1666A327CCAD04000F9E21 /* Sequencer */,
 				CB1666B327CCAD07000F9E21 /* SequencerTests */,
 				CB1666BD27CCAD07000F9E21 /* SequencerUITests */,
-				CB801A1427D8AE6600D7788E /* Sequencer Mac */,
+				CB801A1427D8AE6600D7788E /* Continuous Looper */,
 				CBA4DA8F27DDF21800A530E3 /* SequencerEngine */,
 				CBA4DAAA27DDF67700A530E3 /* SequencerEngine_ios */,
 				CB3948C327EA6BFC009A650D /* Sequencer AudioUnit */,
@@ -1012,7 +1012,7 @@
 		};
 		CB3948FD27ED24BA009A650D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = CB801A1427D8AE6600D7788E /* Sequencer Mac */;
+			target = CB801A1427D8AE6600D7788E /* Continuous Looper */;
 			targetProxy = CB3948FC27ED24BA009A650D /* PBXContainerItemProxy */;
 		};
 		CB801A4527D8B13B00D7788E /* PBXTargetDependency */ = {
@@ -1443,7 +1443,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Looper app";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "The app needs audio input to provide live-looping functionality.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1452,7 +1452,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer-Mac";
-				PRODUCT_NAME = Continuous;
+				PRODUCT_NAME = "Continuous Looper";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1476,7 +1476,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.music";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
-				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Looper app";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "The app needs audio input to provide live-looping functionality.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1485,7 +1485,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer-Mac";
-				PRODUCT_NAME = Continuous;
+				PRODUCT_NAME = "Continuous Looper";
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -1733,7 +1733,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CB801A2327D8AE6600D7788E /* Build configuration list for PBXNativeTarget "Sequencer Mac" */ = {
+		CB801A2327D8AE6600D7788E /* Build configuration list for PBXNativeTarget "Continuous Looper" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				CB801A2127D8AE6600D7788E /* Debug */,
