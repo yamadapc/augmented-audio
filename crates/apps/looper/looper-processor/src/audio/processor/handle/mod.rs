@@ -700,9 +700,8 @@ impl LooperHandle {
         let current_scratch_cursor = scratch_pad.cursor();
         let scheduled_playback = self.scheduled_playback.get();
         // TODO - this is broken when the cursor wraps around its maximum
-        AudioThreadLogger::handle().info("After process playing scheduled");
         if current_scratch_cursor >= scheduled_playback {
-            AudioThreadLogger::handle().info("Stopping recording");
+            AudioThreadLogger::handle().info("Stopping recording after playing scheduled");
             self.stop_recording_audio_thread_only();
         } else {
             self.length.fetch_add(1, Ordering::Relaxed);

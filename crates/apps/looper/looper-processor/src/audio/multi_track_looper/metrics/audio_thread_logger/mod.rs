@@ -34,13 +34,12 @@ lazy_static! {
     static ref AUDIO_THREAD_LOGGER: AudioThreadLogger = AudioThreadLogger::new();
 }
 
-pub struct LogMessage {
+struct LogMessage {
     level: log::Level,
     message: &'static str,
 }
 
 pub struct AudioThreadLoggerHandle {
-    #[allow(unused)]
     queue: Queue<LogMessage>,
 }
 
@@ -96,5 +95,28 @@ impl AudioThreadLogger {
 impl Drop for AudioThreadLogger {
     fn drop(&mut self) {
         self.is_running.store(false, Ordering::Relaxed);
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::time::Duration;
+
+    use super::*;
+
+    #[test]
+    fn test_create_drop_logger() {
+        wisual_logger::init_from_env();
+        let logger = AudioThreadLogger::new();
+        std::mem::drop(logger);
+    }
+
+    #[test]
+    fn test_log_a_message() {
+        wisual_logger::init_from_env();
+        let logger = AudioThreadLogger::new();
+        let handle = logger.handle.clone();
+        handle.info("Hello world");
+        std::thread::sleep(Duration::from_millis(200));
     }
 }
