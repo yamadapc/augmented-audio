@@ -512,6 +512,11 @@ impl LooperHandle {
     /// Since another reader might have a reference to the buffer, in this scheme, we need to swap
     /// buffers here. A temporary buffer is used. Samples are copied onto it and then that buffer
     /// is swapped with the current playback buffer.
+    ///
+    /// With the swap buffer, this is the only implementation we need.
+    ///
+    /// However, the UI thread implementation is also performing stop quantisation, which we don't
+    /// need on the audio-thread.
     fn stop_recording_audio_thread_only(&self) {
         let old_state = self.state.get();
         if old_state == LooperState::Recording || old_state == LooperState::PlayingScheduled {
@@ -533,6 +538,7 @@ impl LooperHandle {
                 self.cursor.set(0.0);
                 self.state.set(LooperState::Playing);
             }
+            self.looper_clip1.set(self.looper_clip.get());
             self.looper_clip.set(shared_buffer);
         } else if old_state == LooperState::Overdubbing {
             self.state.set(LooperState::Playing);
