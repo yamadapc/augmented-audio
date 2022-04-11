@@ -38,16 +38,19 @@ impl LongBackoff {
         }
     }
 
+    /// Reset the backoff. Must be called when there's work otherwise the thread will always sleep
+    /// for the maximum duration.
     pub fn reset(&mut self) {
         self.backoff.reset();
         self.iterations = 0;
     }
 
-    /// Snoozes with backoff for the first 100 iterations.
+    /// Snoozes with backoff for the first 7 iterations, this should perform very short waits that
+    /// grow exponentially in time. After this, crossbeam::Backoff will yield the current thread 3
+    /// times.
     ///
-    /// Then starts sleeping from 1ms to 127ms with delays growing exponentially.
-    ///
-    /// Sleeps for at most 127ms
+    /// After this, the thread will sleep at exponentially increasing delays from 1ms to 127ms.
+    /// Once the delay is 127ms this function will repeatedly sleep for 127ms.
     pub fn snooze(&mut self) {
         if self.backoff.is_completed() {
             let iteration = self.iterations.min(7); // 0-7
