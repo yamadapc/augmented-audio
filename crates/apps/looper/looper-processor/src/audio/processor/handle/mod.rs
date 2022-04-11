@@ -50,7 +50,7 @@ mod utils;
 #[cfg_attr(doc, aquamarine::aquamarine)]
 /// `LooperState` represents the current state the looper is in.
 ///
-/// The following is a diagram of all states and possible transitions:
+/// The following is a simplified diagram of states and possible transitions:
 ///
 /// ```mermaid
 /// stateDiagram-v2
@@ -67,6 +67,11 @@ mod utils;
 ///     Paused --> PlayingScheduled
 ///     PlayingScheduled --> Playing            
 /// ```
+///
+/// This is simplified because there's an "overdubbing" state, which is separate from recording
+/// and because pause/stop can be called at any point & currently is not well defined (it's on the
+/// caller to decide and implement if pausing the looper mid recording should capture the partial
+/// recording or do something else).
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum LooperState {
