@@ -81,6 +81,7 @@ impl AudioThreadLogger {
         while is_running.load(Ordering::Relaxed) {
             if let Some(message) = handle.queue.pop() {
                 log::log!(message.level, "{}", message.message);
+                long_backoff.reset();
             } else {
                 long_backoff.snooze();
             }

@@ -202,6 +202,7 @@ impl MidiStoreActor {
         while self.is_running.load(Ordering::Relaxed) {
             if let Some(event) = self.events_queue.pop() {
                 self.on_receive_event(event);
+                backoff.reset();
             } else {
                 backoff.snooze();
             }

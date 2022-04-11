@@ -38,41 +38,75 @@ impl LongBackoff {
         }
     }
 
+    pub fn reset(&mut self) {
+        self.backoff.reset();
+        self.iterations = 0;
+    }
+
     /// Snoozes with backoff for the first 100 iterations.
     ///
     /// Then starts sleeping from 1ms to 127ms with delays growing exponentially.
     ///
     /// Sleeps for at most 127ms
     pub fn snooze(&mut self) {
-        if self.iterations < 100 {
-            self.iterations += 1;
-            self.backoff.snooze();
-        } else {
-            self.iterations += 1;
-            let iteration = (self.iterations - 100).min(7); // 0-7
+        if self.backoff.is_completed() {
+            let iteration = self.iterations.min(7); // 0-7
             let sleep_time = 2_u64.pow(iteration as u32); // 2^i
             std::thread::sleep(Duration::from_millis(sleep_time));
+            self.iterations += 1;
+        } else {
+            self.backoff.snooze();
         }
     }
 }
 
 #[cfg(test)]
 mod test {
+    use std::time::Instant;
+
+    use audio_processor_testing_helpers::charts::draw_vec_chart;
+    use audio_processor_testing_helpers::relative_path;
+
     use super::*;
 
     #[test]
-    fn test_backoff_pre_100() {
+    fn test_backoff_pre_10() {
         let mut backoff = LongBackoff::new();
-        for _i in 0..90 {
+        let mut durations = vec![];
+
+        for _i in 0..10 {
+            let start = Instant::now();
+
             backoff.snooze();
+
+            let sleep_time = start.elapsed();
+            durations.push(sleep_time.as_nanos() as f32);
         }
+
+        draw_vec_chart(
+            &*relative_path!("src/audio/multi_track_looper/long_backoff"),
+            "backoff-example-pre-10__nanoseconds",
+            durations,
+        );
     }
 
     #[test]
-    fn test_backoff_past_100() {
+    fn test_backoff_past_20() {
         let mut backoff = LongBackoff::new();
-        for _i in 0..110 {
+        let mut durations = vec![];
+        for _i in 0..20 {
+            let start = Instant::now();
+
             backoff.snooze();
+
+            let sleep_time = start.elapsed();
+            durations.push(sleep_time.as_nanos() as f32);
         }
+
+        draw_vec_chart(
+            &*relative_path!("src/audio/multi_track_looper/long_backoff"),
+            "backoff-example-past-100__nanoseconds",
+            durations,
+        );
     }
 }
