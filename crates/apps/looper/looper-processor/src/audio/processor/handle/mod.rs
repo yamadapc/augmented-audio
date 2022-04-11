@@ -398,7 +398,9 @@ impl LooperHandle {
             self.length.store(0, Ordering::Relaxed);
             // Start overdub
         } else if old_state == LooperState::Paused || old_state == LooperState::Playing {
-            self.time_info_provider.play();
+            if self.tick_time.get() {
+                self.time_info_provider.play();
+            }
             self.state.set(LooperState::Overdubbing);
         }
 
@@ -421,6 +423,7 @@ impl LooperHandle {
             self.time_info_provider.play();
         }
         self.state.set(LooperState::Playing);
+        // TODO - This should be a parameter, or there should be a "Stopped" state
         self.cursor.set(self.get_start_samples());
     }
 
@@ -433,7 +436,9 @@ impl LooperHandle {
         if self.tick_time.get() {
             self.time_info_provider.pause();
         }
-        self.state.set(LooperState::Paused);
+        if self.state.get() != LooperState::Empty {
+            self.state.set(LooperState::Paused);
+        }
     }
 
     pub fn stop_recording(&self, thread: LooperHandleThread) {
@@ -752,6 +757,162 @@ mod test {
     use crate::LooperProcessor;
 
     use super::*;
+
+    mod transitions {
+        use audio_processor_testing_helpers::assert_f_eq;
+
+        use audio_garbage_collector::make_shared;
+        use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
+        use augmented_atomics::AtomicValue;
+
+        use crate::audio::processor::handle::LooperState;
+        use crate::QuantizeMode::SnapNext;
+        use crate::{
+            LooperHandleThread, LooperOptions, LooperProcessorHandle, QuantizeMode,
+            TimeInfoProvider, TimeInfoProviderImpl,
+        };
+
+        #[test]
+        fn test_start_recording_when_empty() {
+            let looper = LooperProcessorHandle::default();
+            looper.prepare(test_settings());
+
+            // Move the looper 3 samples forward
+            looper.process(0, 0.0);
+            looper.after_process();
+            looper.process(0, 0.0);
+            looper.after_process();
+            looper.process(0, 0.0);
+            looper.after_process();
+
+            let state = looper.start_recording();
+            assert_eq!(state, LooperState::Recording);
+            assert_eq!(looper.playhead(), 0, "Playhead is not moving yet");
+            assert_eq!(
+                looper.start_cursor.get(),
+                3,
+                "Start cursor is set to current scratch index"
+            );
+            assert_eq!(looper.length.get(), 0);
+        }
+
+        #[test]
+        fn test_start_recording_when_empty_with_quantization() {
+            let looper = LooperProcessorHandle::default();
+            looper.prepare(test_settings());
+            // 1 beat per sec
+            looper.set_tempo(60.0);
+            looper.quantize_options().set_mode(SnapNext);
+
+            // Move the looper 3 samples forward, we're now past beat 0 and
+            // the looper should wait until sample 400 to start recording
+            looper.process(0, 0.0);
+            looper.after_process();
+            looper.process(0, 0.0);
+            looper.after_process();
+            looper.process(0, 0.0);
+            looper.after_process();
+
+            looper.start_recording();
+            assert_eq!(looper.state(), LooperState::RecordingScheduled);
+            assert_eq!(looper.playhead(), 0, "Playhead is not moving yet");
+            assert_eq!(
+                looper.start_cursor.get(),
+                400,
+                "Start cursor is set to sample 400 which isn't set yet"
+            );
+            assert_eq!(looper.length.get(), 0);
+        }
+
+        #[test]
+        fn test_start_recording_when_paused() {
+            let looper = LooperProcessorHandle::default();
+            looper.prepare(test_settings());
+            looper.set_looper_buffer(&VecAudioBuffer::empty_with(1, 100, 0.0));
+            assert_eq!(looper.state(), LooperState::Paused);
+
+            looper.start_recording();
+            assert_eq!(looper.state(), LooperState::Overdubbing);
+        }
+
+        #[test]
+        fn test_start_recording_when_playing() {
+            let looper = LooperProcessorHandle::default();
+            looper.prepare(test_settings());
+            looper.set_looper_buffer(&VecAudioBuffer::empty_with(1, 100, 0.0));
+            assert_eq!(looper.state(), LooperState::Paused);
+            looper.play();
+            assert_eq!(looper.state(), LooperState::Playing);
+
+            looper.start_recording();
+            assert_eq!(looper.state(), LooperState::Overdubbing);
+        }
+
+        #[test]
+        fn test_play_when_empty() {
+            let looper = LooperProcessorHandle::default();
+            looper.prepare(test_settings());
+            assert_eq!(looper.state(), LooperState::Empty);
+            looper.play();
+            assert_eq!(looper.state(), LooperState::Playing);
+        }
+
+        #[test]
+        fn test_pause_when_empty() {
+            let looper = LooperProcessorHandle::default();
+            looper.prepare(test_settings());
+            assert_eq!(looper.state(), LooperState::Empty);
+            looper.pause();
+            assert_eq!(looper.state(), LooperState::Empty);
+        }
+
+        #[test]
+        fn test_empty_into_recording() {
+            let time_info_provider = make_shared(TimeInfoProviderImpl::new(None));
+            let looper =
+                LooperProcessorHandle::new(LooperOptions::default(), time_info_provider.clone());
+
+            // 1 beat per second
+            time_info_provider.set_tempo(60.0);
+            time_info_provider.play();
+            looper.prepare(test_settings());
+            // Use snap next mode
+            looper.quantize_options().set_mode(QuantizeMode::SnapNext);
+
+            let process_beats = |num_beats| {
+                for i in 0..(100 * num_beats) {
+                    let r = looper.process(0, i as f32);
+                    assert_f_eq!(r, 0.0); // Dry is 0 by default
+                    looper.after_process();
+                }
+            };
+
+            assert_eq!(looper.state(), LooperState::Empty);
+            // Process 4 beats into the looper
+            process_beats(4);
+
+            // Start recording
+            looper.start_recording();
+            assert_eq!(looper.state(), LooperState::Recording);
+            // Process 3 beats into the looper
+            process_beats(3);
+            looper.stop_recording(LooperHandleThread::OtherThread);
+            assert_eq!(looper.state(), LooperState::PlayingScheduled);
+            // Process 1 beats into the looper
+            process_beats(1);
+            assert_eq!(looper.state(), LooperState::Playing);
+        }
+
+        fn test_settings() -> AudioProcessorSettings {
+            AudioProcessorSettings {
+                // 100 samples per second
+                sample_rate: 100.0,
+                input_channels: 1,
+                output_channels: 1,
+                ..AudioProcessorSettings::default()
+            }
+        }
+    }
 
     #[test]
     fn test_get_fade_volumes_when_buffer_is_empty() {
