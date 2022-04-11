@@ -4222,6 +4222,7 @@ dependencies = [
  "derive_builder 0.10.2",
  "iai",
  "itertools 0.10.3",
+ "lazy_static 1.4.0",
  "lockfree",
  "log",
  "metronome",

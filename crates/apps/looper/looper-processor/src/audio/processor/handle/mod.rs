@@ -37,6 +37,7 @@ use augmented_atomics::{AtomicEnum, AtomicValue};
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
 
+use crate::audio::multi_track_looper::metrics::audio_thread_logger::AudioThreadLogger;
 use crate::audio::processor::handle::scratch_pad::ScratchPad;
 use crate::audio::{
     loop_quantization::{LoopQuantizer, QuantizeInput},
@@ -146,6 +147,8 @@ pub struct LooperHandle {
     scratch_pad: AtomicRefCell<scratch_pad::ScratchPad>,
     /// The current clip being played back
     looper_clip: LooperClip,
+    /// Temporary swap buffer
+    looper_clip1: LooperClip,
     /// Where playback is within the looped clip buffer
     cursor: AtomicF32,
     /// Provides time information
@@ -194,6 +197,7 @@ impl LooperHandle {
             length: AtomicUsize::new(0),
             scratch_pad: AtomicRefCell::new(scratch_pad::ScratchPad::new(VecAudioBuffer::new())),
             looper_clip: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
+            looper_clip1: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
             scheduled_playback: AtomicUsize::new(0),
             cursor: AtomicF32::new(0.0),
             time_info_provider,
@@ -504,21 +508,24 @@ impl LooperHandle {
     /// * The mutable reference is needed to resize the buffer
     /// * The clip is guaranteed to never resize in this function, because it can only of a certain
     ///   pre-allocated maximum length
+    ///
+    /// Since another reader might have a reference to the buffer, in this scheme, we need to swap
+    /// buffers here. A temporary buffer is used. Samples are copied onto it and then that buffer
+    /// is swapped with the current playback buffer.
     fn stop_recording_audio_thread_only(&self) {
         let old_state = self.state.get();
         if old_state == LooperState::Recording || old_state == LooperState::PlayingScheduled {
             let scratch_pad = self.scratch_pad.borrow();
 
-            let result_buffer = self.looper_clip.get();
-            let result_buffer = result_buffer.deref().try_borrow_mut().ok();
-            if let Some(mut result_buffer) = result_buffer {
+            let shared_buffer = self.looper_clip1.get();
+            if let Some(mut buffer) = shared_buffer.deref().try_borrow_mut().ok() {
                 utils::copy_looped_clip(
                     CopyLoopClipParams {
                         scratch_pad: &scratch_pad,
                         start_cursor: self.start_cursor.load(Ordering::Relaxed),
                         length: self.length.load(Ordering::Relaxed),
                     },
-                    &mut *result_buffer,
+                    &mut *buffer,
                 );
                 if self.tick_time.get() {
                     self.time_info_provider.play();
@@ -526,6 +533,7 @@ impl LooperHandle {
                 self.cursor.set(0.0);
                 self.state.set(LooperState::Playing);
             }
+            self.looper_clip.set(shared_buffer);
         } else if old_state == LooperState::Overdubbing {
             self.state.set(LooperState::Playing);
         }
@@ -578,9 +586,16 @@ impl LooperHandle {
 
         // Pre-allocate looper clip
         if self.state.get() == LooperState::Empty {
-            let looper_clip = utils::empty_buffer(num_channels, max_loop_length_samples);
             self.looper_clip
-                .set(make_shared(AtomicRefCell::new(looper_clip)));
+                .set(make_shared(AtomicRefCell::new(utils::empty_buffer(
+                    num_channels,
+                    max_loop_length_samples,
+                ))));
+            self.looper_clip1
+                .set(make_shared(AtomicRefCell::new(utils::empty_buffer(
+                    num_channels,
+                    max_loop_length_samples,
+                ))));
         }
 
         self.time_info_provider
@@ -679,7 +694,9 @@ impl LooperHandle {
         let current_scratch_cursor = scratch_pad.cursor();
         let scheduled_playback = self.scheduled_playback.get();
         // TODO - this is broken when the cursor wraps around its maximum
+        AudioThreadLogger::handle().info("After process playing scheduled");
         if current_scratch_cursor >= scheduled_playback {
+            AudioThreadLogger::handle().info("Stopping recording");
             self.stop_recording_audio_thread_only();
         } else {
             self.length.fetch_add(1, Ordering::Relaxed);

@@ -23,39 +23,45 @@
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use basedrop::Shared;
+use lazy_static::lazy_static;
 
-use crate::audio::multi_track_looper::long_backoff::LongBackoff;
 use atomic_queue::Queue;
 use audio_garbage_collector::make_shared;
 
+use crate::audio::multi_track_looper::long_backoff::LongBackoff;
+
+lazy_static! {
+    static ref AUDIO_THREAD_LOGGER: AudioThreadLogger = AudioThreadLogger::new();
+}
+
 pub struct LogMessage {
-    #[allow(unused)]
+    level: log::Level,
     message: &'static str,
 }
 
-pub struct LoggerHandle {
+pub struct AudioThreadLoggerHandle {
     #[allow(unused)]
     queue: Queue<LogMessage>,
 }
 
-impl LoggerHandle {
-    #[allow(unused)]
+impl AudioThreadLoggerHandle {
     pub fn info(&self, message: &'static str) {
-        self.queue.push(LogMessage { message });
+        self.queue.push(LogMessage {
+            level: log::Level::Info,
+            message,
+        });
     }
 }
 
-pub struct Logger {
+pub struct AudioThreadLogger {
     is_running: Shared<AtomicBool>,
-    #[allow(unused)]
-    handle: Shared<LoggerHandle>,
+    handle: Shared<AudioThreadLoggerHandle>,
 }
 
-impl Logger {
-    #[allow(unused)]
-    pub fn new() -> Self {
+impl AudioThreadLogger {
+    fn new() -> Self {
         let is_running = make_shared(AtomicBool::new(true));
-        let handle = make_shared(LoggerHandle {
+        let handle = make_shared(AudioThreadLoggerHandle {
             queue: Queue::new(100),
         });
         {
@@ -63,28 +69,31 @@ impl Logger {
             let handle = handle.clone();
             std::thread::Builder::new()
                 .name(String::from("audio_thread_logger"))
-                .spawn(move || {
-                    let mut long_backoff = LongBackoff::new();
-                    while is_running.load(Ordering::Relaxed) {
-                        if let Some(message) = handle.queue.pop() {
-                            log::info!("{}", message.message);
-                        } else {
-                            long_backoff.snooze();
-                        }
-                    }
-                });
+                .spawn(move || Self::run(is_running, handle))
+                .unwrap();
         }
 
         Self { is_running, handle }
     }
 
-    #[allow(unused)]
-    pub fn handle(&self) -> &Shared<LoggerHandle> {
-        &self.handle
+    fn run(is_running: Shared<AtomicBool>, handle: Shared<AudioThreadLoggerHandle>) {
+        log::info!("Starting audio-thread-logger");
+        let mut long_backoff = LongBackoff::new();
+        while is_running.load(Ordering::Relaxed) {
+            if let Some(message) = handle.queue.pop() {
+                log::log!(message.level, "{}", message.message);
+            } else {
+                long_backoff.snooze();
+            }
+        }
+    }
+
+    pub fn handle() -> &'static Shared<AudioThreadLoggerHandle> {
+        &AUDIO_THREAD_LOGGER.handle
     }
 }
 
-impl Drop for Logger {
+impl Drop for AudioThreadLogger {
     fn drop(&mut self) {
         self.is_running.store(false, Ordering::Relaxed);
     }
