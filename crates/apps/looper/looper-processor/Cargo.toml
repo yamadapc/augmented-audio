@@ -26,7 +26,8 @@ crossbeam = "0.8"
 anyhow = "1.0"
 thiserror = "1.0"
 rustc-hash = "1.1"
-swift-bridge = "0.1"
+# Documentation
+aquamarine = "0.1"
 
 # Application / Project management things
 actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }

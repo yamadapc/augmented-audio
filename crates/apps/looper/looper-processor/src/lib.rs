@@ -25,6 +25,10 @@
 //! Multi-track loopers support sequencing, parameter locking, LFOs and effects. The multi-track
 //! looper is a sampler/live-looper with a C API. This is integrated onto the Continuous Looper.
 //!
+//! The multi-track looper uses the following processor graph:
+//!
+//! [![](https://mermaid.ink/img/pako:eNptkkFrwyAYhv-KfOcm0BxzGBSadd062q07bMQeJJpF1mgwOhiS_z6DTUxCPYg-76s8oBYKSRmk8K1IU6GPLRbIjY3di8bozu-m8yaKHrL8IGXDFFpfPEQO7vIT10UVtRUv9SJ7zDPxy67uzAw_5VlZskK3M_ppd4QLtO4C2tuj0d7nZtHT10EjuaDQfVl4JJOrn4PHFB9Gjyn98h7JfY_R4jhYxHE89TgtPPo4pG_BZB68jy5zfvY2Dt7zgRXUTNWEU_eUti9g0BWrGYbULSlRPxiw6HumoUSzjHItFaQlubZsBcRoef4TBaRaGTaUtpy4b1HfWt0_t6CkKQ)](https://mermaid.live/edit#pako:eNptkkFrwyAYhv-KfOcm0BxzGBSadd062q07bMQeJJpF1mgwOhiS_z6DTUxCPYg-76s8oBYKSRmk8K1IU6GPLRbIjY3di8bozu-m8yaKHrL8IGXDFFpfPEQO7vIT10UVtRUv9SJ7zDPxy67uzAw_5VlZskK3M_ppd4QLtO4C2tuj0d7nZtHT10EjuaDQfVl4JJOrn4PHFB9Gjyn98h7JfY_R4jhYxHE89TgtPPo4pG_BZB68jy5zfvY2Dt7zgRXUTNWEU_eUti9g0BWrGYbULSlRPxiw6HumoUSzjHItFaQlubZsBcRoef4TBaRaGTaUtpy4b1HfWt0_t6CkKQ)
+//!
 //! Internals:
 //!
 //! * [`audio`] - Contains most of the audio-thread bits

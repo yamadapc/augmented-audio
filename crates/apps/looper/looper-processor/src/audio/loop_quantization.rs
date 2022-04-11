@@ -20,7 +20,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-//! Implements better quantization logic for live-loopers.
+//! Implements quantization logic for live-loopers.
+//!
+//! Two different approaches are provided:
+//!
+//! * Snap next
+//! * Snap closest
+//!
+//! The first is similar to most software loopers, it'll quantize by waiting until the end of the
+//! current bar.
+//!
+//! The second is similar to hardware loopers, it'll both wait until the end of the current bar and
+//! return negative offsets, in the case the button has been pressed late up to a certain threshold.
 
 #[derive(PartialEq, Debug)]
 pub enum LoopQuantizerMode {

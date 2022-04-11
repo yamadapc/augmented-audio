@@ -224,7 +224,20 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cab112f0a86d568ea0e627cc1d6be74a1e9cd55214684db5561995f6dad897c6"
 dependencies = [
- "num-traits 0.2.14",
+    "num-traits 0.2.14",
+]
+
+[[package]]
+name = "aquamarine"
+version = "0.1.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96e14cb2a51c8b45d26a4219981985c7350fc05eacb7b5b2939bceb2ffefdf3e"
+dependencies = [
+    "itertools 0.9.0",
+    "proc-macro-error",
+    "proc-macro2 1.0.36",
+    "quote 1.0.15",
+    "syn",
 ]
 
 [[package]]
@@ -499,22 +512,22 @@ dependencies = [
 name = "audio-processor-standalone"
 version = "1.0.0-alpha.9"
 dependencies = [
- "atomic-queue",
- "audio-garbage-collector",
- "audio-processor-file",
- "audio-processor-standalone-midi",
- "audio-processor-testing-helpers",
- "audio-processor-traits",
- "augmented-midi",
- "basedrop",
- "clap 2.34.0",
- "cpal",
- "itertools",
- "log",
- "ringbuf",
- "thiserror",
- "vst",
- "wisual-logger",
+    "atomic-queue",
+    "audio-garbage-collector",
+    "audio-processor-file",
+    "audio-processor-standalone-midi",
+    "audio-processor-testing-helpers",
+    "audio-processor-traits",
+    "augmented-midi",
+    "basedrop",
+    "clap 2.34.0",
+    "cpal",
+    "itertools 0.10.3",
+    "log",
+    "ringbuf",
+    "thiserror",
+    "vst",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -680,18 +693,18 @@ dependencies = [
 name = "augmented-analytics"
 version = "0.1.0"
 dependencies = [
- "async-trait",
- "itertools",
- "log",
- "mockall 0.10.2",
- "mockall_double",
- "reqwest",
- "serde",
- "serde_json",
- "serde_urlencoded",
- "thiserror",
- "tokio",
- "wisual-logger",
+    "async-trait",
+    "itertools 0.10.3",
+    "log",
+    "mockall 0.10.2",
+    "mockall_double",
+    "reqwest",
+    "serde",
+    "serde_json",
+    "serde_urlencoded",
+    "thiserror",
+    "tokio",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -776,14 +789,14 @@ dependencies = [
 name = "augmented-midi"
 version = "1.0.0-alpha.5"
 dependencies = [
- "assert_no_alloc",
- "audio-processor-traits",
- "cookie-factory",
- "itertools",
- "log",
- "midir",
- "nom 7.1.0",
- "wisual-logger",
+    "assert_no_alloc",
+    "audio-processor-traits",
+    "cookie-factory",
+    "itertools 0.10.3",
+    "log",
+    "midir",
+    "nom 7.1.0",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -1780,22 +1793,22 @@ version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1604dafd25fba2fe2d5895a9da139f8dc9b319a5fe5354ca137cbbce4e178d10"
 dependencies = [
- "atty",
- "cast",
- "clap 2.34.0",
- "criterion-plot",
- "csv",
- "itertools",
- "lazy_static 1.4.0",
- "num-traits 0.2.14",
- "oorandom",
- "plotters",
- "rayon",
- "regex",
- "serde",
- "serde_cbor",
- "serde_derive",
- "serde_json",
+    "atty",
+    "cast",
+    "clap 2.34.0",
+    "criterion-plot",
+    "csv",
+    "itertools 0.10.3",
+    "lazy_static 1.4.0",
+    "num-traits 0.2.14",
+    "oorandom",
+    "plotters",
+    "rayon",
+    "regex",
+    "serde",
+    "serde_cbor",
+    "serde_derive",
+    "serde_json",
  "tinytemplate",
  "walkdir",
 ]
@@ -1806,8 +1819,8 @@ version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d00996de9f2f7559f7f4dc286073197f83e92256a59ed395f9aac01fe717da57"
 dependencies = [
- "cast",
- "itertools",
+    "cast",
+    "itertools 0.10.3",
 ]
 
 [[package]]
@@ -3854,7 +3867,7 @@ version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2b3ea6ff95e175473f8ffe6a7eb7c00d054240321b84c57051175fe3c1e075e"
 dependencies = [
- "libc",
+    "libc",
 ]
 
 [[package]]
@@ -3865,11 +3878,20 @@ checksum = "35e70ee094dc02fd9c13fdad4940090f22dbd6ac7c9e7094a46cf0232a50bc7c"
 
 [[package]]
 name = "itertools"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "284f18f85651fe11e8a991b2adb42cb078325c996ed026d994719efcfca1d54b"
+dependencies = [
+    "either",
+]
+
+[[package]]
+name = "itertools"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a9a9d19fa1e79b6215ff29b9d6880b706147f16e9b1dbb1e4e5947b5b02bc5e3"
 dependencies = [
- "either",
+    "either",
 ]
 
 [[package]]
@@ -4166,19 +4188,20 @@ checksum = "b3bd0dd2cd90571056fdb71f6275fada10131182f84899f4b2a916e565d81d86"
 name = "looper-processor"
 version = "0.1.0"
 dependencies = [
- "actix",
- "actix-system-threads",
- "anyhow",
- "assert_no_alloc",
- "atomic-queue",
- "atomic_refcell",
- "audio-garbage-collector",
- "audio-processor-analysis",
- "audio-processor-bitcrusher",
- "audio-processor-dynamics",
- "audio-processor-file",
- "audio-processor-graph",
- "audio-processor-pitch-shifter",
+    "actix",
+    "actix-system-threads",
+    "anyhow",
+    "aquamarine",
+    "assert_no_alloc",
+    "atomic-queue",
+    "atomic_refcell",
+    "audio-garbage-collector",
+    "audio-processor-analysis",
+    "audio-processor-bitcrusher",
+    "audio-processor-dynamics",
+    "audio-processor-file",
+    "audio-processor-graph",
+    "audio-processor-pitch-shifter",
  "audio-processor-standalone",
  "audio-processor-standalone-midi",
  "audio-processor-standalone-osc",
@@ -4188,33 +4211,32 @@ dependencies = [
  "augmented-adsr-envelope",
  "augmented-atomics",
  "augmented-audio-metrics",
- "augmented-dsp-filters",
- "augmented-midi",
- "augmented-playhead",
- "augmented_oscillator",
- "basedrop",
- "bytesize",
- "criterion",
- "crossbeam",
- "derive_builder 0.10.2",
- "iai",
- "itertools",
- "lockfree",
- "log",
- "metronome",
- "midir",
- "mockall 0.11.0",
- "num 0.4.0",
- "num-derive",
- "num-traits 0.2.14",
- "rand 0.8.5",
- "rmp-serde",
+    "augmented-dsp-filters",
+    "augmented-midi",
+    "augmented-playhead",
+    "augmented_oscillator",
+    "basedrop",
+    "bytesize",
+    "criterion",
+    "crossbeam",
+    "derive_builder 0.10.2",
+    "iai",
+    "itertools 0.10.3",
+    "lockfree",
+    "log",
+    "metronome",
+    "midir",
+    "mockall 0.11.0",
+    "num 0.4.0",
+    "num-derive",
+    "num-traits 0.2.14",
+    "rand 0.8.5",
+    "rmp-serde",
  "rustc-hash",
  "serde",
  "serde_derive",
  "strum 0.24.0",
  "strum_macros 0.24.0",
- "swift-bridge",
  "swift-bridge-build",
  "syn",
  "tempdir",
@@ -4234,23 +4256,23 @@ dependencies = [
  "audio-processor-file",
  "audio-processor-iced-design-system",
  "audio-processor-iced-storybook",
- "audio-processor-testing-helpers",
- "audio-processor-traits",
- "augmented",
- "derive_more",
- "dirs 3.0.2",
- "iced",
- "iced-editor",
- "iced_audio",
- "iced_baseview",
- "iced_native",
- "itertools",
- "log",
- "log4rs",
- "looper-processor",
- "thiserror",
- "tokio",
- "vst",
+    "audio-processor-testing-helpers",
+    "audio-processor-traits",
+    "augmented",
+    "derive_more",
+    "dirs 3.0.2",
+    "iced",
+    "iced-editor",
+    "iced_audio",
+    "iced_baseview",
+    "iced_native",
+    "itertools 0.10.3",
+    "log",
+    "log4rs",
+    "looper-processor",
+    "thiserror",
+    "tokio",
+    "vst",
 ]
 
 [[package]]
@@ -5919,27 +5941,27 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "augmented-audio-metrics",
- "augmented-convert-sample-rate",
- "augmented_oscillator",
- "basedrop",
- "circular-data-structures",
- "clap 2.34.0",
- "concread",
- "cpal",
- "criterion",
- "futures-util",
- "hound",
- "itertools",
- "lazy_static 1.4.0",
- "log",
- "md5",
- "midir",
- "notify",
- "num-traits 0.2.14",
- "rayon",
- "rimd",
- "ringbuf",
- "serde",
+    "augmented-convert-sample-rate",
+    "augmented_oscillator",
+    "basedrop",
+    "circular-data-structures",
+    "clap 2.34.0",
+    "concread",
+    "cpal",
+    "criterion",
+    "futures-util",
+    "hound",
+    "itertools 0.10.3",
+    "lazy_static 1.4.0",
+    "log",
+    "md5",
+    "midir",
+    "notify",
+    "num-traits 0.2.14",
+    "rayon",
+    "rimd",
+    "ringbuf",
+    "serde",
  "serde_json",
  "symphonia",
  "symphonia-bundle-mp3",
@@ -6000,12 +6022,12 @@ version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a5aab5be6e4732b473071984b3164dbbfb7a3674d30ea5ff44410b6bcd960c3c"
 dependencies = [
- "difflib",
- "float-cmp 0.9.0",
- "itertools",
- "normalize-line-endings",
- "predicates-core",
- "regex",
+    "difflib",
+    "float-cmp 0.9.0",
+    "itertools 0.10.3",
+    "normalize-line-endings",
+    "predicates-core",
+    "regex",
 ]
 
 [[package]]
@@ -7073,16 +7095,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fb1df15f412ee2e9dfc1c504260fa695c1c3f10fe9f4a6ee2d2184d7d6450e2"
 
 [[package]]
-name = "swift-bridge"
-version = "0.1.29"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d7cd99deee57c862fe8a06791306efd2898c2450423671b1db3dd083e07416a"
-dependencies = [
- "swift-bridge-build",
- "swift-bridge-macro",
-]
-
-[[package]]
 name = "swift-bridge-build"
 version = "0.1.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7102,18 +7114,6 @@ checksum = "b895f7efe6173f7d7fdb55243ae6ec186904e441da490f58e92ead3d0c9bfdec"
 dependencies = [
  "proc-macro2 1.0.36",
  "quote 1.0.15",
- "syn",
-]
-
-[[package]]
-name = "swift-bridge-macro"
-version = "0.1.29"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c3488b286b2513538f05b488f81476968c237d3e1427cf94cdaffe0e7dce9cc7"
-dependencies = [
- "proc-macro2 1.0.36",
- "quote 1.0.15",
- "swift-bridge-ir",
  "syn",
 ]
 
@@ -7312,16 +7312,16 @@ version = "3.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "480c269f870722b3b08d2f13053ce0c2ab722839f472863c3e2d61ff3a1c2fa6"
 dependencies = [
- "anyhow",
- "cfg-expr",
- "heck 0.3.3",
- "itertools",
- "pkg-config",
- "strum 0.21.0",
- "strum_macros 0.21.1",
- "thiserror",
- "toml",
- "version-compare",
+    "anyhow",
+    "cfg-expr",
+    "heck 0.3.3",
+    "itertools 0.10.3",
+    "pkg-config",
+    "strum 0.21.0",
+    "strum_macros 0.21.1",
+    "thiserror",
+    "toml",
+    "version-compare",
 ]
 
 [[package]]
@@ -7688,10 +7688,10 @@ version = "0.12.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94217a6d6a89fb646cbc9f28283cf4745f77eb0b04c4f680c4b3ae4450e3a473"
 dependencies = [
- "combine",
- "indexmap",
- "itertools",
- "kstring",
+    "combine",
+    "indexmap",
+    "itertools 0.10.3",
+    "kstring",
 ]
 
 [[package]]

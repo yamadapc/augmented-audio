@@ -1,4 +1,3 @@
-use assert_no_alloc::assert_no_alloc;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,6 +20,10 @@ use assert_no_alloc::assert_no_alloc;
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! This module provides a `MultiTrackLooperProcessor`, which can sequence and loop 8 looper tracks
+//! with shared tempo.
+use assert_no_alloc::assert_no_alloc;
 use rustc_hash::FxHashMap as HashMap;
 
 use audio_garbage_collector::{make_shared, Shared};
@@ -71,6 +74,33 @@ pub(crate) mod trigger_model;
 type ParametersScratch = Vec<Vec<ParameterValue>>;
 type ParametersScratchIndexes = HashMap<ParameterId, usize>;
 
+#[cfg_attr(doc, aquamarine::aquamarine)]
+///
+/// The following is a diagram of how things are connected:
+/// ```mermaid
+/// graph TD
+///    A{Input}
+///
+///    A-->E[Looper 1]
+///     -->G[Pitch-shifter 1]
+///     -->F[Envelope 1]
+///     -->H[Effects 1]
+///     -->X{Gain 1}
+///     -->I{Output}
+///
+///    A -->M[Looper 2]
+///     -->K[Pitch-shifter 2]
+///     -->J[Envelope 2]
+///     -->L[Effects 2]
+///     -->Y{Gain 2}
+///     -->I{Output}
+///    A -->O[Looper ...]
+///     -->P[Pitch-shifter ...]
+///     -->Q[Envelope ...]
+///     -->R[Effects ...]
+///     -->S{Gain ...}
+///     -->I{Output}
+/// ```
 pub struct MultiTrackLooper {
     graph: AudioProcessorGraph,
     handle: Shared<MultiTrackLooperHandle>,
