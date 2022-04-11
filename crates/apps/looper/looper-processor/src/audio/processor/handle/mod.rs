@@ -673,6 +673,7 @@ impl LooperHandle {
     fn after_process_playing_scheduled(&self, scratch_pad: &ScratchPad) {
         let current_scratch_cursor = scratch_pad.cursor();
         let scheduled_playback = self.scheduled_playback.get();
+        // TODO - this is broken when the cursor wraps around its maximum
         if current_scratch_cursor >= scheduled_playback {
             self.stop_recording_audio_thread_only();
         } else {
@@ -686,6 +687,7 @@ impl LooperHandle {
         let current_scratch_cursor = scratch_pad.cursor();
         let scheduled_start = self.start_cursor.load(Ordering::Relaxed);
 
+        // TODO - this is broken when the cursor wraps around its maximum
         if current_scratch_cursor >= scheduled_start {
             self.state.set(LooperState::Recording);
         }
