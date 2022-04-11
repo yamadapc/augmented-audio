@@ -47,6 +47,26 @@ mod quantize_mode;
 mod scratch_pad;
 mod utils;
 
+#[cfg_attr(doc, aquamarine::aquamarine)]
+/// `LooperState` represents the current state the looper is in.
+///
+/// The following is a diagram of all states and possible transitions:
+///
+/// ```mermaid
+/// stateDiagram-v2
+///     [*] --> Empty
+///     Empty --> Recording
+///     RecordingScheduled: Recording scheduled
+///     Empty --> RecordingScheduled
+///     RecordingScheduled --> Recording
+///     Recording --> Playing
+///     Recording --> Paused
+///     Playing --> Paused
+///     Paused --> Playing
+///     PlayingScheduled: Playing scheduled
+///     Paused --> PlayingScheduled
+///     PlayingScheduled --> Playing            
+/// ```
 #[repr(C)]
 #[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum LooperState {
@@ -118,7 +138,7 @@ pub struct LooperHandle {
     length: AtomicUsize,
     scheduled_playback: AtomicUsize,
     /// Circular buffer that is always recording
-    scratch_pad: SharedCell<scratch_pad::ScratchPad>,
+    scratch_pad: AtomicRefCell<scratch_pad::ScratchPad>,
     /// The current clip being played back
     looper_clip: LooperClip,
     /// Where playback is within the looped clip buffer
@@ -150,6 +170,7 @@ pub enum LooperHandleThread {
     OtherThread,
 }
 
+// MARK: Constructors
 impl LooperHandle {
     pub fn new(options: LooperOptions, time_info_provider: Shared<TimeInfoProviderImpl>) -> Self {
         Self {
@@ -166,7 +187,7 @@ impl LooperHandle {
             state: AtomicEnum::new(LooperState::Empty),
             start_cursor: AtomicUsize::new(0),
             length: AtomicUsize::new(0),
-            scratch_pad: make_shared_cell(scratch_pad::ScratchPad::new(VecAudioBuffer::new())),
+            scratch_pad: AtomicRefCell::new(scratch_pad::ScratchPad::new(VecAudioBuffer::new())),
             looper_clip: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
             scheduled_playback: AtomicUsize::new(0),
             cursor: AtomicF32::new(0.0),
@@ -182,7 +203,10 @@ impl LooperHandle {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
         Self::new(options, time_info_provider)
     }
+}
 
+// MARK: Public getters/setters
+impl LooperHandle {
     /// Pass-through volume
     pub fn dry_volume(&self) -> f32 {
         self.dry_volume.get()
@@ -241,6 +265,73 @@ impl LooperHandle {
         self.tick_time.set(value)
     }
 
+    pub fn trigger(&self) {
+        self.cursor.set(self.get_start_samples());
+    }
+
+    pub fn quantize_options(&self) -> &QuantizeOptions {
+        &self.quantize_options
+    }
+
+    pub fn time_info_provider(&self) -> &TimeInfoProviderImpl {
+        &self.time_info_provider
+    }
+
+    pub fn set_tempo(&self, tempo: f32) {
+        self.time_info_provider.set_tempo(tempo);
+        self.time_info_provider.play();
+    }
+
+    pub fn looper_clip(&self) -> Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>> {
+        self.looper_clip.get()
+    }
+
+    pub fn num_samples(&self) -> usize {
+        self.length.load(Ordering::Relaxed)
+    }
+
+    pub fn playhead(&self) -> usize {
+        self.cursor.get() as usize
+    }
+}
+
+// MARK: Computed properties
+impl LooperHandle {
+    pub fn is_empty(&self) -> bool {
+        self.num_samples() == 0 || self.state.get() == LooperState::Empty
+    }
+
+    pub fn is_recording(&self) -> bool {
+        let state = self.state.get();
+        state == LooperState::Recording || state == LooperState::Overdubbing
+    }
+
+    pub fn is_playing_back(&self) -> bool {
+        let state = self.state.get();
+        state == LooperState::Playing
+            || state == LooperState::Recording
+            || state == LooperState::Overdubbing
+    }
+}
+
+/// MARK: Actions to change the looper state:
+///
+/// * Start recording
+/// * Stop recording
+/// * Start playback
+/// * Stop playback
+/// * Clear
+///
+impl LooperHandle {
+    /// Return the real start cursor based on start offset & length
+    fn get_start_samples(&self) -> f32 {
+        self.start_offset.get() * self.length.get() as f32
+    }
+
+    fn get_end_samples(&self) -> f32 {
+        self.end_offset.get() * self.length.get() as f32
+    }
+
     pub fn toggle_recording(&self, thread: LooperHandleThread) -> ToggleRecordingResult {
         let old_state = self.state.get();
         if old_state == LooperState::Recording || old_state == LooperState::Overdubbing {
@@ -254,19 +345,6 @@ impl LooperHandle {
             self.start_recording();
             ToggleRecordingResult::StartedRecording
         }
-    }
-
-    pub fn trigger(&self) {
-        self.cursor.set(self.get_start_samples());
-    }
-
-    /// Return the real start cursor based on start offset & length
-    fn get_start_samples(&self) -> f32 {
-        self.start_offset.get() * self.length.get() as f32
-    }
-
-    fn get_end_samples(&self) -> f32 {
-        self.end_offset.get() * self.length.get() as f32
     }
 
     /// Toggle playback. Return true if the looper is playing after this.
@@ -285,11 +363,25 @@ impl LooperHandle {
         }
     }
 
+    fn get_quantized_offset(&self) -> Option<i32> {
+        let time_info = self.time_info_provider.get_time_info();
+        let beat_info = time_info.tempo().zip(time_info.position_beats());
+        beat_info.map(|(tempo, position_beats)| {
+            let quantizer = LoopQuantizer::new(self.quantize_options.inner());
+            quantizer.quantize(QuantizeInput {
+                tempo: tempo as f32,
+                sample_rate: self.settings.get().sample_rate(),
+                position_beats: position_beats as f32,
+                position_samples: 0,
+            })
+        })
+    }
+
     pub fn start_recording(&self) -> LooperState {
         // Initial recording
         let old_state = self.state.get();
         if old_state == LooperState::Empty {
-            let scratch_pad = self.scratch_pad.get();
+            let scratch_pad = self.scratch_pad.borrow();
             let cursor = scratch_pad.cursor() as i32;
             let quantized_offset = self.get_quantized_offset();
             let is_recording_scheduled = quantized_offset.map(|offset| offset > 0).unwrap_or(false);
@@ -311,20 +403,6 @@ impl LooperHandle {
         }
 
         self.state.get()
-    }
-
-    fn get_quantized_offset(&self) -> Option<i32> {
-        let time_info = self.time_info_provider.get_time_info();
-        let beat_info = time_info.tempo().zip(time_info.position_beats());
-        beat_info.map(|(tempo, position_beats)| {
-            let quantizer = LoopQuantizer::new(self.quantize_options.inner());
-            quantizer.quantize(QuantizeInput {
-                tempo: tempo as f32,
-                sample_rate: self.settings.get().sample_rate(),
-                position_beats: position_beats as f32,
-                position_samples: 0,
-            })
-        })
     }
 
     pub fn clear(&self) {
@@ -358,32 +436,19 @@ impl LooperHandle {
         self.state.set(LooperState::Paused);
     }
 
-    /// Override the looper memory buffer.
-    /// Not real-time safe, must be called out of the audio-thread.
-    pub fn set_looper_buffer(&self, buffer: &impl AudioBuffer<SampleType = f32>) {
-        let mut new_buffer: VecAudioBuffer<AtomicF32> = VecAudioBuffer::new();
-        new_buffer.resize(
-            buffer.num_channels(),
-            buffer.num_samples(),
-            AtomicF32::new(0.0),
-        );
-        for (source_frame, dest_frame) in buffer.frames().zip(new_buffer.frames_mut()) {
-            for (source_sample, dest_sample) in source_frame.iter().zip(dest_frame) {
-                dest_sample.set(*source_sample);
-            }
+    pub fn stop_recording(&self, thread: LooperHandleThread) {
+        match thread {
+            LooperHandleThread::OtherThread => self.stop_recording_allocating_loop(),
+            LooperHandleThread::AudioThread => self.stop_recording_audio_thread_only(),
         }
-
-        let new_length = new_buffer.num_samples();
-        self.looper_clip.set(make_shared(new_buffer.into()));
-        self.length.set(new_length);
-        self.state.set(LooperState::Paused);
-        self.cursor.set(self.get_start_samples());
     }
 
-    pub fn stop_recording_allocating_loop(&self) {
+    /// Stops recording by copying the current scratch buffer onto a new looper buffer and swapping
+    /// the old one with the new
+    fn stop_recording_allocating_loop(&self) {
         let old_state = self.state.get();
-        if old_state == LooperState::Recording {
-            let cursor = self.scratch_pad.get().cursor();
+        if old_state == LooperState::Recording || old_state == LooperState::PlayingScheduled {
+            let cursor = self.scratch_pad.borrow().cursor();
             let quantized_offset = self.get_quantized_offset();
             let is_stop_scheduled = quantized_offset.map(|offset| offset > 0).unwrap_or(false);
 
@@ -393,9 +458,8 @@ impl LooperHandle {
                 self.scheduled_playback.set(final_cursor);
                 self.state.set(LooperState::PlayingScheduled);
             } else {
-                let scratch_pad = self.scratch_pad.get();
+                let scratch_pad = self.scratch_pad.borrow();
 
-                let _result_buffer = self.looper_clip.get();
                 let mut new_buffer = VecAudioBuffer::new();
                 utils::copy_looped_clip(
                     CopyLoopClipParams {
@@ -409,7 +473,9 @@ impl LooperHandle {
                 );
                 self.looper_clip
                     .set(make_shared(AtomicRefCell::new(new_buffer)));
-                self.time_info_provider.play();
+                if self.tick_time.get() {
+                    self.time_info_provider.play();
+                }
                 self.state.set(LooperState::Playing);
                 self.cursor.set(0.0);
             }
@@ -418,10 +484,20 @@ impl LooperHandle {
         }
     }
 
-    pub fn stop_recording_audio_thread_only(&self) {
+    /// Stop recording by copying the scratch buffer in-place into the current looper buffer
+    ///
+    /// This currently is only good for the audio-thread, because it takes a mutable reference on the
+    /// looper clip.
+    ///
+    /// Note:
+    ///
+    /// * The mutable reference is needed to resize the buffer
+    /// * The clip is guaranteed to never resize in this function, because it can only of a certain
+    ///   pre-allocated maximum length
+    fn stop_recording_audio_thread_only(&self) {
         let old_state = self.state.get();
         if old_state == LooperState::Recording || old_state == LooperState::PlayingScheduled {
-            let scratch_pad = self.scratch_pad.get();
+            let scratch_pad = self.scratch_pad.borrow();
 
             let result_buffer = self.looper_clip.get();
             let result_buffer = result_buffer.deref().try_borrow_mut().ok();
@@ -444,51 +520,39 @@ impl LooperHandle {
             self.state.set(LooperState::Playing);
         }
     }
+}
 
-    pub fn looper_clip(&self) -> Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>> {
-        self.looper_clip.get()
-    }
+/// MARK: Buffer override
+impl LooperHandle {
+    /// Override the looper memory buffer.
+    /// Not real-time safe, must be called out of the audio-thread.
+    pub fn set_looper_buffer(&self, buffer: &impl AudioBuffer<SampleType = f32>) {
+        let mut new_buffer: VecAudioBuffer<AtomicF32> = VecAudioBuffer::new();
+        new_buffer.resize(
+            buffer.num_channels(),
+            buffer.num_samples(),
+            AtomicF32::new(0.0),
+        );
+        for (source_frame, dest_frame) in buffer.frames().zip(new_buffer.frames_mut()) {
+            for (source_sample, dest_sample) in source_frame.iter().zip(dest_frame) {
+                dest_sample.set(*source_sample);
+            }
+        }
 
-    pub fn num_samples(&self) -> usize {
-        self.length.load(Ordering::Relaxed)
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.num_samples() == 0 || self.state.get() == LooperState::Empty
-    }
-
-    pub fn is_recording(&self) -> bool {
-        let state = self.state.get();
-        state == LooperState::Recording || state == LooperState::Overdubbing
-    }
-
-    pub fn playhead(&self) -> usize {
-        self.cursor.get() as usize
-    }
-
-    pub fn is_playing_back(&self) -> bool {
-        let state = self.state.get();
-        state == LooperState::Playing
-            || state == LooperState::Recording
-            || state == LooperState::Overdubbing
-    }
-
-    pub fn quantize_options(&self) -> &QuantizeOptions {
-        &self.quantize_options
-    }
-
-    pub fn time_info_provider(&self) -> &TimeInfoProviderImpl {
-        &self.time_info_provider
-    }
-
-    pub fn set_tempo(&self, tempo: f32) {
-        self.time_info_provider.set_tempo(tempo);
-        self.time_info_provider.play();
+        let new_length = new_buffer.num_samples();
+        self.looper_clip.set(make_shared(new_buffer.into()));
+        self.length.set(new_length);
+        self.state.set(LooperState::Paused);
+        self.cursor.set(self.get_start_samples());
     }
 }
 
 /// MARK: Package private methods
 impl LooperHandle {
+    /// # Safety
+    ///
+    /// Attempting to call `LooperHandle::prepare` while the looper is running on another thread
+    /// might panic, because this method will try to get a mutable reference to internal buffers.
     pub(crate) fn prepare(&self, settings: AudioProcessorSettings) {
         let max_loop_length_secs = self.options.max_loop_length.as_secs_f32();
         let max_loop_length_samples =
@@ -500,7 +564,7 @@ impl LooperHandle {
             num_channels,
             max_loop_length_samples,
         ));
-        self.scratch_pad.set(make_shared(scratch_pad));
+        *self.scratch_pad.borrow_mut() = scratch_pad;
 
         // Pre-allocate looper clip
         if self.state.get() == LooperState::Empty {
@@ -521,7 +585,7 @@ impl LooperHandle {
 
     #[inline]
     pub(crate) fn process(&self, channel: usize, sample: f32) -> f32 {
-        let scratch_pad = self.scratch_pad.get();
+        let scratch_pad = self.scratch_pad.borrow();
         scratch_pad.set(channel, sample);
 
         let state = self.state.get();
@@ -577,7 +641,7 @@ impl LooperHandle {
 
     #[inline]
     pub(crate) fn after_process(&self) {
-        let scratch_pad = self.scratch_pad.get();
+        let scratch_pad = self.scratch_pad.borrow();
         scratch_pad.after_process();
         if self.tick_time.load(Ordering::Relaxed) {
             self.time_info_provider.tick();

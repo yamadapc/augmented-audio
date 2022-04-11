@@ -28,7 +28,7 @@ use criterion::{black_box, criterion_group, criterion_main, BenchmarkGroup, Crit
 
 use audio_processor_traits::{AtomicF32, AudioProcessor, AudioProcessorSettings, VecAudioBuffer};
 use looper_processor::parameters::{build_default_parameters, ParameterId};
-use looper_processor::{parameters, LooperProcessor, MultiTrackLooper};
+use looper_processor::{parameters, LooperHandleThread, LooperProcessor, MultiTrackLooper};
 
 fn gain_vec(buffer: &mut Vec<f32>) {
     for sample in buffer {
@@ -191,7 +191,9 @@ fn setup_processor_bench(group: &mut BenchmarkGroup<WallTime>, buffer_size: usiz
             processor.handle().set_tick_time(false);
             processor.handle().start_recording();
             processor.process(&mut buffer);
-            processor.handle().stop_recording_allocating_loop();
+            processor
+                .handle()
+                .stop_recording(LooperHandleThread::OtherThread);
 
             b.iter(|| {
                 processor.process(&mut buffer);

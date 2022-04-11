@@ -119,7 +119,7 @@ mod test {
     };
     use handle::{LooperState, QuantizeMode};
 
-    use crate::{TimeInfoProvider, MAX_LOOP_LENGTH_SECS};
+    use crate::{LooperHandleThread, TimeInfoProvider, MAX_LOOP_LENGTH_SECS};
 
     use super::*;
 
@@ -143,7 +143,9 @@ mod test {
 
         looper.handle.start_recording();
         looper.process(&mut test_buffer);
-        looper.handle.stop_recording_allocating_loop();
+        looper
+            .handle
+            .stop_recording(LooperHandleThread::OtherThread);
         looper.process(&mut test_buffer);
 
         let looper_clip = looper.handle.looper_clip();
@@ -324,7 +326,9 @@ mod test {
 
         looper.handle.start_recording();
         looper.process(&mut sample_buffer);
-        looper.handle.stop_recording_audio_thread_only();
+        looper
+            .handle
+            .stop_recording(LooperHandleThread::OtherThread);
 
         // While recording, the output is MUTED
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
@@ -411,7 +415,9 @@ mod test {
             assert_no_alloc(|| {
                 looper.process(&mut buffer);
             });
-            looper.handle.stop_recording_allocating_loop();
+            looper
+                .handle
+                .stop_recording(LooperHandleThread::OtherThread);
 
             let mut buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
             let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
@@ -431,7 +437,9 @@ mod test {
             assert_no_alloc(|| {
                 looper.process(&mut buffer);
             });
-            looper.handle.stop_recording_allocating_loop();
+            looper
+                .handle
+                .stop_recording(LooperHandleThread::OtherThread);
         }
 
         // Test output is summed
@@ -471,7 +479,9 @@ mod test {
         assert_no_alloc(|| {
             looper.process(&mut sample_buffer);
         });
-        looper.handle.stop_recording_audio_thread_only();
+        looper
+            .handle
+            .stop_recording(LooperHandleThread::OtherThread);
 
         // While recording, the output is MUTED
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
@@ -569,7 +579,9 @@ mod test {
         });
         let position_beats = get_position_beats(&mut looper);
         assert!((position_beats - 8.0).abs() < 0.0001);
-        looper.handle.stop_recording_allocating_loop();
+        looper
+            .handle
+            .stop_recording(LooperHandleThread::OtherThread);
         assert_eq!(looper.handle.state(), LooperState::Playing);
 
         // We expect audio to be played back now

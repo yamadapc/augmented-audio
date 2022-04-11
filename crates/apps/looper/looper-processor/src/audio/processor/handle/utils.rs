@@ -39,8 +39,8 @@ pub fn copy_looped_clip(params: CopyLoopClipParams, result_buffer: &mut VecAudio
     for channel in 0..buffer.num_channels() {
         for i in 0..params.length {
             let index = (i + params.start_cursor) % buffer.num_samples();
-            let sample = buffer.get(channel, index).clone();
-            result_buffer.set(channel, i, sample);
+            let sample = buffer.get(channel, index).get();
+            result_buffer.get(channel, i).set(sample);
         }
     }
 }
