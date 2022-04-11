@@ -37,7 +37,6 @@ use augmented_atomics::{AtomicEnum, AtomicValue};
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
 
-use crate::audio::multi_track_looper::metrics::audio_thread_logger::AudioThreadLogger;
 use crate::audio::processor::handle::scratch_pad::ScratchPad;
 use crate::audio::{
     loop_quantization::{LoopQuantizer, QuantizeInput},
@@ -701,7 +700,6 @@ impl LooperHandle {
         let scheduled_playback = self.scheduled_playback.get();
         // TODO - this is broken when the cursor wraps around its maximum
         if current_scratch_cursor >= scheduled_playback {
-            AudioThreadLogger::handle().info("Stopping recording after playing scheduled");
             self.stop_recording_audio_thread_only();
         } else {
             self.length.fetch_add(1, Ordering::Relaxed);

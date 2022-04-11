@@ -34,16 +34,19 @@ lazy_static! {
     static ref AUDIO_THREAD_LOGGER: AudioThreadLogger = AudioThreadLogger::new();
 }
 
+#[allow(unused)]
 struct LogMessage {
     level: log::Level,
     message: &'static str,
 }
 
+#[allow(unused)]
 pub struct AudioThreadLoggerHandle {
     queue: Queue<LogMessage>,
 }
 
 impl AudioThreadLoggerHandle {
+    #[allow(unused)]
     pub fn info(&self, message: &'static str) {
         self.queue.push(LogMessage {
             level: log::Level::Info,
@@ -54,10 +57,12 @@ impl AudioThreadLoggerHandle {
 
 pub struct AudioThreadLogger {
     is_running: Shared<AtomicBool>,
+    #[allow(unused)]
     handle: Shared<AudioThreadLoggerHandle>,
 }
 
 impl AudioThreadLogger {
+    #[allow(unused)]
     fn new() -> Self {
         let is_running = make_shared(AtomicBool::new(true));
         let handle = make_shared(AudioThreadLoggerHandle {
@@ -75,6 +80,7 @@ impl AudioThreadLogger {
         Self { is_running, handle }
     }
 
+    #[allow(unused)]
     fn run(is_running: Shared<AtomicBool>, handle: Shared<AudioThreadLoggerHandle>) {
         log::info!("Starting audio-thread-logger");
         let mut long_backoff = LongBackoff::new();
@@ -88,6 +94,7 @@ impl AudioThreadLogger {
         }
     }
 
+    #[allow(unused)]
     pub fn handle() -> &'static Shared<AudioThreadLoggerHandle> {
         &AUDIO_THREAD_LOGGER.handle
     }
