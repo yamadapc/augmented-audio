@@ -18,8 +18,18 @@
 
 ![](screenshot.png)
 
+Read about it here:
+
+* https://beijaflor.io/blog/04-2022/rust-audio-experiments-5/
+
+Download it here:
+
+* https://apps.apple.com/au/app/continuous-looper/id1616355791?mt=12
+
 ## Building
+
 This app requires `looper-processor` universal C library bindings to be built:
+
 ```
 cd ./crates/apps/looper/looper-processor
 make

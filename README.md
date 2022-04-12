@@ -32,6 +32,7 @@ Some directories which contain full applications are licensed under the AGPLv3 l
 * [Initial 'Test Plugin Host' post](https://beijaflor.io/blog/07-2021/rust-audio-experiments-2/)
 * [Simple Metronome release](https://beijaflor.io/blog/01-2022/rust-audio-experiments-3/)
 * [Generic AudioProcessors in Rust](https://beijaflor.io/blog/02-2022/rust-audio-experiments-4/)
+* [Continuous Looper - 8-track live-looper and performance sampler](https://beijaflor.io/blog/04-2022/rust-audio-experiments-5/)
 
 ## Documentation
 
