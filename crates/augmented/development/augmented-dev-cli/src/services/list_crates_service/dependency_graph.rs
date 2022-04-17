@@ -20,12 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use daggy::NodeIndex;
+
 use std::collections::HashMap;
+use std::io::Write;
+use std::path::Path;
+
+use daggy::NodeIndex;
 
 #[derive(Default)]
 pub struct DependencyGraph {
-    graph: daggy::Dag<String, ()>,
+    graph: daggy::Dag<String, String>,
     indexes: HashMap<String, NodeIndex>,
 }
 
@@ -42,7 +46,7 @@ impl DependencyGraph {
     pub fn add_dependency(&mut self, pkg: &str, dep: &str) {
         let idx1 = self.indexes[pkg];
         let idx2 = self.indexes[dep];
-        self.graph.add_edge(idx1, idx2, ()).unwrap();
+        self.graph.add_edge(idx1, idx2, dep.to_string()).unwrap();
     }
 
     /// Sort dependencies for processing. Dependencies are ordered such that crates with no
@@ -55,6 +59,39 @@ impl DependencyGraph {
             .iter()
             .map(|idx| self.graph.node_weight(*idx).unwrap().to_string())
             .collect()
+    }
+
+    pub fn generate_diagram(&self, target_pth: &Path) {
+        let mut file = std::fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(target_pth)
+            .unwrap();
+        let mut ordered_crates = self.order_crates();
+        ordered_crates.reverse();
+        let graph = self.graph.graph();
+        writeln!(&mut file, "digraph dependency_graph {{").unwrap();
+        for c in ordered_crates {
+            if c == "augmented" {
+                continue;
+            }
+            let node_idx = self.indexes[&c];
+            let edges = graph.edges(node_idx);
+            writeln!(&mut file, "subgraph \"{}\" {{", &c).unwrap();
+            writeln!(&mut file, "label = \"{}\";", &c).unwrap();
+            writeln!(&mut file, "style = filled;").unwrap();
+            for edge in edges {
+                if edge.weight() == "wisual-logger" {
+                    continue;
+                }
+                writeln!(&mut file, "\"{}\" -> \"{}\";", &c, edge.weight()).unwrap();
+            }
+            writeln!(&mut file, "}}").unwrap();
+        }
+        writeln!(&mut file, "}}").unwrap();
+
+        log::info!("Generated diagram");
     }
 }
 
