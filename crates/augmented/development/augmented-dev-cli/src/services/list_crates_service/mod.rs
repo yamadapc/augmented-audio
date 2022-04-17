@@ -195,7 +195,7 @@ impl ListCratesService {
 
         for target in &ordered_crates {
             let deps_list = &dependency_map[target];
-            log::info!("{} - Dependencies: {:?}", target, deps_list)
+            log::debug!("{} - Dependencies: {:?}", target, deps_list)
         }
 
         ordered_crates

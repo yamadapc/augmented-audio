@@ -94,6 +94,7 @@ impl OutdatedCratesService {
                     .versions
                     .iter()
                     .map(|v| semver::Version::parse(&v.num).unwrap())
+                    .filter(|v| v.pre.is_empty())
                     .collect::<Vec<semver::Version>>();
                 vs.sort();
                 vs.get(vs.len() - 1).unwrap().clone()
@@ -108,7 +109,7 @@ impl OutdatedCratesService {
                     latest_version,
                 );
             } else {
-                log::info!(
+                log::debug!(
                     "OK Source: {} Dependency: {} Version: {} Latest version: {}",
                     &dependency.source_package,
                     &dependency.name,
