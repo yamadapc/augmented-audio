@@ -87,8 +87,8 @@ debug = true
 wisual-logger = { version = "0.1", path = "crates/augmented/ops/wisual-logger" }
 
 # Vendor overrides
-iced = { version = "^0.3.0", path = "./crates/vendor/iced" }
-vst = { path = "./crates/vendor/vst" }
-libsamplerate-sys = { path = "./crates/vendor/libsamplerate-sys" }
-midir = { path = "./crates/augmented/data/augmented-midi/midir" }
-assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false, path = "./crates/vendor/assert-no-alloc" }
+iced = { version = "^0.3.0", path = "crates/vendor/iced" }
+vst = { path = "crates/vendor/vst" }
+libsamplerate-sys = { path = "crates/vendor/libsamplerate-sys" }
+midir = { path = "crates/augmented/data/augmented-midi/midir" }
+assert_no_alloc = { version = "1.1.2", path = "crates/vendor/assert-no-alloc" }

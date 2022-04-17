@@ -29,6 +29,7 @@ jobs:
           fi
       - name: Run tests
         run: cargo test --verbose --workspace --features story --exclude augmented-ui --exclude midir --exclude assert-no-alloc
+
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -42,6 +43,7 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - name: Run clippy
         run: ./scripts/clippy.sh
+
   build-rust:
     name: Rust - Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -73,6 +75,7 @@ jobs:
       with:
         name: ${{ runner.os }}-libtas_v2-dylib
         path: ./target/release/libtas_v2.dylib
+
   run-snapshot-tests:
     name: Run snapshot tests
     runs-on: ${{ matrix.os }}
@@ -94,6 +97,7 @@ jobs:
         name: ${{ runner.os }}-snapshot-tests
         path: ./test
       if: ${{ failure() }}
+
   build-sequencer:
     name: Build Continuous looper
     runs-on: ${{ matrix.os }}
@@ -131,3 +135,12 @@ jobs:
           cd ./crates/apps/looper/Sequencer
           brew install xcbeautify
           make test
+
+      - name: Build Sequencer.app
+        run: |
+          cd ./crates/apps/looper/Sequencer
+          make build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Sequencer.app
+          path: path/to/artifact/world.txt
