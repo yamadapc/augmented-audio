@@ -71,3 +71,6 @@ app.macos.type = "vst"
 app.macos.identifier = "com.beijaflor.Loopi"
 bundle.name = "Loopi"
 bundle.macos.properties.CFBundleGetInfoString = "vst"
+
+[package.metadata.augmented]
+private = true

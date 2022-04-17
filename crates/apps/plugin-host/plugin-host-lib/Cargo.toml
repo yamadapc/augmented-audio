@@ -55,3 +55,6 @@ audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-pro
 [[bench]]
 name = "plugin_host_lib_criterion"
 harness = false
+
+[package.metadata.augmented]
+private = true

@@ -58,6 +58,9 @@ story = []
 name = "plugin_host_gui_criterion"
 harness = false
 
+[package.metadata.augmented]
+private = true
+
 [package.metadata.app]
 public-name = "Plugin Host"
 

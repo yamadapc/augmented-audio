@@ -79,3 +79,6 @@ swift-bridge-build = "0.1"
 [[bench]]
 name = "looper_processor_criterion"
 harness = false
+
+[package.metadata.augmented]
+private = true

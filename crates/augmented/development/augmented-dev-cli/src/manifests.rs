@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use serde::{Deserialize, Serialize};
+use toml::value::Table;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ReleaseNotes {
@@ -97,6 +98,9 @@ pub struct CargoLib {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CargoToml {
     pub package: CargoTomlPackage,
+    pub dependencies: Option<Table>,
+    pub dev_dependencies: Option<Table>,
+    pub build_dependencies: Option<Table>,
     pub lib: Option<CargoLib>,
 }
 

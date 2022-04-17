@@ -52,6 +52,7 @@ fn main() {
         .subcommand(
             clap::Command::new("prerelease-all").about("Bump all crates into a pre-release state"),
         )
+        .subcommand(clap::Command::new("outdated").about("List outdated dependencies"))
         .subcommand(
             clap::Command::new("test-snapshots")
                 .about("Run processor snapshot tests")
@@ -70,6 +71,9 @@ fn main() {
     if matches.subcommand_matches("prerelease-all").is_some() {
         let list_crates_service = services::ListCratesService::default();
         prerelease_all_crates(&list_crates_service);
+    } else if matches.subcommand_matches("outdated").is_some() {
+        let outdated_crates_service = services::OutdatedCratesService::default();
+        outdated_crates_service.run();
     } else if matches.subcommand_matches("list-crates").is_some() {
         let list_crates_service = services::ListCratesService::default();
         list_crates_service.run();

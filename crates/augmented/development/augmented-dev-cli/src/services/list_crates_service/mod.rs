@@ -30,6 +30,9 @@ use crate::services::cargo_toml_reader::{CargoTomlReader, CargoTomlReaderImpl};
 use crate::services::list_crates_service::dependency_graph::DependencyGraph;
 use crates_io_api::SyncClient;
 
+/// Can list crates in the mono-repo and also list only the augmented audio crates.
+///
+/// Crates are considered part of augmented if they declare `[package.metadata.augmented]`.
 pub struct ListCratesService {
     cargo_toml_reader: Box<dyn CargoTomlReader>,
     client: SyncClient,
