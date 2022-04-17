@@ -140,7 +140,7 @@ jobs:
         run: |
           cd ./crates/apps/looper/Sequencer
           make build
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Sequencer.app
-          path: path/to/artifact/world.txt
+#      - uses: actions/upload-artifact@v3
+#        with:
+#          name: Sequencer.app
+#          path: path/to/artifact/world.txt
