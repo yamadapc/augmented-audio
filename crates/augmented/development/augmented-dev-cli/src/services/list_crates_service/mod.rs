@@ -182,7 +182,6 @@ impl ListCratesService {
         for (path, _manifest) in result {
             Self::add_crate_to_graph(path, &mut dependency_map, &mut graph);
         }
-        graph.generate_diagram("./docs/crate_graph.dot".as_ref());
         let ordered_crates = graph.order_crates();
         let result_map: HashMap<String, (String, CargoToml)> = result
             .iter()
