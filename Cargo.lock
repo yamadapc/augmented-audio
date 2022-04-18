@@ -792,10 +792,12 @@ dependencies = [
  "assert_no_alloc",
  "audio-processor-traits",
  "cookie-factory",
+ "criterion",
  "itertools 0.10.3",
  "log",
  "midir",
  "nom 7.1.0",
+ "rimd",
  "wisual-logger",
 ]
 
