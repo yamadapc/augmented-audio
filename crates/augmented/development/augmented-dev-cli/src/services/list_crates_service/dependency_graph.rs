@@ -91,7 +91,25 @@ impl DependencyGraph {
         }
         writeln!(&mut file, "}}").unwrap();
 
-        log::info!("Generated diagram");
+        log::info!("Generated diagram 1");
+
+        {
+            let target_pth = target_pth.with_extension("condensed.dot");
+            let mut file = std::fs::OpenOptions::new()
+                .write(true)
+                .truncate(true)
+                .create(true)
+                .open(target_pth)
+                .unwrap();
+            let condensed_graph =
+                daggy::petgraph::algo::condensation(self.graph.graph().clone(), false);
+            let dot = daggy::petgraph::dot::Dot::with_config(
+                &condensed_graph,
+                &[daggy::petgraph::dot::Config::EdgeNoLabel],
+            );
+            writeln!(&mut file, "{:?}", dot).unwrap();
+            log::info!("Generated diagram 2");
+        }
     }
 }
 
