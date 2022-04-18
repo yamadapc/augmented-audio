@@ -1,8 +1,8 @@
-use augmented_midi::ParserState;
+use augmented_midi::{parse_midi_file, ParserState};
 use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
 
 fn criterion_benchmark(c: &mut Criterion) {
-    let mut group = c.benchmark_group("parse MIDI message");
+    let mut group = c.benchmark_group("augmented_midi");
 
     group.bench_function("augmented_midi::parse_midi_event", |b| {
         let input_buffer = [0x9_8, 0x3C, 0x44];
@@ -51,6 +51,33 @@ fn criterion_benchmark(c: &mut Criterion) {
             );
         },
     );
+
+    let input_path = format!(
+        "{}/test-files/c1_4over4_1bar.mid",
+        env!("CARGO_MANIFEST_DIR")
+    );
+    let input_file = std::fs::read(input_path).unwrap();
+    group.bench_with_input(
+        "augmented_midi::parse_midi_file",
+        &input_file,
+        |b, input_file| {
+            b.iter(|| {
+                let result = parse_midi_file::<&str, &[u8]>(input_file).unwrap();
+                black_box(result);
+            });
+        },
+    );
+
+    group.bench_with_input("rimd::SMF::from_reader", &input_file, |b, input_file| {
+        b.iter_batched(
+            || std::io::Cursor::new(input_file),
+            |mut cursor| {
+                let result = rimd::SMF::from_reader(&mut cursor).unwrap();
+                black_box(result);
+            },
+            BatchSize::SmallInput,
+        );
+    });
 }
 
 criterion_group!(benches, criterion_benchmark,);
