@@ -1,0 +1,452 @@
+digraph dependency_graph {
+subgraph "daw_ui" {
+label = "daw_ui";
+style = filled;
+"daw_ui" -> "plugin-host-lib";
+"daw_ui" -> "audio-processor-graph";
+"daw_ui" -> "audio-processor-utility";
+"daw_ui" -> "augmented-dsp-filters";
+"daw_ui" -> "audio-processor-time";
+"daw_ui" -> "audio-processor-traits";
+"daw_ui" -> "audio-garbage-collector";
+}
+subgraph "plugin-host" {
+label = "plugin-host";
+style = filled;
+"plugin-host" -> "plugin-host-lib";
+}
+subgraph "plugin-host-gui2" {
+label = "plugin-host-gui2";
+style = filled;
+"plugin-host-gui2" -> "audio-processor-testing-helpers";
+"plugin-host-gui2" -> "augmented_oscillator";
+"plugin-host-gui2" -> "plugin-host-lib";
+"plugin-host-gui2" -> "augmented-audio-volume";
+"plugin-host-gui2" -> "audio-processor-iced-design-system";
+"plugin-host-gui2" -> "audio-processor-iced-storybook";
+"plugin-host-gui2" -> "audio-garbage-collector";
+"plugin-host-gui2" -> "audio-processor-traits";
+"plugin-host-gui2" -> "augmented";
+}
+subgraph "synth" {
+label = "synth";
+style = filled;
+"synth" -> "augmented-dsp-filters";
+"synth" -> "audio-processor-standalone";
+"synth" -> "augmented_oscillator";
+"synth" -> "augmented-adsr-envelope";
+"synth" -> "audio-processor-traits";
+"synth" -> "audio-garbage-collector";
+}
+subgraph "demo_plugin" {
+label = "demo_plugin";
+style = filled;
+"demo_plugin" -> "augmented";
+}
+subgraph "looper-vst" {
+label = "looper-vst";
+style = filled;
+"looper-vst" -> "looper-processor";
+"looper-vst" -> "audio-processor-file";
+"looper-vst" -> "audio-plugin-logger";
+"looper-vst" -> "audio-processor-traits";
+"looper-vst" -> "audio-parameter-store";
+"looper-vst" -> "audio-garbage-collector";
+"looper-vst" -> "audio-processor-analysis";
+"looper-vst" -> "augmented";
+"looper-vst" -> "audio-processor-testing-helpers";
+"looper-vst" -> "audio-processor-iced-storybook";
+"looper-vst" -> "iced-editor";
+"looper-vst" -> "audio-processor-iced-design-system";
+}
+subgraph "looper-processor" {
+label = "looper-processor";
+style = filled;
+"looper-processor" -> "audio-processor-testing-helpers";
+"looper-processor" -> "augmented-dsp-filters";
+"looper-processor" -> "audio-processor-analysis";
+"looper-processor" -> "audio-processor-dynamics";
+"looper-processor" -> "audio-processor-time";
+"looper-processor" -> "audio-processor-bitcrusher";
+"looper-processor" -> "audio-processor-pitch-shifter";
+"looper-processor" -> "augmented-audio-metrics";
+"looper-processor" -> "augmented_oscillator";
+"looper-processor" -> "augmented-midi";
+"looper-processor" -> "audio-processor-file";
+"looper-processor" -> "audio-processor-traits";
+"looper-processor" -> "audio-processor-graph";
+"looper-processor" -> "audio-processor-standalone-osc";
+"looper-processor" -> "audio-processor-standalone-midi";
+"looper-processor" -> "audio-processor-standalone";
+"looper-processor" -> "audio-garbage-collector";
+"looper-processor" -> "augmented-playhead";
+"looper-processor" -> "augmented-atomics";
+"looper-processor" -> "augmented-adsr-envelope";
+"looper-processor" -> "atomic-queue";
+"looper-processor" -> "metronome";
+"looper-processor" -> "actix-system-threads";
+}
+subgraph "metronome" {
+label = "metronome";
+style = filled;
+"metronome" -> "augmented-adsr-envelope";
+"metronome" -> "augmented-playhead";
+"metronome" -> "audio-garbage-collector";
+"metronome" -> "audio-processor-standalone";
+"metronome" -> "audio-processor-traits";
+"metronome" -> "augmented_oscillator";
+}
+subgraph "augmented-codegen" {
+label = "augmented-codegen";
+style = filled;
+}
+subgraph "tas_v2" {
+label = "tas_v2";
+style = filled;
+"tas_v2" -> "audio-processor-traits";
+"tas_v2" -> "generic-parameters-editor";
+"tas_v2" -> "augmented_oscillator";
+"tas_v2" -> "audio-parameter-store";
+"tas_v2" -> "webview-transport";
+}
+subgraph "augmented-playhead" {
+label = "augmented-playhead";
+style = filled;
+"augmented-playhead" -> "audio-processor-testing-helpers";
+"augmented-playhead" -> "augmented-atomics";
+"augmented-playhead" -> "audio-processor-traits";
+}
+subgraph "audio-processor-standalone-osc" {
+label = "audio-processor-standalone-osc";
+style = filled;
+}
+subgraph "augmented-analytics" {
+label = "augmented-analytics";
+style = filled;
+}
+subgraph "audio-plugin-logger" {
+label = "audio-plugin-logger";
+style = filled;
+}
+subgraph "smooth-value" {
+label = "smooth-value";
+style = filled;
+}
+subgraph "audio-settings-gui" {
+label = "audio-settings-gui";
+style = filled;
+"audio-settings-gui" -> "audio-processor-iced-storybook";
+"audio-settings-gui" -> "audio-processor-iced-design-system";
+}
+subgraph "audio-processor-iced-storybook" {
+label = "audio-processor-iced-storybook";
+style = filled;
+"audio-processor-iced-storybook" -> "audio-processor-iced-design-system";
+}
+subgraph "generic-parameters-editor" {
+label = "generic-parameters-editor";
+style = filled;
+"generic-parameters-editor" -> "webview-transport";
+"generic-parameters-editor" -> "webview-holder";
+"generic-parameters-editor" -> "macos-bundle-resources";
+"generic-parameters-editor" -> "audio-parameter-store";
+}
+subgraph "webview-transport" {
+label = "webview-transport";
+style = filled;
+"webview-transport" -> "webview-holder";
+}
+subgraph "webview-holder" {
+label = "webview-holder";
+style = filled;
+}
+subgraph "macos-bundle-resources" {
+label = "macos-bundle-resources";
+style = filled;
+}
+subgraph "darwin-webkit" {
+label = "darwin-webkit";
+style = filled;
+}
+subgraph "audio-parameter-store" {
+label = "audio-parameter-store";
+style = filled;
+"audio-parameter-store" -> "audio-processor-testing-helpers";
+}
+subgraph "audiounit" {
+label = "audiounit";
+style = filled;
+"audiounit" -> "avfaudio-sys";
+}
+subgraph "audio-garbage-collector-v2" {
+label = "audio-garbage-collector-v2";
+style = filled;
+"audio-garbage-collector-v2" -> "circular-data-structures";
+"audio-garbage-collector-v2" -> "atomic-queue";
+}
+subgraph "lame-mp3" {
+label = "lame-mp3";
+style = filled;
+}
+subgraph "audio-processor-bitcrusher" {
+label = "audio-processor-bitcrusher";
+style = filled;
+"audio-processor-bitcrusher" -> "audio-processor-testing-helpers";
+"audio-processor-bitcrusher" -> "audio-processor-standalone-gui";
+"audio-processor-bitcrusher" -> "audio-processor-standalone";
+"audio-processor-bitcrusher" -> "audio-garbage-collector";
+"audio-processor-bitcrusher" -> "audio-processor-traits";
+}
+subgraph "audio-processor-pitch-shifter" {
+label = "audio-processor-pitch-shifter";
+style = filled;
+"audio-processor-pitch-shifter" -> "audio-processor-file";
+"audio-processor-pitch-shifter" -> "audio-processor-testing-helpers";
+"audio-processor-pitch-shifter" -> "audio-processor-standalone";
+"audio-processor-pitch-shifter" -> "audio-garbage-collector";
+"audio-processor-pitch-shifter" -> "audio-processor-traits";
+"audio-processor-pitch-shifter" -> "audio-processor-analysis";
+}
+subgraph "audio-processor-traits-derive" {
+label = "audio-processor-traits-derive";
+style = filled;
+"audio-processor-traits-derive" -> "audio-processor-traits";
+}
+subgraph "avfaudio-sys" {
+label = "avfaudio-sys";
+style = filled;
+}
+subgraph "augmented-adsr-envelope" {
+label = "augmented-adsr-envelope";
+style = filled;
+"augmented-adsr-envelope" -> "augmented-atomics";
+}
+subgraph "audio-processor-dynamics" {
+label = "audio-processor-dynamics";
+style = filled;
+"audio-processor-dynamics" -> "audio-processor-standalone";
+"audio-processor-dynamics" -> "audio-processor-testing-helpers";
+"audio-processor-dynamics" -> "audio-processor-file";
+"audio-processor-dynamics" -> "augmented-audio-volume";
+"audio-processor-dynamics" -> "audio-garbage-collector";
+"audio-processor-dynamics" -> "audio-processor-traits";
+}
+subgraph "augmented-audio-volume" {
+label = "augmented-audio-volume";
+style = filled;
+"augmented-audio-volume" -> "audio-processor-testing-helpers";
+}
+subgraph "ruas-bundler" {
+label = "ruas-bundler";
+style = filled;
+}
+subgraph "augmented-dev-cli" {
+label = "augmented-dev-cli";
+style = filled;
+}
+subgraph "midi-logger-host" {
+label = "midi-logger-host";
+style = filled;
+}
+subgraph "autosync-submodules" {
+label = "autosync-submodules";
+style = filled;
+}
+subgraph "augmented-ui" {
+label = "augmented-ui";
+style = filled;
+}
+subgraph "thread_memory_usage" {
+label = "thread_memory_usage";
+style = filled;
+}
+subgraph "AugmentedNative" {
+label = "AugmentedNative";
+style = filled;
+"AugmentedNative" -> "plugin-host-lib";
+}
+subgraph "plugin-host-lib" {
+label = "plugin-host-lib";
+style = filled;
+"plugin-host-lib" -> "audio-processor-testing-helpers";
+"plugin-host-lib" -> "actix-system-threads";
+"plugin-host-lib" -> "augmented_oscillator";
+"plugin-host-lib" -> "augmented-convert-sample-rate";
+"plugin-host-lib" -> "circular-data-structures";
+"plugin-host-lib" -> "audio-processor-traits";
+"plugin-host-lib" -> "audio-processor-standalone-midi";
+"plugin-host-lib" -> "audio-processor-file";
+"plugin-host-lib" -> "augmented-audio-metrics";
+"plugin-host-lib" -> "audio-processor-analysis";
+"plugin-host-lib" -> "audio-processor-graph";
+"plugin-host-lib" -> "audio-garbage-collector";
+"plugin-host-lib" -> "atomic-queue";
+}
+subgraph "actix-system-threads" {
+label = "actix-system-threads";
+style = filled;
+}
+subgraph "audio-processor-standalone-midi" {
+label = "audio-processor-standalone-midi";
+style = filled;
+"audio-processor-standalone-midi" -> "audio-garbage-collector";
+"audio-processor-standalone-midi" -> "audio-processor-traits";
+"audio-processor-standalone-midi" -> "atomic-queue";
+}
+subgraph "audio-processor-analysis" {
+label = "audio-processor-analysis";
+style = filled;
+"audio-processor-analysis" -> "audio-processor-file";
+"audio-processor-analysis" -> "audio-processor-testing-helpers";
+"audio-processor-analysis" -> "audio-processor-file";
+"audio-processor-analysis" -> "audio-processor-testing-helpers";
+"audio-processor-analysis" -> "audio-processor-traits";
+"audio-processor-analysis" -> "audio-garbage-collector";
+}
+subgraph "audio-processor-graph" {
+label = "audio-processor-graph";
+style = filled;
+"audio-processor-graph" -> "audio-processor-standalone";
+"audio-processor-graph" -> "augmented-dsp-filters";
+"audio-processor-graph" -> "audio-processor-time";
+"audio-processor-graph" -> "audio-processor-utility";
+"audio-processor-graph" -> "audio-processor-testing-helpers";
+"audio-processor-graph" -> "augmented_oscillator";
+"audio-processor-graph" -> "audio-garbage-collector";
+"audio-processor-graph" -> "audio-processor-traits";
+}
+subgraph "augmented-dsp-filters" {
+label = "augmented-dsp-filters";
+style = filled;
+"augmented-dsp-filters" -> "audio-processor-testing-helpers";
+"augmented-dsp-filters" -> "audio-processor-traits";
+}
+subgraph "audio-processor-time" {
+label = "audio-processor-time";
+style = filled;
+"audio-processor-time" -> "audio-processor-standalone-gui";
+"audio-processor-time" -> "audio-processor-standalone";
+"audio-processor-time" -> "audio-garbage-collector";
+"audio-processor-time" -> "audio-processor-traits";
+}
+subgraph "audio-processor-standalone-gui" {
+label = "audio-processor-standalone-gui";
+style = filled;
+"audio-processor-standalone-gui" -> "audio-processor-iced-design-system";
+"audio-processor-standalone-gui" -> "iced-editor";
+"audio-processor-standalone-gui" -> "audio-processor-traits";
+}
+subgraph "audio-processor-iced-design-system" {
+label = "audio-processor-iced-design-system";
+style = filled;
+}
+subgraph "iced-editor" {
+label = "iced-editor";
+style = filled;
+}
+subgraph "audio-processor-utility" {
+label = "audio-processor-utility";
+style = filled;
+"audio-processor-utility" -> "audio-processor-testing-helpers";
+"audio-processor-utility" -> "audio-processor-standalone";
+"audio-processor-utility" -> "audio-garbage-collector";
+"audio-processor-utility" -> "audio-processor-traits";
+}
+subgraph "example-iced-audio-viz" {
+label = "example-iced-audio-viz";
+style = filled;
+"example-iced-audio-viz" -> "audio-processor-traits";
+"example-iced-audio-viz" -> "circular-data-structures";
+"example-iced-audio-viz" -> "atomic-queue";
+"example-iced-audio-viz" -> "audio-garbage-collector";
+"example-iced-audio-viz" -> "audio-processor-standalone";
+}
+subgraph "example-iced-xcode-integration" {
+label = "example-iced-xcode-integration";
+style = filled;
+}
+subgraph "example-druid-audio-viz" {
+label = "example-druid-audio-viz";
+style = filled;
+"example-druid-audio-viz" -> "audio-processor-traits";
+"example-druid-audio-viz" -> "circular-data-structures";
+"example-druid-audio-viz" -> "atomic-queue";
+"example-druid-audio-viz" -> "audio-garbage-collector";
+"example-druid-audio-viz" -> "audio-processor-standalone";
+}
+subgraph "circular-data-structures" {
+label = "circular-data-structures";
+style = filled;
+}
+subgraph "audio-processor-standalone" {
+label = "audio-processor-standalone";
+style = filled;
+"audio-processor-standalone" -> "audio-processor-testing-helpers";
+"audio-processor-standalone" -> "atomic-queue";
+"audio-processor-standalone" -> "augmented-midi";
+"audio-processor-standalone" -> "audio-processor-traits";
+"audio-processor-standalone" -> "audio-garbage-collector";
+"audio-processor-standalone" -> "audio-processor-file";
+}
+subgraph "atomic-queue" {
+label = "atomic-queue";
+style = filled;
+}
+subgraph "augmented-midi" {
+label = "augmented-midi";
+style = filled;
+"augmented-midi" -> "audio-processor-traits";
+}
+subgraph "audio-processor-file" {
+label = "audio-processor-file";
+style = filled;
+"audio-processor-file" -> "audio-processor-testing-helpers";
+"audio-processor-file" -> "augmented-convert-sample-rate";
+"audio-processor-file" -> "augmented-audio-metrics";
+"audio-processor-file" -> "audio-processor-traits";
+"audio-processor-file" -> "audio-garbage-collector";
+}
+subgraph "augmented-convert-sample-rate" {
+label = "augmented-convert-sample-rate";
+style = filled;
+"augmented-convert-sample-rate" -> "audio-processor-testing-helpers";
+"augmented-convert-sample-rate" -> "augmented_oscillator";
+}
+subgraph "audio-processor-testing-helpers" {
+label = "audio-processor-testing-helpers";
+style = filled;
+"audio-processor-testing-helpers" -> "augmented_oscillator";
+"audio-processor-testing-helpers" -> "audio-processor-traits";
+}
+subgraph "augmented-audio-metrics" {
+label = "augmented-audio-metrics";
+style = filled;
+"augmented-audio-metrics" -> "augmented-atomics";
+"augmented-audio-metrics" -> "audio-processor-traits";
+"augmented-audio-metrics" -> "audio-garbage-collector";
+}
+subgraph "audio-processor-traits" {
+label = "audio-processor-traits";
+style = filled;
+"audio-processor-traits" -> "augmented_oscillator";
+"audio-processor-traits" -> "audio-garbage-collector";
+"audio-processor-traits" -> "augmented-atomics";
+}
+subgraph "augmented_oscillator" {
+label = "augmented_oscillator";
+style = filled;
+"augmented_oscillator" -> "augmented-atomics";
+}
+subgraph "augmented-atomics" {
+label = "augmented-atomics";
+style = filled;
+}
+subgraph "audio-garbage-collector" {
+label = "audio-garbage-collector";
+style = filled;
+}
+subgraph "wisual-logger" {
+label = "wisual-logger";
+style = filled;
+}
+}
