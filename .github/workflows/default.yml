@@ -135,12 +135,3 @@ jobs:
           cd ./crates/apps/looper/Sequencer
           brew install xcbeautify
           make test
-
-      - name: Build Sequencer.app
-        run: |
-          cd ./crates/apps/looper/Sequencer
-          make build
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: Sequencer.app
-#          path: path/to/artifact/world.txt
