@@ -36,20 +36,24 @@
 //! The distribution or public playback of the files is only allowed under identical license conditions.
 //! The scores are open source.
 //!
-//! # Parsing messages
-//! We can parse MIDI messages as follows:
+//! # Parsing a single message
+//! We can parse a single MIDI message as follows.
 //!
 //! ```rust
 //! use augmented_midi::{MIDIMessage, MIDIMessageNote, MIDIParseResult, parse_midi_event, ParserState};
 //!
-//! // Initialize parser state
+//! // Initialize parser state. This is here to support rolling status on MIDI files
 //! let mut state = ParserState::default();
 //!
 //! // We'll parse this &[u8] buffer. This could be a vec
 //! let input_buffer = [0x9_8, 0x3C, 0x44];
 //!
 //! // We parse a message borrowing from the input buffer. We could use `MIDIMessage<Vec<u8>>` to
-//! // allocate owned messages. This is only relevant for variable size messages like SysEx.
+//! // allocate owned messages.
+//! //
+//! // This is only relevant for variable size messages like SysEx.
+//! //
+//! // Parsing is otherwise only using the stack.
 //! let parse_result: MIDIParseResult<MIDIMessage<&[u8]>> =
 //!     parse_midi_event(&input_buffer, &mut state);
 //! let (_remaining_input, midi_message) = parse_result.unwrap();
@@ -58,6 +62,7 @@
 //! ```
 //!
 //! # Serializing messages
+//!
 //! ```
 //! use augmented_midi::{serialize_message, MIDIMessage};
 //!
