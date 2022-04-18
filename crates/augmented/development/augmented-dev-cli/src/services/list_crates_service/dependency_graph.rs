@@ -61,6 +61,7 @@ impl DependencyGraph {
             .collect()
     }
 
+    #[allow(dead_code)]
     pub fn generate_diagram(&self, target_pth: &Path) {
         let mut file = std::fs::OpenOptions::new()
             .write(true)
