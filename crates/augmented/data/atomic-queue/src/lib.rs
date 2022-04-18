@@ -355,7 +355,7 @@ mod test {
             let queue = queue.clone();
             let output_queue = output_queue.clone();
             thread::spawn(move || {
-                while *is_running.lock().unwrap() {
+                while *is_running.lock().unwrap() || queue.len() > 0 {
                     loop {
                         match queue.pop() {
                             None => break,
