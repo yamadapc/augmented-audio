@@ -45,9 +45,11 @@ Future<MetronomeDatabase> buildInMemoryDatabase() {
       .build();
 }
 
+const databaseName = 'metronome_database.db';
+
 Future<MetronomeDatabase> buildDatabase() {
   return $FloorMetronomeDatabase
-      .databaseBuilder('metronome_database.db')
+      .databaseBuilder(databaseName)
       .addMigrations(migrations)
       .build();
 }

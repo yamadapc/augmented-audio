@@ -1,5 +1,6 @@
 import 'dart:ffi';
 
+import 'package:floor/floor.dart';
 import 'package:flutter/cupertino.dart';
 
 import './tabs/history/history_page_tab.dart';
@@ -37,12 +38,12 @@ class _HomePageState extends State<HomePage> {
     // trace.start();
 
     logger.i("Initializing metronome bridge");
-    metronome = Metronome(DynamicLibrary.executable());
+    metronome = MetronomeImpl(DynamicLibrary.executable());
     metronome.initialize();
 
-    logger.i("Opening SQLite database");
+    var path = sqfliteDatabaseFactory.getDatabasePath(databaseName);
+    logger.i("Opening SQLite database path=$path");
     var databasePromise = buildDatabase();
-
     databasePromise.then((database) {
       logger.i("Setting-up controllers");
 

@@ -19,5 +19,18 @@ And you can download it from the app store on [Simple Metronome](https://apps.ap
   <img src="https://github.com/yamadapc/augmented-audio/raw/master/crates/apps/metronome/design/screenshots/03-dark.png" width="300" />
 </p>
 
+## Generating bridge
+```
+cargo install flutter_rust_bridge_codegen --version "^1.13"
+```
+
+Then:
+```
+make build-bindings
+```
+
+If on a M1 mac, you will need x86 homebrew and LLVM installed, since flutter 
+tooling will only run via rosetta. See - https://stackoverflow.com/questions/67386941/using-x86-libraries-and-openmp-on-macos-arm64-architecture.
+
 ## License
 This subdirectory is licensed under AGPLv3 for now.

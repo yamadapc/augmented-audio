@@ -1,25 +1,9 @@
-// = copyright ====================================================================
-// Simple Metronome: macOS Metronome app
-// Copyright (C) 2022  Pedro Tacla Yamada
-//
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
-//
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// = /copyright ===================================================================
 #![allow(
     non_camel_case_types,
     unused,
     clippy::redundant_closure,
     clippy::useless_conversion,
+    clippy::unit_arg,
     non_snake_case
 )]
 // AUTO GENERATED FILE, DO NOT EDIT.
@@ -27,6 +11,8 @@
 
 use crate::api::*;
 use flutter_rust_bridge::*;
+
+// Section: imports
 
 // Section: wire functions
 
@@ -128,7 +114,9 @@ pub extern "C" fn wire_get_playhead(port_: i64) {
 
 // Section: wire structs
 
-// Section: wire enums
+// Section: wrapper structs
+
+// Section: static checks
 
 // Section: allocate functions
 
@@ -184,6 +172,7 @@ impl<T> NewWithNullPtr for *mut T {
 // Section: impl IntoDart
 
 // Section: executor
+
 support::lazy_static! {
     pub static ref FLUTTER_RUST_BRIDGE_HANDLER: support::DefaultHandler = Default::default();
 }

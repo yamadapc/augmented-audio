@@ -41,7 +41,6 @@ flutter_icons:
   image_path: "design/icon.png"
   remove_alpha_ios: true
 
-
 dependency_overrides:
   analyzer: 3.0.0
 
