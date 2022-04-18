@@ -10,7 +10,7 @@ format: FORCE
 
 build: FORCE
 	cd ../looper-processor && make
-	xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer Mac" -configuration Release
+	xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer Mac"
 
 test: FORCE
 	./scripts/run-tests.sh
