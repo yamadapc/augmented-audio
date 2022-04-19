@@ -24,6 +24,27 @@
 //! implementation to rust.
 //!
 //! It provides a bounded multi-producer, multi-consumer lock-free queue that is real-time safe.
+//!
+//! # Usage
+//! ```rust
+//! let queue: atomic_queue::Queue<usize> = atomic_queue::bounded(10);
+//!
+//! queue.push(10);
+//! if let Some(v) = queue.pop() {
+//!     assert_eq!(v, 10);
+//! }
+//! ```
+//!
+//! # Safety
+//! This queue implementation uses unsafe internally.
+//!
+//! # Performance
+//! When benchmarked on a 2017 i7, this was a lot slower than `ringbuf` (~2x).
+//!
+//! I'd think this is fine since this queue supporting multiple consumers and
+//! multiple producers while `ringbuf` is single producer single consumer.
+//!
+//! Testing again on a M1 Pro, it is 30% faster.
 use std::cmp::max;
 use std::mem::MaybeUninit;
 use std::sync::atomic::{AtomicI8, AtomicUsize, Ordering};
@@ -66,6 +87,13 @@ pub struct Queue<T> {
 unsafe impl<T: Send> Send for Queue<T> {}
 unsafe impl<T> Sync for Queue<T> {}
 
+/// Alias for `Queue::new`, creates a new bounded MPMC queue with the given capacity.
+///
+/// Writes will fail if the queue is full.
+pub fn bounded<T>(capacity: usize) -> Queue<T> {
+    Queue::new(capacity)
+}
+
 impl<T> Queue<T> {
     /// Create a queue with a certain capacity. Writes will fail when the queue is full.
     pub fn new(capacity: usize) -> Self {
@@ -91,6 +119,8 @@ impl<T> Queue<T> {
     ///
     /// `false` will be returned if the queue is full. If there's contention this operation will
     /// wait until it's able to claim a slot in the queue.
+    ///
+    /// This is a CAS loop to increment the head of the queue, then another to push this element in.
     pub fn push(&self, element: T) -> bool {
         let mut head = self.head.load(Ordering::Relaxed);
         let elements_len = self.elements.len();
@@ -117,6 +147,9 @@ impl<T> Queue<T> {
     ///
     /// `false` will be returned if the queue is empty. If there's contention this operation will
     /// wait until it's able to claim a slot in the queue.
+    ///
+    /// This is a CAS loop to increment the tail of the queue then another CAS loop to pop the
+    /// element at this index out.
     pub fn pop(&self) -> Option<T> {
         let mut tail = self.tail.load(Ordering::Relaxed);
         loop {
@@ -139,13 +172,19 @@ impl<T> Queue<T> {
     }
 
     /// Pop an element from the queue without checking if it's empty.
-    pub fn force_pop(&self) -> T {
+    ///
+    /// # Safety
+    /// There's nothing safe about this.
+    pub unsafe fn force_pop(&self) -> T {
         let tail = self.tail.fetch_add(1, Ordering::Acquire);
         self.do_pop(tail)
     }
 
     /// Push an element into the queue without checking if it's full.
-    pub fn force_push(&self, element: T) {
+    ///
+    /// # Safety
+    /// There's nothing safe about this.
+    pub unsafe fn force_push(&self, element: T) {
         let head = self.head.fetch_add(1, Ordering::Acquire);
         self.do_push(element, head);
     }
