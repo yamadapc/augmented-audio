@@ -23,6 +23,8 @@
 //! [`atomic_queue`] is a port of C++'s [max0x7ba/atomic_queue](https://github.com/max0x7ba/atomic_queue)
 //! implementation to rust.
 //!
+//! This is part of [augmented-audio](https://github.com/yamadapc/augmented-audio).
+//!
 //! It provides a bounded multi-producer, multi-consumer lock-free queue that is real-time safe.
 //!
 //! # Usage
