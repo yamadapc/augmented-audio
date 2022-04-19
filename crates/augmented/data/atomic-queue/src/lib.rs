@@ -51,6 +51,8 @@ use std::cmp::max;
 use std::mem::MaybeUninit;
 use std::sync::atomic::{AtomicI8, AtomicUsize, Ordering};
 
+#[warn(missing_docs)]
+
 /// State a slot in the Queue's circular buffer can be in.
 enum CellState {
     Empty = 0,
