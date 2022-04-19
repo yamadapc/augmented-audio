@@ -20,9 +20,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+#[warn(missing_docs)]
+
+/// Envelope follower implementation
 pub mod envelope_follower_processor;
+
+/// FFT processor implementation with windowing & overlap, wraps `rustfft`
 pub mod fft_processor;
+
+/// Peak detector implementation
 pub mod peak_detector;
+
+/// RMS implementation suitable for GUI reacting to magnitude of the signal. Accumulates values on
+/// a circular buffer, the consumer calculates the RMS value based on it.
 pub mod running_rms_processor;
+
+/// Polyphonic transient detection implementation
 pub mod transient_detection;
+
+/// Many window functions
 pub mod window_functions;

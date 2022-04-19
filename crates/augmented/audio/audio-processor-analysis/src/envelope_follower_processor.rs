@@ -31,6 +31,8 @@ fn calculate_multiplier(sample_rate: f32, duration_ms: f32) -> f32 {
     (-1.0 / attack_samples).exp2()
 }
 
+/// Handle for [`EnvelopeFollowerProcessor`] use this to interact with the processor parameters from
+/// any thread.
 pub struct EnvelopeFollowerHandle {
     envelope_state: AtomicF32,
     attack_multiplier: AtomicF32,
@@ -41,10 +43,12 @@ pub struct EnvelopeFollowerHandle {
 }
 
 impl EnvelopeFollowerHandle {
+    /// Get the current envelope value
     pub fn state(&self) -> f32 {
         self.envelope_state.get()
     }
 
+    /// Set the attack as a `Duration`
     pub fn set_attack(&self, duration: Duration) {
         let duration_ms = duration.as_millis() as f32;
         self.attack_duration_ms.set(duration_ms);
@@ -52,6 +56,7 @@ impl EnvelopeFollowerHandle {
             .set(calculate_multiplier(self.sample_rate.get(), duration_ms));
     }
 
+    /// Set the release as a `Duration`
     pub fn set_release(&self, duration: Duration) {
         let duration_ms = duration.as_millis() as f32;
         self.release_duration_ms.set(duration_ms);
@@ -60,6 +65,23 @@ impl EnvelopeFollowerHandle {
     }
 }
 
+/// An implementation of an envelope follower.
+///
+/// Implements [`audio_processor_traits::SimpleAudioProcessor`]. Can either use it for per-sample
+/// processing or wrap this with [`audio_processor_traits::simple_processor::BufferProcessor`].
+///
+/// # Example
+/// ```rust
+/// use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
+/// use audio_processor_traits::SimpleAudioProcessor;
+///
+/// let mut  envelope_follower = EnvelopeFollowerProcessor::default();
+/// let _handle = envelope_follower.handle(); // can send to another thread
+///
+/// // Envelope follower implements `SimpleAudioProcessor`
+/// envelope_follower.s_prepare(Default::default());
+/// envelope_follower.s_process(1.0);
+/// ```
 pub struct EnvelopeFollowerProcessor {
     handle: Shared<EnvelopeFollowerHandle>,
 }
@@ -71,6 +93,7 @@ impl Default for EnvelopeFollowerProcessor {
 }
 
 impl EnvelopeFollowerProcessor {
+    /// Create a new `EnvelopeFollowerProcessor` with this attack and release times.
     pub fn new(attack_duration: Duration, release_duration: Duration) -> Self {
         let sample_rate = AudioProcessorSettings::default().sample_rate;
         EnvelopeFollowerProcessor {
@@ -93,6 +116,7 @@ impl EnvelopeFollowerProcessor {
         }
     }
 
+    /// Get a reference to the `basedrop::Shared` state handle of this processor
     pub fn handle(&self) -> &Shared<EnvelopeFollowerHandle> {
         &self.handle
     }
