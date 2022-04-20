@@ -11,5 +11,13 @@ accepted = [
     "BSD-1-Clause",
     "BSD-2-Clause",
     "BSD-3-Clause",
+    "zlib-acknowledgement",
 ]
 ignore-dev-dependencies = true
+
+# These are internal crates
+[daw_ui]
+accepted = ["GPL-3.0"]
+
+[metronome]
+accepted = ["AGPL-3.0"]

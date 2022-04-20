@@ -4,6 +4,7 @@ cargo-features = ["edition2021"]
 name = "daw_ui"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3.0"
 
 [lib]
 crate-type = ["lib", "cdylib"]
