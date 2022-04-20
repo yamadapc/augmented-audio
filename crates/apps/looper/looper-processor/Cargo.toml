@@ -33,7 +33,6 @@ rustc-hash = "1.1"
 lazy_static = "1.4.0"
 # Documentation
 aquamarine = "0.1"
-cacao = { version = "0.2" }
 
 # Application / Project management things
 actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }
@@ -73,6 +72,9 @@ audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-an
 augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.5" }
 
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.5" }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cacao = { version = "0.2" }
 
 [dev-dependencies]
 criterion = "^0.3.4"
