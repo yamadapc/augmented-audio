@@ -7,46 +7,19 @@
 //! * HMM Decoding: Viterbi Algorithm, Shallow Processing Techniques for NLP Ling570
 //! * Parabolic Interpolation, http://fourier.eng.hmc.edu/
 
-use std::cmp::Ordering;
-
 use audio_processor_traits::{AudioProcessorSettings, SimpleAudioProcessor};
 
 use crate::fft_processor::FftProcessor;
 
-/// Given a bin, estimate its frequency
-fn estimate_frequency_from_location(sample_rate: f32, location: usize, bin_count: usize) -> f32 {
-    let ratio: f32 = location as f32 / bin_count as f32;
-    sample_rate * ratio
-}
+mod max_value_estimator;
+mod quadratic_estimator;
+mod utils;
+mod yin_estimator;
 
 enum EstimationStrategy {
     MaxValue,
-}
-
-/// Implements pitch-detection by finding the maximum bin in a FFT buffer.
-///
-/// This is not accurate and susceptible to jumping around harmonics.
-fn max_value_estimate_frequency(
-    sample_rate: f32,
-    fft_real_buffer: impl ExactSizeIterator<Item = f32>,
-) -> Option<f32> {
-    let bin_count = fft_real_buffer.len();
-    let max_bin = maximum_index(fft_real_buffer)?;
-
-    Some(estimate_frequency_from_location(
-        sample_rate,
-        max_bin,
-        bin_count,
-    ))
-}
-
-fn maximum_index(iterator: impl ExactSizeIterator<Item = f32>) -> Option<usize> {
-    iterator
-        .enumerate()
-        .max_by(|(_, f1): &(usize, f32), (_, f2): &(usize, f32)| {
-            f1.abs().partial_cmp(&f2.abs()).unwrap_or(Ordering::Equal)
-        })
-        .map(|(i, _f)| i)
+    Quadratic,
+    YIN,
 }
 
 /// Real-time pitch-detection processor. Pitch will be detected with latency from the FFT size.
@@ -57,6 +30,14 @@ pub struct PitchDetectorProcessor {
     strategy: EstimationStrategy,
     sample_rate: f32,
     estimate: f32,
+}
+
+impl From<EstimationStrategy> for PitchDetectorProcessor {
+    fn from(strategy: EstimationStrategy) -> Self {
+        let mut processor = Self::default();
+        processor.strategy = strategy;
+        processor
+    }
 }
 
 impl Default for PitchDetectorProcessor {
@@ -73,12 +54,15 @@ impl Default for PitchDetectorProcessor {
 impl PitchDetectorProcessor {
     fn on_fft(&mut self) {
         let fft_buffer = self.fft.buffer();
-        // log::info!("{:?}", fft_buffer);
         let fft_real_buffer = fft_buffer.iter().map(|f| f.re).take(fft_buffer.len() / 2);
         let estimate = match self.strategy {
             EstimationStrategy::MaxValue => {
-                max_value_estimate_frequency(self.sample_rate, fft_real_buffer)
+                max_value_estimator::estimate_frequency(self.sample_rate, fft_real_buffer)
             }
+            EstimationStrategy::Quadratic => {
+                quadratic_estimator::estimate_frequency(self.sample_rate, &fft_buffer)
+            }
+            EstimationStrategy::YIN => todo!(),
         };
         if let Some(estimate) = estimate {
             self.estimate = estimate;
@@ -106,21 +90,32 @@ impl SimpleAudioProcessor for PitchDetectorProcessor {
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::charts::draw_vec_chart;
-    use audio_processor_testing_helpers::{assert_f_eq, relative_path};
+    use audio_processor_testing_helpers::relative_path;
 
-    use crate::pitch_detection::{
-        max_value_estimate_frequency, maximum_index, PitchDetectorProcessor,
-    };
     use audio_processor_file::AudioFileProcessor;
     use audio_processor_traits::{
         AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, SimpleAudioProcessor, VecAudioBuffer,
     };
 
+    use crate::pitch_detection::{EstimationStrategy, PitchDetectorProcessor};
+
     #[test]
     fn test_max_estimator() {
+        let strategy = EstimationStrategy::MaxValue;
+        let strategy_name = "MaxValueEstimator";
+        draw_estimation_strategy(strategy, strategy_name);
+    }
+
+    #[test]
+    fn test_quadratic_estimator() {
+        let strategy = EstimationStrategy::Quadratic;
+        let strategy_name = "QuadraticEstimator";
+        draw_estimation_strategy(strategy, strategy_name);
+    }
+
+    fn draw_estimation_strategy(strategy: EstimationStrategy, strategy_name: &str) {
         wisual_logger::init_from_env();
-        let input_file_path = relative_path!("../../../confirmation.mp3");
-        // let input_file_path = relative_path!("../../../../input-files/C3-loop.mp3");
+        let input_file_path = relative_path!("../../../../input-files/C3-loop.mp3");
 
         let settings = AudioProcessorSettings::default();
         let mut input = AudioFileProcessor::from_path(
@@ -131,7 +126,7 @@ mod test {
         .unwrap();
         input.prepare(settings);
 
-        let mut pitch_detector = PitchDetectorProcessor::default();
+        let mut pitch_detector = PitchDetectorProcessor::from(strategy);
         pitch_detector.s_prepare(settings);
 
         let mut results = vec![];
@@ -155,29 +150,6 @@ mod test {
 
         let results: Vec<f32> = results.iter().skip(10000).cloned().collect();
         let output_path = relative_path!("src/pitch_detection/mod.rs");
-        draw_vec_chart(&output_path, "MaxValueEstimator", results);
-    }
-
-    #[test]
-    fn test_maximum_estimate_location() {
-        let iterator: Vec<f32> = vec![10.0, 30.0, 20.0, 5.0];
-        let freq = max_value_estimate_frequency(1000.0, iterator.iter().cloned()).unwrap();
-        // Maximum bin 1, sample rate is 1000Hz, num bins is 4
-        // Estimated freq should be 250Hz
-        assert_f_eq!(freq, 250.0);
-    }
-
-    #[test]
-    fn test_maximum_index_when_exists() {
-        let iterator: Vec<f32> = vec![10.0, 30.0, 20.0, 5.0];
-        let index = maximum_index(iterator.iter().cloned()).unwrap();
-        assert_eq!(index, 1);
-    }
-
-    #[test]
-    fn test_maximum_index_when_does_not_exist() {
-        let iterator: Vec<f32> = vec![];
-        let index = maximum_index(iterator.iter().cloned());
-        assert_eq!(index, None);
+        draw_vec_chart(&output_path, strategy_name, results);
     }
 }
