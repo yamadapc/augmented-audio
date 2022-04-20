@@ -35,7 +35,7 @@
 		CB59A60D27FF057E004BC156 /* EffectsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60C27FF057E004BC156 /* EffectsService.swift */; };
 		CB59A61127FFA1E3004BC156 /* EffectsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */; };
 		CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1727D8AE6600D7788E /* AppDelegate.swift */; };
-		CB801A1A27D8AE6600D7788E /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1927D8AE6600D7788E /* ViewController.swift */; };
+		CB801A1A27D8AE6600D7788E /* MainWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1927D8AE6600D7788E /* MainWindowViewController.swift */; };
 		CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1B27D8AE6600D7788E /* Assets.xcassets */; };
 		CB801A1F27D8AE6600D7788E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1D27D8AE6600D7788E /* Main.storyboard */; };
 		CBA4DA9327DDF21800A530E3 /* SequencerEngine.h in Headers */ = {isa = PBXBuildFile; fileRef = CBA4DA9227DDF21800A530E3 /* SequencerEngine.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -193,7 +193,7 @@
 		CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsServiceTests.swift; sourceTree = "<group>"; };
 		CB801A1527D8AE6600D7788E /* Continuous Looper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Continuous Looper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		CB801A1927D8AE6600D7788E /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		CB801A1927D8AE6600D7788E /* MainWindowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowViewController.swift; sourceTree = "<group>"; };
 		CB801A1B27D8AE6600D7788E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CB801A1E27D8AE6600D7788E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		CB801A2027D8AE6600D7788E /* Sequencer_Mac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer_Mac.entitlements; sourceTree = "<group>"; };
@@ -481,7 +481,7 @@
 			children = (
 				CB3D995727EFD78E00E5ECBA /* Sequencer-Mac-Info.plist */,
 				CB801A1727D8AE6600D7788E /* AppDelegate.swift */,
-				CB801A1927D8AE6600D7788E /* ViewController.swift */,
+				CB801A1927D8AE6600D7788E /* MainWindowViewController.swift */,
 				CB801A1B27D8AE6600D7788E /* Assets.xcassets */,
 				CB801A1D27D8AE6600D7788E /* Main.storyboard */,
 				CB801A2027D8AE6600D7788E /* Sequencer_Mac.entitlements */,
@@ -943,7 +943,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB801A1A27D8AE6600D7788E /* ViewController.swift in Sources */,
+				CB801A1A27D8AE6600D7788E /* MainWindowViewController.swift in Sources */,
 				CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
