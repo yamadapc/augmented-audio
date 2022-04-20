@@ -28,12 +28,12 @@ use rustc_hash::FxHashMap as HashMap;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
+use audio_processor_metronome::MetronomeProcessor;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
 use augmented_atomics::AtomicValue;
 use augmented_oscillator::Oscillator;
-use metronome::MetronomeProcessor;
 
 use crate::audio::time_info_provider::TimeInfoMetronomePlayhead;
 use crate::{LooperOptions, TimeInfoProvider, TimeInfoProviderImpl};
@@ -122,9 +122,9 @@ impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
 
-        let metronome = metronome::MetronomeProcessor::new(TimeInfoMetronomePlayhead(
-            time_info_provider.clone(),
-        ));
+        let metronome = audio_processor_metronome::MetronomeProcessor::new(
+            TimeInfoMetronomePlayhead(time_info_provider.clone()),
+        );
         let metronome_handle = metronome.handle().clone();
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);

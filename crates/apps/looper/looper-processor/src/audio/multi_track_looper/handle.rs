@@ -28,9 +28,9 @@ use basedrop::SharedCell;
 use num::ToPrimitive;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
+use audio_processor_metronome::MetronomeProcessorHandle;
 use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
-use metronome::MetronomeProcessorHandle;
 
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::audio::multi_track_looper::scene_state::SceneHandle;

@@ -2,6 +2,7 @@
 name = "audio-processor-metronome"
 version = "0.1.0"
 description = "Implements a simple metronome processor"
+license = "MIT"
 edition = "2021"
 
 [dependencies]
@@ -13,4 +14,4 @@ augmented-playhead = { path = "../../data/augmented-playhead" , version = "0.1.0
 augmented-adsr-envelope = { path = "../adsr-envelope" , version = "0.1.0-alpha.4" }
 
 [package.metadata.augmented]
-private = true
+private = false

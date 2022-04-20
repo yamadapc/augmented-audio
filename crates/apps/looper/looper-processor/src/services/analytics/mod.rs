@@ -1,5 +1,5 @@
-use actix::{Actor, Handler, Message, MessageResponse, MessageResult};
-use augmented_analytics::{AnalyticsClient, AnalyticsWorker};
+use actix::{Actor, Handler, Message};
+// use augmented_analytics::{AnalyticsClient, AnalyticsWorker};
 use cacao::defaults::UserDefaults;
 
 struct AnalyticsService {

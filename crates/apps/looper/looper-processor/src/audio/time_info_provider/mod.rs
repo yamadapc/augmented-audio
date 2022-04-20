@@ -30,13 +30,13 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use derive_builder::Builder;
 use mockall::automock;
 
+use audio_processor_metronome::MetronomePlayhead;
 #[cfg(not(target_os = "ios"))]
 use audio_processor_standalone::standalone_vst::vst;
 #[cfg(not(target_os = "ios"))]
 pub use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use augmented_atomics::AtomicValue;
 use augmented_playhead::{PlayHead, PlayHeadOptions};
-use metronome::MetronomePlayhead;
 
 #[cfg(target_os = "ios")]
 pub type HostCallback = ();
