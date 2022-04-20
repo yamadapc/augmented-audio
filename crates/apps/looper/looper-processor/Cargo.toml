@@ -29,6 +29,7 @@ rustc-hash = "1.1"
 lazy_static = "1.4.0"
 # Documentation
 aquamarine = "0.1"
+cacao = { version = "0.2" }
 
 # Application / Project management things
 actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }
@@ -39,6 +40,7 @@ serde_derive = "1.0"
 rmp-serde = "1.0"
 bytesize = { version = "1.1.0", features = ["serde"] }
 tempdir = "0.3"
+augmented-analytics = { path = "../../../augmented/ops/augmented-analytics" }
 
 # Audio
 metronome = { path = "../../metronome" }
