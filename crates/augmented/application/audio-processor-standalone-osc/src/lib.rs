@@ -22,13 +22,10 @@
 // THE SOFTWARE.
 use std::collections::HashMap;
 use std::net::{Ipv4Addr, SocketAddrV4, UdpSocket};
-
 use std::time::Duration;
 
 use rosc::{OscMessage, OscPacket};
 use thiserror::Error;
-use zeroconf::prelude::*;
-use zeroconf::{MdnsService, ServiceType};
 
 pub type OscHandler<C> = Box<dyn Fn(&C, OscMessage) + Send>;
 
@@ -58,8 +55,6 @@ impl<C> OscMap<C> {
 pub enum OscServerError {
     #[error("IO Error, failed to open socket")]
     IOError(#[from] std::io::Error),
-    #[error("Failed to perform service discovery")]
-    ZeroConfError(#[from] zeroconf::error::Error),
 }
 
 pub struct OscServer<C> {
@@ -72,24 +67,7 @@ impl<C> OscServer<C> {
         Self { context, map }
     }
 
-    pub fn build_service(&self) -> impl TMdnsService {
-        let mut service = MdnsService::new(ServiceType::new("looper", "udp").unwrap(), 1449);
-        service.set_registered_callback(Box::new(|registration, _context| match registration {
-            Ok(_) => log::info!("OSC server registered"),
-            Err(err) => log::error!("Failed to register OSC server: {}", err),
-        }));
-        let hostname = hostname::get().unwrap();
-        let _hostname = hostname.to_str().unwrap();
-        // service.set_host(hostname);
-        // log::info!("Publishing host to {}", hostname);
-
-        service
-    }
-
     pub fn start(&self) -> Result<(), OscServerError> {
-        let mut service = self.build_service();
-        let event_loop = service.register().unwrap();
-
         let addr = SocketAddrV4::new(Ipv4Addr::UNSPECIFIED, 1449);
         let sock = UdpSocket::bind(addr)?;
         sock.set_read_timeout(Some(Duration::from_millis(500)))?;
@@ -108,8 +86,6 @@ impl<C> OscServer<C> {
                     log::debug!("Failed to recv from OSC socket {}", err);
                 }
             }
-
-            event_loop.poll(Duration::from_secs(1))?;
         }
     }
 
