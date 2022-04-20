@@ -44,7 +44,7 @@
 
         <h2>Overview of licenses:</h2>
         <ul class="licenses-overview">
-            <li><a href="#MIT">MIT License</a> (77)</li>
+            <li><a href="#MIT">MIT License</a> (62)</li>
             <li><a href="#Apache-2.0">Apache License 2.0</a> (39)</li>
             <li><a href="#BSD-3-Clause">BSD 3-Clause &quot;New&quot; or &quot;Revised&quot; License</a> (4)</li>
             <li><a href="#BSD-2-Clause">BSD 2-Clause &quot;Simplified&quot; License</a> (2)</li>
@@ -7372,497 +7372,58 @@ THIS SOFTWARE.
                 <h3 id="MIT">MIT License</h3>
                 <h4>Used by:</h4>
                 <ul class="license-used-by">
-                    <li><a href=" https://crates.io/crates/augmented_oscillator ">augmented_oscillator 1.0.0-alpha.4</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-// TODO - Add smoothstep as it&#x27;s very useful
-// https://en.wikipedia.org/wiki/Smoothstep
-
-static TWO_PI: f32 &#x3D; std::f32::consts::PI * 2.0;
-
-pub fn sine_generator(phase: f32) -&gt; f32 {
-    (phase * TWO_PI).sin()
-}
-
-pub fn square_generator(phase: f32) -&gt; f32 {
-    static LIMIT: f32 &#x3D; 0.5;
-
-    if (phase % 1.0) &lt; LIMIT {
-        -1.0
-    } else {
-        1.0
-    }
-}
-
-pub fn saw_generator(phase: f32) -&gt; f32 {
-    (1.0 - (phase % 1.0)) * 2.0 - 1.0
-}
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-audio-metrics 1.0.0-alpha.2</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//! Small helpers for augmented applications.
-//!
-//! * [&#x60;audio_processor_metrics&#x60;] exposes structs/functions for tracking CPU usage on the
-//!   audio-thread
-use std::time::Instant;
-
-pub mod audio_processor_metrics;
-
-/// Log duration of a function
-pub fn time&lt;T&gt;(label: &amp;str, body: impl FnOnce() -&gt; T) -&gt; T {
-    let start &#x3D; Instant::now();
-    let result &#x3D; body();
-    log::info!(&quot;{} duration&#x3D;{}ms&quot;, label, start.elapsed().as_millis());
-    result
-}
-
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_time() {
-        let result &#x3D; time(&quot;test_time&quot;, || 10_i32.pow(2));
-        assert_eq!(result, 100);
-    }
-}
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-testing-helpers 1.0.0-alpha.5</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-/// Get RMS level for a buffer
-pub fn rms_level(input: &amp;[f32]) -&gt; f32 {
-    if input.is_empty() {
-        return 0.0;
-    }
-    let mut s &#x3D; 0.0;
-    for i in input {
-        s +&#x3D; i.abs();
-    }
-    s / (input.len() as f32)
-}
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-analytics 0.1.0</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-mod backend_trait;
-mod google;
-pub mod reqwest_executor;
-
-pub use backend_trait::AnalyticsBackend;
-pub use google::{GoogleAnalyticsBackend, GoogleAnalyticsConfig};
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">actix-system-threads 0.1.0</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">atomic-queue 1.0.0-alpha.3</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-garbage-collector 1.0.0-alpha.3</a></li>
                     <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-analysis 0.1.0-alpha.5</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-pub mod stft;
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-file 1.0.0-alpha.5</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-pub use audio_file_processor::{
-    file_io, AudioFileProcessor, AudioFileProcessorHandle, InMemoryAudioFile,
-};
-pub use output_file_processor::{OutputAudioFileProcessor, OutputFileSettings};
-
-mod audio_file_processor;
-mod output_file_processor;
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">looper-processor 0.1.0</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-pub use augmented_audio_metrics::audio_processor_metrics;
-
-pub mod audio_thread_logger;
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-graph 0.1.0</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-use assert_no_alloc::AllocDisabler;
-
-#[global_allocator]
-static A: AllocDisabler &#x3D; AllocDisabler;
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
                     <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-bitcrusher 0.1.0-alpha.1</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-use audio_processor_bitcrusher::BitCrusherProcessor;
-
-audio_processor_standalone::generic_standalone_vst!(BitCrusherProcessor);
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
                     <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-dynamics 0.1.0</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-use audio_processor_dynamics::CompressorProcessor;
-use audio_processor_standalone::audio_processor_main;
-use augmented_audio_volume::amplitude_to_db;
-
-fn main() {
-    let processor &#x3D; CompressorProcessor::new();
-    processor.handle().set_threshold(-30.0);
-    processor.handle().set_ratio(10.0);
-    processor.handle().set_attack_ms(1.0);
-    processor
-        .handle()
-        .set_make_up_gain(amplitude_to_db(0.25, 1.0));
-    audio_processor_main(processor);
-}
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-file 1.0.0-alpha.5</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-graph 0.1.0</a></li>
+                    <li><a href=" https://crates.io/crates/audio-processor-metronome ">audio-processor-metronome 0.1.0</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-pitch-shifter 0.1.0</a></li>
                     <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-standalone 1.0.0-alpha.9</a></li>
-                </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-use audio_processor_traits::{AudioBuffer, AudioProcessor};
-
-struct FeedbackProcessor;
-
-impl AudioProcessor for FeedbackProcessor {
-    type SampleType &#x3D; f32;
-
-    fn process&lt;BufferType: AudioBuffer&lt;SampleType &#x3D; Self::SampleType&gt;&gt;(
-        &amp;mut self,
-        _data: &amp;mut BufferType,
-    ) {
-    }
-}
-
-fn main() {
-    let feedback_processor &#x3D; FeedbackProcessor {};
-    audio_processor_standalone::audio_processor_main(feedback_processor);
-}
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-standalone-midi 1.0.0-alpha.8</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-standalone-osc 0.1.0</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-testing-helpers 1.0.0-alpha.5</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-time 0.1.0-alpha.2</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-traits 1.0.0-alpha.5</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-adsr-envelope 0.1.0-alpha.4</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-analytics 0.1.0</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-atomics 0.1.0-alpha.6</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-audio-metrics 1.0.0-alpha.2</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-audio-volume 0.1.0-alpha.5</a></li>
                     <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-convert-sample-rate 1.0.0-alpha.5</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-dsp-filters 1.0.0-alpha.5</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-playhead 0.1.0-alpha.5</a></li>
+                    <li><a href=" https://crates.io/crates/augmented_oscillator ">augmented_oscillator 1.0.0-alpha.4</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">looper-processor 0.1.0</a></li>
+                    <li><a href=" https://github.com/yamadapc/augmented-audio ">wisual-logger 0.1.4</a></li>
                 </ul>
-                <pre class="license-text">// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the &quot;Software&quot;), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-use samplerate::ConverterType;
+                <pre class="license-text">Augmented Audio: Audio libraries and applications
+Copyright (c) 2022 Pedro Tacla Yamada
 
-pub fn convert_sample_rate(input_rate: f32, input: &amp;[f32], output_rate: f32, output: &amp;mut [f32]) {
-    if (input_rate - output_rate).abs() &lt; f32::EPSILON {
-        for (s, d) in input.iter().zip(output.iter_mut()) {
-            *d &#x3D; *s;
-        }
-        return;
-    }
+The MIT License (MIT)
 
-    let result &#x3D; samplerate::convert(
-        input_rate as u32,
-        output_rate as u32,
-        1,
-        ConverterType::SincBestQuality,
-        input,
-    )
-    .unwrap();
-    for (sample, out) in result.iter().zip(output.iter_mut()) {
-        *out &#x3D; *sample;
-    }
-}
+Copyright (c) 2022 Pedro Tacla Yamada
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
 </pre>
             </li>
             <li class="license">
@@ -9032,73 +8593,7 @@ SOFTWARE.
                 <h3 id="MIT">MIT License</h3>
                 <h4>Used by:</h4>
                 <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-traits 1.0.0-alpha.5</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-dsp-filters 1.0.0-alpha.5</a></li>
-                </ul>
-                <pre class="license-text">MIT License
-
-Copyright (c) 2021 Pedro Tacla Yamada
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the &quot;Software&quot;), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-adsr-envelope 0.1.0-alpha.4</a></li>
-                </ul>
-                <pre class="license-text">MIT License
-
-Copyright (c) 2022 Pedro Tacla Yamada
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the &quot;Software&quot;), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">actix-system-threads 0.1.0</a></li>
                     <li><a href=" https://github.com/mersinvald/aquamarine ">aquamarine 0.1.11</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-garbage-collector 1.0.0-alpha.3</a></li>
-                    <li><a href=" https://crates.io/crates/audio-processor-metronome ">audio-processor-metronome 0.1.0</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-standalone-osc 0.1.0</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-atomics 0.1.0-alpha.6</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-audio-volume 0.1.0-alpha.5</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">augmented-playhead 0.1.0-alpha.5</a></li>
                     <li><a href=" http://github.com/SSheldon/rust-block ">block 0.1.6</a></li>
                     <li><a href=" https://github.com/DimaKudosh/difflib ">difflib 0.4.0</a></li>
                     <li><a href=" http://github.com/SSheldon/rust-dispatch ">dispatch 0.2.0</a></li>
@@ -9731,67 +9226,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">atomic-queue 1.0.0-alpha.3</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-standalone-midi 1.0.0-alpha.8</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">wisual-logger 0.1.4</a></li>
-                </ul>
-                <pre class="license-text">The MIT License (MIT)
-
-Copyright (c) 2021 Pedro Tacla Yamada
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the &quot;Software&quot;), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-</pre>
-            </li>
-            <li class="license">
-                <h3 id="MIT">MIT License</h3>
-                <h4>Used by:</h4>
-                <ul class="license-used-by">
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-pitch-shifter 0.1.0</a></li>
-                    <li><a href=" https://github.com/yamadapc/augmented-audio ">audio-processor-time 0.1.0-alpha.2</a></li>
-                </ul>
-                <pre class="license-text">The MIT License (MIT)
-
-Copyright (c) 2022 Pedro Tacla Yamada
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the &quot;Software&quot;), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
 </pre>
             </li>
             <li class="license">
