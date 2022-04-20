@@ -2,7 +2,7 @@
 name = "audio-processor-traits"
 description = "Traits for audio processor types and audio buffer types. Heavily subject to change."
 version = "1.0.0-alpha.5"
-authors = ["yamadapc <tacla.yamada@gmail.com>"]
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
 edition = "2018"
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"

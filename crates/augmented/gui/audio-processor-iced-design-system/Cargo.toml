@@ -2,6 +2,10 @@
 name = "audio-processor-iced-design-system"
 version = "0.1.0-alpha.0"
 edition = "2018"
+license = "MIT"
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
 default = ["wgpu"]

@@ -3,6 +3,10 @@ name = "iced-editor"
 version = "0.1.0-alpha.0"
 edition = "2018"
 description = "Iced based VST editor"
+license = "MIT"
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
 default = ["glow", "tokio"]
