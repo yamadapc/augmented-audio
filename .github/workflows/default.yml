@@ -76,6 +76,23 @@ jobs:
         name: ${{ runner.os }}-libtas_v2-dylib
         path: ./target/release/libtas_v2.dylib
 
+  validate-licenses:
+    name: Validate (MIT) licenses
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        lfs: true
+    - uses: Swatinem/rust-cache@v1
+    - name: Run snapshot tests
+      run: |
+        cargo install cargo-about
+        cargo about generate about.hbs
+
   run-snapshot-tests:
     name: Run snapshot tests
     runs-on: ${{ matrix.os }}
