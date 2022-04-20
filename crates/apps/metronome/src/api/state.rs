@@ -27,11 +27,9 @@ use anyhow::Result;
 use lazy_static::lazy_static;
 
 use audio_garbage_collector::Shared;
+use audio_processor_metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{standalone_start, StandaloneAudioOnlyProcessor};
-
-use crate::processor::MetronomeProcessor;
-use crate::processor::MetronomeProcessorHandle;
 
 pub struct State {
     _handles: audio_processor_standalone::StandaloneHandles,

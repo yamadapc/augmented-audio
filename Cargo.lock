@@ -496,6 +496,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-metronome"
+version = "0.1.0"
+dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-standalone",
+ "audio-processor-traits",
+ "augmented-adsr-envelope",
+ "augmented-playhead",
+ "augmented_oscillator",
+]
+
+[[package]]
 name = "audio-processor-pitch-shifter"
 version = "0.1.0"
 dependencies = [
@@ -4344,11 +4356,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "audio-garbage-collector",
+ "audio-processor-metronome",
  "audio-processor-standalone",
- "audio-processor-traits",
- "augmented-adsr-envelope",
- "augmented-playhead",
- "augmented_oscillator",
  "cbindgen",
  "flutter_rust_bridge",
  "flutter_rust_bridge_codegen",

@@ -15,9 +15,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+pub use audio_processor_metronome::*;
 pub use bridge_generated::*;
-pub use processor::*;
 
 mod api;
 mod bridge_generated;
-mod processor;

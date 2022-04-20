@@ -7,12 +7,9 @@ edition = "2021"
 crate-type = ["staticlib", "lib"]
 
 [dependencies]
-augmented_oscillator = { path = "../../augmented/audio/oscillator" , version = "1.0.0-alpha.4" }
-audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.5" }
+audio-processor-metronome = { path = "../../augmented/audio/audio-processor-metronome" }
 audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" , version = "1.0.0-alpha.9" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
-augmented-playhead = { path = "../../augmented/data/augmented-playhead" , version = "0.1.0-alpha.5" }
-augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.4" }
 anyhow = "1.0.52"
 log = "^0.4.14"
 flutter_rust_bridge = "^1.13.0"
@@ -23,5 +20,4 @@ cbindgen = "^0.20.0"
 flutter_rust_bridge_codegen = "^1.13.0"
 
 [package.metadata.augmented]
-# processor_examples = ["metronome"]
 private = true
