@@ -50,7 +50,6 @@ impl Actor for AnalyticsService {
     type Context = actix::Context<Self>;
 
     fn started(&mut self, _ctx: &mut Self::Context) {
-        cacao::defaults::UserDefaults::standard().remove("analytics_enabled");
         self.analytics_enabled = UserDefaults::standard()
             .get("analytics_enabled")
             .map(|value| value.as_bool())
