@@ -43,6 +43,7 @@ public class Store: ObservableObject {
     public let midi = MIDIMappingState()
     @Published public var isPlaying: Bool = false
     @Published public var selectedTrack: UInt = 0
+    @Published public var isAnalyticsEnabled: Bool = false
 
     @Published var selectedTab: TabValue = .source
     @Published var midiMappingActive = false

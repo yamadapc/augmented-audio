@@ -22,10 +22,11 @@
 // THE SOFTWARE.
 
 use actix::{Actor, Handler, Message};
+use std::time::SystemTime;
 // use augmented_analytics::{AnalyticsClient, AnalyticsWorker};
 use cacao::defaults::UserDefaults;
 
-struct AnalyticsService {
+pub struct AnalyticsService {
     analytics_enabled: Option<bool>,
     // analytics: AnalyticsWorker,
 }
@@ -70,15 +71,24 @@ impl Handler<GetAnalyticsEnabled> for AnalyticsService {
 
 #[derive(Message)]
 #[rtype("()")]
-pub struct SetAnalyticsEnabled(bool);
+pub struct SetAnalyticsEnabled(pub bool);
 
 impl Handler<SetAnalyticsEnabled> for AnalyticsService {
     type Result = ();
 
     fn handle(&mut self, msg: SetAnalyticsEnabled, _ctx: &mut Self::Context) -> Self::Result {
+        log::info!("Set analytics enabled {}", msg.0);
         self.analytics_enabled = Some(msg.0);
         let mut user_defaults = UserDefaults::standard();
         user_defaults.insert("analytics_enabled", cacao::defaults::Value::Bool(msg.0));
+
+        let now = SystemTime::now();
+        let now: chrono::DateTime<chrono::Utc> = now.into();
+        let now = now.to_rfc3339();
+        user_defaults.insert(
+            "analytics_enabled__updated_at",
+            cacao::defaults::Value::String(now),
+        );
     }
 }
 

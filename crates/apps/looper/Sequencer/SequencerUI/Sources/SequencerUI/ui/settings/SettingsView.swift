@@ -22,7 +22,7 @@ import WebView
 @available(macOS 11.0, *)
 public struct SettingsView: View {
     @State private var selectedTab: String? = "About"
-    @State private var isAnalyticsEnabled: Bool = false
+    @EnvironmentObject var store: Store
 
     public init() {}
 
@@ -41,15 +41,20 @@ public struct SettingsView: View {
                     }
                 )
                 NavigationLink(
-                    destination: VStack {
+                    destination: VStack(alignment: .leading) {
                         Text("Privacy preferences")
-                        Toggle(isOn: $isAnalyticsEnabled) {
+                            .bold()
+                            .font(.title)
+
+                        Toggle(isOn: $store.isAnalyticsEnabled) {
                             Text("Enable analytics")
+                                .bold()
                         }
+
                         Text("If checked, Continuous Looper will collect anonymous usage and performance analytics data in order to improve its service.")
-                        Text("")
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity),
+                    .padding(PADDING)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading),
                     tag: "Privacy",
                     selection: $selectedTab,
                     label: {

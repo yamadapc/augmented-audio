@@ -39,18 +39,18 @@ class EngineImpl {
         logger.info("Initializing rust audio engine", metadata: [
             "bundleIdentifier": .string(Bundle.main.bundleIdentifier ?? "<unknown>"),
             "applicationSupport": .stringConvertible(
-                    FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).map {
-                        $0.description
-                    }
-            )
+                FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).map {
+                    $0.description
+                }
+            ),
         ])
         engine = looper_engine__new()
 
         logger.info("Building rust MIDI subscription")
         midi = buildStream(
-                registerStream: { callback in
-                    looper_engine__register_midi_callback(self.engine, callback)
-                }
+            registerStream: { callback in
+                looper_engine__register_midi_callback(self.engine, callback)
+            }
         )
     }
 
@@ -65,11 +65,10 @@ extension EngineImpl: SequencerEngine {
         _effectsService
     }
 
-
     func loadFile(atPath path: String) {
-      path.withCString { cPath in
-        looper_engine__load_file(engine, cPath)
-      }
+        path.withCString { cPath in
+            looper_engine__load_file(engine, cPath)
+        }
     }
 
     func onClickRecord(track: UInt) {
@@ -109,9 +108,9 @@ extension EngineImpl: SequencerEngine {
     }
 
     func addLFOMapping(track: UInt, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
-      if let rustParameterId = getObjectIdRust(parameterId) {
-        looper_engine__add_lfo_mapping(engine, track, lfo, rustParameterId, value)
-      }
+        if let rustParameterId = getObjectIdRust(parameterId) {
+            looper_engine__add_lfo_mapping(engine, track, lfo, rustParameterId, value)
+        }
     }
 
     func addSceneParameterLock(sceneId: Int, track: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
@@ -132,29 +131,29 @@ extension EngineImpl: SequencerEngine {
     }
 
     func removeLock(parameterLockId: ParameterLockId) {
-      switch parameterLockId.source {
-      case let .stepId(stepId):
-          looper_engine__remove_parameter_lock(
-            engine,
-            UInt(stepId.trackId),
-            UInt(stepId.stepIndex),
-            getObjectIdRust(parameterLockId.parameterId)!
-          )
-      case let .sceneId(sceneId):
-          looper_engine__remove_scene_parameter_lock(
-            engine,
-            UInt(sceneId.index),
-            getTrackId(parameterLockId.parameterId)!,
-            getObjectIdRust(parameterLockId.parameterId)!
-          )
-      case let .lfoId(lfoId):
-          looper_engine__remove_lfo_mapping(
-                  engine,
-                  getTrackId(parameterLockId.parameterId)!,
-                  UInt(lfoId.index),
-                  getObjectIdRust(parameterLockId.parameterId)!
-          )
-      }
+        switch parameterLockId.source {
+        case let .stepId(stepId):
+            looper_engine__remove_parameter_lock(
+                engine,
+                UInt(stepId.trackId),
+                UInt(stepId.stepIndex),
+                getObjectIdRust(parameterLockId.parameterId)!
+            )
+        case let .sceneId(sceneId):
+            looper_engine__remove_scene_parameter_lock(
+                engine,
+                UInt(sceneId.index),
+                getTrackId(parameterLockId.parameterId)!,
+                getObjectIdRust(parameterLockId.parameterId)!
+            )
+        case let .lfoId(lfoId):
+            looper_engine__remove_lfo_mapping(
+                engine,
+                getTrackId(parameterLockId.parameterId)!,
+                UInt(lfoId.index),
+                getObjectIdRust(parameterLockId.parameterId)!
+            )
+        }
     }
 
     func addMidiMapping(controller: Int, parameterId: SequencerUI.ParameterId) {
@@ -163,7 +162,7 @@ extension EngineImpl: SequencerEngine {
         } else {
             logger.error("Failed to add MIDI mapping to", metadata: [
                 "controller": .string(String(describing: controller)),
-                "parameterId": .string(String(describing: parameterId))
+                "parameterId": .string(String(describing: parameterId)),
             ])
         }
     }
@@ -196,33 +195,47 @@ extension EngineImpl {
 }
 
 // MARK: Helpers
+
 extension EngineImpl {
-  func setSourceParameter(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Float) {
-      self.setSourceParameter(
-          looperId,
-          parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
-          value: value
-      )
-  }
-
-  func setSourceParameterInt(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Int32) {
-      self.setSourceParameterInt(
-          looperId,
-          parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
-          value: value
-      )
-  }
-
-  func setBooleanParameter(_ looperId: UInt, parameterId: SequencerUI.ParameterId, value: Bool) {
-    guard let rustParameterId = getObjectIdRust(parameterId) else {
-      logger.warning("Failed to convert UI parameterID into native repr")
-      return
+    func setSourceParameter(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Float) {
+        setSourceParameter(
+            looperId,
+            parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
+            value: value
+        )
     }
-    self.setBooleanParameter(looperId, parameterId: rustParameterId, value: value)
-  }
 
-  func setLFOParameter(_ looperId: UInt, parameterId: SequencerUI.LFOParameterId, lfoId: UInt, value: Float) {
-    let rustParameterId = LFO_PARAMETER_IDS[parameterId]!
-    setLFOParameter(looperId, parameterId: rustParameterId, lfoId: lfoId, value: value)
-  }
+    func setSourceParameterInt(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Int32) {
+        setSourceParameterInt(
+            looperId,
+            parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
+            value: value
+        )
+    }
+
+    func setBooleanParameter(_ looperId: UInt, parameterId: SequencerUI.ParameterId, value: Bool) {
+        guard let rustParameterId = getObjectIdRust(parameterId) else {
+            logger.warning("Failed to convert UI parameterID into native repr")
+            return
+        }
+        setBooleanParameter(looperId, parameterId: rustParameterId, value: value)
+    }
+
+    func setLFOParameter(_ looperId: UInt, parameterId: SequencerUI.LFOParameterId, lfoId: UInt, value: Float) {
+        let rustParameterId = LFO_PARAMETER_IDS[parameterId]!
+        setLFOParameter(looperId, parameterId: rustParameterId, lfoId: lfoId, value: value)
+    }
+
+    func getAnalyticsEnabled() -> Bool? {
+        let hasAnalytics = looper_engine__has_analytics_enabled(engine)
+        if hasAnalytics {
+            return looper_engine__get_analytics_enabled(engine)
+        } else {
+            return nil
+        }
+    }
+
+    func setAnalyticsEnabled(_ value: Bool) {
+        looper_engine__set_analytics_enabled(engine, value)
+    }
 }

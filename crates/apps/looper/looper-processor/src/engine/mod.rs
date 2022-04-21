@@ -38,6 +38,8 @@ use crate::controllers::load_project_controller;
 use crate::controllers::load_project_controller::LoadContext;
 use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
+#[cfg(any(target_os = "ios", target_os = "macos"))]
+use crate::services::{analytics, analytics::AnalyticsService};
 use crate::{
     services, setup_osc_server, LooperOptions, MultiTrackLooper, MultiTrackLooperHandle,
     MAX_LOOP_LENGTH_SECS,
@@ -76,6 +78,8 @@ pub struct LooperEngine {
     audio_clip_manager: Addr<AudioClipManager>,
     project_manager: Addr<ProjectManager>,
     events_controller: Addr<EventsController>,
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
+    analytics_service: Addr<analytics::AnalyticsService>,
     audio_state: AudioState,
     _autosave_controller: Option<AutosaveController>,
 }
@@ -129,6 +133,8 @@ impl LooperEngine {
                 None
             }
         };
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        let analytics_service = ActorSystemThread::start(AnalyticsService::default());
 
         // Start audio
         let audio_state = match params.audio_mode {
@@ -148,6 +154,8 @@ impl LooperEngine {
             project_manager,
             events_controller,
             audio_state,
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
+            analytics_service,
             _autosave_controller: autosave_controller,
         }
     }
@@ -183,6 +191,11 @@ impl LooperEngine {
 
     pub fn events_controller(&self) -> &Addr<EventsController> {
         &self.events_controller
+    }
+
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
+    pub fn analytics_service(&self) -> &Addr<AnalyticsService> {
+        &self.analytics_service
     }
 }
 

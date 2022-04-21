@@ -50,16 +50,16 @@ public class EngineController {
             self.flushParametersInfo(parameters: allParameters())
         }
 
-        self.loadInitialState()
+        loadInitialState()
     }
 
     func loadInitialState() {
-      for track in self.store.trackStates {
-        let hasBuffer = looper_engine__has_looper_buffer(engine.engine, track.id)
-        if hasBuffer {
-          self.readLooperBuffer(track.id)
+        for track in store.trackStates {
+            let hasBuffer = looper_engine__has_looper_buffer(engine.engine, track.id)
+            if hasBuffer {
+                readLooperBuffer(track.id)
+            }
         }
-      }
     }
 
     func setupMidiSubscription() {

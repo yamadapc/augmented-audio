@@ -1,3 +1,4 @@
+import SequencerEngine_private
 // = copyright ====================================================================
 // Continuous: Live-looper and performance sampler
 // Copyright (C) 2022  Pedro Tacla Yamada
@@ -16,7 +17,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 import SequencerUI
-import SequencerEngine_private
 
 /**
  * Map from swift parameter type into rust entity type
@@ -69,12 +69,12 @@ let SOURCE_PARAMETER_IDS: [SourceParameterId: SequencerEngine_private.SourcePara
     .speed: Speed,
     .loopEnabled: LoopEnabled,
     .sliceEnabled: SliceEnabled,
-    .sliceId: SliceId
+    .sliceId: SliceId,
 ]
 
 let LFO_PARAMETER_IDS: [LFOParameterId: SequencerEngine_private.LFOParameter] = [
     LFOParameterId.frequency: Frequency,
-    LFOParameterId.amount: Amount
+    LFOParameterId.amount: Amount,
 ]
 
 let ENVELOPE_PARAMETER_IDS: [EnvelopeParameterId: SequencerEngine_private.EnvelopeParameter] = [
@@ -82,16 +82,16 @@ let ENVELOPE_PARAMETER_IDS: [EnvelopeParameterId: SequencerEngine_private.Envelo
     EnvelopeParameterId.decay: Decay,
     EnvelopeParameterId.release: Release,
     EnvelopeParameterId.sustain: Sustain,
-    EnvelopeParameterId.enabled: EnvelopeEnabled
+    EnvelopeParameterId.enabled: EnvelopeEnabled,
 ]
 
 let RUST_QUANTIZE_MODES: [QuantizationMode: CQuantizeMode] = [
     .snapNext: CQuantizeModeSnapNext,
     .snapClosest: CQuantizeModeSnapClosest,
-    .none: CQuantizeModeNone
+    .none: CQuantizeModeNone,
 ]
 
 let RUST_TEMPO_CONTROL: [TempoControlMode: SequencerEngine_private.TempoControl] = [
     .setAndFollowGlobalTempo: TempoControlSetGlobalTempo,
-    .none: TempoControlNone
+    .none: TempoControlNone,
 ]
