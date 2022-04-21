@@ -15,26 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+import Combine
 
-import Cocoa
-import SwiftUI
+enum Modal {
+    case analyticsModal
+}
 
-import SequencerEngine
-import SequencerUI
+class ModalState: ObservableObject {
+    @Published var modal: Modal?
 
-@main
-class AppDelegate: NSObject, NSApplicationDelegate {
-    var engineController = EngineController()
+    init() {}
 
-    func applicationDidFinishLaunching(_: Notification) {}
-
-    func applicationWillTerminate(_: Notification) {}
-
-    func applicationSupportsSecureRestorableState(_: NSApplication) -> Bool {
-        return true
-    }
-
-    func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
-        return true
+    func initialize(_ engine: SequencerEngine) {
+        if engine.getAnalyticsEnabled() == nil {
+            modal = .analyticsModal
+        }
     }
 }

@@ -47,13 +47,25 @@ public class Store: ObservableObject {
     @Published var selectedTab: TabValue = .source
     @Published var midiMappingActive = false
     let parameterLockStore = ParameterLockStore()
+    let modalState = ModalState()
 
     let focusState = FocusState()
     var oscClient = OSCClient()
-    var engine: SequencerEngine?
+    var engine: SequencerEngine? {
+        didSet {
+            onEngineUpdate()
+        }
+    }
 
     public init(engine: SequencerEngine?) {
         self.engine = engine
+        onEngineUpdate()
+    }
+
+    func onEngineUpdate() {
+        if let engine = engine {
+            modalState.initialize(engine)
+        }
     }
 }
 

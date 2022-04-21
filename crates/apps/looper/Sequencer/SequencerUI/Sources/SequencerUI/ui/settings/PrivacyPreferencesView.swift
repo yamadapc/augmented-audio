@@ -37,7 +37,7 @@ struct PrivacyPreferencesView: View {
             }
 
             Text("If checked, Continuous Looper will collect anonymous usage and performance analytics data in order to improve its service.")
-              .font(.callout)
+                .font(.callout)
         }
         .onAppear {
             isAnalyticsEnabled = store.isAnalyticsEnabled ?? false

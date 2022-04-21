@@ -32,7 +32,7 @@ class AboutNavigationDelegate: NSObject, WKNavigationDelegate {
 }
 
 struct AboutPageView: View {
-  @StateObject var webViewStore = WebViewStore()
+    @StateObject var webViewStore = WebViewStore()
     var navigationDelegate = AboutNavigationDelegate()
 
     var body: some View {
