@@ -26,7 +26,11 @@ import SequencerUI
 class AppDelegate: NSObject, NSApplicationDelegate {
     var engineController = EngineController()
 
-    func applicationDidFinishLaunching(_: Notification) {}
+    func applicationDidFinishLaunching(_: Notification) {
+        let storyboard = NSStoryboard(name: "Main", bundle: nil)
+        var mainWindow: NSWindowController = storyboard.instantiateController(withIdentifier: "PreferencesWindowController") as! NSWindowController
+        mainWindow.showWindow(self)
+    }
 
     func applicationWillTerminate(_: Notification) {}
 

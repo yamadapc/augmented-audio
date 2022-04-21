@@ -17,7 +17,7 @@
             margin: 0 auto;
         }
         .intro {
-            text-align: center;
+            text-align: left;
         }
         .licenses-list {
             list-style-type: none;
@@ -28,8 +28,7 @@
             margin-top: -10px;
         }
         .license-text {
-            max-height: 200px;
-            overflow-y: scroll;
+            font-family: monospace;
             white-space: pre-wrap;
         }
     </style>
@@ -38,18 +37,28 @@
 <body>
     <main class="container">
         <div class="intro">
-            <h1>Third Party Licenses</h1>
-            <p>This page lists the licenses of the projects used in <strong>looper-processor</strong>.</p>
+            <h2>Continuous Looper</h2>
+            <p>
+                <strong>Continuous Looper</strong> is an open-source project. You can find its source-code and more
+                information on <a href="https://github.com/yamadapc/augmented-audio/">github.com/yamadapc/augmented-audio</a>.
+                <br />
+                This product source is published under the AGPL license. Its audio engine component is published under
+                a more permissive license.
+            </p>
+
+            <h2>Engine Third Party Licenses</h2>
+            <p>This page lists the licenses of the projects used in <strong>Continuous Looper</strong>.</p>
+            <p>Libraries listed here are used in the open-source audio engine.</p>
         </div>
 
-        <h2>Overview of licenses:</h2>
+        <h2>Overview of licenses</h2>
         <ul class="licenses-overview">
             {{#each overview}}
             <li><a href="#{{id}}">{{name}}</a> ({{count}})</li>
             {{/each}}
         </ul>
 
-        <h2>All license text:</h2>
+        <h2>All license text</h2>
         <ul class="licenses-list">
             {{#each licenses}}
             <li class="license">

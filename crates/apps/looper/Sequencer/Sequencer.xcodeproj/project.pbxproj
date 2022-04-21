@@ -51,6 +51,7 @@
 		CBADD5B42810DB200024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B52810DC300024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B62810DC3D0024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
+		CBADD5B82810EC9D0024DAE6 /* license.html in Resources */ = {isa = PBXBuildFile; fileRef = CBADD5B72810EC9D0024DAE6 /* license.html */; };
 		CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
 		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
 		CBECE3BC27ED43DB0054BB43 /* SequencerEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */; };
@@ -217,6 +218,7 @@
 		CBA4DABE27DE93B200A530E3 /* liblooper_processor.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooper_processor.a; path = "../../../../target/aarch64-apple-ios-sim/release/liblooper_processor.a"; sourceTree = "<group>"; };
 		CBA4DABF27DE948400A530E3 /* liblooperengine_sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine_sim.a; path = "../../../../crates/apps/looper/looper-processor/public/lib/ios-aarch64-sim/liblooperengine_sim.a"; sourceTree = "<group>"; };
 		CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesWindowViewController.swift; sourceTree = "<group>"; };
+		CBADD5B72810EC9D0024DAE6 /* license.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = license.html; path = "../looper-processor/license.html"; sourceTree = "<group>"; };
 		CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineController.swift; sourceTree = "<group>"; };
 		CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequencerEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineTests.swift; sourceTree = "<group>"; };
@@ -300,6 +302,7 @@
 		CB16669B27CCAD04000F9E21 = {
 			isa = PBXGroup;
 			children = (
+				CBADD5B72810EC9D0024DAE6 /* license.html */,
 				CB3948C527EA6BFC009A650D /* Sequencer AudioUnit */,
 				CBA4DA9127DDF21800A530E3 /* SequencerEngine */,
 				CBA4DAAC27DDF67700A530E3 /* SequencerEngine_ios */,
@@ -851,6 +854,7 @@
 			files = (
 				CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */,
 				CB801A1F27D8AE6600D7788E /* Main.storyboard in Resources */,
+				CBADD5B82810EC9D0024DAE6 /* license.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

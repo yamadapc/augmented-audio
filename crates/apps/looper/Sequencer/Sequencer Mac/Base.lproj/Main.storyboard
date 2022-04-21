@@ -25,7 +25,7 @@
                                         <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
                                         <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW">
                                             <connections>
-                                                <segue destination="x2B-xs-yw0" kind="show" id="T9Y-u2-oek"/>
+                                                <segue destination="x2B-xs-yw0" kind="show" identifier="openPreferencesWindow" id="T9Y-u2-oek"/>
                                             </connections>
                                         </menuItem>
                                         <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
@@ -723,14 +723,14 @@
         <!--Preferences Window-->
         <scene sceneID="14J-oM-JfC">
             <objects>
-                <windowController id="x2B-xs-yw0" userLabel="Preferences Window" sceneMemberID="viewController">
+                <windowController storyboardIdentifier="PreferencesWindowController" id="x2B-xs-yw0" userLabel="Preferences Window" sceneMemberID="viewController">
                     <window key="window" title="Continuous Looper • Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" appearanceType="darkAqua" frameAutosaveName="" animationBehavior="default" id="vRI-jf-YcQ">
                         <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-                        <rect key="contentRect" x="1069" y="444" width="500" height="500"/>
+                        <rect key="contentRect" x="1069" y="444" width="800" height="500"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1415"/>
-                        <value key="minSize" type="size" width="500" height="500"/>
+                        <value key="minSize" type="size" width="800" height="500"/>
                         <view key="contentView" id="81b-YZ-0Rp">
-                            <rect key="frame" x="0.0" y="0.0" width="500" height="500"/>
+                            <rect key="frame" x="0.0" y="0.0" width="800" height="500"/>
                             <autoresizingMask key="autoresizingMask"/>
                         </view>
                         <connections>
@@ -748,7 +748,7 @@
         <!--Preferences Window View Controller-->
         <scene sceneID="sAF-Q8-Lvw">
             <objects>
-                <viewController id="fDe-Jx-ajP" customClass="PreferencesWindowViewController" customModule="Sequencer" sceneMemberID="viewController">
+                <viewController id="fDe-Jx-ajP" customClass="PreferencesWindowViewController" customModule="Continuous_Looper" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" id="UGF-eh-nI9">
                         <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
                         <autoresizingMask key="autoresizingMask"/>

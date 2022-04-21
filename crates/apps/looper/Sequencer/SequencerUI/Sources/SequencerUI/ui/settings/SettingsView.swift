@@ -15,11 +15,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import SwiftUI
+import WebView
 
 @available(macOS 11.0, *)
 public struct SettingsView: View {
-    @State private var selectedTab: String? = "Settings"
+    @State private var selectedTab: String? = "About"
+    @State private var isAnalyticsEnabled: Bool = false
 
     public init() {}
 
@@ -28,24 +31,29 @@ public struct SettingsView: View {
             List {
                 NavigationLink(
                     destination: VStack {
-                        Text("Content view")
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity),
-                    tag: "Settings",
-                    selection: $selectedTab,
-                    label: {
-                        Text("Audio settings")
-                    }
-                )
-                NavigationLink(
-                    destination: VStack {
-                        Text("Content view")
+                        AboutPageView()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity),
                     tag: "About",
                     selection: $selectedTab,
                     label: {
                         Text("About")
+                    }
+                )
+                NavigationLink(
+                    destination: VStack {
+                        Text("Privacy preferences")
+                        Toggle(isOn: $isAnalyticsEnabled) {
+                            Text("Enable analytics")
+                        }
+                        Text("If checked, Continuous Looper will collect anonymous usage and performance analytics data in order to improve its service.")
+                        Text("")
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity),
+                    tag: "Privacy",
+                    selection: $selectedTab,
+                    label: {
+                        Text("Privacy")
                     }
                 )
             }
@@ -56,11 +64,12 @@ public struct SettingsView: View {
                 alignment: .topLeading
             )
         }
-        .navigationTitle("Settings")
+        .navigationTitle("Preferences")
         .frame(
             maxWidth: .infinity,
             maxHeight: .infinity
         )
+        .preferredColorScheme(.dark)
     }
 }
 

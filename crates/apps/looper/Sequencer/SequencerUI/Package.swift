@@ -38,6 +38,7 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
         .package(url: "https://github.com/sindresorhus/KeyboardShortcuts", from: "1.4.0"),
         .package(url: "https://github.com/nalexn/ViewInspector", from: "0.9.1"),
+        .package(url: "https://github.com/kylehickinson/SwiftUI-WebView/", .upToNextMinor(from: "0.3.0")),
         .package(url: "https://github.com/nicklockwood/LRUCache.git", .upToNextMinor(from: "1.0.0")),
         .package(url: "https://github.com/apple/swift-collections.git", .upToNextMajor(from: "1.0.0")),
         .package(
@@ -56,6 +57,7 @@ let package = Package(
                 .product(name: "KeyboardShortcuts", package: "KeyboardShortcuts", condition: .when(platforms: [.macOS])),
                 .product(name: "LRUCache", package: "LRUCache"),
                 .product(name: "Collections", package: "swift-collections"),
+                .product(name: "WebView", package: "SwiftUI-WebView"),
             ]
         ),
         .testTarget(
