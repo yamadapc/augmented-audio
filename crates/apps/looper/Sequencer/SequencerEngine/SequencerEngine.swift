@@ -55,6 +55,7 @@ class EngineImpl {
     }
 
     deinit {
+        logger.info("Closing rust audio engine")
         looper_engine__free(engine)
     }
 }

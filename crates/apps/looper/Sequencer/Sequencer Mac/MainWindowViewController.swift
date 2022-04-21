@@ -25,11 +25,10 @@ import SwiftUI
  * ViewController for the main application window.
  */
 class MainWindowViewController: NSViewController {
-    private var engineController = EngineController()
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
         let contentView = ContentView()
             .environmentObject(engineController.store)
 

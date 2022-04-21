@@ -15,26 +15,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-
 import Cocoa
-import SwiftUI
-
 import SequencerEngine
 import SequencerUI
+import SwiftUI
 
-@main
-class AppDelegate: NSObject, NSApplicationDelegate {
-    var engineController = EngineController()
+/**
+ * ViewController for the preferences window content view.
+ */
+class PreferencesWindowViewController: NSViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-    func applicationDidFinishLaunching(_: Notification) {}
+        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
+        let contentView = SettingsView()
+            .environmentObject(engineController.store)
 
-    func applicationWillTerminate(_: Notification) {}
-
-    func applicationSupportsSecureRestorableState(_: NSApplication) -> Bool {
-        return true
-    }
-
-    func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
-        return true
+        let content = NSHostingView(rootView: contentView)
+        content.translatesAutoresizingMaskIntoConstraints = true
+        content.autoresizingMask = [.height, .width]
+        view = content
     }
 }

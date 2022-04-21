@@ -18,9 +18,12 @@
 import SwiftUI
 
 @available(macOS 11.0, *)
-struct SettingsView: View {
+public struct SettingsView: View {
     @State private var selectedTab: String? = "Settings"
-    var body: some View {
+
+    public init() {}
+
+    public var body: some View {
         NavigationView {
             List {
                 NavigationLink(
