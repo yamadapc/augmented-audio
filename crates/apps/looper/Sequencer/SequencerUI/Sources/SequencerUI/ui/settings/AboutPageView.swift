@@ -32,13 +32,14 @@ class AboutNavigationDelegate: NSObject, WKNavigationDelegate {
 }
 
 struct AboutPageView: View {
-    @StateObject var webViewStore = WebViewStore()
+  @StateObject var webViewStore = WebViewStore()
     var navigationDelegate = AboutNavigationDelegate()
 
     var body: some View {
         WebView(webView: webViewStore.webView)
             .onAppear {
                 self.webViewStore.webView.navigationDelegate = self.navigationDelegate
+                self.webViewStore.webView.setValue(false, forKey: "drawsBackground")
                 if let url: URL = Bundle.main.url(forResource: "license", withExtension: ".html") {
                     self.webViewStore.webView.loadFileURL(url, allowingReadAccessTo: url)
                 }

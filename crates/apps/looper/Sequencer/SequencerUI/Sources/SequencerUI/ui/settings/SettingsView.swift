@@ -41,20 +41,7 @@ public struct SettingsView: View {
                     }
                 )
                 NavigationLink(
-                    destination: VStack(alignment: .leading) {
-                        Text("Privacy preferences")
-                            .bold()
-                            .font(.title)
-
-                        Toggle(isOn: $store.isAnalyticsEnabled) {
-                            Text("Enable analytics")
-                                .bold()
-                        }
-
-                        Text("If checked, Continuous Looper will collect anonymous usage and performance analytics data in order to improve its service.")
-                    }
-                    .padding(PADDING)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading),
+                    destination: PrivacyPreferencesView(),
                     tag: "Privacy",
                     selection: $selectedTab,
                     label: {

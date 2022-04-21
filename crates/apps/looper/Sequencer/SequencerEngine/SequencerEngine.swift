@@ -236,6 +236,7 @@ extension EngineImpl {
     }
 
     func setAnalyticsEnabled(_ value: Bool) {
+        print(value)
         looper_engine__set_analytics_enabled(engine, value)
     }
 }
