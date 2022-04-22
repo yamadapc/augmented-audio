@@ -20,11 +20,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use atomic_refcell::AtomicRefCell;
+
 use basedrop::Shared;
 
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
-use augmented_atomics::{AtomicF32, AtomicValue};
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
+use augmented_atomics::AtomicValue;
 
 pub use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;
 use crate::audio::multi_track_looper::parameters::ParameterValue;
@@ -32,8 +32,6 @@ use crate::audio::multi_track_looper::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,
     TempoControl,
 };
-use crate::audio::multi_track_looper::slice_worker::SliceResult;
-use crate::audio::processor::handle::{LooperHandleThread, LooperState};
 pub use crate::engine::LooperEngine;
 use crate::TimeInfoProvider;
 
