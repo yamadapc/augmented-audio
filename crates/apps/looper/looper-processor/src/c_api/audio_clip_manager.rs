@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use actix_system_threads::ActorSystemThread;
+use actix_system_threads::ActorSystem;
 use std::ffi::CStr;
 use std::os::raw::c_char;
 
@@ -35,7 +35,7 @@ pub unsafe extern "C" fn looper_engine__load_file(
     let engine = &(*engine);
     let manager = engine.audio_clip_manager();
     let file_path = CStr::from_ptr(file_path).to_str().unwrap().to_string();
-    let _ = ActorSystemThread::current().spawn_result(async move {
+    let _ = ActorSystem::current().spawn_result(async move {
         // TODO handle errors
         let _ = manager
             .send(LoadClipMessage {

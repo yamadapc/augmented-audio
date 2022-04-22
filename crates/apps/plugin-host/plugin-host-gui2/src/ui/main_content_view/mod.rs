@@ -32,7 +32,7 @@ use plugin_host_lib::audio_io::{
     LoadPluginMessage, ReloadPluginMessage, SetAudioFilePathMessage, StartMessage, StopMessage,
 };
 use plugin_host_lib::{
-    actor_system::ActorSystemThread,
+    actor_system::ActorSystem,
     audio_io,
     audio_io::audio_io_service,
     audio_io::audio_io_service::storage::StorageConfig,
@@ -123,7 +123,7 @@ pub enum Message {
 impl MainContentView {
     pub fn new(
         plugin_host: TestPluginHost,
-        actor_system_thread: &ActorSystemThread,
+        actor_system_thread: &ActorSystem,
     ) -> (Self, Command<Message>) {
         let plugin_host = actor_system_thread.spawn_result(async move { plugin_host.start() });
         let (
@@ -484,7 +484,7 @@ struct HostContext {
 /// Load plugin-host state from JSON files when it starts. Do file decoding on a background thread.
 fn reload_plugin_host_state(
     plugin_host: Addr<TestPluginHost>,
-    actor_system_thread: &ActorSystemThread,
+    actor_system_thread: &ActorSystem,
 ) -> (HostContext, Command<Message>) {
     log::info!("Reloading plugin-host settings from disk");
     let home_dir =

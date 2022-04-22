@@ -132,7 +132,7 @@ fn estimate_file_size<Buffer: AudioBuffer>(audio_file: &Buffer) -> ByteSize {
 mod test {
     use audio_processor_testing_helpers::{relative_path, rms_level};
 
-    use actix_system_threads::ActorSystemThread;
+    use actix_system_threads::ActorSystem;
     use audio_processor_traits::AudioProcessor;
 
     use crate::audio::multi_track_looper::looper_voice::LooperVoice;
@@ -164,8 +164,7 @@ mod test {
         wisual_logger::init_from_env();
         let data_path = tempdir::TempDir::new("looper_processor__audio_clip_manager").unwrap();
 
-        let project_manager =
-            ActorSystemThread::start(ProjectManager::new(data_path.path().into()));
+        let project_manager = ActorSystem::start(ProjectManager::new(data_path.path().into()));
 
         let mut input_buffer = VecAudioBuffer::empty_with(2, 5, 0.0);
         for channel in 0..2 {
@@ -184,7 +183,7 @@ mod test {
 
         // Save its project
         let handle = looper.handle().clone();
-        ActorSystemThread::current()
+        ActorSystem::current()
             .spawn_result({
                 let project_manager = project_manager.clone();
                 async move { project_manager.send(SaveProjectMessage { handle }).await }
@@ -193,9 +192,9 @@ mod test {
             .unwrap();
 
         // Reset audioclip manager so we know we're testing for a clean state
-        let audio_clip_manager = ActorSystemThread::start(AudioClipManager::default());
+        let audio_clip_manager = ActorSystem::start(AudioClipManager::default());
         // Reset the looper handle so we know we're testing a clean state
-        ActorSystemThread::current()
+        ActorSystem::current()
             .spawn_result({
                 let project_manager = project_manager.clone();
                 async move { project_manager.send(LoadLatestProjectMessage).await }
@@ -206,7 +205,7 @@ mod test {
             handle: looper.handle().clone(),
             project_manager: project_manager.clone(),
             audio_clip_manager: audio_clip_manager.clone(),
-            events_controller: ActorSystemThread::start(EventsController::default()),
+            events_controller: ActorSystem::start(EventsController::default()),
         })
         .unwrap();
 

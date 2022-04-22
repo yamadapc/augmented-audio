@@ -26,7 +26,7 @@ use derive_more::From;
 
 use audio_processor_iced_design_system as design_system;
 use augmented::gui::iced::{Application, Command, Container, Element, Length, Subscription};
-use plugin_host_lib::actor_system::ActorSystemThread;
+use plugin_host_lib::actor_system::ActorSystem;
 use plugin_host_lib::audio_io::audio_thread::options::AudioThreadOptions;
 use plugin_host_lib::audio_io::audio_thread::AudioThread;
 use plugin_host_lib::TestPluginHost;
@@ -40,7 +40,7 @@ mod utils;
 
 pub struct App {
     #[allow(unused)]
-    actor_system_thread: &'static ActorSystemThread,
+    actor_system_thread: &'static ActorSystem,
     main_content_view: main_content_view::MainContentView,
     start_result: Result<(), plugin_host_lib::audio_io::StartError>,
 }
@@ -64,7 +64,7 @@ impl Application for App {
             version
         );
 
-        let actor_system_thread = ActorSystemThread::current();
+        let actor_system_thread = ActorSystem::current();
 
         let mut plugin_host = {
             let audio_settings = AudioThread::default_settings().unwrap();

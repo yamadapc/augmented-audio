@@ -26,7 +26,7 @@ use audio_garbage_collector::Shared;
 use audio_processor_graph::{NodeIndex, NodeType};
 
 use audio_thread::actor::AudioThreadMessage;
-use plugin_host_lib::actor_system::ActorSystemThread;
+use plugin_host_lib::actor_system::ActorSystem;
 use plugin_host_lib::audio_io::audio_graph;
 use plugin_host_lib::audio_io::audio_graph::AudioGraphManager;
 use plugin_host_lib::audio_io::audio_thread;
@@ -45,7 +45,7 @@ where
     M::Result: Send,
     TestPluginHost: Handler<M>,
 {
-    let actor_system_thread = plugin_host_lib::actor_system::ActorSystemThread::current();
+    let actor_system_thread = plugin_host_lib::actor_system::ActorSystem::current();
     actor_system_thread.spawn(async move {
         let host_addr = TestPluginHost::from_registry();
         host_addr.send(msg).await.unwrap();
@@ -108,7 +108,7 @@ pub fn get_events_sink(sink: StreamSink<String>) -> Result<i32> {
 }
 
 pub fn audio_thread_set_options(input_device_id: String, output_device_id: String) -> Result<i32> {
-    let actor_system_thread = ActorSystemThread::current();
+    let actor_system_thread = ActorSystem::current();
     actor_system_thread.spawn_result(async move {
         let audio_thread = AudioThread::from_registry();
         audio_thread
@@ -134,7 +134,7 @@ pub fn audio_thread_set_options(input_device_id: String, output_device_id: Strin
 
 pub fn audio_graph_setup() -> Result<i32> {
     log::info!("Starting audio-graph-manager");
-    let actor_system_thread = ActorSystemThread::current();
+    let actor_system_thread = ActorSystem::current();
     actor_system_thread.spawn_result(async move {
         let manager = AudioGraphManager::from_registry();
         manager.send(audio_graph::SetupGraphMessage).await.unwrap();
@@ -149,7 +149,7 @@ pub fn audio_graph_setup() -> Result<i32> {
 }
 
 pub fn audio_graph_get_system_indexes() -> Result<Vec<u32>> {
-    ActorSystemThread::current().spawn_result(async move {
+    ActorSystem::current().spawn_result(async move {
         let manager = AudioGraphManager::from_registry();
         let (input_index, output_index) = manager
             .send(audio_graph::GetSystemIndexesMessage)
@@ -164,7 +164,7 @@ pub fn audio_graph_get_system_indexes() -> Result<Vec<u32>> {
 }
 
 pub fn audio_graph_connect(input_index: u32, output_index: u32) -> Result<u32> {
-    ActorSystemThread::current().spawn(async move {
+    ActorSystem::current().spawn(async move {
         let manager = AudioGraphManager::from_registry();
         manager
             .send(audio_graph::ConnectMessage {

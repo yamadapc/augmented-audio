@@ -21,28 +21,73 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use actix::{Actor, Handler, Message};
 use std::time::SystemTime;
-// use augmented_analytics::{AnalyticsClient, AnalyticsWorker};
+
+use actix::{Actor, Handler, Message};
+use actix_system_threads::ActorSystem;
 use cacao::defaults::UserDefaults;
+use tokio::sync::mpsc::UnboundedSender;
+use tokio::task::JoinHandle;
+
+use augmented_analytics::{
+    AnalyticsEvent, AnalyticsWorker, ClientMetadata, GoogleAnalyticsBackend, GoogleAnalyticsConfig,
+};
+
+#[derive(Debug)]
+pub enum ServiceAnalyticsEvent {
+    Screen {
+        content: String,
+    },
+    Event {
+        category: String,
+        action: String,
+        label: String,
+        value: String,
+    },
+}
 
 pub struct AnalyticsService {
     analytics_enabled: Option<bool>,
-    // analytics: AnalyticsWorker,
+    worker_handle: tokio::task::JoinHandle<()>,
+    sender: UnboundedSender<AnalyticsEvent>,
 }
 
 impl Default for AnalyticsService {
     fn default() -> Self {
+        let (sender, handle) = Self::build_worker();
+
         Self {
             analytics_enabled: None,
-            // analytics: AnalyticsWorker::new(
-            //     Default::default(),
-            //     Box::new(GoogleAnalyticsBackend::new(GoogleAnalyticsConfig::new(
-            //     ))),
-            //     ClientMetadata::new("1"), // <- this should be an anonymous client-id
-            //     receiver,
-            // ),
+            worker_handle: handle,
+            sender,
         }
+    }
+}
+
+impl AnalyticsService {
+    /// Builds a handle to the analytics thread
+    fn build_worker() -> (UnboundedSender<AnalyticsEvent>, JoinHandle<()>) {
+        let (sender, receiver) = tokio::sync::mpsc::unbounded_channel();
+        let mut user_defaults = UserDefaults::standard();
+        let analytics_id = user_defaults
+            .get("analytics_id")
+            .map(|value| value.as_str().map(|s| s.to_string()))
+            .flatten()
+            .unwrap_or_else(|| {
+                let uuid = uuid::Uuid::new_v4().to_string();
+                user_defaults.insert("analytics_id", cacao::defaults::Value::String(uuid.clone()));
+                uuid
+            });
+        let worker = AnalyticsWorker::new(
+            Default::default(),
+            Box::new(GoogleAnalyticsBackend::new(GoogleAnalyticsConfig::new(
+                "UA-74188650-8",
+            ))),
+            ClientMetadata::new(analytics_id), // <- this should be an anonymous client-id
+            receiver,
+        );
+        let handle = ActorSystem::current().spawn_result(async move { worker.spawn() });
+        (sender, handle)
     }
 }
 
@@ -66,6 +111,49 @@ impl Handler<GetAnalyticsEnabled> for AnalyticsService {
 
     fn handle(&mut self, _msg: GetAnalyticsEnabled, _ctx: &mut Self::Context) -> Self::Result {
         self.analytics_enabled.into()
+    }
+}
+
+#[derive(Message)]
+#[rtype("()")]
+pub struct SendAnalyticsEvent(pub ServiceAnalyticsEvent);
+
+impl Handler<SendAnalyticsEvent> for AnalyticsService {
+    type Result = ();
+
+    fn handle(&mut self, msg: SendAnalyticsEvent, _ctx: &mut Self::Context) -> Self::Result {
+        let analytics_enabled = self.analytics_enabled.unwrap_or(false);
+        if !analytics_enabled {
+            return;
+        }
+
+        log::info!("Firing analytics event {:?}", msg.0);
+        let event = match msg.0 {
+            ServiceAnalyticsEvent::Screen { content } => AnalyticsEvent::ScreenView {
+                application: "continuous_looper".to_string(),
+                application_version: "1.x".to_string(),
+                application_id: None,
+                application_installer_id: None,
+                content,
+            },
+            ServiceAnalyticsEvent::Event {
+                category,
+                action,
+                value,
+                label,
+            } => AnalyticsEvent::Event {
+                category,
+                action,
+                label: Some(label),
+                value: Some(value),
+            },
+        };
+        if let Err(err) = self.sender.send(event) {
+            log::error!("Analytics thread closed {}, restarting...", err);
+            let (sender, join_handle) = Self::build_worker();
+            self.sender = sender;
+            self.worker_handle = join_handle;
+        }
     }
 }
 

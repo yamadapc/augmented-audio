@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use actix_system_threads::ActorSystemThread;
+use actix_system_threads::ActorSystem;
 
 use crate::c_api::foreign_callback::ForeignCallback;
 use crate::controllers::events_controller::{AddConsumerMessage, ApplicationEvent};
@@ -33,7 +33,7 @@ pub unsafe extern "C" fn looper_engine__register_events_callback(
 ) {
     let engine = &*engine;
     let events_controller = engine.events_controller();
-    let result = ActorSystemThread::current().spawn_result(async move {
+    let result = ActorSystem::current().spawn_result(async move {
         events_controller
             .send(AddConsumerMessage(Box::new(callback)))
             .await
@@ -51,7 +51,7 @@ mod test {
     use std::ffi::c_void;
     use std::sync::mpsc::channel;
 
-    use actix_system_threads::ActorSystemThread;
+    use actix_system_threads::ActorSystem;
 
     use crate::controllers::events_controller::{ApplicationEvent, BroadcastMessage};
     use crate::{looper_engine__register_events_callback, ForeignCallback, LooperEngine};
@@ -81,7 +81,7 @@ mod test {
         }
 
         let events_controller = unsafe { (*looper_engine).events_controller() };
-        ActorSystemThread::current().spawn(async move {
+        ActorSystem::current().spawn(async move {
             events_controller
                 .send(BroadcastMessage(
                     ApplicationEvent::ApplicationEventLooperClipUpdated { looper_id: 10 },

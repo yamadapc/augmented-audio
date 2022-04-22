@@ -2106,7 +2106,7 @@ dependencies = [
  "plugin-host-lib",
  "serde",
  "serde_json",
- "uuid 1.0.0-alpha.1",
+ "uuid 1.0.0",
  "wisual-logger",
 ]
 
@@ -4146,6 +4146,7 @@ dependencies = [
  "tempdir",
  "thiserror",
  "tokio",
+ "uuid 1.0.0",
  "wisual-logger",
 ]
 
@@ -7848,9 +7849,9 @@ dependencies = [
 
 [[package]]
 name = "uuid"
-version = "1.0.0-alpha.1"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bb3ab47baa004111b323696c6eaa2752e7356f7f77cf6b6dc7a2087368ce1ca4"
+checksum = "8cfcd319456c4d6ea10087ed423473267e1a071f3bc0aa89f80d60997843c6f0"
 dependencies = [
  "getrandom 0.2.5",
 ]
