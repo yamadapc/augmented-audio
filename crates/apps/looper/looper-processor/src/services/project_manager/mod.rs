@@ -253,7 +253,7 @@ mod test {
         log::info!("data_path={:?}", data_path.path());
 
         let latest_project = load_latest_project(data_path.path()).await.unwrap();
-        assert!(latest_project.voices.len() > 0);
+        assert!(!latest_project.voices.is_empty());
     }
 
     #[actix::test]

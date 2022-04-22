@@ -522,7 +522,7 @@ impl LooperHandle {
             let scratch_pad = self.scratch_pad.borrow();
 
             let shared_buffer = self.looper_clip1.get();
-            if let Some(mut buffer) = shared_buffer.deref().try_borrow_mut().ok() {
+            if let Ok(mut buffer) = shared_buffer.deref().try_borrow_mut() {
                 utils::copy_looped_clip(
                     CopyLoopClipParams {
                         scratch_pad: &scratch_pad,

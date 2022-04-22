@@ -23,15 +23,25 @@
 
 use std::time::SystemTime;
 
-use actix::{Actor, Handler, Message};
-use actix_system_threads::ActorSystem;
+use actix::{Actor, Addr, Handler, Message};
 use cacao::defaults::UserDefaults;
 use tokio::sync::mpsc::UnboundedSender;
 use tokio::task::JoinHandle;
 
+use actix_system_threads::ActorSystem;
 use augmented_analytics::{
     AnalyticsEvent, AnalyticsWorker, ClientMetadata, GoogleAnalyticsBackend, GoogleAnalyticsConfig,
 };
+
+pub fn send_analytics(analytics_service: &Addr<AnalyticsService>, event: ServiceAnalyticsEvent) {
+    let analytics_service = analytics_service.clone();
+    ActorSystem::current().spawn(async move {
+        analytics_service
+            .send(SendAnalyticsEvent(event))
+            .await
+            .unwrap();
+    });
+}
 
 #[derive(Debug)]
 pub enum ServiceAnalyticsEvent {
@@ -71,8 +81,7 @@ impl AnalyticsService {
         let mut user_defaults = UserDefaults::standard();
         let analytics_id = user_defaults
             .get("analytics_id")
-            .map(|value| value.as_str().map(|s| s.to_string()))
-            .flatten()
+            .and_then(|value| value.as_str().map(|s| s.to_string()))
             .unwrap_or_else(|| {
                 let uuid = uuid::Uuid::new_v4().to_string();
                 user_defaults.insert("analytics_id", cacao::defaults::Value::String(uuid.clone()));
@@ -86,6 +95,7 @@ impl AnalyticsService {
             ClientMetadata::new(analytics_id), // <- this should be an anonymous client-id
             receiver,
         );
+        #[allow(clippy::async_yields_async)]
         let handle = ActorSystem::current().spawn_result(async move { worker.spawn() });
         (sender, handle)
     }
@@ -97,8 +107,7 @@ impl Actor for AnalyticsService {
     fn started(&mut self, _ctx: &mut Self::Context) {
         self.analytics_enabled = UserDefaults::standard()
             .get("analytics_enabled")
-            .map(|value| value.as_bool())
-            .flatten();
+            .and_then(|value| value.as_bool());
     }
 }
 
@@ -110,7 +119,7 @@ impl Handler<GetAnalyticsEnabled> for AnalyticsService {
     type Result = Option<bool>;
 
     fn handle(&mut self, _msg: GetAnalyticsEnabled, _ctx: &mut Self::Context) -> Self::Result {
-        self.analytics_enabled.into()
+        self.analytics_enabled
     }
 }
 

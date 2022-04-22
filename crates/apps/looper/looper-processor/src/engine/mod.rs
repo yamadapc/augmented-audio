@@ -36,11 +36,14 @@ use crate::controllers::autosave_controller::AutosaveController;
 use crate::controllers::events_controller::EventsController;
 use crate::controllers::load_project_controller;
 use crate::controllers::load_project_controller::LoadContext;
-use crate::services::analytics::{SendAnalyticsEvent, ServiceAnalyticsEvent};
 use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
 #[cfg(any(target_os = "ios", target_os = "macos"))]
-use crate::services::{analytics, analytics::AnalyticsService};
+use crate::services::{
+    analytics,
+    analytics::AnalyticsService,
+    analytics::{send_analytics, SendAnalyticsEvent, ServiceAnalyticsEvent},
+};
 use crate::{
     services, setup_osc_server, LooperOptions, MultiTrackLooper, MultiTrackLooperHandle,
     MAX_LOOP_LENGTH_SECS,
@@ -150,18 +153,13 @@ impl LooperEngine {
 
         #[cfg(any(target_os = "ios", target_os = "macos"))]
         {
-            let analytics_service = analytics_service.clone();
-            ActorSystem::current().spawn(async move {
-                analytics_service
-                    .send(SendAnalyticsEvent(ServiceAnalyticsEvent::Event {
-                        category: "operational".to_string(),
-                        action: "loaded".to_string(),
-                        label: "LooperEngine".to_string(),
-                        value: "0".to_string(),
-                    }))
-                    .await
-                    .unwrap();
-            });
+            let looper_loaded_event = ServiceAnalyticsEvent::Event {
+                category: "operational".to_string(),
+                action: "loaded".to_string(),
+                label: "LooperEngine".to_string(),
+                value: "0".to_string(),
+            };
+            send_analytics(&analytics_service, looper_loaded_event);
         }
 
         LooperEngine {
@@ -179,8 +177,8 @@ impl LooperEngine {
 
     fn setup_metrics(handle: &Shared<MultiTrackLooperHandle>) -> Mutex<AudioProcessorMetricsActor> {
         let metrics_handle = handle.metrics_handle().clone();
-        let metrics_actor = Mutex::new(AudioProcessorMetricsActor::new(metrics_handle));
-        metrics_actor
+
+        Mutex::new(AudioProcessorMetricsActor::new(metrics_handle))
     }
 
     pub fn processor(&self) -> Option<&MultiTrackLooper> {

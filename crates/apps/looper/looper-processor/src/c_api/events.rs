@@ -57,8 +57,7 @@ mod test {
     use crate::{looper_engine__register_events_callback, ForeignCallback, LooperEngine};
 
     extern "C" fn closure_forwarder(context: *mut c_void, value: ApplicationEvent) {
-        let context: &mut &mut dyn Fn(ApplicationEvent) -> () =
-            unsafe { std::mem::transmute(context) };
+        let context: &mut &mut dyn Fn(ApplicationEvent) = unsafe { std::mem::transmute(context) };
         context(value);
     }
 
@@ -66,7 +65,7 @@ mod test {
     pub fn test_looper_engine_register_events_callback() {
         let (tx, rx) = channel();
         let closure = move |value| tx.send(value).unwrap();
-        let context: Box<Box<dyn Fn(ApplicationEvent) -> ()>> = Box::new(Box::new(closure));
+        let context: Box<Box<dyn Fn(ApplicationEvent)>> = Box::new(Box::new(closure));
         let context = Box::into_raw(context) as *mut c_void;
         let foreign_callback = ForeignCallback {
             context,

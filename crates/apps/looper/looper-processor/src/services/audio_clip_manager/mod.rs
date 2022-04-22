@@ -155,7 +155,7 @@ mod test {
 
         let test_file_path = PathBuf::from(relative_path!("../../../../input-files/bass.wav"));
         let clip = manager.load_at_path(&test_file_path).unwrap();
-        let level = rms_level(&clip.contents().slice());
+        let level = rms_level(clip.contents().slice());
         assert!(level > 0.1);
     }
 
@@ -203,8 +203,8 @@ mod test {
             .unwrap();
         crate::controllers::load_project_controller::load_and_hydrate_latest_project(LoadContext {
             handle: looper.handle().clone(),
-            project_manager: project_manager.clone(),
-            audio_clip_manager: audio_clip_manager.clone(),
+            project_manager: project_manager,
+            audio_clip_manager: audio_clip_manager,
             events_controller: ActorSystem::start(EventsController::default()),
         })
         .unwrap();
