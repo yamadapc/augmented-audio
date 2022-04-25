@@ -200,23 +200,22 @@ fn audio_thread_run(params: AudioThreadRunParams, app: impl StandaloneProcessor)
         output_device,
     } = cpal_streams;
 
-    let build_streams =
-        move || -> Result<(Option<cpal::Stream>, cpal::Stream), AudioThreadError> {
-            let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
-            let (producer, consumer) = buffer.split();
-            let input_stream = build_input_stream(input_tuple, producer)?;
-            let output_stream = build_output_stream(
-                app,
-                midi_context,
-                num_output_channels,
-                num_input_channels,
-                consumer,
-                output_device,
-                output_config,
-            )?;
+    let build_streams = move || -> Result<(Option<Stream>, Stream), AudioThreadError> {
+        let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
+        let (producer, consumer) = buffer.split();
+        let input_stream = build_input_stream(input_tuple, producer)?;
+        let output_stream = build_output_stream(
+            app,
+            midi_context,
+            num_output_channels,
+            num_input_channels,
+            consumer,
+            output_device,
+            output_config,
+        )?;
 
-            Ok((input_stream, output_stream))
-        };
+        Ok((input_stream, output_stream))
+    };
 
     match build_streams() {
         Ok((input_stream, output_stream)) => {
@@ -318,7 +317,7 @@ fn configure_input_device(
     host: &Host,
     buffer_size: usize,
     sample_rate: usize,
-) -> (cpal::Device, StreamConfig) {
+) -> (Device, StreamConfig) {
     let input_device = host.default_input_device().unwrap();
     let supported_configs = input_device.supported_input_configs().unwrap();
     let mut supports_stereo = false;
@@ -354,7 +353,7 @@ fn configure_output_device(
     host: Host,
     buffer_size: usize,
     sample_rate: usize,
-) -> (cpal::Device, StreamConfig) {
+) -> (Device, StreamConfig) {
     let output_device = host.default_output_device().unwrap();
     for config in output_device.supported_input_configs().unwrap() {
         log::info!("  OUTPUT Supported config: {:?}", config);

@@ -59,7 +59,7 @@ mod test {
         context(value);
     }
 
-    /// This test passes a rust closure into ForeignCallback, as if it was a C ffi compliant
+    /// This test passes a rust closure into `ForeignCallback`, as if it was a C FFI compliant
     /// function it then tests that this closure is properly called.
     #[test]
     pub fn test_foreign_callback() {

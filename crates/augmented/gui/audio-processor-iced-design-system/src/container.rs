@@ -27,9 +27,7 @@ pub mod hover_container {
     use iced::canvas::event::Status;
     use iced::{Alignment, Length, Point, Rectangle};
     use iced_native::layout::{Limits, Node};
-    use iced_native::{
-        layout, overlay, Clipboard, Element, Event, Hasher, Layout, Padding, Widget,
-    };
+    use iced_native::{overlay, Clipboard, Element, Event, Hasher, Layout, Padding, Widget};
     use std::hash::Hash;
 
     pub struct HoverContainer<'a, Message, Renderer: self::Renderer> {
@@ -156,7 +154,7 @@ pub mod hover_container {
             ));
             content.align(self.horizontal_alignment, self.vertical_alignment, size);
 
-            layout::Node::with_children(size.pad(self.padding), vec![content])
+            Node::with_children(size.pad(self.padding), vec![content])
         }
 
         fn draw(

@@ -24,21 +24,21 @@ pub const STEREO_SPREAD: usize = 23;
 
 // pub const MUTED: f32 = 0.0;
 pub const FIXED_GAIN: f32 = 0.015;
-pub const SCALEWET: f32 = 3.0;
-pub const SCALEDRY: f32 = 2.0;
-pub const SCALEDAMP: f32 = 0.4;
-pub const SCALEROOM: f32 = 0.28;
-pub const OFFSETROOM: f32 = 0.7;
-pub const INITIALROOM: f32 = 0.5;
-pub const INITIALDAMP: f32 = 0.5;
-pub const INITIALWET: f32 = 1.0 / SCALEWET;
-pub const INITIALDRY: f32 = 0.0;
-pub const INITIALWIDTH: f32 = 1.0;
+pub const SCALE_WET: f32 = 3.0;
+pub const SCALE_DRY: f32 = 2.0;
+pub const SCALE_DAMP: f32 = 0.4;
+pub const SCALE_ROOM: f32 = 0.28;
+pub const OFFSET_ROOM: f32 = 0.7;
+pub const INITIAL_ROOM: f32 = 0.5;
+pub const INITIAL_DAMP: f32 = 0.5;
+pub const INITIAL_WET: f32 = 1.0 / SCALE_WET;
+pub const INITIAL_DRY: f32 = 0.0;
+pub const INITIAL_WIDTH: f32 = 1.0;
 
 // pub const INITIALMODE: f32 = 0.0;
 // pub const FREEZEMODE: f32 = 0.5;
 
-pub const ALLPASSTUNING_L1: usize = 556;
+pub const ALL_PASS_TUNING: usize = 556;
 pub const ALLPASSTUNING_R1: usize = 556 + STEREO_SPREAD;
 pub const ALLPASSTUNING_L2: usize = 441;
 pub const ALLPASSTUNING_R2: usize = 441 + STEREO_SPREAD;

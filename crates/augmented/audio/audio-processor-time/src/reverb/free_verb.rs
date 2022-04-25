@@ -37,24 +37,24 @@ struct FreeverbProcessorHandle {
     dry: AtomicF32,
     wet: AtomicF32,
     damp: AtomicF32,
-    roomsize: AtomicF32,
+    room_size: AtomicF32,
 }
 
 impl FreeverbProcessorHandle {
     pub fn set_dry(&self, value: f32) {
-        self.dry.set(value * SCALEDRY);
+        self.dry.set(value * SCALE_DRY);
     }
 
-    pub fn set_roomsize(&self, value: f32) {
-        self.roomsize.set(value * SCALEROOM + OFFSETROOM);
+    pub fn set_room_size(&self, value: f32) {
+        self.room_size.set(value * SCALE_ROOM + OFFSET_ROOM);
     }
 
     pub fn set_damp(&self, value: f32) {
-        self.damp.set(value * SCALEDAMP);
+        self.damp.set(value * SCALE_DAMP);
     }
 
     pub fn set_wet(&self, value: f32) {
-        self.wet.set(value * SCALEWET);
+        self.wet.set(value * SCALE_WET);
     }
 }
 
@@ -106,7 +106,7 @@ impl AudioProcessorHandle for GenericHandle {
     fn get_parameter(&self, index: usize) -> Option<ParameterValue> {
         match index {
             0 => Some(self.0.dry.get().into()),
-            1 => Some(self.0.roomsize.get().into()),
+            1 => Some(self.0.room_size.get().into()),
             2 => Some(self.0.damp.get().into()),
             3 => Some(self.0.wet.get().into()),
             _ => None,
@@ -117,7 +117,7 @@ impl AudioProcessorHandle for GenericHandle {
         if let Ok(value) = request.try_into() {
             match index {
                 0 => self.0.set_dry(value),
-                1 => self.0.set_roomsize(value),
+                1 => self.0.set_room_size(value),
                 2 => self.0.set_damp(value),
                 3 => self.0.set_wet(value),
                 _ => {}
@@ -160,7 +160,7 @@ impl Default for FreeverbProcessor {
                 LowpassFeedbackCombFilter::new(COMBTUNING_L8),
             ],
             all_pass_left: [
-                AllPass::new(ALLPASSTUNING_L1),
+                AllPass::new(ALL_PASS_TUNING),
                 AllPass::new(ALLPASSTUNING_L2),
                 AllPass::new(ALLPASSTUNING_L3),
                 AllPass::new(ALLPASSTUNING_L4),
@@ -183,12 +183,12 @@ impl Default for FreeverbProcessor {
             ],
 
             handle: make_shared(FreeverbProcessorHandle {
-                width: INITIALWIDTH.into(),
+                width: INITIAL_WIDTH.into(),
                 gain: FIXED_GAIN.into(),
-                dry: INITIALDRY.into(),
-                wet: INITIALWET.into(),
-                damp: INITIALDAMP.into(),
-                roomsize: 0.0.into(),
+                dry: INITIAL_DRY.into(),
+                wet: INITIAL_WET.into(),
+                damp: INITIAL_DAMP.into(),
+                room_size: 0.0.into(),
             }),
 
             wet1: 0.0,
@@ -204,7 +204,7 @@ impl FreeverbProcessor {
         self.wet1 = self.handle.wet.get() * (self.handle.width.get() / 2.0 + 0.5);
         self.wet2 = self.handle.wet.get() * ((1.0 - self.handle.width.get()) / 2.0);
 
-        self.roomsize1 = self.handle.roomsize.get();
+        self.roomsize1 = self.handle.room_size.get();
         self.damp1 = self.handle.damp.get();
 
         for (comb_left, comb_right) in self
@@ -233,9 +233,9 @@ impl SimpleAudioProcessor for FreeverbProcessor {
             allpass_right.set_feedback(0.5);
         }
 
-        self.handle.set_wet(INITIALWET);
-        self.handle.set_damp(INITIALDAMP);
-        self.handle.set_roomsize(INITIALROOM);
+        self.handle.set_wet(INITIAL_WET);
+        self.handle.set_damp(INITIAL_DAMP);
+        self.handle.set_room_size(INITIAL_ROOM);
     }
 
     fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {

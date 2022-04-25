@@ -272,7 +272,7 @@ mod test {
     use super::*;
 
     fn setup() -> (GarbageCollector, InMemoryAudioFile) {
-        let garbage_collector = audio_garbage_collector::GarbageCollector::default();
+        let garbage_collector = GarbageCollector::default();
         let path = format!(
             "{}{}",
             env!("CARGO_MANIFEST_DIR"),

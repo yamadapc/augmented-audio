@@ -155,7 +155,8 @@ where
     })
 }
 
-/// Read messages from the 'server output channel' and push them onto the WebSockets server ref.
+/// Read messages from the 'server output channel' and push them onto the web-sockets server
+/// reference.
 async fn forward_messages<ServerMessage>(
     mut output_receiver: Receiver<ServerMessage>,
     server_handle: ServerRef,

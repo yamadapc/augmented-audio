@@ -65,7 +65,7 @@ impl MetronomeProcessorHandle {
     }
 }
 
-/// This is so that consumers can control the playhead and metronome just follow
+/// This is so that consumers can control the play-head and metronome just follow
 ///
 /// There are two types of methods here:
 ///

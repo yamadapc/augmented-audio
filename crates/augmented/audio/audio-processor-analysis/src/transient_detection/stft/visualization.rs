@@ -170,7 +170,7 @@ pub fn draw(output_file_path: &str, frames: &[f32], transients: &[f32]) {
     let _ = render_context.restore();
 
     render_context.finish().unwrap();
-    std::mem::drop(render_context);
+    drop(render_context);
 
     bitmap
         .save_to_file(output_file_path)

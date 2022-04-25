@@ -91,7 +91,7 @@ pub struct Queue<T> {
 unsafe impl<T: Send> Send for Queue<T> {}
 unsafe impl<T> Sync for Queue<T> {}
 
-/// Alias for `Queue::new`, creates a new bounded MPMC queue with the given capacity.
+/// Alias for `Queue::new`, creates a new bounded `MPMC` queue with the given capacity.
 ///
 /// Writes will fail if the queue is full.
 pub fn bounded<T>(capacity: usize) -> Queue<T> {
@@ -450,7 +450,7 @@ mod test {
                         break;
                     }
                 }
-                std::thread::sleep(duration);
+                thread::sleep(duration);
             }
             log::info!("Thread done writing");
         })

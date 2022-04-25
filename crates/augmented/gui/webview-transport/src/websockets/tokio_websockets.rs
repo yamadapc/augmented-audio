@@ -44,7 +44,7 @@ type ConnectionMap = Arc<Mutex<HashMap<ConnectionId, ConnectionSink>>>;
 async fn handle_connection(
     peer: SocketAddr,
     mut ws_stream: SplitStream<WebSocketStream<TcpStream>>,
-    input_sender: Sender<tungstenite::Message>,
+    input_sender: Sender<Message>,
 ) -> tungstenite::Result<()> {
     log::info!("New WebSocket connection: {:?}", peer);
     loop {
@@ -132,9 +132,9 @@ async fn run_websockets_accept_loop(
 
 pub struct ServerHandle {
     loop_handle: JoinHandle<()>,
-    input_sender: Sender<tungstenite::Message>,
+    input_sender: Sender<Message>,
     #[allow(dead_code)]
-    input_broadcast: Receiver<tungstenite::Message>,
+    input_broadcast: Receiver<Message>,
     connections: ConnectionMap,
 }
 
@@ -144,7 +144,7 @@ impl ServerHandle {
         (*self.connections.lock().await).len()
     }
 
-    pub fn messages(&mut self) -> Receiver<tungstenite::Message> {
+    pub fn messages(&mut self) -> Receiver<Message> {
         self.input_sender.subscribe()
     }
 
@@ -160,10 +160,7 @@ impl ServerHandle {
             message
         );
         for (_, connection) in connections.iter_mut() {
-            if let Err(err) = connection
-                .send(tungstenite::Message::Text(message.clone()))
-                .await
-            {
+            if let Err(err) = connection.send(Message::Text(message.clone())).await {
                 log::error!("Failed to send message {}", err);
             }
         }
@@ -183,12 +180,12 @@ impl<'a> ServerOptions<'a> {
 pub async fn run_websockets_transport_async(
     options: ServerOptions<'_>,
 ) -> tokio::io::Result<ServerHandle> {
-    let listener: tokio::net::TcpListener = TcpListener::bind(options.addr).await?;
+    let listener: TcpListener = TcpListener::bind(options.addr).await?;
     log::info!("Listening on: {}", options.addr);
     let (input_sender, input_broadcast) = tokio::sync::broadcast::channel(1);
 
     let connections = Arc::new(Mutex::new(HashMap::new()));
-    let current_id = crossbeam::atomic::AtomicCell::<u32>::new(0);
+    let current_id = AtomicCell::<u32>::new(0);
 
     let loop_handle = tokio::spawn(run_websockets_accept_loop(
         listener,
@@ -225,9 +222,7 @@ mod test {
             .unwrap();
         let app_started = "message";
         ws_stream
-            .send(tungstenite::Message::Text(
-                serde_json::to_string(&app_started).unwrap(),
-            ))
+            .send(Message::Text(serde_json::to_string(&app_started).unwrap()))
             .await
             .unwrap();
 

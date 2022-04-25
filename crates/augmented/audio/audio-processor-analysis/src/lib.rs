@@ -26,7 +26,7 @@
 /// Envelope follower implementation
 pub mod envelope_follower_processor;
 
-/// FFT processor implementation with windowing & overlap, wraps `rustfft`
+/// FFT processor implementation with windowing & overlap, wraps [`rustfft`]
 pub mod fft_processor;
 
 /// Peak detector implementation

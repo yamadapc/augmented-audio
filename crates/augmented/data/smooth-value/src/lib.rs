@@ -150,7 +150,6 @@ impl InterpolatedValue {
 #[cfg(test)]
 mod tests {
     use audio_processor_testing_helpers::assert_f_eq;
-    use std::f32::EPSILON;
 
     use super::*;
 
@@ -237,6 +236,6 @@ mod tests {
     }
 
     fn assert_approx_equals(value: f32, target: f32) {
-        assert!(value - target < EPSILON);
+        assert!(value - target < f32::EPSILON);
     }
 }

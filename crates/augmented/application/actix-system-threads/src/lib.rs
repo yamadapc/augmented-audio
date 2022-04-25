@@ -38,7 +38,7 @@ lazy_static! {
 #[derive(Debug)]
 pub struct ActorSystem {
     #[allow(dead_code)]
-    system: actix::System,
+    system: System,
     arbiters: Vec<ArbiterHandle>,
     counter: Arc<AtomicUsize>,
 }
@@ -57,7 +57,7 @@ impl ActorSystem {
         std::thread::Builder::new()
             .name("actor-system-main".into())
             .spawn(move || {
-                let system = actix::System::new();
+                let system = System::new();
                 let mut arbiters = vec![Arbiter::current()];
                 for _ in 0..num_threads {
                     arbiters.push(Arbiter::new().handle());
@@ -110,7 +110,7 @@ impl ActorSystem {
 
     pub fn start<A>(actor: A) -> Addr<A>
     where
-        A: Actor<Context = actix::Context<A>> + Send,
+        A: Actor<Context = Context<A>> + Send,
     {
         Self::current().spawn_result(async move { actor.start() })
     }

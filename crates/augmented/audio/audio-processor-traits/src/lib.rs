@@ -43,11 +43,11 @@ pub use simple_processor::{BufferProcessor, SimpleAudioProcessor};
 
 /// Atomic F32 implementation with `num` trait implementations
 pub mod atomic_float;
-/// Provides an abstraction for audio buffers that works for CPAL and VST layouts
+/// Provides an abstraction for audio buffers that works for [`cpal`] and [`vst`] layouts
 pub mod audio_buffer;
-/// Provides an abstraction for MIDI processing that works for stand-alone and VST events
+/// Provides an abstraction for MIDI processing that works for stand-alone and [`vst`] events
 pub mod midi;
-/// Parameters for AudioProcessor
+/// Parameters for [`AudioProcessor`]
 pub mod parameters;
 /// Simpler audio processor trait, ingesting sample by sample
 pub mod simple_processor;

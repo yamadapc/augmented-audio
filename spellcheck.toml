@@ -1,0 +1,23 @@
+dev_comments = false
+skip_readme = false
+
+[hunspell]
+lang = "en_US"
+search_dirs = ["."]
+skip_os_lookups = false
+use_builtin = true
+tokenization_splitchars = "\",;:.!?#(){}[]|/_-‒'`&@§¶…"
+extra_dictionaries = ["domain-lingo.dic"]
+
+[hunspell.quirks]
+transform_regex = []
+allow_concatenation = false
+allow_dashes = false
+allow_emojis = true
+
+[nlprules]
+
+[reflow]
+max_line_length = 80
+
+[?25h

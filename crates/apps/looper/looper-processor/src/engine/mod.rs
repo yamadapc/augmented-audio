@@ -42,7 +42,7 @@ use crate::services::project_manager::ProjectManager;
 use crate::services::{
     analytics,
     analytics::AnalyticsService,
-    analytics::{send_analytics, SendAnalyticsEvent, ServiceAnalyticsEvent},
+    analytics::{send_analytics, ServiceAnalyticsEvent},
 };
 use crate::{
     services, setup_osc_server, LooperOptions, MultiTrackLooper, MultiTrackLooperHandle,

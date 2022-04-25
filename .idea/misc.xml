@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
+  <component name="CidrRootsConfiguration">
+    <excludeRoots>
+      <file path="$PROJECT_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
+      <file path="$PROJECT_DIR$/crates/augmented/data/augmented-midi/midir" />
+    </excludeRoots>
+  </component>
 </project>
