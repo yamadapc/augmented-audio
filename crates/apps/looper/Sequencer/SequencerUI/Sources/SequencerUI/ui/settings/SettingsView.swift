@@ -15,34 +15,37 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import SwiftUI
+import WebView
 
 @available(macOS 11.0, *)
-struct SettingsView: View {
-    @State private var selectedTab: String? = "Settings"
-    var body: some View {
+public struct SettingsView: View {
+    @State private var selectedTab: String? = "About"
+    @EnvironmentObject var store: Store
+
+    public init() {}
+
+    public var body: some View {
         NavigationView {
             List {
                 NavigationLink(
                     destination: VStack {
-                        Text("Content view")
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity),
-                    tag: "Settings",
-                    selection: $selectedTab,
-                    label: {
-                        Text("Audio settings")
-                    }
-                )
-                NavigationLink(
-                    destination: VStack {
-                        Text("Content view")
+                        AboutPageView()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity),
                     tag: "About",
                     selection: $selectedTab,
                     label: {
                         Text("About")
+                    }
+                )
+                NavigationLink(
+                    destination: PrivacyPreferencesView(),
+                    tag: "Privacy",
+                    selection: $selectedTab,
+                    label: {
+                        Text("Privacy")
                     }
                 )
             }
@@ -53,11 +56,12 @@ struct SettingsView: View {
                 alignment: .topLeading
             )
         }
-        .navigationTitle("Settings")
+        .navigationTitle("Preferences")
         .frame(
             maxWidth: .infinity,
             maxHeight: .infinity
         )
+        .preferredColorScheme(.dark)
     }
 }
 

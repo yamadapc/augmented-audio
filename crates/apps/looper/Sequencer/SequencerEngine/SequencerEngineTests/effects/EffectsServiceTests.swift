@@ -17,8 +17,8 @@
 // = /copyright ===================================================================
 
 @testable import SequencerEngine
-import XCTest
 import SequencerUI
+import XCTest
 
 class EffectsServiceTests: XCTestCase {
     func testListEffects() throws {

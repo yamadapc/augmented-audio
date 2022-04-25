@@ -1,5 +1,5 @@
 // = copyright ====================================================================
-// DAW: Flutter UI for a DAW application
+// Continuous: Live-looper and performance sampler
 // Copyright (C) 2022  Pedro Tacla Yamada
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,25 +15,25 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-use actix::SystemService;
+import Cocoa
+import SequencerEngine
+import SequencerUI
+import SwiftUI
 
-use audio_processor_graph::NodeType;
+/**
+ * ViewController for the preferences window content view.
+ */
+class PreferencesWindowViewController: NSViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-use plugin_host_lib::actor_system::ActorSystem;
-use plugin_host_lib::audio_io::audio_graph;
-use plugin_host_lib::audio_io::audio_graph::{AudioGraphManager, ProcessorSpec};
+        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
+        let contentView = SettingsView()
+            .environmentObject(engineController.store)
 
-pub fn audio_node_create_raw(processor: NodeType) -> usize {
-    let index = ActorSystem::current().spawn_result(async move {
-        let manager = AudioGraphManager::from_registry();
-        manager
-            .send(audio_graph::CreateAudioNodeMessage {
-                processor_spec: ProcessorSpec::RawProcessor { value: processor },
-            })
-            .await
-            .unwrap()
-            .unwrap()
-            .index()
-    });
-    index
+        let content = NSHostingView(rootView: contentView)
+        content.translatesAutoresizingMaskIntoConstraints = true
+        content.autoresizingMask = [.height, .width]
+        view = content
+    }
 }

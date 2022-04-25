@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use std::time::Duration;
 
-use actix_system_threads::ActorSystemThread;
+use actix_system_threads::ActorSystem;
 
 use crate::audio::multi_track_looper::effects_processor::EffectType;
 use crate::audio::multi_track_looper::parameters::LooperId;
@@ -78,7 +78,7 @@ fn test_start_engine_and_record_audio() {
         }
     }
 
-    let _ = ActorSystemThread::current().spawn_result(async move {
+    let _ = ActorSystem::current().spawn_result(async move {
         engine.save_project().await;
     });
 }

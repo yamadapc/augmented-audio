@@ -16,25 +16,33 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
-import Cocoa
 import SwiftUI
 
-import SequencerEngine
-import SequencerUI
+@available(macOS 11.0, *)
+struct PrivacyPreferencesView: View {
+    @EnvironmentObject var store: Store
+    @State var isAnalyticsEnabled = false
 
-@main
-class AppDelegate: NSObject, NSApplicationDelegate {
-    var engineController = EngineController()
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text("Privacy preferences")
+                .bold()
+                .font(.title)
 
-    func applicationDidFinishLaunching(_: Notification) {}
+            Toggle(isOn: $isAnalyticsEnabled) {
+                Text("Enable analytics")
+                    .bold()
+            }.onChange(of: isAnalyticsEnabled) { newValue in
+                store.isAnalyticsEnabled = newValue
+            }
 
-    func applicationWillTerminate(_: Notification) {}
-
-    func applicationSupportsSecureRestorableState(_: NSApplication) -> Bool {
-        return true
-    }
-
-    func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
-        return true
+            Text("If checked, Continuous Looper will collect anonymous usage and performance analytics data in order to improve its service.")
+                .font(.callout)
+        }
+        .onAppear {
+            isAnalyticsEnabled = store.isAnalyticsEnabled ?? false
+        }
+        .padding(PADDING)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
 }

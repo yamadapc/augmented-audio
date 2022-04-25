@@ -193,6 +193,8 @@ impl AnalyticsWorker {
         if let Err(err) = result {
             log::error!("Failed to post events error={}", err);
             // TODO - Push back to queue or retry
+            // However, since the app is potentially offline, we shouldn't keep these in memory if
+            // there are retries. For now, no retries is a simple option.
         }
     }
 }

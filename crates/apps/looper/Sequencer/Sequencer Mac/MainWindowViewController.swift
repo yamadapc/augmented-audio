@@ -15,17 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import Cocoa
 import SequencerEngine
 import SequencerUI
 import SwiftUI
 
-class ViewController: NSViewController {
-    var engineController = EngineController()
-
+/**
+ * ViewController for the main application window.
+ */
+class MainWindowViewController: NSViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
         let contentView = ContentView()
             .environmentObject(engineController.store)
 

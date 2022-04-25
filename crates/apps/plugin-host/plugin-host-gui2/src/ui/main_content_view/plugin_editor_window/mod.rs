@@ -29,7 +29,7 @@ use vst::editor::Editor;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
 
-use plugin_host_lib::actor_system::ActorSystemThread;
+use plugin_host_lib::actor_system::ActorSystem;
 use plugin_host_lib::audio_io::GetPluginInstanceMessage;
 use plugin_host_lib::processors::shared_processor::SharedProcessor;
 use plugin_host_lib::TestPluginHost;
@@ -49,7 +49,7 @@ impl IEditorPluginInstanceProvider for Arc<Mutex<TestPluginHost>> {
 impl IEditorPluginInstanceProvider for Addr<TestPluginHost> {
     fn plugin_instance(&self) -> Option<SharedProcessor<PluginInstance>> {
         let addr = self.clone();
-        ActorSystemThread::current()
+        ActorSystem::current()
             .spawn_result(async move { addr.send(GetPluginInstanceMessage).await.unwrap() })
     }
 }

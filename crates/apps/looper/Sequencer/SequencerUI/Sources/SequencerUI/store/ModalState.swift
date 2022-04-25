@@ -1,5 +1,5 @@
 // = copyright ====================================================================
-// DAW: Flutter UI for a DAW application
+// Continuous: Live-looper and performance sampler
 // Copyright (C) 2022  Pedro Tacla Yamada
 //
 // This program is free software: you can redistribute it and/or modify
@@ -15,25 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-use actix::SystemService;
+import Combine
 
-use audio_processor_graph::NodeType;
+enum Modal {
+    case analyticsModal
+}
 
-use plugin_host_lib::actor_system::ActorSystem;
-use plugin_host_lib::audio_io::audio_graph;
-use plugin_host_lib::audio_io::audio_graph::{AudioGraphManager, ProcessorSpec};
+class ModalState: ObservableObject {
+    @Published var modal: Modal?
 
-pub fn audio_node_create_raw(processor: NodeType) -> usize {
-    let index = ActorSystem::current().spawn_result(async move {
-        let manager = AudioGraphManager::from_registry();
-        manager
-            .send(audio_graph::CreateAudioNodeMessage {
-                processor_spec: ProcessorSpec::RawProcessor { value: processor },
-            })
-            .await
-            .unwrap()
-            .unwrap()
-            .index()
-    });
-    index
+    init() {}
+
+    func initialize(_ engine: SequencerEngine) {
+        if engine.getAnalyticsEnabled() == nil {
+            modal = .analyticsModal
+        }
+    }
 }

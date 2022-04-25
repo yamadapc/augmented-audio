@@ -29,21 +29,21 @@ use actix::prelude::*;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref THREAD: ActorSystemThread = {
+    static ref THREAD: ActorSystem = {
         log::info!("Global actor system will start");
-        ActorSystemThread::with_new_system()
+        ActorSystem::with_new_system()
     };
 }
 
 #[derive(Debug)]
-pub struct ActorSystemThread {
+pub struct ActorSystem {
     #[allow(dead_code)]
     system: actix::System,
     arbiters: Vec<ArbiterHandle>,
     counter: Arc<AtomicUsize>,
 }
 
-impl ActorSystemThread {
+impl ActorSystem {
     pub fn current() -> &'static Self {
         &THREAD
     }
@@ -116,7 +116,7 @@ impl ActorSystemThread {
     }
 }
 
-impl Drop for ActorSystemThread {
+impl Drop for ActorSystem {
     fn drop(&mut self) {
         log::info!("Stopping actor system thread");
         self.spawn(async {
@@ -137,7 +137,7 @@ mod test {
         // In a block so that drop is tested as well
         {
             let _ = wisual_logger::try_init_from_env();
-            let _actor_system_thread = ActorSystemThread::with_new_system();
+            let _actor_system_thread = ActorSystem::with_new_system();
         }
     }
 
@@ -161,7 +161,7 @@ mod test {
         }
 
         let _ = wisual_logger::try_init_from_env();
-        let actor_system_thread = ActorSystemThread::with_new_system();
+        let actor_system_thread = ActorSystem::with_new_system();
 
         let addr: Addr<TestActor> =
             actor_system_thread.spawn_result(async { TestActor {}.start() });

@@ -46,7 +46,7 @@ mod closure_consumer {
         t: PhantomData<T>,
     }
 
-    impl<T, F: Fn(T) -> ()> ClosureConsumer<F, T> {
+    impl<T, F: Fn(T)> ClosureConsumer<F, T> {
         pub fn new(f: F) -> Self {
             Self {
                 f,
@@ -55,7 +55,7 @@ mod closure_consumer {
         }
     }
 
-    impl<T, F: Fn(T) -> ()> Consumer<T> for ClosureConsumer<F, T> {
+    impl<T, F: Fn(T)> Consumer<T> for ClosureConsumer<F, T> {
         fn accept(&self, value: T) {
             (self.f)(value);
         }

@@ -155,11 +155,19 @@ impl AudioProcessorMetricsActor {
             .unwrap_or(0.0);
 
         AudioProcessorMetricsStats {
-            average_cpu,
-            max_cpu,
-            average_nanos,
-            max_nanos,
+            average_cpu: fix_nan(average_cpu),
+            max_cpu: fix_nan(max_cpu),
+            average_nanos: fix_nan(average_nanos),
+            max_nanos: fix_nan(max_nanos),
         }
+    }
+}
+
+fn fix_nan(value: f32) -> f32 {
+    if value.is_nan() {
+        0.0
+    } else {
+        value
     }
 }
 

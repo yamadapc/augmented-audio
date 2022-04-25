@@ -823,7 +823,7 @@ mod test {
         assert_eq!(
             &buffer
                 .slice()
-                .into_iter()
+                .iter()
                 .map(|f| (f * 10.0) as usize)
                 // TODO - This is broken; the clip should be 40 samples long
                 .take(39)
