@@ -35,6 +35,7 @@ use crate::audio::multi_track_looper::parameters::{
 pub use crate::engine::LooperEngine;
 use crate::TimeInfoProvider;
 
+#[cfg(any(target_os = "macos", target_os = "ios"))]
 pub use self::analytics::*;
 pub use self::audio_clip_manager::*;
 pub use self::entity_id::*;
