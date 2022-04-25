@@ -88,6 +88,7 @@ sharing caches.
 
 To build the whole project run:
 ```shell
+git submodule update --init
 cargo build
 ```
 
