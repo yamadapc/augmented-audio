@@ -17,25 +17,34 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-struct MIDIMapView: View {
-    @ObservedObject var midi: MIDIMappingState
+enum LFOMode {
+    case
+        sine,
+        square,
+        saw
+}
+
+struct LFOModeButtonsView: View {
+    @State var mode: LFOMode = .sine
 
     var body: some View {
-        VStack {
-            Text("MIDI Map")
-                .bold()
-                .padding(PADDING)
-                .frame(maxWidth: .infinity)
-                .background(SequencerColors.black3)
-
-            List(midi.mapKeys, id: \.self, rowContent: { key in
-                let entry = midi.getMapping(message: key)
-                // TODO: - Add a proper view for this
-                Text("\(key.toString()) = \(String(describing: entry))")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            })
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            Picker("LFO Mode", selection: $mode) {
+                Text("Sine").tag(LFOMode.sine)
+                Text("Square").tag(LFOMode.square)
+                Text("Saw").tag(LFOMode.saw)
+            }
+            .pickerStyle(.segmented)
+            .padding(PADDING * 0.5)
+            Rectangle()
+                .fill(SequencerColors.white.opacity(0.3))
+                .frame(maxWidth: .infinity, maxHeight: 1)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+}
+
+struct LFOModeButtonsView_Previews: PreviewProvider {
+    static var previews: some View {
+        LFOModeButtonsView()
     }
 }
