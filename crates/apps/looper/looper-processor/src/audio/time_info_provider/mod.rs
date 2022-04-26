@@ -27,7 +27,6 @@
 //! * standalone-mode - The [`TimeInfoProviderImpl`] object provides play-head & tempo
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use derive_builder::Builder;
 use mockall::automock;
 
 use audio_processor_metronome::MetronomePlayhead;
@@ -43,7 +42,6 @@ pub type HostCallback = ();
 
 /// Represents instantaneous play-head state. The current tempo, position and "is playing" state can
 /// be queried from this object.
-#[derive(Builder)]
 pub struct TimeInfo {
     tempo: Option<f64>,
     position_samples: f64,
