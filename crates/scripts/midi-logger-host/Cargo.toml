@@ -7,7 +7,7 @@ edition = "2018"
 
 [dependencies]
 rimd = "^0.0.1"
-midir = "^0.7.0"
+midir = "0.8.0-pre"
 thiserror = "^1.0.25"
 wisual-logger = "^0.1.2"
 log = "^0.4.14"

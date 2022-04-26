@@ -27,7 +27,7 @@ use vst::api::{Event, Events, MidiEvent};
 use crate::constants::MIDI_BUFFER_CAPACITY;
 use crate::host::MidiMessageEntry;
 
-/// This is an unsafe converter from MIDI events received from `midir` into the `rust-vst` VST api.
+/// This is an unsafe converter from MIDI events received from [`midir`] into the `rust-vst` VST api.
 ///
 /// It's unsafe because it must do manual memory allocation & management to interface with the VST
 /// C-style API.
@@ -41,7 +41,7 @@ use crate::host::MidiMessageEntry;
 ///
 /// Threshold can be changed in the future to include more.
 pub struct MidiVSTConverter {
-    events: Box<vst::api::Events>,
+    events: Box<Events>,
     /// Events list here for freeing manually allocated memory.
     #[allow(dead_code, clippy::vec_box)]
     events_lst: Vec<Box<Event>>,
@@ -85,7 +85,7 @@ impl MidiVSTConverter {
     /// This should be real-time safe.
     ///
     /// The `vst::api::Events` returned may be passed into a VST plugin instance.
-    pub fn accept(&mut self, midi_message_buffer: &[MidiMessageEntry]) -> &vst::api::Events {
+    pub fn accept(&mut self, midi_message_buffer: &[MidiMessageEntry]) -> &Events {
         self.events.num_events = min(self.capacity as i32, midi_message_buffer.len() as i32);
 
         for (i, message) in midi_message_buffer.iter().enumerate() {
@@ -125,7 +125,7 @@ impl MidiVSTConverter {
     }
 
     /// Get a reference to the events
-    pub fn events(&self) -> &vst::api::Events {
+    pub fn events(&self) -> &Events {
         &self.events
     }
 
@@ -153,11 +153,11 @@ impl MidiVSTConverter {
     unsafe fn allocate_events(capacity: usize) -> *mut Events {
         let event_ptr_size = std::mem::size_of::<*mut Event>();
         let events_layout = std::alloc::Layout::from_size_align_unchecked(
-            std::mem::size_of::<vst::api::Events>() + event_ptr_size * capacity,
-            std::mem::align_of::<vst::api::Events>(),
+            std::mem::size_of::<Events>() + event_ptr_size * capacity,
+            std::mem::align_of::<Events>(),
         );
 
-        std::alloc::alloc(events_layout) as *mut vst::api::Events
+        std::alloc::alloc(events_layout) as *mut Events
     }
 }
 

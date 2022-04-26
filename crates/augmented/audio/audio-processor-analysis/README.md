@@ -6,6 +6,7 @@ Provides implementations of some audio analysis processors.
 * **Peak detector**
 * **FFT (Windowed/Overlapped)**
 * **Transient detection** (not real-time)
+* **Window functions**
 
 ## RMS
 Real-time safe, per-sample (ticked by UI thread) RMS calculation.
@@ -16,7 +17,7 @@ Peak detector with adjustable attack/release times.
 ## FFT
 `rustfft` audio-processor, forwards or backwards, real-time safe, FFT.
 
-Applies a hann window.
+Applies a Hann window.
 
 ![](src/fft_processor.png--HannWindow.png)
 
@@ -42,3 +43,6 @@ Implements "[A Transient Detection Algorithm for Audio Using Iterative Analysis 
 Does polyphonic transient detection, able to output signal or markers
 
 ![](src/transient_detection/stft.png)
+
+## Window functions
+Several window functions are implemented and configurable.

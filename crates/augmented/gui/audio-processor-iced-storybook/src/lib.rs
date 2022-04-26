@@ -91,8 +91,7 @@ pub fn main<StoryMessage: 'static + Debug + Clone + Send>(
     log::info!("Initializing iced-storybook");
     StorybookApp::run(iced::Settings {
         antialiasing: true,
-        default_text_size: audio_processor_iced_design_system::spacing::Spacing::default_font_size(
-        ),
+        default_text_size: Spacing::default_font_size(),
         ..iced::Settings::with_flags(options)
     })
 }
@@ -106,7 +105,7 @@ pub enum Message<StoryMessage> {
 
 struct StorybookApp<StoryMessage> {
     options: Options<StoryMessage>,
-    selected_story: Option<sidebar::SelectedStory>,
+    selected_story: Option<SelectedStory>,
     sidebar: sidebar::SidebarView,
     last_messages: Vec<StoryMessage>,
     logging_enabled: bool,

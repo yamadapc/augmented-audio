@@ -75,7 +75,7 @@ impl MidiHost {
     /// Start the MIDI connections
     pub fn start_midi(&mut self) -> Result<(), MidiError> {
         log::info!("Creating MIDI input `audio_processor_standalone_midi`");
-        let input = midir::MidiInput::new("audio_processor_standalone_midi")?;
+        let input = MidiInput::new("audio_processor_standalone_midi")?;
 
         let virtual_port_name = Self::virtual_port_name();
         log::info!("Creating virtual MIDI input `{}`", virtual_port_name);
@@ -86,9 +86,9 @@ impl MidiHost {
         )?;
         self.connections.push(virtual_input);
 
-        let input = midir::MidiInput::new("audio_processor_standalone_midi")?;
+        let input = MidiInput::new("audio_processor_standalone_midi")?;
         for port in &input.ports() {
-            let input = midir::MidiInput::new("audio_processor_standalone_midi")?;
+            let input = MidiInput::new("audio_processor_standalone_midi")?;
             log::debug!("MIDI input: {:?}", input.port_name(port));
             let connection = input.connect(
                 port,

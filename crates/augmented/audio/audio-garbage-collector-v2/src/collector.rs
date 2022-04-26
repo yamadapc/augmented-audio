@@ -203,7 +203,7 @@ mod test {
             !has_been_dropped(),
             "Value has been dropped but variable is still around"
         );
-        std::mem::drop(value);
+        drop(value);
         assert!(
             !has_been_dropped(),
             "Value has been dropped before collection"

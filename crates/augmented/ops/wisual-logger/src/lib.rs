@@ -28,7 +28,7 @@ use chrono::{DateTime, Utc};
 use env_logger::fmt::{Color, Formatter};
 use log::{Record, SetLoggerError};
 
-///! A log pretty printer that'll output in colors with thread name and pid
+///! A log pretty printer that will output in colors with thread name and pid
 pub struct LogFormatter;
 
 impl LogFormatter {

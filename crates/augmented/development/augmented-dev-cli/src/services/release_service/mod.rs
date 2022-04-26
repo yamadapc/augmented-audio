@@ -83,7 +83,7 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &[(String, Car
     for (other_crate_path, _) in all_crates {
         let manifest_path = format!("{}/Cargo.toml", other_crate_path);
         let cargo_manifest_str = std::fs::read_to_string(&manifest_path).unwrap();
-        let mut cargo_manifest = cargo_manifest_str.parse::<toml_edit::Document>().unwrap();
+        let mut cargo_manifest = cargo_manifest_str.parse::<Document>().unwrap();
 
         if cargo_manifest.get("dependencies").is_none()
             && cargo_manifest.get("dev-dependencies").is_none()
@@ -185,7 +185,7 @@ fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
 fn bump_own_version_prerelease(name: &str, path: &str) -> Version {
     let manifest_path = format!("{}/Cargo.toml", path);
     let cargo_manifest_str = std::fs::read_to_string(&manifest_path).unwrap();
-    let mut cargo_manifest = cargo_manifest_str.parse::<toml_edit::Document>().unwrap();
+    let mut cargo_manifest = cargo_manifest_str.parse::<Document>().unwrap();
     let version = cargo_manifest["package"]["version"].as_str().unwrap();
     log::info!("  => Found name={} version={}", name, version);
 

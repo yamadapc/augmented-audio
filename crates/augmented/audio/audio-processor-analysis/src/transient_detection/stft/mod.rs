@@ -121,7 +121,7 @@ impl Default for IterativeTransientDetectionParams {
 /// * `N` - `iteration_count` (algorithm 1)
 ///
 /// The algorithm is as follows:
-/// * Perform FFT with overlaping windows at 3/4's ratio (e.g. one 40ms window every 30ms)
+/// * Perform FFT with overlapping windows at 3/4's ratio (e.g. one 40ms window every 30ms)
 /// * Calculate `M(frame, bin)` **magnitudes for each frame/bin**
 /// * Let `P(frame, bin)` be the output `transient_magnitude_frames`
 ///   * These are the transient magnitude frames
@@ -260,7 +260,7 @@ fn count_changed_bins_per_frame(
         .collect()
 }
 
-/// Perform inverse FFT over spectogram frames
+/// Perform inverse FFT over spectrogram frames
 fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
     fft_size: usize,
     fft_overlap_ratio: f32,
@@ -344,8 +344,8 @@ fn get_fft_frames<BufferType: AudioBuffer<SampleType = f32>>(
         size: fft_size,
         direction: FftDirection::Forward,
         overlap_ratio: fft_overlap_ratio,
-        // On the paper this is a blackman-harris window; maybe it can be configurable at another
-        // point
+        // On the paper this is a [Blackman-Harris](https://en.wikipedia.org/wiki/Window_function)
+        // window
         window_function: WindowFunctionType::Hann,
     });
     let mut fft_frames = vec![];

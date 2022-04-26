@@ -18,7 +18,7 @@
 //! This module wraps a singleton instance of the standalone audio processor.
 //!
 //! This instance is held behind a mutex. The metronome handle itself wouldn't need locks, but is
-//! currently using a lock here for simplicity. The AudioThread reads directly from its handle
+//! currently using a lock here for simplicity. The audio-thread reads directly from its handle
 //! without waiting on any locks.
 
 use std::sync::Mutex;

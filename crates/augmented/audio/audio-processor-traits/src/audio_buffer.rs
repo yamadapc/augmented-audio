@@ -33,7 +33,7 @@ use num::Float;
 /// When processing samples, it'll be more efficient to use `.slice` and `.slice_mut` than `.get` /
 /// `.set` methods. For the VST buffer, these methods will not work.
 ///
-/// It's recommended to convert the buffer into interleaved layout before processing as that'll be
+/// It's recommended to convert the buffer into interleaved layout before processing as that will be
 /// around as expensive as the overhead of `get`/`set` methods on a single loop through samples.
 ///
 /// (due to bounds checking and other compiler optimisations that fail with them)
@@ -138,7 +138,7 @@ where
     }
 }
 
-/// An AudioBuffer that stores samples as interleaved frames, used for CPAL compatibility.
+/// An AudioBuffer that stores samples as interleaved frames, used for [`cpal`] compatibility.
 ///
 /// Example layout:
 ///

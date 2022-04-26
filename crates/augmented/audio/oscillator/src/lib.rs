@@ -67,7 +67,7 @@ impl<T> Oscillator<T> {
         }
     }
 
-    /// Construct an oscillator with 44.1Hz default sample rate
+    /// Construct an oscillator with `44.1Hz` default sample rate
     pub fn new(generator_fn: fn(T) -> T) -> Self {
         Oscillator::new_with_sample_rate(44100., generator_fn)
     }

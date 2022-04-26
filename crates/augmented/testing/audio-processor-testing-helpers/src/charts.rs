@@ -58,13 +58,13 @@ where
 }
 
 fn get_test_frequencies() -> Vec<f32> {
-    let mut freqs = vec![];
-    let mut start_freq = 20.0;
+    let mut frequencies = vec![];
+    let mut start_frequency = 20.0;
     for _ in 0..200 {
-        freqs.push(start_freq);
-        start_freq += 20.0;
+        frequencies.push(start_frequency);
+        start_frequency += 20.0;
     }
-    freqs
+    frequencies
 }
 
 struct FrequencyResponseChartModel {

@@ -63,7 +63,7 @@ pub mod style {
 
     impl Knob {
         fn notch() -> NotchShape {
-            iced_audio::style::knob::NotchShape::Line(iced_audio::style::knob::LineNotch {
+            NotchShape::Line(iced_audio::style::knob::LineNotch {
                 color: Colors::background_level0(),
                 width: StyleLength::Scaled(0.1),
                 length: StyleLength::Scaled(0.4),

@@ -9,7 +9,7 @@
 
 - - -
 
-**darwin_webkit** exposes bindings to some of the WebKit's API on MacOS for
+**darwin_webkit** exposes bindings to some of the WebKit's API on macOS for
 Rust. It uses the `objc` and `cocoa` crates to bind with Objective-C.
 
 **This has not been tested properly yet.**

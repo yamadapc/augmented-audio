@@ -64,7 +64,7 @@ struct GarbageCollectorState {
     collect_interval: Duration,
 }
 
-/// Wraps `basedrop::Collector` with a polling GC thread.
+/// Wraps [`basedrop::Collector`] with a polling GC thread.
 ///
 /// This drops reference counted variables on a dedicated thread to avoid deallocating from the
 /// audio thread.
@@ -84,7 +84,7 @@ impl Default for GarbageCollector {
 impl GarbageCollector {
     /// Create the collector and start the garbage collector thread
     pub fn new(collect_interval: Duration) -> Self {
-        let collector = basedrop::Collector::new();
+        let collector = Collector::new();
         let handle = collector.handle();
         let collector = Arc::new(Mutex::new(collector));
 
@@ -155,10 +155,7 @@ impl GarbageCollector {
     }
 }
 
-fn run_collector_loop(
-    collector: Arc<Mutex<basedrop::Collector>>,
-    state: Arc<Mutex<GarbageCollectorState>>,
-) {
+fn run_collector_loop(collector: Arc<Mutex<Collector>>, state: Arc<Mutex<GarbageCollectorState>>) {
     log::info!("Garbage collector thread started");
     loop {
         let (collect_interval, is_running) = state

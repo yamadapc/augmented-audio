@@ -27,11 +27,11 @@ pub use item::ItemState;
 use crate::updatable::Updatable;
 
 pub struct State<InnerState: Updatable> {
-    items: Vec<item::ItemState<InnerState>>,
+    items: Vec<ItemState<InnerState>>,
 }
 
 impl<InnerState: Updatable> State<InnerState> {
-    pub fn new(items: Vec<item::ItemState<InnerState>>) -> Self {
+    pub fn new(items: Vec<ItemState<InnerState>>) -> Self {
         State { items }
     }
 }

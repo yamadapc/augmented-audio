@@ -30,7 +30,7 @@ use audio_processor_analysis::fft_processor::FftProcessor;
 
 fn main() {
     wisual_logger::init_from_env();
-    let app = clap::App::new("draw-spectogram")
+    let app = clap::App::new("draw-spectrogram")
         .arg_from_usage("-i, --input-file=<INPUT_FILE>")
         .arg_from_usage("-o, --output-file=<OUTPUT_FILE>");
     let matches = app.get_matches();

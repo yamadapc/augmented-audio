@@ -191,14 +191,14 @@ pub mod pane_grid {
 
     impl pane_grid::StyleSheet for PaneGrid {
         fn picked_split(&self) -> Option<Line> {
-            Option::Some(Line {
+            Some(Line {
                 color: Colors::active_border_color(),
                 width: 2.0,
             })
         }
 
         fn hovered_split(&self) -> Option<Line> {
-            Option::Some(Line {
+            Some(Line {
                 color: Colors::active_border_color(),
                 width: 2.0,
             })
@@ -306,7 +306,7 @@ pub mod container {
 
     impl iced::container::StyleSheet for Container0 {
         fn style(&self) -> Style {
-            iced::container::Style {
+            Style {
                 text_color: Some(Colors::text()),
                 background: Some(Background::Color(Colors::background_level0())),
                 border_radius: self.border_radius,
@@ -339,7 +339,7 @@ pub mod container {
 
     impl iced::container::StyleSheet for Container1 {
         fn style(&self) -> Style {
-            iced::container::Style {
+            Style {
                 text_color: Some(Colors::text()),
                 background: Some(Background::Color(Colors::background_level1())),
                 border_radius: 0.0,
