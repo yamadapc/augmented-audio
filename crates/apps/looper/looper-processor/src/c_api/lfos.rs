@@ -45,6 +45,7 @@ pub unsafe extern "C" fn looper_engine__remove_lfo_mapping(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_lfo_sample(mode: LFOMode, phase: f32) -> f32 {
+    let phase = phase / (std::f32::consts::PI * 2.0);
     match mode {
         LFOMode::LFOModeSine => augmented_oscillator::generators::sine_generator(phase),
         LFOMode::LFOModeSquare => augmented_oscillator::generators::square_generator(phase),
