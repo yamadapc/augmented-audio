@@ -62,11 +62,11 @@ struct ModalOverlayView: View {
                     .fill(SequencerColors.black0.opacity(0.8))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .onAppear {
-                      alertShown = true
+                        alertShown = true
                     }
                     .alert(
-                      "Send usage statistics (you can change this in preferences later)",
-                      isPresented: $alertShown
+                        "Send usage statistics (you can change this in preferences later)",
+                        isPresented: $alertShown
                     ) {
                         Button("Yes", action: {
                             alertShown = false
