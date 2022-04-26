@@ -35,7 +35,7 @@ struct LFOStateSingleView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                LFOModeButtonsView()
+                LFOModeButtonsView(lfoState: lfoState)
                 LFOVisualisationView(lfoState: lfoState)
                 LFOPanelContentView(lfoState: lfoState)
             }

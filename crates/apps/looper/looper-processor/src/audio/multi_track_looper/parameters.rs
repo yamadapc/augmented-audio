@@ -238,9 +238,21 @@ pub enum EnvelopeParameter {
 #[serde(into = "usize")]
 pub enum LFOParameter {
     #[strum(props(type = "float", default = "1.0"))]
-    Frequency = 0,
+    LFOParameterFrequency = 0,
     #[strum(props(type = "float", default = "1.0"))]
-    Amount = 1,
+    LFOParameterAmount = 1,
+    #[strum(props(type = "enum", default = "0"))]
+    LFOParameterMode = 2,
+}
+
+#[repr(C)]
+#[derive(Debug, PartialEq, Clone, Eq, Serialize, Deserialize, FromPrimitive, ToPrimitive)]
+#[serde(into = "usize")]
+#[serde(try_from = "usize")]
+pub enum LFOMode {
+    LFOModeSine = 0,
+    LFOModeSquare = 1,
+    LFOModeSaw = 2,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -476,3 +488,4 @@ usize_conversion!(SourceParameter);
 usize_conversion!(QuantizationParameter);
 usize_conversion!(EnvelopeParameter);
 usize_conversion!(LFOParameter);
+usize_conversion!(LFOMode);

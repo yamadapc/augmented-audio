@@ -73,8 +73,15 @@ let SOURCE_PARAMETER_IDS: [SourceParameterId: SequencerEngine_private.SourcePara
 ]
 
 let LFO_PARAMETER_IDS: [LFOParameterId: SequencerEngine_private.LFOParameter] = [
-    LFOParameterId.frequency: Frequency,
-    LFOParameterId.amount: Amount,
+    LFOParameterId.frequency: LFOParameterFrequency,
+    LFOParameterId.amount: LFOParameterAmount,
+    LFOParameterId.mode: LFOParameterMode
+]
+
+let LFO_MODES = [
+  LFOMode.sine: LFOModeSine,
+  LFOMode.square: LFOModeSquare,
+  LFOMode.saw: LFOModeSaw,
 ]
 
 let ENVELOPE_PARAMETER_IDS: [EnvelopeParameterId: SequencerEngine_private.EnvelopeParameter] = [

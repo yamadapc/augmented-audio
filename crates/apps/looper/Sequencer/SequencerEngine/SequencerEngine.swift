@@ -170,6 +170,11 @@ extension EngineImpl: SequencerEngine {
     func addEffect(trackId: UInt, effectId: EffectId) {
         looper_engine__add_effect(engine, trackId, effectId)
     }
+
+    func getLFOSample(mode: SequencerUI.LFOMode, phase: Float) -> Float {
+        guard let rustMode = LFO_MODES[mode] else { return 0.0 }
+        return looper_engine__get_lfo_sample(rustMode, phase)
+    }
 }
 
 extension EngineImpl {

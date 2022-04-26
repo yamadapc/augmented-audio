@@ -393,7 +393,7 @@ impl MultiTrackLooperHandle {
     ) {
         if let Some(voice) = self.voices.get(looper_id.0) {
             match parameter_id {
-                LFOParameter::Frequency => match lfo {
+                LFOParameter::LFOParameterFrequency => match lfo {
                     0 => {
                         voice.lfo1().set_frequency(value);
                     }
@@ -402,7 +402,7 @@ impl MultiTrackLooperHandle {
                     }
                     _ => {}
                 },
-                LFOParameter::Amount => match lfo {
+                LFOParameter::LFOParameterAmount => match lfo {
                     0 => {
                         voice.lfo1().set_amount(value);
                     }
@@ -411,6 +411,7 @@ impl MultiTrackLooperHandle {
                     }
                     _ => {}
                 },
+                _ => {}
             }
 
             Self::update_parameter_table(

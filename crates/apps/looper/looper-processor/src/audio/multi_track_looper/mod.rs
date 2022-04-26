@@ -326,8 +326,10 @@ impl MultiTrackLooper {
         voice: &&LooperVoice,
     ) {
         for (lfo_index, (lfo_osc, lfo_handle)) in lfos.iter_mut().enumerate() {
-            let freq_idx = ParameterId::ParameterIdLFO(lfo_index, LFOParameter::Frequency);
-            let amount_idx = ParameterId::ParameterIdLFO(lfo_index, LFOParameter::Amount);
+            let freq_idx =
+                ParameterId::ParameterIdLFO(lfo_index, LFOParameter::LFOParameterFrequency);
+            let amount_idx =
+                ParameterId::ParameterIdLFO(lfo_index, LFOParameter::LFOParameterAmount);
 
             let scratch = &mut parameters_scratch[voice.id];
 

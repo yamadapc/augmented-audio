@@ -17,34 +17,28 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-enum LFOMode {
+public enum LFOMode: UInt {
     case
         sine,
         square,
         saw
 }
 
+extension LFOMode: FromRawEnum {
+    public static func fromRaw(rawValue: UInt) -> LFOMode {
+        return LFOMode(rawValue: rawValue)!
+    }
+}
+
 struct LFOModeButtonsView: View {
-    @State var mode: LFOMode = .sine
+    var lfoState: LFOState
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker("LFO Mode", selection: $mode) {
-                Text("Sine").tag(LFOMode.sine)
-                Text("Square").tag(LFOMode.square)
-                Text("Saw").tag(LFOMode.saw)
-            }
-            .pickerStyle(.segmented)
-            .padding(PADDING * 0.5)
+            EnumParameterView(parameter: lfoState.modeParameter)
             Rectangle()
                 .fill(SequencerColors.white.opacity(0.3))
                 .frame(maxWidth: .infinity, maxHeight: 1)
         }
-    }
-}
-
-struct LFOModeButtonsView_Previews: PreviewProvider {
-    static var previews: some View {
-        LFOModeButtonsView()
     }
 }
