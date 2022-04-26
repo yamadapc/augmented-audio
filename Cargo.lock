@@ -137,18 +137,6 @@ dependencies = [
 
 [[package]]
 name = "alsa"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb213f6b3e4b1480a60931ca2035794aa67b73103d254715b1db7b70dcb3c934"
-dependencies = [
- "alsa-sys",
- "bitflags",
- "libc",
- "nix 0.15.0",
-]
-
-[[package]]
-name = "alsa"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5915f52fe2cf65e83924d037b6c5290b7cee097c6b5c8700746e6168a343fd6b"
@@ -560,16 +548,16 @@ dependencies = [
 name = "audio-processor-standalone-midi"
 version = "1.0.0-alpha.8"
 dependencies = [
- "actix",
- "assert_no_alloc",
- "atomic-queue",
- "audio-garbage-collector",
- "audio-processor-traits",
- "basedrop",
- "log",
- "midir 0.7.0",
- "thiserror",
- "vst",
+    "actix",
+    "assert_no_alloc",
+    "atomic-queue",
+    "audio-garbage-collector",
+    "audio-processor-traits",
+    "basedrop",
+    "log",
+    "midir",
+    "thiserror",
+    "vst",
 ]
 
 [[package]]
@@ -800,16 +788,16 @@ dependencies = [
 name = "augmented-midi"
 version = "1.0.0-alpha.5"
 dependencies = [
- "assert_no_alloc",
- "audio-processor-traits",
- "cookie-factory",
- "criterion",
- "itertools 0.10.3",
- "log",
- "midir 0.8.0-pre",
- "nom 7.1.0",
- "rimd",
- "wisual-logger",
+    "assert_no_alloc",
+    "audio-processor-traits",
+    "cookie-factory",
+    "criterion",
+    "itertools 0.10.3",
+    "log",
+    "midir",
+    "nom 7.1.0",
+    "rimd",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -1722,17 +1710,17 @@ version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74117836a5124f3629e4b474eed03e479abaf98988b4bb317e29f08cfe0e4116"
 dependencies = [
- "alsa 0.6.0",
- "core-foundation-sys 0.8.3",
- "coreaudio-rs",
- "jni",
- "js-sys",
- "lazy_static",
- "libc",
- "mach",
- "ndk 0.6.0",
- "ndk-glue 0.6.1",
- "nix 0.23.1",
+    "alsa",
+    "core-foundation-sys 0.8.3",
+    "coreaudio-rs",
+    "jni",
+    "js-sys",
+    "lazy_static",
+    "libc",
+    "mach",
+    "ndk 0.6.0",
+    "ndk-glue 0.6.1",
+    "nix 0.23.1",
  "oboe",
  "parking_lot 0.11.2",
  "stdweb",
@@ -4123,27 +4111,27 @@ dependencies = [
  "augmented_oscillator",
  "basedrop",
  "bytesize",
- "cacao",
- "chrono",
- "criterion",
- "crossbeam",
- "derive_builder",
- "iai",
- "itertools 0.10.3",
- "lazy_static",
- "lockfree",
- "log",
- "midir 0.7.0",
- "mockall 0.11.0",
- "num 0.4.0",
- "num-derive",
- "num-traits 0.2.14",
- "rand 0.8.5",
- "rmp-serde",
- "rustc-hash",
- "serde",
- "serde_derive",
- "strum 0.24.0",
+    "cacao",
+    "chrono",
+    "criterion",
+    "crossbeam",
+    "derive_builder",
+    "iai",
+    "itertools 0.10.3",
+    "lazy_static",
+    "lockfree",
+    "log",
+    "midir",
+    "mockall 0.11.0",
+    "num 0.4.0",
+    "num-derive",
+    "num-traits 0.2.14",
+    "rand 0.8.5",
+    "rmp-serde",
+    "rustc-hash",
+    "serde",
+    "serde_derive",
+    "strum 0.24.0",
  "strum_macros 0.24.0",
  "swift-bridge-build",
  "syn",
@@ -4375,46 +4363,28 @@ dependencies = [
 name = "midi-logger-host"
 version = "0.1.0"
 dependencies = [
- "log",
- "midir 0.7.0",
- "rimd",
- "thiserror",
- "wisual-logger",
-]
-
-[[package]]
-name = "midir"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25df1e7836ca65078a121efed77049084a434838562b9892d0401bdfb59244cc"
-dependencies = [
- "alsa 0.4.3",
- "bitflags",
- "coremidi 0.4.0",
- "js-sys",
- "libc",
- "memalloc",
- "nix 0.15.0",
- "wasm-bindgen",
- "web-sys",
- "winapi 0.3.9",
+    "log",
+    "midir",
+    "rimd",
+    "thiserror",
+    "wisual-logger",
 ]
 
 [[package]]
 name = "midir"
 version = "0.8.0-pre"
 dependencies = [
- "alsa 0.6.0",
- "bitflags",
- "coremidi 0.4.0",
- "coremidi 0.6.0",
- "jack-sys",
- "js-sys",
- "libc",
- "memalloc",
- "wasm-bindgen",
- "wasm-bindgen-test",
- "web-sys",
+    "alsa",
+    "bitflags",
+    "coremidi 0.4.0",
+    "coremidi 0.6.0",
+    "jack-sys",
+    "js-sys",
+    "libc",
+    "memalloc",
+    "wasm-bindgen",
+    "wasm-bindgen-test",
+    "web-sys",
  "windows",
 ]
 
@@ -4858,19 +4828,6 @@ dependencies = [
  "cfg-if 0.1.10",
  "libc",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "nix"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b2e0b4f3320ed72aaedb9a5ac838690a8047c7b275da22711fddff4f8a14229"
-dependencies = [
- "bitflags",
- "cc",
- "cfg-if 0.1.10",
- "libc",
- "void",
 ]
 
 [[package]]
@@ -5868,27 +5825,27 @@ dependencies = [
  "augmented_oscillator",
  "basedrop",
  "circular-data-structures",
- "clap 2.34.0",
- "concread",
- "cpal",
- "criterion",
- "futures-util",
- "hound",
- "itertools 0.10.3",
- "lazy_static",
- "log",
- "md5",
- "midir 0.7.0",
- "notify",
- "num-traits 0.2.14",
- "rayon",
- "rimd",
- "ringbuf",
- "serde",
- "serde_json",
- "symphonia",
- "symphonia-bundle-mp3",
- "tao",
+    "clap 2.34.0",
+    "concread",
+    "cpal",
+    "criterion",
+    "futures-util",
+    "hound",
+    "itertools 0.10.3",
+    "lazy_static",
+    "log",
+    "md5",
+    "midir",
+    "notify",
+    "num-traits 0.2.14",
+    "rayon",
+    "rimd",
+    "ringbuf",
+    "serde",
+    "serde_json",
+    "symphonia",
+    "symphonia-bundle-mp3",
+    "tao",
  "thiserror",
  "tokio",
  "uuid 0.8.2",
@@ -7885,12 +7842,6 @@ name = "version_check"
 version = "0.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
-
-[[package]]
-name = "void"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "vst"
