@@ -71,14 +71,14 @@ jobs:
               --exclude darwin-webkit \
               --exclude webview-holder \
               --exclude macos-bundle-resources \
-              -- -Z unstable-options --format json | tee cargo-output.json
-
-          if ! [ -x "$(command -v cargo2junit)" ]; then
-            cargo install --force --version 0.1.10 cargo2junit
-          fi
-
-          mkdir -p junit
-          cat cargo-output.json | cargo2junit > junit/results.xml
+#              -- -Z unstable-options --format json | tee cargo-output.json
+#
+#          if ! [ -x "$(command -v cargo2junit)" ]; then
+#            cargo install --force --version 0.1.10 cargo2junit
+#          fi
+#
+#          mkdir -p junit
+#          cat cargo-output.json | cargo2junit > junit/results.xml
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -112,14 +112,14 @@ jobs:
           cargo install --force --version 0.1.10 cargo2junit
           mkdir -p junit
           cat cargo-output.json | cargo2junit > junit/results.xml
-      - name: JUnit Report Action
-        uses: mikepenz/action-junit-report@v2.9.0
-        if: always()
-        with:
-          report_paths: 'junit/*.xml'
-          fail_on_failure: true
-          require_tests: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+#      - name: JUnit Report Action
+#        uses: mikepenz/action-junit-report@v2.9.0
+#        if: always()
+#        with:
+#          report_paths: 'junit/*.xml'
+#          fail_on_failure: true
+#          require_tests: true
+#          token: ${{ secrets.GITHUB_TOKEN }}
 
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
