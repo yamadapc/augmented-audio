@@ -6,7 +6,7 @@ edition = "2018"
 [dependencies]
 cocoa = "0.24"
 objc = "0.2"
-cacao = "0.2"
+cacao = "0.2.1"
 block = "0.1.6"
 avfaudio-sys = { version = "0.1", path = "../avfaudio-sys" }
 objc_id = "0.1.1"

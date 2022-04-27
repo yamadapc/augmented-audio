@@ -14,6 +14,6 @@ tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-mu
 private = true
 
 [target.'cfg(target_os = "macos")'.dependencies]
-darwin-webkit = "^0.1.3"
-cocoa = "^0.18.4"
+darwin-webkit = { version = "^0.1.3", path = "../darwin-webkit" }
+cocoa = "^0.24"
 objc = "^0.2.7"

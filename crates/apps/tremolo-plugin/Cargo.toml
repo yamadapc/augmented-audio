@@ -31,9 +31,9 @@ audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits"
 [target.'cfg(target_os = "macos")'.dependencies]
 macos-bundle-resources = { path = "../../augmented/gui/macos-bundle-resources" }
 webview-holder = { path = "../../augmented/gui/webview-holder" }
-cocoa = "^0.18.4"
-objc = "^0.2.7"
-darwin-webkit = "^0.1.3"
+cocoa = "0.24.0"
+objc = "0.2.7"
+darwin-webkit = { version = "^0.1.3", path = "../../augmented/gui/darwin-webkit" }
 
 [lib]
 name = "tas_v2"
