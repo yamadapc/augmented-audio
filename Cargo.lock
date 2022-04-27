@@ -881,9 +881,9 @@ dependencies = [
  "core-foundation 0.9.3",
  "keyboard-types",
  "log",
- "nix 0.18.0",
+ "nix 0.22.3",
  "objc",
- "raw-window-handle 0.3.4",
+ "raw-window-handle 0.4.3",
  "uuid 0.8.2",
  "winapi 0.3.9",
  "x11",
@@ -3457,7 +3457,7 @@ dependencies = [
 
 [[package]]
 name = "iced_baseview"
-version = "0.0.2"
+version = "0.0.3"
 dependencies = [
  "baseview",
  "iced_core",
@@ -3468,7 +3468,7 @@ dependencies = [
  "iced_wgpu",
  "keyboard-types",
  "raw-gl-context",
- "raw-window-handle 0.3.4",
+ "raw-window-handle 0.4.3",
 ]
 
 [[package]]
@@ -3810,9 +3810,9 @@ dependencies = [
 
 [[package]]
 name = "keyboard-types"
-version = "0.5.0"
+version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a989afac88279b0482f402d234b5fbd405bf1ad051308595b58de4e6de22346b"
+checksum = "0b7668b7cff6a51fe61cdde64cd27c8a220786f399501b57ebe36f7d8112fd68"
 dependencies = [
  "bitflags",
 ]
