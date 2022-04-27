@@ -45,4 +45,6 @@ public protocol SequencerEngine {
 
     func getAnalyticsEnabled() -> Bool?
     func setAnalyticsEnabled(_ value: Bool)
+
+    func getLFOSample(mode: LFOMode, phase: Float) -> Float
 }

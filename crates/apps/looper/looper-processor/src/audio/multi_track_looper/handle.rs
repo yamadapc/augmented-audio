@@ -35,6 +35,7 @@ use augmented_atomics::{AtomicF32, AtomicValue};
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::audio::multi_track_looper::scene_state::SceneHandle;
 use crate::audio::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
+use crate::parameters::LFOMode;
 use crate::{QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
 use super::looper_voice::LooperVoice;
@@ -355,6 +356,16 @@ impl MultiTrackLooperHandle {
         }
     }
 
+    pub fn set_lfo_mode(&self, looper_id: LooperId, lfo: usize, mode: LFOMode) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            Self::update_parameter_table(
+                voice,
+                ParameterId::ParameterIdLFO(lfo, LFOParameter::LFOParameterMode),
+                ParameterValue::Enum(AtomicUsize::new(mode.into())),
+            )
+        }
+    }
+
     pub fn set_quantization_mode(&self, looper_id: LooperId, mode: CQuantizeMode) {
         if let Some(voice) = self.voices.get(looper_id.0) {
             voice.looper().quantize_options().set_mode(match mode {
@@ -393,7 +404,7 @@ impl MultiTrackLooperHandle {
     ) {
         if let Some(voice) = self.voices.get(looper_id.0) {
             match parameter_id {
-                LFOParameter::Frequency => match lfo {
+                LFOParameter::LFOParameterFrequency => match lfo {
                     0 => {
                         voice.lfo1().set_frequency(value);
                     }
@@ -402,7 +413,7 @@ impl MultiTrackLooperHandle {
                     }
                     _ => {}
                 },
-                LFOParameter::Amount => match lfo {
+                LFOParameter::LFOParameterAmount => match lfo {
                     0 => {
                         voice.lfo1().set_amount(value);
                     }
@@ -411,6 +422,7 @@ impl MultiTrackLooperHandle {
                     }
                     _ => {}
                 },
+                _ => {}
             }
 
             Self::update_parameter_table(

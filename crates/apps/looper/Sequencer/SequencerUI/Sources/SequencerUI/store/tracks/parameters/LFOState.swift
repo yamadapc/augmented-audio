@@ -18,7 +18,7 @@
 import Combine
 
 public enum LFOParameterId: Equatable {
-    case frequency, amount
+    case frequency, amount, mode
 }
 
 extension LFOParameterId {
@@ -28,6 +28,8 @@ extension LFOParameterId {
             return "LFO Frequency"
         case .amount:
             return "LFO Amount"
+        case .mode:
+            return "LFO Shape"
         }
     }
 }
@@ -69,6 +71,7 @@ public class LFOState: ObservableObject {
 
     @Published var frequencyParameter: LFOFrequencyParameter
     @Published var amountParameter: LFOAmountParameter
+    @Published public var modeParameter: EnumParameter<LFOMode>
 
     public var parameters: [FloatParameter] { [
         frequencyParameter,
@@ -88,6 +91,19 @@ public class LFOState: ObservableObject {
             id: .lfoParameter(trackId: trackId, lfo: index, parameterId: .amount),
             label: "Amount",
             initialValue: 1.0
+        )
+        modeParameter = EnumParameter(
+            id: .lfoParameter(trackId: trackId, lfo: index, parameterId: .mode),
+            label: "Shape",
+            value: LFOMode.sine,
+            options: [
+                EnumParameterOption(
+                    label: "Sine",
+                    value: LFOMode.sine
+                ),
+                EnumParameterOption(label: "Square", value: LFOMode.square),
+                EnumParameterOption(label: "Saw", value: LFOMode.saw),
+            ]
         )
     }
 

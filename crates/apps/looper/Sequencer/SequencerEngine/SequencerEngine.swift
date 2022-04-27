@@ -131,27 +131,43 @@ extension EngineImpl: SequencerEngine {
     }
 
     func removeLock(parameterLockId: ParameterLockId) {
+        let logObjectIdMissing = {
+            self.logger.warning("Failed to get object ID for parameter", metadata: [
+                "parameterId": .string(String(describing: parameterLockId.parameterId))
+            ])
+        }
+        let logTrackIdMissing = {
+            self.logger.warning("Failed to get track ID for parameter", metadata: [
+                "parameterId": .string(String(describing: parameterLockId.parameterId))
+            ])
+        }
+
         switch parameterLockId.source {
         case let .stepId(stepId):
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
             looper_engine__remove_parameter_lock(
                 engine,
                 UInt(stepId.trackId),
                 UInt(stepId.stepIndex),
-                getObjectIdRust(parameterLockId.parameterId)!
+                objectId
             )
         case let .sceneId(sceneId):
+            guard let trackId = getTrackId(parameterLockId.parameterId) else { logTrackIdMissing(); return }
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
             looper_engine__remove_scene_parameter_lock(
                 engine,
                 UInt(sceneId.index),
-                getTrackId(parameterLockId.parameterId)!,
-                getObjectIdRust(parameterLockId.parameterId)!
+                trackId,
+                objectId
             )
         case let .lfoId(lfoId):
+            guard let trackId = getTrackId(parameterLockId.parameterId) else { logTrackIdMissing(); return }
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
             looper_engine__remove_lfo_mapping(
                 engine,
-                getTrackId(parameterLockId.parameterId)!,
+                trackId,
                 UInt(lfoId.index),
-                getObjectIdRust(parameterLockId.parameterId)!
+                objectId
             )
         }
     }
@@ -169,6 +185,11 @@ extension EngineImpl: SequencerEngine {
 
     func addEffect(trackId: UInt, effectId: EffectId) {
         looper_engine__add_effect(engine, trackId, effectId)
+    }
+
+    func getLFOSample(mode: SequencerUI.LFOMode, phase: Float) -> Float {
+        guard let rustMode = LFO_MODES[mode] else { return 0.0 }
+        return looper_engine__get_lfo_sample(rustMode, phase)
     }
 }
 
@@ -198,17 +219,26 @@ extension EngineImpl {
 
 extension EngineImpl {
     func setSourceParameter(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Float) {
+        guard let rustId = SOURCE_PARAMETER_IDS[parameterId] else {
+            logger.warning("Failed to convert UI parameterID into native repr")
+            return
+        }
+
         setSourceParameter(
             looperId,
-            parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
+            parameterId: rustId,
             value: value
         )
     }
 
     func setSourceParameterInt(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Int32) {
+        guard let rustId = SOURCE_PARAMETER_IDS[parameterId] else {
+            logger.warning("Failed to convert UI parameterID into native repr")
+            return
+        }
         setSourceParameterInt(
             looperId,
-            parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
+            parameterId: rustId,
             value: value
         )
     }
@@ -236,7 +266,6 @@ extension EngineImpl {
     }
 
     func setAnalyticsEnabled(_ value: Bool) {
-        print(value)
         looper_engine__set_analytics_enabled(engine, value)
     }
 }

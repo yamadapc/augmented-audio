@@ -41,7 +41,9 @@ pub use self::audio_clip_manager::*;
 pub use self::entity_id::*;
 pub use self::events::*;
 pub use self::foreign_callback::*;
+pub use self::lfos::*;
 pub use self::looper::*;
+pub use self::metrics::*;
 pub use self::midi_callback::*;
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
@@ -51,7 +53,9 @@ pub mod effects;
 mod entity_id;
 mod events;
 mod foreign_callback;
+mod lfos;
 mod looper;
+mod metrics;
 mod midi_callback;
 
 fn into_ptr<T>(value: T) -> *mut T {
@@ -163,31 +167,6 @@ pub unsafe extern "C" fn looper_engine__set_scene_slider_value(
     value: f32,
 ) {
     (*engine).handle().set_scene_value(value);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__add_lfo_mapping(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-    lfo_id: usize,
-    parameter_id: ParameterId,
-    value: f32,
-) {
-    (*engine)
-        .handle()
-        .add_lfo_mapping(LooperId(looper_id), lfo_id, parameter_id, value)
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__remove_lfo_mapping(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-    lfo_id: usize,
-    parameter_id: ParameterId,
-) {
-    (*engine)
-        .handle()
-        .remove_lfo_mapping(LooperId(looper_id), lfo_id, parameter_id)
 }
 
 #[no_mangle]
@@ -312,20 +291,6 @@ pub unsafe extern "C" fn looper_engine__set_tempo_control(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
-    engine: *mut LooperEngine,
-    track_id: usize,
-    lfo: usize,
-    parameter_id: LFOParameter,
-    value: f32,
-) {
-    let engine = &(*engine);
-    engine
-        .handle()
-        .set_lfo_parameter(LooperId(track_id), lfo, parameter_id, value);
-}
-
-#[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_source_parameter(
     engine: *mut LooperEngine,
     looper_id: usize,
@@ -380,43 +345,6 @@ pub unsafe extern "C" fn looper_engine__set_metronome_volume(
 pub struct ExampleBuffer {
     pub ptr: *const f32,
     pub count: usize,
-}
-
-#[repr(C)]
-pub struct CAudioProcessorMetricsStats {
-    pub average_cpu: f32,
-    pub max_cpu: f32,
-    pub average_nanos: f32,
-    pub max_nanos: f32,
-}
-
-impl From<AudioProcessorMetricsStats> for CAudioProcessorMetricsStats {
-    fn from(stats: AudioProcessorMetricsStats) -> Self {
-        let AudioProcessorMetricsStats {
-            average_cpu,
-            max_cpu,
-            average_nanos,
-            max_nanos,
-        } = stats;
-        CAudioProcessorMetricsStats {
-            average_cpu,
-            max_cpu,
-            average_nanos,
-            max_nanos,
-        }
-    }
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_stats(
-    engine: *mut LooperEngine,
-) -> CAudioProcessorMetricsStats {
-    let metrics_actor = &(*engine).metrics_actor();
-    if let Ok(mut metrics_actor) = metrics_actor.lock() {
-        metrics_actor.poll().into()
-    } else {
-        AudioProcessorMetricsStats::default().into()
-    }
 }
 
 #[no_mangle]

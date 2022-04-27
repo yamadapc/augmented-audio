@@ -45,7 +45,7 @@ struct TracksPanelContentView: View {
                     }
                 }
             }
-            .padding(PADDING * 2)
+            .padding(PADDING)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             tracksPanelContentView

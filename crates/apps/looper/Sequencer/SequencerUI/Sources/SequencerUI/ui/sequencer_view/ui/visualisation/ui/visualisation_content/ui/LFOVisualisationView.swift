@@ -20,8 +20,12 @@ import SwiftUI
 struct LFOVisualisationViewInner: View {
     @ObservedObject var lfoAmount: FloatParameter
     @ObservedObject var lfoFrequency: FloatParameter
+    @ObservedObject var lfoMode: EnumParameter<LFOMode>
+
     @State var tick: Int = 0
     @State var lastTranslation: CGSize = .zero
+
+    @EnvironmentObject var store: Store
 
     var body: some View {
         GeometryReader { geometry in
@@ -75,7 +79,8 @@ struct LFOVisualisationViewInner: View {
         let maxWidth = baseWidth / (CGFloat(lfoFrequency.value) / 2)
 
         for x in 0 ... width {
-            let value = sin(Double(x + tick) / maxWidth)
+            let phase = Double(x + tick) / maxWidth
+            let value = getSample(phase)
             let h = value * maxH * CGFloat(lfoAmount.value) + maxH
 
             if x == 0 {
@@ -83,6 +88,14 @@ struct LFOVisualisationViewInner: View {
             }
             path.addLine(to: CGPoint(x: Double(x), y: h))
         }
+    }
+
+    func getSample(_ phase: Double) -> Double {
+        if let engine = store.engine {
+            let currentMode = lfoMode.value
+            return Double(engine.getLFOSample(mode: currentMode, phase: Float(phase)))
+        }
+        return sin(phase)
     }
 }
 
@@ -92,7 +105,8 @@ struct LFOVisualisationView: View {
     var body: some View {
         LFOVisualisationViewInner(
             lfoAmount: lfoState.amountParameter,
-            lfoFrequency: lfoState.frequencyParameter
+            lfoFrequency: lfoState.frequencyParameter,
+            lfoMode: lfoState.modeParameter
         )
     }
 }

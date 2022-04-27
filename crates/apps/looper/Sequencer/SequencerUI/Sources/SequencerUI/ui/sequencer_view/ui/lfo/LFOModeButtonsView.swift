@@ -17,25 +17,28 @@
 // = /copyright ===================================================================
 import SwiftUI
 
-struct MIDIMapView: View {
-    @ObservedObject var midi: MIDIMappingState
+public enum LFOMode: UInt {
+    case
+        sine,
+        square,
+        saw
+}
+
+extension LFOMode: FromRawEnum {
+    public static func fromRaw(rawValue: UInt) -> LFOMode {
+        return LFOMode(rawValue: rawValue)!
+    }
+}
+
+struct LFOModeButtonsView: View {
+    var lfoState: LFOState
 
     var body: some View {
-        VStack {
-            Text("MIDI Map")
-                .bold()
-                .padding(PADDING)
-                .frame(maxWidth: .infinity)
-                .background(SequencerColors.black3)
-
-            List(midi.mapKeys, id: \.self, rowContent: { key in
-                let entry = midi.getMapping(message: key)
-                // TODO: - Add a proper view for this
-                Text("\(key.toString()) = \(String(describing: entry))")
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            })
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(spacing: 0) {
+            EnumParameterView(parameter: lfoState.modeParameter)
+            Rectangle()
+                .fill(SequencerColors.white.opacity(0.3))
+                .frame(maxWidth: .infinity, maxHeight: 1)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 }

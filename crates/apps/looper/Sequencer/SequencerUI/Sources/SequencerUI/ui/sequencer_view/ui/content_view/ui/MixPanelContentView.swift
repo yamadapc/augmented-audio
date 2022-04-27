@@ -73,6 +73,5 @@ struct MixPanelContentView: View {
 
             ParameterKnobView(parameter: store.metronomeVolume)
         }
-        .padding(EdgeInsets(top: 0, leading: PADDING, bottom: 0, trailing: PADDING))
     }
 }
