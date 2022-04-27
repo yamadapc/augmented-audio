@@ -5729,6 +5729,7 @@ dependencies = [
  "serde",
  "serde_json",
  "shaku",
+ "tempdir",
  "thiserror",
  "tinyfiledialogs",
  "tokio",
