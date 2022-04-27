@@ -219,17 +219,26 @@ extension EngineImpl {
 
 extension EngineImpl {
     func setSourceParameter(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Float) {
+        guard let rustId = SOURCE_PARAMETER_IDS[parameterId] else {
+            logger.warning("Failed to convert UI parameterID into native repr")
+            return
+        }
+
         setSourceParameter(
             looperId,
-            parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
+            parameterId: rustId,
             value: value
         )
     }
 
     func setSourceParameterInt(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Int32) {
+        guard let rustId = SOURCE_PARAMETER_IDS[parameterId] else {
+            logger.warning("Failed to convert UI parameterID into native repr")
+            return
+        }
         setSourceParameterInt(
             looperId,
-            parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
+            parameterId: rustId,
             value: value
         )
     }
@@ -257,7 +266,6 @@ extension EngineImpl {
     }
 
     func setAnalyticsEnabled(_ value: Bool) {
-        print(value)
         looper_engine__set_analytics_enabled(engine, value)
     }
 }
