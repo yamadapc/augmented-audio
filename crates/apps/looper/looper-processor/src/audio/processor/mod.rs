@@ -34,7 +34,7 @@ use crate::{LoopShufflerProcessorHandle, TimeInfoProviderImpl};
 pub mod handle;
 
 pub struct LooperProcessor {
-    handle: Shared<handle::LooperHandle>,
+    handle: Shared<LooperHandle>,
     sequencer: LoopShufflerProcessor,
 }
 
