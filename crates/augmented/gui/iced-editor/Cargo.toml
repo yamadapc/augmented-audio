@@ -22,7 +22,7 @@ wisual-logger = { path = "../../ops/wisual-logger" }
 
 baseview = { path = "../../../vendor/baseview" }
 iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false }
-raw-window-handle = "^0.3.3"
+raw-window-handle = "0.4.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc = "^0.2.7"

@@ -3442,7 +3442,7 @@ dependencies = [
  "iced_baseview",
  "log",
  "objc",
- "raw-window-handle 0.3.4",
+ "raw-window-handle 0.4.3",
  "vst",
  "wisual-logger",
 ]
