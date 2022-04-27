@@ -63,7 +63,11 @@ impl Application for App {
         (Self, Command::none())
     }
 
-    fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
+    fn update(
+        &mut self,
+        _window_queue: &mut iced_baseview::WindowQueue,
+        _message: Self::Message,
+    ) -> Command<Self::Message> {
         Command::none()
     }
 

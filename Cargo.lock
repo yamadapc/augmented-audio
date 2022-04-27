@@ -2395,7 +2395,7 @@ dependencies = [
  "cocoa 0.24.0",
  "iced_baseview",
  "objc",
- "raw-window-handle 0.3.4",
+ "raw-window-handle 0.4.3",
 ]
 
 [[package]]

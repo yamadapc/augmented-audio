@@ -84,7 +84,11 @@ impl Application for GenericAudioProcessorApplication {
         )
     }
 
-    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+    fn update(
+        &mut self,
+        _window_queue: &mut iced_baseview::WindowQueue,
+        message: Self::Message,
+    ) -> Command<Self::Message> {
         match message {
             Message::KnobChange(index, value) => self
                 .handle

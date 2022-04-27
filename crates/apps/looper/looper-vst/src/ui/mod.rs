@@ -116,7 +116,11 @@ impl Application for LooperApplication {
         )
     }
 
-    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+    fn update(
+        &mut self,
+        _window_queue: &mut iced_baseview::WindowQueue,
+        message: Self::Message,
+    ) -> Command<Self::Message> {
         match message {
             WrapperMessage::Inner(message) => self.update_inner(message),
             WrapperMessage::TabsView(tabs::Message::Inner(message)) => self.update_inner(message),
