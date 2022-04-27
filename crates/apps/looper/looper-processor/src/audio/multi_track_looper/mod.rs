@@ -645,12 +645,14 @@ mod test {
 
     #[test]
     fn test_process_doesnt_alloc() {
+        wisual_logger::init_from_env();
         let mut looper = MultiTrackLooper::new(Default::default(), 8);
         let settings = AudioProcessorSettings::default();
         let mut buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
 
         looper.prepare(settings);
         let num_frames = buffer.len() / settings.block_size();
+        log::info!("Processing num_frames={}", num_frames);
         for frame in 0..num_frames {
             let start_index = frame * settings.block_size();
             let end_index = start_index + settings.block_size();
@@ -661,6 +663,7 @@ mod test {
 
     #[test]
     fn test_processor_starts_silent() {
+        wisual_logger::init_from_env();
         let mut processor = MultiTrackLooper::default();
         processor.prepare(AudioProcessorSettings::default());
         let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
