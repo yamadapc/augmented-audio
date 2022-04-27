@@ -255,6 +255,16 @@ pub enum LFOMode {
     LFOModeSaw = 2,
 }
 
+impl LFOMode {
+    pub fn generator_fn(&self) -> fn(f32) -> f32 {
+        match self {
+            LFOMode::LFOModeSine => augmented_oscillator::generators::sine_generator,
+            LFOMode::LFOModeSquare => augmented_oscillator::generators::square_generator,
+            LFOMode::LFOModeSaw => augmented_oscillator::generators::saw_generator,
+        }
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub enum ParameterValue {
     #[serde(rename = "F")]

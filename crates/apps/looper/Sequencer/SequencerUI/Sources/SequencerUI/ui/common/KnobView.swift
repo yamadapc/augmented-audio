@@ -160,6 +160,9 @@ struct KnobView: View {
                 .fixedSize()
 
                 Text(label)
+                  .fixedSize()
+                  .allowsTightening(true)
+                  .lineLimit(1)
             }
         }
     }

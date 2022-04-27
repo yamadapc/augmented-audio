@@ -55,7 +55,15 @@ class StoreSubscriptionsController {
         }).store(in: &cancellables)
     }
 
-    func pushFloatValue<PublisherT: Publisher>(publisher: PublisherT, flush: @escaping (_ value: Float) -> Void, initialValue: Float?)
+    /**
+     * Given a Float `Publisher` value `publisher`, an `initialValue` and a `flush` function,
+     * create a subscription which will call flush on every new value and call `flush` with initial value.
+     */
+    func pushFloatValue<PublisherT: Publisher>(
+        publisher: PublisherT,
+        flush: @escaping (_ value: Float) -> Void,
+        initialValue: Float?
+    )
         where
         PublisherT.Output == Float,
         PublisherT.Failure == Never
@@ -73,49 +81,35 @@ class StoreSubscriptionsController {
             initialValue: trackState.volumeParameter.value
         )
 
-        trackState.sourceParameters.parameters.forEach { parameter in
+        setupSourceParameters(looperId: looperId, sourceParameters: trackState.sourceParameters)
+        setupLFOSync(looperId: looperId, lfoId: 0, lfoState: trackState.lfo1)
+        setupLFOSync(looperId: looperId, lfoId: 1, lfoState: trackState.lfo2)
+        setupEnvelopeParameters(looperId: looperId, envelope: trackState.envelope)
+        setupQuantizationParameters(looperId: looperId, quantizationParameters: trackState.quantizationParameters)
+    }
+
+    private func setupSourceParameters(looperId: UInt, sourceParameters: SourceParametersState) {
+        sourceParameters.parameters.forEach { parameter in
+            let flush = { self.flushFloatSourceParameter(looperId: looperId, parameter: parameter, value: $0) }
             pushFloatValue(
                 publisher: parameter.$value,
-                flush: {
-                    self.logger.debug("Setting source parameter", metadata: [
-                        "id": .string(String(describing: parameter.globalId)),
-                        "value": .stringConvertible($0),
-                    ])
-                    if case let .sourceParameter(_, parameter) = parameter.globalId {
-                        self.engine.setSourceParameter(
-                            looperId,
-                            parameterId: parameter,
-                            value: $0
-                        )
-                    }
-                },
+                flush: { flush($0) },
                 initialValue: parameter.value
             )
         }
 
-        trackState.sourceParameters.intParameters.forEach { parameter in
-            let flush = { (value: Int) in
-                guard case let .sourceParameter(_, parameterId) = parameter.globalId
-                else { return }
-                self.engine.setSourceParameterInt(
-                    looperId,
-                    parameterId: parameterId,
-                    value: Int32(value)
-                )
-            }
-            parameter.$value.sink(receiveValue: { value in flush(value) }).store(in: &cancellables)
+        sourceParameters.intParameters.forEach { parameter in
+            let flush = { self.flushIntSourceParameter(looperId: looperId, parameter: parameter, value: $0) }
+
             flush(parameter.value)
+            parameter.$value.sink(receiveValue: { flush($0) }).store(in: &cancellables)
         }
 
-        trackState.sourceParameters.toggles.forEach { toggle in
-            let flush = { (value: Bool) in
-                self.engine.setBooleanParameter(looperId, parameterId: toggle.globalId, value: value)
-            }
-            toggle.$value.sink(receiveValue: { value in flush(value) }).store(in: &cancellables)
-            flush(toggle.value)
-        }
+        setupToggles(looperId: looperId, toggles: sourceParameters.toggles)
+    }
 
-        trackState.lfo1.parameters.forEach { parameter in
+    private func setupLFOSync(looperId: UInt, lfoId: UInt, lfoState: LFOState) {
+        lfoState.parameters.forEach { parameter in
             pushFloatValue(
                 publisher: parameter.$value,
                 flush: {
@@ -123,23 +117,7 @@ class StoreSubscriptionsController {
                         self.engine.setLFOParameter(
                             looperId,
                             parameterId: parameter,
-                            lfoId: 0,
-                            value: $0
-                        )
-                    }
-                },
-                initialValue: parameter.value
-            )
-        }
-        trackState.lfo2.parameters.forEach { parameter in
-            pushFloatValue(
-                publisher: parameter.$value,
-                flush: {
-                    if case let .lfoParameter(_, _, parameter) = parameter.globalId {
-                        self.engine.setLFOParameter(
-                            looperId,
-                            parameterId: parameter,
-                            lfoId: 1,
+                            lfoId: lfoId,
                             value: $0
                         )
                     }
@@ -148,7 +126,14 @@ class StoreSubscriptionsController {
             )
         }
 
-        trackState.envelope.parameters.forEach { parameter in
+        lfoState.modeParameter.$value.sink(receiveValue: { value in
+            guard let rustValue = LFO_MODES[value] else { return }
+            looper_engine__set_lfo_mode(self.engine.engine, looperId, lfoId, rustValue)
+        }).store(in: &cancellables)
+    }
+
+    private func setupEnvelopeParameters(looperId: UInt, envelope: EnvelopeState) {
+        envelope.parameters.forEach { parameter in
             guard case let .envelopeParameter(_, parameterId) = parameter.globalId
             else { return }
 
@@ -164,26 +149,49 @@ class StoreSubscriptionsController {
                 }, initialValue: parameter.value
             )
         }
-        trackState.envelope.toggles.forEach { toggle in
-            let rustParameterId = getObjectIdRust(toggle.globalId)!
-            let flush = { (value: Bool) in
-                looper_engine__set_boolean_parameter(
-                    self.engine.engine,
-                    looperId,
-                    rustParameterId,
-                    value
-                )
-            }
-            toggle.$value.sink(receiveValue: { value in flush(value) }).store(in: &cancellables)
-            flush(toggle.value)
-        }
 
-        trackState.quantizationParameters.quantizationMode.$value.sink(receiveValue: { value in
+        setupToggles(looperId: looperId, toggles: envelope.toggles)
+    }
+
+    private func setupQuantizationParameters(looperId: UInt, quantizationParameters: QuantizationParameters) {
+        quantizationParameters.quantizationMode.$value.sink(receiveValue: { value in
             looper_engine__set_quantization_mode(self.engine.engine, looperId, RUST_QUANTIZE_MODES[value]!)
         }).store(in: &cancellables)
 
-        trackState.quantizationParameters.tempoControlMode.$value.sink(receiveValue: { value in
+        quantizationParameters.tempoControlMode.$value.sink(receiveValue: { value in
             looper_engine__set_tempo_control(self.engine.engine, looperId, RUST_TEMPO_CONTROL[value]!)
         }).store(in: &cancellables)
+    }
+
+    private func setupToggles(looperId: UInt, toggles: [BooleanParameter]) {
+        toggles.forEach { toggle in
+            let flush = { self.engine.setBooleanParameter(looperId, parameterId: toggle.globalId, value: $0) }
+            flush(toggle.value)
+            toggle.$value.sink(receiveValue: { value in flush(value) }).store(in: &cancellables)
+        }
+    }
+
+    private func flushFloatSourceParameter(looperId: UInt, parameter: FloatParameter, value: Float) {
+        logger.debug("Setting source parameter", metadata: [
+            "id": .string(String(describing: parameter.globalId)),
+            "value": .stringConvertible(value),
+        ])
+        if case let .sourceParameter(_, parameter) = parameter.globalId {
+            self.engine.setSourceParameter(
+                looperId,
+                parameterId: parameter,
+                value: value
+            )
+        }
+    }
+
+    private func flushIntSourceParameter(looperId: UInt, parameter: IntParameter, value: Int) {
+        guard case let .sourceParameter(_, parameterId) = parameter.globalId
+        else { return }
+        engine.setSourceParameterInt(
+            looperId,
+            parameterId: parameterId,
+            value: Int32(value)
+        )
     }
 }

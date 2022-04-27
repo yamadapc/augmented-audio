@@ -302,6 +302,7 @@ class MacKnobViewWithText: NSView {
         knobView = MacKnobNSView()
         valueTextView = NSTextView()
         labelView = NSTextView()
+        labelView.textContainer?.maximumNumberOfLines = 1
         super.init(frame: NSRect.zero)
         setupSubViews()
     }

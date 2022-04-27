@@ -131,27 +131,43 @@ extension EngineImpl: SequencerEngine {
     }
 
     func removeLock(parameterLockId: ParameterLockId) {
+        let logObjectIdMissing = {
+            self.logger.warning("Failed to get object ID for parameter", metadata: [
+                "parameterId": .string(String(describing: parameterLockId.parameterId))
+            ])
+        }
+        let logTrackIdMissing = {
+            self.logger.warning("Failed to get track ID for parameter", metadata: [
+                "parameterId": .string(String(describing: parameterLockId.parameterId))
+            ])
+        }
+
         switch parameterLockId.source {
         case let .stepId(stepId):
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
             looper_engine__remove_parameter_lock(
                 engine,
                 UInt(stepId.trackId),
                 UInt(stepId.stepIndex),
-                getObjectIdRust(parameterLockId.parameterId)!
+                objectId
             )
         case let .sceneId(sceneId):
+            guard let trackId = getTrackId(parameterLockId.parameterId) else { logTrackIdMissing(); return }
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
             looper_engine__remove_scene_parameter_lock(
                 engine,
                 UInt(sceneId.index),
-                getTrackId(parameterLockId.parameterId)!,
-                getObjectIdRust(parameterLockId.parameterId)!
+                trackId,
+                objectId
             )
         case let .lfoId(lfoId):
+            guard let trackId = getTrackId(parameterLockId.parameterId) else { logTrackIdMissing(); return }
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
             looper_engine__remove_lfo_mapping(
                 engine,
-                getTrackId(parameterLockId.parameterId)!,
+                trackId,
                 UInt(lfoId.index),
-                getObjectIdRust(parameterLockId.parameterId)!
+                objectId
             )
         }
     }

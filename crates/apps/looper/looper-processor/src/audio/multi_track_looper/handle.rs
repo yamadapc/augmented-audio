@@ -35,6 +35,7 @@ use augmented_atomics::{AtomicF32, AtomicValue};
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::audio::multi_track_looper::scene_state::SceneHandle;
 use crate::audio::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
+use crate::parameters::LFOMode;
 use crate::{QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
 
 use super::looper_voice::LooperVoice;
@@ -352,6 +353,16 @@ impl MultiTrackLooperHandle {
                 ParameterId::ParameterIdEnvelope(parameter_id),
                 ParameterValue::Float(value.into()),
             );
+        }
+    }
+
+    pub fn set_lfo_mode(&self, looper_id: LooperId, lfo: usize, mode: LFOMode) {
+        if let Some(voice) = self.voices.get(looper_id.0) {
+            Self::update_parameter_table(
+                voice,
+                ParameterId::ParameterIdLFO(lfo, LFOParameter::LFOParameterMode),
+                ParameterValue::Enum(AtomicUsize::new(mode.into())),
+            )
         }
     }
 

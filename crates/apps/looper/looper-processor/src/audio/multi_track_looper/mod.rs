@@ -23,6 +23,8 @@
 
 //! This module provides a `MultiTrackLooperProcessor`, which can sequence and loop 8 looper tracks
 //! with shared tempo.
+use std::convert::TryFrom;
+
 use assert_no_alloc::assert_no_alloc;
 use rustc_hash::FxHashMap as HashMap;
 
@@ -36,6 +38,7 @@ use augmented_atomics::AtomicValue;
 use augmented_oscillator::Oscillator;
 
 use crate::audio::time_info_provider::TimeInfoMetronomePlayhead;
+use crate::parameters::LFOMode;
 use crate::{LooperOptions, TimeInfoProvider, TimeInfoProviderImpl};
 
 pub use self::handle::MultiTrackLooperHandle;
@@ -328,14 +331,23 @@ impl MultiTrackLooper {
         for (lfo_index, (lfo_osc, lfo_handle)) in lfos.iter_mut().enumerate() {
             let freq_idx =
                 ParameterId::ParameterIdLFO(lfo_index, LFOParameter::LFOParameterFrequency);
+            let freq_idx = parameter_scratch_indexes[&freq_idx];
             let amount_idx =
                 ParameterId::ParameterIdLFO(lfo_index, LFOParameter::LFOParameterAmount);
+            let amount_idx = parameter_scratch_indexes[&amount_idx];
+            let lfo_mode_idx =
+                ParameterId::ParameterIdLFO(lfo_index, LFOParameter::LFOParameterMode);
+            let lfo_mode_idx = parameter_scratch_indexes[&lfo_mode_idx];
 
             let scratch = &mut parameters_scratch[voice.id];
 
-            let freq = scratch[parameter_scratch_indexes[&freq_idx]].as_float();
+            let freq = scratch[freq_idx].as_float();
             lfo_osc.set_frequency(freq);
-            let global_amount = scratch[parameter_scratch_indexes[&amount_idx]].as_float();
+            let lfo_mode: LFOMode =
+                LFOMode::try_from(scratch[lfo_mode_idx].as_enum()).unwrap_or(LFOMode::LFOModeSine);
+            lfo_osc.set_generator(lfo_mode.generator_fn());
+
+            let global_amount = scratch[amount_idx].as_float();
 
             for (parameter_idx, parameter) in voice.parameter_ids().iter().enumerate() {
                 let modulation_amount = lfo_handle.modulation_amount(parameter);

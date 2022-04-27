@@ -74,6 +74,13 @@ impl<T> Oscillator<T> {
 }
 
 impl<T> Oscillator<T> {
+    /// Set the generator function
+    pub fn set_generator(&mut self, generator_fn: fn(T) -> T) {
+        self.generator_fn = generator_fn;
+    }
+}
+
+impl<T> Oscillator<T> {
     /// Set the sample rate
     pub fn set_sample_rate(&mut self, sample_rate: f32) {
         self.sample_rate = sample_rate;

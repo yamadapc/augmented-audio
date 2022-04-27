@@ -71,7 +71,7 @@ public class LFOState: ObservableObject {
 
     @Published var frequencyParameter: LFOFrequencyParameter
     @Published var amountParameter: LFOAmountParameter
-    @Published var modeParameter: EnumParameter<LFOMode>
+    @Published public var modeParameter: EnumParameter<LFOMode>
 
     public var parameters: [FloatParameter] { [
         frequencyParameter,

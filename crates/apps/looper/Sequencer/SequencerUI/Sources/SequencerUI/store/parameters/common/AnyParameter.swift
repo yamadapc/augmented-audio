@@ -107,10 +107,6 @@ public struct AnyParameter: Identifiable {
     public func setEnumValue(_ v: UInt) {
         guard case var .enumP(parameter) = inner else { return }
         if parameter.rawValue != v {
-            // TODO: - this is just a hack to test the GUI
-            if case .lfoParameter(trackId: _, lfo: _, parameterId: .mode) = parameter.globalId {
-                return
-            }
             parameter.rawValue = v
         }
     }

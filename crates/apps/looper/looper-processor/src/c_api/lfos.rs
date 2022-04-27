@@ -16,6 +16,19 @@ pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
         .set_lfo_parameter(LooperId(track_id), lfo, parameter_id, value);
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__set_lfo_mode(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    lfo_id: usize,
+    mode: LFOMode,
+) {
+    let engine = &(*engine);
+    engine
+        .handle()
+        .set_lfo_mode(LooperId(looper_id), lfo_id, mode);
+}
+
 /// Map an LFO to another parameter
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_lfo_mapping(
