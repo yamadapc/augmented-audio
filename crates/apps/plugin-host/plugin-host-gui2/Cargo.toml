@@ -3,6 +3,9 @@ name = "plugin-host-gui2"
 description = "A VST plugin host for development"
 version = "0.1.0"
 edition = "2018"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+license = "MIT"
 
 [dependencies]
 actix = "0.13.0"

@@ -4,6 +4,9 @@ description = "TasV2 Tremolo Audio Plug-in"
 version = "0.0.1"
 authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
 edition = "2018"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+license = "MIT"
 
 [dependencies]
 vst = { path = "../../vendor/vst" }

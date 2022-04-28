@@ -4,6 +4,9 @@ description = "CLI that will spawn a MIDI host and log events"
 version = "0.1.0"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+license = "MIT"
 
 [dependencies]
 rimd = "^0.0.1"
