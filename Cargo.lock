@@ -7902,6 +7902,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49874b5167b65d7193b8aba1567f5c7d93d001cafc34600cee003eda787e483f"
 
 [[package]]
+name = "visualisation_"
+version = "0.1.0"
+dependencies = [
+ "audio-garbage-collector",
+ "audio-processor-analysis",
+ "audio-processor-file",
+ "audio-processor-standalone",
+ "audio-processor-traits",
+ "nannou",
+ "smooth-value",
+]
+
+[[package]]
 name = "vst"
 version = "0.2.1"
 dependencies = [

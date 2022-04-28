@@ -200,7 +200,7 @@ struct KnobView: View {
                 Circle()
                     .fill(SequencerColors.white)
                     .frame(width: strokeWidth * 2, height: strokeWidth * 2)
-                    .shadow(radius: 3)
+                    .shadow(radius: SHADOW_RADIUS)
                     .position(
                         x: knobPosition.x,
                         y: knobPosition.y

@@ -10,7 +10,7 @@ license = "MIT"
 
 [dependencies]
 rimd = "^0.0.1"
-midir = "0.8.0-pre"
+midir = { version = "0.8.0-pre", path = "../../augmented/data/augmented-midi/midir" }
 thiserror = "^1.0.25"
 wisual-logger = "^0.1.2"
 log = "^0.4.14"

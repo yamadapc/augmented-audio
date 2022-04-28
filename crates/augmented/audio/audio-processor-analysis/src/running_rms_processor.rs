@@ -111,7 +111,7 @@ impl SimpleAudioProcessor for RunningRMSProcessor {
         self.duration_samples = (settings.sample_rate() * self.duration.as_secs_f32()) as usize;
         self.handle.resize(
             &self.gc_handle,
-            settings.input_channels(),
+            settings.output_channels(),
             self.duration_samples,
         );
     }

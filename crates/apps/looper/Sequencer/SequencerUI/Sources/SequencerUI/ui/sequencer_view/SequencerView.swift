@@ -21,6 +21,7 @@ import SwiftUI
 
 let PADDING: Double = 10
 let BORDER_RADIUS: Double = 8
+let SHADOW_RADIUS: Double = 3
 
 struct SequencerView: View {
     @EnvironmentObject var store: Store
