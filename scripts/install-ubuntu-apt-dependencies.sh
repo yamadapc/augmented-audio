@@ -17,7 +17,7 @@ sudo apt-get install --fix-missing -y \
     libclang-11-dev \
     libgdk3.0-cil-dev \
     libappindicator3-dev \
-    libayatana-appindicator-dev \
+    libayatana-appindicator3-dev \
     libgtksourceview-3.0-dev \
     libwebkit2gtk-4.0-dev \
     libx11-xcb-dev \
