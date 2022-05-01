@@ -165,7 +165,7 @@ impl AudioFileProcessor {
         self.audio_settings = audio_settings;
 
         self.buffer.clear();
-        self.buffer.reserve(self.audio_settings.input_channels());
+        self.buffer.reserve(self.audio_settings.output_channels());
 
         let start = Instant::now();
         log::info!("Reading audio file onto memory");
