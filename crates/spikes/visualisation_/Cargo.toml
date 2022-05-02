@@ -12,4 +12,3 @@ audio-processor-file = { version = "1.0.0-alpha.5", path = "../../augmented/audi
 augmented-atomics = { version = "0.1.0-alpha.6", path = "../../augmented/data/atomics" }
 atomic_refcell = "0.1.8"
 nannou = "0.18.1"
-smooth-value = { path = "../../augmented/data/smooth-value" }

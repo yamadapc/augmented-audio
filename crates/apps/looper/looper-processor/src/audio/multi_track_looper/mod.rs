@@ -647,7 +647,6 @@ mod test {
     fn test_process_doesnt_alloc() {
         wisual_logger::init_from_env();
         let mut looper = MultiTrackLooper::new(Default::default(), 8);
-        let settings = AudioProcessorSettings::default();
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 100.0;
         let mut buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
@@ -678,7 +677,9 @@ mod test {
     #[test]
     fn test_processor_will_playback_set_looper_buffer() {
         let mut processor = MultiTrackLooper::new(Default::default(), 1);
-        processor.prepare(AudioProcessorSettings::default());
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
+        processor.prepare(settings);
 
         let looper = processor.handle().voices()[0].looper().clone();
         let mut looper_buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
@@ -695,7 +696,9 @@ mod test {
     #[test]
     fn test_we_can_set_start_on_a_looper() {
         let mut processor = MultiTrackLooper::default();
-        processor.prepare(AudioProcessorSettings::default());
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
+        processor.prepare(settings);
         processor
             .handle()
             .set_source_parameter(LooperId(0), SourceParameter::Start, 0.5);
@@ -905,7 +908,8 @@ mod test {
 
     #[test]
     fn test_map_lfo_to_pitch_modulation() {
-        let settings = AudioProcessorSettings::default();
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
         let mut looper = MultiTrackLooper::new(Default::default(), 1);
         let looper_voice = looper.handle.voices()[0].looper().clone();
 

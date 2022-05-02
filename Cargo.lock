@@ -7913,7 +7913,6 @@ dependencies = [
  "audio-processor-traits",
  "augmented-atomics",
  "nannou",
- "smooth-value",
 ]
 
 [[package]]

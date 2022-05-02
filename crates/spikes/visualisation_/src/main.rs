@@ -1,4 +1,3 @@
-use std::cell::Ref;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
@@ -6,7 +5,6 @@ use nannou::{
     prelude::*,
     wgpu::{Device, LoadOp, TextureBuilder, TextureFormat, TextureView},
 };
-use smooth_value::InterpolatedValue;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_analysis::{
@@ -109,16 +107,8 @@ fn main() {
     nannou::app(model).update(update).simple_window(view).run();
 }
 
-struct Particle {
-    x: f32,
-    y: f32,
-    size: f32,
-    interpolated_size: InterpolatedValue,
-}
-
 struct Model {
     handle: Shared<Handle>,
-    particles: Vec<Particle>,
     wgpu_model: WGPUModel,
     _audio_handles: StandaloneHandles,
 }
@@ -137,23 +127,8 @@ fn model(app: &App) -> Model {
         None,
     );
 
-    let particles = (0..100)
-        .map(|i| {
-            (0..100)
-                .map(|j| Particle {
-                    x: -app.window_rect().w() / 2.0 + app.window_rect().w() * (i as f32) / 100.0,
-                    y: -app.window_rect().h() / 2.0 + app.window_rect().h() * (j as f32) / 100.0,
-                    interpolated_size: InterpolatedValue::new(60.0, Duration::from_millis(5), 10.0),
-                    size: 1.0,
-                })
-                .collect::<Vec<Particle>>()
-        })
-        .flatten()
-        .collect();
-
     Model {
         handle,
-        particles,
         wgpu_model: wgpu_model(app),
         _audio_handles: audio_handles,
     }
@@ -162,20 +137,6 @@ fn model(app: &App) -> Model {
 fn update(app: &App, model: &mut Model, _update: Update) {
     let rms = { model.handle.rms.calculate_rms(0) + model.handle.rms.calculate_rms(1) };
     if model.handle.fft_buffer_changed.get() {
-        let interpolated_fft_magnitudes = (0..model.particles.len())
-            .map(|i| {
-                let index = (i as f32 / model.particles.len() as f32)
-                    * model.handle.fft_buffer.num_samples() as f32;
-
-                model.handle.fft_buffer.get(0, index as usize).get()
-                    + model.handle.fft_buffer.get(1, index as usize).get()
-            })
-            .collect::<Vec<f32>>();
-        for (particle, magnitude) in model.particles.iter_mut().zip(interpolated_fft_magnitudes) {
-            particle.interpolated_size.set(1.0 * magnitude.sqrt());
-            particle.size = particle.interpolated_size.next_sample();
-        }
-
         let mut fft_slice = [0.0_f32; 4096];
         for i in 0..4096 {
             let f =
@@ -224,7 +185,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
         .w(app.window_rect().w())
         .h(app.window_rect().h())
         .finish();
-    draw.to_frame(app, &frame);
+    draw.to_frame(app, &frame).unwrap();
 }
 
 #[repr(C)]
@@ -277,7 +238,7 @@ struct WGPUModel {
 
     texture_bind_group: wgpu::BindGroup,
     texture: TextureView,
-    texture_sampler: wgpu::Sampler,
+    _texture_sampler: wgpu::Sampler,
 }
 
 fn wgpu_model(app: &App) -> WGPUModel {
@@ -392,7 +353,7 @@ fn wgpu_model(app: &App) -> WGPUModel {
         render_pipeline,
         texture_bind_group,
         texture,
-        texture_sampler,
+        _texture_sampler: texture_sampler,
     }
 }
 
