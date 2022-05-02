@@ -2,19 +2,21 @@ use std::cell::Ref;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
-use nannou::prelude::*;
-use nannou::wgpu::{LoadOp, TextureBuilder, TextureView};
+use nannou::{
+    prelude::*,
+    wgpu::{Device, LoadOp, TextureBuilder, TextureFormat, TextureView},
+};
 use smooth_value::InterpolatedValue;
 
-use crate::wgpu::{Device, TextureFormat};
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_analysis::{
     fft_processor::FftProcessor,
     running_rms_processor::{RunningRMSProcessor, RunningRMSProcessorHandle},
 };
 use audio_processor_file::AudioFileProcessor;
-use audio_processor_standalone::standalone_processor::StandaloneOptions;
-use audio_processor_standalone::{StandaloneAudioOnlyProcessor, StandaloneHandles};
+use audio_processor_standalone::{
+    standalone_processor::StandaloneOptions, StandaloneAudioOnlyProcessor, StandaloneHandles,
+};
 use audio_processor_traits::{
     audio_buffer, simple_processor, AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings,
     SimpleAudioProcessor, VecAudioBuffer,
