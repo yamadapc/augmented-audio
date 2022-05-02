@@ -4392,9 +4392,9 @@ dependencies = [
 name = "midi-logger-host"
 version = "0.1.0"
 dependencies = [
+ "augmented-midi",
  "log",
  "midir",
- "rimd",
  "thiserror",
  "wisual-logger",
 ]

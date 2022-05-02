@@ -222,8 +222,8 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         Ok((input, MIDIMessage::PitchWheelChange { channel, value }))
     } else if status == SYSEX_MESSAGE_MASK {
         let (input, sysex_message) = take_till(|b| b == SYSEX_MESSAGE_END_MASK)(input)?;
-        let (input, extra) = take(1u8)(input)?;
-        assert!(extra.is_empty() && extra[0] == SYSEX_MESSAGE_END_MASK);
+        let (input, _extra) = take(1u8)(input)?;
+        // assert!(extra.is_empty() && extra[0] == SYSEX_MESSAGE_END_MASK);
         Ok((
             input,
             MIDIMessage::SysExMessage(MIDISysExEvent {
@@ -361,7 +361,7 @@ pub fn parse_chunk<
 
     let (_, chunk) = match chunk_name {
         "MThd" => {
-            assert_eq!(chunk_length, 6);
+            // assert_eq!(chunk_length, 6);
             parse_header_body(chunk_body)
         }
         "MTrk" => {
