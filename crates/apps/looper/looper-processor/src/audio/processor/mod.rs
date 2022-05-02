@@ -124,7 +124,7 @@ mod test {
     use super::*;
 
     fn test_settings() -> AudioProcessorSettings {
-        AudioProcessorSettings::new(44100.0, 1, 1, 512)
+        AudioProcessorSettings::new(100.0, 1, 1, 512)
     }
 
     #[test]
