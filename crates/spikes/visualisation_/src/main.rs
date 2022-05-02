@@ -1,10 +1,12 @@
+use std::cell::Ref;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
 use nannou::prelude::*;
-use nannou::wgpu::LoadOp;
+use nannou::wgpu::{LoadOp, TextureBuilder, TextureView};
 use smooth_value::InterpolatedValue;
 
+use crate::wgpu::{Device, TextureFormat};
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_analysis::{
     fft_processor::FftProcessor,
@@ -43,7 +45,7 @@ impl Processor {
         let input_file = AudioFileProcessor::from_path(
             audio_garbage_collector::handle(),
             Default::default(),
-            "./input.mp3",
+            "./input.wav",
         )
         .unwrap();
         let fft = FftProcessor::default();
@@ -198,24 +200,29 @@ fn update(app: &App, model: &mut Model, _update: Update) {
 }
 
 fn view(app: &App, model: &Model, frame: Frame) {
+    let wgpu_model = &model.wgpu_model;
     {
         let mut encoder = frame.command_encoder();
-        let wgpu_model = &model.wgpu_model;
 
         let mut render_pass = wgpu::RenderPassBuilder::new()
-            .color_attachment(frame.texture_view(), |color| {
-                color.load_op(LoadOp::Load).store_op(true)
-            })
+            .color_attachment(frame.texture_view(), |color| color.load_op(LoadOp::Load))
             .begin(&mut encoder);
         render_pass.set_bind_group(0, &wgpu_model.bind_group, &[]);
         render_pass.set_bind_group(1, &wgpu_model.uniform_bind_group, &[]);
+        render_pass.set_bind_group(2, &wgpu_model.texture_bind_group, &[]);
         render_pass.set_pipeline(&wgpu_model.render_pipeline);
         render_pass.set_vertex_buffer(0, wgpu_model.vertex_buffer.slice(..));
-
         let vertex_range = 0..VERTICES.len() as u32;
         let instance_range = 0..1;
         render_pass.draw(vertex_range, instance_range);
     }
+
+    let draw = app.draw();
+    draw.texture(&wgpu_model.texture)
+        .w(app.window_rect().w())
+        .h(app.window_rect().h())
+        .finish();
+    draw.to_frame(app, &frame);
 }
 
 #[repr(C)]
@@ -265,6 +272,10 @@ struct WGPUModel {
     uniform_bind_group: wgpu::BindGroup,
     render_pipeline: wgpu::RenderPipeline,
     vertex_buffer: wgpu::Buffer,
+
+    texture_bind_group: wgpu::BindGroup,
+    texture: TextureView,
+    texture_sampler: wgpu::Sampler,
 }
 
 fn wgpu_model(app: &App) -> WGPUModel {
@@ -272,7 +283,7 @@ fn wgpu_model(app: &App) -> WGPUModel {
     let window = app.main_window();
     let device = window.device();
     let format = Frame::TEXTURE_FORMAT;
-    let sample_count = window.msaa_samples();
+    let sample_count = 1; // window.msaa_samples();
 
     // Load shader modules.
     let vs_desc = wgpu::include_wgsl!("shaders/vs.wgsl");
@@ -304,6 +315,7 @@ fn wgpu_model(app: &App) -> WGPUModel {
         contents: unsafe { wgpu::bytes::from_slice(&[storage]) },
         usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_DST,
     });
+
     let uniform_bind_group_layout =
         device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &[
@@ -348,10 +360,17 @@ fn wgpu_model(app: &App) -> WGPUModel {
     let bind_group_layout = wgpu::BindGroupLayoutBuilder::new().build(device);
     let bind_group = wgpu::BindGroupBuilder::new().build(device, &bind_group_layout);
 
+    let (texture_bind_group, texture_bind_group_layout, texture, texture_sampler) =
+        build_texture(&window, device, format, sample_count);
+
     let pipeline_layout = wgpu::create_pipeline_layout(
         device,
         Some("Pipeline layout"),
-        &[&bind_group_layout, &uniform_bind_group_layout],
+        &[
+            &bind_group_layout,
+            &uniform_bind_group_layout,
+            &texture_bind_group_layout,
+        ],
         &[],
     );
 
@@ -359,7 +378,7 @@ fn wgpu_model(app: &App) -> WGPUModel {
         .fragment_shader(&fs_mod)
         .color_format(format)
         .add_vertex_buffer::<Vertex>(&wgpu::vertex_attr_array![0 => Float32x2])
-        .sample_count(sample_count)
+        .sample_count(4)
         .build(device);
 
     WGPUModel {
@@ -369,7 +388,80 @@ fn wgpu_model(app: &App) -> WGPUModel {
         storage_buffer,
         vertex_buffer,
         render_pipeline,
+        texture_bind_group,
+        texture,
+        texture_sampler,
     }
+}
+
+fn build_texture(
+    window: &Window,
+    device: &Device,
+    format: TextureFormat,
+    sample_count: u32,
+) -> (
+    wgpu::BindGroup,
+    wgpu::BindGroupLayout,
+    wgpu::TextureView,
+    wgpu::Sampler,
+) {
+    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        entries: &[
+            wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Texture {
+                    multisampled: false,
+                    view_dimension: wgpu::TextureViewDimension::D2,
+                    sample_type: wgpu::TextureSampleType::Float { filterable: true },
+                },
+                count: None,
+            },
+            wgpu::BindGroupLayoutEntry {
+                binding: 1,
+                visibility: wgpu::ShaderStages::FRAGMENT,
+                ty: wgpu::BindingType::Sampler {
+                    filtering: true,
+                    comparison: false,
+                },
+                count: None,
+            },
+        ],
+        label: Some("texture_bind_group_layout"),
+    });
+    let texture = TextureBuilder::new()
+        .sample_count(sample_count)
+        .format(format)
+        .size([window.rect().w() as u32, window.rect().h() as u32])
+        .build(device)
+        .view()
+        .build();
+
+    let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
+        address_mode_u: wgpu::AddressMode::ClampToEdge,
+        address_mode_v: wgpu::AddressMode::ClampToEdge,
+        address_mode_w: wgpu::AddressMode::ClampToEdge,
+        mag_filter: wgpu::FilterMode::Linear,
+        min_filter: wgpu::FilterMode::Nearest,
+        mipmap_filter: wgpu::FilterMode::Nearest,
+        ..Default::default()
+    });
+
+    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        layout: &bind_group_layout,
+        entries: &[
+            wgpu::BindGroupEntry {
+                binding: 0,
+                resource: wgpu::BindingResource::TextureView(&texture),
+            },
+            wgpu::BindGroupEntry {
+                binding: 1,
+                resource: wgpu::BindingResource::Sampler(&sampler),
+            },
+        ],
+        label: Some("texture_bind_group"),
+    });
+    (bind_group, bind_group_layout, texture, sampler)
 }
 
 // See the `nannou::wgpu::bytes` documentation for why this is necessary.
