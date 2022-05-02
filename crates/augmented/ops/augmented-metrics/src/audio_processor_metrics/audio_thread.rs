@@ -53,6 +53,10 @@ impl AudioProcessorMetricsHandle {
         self.sample_rate.set(settings.sample_rate());
         self.buffer_size.set(settings.block_size());
     }
+
+    pub fn set_duration(&self, duration: Duration) {
+        self.duration_micros.set(duration.as_micros() as u64);
+    }
 }
 
 pub struct AudioProcessorMetrics {
@@ -84,8 +88,7 @@ impl AudioProcessorMetrics {
 
     pub fn on_process_end(&self) {
         let duration = self.last_start_time.elapsed();
-        let duration_micros = duration.as_micros() as u64;
-        self.handle.duration_micros.set(duration_micros)
+        self.handle.set_duration(duration)
     }
 }
 
