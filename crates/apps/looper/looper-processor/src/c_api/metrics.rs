@@ -38,3 +38,41 @@ pub unsafe extern "C" fn looper_engine__get_stats(
         AudioProcessorMetricsStats::default().into()
     }
 }
+
+#[cfg(test)]
+mod test {
+    use audio_processor_testing_helpers::assert_f_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_convert_stats() {
+        let rust_stats = AudioProcessorMetricsStats {
+            average_cpu: 0.3,
+            max_cpu: 0.5,
+            average_nanos: 10.0,
+            max_nanos: 20.0,
+        };
+        let c_stats: CAudioProcessorMetricsStats = rust_stats.into();
+        assert_f_eq!(c_stats.average_nanos, 10.0);
+        assert_f_eq!(c_stats.average_cpu, 0.3);
+        assert_f_eq!(c_stats.max_nanos, 20.0);
+        assert_f_eq!(c_stats.max_cpu, 0.5);
+    }
+
+    #[test]
+    fn test_get_stats() {
+        let engine = LooperEngine::default();
+        let engine_ptr = Box::into_raw(Box::new(engine));
+
+        let stats = unsafe { looper_engine__get_stats(engine_ptr) };
+        assert!(stats.average_nanos.abs() < f32::EPSILON);
+        assert!(stats.max_cpu.abs() < f32::EPSILON);
+        assert!(stats.average_nanos.abs() < f32::EPSILON);
+        assert!(stats.average_cpu.abs() < f32::EPSILON);
+
+        unsafe {
+            let _ = Box::from_raw(engine_ptr);
+        }
+    }
+}
