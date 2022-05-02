@@ -648,6 +648,8 @@ mod test {
         wisual_logger::init_from_env();
         let mut looper = MultiTrackLooper::new(Default::default(), 8);
         let settings = AudioProcessorSettings::default();
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
         let mut buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
 
         looper.prepare(settings);
@@ -665,7 +667,9 @@ mod test {
     fn test_processor_starts_silent() {
         wisual_logger::init_from_env();
         let mut processor = MultiTrackLooper::default();
-        processor.prepare(AudioProcessorSettings::default());
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
+        processor.prepare(settings);
         let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
         processor.process(&mut buffer);
         assert_eq!(buffer.slice(), [0.0, 0.0, 0.0, 0.0])
