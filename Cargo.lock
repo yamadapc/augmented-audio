@@ -497,7 +497,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-metronome"
-version = "0.1.0"
+version = "1.0.0-alpha.1"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-standalone",
