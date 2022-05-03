@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.5" }
 audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0-alpha.6" }
-audio-processor-standalone = { path = "../../application/audio-processor-standalone" , version = "1.0.0-alpha.9" }
+audio-processor-standalone = { path = "../../application/audio-processor-standalone" , version = "1.0.0-alpha.10" }
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.4" }
 augmented-playhead = { path = "../../data/augmented-playhead" , version = "0.1.0-alpha.5" }
 augmented-adsr-envelope = { path = "../adsr-envelope" , version = "0.1.0-alpha.4" }

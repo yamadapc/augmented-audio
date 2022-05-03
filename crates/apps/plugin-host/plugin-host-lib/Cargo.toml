@@ -21,7 +21,7 @@ cpal = { version = "^0.13.3" }
 hound = "^3.4.0"
 log = "^0.4.14"
 md5 = "^0.7.0"
-midir = { version = "0.8.0-pre", path = "../../../augmented/data/augmented-midi/midir" }
+midir = ">=0.7, <0.9"
 notify = "^4.0.17"
 num-traits = "^0.2.14"
 rayon = "^1.5.1"

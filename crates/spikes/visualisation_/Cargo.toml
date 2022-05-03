@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-audio-processor-standalone = { version = "1.0.0-alpha.9", path = "../../augmented/application/audio-processor-standalone" }
+audio-processor-standalone = { version = "1.0.0-alpha.10", path = "../../augmented/application/audio-processor-standalone" }
 audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../augmented/audio/audio-processor-traits" }
 audio-garbage-collector = { version = "1.0.0-alpha.4", path = "../../augmented/audio/audio-garbage-collector" }
 audio-processor-analysis = { version = "0.1.0-alpha.5", path = "../../augmented/audio/audio-processor-analysis" }
