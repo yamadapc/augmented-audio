@@ -5,7 +5,7 @@
 [![Default](https://github.com/yamadapc/augmented-audio/actions/workflows/default.yml/badge.svg)](https://github.com/yamadapc/augmented-audio/actions/workflows/default.yml)
 [![Linux](https://github.com/yamadapc/augmented-audio/actions/workflows/linux.yml/badge.svg)](https://github.com/yamadapc/augmented-audio/actions/workflows/linux.yml)
 [![Web-based builds](https://github.com/yamadapc/augmented-audio/actions/workflows/web.yml/badge.svg)](https://github.com/yamadapc/augmented-audio/actions/workflows/web.yml)
-[![Coverage Status](https://coveralls.io/repos/github/yamadapc/augmented-audio/badge.svg?branch=master)](https://coveralls.io/github/yamadapc/augmented-audio?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/yamadapc/augmented-audio/badge.svg?branch=master)](https://coveralls.io/github/yamadapc/augmented-audio?branch=master) [**Note about test coverage**](docs/TEST_COVERAGE.md)
 ---
 
 Experiments trying to use Rust for audio programming.
