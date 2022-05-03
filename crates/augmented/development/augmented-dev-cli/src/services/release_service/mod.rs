@@ -48,7 +48,7 @@ pub fn prerelease_all_crates(list_crates_service: &ListCratesService) {
             log::info!(
                 "Waiting for upload to finish. It takes a while before the crate is visible"
             );
-            std::thread::sleep(Duration::from_secs(5));
+            std::thread::sleep(Duration::from_secs(30));
         }
     }
 }

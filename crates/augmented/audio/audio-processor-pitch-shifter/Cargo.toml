@@ -18,5 +18,5 @@ audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0
 [dev-dependencies]
 audio-processor-standalone = { version = "1.0.0-alpha.9", path = "../../application/audio-processor-standalone" }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.6" }
-audio-processor-file = { path = "../audio-processor-file", version = "1.0.0-alpha.5" }
+audio-processor-file = { path = "../audio-processor-file", version = "1.0.0-alpha.6" }
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }

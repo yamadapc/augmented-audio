@@ -17,7 +17,7 @@ itertools = "0.10.1"
 thiserror = "^1.0.25"
 
 # Augmented
-audio-processor-file = { path = "../../audio/audio-processor-file", version = "1.0.0-alpha.5" }
+audio-processor-file = { path = "../../audio/audio-processor-file", version = "1.0.0-alpha.6" }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector", version = "1.0.0-alpha.4" }
 audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../audio/audio-processor-traits" }
 augmented-midi = { path = "../../data/augmented-midi", version = "1.0.0-alpha.5" }
