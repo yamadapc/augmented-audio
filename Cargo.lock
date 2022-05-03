@@ -798,7 +798,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-midi"
-version = "1.0.0-alpha.5"
+version = "1.0.0-alpha.6"
 dependencies = [
  "assert_no_alloc",
  "audio-processor-traits",
