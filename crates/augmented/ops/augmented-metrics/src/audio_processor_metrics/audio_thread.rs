@@ -94,7 +94,7 @@ impl AudioProcessorMetrics {
 
 #[cfg(test)]
 mod test {
-    use std::ops::Sub;
+    use std::ops::{Add, Sub};
     use std::time::Duration;
 
     use augmented_atomics::AtomicValue;
@@ -151,7 +151,7 @@ mod test {
     #[test]
     fn test_processor_start() {
         let mut processor = AudioProcessorMetrics::default();
-        processor.last_start_time = Instant::now().sub(Duration::from_secs(1000));
+        processor.last_start_time = Instant::now().add(Duration::from_secs(1000));
         let prev_start = processor.last_start_time;
         processor.on_process_start();
         assert_ne!(processor.last_start_time, prev_start);
@@ -160,7 +160,7 @@ mod test {
     #[test]
     fn test_processor_end_will_set_duration_on_handle() {
         let mut processor = AudioProcessorMetrics::default();
-        processor.last_start_time = Instant::now().sub(Duration::from_secs(1000));
+        processor.last_start_time = Instant::now().sub(Duration::from_micros(1000));
         processor.handle().duration_micros.set(0);
         processor.on_process_end();
         assert_ne!(processor.handle().duration_micros.get(), 0);
