@@ -38,7 +38,7 @@ vst = { version = "0.2.1", path = "../../../vendor/vst" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 itertools = "^0.10.1"
 
-atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.0-alpha.3" }
+atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.0-alpha.4" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" }
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.1.0-alpha.5" }

@@ -32,7 +32,7 @@ vst = { version = "0.2.1", path = "../../../vendor/vst" }
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-processor-standalone-midi" }
 
 [dev-dependencies]
-atomic-queue = { version = "1.0.0-alpha.3", path = "../../data/atomic-queue" }
+atomic-queue = { version = "1.0.0-alpha.4", path = "../../data/atomic-queue" }
 audio-processor-testing-helpers = { version = "1.0.0-alpha.6", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
