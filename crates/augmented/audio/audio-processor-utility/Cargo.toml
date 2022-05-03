@@ -12,7 +12,7 @@ processor_examples = ["gain", "mono", "pan"]
 private = true
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../audio-processor-traits" }
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.4" }
 
 [dev-dependencies]

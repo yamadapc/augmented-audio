@@ -17,7 +17,7 @@ vst = { version = "^0.2.1", path = "../../../vendor/vst" }
 
 # augmented
 atomic-queue = { version = "1.0.0-alpha.3", path = "../../data/atomic-queue" }
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../audio/audio-processor-traits" }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
 
 [dev-dependencies]
