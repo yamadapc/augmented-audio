@@ -24,5 +24,5 @@ audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.4" }
 
 [dev-dependencies]
-audio-processor-standalone = { version = "1.0.0-alpha.10", path = "../../application/audio-processor-standalone" }
+audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../application/audio-processor-standalone" }
 audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" }
