@@ -104,6 +104,7 @@ impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
         }
     }
 
+    /// This returns the size in bytes of this message when serialised into MIDI.
     pub fn size_hint(&self) -> usize {
         match self {
             MIDIMessage::NoteOn(_) => 3,

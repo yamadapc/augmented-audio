@@ -180,6 +180,7 @@ mod test {
     fn test_roundtrip(input: MIDIMessage<Vec<u8>>) {
         let (bytes, _) = serialize_message(input.clone(), vec![]).unwrap();
         let mut state = Default::default();
+        assert_eq!(bytes.len(), input.size_hint());
         let (_, output) = parse_midi_event::<Vec<u8>>(&bytes, &mut state).unwrap();
         assert_eq!(input, output);
     }
