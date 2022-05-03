@@ -2,7 +2,7 @@
 name = "augmented-audio-metrics"
 version = "1.0.0-alpha.3"
 edition = "2021"
-description = "Placeholder crate; will eventually contain metrics mechanisms for augmented audio applications."
+description = "Metrics helpers for augmented audio applications."
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
