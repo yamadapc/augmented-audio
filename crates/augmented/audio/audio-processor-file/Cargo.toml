@@ -25,7 +25,7 @@ hound = "^3.4.0"
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
 audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../../augmented/audio/audio-processor-traits" }
 augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.3" }
-augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.5" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.6" }
 
 [dev-dependencies]
 audio-processor-testing-helpers = { version = "1.0.0-alpha.6", path = "../../../augmented/testing/audio-processor-testing-helpers" }
