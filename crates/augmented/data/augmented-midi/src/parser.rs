@@ -69,16 +69,13 @@ pub const SYSEX_MESSAGE_END_MASK: u8 = 0b11110111;
 
 pub type MIDIParseResult<'a, Output> = IResult<Input<'a>, Output>;
 
-pub fn parse_header_body<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>>(
-    input: Input,
-) -> MIDIParseResult<MIDIFileChunk<StringRepr, Buffer>> {
-    let (input, format) = be_u16(input)?;
-    let format = match format {
-        0 => Ok(MIDIFileFormat::Single),
-        1 => Ok(MIDIFileFormat::Simultaneous),
-        2 => Ok(MIDIFileFormat::Sequential),
-        _ => Ok(MIDIFileFormat::Unknown),
-    }?;
+/// Parses 3 16bit words. In order:
+///
+/// * File format
+/// * Number of tracks
+/// * Division
+pub fn parse_header_body(input: Input) -> MIDIParseResult<MIDIFileHeader> {
+    let (input, format) = parse_file_format(input)?;
     let (input, num_tracks) = be_u16(input)?;
     let (input, division_word) = be_u16(input)?;
 
@@ -94,7 +91,7 @@ pub fn parse_header_body<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>>(
             ))
         }
         1 => {
-            let format = ((division_word << 1) >> 8) as u8;
+            let format = ((division_word << 1) >> 9) as u8;
             let ticks_per_frame = ((division_word << 8) >> 8) as u8;
             Ok((
                 input,
@@ -109,12 +106,23 @@ pub fn parse_header_body<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>>(
 
     Ok((
         input,
-        MIDIFileChunk::Header(MIDIFileHeader {
+        MIDIFileHeader {
             format,
             num_tracks,
             division,
-        }),
+        },
     ))
+}
+
+fn parse_file_format(input: Input) -> MIDIParseResult<MIDIFileFormat> {
+    let (input, format) = be_u16(input)?;
+    let format = match format {
+        0 => Ok(MIDIFileFormat::Single),
+        1 => Ok(MIDIFileFormat::Simultaneous),
+        2 => Ok(MIDIFileFormat::Sequential),
+        _ => Ok(MIDIFileFormat::Unknown),
+    }?;
+    Ok((input, format))
 }
 
 // https://en.wikipedia.org/wiki/Variable-length_quantity
@@ -142,6 +150,8 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
     state: &mut ParserState,
 ) -> MIDIParseResult<'a, MIDIMessage<Buffer>> {
     let (tmp_input, tmp_status) = be_u8(input)?;
+    // Handle rolling status, this is look-ahead into the status byte and check
+    // if it's valid, otherwise try using the previous status.
     let (input, status) = if tmp_status >= 0x7F {
         state.last_status = Some(tmp_status);
         Ok((tmp_input, tmp_status))
@@ -168,14 +178,12 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         let channel = parse_channel(status);
         let (input, note) = be_u8(input)?;
         let (input, velocity) = be_u8(input)?;
-        Ok((
-            input,
-            MIDIMessage::NoteOn(MIDIMessageNote {
-                channel,
-                note,
-                velocity,
-            }),
-        ))
+        let note = MIDIMessageNote {
+            channel,
+            note,
+            velocity,
+        };
+        Ok((input, MIDIMessage::NoteOn(note)))
     } else if status_start == POLYPHONIC_KEY_PRESSURE_MASK {
         let channel = parse_channel(status);
         let (input, note) = be_u8(input)?;
@@ -224,12 +232,10 @@ pub fn parse_midi_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         let (input, sysex_message) = take_till(|b| b == SYSEX_MESSAGE_END_MASK)(input)?;
         let (input, _extra) = take(1u8)(input)?;
         // assert!(extra.is_empty() && extra[0] == SYSEX_MESSAGE_END_MASK);
-        Ok((
-            input,
-            MIDIMessage::SysExMessage(MIDISysExEvent {
-                message: sysex_message.into(),
-            }),
-        ))
+        let sysex_message = MIDISysExEvent {
+            message: sysex_message.into(),
+        };
+        Ok((input, MIDIMessage::SysExMessage(sysex_message)))
     } else if status == SONG_POSITION_POINTER_MASK {
         let (input, value) = parse_14bit_midi_number(input)?;
         Ok((input, MIDIMessage::SongPositionPointer { beats: value }))
@@ -363,6 +369,7 @@ pub fn parse_chunk<
         "MThd" => {
             // assert_eq!(chunk_length, 6);
             parse_header_body(chunk_body)
+                .map(|(rest, header)| (rest, MIDIFileChunk::Header(header)))
         }
         "MTrk" => {
             let mut state = ParserState::default();
@@ -406,6 +413,88 @@ pub fn parse_midi<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_parse_file_format_single() {
+        let format = [0, 0];
+        let (_rest, result) = parse_file_format(&format).unwrap();
+        assert_eq!(result, MIDIFileFormat::Single);
+    }
+
+    #[test]
+    fn test_parse_file_format_simultaneous() {
+        let format = [0, 1];
+        let (_rest, result) = parse_file_format(&format).unwrap();
+        assert_eq!(result, MIDIFileFormat::Simultaneous);
+    }
+
+    #[test]
+    fn test_parse_file_format_sequential() {
+        let format = [0, 2];
+        let (_rest, result) = parse_file_format(&format).unwrap();
+        assert_eq!(result, MIDIFileFormat::Sequential);
+    }
+
+    #[test]
+    fn test_parse_file_format_unknown() {
+        let format = [0, 8];
+        let (_rest, result) = parse_file_format(&format).unwrap();
+        assert_eq!(result, MIDIFileFormat::Unknown);
+    }
+
+    #[test]
+    fn test_parse_header_body_tick_based() {
+        let input = [
+            // Single
+            0,
+            0,
+            // 1 track
+            0,
+            1,
+            // 2 ticks
+            0b0_000_0000,
+            2,
+        ];
+        let (_rest, result) = parse_header_body(&input).unwrap();
+        assert_eq!(
+            result,
+            MIDIFileHeader {
+                format: MIDIFileFormat::Single,
+                num_tracks: 1,
+                division: MIDIFileDivision::TicksPerQuarterNote {
+                    ticks_per_quarter_note: 2
+                }
+            }
+        );
+    }
+
+    #[test]
+    fn test_parse_header_body_smpte_time_based() {
+        let input = [
+            // Single
+            0b0_u8,
+            0,
+            // 3 track
+            0,
+            3,
+            // SMPTE, format is 1 (which isn't valid, but for simplicity)
+            // ticks is 2
+            0b1_000_0001,
+            2,
+        ];
+        let (_rest, result) = parse_header_body(&input).unwrap();
+        assert_eq!(
+            result,
+            MIDIFileHeader {
+                format: MIDIFileFormat::Single,
+                num_tracks: 3,
+                division: MIDIFileDivision::SMPTE {
+                    format: 1,
+                    ticks_per_frame: 2
+                }
+            }
+        );
+    }
 
     #[test]
     fn test_parse_variable_length_quantity_length_1() {
