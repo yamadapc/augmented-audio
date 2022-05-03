@@ -60,7 +60,6 @@ Some directories which contain full applications are licensed under the AGPLv3 l
 
 <p align="center" style="display: flex">
   <img alt="Sequencer screenshot" src="https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/apps/looper/Sequencer/screenshot.png" width="300" /> 
-  [Sequencer](crates/apps/looper/Sequencer#readme)
 </p>
 
 <p align="center" style="display: flex;">
