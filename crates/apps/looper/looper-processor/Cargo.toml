@@ -24,7 +24,7 @@ strum_macros = "0.24.0"
 itertools = "0.10"
 lockfree = "0.5.1"
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }
-midir = ">=0.7, <0.9"
+midir = { version = "0.8.0-pre", path = "../../../augmented/data/augmented-midi/midir" }
 crossbeam = "0.8"
 anyhow = "1.0"
 thiserror = "1.0"
