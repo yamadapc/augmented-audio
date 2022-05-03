@@ -185,13 +185,124 @@ mod tests {
     use super::*;
 
     #[test]
-    fn it_can_be_created() {
+    fn test_decibels_can_be_created_from_db() {
+        let db = Decibels::from_db(0.0);
+        assert_eq!(db.as_db(), 0.0);
+    }
+
+    #[test]
+    fn test_decibels_set_db() {
+        let mut db = Decibels::from_db(0.0);
+        db.set_db(-0.1);
+        assert_eq!(db.as_db(), -0.1);
+    }
+
+    #[test]
+    fn test_decibels_set_amplitude() {
+        let mut db = Decibels::from_db(3.0);
+        db.set_amplitude(1.0, 1.0);
+        assert_eq!(db.as_db(), 0.0);
+    }
+
+    #[test]
+    fn test_decibels_as_amplitude() {
+        let db = Decibels::from_db(0.0);
+        let amp = db.as_amplitude(1.0);
+        assert_eq!(amp, 1.0);
+    }
+
+    #[test]
+    fn test_decibels_amplitude() {
+        let db = Decibels::from_db(0.0);
+        let amp = db.amplitude(1.0);
+        let amp = amp.as_amplitude();
+        assert_eq!(amp, 1.0);
+    }
+
+    #[test]
+    fn test_amplitude_from_amplitude() {
+        let amp = Amplitude::from_amplitude(1.0);
+        assert_eq!(amp.as_amplitude(), 1.0);
+    }
+
+    #[test]
+    fn test_amplitude_from_db() {
+        let amp = Amplitude::from_db(0.0, 1.0);
+        assert_eq!(amp.as_amplitude(), 1.0);
+    }
+
+    #[test]
+    fn test_amplitude_set_amplitude() {
+        let mut amp = Amplitude::from_amplitude(10.0);
+        amp.set_amplitude(2.0);
+        assert_eq!(amp.as_amplitude(), 2.0);
+    }
+
+    #[test]
+    fn test_amplitude_set_db() {
+        let mut amp = Amplitude::from_amplitude(10.0);
+        amp.set_db(0.0, 1.0);
+        assert_eq!(amp.as_amplitude(), 1.0);
+    }
+
+    #[test]
+    fn test_amplitude_as_db() {
+        let amp = Amplitude::from_amplitude(10.0);
+        let db = amp.as_db(1.0);
+        assert_eq!(db, 20.0);
+    }
+
+    #[test]
+    fn test_amplitude_decibels() {
+        let amp = Amplitude::from_amplitude(1.0);
+        let db = amp.decibels(1.0);
+        assert_eq!(db.as_amplitude(1.0), 1.0);
+    }
+
+    #[test]
+    fn test_amplitude_roundtrip() {
+        let amp = Amplitude::from_amplitude(1.0);
+        let db = amp.decibels(1.0);
+        let amp2 = db.amplitude(1.0);
+        assert_eq!(amp, amp2);
+    }
+
+    #[test]
+    fn test_amplitude_from_float() {
+        let amp = Amplitude::from(1.0);
+        assert_eq!(amp.as_amplitude(), 1.0);
+    }
+
+    #[test]
+    fn test_float_from_amplitude() {
+        let amp: f32 = Amplitude::from(1.0).into();
+        assert_eq!(amp, 1.0);
+    }
+
+    #[test]
+    fn test_amplitude_mult() {
+        let amp1 = Amplitude::from(3.0);
+        let amp2 = Amplitude::from(2.0);
+        let amp = amp1 * amp2;
+        assert_eq!(amp.as_amplitude(), 6.0);
+    }
+
+    #[test]
+    fn test_amplitude_mult_float() {
+        let amp1 = Amplitude::from(3.0);
+        let amp2 = 2.0;
+        let amp = amp1 * amp2;
+        assert_eq!(amp.as_amplitude(), 6.0);
+    }
+
+    #[test]
+    fn test_it_can_be_created() {
         let volume = Amplitude::from_amplitude(1.0);
         assert_f_eq!(volume.as_amplitude(), 1.0);
     }
 
     #[test]
-    fn it_can_be_converted_to_db() {
+    fn test_it_can_be_converted_to_db() {
         let volume = Amplitude::from_amplitude(1.0);
         let db = volume.decibels(1.0);
         assert_f_eq!(db.as_db(), 0.0);
