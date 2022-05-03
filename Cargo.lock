@@ -137,6 +137,18 @@ dependencies = [
 
 [[package]]
 name = "alsa"
+version = "0.4.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eb213f6b3e4b1480a60931ca2035794aa67b73103d254715b1db7b70dcb3c934"
+dependencies = [
+ "alsa-sys",
+ "bitflags",
+ "libc",
+ "nix 0.15.0",
+]
+
+[[package]]
+name = "alsa"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5915f52fe2cf65e83924d037b6c5290b7cee097c6b5c8700746e6168a343fd6b"
@@ -555,7 +567,7 @@ dependencies = [
  "audio-processor-traits",
  "basedrop",
  "log",
- "midir",
+ "midir 0.8.0-pre",
  "thiserror",
  "vst",
 ]
@@ -794,7 +806,7 @@ dependencies = [
  "criterion",
  "itertools 0.10.3",
  "log",
- "midir",
+ "midir 0.7.0",
  "nom",
  "rimd",
  "wisual-logger",
@@ -1724,7 +1736,7 @@ version = "0.13.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74117836a5124f3629e4b474eed03e479abaf98988b4bb317e29f08cfe0e4116"
 dependencies = [
- "alsa",
+ "alsa 0.6.0",
  "core-foundation-sys 0.8.3",
  "coreaudio-rs",
  "jni",
@@ -4150,7 +4162,7 @@ dependencies = [
  "lazy_static",
  "lockfree",
  "log",
- "midir",
+ "midir 0.8.0-pre",
  "mockall 0.11.0",
  "num 0.4.0",
  "num-derive",
@@ -4394,16 +4406,34 @@ version = "0.1.0"
 dependencies = [
  "augmented-midi",
  "log",
- "midir",
+ "midir 0.8.0-pre",
  "thiserror",
  "wisual-logger",
 ]
 
 [[package]]
 name = "midir"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "25df1e7836ca65078a121efed77049084a434838562b9892d0401bdfb59244cc"
+dependencies = [
+ "alsa 0.4.3",
+ "bitflags",
+ "coremidi 0.4.0",
+ "js-sys",
+ "libc",
+ "memalloc",
+ "nix 0.15.0",
+ "wasm-bindgen",
+ "web-sys",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "midir"
 version = "0.8.0-pre"
 dependencies = [
- "alsa",
+ "alsa 0.6.0",
  "bitflags",
  "coremidi 0.4.0",
  "coremidi 0.6.0",
@@ -4857,6 +4887,19 @@ dependencies = [
  "cfg-if 0.1.10",
  "libc",
  "winapi 0.3.9",
+]
+
+[[package]]
+name = "nix"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3b2e0b4f3320ed72aaedb9a5ac838690a8047c7b275da22711fddff4f8a14229"
+dependencies = [
+ "bitflags",
+ "cc",
+ "cfg-if 0.1.10",
+ "libc",
+ "void",
 ]
 
 [[package]]
@@ -5882,7 +5925,7 @@ dependencies = [
  "lazy_static",
  "log",
  "md5",
- "midir",
+ "midir 0.8.0-pre",
  "notify",
  "num-traits 0.2.14",
  "rayon",
@@ -7914,6 +7957,12 @@ dependencies = [
  "augmented-atomics",
  "nannou",
 ]
+
+[[package]]
+name = "void"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "vst"

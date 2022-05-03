@@ -26,8 +26,8 @@ assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-f
 rimd = "0.0.1"
 
 [dev-dependencies.midir]
-version = "0.8.0-pre"
-path = "./midir"
+version = ">=0.7, <0.9"
+# path = "./midir"
 ## See: https://github.com/Boddlnagg/midir/pull/95 and
 ## https://github.com/Boddlnagg/midir/issues/94
 # git = "https://github.com/yamadapc/midir"
