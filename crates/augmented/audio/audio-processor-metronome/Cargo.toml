@@ -6,7 +6,7 @@ license = "MIT"
 edition = "2021"
 
 [dependencies]
-augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.4" }
+augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.5" }
 audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0-alpha.5" }
 audio-processor-standalone = { path = "../../application/audio-processor-standalone" , version = "1.0.0-alpha.9" }
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.4" }

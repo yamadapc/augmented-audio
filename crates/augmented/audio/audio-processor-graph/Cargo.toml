@@ -13,7 +13,7 @@ daggy = "^0.7.0"
 thiserror = "^1.0.26"
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.4" }
 num-traits = "0.2.14"
-augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.4" }
+augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.5" }
 
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.5" }
