@@ -220,6 +220,13 @@ mod tests {
     }
 
     #[test]
+    fn test_decibels_from_float() {
+        let db = Decibels::from(0.0);
+        let db = db.as_db();
+        assert_eq!(db, 0.0);
+    }
+
+    #[test]
     fn test_amplitude_from_amplitude() {
         let amp = Amplitude::from_amplitude(1.0);
         assert_eq!(amp.as_amplitude(), 1.0);
