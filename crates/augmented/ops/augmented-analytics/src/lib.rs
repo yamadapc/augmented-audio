@@ -87,6 +87,7 @@
 //! ```
 use std::time::Duration;
 
+use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use tokio::task::JoinHandle;
 
@@ -98,6 +99,7 @@ mod backend;
 mod model;
 
 /// Configuration for the worker
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct AnalyticsWorkerConfig {
     /// This is the debounce time. If events are fired in a period smaller than this duration, their
     /// post request will be delayed, unless the max-batch-size is reached.
@@ -169,6 +171,17 @@ impl AnalyticsWorker {
         }
     }
 
+    /// Flushes the current batch of events and clears the queue
+    async fn flush(&mut self, events: &mut Vec<AnalyticsEvent>) {
+        if events.is_empty() {
+            return;
+        }
+
+        let current_events = events.clone();
+        events.clear();
+        self.send_bulk(&current_events).await;
+    }
+
     /// Force flush all events until the sender queue is closed
     #[doc(hidden)]
     pub async fn flush_all(&mut self) {
@@ -179,12 +192,6 @@ impl AnalyticsWorker {
             events.push(event);
         }
         self.send_bulk(&events).await;
-    }
-
-    /// Flushes the current batch of events and clears the queue
-    async fn flush(&mut self, events: &mut Vec<AnalyticsEvent>) {
-        self.send_bulk(events).await;
-        events.clear();
     }
 
     /// Sends a slice of events to the configured back-end
@@ -217,5 +224,93 @@ impl AnalyticsClient {
         if self.events_queue.send(event).is_err() {
             log::error!("Receiver is down, but analytics event was fired.");
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use tokio::sync::mpsc::unbounded_channel;
+
+    use crate::backend::MockAnalyticsBackend;
+
+    use super::*;
+
+    #[test]
+    fn test_build_worker() {
+        let backend = MockAnalyticsBackend::new();
+        let client_metadata = ClientMetadata::new("12345");
+        let (_tx, rx) = unbounded_channel();
+        let _worker = AnalyticsWorker::new(
+            AnalyticsWorkerConfig::default(),
+            Box::new(backend),
+            client_metadata,
+            rx,
+        );
+    }
+
+    #[tokio::test]
+    async fn test_spawn_worker_and_drop_it() {
+        let backend = MockAnalyticsBackend::new();
+        let client_metadata = ClientMetadata::new("12345");
+        let (tx, rx) = unbounded_channel();
+        let worker = AnalyticsWorker::new(
+            AnalyticsWorkerConfig::default(),
+            Box::new(backend),
+            client_metadata,
+            rx,
+        );
+        drop(tx);
+        worker.spawn().await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_worker_will_fire_events_batched_into_a_single_call() {
+        let mut backend = MockAnalyticsBackend::new();
+        backend.expect_send_bulk().times(1).returning(|_, _| Ok(()));
+        let client_metadata = ClientMetadata::new("12345");
+        let (tx, rx) = unbounded_channel();
+
+        let client = AnalyticsClient::new(tx);
+
+        let worker = AnalyticsWorker::new(
+            AnalyticsWorkerConfig::default(),
+            Box::new(backend),
+            client_metadata,
+            rx,
+        );
+        let worker_handle = worker.spawn();
+
+        client.send(AnalyticsEvent::default());
+        client.send(AnalyticsEvent::default());
+        client.send(AnalyticsEvent::default());
+        client.send(AnalyticsEvent::default());
+
+        drop(client);
+        worker_handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_worker_will_fire_multiple_calls_if_batch_size_is_exceeded() {
+        let mut backend = MockAnalyticsBackend::new();
+        let mut config = AnalyticsWorkerConfig::default();
+        config.max_batch_size = 2;
+        backend.expect_send_bulk().times(2).returning(|_, _| Ok(()));
+        let client_metadata = ClientMetadata::new("12345");
+        let (tx, rx) = unbounded_channel();
+
+        let client = AnalyticsClient::new(tx);
+
+        let worker = AnalyticsWorker::new(config.clone(), Box::new(backend), client_metadata, rx);
+        let worker_handle = worker.spawn();
+
+        for _i in 0..2 {
+            client.send(AnalyticsEvent::default());
+        }
+        for _i in 0..2 {
+            client.send(AnalyticsEvent::default());
+        }
+
+        drop(client);
+        worker_handle.await.unwrap();
     }
 }

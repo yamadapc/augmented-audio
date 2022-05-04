@@ -188,6 +188,23 @@ mod test {
     use crate::backend::reqwest_executor;
 
     #[tokio::test]
+    async fn test_send_bulk_screen() {
+        let mut executor = RequestExecutor::default();
+        executor
+            .expect_execute()
+            .return_once(|_, _| Ok(reqwest::StatusCode::try_from(200).unwrap()));
+
+        let mut backend = GoogleAnalyticsBackend::new_with_executor(
+            GoogleAnalyticsConfig::new("UA-1234"),
+            executor,
+        );
+        let metadata = ClientMetadata::new("1234");
+        let events = vec![AnalyticsEvent::screen().build()];
+
+        backend.send_bulk(&metadata, &events).await.unwrap();
+    }
+
+    #[tokio::test]
     async fn test_send_bulk() {
         let mut executor = RequestExecutor::default();
         executor
