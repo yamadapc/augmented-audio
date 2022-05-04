@@ -30,7 +30,6 @@ use nom::{
     error::FromExternalError,
     error::{Error, ErrorKind},
     multi::many0,
-    multi::many1,
     number::complete::*,
     Err, IResult,
 };
@@ -297,20 +296,6 @@ pub fn parse_meta_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
     ))
 }
 
-pub fn parse_sysex_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
-    input: Input<'a>,
-) -> MIDIParseResult<'a, MIDISysExEvent<Buffer>> {
-    let (input, _) = alt((tag([0xF7]), tag([0xF0])))(input)?;
-    let (input, bytes) = take_till(|b| b == 0xF7)(input)?;
-    let (input, _) = take(1u8)(input)?;
-    Ok((
-        input,
-        MIDISysExEvent {
-            message: bytes.into(),
-        },
-    ))
-}
-
 pub fn parse_track_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
     input: Input<'a>,
     state: &mut ParserState,
@@ -318,9 +303,6 @@ pub fn parse_track_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
     let (input, delta_time) = parse_variable_length_num(input)?;
     let (input, event) = alt((
         |input| parse_meta_event(input).map(|(input, event)| (input, MIDITrackInner::Meta(event))),
-        |input| {
-            parse_sysex_event(input).map(|(input, event)| (input, MIDITrackInner::SysEx(event)))
-        },
         |input| {
             parse_midi_event(input, state)
                 .map(|(input, event)| (input, MIDITrackInner::Message(event)))
@@ -331,7 +313,7 @@ pub fn parse_track_event<'a, Buffer: Borrow<[u8]> + From<Input<'a>>>(
         MIDITrackInner::Meta(_) => {
             state.last_status = None;
         }
-        MIDITrackInner::SysEx(_) => {
+        MIDITrackInner::Message(MIDIMessage::SysExMessage(_)) => {
             state.last_status = None;
         }
         _ => {}
@@ -373,8 +355,18 @@ pub fn parse_chunk<
         }
         "MTrk" => {
             let mut state = ParserState::default();
-            let parse = |input| parse_track_event(input, &mut state);
-            let (chunk_body, events) = many1(parse)(chunk_body)?;
+            let mut parse = |input| parse_track_event(input, &mut state);
+            let mut events = Vec::with_capacity((chunk_length / 3) as usize);
+            let mut chunk_body = chunk_body;
+            loop {
+                let (new_chunk_body, event) = parse(chunk_body)?;
+                events.push(event);
+                chunk_body = new_chunk_body;
+
+                if chunk_body.is_empty() {
+                    break;
+                }
+            }
             Ok((chunk_body, MIDIFileChunk::Track { events }))
         }
         _ => Ok((
@@ -400,7 +392,17 @@ pub fn parse_midi_file<
 >(
     input: Input<'a>,
 ) -> MIDIParseResult<'a, MIDIFile<StringRepr, Buffer>> {
-    let (input, chunks) = many0(parse_chunk)(input)?;
+    let mut chunks = Vec::with_capacity(input.len() / 10);
+    let mut input = input;
+    loop {
+        let (new_input, chunk) = parse_chunk(input)?;
+        chunks.push(chunk);
+        input = new_input;
+
+        if input.is_empty() {
+            break;
+        }
+    }
     Ok((input, MIDIFile { chunks }))
 }
 

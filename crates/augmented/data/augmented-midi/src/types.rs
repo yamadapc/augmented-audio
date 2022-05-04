@@ -205,7 +205,6 @@ pub enum MIDIFileChunk<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> {
 pub enum MIDITrackInner<Buffer: Borrow<[u8]>> {
     Message(MIDIMessage<Buffer>),
     Meta(MIDIMetaEvent<Buffer>),
-    SysEx(MIDISysExEvent<Buffer>),
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]

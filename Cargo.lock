@@ -1518,16 +1518,6 @@ checksum = "a2df960f5d869b2dd8532793fde43eb5427cceb126c929747a26823ab0eeb536"
 
 [[package]]
 name = "core-foundation"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25bfd746d203017f7d5cbd31ee5d8e17f94b6521c7af77ece6c9e4b2d4b16c67"
-dependencies = [
- "core-foundation-sys 0.2.3",
- "libc",
-]
-
-[[package]]
-name = "core-foundation"
 version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25b9e03f145fd4f2bf705e07b900cd41fc636598fe5dc452fd0db1441c3f496d"
@@ -1554,15 +1544,6 @@ checksum = "194a7a9e6de53fa55116934067c844d9d749312f75c6f6d0980e8c252f8c2146"
 dependencies = [
  "chrono",
  "core-foundation-sys 0.8.3",
- "libc",
-]
-
-[[package]]
-name = "core-foundation-sys"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "065a5d7ffdcbc8fa145d6f0746f3555025b9097a9e9cda59f7467abae670c78d"
-dependencies = [
  "libc",
 ]
 
@@ -1679,34 +1660,13 @@ dependencies = [
 
 [[package]]
 name = "coremidi"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "99f92de5534f182bad5f91cad85611ab222cb6e237a0555e06c65a24936c3173"
-dependencies = [
- "core-foundation 0.2.3",
- "core-foundation-sys 0.2.3",
- "coremidi-sys 2.0.2",
- "time 0.1.44",
-]
-
-[[package]]
-name = "coremidi"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a7847ca018a67204508b77cb9e6de670125075f7464fff5f673023378fa34f5"
 dependencies = [
  "core-foundation 0.9.3",
  "core-foundation-sys 0.8.3",
- "coremidi-sys 3.1.0",
-]
-
-[[package]]
-name = "coremidi-sys"
-version = "2.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "07f05827cebb30dcd539ff1ac9bf6764f574a15fa147f8572f99d7617142f95e"
-dependencies = [
- "core-foundation-sys 0.2.3",
+ "coremidi-sys",
 ]
 
 [[package]]
@@ -4405,8 +4365,7 @@ version = "0.8.0-pre"
 dependencies = [
  "alsa",
  "bitflags",
- "coremidi 0.4.0",
- "coremidi 0.6.0",
+ "coremidi",
  "jack-sys",
  "js-sys",
  "libc",
