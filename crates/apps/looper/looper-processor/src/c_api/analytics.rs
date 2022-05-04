@@ -22,14 +22,14 @@ pub enum CAnalyticsEvent {
 
 unsafe impl Send for CAnalyticsEvent {}
 
-impl Into<ServiceAnalyticsEvent> for CAnalyticsEvent {
-    fn into(self) -> ServiceAnalyticsEvent {
+impl From<CAnalyticsEvent> for ServiceAnalyticsEvent {
+    fn from(event: CAnalyticsEvent) -> ServiceAnalyticsEvent {
         unsafe {
-            match self {
+            match event {
                 CAnalyticsEvent::ScreenView { content } => ServiceAnalyticsEvent::Screen {
                     content: CString::from_raw(content)
                         .into_string()
-                        .unwrap_or("".to_string()),
+                        .unwrap_or_else(|_| "".to_string()),
                 },
                 CAnalyticsEvent::Event {
                     category,
@@ -39,16 +39,16 @@ impl Into<ServiceAnalyticsEvent> for CAnalyticsEvent {
                 } => ServiceAnalyticsEvent::Event {
                     category: CString::from_raw(category)
                         .into_string()
-                        .unwrap_or("".to_string()),
+                        .unwrap_or_else(|_| "".to_string()),
                     action: CString::from_raw(action)
                         .into_string()
-                        .unwrap_or("".to_string()),
+                        .unwrap_or_else(|_| "".to_string()),
                     label: CString::from_raw(label)
                         .into_string()
-                        .unwrap_or("".to_string()),
+                        .unwrap_or_else(|_| "".to_string()),
                     value: CString::from_raw(value)
                         .into_string()
-                        .unwrap_or("".to_string()),
+                        .unwrap_or_else(|_| "".to_string()),
                 },
             }
         }
