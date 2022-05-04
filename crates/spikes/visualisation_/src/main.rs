@@ -138,6 +138,7 @@ fn update(app: &App, model: &mut Model, _update: Update) {
     let rms = { model.handle.rms.calculate_rms(0) + model.handle.rms.calculate_rms(1) };
     if model.handle.fft_buffer_changed.get() {
         let mut fft_slice = [0.0_f32; 4096];
+        #[allow(clippy::needless_range_loop)]
         for i in 0..4096 {
             let f =
                 model.handle.fft_buffer.get(0, i).get() + model.handle.fft_buffer.get(1, i).get();
