@@ -41,7 +41,7 @@ pub enum ParameterId {
     SeqSteps,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Message {
     KnobChange(ParameterId, f32),
     RecordPressed,

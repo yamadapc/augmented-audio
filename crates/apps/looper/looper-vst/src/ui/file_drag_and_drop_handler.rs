@@ -25,21 +25,59 @@ use iced::Subscription;
 use super::Message;
 
 pub fn drag_and_drop_subscription() -> Subscription<Message> {
-    iced_native::subscription::events().map(|event| {
-        if let iced_native::Event::Window(event) = event {
-            match event {
-                iced_native::window::Event::FileHovered(path) => {
-                    log::info!("Received file hovered {:?}", path);
-                    Message::FileHover(path)
-                }
-                iced_native::window::Event::FileDropped(path) => {
-                    log::info!("Received file drop {:?}", path);
-                    Message::FileDropped(path)
-                }
-                _ => Message::None,
+    iced_native::subscription::events().map(|event| iced_event_to_drag_message(event))
+}
+
+fn iced_event_to_drag_message(event: iced_native::Event) -> Message {
+    if let iced_native::Event::Window(event) = event {
+        match event {
+            iced_native::window::Event::FileHovered(path) => {
+                log::info!("Received file hovered {:?}", path);
+                Message::FileHover(path)
             }
-        } else {
-            Message::None
+            iced_native::window::Event::FileDropped(path) => {
+                log::info!("Received file drop {:?}", path);
+                Message::FileDropped(path)
+            }
+            _ => Message::None,
         }
-    })
+    } else {
+        Message::None
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_iced_event_to_drag_message_returns_none_when_not_relevant_window_event() {
+        let iced_event = iced_native::Event::Window(iced_native::window::Event::Focused);
+        let result = iced_event_to_drag_message(iced_event);
+        assert_eq!(result, Message::None);
+    }
+
+    #[test]
+    fn test_iced_event_to_drag_message_returns_none_when_not_relevant_event() {
+        let iced_event =
+            iced_native::Event::Keyboard(iced_native::keyboard::Event::CharacterReceived('a'));
+        let result = iced_event_to_drag_message(iced_event);
+        assert_eq!(result, Message::None);
+    }
+
+    #[test]
+    fn test_iced_event_to_drag_message_returns_hover_events() {
+        let iced_event =
+            iced_native::Event::Window(iced_native::window::Event::FileHovered("something".into()));
+        let result = iced_event_to_drag_message(iced_event);
+        assert_eq!(result, Message::FileHover("something".into()));
+    }
+
+    #[test]
+    fn test_iced_event_to_drag_message_returns_dropped_events() {
+        let iced_event =
+            iced_native::Event::Window(iced_native::window::Event::FileDropped("something".into()));
+        let result = iced_event_to_drag_message(iced_event);
+        assert_eq!(result, Message::FileDropped("something".into()));
+    }
 }

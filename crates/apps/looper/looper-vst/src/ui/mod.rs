@@ -62,7 +62,7 @@ pub struct LooperApplication {
     tabs_view: tabs::State,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Message {
     BottomPanel(bottom_panel::Message),
     VisualizationTick,
