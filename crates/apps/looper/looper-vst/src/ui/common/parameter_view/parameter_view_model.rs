@@ -59,3 +59,30 @@ impl<ParameterId> ParameterViewModel<ParameterId> {
         self
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::ui::bottom_panel::ParameterId;
+    use audio_processor_testing_helpers::assert_f_eq;
+
+    use super::*;
+
+    #[test]
+    fn test_construct_parameter() {
+        let parameter =
+            ParameterViewModel::new(ParameterId::LoopVolume, "Volume", "db", 0.5, (0.0, 2.0));
+        assert_f_eq!(parameter.knob_state.normal().as_f32(), 0.25);
+    }
+
+    #[test]
+    fn test_snap_int() {
+        let parameter =
+            ParameterViewModel::new(ParameterId::SeqSlices, "slices", "", 0.0, (0.0, 10.0));
+        assert!(parameter.int_range.is_none());
+        let parameter = parameter.snap_int();
+        assert_f_eq!(
+            parameter.int_range.unwrap().snapped(0.88.into()).as_f32(),
+            0.9
+        );
+    }
+}
