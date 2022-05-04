@@ -48,16 +48,32 @@ impl MetronomeProcessorHandle {
         self.tempo.set(value);
     }
 
+    pub fn tempo(&self) -> f32 {
+        self.tempo.get()
+    }
+
     pub fn set_is_playing(&self, value: bool) {
         self.is_playing.store(value, Ordering::Relaxed);
+    }
+
+    pub fn is_playing(&self) -> bool {
+        self.is_playing.load(Ordering::Relaxed)
     }
 
     pub fn set_volume(&self, value: f32) {
         self.volume.set(value);
     }
 
+    pub fn volume(&self) -> f32 {
+        self.volume.get()
+    }
+
     pub fn position_beats(&self) -> f32 {
         self.position_beats.get()
+    }
+
+    pub fn beats_per_bar(&self) -> i32 {
+        self.beats_per_bar.load(Ordering::Relaxed)
     }
 
     pub fn set_beats_per_bar(&self, value: i32) {

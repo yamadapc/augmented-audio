@@ -92,3 +92,40 @@ pub fn with_state<T>(f: impl FnOnce(&State) -> Result<T>) -> Result<T> {
         ))
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_create_new_state() {
+        let _state = State::new();
+    }
+
+    #[test]
+    fn test_initialize_global_state() {
+        initialize();
+        let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
+        assert_eq!(handle.position_beats(), 0.0);
+    }
+
+    #[test]
+    fn test_with_state0() {
+        initialize();
+        let mut was_called = false;
+        with_state(|state| {
+            let handle = state.processor_handle.clone();
+            assert_eq!(handle.position_beats(), 0.0);
+            was_called = true;
+            Ok(())
+        })
+        .unwrap();
+        assert!(was_called);
+    }
+
+    #[test]
+    fn test_deinitialize() {
+        initialize();
+        deinitialize();
+    }
+}

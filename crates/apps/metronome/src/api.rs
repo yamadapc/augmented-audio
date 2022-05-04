@@ -22,8 +22,9 @@ use std::time::Duration;
 use anyhow::Result;
 use flutter_rust_bridge::StreamSink;
 
-mod state;
 use state::{with_state, with_state0};
+
+mod state;
 
 pub fn initialize() -> Result<i32> {
     state::initialize();
@@ -69,4 +70,48 @@ pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
         });
         Ok(0)
     })
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_initialize() {
+        initialize().unwrap();
+    }
+
+    #[test]
+    fn test_deinitialize() {
+        initialize().unwrap();
+        deinitialize().unwrap();
+    }
+
+    #[test]
+    fn test_set_is_playing() {
+        initialize().unwrap();
+        let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
+        set_is_playing(true).unwrap();
+        assert_eq!(handle.is_playing(), true);
+        set_is_playing(false).unwrap();
+        assert_eq!(handle.is_playing(), false);
+    }
+
+    #[test]
+    fn test_set_beats_per_bar() {
+        initialize().unwrap();
+        let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
+        set_beats_per_bar(5).unwrap();
+        assert_eq!(handle.beats_per_bar(), 5);
+        set_beats_per_bar(6).unwrap();
+        assert_eq!(handle.beats_per_bar(), 6);
+    }
+
+    #[test]
+    fn test_set_volume() {
+        initialize().unwrap();
+        let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
+        set_volume(0.44).unwrap();
+        assert_eq!(handle.volume(), 0.44);
+    }
 }
