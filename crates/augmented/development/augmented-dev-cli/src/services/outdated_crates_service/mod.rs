@@ -51,9 +51,7 @@ impl ManifestDependency {
         if let Some(s) = value.as_str() {
             Some(s.to_string())
         } else if let Some(t) = value.as_table() {
-            t.get("version")
-                .map(|s| s.as_str())
-                .flatten()
+            t.get("version").and_then(|s| s.as_str())
                 .map(|s| s.to_string())
         } else {
             None
@@ -86,17 +84,14 @@ impl OutdatedCratesService {
             .collect();
 
         let dependencies = augmented_crates
-            .iter()
-            .map(|(_pth, manifest)| {
+            .iter().flat_map(|(_pth, manifest)| {
                 manifest
                     .dependencies
                     .as_ref()
                     .map(|deps| {
                         ManifestDependency::from_dependencies_table(&manifest.package.name, deps)
-                    })
-                    .unwrap_or(vec![])
+                    }).unwrap_or_default()
             })
-            .flatten()
             .filter(|dependency| !internal_crates.contains(&dependency.name))
             .collect::<Vec<ManifestDependency>>();
 
@@ -119,7 +114,7 @@ impl OutdatedCratesService {
                     .filter(|v| v.pre.is_empty())
                     .collect::<Vec<semver::Version>>();
                 vs.sort();
-                vs.get(vs.len() - 1).unwrap().clone()
+                vs.last().unwrap().clone()
             };
             let version_req = semver::VersionReq::parse(&dependency.version).unwrap();
             if !version_req.matches(&latest_version) {

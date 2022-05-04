@@ -77,7 +77,7 @@ mod test {
         let path = dir.path().join("state.json");
         let service = HostOptionsService::new(path.to_str().unwrap().to_string());
         let state = service.fetch();
-        assert!(!state.is_ok());
+        assert!(state.is_err());
     }
 
     #[test]

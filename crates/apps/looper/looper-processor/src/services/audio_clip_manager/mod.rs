@@ -203,8 +203,8 @@ mod test {
             .unwrap();
         crate::controllers::load_project_controller::load_and_hydrate_latest_project(LoadContext {
             handle: looper.handle().clone(),
-            project_manager: project_manager,
-            audio_clip_manager: audio_clip_manager,
+            project_manager,
+            audio_clip_manager,
             events_controller: ActorSystem::start(EventsController::default()),
         })
         .unwrap();

@@ -154,7 +154,7 @@ mod test {
     #[test]
     fn test_get_cursor_step() {
         let step = get_cursor_step(220.0, 44100.0, 512.0);
-        assert!((step - 2.55419501).abs() < f32::EPSILON);
+        assert!((step - 2.554_195).abs() < f32::EPSILON);
     }
 
     #[test]
@@ -181,7 +181,7 @@ mod test {
 
         let cursor_step = wave_table.cursor_step;
         assert!(
-            (cursor_step - 9.97732426_f32).abs() < f32::EPSILON,
+            (cursor_step - 9.977_324_5_f32).abs() < f32::EPSILON,
             "{}",
             cursor_step
         );

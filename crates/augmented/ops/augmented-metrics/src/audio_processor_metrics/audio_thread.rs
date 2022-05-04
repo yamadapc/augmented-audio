@@ -142,7 +142,7 @@ mod test {
         settings.sample_rate = 100.0;
         settings.block_size = 10;
 
-        let handle = processor.handle().clone();
+        let handle = processor.handle();
         processor.prepare(settings);
         assert!((handle.sample_rate.get() - 100.0).abs() < f32::EPSILON);
         assert_eq!(handle.buffer_size.get(), 10);

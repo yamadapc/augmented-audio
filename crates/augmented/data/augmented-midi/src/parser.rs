@@ -454,7 +454,7 @@ mod test {
             0,
             1,
             // 2 ticks
-            0b0_000_0000,
+            0b0000_0000,
             2,
         ];
         let (_rest, result) = parse_header_body(&input).unwrap();
@@ -481,7 +481,7 @@ mod test {
             3,
             // SMPTE, format is 1 (which isn't valid, but for simplicity)
             // ticks is 2
-            0b1_000_0001,
+            0b1000_0001,
             2,
         ];
         let (_rest, result) = parse_header_body(&input).unwrap();
