@@ -108,6 +108,12 @@ jobs:
           mkdir -p junit
           cat cargo-output.json | cargo2junit > junit/results.xml
 
+      - name: Upload tarpaulin report
+        uses: actions/upload-artifact@v2
+        with:
+          name: tarpaulin-report
+          path: ./tarpaulin-report
+
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -152,9 +158,4 @@ jobs:
       with:
         name: ${{ runner.os }}-libtas_v2-dylib
         path: ./target/release/libtas_v2.dylib
-    - name: Upload tarpaulin report
-      uses: actions/upload-artifact@v2
-      with:
-        name: tarpaulin-report
-        path: ./tarpaulin-report
 
