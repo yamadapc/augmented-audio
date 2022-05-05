@@ -34,6 +34,8 @@ jobs:
           cargo tarpaulin --skip-clean --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
+              --out lcov \
+              --output-dir ./tarpaulin-report \
               --exclude-files "*crates/vendor/*" \
               --exclude-files "*crates/spikes/*" \
               --exclude-files "*crates/scripts/*" \
@@ -150,4 +152,9 @@ jobs:
       with:
         name: ${{ runner.os }}-libtas_v2-dylib
         path: ./target/release/libtas_v2.dylib
+    - name: Upload tarpaulin report
+      uses: actions/upload-artifact@v2
+      with:
+        name: tarpaulin-report
+        path: ./tarpaulin-report
 
