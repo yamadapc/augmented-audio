@@ -1,0 +1,12 @@
+[package]
+name = "coverage-bot-core"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+lcov-parser = "3.2.2"
+rocket = "0.5.0-rc.1"
+rocket_dyn_templates = { version = "0.1.0-rc.1", features = ["handlebars"] }
+serde = "1.0.137"
