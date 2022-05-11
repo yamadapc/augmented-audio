@@ -105,7 +105,7 @@ class HomePageContents extends StatelessWidget {
         BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.book), label: "History")
       ]),
-      tabBuilder: (_context, index) {
+      tabBuilder: (context, index) {
         if (index == 0) {
           return MainPageTab(
             stateController: metronomeStateController!,

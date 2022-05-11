@@ -2,6 +2,7 @@ import 'package:mobx/mobx.dart';
 
 part 'metronome_state_model.g.dart';
 
+// ignore: library_private_types_in_public_api
 class MetronomeStateModel = _MetronomeStateModel with _$MetronomeStateModel;
 
 abstract class _MetronomeStateModel with Store {
