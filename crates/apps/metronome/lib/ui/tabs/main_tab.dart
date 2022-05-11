@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 
@@ -36,6 +38,10 @@ class _MainPageTabState extends State<MainPageTab> {
   }
 
   void fireViewedAnalytics() {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) {
+      return;
+    }
+
     var analytics = FirebaseAnalytics.instance;
     analytics.logScreenView(
         screenClass: "MainPageTab", screenName: "Main Page");

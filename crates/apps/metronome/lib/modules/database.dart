@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
+import '../logger.dart';
 import 'history/session_dao.dart';
 import 'history/session_entity.dart';
 
@@ -47,7 +48,9 @@ Future<MetronomeDatabase> buildInMemoryDatabase() {
 
 const databaseName = 'metronome_database.db';
 
-Future<MetronomeDatabase> buildDatabase() {
+Future<MetronomeDatabase> buildDatabase() async {
+  var path = await sqfliteDatabaseFactory.getDatabasePath(databaseName);
+  logger.i("Opening SQLite database path=$path");
   return $FloorMetronomeDatabase
       .databaseBuilder(databaseName)
       .addMigrations(migrations)
