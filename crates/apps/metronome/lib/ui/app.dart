@@ -5,7 +5,7 @@ import 'package:mobx/mobx.dart';
 import 'home_page.dart';
 
 Observable<Brightness?> brightness =
-    Observable(WidgetsBinding.instance?.window.platformBrightness);
+    Observable(WidgetsBinding.instance.window.platformBrightness);
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -17,20 +17,20 @@ class App extends StatefulWidget {
 class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void initState() {
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangePlatformBrightness() {
     runInAction(() {
-      brightness.value = WidgetsBinding.instance?.window.platformBrightness;
+      brightness.value = WidgetsBinding.instance.window.platformBrightness;
     });
   }
 

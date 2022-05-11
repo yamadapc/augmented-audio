@@ -1,6 +1,5 @@
 import 'dart:ffi';
 
-import 'package:floor/floor.dart';
 import 'package:flutter/cupertino.dart';
 
 import './tabs/history/history_page_tab.dart';
@@ -13,6 +12,12 @@ import '../modules/state/history_state_controller.dart';
 import '../modules/state/history_state_model.dart';
 import '../modules/state/metronome_state_controller.dart';
 import '../modules/state/metronome_state_model.dart';
+
+Metronome buildMetronome() {
+  var metronome = MetronomeImpl(DynamicLibrary.executable());
+  metronome.initialize();
+  return metronome;
+}
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key, required this.title}) : super(key: key);
@@ -38,11 +43,8 @@ class _HomePageState extends State<HomePage> {
     // trace.start();
 
     logger.i("Initializing metronome bridge");
-    metronome = MetronomeImpl(DynamicLibrary.executable());
-    metronome.initialize();
+    metronome = buildMetronome();
 
-    var path = sqfliteDatabaseFactory.getDatabasePath(databaseName);
-    logger.i("Opening SQLite database path=$path");
     var databasePromise = buildDatabase();
     databasePromise.then((database) {
       logger.i("Setting-up controllers");
@@ -71,6 +73,24 @@ class _HomePageState extends State<HomePage> {
     metronome.deinitialize();
     super.deactivate();
   }
+
+  @override
+  Widget build(BuildContext context) {
+    return HomePageContents(
+        metronomeStateController: metronomeStateController,
+        historyStateController: historyStateController);
+  }
+}
+
+class HomePageContents extends StatelessWidget {
+  const HomePageContents({
+    Key? key,
+    required this.metronomeStateController,
+    required this.historyStateController,
+  }) : super(key: key);
+
+  final MetronomeStateController? metronomeStateController;
+  final HistoryStateController? historyStateController;
 
   @override
   Widget build(BuildContext context) {
