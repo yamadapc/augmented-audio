@@ -139,3 +139,19 @@ jobs:
           cd ./crates/apps/looper/Sequencer
           brew install xcbeautify
           make test
+
+  build-docs:
+    name: Build documentation
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          lfs: true
+      - uses: Swatinem/rust-cache@v1
+      - name: Build documentation
+        run: |
+          cargo doc
