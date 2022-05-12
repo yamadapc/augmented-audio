@@ -31,4 +31,14 @@ build-libs: FORCE
 	cp ../../../target/aarch64-apple-darwin/release/libmetronome.a ./public/lib/macos-aarch64/libmetronome.a
 	lipo -create ./public/lib/macos-x86_64/libmetronome.a ./public/lib/macos-aarch64/libmetronome.a -output ./public/lib/macos/libmetronome.a
 
+build-libs-ios: FORCE
+	cargo lipo --release --package metronome --targets=aarch64-apple-ios
+	cargo lipo --release --package metronome --targets=aarch64-apple-ios-sim
+	mkdir -p public/lib/ios-aarch64
+	mkdir -p public/lib/ios-aarch64-sim
+	mkdir -p public/lib/ios
+	cp ../../../target/aarch64-apple-ios/release/libmetronome.a ./public/lib/ios-aarch64/libmetronome.a
+	cp ../../../target/aarch64-apple-ios-sim/release/libmetronome.a ./public/lib/ios-aarch64-sim/libmetronome.a
+	cp ../../../target/aarch64-apple-ios/release/libmetronome.a ./public/lib/ios-aarch64/libmetronome.a
+
 FORCE:

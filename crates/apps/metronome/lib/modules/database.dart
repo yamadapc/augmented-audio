@@ -15,11 +15,13 @@ abstract class MetronomeDatabase extends FloorDatabase {
 }
 
 final addBeatsPerBar = Migration(2, 3, (database) async {
+  logger.i("Add beats per bar column");
   await database
       .execute("ALTER TABLE session ADD COLUMN beatsPerBar int DEFAULT 4");
 });
 
 final addAggregatedSession = Migration(3, 4, (database) async {
+  logger.i("Migrating aggregated sessions view");
   await database.execute("""
 DROP VIEW IF EXISTS AggregatedSession;
 CREATE VIEW IF NOT EXISTS AggregatedSession AS
@@ -51,8 +53,9 @@ const databaseName = 'metronome_database.db';
 Future<MetronomeDatabase> buildDatabase() async {
   var path = await sqfliteDatabaseFactory.getDatabasePath(databaseName);
   logger.i("Opening SQLite database path=$path");
-  return $FloorMetronomeDatabase
+  MetronomeDatabase db = await $FloorMetronomeDatabase
       .databaseBuilder(databaseName)
       .addMigrations(migrations)
       .build();
+  return db;
 }

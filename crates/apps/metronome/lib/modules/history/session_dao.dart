@@ -4,11 +4,11 @@ import 'session_entity.dart';
 
 @dao
 abstract class SessionDao {
-  @Query("SELECT * FROM Session ORDER BY timestampMs DESC LIMIT 100")
+  @Query("SELECT * FROM session ORDER BY timestampMs DESC LIMIT 100")
   Future<List<Session>> findAllSessions();
 
   @Query(
-      "SELECT * FROM AggregatedSession WHERE timestampMs >= :startMs ORDER BY timestampMs DESC LIMIT 100")
+      "SELECT * FROM aggregatedsession WHERE timestampMs >= :startMs ORDER BY timestampMs DESC LIMIT 100")
   Future<List<AggregatedSession>> findAggregatedSessions(int startMs);
 
   @Update(onConflict: OnConflictStrategy.replace)

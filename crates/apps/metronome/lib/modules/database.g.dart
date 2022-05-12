@@ -137,7 +137,7 @@ class _$SessionDao extends SessionDao {
   @override
   Future<List<Session>> findAllSessions() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM Session ORDER BY timestampMs DESC LIMIT 100',
+        'SELECT * FROM session ORDER BY timestampMs DESC LIMIT 100',
         mapper: (Map<String, Object?> row) => Session(
             row['id'] as int?,
             row['timestampMs'] as int,
@@ -149,7 +149,7 @@ class _$SessionDao extends SessionDao {
   @override
   Future<List<AggregatedSession>> findAggregatedSessions(int startMs) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM AggregatedSession WHERE timestampMs >= ?1 ORDER BY timestampMs DESC LIMIT 100',
+        'SELECT * FROM aggregatedsession WHERE timestampMs >= ?1 ORDER BY timestampMs DESC LIMIT 100',
         mapper: (Map<String, Object?> row) => AggregatedSession(row['durationMs'] as int, row['timestampMs'] as int, row['tempo'] as double, row['beatsPerBar'] as int),
         arguments: [startMs]);
   }
