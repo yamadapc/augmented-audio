@@ -140,6 +140,7 @@ jobs:
           brew install xcbeautify
           make test
 
+
   build-docs:
     name: Build documentation
     runs-on: ${{ matrix.os }}
