@@ -3979,7 +3979,7 @@ dependencies = [
 
 [[package]]
 name = "libsamplerate-sys"
-version = "0.1.10"
+version = "0.1.12"
 dependencies = [
  "cmake",
 ]
