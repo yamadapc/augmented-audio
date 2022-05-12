@@ -49,7 +49,7 @@ public class EnumParameter<OptionT: FromRawEnum>: ObservableObject, ParameterLik
         }
     }
 
-    @Published public var value: OptionT
+    @FastPublished public var value: OptionT
     var options: [EnumParameterOption<OptionT>]
     public var style: KnobStyle { .normal }
 
@@ -59,6 +59,8 @@ public class EnumParameter<OptionT: FromRawEnum>: ObservableObject, ParameterLik
         self.value = value
         self.options = options
         ALL_PARAMETERS.append(AnyParameterInner.enumP(self).into())
+
+        setupFastPublished(self)
     }
 
     public func copy() -> Self {

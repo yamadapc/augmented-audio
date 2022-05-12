@@ -20,7 +20,7 @@ import Combine
 public class IntParameter: ObservableObject, Identifiable, ParameterLike {
     public var globalId: ParameterId
     @Published public var label: String
-    @Published public var value: Int
+    @FastPublished public var value: Int
     @Published var maximum: Int
 
     init(id: ParameterId, label: String, value: Int, maximum: Int) {
@@ -30,6 +30,8 @@ public class IntParameter: ObservableObject, Identifiable, ParameterLike {
         self.maximum = maximum
 
         ALL_PARAMETERS.append(AnyParameterInner.int(self).into())
+
+        setupFastPublished(self)
     }
 }
 

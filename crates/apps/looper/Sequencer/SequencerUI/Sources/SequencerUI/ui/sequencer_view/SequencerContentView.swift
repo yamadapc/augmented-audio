@@ -38,8 +38,11 @@ struct SequencerContentView: View {
                     )
                     .bindToNilParameter(store: store)
 
-                    SceneSliderView(sceneState: store.sceneState).padding(PADDING)
-                        .bindToNilParameter(store: store)
+                    SceneSliderView(
+                        sceneState: store.sceneState
+                    )
+                    .padding(PADDING)
+                    .bindToNilParameter(store: store)
 
                     HStack(spacing: 0) {
                         TracksPanelContentView()
