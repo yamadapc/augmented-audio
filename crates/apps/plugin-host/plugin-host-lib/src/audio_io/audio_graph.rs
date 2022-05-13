@@ -23,7 +23,9 @@
 use actix::{Actor, Context, Handler, Message, MessageResult, Supervised, SystemService};
 
 use audio_garbage_collector::Shared;
-use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, NodeIndex, NodeType};
+use audio_processor_graph::{
+    AudioProcessorGraph, AudioProcessorGraphHandle, DefaultProcessor, NodeIndex, NodeType,
+};
 
 use audio_processor_traits::AudioProcessor;
 
@@ -80,7 +82,7 @@ impl Handler<SetupGraphMessage> for AudioGraphManager {
 }
 
 pub enum ProcessorSpec {
-    RawProcessor { value: NodeType },
+    RawProcessor { value: NodeType<DefaultProcessor> },
 }
 
 #[derive(Message)]
