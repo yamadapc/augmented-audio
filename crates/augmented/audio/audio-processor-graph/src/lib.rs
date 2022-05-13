@@ -42,6 +42,15 @@ mod test_allocator;
 pub type NodeIndex = daggy::NodeIndex<u32>;
 pub type ConnectionIndex = daggy::EdgeIndex<u32>;
 
+/// Default static processor type
+pub type DefaultProcessor = BufferProcessor<NoopAudioProcessor<f32>>;
+
+/// Non-generic AudioProcessorGraphImpl
+pub type AudioProcessorGraph = AudioProcessorGraphImpl<DefaultProcessor>;
+
+/// Non-generic AudioProcessorGraphHandleImpl
+pub type AudioProcessorGraphHandle = AudioProcessorGraphHandleImpl<DefaultProcessor>;
+
 struct BufferCell<BufferType>(UnsafeCell<BufferType>);
 
 unsafe impl<BufferType> Sync for BufferCell<BufferType> {}
@@ -50,7 +59,7 @@ struct ProcessorCell<P>(UnsafeCell<P>);
 
 unsafe impl<P> Sync for ProcessorCell<P> {}
 
-pub struct AudioProcessorGraphHandle<P> {
+pub struct AudioProcessorGraphHandleImpl<P> {
     input_node: NodeIndex,
     output_node: NodeIndex,
     dag: SharedCell<daggy::Dag<(), ()>>,
@@ -60,7 +69,7 @@ pub struct AudioProcessorGraphHandle<P> {
     buffers: SharedCell<HashMap<ConnectionIndex, Shared<BufferCell<VecAudioBuffer<f32>>>>>,
 }
 
-impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphHandle<P> {
+impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphHandleImpl<P> {
     pub fn add_node(&self, mut processor: NodeType<P>) -> NodeIndex {
         let mut processors = self.processors.get().deref().clone();
         let mut dag = self.dag.get().deref().clone();
@@ -155,12 +164,10 @@ impl From<Box<dyn SliceAudioProcessor + Send>> for NodeType<NoopAudioProcessor<f
     }
 }
 
-pub type AudioProcessorGraph = AudioProcessorGraphImpl<BufferProcessor<NoopAudioProcessor<f32>>>;
-
 pub struct AudioProcessorGraphImpl<P> {
     input_node: NodeIndex,
     output_node: NodeIndex,
-    handle: Shared<AudioProcessorGraphHandle<P>>,
+    handle: Shared<AudioProcessorGraphHandleImpl<P>>,
     temporary_buffer: VecAudioBuffer<f32>,
 }
 
@@ -180,7 +187,7 @@ impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphImpl<P> {
         AudioProcessorGraphImpl {
             input_node,
             output_node,
-            handle: make_shared(AudioProcessorGraphHandle {
+            handle: make_shared(AudioProcessorGraphHandleImpl {
                 input_node,
                 output_node,
                 dag: make_shared_cell(dag),
@@ -201,7 +208,7 @@ impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphImpl<P> {
         self.output_node
     }
 
-    pub fn handle(&self) -> &Shared<AudioProcessorGraphHandle<P>> {
+    pub fn handle(&self) -> &Shared<AudioProcessorGraphHandleImpl<P>> {
         &self.handle
     }
 
