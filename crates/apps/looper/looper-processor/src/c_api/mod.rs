@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 use basedrop::Shared;
+use std::ptr::null;
 
 use audio_processor_traits::AudioProcessorSettings;
 use augmented_atomics::AtomicValue;
@@ -352,26 +353,38 @@ pub unsafe extern "C" fn looper__get_example_buffer() -> ExampleBuffer {
     use audio_processor_file::AudioFileProcessor;
 
     let settings = AudioProcessorSettings::default();
-    let mut processor = AudioFileProcessor::from_path(
+    let processor = AudioFileProcessor::from_path(
         audio_garbage_collector::handle(),
         settings,
         &audio_processor_testing_helpers::relative_path!(
             "../../../augmented/audio/audio-processor-analysis/hiphop-drum-loop.mp3"
         ),
-    )
-    .unwrap();
-    processor.prepare(settings);
-    let channels = processor.buffer().clone();
-    let mut output = vec![];
-    for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {
-        output.push(s1 + s2);
-    }
-    let mut output = output.into_boxed_slice();
-    let output_ptr = output.as_mut_ptr();
-    let size = output.len();
-    std::mem::forget(output);
-    ExampleBuffer {
-        ptr: output_ptr,
-        count: size,
+    );
+
+    match processor {
+        Ok(mut processor) => {
+            processor.prepare(settings);
+            let channels = processor.buffer().clone();
+            let mut output = vec![];
+            for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {
+                output.push(s1 + s2);
+            }
+            let mut output = output.into_boxed_slice();
+            let output_ptr = output.as_mut_ptr();
+            let size = output.len();
+            std::mem::forget(output);
+
+            ExampleBuffer {
+                ptr: output_ptr,
+                count: size,
+            }
+        }
+        Err(err) => {
+            log::error!("Failed to open example file {}", err);
+            ExampleBuffer {
+                ptr: null(),
+                count: 0,
+            }
+        }
     }
 }

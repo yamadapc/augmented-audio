@@ -29,7 +29,6 @@ class MainWindowViewController: NSViewController {
         super.viewDidLoad()
 
         let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        engineController.loadExampleFileBuffer()
         let contentView = ContentView()
             .environmentObject(engineController.store)
 
