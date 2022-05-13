@@ -19,6 +19,5 @@
 import AppKit
 
 class AudioUnitViewController: NSViewController {
-    override func viewDidLoad() {
-    }
+    override func viewDidLoad() {}
 }

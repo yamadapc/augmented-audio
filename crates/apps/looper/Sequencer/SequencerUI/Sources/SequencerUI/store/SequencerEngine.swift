@@ -41,7 +41,7 @@ public protocol SequencerEngine {
 
     func removeLock(parameterLockId: ParameterLockId)
     func loadFile(atPath path: String)
-    func addEffect(trackId: UInt, effectId: EffectId)
+    func addEffect(looperId: UInt, effectId: EffectId)
 
     func getAnalyticsEnabled() -> Bool?
     func setAnalyticsEnabled(_ value: Bool)

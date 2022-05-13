@@ -150,9 +150,9 @@ struct AudioPathView: View {
 
     var body: some View {
         Path { path in
-            let audioPath = timeFunction("AudioPathView::buildPath", {
+            let audioPath = timeFunction("AudioPathView::buildPath") {
                 buildPath(geometry, buffer)
-            })
+            }
             path.addPath(audioPath)
         }
         .stroke(SequencerColors.blue, lineWidth: 1)

@@ -23,14 +23,14 @@ import SequencerEngine_private
 import SequencerUI
 
 /**
- * This whole framework is really disorganized at the moment.
- *
  * EngineImpl is a holder for  the *mut LooperEngine* pointer. It creates the audio-engine on init & destroys it when dropped.
+ * 
+ * It should mostly be a 1-1 mapping of the C API into Swift. Raw FFI calls around the "LooperEngine" type are wrapped by this class.
  */
 class EngineImpl {
     let _effectsService = EffectsServiceImpl()
 
-    var engine: OpaquePointer!
+    private var engine: OpaquePointer!
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineImpl")
 
     var midi: AnyPublisher<MidiEvent, Never>?
@@ -183,8 +183,8 @@ extension EngineImpl: SequencerEngine {
         }
     }
 
-    func addEffect(trackId: UInt, effectId: EffectId) {
-        looper_engine__add_effect(engine, trackId, effectId)
+    func addEffect(looperId: UInt, effectId: EffectId) {
+        looper_engine__add_effect(engine, looperId, effectId)
     }
 
     func getLFOSample(mode: SequencerUI.LFOMode, phase: Float) -> Float {
@@ -194,6 +194,10 @@ extension EngineImpl: SequencerEngine {
 }
 
 extension EngineImpl {
+    func getParameterValue(looperId: UInt, parameterId: SequencerEngine_private.ParameterId) -> CParameterValue {
+        return looper_engine__get_parameter_value(engine, looperId, parameterId)
+    }
+
     func setVolume(_ looperId: UInt, volume: Float) {
         looper_engine__set_volume(engine, looperId, volume)
     }
@@ -212,6 +216,46 @@ extension EngineImpl {
 
     func setLFOParameter(_ looperId: UInt, parameterId: SequencerEngine_private.LFOParameter, lfoId: UInt, value: Float) {
         looper_engine__set_lfo_parameter(engine, looperId, lfoId, parameterId, value)
+    }
+
+    func setSceneSliderValue(value: Float) {
+        looper_engine__set_scene_slider_value(engine, value)
+    }
+
+    func setMetronomeVolume(volume: Float) {
+        looper_engine__set_metronome_volume(engine, volume)
+    }
+
+    func setActiveLooper(looperId: UInt) {
+        looper_engine__set_active_looper(engine, looperId)
+    }
+
+    func setLFOMode(looperId: UInt, lfoId: UInt, value: SequencerEngine_private.LFOMode) {
+        looper_engine__set_lfo_mode(engine, looperId, lfoId, value)
+    }
+
+    func setEnvelopeParameter(looperId: UInt, parameterId: SequencerEngine_private.EnvelopeParameter, value: Float) {
+        looper_engine__set_envelope_parameter(engine, looperId, parameterId, value)
+    }
+
+    func setQuantizationMode(looperId: UInt, mode: SequencerEngine_private.CQuantizeMode) {
+        looper_engine__set_quantization_mode(engine, looperId, mode)
+    }
+
+    func setTempoControl(looperId: UInt, tempoControl: SequencerEngine_private.TempoControl) {
+        looper_engine__set_tempo_control(engine, looperId, tempoControl)
+    }
+
+    func getPlayheadPosition() -> CTimeInfo {
+        return looper_engine__get_playhead_position(engine)
+    }
+
+    func getLooperPosition(looperId: UInt) -> Float {
+        return looper_engine__get_looper_position(engine, looperId)
+    }
+
+    func getLooperState(looperId: UInt) -> SequencerEngine_private.LooperState {
+        return looper_engine__get_looper_state(engine, looperId)
     }
 }
 
@@ -267,5 +311,51 @@ extension EngineImpl {
 
     func setAnalyticsEnabled(_ value: Bool) {
         looper_engine__set_analytics_enabled(engine, value)
+    }
+}
+
+// MARK: Metrics
+
+extension EngineImpl {
+    func getStats() -> CAudioProcessorMetricsStats {
+        return looper_engine__get_stats(engine)
+    }
+}
+
+// MARK: Buffer
+
+extension EngineImpl {
+    func hasLooperBuffer(looperId: UInt) -> Bool {
+        return looper_engine__has_looper_buffer(engine, looperId)
+    }
+
+    func getLooperBuffer(looperId: UInt) -> LooperBufferTrackBuffer {
+        let buffer = looper_engine__get_looper_buffer(engine, looperId)
+        return LooperBufferTrackBuffer(inner: buffer!)
+    }
+
+    func getLooperSlices(looperId: UInt) -> SliceBufferImpl {
+        let sliceBuffer = looper_engine__get_looper_slices(engine, looperId)
+        return SliceBufferImpl(inner: sliceBuffer!)
+    }
+}
+
+// MARK: Events
+
+extension EngineImpl {
+    func registerEventsCallback(_ cb: ForeignCallback_ApplicationEvent) {
+          looper_engine__register_events_callback(engine, cb)
+    }
+}
+
+// MARK: Testing
+extension EngineImpl {
+    static func getExampleBuffer() -> UnsafeBufferPointer<Float32> {
+        let exampleBuffer = looper__get_example_buffer()
+        let bufferPtr = UnsafeBufferPointer<Float32>(
+            start: exampleBuffer.ptr,
+            count: Int(exampleBuffer.count)
+        )
+        return bufferPtr
     }
 }

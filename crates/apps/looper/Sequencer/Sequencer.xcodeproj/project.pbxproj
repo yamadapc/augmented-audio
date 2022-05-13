@@ -15,6 +15,7 @@
 		CB1666B927CCAD07000F9E21 /* SequencerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666B827CCAD07000F9E21 /* SequencerTests.swift */; };
 		CB1666C327CCAD07000F9E21 /* SequencerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666C227CCAD07000F9E21 /* SequencerUITests.swift */; };
 		CB1666C527CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666C427CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift */; };
+		CB24DF5A282F0A210066A172 /* AudioBuffers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB24DF59282F0A210066A172 /* AudioBuffers.swift */; };
 		CB3948C927EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = CB3948C827EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.m */; };
 		CB3948CD27EA6BFC009A650D /* DSPKernel.hpp in Resources */ = {isa = PBXBuildFile; fileRef = CB3948CC27EA6BFC009A650D /* DSPKernel.hpp */; };
 		CB3948CF27EA6BFC009A650D /* DSPKernel.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB3948CE27EA6BFC009A650D /* DSPKernel.mm */; };
@@ -171,6 +172,7 @@
 		CB1666C227CCAD07000F9E21 /* SequencerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerUITests.swift; sourceTree = "<group>"; };
 		CB1666C427CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		CB1666D127CCAD18000F9E21 /* Sequencer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer.entitlements; sourceTree = "<group>"; };
+		CB24DF59282F0A210066A172 /* AudioBuffers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBuffers.swift; sourceTree = "<group>"; };
 		CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Sequencer AudioUnit.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3948C727EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sequencer_AudioUnitAudioUnit.h; sourceTree = "<group>"; };
 		CB3948C827EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Sequencer_AudioUnitAudioUnit.m; sourceTree = "<group>"; };
@@ -505,6 +507,7 @@
 				CBA4DAA427DDF4BB00A530E3 /* private.h */,
 				CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */,
 				CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */,
+				CB24DF59282F0A210066A172 /* AudioBuffers.swift */,
 				CB3D995827EFE4A000E5ECBA /* Parameters.swift */,
 				CB59A60B27FF0570004BC156 /* effects */,
 				CB59A60827FDA7DA004BC156 /* foreign_callbacks */,
@@ -968,6 +971,7 @@
 				CBA4DAA027DDF23600A530E3 /* SequencerEngine.swift in Sources */,
 				CB3948F127EC3B24009A650D /* MidiEventStream.swift in Sources */,
 				CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */,
+				CB24DF5A282F0A210066A172 /* AudioBuffers.swift in Sources */,
 				CB59A60D27FF057E004BC156 /* EffectsService.swift in Sources */,
 				CB3D995927EFE4A000E5ECBA /* Parameters.swift in Sources */,
 				CB59A60A27FDA7EE004BC156 /* ApplicationEventStream.swift in Sources */,

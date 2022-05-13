@@ -43,15 +43,15 @@ class StoreSubscriptionsController {
             self.logger.debug("Setting scene", metadata: [
                 "value": .stringConvertible(value),
             ])
-            looper_engine__set_scene_slider_value(self.engine.engine, (value + 1.0) / 2.0)
+            self.engine.setSceneSliderValue(value: (value + 1.0) / 2.0)
         }).store(in: &cancellables)
 
         store.metronomeVolume.$value.sink(receiveValue: { value in
-            looper_engine__set_metronome_volume(self.engine.engine, value)
+            self.engine.setMetronomeVolume(volume: value)
         }).store(in: &cancellables)
 
         store.$selectedTrack.sink(receiveValue: { value in
-            looper_engine__set_active_looper(self.engine.engine, UInt(value))
+            self.engine.setActiveLooper(looperId: UInt(value))
         }).store(in: &cancellables)
     }
 
@@ -128,7 +128,7 @@ class StoreSubscriptionsController {
 
         lfoState.modeParameter.$value.sink(receiveValue: { value in
             guard let rustValue = LFO_MODES[value] else { return }
-            looper_engine__set_lfo_mode(self.engine.engine, looperId, lfoId, rustValue)
+            self.engine.setLFOMode(looperId: looperId, lfoId: lfoId, value: rustValue)
         }).store(in: &cancellables)
     }
 
@@ -140,11 +140,10 @@ class StoreSubscriptionsController {
             pushFloatValue(
                 publisher: parameter.$value,
                 flush: {
-                    looper_engine__set_envelope_parameter(
-                        self.engine.engine,
-                        looperId,
-                        ENVELOPE_PARAMETER_IDS[parameterId]!,
-                        $0
+                    self.engine.setEnvelopeParameter(
+                        looperId: looperId,
+                        parameterId: ENVELOPE_PARAMETER_IDS[parameterId]!,
+                        value: $0
                     )
                 }, initialValue: parameter.value
             )
@@ -155,11 +154,11 @@ class StoreSubscriptionsController {
 
     private func setupQuantizationParameters(looperId: UInt, quantizationParameters: QuantizationParameters) {
         quantizationParameters.quantizationMode.$value.sink(receiveValue: { value in
-            looper_engine__set_quantization_mode(self.engine.engine, looperId, RUST_QUANTIZE_MODES[value]!)
+            self.engine.setQuantizationMode(looperId: looperId, mode: RUST_QUANTIZE_MODES[value]!)
         }).store(in: &cancellables)
 
         quantizationParameters.tempoControlMode.$value.sink(receiveValue: { value in
-            looper_engine__set_tempo_control(self.engine.engine, looperId, RUST_TEMPO_CONTROL[value]!)
+            self.engine.setTempoControl(looperId: looperId, tempoControl: RUST_TEMPO_CONTROL[value]!)
         }).store(in: &cancellables)
     }
 
