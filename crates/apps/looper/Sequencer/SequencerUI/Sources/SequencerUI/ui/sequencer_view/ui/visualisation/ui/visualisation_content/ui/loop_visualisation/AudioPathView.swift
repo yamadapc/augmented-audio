@@ -103,18 +103,11 @@ func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
     let height = geometry.size.height
     let width = Int(geometry.size.width)
 
-    let step = Int(Double(buffer.count) / Double(width))
-
     var maxSample = 0.0
     for overSampledX in 0 ... (width * 2) {
         let x = Double(overSampledX) / 2.0
         let index = Int(x / Double(width) * Double(buffer.count))
-        var value: Float = 0.0
-        for j in 0 ..< step {
-            value += abs(buffer[(index + j) % buffer.count])
-        }
-        value /= Float(step)
-
+        let value: Float = abs(buffer[index % buffer.count])
         maxSample = max(maxSample, Double(value))
     }
 
@@ -125,13 +118,9 @@ func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
     for overSampledX in 0 ... (width * 2) {
         let x = Double(overSampledX) / 2.0
         let index = Int(x / Double(width) * Double(buffer.count))
-        var value: Float = 0.0
-        for j in 0 ..< step {
-            value += buffer[(index + j) % buffer.count]
-        }
-        value /= Float(step)
-
-        let h = (Double(value) / maxSample) * height / 2 + height / 2
+        let value = buffer[index % buffer.count]
+        let ratio = Double(value) / maxSample
+        let h = ratio * height / 2 + height / 2
 
         if overSampledX == 0 {
             path.move(to: CGPoint(x: x, y: h))
