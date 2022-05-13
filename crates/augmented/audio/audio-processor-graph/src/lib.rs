@@ -31,8 +31,8 @@ use audio_garbage_collector::{make_shared, make_shared_cell, Shared, SharedCell}
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, NoopAudioProcessor, SliceAudioProcessor,
-    VecAudioBuffer,
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, BufferProcessor, NoopAudioProcessor,
+    SliceAudioProcessor, VecAudioBuffer,
 };
 use augmented_oscillator::Oscillator;
 
@@ -46,26 +46,22 @@ struct BufferCell<BufferType>(UnsafeCell<BufferType>);
 
 unsafe impl<BufferType> Sync for BufferCell<BufferType> {}
 
-struct ProcessorCell(UnsafeCell<NodeType>);
+struct ProcessorCell<P>(UnsafeCell<P>);
 
-unsafe impl Sync for ProcessorCell {}
+unsafe impl<P> Sync for ProcessorCell<P> {}
 
-fn make_processor_cell(processor: NodeType) -> Shared<ProcessorCell> {
-    make_shared(ProcessorCell(UnsafeCell::new(processor)))
-}
-
-pub struct AudioProcessorGraphHandle {
+pub struct AudioProcessorGraphHandle<P> {
     input_node: NodeIndex,
     output_node: NodeIndex,
     dag: SharedCell<daggy::Dag<(), ()>>,
     process_order: SharedCell<Vec<NodeIndex>>,
     audio_processor_settings: SharedCell<Option<AudioProcessorSettings>>,
-    processors: SharedCell<HashMap<NodeIndex, Shared<ProcessorCell>>>,
+    processors: SharedCell<HashMap<NodeIndex, Shared<ProcessorCell<NodeType<P>>>>>,
     buffers: SharedCell<HashMap<ConnectionIndex, Shared<BufferCell<VecAudioBuffer<f32>>>>>,
 }
 
-impl AudioProcessorGraphHandle {
-    pub fn add_node(&self, mut processor: NodeType) -> NodeIndex {
+impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphHandle<P> {
+    pub fn add_node(&self, mut processor: NodeType<P>) -> NodeIndex {
         let mut processors = self.processors.get().deref().clone();
         let mut dag = self.dag.get().deref().clone();
         let index = dag.add_node(());
@@ -74,10 +70,12 @@ impl AudioProcessorGraphHandle {
             match processor {
                 NodeType::Simple(ref mut processor) => processor.s_prepare(*settings),
                 NodeType::Buffer(ref mut processor) => processor.prepare_slice(*settings),
+                NodeType::Static(ref mut processor) => processor.prepare_slice(*settings),
+                _ => {}
             }
         }
 
-        let processor_ref = make_processor_cell(processor);
+        let processor_ref = make_shared(ProcessorCell(UnsafeCell::new(processor)));
         processors.insert(index, processor_ref);
 
         self.processors.set(make_shared(processors));
@@ -136,52 +134,50 @@ pub enum AudioProcessorGraphError {
     WouldCycle,
 }
 
-pub enum NodeType {
+pub enum NodeType<P> {
     Simple(Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>),
     Buffer(Box<dyn SliceAudioProcessor + Send>),
+    Static(P),
+    None,
 }
 
-impl From<Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>> for NodeType {
+impl From<Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>>
+    for NodeType<NoopAudioProcessor<f32>>
+{
     fn from(inner: Box<dyn SimpleAudioProcessor<SampleType = f32> + Send>) -> Self {
         NodeType::Simple(inner)
     }
 }
 
-impl From<Box<dyn SliceAudioProcessor + Send>> for NodeType {
+impl From<Box<dyn SliceAudioProcessor + Send>> for NodeType<NoopAudioProcessor<f32>> {
     fn from(inner: Box<dyn SliceAudioProcessor + Send>) -> Self {
         NodeType::Buffer(inner)
     }
 }
 
-// pub type NodeType<SampleType> = Box<dyn SimpleAudioProcessor<SampleType = SampleType> + Send>;
+pub type AudioProcessorGraph = AudioProcessorGraphImpl<BufferProcessor<NoopAudioProcessor<f32>>>;
 
-pub struct AudioProcessorGraph {
+pub struct AudioProcessorGraphImpl<P> {
     input_node: NodeIndex,
     output_node: NodeIndex,
-    handle: Shared<AudioProcessorGraphHandle>,
+    handle: Shared<AudioProcessorGraphHandle<P>>,
     temporary_buffer: VecAudioBuffer<f32>,
 }
 
-impl Default for AudioProcessorGraph {
+impl<P: Send + 'static + SliceAudioProcessor> Default for AudioProcessorGraphImpl<P> {
     fn default() -> Self {
         Self::new(daggy::Dag::default())
     }
 }
 
-impl AudioProcessorGraph {
+impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphImpl<P> {
     fn new(mut dag: daggy::Dag<(), ()>) -> Self {
-        let _input_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
+        let _input_proc: NodeType<P> = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
         let input_node = dag.add_node(());
-        let _output_proc: NodeType = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
+        let _output_proc: NodeType<P> = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
         let output_node = dag.add_node(());
 
-        // let processors = HashMap::new();
-        // let mut tx = processors.write();
-        // tx.insert(input_node, make_processor_cell(input_proc));
-        // tx.insert(output_node, make_processor_cell(output_proc));
-        // tx.commit();
-
-        AudioProcessorGraph {
+        AudioProcessorGraphImpl {
             input_node,
             output_node,
             handle: make_shared(AudioProcessorGraphHandle {
@@ -205,11 +201,11 @@ impl AudioProcessorGraph {
         self.output_node
     }
 
-    pub fn handle(&self) -> &Shared<AudioProcessorGraphHandle> {
+    pub fn handle(&self) -> &Shared<AudioProcessorGraphHandle<P>> {
         &self.handle
     }
 
-    pub fn add_node(&mut self, processor: NodeType) -> NodeIndex {
+    pub fn add_node(&mut self, processor: NodeType<P>) -> NodeIndex {
         self.handle.add_node(processor)
     }
 
@@ -222,7 +218,7 @@ impl AudioProcessorGraph {
     }
 }
 
-impl AudioProcessor for AudioProcessorGraph {
+impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
@@ -261,6 +257,10 @@ impl AudioProcessor for AudioProcessorGraph {
                         NodeType::Buffer(processor) => {
                             processor.prepare_slice(settings);
                         }
+                        NodeType::Static(processor) => {
+                            processor.prepare_slice(settings);
+                        }
+                        NodeType::None => {}
                     }
                 }
             }
@@ -348,6 +348,11 @@ impl AudioProcessor for AudioProcessorGraph {
                         let temporary_buffer = self.temporary_buffer.slice_mut();
                         processor.process_slice(data.num_channels(), temporary_buffer);
                     }
+                    NodeType::Static(processor) => {
+                        let temporary_buffer = self.temporary_buffer.slice_mut();
+                        processor.process_slice(data.num_channels(), temporary_buffer);
+                    }
+                    NodeType::None => {}
                 }
             }
 
