@@ -185,6 +185,7 @@ extension Store {
         selectedTab = tab
     }
 
+    /// Set the active track view
     func onClickTrack(_ track: UInt) {
         selectedTrack = track
     }
