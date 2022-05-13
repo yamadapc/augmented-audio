@@ -68,6 +68,8 @@ struct SequencerContentView: View {
             }
 
             if store.midiMappingActive {
+                Rectangle().fill(SequencerColors.black3)
+                    .frame(maxWidth: 1, maxHeight: .infinity)
                 MIDIMappingPanelView(midi: store.midi)
                     .bindToNilParameter(store: store)
             }
