@@ -1,3 +1,4 @@
+use std::cell::UnsafeCell;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -23,7 +24,6 @@
 use std::ops::{Deref, DerefMut};
 
 use basedrop::{Handle, Shared};
-use std::cell::UnsafeCell;
 
 pub struct ProcessorCell<T>(pub UnsafeCell<T>);
 unsafe impl<T> Send for ProcessorCell<T> {}
@@ -71,5 +71,30 @@ impl<T: Send + 'static> Clone for SharedProcessor<T> {
         SharedProcessor {
             inner: self.inner.clone(),
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::cell::UnsafeCell;
+
+    use audio_processor_traits::NoopAudioProcessor;
+
+    use super::*;
+
+    #[test]
+    fn test_create_cell() {
+        let _cell = ProcessorCell(UnsafeCell::new(NoopAudioProcessor::<f32>::default()));
+    }
+
+    #[test]
+    fn test_create_shared_processor() {
+        let gc_handle = audio_garbage_collector::handle();
+        let processor = NoopAudioProcessor::<f32>::default();
+        let mut processor = SharedProcessor::new(gc_handle, processor);
+        let _shared = processor.shared();
+        let _processor = processor.deref();
+        let _processor = processor.deref_mut();
+        let _processor = processor.clone();
     }
 }

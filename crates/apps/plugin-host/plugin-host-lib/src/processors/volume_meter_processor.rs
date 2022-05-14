@@ -117,14 +117,6 @@ impl AudioProcessor for VolumeMeterProcessor {
                 .volume_right
                 .set((self.running_sum_right / (self.buffer_duration_samples as f32)).sqrt());
 
-            // // This should decay ; use "InterpolatedValue" / create an atomic version of it
-            // if right_value > self.handle.peak_right.get() {
-            //     self.handle.peak_right.set(right_value);
-            // }
-            // if left_value > self.handle.peak_left.get() {
-            //     self.handle.peak_left.set(left_value);
-            // }
-
             if self.current_index >= self.buffer_duration_samples {
                 self.current_index = 0;
             } else {
