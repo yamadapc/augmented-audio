@@ -131,7 +131,7 @@ pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
 }
 
 /// Build 'RunOptions' from Clap matches
-pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
+pub fn parse_run_options(matches: &ArgMatches) -> Option<RunOptions> {
     let plugin_path = matches.value_of("plugin")?.to_string();
     let input_audio = matches.value_of("input").map(|i| i.to_string());
     let output_audio = matches.value_of("output").map(|value| value.to_string());
@@ -190,7 +190,7 @@ mod test {
         let app = build_run_command();
         let args: Vec<&str> = vec!["plugin-host", "--plugin", "something.dylib"];
         let matches = app.get_matches_from_safe(args).unwrap();
-        let options = parse_run_options(matches).unwrap();
+        let options = parse_run_options(&matches).unwrap();
         assert_eq!(options.plugin_path(), "something.dylib");
     }
 
@@ -213,7 +213,7 @@ mod test {
             "--output-device-id=OutputDevice",
         ];
         let matches = app.get_matches_from_safe(args).unwrap();
-        let options = parse_run_options(matches).unwrap();
+        let options = parse_run_options(&matches).unwrap();
         assert_eq!(options.plugin_path(), "something.dylib");
         assert_eq!(options.input_audio().as_ref().unwrap(), "input.mp3");
         assert_eq!(options.output_audio().as_ref().unwrap(), "output.mp3");
