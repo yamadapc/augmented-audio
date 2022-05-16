@@ -302,8 +302,8 @@ fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
     let maximum_output = output
         .iter()
         .map(|f| f.abs())
-        .max_by(|f1, f2| f1.partial_cmp(f2).unwrap())
-        .unwrap();
+        .max_by(|f1, f2| f1.partial_cmp(f2).unwrap_or(std::cmp::Ordering::Equal))
+        .unwrap_or(0.0);
     for sample in &mut output {
         if sample.abs() > maximum_output * 0.05 {
             *sample /= maximum_output;
@@ -409,7 +409,7 @@ mod test {
         let max_input = frames
             .iter()
             .map(|f| f.abs())
-            .max_by(|f1, f2| f1.partial_cmp(f2).unwrap())
+            .max_by(|f1, f2| f1.partial_cmp(f2).unwrap_or(std::cmp::Ordering::Equal))
             .unwrap();
 
         let transients = find_transients(
