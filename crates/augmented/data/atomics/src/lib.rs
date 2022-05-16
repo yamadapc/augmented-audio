@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 //! This crate is part of <https://github.com/yamadapc/augmented-audio/>. It exposes a couple of
-//! extra very limited "atomic" data types which are useful for audio development.
+//! extra very limited atomic data types which are useful for this repository.
 //!
 //! In particular, it exposes:
 //!
