@@ -12,7 +12,6 @@ log = "^0.4.11"
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
 vst = { path = "../../../vendor/vst" }
 serde_json = "^1.0.64"
-cacao = "0.2.1"
 
 audio-parameter-store = { path = "../../audio/audio-parameter-store" }
 macos-bundle-resources = { path = "../macos-bundle-resources" }
@@ -20,4 +19,5 @@ webview-holder = { path = "../webview-holder" }
 webview-transport = { path = "../webview-transport" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
+cacao = "0.2.1"
 darwin-webkit = "^0.1.3"
