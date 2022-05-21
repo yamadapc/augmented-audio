@@ -123,7 +123,7 @@ impl AudioProcessorSettings {
 
 /// Represents an audio processing node.
 ///
-/// Implementors should define the SampleType the node will work over. See some [examples here](https://github.com/yamadapc/augmented-audio/tree/master/crates/audio-processor-standalone/examples).
+/// Implementors should define the SampleType the node will work over. See some [examples here](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/application/audio-processor-standalone/examples).
 pub trait AudioProcessor {
     type SampleType;
 

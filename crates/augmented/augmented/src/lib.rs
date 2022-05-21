@@ -20,7 +20,69 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-/// VST
+
+//! This is the `augmented` crate, containing a single entry-point for the Augmented Audio Libraries.
+//! Please see <https://github.com/yamadapc/augmented-audio> for more information.
+//!
+//! ## Overview
+//! `augmented` exports utilities and audio processors aimed at making it easier to build audio
+//! applications with rust from a common foundation.
+//!
+//! These utilities are experimental and built on spare time by one person who isn't an audio
+//! developer. [Therefore, your feedback is greatly appreciated](https://github.com/yamadapc/augmented-audio/issues/new).
+//!
+//! `augmented` is modular and all components exist in several small crates you can cherry-pick.
+//!
+//! ## Core concepts
+//! Some concepts are shared between all the crates, for example, the [`audio::processor::AudioProcessor`] and
+//! [`audio::processor::SimpleAudioProcessor`] traits are how all audio nodes should be
+//! implemented.
+//!
+//! Here's an example gain node:
+//! ```
+//! use augmented::audio::processor::SimpleAudioProcessor;
+//! struct ExampleGainProcessor {}
+//! impl SimpleAudioProcessor for ExampleGainProcessor {
+//!     type SampleType = f32;
+//!     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+//!         sample * 0.2
+//!     }
+//! }
+//! ```
+//!
+//! The two traits are two different ways of defining an [`audio::processor::AudioProcessor`].
+//! The [`audio::processor::SimpleAudioProcessor`] is a sample-by-sample (or frame by frame)
+//! processor function, while [`audio::processor::AudioProcessor`] receives one
+//! [`audio::processor::AudioBuffer`] at a time.
+//!
+//! The processors must implement a `prepare` (or `s_prepare`) method, which receives
+//! [`audio::processor::AudioProcessorSettings`] to configure things like channel count or
+//! sample-rate.
+//!
+//! They must also implement `process`, `s_process` or `s_process_frame` method to process samples.
+//!
+//! For "simple processors", which are defined as sample-by-sample functions, the
+//! [`audio_processor_traits::simple_processor::process_buffer`] and [`audio_processor_traits::BufferProcessor`]
+//! handle conversion into a regular buffer processor.
+//!
+//! Once an audio-processor is implemented, it can use [`application::audio_processor_standalone`] to
+//! create a CLI or VST app automatically.
+//!
+//! This processor can also be a node in an [`audio::processor::graph`].
+//!
+//! ## Memory management model
+//! The crates rely on reference counted pointers to state that is shared between the audio-thread
+//! and other threads. This is done with `basedrop::Shared`.
+//!
+//! The idea is shared state is behind `basedrop::Shared` pointers which are never dropped on the
+//! audio-thread. Instead, their destructors are pushed onto a queue and a background thread handles
+//! dropping these values.
+//!
+//! This background thread is managed through [`audio::gc`]. That is a global instance of this
+//! system, which exports helpers such as [`audio::gc::make_shared`] to build smart pointers that will
+//! be de-allocated by the global background thread.
+
+/// [`vst`] is re-exported for convenience.
 pub use vst;
 
 /// Run [`audio::processor::AudioProcessor`]s and [`audio::processor::midi::MidiEventHandler`] as

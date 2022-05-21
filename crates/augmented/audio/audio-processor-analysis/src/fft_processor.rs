@@ -20,6 +20,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! FFT processor implementation with windowing & overlap, wraps `rustfft`.
+//!
+//! `rustfft` audio-processor, forwards or backwards, real-time safe, FFT.
+//!
+//! Applies a Hann window by default. Several window functions are exported by [`audio_processor_analysis::window_functions`].
+//!
+//! ![](https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/augmented/audio/audio-processor-analysis/src/window_functions/windows--HannWindow.png)
+//!
+//! Then performs FFT with N bins.
+//!
+//! ![](https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/augmented/audio/audio-processor-analysis/src/fft_processor.png--FFT_sine_440Hz.png)
+//!
+//! Overlap is configurable
+//!
+//! ![](https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/augmented/audio/audio-processor-analysis/screen.png)
+
 use std::sync::Arc;
 
 use rustfft::num_complex::Complex;
@@ -48,6 +65,10 @@ impl Default for FftProcessorOptions {
     }
 }
 
+/// An FFT processor with overlap and windowing.
+///
+/// This processor will collect samples onto a circular buffer and perform FFTs whenever hop size is
+/// reached.
 pub struct FftProcessor {
     input_buffer: Vec<f32>,
     fft_buffer: Vec<Complex<f32>>,
@@ -113,34 +134,42 @@ impl FftProcessor {
         (size as f32 * (1.0 - overlap_ratio)) as usize
     }
 
+    /// The number of frequency bins this FFT processor operates with
     pub fn size(&self) -> usize {
         self.size
     }
 
+    /// Get a reference to the FFT bins buffer
     pub fn buffer(&self) -> &Vec<Complex<f32>> {
         &self.fft_buffer
     }
 
+    /// Get a mutable reference to the FFT bins buffer
     pub fn buffer_mut(&mut self) -> &mut Vec<Complex<f32>> {
         &mut self.fft_buffer
     }
 
+    /// Get the hop size of this processor. This is the number of samples between each FFT.
     pub fn step_len(&self) -> usize {
         self.step_len
     }
 
+    /// Manually process an external FFT buffer in-place.
     pub fn process_fft_buffer(&mut self, samples: &mut [Complex<f32>]) {
         self.fft.process_with_scratch(samples, &mut self.scratch);
     }
 
+    /// Returns true if an FFT has just been performed on the last call to `s_process`
     pub fn has_changed(&self) -> bool {
         self.has_changed
     }
 
+    /// Returns the sum of the power of the current input buffer window.
     pub fn input_buffer_sum(&self) -> f32 {
         self.input_buffer.iter().map(|f| f.abs()).sum()
     }
 
+    /// Manually perform an FFT; offset the input buffer by a certain index.
     #[inline]
     pub fn perform_fft(&mut self, start_idx: usize) {
         for i in 0..self.size {

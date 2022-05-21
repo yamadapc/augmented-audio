@@ -103,7 +103,7 @@ impl Default for IterativeTransientDetectionParams {
 /// audio track of the transient signal. Not real-time safe.
 ///
 /// Reference:
-/// * https://www.researchgate.net/profile/Balaji-Thoshkahna/publication/220723752_A_Transient_Detection_Algorithm_for_Audio_Using_Iterative_Analysis_of_STFT/links/0deec52e6331412aed000000/A-Transient-Detection-Algorithm-for-Audio-Using-Iterative-Analysis-of-STFT.pdf
+/// * <https://www.researchgate.net/profile/Balaji-Thoshkahna/publication/220723752_A_Transient_Detection_Algorithm_for_Audio_Using_Iterative_Analysis_of_STFT/links/0deec52e6331412aed000000/A-Transient-Detection-Algorithm-for-Audio-Using-Iterative-Analysis-of-STFT.pdf>
 ///
 /// Inputs to the algorithm:
 /// * `fft_size` - Size of the FFT window

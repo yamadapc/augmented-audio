@@ -20,6 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! Envelope follower implementation
+//!
+//! ![](https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/augmented/audio/audio-processor-analysis/audio-envelope.png)
+//!
+//! ## Usage
+//! ```
+//! use std::time::Duration;
+//! use audio_garbage_collector::Shared;
+//! use audio_processor_analysis::envelope_follower_processor::{EnvelopeFollowerHandle, EnvelopeFollowerProcessor};
+//! use audio_processor_traits::{AudioProcessorSettings, SimpleAudioProcessor};
+//!
+//! let mut envelope_follower = EnvelopeFollowerProcessor::default();
+//! let handle: Shared<EnvelopeFollowerHandle> = envelope_follower.handle().clone();
+//! handle.set_attack(Duration::from_secs_f32(0.4));
+//!
+//! envelope_follower.s_prepare(AudioProcessorSettings::default());
+//! envelope_follower.s_process(0.0);
+//! ```
+
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{AtomicF32, AudioProcessorSettings};

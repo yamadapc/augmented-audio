@@ -32,6 +32,13 @@ audio-parameter-store = { path = "../audio/audio-parameter-store" }
 audio-processor-graph = { path = "../audio/audio-processor-graph" }
 audio-processor-traits = { path = "../audio/audio-processor-traits" , version = "1.0.0-alpha.6" }
 audio-processor-utility = { path = "../audio/audio-processor-utility" }
+audio-processor-analysis = { path = "../audio/audio-processor-analysis" }
+audio-processor-bitcrusher = { path = "../audio/audio-processor-bitcrusher" }
+audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" }
+audio-processor-time = { path = "../audio/audio-processor-time" }
+audio-processor-file = { path = "../audio/audio-processor-file" }
+audio-processor-metronome = { path = "../audio/audio-processor-metronome" }
+audio-processor-pitch-shifter = { path = "../audio/audio-processor-pitch-shifter" }
 augmented_oscillator = { path = "../audio/oscillator" , version = "1.0.0-alpha.5" }
 cpal = { version = "^0.13.3" }
 

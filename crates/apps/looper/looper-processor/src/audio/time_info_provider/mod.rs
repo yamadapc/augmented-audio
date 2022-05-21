@@ -199,7 +199,7 @@ fn get_host_time_info<H: vst::host::Host>(host: Option<&H>) -> Option<TimeInfo> 
 
 /// New-type for metronome compatibility, since metronome defines its own playhead logic.
 ///
-/// This type implements [`MetronomePlayhead`] for a [`Shared`] reference of [`TimeInfoProvidedImpl`]
+/// This type implements [`MetronomePlayhead`] for a `Shared` reference of [`TimeInfoProviderImpl`]
 pub struct TimeInfoMetronomePlayhead(pub audio_garbage_collector::Shared<TimeInfoProviderImpl>);
 
 impl MetronomePlayhead for TimeInfoMetronomePlayhead {
