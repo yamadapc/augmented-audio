@@ -20,11 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-pub use free_verb::*;
+use audio_processor_traits::BufferProcessor;
+use audio_processor_utility::noise::WhiteNoiseProcessor;
 
-mod all_pass;
-mod free_verb;
-mod lowpass_feedback_comb_filter;
-pub mod mod_reverb;
-mod tuning;
-mod utils;
+fn main() {
+    let mono = WhiteNoiseProcessor::default();
+    audio_processor_standalone::audio_processor_main(BufferProcessor(mono));
+}

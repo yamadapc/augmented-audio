@@ -14,6 +14,8 @@ private = true
 [dependencies]
 audio-processor-traits = { version = "1.0.0-alpha.6", path = "../audio-processor-traits" }
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.4" }
+assert_no_alloc = "1.1"
+rand = { version = "0.8", features = ["small_rng"] }
 
 [dev-dependencies]
 audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../application/audio-processor-standalone" }

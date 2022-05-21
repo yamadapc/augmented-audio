@@ -588,6 +588,7 @@ dependencies = [
  "audio-processor-standalone",
  "audio-processor-standalone-gui",
  "audio-processor-traits",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -616,10 +617,12 @@ dependencies = [
 name = "audio-processor-utility"
 version = "0.1.0"
 dependencies = [
+ "assert_no_alloc",
  "audio-garbage-collector",
  "audio-processor-standalone",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
+ "rand 0.8.5",
 ]
 
 [[package]]

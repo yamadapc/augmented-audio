@@ -47,6 +47,8 @@ pub fn make_shared_cell<T: Send + 'static>(value: T) -> SharedCell<T> {
     SharedCell::new(make_shared(value))
 }
 
+/// Create a new `basedrop::Shared` value using the default global `GarbageCollector`
+/// instance.
 pub fn make_shared<T: Send + 'static>(value: T) -> Shared<T> {
     Shared::new(handle(), value)
 }

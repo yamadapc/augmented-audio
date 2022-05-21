@@ -20,11 +20,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-pub use free_verb::*;
+use audio_processor_standalone::generic_standalone_run;
+use audio_processor_time::mod_reverb::*;
+use audio_processor_traits::BufferProcessor;
 
-mod all_pass;
-mod free_verb;
-mod lowpass_feedback_comb_filter;
-pub mod mod_reverb;
-mod tuning;
-mod utils;
+fn main() {
+    let reverb = ModReverbProcessor::default();
+    generic_standalone_run!(reverb);
+}

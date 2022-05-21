@@ -63,6 +63,9 @@ pub trait AudioBuffer {
     }
 
     /// Shortcut for `.slice_mut().chunks_mut(num_channels)`
+    ///
+    /// This is a frame representing a sample in time, for all
+    /// channels.
     fn frames_mut(&mut self) -> ChunksMut<'_, Self::SampleType> {
         let channels = self.num_channels();
         self.slice_mut().chunks_mut(channels)
