@@ -181,13 +181,13 @@ impl AudioProcessor for ModReverbProcessor {
         // Modulate diffusion delay times
         let diffuser_modulation = self.diffuser_modulator.next_sample();
         for (diffuser, base_duration) in self.diffusers.iter_mut().zip(&self.diffusers_durations) {
-            let duration = base_duration.as_secs_f32() / 10.0 + diffuser_modulation * 0.01;
+            let duration = base_duration.as_secs_f32() + diffuser_modulation * 0.01;
             diffuser.set_max_delay_time(Duration::from_secs_f32(duration));
         }
         // Modulate multi-channel delay times
         let delay_modulation = self.delay_modulator.next_sample();
         for delay in &mut self.delay {
-            let duration = 0.2 + delay_modulation * 0.001;
+            let duration = 0.2 + delay_modulation * 0.01;
             delay.handle().set_delay_time_secs(duration);
         }
 
@@ -225,11 +225,10 @@ impl AudioProcessor for ModReverbProcessor {
 
             // Mix the multi-channel output back into stereo
             let reverb_volume = 0.4;
-            let reverb_left =
-                (frame4[1] + frame4[2]) * 1.0 / (self.diffusers.len() as f32) * reverb_volume;
+            let scale = 1.0 / (self.diffusers.len() as f32);
+            let reverb_left = (frame4[1] + frame4[2]) * scale * reverb_volume;
             frame[0] = reverb_left + left;
-            let reverb_right =
-                (frame4[3] + frame4[0]) * 1.0 / (self.diffusers.len() as f32) * reverb_volume;
+            let reverb_right = (frame4[3] + frame4[0]) * scale * reverb_volume;
             frame[1] = reverb_right + right;
         }
     }

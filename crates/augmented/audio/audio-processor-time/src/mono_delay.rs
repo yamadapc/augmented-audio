@@ -168,8 +168,20 @@ impl<Sample: Float + From<f32>> MonoDelayProcessor<Sample> {
     }
 
     pub fn read(&self) -> Sample {
-        let read_position = self.handle().current_read_position.load(Ordering::Relaxed);
-        self.delay_buffer[read_position]
+        let sample_rate = self.handle.sample_rate.get();
+        let delay_secs = self.handle.delay_time_secs.get() * sample_rate;
+        let offset = delay_secs - delay_secs.floor();
+        let offset: Sample = offset.into();
+        let buffer_size = self.handle.buffer_size.load(Ordering::Relaxed);
+
+        let current_read_position = self.handle().current_read_position.load(Ordering::Relaxed);
+        let delay_output = interpolate(
+            self.delay_buffer[current_read_position],
+            self.delay_buffer[(current_read_position + 1) % buffer_size],
+            offset,
+        );
+
+        delay_output
     }
 
     pub fn write(&mut self, sample: Sample) {
