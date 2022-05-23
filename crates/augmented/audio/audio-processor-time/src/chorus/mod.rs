@@ -43,7 +43,7 @@ impl AudioProcessor for ChorusProcessor {
             let time = self.oscillator.next_sample();
             for (sample, delay) in frame.iter_mut().zip(&mut self.mono_delay_processor) {
                 delay.handle().set_delay_time_secs(0.02 + time * 0.001);
-                *sample = delay.s_process(*sample)
+                *sample = *sample + 0.4 * delay.s_process(*sample)
             }
         }
     }
