@@ -589,6 +589,7 @@ dependencies = [
  "audio-processor-standalone",
  "audio-processor-standalone-gui",
  "audio-processor-traits",
+ "augmented-atomics",
  "augmented_oscillator",
  "nalgebra",
  "rand 0.8.5",

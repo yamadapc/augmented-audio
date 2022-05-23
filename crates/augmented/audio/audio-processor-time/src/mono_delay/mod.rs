@@ -25,11 +25,14 @@ use std::time::Duration;
 
 use audio_garbage_collector::Shared;
 use audio_processor_traits::parameters::{
-    make_handle_ref, AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
-    FloatType, ParameterSpec, ParameterType, ParameterValue,
+    make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
 use audio_processor_traits::{AtomicF32, AudioProcessorSettings, Float};
+use augmented_atomics::AtomicValue;
+use generic_handle::GenericHandle;
+
+mod generic_handle;
 
 pub struct MonoDelayProcessorHandle {
     feedback: AtomicF32,
@@ -38,58 +41,6 @@ pub struct MonoDelayProcessorHandle {
     current_read_position: AtomicUsize,
     sample_rate: AtomicF32,
     buffer_size: AtomicUsize,
-}
-
-struct GenericHandle(Shared<MonoDelayProcessorHandle>);
-
-impl AudioProcessorHandle for GenericHandle {
-    fn name(&self) -> String {
-        "Delay".to_string()
-    }
-
-    fn parameter_count(&self) -> usize {
-        2
-    }
-
-    fn get_parameter_spec(&self, index: usize) -> ParameterSpec {
-        let specs = [
-            ParameterSpec::new(
-                "Delay".into(),
-                ParameterType::Float(FloatType {
-                    range: (0.01, 5.0),
-                    step: None,
-                }),
-            ),
-            ParameterSpec::new(
-                "Feedback".into(),
-                ParameterType::Float(FloatType {
-                    range: (0.0, 1.0),
-                    step: None,
-                }),
-            ),
-        ];
-        specs[index].clone()
-    }
-
-    fn get_parameter(&self, index: usize) -> Option<ParameterValue> {
-        if index == 0 {
-            Some(self.0.delay_time_secs.get().into())
-        } else if index == 1 {
-            Some(self.0.feedback.get().into())
-        } else {
-            None
-        }
-    }
-
-    fn set_parameter(&self, index: usize, request: ParameterValue) {
-        if let Ok(value) = request.try_into() {
-            if index == 0 {
-                self.0.delay_time_secs.set(value);
-            } else if index == 1 {
-                self.0.feedback.set(value);
-            }
-        }
-    }
 }
 
 impl Default for MonoDelayProcessorHandle {
@@ -113,11 +64,11 @@ impl MonoDelayProcessorHandle {
     pub fn set_delay_time_secs(&self, value: f32) {
         self.delay_time_secs.set(value);
 
-        let read_position = self.current_read_position.load(Ordering::Relaxed);
-        let sample_rate = self.sample_rate.load(Ordering::Relaxed);
-        let buffer_size = self.buffer_size.load(Ordering::Relaxed);
-        self.current_write_position.store(
-            (read_position + (value * sample_rate) as usize) % buffer_size,
+        let write_position = self.current_write_position.get();
+        let sample_rate = self.sample_rate.get();
+        let buffer_size = self.buffer_size.get();
+        self.current_read_position.store(
+            (write_position - (value * sample_rate) as usize + buffer_size) % buffer_size,
             Ordering::Relaxed,
         );
     }
@@ -168,30 +119,17 @@ impl<Sample: Float + From<f32>> MonoDelayProcessor<Sample> {
     }
 
     pub fn read(&self) -> Sample {
-        let sample_rate = self.handle.sample_rate.get();
-        let delay_secs = self.handle.delay_time_secs.get() * sample_rate;
-        let offset = delay_secs - delay_secs.floor();
+        let delay_samples = self.delay_samples();
+        let offset = delay_samples - delay_samples.floor();
         let offset: Sample = offset.into();
-        let buffer_size = self.handle.buffer_size.load(Ordering::Relaxed);
+        let buffer_size = self.handle.buffer_size.get();
 
-        let current_read_position = self.handle().current_read_position.load(Ordering::Relaxed);
+        let mut current_read_position = self.handle().current_read_position.get();
         let delay_output = interpolate(
             self.delay_buffer[current_read_position],
             self.delay_buffer[(current_read_position + 1) % buffer_size],
             offset,
         );
-
-        delay_output
-    }
-
-    pub fn write(&mut self, sample: Sample) {
-        let write_position = self.handle().current_write_position.load(Ordering::Relaxed);
-        self.delay_buffer[write_position] = sample;
-    }
-
-    pub fn tick(&self) {
-        let buffer_size = self.handle.buffer_size.load(Ordering::Relaxed);
-        let mut current_read_position = self.handle.current_read_position.load(Ordering::Relaxed);
 
         current_read_position += 1;
         if current_read_position >= buffer_size {
@@ -201,14 +139,24 @@ impl<Sample: Float + From<f32>> MonoDelayProcessor<Sample> {
             .current_read_position
             .store(current_read_position, Ordering::Relaxed);
 
-        let mut current_write_position = self.handle.current_write_position.load(Ordering::Relaxed);
+        delay_output
+    }
+
+    pub fn write(&mut self, sample: Sample) {
+        let mut current_write_position = self.handle().current_write_position.get();
+        self.delay_buffer[current_write_position] = sample;
+
         current_write_position += 1;
-        if current_write_position >= buffer_size {
+        if current_write_position >= self.handle.buffer_size.get() {
             current_write_position = 0;
         }
         self.handle
             .current_write_position
             .store(current_write_position, Ordering::Relaxed);
+    }
+
+    fn delay_samples(&self) -> f32 {
+        self.handle.delay_time_secs.get() * self.handle.sample_rate.get()
     }
 }
 
@@ -249,40 +197,10 @@ impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Samp
     }
 
     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
-        let sample_rate = self.handle.sample_rate.get();
-        let delay_secs = self.handle.delay_time_secs.get() * sample_rate;
-        let offset = delay_secs - delay_secs.floor();
-        let offset: Self::SampleType = offset.into();
+        let delay_output = self.read();
 
-        let mut current_read_position = self.handle.current_read_position.load(Ordering::Relaxed);
-        let mut current_write_position = self.handle.current_write_position.load(Ordering::Relaxed);
-        let buffer_size = self.handle.buffer_size.load(Ordering::Relaxed);
-
-        let write_sample =
-            sample + self.delay_buffer[current_read_position] * self.handle.feedback.get().into();
-        self.delay_buffer[current_write_position] = write_sample;
-
-        let delay_output = interpolate(
-            self.delay_buffer[current_read_position],
-            self.delay_buffer[(current_read_position + 1) % buffer_size],
-            offset,
-        );
-
-        current_read_position += 1;
-        if current_read_position >= buffer_size {
-            current_read_position = 0;
-        }
-        self.handle
-            .current_read_position
-            .store(current_read_position, Ordering::Relaxed);
-
-        current_write_position += 1;
-        if current_write_position >= buffer_size {
-            current_write_position = 0;
-        }
-        self.handle
-            .current_write_position
-            .store(current_write_position, Ordering::Relaxed);
+        let write_sample = sample + delay_output * self.handle.feedback.get().into();
+        self.write(write_sample);
 
         delay_output
     }

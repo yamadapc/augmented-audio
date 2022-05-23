@@ -20,9 +20,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-pub use mono_delay::*;
-pub use reverb::*;
+use audio_processor_time::chorus::ChorusProcessor;
 
-pub mod chorus;
-pub mod mono_delay;
-pub mod reverb;
+fn main() {
+    let delay = ChorusProcessor::default();
+    audio_processor_standalone::audio_processor_main(delay);
+}

@@ -26,6 +26,7 @@ audio-garbage-collector = { path = "../audio-garbage-collector", version = "1.0.
 rand = { version = "0.8.5", features = ["small_rng"] }
 nalgebra = "0.31.0"
 augmented_oscillator = { version = "1.0.0-alpha.5", path = "../oscillator" }
+augmented-atomics = { version = "0.1.0-alpha.7", path = "../../data/atomics" }
 
 [dev-dependencies]
 audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../application/audio-processor-standalone" }
