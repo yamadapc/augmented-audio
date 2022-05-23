@@ -20,14 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-pub use free_verb::*;
+use assert_no_alloc::AllocDisabler;
 
-mod all_pass;
-mod free_verb;
-mod lowpass_feedback_comb_filter;
-pub mod mod_reverb;
-mod tuning;
-mod utils;
-
-#[cfg(test)]
-mod test_allocator;
+#[global_allocator]
+static A: AllocDisabler = AllocDisabler;

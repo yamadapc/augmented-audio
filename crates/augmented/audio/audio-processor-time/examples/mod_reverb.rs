@@ -22,7 +22,6 @@
 // THE SOFTWARE.
 use audio_processor_standalone::generic_standalone_run;
 use audio_processor_time::mod_reverb::*;
-use audio_processor_traits::BufferProcessor;
 
 fn main() {
     let reverb = ModReverbProcessor::default();

@@ -166,6 +166,38 @@ impl<Sample: Float + From<f32>> MonoDelayProcessor<Sample> {
         v.resize(max_delay_time, 0.0.into());
         v
     }
+
+    pub fn read(&self) -> Sample {
+        let read_position = self.handle().current_read_position.load(Ordering::Relaxed);
+        self.delay_buffer[read_position]
+    }
+
+    pub fn write(&mut self, sample: Sample) {
+        let write_position = self.handle().current_write_position.load(Ordering::Relaxed);
+        self.delay_buffer[write_position] = sample;
+    }
+
+    pub fn tick(&self) {
+        let buffer_size = self.handle.buffer_size.load(Ordering::Relaxed);
+        let mut current_read_position = self.handle.current_read_position.load(Ordering::Relaxed);
+
+        current_read_position += 1;
+        if current_read_position >= buffer_size {
+            current_read_position = 0;
+        }
+        self.handle
+            .current_read_position
+            .store(current_read_position, Ordering::Relaxed);
+
+        let mut current_write_position = self.handle.current_write_position.load(Ordering::Relaxed);
+        current_write_position += 1;
+        if current_write_position >= buffer_size {
+            current_write_position = 0;
+        }
+        self.handle
+            .current_write_position
+            .store(current_write_position, Ordering::Relaxed);
+    }
 }
 
 fn interpolate<S>(s1: S, s2: S, offset: S) -> S
@@ -225,18 +257,17 @@ impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Samp
         );
 
         current_read_position += 1;
-        current_write_position += 1;
-
         if current_read_position >= buffer_size {
             current_read_position = 0;
         }
-        if current_write_position >= buffer_size {
-            current_write_position = 0;
-        }
-
         self.handle
             .current_read_position
             .store(current_read_position, Ordering::Relaxed);
+
+        current_write_position += 1;
+        if current_write_position >= buffer_size {
+            current_write_position = 0;
+        }
         self.handle
             .current_write_position
             .store(current_write_position, Ordering::Relaxed);
