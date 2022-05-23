@@ -29,21 +29,21 @@ use actix::prelude::*;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref THREAD: ActorSystemThread = {
+    static ref THREAD: ActorSystem = {
         log::info!("Global actor system will start");
-        ActorSystemThread::with_new_system()
+        ActorSystem::with_new_system()
     };
 }
 
 #[derive(Debug)]
-pub struct ActorSystemThread {
+pub struct ActorSystem {
     #[allow(dead_code)]
-    system: actix::System,
+    system: System,
     arbiters: Vec<ArbiterHandle>,
     counter: Arc<AtomicUsize>,
 }
 
-impl ActorSystemThread {
+impl ActorSystem {
     pub fn current() -> &'static Self {
         &THREAD
     }
@@ -57,7 +57,7 @@ impl ActorSystemThread {
         std::thread::Builder::new()
             .name("actor-system-main".into())
             .spawn(move || {
-                let system = actix::System::new();
+                let system = System::new();
                 let mut arbiters = vec![Arbiter::current()];
                 for _ in 0..num_threads {
                     arbiters.push(Arbiter::new().handle());
@@ -110,13 +110,13 @@ impl ActorSystemThread {
 
     pub fn start<A>(actor: A) -> Addr<A>
     where
-        A: Actor<Context = actix::Context<A>> + Send,
+        A: Actor<Context = Context<A>> + Send,
     {
         Self::current().spawn_result(async move { actor.start() })
     }
 }
 
-impl Drop for ActorSystemThread {
+impl Drop for ActorSystem {
     fn drop(&mut self) {
         log::info!("Stopping actor system thread");
         self.spawn(async {
@@ -137,7 +137,7 @@ mod test {
         // In a block so that drop is tested as well
         {
             let _ = wisual_logger::try_init_from_env();
-            let _actor_system_thread = ActorSystemThread::with_new_system();
+            let _actor_system_thread = ActorSystem::with_new_system();
         }
     }
 
@@ -161,7 +161,7 @@ mod test {
         }
 
         let _ = wisual_logger::try_init_from_env();
-        let actor_system_thread = ActorSystemThread::with_new_system();
+        let actor_system_thread = ActorSystem::with_new_system();
 
         let addr: Addr<TestActor> =
             actor_system_thread.spawn_result(async { TestActor {}.start() });

@@ -87,7 +87,7 @@ class _TempoControlState extends State<TempoControl> {
                     onChanged: (value) {
                       widget.stateController.setTempo(value);
                     }, // onTempoChanged,
-                    onChangeEnd: (_value) {
+                    onChangeEnd: (value) {
                       var analytics = FirebaseAnalytics.instance;
                       analytics.logEvent(
                           name: "TempoControl__sliderTempoChanged");

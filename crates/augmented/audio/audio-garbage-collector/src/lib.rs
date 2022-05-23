@@ -47,6 +47,8 @@ pub fn make_shared_cell<T: Send + 'static>(value: T) -> SharedCell<T> {
     SharedCell::new(make_shared(value))
 }
 
+/// Create a new `basedrop::Shared` value using the default global `GarbageCollector`
+/// instance.
 pub fn make_shared<T: Send + 'static>(value: T) -> Shared<T> {
     Shared::new(handle(), value)
 }
@@ -64,7 +66,7 @@ struct GarbageCollectorState {
     collect_interval: Duration,
 }
 
-/// Wraps `basedrop::Collector` with a polling GC thread.
+/// Wraps [`basedrop::Collector`] with a polling GC thread.
 ///
 /// This drops reference counted variables on a dedicated thread to avoid deallocating from the
 /// audio thread.
@@ -84,7 +86,7 @@ impl Default for GarbageCollector {
 impl GarbageCollector {
     /// Create the collector and start the garbage collector thread
     pub fn new(collect_interval: Duration) -> Self {
-        let collector = basedrop::Collector::new();
+        let collector = Collector::new();
         let handle = collector.handle();
         let collector = Arc::new(Mutex::new(collector));
 
@@ -155,10 +157,7 @@ impl GarbageCollector {
     }
 }
 
-fn run_collector_loop(
-    collector: Arc<Mutex<basedrop::Collector>>,
-    state: Arc<Mutex<GarbageCollectorState>>,
-) {
+fn run_collector_loop(collector: Arc<Mutex<Collector>>, state: Arc<Mutex<GarbageCollectorState>>) {
     log::info!("Garbage collector thread started");
     loop {
         let (collect_interval, is_running) = state
@@ -198,7 +197,7 @@ mod test {
     #[test]
     fn test_gc_will_run_after_period() {
         let _ = wisual_logger::init_from_env();
-        let mut gc = GarbageCollector::new(Duration::from_millis(100));
+        let mut gc = GarbageCollector::new(Duration::from_millis(10));
 
         assert_eq!(gc.blocking_alloc_count(), 0);
         {
@@ -206,7 +205,7 @@ mod test {
             let _s2 = Shared::new(gc.handle(), 10);
             assert_eq!(gc.blocking_alloc_count(), 2);
         }
-        std::thread::sleep(Duration::from_millis(200));
+        std::thread::sleep(Duration::from_millis(50));
         assert_eq!(gc.blocking_alloc_count(), 0);
 
         gc.stop().unwrap();

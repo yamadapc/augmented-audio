@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Debug, Deserialize, Clone)]
+#[derive(Serialize, Debug, Deserialize, Clone, PartialEq)]
 pub struct ClientMetadata {
     pub client_id: String,
 }
@@ -35,7 +35,7 @@ impl ClientMetadata {
     }
 }
 
-#[derive(Serialize, Debug, Deserialize, Clone)]
+#[derive(Serialize, Debug, Deserialize, Clone, PartialEq)]
 pub enum AnalyticsEvent {
     ScreenView {
         application: String,
@@ -176,5 +176,100 @@ impl ScreenViewEventBuilder {
             application_installer_id: self.application_installer_id,
             content: self.content,
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_create_client_metadata() {
+        let client_metadata = ClientMetadata::new("xyz");
+        assert_eq!(client_metadata.client_id, "xyz");
+        assert_eq!(
+            client_metadata,
+            ClientMetadata {
+                client_id: "xyz".into()
+            }
+        );
+    }
+
+    #[test]
+    fn test_event_builder_works_with_all_fields() {
+        let event = AnalyticsEvent::event()
+            .value("10")
+            .action("click")
+            .label("sign-up button")
+            .category("ui")
+            .build();
+        assert_eq!(
+            event,
+            AnalyticsEvent::Event {
+                category: "ui".to_string(),
+                action: "click".to_string(),
+                label: Some("sign-up button".to_string()),
+                value: Some("10".to_string())
+            }
+        );
+    }
+
+    #[test]
+    fn test_event_builder_works_with_missing_optional_fields() {
+        let event = AnalyticsEvent::event()
+            .action("click")
+            .category("ui")
+            .build();
+        assert_eq!(
+            event,
+            AnalyticsEvent::Event {
+                category: "ui".to_string(),
+                action: "click".to_string(),
+                label: None,
+                value: None
+            }
+        );
+    }
+
+    #[test]
+    fn test_event_builder_returns_defaults() {
+        let event = AnalyticsEvent::event().build();
+        assert_eq!(event, AnalyticsEvent::default());
+    }
+
+    #[test]
+    fn test_screen_builder_works_with_all_fields() {
+        let screen = AnalyticsEvent::screen()
+            .application("test-application")
+            .version("0.99")
+            .content("home")
+            .id("app-id")
+            .installer_id("installer-id")
+            .build();
+        assert_eq!(
+            screen,
+            AnalyticsEvent::ScreenView {
+                application: "test-application".to_string(),
+                application_version: "0.99".to_string(),
+                application_id: Some("app-id".to_string()),
+                application_installer_id: Some("installer-id".to_string()),
+                content: "home".to_string()
+            }
+        );
+    }
+
+    #[test]
+    fn test_screen_builder_returns_defaults() {
+        let screen = AnalyticsEvent::screen().build();
+        assert_eq!(
+            screen,
+            AnalyticsEvent::ScreenView {
+                application: "".to_string(),
+                application_version: "".to_string(),
+                application_id: None,
+                application_installer_id: None,
+                content: "".to_string()
+            }
+        );
     }
 }

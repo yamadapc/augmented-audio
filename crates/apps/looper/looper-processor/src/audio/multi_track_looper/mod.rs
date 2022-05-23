@@ -23,19 +23,22 @@
 
 //! This module provides a `MultiTrackLooperProcessor`, which can sequence and loop 8 looper tracks
 //! with shared tempo.
+use std::convert::TryFrom;
+
 use assert_no_alloc::assert_no_alloc;
 use rustc_hash::FxHashMap as HashMap;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
+use audio_processor_metronome::MetronomeProcessor;
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
 use augmented_atomics::AtomicValue;
 use augmented_oscillator::Oscillator;
-use metronome::MetronomeProcessor;
 
 use crate::audio::time_info_provider::TimeInfoMetronomePlayhead;
+use crate::parameters::LFOMode;
 use crate::{LooperOptions, TimeInfoProvider, TimeInfoProviderImpl};
 
 pub use self::handle::MultiTrackLooperHandle;
@@ -122,9 +125,9 @@ impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
 
-        let metronome = metronome::MetronomeProcessor::new(TimeInfoMetronomePlayhead(
-            time_info_provider.clone(),
-        ));
+        let metronome = audio_processor_metronome::MetronomeProcessor::new(
+            TimeInfoMetronomePlayhead(time_info_provider.clone()),
+        );
         let metronome_handle = metronome.handle().clone();
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);
@@ -326,14 +329,25 @@ impl MultiTrackLooper {
         voice: &&LooperVoice,
     ) {
         for (lfo_index, (lfo_osc, lfo_handle)) in lfos.iter_mut().enumerate() {
-            let freq_idx = ParameterId::ParameterIdLFO(lfo_index, LFOParameter::Frequency);
-            let amount_idx = ParameterId::ParameterIdLFO(lfo_index, LFOParameter::Amount);
+            let freq_idx =
+                ParameterId::ParameterIdLFO(lfo_index, LFOParameter::LFOParameterFrequency);
+            let freq_idx = parameter_scratch_indexes[&freq_idx];
+            let amount_idx =
+                ParameterId::ParameterIdLFO(lfo_index, LFOParameter::LFOParameterAmount);
+            let amount_idx = parameter_scratch_indexes[&amount_idx];
+            let lfo_mode_idx =
+                ParameterId::ParameterIdLFO(lfo_index, LFOParameter::LFOParameterMode);
+            let lfo_mode_idx = parameter_scratch_indexes[&lfo_mode_idx];
 
             let scratch = &mut parameters_scratch[voice.id];
 
-            let freq = scratch[parameter_scratch_indexes[&freq_idx]].as_float();
+            let freq = scratch[freq_idx].as_float();
             lfo_osc.set_frequency(freq);
-            let global_amount = scratch[parameter_scratch_indexes[&amount_idx]].as_float();
+            let lfo_mode: LFOMode =
+                LFOMode::try_from(scratch[lfo_mode_idx].as_enum()).unwrap_or(LFOMode::LFOModeSine);
+            lfo_osc.set_generator(lfo_mode.generator_fn());
+
+            let global_amount = scratch[amount_idx].as_float();
 
             for (parameter_idx, parameter) in voice.parameter_ids().iter().enumerate() {
                 let modulation_amount = lfo_handle.modulation_amount(parameter);
@@ -631,12 +645,15 @@ mod test {
 
     #[test]
     fn test_process_doesnt_alloc() {
+        wisual_logger::init_from_env();
         let mut looper = MultiTrackLooper::new(Default::default(), 8);
-        let settings = AudioProcessorSettings::default();
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
         let mut buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
 
         looper.prepare(settings);
         let num_frames = buffer.len() / settings.block_size();
+        log::info!("Processing num_frames={}", num_frames);
         for frame in 0..num_frames {
             let start_index = frame * settings.block_size();
             let end_index = start_index + settings.block_size();
@@ -647,8 +664,11 @@ mod test {
 
     #[test]
     fn test_processor_starts_silent() {
+        wisual_logger::init_from_env();
         let mut processor = MultiTrackLooper::default();
-        processor.prepare(AudioProcessorSettings::default());
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
+        processor.prepare(settings);
         let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
         processor.process(&mut buffer);
         assert_eq!(buffer.slice(), [0.0, 0.0, 0.0, 0.0])
@@ -657,7 +677,9 @@ mod test {
     #[test]
     fn test_processor_will_playback_set_looper_buffer() {
         let mut processor = MultiTrackLooper::new(Default::default(), 1);
-        processor.prepare(AudioProcessorSettings::default());
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
+        processor.prepare(settings);
 
         let looper = processor.handle().voices()[0].looper().clone();
         let mut looper_buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
@@ -674,7 +696,9 @@ mod test {
     #[test]
     fn test_we_can_set_start_on_a_looper() {
         let mut processor = MultiTrackLooper::default();
-        processor.prepare(AudioProcessorSettings::default());
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
+        processor.prepare(settings);
         processor
             .handle()
             .set_source_parameter(LooperId(0), SourceParameter::Start, 0.5);
@@ -823,7 +847,7 @@ mod test {
         assert_eq!(
             &buffer
                 .slice()
-                .into_iter()
+                .iter()
                 .map(|f| (f * 10.0) as usize)
                 // TODO - This is broken; the clip should be 40 samples long
                 .take(39)
@@ -884,7 +908,8 @@ mod test {
 
     #[test]
     fn test_map_lfo_to_pitch_modulation() {
-        let settings = AudioProcessorSettings::default();
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
         let mut looper = MultiTrackLooper::new(Default::default(), 1);
         let looper_voice = looper.handle.voices()[0].looper().clone();
 

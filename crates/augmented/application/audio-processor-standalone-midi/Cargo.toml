@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone-midi"
-version = "1.0.0-alpha.8"
+version = "1.0.0-alpha.9"
 edition = "2018"
 description = "Stand-alone MIDI hosting for a VST host or an `audio-processor-traits` implementor"
 license = "MIT"
@@ -11,14 +11,14 @@ repository = "https://github.com/yamadapc/augmented-audio"
 actix = "0.13.0"
 basedrop = "^0.1.2"
 thiserror = "^1.0.26"
-midir = "^0.7.0"
+midir = { version = "0.8.0-pre", path = "../../data/augmented-midi/midir" }
 log = "^0.4.14"
 vst = { version = "^0.2.1", path = "../../../vendor/vst" }
 
 # augmented
-atomic-queue = { version = "1.0.0-alpha.3", path = "../../data/atomic-queue" }
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../audio/audio-processor-traits" }
-audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
+atomic-queue = { version = "1.0.0-alpha.4", path = "../../data/atomic-queue" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../audio/audio-processor-traits" }
+audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
 
 [dev-dependencies]
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }

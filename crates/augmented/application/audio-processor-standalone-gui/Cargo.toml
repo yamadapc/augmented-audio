@@ -2,6 +2,10 @@
 name = "audio-processor-standalone-gui"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
 default = [
@@ -31,7 +35,7 @@ wgpu = [
 ]
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.5",  path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.6",  path = "../../audio/audio-processor-traits" }
 vst = { version = "0.2.1", path = "../../../vendor/vst" }
 
 # GUI dependencies

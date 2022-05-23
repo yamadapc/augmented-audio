@@ -18,6 +18,7 @@ members = [
     "crates/scripts/midi-logger-host",
     # Demos & Experiments
     "crates/spikes/example-iced-audio-viz",
+    "crates/spikes/visualisation_",
     "crates/spikes/example-iced-xcode-integration",
     # Augmented framework
     "crates/augmented/augmented",
@@ -35,6 +36,7 @@ members = [
     "crates/augmented/audio/audio-processor-graph",
     "crates/augmented/audio/audio-processor-traits",
     "crates/augmented/audio/audio-processor-traits-derive",
+    "crates/augmented/audio/audio-processor-metronome",
     "crates/augmented/audio/audio-processor-pitch-shifter",
     "crates/augmented/audio/audio-processor-utility",
     "crates/augmented/audio/audio-processor-file",

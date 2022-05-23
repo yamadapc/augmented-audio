@@ -55,11 +55,11 @@ mod test {
     use crate::ForeignCallback;
 
     extern "C" fn closure_forwarder(context: *mut c_void, value: usize) {
-        let context: &mut &mut dyn Fn(usize) -> () = unsafe { std::mem::transmute(context) };
+        let context: &mut &mut dyn Fn(usize) = unsafe { std::mem::transmute(context) };
         context(value);
     }
 
-    /// This test passes a rust closure into ForeignCallback, as if it was a C ffi compliant
+    /// This test passes a rust closure into `ForeignCallback`, as if it was a C FFI compliant
     /// function it then tests that this closure is properly called.
     #[test]
     pub fn test_foreign_callback() {
@@ -71,7 +71,7 @@ mod test {
             let holder = holder.clone();
             move |value| holder.set(value)
         };
-        let context: Box<Box<dyn Fn(usize) -> ()>> = Box::new(Box::new(closure));
+        let context: Box<Box<dyn Fn(usize)>> = Box::new(Box::new(closure));
         let context = Box::into_raw(context) as *mut c_void;
         let foreign_callback = ForeignCallback {
             context,

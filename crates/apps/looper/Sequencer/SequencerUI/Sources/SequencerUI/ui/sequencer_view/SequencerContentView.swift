@@ -38,8 +38,11 @@ struct SequencerContentView: View {
                     )
                     .bindToNilParameter(store: store)
 
-                    SceneSliderView(sceneState: store.sceneState).padding(PADDING)
-                        .bindToNilParameter(store: store)
+                    SceneSliderView(
+                        sceneState: store.sceneState
+                    )
+                    .padding(PADDING)
+                    .bindToNilParameter(store: store)
 
                     HStack(spacing: 0) {
                         TracksPanelContentView()
@@ -65,6 +68,8 @@ struct SequencerContentView: View {
             }
 
             if store.midiMappingActive {
+                Rectangle().fill(SequencerColors.black3)
+                    .frame(maxWidth: 1, maxHeight: .infinity)
                 MIDIMappingPanelView(midi: store.midi)
                     .bindToNilParameter(store: store)
             }

@@ -23,7 +23,7 @@
 use actix::Addr;
 use basedrop::Shared;
 
-use actix_system_threads::ActorSystemThread;
+use actix_system_threads::ActorSystem;
 use audio_processor_traits::AudioBuffer;
 
 use crate::audio::multi_track_looper::looper_voice::LooperVoice;
@@ -43,7 +43,7 @@ pub struct LoadContext {
 }
 
 pub fn load_and_hydrate_latest_project(context: LoadContext) -> anyhow::Result<()> {
-    ActorSystemThread::current()
+    ActorSystem::current()
         .spawn_result(async { run_load_latest_project(context).await })
         .map_err(|err| {
             log::error!("Failed to load latest project: {}", err);

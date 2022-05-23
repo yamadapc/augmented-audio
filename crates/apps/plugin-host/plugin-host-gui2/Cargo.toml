@@ -3,6 +3,9 @@ name = "plugin-host-gui2"
 description = "A VST plugin host for development"
 version = "0.1.0"
 edition = "2018"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+license = "MIT"
 
 [dependencies]
 actix = "0.13.0"
@@ -28,11 +31,11 @@ shaku = { version = "^0.6.1", features = ["derive"] }
 
 augmented = { path = "../../../augmented/augmented", features = ["glow"] }
 
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../../augmented/audio/audio-processor-traits" }
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../../augmented/audio/audio-processor-traits" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", features = ["glow"], default-features = false }
-augmented-audio-volume = { path = "../../../augmented/data/audio-volume" , version = "0.1.0-alpha.5" }
+augmented-audio-volume = { path = "../../../augmented/data/audio-volume" , version = "0.1.0-alpha.6" }
 iced = { version = "^0.3.0", path = "../../../vendor/iced", features = ["debug", "glow", "glow_canvas"], default-features = false }
 iced_core = { version = "^0.4", path = "../../../vendor/iced/core", default-features = false  }
 iced_native = { version = "^0.4", path = "../../../vendor/iced/native", default-features = false }
@@ -42,8 +45,9 @@ wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger"
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
-augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.4" }
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.5" }
+augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.5" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.6" }
+tempdir = "0.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "^0.24.0"

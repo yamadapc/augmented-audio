@@ -35,6 +35,7 @@ struct LFOStateSingleView: View {
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
+                LFOModeButtonsView(lfoState: lfoState)
                 LFOVisualisationView(lfoState: lfoState)
                 LFOPanelContentView(lfoState: lfoState)
             }
@@ -115,5 +116,12 @@ struct LFOStateView: View {
 
             LFOStateSingleView(lfoState: store.currentTrackState().lfo2)
         }
+    }
+}
+
+struct LFOStateView_Previews: PreviewProvider {
+    static var previews: some View {
+        LFOStateView()
+            .environmentObject(Store(engine: nil))
     }
 }

@@ -37,7 +37,6 @@ use looper_processor::{MultiTrackLooperHandle, TimeInfoProvider};
 use looper_visualization::LooperVisualizationView;
 use style::ContainerStyle;
 
-use crate::services::audio_file_manager::AudioFileManager;
 use crate::ui::audio_editor_view::AudioEditorView;
 use crate::ui::looper_visualization::LooperVisualizationDrawModelImpl;
 
@@ -59,12 +58,11 @@ pub struct LooperApplication {
     looper_visualizations: Vec<LooperVisualizationView>,
     knobs_view: bottom_panel::BottomPanelView,
     sequencer_view: sequencer::SequencerView,
-    audio_file_manager: AudioFileManager,
     audio_editor_view: AudioEditorView,
     tabs_view: tabs::State,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Message {
     BottomPanel(bottom_panel::Message),
     VisualizationTick,
@@ -89,7 +87,6 @@ impl Application for LooperApplication {
         (
             LooperApplication {
                 processor_handle: processor_handle.clone(),
-                audio_file_manager: AudioFileManager::new(),
                 audio_editor_view: AudioEditorView::default(),
                 looper_visualizations: processor_handle
                     .voices()
@@ -116,7 +113,11 @@ impl Application for LooperApplication {
         )
     }
 
-    fn update(&mut self, message: Self::Message) -> Command<Self::Message> {
+    fn update(
+        &mut self,
+        _window_queue: &mut iced_baseview::WindowQueue,
+        message: Self::Message,
+    ) -> Command<Self::Message> {
         match message {
             WrapperMessage::Inner(message) => self.update_inner(message),
             WrapperMessage::TabsView(tabs::Message::Inner(message)) => self.update_inner(message),
@@ -221,12 +222,10 @@ impl LooperApplication {
                     .for_each(|v| v.tick_visualization());
                 Command::none()
             }
-            Message::FileDropped(path) => {
-                let _file_id = self.audio_file_manager.read_file(path);
-                Command::none()
-            }
-            Message::FileHover(_path) => Command::none(),
             Message::None => Command::none(),
+            // TODO: Implement drag-and-drop of clips?
+            Message::FileHover(_path) => Command::none(),
+            Message::FileDropped(_path) => Command::none(),
         }
     }
 }

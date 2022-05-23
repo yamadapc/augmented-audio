@@ -32,7 +32,7 @@
 		CB2BD6F5278E0494004D4594 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F4278E0494004D4594 /* AVFAudio.framework */; };
 		CB2BD6F7278E04A1004D4594 /* AudioUnit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F6278E04A1004D4594 /* AudioUnit.framework */; };
 		CB2BD6F9278E04AB004D4594 /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F8278E04AB004D4594 /* CoreMIDI.framework */; };
-		CBBBC301280D22A500316B28 /* libmetronome.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CBBBC2FB280D203D00316B28 /* libmetronome.a */; };
+		CB650956282C6947005822D3 /* libmetronome.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB650955282C6942005822D3 /* libmetronome.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -88,6 +88,7 @@
 		CB2BD6F6278E04A1004D4594 /* AudioUnit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioUnit.framework; path = System/Library/Frameworks/AudioUnit.framework; sourceTree = SDKROOT; };
 		CB2BD6F8278E04AB004D4594 /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		CB6435B0277965AC00E80800 /* libmetronome.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmetronome.dylib; path = ../../../../target/release/libmetronome.dylib; sourceTree = "<group>"; };
+		CB650955282C6942005822D3 /* libmetronome.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmetronome.a; path = ../public/lib/macos/libmetronome.a; sourceTree = "<group>"; };
 		CBBBC2FB280D203D00316B28 /* libmetronome.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmetronome.a; path = "../../../../target/x86_64-apple-darwin/release/libmetronome.a"; sourceTree = "<group>"; };
 		CBBBC2FD280D21BE00316B28 /* libmetronome.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmetronome.a; path = ../../../../target/universal/release/libmetronome.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -97,8 +98,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB650956282C6947005822D3 /* libmetronome.a in Frameworks */,
 				CB2BD6F9278E04AB004D4594 /* CoreMIDI.framework in Frameworks */,
-				CBBBC301280D22A500316B28 /* libmetronome.a in Frameworks */,
 				CB2BD6F7278E04A1004D4594 /* AudioUnit.framework in Frameworks */,
 				CB2BD6F5278E0494004D4594 /* AVFAudio.framework in Frameworks */,
 				CB2BD6F3278E0489004D4594 /* CoreAudio.framework in Frameworks */,
@@ -192,6 +193,7 @@
 			children = (
 				CBBBC2FB280D203D00316B28 /* libmetronome.a */,
 				CBBBC2FD280D21BE00316B28 /* libmetronome.a */,
+				CB650955282C6942005822D3 /* libmetronome.a */,
 				CB2BD6F8278E04AB004D4594 /* CoreMIDI.framework */,
 				CB2BD6F6278E04A1004D4594 /* AudioUnit.framework */,
 				CB2BD6F4278E0494004D4594 /* AVFAudio.framework */,
@@ -441,7 +443,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../../../target/x86_64-apple-darwin/release/";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/macos";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -462,7 +464,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -470,7 +472,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.6.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -530,7 +532,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../../../target/x86_64-apple-darwin/release/";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/macos";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -580,7 +582,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../../../target/x86_64-apple-darwin/release/";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/macos";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
@@ -601,7 +603,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -609,7 +611,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.6.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -628,7 +630,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 13;
 				DEVELOPMENT_TEAM = Q39U2SBP6Z;
 				INFOPLIST_FILE = Runner/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -636,7 +638,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
-				MARKETING_VERSION = 1.4.0;
+				MARKETING_VERSION = 1.6.0;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";

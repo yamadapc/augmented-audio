@@ -50,16 +50,15 @@ public class EngineController {
             self.flushParametersInfo(parameters: allParameters())
         }
 
-        self.loadInitialState()
+        loadInitialState()
     }
 
     func loadInitialState() {
-      for track in self.store.trackStates {
-        let hasBuffer = looper_engine__has_looper_buffer(engine.engine, track.id)
-        if hasBuffer {
-          self.readLooperBuffer(track.id)
+        for track in store.trackStates {
+            if engine.hasLooperBuffer(looperId: track.id) {
+                readLooperBuffer(track.id)
+            }
         }
-      }
     }
 
     func setupMidiSubscription() {
@@ -75,7 +74,9 @@ public class EngineController {
 
     func setupApplicationEventsSubscription() {
         logger.info("Setting-up application events")
-        let stream = buildApplicationEventStream(registerStream: { cb in looper_engine__register_events_callback(self.engine.engine, cb) })
+        let stream = buildApplicationEventStream(registerStream: { cb in
+            self.engine.registerEventsCallback(cb)
+        })
         stream.sink(receiveValue: { event in
             switch event.tag {
             case ApplicationEventLooperClipUpdated:
@@ -90,11 +91,7 @@ public class EngineController {
 
     public func loadExampleFileBuffer() {
         DispatchQueue.global(qos: .background).async {
-            let exampleBuffer = looper__get_example_buffer()
-            let bufferPtr = UnsafeBufferPointer<Float32>(
-                start: exampleBuffer.ptr,
-                count: Int(exampleBuffer.count)
-            )
+            let bufferPtr = EngineImpl.getExampleBuffer()
             DispatchQueue.main.async {
                 self.store.setTrackBuffer(trackId: 1, fromUnsafePointer: bufferPtr)
             }
@@ -102,7 +99,7 @@ public class EngineController {
     }
 
     func flushMetricsInfo() {
-        let stats = looper_engine__get_stats(engine.engine)
+        let stats = self.engine.getStats()
         store.processorMetrics.setStats(
             averageCpu: stats.average_cpu,
             maxCpu: stats.max_cpu,
@@ -121,7 +118,10 @@ public class EngineController {
                   let rustId = getObjectIdRust(parameterId)
             else { return }
 
-            let value = looper_engine__get_parameter_value(self.engine.engine, trackId, rustId)
+            let value = engine.getParameterValue(
+                looperId: trackId,
+                parameterId: rustId
+            )
             switch value.tag {
             case CParameterValueFloat:
                 parameter.setFloatValue(value.c_parameter_value_float)
@@ -142,7 +142,7 @@ public class EngineController {
     }
 
     func flushPollInfo() {
-        let playhead = looper_engine__get_playhead_position(engine.engine)
+        let playhead = engine.getPlayheadPosition()
 
         for trackState in store.trackStates {
             pollTrackState(trackState)
@@ -175,14 +175,14 @@ public class EngineController {
         pollLooperBuffer(trackId, trackState)
         pollSliceBuffer(trackState, trackId)
 
-        let positionPercent = looper_engine__get_looper_position(engine.engine, trackId)
+        let positionPercent = engine.getLooperPosition(looperId: trackId)
         if trackState.positionPercent != positionPercent {
             trackState.positionPercent = positionPercent
         }
     }
 
     fileprivate func pollLooperBuffer(_ trackId: UInt, _ trackState: TrackState) {
-        let looperState = convertState(looperState: looper_engine__get_looper_state(engine.engine, trackId))
+        let looperState = convertState(looperState: engine.getLooperState(looperId: trackId))
 
         if trackState.looperState != looperState {
             if looperState == .playing {
@@ -197,8 +197,7 @@ public class EngineController {
     fileprivate func pollSliceBuffer(_ trackState: TrackState, _ trackId: UInt) {
         // TODO: - this is a bad strategy; somehow the buffer should be set only on changes
         if trackState.sliceBuffer == nil {
-            let sliceBuffer = looper_engine__get_looper_slices(engine.engine, trackId)
-            let nativeBuffer = SliceBufferImpl(inner: sliceBuffer!)
+            let nativeBuffer = engine.getLooperSlices(looperId: trackId)
             if nativeBuffer.count > 0 {
                 store.setSliceBuffer(trackId: trackId, fromAbstractBuffer: nativeBuffer)
                 logger.info("Received slice buffer from rust", metadata: [
@@ -212,65 +211,8 @@ public class EngineController {
      * Forcefully read the looper buffer from the rust side and update the store
      */
     fileprivate func readLooperBuffer(_ trackId: UInt) {
-        let buffer = looper_engine__get_looper_buffer(engine.engine, trackId)
-        let trackBuffer = LooperBufferTrackBuffer(inner: buffer!)
+        let trackBuffer = engine.getLooperBuffer(looperId: trackId)
         store.setTrackBuffer(trackId: trackId, fromAbstractBuffer: trackBuffer)
-    }
-}
-
-class LooperBufferTrackBuffer {
-    private var inner: OpaquePointer
-
-    init(inner: OpaquePointer) {
-        self.inner = inner
-    }
-
-    deinit {
-        looper_buffer__free(inner)
-    }
-}
-
-extension LooperBufferTrackBuffer: TrackBuffer {
-    var id: Int { inner.hashValue }
-    var count: Int { Int(looper_buffer__num_samples(inner)) }
-    subscript(index: Int) -> Float {
-        looper_buffer__get(inner, UInt(index))
-    }
-
-    func equals(other: TrackBuffer) -> Bool {
-        if let otherBuffer = other as? LooperBufferTrackBuffer {
-            return inner == otherBuffer.inner
-        } else {
-            return false
-        }
-    }
-}
-
-class SliceBufferImpl {
-    private var inner: OpaquePointer
-
-    init(inner: OpaquePointer) {
-        self.inner = inner
-    }
-
-    deinit {
-        slice_buffer__free(inner)
-    }
-}
-
-extension SliceBufferImpl: SliceBuffer {
-    var id: Int { inner.hashValue }
-    var count: Int { Int(slice_buffer__length(inner)) }
-    subscript(index: Int) -> UInt {
-        slice_buffer__get(inner, UInt(index))
-    }
-
-    func equals(other: SliceBuffer) -> Bool {
-        if let otherBuffer = other as? SliceBufferImpl {
-            return inner == otherBuffer.inner
-        } else {
-            return false
-        }
     }
 }
 

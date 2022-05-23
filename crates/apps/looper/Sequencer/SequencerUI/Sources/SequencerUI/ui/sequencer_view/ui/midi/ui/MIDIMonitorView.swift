@@ -25,7 +25,7 @@ struct MIDIMonitorView: View {
                 .bold()
                 .padding(PADDING)
                 .frame(maxWidth: .infinity)
-                .background(SequencerColors.black3)
+                .background(SequencerColors.black)
 
             List(
                 midi.getLastMidiMessages().reversed(),

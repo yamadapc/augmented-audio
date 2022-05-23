@@ -33,7 +33,7 @@
         "repositoryURL": "https://github.com/nicklockwood/LRUCache.git",
         "state": {
           "branch": null,
-          "revision": "40039c212a82a044c0e2aff5c9f1daaf1f1f0624",
+          "revision": "b2bd97c3b75e5042c5ab464fdc71fcd8217d11b4",
           "version": "1.0.2"
         }
       },
@@ -89,6 +89,15 @@
           "branch": null,
           "revision": "6f6860f43e9fb8179dd963fe627ce67e0fc8aedf",
           "version": "0.49.6"
+        }
+      },
+      {
+        "package": "WebView",
+        "repositoryURL": "https://github.com/kylehickinson/SwiftUI-WebView/",
+        "state": {
+          "branch": null,
+          "revision": "a67dcaff2377573a51f75761bb6e768b78931909",
+          "version": "0.3.0"
         }
       },
       {

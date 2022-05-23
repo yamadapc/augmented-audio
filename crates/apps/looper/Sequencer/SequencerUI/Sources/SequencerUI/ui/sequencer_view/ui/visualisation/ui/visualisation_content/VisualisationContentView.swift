@@ -37,7 +37,7 @@ struct VisualisationContentView: View {
                 LFOVisualisationView(lfoState: currentTrack.lfo2)
             }
         default:
-            Text("No tab content").foregroundColor(SequencerColors.white)
+            ZStack {}
         }
     }
 }

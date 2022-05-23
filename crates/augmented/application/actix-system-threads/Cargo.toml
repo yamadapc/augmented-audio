@@ -2,6 +2,10 @@
 name = "actix-system-threads"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 actix = "0.13"
@@ -11,3 +15,6 @@ num_cpus = "1.13"
 
 [dev-dependencies]
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
+
+[package.metadata.augmented]
+private = true

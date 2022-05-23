@@ -24,15 +24,66 @@ use std::sync::Arc;
 
 use vst::buffer::AudioBuffer;
 
+use audio_parameter_store::ParameterStore;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 use augmented_oscillator::Oscillator;
 
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
-use audio_parameter_store::ParameterStore;
 
 pub struct Processor {
     parameters: Arc<ParameterStore>,
     oscillator_left: Oscillator<f32>,
     oscillator_right: Oscillator<f32>,
+}
+
+impl AudioProcessor for Processor {
+    type SampleType = f32;
+
+    fn prepare(&mut self, settings: AudioProcessorSettings) {
+        self.set_sample_rate(settings.sample_rate());
+    }
+
+    fn process<BufferType: audio_processor_traits::AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        buffer: &mut BufferType,
+    ) {
+        let rate = self.parameters.value(RATE_PARAMETER_ID);
+        let depth = self.parameters.value(DEPTH_PARAMETER_ID) / 100.0;
+        let phase_offset = self.parameters.value(PHASE_PARAMETER_ID) / 360.0;
+
+        self.oscillator_left.set_frequency(rate);
+        self.oscillator_right.set_frequency(rate);
+
+        let num_channels = buffer.num_channels();
+        let num_samples = buffer.num_samples();
+
+        for channel in 0..num_channels {
+            let osc = if channel == 0 {
+                &mut self.oscillator_left
+            } else {
+                &mut self.oscillator_right
+            };
+
+            for sample_index in 0..num_samples {
+                let volume = if channel == 0 {
+                    osc.next_sample()
+                } else {
+                    let value = osc.value_for_phase(osc.phase() + phase_offset);
+                    osc.tick();
+                    value
+                };
+
+                let dry_signal = buffer.get(channel % num_samples, sample_index);
+                let wet_signal = volume * *dry_signal;
+                // mixed_signal = (1.0 - depth) * dry + depth * wet
+                // mixed_signal = dry - dry * depth + depth * wet
+                let mixed_signal = dry_signal + depth * (wet_signal - dry_signal);
+
+                let output = buffer.get_mut(channel % num_samples, sample_index);
+                *output = mixed_signal;
+            }
+        }
+    }
 }
 
 impl Processor {

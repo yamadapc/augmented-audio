@@ -132,6 +132,9 @@ fn draw_audio_chart(
     is_recording: bool,
     samples_iterator: &VecAudioBuffer<AtomicF32>,
 ) {
+    if samples_iterator.num_channels() == 0 {
+        return;
+    }
     let mut path = iced::canvas::path::Builder::new();
     let step = (samples_iterator.num_samples() / frame.width() as usize).max(1);
     for (index, samples_frame) in samples_iterator.frames().enumerate().step_by(step) {

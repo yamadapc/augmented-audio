@@ -1,6 +1,6 @@
 [package]
 name = "augmented-midi"
-version = "1.0.0-alpha.5"
+version = "1.0.0-alpha.6"
 edition = "2021"
 description = "Experimental MIDI file/event parser using nom combinators"
 license = "MIT"
@@ -13,7 +13,7 @@ exclude = [
 ]
 
 [dependencies]
-audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "1.0.0-alpha.5" }
+audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "1.0.0-alpha.6" }
 nom = "7.1.0"
 cookie-factory = "0.3"
 
@@ -25,13 +25,7 @@ itertools = "0.10.1"
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }
 rimd = "0.0.1"
 
-[dev-dependencies.midir]
-version = "0.7.0"
-path = "./midir"
-## See: https://github.com/Boddlnagg/midir/pull/95 and
-## https://github.com/Boddlnagg/midir/issues/94
-# git = "https://github.com/yamadapc/midir"
-# branch = "issue/fix-sending-midi-via-iac"
+midir = { path = "./midir" }
 
 [[bench]]
 name = "augmented_midi_criterion"

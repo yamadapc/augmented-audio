@@ -1,20 +1,25 @@
-// = copyright ====================================================================
-// Simple Metronome: macOS Metronome app
-// Copyright (C) 2022  Pedro Tacla Yamada
+// Augmented Audio: Audio libraries and applications
+// Copyright (c) 2022 Pedro Tacla Yamada
 //
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as published
-// by the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
+// The MIT License (MIT)
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU Affero General Public License for more details.
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
 //
-// You should have received a copy of the GNU Affero General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-// = /copyright ===================================================================
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 use std::time::Duration;
 
@@ -43,16 +48,32 @@ impl MetronomeProcessorHandle {
         self.tempo.set(value);
     }
 
+    pub fn tempo(&self) -> f32 {
+        self.tempo.get()
+    }
+
     pub fn set_is_playing(&self, value: bool) {
         self.is_playing.store(value, Ordering::Relaxed);
+    }
+
+    pub fn is_playing(&self) -> bool {
+        self.is_playing.load(Ordering::Relaxed)
     }
 
     pub fn set_volume(&self, value: f32) {
         self.volume.set(value);
     }
 
+    pub fn volume(&self) -> f32 {
+        self.volume.get()
+    }
+
     pub fn position_beats(&self) -> f32 {
         self.position_beats.get()
+    }
+
+    pub fn beats_per_bar(&self) -> i32 {
+        self.beats_per_bar.load(Ordering::Relaxed)
     }
 
     pub fn set_beats_per_bar(&self, value: i32) {
@@ -60,7 +81,7 @@ impl MetronomeProcessorHandle {
     }
 }
 
-/// This is so that consumers can control the playhead and metronome just follow
+/// This is so that consumers can control the play-head and metronome just follow
 ///
 /// There are two types of methods here:
 ///

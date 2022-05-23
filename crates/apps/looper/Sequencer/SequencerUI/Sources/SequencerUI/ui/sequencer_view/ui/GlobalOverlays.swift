@@ -49,12 +49,51 @@ struct SceneDragOverlayView: View {
     }
 }
 
+@available(macOS 12.0, *)
+struct ModalOverlayView: View {
+    @ObservedObject var modalState: ModalState
+    @EnvironmentObject var store: Store
+    @State var alertShown: Bool = false
+
+    var body: some View {
+        ZStack {
+            if modalState.modal == .analyticsModal {
+                Rectangle()
+                    .fill(SequencerColors.black0.opacity(0.8))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        alertShown = true
+                    }
+                    .alert(
+                        "Send usage statistics (you can change this in preferences later)",
+                        isPresented: $alertShown
+                    ) {
+                        Button("Yes", action: {
+                            alertShown = false
+                            modalState.modal = nil
+                            store.isAnalyticsEnabled = true
+                        })
+                        Button("No", action: {
+                            alertShown = false
+                            modalState.modal = nil
+                            store.isAnalyticsEnabled = false
+                        })
+                    }
+            }
+        }
+        .allowsHitTesting(true)
+    }
+}
+
 struct GlobalOverlays: View {
     @EnvironmentObject var store: Store
 
     var body: some View {
         ZStack {
             SceneDragOverlayView(focusState: store.focusState)
+            if #available(macOS 12.0, *) {
+                ModalOverlayView(modalState: store.modalState)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .allowsHitTesting(false)

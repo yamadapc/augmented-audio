@@ -20,6 +20,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! Alias for [`audio_processor_standalone`]
+
+#[doc(inline)]
+pub use audio_processor_standalone;
 pub use audio_processor_standalone::audio_processor_main;
 pub use audio_processor_standalone::audio_processor_main_with_midi;
 pub use audio_processor_standalone::audio_processor_start;

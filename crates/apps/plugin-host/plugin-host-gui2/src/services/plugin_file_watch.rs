@@ -43,6 +43,7 @@ pub enum State {
     Finished,
 }
 
+#[derive(Debug, PartialEq)]
 pub enum FileWatchMessage {
     Started,
     Changed,
@@ -88,7 +89,11 @@ fn run_file_watch_loop(
                 Ok(_) => match get_file_hash(plugin_path) {
                     Ok(new_hash) => {
                         if new_hash == current_hash {
-                            log::warn!("Ignoring event due to same plugin hash");
+                            log::warn!(
+                                "Ignoring event due to same plugin hash curret_hash={} new_hash={}",
+                                current_hash,
+                                new_hash
+                            );
                             continue;
                         } else {
                             log::info!(
@@ -168,19 +173,16 @@ impl FileWatcher {
     /// message or future state.
     async fn tick_stream(mut state: State) -> Option<(FileWatchMessage, State)> {
         match state {
-            State::Ready { file_path } => FileWatcher::start_stream(file_path),
+            State::Ready { file_path } => Some(FileWatcher::start_stream(file_path)),
             State::Watching {
                 ref mut message_rx, ..
             } => message_rx.recv().await.map(|message| (message, state)),
-            State::Finished => {
-                let _: () = iced::futures::future::pending().await;
-                None
-            }
+            State::Finished => None,
         }
     }
 
     /// Start the file-watcher thread and update the state.
-    fn start_stream(file_path: PathBuf) -> Option<(FileWatchMessage, State)> {
+    fn start_stream(file_path: PathBuf) -> (FileWatchMessage, State) {
         log::info!("Starting file-watcher over {}", file_path.to_str().unwrap());
         let (tx, rx) = channel();
         let (output_tx, output_rx) = tokio::sync::mpsc::channel(BUFFER_SIZE);
@@ -188,23 +190,23 @@ impl FileWatcher {
         if let Ok(mut watcher) = watcher(tx, Duration::from_secs(2)) {
             if let Err(err) = watcher.watch(file_path.clone(), RecursiveMode::NonRecursive) {
                 log::error!("Failure to watch path {}", err);
-                return Some((FileWatchMessage::Error, State::Finished));
+                return (FileWatchMessage::Error, State::Finished);
             }
 
             let thread = tokio::task::spawn_blocking({
                 let plugin_file = file_path;
                 move || run_file_watch_loop(&plugin_file, rx, output_tx)
             });
-            Some((
+            (
                 FileWatchMessage::Started,
                 State::Watching {
                     thread,
                     watcher,
                     message_rx: output_rx,
                 },
-            ))
+            )
         } else {
-            Some((FileWatchMessage::Error, State::Finished))
+            (FileWatchMessage::Error, State::Finished)
         }
     }
 }
@@ -212,6 +214,92 @@ impl FileWatcher {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    // MARK: Integration tests
+    #[test]
+    fn test_get_file_hash() {
+        let dir = tempdir::TempDir::new("plugin_host_test").unwrap();
+        let file_path = dir.path().join("hashed-file");
+
+        std::fs::write(&file_path, "hello world").unwrap();
+        let h = get_file_hash(&file_path).unwrap();
+        assert_eq!(h, "5eb63bbbe01eeed093cb22bb8f5acdc3")
+    }
+
+    #[tokio::test]
+    async fn test_run_file_watch_loop() {
+        wisual_logger::init_from_env();
+        let dir = tempdir::TempDir::new("plugin_host_test").unwrap();
+        let file_path = dir.path().join("watched-file");
+
+        std::fs::write(&file_path, "hello-world").unwrap();
+        let (itx, irx) = channel();
+        let (tx, mut rx) = tokio::sync::mpsc::channel(10);
+        let handle = tokio::task::spawn_blocking({
+            let file_path = file_path.clone();
+            move || run_file_watch_loop(&file_path, irx, tx)
+        });
+
+        tokio::time::sleep(Duration::from_millis(10)).await;
+        std::fs::write(&file_path, "something else").unwrap();
+        itx.send(DebouncedEvent::Write(file_path)).unwrap();
+        let r = rx.recv().await.unwrap();
+        assert_eq!(r, FileWatchMessage::Changed);
+        drop(itx);
+        handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_start_stream() {
+        let dir = tempdir::TempDir::new("plugin_host_test").unwrap();
+        let file_path = dir.path().join("watched-file");
+        std::fs::write(&file_path, "hello-world").unwrap();
+
+        let (message, state) = FileWatcher::start_stream(file_path);
+        assert_eq!(message, FileWatchMessage::Started);
+        assert!(matches!(state, State::Watching { .. }));
+    }
+
+    #[tokio::test]
+    async fn test_tick_stream_finished() {
+        let state = FileWatcher::tick_stream(State::Finished).await;
+        assert!(state.is_none());
+    }
+
+    #[tokio::test]
+    async fn test_tick_stream_ready() {
+        let dir = tempdir::TempDir::new("plugin_host_test").unwrap();
+        let file_path = dir.path().join("watched-file");
+        std::fs::write(&file_path, "hello-world").unwrap();
+
+        let (message, state) = FileWatcher::tick_stream(State::Ready { file_path })
+            .await
+            .unwrap();
+        assert_eq!(message, FileWatchMessage::Started);
+        assert!(matches!(state, State::Watching { .. }));
+    }
+
+    #[tokio::test]
+    async fn test_tick_stream_watching() {
+        let dir = tempdir::TempDir::new("plugin_host_test").unwrap();
+        let file_path = dir.path().join("watched-file");
+        std::fs::write(&file_path, "hello-world").unwrap();
+
+        let (message, state) = FileWatcher::tick_stream(State::Ready {
+            file_path: file_path.clone(),
+        })
+        .await
+        .unwrap();
+        assert_eq!(message, FileWatchMessage::Started);
+        assert!(matches!(state, State::Watching { .. }));
+
+        tokio::time::sleep(Duration::from_millis(10)).await;
+        std::fs::write(&file_path, "something-else").unwrap();
+
+        let (message, state) = FileWatcher::tick_stream(state).await.unwrap();
+        assert_eq!(message, FileWatchMessage::Changed);
+        assert!(matches!(state, State::Watching { .. }));
+    }
 
     #[test]
     fn test_construct_watcher() {

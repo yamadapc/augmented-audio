@@ -22,8 +22,8 @@ an average.
 The results on my 2017 MacBook computer are:
 
 | **Average latency** | **Total messages** | **Total time** |
-|---------------------|---------------------|-----|
-| 0.11ms | 100000 | 11.3s |
+|---------------------|--------------------|----------------|
+| 0.11ms              | 100000             | 11.3s          |
 
 ### Notes
 * The messages have no content in this test

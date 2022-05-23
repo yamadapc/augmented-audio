@@ -9,7 +9,8 @@ part of 'metronome_state_model.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
-  final _$isPlayingAtom = Atom(name: '_MetronomeStateModel.isPlaying');
+  late final _$isPlayingAtom =
+      Atom(name: '_MetronomeStateModel.isPlaying', context: context);
 
   @override
   bool get isPlaying {
@@ -24,7 +25,8 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
     });
   }
 
-  final _$volumeAtom = Atom(name: '_MetronomeStateModel.volume');
+  late final _$volumeAtom =
+      Atom(name: '_MetronomeStateModel.volume', context: context);
 
   @override
   double get volume {
@@ -39,7 +41,8 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
     });
   }
 
-  final _$tempoAtom = Atom(name: '_MetronomeStateModel.tempo');
+  late final _$tempoAtom =
+      Atom(name: '_MetronomeStateModel.tempo', context: context);
 
   @override
   double get tempo {
@@ -54,7 +57,8 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
     });
   }
 
-  final _$playheadAtom = Atom(name: '_MetronomeStateModel.playhead');
+  late final _$playheadAtom =
+      Atom(name: '_MetronomeStateModel.playhead', context: context);
 
   @override
   double get playhead {
@@ -69,7 +73,8 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
     });
   }
 
-  final _$beatsPerBarAtom = Atom(name: '_MetronomeStateModel.beatsPerBar');
+  late final _$beatsPerBarAtom =
+      Atom(name: '_MetronomeStateModel.beatsPerBar', context: context);
 
   @override
   int get beatsPerBar {
@@ -84,8 +89,8 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
     });
   }
 
-  final _$_MetronomeStateModelActionController =
-      ActionController(name: '_MetronomeStateModel');
+  late final _$_MetronomeStateModelActionController =
+      ActionController(name: '_MetronomeStateModel', context: context);
 
   @override
   void setPlayhead(double value) {

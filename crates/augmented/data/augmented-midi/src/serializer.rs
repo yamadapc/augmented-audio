@@ -30,9 +30,9 @@ use cookie_factory::{gen, GenError};
 use crate::{
     MIDIMessage, MIDIMessageNote, ACTIVE_SENSING_MASK, CHANNEL_PRESSURE_MASK, CONTINUE_MASK,
     CONTROL_CHANGE_MASK, NOTE_OFF_MASK, NOTE_ON_MASK, PITCH_WHEEL_CHANGE_MASK,
-    POLYPHONIC_KEY_PRESSURE_MASK, RESET_MASK, SONG_POSITION_POINTER_MASK, SONG_SELECT_MASK,
-    START_MASK, STOP_MASK, SYSEX_MESSAGE_END_MASK, SYSEX_MESSAGE_MASK, TIMING_CLOCK_MASK,
-    TUNE_REQUEST_MASK,
+    POLYPHONIC_KEY_PRESSURE_MASK, PROGRAM_CHANGE_MASK, RESET_MASK, SONG_POSITION_POINTER_MASK,
+    SONG_SELECT_MASK, START_MASK, STOP_MASK, SYSEX_MESSAGE_END_MASK, SYSEX_MESSAGE_MASK,
+    TIMING_CLOCK_MASK, TUNE_REQUEST_MASK,
 };
 
 pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
@@ -77,7 +77,7 @@ pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
             channel,
             program_number,
         } => {
-            let status = POLYPHONIC_KEY_PRESSURE_MASK | channel;
+            let status = PROGRAM_CHANGE_MASK | channel;
             gen(all([be_u8(status), be_u8(program_number)].iter()), output)?
         }
         MIDIMessage::ChannelPressure { channel, pressure } => {
@@ -104,8 +104,9 @@ pub fn serialize_message<W: Write, Buffer: Borrow<[u8]>>(
             let status = SYSEX_MESSAGE_MASK;
             let end = SYSEX_MESSAGE_END_MASK;
             let message_bytes = message.message.borrow().iter().cloned().map(|b| be_u8(b));
-            let (output, _pos) = gen(all([be_u8(status), be_u8(end)].iter()), output)?;
-            let (output, pos) = gen(all(message_bytes), output)?;
+            let (output, _pos) = gen(be_u8(status), output)?;
+            let (output, _pos) = gen(all(message_bytes), output)?;
+            let (output, pos) = gen(be_u8(end), output)?;
             (output, pos)
         }
         MIDIMessage::SongPositionPointer { beats } => {
@@ -163,7 +164,7 @@ fn serialize_14_bit_midi_number(input: u16) -> (u8, u8) {
 
 #[cfg(test)]
 mod test {
-    use crate::{parse_midi_event, MIDIMessage};
+    use crate::{parse_midi_event, MIDIMessage, MIDISysExEvent};
 
     use super::*;
 
@@ -176,16 +177,132 @@ mod test {
         assert_eq!(v2, 0x39);
     }
 
+    fn test_roundtrip(input: MIDIMessage<Vec<u8>>) {
+        let (bytes, _) = serialize_message(input.clone(), vec![]).unwrap();
+        let mut state = Default::default();
+        assert_eq!(bytes.len(), input.size_hint());
+        let (_, output) = parse_midi_event::<Vec<u8>>(&bytes, &mut state).unwrap();
+        assert_eq!(input, output);
+    }
+
     #[test]
-    fn test_serialize_cc() {
+    fn test_roundtrip_control_change() {
         let message = MIDIMessage::ControlChange {
             channel: 1,
             controller_number: 22,
             value: 10,
         };
-        let (bytes, _) = serialize_message(message.clone(), vec![]).unwrap();
-        let mut state = Default::default();
-        let (_, output_message) = parse_midi_event::<Vec<u8>>(&bytes, &mut state).unwrap();
-        assert_eq!(message, output_message);
+        test_roundtrip(message);
+    }
+
+    #[test]
+    fn test_roundtrip_note_on() {
+        let note_on = MIDIMessage::<Vec<u8>>::note_on(8, 14, 20);
+        test_roundtrip(note_on);
+    }
+
+    #[test]
+    fn test_roundtrip_note_off() {
+        let note_off = MIDIMessage::<Vec<u8>>::note_off(8, 14, 20);
+        test_roundtrip(note_off);
+    }
+
+    #[test]
+    fn test_roundtrip_polyphonic_key_pressure() {
+        let input = MIDIMessage::<Vec<u8>>::PolyphonicKeyPressure {
+            channel: 8,
+            note: 10,
+            pressure: 15,
+        };
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_program_change() {
+        let input = MIDIMessage::<Vec<u8>>::ProgramChange {
+            channel: 0,
+            program_number: 15,
+        };
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_channel_pressure() {
+        let input = MIDIMessage::<Vec<u8>>::ChannelPressure {
+            channel: 10,
+            pressure: 5,
+        };
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_pitch_wheel_change() {
+        let input = MIDIMessage::<Vec<u8>>::PitchWheelChange {
+            channel: 3,
+            value: 55,
+        };
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_sysex() {
+        let input = MIDIMessage::<Vec<u8>>::SysExMessage(MIDISysExEvent {
+            message: vec![0, 1, 2, 3, 4],
+        });
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_song_position_pointer() {
+        let input = MIDIMessage::<Vec<u8>>::SongPositionPointer { beats: 4 };
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_song_select() {
+        let input = MIDIMessage::<Vec<u8>>::SongSelect { song: 3 };
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_timing_clock() {
+        let input = MIDIMessage::<Vec<u8>>::TimingClock;
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_start() {
+        let input = MIDIMessage::<Vec<u8>>::Start;
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_continue() {
+        let input = MIDIMessage::<Vec<u8>>::Continue;
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_stop() {
+        let input = MIDIMessage::<Vec<u8>>::Stop;
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_active_sensing() {
+        let input = MIDIMessage::<Vec<u8>>::ActiveSensing;
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_reset() {
+        let input = MIDIMessage::<Vec<u8>>::Reset;
+        test_roundtrip(input);
+    }
+
+    #[test]
+    fn test_roundtrip_tune_request() {
+        let input = MIDIMessage::<Vec<u8>>::TuneRequest;
+        test_roundtrip(input);
     }
 }

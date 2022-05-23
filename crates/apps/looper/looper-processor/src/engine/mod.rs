@@ -26,7 +26,7 @@ use std::time::Duration;
 use actix::Addr;
 use basedrop::Shared;
 
-use actix_system_threads::ActorSystemThread;
+use actix_system_threads::ActorSystem;
 use audio_processor_standalone::StandaloneHandles;
 
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
@@ -38,6 +38,12 @@ use crate::controllers::load_project_controller;
 use crate::controllers::load_project_controller::LoadContext;
 use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
+#[cfg(any(target_os = "ios", target_os = "macos"))]
+use crate::services::{
+    analytics,
+    analytics::AnalyticsService,
+    analytics::{send_analytics, ServiceAnalyticsEvent},
+};
 use crate::{
     services, setup_osc_server, LooperOptions, MultiTrackLooper, MultiTrackLooperHandle,
     MAX_LOOP_LENGTH_SECS,
@@ -76,6 +82,8 @@ pub struct LooperEngine {
     audio_clip_manager: Addr<AudioClipManager>,
     project_manager: Addr<ProjectManager>,
     events_controller: Addr<EventsController>,
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
+    analytics_service: Addr<analytics::AnalyticsService>,
     audio_state: AudioState,
     _autosave_controller: Option<AutosaveController>,
 }
@@ -107,13 +115,13 @@ impl LooperEngine {
         let metrics_actor = Self::setup_metrics(&handle);
         setup_osc_server(handle.clone());
 
-        let events_controller = ActorSystemThread::start(EventsController::default());
-        let audio_clip_manager = ActorSystemThread::start(AudioClipManager::default());
-        let project_manager = ActorSystemThread::start(ProjectManager::default());
+        let events_controller = ActorSystem::start(EventsController::default());
+        let audio_clip_manager = ActorSystem::start(AudioClipManager::default());
+        let project_manager = ActorSystem::start(ProjectManager::default());
 
         let autosave_controller = {
             if params.is_persistence_enabled {
-                let controller = ActorSystemThread::current().spawn_result({
+                let controller = ActorSystem::current().spawn_result({
                     let project_manager = project_manager.clone();
                     let handle = handle.clone();
                     async move { AutosaveController::new(project_manager, handle) }
@@ -129,6 +137,8 @@ impl LooperEngine {
                 None
             }
         };
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        let analytics_service = ActorSystem::start(AnalyticsService::default());
 
         // Start audio
         let audio_state = match params.audio_mode {
@@ -141,6 +151,17 @@ impl LooperEngine {
             AudioModeParams::Hosted(_) => AudioState::Hosted(processor),
         };
 
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
+        {
+            let looper_loaded_event = ServiceAnalyticsEvent::Event {
+                category: "operational".to_string(),
+                action: "loaded".to_string(),
+                label: "LooperEngine".to_string(),
+                value: "0".to_string(),
+            };
+            send_analytics(&analytics_service, looper_loaded_event);
+        }
+
         LooperEngine {
             handle,
             metrics_actor,
@@ -148,14 +169,16 @@ impl LooperEngine {
             project_manager,
             events_controller,
             audio_state,
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
+            analytics_service,
             _autosave_controller: autosave_controller,
         }
     }
 
     fn setup_metrics(handle: &Shared<MultiTrackLooperHandle>) -> Mutex<AudioProcessorMetricsActor> {
         let metrics_handle = handle.metrics_handle().clone();
-        let metrics_actor = Mutex::new(AudioProcessorMetricsActor::new(metrics_handle));
-        metrics_actor
+
+        Mutex::new(AudioProcessorMetricsActor::new(metrics_handle))
     }
 
     pub fn processor(&self) -> Option<&MultiTrackLooper> {
@@ -183,6 +206,11 @@ impl LooperEngine {
 
     pub fn events_controller(&self) -> &Addr<EventsController> {
         &self.events_controller
+    }
+
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
+    pub fn analytics_service(&self) -> &Addr<AnalyticsService> {
+        &self.analytics_service
     }
 }
 

@@ -20,14 +20,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+pub use cpal;
+
 pub use audio_garbage_collector as gc;
 pub use audio_parameter_store as parameter_store;
 pub use augmented_adsr_envelope as adsr_envelope;
 pub use augmented_oscillator as oscillator;
-pub use cpal;
 
+/// Audio processor implementations
 pub mod processor {
+    #[doc(inline)]
+    pub use audio_processor_analysis as analysis;
+    #[doc(inline)]
+    pub use audio_processor_bitcrusher as bitcrusher;
+    #[doc(inline)]
+    pub use audio_processor_dynamics as dynamics;
+    #[doc(inline)]
+    pub use audio_processor_file as file;
+    #[doc(inline)]
     pub use audio_processor_graph as graph;
+    #[doc(inline)]
+    pub use audio_processor_metronome as metronome;
+    #[doc(inline)]
+    pub use audio_processor_pitch_shifter as pitch_shifter;
+    #[doc(inline)]
+    pub use audio_processor_time as time;
+    #[doc(inline)]
     pub use audio_processor_traits::*;
+    #[doc(inline)]
     pub use audio_processor_utility as utility;
 }

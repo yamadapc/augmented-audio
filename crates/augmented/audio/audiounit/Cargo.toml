@@ -2,11 +2,14 @@
 name = "audiounit"
 version = "0.1.0"
 edition = "2018"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 cocoa = "0.24"
 objc = "0.2"
-cacao = "0.2"
+cacao = "0.2.1"
 block = "0.1.6"
 avfaudio-sys = { version = "0.1", path = "../avfaudio-sys" }
 objc_id = "0.1.1"

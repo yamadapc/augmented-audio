@@ -211,7 +211,7 @@ mod test {
             "Shared dropped node memory while using it"
         );
 
-        std::mem::drop(shared);
+        drop(shared);
         // Assert node was dropped
         assert_eq!(
             mock_node_count.load(Ordering::Relaxed),
@@ -253,7 +253,7 @@ mod test {
         #[allow(clippy::redundant_clone)]
         let shared2 = shared1.clone();
         let current_count = get_node_ref_count(&shared2);
-        assert_eq!(current_count, 2, "Ref count is not 2, but there're 2 refs");
+        assert_eq!(current_count, 2, "Ref count is not 2, but there are 2 refs");
     }
 
     #[test]
@@ -269,13 +269,13 @@ mod test {
         assert_eq!(
             count.load(Ordering::Relaxed),
             1,
-            "contents were dropped but there're still refs"
+            "contents were dropped but there are still refs"
         );
-        std::mem::drop(shared);
+        drop(shared);
         assert_eq!(
             count.load(Ordering::Relaxed),
             1,
-            "contents were dropped but there're still refs"
+            "contents were dropped but there are still refs"
         );
     }
 

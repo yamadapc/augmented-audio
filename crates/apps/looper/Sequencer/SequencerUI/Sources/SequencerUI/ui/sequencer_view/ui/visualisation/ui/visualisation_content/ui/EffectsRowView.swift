@@ -56,15 +56,19 @@ struct CreateEffectModalView: View {
 struct EffectsRowView: View {
     @ObservedObject var model: EffectsRowViewModel
 
+    init(model: EffectsRowViewModel) {
+        self.model = model
+    }
+
     init(store: Store) {
-        model = EffectsRowViewModel(store: store)
+        self.init(model: EffectsRowViewModel(store: store))
     }
 
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(SequencerColors.white.opacity(0.5))
-                .frame(height: 2)
+                    .fill(SequencerColors.white.opacity(0.5))
+                    .frame(height: 2)
                 .frame(maxWidth: .infinity)
 
             HStack(spacing: 30) {
@@ -94,5 +98,31 @@ struct EffectsRowView: View {
                 CreateEffectModalView(slotId: slotId, model: model)
             }
         }
+    }
+}
+
+struct EffectsRowView_Previews: PreviewProvider {
+    static var previews: some View {
+        EffectsRowView(
+                model: makeModel()
+        )
+                .frame(width: 800, height: 600)
+    }
+
+    static func makeModel() -> EffectsRowViewModel {
+        let model = EffectsRowViewModel(
+                store: Store(engine: nil)
+        )
+
+        model.effectDefinitions = [
+            EffectDefinition(
+                    id: 90,
+                    label: "Reverb",
+                    parameters: [],
+                    color: Color.red
+            ),
+        ]
+
+        return model
     }
 }

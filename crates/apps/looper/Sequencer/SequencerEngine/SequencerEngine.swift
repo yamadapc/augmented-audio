@@ -23,14 +23,14 @@ import SequencerEngine_private
 import SequencerUI
 
 /**
- * This whole framework is really disorganized at the moment.
- *
  * EngineImpl is a holder for  the *mut LooperEngine* pointer. It creates the audio-engine on init & destroys it when dropped.
+ * 
+ * It should mostly be a 1-1 mapping of the C API into Swift. Raw FFI calls around the "LooperEngine" type are wrapped by this class.
  */
 class EngineImpl {
     let _effectsService = EffectsServiceImpl()
 
-    var engine: OpaquePointer!
+    private var engine: OpaquePointer!
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineImpl")
 
     var midi: AnyPublisher<MidiEvent, Never>?
@@ -39,22 +39,23 @@ class EngineImpl {
         logger.info("Initializing rust audio engine", metadata: [
             "bundleIdentifier": .string(Bundle.main.bundleIdentifier ?? "<unknown>"),
             "applicationSupport": .stringConvertible(
-                    FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).map {
-                        $0.description
-                    }
-            )
+                FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).map {
+                    $0.description
+                }
+            ),
         ])
         engine = looper_engine__new()
 
         logger.info("Building rust MIDI subscription")
         midi = buildStream(
-                registerStream: { callback in
-                    looper_engine__register_midi_callback(self.engine, callback)
-                }
+            registerStream: { callback in
+                looper_engine__register_midi_callback(self.engine, callback)
+            }
         )
     }
 
     deinit {
+        logger.info("Closing rust audio engine")
         looper_engine__free(engine)
     }
 }
@@ -64,11 +65,10 @@ extension EngineImpl: SequencerEngine {
         _effectsService
     }
 
-
     func loadFile(atPath path: String) {
-      path.withCString { cPath in
-        looper_engine__load_file(engine, cPath)
-      }
+        path.withCString { cPath in
+            looper_engine__load_file(engine, cPath)
+        }
     }
 
     func onClickRecord(track: UInt) {
@@ -108,9 +108,9 @@ extension EngineImpl: SequencerEngine {
     }
 
     func addLFOMapping(track: UInt, lfo: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
-      if let rustParameterId = getObjectIdRust(parameterId) {
-        looper_engine__add_lfo_mapping(engine, track, lfo, rustParameterId, value)
-      }
+        if let rustParameterId = getObjectIdRust(parameterId) {
+            looper_engine__add_lfo_mapping(engine, track, lfo, rustParameterId, value)
+        }
     }
 
     func addSceneParameterLock(sceneId: Int, track: UInt, parameterId: SequencerUI.ParameterId, value: Float) {
@@ -131,29 +131,45 @@ extension EngineImpl: SequencerEngine {
     }
 
     func removeLock(parameterLockId: ParameterLockId) {
-      switch parameterLockId.source {
-      case let .stepId(stepId):
-          looper_engine__remove_parameter_lock(
-            engine,
-            UInt(stepId.trackId),
-            UInt(stepId.stepIndex),
-            getObjectIdRust(parameterLockId.parameterId)!
-          )
-      case let .sceneId(sceneId):
-          looper_engine__remove_scene_parameter_lock(
-            engine,
-            UInt(sceneId.index),
-            getTrackId(parameterLockId.parameterId)!,
-            getObjectIdRust(parameterLockId.parameterId)!
-          )
-      case let .lfoId(lfoId):
-          looper_engine__remove_lfo_mapping(
-                  engine,
-                  getTrackId(parameterLockId.parameterId)!,
-                  UInt(lfoId.index),
-                  getObjectIdRust(parameterLockId.parameterId)!
-          )
-      }
+        let logObjectIdMissing = {
+            self.logger.warning("Failed to get object ID for parameter", metadata: [
+                "parameterId": .string(String(describing: parameterLockId.parameterId))
+            ])
+        }
+        let logTrackIdMissing = {
+            self.logger.warning("Failed to get track ID for parameter", metadata: [
+                "parameterId": .string(String(describing: parameterLockId.parameterId))
+            ])
+        }
+
+        switch parameterLockId.source {
+        case let .stepId(stepId):
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
+            looper_engine__remove_parameter_lock(
+                engine,
+                UInt(stepId.trackId),
+                UInt(stepId.stepIndex),
+                objectId
+            )
+        case let .sceneId(sceneId):
+            guard let trackId = getTrackId(parameterLockId.parameterId) else { logTrackIdMissing(); return }
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
+            looper_engine__remove_scene_parameter_lock(
+                engine,
+                UInt(sceneId.index),
+                trackId,
+                objectId
+            )
+        case let .lfoId(lfoId):
+            guard let trackId = getTrackId(parameterLockId.parameterId) else { logTrackIdMissing(); return }
+            guard let objectId = getObjectIdRust(parameterLockId.parameterId) else { logObjectIdMissing(); return }
+            looper_engine__remove_lfo_mapping(
+                engine,
+                trackId,
+                UInt(lfoId.index),
+                objectId
+            )
+        }
     }
 
     func addMidiMapping(controller: Int, parameterId: SequencerUI.ParameterId) {
@@ -162,17 +178,26 @@ extension EngineImpl: SequencerEngine {
         } else {
             logger.error("Failed to add MIDI mapping to", metadata: [
                 "controller": .string(String(describing: controller)),
-                "parameterId": .string(String(describing: parameterId))
+                "parameterId": .string(String(describing: parameterId)),
             ])
         }
     }
 
-    func addEffect(trackId: UInt, effectId: EffectId) {
-        looper_engine__add_effect(engine, trackId, effectId)
+    func addEffect(looperId: UInt, effectId: EffectId) {
+        looper_engine__add_effect(engine, looperId, effectId)
+    }
+
+    func getLFOSample(mode: SequencerUI.LFOMode, phase: Float) -> Float {
+        guard let rustMode = LFO_MODES[mode] else { return 0.0 }
+        return looper_engine__get_lfo_sample(rustMode, phase)
     }
 }
 
 extension EngineImpl {
+    func getParameterValue(looperId: UInt, parameterId: SequencerEngine_private.ParameterId) -> CParameterValue {
+        return looper_engine__get_parameter_value(engine, looperId, parameterId)
+    }
+
     func setVolume(_ looperId: UInt, volume: Float) {
         looper_engine__set_volume(engine, looperId, volume)
     }
@@ -192,36 +217,145 @@ extension EngineImpl {
     func setLFOParameter(_ looperId: UInt, parameterId: SequencerEngine_private.LFOParameter, lfoId: UInt, value: Float) {
         looper_engine__set_lfo_parameter(engine, looperId, lfoId, parameterId, value)
     }
+
+    func setSceneSliderValue(value: Float) {
+        looper_engine__set_scene_slider_value(engine, value)
+    }
+
+    func setMetronomeVolume(volume: Float) {
+        looper_engine__set_metronome_volume(engine, volume)
+    }
+
+    func setActiveLooper(looperId: UInt) {
+        looper_engine__set_active_looper(engine, looperId)
+    }
+
+    func setLFOMode(looperId: UInt, lfoId: UInt, value: SequencerEngine_private.LFOMode) {
+        looper_engine__set_lfo_mode(engine, looperId, lfoId, value)
+    }
+
+    func setEnvelopeParameter(looperId: UInt, parameterId: SequencerEngine_private.EnvelopeParameter, value: Float) {
+        looper_engine__set_envelope_parameter(engine, looperId, parameterId, value)
+    }
+
+    func setQuantizationMode(looperId: UInt, mode: SequencerEngine_private.CQuantizeMode) {
+        looper_engine__set_quantization_mode(engine, looperId, mode)
+    }
+
+    func setTempoControl(looperId: UInt, tempoControl: SequencerEngine_private.TempoControl) {
+        looper_engine__set_tempo_control(engine, looperId, tempoControl)
+    }
+
+    func getPlayheadPosition() -> CTimeInfo {
+        return looper_engine__get_playhead_position(engine)
+    }
+
+    func getLooperPosition(looperId: UInt) -> Float {
+        return looper_engine__get_looper_position(engine, looperId)
+    }
+
+    func getLooperState(looperId: UInt) -> SequencerEngine_private.LooperState {
+        return looper_engine__get_looper_state(engine, looperId)
+    }
 }
 
 // MARK: Helpers
+
 extension EngineImpl {
-  func setSourceParameter(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Float) {
-      self.setSourceParameter(
-          looperId,
-          parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
-          value: value
-      )
-  }
+    func setSourceParameter(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Float) {
+        guard let rustId = SOURCE_PARAMETER_IDS[parameterId] else {
+            logger.warning("Failed to convert UI parameterID into native repr")
+            return
+        }
 
-  func setSourceParameterInt(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Int32) {
-      self.setSourceParameterInt(
-          looperId,
-          parameterId: SOURCE_PARAMETER_IDS[parameterId]!,
-          value: value
-      )
-  }
-
-  func setBooleanParameter(_ looperId: UInt, parameterId: SequencerUI.ParameterId, value: Bool) {
-    guard let rustParameterId = getObjectIdRust(parameterId) else {
-      logger.warning("Failed to convert UI parameterID into native repr")
-      return
+        setSourceParameter(
+            looperId,
+            parameterId: rustId,
+            value: value
+        )
     }
-    self.setBooleanParameter(looperId, parameterId: rustParameterId, value: value)
-  }
 
-  func setLFOParameter(_ looperId: UInt, parameterId: SequencerUI.LFOParameterId, lfoId: UInt, value: Float) {
-    let rustParameterId = LFO_PARAMETER_IDS[parameterId]!
-    setLFOParameter(looperId, parameterId: rustParameterId, lfoId: lfoId, value: value)
-  }
+    func setSourceParameterInt(_ looperId: UInt, parameterId: SequencerUI.SourceParameterId, value: Int32) {
+        guard let rustId = SOURCE_PARAMETER_IDS[parameterId] else {
+            logger.warning("Failed to convert UI parameterID into native repr")
+            return
+        }
+        setSourceParameterInt(
+            looperId,
+            parameterId: rustId,
+            value: value
+        )
+    }
+
+    func setBooleanParameter(_ looperId: UInt, parameterId: SequencerUI.ParameterId, value: Bool) {
+        guard let rustParameterId = getObjectIdRust(parameterId) else {
+            logger.warning("Failed to convert UI parameterID into native repr")
+            return
+        }
+        setBooleanParameter(looperId, parameterId: rustParameterId, value: value)
+    }
+
+    func setLFOParameter(_ looperId: UInt, parameterId: SequencerUI.LFOParameterId, lfoId: UInt, value: Float) {
+        let rustParameterId = LFO_PARAMETER_IDS[parameterId]!
+        setLFOParameter(looperId, parameterId: rustParameterId, lfoId: lfoId, value: value)
+    }
+
+    func getAnalyticsEnabled() -> Bool? {
+        let hasAnalytics = looper_engine__has_analytics_enabled(engine)
+        if hasAnalytics {
+            return looper_engine__get_analytics_enabled(engine)
+        } else {
+            return nil
+        }
+    }
+
+    func setAnalyticsEnabled(_ value: Bool) {
+        looper_engine__set_analytics_enabled(engine, value)
+    }
+}
+
+// MARK: Metrics
+
+extension EngineImpl {
+    func getStats() -> CAudioProcessorMetricsStats {
+        return looper_engine__get_stats(engine)
+    }
+}
+
+// MARK: Buffer
+
+extension EngineImpl {
+    func hasLooperBuffer(looperId: UInt) -> Bool {
+        return looper_engine__has_looper_buffer(engine, looperId)
+    }
+
+    func getLooperBuffer(looperId: UInt) -> LooperBufferTrackBuffer {
+        let buffer = looper_engine__get_looper_buffer(engine, looperId)
+        return LooperBufferTrackBuffer(inner: buffer!)
+    }
+
+    func getLooperSlices(looperId: UInt) -> SliceBufferImpl {
+        let sliceBuffer = looper_engine__get_looper_slices(engine, looperId)
+        return SliceBufferImpl(inner: sliceBuffer!)
+    }
+}
+
+// MARK: Events
+
+extension EngineImpl {
+    func registerEventsCallback(_ cb: ForeignCallback_ApplicationEvent) {
+          looper_engine__register_events_callback(engine, cb)
+    }
+}
+
+// MARK: Testing
+extension EngineImpl {
+    static func getExampleBuffer() -> UnsafeBufferPointer<Float32> {
+        let exampleBuffer = looper__get_example_buffer()
+        let bufferPtr = UnsafeBufferPointer<Float32>(
+            start: exampleBuffer.ptr,
+            count: Int(exampleBuffer.count)
+        )
+        return bufferPtr
+    }
 }

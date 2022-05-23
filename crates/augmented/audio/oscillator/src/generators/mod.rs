@@ -33,9 +33,9 @@ pub fn square_generator(phase: f32) -> f32 {
     static LIMIT: f32 = 0.5;
 
     if (phase % 1.0) < LIMIT {
-        -1.0
-    } else {
         1.0
+    } else {
+        -1.0
     }
 }
 

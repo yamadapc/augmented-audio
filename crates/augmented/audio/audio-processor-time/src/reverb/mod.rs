@@ -25,5 +25,6 @@ pub use free_verb::*;
 mod all_pass;
 mod free_verb;
 mod lowpass_feedback_comb_filter;
+pub mod mod_reverb;
 mod tuning;
 mod utils;

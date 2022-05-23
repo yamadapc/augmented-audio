@@ -30,7 +30,11 @@
             self.store = store
         }
 
-        func onKeyDown(key: KeyboardShortcuts.Key, modifiers _: NSEvent.ModifierFlags) {
+        func onKeyDown(key: KeyboardShortcuts.Key, modifiers: NSEvent.ModifierFlags) {
+            if handleTrackSwitch(key: key, modifiers: modifiers) {
+                return
+            }
+
             switch key {
             case .space:
                 if store.isPlaying {
@@ -48,6 +52,38 @@
         }
 
         func onKeyUp(key _: KeyboardShortcuts.Key, modifiers _: NSEvent.ModifierFlags) {}
+
+        func handleTrackSwitch(key: KeyboardShortcuts.Key, modifiers: NSEvent.ModifierFlags) -> Bool {
+            if !modifiers.contains(.command) {
+                return false
+            }
+
+            let numberKeys = [
+                KeyboardShortcuts.Key.one,
+                KeyboardShortcuts.Key.two,
+                KeyboardShortcuts.Key.three,
+                KeyboardShortcuts.Key.four,
+                KeyboardShortcuts.Key.five,
+                KeyboardShortcuts.Key.six,
+                KeyboardShortcuts.Key.seven,
+                KeyboardShortcuts.Key.eight,
+            ]
+            var trackKeys: [KeyboardShortcuts.Key: () -> Void] = [:]
+            store.trackStates.enumerated().forEach { i, track in
+                let key = numberKeys[i]
+                let trackId = track.id
+                trackKeys[key] = {
+                    self.store.onClickTrack(trackId)
+                }
+            }
+
+            guard let action = trackKeys[key] else {
+                return false
+            }
+
+            action()
+            return true
+        }
     }
 
 #endif

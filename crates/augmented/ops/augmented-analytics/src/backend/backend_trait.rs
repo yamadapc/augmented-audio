@@ -20,10 +20,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use crate::model::{AnalyticsEvent, ClientMetadata};
 use async_trait::async_trait;
+use mockall::automock;
+
+use crate::model::{AnalyticsEvent, ClientMetadata};
 
 /// Trait for back-ends. See [`augmented_analytics::backend::google::GoogleAnalyticsBackend`].
+#[automock]
 #[async_trait]
 pub trait AnalyticsBackend: Send {
     /// Back-ends should define a method to post events in bulk.

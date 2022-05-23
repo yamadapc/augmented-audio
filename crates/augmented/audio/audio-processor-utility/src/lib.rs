@@ -24,7 +24,12 @@
 pub mod gain;
 /// Convert stereo signals to mono
 pub mod mono;
+/// Generate noise
+pub mod noise;
 /// Pan signals to left/right
 pub mod pan;
 /// Convert mono signals to stereo
 pub mod stereo;
+
+#[cfg(test)]
+mod test_allocator;

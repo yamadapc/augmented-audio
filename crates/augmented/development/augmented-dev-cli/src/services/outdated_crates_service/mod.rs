@@ -1,3 +1,25 @@
+// Augmented Audio: Audio libraries and applications
+// Copyright (c) 2022 Pedro Tacla Yamada
+//
+// The MIT License (MIT)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 use crate::services::ListCratesService;
 use std::collections::{HashMap, HashSet};
 use toml::value::Table;
@@ -29,9 +51,7 @@ impl ManifestDependency {
         if let Some(s) = value.as_str() {
             Some(s.to_string())
         } else if let Some(t) = value.as_table() {
-            t.get("version")
-                .map(|s| s.as_str())
-                .flatten()
+            t.get("version").and_then(|s| s.as_str())
                 .map(|s| s.to_string())
         } else {
             None
@@ -64,17 +84,14 @@ impl OutdatedCratesService {
             .collect();
 
         let dependencies = augmented_crates
-            .iter()
-            .map(|(_pth, manifest)| {
+            .iter().flat_map(|(_pth, manifest)| {
                 manifest
                     .dependencies
                     .as_ref()
                     .map(|deps| {
                         ManifestDependency::from_dependencies_table(&manifest.package.name, deps)
-                    })
-                    .unwrap_or(vec![])
+                    }).unwrap_or_default()
             })
-            .flatten()
             .filter(|dependency| !internal_crates.contains(&dependency.name))
             .collect::<Vec<ManifestDependency>>();
 
@@ -97,7 +114,7 @@ impl OutdatedCratesService {
                     .filter(|v| v.pre.is_empty())
                     .collect::<Vec<semver::Version>>();
                 vs.sort();
-                vs.get(vs.len() - 1).unwrap().clone()
+                vs.last().unwrap().clone()
             };
             let version_req = semver::VersionReq::parse(&dependency.version).unwrap();
             if !version_req.matches(&latest_version) {

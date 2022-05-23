@@ -1,8 +1,8 @@
 [package]
 name = "audio-processor-traits"
 description = "Traits for audio processor types and audio buffer types. Heavily subject to change."
-version = "1.0.0-alpha.5"
-authors = ["yamadapc <tacla.yamada@gmail.com>"]
+version = "1.0.0-alpha.6"
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
 edition = "2018"
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
@@ -15,12 +15,12 @@ vst_support = ["vst"]
 [dependencies]
 num = "^0.4.0"
 vst = { version = "^0.2", path = "../../../vendor/vst", optional = true }
-augmented-atomics = { path = "../../data/atomics" , version = "0.1.0-alpha.6" }
-audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.3" }
+augmented-atomics = { path = "../../data/atomics" , version = "0.1.0-alpha.7" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.4" }
 
 [dev-dependencies]
 criterion = "^0.3.4"
-augmented_oscillator = { version = "1.0.0-alpha.4", path = "../oscillator" }
+augmented_oscillator = { version = "1.0.0-alpha.5", path = "../oscillator" }
 
 [[bench]]
 name = "audio_processor_traits_criterion"

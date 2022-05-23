@@ -72,17 +72,15 @@ impl State {
                         button_state,
                         Text::new(&tab.title).size(Spacing::small_font_size()),
                     )
-                    .style(
-                        style::button::Button::default().set_active(iced::button::Style {
-                            background: if index == selected_tab {
-                                Some(Background::Color(Color::BLACK))
-                            } else {
-                                None
-                            },
-                            border_width: 0.0,
-                            ..style::button::button_base_style()
-                        }),
-                    )
+                    .style(style::button::Button::default().set_active(button::Style {
+                        background: if index == selected_tab {
+                            Some(Background::Color(Color::BLACK))
+                        } else {
+                            None
+                        },
+                        border_width: 0.0,
+                        ..style::button::button_base_style()
+                    }))
                     .on_press(Message::SetTab(index))
                     .into()
                 })
@@ -95,11 +93,11 @@ impl State {
         Container::new(Column::with_children(vec![
             heading.into(),
             iced::widget::rule::Rule::horizontal(1)
-                .style(crate::style::Rule)
+                .style(style::Rule)
                 .into(),
             element,
         ]))
-        .style(crate::style::Container0::default())
+        .style(style::Container0::default())
         .width(Length::Fill)
         .height(Length::Fill)
         .into()

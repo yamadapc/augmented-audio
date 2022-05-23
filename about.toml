@@ -1,0 +1,24 @@
+accepted = [
+    "Apache-2.0",
+    "MIT",
+    "Zlib",
+    "MPL-2.0",
+    "BSL-1.0",
+    "CC0-1.0",
+    "ISC",
+    "OFL-1.1",
+    "NOASSERTION",
+    "BSD-1-Clause",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "zlib-acknowledgement",
+    "LGPL-3.0",
+]
+ignore-dev-dependencies = true
+
+# These are internal crates
+[daw_ui]
+accepted = ["GPL-3.0"]
+
+[metronome]
+accepted = ["AGPL-3.0"]

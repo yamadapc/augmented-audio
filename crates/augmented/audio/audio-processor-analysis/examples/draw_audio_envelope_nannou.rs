@@ -122,7 +122,7 @@ fn view(app: &App, model: &Model, frame: Frame) {
 
 fn event(app: &App, model: &mut Model, event: Event) {
     if let Event::WindowEvent {
-        simple: Some(WindowEvent::MouseWheel(MouseScrollDelta::PixelDelta(delta), _)),
+        simple: Some(MouseWheel(MouseScrollDelta::PixelDelta(delta), _)),
         ..
     } = event
     {

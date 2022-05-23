@@ -20,15 +20,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-extern crate augmented_oscillator;
-extern crate crossbeam;
-extern crate log;
-extern crate log4rs;
-extern crate proc_macro;
-extern crate serde;
-extern crate tungstenite;
-#[macro_use]
-extern crate vst;
 
 use std::sync::Arc;
 
@@ -36,68 +27,36 @@ use vst::buffer::AudioBuffer;
 use vst::editor::Editor;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 
-use audio_parameter_store::{ParameterStore, PluginParameter};
+use audio_parameter_store::ParameterStore;
+use generic_parameters_editor::{GenericParametersEditor, GenericParametersEditorOptions};
 
 use crate::config::get_configuration_root_path;
 use crate::config::logging::configure_logging;
-use crate::constants::{
-    BUNDLE_IDENTIFIER, DEPTH_PARAMETER_ID, INDEX_HTML_RESOURCE, PHASE_PARAMETER_ID,
-    RATE_PARAMETER_ID,
-};
+use crate::constants::{BUNDLE_IDENTIFIER, INDEX_HTML_RESOURCE};
 use crate::processor::Processor;
-use generic_parameters_editor::{GenericParametersEditor, GenericParametersEditorOptions};
 
-mod config;
+/// Logging configuration
+pub mod config;
+/// Constants such as parameter IDs
 pub mod constants;
+/// Parameters and parameter store
+pub mod parameters;
+/// AudioProcessor implementation for volume modulation
 pub mod processor;
 
+/// VST plugin implementation for [`vst`], wraps the [`processor::Processor`].
+///
+/// This VST has a web GUI. The VST plugin will try to open the UI inside a webview.
+/// When bundled, it's expected that the HTML and assets for the web GUI are inside of the macOS
+/// extension bundle. The VST will try to use macOS bundle resource APIs to find these files.
+///
+/// If there is no bundle, the VST will try to load a local address `http://localhost:3000`. It will
+/// also start a WebSockets server in this case so that the GUI can connect.
+///
+/// See: [`generic_parameters_editor`]
 struct TremoloPlugin {
     parameters: Arc<ParameterStore>,
     processor: Processor,
-}
-
-impl TremoloPlugin {
-    fn build_parameters() -> ParameterStore {
-        let mut store = ParameterStore::new();
-        store.add_parameter(
-            RATE_PARAMETER_ID,
-            Arc::new(
-                PluginParameter::builder()
-                    .name("Rate")
-                    .label("Hz")
-                    .initial_value(1.0)
-                    .value_precision(1)
-                    // Really fun sounds when the modulation is at audio rate (over 30Hz)
-                    .value_range(0.05, 10.0)
-                    .build(),
-            ),
-        );
-        store.add_parameter(
-            DEPTH_PARAMETER_ID,
-            Arc::new(
-                PluginParameter::builder()
-                    .name("Depth")
-                    .initial_value(100.0)
-                    .label("%")
-                    .value_precision(0)
-                    .value_range(0.0, 100.0)
-                    .build(),
-            ),
-        );
-        store.add_parameter(
-            PHASE_PARAMETER_ID,
-            Arc::new(
-                PluginParameter::builder()
-                    .name("Phase")
-                    .initial_value(0.0)
-                    .label("º")
-                    .value_precision(0)
-                    .value_range(0.0, 360.0)
-                    .build(),
-            ),
-        );
-        store
-    }
 }
 
 impl Plugin for TremoloPlugin {
@@ -119,7 +78,7 @@ impl Plugin for TremoloPlugin {
         }
         log::info!("TremoloPlugin - Started");
 
-        let parameters = Arc::new(TremoloPlugin::build_parameters());
+        let parameters = Arc::new(crate::parameters::build_parameters());
         let processor = Processor::new(parameters.clone());
 
         TremoloPlugin {
@@ -146,15 +105,22 @@ impl Plugin for TremoloPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        Some(Box::new(GenericParametersEditor::new(
-            GenericParametersEditorOptions::new(
-                String::from(BUNDLE_IDENTIFIER),
-                String::from(INDEX_HTML_RESOURCE),
-            ),
-            self.parameters.clone(),
-        )))
+        Some(Box::new(build_parameters_editor(&self.parameters)))
     }
 }
+
+/// Build the webview based editor.
+pub fn build_parameters_editor(parameters: &Arc<ParameterStore>) -> GenericParametersEditor {
+    GenericParametersEditor::new(
+        GenericParametersEditorOptions::new(
+            String::from(BUNDLE_IDENTIFIER),
+            String::from(INDEX_HTML_RESOURCE),
+        ),
+        parameters.clone(),
+    )
+}
+
+impl TremoloPlugin {}
 
 impl Drop for TremoloPlugin {
     fn drop(&mut self) {
@@ -162,4 +128,4 @@ impl Drop for TremoloPlugin {
     }
 }
 
-plugin_main!(TremoloPlugin); // Important!
+vst::plugin_main!(TremoloPlugin); // Important!

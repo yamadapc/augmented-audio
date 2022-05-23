@@ -2,20 +2,21 @@
 name = "synth"
 version = "0.1.0"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+license = "MIT"
 
 [dependencies]
-audio-garbage-collector = { version = "1.0.0-alpha.3", path = "../../augmented/audio/audio-garbage-collector" }
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../augmented/audio/audio-processor-traits" }
-augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.4" }
-augmented_oscillator = { version = "1.0.0-alpha.4", path = "../../augmented/audio/oscillator" }
-audio-processor-standalone = { version = "1.0.0-alpha.9", path = "../../augmented/application/audio-processor-standalone" }
+audio-garbage-collector = { version = "1.0.0-alpha.4", path = "../../augmented/audio/audio-garbage-collector" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../augmented/audio/audio-processor-traits" }
+augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.5" }
+augmented_oscillator = { version = "1.0.0-alpha.5", path = "../../augmented/audio/oscillator" }
+audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../augmented/application/audio-processor-standalone" }
 num = "^0.4.0"
 rimd = "^0.0.1"
 log = "^0.4.14"
 wisual-logger = { version = "^0.1", path = "../../augmented/ops/wisual-logger" }
-augmented-dsp-filters = { version = "1.0.0-alpha.5", path = "../../augmented/dsp/dsp-filters" }
+augmented-dsp-filters = { version = "1.0.0-alpha.6", path = "../../augmented/dsp/dsp-filters" }
 pitch_calc = "^0.12.0"
 
 [package.metadata.augmented]

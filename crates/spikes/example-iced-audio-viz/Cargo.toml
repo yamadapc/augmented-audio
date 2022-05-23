@@ -2,8 +2,9 @@
 name = "example-iced-audio-viz"
 version = "0.1.0"
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 iced = { path = "../../vendor/iced", version = "^0.3.0", features = ["tokio", "canvas"] }
@@ -12,11 +13,11 @@ log = "^0.4.14"
 cpal = { version = "^0.13.3" }
 vst = { path = "../../vendor/vst" }
 
-audio-processor-standalone = { version = "1.0.0-alpha.9", path = "../../augmented/application/audio-processor-standalone" }
-audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
-atomic-queue = { path = "../../augmented/data/atomic-queue" , version = "1.0.0-alpha.3" }
+audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../augmented/application/audio-processor-standalone" }
+audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
+atomic-queue = { path = "../../augmented/data/atomic-queue" , version = "1.0.0-alpha.4" }
 circular-data-structures = { path = "../../augmented/data/circular-data-structures" }
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../augmented/audio/audio-processor-traits" }
 
 [package.metadata.augmented]
 private = true

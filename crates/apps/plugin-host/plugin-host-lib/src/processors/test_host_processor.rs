@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use std::ops::Deref;
 use std::time::Duration;
 
@@ -40,12 +41,10 @@ use crate::processors::running_rms_processor::{RunningRMSProcessor, RunningRMSPr
 use crate::processors::shared_processor::SharedProcessor;
 use crate::processors::volume_meter_processor::{VolumeMeterProcessor, VolumeMeterProcessorHandle};
 
+pub type TestHostProcessor = TestHostProcessorImpl<PluginInstance>;
+
 pub struct TestHostProcessorHandle {
-    #[allow(unused)]
-    plugin_instance: SharedProcessor<PluginInstance>,
     volume: AtomicF32,
-    #[allow(unused)]
-    volume_meter_processor_handle: Shared<VolumeMeterProcessorHandle>,
 }
 
 impl TestHostProcessorHandle {
@@ -55,10 +54,10 @@ impl TestHostProcessorHandle {
 }
 
 /// The app's main processor
-pub struct TestHostProcessor {
+pub struct TestHostProcessorImpl<PluginInstanceT: Plugin + 'static> {
     id: String,
     handle: Shared<TestHostProcessorHandle>,
-    plugin_instance: SharedProcessor<PluginInstance>,
+    plugin_instance: SharedProcessor<PluginInstanceT>,
     audio_settings: AudioProcessorSettings,
     buffer_handler: CpalVstBufferHandler,
     maybe_audio_file_processor: Option<AudioFileProcessor>,
@@ -68,14 +67,14 @@ pub struct TestHostProcessor {
     mono_input: Option<usize>,
 }
 
-unsafe impl Send for TestHostProcessor {}
-unsafe impl Sync for TestHostProcessor {}
+unsafe impl<P: Plugin + 'static> Send for TestHostProcessorImpl<P> {}
+unsafe impl<P: Plugin + 'static> Sync for TestHostProcessorImpl<P> {}
 
-impl TestHostProcessor {
+impl<PluginInstanceT: Plugin> TestHostProcessorImpl<PluginInstanceT> {
     pub fn new(
         handle: &Handle,
         maybe_audio_file_settings: Option<InMemoryAudioFile>,
-        plugin_instance: SharedProcessor<PluginInstance>,
+        plugin_instance: SharedProcessor<PluginInstanceT>,
         sample_rate: f32,
         channels: usize,
         buffer_size: usize,
@@ -88,9 +87,7 @@ impl TestHostProcessor {
         let host_processor_handle = Shared::new(
             handle,
             TestHostProcessorHandle {
-                plugin_instance: plugin_instance.clone(),
                 volume: AtomicF32::new(1.0),
-                volume_meter_processor_handle: volume_meter_processor.handle().clone(),
             },
         );
 
@@ -113,7 +110,7 @@ impl TestHostProcessor {
                 .register("audio-file", audio_file_processor.handle().clone());
         }
 
-        TestHostProcessor {
+        TestHostProcessorImpl {
             id: uuid::Uuid::new_v4().to_string(),
             handle: host_processor_handle,
             plugin_instance,
@@ -182,7 +179,7 @@ impl TestHostProcessor {
     }
 }
 
-impl TestHostProcessor {
+impl<PluginInstanceT: Plugin> TestHostProcessorImpl<PluginInstanceT> {
     /// Will eventually evolve onto a "MidiEventsProcessor" trait.
     pub fn process_midi(&mut self, midi_message_buffer: &[MidiMessageEntry]) {
         let events = self.midi_converter.accept(midi_message_buffer);
@@ -190,7 +187,7 @@ impl TestHostProcessor {
     }
 }
 
-impl AudioProcessor for TestHostProcessor {
+impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginInstanceT> {
     type SampleType = f32;
 
     fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
@@ -215,7 +212,7 @@ impl AudioProcessor for TestHostProcessor {
         let num_channels = self.audio_settings.input_channels();
 
         // Mono the input source
-        self.mono_input_source(output);
+        mono_input_source(self.mono_input.clone(), output);
 
         // Input generation section
         if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
@@ -227,7 +224,7 @@ impl AudioProcessor for TestHostProcessor {
         let mut audio_buffer = self.buffer_handler.get_audio_buffer();
         unsafe {
             let instance =
-                self.plugin_instance.deref() as *const PluginInstance as *mut PluginInstance;
+                self.plugin_instance.deref() as *const PluginInstanceT as *mut PluginInstanceT;
             (*instance).process(&mut audio_buffer);
         }
         flush_vst_output(num_channels, &mut audio_buffer, output);
@@ -245,13 +242,13 @@ impl AudioProcessor for TestHostProcessor {
     }
 }
 
-impl Drop for TestHostProcessor {
+impl<PluginInstanceT: Plugin> Drop for TestHostProcessorImpl<PluginInstanceT> {
     fn drop(&mut self) {
         log::warn!("Dropping test host processor {}", self.id);
     }
 }
 
-/// Flush plugin output to output
+/// Flush VST output in `audio_buffer` into `output`
 #[allow(clippy::needless_range_loop)]
 pub fn flush_vst_output<BufferType: AudioBuffer<SampleType = f32>>(
     _num_channels: usize,
@@ -267,26 +264,170 @@ pub fn flush_vst_output<BufferType: AudioBuffer<SampleType = f32>>(
     }
 }
 
-impl TestHostProcessor {
-    fn mono_input_source<BufferType: AudioBuffer<SampleType = f32>>(
-        &mut self,
-        output: &mut BufferType,
-    ) {
-        if let Some(mono_input_channel) = self.mono_input {
-            if mono_input_channel >= output.num_channels() {
-                return;
-            }
+impl<P: Plugin> TestHostProcessorImpl<P> {}
 
-            for sample_index in 0..output.num_samples() {
-                let source_sample = *output.get(mono_input_channel, sample_index);
-                for channel_index in 0..output.num_channels() {
-                    if channel_index == mono_input_channel {
-                        continue;
-                    }
+fn mono_input_source<BufferType: AudioBuffer<SampleType = f32>>(
+    mono_input: Option<usize>,
+    output: &mut BufferType,
+) {
+    if let Some(mono_input_channel) = mono_input {
+        if mono_input_channel >= output.num_channels() {
+            return;
+        }
 
-                    output.set(channel_index, sample_index, source_sample);
+        for sample_index in 0..output.num_samples() {
+            let source_sample = *output.get(mono_input_channel, sample_index);
+            for channel_index in 0..output.num_channels() {
+                if channel_index == mono_input_channel {
+                    continue;
                 }
+
+                output.set(channel_index, sample_index, source_sample);
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use audio_processor_testing_helpers::assert_f_eq;
+    use std::ops::DerefMut;
+    use std::ptr::null;
+    use std::sync::atomic::Ordering;
+
+    use basedrop::Owned;
+    use mockall::mock;
+    use vst::plugin::Plugin;
+
+    use audio_processor_standalone_midi::host::MidiMessageWrapper;
+    use audio_processor_traits::{OwnedAudioBuffer, VecAudioBuffer};
+
+    use crate::processors::shared_processor::SharedProcessor;
+
+    use super::*;
+
+    #[cfg(test)]
+    mock! {
+        PluginInstance {}
+
+        impl Plugin for PluginInstance {
+            fn new(callback: vst::plugin::HostCallback) -> Self;
+            fn get_info(&self) -> vst::plugin::Info;
+            fn set_sample_rate(&mut self, rate: f32);
+            fn set_block_size(&mut self, size: i64);
+            fn process_events(&mut self, events: &vst::api::Events);
+        }
+    }
+
+    #[test]
+    fn test_create_host() {
+        let gc_handle = audio_garbage_collector::handle();
+        let plugin_instance = MockPluginInstance::default();
+        let plugin = SharedProcessor::new(gc_handle, plugin_instance);
+        let sample_rate = 44100.0;
+        let host = TestHostProcessorImpl::new(gc_handle, None, plugin, sample_rate, 2, 512, None);
+        assert!(!host.id().is_empty());
+        assert!(!host.is_playing());
+    }
+
+    #[test]
+    fn test_set_volume_sets_volume_on_handle() {
+        let gc_handle = audio_garbage_collector::handle();
+        let plugin_instance = MockPluginInstance::default();
+        let plugin = SharedProcessor::new(gc_handle, plugin_instance);
+        let sample_rate = 44100.0;
+        let host = TestHostProcessorImpl::new(gc_handle, None, plugin, sample_rate, 2, 512, None);
+
+        host.set_volume(0.3);
+        assert_f_eq!(host.handle().volume.load(Ordering::Relaxed), 0.3);
+        host.set_volume(0.7);
+        assert_f_eq!(host.handle().volume.load(Ordering::Relaxed), 0.7);
+    }
+
+    #[test]
+    fn test_host_prepares_plugin() {
+        let gc_handle = audio_garbage_collector::handle();
+        let mut plugin_instance = MockPluginInstance::default();
+
+        plugin_instance
+            .expect_set_sample_rate()
+            .with(mockall::predicate::eq(1000.0))
+            .returning(|_| ());
+        plugin_instance
+            .expect_set_block_size()
+            .with(mockall::predicate::eq(64))
+            .returning(|_| ());
+
+        let plugin = SharedProcessor::new(gc_handle, plugin_instance);
+        let sample_rate = 44100.0;
+
+        let mut host =
+            TestHostProcessorImpl::new(gc_handle, None, plugin.clone(), sample_rate, 2, 512, None);
+
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 1000.0;
+        settings.block_size = 64;
+        host.prepare(settings);
+    }
+
+    #[test]
+    fn test_host_forwards_midi_events() {
+        let gc_handle = audio_garbage_collector::handle();
+        let plugin_instance = MockPluginInstance::default();
+        let mut plugin = SharedProcessor::new(gc_handle, plugin_instance);
+        let sample_rate = 44100.0;
+
+        plugin.deref_mut().expect_process_events().returning(|_| ());
+
+        let mut host =
+            TestHostProcessorImpl::new(gc_handle, None, plugin.clone(), sample_rate, 2, 512, None);
+        host.process_midi(&[MidiMessageEntry(Owned::new(
+            gc_handle,
+            MidiMessageWrapper {
+                message_data: [0, 1, 2],
+                timestamp: 10,
+            },
+        ))]);
+    }
+
+    #[test]
+    fn test_flush_vst_output() {
+        let inputs: *const *const f32 = null();
+        let chan1 = &mut [10.0_f32, 20.0, 30.0] as *mut f32;
+        let chan2 = &mut [1.0_f32, 2.0, 3.0] as *mut f32;
+        let outputs: *mut *mut f32 = &mut [chan1, chan2] as *mut _;
+        let mut source_buffer =
+            unsafe { vst::buffer::AudioBuffer::from_raw(2, 2, inputs, outputs, 3) };
+        let mut dest_buffer = VecAudioBuffer::new();
+
+        dest_buffer.resize(2, 3, 0.0);
+        flush_vst_output(2, &mut source_buffer, &mut dest_buffer);
+
+        assert_f_eq!(*dest_buffer.get(0, 0), 10.0);
+        assert_f_eq!(*dest_buffer.get(0, 1), 20.0);
+        assert_f_eq!(*dest_buffer.get(0, 2), 30.0);
+        assert_f_eq!(*dest_buffer.get(1, 0), 1.0);
+        assert_f_eq!(*dest_buffer.get(1, 1), 2.0);
+        assert_f_eq!(*dest_buffer.get(1, 2), 3.0);
+    }
+
+    #[test]
+    fn test_mono_input_source() {
+        let mut buffer = VecAudioBuffer::empty_with(2, 3, 0.0);
+        buffer.set(0, 0, 1.0);
+        buffer.set(1, 0, 10.0);
+        buffer.set(0, 1, 2.0);
+        buffer.set(1, 1, 20.0);
+        buffer.set(0, 2, 3.0);
+        buffer.set(1, 2, 30.0);
+
+        mono_input_source(Some(1), &mut buffer);
+        assert_f_eq!(*buffer.get(0, 0), 10.0);
+        assert_f_eq!(*buffer.get(0, 1), 20.0);
+        assert_f_eq!(*buffer.get(0, 2), 30.0);
+
+        assert_f_eq!(*buffer.get(1, 0), 10.0);
+        assert_f_eq!(*buffer.get(1, 1), 20.0);
+        assert_f_eq!(*buffer.get(1, 2), 30.0);
     }
 }

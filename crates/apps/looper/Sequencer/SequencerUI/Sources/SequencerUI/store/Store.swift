@@ -47,13 +47,25 @@ public class Store: ObservableObject {
     @Published var selectedTab: TabValue = .source
     @Published var midiMappingActive = false
     let parameterLockStore = ParameterLockStore()
+    let modalState = ModalState()
 
     let focusState = FocusState()
     var oscClient = OSCClient()
-    var engine: SequencerEngine?
+    var engine: SequencerEngine? {
+        didSet {
+            onEngineUpdate()
+        }
+    }
 
     public init(engine: SequencerEngine?) {
         self.engine = engine
+        onEngineUpdate()
+    }
+
+    func onEngineUpdate() {
+        if let engine = engine {
+            modalState.initialize(engine)
+        }
     }
 }
 
@@ -173,6 +185,7 @@ extension Store {
         selectedTab = tab
     }
 
+    /// Set the active track view
     func onClickTrack(_ track: UInt) {
         selectedTrack = track
     }
@@ -232,5 +245,19 @@ extension Store {
 extension Store {
     func setTempo(tempo: Float) {
         engine?.setTempo(tempo: tempo)
+    }
+}
+
+extension Store {
+    var isAnalyticsEnabled: Bool? {
+        get {
+            engine?.getAnalyticsEnabled()
+        }
+
+        set {
+            if let v = newValue {
+                engine?.setAnalyticsEnabled(v)
+            }
+        }
     }
 }

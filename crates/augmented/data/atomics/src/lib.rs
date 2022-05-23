@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 //! This crate is part of <https://github.com/yamadapc/augmented-audio/>. It exposes a couple of
-//! extra very limited "atomic" data types which are useful for audio development.
+//! extra very limited atomic data types which are useful for this repository.
 //!
 //! In particular, it exposes:
 //!
@@ -209,7 +209,7 @@ mod test {
 
     #[test]
     fn test_f32_doesnt_lose_precision() {
-        let value = 9.97732426_f32;
+        let value = 9.977_324_5_f32;
         let a_value = AtomicF32::new(value);
         assert!((a_value.get() - value) < f32::EPSILON);
     }

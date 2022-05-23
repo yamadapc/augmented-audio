@@ -18,7 +18,7 @@
 //! This module wraps a singleton instance of the standalone audio processor.
 //!
 //! This instance is held behind a mutex. The metronome handle itself wouldn't need locks, but is
-//! currently using a lock here for simplicity. The AudioThread reads directly from its handle
+//! currently using a lock here for simplicity. The audio-thread reads directly from its handle
 //! without waiting on any locks.
 
 use std::sync::Mutex;
@@ -27,11 +27,9 @@ use anyhow::Result;
 use lazy_static::lazy_static;
 
 use audio_garbage_collector::Shared;
+use audio_processor_metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{standalone_start, StandaloneAudioOnlyProcessor};
-
-use crate::processor::MetronomeProcessor;
-use crate::processor::MetronomeProcessorHandle;
 
 pub struct State {
     _handles: audio_processor_standalone::StandaloneHandles,
@@ -92,5 +90,42 @@ pub fn with_state<T>(f: impl FnOnce(&State) -> Result<T>) -> Result<T> {
         Err(anyhow::Error::msg(
             "Failed to lock state. `initialize` needs to be called.",
         ))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_create_new_state() {
+        let _state = State::new();
+    }
+
+    #[test]
+    fn test_initialize_global_state() {
+        initialize();
+        let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
+        assert_eq!(handle.position_beats(), 0.0);
+    }
+
+    #[test]
+    fn test_with_state0() {
+        initialize();
+        let mut was_called = false;
+        with_state(|state| {
+            let handle = state.processor_handle.clone();
+            assert_eq!(handle.position_beats(), 0.0);
+            was_called = true;
+            Ok(())
+        })
+        .unwrap();
+        assert!(was_called);
+    }
+
+    #[test]
+    fn test_deinitialize() {
+        initialize();
+        deinitialize();
     }
 }

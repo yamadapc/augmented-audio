@@ -27,23 +27,21 @@
 //! * standalone-mode - The [`TimeInfoProviderImpl`] object provides play-head & tempo
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use derive_builder::Builder;
 use mockall::automock;
 
+use audio_processor_metronome::MetronomePlayhead;
 #[cfg(not(target_os = "ios"))]
 use audio_processor_standalone::standalone_vst::vst;
 #[cfg(not(target_os = "ios"))]
 pub use audio_processor_standalone::standalone_vst::vst::plugin::HostCallback;
 use augmented_atomics::AtomicValue;
 use augmented_playhead::{PlayHead, PlayHeadOptions};
-use metronome::MetronomePlayhead;
 
 #[cfg(target_os = "ios")]
 pub type HostCallback = ();
 
 /// Represents instantaneous play-head state. The current tempo, position and "is playing" state can
 /// be queried from this object.
-#[derive(Builder)]
 pub struct TimeInfo {
     tempo: Option<f64>,
     position_samples: f64,
@@ -201,7 +199,7 @@ fn get_host_time_info<H: vst::host::Host>(host: Option<&H>) -> Option<TimeInfo> 
 
 /// New-type for metronome compatibility, since metronome defines its own playhead logic.
 ///
-/// This type implements [`MetronomePlayhead`] for a [`Shared`] reference of [`TimeInfoProvidedImpl`]
+/// This type implements [`MetronomePlayhead`] for a `Shared` reference of [`TimeInfoProviderImpl`]
 pub struct TimeInfoMetronomePlayhead(pub audio_garbage_collector::Shared<TimeInfoProviderImpl>);
 
 impl MetronomePlayhead for TimeInfoMetronomePlayhead {

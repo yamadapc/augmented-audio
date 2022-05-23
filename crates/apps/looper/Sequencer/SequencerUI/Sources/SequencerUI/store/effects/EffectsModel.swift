@@ -110,7 +110,7 @@ class EffectsRowViewModel: ObservableObject {
         let currentTrack = store.selectedTrack
         if let effectId: EffectId = definition?.id {
             store.engine?.addEffect(
-                trackId: currentTrack,
+                looperId: currentTrack,
                 effectId: effectId
             )
         }

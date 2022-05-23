@@ -9,10 +9,10 @@ readme = "README.md"
 repository = "https://github.com/yamadapc/rust-darwin-webkit"
 
 [target.'cfg(target_os = "macos")'.dependencies]
-cocoa = "0.18.4"
-core-graphics = "0.17.3"
-libc = "0.2.45"
-objc = "0.2.5"
+cocoa = "0.24.0"
+core-graphics = "0.22.3"
+libc = "0.2.124"
+objc = "0.2.7"
 dispatch = "0.2.0"
 block = "0.1.6"
 

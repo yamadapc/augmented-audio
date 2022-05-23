@@ -20,6 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+pub mod analytics;
+
 pub mod audio_clip_manager;
 pub mod effects_service;
 pub mod osc_server;

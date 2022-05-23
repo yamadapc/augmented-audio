@@ -12,26 +12,29 @@ dependencies:
     sdk: flutter
   flutter_rust_bridge: ^1.9.1
   graphx: ^1.0.3
-  mobx: ^2.0.6+1
-  flutter_mobx: ^2.0.3+2
+  mobx: ^2.0.7
+  flutter_mobx: ^2.0.5
   cupertino_icons: ^1.0.2
-  sqflite: ^2.0.1
+  sqflite: ^2.0.2+1
   floor: ^1.2.0
   intl: ^0.17.0
-  shared_preferences: ^2.0.11
+  shared_preferences: ^2.0.15
   logger: ^1.1.0
   charts_flutter: ^0.12.0
-  firebase_core: ^1.14.1
-  firebase_analytics: ^9.1.5
+  firebase_core: ^1.16.0
+  firebase_analytics: ^9.1.7
+  flutter_local_notifications: ^9.5.3+1
+  timezone: ^0.8.0
+  flutter_native_timezone: ^2.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^1.0.0
+  flutter_lints: ^2.0.1
   floor_generator: ^1.2.0
-  build_runner: ^2.1.2
-  mobx_codegen: ^2.0.5+2
+  build_runner: ^2.1.10
+  mobx_codegen: ^2.0.6
   flutter_launcher_icons: "^0.9.2"
 
 flutter_icons:

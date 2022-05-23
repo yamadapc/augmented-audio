@@ -131,8 +131,7 @@ pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
 }
 
 /// Build 'RunOptions' from Clap matches
-pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
-    let matches = matches.subcommand_matches("run")?;
+pub fn parse_run_options(matches: &ArgMatches) -> Option<RunOptions> {
     let plugin_path = matches.value_of("plugin")?.to_string();
     let input_audio = matches.value_of("input").map(|i| i.to_string());
     let output_audio = matches.value_of("output").map(|value| value.to_string());
@@ -172,4 +171,60 @@ pub fn parse_run_options(matches: ArgMatches) -> Option<RunOptions> {
         use_default_input_device,
         use_mono_input,
     })
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_parse_empty_options() {
+        let app = build_run_command();
+        let args: Vec<&str> = vec![];
+        let matches = app.get_matches_from_safe(args);
+        assert!(matches.is_err());
+    }
+
+    #[test]
+    fn test_parse_minimal_options() {
+        let app = build_run_command();
+        let args: Vec<&str> = vec!["plugin-host", "--plugin", "something.dylib"];
+        let matches = app.get_matches_from_safe(args).unwrap();
+        let options = parse_run_options(&matches).unwrap();
+        assert_eq!(options.plugin_path(), "something.dylib");
+    }
+
+    #[test]
+    fn test_parse_all_options() {
+        let app = build_run_command();
+        let args: Vec<&str> = vec![
+            "plugin-host",
+            "--plugin",
+            "something.dylib",
+            "--input=input.mp3",
+            "--output=output.mp3",
+            "--watch",
+            "--editor",
+            "--host-id=CoreAudio",
+            "--buffer-size=64",
+            "--sample-rate=1000",
+            "--use-mono-input=1",
+            "--input-device-id=InputDevice",
+            "--output-device-id=OutputDevice",
+        ];
+        let matches = app.get_matches_from_safe(args).unwrap();
+        let options = parse_run_options(&matches).unwrap();
+        assert_eq!(options.plugin_path(), "something.dylib");
+        assert_eq!(options.input_audio().as_ref().unwrap(), "input.mp3");
+        assert_eq!(options.output_audio().as_ref().unwrap(), "output.mp3");
+        assert_eq!(options.input_device_id().as_ref().unwrap(), "InputDevice");
+        assert_eq!(options.output_device_id().as_ref().unwrap(), "OutputDevice");
+        assert_eq!(options.watch(), true);
+        assert_eq!(options.open_editor(), true);
+        assert_eq!(options.audio_host_id().as_ref().unwrap(), "CoreAudio");
+        assert_eq!(options.buffer_size().clone().unwrap(), 64);
+        assert_eq!(options.sample_rate().clone().unwrap(), 1000);
+        assert_eq!(options.use_default_input_device(), false);
+        assert_eq!(options.use_mono_input(), Some(1));
+    }
 }

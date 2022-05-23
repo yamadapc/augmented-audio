@@ -2,6 +2,10 @@
 name = "audio-processor-dynamics"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
 default = ["f32"]
@@ -9,14 +13,14 @@ f32 = ["augmented-audio-volume/f32"]
 f64 = ["augmented-audio-volume/f64"]
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../audio-processor-traits" }
-audio-garbage-collector = { version = "1.0.0-alpha.3", path = "../audio-garbage-collector" }
-augmented-audio-volume = { path = "../../data/audio-volume" , version = "0.1.0-alpha.5" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../audio-processor-traits" }
+audio-garbage-collector = { version = "1.0.0-alpha.4", path = "../audio-garbage-collector" }
+augmented-audio-volume = { path = "../../data/audio-volume" , version = "0.1.0-alpha.6" }
 
 [dev-dependencies]
-audio-processor-file = { version = "1.0.0-alpha.5", path = "../audio-processor-file" }
-audio-processor-testing-helpers = { version = "1.0.0-alpha.5", path = "../../testing/audio-processor-testing-helpers" }
-audio-processor-standalone = { version = "1.0.0-alpha.9", path = "../../application/audio-processor-standalone" }
+audio-processor-file = { version = "1.0.0-alpha.7", path = "../audio-processor-file" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.6", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../application/audio-processor-standalone" }
 
 [package.metadata.augmented]
 # uncommenting this will enable snapshot tests

@@ -1,16 +1,16 @@
 [package]
 name = "augmented-audio-metrics"
-version = "1.0.0-alpha.2"
+version = "1.0.0-alpha.4"
 edition = "2021"
-description = "Placeholder crate; will eventually contain metrics mechanisms for augmented audio applications."
+description = "Metrics helpers for augmented audio applications."
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
-audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "1.0.0-alpha.5" }
-augmented-atomics = { path = "../../data/atomics" , version = "0.1.0-alpha.6" }
+audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
+audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "1.0.0-alpha.6" }
+augmented-atomics = { path = "../../data/atomics" , version = "0.1.0-alpha.7" }
 log = "^0.4.14"
 
 [package.metadata.augmented]

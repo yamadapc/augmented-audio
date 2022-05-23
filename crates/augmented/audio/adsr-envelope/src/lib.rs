@@ -32,27 +32,25 @@
 //!
 //! use augmented_adsr_envelope::Envelope;
 //!
-//! fn main() {
-//!   // Create an exponential envelope.
-//!   // The envelope configuration uses atomics, so it doesn't need
-//!   // to be an immutable reference.
-//!   let envelope = Envelope::exp();
+//! // Create an exponential envelope.
+//! // The envelope configuration uses atomics, so it doesn't need
+//! // to be an immutable reference.
+//! let envelope = Envelope::exp();
 //!
-//!   // Set settings
-//!   envelope.set_sample_rate(1000.0);
-//!   envelope.set_attack(Duration::from_millis(200));
+//! // Set settings
+//! envelope.set_sample_rate(1000.0);
+//! envelope.set_attack(Duration::from_millis(200));
 //!
-//!   // Trigger the envelope
-//!   envelope.note_on();
-//!   for i in 0..10000 {
-//!     // Tick the envelope by 1 sample
-//!     envelope.tick();
-//!     // Get the current volume
-//!     let _volume = envelope.volume();
-//!   }
-//!   // Trigger the release stage
-//!   envelope.note_off();
+//! // Trigger the envelope
+//! envelope.note_on();
+//! for i in 0..10000 {
+//!   // Tick the envelope by 1 sample
+//!   envelope.tick();
+//!   // Get the current volume
+//!   let _volume = envelope.volume();
 //! }
+//! // Trigger the release stage
+//! envelope.note_off();
 //! ```
 //!
 //! # Plots

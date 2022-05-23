@@ -64,8 +64,8 @@ pub fn test_level_equivalence(
     assert!(!output_buffer.is_empty());
     // assert!((input_chunks.len() as i32 - output_chunks.len() as i32).abs() < 2);
     for (input_chunk, output_chunk) in input_chunks.zip(output_chunks) {
-        let input_level = util::rms_level(input_chunk);
-        let output_level = util::rms_level(output_chunk);
+        let input_level = rms_level(input_chunk);
+        let output_level = rms_level(output_chunk);
         let diff = (input_level - output_level).abs();
 
         assert!(

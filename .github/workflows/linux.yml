@@ -34,6 +34,8 @@ jobs:
           cargo tarpaulin --skip-clean --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
+              --out lcov \
+              --output-dir ./tarpaulin-report \
               --exclude-files "*crates/vendor/*" \
               --exclude-files "*crates/spikes/*" \
               --exclude-files "*crates/scripts/*" \
@@ -48,6 +50,7 @@ jobs:
               --exclude-files "*crates/apps/recording_buddy/*" \
               --exclude-files "*crates/apps/tremolo-plugin/*" \
               --exclude-files "*crates/apps/synth/*" \
+              --exclude-files "*crates/apps/looper/augmented-codegen/*" \
               --exclude-files "*/bridge_generated.rs" \
               --exclude assert-no-alloc \
               --exclude augmented-ui \
@@ -71,14 +74,6 @@ jobs:
               --exclude darwin-webkit \
               --exclude webview-holder \
               --exclude macos-bundle-resources \
-              -- -Z unstable-options --format json | tee cargo-output.json
-
-          if ! [ -x "$(command -v cargo2junit)" ]; then
-            cargo install --force --version 0.1.10 cargo2junit
-          fi
-
-          mkdir -p junit
-          cat cargo-output.json | cargo2junit > junit/results.xml
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -112,14 +107,12 @@ jobs:
           cargo install --force --version 0.1.10 cargo2junit
           mkdir -p junit
           cat cargo-output.json | cargo2junit > junit/results.xml
-      - name: JUnit Report Action
-        uses: mikepenz/action-junit-report@v2.9.0
-        if: always()
+
+      - name: Upload tarpaulin report
+        uses: actions/upload-artifact@v2
         with:
-          report_paths: 'junit/*.xml'
-          fail_on_failure: true
-          require_tests: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: tarpaulin-report
+          path: ./tarpaulin-report
 
   build-rust:
     name: Build release rust crates ${{ matrix.os }}

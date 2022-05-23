@@ -20,11 +20,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use atomic_refcell::AtomicRefCell;
-use basedrop::Shared;
 
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
-use augmented_atomics::{AtomicF32, AtomicValue};
+use basedrop::Shared;
+use std::ptr::null;
+
+use audio_processor_traits::AudioProcessorSettings;
+use augmented_atomics::AtomicValue;
 
 pub use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;
 use crate::audio::multi_track_looper::parameters::ParameterValue;
@@ -32,22 +33,30 @@ use crate::audio::multi_track_looper::parameters::{
     CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,
     TempoControl,
 };
-use crate::audio::multi_track_looper::slice_worker::SliceResult;
-use crate::audio::processor::handle::{LooperHandleThread, LooperState};
 pub use crate::engine::LooperEngine;
 use crate::TimeInfoProvider;
 
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+pub use self::analytics::*;
 pub use self::audio_clip_manager::*;
 pub use self::entity_id::*;
 pub use self::events::*;
 pub use self::foreign_callback::*;
+pub use self::lfos::*;
+pub use self::looper::*;
+pub use self::metrics::*;
 pub use self::midi_callback::*;
 
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+mod analytics;
 mod audio_clip_manager;
 pub mod effects;
 mod entity_id;
 mod events;
 mod foreign_callback;
+mod lfos;
+mod looper;
+mod metrics;
 mod midi_callback;
 
 fn into_ptr<T>(value: T) -> *mut T {
@@ -111,63 +120,6 @@ pub unsafe extern "C" fn looper_engine__free(engine: *mut LooperEngine) {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__num_loopers(engine: *mut LooperEngine) -> usize {
-    (*engine).handle().voices().len()
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__record(engine: *mut LooperEngine, looper_id: usize) {
-    log::info!("looper_engine - Recording {}", looper_id);
-    (*engine)
-        .handle()
-        .toggle_recording(LooperId(looper_id), LooperHandleThread::OtherThread)
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__play(engine: *mut LooperEngine, looper_id: usize) {
-    log::info!("looper_engine - Playing {}", looper_id);
-    (*engine).handle().toggle_playback(LooperId(looper_id));
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__clear(engine: *mut LooperEngine, looper_id: usize) {
-    log::info!("looper_engine - Clearing {}", looper_id);
-    (*engine).handle().clear(LooperId(looper_id));
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__set_active_looper(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-) {
-    (*engine).handle().set_active_looper(LooperId(looper_id));
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_looper_num_samples(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-) -> usize {
-    (*engine).handle().get_num_samples(LooperId(looper_id))
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_looper_state(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-) -> LooperState {
-    (*engine).handle().get_looper_state(LooperId(looper_id))
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_looper_position(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-) -> f32 {
-    (*engine).handle().get_position_percent(LooperId(looper_id))
-}
-
-#[no_mangle]
 pub unsafe extern "C" fn looper_engine__toggle_trigger(
     engine: *mut LooperEngine,
     looper_id: usize,
@@ -216,31 +168,6 @@ pub unsafe extern "C" fn looper_engine__set_scene_slider_value(
     value: f32,
 ) {
     (*engine).handle().set_scene_value(value);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__add_lfo_mapping(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-    lfo_id: usize,
-    parameter_id: ParameterId,
-    value: f32,
-) {
-    (*engine)
-        .handle()
-        .add_lfo_mapping(LooperId(looper_id), lfo_id, parameter_id, value)
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__remove_lfo_mapping(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-    lfo_id: usize,
-    parameter_id: ParameterId,
-) {
-    (*engine)
-        .handle()
-        .remove_lfo_mapping(LooperId(looper_id), lfo_id, parameter_id)
 }
 
 #[no_mangle]
@@ -312,13 +239,6 @@ pub unsafe extern "C" fn looper_engine__playhead_play(engine: *mut LooperEngine)
     (*engine).handle().play();
 }
 
-pub enum LooperBuffer {
-    Some {
-        inner: Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
-    },
-    None,
-}
-
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_envelope_parameter(
     engine: *mut LooperEngine,
@@ -369,112 +289,6 @@ pub unsafe extern "C" fn looper_engine__set_tempo_control(
     engine
         .handle()
         .set_tempo_control(LooperId(track_id), tempo_control)
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
-    engine: *mut LooperEngine,
-    track_id: usize,
-    lfo: usize,
-    parameter_id: LFOParameter,
-    value: f32,
-) {
-    let engine = &(*engine);
-    engine
-        .handle()
-        .set_lfo_parameter(LooperId(track_id), lfo, parameter_id, value);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__has_looper_buffer(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-) -> bool {
-    let engine = &(*engine);
-    let looper_id = LooperId(looper_id);
-    let state = engine.handle().get_looper_state(looper_id);
-    state != LooperState::Empty
-        && state != LooperState::RecordingScheduled
-        && engine.handle().get_looper_buffer(looper_id).is_some()
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_looper_buffer(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-) -> *mut LooperBuffer {
-    let engine = &(*engine);
-    into_ptr(
-        if let Some(buffer) = engine.handle().get_looper_buffer(LooperId(looper_id)) {
-            LooperBuffer::Some { inner: buffer }
-        } else {
-            LooperBuffer::None
-        },
-    )
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_buffer__free(buffer: *mut LooperBuffer) {
-    let _ = Box::from_raw(buffer);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_buffer__num_samples(buffer: *mut LooperBuffer) -> usize {
-    let buffer = &(*buffer);
-    match buffer {
-        LooperBuffer::Some { inner } => inner.borrow().num_samples(),
-        LooperBuffer::None => 0,
-    }
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_buffer__get(buffer: *mut LooperBuffer, index: usize) -> f32 {
-    let buffer = &(*buffer);
-    match buffer {
-        LooperBuffer::Some { inner } => {
-            let inner = inner.borrow();
-            let mut total = 0.0;
-            for channel in 0..inner.num_channels() {
-                total += inner.get(channel, index).get();
-            }
-            total
-        }
-        LooperBuffer::None => 0.0,
-    }
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_looper_slices(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-) -> *mut Option<SliceResult> {
-    let engine = &(*engine);
-    into_ptr(engine.handle().get_looper_slices(LooperId(looper_id)))
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn slice_buffer__free(buffer: *mut Option<SliceResult>) {
-    let _ = Box::from_raw(buffer);
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn slice_buffer__length(buffer: *mut Option<SliceResult>) -> usize {
-    (*buffer)
-        .as_ref()
-        .map(|buffer| buffer.markers().len())
-        .unwrap_or(0)
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn slice_buffer__get(
-    buffer: *mut Option<SliceResult>,
-    index: usize,
-) -> usize {
-    (*buffer)
-        .as_ref()
-        .and_then(|buffer| buffer.markers().get(index))
-        .map(|marker| marker.position_samples)
-        .unwrap_or(0)
 }
 
 #[no_mangle]
@@ -534,68 +348,43 @@ pub struct ExampleBuffer {
     pub count: usize,
 }
 
-#[repr(C)]
-pub struct CAudioProcessorMetricsStats {
-    pub average_cpu: f32,
-    pub max_cpu: f32,
-    pub average_nanos: f32,
-    pub max_nanos: f32,
-}
-
-impl From<AudioProcessorMetricsStats> for CAudioProcessorMetricsStats {
-    fn from(stats: AudioProcessorMetricsStats) -> Self {
-        let AudioProcessorMetricsStats {
-            average_cpu,
-            max_cpu,
-            average_nanos,
-            max_nanos,
-        } = stats;
-        CAudioProcessorMetricsStats {
-            average_cpu,
-            max_cpu,
-            average_nanos,
-            max_nanos,
-        }
-    }
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_stats(
-    engine: *mut LooperEngine,
-) -> CAudioProcessorMetricsStats {
-    let metrics_actor = &(*engine).metrics_actor();
-    if let Ok(mut metrics_actor) = metrics_actor.lock() {
-        metrics_actor.poll().into()
-    } else {
-        AudioProcessorMetricsStats::default().into()
-    }
-}
-
 #[no_mangle]
 pub unsafe extern "C" fn looper__get_example_buffer() -> ExampleBuffer {
     use audio_processor_file::AudioFileProcessor;
 
     let settings = AudioProcessorSettings::default();
-    let mut processor = AudioFileProcessor::from_path(
+    let processor = AudioFileProcessor::from_path(
         audio_garbage_collector::handle(),
         settings,
         &audio_processor_testing_helpers::relative_path!(
             "../../../augmented/audio/audio-processor-analysis/hiphop-drum-loop.mp3"
         ),
-    )
-    .unwrap();
-    processor.prepare(settings);
-    let channels = processor.buffer().clone();
-    let mut output = vec![];
-    for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {
-        output.push(s1 + s2);
-    }
-    let mut output = output.into_boxed_slice();
-    let output_ptr = output.as_mut_ptr();
-    let size = output.len();
-    std::mem::forget(output);
-    ExampleBuffer {
-        ptr: output_ptr,
-        count: size,
+    );
+
+    match processor {
+        Ok(mut processor) => {
+            processor.prepare(settings);
+            let channels = processor.buffer().clone();
+            let mut output = vec![];
+            for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {
+                output.push(s1 + s2);
+            }
+            let mut output = output.into_boxed_slice();
+            let output_ptr = output.as_mut_ptr();
+            let size = output.len();
+            std::mem::forget(output);
+
+            ExampleBuffer {
+                ptr: output_ptr,
+                count: size,
+            }
+        }
+        Err(err) => {
+            log::error!("Failed to open example file {}", err);
+            ExampleBuffer {
+                ptr: null(),
+                count: 0,
+            }
+        }
     }
 }

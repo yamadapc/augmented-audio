@@ -59,3 +59,42 @@ impl HostOptionsService {
         Ok(serde_json::to_writer_pretty(file, state)?)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use crate::services::host_options_service::{HostOptionsService, HostState};
+
+    #[test]
+    fn test_create_host_options_service() {
+        let dir = tempdir::TempDir::new("plugin_host_test").unwrap();
+        let path = dir.path().join("state.json");
+        let _service = HostOptionsService::new(path.to_str().unwrap().to_string());
+    }
+
+    #[test]
+    fn test_fetch_host_options_without_options() {
+        let dir = tempdir::TempDir::new("plugin_host_test").unwrap();
+        let path = dir.path().join("state.json");
+        let service = HostOptionsService::new(path.to_str().unwrap().to_string());
+        let state = service.fetch();
+        assert!(state.is_err());
+    }
+
+    #[test]
+    fn test_save_and_fetch_host_options() {
+        let dir = tempdir::TempDir::new("plugin_host_test").unwrap();
+        let path = dir.path().join("state.json");
+        let service = HostOptionsService::new(path.to_str().unwrap().to_string());
+        let state = HostState {
+            plugin_path: Some("plugin-path".to_string()),
+            audio_input_file_path: Some("audio-input-path".to_string()),
+        };
+        service.store(&state).unwrap();
+        let result = service.fetch().unwrap();
+        assert_eq!(result.plugin_path, Some("plugin-path".to_string()));
+        assert_eq!(
+            result.audio_input_file_path,
+            Some("audio-input-path".to_string())
+        );
+    }
+}

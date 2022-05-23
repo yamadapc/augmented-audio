@@ -26,10 +26,11 @@ struct MIDIMapView: View {
                 .bold()
                 .padding(PADDING)
                 .frame(maxWidth: .infinity)
-                .background(SequencerColors.black3)
+                .background(SequencerColors.black)
 
             List(midi.mapKeys, id: \.self, rowContent: { key in
                 let entry = midi.getMapping(message: key)
+                // TODO: - Add a proper view for this
                 Text("\(key.toString()) = \(String(describing: entry))")
                     .frame(maxWidth: .infinity, alignment: .leading)
             })

@@ -15,23 +15,24 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-import Cocoa
-import SequencerEngine
-import SequencerUI
-import SwiftUI
+import Foundation
+import Logging
 
-class ViewController: NSViewController {
-    var engineController = EngineController()
+private let logger = Logger(label: "com.beijaflor.sequencerui.common.Timer")
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+/**
+ * Run a function and log its duration.
+ */
+func timeFunction<T>(_ label: Logger.Message, _ block: () -> T) -> T {
+    let start = DispatchTime.now()
+    let result = block()
+    let end = DispatchTime.now()
+    let duration = end.uptimeNanoseconds - start.uptimeNanoseconds
+    let durationMs = Double(duration) / 1_000_000
 
-        let contentView = ContentView()
-            .environmentObject(engineController.store)
+    logger.info(label, metadata: [
+        "durationMs": .stringConvertible(durationMs),
+    ])
 
-        let cachingView = NSHostingView(rootView: contentView)
-        cachingView.translatesAutoresizingMaskIntoConstraints = true
-        cachingView.autoresizingMask = [.height, .width]
-        view = cachingView
-    }
+    return result
 }

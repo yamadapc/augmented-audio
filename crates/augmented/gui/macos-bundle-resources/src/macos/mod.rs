@@ -147,7 +147,7 @@ mod test {
 
     #[test]
     fn test_make_cfstring() {
-        let str = "seomthing here yada yada";
+        let str = "something here yada yada";
         let cf_str = make_cfstring(str);
         assert!(cf_str.is_some());
         let cf_str = cf_str.unwrap();

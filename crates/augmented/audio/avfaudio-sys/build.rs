@@ -46,7 +46,7 @@ fn main() {
     // See https://github.com/rust-lang/rust-bindgen/issues/1211
     // Technically according to the llvm mailing list, the argument to clang here should be
     // -arch arm64 but it looks cleaner to just change the target.
-    let target = std::env::var("TARGET").unwrap();
+    let target = env::var("TARGET").unwrap();
     let target = if target == "aarch64-apple-ios" {
         "arm64-apple-ios"
     } else {

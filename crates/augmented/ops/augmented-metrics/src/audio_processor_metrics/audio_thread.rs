@@ -53,6 +53,10 @@ impl AudioProcessorMetricsHandle {
         self.sample_rate.set(settings.sample_rate());
         self.buffer_size.set(settings.block_size());
     }
+
+    pub fn set_duration(&self, duration: Duration) {
+        self.duration_micros.set(duration.as_micros() as u64);
+    }
 }
 
 pub struct AudioProcessorMetrics {
@@ -84,7 +88,81 @@ impl AudioProcessorMetrics {
 
     pub fn on_process_end(&self) {
         let duration = self.last_start_time.elapsed();
-        let duration_micros = duration.as_micros() as u64;
-        self.handle.duration_micros.set(duration_micros)
+        self.handle.set_duration(duration)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::ops::{Add, Sub};
+    use std::time::Duration;
+
+    use augmented_atomics::AtomicValue;
+
+    use super::*;
+
+    #[test]
+    fn test_handle_duration() {
+        let handle = AudioProcessorMetricsHandle::default();
+        handle
+            .duration_micros
+            .set(Duration::from_secs(10).as_micros() as u64);
+        assert_eq!(handle.duration().as_secs(), 10);
+    }
+
+    #[test]
+    fn test_handle_cpu_percent() {
+        let handle = AudioProcessorMetricsHandle::default();
+        handle.sample_rate.set(1000.0);
+        // 100ms per block is possible
+        handle.buffer_size.set(100);
+        // 50ms per block is taken
+        handle
+            .duration_micros
+            .set(Duration::from_millis(50).as_micros() as u64);
+        // 50% CPU usage is reported
+        assert!((handle.cpu_percent() - 0.5).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_handle_prepare() {
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
+        settings.block_size = 10;
+        let handle = AudioProcessorMetricsHandle::default();
+        handle.prepare(settings);
+        assert!((handle.sample_rate.get() - 100.0).abs() < f32::EPSILON);
+        assert_eq!(handle.buffer_size.get(), 10);
+    }
+
+    #[test]
+    fn test_processor_prepare() {
+        let processor = AudioProcessorMetrics::default();
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 100.0;
+        settings.block_size = 10;
+
+        let handle = processor.handle();
+        processor.prepare(settings);
+        assert!((handle.sample_rate.get() - 100.0).abs() < f32::EPSILON);
+        assert_eq!(handle.buffer_size.get(), 10);
+    }
+
+    #[test]
+    fn test_processor_start() {
+        let mut processor = AudioProcessorMetrics::default();
+        processor.last_start_time = Instant::now().add(Duration::from_secs(1000));
+        let prev_start = processor.last_start_time;
+        processor.on_process_start();
+        assert_ne!(processor.last_start_time, prev_start);
+    }
+
+    #[test]
+    fn test_processor_end_will_set_duration_on_handle() {
+        let mut processor = AudioProcessorMetrics::default();
+        processor.last_start_time = Instant::now().sub(Duration::from_micros(1000));
+        processor.handle().duration_micros.set(0);
+        processor.on_process_end();
+        assert_ne!(processor.handle().duration_micros.get(), 0);
     }
 }

@@ -4,10 +4,13 @@ description = "CLI that will spawn a MIDI host and log events"
 version = "0.1.0"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+license = "MIT"
 
 [dependencies]
-rimd = "^0.0.1"
-midir = "^0.7.0"
+augmented-midi = { version = "1.0.0-alpha.6", path = "../../augmented/data/augmented-midi" }
+midir = { version = "0.8.0-pre", path = "../../augmented/data/augmented-midi/midir" }
 thiserror = "^1.0.25"
 wisual-logger = "^0.1.2"
 log = "^0.4.14"

@@ -20,8 +20,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+use augmented_midi::parse_midi_event;
 use midir::{MidiInput, MidiInputConnection};
-use rimd::Status;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -38,41 +38,8 @@ pub struct Data;
 
 pub fn start_logging_midi_host() -> Result<Vec<MidiInputConnection<Data>>> {
     fn callback(_timestamp: u64, bytes: &[u8], _data: &mut Data) {
-        let message = rimd::MidiMessage::from_bytes(Vec::from(bytes));
-        match message.status() {
-            Status::NoteOff => {
-                log::info!("Note off - {:?}", message.data)
-            }
-            Status::NoteOn => {
-                log::info!("Note on - {:?}", message.data)
-            }
-            Status::PolyphonicAftertouch => {
-                log::info!("Polyphonic aftertouch - {:?}", message.data)
-            }
-            Status::ControlChange => {
-                log::info!("Size: {:?}", bytes);
-                log::info!("Control change - {:?}", message.data)
-            }
-            Status::ProgramChange => {
-                log::info!("Program change - {:?}", message.data)
-            }
-            Status::ChannelAftertouch => {}
-            Status::PitchBend => {
-                log::info!("Pitch bend - {:?}", message.data)
-            }
-            Status::SysExStart => {}
-            Status::MIDITimeCodeQtrFrame => {}
-            Status::SongPositionPointer => {}
-            Status::SongSelect => {}
-            Status::TuneRequest => {}
-            Status::SysExEnd => {}
-            Status::TimingClock => {}
-            Status::Start => {}
-            Status::Continue => {}
-            Status::Stop => {}
-            Status::ActiveSensing => {}
-            Status::SystemReset => {}
-        }
+        let message = parse_midi_event::<&[u8]>(bytes, &mut Default::default());
+        log::info!("{:?}", message)
     }
 
     log::info!("Creating MIDI input `plugin-host`");

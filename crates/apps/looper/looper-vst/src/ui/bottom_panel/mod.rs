@@ -33,6 +33,7 @@ use looper_processor::{LoopShufflerProcessorHandle, LooperProcessorHandle};
 use crate::ui::common::parameter_view::parameter_view_model::ParameterViewModel;
 use crate::ui::common::parameter_view::MultiParameterView;
 
+// TODO - this shouldn't be on this file
 #[derive(Eq, PartialEq, Debug, Clone, Copy, Hash)]
 pub enum ParameterId {
     LoopVolume,
@@ -41,7 +42,7 @@ pub enum ParameterId {
     SeqSteps,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Message {
     KnobChange(ParameterId, f32),
     RecordPressed,

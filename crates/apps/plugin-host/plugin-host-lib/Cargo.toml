@@ -3,6 +3,9 @@ name = "plugin-host-lib"
 version = "0.1.0"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+license = "MIT"
 
 [dependencies]
 actix = "0.13.0"
@@ -18,7 +21,7 @@ cpal = { version = "^0.13.3" }
 hound = "^3.4.0"
 log = "^0.4.14"
 md5 = "^0.7.0"
-midir = "^0.7.0"
+midir = { version = "0.8.0-pre", path = "../../../augmented/data/augmented-midi/midir" }
 notify = "^4.0.17"
 num-traits = "^0.2.14"
 rayon = "^1.5.1"
@@ -28,29 +31,30 @@ serde = { version = "^1.0.64", features = ["derive"] }
 serde_json = "^1.0.64"
 symphonia = { version = "0.5.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
 symphonia-bundle-mp3 = "0.5.0"
-tao = "0.5.2"
+tao = "0.8.3"
 thiserror = "^1.0.25"
 uuid = { version = "^0.8.2", features = [ "v4" ] }
 vst = { version = "0.2.1", path = "../../../vendor/vst" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 itertools = "^0.10.1"
 
-atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.0-alpha.3" }
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
+atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.0-alpha.4" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" }
-audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.1.0-alpha.5" }
-augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , version = "1.0.0-alpha.2" }
-audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" , version = "1.0.0-alpha.5" }
-audio-processor-standalone-midi = { version = "1.0.0-alpha.8", path = "../../../augmented/application/audio-processor-standalone-midi" }
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.1.0-alpha.7" }
+augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , version = "1.0.0-alpha.4" }
+audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" , version = "1.0.0-alpha.7" }
+audio-processor-standalone-midi = { version = "1.0.0-alpha.9", path = "../../../augmented/application/audio-processor-standalone-midi" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../../augmented/audio/audio-processor-traits" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
-augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.5" }
-augmented_oscillator = { path = "../../../augmented/audio/oscillator", version = "1.0.0-alpha.4" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.6" }
+augmented_oscillator = { path = "../../../augmented/audio/oscillator", version = "1.0.0-alpha.5" }
 actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.5" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.6" }
+mockall = "0.11.0"
 
 [[bench]]
 name = "plugin_host_lib_criterion"

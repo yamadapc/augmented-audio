@@ -103,7 +103,7 @@ impl Default for IterativeTransientDetectionParams {
 /// audio track of the transient signal. Not real-time safe.
 ///
 /// Reference:
-/// * https://www.researchgate.net/profile/Balaji-Thoshkahna/publication/220723752_A_Transient_Detection_Algorithm_for_Audio_Using_Iterative_Analysis_of_STFT/links/0deec52e6331412aed000000/A-Transient-Detection-Algorithm-for-Audio-Using-Iterative-Analysis-of-STFT.pdf
+/// * <https://www.researchgate.net/profile/Balaji-Thoshkahna/publication/220723752_A_Transient_Detection_Algorithm_for_Audio_Using_Iterative_Analysis_of_STFT/links/0deec52e6331412aed000000/A-Transient-Detection-Algorithm-for-Audio-Using-Iterative-Analysis-of-STFT.pdf>
 ///
 /// Inputs to the algorithm:
 /// * `fft_size` - Size of the FFT window
@@ -121,7 +121,7 @@ impl Default for IterativeTransientDetectionParams {
 /// * `N` - `iteration_count` (algorithm 1)
 ///
 /// The algorithm is as follows:
-/// * Perform FFT with overlaping windows at 3/4's ratio (e.g. one 40ms window every 30ms)
+/// * Perform FFT with overlapping windows at 3/4's ratio (e.g. one 40ms window every 30ms)
 /// * Calculate `M(frame, bin)` **magnitudes for each frame/bin**
 /// * Let `P(frame, bin)` be the output `transient_magnitude_frames`
 ///   * These are the transient magnitude frames
@@ -224,8 +224,8 @@ fn update_output_and_magnitudes(
     iteration_magnitude_factor: f32,
     frequency_bin_change_threshold: usize,
     num_changed_bins_frames: Vec<usize>,
-    magnitude_frames: &mut Vec<Vec<f32>>,
-    transient_magnitude_frames: &mut Vec<Vec<f32>>,
+    magnitude_frames: &mut [Vec<f32>],
+    transient_magnitude_frames: &mut [Vec<f32>],
 ) {
     for i in 0..transient_magnitude_frames.len() {
         for j in 0..transient_magnitude_frames[i].len() {
@@ -260,13 +260,13 @@ fn count_changed_bins_per_frame(
         .collect()
 }
 
-/// Perform inverse FFT over spectogram frames
+/// Perform inverse FFT over spectrogram frames
 fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
     fft_size: usize,
     fft_overlap_ratio: f32,
     data: &mut BufferType,
     fft_frames: &[Vec<Complex<f32>>],
-    transient_magnitude_frames: &mut Vec<Vec<f32>>,
+    transient_magnitude_frames: &mut [Vec<f32>],
 ) -> Vec<f32> {
     let mut planner = rustfft::FftPlanner::new();
     let fft = planner.plan_fft(fft_size, FftDirection::Inverse);
@@ -302,8 +302,8 @@ fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
     let maximum_output = output
         .iter()
         .map(|f| f.abs())
-        .max_by(|f1, f2| f1.partial_cmp(f2).unwrap())
-        .unwrap();
+        .max_by(|f1, f2| f1.partial_cmp(f2).unwrap_or(std::cmp::Ordering::Equal))
+        .unwrap_or(0.0);
     for sample in &mut output {
         if sample.abs() > maximum_output * 0.05 {
             *sample /= maximum_output;
@@ -315,9 +315,8 @@ fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
     output
 }
 
-fn initialize_result_transient_magnitude_frames(magnitudes: &mut Vec<Vec<f32>>) -> Vec<Vec<f32>> {
+fn initialize_result_transient_magnitude_frames(magnitudes: &mut [Vec<f32>]) -> Vec<Vec<f32>> {
     magnitudes
-        .clone()
         .iter()
         .map(|frame| frame.iter().map(|_| 0.0).collect())
         .collect()
@@ -344,8 +343,8 @@ fn get_fft_frames<BufferType: AudioBuffer<SampleType = f32>>(
         size: fft_size,
         direction: FftDirection::Forward,
         overlap_ratio: fft_overlap_ratio,
-        // On the paper this is a blackman-harris window; maybe it can be configurable at another
-        // point
+        // On the paper this is a [Blackman-Harris](https://en.wikipedia.org/wiki/Window_function)
+        // window
         window_function: WindowFunctionType::Hann,
     });
     let mut fft_frames = vec![];
@@ -410,7 +409,7 @@ mod test {
         let max_input = frames
             .iter()
             .map(|f| f.abs())
-            .max_by(|f1, f2| f1.partial_cmp(f2).unwrap())
+            .max_by(|f1, f2| f1.partial_cmp(f2).unwrap_or(std::cmp::Ordering::Equal))
             .unwrap();
 
         let transients = find_transients(

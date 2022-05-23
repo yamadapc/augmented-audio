@@ -165,7 +165,7 @@ impl AudioFileProcessor {
         self.audio_settings = audio_settings;
 
         self.buffer.clear();
-        self.buffer.reserve(self.audio_settings.input_channels());
+        self.buffer.reserve(self.audio_settings.output_channels());
 
         let start = Instant::now();
         log::info!("Reading audio file onto memory");
@@ -272,7 +272,7 @@ mod test {
     use super::*;
 
     fn setup() -> (GarbageCollector, InMemoryAudioFile) {
-        let garbage_collector = audio_garbage_collector::GarbageCollector::default();
+        let garbage_collector = GarbageCollector::default();
         let path = format!(
             "{}{}",
             env!("CARGO_MANIFEST_DIR"),

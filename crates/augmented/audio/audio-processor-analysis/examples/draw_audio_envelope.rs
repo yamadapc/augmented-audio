@@ -163,7 +163,7 @@ fn draw_audio_envelope_piet(output_file_path: &str, frames: &Vec<(f32, f32)>) {
     render_context.stroke(&*path, &envelope_color, 0.5);
 
     render_context.finish().unwrap();
-    std::mem::drop(render_context);
+    drop(render_context);
 
     bitmap
         .save_to_file(format!("{}.piet.png", output_file_path))

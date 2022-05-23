@@ -4,6 +4,9 @@ description = "A simple parameters representation for audio plugins"
 version = "0.1.0"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 crossbeam = "^0.8.1"
@@ -11,6 +14,6 @@ serde = { version = "^1.0.126", features = ["derive"] }
 vst = { path = "../../../vendor/vst" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.5" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.6" }
 
 [package.metadata.augmented]

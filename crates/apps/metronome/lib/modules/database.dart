@@ -3,22 +3,28 @@ import 'dart:async';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
+import '../logger.dart';
 import 'history/session_dao.dart';
 import 'history/session_entity.dart';
 
 part 'database.g.dart';
 
-@Database(version: 4, entities: [Session], views: [AggregatedSession])
+@Database(
+    version: 5,
+    entities: [Session],
+    views: [AggregatedSession, DailyPracticeTime])
 abstract class MetronomeDatabase extends FloorDatabase {
   SessionDao get sessionDao;
 }
 
 final addBeatsPerBar = Migration(2, 3, (database) async {
+  logger.i("Add beats per bar column");
   await database
       .execute("ALTER TABLE session ADD COLUMN beatsPerBar int DEFAULT 4");
 });
 
 final addAggregatedSession = Migration(3, 4, (database) async {
+  logger.i("Migrating aggregated sessions view");
   await database.execute("""
 DROP VIEW IF EXISTS AggregatedSession;
 CREATE VIEW IF NOT EXISTS AggregatedSession AS
@@ -36,7 +42,22 @@ CREATE VIEW IF NOT EXISTS AggregatedSession AS
  """);
 });
 
-final migrations = [addBeatsPerBar, addAggregatedSession];
+final addDailyPracticeTime = Migration(4, 5, (database) async {
+  logger.i("Migrating daily session time");
+  await database.execute("""
+DROP VIEW IF EXISTS DailyPracticeTime;
+CREATE VIEW IF NOT EXISTS DailyPracticeTime AS
+  SELECT
+      SUM(durationMs) as durationMs,
+      strftime('%s', datetime(timestampMs / 1000, 'unixepoch', 'localtime', 'start of day')) * 1000 AS timestampMs
+  FROM session
+  GROUP BY
+      datetime(timestampMs / 1000, 'unixepoch', 'localtime', 'start of day')
+  ORDER BY timestampMs DESC 
+  """);
+});
+
+final migrations = [addBeatsPerBar, addAggregatedSession, addDailyPracticeTime];
 
 Future<MetronomeDatabase> buildInMemoryDatabase() {
   return $FloorMetronomeDatabase
@@ -47,9 +68,12 @@ Future<MetronomeDatabase> buildInMemoryDatabase() {
 
 const databaseName = 'metronome_database.db';
 
-Future<MetronomeDatabase> buildDatabase() {
-  return $FloorMetronomeDatabase
+Future<MetronomeDatabase> buildDatabase() async {
+  var path = await sqfliteDatabaseFactory.getDatabasePath(databaseName);
+  logger.i("Opening SQLite database path=$path");
+  MetronomeDatabase db = await $FloorMetronomeDatabase
       .databaseBuilder(databaseName)
       .addMigrations(migrations)
       .build();
+  return db;
 }

@@ -2,12 +2,15 @@
 name = "audio-processor-traits-derive"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.5", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.6", path = "../audio-processor-traits" }
 syn = "1.0.86"
 quote = "1.0.15"
 proc-macro2 = "1.0.36"

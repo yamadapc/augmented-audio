@@ -3,6 +3,9 @@ name = "augmented"
 description = "The Augmented Framework for audio applications"
 version = "0.1.0"
 edition = "2018"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
 default = []
@@ -19,28 +22,35 @@ glow = [
 
 [dependencies]
 # application
-audio-processor-standalone = { version = "1.0.0-alpha.9", path = "../application/audio-processor-standalone" }
-audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" , version = "1.0.0-alpha.8" }
+audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../application/audio-processor-standalone" }
+audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" , version = "1.0.0-alpha.9" }
 
 # audio
-augmented-adsr-envelope = { path = "../audio/adsr-envelope" , version = "0.1.0-alpha.4" }
-audio-garbage-collector = { path = "../audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
+augmented-adsr-envelope = { path = "../audio/adsr-envelope" , version = "0.1.0-alpha.5" }
+audio-garbage-collector = { path = "../audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
 audio-parameter-store = { path = "../audio/audio-parameter-store" }
 audio-processor-graph = { path = "../audio/audio-processor-graph" }
-audio-processor-traits = { path = "../audio/audio-processor-traits" , version = "1.0.0-alpha.5" }
+audio-processor-traits = { path = "../audio/audio-processor-traits" , version = "1.0.0-alpha.6" }
 audio-processor-utility = { path = "../audio/audio-processor-utility" }
-augmented_oscillator = { path = "../audio/oscillator" , version = "1.0.0-alpha.4" }
+audio-processor-analysis = { path = "../audio/audio-processor-analysis" }
+audio-processor-bitcrusher = { path = "../audio/audio-processor-bitcrusher" }
+audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" }
+audio-processor-time = { path = "../audio/audio-processor-time" }
+audio-processor-file = { path = "../audio/audio-processor-file" }
+audio-processor-metronome = { path = "../audio/audio-processor-metronome" }
+audio-processor-pitch-shifter = { path = "../audio/audio-processor-pitch-shifter" }
+augmented_oscillator = { path = "../audio/oscillator" , version = "1.0.0-alpha.5" }
 cpal = { version = "^0.13.3" }
 
 # data
-atomic-queue = { path = "../data/atomic-queue" , version = "1.0.0-alpha.3" }
-augmented-audio-volume = { path = "../data/audio-volume" , version = "0.1.0-alpha.5" }
+atomic-queue = { path = "../data/atomic-queue" , version = "1.0.0-alpha.4" }
+augmented-audio-volume = { path = "../data/audio-volume" , version = "0.1.0-alpha.6" }
 circular-data-structures = { path = "../data/circular-data-structures" }
 smooth-value = { path = "../data/smooth-value" }
 
 # dsp
-augmented-convert-sample-rate = { path = "../dsp/convert-sample-rate" , version = "1.0.0-alpha.5" }
-augmented-dsp-filters = { version = "1.0.0-alpha.5", path = "../dsp/dsp-filters" }
+augmented-convert-sample-rate = { path = "../dsp/convert-sample-rate" , version = "1.0.0-alpha.6" }
+augmented-dsp-filters = { version = "1.0.0-alpha.6", path = "../dsp/dsp-filters" }
 
 # gui
 audio-processor-iced-design-system = { path = "../gui/audio-processor-iced-design-system" }
@@ -57,7 +67,7 @@ audio-plugin-logger = { path = "../ops/audio-plugin-logger" }
 wisual-logger = { version = "0.1", path = "../ops/wisual-logger" }
 
 # testing
-audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.5" }
+audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.6" }
 
 # plug-ins
 vst = { version = "^0.2.1", path = "../../vendor/vst" }

@@ -131,8 +131,7 @@ impl AudioProcessorMetricsActor {
     pub fn poll(&mut self) -> AudioProcessorMetricsStats {
         let duration = self.handle.duration();
         let cpu_percent = self.handle.cpu_percent();
-        self.last_measurements.push_front((cpu_percent, duration));
-        self.last_measurements.truncate(MAX_FRAMES);
+        self.push_measurement(duration, cpu_percent);
 
         let durations_nanos: Vec<f32> = self
             .last_measurements
@@ -155,11 +154,24 @@ impl AudioProcessorMetricsActor {
             .unwrap_or(0.0);
 
         AudioProcessorMetricsStats {
-            average_cpu,
-            max_cpu,
-            average_nanos,
-            max_nanos,
+            average_cpu: fix_nan(average_cpu),
+            max_cpu: fix_nan(max_cpu),
+            average_nanos: fix_nan(average_nanos),
+            max_nanos: fix_nan(max_nanos),
         }
+    }
+
+    fn push_measurement(&mut self, duration: Duration, cpu_percent: f32) {
+        self.last_measurements.push_front((cpu_percent, duration));
+        self.last_measurements.truncate(MAX_FRAMES);
+    }
+}
+
+fn fix_nan(value: f32) -> f32 {
+    if value.is_nan() {
+        0.0
+    } else {
+        value
     }
 }
 
@@ -169,4 +181,68 @@ pub struct AudioProcessorMetricsStats {
     pub max_cpu: f32,
     pub average_nanos: f32,
     pub max_nanos: f32,
+}
+
+#[cfg(test)]
+mod test {
+    use audio_garbage_collector::make_shared;
+    use audio_processor_traits::AudioProcessorSettings;
+
+    use super::*;
+
+    #[test]
+    fn test_actor_poll() {
+        let handle = AudioProcessorMetricsHandle::default();
+        let mut settings = AudioProcessorSettings::default();
+        settings.sample_rate = 1000.0;
+        settings.block_size = 100;
+        handle.prepare(settings);
+
+        let handle = make_shared(handle);
+        let mut actor = AudioProcessorMetricsActor::new(handle.clone());
+
+        handle.set_duration(Duration::from_millis(50));
+        let stats = actor.poll();
+        assert!((stats.average_cpu - 0.5).abs() < f32::EPSILON);
+        assert!((stats.max_cpu - 0.5).abs() < f32::EPSILON);
+    }
+
+    #[test]
+    fn test_push_measurement_pushes_measurement_to_the_start_of_the_deque() {
+        let handle = make_shared(AudioProcessorMetricsHandle::default());
+        let mut actor = AudioProcessorMetricsActor::new(handle);
+        assert!(actor.last_measurements.is_empty());
+        actor.push_measurement(Duration::from_millis(50), 0.5);
+        assert!(!actor.last_measurements.is_empty());
+        assert_eq!(actor.last_measurements.len(), 1);
+        assert!((actor.last_measurements[0].0 - 0.5).abs() < f32::EPSILON);
+        assert_eq!(actor.last_measurements[0].1, Duration::from_millis(50));
+    }
+
+    #[test]
+    fn test_push_measurement_removes_the_first_measurements_when_at_max_frames() {
+        let handle = make_shared(AudioProcessorMetricsHandle::default());
+        let mut actor = AudioProcessorMetricsActor::new(handle);
+        assert!(actor.last_measurements.is_empty());
+
+        actor.push_measurement(Duration::from_millis(0), 0.1);
+        for _i in 0..MAX_FRAMES {
+            actor.push_measurement(Duration::from_millis(5), 0.5);
+        }
+        assert!(!actor.last_measurements.is_empty());
+        assert_eq!(actor.last_measurements.len(), MAX_FRAMES);
+
+        for (cpu_percent, duration) in actor.last_measurements.iter() {
+            assert!((cpu_percent - 0.5).abs() < f32::EPSILON);
+            assert_eq!(*duration, Duration::from_millis(5));
+        }
+    }
+
+    #[test]
+    fn test_fix_nan() {
+        let nan = f32::NAN;
+        assert!((fix_nan(nan) - 0.0).abs() < f32::EPSILON);
+        let v = 20.0;
+        assert!((fix_nan(v) - 20.0).abs() < f32::EPSILON);
+    }
 }

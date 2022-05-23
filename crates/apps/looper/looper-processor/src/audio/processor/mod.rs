@@ -34,7 +34,7 @@ use crate::{LoopShufflerProcessorHandle, TimeInfoProviderImpl};
 pub mod handle;
 
 pub struct LooperProcessor {
-    handle: Shared<handle::LooperHandle>,
+    handle: Shared<LooperHandle>,
     sequencer: LoopShufflerProcessor,
 }
 
@@ -124,7 +124,7 @@ mod test {
     use super::*;
 
     fn test_settings() -> AudioProcessorSettings {
-        AudioProcessorSettings::new(44100.0, 1, 1, 512)
+        AudioProcessorSettings::new(100.0, 1, 1, 512)
     }
 
     #[test]

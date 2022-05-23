@@ -104,6 +104,7 @@ impl<Buffer: Borrow<[u8]>> MIDIMessage<Buffer> {
         }
     }
 
+    /// This returns the size in bytes of this message when serialised into MIDI.
     pub fn size_hint(&self) -> usize {
         match self {
             MIDIMessage::NoteOn(_) => 3,
@@ -138,7 +139,7 @@ impl<'a> TryFrom<&'a [u8]> for MIDIMessage<&'a [u8]> {
     }
 }
 
-impl<B: std::borrow::Borrow<[u8]>> From<MIDIMessage<B>> for Vec<u8> {
+impl<B: Borrow<[u8]>> From<MIDIMessage<B>> for Vec<u8> {
     fn from(msg: MIDIMessage<B>) -> Vec<u8> {
         let mut output = vec![];
         let _ = serialize_message(msg, &mut output);
@@ -148,29 +149,48 @@ impl<B: std::borrow::Borrow<[u8]>> From<MIDIMessage<B>> for Vec<u8> {
 
 pub type Input<'a> = &'a [u8];
 
+/// Describes how the file is organized
 #[derive(Debug, PartialEq)]
 pub enum MIDIFileFormat {
-    // 0
+    /// The file contains a single multi-channel track
+    ///
+    /// Represented by 0b0_000_0000_0000_0000
     Single,
-    // 1
+    /// The file contains one or more simultaneous tracks (or MIDI outputs) of a
+    /// sequence
+    ///
+    /// Represented by 0b1_000_0000_0000_0000
     Simultaneous,
-    // 2
+    /// The file contains one or more sequentially independent single-track patterns
+    ///
+    /// Represented by 0b2_000_0000_0000_0000
     Sequential,
+    /// An unknown file format was found. Parse will continue if this is found in the header chunk,
+    /// it will possibly fail on other sections of the file.
     Unknown,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum MIDIFileDivision {
-    // 0
+    /// The `ticks_per_quarter_note` field contains how many [`MIDITrackEvent::delta_time`] ticks
+    /// make up a quarter-note.
+    ///
+    /// Represented by 0b0_000_0000_0000_0000
     TicksPerQuarterNote { ticks_per_quarter_note: u16 },
-    // 1
+    /// Indicates [`MIDITrackEvent::delta_time`] are time based SMPTE offsets.
+    ///
+    /// Represented by 0b1_000_0000_0000_0000
     SMPTE { format: u8, ticks_per_frame: u8 },
 }
 
-#[derive(Debug)]
+/// The header chunk's contents
+#[derive(Debug, PartialEq)]
 pub struct MIDIFileHeader {
+    /// How the file is organized
     pub format: MIDIFileFormat,
+    /// The number of tracks in the file
     pub num_tracks: u16,
+    /// Specifies the meaning of the delta times in events
     pub division: MIDIFileDivision,
 }
 
@@ -185,7 +205,6 @@ pub enum MIDIFileChunk<StringRepr: Borrow<str>, Buffer: Borrow<[u8]>> {
 pub enum MIDITrackInner<Buffer: Borrow<[u8]>> {
     Message(MIDIMessage<Buffer>),
     Meta(MIDIMetaEvent<Buffer>),
-    SysEx(MIDISysExEvent<Buffer>),
 }
 
 #[derive(Eq, Ord, PartialEq, PartialOrd, Debug, Clone)]

@@ -3,6 +3,10 @@ name = "iced-editor"
 version = "0.1.0-alpha.0"
 edition = "2018"
 description = "Iced based VST editor"
+license = "MIT"
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
 default = ["glow", "tokio"]
@@ -18,7 +22,7 @@ wisual-logger = { path = "../../ops/wisual-logger" }
 
 baseview = { path = "../../../vendor/baseview" }
 iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false }
-raw-window-handle = "^0.3.3"
+raw-window-handle = "0.4.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
 objc = "^0.2.7"

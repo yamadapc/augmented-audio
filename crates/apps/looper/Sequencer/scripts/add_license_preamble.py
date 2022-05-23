@@ -1,8 +1,17 @@
 from glob import glob
+import subprocess
+
+
+def is_file_ignored(f):
+    ignore_out = subprocess.run(["git", "check-ignore", f])
+    return ignore_out.returncode == 0
 
 
 def find_files():
-    return [f for f in glob("./**/*.swift", recursive=True)]
+    return [
+        f for f in glob("./**/*.swift", recursive=True)
+        if not is_file_ignored(f)
+    ]
 
 
 def add_preamble(preamble_contents, target):

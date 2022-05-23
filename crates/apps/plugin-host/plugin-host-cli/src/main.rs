@@ -41,7 +41,11 @@ fn main() {
         return;
     }
 
-    if let Some(run_options) = options::parse_run_options(matches) {
+    if let Some(run_options) = matches
+        .subcommand_matches("run")
+        .map(options::parse_run_options)
+        .flatten()
+    {
         run_test(run_options);
     } else {
         app.print_help().unwrap();

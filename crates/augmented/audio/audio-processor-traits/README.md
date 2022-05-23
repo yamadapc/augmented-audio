@@ -5,7 +5,7 @@
 Traits for audio processor types and audio buffer types. Heavily subject to change.
 
 ## Primer
-This is very much exploration based and I'm still finding out the best API to express in Rust types.
+This is very much exploration based, and I'm still finding out the best API to express in Rust types.
 
 I think I've found a good abstraction to handle **AudioBuffer** and basic FX **AudioProcessor**, but there's quite a
 lot more to uncover.
@@ -21,12 +21,12 @@ At its core, audio processing may be defined as a function:
 fn process_audio(_input: &mut [f32]) { /* ... */ }
 ```
 
-`input` would be your input/output buffer and you could perform mutable operations on it. However, this does not
+`input` would be your input/output buffer, and you could perform mutable operations on it. However, this does not
 encode several audio processing concerns, such as:
 
 * The buffer won't be always `f32`, it might be `f64`
 * The buffer channel count isn't expressed
-* The buffer layout for multi-channel data isn't expressed (e.g. Interleaved data or otherwise)
+* The buffer layout for multichannel data isn't expressed (e.g. Interleaved data or otherwise)
 * Sample rate isn't expressed
 * Dry/wet configurations aren't expressed
 * MIDI & other concerns aren't expressed

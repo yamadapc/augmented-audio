@@ -9,7 +9,8 @@ part of 'history_state_model.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$HistoryStateModel on _HistoryStateModel, Store {
-  final _$sessionsAtom = Atom(name: '_HistoryStateModel.sessions');
+  late final _$sessionsAtom =
+      Atom(name: '_HistoryStateModel.sessions', context: context);
 
   @override
   ObservableList<AggregatedSession> get sessions {
@@ -24,10 +25,61 @@ mixin _$HistoryStateModel on _HistoryStateModel, Store {
     });
   }
 
+  late final _$dailyPracticeTimeAtom =
+      Atom(name: '_HistoryStateModel.dailyPracticeTime', context: context);
+
+  @override
+  ObservableList<DailyPracticeTime> get dailyPracticeTime {
+    _$dailyPracticeTimeAtom.reportRead();
+    return super.dailyPracticeTime;
+  }
+
+  @override
+  set dailyPracticeTime(ObservableList<DailyPracticeTime> value) {
+    _$dailyPracticeTimeAtom.reportWrite(value, super.dailyPracticeTime, () {
+      super.dailyPracticeTime = value;
+    });
+  }
+
+  late final _$weeklyPracticeTimeAtom =
+      Atom(name: '_HistoryStateModel.weeklyPracticeTime', context: context);
+
+  @override
+  ObservableList<DailyPracticeTime> get weeklyPracticeTime {
+    _$weeklyPracticeTimeAtom.reportRead();
+    return super.weeklyPracticeTime;
+  }
+
+  @override
+  set weeklyPracticeTime(ObservableList<DailyPracticeTime> value) {
+    _$weeklyPracticeTimeAtom.reportWrite(value, super.weeklyPracticeTime, () {
+      super.weeklyPracticeTime = value;
+    });
+  }
+
+  late final _$historyResolutionAtom =
+      Atom(name: '_HistoryStateModel.historyResolution', context: context);
+
+  @override
+  HistoryResolution get historyResolution {
+    _$historyResolutionAtom.reportRead();
+    return super.historyResolution;
+  }
+
+  @override
+  set historyResolution(HistoryResolution value) {
+    _$historyResolutionAtom.reportWrite(value, super.historyResolution, () {
+      super.historyResolution = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
-sessions: ${sessions}
+sessions: ${sessions},
+dailyPracticeTime: ${dailyPracticeTime},
+weeklyPracticeTime: ${weeklyPracticeTime},
+historyResolution: ${historyResolution}
     ''';
   }
 }

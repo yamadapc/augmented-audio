@@ -4,6 +4,7 @@ cargo-features = ["edition2021"]
 name = "daw_ui"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3.0"
 
 [lib]
 crate-type = ["lib", "cdylib"]
@@ -13,16 +14,16 @@ actix = "^0.13.0"
 flutter_rust_bridge = "^1.13.0"
 anyhow = "1.0.52"
 log = "^0.4.14"
-uuid = { version = "1.0.0-alpha.1", features = ["v4"] }
+uuid = { version = "1.0", features = ["v4"] }
 flexbuffers = "2.0.0"
 
 serde = "^1.0.130"
 serde_json = "^1.0.71"
 
-audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.3" }
-audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.5" }
+audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
+audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.6" }
 audio-processor-time = { path = "../../augmented/audio/audio-processor-time" , version = "0.1.0-alpha.2" }
-augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.5" }
+augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.6" }
 audio-processor-utility = { path = "../../augmented/audio/audio-processor-utility" }
 audio-processor-graph = { path = "../../augmented/audio/audio-processor-graph" }
 plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }

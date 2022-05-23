@@ -26,4 +26,7 @@ build-macos: FORCE
 	mkdir -p ./public/lib/macos/
 	lipo -create ./public/lib/macos-x86_64/liblooperengine.a ./public/lib/macos-aarch64/liblooperengine.a -output ./public/lib/macos/liblooperengine.a
 
+generate-about: FORCE
+	cargo about generate --manifest-path ./Cargo.toml about.hbs --output-file ./license.html
+
 FORCE:

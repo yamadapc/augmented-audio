@@ -28,7 +28,6 @@ use looper_processor::{LooperOptions, MultiTrackLooper};
 use crate::ui::Flags;
 use crate::ui::LooperApplication;
 
-mod services;
 mod ui;
 
 fn main() {
