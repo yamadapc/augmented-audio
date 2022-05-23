@@ -60,6 +60,5 @@ class DailyPracticeTime {
   final int durationMs;
   final int timestampMs;
 
-  DailyPracticeTime(
-      this.durationMs, this.timestampMs);
+  DailyPracticeTime(this.durationMs, this.timestampMs);
 }

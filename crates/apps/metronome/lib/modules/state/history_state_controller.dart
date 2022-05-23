@@ -35,8 +35,11 @@ class HistoryStateController {
           timestampMs, (value) => value += practiceTime.durationMs,
           ifAbsent: () => 0);
     }
-    final weeklyTime = timePerWeek.entries.map((e) => DailyPracticeTime(e.value, e.key)).toList();
-    weeklyTime.sort((entry1, entry2) => entry1.timestampMs > entry2.timestampMs ? 1 : -1);
+    final weeklyTime = timePerWeek.entries
+        .map((e) => DailyPracticeTime(e.value, e.key))
+        .toList();
+    weeklyTime.sort(
+        (entry1, entry2) => entry1.timestampMs > entry2.timestampMs ? 1 : -1);
 
     logger.i("Refreshing sessions from DB length=${sessions.length}");
     logger.i("$weeklyTime");
