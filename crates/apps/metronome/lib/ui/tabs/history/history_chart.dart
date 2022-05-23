@@ -42,7 +42,11 @@ class HistoryChart extends StatelessWidget {
         domainAxis: const OrdinalAxisSpec(
           showAxisLine: true,
           tickProviderSpec: BasicOrdinalTickProviderSpec(),
-          renderSpec: SmallTickRendererSpec(),
+          renderSpec: SmallTickRendererSpec(
+            labelStyle: TextStyleSpec(
+              fontSize: 10
+            )
+          ),
         ),
         layoutConfig: LayoutConfig(
             leftMarginSpec: MarginSpec.fixedPixel(0),

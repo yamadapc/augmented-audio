@@ -54,8 +54,8 @@ class _HistoryPageTabState extends State<HistoryPageTab> {
                     historyStateModel: widget.stateController.model)),
             HistoryResolutionControl(
                 historyStateController: widget.stateController),
-            const Divider(),
-            GoalPanel(),
+            // const Divider(),
+            // GoalPanel(),
             const Divider(),
             Expanded(
                 child: ListView.builder(
