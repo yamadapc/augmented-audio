@@ -34,6 +34,7 @@ use audio_processor_traits::parameters::{
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
+use augmented_oscillator::Oscillator;
 
 use crate::MonoDelayProcessor;
 
@@ -80,10 +81,14 @@ fn householder(frame: &mut [f32]) {
 
 struct ModReverbHandle {}
 
+/// Implements the reverb described by Geraint Luff on:
+/// "Let's write a Reverb - ADC21 - https://www.youtube.com/watch?v=6ZK2Goiyotk"
 pub struct ModReverbProcessor {
     handle: Shared<ModReverbHandle>,
     diffusers: [Diffuser; 6],
+    diffusers_durations: [Duration; 6],
     delay: [MonoDelayProcessor<f32>; 4],
+    diffuser_modulator: Oscillator<f32>,
 }
 
 struct GenericHandle(Shared<ModReverbHandle>);
@@ -124,12 +129,21 @@ impl Default for ModReverbProcessor {
                 Diffuser::default(),
                 Diffuser::default(),
             ],
+            diffusers_durations: [
+                Duration::from_secs_f32(0.0),
+                Duration::from_secs_f32(0.0),
+                Duration::from_secs_f32(0.0),
+                Duration::from_secs_f32(0.0),
+                Duration::from_secs_f32(0.0),
+                Duration::from_secs_f32(0.0),
+            ],
             delay: [
                 MonoDelayProcessor::default(),
                 MonoDelayProcessor::default(),
                 MonoDelayProcessor::default(),
                 MonoDelayProcessor::default(),
             ],
+            diffuser_modulator: Oscillator::sine(44100.0),
         }
     }
 }
@@ -139,8 +153,9 @@ impl AudioProcessor for ModReverbProcessor {
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         let mut max_delay_time = 0.2 / (self.diffusers.len() as f32).powf(2.0);
-        for diffuser in &mut self.diffusers {
+        for (diffuser, duration) in self.diffusers.iter_mut().zip(&mut self.diffusers_durations) {
             diffuser.max_delay_time = Duration::from_secs_f32(max_delay_time);
+            *duration = diffuser.max_delay_time;
             diffuser.prepare(settings);
             max_delay_time *= 2.0;
         }
@@ -149,28 +164,46 @@ impl AudioProcessor for ModReverbProcessor {
             delay.s_prepare(settings);
             delay.handle().set_delay_time_secs(0.2);
         }
+
+        self.diffuser_modulator
+            .set_sample_rate(settings.sample_rate());
+        self.diffuser_modulator.set_frequency(0.01);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
         data: &mut BufferType,
     ) {
+        // Modulate diffusion delay times
+        let diffuser_modulation = self.diffuser_modulator.next_sample();
+        for (diffuser, base_duration) in self.diffusers.iter_mut().zip(&self.diffusers_durations) {
+            let duration = base_duration.as_secs_f32() / 10.0 + diffuser_modulation * 0.01;
+            diffuser.set_max_delay_time(Duration::from_secs_f32(duration));
+        }
+
+        // For each frame
         for frame in data.frames_mut() {
             let left = frame[0];
             let right = frame[1];
+
+            // Generate a 4 channel input signal
             let mut frame4 = [frame[0], frame[1], frame[0], frame[1]];
 
+            // Run it through a diffusion step
             for diffuser in &mut self.diffusers {
                 diffuser.process(&mut frame4);
             }
 
+            // Run it through a multi-channel delay line
             let mut delayed = [0.0, 0.0, 0.0, 0.0];
             for (delay, delay_output) in self.delay.iter_mut().zip(&mut delayed) {
                 *delay_output = delay.read();
             }
 
+            // Shuffle the channels together
             householder(&mut delayed);
 
+            // Write back into the multi-channel delay line and generate output
             for ((sample, delay), delay_output) in
                 frame4.iter_mut().zip(&mut self.delay).zip(delayed)
             {
@@ -180,6 +213,7 @@ impl AudioProcessor for ModReverbProcessor {
                 *sample = *sample + delay_output;
             }
 
+            // Mix the multi-channel output back into stereo
             let reverb_volume = 0.4;
             let reverb_left =
                 (frame4[1] + frame4[2]) * 1.0 / (self.diffusers.len() as f32) * reverb_volume;
@@ -235,6 +269,13 @@ impl Diffuser {
             d.handle().set_delay_time_secs(slots[index]);
             d.handle().set_feedback(0.0)
         }
+    }
+
+    fn set_max_delay_time(&mut self, duration: Duration) {
+        let basis = duration.as_secs_f32() / (self.mono_delay_processors.len() as f32);
+        self.mono_delay_processors[0]
+            .handle()
+            .set_delay_time_secs(basis);
     }
 
     fn process(&mut self, frame: &mut [f32; 4]) {

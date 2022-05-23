@@ -584,13 +584,14 @@ dependencies = [
 name = "audio-processor-time"
 version = "0.1.0-alpha.2"
 dependencies = [
-    "assert_no_alloc",
-    "audio-garbage-collector",
-    "audio-processor-standalone",
-    "audio-processor-standalone-gui",
-    "audio-processor-traits",
-    "nalgebra",
-    "rand 0.8.5",
+ "assert_no_alloc",
+ "audio-garbage-collector",
+ "audio-processor-standalone",
+ "audio-processor-standalone-gui",
+ "audio-processor-traits",
+ "augmented_oscillator",
+ "nalgebra",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -4265,7 +4266,7 @@ version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "add85d4dd35074e6fedc608f8c8f513a3548619a9024b751949ef0e8e45a4d84"
 dependencies = [
-    "rawpointer",
+ "rawpointer",
 ]
 
 [[package]]
@@ -4596,14 +4597,14 @@ checksum = "806f448a7ce662ca79ef5484ef8f451a9b7c51b8166c95f5a667228b3825a6ca"
 dependencies = [
  "bit-set",
  "bitflags",
-    "codespan-reporting",
-    "fxhash",
-    "hexf-parse",
-    "indexmap",
-    "log",
-    "num-traits 0.2.14",
-    "spirv",
-    "thiserror",
+ "codespan-reporting",
+ "fxhash",
+ "hexf-parse",
+ "indexmap",
+ "log",
+ "num-traits 0.2.14",
+ "spirv",
+ "thiserror",
 ]
 
 [[package]]
@@ -4612,14 +4613,14 @@ version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18a89248335f688e4bd994e6d030fd7e185eb41769b8c435395075425e100ac6"
 dependencies = [
-    "approx 0.5.1",
-    "matrixmultiply",
-    "nalgebra-macros",
-    "num-complex 0.4.0",
-    "num-rational 0.4.0",
-    "num-traits 0.2.14",
-    "simba",
-    "typenum",
+ "approx 0.5.1",
+ "matrixmultiply",
+ "nalgebra-macros",
+ "num-complex 0.4.0",
+ "num-rational 0.4.0",
+ "num-traits 0.2.14",
+ "simba",
+ "typenum",
 ]
 
 [[package]]
@@ -4628,9 +4629,9 @@ version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "01fcc0b8149b4632adc89ac3b7b31a12fb6099a0317a4eb2ebff574ef7de7218"
 dependencies = [
-    "proc-macro2 1.0.37",
-    "quote 1.0.18",
-    "syn",
+ "proc-macro2 1.0.37",
+ "quote 1.0.18",
+ "syn",
 ]
 
 [[package]]
@@ -4639,9 +4640,9 @@ version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99e905fd16cfd553b94d92badc04611410889c6fe36e5cfdc3325d6466b1991e"
 dependencies = [
-    "find_folder",
-    "futures 0.3.21",
-    "image",
+ "find_folder",
+ "futures 0.3.21",
+ "image",
  "instant",
  "lyon",
  "nannou_core",
@@ -6217,7 +6218,7 @@ version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b800beb9b6e7d2df1fe337c9e3d04e3af22a124460fb4c30fcc22c9117cefb41"
 dependencies = [
-    "cty",
+ "cty",
 ]
 
 [[package]]
@@ -6232,9 +6233,9 @@ version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fd249e82c21598a9a426a4e00dd7adc1d640b22445ec8545feef801d1a74c221"
 dependencies = [
-    "autocfg",
-    "crossbeam-deque 0.8.1",
-    "either",
+ "autocfg",
+ "crossbeam-deque 0.8.1",
+ "either",
  "rayon-core",
 ]
 
@@ -6513,7 +6514,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "794821e4ccb0d9f979512f9c1973480123f9bd62a90d74ab0f9426fcf8f4a529"
 dependencies = [
-    "bytemuck",
+ "bytemuck",
 ]
 
 [[package]]
@@ -6780,7 +6781,7 @@ version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e51e73328dc4ac0c7ccbda3a494dfa03df1de2f46018127f60c693f2648455b0"
 dependencies = [
-    "libc",
+ "libc",
 ]
 
 [[package]]
@@ -6789,11 +6790,11 @@ version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13a2609e876d4f77f6ab7ff5254fc39b4f1927ba8e6db3d18be7c32534d3725e"
 dependencies = [
-    "approx 0.5.1",
-    "num-complex 0.4.0",
-    "num-traits 0.2.14",
-    "paste",
-    "wide",
+ "approx 0.5.1",
+ "num-complex 0.4.0",
+ "num-traits 0.2.14",
+ "paste",
+ "wide",
 ]
 
 [[package]]
@@ -8404,9 +8405,9 @@ version = "4.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c4fb54e6113b6a8772ee41c3404fb0301ac79604489467e0a9ce1f3e97c24ae"
 dependencies = [
-    "either",
-    "lazy_static",
-    "libc",
+ "either",
+ "lazy_static",
+ "libc",
 ]
 
 [[package]]
@@ -8415,8 +8416,8 @@ version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b3aba2d1dac31ac7cae82847ac5b8be822aee8f99a4e100f279605016b185c5f"
 dependencies = [
-    "bytemuck",
-    "safe_arch",
+ "bytemuck",
+ "safe_arch",
 ]
 
 [[package]]
