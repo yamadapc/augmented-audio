@@ -89,6 +89,7 @@ pub struct ModReverbProcessor {
     diffusers_durations: [Duration; 6],
     delay: [MonoDelayProcessor<f32>; 4],
     diffuser_modulator: Oscillator<f32>,
+    delay_modulator: Oscillator<f32>,
 }
 
 struct GenericHandle(Shared<ModReverbHandle>);
@@ -144,6 +145,7 @@ impl Default for ModReverbProcessor {
                 MonoDelayProcessor::default(),
             ],
             diffuser_modulator: Oscillator::sine(44100.0),
+            delay_modulator: Oscillator::sine(44100.0),
         }
     }
 }
@@ -168,6 +170,8 @@ impl AudioProcessor for ModReverbProcessor {
         self.diffuser_modulator
             .set_sample_rate(settings.sample_rate());
         self.diffuser_modulator.set_frequency(0.01);
+        self.delay_modulator.set_sample_rate(settings.sample_rate());
+        self.delay_modulator.set_frequency(0.02);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -179,6 +183,12 @@ impl AudioProcessor for ModReverbProcessor {
         for (diffuser, base_duration) in self.diffusers.iter_mut().zip(&self.diffusers_durations) {
             let duration = base_duration.as_secs_f32() / 10.0 + diffuser_modulation * 0.01;
             diffuser.set_max_delay_time(Duration::from_secs_f32(duration));
+        }
+        // Modulate multi-channel delay times
+        let delay_modulation = self.delay_modulator.next_sample();
+        for delay in &mut self.delay {
+            let duration = 0.2 + delay_modulation * 0.001;
+            delay.handle().set_delay_time_secs(duration);
         }
 
         // For each frame
