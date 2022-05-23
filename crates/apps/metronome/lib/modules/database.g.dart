@@ -66,7 +66,7 @@ class _$MetronomeDatabase extends MetronomeDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 4,
+      version: 5,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -86,6 +86,8 @@ class _$MetronomeDatabase extends MetronomeDatabase {
 
         await database.execute(
             'CREATE VIEW IF NOT EXISTS `AggregatedSession` AS SELECT\n  SUM(durationMs) as durationMs,\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,\n  tempo,\n  beatsPerBar\nFROM session\nGROUP BY\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),\n  tempo,\n  beatsPerBar\nORDER BY timestampMs DESC\n  ');
+        await database.execute(
+            'CREATE VIEW IF NOT EXISTS `dailypracticetime` AS   SELECT\n      SUM(durationMs) as durationMs,\n      strftime(\'%s\', datetime(timestampMs / 1000, \'unixepoch\', \'localtime\', \'start of day\')) * 1000 AS timestampMs\n  FROM session\n  GROUP BY\n      datetime(timestampMs / 1000, \'unixepoch\', \'localtime\', \'start of day\')\n  ORDER BY timestampMs DESC\n');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -151,6 +153,14 @@ class _$SessionDao extends SessionDao {
     return _queryAdapter.queryList(
         'SELECT * FROM aggregatedsession WHERE timestampMs >= ?1 ORDER BY timestampMs DESC LIMIT 100',
         mapper: (Map<String, Object?> row) => AggregatedSession(row['durationMs'] as int, row['timestampMs'] as int, row['tempo'] as double, row['beatsPerBar'] as int),
+        arguments: [startMs]);
+  }
+
+  @override
+  Future<List<DailyPracticeTime>> findDailyPracticeTime(int startMs) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM dailypracticetime WHERE timestampMs >= ?1 ORDER BY timestampMs DESC LIMIT 100',
+        mapper: (Map<String, Object?> row) => DailyPracticeTime(row['durationMs'] as int, row['timestampMs'] as int),
         arguments: [startMs]);
   }
 

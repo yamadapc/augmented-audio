@@ -9,7 +9,10 @@ import 'history/session_entity.dart';
 
 part 'database.g.dart';
 
-@Database(version: 4, entities: [Session], views: [AggregatedSession])
+@Database(
+    version: 5,
+    entities: [Session],
+    views: [AggregatedSession, DailyPracticeTime])
 abstract class MetronomeDatabase extends FloorDatabase {
   SessionDao get sessionDao;
 }
@@ -39,7 +42,22 @@ CREATE VIEW IF NOT EXISTS AggregatedSession AS
  """);
 });
 
-final migrations = [addBeatsPerBar, addAggregatedSession];
+final addDailyPracticeTime = Migration(4, 5, (database) async {
+  logger.i("Migrating daily session time");
+  await database.execute("""
+DROP VIEW IF EXISTS DailyPracticeTime;
+CREATE VIEW IF NOT EXISTS DailyPracticeTime AS
+  SELECT
+      SUM(durationMs) as durationMs,
+      strftime('%s', datetime(timestampMs / 1000, 'unixepoch', 'localtime', 'start of day')) * 1000 AS timestampMs
+  FROM session
+  GROUP BY
+      datetime(timestampMs / 1000, 'unixepoch', 'localtime', 'start of day')
+  ORDER BY timestampMs DESC 
+  """);
+});
+
+final migrations = [addBeatsPerBar, addAggregatedSession, addDailyPracticeTime];
 
 Future<MetronomeDatabase> buildInMemoryDatabase() {
   return $FloorMetronomeDatabase

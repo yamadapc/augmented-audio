@@ -15,26 +15,11 @@ class HistoryChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(builder: (_) {
-      DateFormat dateFormat = DateFormat("E");
-      var sessions = historyStateModel.sessions;
-
-      Map<int, int> timeByDay = {};
-      DateTime now = DateTime.now();
-      DateTime today = DateTime(now.year, now.month, now.day);
-      for (var i = 0; i < 7; i++) {
-        final day = today.subtract(Duration(days: i));
-        timeByDay[day.millisecondsSinceEpoch] = 0;
-      }
-
-      for (var session in sessions) {
-        final timestamp =
-            DateTime.fromMillisecondsSinceEpoch(session.timestampMs);
-        final day = DateTime(timestamp.year, timestamp.month, timestamp.day);
-        timeByDay.update(day.millisecondsSinceEpoch,
-            (value) => value + session.durationMs.toInt());
-      }
-      List<MapEntry<int, int>> data = timeByDay.entries.toList();
-      data.sort((entry1, entry2) => entry1.key > entry2.key ? 1 : -1);
+      DateFormat dateFormat =
+          historyStateModel.historyResolution == HistoryResolution.days
+              ? DateFormat("E")
+              : DateFormat("d/MM/yy");
+      List<MapEntry<int, int>> data = getData();
 
       var seriesList = [
         Series<MapEntry<int, int>, String>(
@@ -67,5 +52,21 @@ class HistoryChart extends StatelessWidget {
         defaultRenderer: BarRendererConfig(minBarLengthPx: 100),
       );
     });
+  }
+
+  List<MapEntry<int, int>> getData() {
+    var resolution = historyStateModel.historyResolution;
+
+    if (resolution == HistoryResolution.weeks) {
+      return historyStateModel.weeklyPracticeTime
+          .map((practiceTime) =>
+              MapEntry(practiceTime.timestampMs, practiceTime.durationMs))
+          .toList();
+    }
+
+    return historyStateModel.dailyPracticeTime
+        .map((practiceTime) =>
+            MapEntry(practiceTime.timestampMs, practiceTime.durationMs))
+        .toList();
   }
 }

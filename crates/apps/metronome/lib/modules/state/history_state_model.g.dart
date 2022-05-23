@@ -25,10 +25,61 @@ mixin _$HistoryStateModel on _HistoryStateModel, Store {
     });
   }
 
+  late final _$dailyPracticeTimeAtom =
+      Atom(name: '_HistoryStateModel.dailyPracticeTime', context: context);
+
+  @override
+  ObservableList<DailyPracticeTime> get dailyPracticeTime {
+    _$dailyPracticeTimeAtom.reportRead();
+    return super.dailyPracticeTime;
+  }
+
+  @override
+  set dailyPracticeTime(ObservableList<DailyPracticeTime> value) {
+    _$dailyPracticeTimeAtom.reportWrite(value, super.dailyPracticeTime, () {
+      super.dailyPracticeTime = value;
+    });
+  }
+
+  late final _$weeklyPracticeTimeAtom =
+      Atom(name: '_HistoryStateModel.weeklyPracticeTime', context: context);
+
+  @override
+  ObservableList<DailyPracticeTime> get weeklyPracticeTime {
+    _$weeklyPracticeTimeAtom.reportRead();
+    return super.weeklyPracticeTime;
+  }
+
+  @override
+  set weeklyPracticeTime(ObservableList<DailyPracticeTime> value) {
+    _$weeklyPracticeTimeAtom.reportWrite(value, super.weeklyPracticeTime, () {
+      super.weeklyPracticeTime = value;
+    });
+  }
+
+  late final _$historyResolutionAtom =
+      Atom(name: '_HistoryStateModel.historyResolution', context: context);
+
+  @override
+  HistoryResolution get historyResolution {
+    _$historyResolutionAtom.reportRead();
+    return super.historyResolution;
+  }
+
+  @override
+  set historyResolution(HistoryResolution value) {
+    _$historyResolutionAtom.reportWrite(value, super.historyResolution, () {
+      super.historyResolution = value;
+    });
+  }
+
   @override
   String toString() {
     return '''
-sessions: ${sessions}
+sessions: ${sessions},
+dailyPracticeTime: ${dailyPracticeTime},
+weeklyPracticeTime: ${weeklyPracticeTime},
+historyResolution: ${historyResolution}
     ''';
   }
 }

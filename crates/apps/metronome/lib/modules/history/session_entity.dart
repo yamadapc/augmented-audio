@@ -46,3 +46,20 @@ class AggregatedSession {
   AggregatedSession(
       this.durationMs, this.timestampMs, this.tempo, this.beatsPerBar);
 }
+
+@DatabaseView("""
+  SELECT
+      SUM(durationMs) as durationMs,
+      strftime('%s', datetime(timestampMs / 1000, 'unixepoch', 'localtime', 'start of day')) * 1000 AS timestampMs
+  FROM session
+  GROUP BY
+      datetime(timestampMs / 1000, 'unixepoch', 'localtime', 'start of day')
+  ORDER BY timestampMs DESC
+""", viewName: "dailypracticetime")
+class DailyPracticeTime {
+  final int durationMs;
+  final int timestampMs;
+
+  DailyPracticeTime(
+      this.durationMs, this.timestampMs);
+}

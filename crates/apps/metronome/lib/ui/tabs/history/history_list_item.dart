@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../modules/history/session_entity.dart';
@@ -44,11 +45,7 @@ class HistoryListItem extends StatelessWidget {
     final timeSignature = "${session.beatsPerBar}/4";
 
     return Container(
-        padding: const EdgeInsets.all(8.0),
-        decoration: const BoxDecoration(
-          border: Border(
-              bottom: BorderSide(color: CupertinoColors.opaqueSeparator)),
-        ),
+        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(formattedDate, style: const TextStyle(fontSize: 14)),
           Row(children: [
@@ -58,7 +55,8 @@ class HistoryListItem extends StatelessWidget {
                       fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             Text("$timeSignature - ${session.tempo.floor()}bpm"),
-          ])
+          ]),
+          const Divider()
         ]));
   }
 }
