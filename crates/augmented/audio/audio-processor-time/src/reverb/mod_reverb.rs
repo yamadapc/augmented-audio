@@ -34,6 +34,7 @@ use audio_processor_traits::parameters::{
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
+use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 use augmented_oscillator::Oscillator;
 
 use crate::MonoDelayProcessor;
@@ -87,6 +88,7 @@ pub struct ModReverbProcessor {
     handle: Shared<ModReverbHandle>,
     diffusers: [Diffuser; 6],
     delay: [MonoDelayProcessor<f32>; 4],
+    filter: [FilterProcessor<f32>; 2],
     diffuser_modulator: Oscillator<f32>,
     delay_modulator: Oscillator<f32>,
 }
@@ -135,6 +137,10 @@ impl Default for ModReverbProcessor {
                 MonoDelayProcessor::default(),
                 MonoDelayProcessor::default(),
             ],
+            filter: [
+                FilterProcessor::new(FilterType::LowPass),
+                FilterProcessor::new(FilterType::LowPass),
+            ],
             diffuser_modulator: Oscillator::sine(44100.0),
             delay_modulator: Oscillator::sine(44100.0),
         }
@@ -163,6 +169,12 @@ impl AudioProcessor for ModReverbProcessor {
         self.diffuser_modulator.set_frequency(0.4);
         self.delay_modulator.set_sample_rate(settings.sample_rate());
         self.delay_modulator.set_frequency(0.6);
+
+        for filter in &mut self.filter {
+            filter.s_prepare(settings);
+            filter.set_q(1.0);
+            filter.set_cutoff(800.0);
+        }
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -173,13 +185,13 @@ impl AudioProcessor for ModReverbProcessor {
         let delay_feedback = 0.3;
         let delay_volume = 0.4;
         // Reverb volume
-        let reverb_volume = 0.5;
+        let reverb_volume = 1.0;
 
         // For each frame
         for frame in data.frames_mut() {
             // Modulate diffusion delay times
             let diffuser_modulation = self.diffuser_modulator.next_sample(); // -1.0..1.0
-            let diffuser_modulation = 1.0 + diffuser_modulation * 0.01; // 1% modulation
+            let diffuser_modulation = 1.0 + diffuser_modulation * 0.00005;
             for diffuser in self.diffusers.iter_mut() {
                 diffuser.set_delay_mult(diffuser_modulation);
             }
@@ -221,10 +233,15 @@ impl AudioProcessor for ModReverbProcessor {
 
             // Mix the multi-channel output back into stereo
             let scale = 1.0 / (self.diffusers.len() as f32);
-            let reverb_left = (frame4[1] + frame4[2]) * scale * reverb_volume;
-            frame[0] = reverb_left + left;
-            let reverb_right = (frame4[3] + frame4[0]) * scale * reverb_volume;
-            frame[1] = reverb_right + right;
+            let mut reverb_output = [
+                (frame4[1] + frame4[2]) * scale * reverb_volume,
+                (frame4[3] + frame4[0]) * scale * reverb_volume,
+            ];
+            reverb_output[0] = self.filter[0].s_process(reverb_output[0]);
+            reverb_output[1] = self.filter[1].s_process(reverb_output[1]);
+
+            frame[0] = reverb_output[0] + left;
+            frame[1] = reverb_output[1] + right;
         }
     }
 }
@@ -277,6 +294,7 @@ impl Diffuser {
             let index = self.rng.gen_range(0..slots.len());
             *delay_time = slots[index];
             d.handle().set_delay_time_secs(*delay_time);
+            d.handle().set_feedback(0.0);
         }
     }
 
