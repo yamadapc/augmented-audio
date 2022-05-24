@@ -25,7 +25,7 @@
 //! - - -
 //! Implementation of an ADSR envelope.
 //!
-//! ## Basic usage
+//! # Basic usage
 //!
 //! ```rust
 //! use std::time::Duration;
