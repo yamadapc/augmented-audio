@@ -20,6 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! [![crates.io](https://img.shields.io/crates/v/wisual-logger.svg)](https://crates.io/crates/wisual-logger)
+//! [![docs.rs](https://docs.rs/wisual-logger/badge.svg)](https://docs.rs/wisual-logger/)
+//! - - -
+//! Just a pretty printer configuration for `env_logger`.
+//!
+//! ```ignore
+//! fn main() {
+//!     wisual_logger::init_from_env();
+//!     log::info!("Hello world");
+//! }
+//! ```
+//!
+//! Will output:
+//! ![](https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/augmented/ops/wisual-logger/screenshot.png)
+//!
+//! ```shell
+//! INFO [2021-07-09T02:26:16.239338+00:00] (main@hello_world) Hello world
+//! ```
+
 use std::io::Write;
 use std::time::SystemTime;
 use std::{io, thread};
@@ -28,11 +48,11 @@ use chrono::{DateTime, Utc};
 use env_logger::fmt::{Color, Formatter};
 use log::{Record, SetLoggerError};
 
-///! A log pretty printer that will output in colors with thread name and pid
+/// A log pretty printer that will output in colors with thread name and pid
 pub struct LogFormatter;
 
 impl LogFormatter {
-    ///! Output log message with level, time, thread & pid
+    /// Output log message with level, time, thread & pid
     pub fn format(buf: &mut Formatter, record: &Record) -> io::Result<()> {
         let metadata = record.metadata();
         let target = metadata.target();
@@ -74,7 +94,7 @@ impl LogFormatter {
     }
 }
 
-///! Try to set-up the logger and return a result
+/// Try to set-up the logger and return a result
 pub fn try_init_from_env() -> Result<(), SetLoggerError> {
     env_logger::Builder::from_env(
         env_logger::Env::default().default_filter_or("info,wgpu_core=off"),
@@ -83,7 +103,7 @@ pub fn try_init_from_env() -> Result<(), SetLoggerError> {
     .try_init()
 }
 
-///! Try to set-up the logger and ignore errors
+/// Try to set-up the logger and ignore errors
 pub fn init_from_env() {
     let _ = try_init_from_env();
 }
