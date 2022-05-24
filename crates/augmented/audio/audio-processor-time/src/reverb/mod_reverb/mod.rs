@@ -111,7 +111,7 @@ impl AudioProcessor for ModReverbProcessor {
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        let mut max_delay_time = 1.0 / (self.diffusers.len() as f32).powf(2.0);
+        let mut max_delay_time = 0.5 / (self.diffusers.len() as f32).powf(2.0);
         for diffuser in self.diffusers.iter_mut() {
             diffuser.max_delay_time = Duration::from_secs_f32(max_delay_time);
             diffuser.prepare(settings);
@@ -121,14 +121,13 @@ impl AudioProcessor for ModReverbProcessor {
         for delay in &mut self.delay {
             delay.s_prepare(settings);
             delay.handle().set_delay_time_secs(0.2);
-            delay.handle().set_feedback(0.1)
         }
 
         self.diffuser_modulator
             .set_sample_rate(settings.sample_rate());
         self.diffuser_modulator.set_frequency(1.0);
         self.delay_modulator.set_sample_rate(settings.sample_rate());
-        self.delay_modulator.set_frequency(0.6);
+        self.delay_modulator.set_frequency(0.3);
 
         for filter in &mut self.filter {
             filter.s_prepare(settings);
@@ -142,14 +141,14 @@ impl AudioProcessor for ModReverbProcessor {
         data: &mut BufferType,
     ) {
         // Last delay line feedback / volume
-        let delay_feedback = 0.2;
+        let delay_feedback = 0.9;
         let delay_volume = 0.5;
-        let delay_time = 0.2;
+        let delay_time = 0.15;
         // Reverb volume
         let reverb_volume = 0.5;
         // Modulation
-        let delay_modulated_amount = 0.02;
-        let diffuser_modulated_amount = 0.005;
+        let delay_modulated_amount = 0.0005;
+        let diffuser_modulated_amount = 0.0;
 
         // For each frame
         for frame in data.frames_mut() {
@@ -271,7 +270,7 @@ where
             *delay_time = slots[index];
             slots.remove(index);
             d.handle().set_delay_time_secs(*delay_time);
-            d.handle().set_feedback(0.4);
+            d.handle().set_feedback(0.0);
         }
     }
 
