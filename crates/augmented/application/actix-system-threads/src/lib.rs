@@ -20,6 +20,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! This is a wrapper struct for `actix` that provides a single global dispatcher into several actix
+//! `Arbiter` threads.
+//!
+//! ## Usage
+//! ```
+//! use actix_system_threads::ActorSystem;
+//! let system = ActorSystem::current();
+//!
+//! system.spawn(async move {
+//!     // ...
+//! });
+//! let x = system.spawn_result(async move {
+//!     10
+//! });
+//! assert_eq!(x, 10);
+//! ```
+
 use std::future::Future;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::channel;
