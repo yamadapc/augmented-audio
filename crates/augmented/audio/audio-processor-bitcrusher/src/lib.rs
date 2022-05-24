@@ -20,6 +20,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! Implements a simple bitcrusher based on "sample-and-hold".
+//!
+//! [`BitCrusherProcessor`] is the [`audio_processor_traits::AudioProcessor`] implementation.
+//!
+//! [`BitCrusherHandle`] is the handle with which to change parameters from any thread. A generic
+//! handle is implemented to generate generic GUIs.
+
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
