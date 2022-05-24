@@ -14,7 +14,7 @@ Experiments trying to use Rust for audio programming.
 Consider anything in this repository a draft.
 
 <details>
-  <summary>⚠️ Goals</summary>
+  <summary>⚠️ **Goals**</summary>
 
 * **Goal 1:** Learn & have fun
   * This is goal #1 and it's very important to keep it in mind if you end-up
@@ -83,11 +83,11 @@ Some directories which contain full applications are licensed under the AGPLv3 l
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/tremolo-screenshot.png" />
 </p>
 
-# 👩 Web GUI
+## 👩 Web GUI
 See [`docs/misc/WEB_GUI.md`](docs/misc/WEB_GUI.md).
 
-# 🛠 Rust libraries and tooling
-## Workspace & Building
+## 🛠 Rust libraries and tooling
+### Workspace & Building
 The project is set-up with a cargo workspace. Running `cargo` commands at the root directory should compile all crates
 sharing caches.
 
@@ -104,23 +104,23 @@ cargo test
 
 Build outputs should be on `target/debug` or `target/release`.
 
-### Building on linux
+#### Building on linux
 Since this is bringing in all the possible rust crates, you'll need to install quite a few dependencies.
 
 See `.github/workflows/default.yml` for a list of what's needed on Ubuntu.
 
-## Linting
+### Linting
 ```shell
 cargo clippy
 ```
 
-## Benchmarking
+### Benchmarking
 Benchmarks using `criterion` will be slowly added. In order to run benchmarks use:
 ```shell
 cargo bench
 ```
 
-### Profiling on macOS
+#### Profiling on macOS
 > https://crates.io/crates/cargo-instruments
 
 ```shell
@@ -128,7 +128,7 @@ cd ./crates/oscillator
 cargo instruments -t time --bench sine_oscillator_benchmark -- --bench
 ```
 
-### Generating flamegraphs from benchmarks
+#### Generating flamegraphs from benchmarks
 > **NOTE** I couldn't get this to work on macOS
 
 Flamegraphs can be generated using `cargo-flamegraph`:
