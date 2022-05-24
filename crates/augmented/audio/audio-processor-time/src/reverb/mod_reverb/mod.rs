@@ -24,27 +24,26 @@
 use std::time::Duration;
 
 use rand::rngs::SmallRng;
+use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::parameters::{
-    make_handle_ref, AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
-    ParameterSpec, ParameterValue,
+    make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
 use audio_processor_traits::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 use augmented_oscillator::Oscillator;
+use generic_handle::GenericHandle;
 
 use crate::MonoDelayProcessor;
 
-#[allow(dead_code)]
-fn shuffle(rng: &[usize], frame: &mut [f32]) {
-    for i in 0..frame.len() {
-        frame[i] = frame[rng[i]];
-    }
-}
+use self::mix_matrix::{apply_householder, HadamardMatrix};
+
+mod generic_handle;
+mod mix_matrix;
 
 fn flip_polarities(frame: &mut [f32]) {
     for i in 0..frame.len() {
@@ -52,70 +51,27 @@ fn flip_polarities(frame: &mut [f32]) {
     }
 }
 
-fn hadamard_matrix(frame: &mut [f32]) {
-    let matrix = nalgebra::Matrix4::new(
-        1.0, 1.0, 1.0, 1.0, // \n
-        1.0, -1.0, 1.0, -1.0, // \n
-        1.0, 1.0, -1.0, -1.0, // \n
-        1.0, -1.0, -1.0, 1.0,
-    );
-    let target = nalgebra::Matrix1x4::new(frame[0], frame[1], frame[2], frame[3]);
-    let result = target * matrix;
-    for (r, slot) in result.iter().zip(frame) {
-        *slot = *r;
-    }
-}
-
-fn householder(frame: &mut [f32]) {
-    let matrix = nalgebra::Matrix4::new(
-        1.0, -1.0, -1.0, -1.0, // \n
-        -1.0, 1.0, -1.0, -1.0, // \n
-        -1.0, -1.0, 1.0, -1.0, // \n
-        -1.0, -1.0, -1.0, 1.0,
-    );
-    let target = nalgebra::Matrix1x4::new(frame[0], frame[1], frame[2], frame[3]);
-    let result = target * matrix;
-    for (r, slot) in result.iter().zip(frame) {
-        *slot = *r;
-    }
-}
-
-struct ModReverbHandle {}
+pub struct ModReverbHandle {}
 
 /// Implements the reverb described by Geraint Luff on:
-/// "Let's write a Reverb - ADC21 - https://www.youtube.com/watch?v=6ZK2Goiyotk"
+///
+/// * "Let's write a Reverb - ADC21 - https://www.youtube.com/watch?v=6ZK2Goiyotk"
+///
+/// This is a reverb based on a multi-channel diffuser and delay.
+///
+/// A low-pass filter is added at the end of the signal, delay times are modulated.
 pub struct ModReverbProcessor {
     handle: Shared<ModReverbHandle>,
-    diffusers: [Diffuser; 6],
+    diffusers: [Diffuser<8>; 6],
     delay: [MonoDelayProcessor<f32>; 8],
     filter: [FilterProcessor<f32>; 2],
     diffuser_modulator: Oscillator<f32>,
     delay_modulator: Oscillator<f32>,
 }
 
-struct GenericHandle(Shared<ModReverbHandle>);
-
 impl AudioProcessorHandleProvider for ModReverbProcessor {
     fn generic_handle(&self) -> AudioProcessorHandleRef {
         make_handle_ref(GenericHandle(self.handle.clone()))
-    }
-}
-
-impl AudioProcessorHandle for GenericHandle {
-    fn parameter_count(&self) -> usize {
-        0
-    }
-
-    fn get_parameter_spec(&self, _index: usize) -> ParameterSpec {
-        todo!()
-    }
-
-    fn get_parameter(&self, _index: usize) -> Option<ParameterValue> {
-        todo!()
-    }
-
-    fn set_parameter(&self, _index: usize, _request: ParameterValue) {
-        todo!()
     }
 }
 
@@ -155,7 +111,7 @@ impl AudioProcessor for ModReverbProcessor {
     type SampleType = f32;
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
-        let mut max_delay_time = 0.4 / (self.diffusers.len() as f32).powf(2.0);
+        let mut max_delay_time = 1.0 / (self.diffusers.len() as f32).powf(2.0);
         for diffuser in self.diffusers.iter_mut() {
             diffuser.max_delay_time = Duration::from_secs_f32(max_delay_time);
             diffuser.prepare(settings);
@@ -170,7 +126,7 @@ impl AudioProcessor for ModReverbProcessor {
 
         self.diffuser_modulator
             .set_sample_rate(settings.sample_rate());
-        self.diffuser_modulator.set_frequency(0.4);
+        self.diffuser_modulator.set_frequency(1.0);
         self.delay_modulator.set_sample_rate(settings.sample_rate());
         self.delay_modulator.set_frequency(0.6);
 
@@ -187,24 +143,28 @@ impl AudioProcessor for ModReverbProcessor {
     ) {
         // Last delay line feedback / volume
         let delay_feedback = 0.2;
-        let delay_volume = 0.1;
+        let delay_volume = 0.5;
+        let delay_time = 0.2;
         // Reverb volume
-        let reverb_volume = 0.7;
+        let reverb_volume = 0.5;
+        // Modulation
+        let delay_modulated_amount = 0.02;
+        let diffuser_modulated_amount = 0.005;
 
         // For each frame
         for frame in data.frames_mut() {
             // Modulate diffusion delay times
             let diffuser_modulation = self.diffuser_modulator.next_sample(); // -1.0..1.0
-            let diffuser_modulation = 1.0 + diffuser_modulation * 0.0005;
+            let diffuser_modulation = 1.0 + diffuser_modulation * diffuser_modulated_amount;
             for diffuser in self.diffusers.iter_mut() {
                 diffuser.set_delay_mult(diffuser_modulation);
             }
             // Modulate multi-channel delay times
             let delay_modulation = self.delay_modulator.next_sample();
-            let delay_modulation = 1.0 + delay_modulation * 0.01;
+            let delay_modulation = 1.0 + delay_modulation * delay_modulated_amount;
+            let delay_duration = delay_time * delay_modulation;
             for delay in &mut self.delay {
-                let duration = 0.2 * delay_modulation;
-                delay.handle().set_delay_time_secs(duration);
+                delay.handle().set_delay_time_secs(delay_duration);
             }
 
             let left = frame[0];
@@ -221,13 +181,13 @@ impl AudioProcessor for ModReverbProcessor {
             }
 
             // Run it through a multi-channel delay line
-            let mut delayed = [0.0, 0.0, 0.0, 0.0];
+            let mut delayed = [0.0; 8];
             for (delay, delay_output) in self.delay.iter_mut().zip(&mut delayed) {
                 *delay_output = delay.read();
             }
 
             // Shuffle the channels together
-            householder(&mut delayed);
+            apply_householder(&mut delayed);
 
             // Write back into the multi-channel delay line and generate output
             for ((sample, delay), delay_output) in
@@ -238,7 +198,7 @@ impl AudioProcessor for ModReverbProcessor {
             }
 
             // Mix the multi-channel output back into stereo
-            let scale = 1.0 / (self.diffusers.len() as f32) / 4.0;
+            let scale = 1.0 / (self.diffusers.len() as f32);
             let mut reverb_output = [
                 (frame8[0] + frame8[2] + frame8[4] + frame8[6]) * scale * reverb_volume,
                 (frame8[1] + frame8[3] + frame8[5] + frame8[7]) * scale * reverb_volume,
@@ -252,47 +212,53 @@ impl AudioProcessor for ModReverbProcessor {
     }
 }
 
-struct Diffuser {
+struct Diffuser<const CHANNELS: usize> {
     rng: SmallRng,
     max_delay_time: Duration,
     #[allow(dead_code)]
-    shuffle_positions: [usize; 8],
-    mono_delay_processors: [MonoDelayProcessor<f32>; 8],
-    delay_times: [f32; 8],
+    shuffle_positions: [usize; CHANNELS],
+    mono_delay_processors: [MonoDelayProcessor<f32>; CHANNELS],
+    delay_times: [f32; CHANNELS],
+    hadamard_matrix: HadamardMatrix<CHANNELS>,
 }
 
-impl Default for Diffuser {
+impl<const CHANNELS: usize> Default for Diffuser<CHANNELS>
+where
+    [[f32; CHANNELS]; CHANNELS]: Default,
+{
     fn default() -> Self {
         let rng = SmallRng::from_entropy();
         Self::new(rng)
     }
 }
 
-impl Diffuser {
-    fn new(rng: SmallRng) -> Self {
-        let shuffle_positions = [2, 3, 1, 0, 5, 4, 7, 6];
+impl<const CHANNELS: usize> Diffuser<CHANNELS>
+where
+    [[f32; CHANNELS]; CHANNELS]: Default,
+{
+    fn new(mut rng: SmallRng) -> Self {
+        let mut shuffle_positions: [usize; CHANNELS] = [0; CHANNELS];
+        for i in 0..CHANNELS {
+            shuffle_positions[i] = i;
+        }
+        shuffle_positions.shuffle(&mut rng);
+
+        let mono_delay_processors = [(); CHANNELS].map(|_| MonoDelayProcessor::default());
+
         Self {
             rng,
             shuffle_positions,
             max_delay_time: Duration::from_secs_f32(0.0_f32),
-            mono_delay_processors: [
-                MonoDelayProcessor::default(),
-                MonoDelayProcessor::default(),
-                MonoDelayProcessor::default(),
-                MonoDelayProcessor::default(),
-                MonoDelayProcessor::default(),
-                MonoDelayProcessor::default(),
-                MonoDelayProcessor::default(),
-                MonoDelayProcessor::default(),
-            ],
-            delay_times: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            mono_delay_processors,
+            delay_times: [0.0; CHANNELS],
+            hadamard_matrix: HadamardMatrix::new(),
         }
     }
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         let max_delay = self.max_delay_time.as_secs_f32();
         let mut slots: Vec<f32> = (0..self.mono_delay_processors.len())
-            .map(|i| (i + 1) as f32 * (max_delay / (self.mono_delay_processors.len() as f32)))
+            .map(|i| 0.003 + i as f32 * (max_delay / (self.mono_delay_processors.len() as f32)))
             .collect();
 
         for (d, delay_time) in self
@@ -305,7 +271,7 @@ impl Diffuser {
             *delay_time = slots[index];
             slots.remove(index);
             d.handle().set_delay_time_secs(*delay_time);
-            d.handle().set_feedback(0.1);
+            d.handle().set_feedback(0.4);
         }
     }
 
@@ -315,13 +281,12 @@ impl Diffuser {
         }
     }
 
-    fn process(&mut self, frame: &mut [f32; 8]) {
+    fn process(&mut self, frame: &mut [f32; CHANNELS]) {
         for (sample, delay_processor) in frame.iter_mut().zip(&mut self.mono_delay_processors) {
             *sample = delay_processor.s_process(*sample);
         }
-        // shuffle(&self.shuffle_positions, frame);
         flip_polarities(frame);
-        hadamard_matrix(frame);
+        self.hadamard_matrix.apply(frame);
     }
 }
 
@@ -333,7 +298,7 @@ mod test {
 
     #[test]
     fn test_no_alloc_diffuser() {
-        let mut diffuser = Diffuser::default();
+        let mut diffuser = Diffuser::<8>::default();
         let mut settings = AudioProcessorSettings::default();
         settings.input_channels = 8;
         settings.output_channels = 8;
