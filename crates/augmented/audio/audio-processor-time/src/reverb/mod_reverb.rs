@@ -335,11 +335,11 @@ mod test {
     fn test_no_alloc_diffuser() {
         let mut diffuser = Diffuser::default();
         let mut settings = AudioProcessorSettings::default();
-        settings.input_channels = 4;
-        settings.output_channels = 4;
+        settings.input_channels = 8;
+        settings.output_channels = 8;
         diffuser.prepare(settings);
 
-        let mut frame = [0.0, 0.0, 0.0, 0.0];
+        let mut frame = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
         assert_no_alloc(|| {
             diffuser.process(&mut frame);
         });
