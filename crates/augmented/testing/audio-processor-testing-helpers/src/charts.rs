@@ -20,6 +20,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! Draw charts with `plotters` during unit-testing.
+
 use std::path::Path;
 use std::time::Duration;
 
@@ -153,10 +156,12 @@ pub fn generate_frequency_response_plot<Processor>(
 type SeriesDef = (RGBColor, Vec<f32>);
 type MultiSeries = Vec<SeriesDef>;
 
+/// Draw a `Vec<f32>` as a line chart under `filename`.
 pub fn draw_vec_chart(filename: &str, plot_name: &str, vec: Vec<f32>) {
     draw_multi_vec_charts(filename, plot_name, vec![(RED, vec)])
 }
 
+/// Draw multiple vectors as line charts.
 pub fn draw_multi_vec_charts(filename: &str, plot_name: &str, vecs: MultiSeries) {
     let (_, vec) = &vecs[0];
     let filename = Path::new(filename);
