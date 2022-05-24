@@ -37,7 +37,7 @@ fn get_cli_version() -> String {
 
 fn main() {
     wisual_logger::init_from_env();
-    log::info!(
+    log::warn!(
         "Starting augmented-dev-cli VERSION={} GIT_REV={} GIT_REV_SHORT={}",
         get_cli_version(),
         env!("GIT_REV"),
@@ -47,7 +47,14 @@ fn main() {
     let version = get_cli_version();
     let mut app = clap::Command::new("augmented-dev-cli")
         .subcommand(
-            clap::Command::new("list-crates").about("List crates and their published status"),
+            clap::Command::new("list-crates")
+                .about("List crates and their published status")
+                .arg(
+                    clap::Arg::new("simple")
+                        .long("simple")
+                        .help("Only list names and prevent logs")
+                        .short('s'),
+                ),
         )
         .subcommand(
             clap::Command::new("prerelease-all").about("Bump all crates into a pre-release state"),
@@ -56,7 +63,11 @@ fn main() {
         .subcommand(
             clap::Command::new("test-snapshots")
                 .about("Run processor snapshot tests")
-                .arg(clap::Arg::new("update-snapshots").short('u')),
+                .arg(
+                    clap::Arg::new("update-snapshots")
+                        .long("update-snapshots")
+                        .short('u'),
+                ),
         )
         .subcommand(
             clap::Command::new("build")
@@ -74,9 +85,9 @@ fn main() {
     } else if matches.subcommand_matches("outdated").is_some() {
         let outdated_crates_service = services::OutdatedCratesService::default();
         outdated_crates_service.run();
-    } else if matches.subcommand_matches("list-crates").is_some() {
+    } else if let Some(matches) = matches.subcommand_matches("list-crates") {
         let list_crates_service = services::ListCratesService::default();
-        list_crates_service.run();
+        list_crates_service.run(matches.is_present("simple"));
     } else if let Some(matches) = matches.subcommand_matches("build") {
         let mut build_service = services::BuildCommandService::default();
         let crate_path = matches.value_of("crate").unwrap();
