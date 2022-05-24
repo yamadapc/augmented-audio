@@ -20,6 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! [`audio_processor_traits::AudioProcessor`] implementations for audio file playback & writing.
+//!
+//! Currently two processors are provided:
+//!
+//! * [`AudioFileProcessor`] is an input file processor, its `prepare` method will *load the whole
+//!   file onto memory*. Both `wav` and `mp3` are supported via [`symphonia`]
+//!   - If streaming is a requirement this won't work
+//! * [`OutputAudioFileProcessor`] writes `wav` files
+
 pub use audio_file_processor::{
     file_io, AudioFileProcessor, AudioFileProcessorHandle, InMemoryAudioFile,
 };

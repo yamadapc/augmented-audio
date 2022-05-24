@@ -30,6 +30,16 @@
 //! buffer types and audio processing back-ends.
 //!
 //! Start looking at [AudioProcessor], then have a look at [AudioBuffer] and [MidiEventHandler].
+//!
+//! # Running the audio processors as CLIs, GUIs, VSTs or CPAL threads
+//! See [`audio_processor_standalone`]
+//!
+//! # Running a graph of audio processors
+//! See [`audio_processor_graph`]
+//!
+//! # AudioProcessor implementations
+//! See: <https://github.com/yamadapc/augmented-audio/>
+//!
 use std::marker::PhantomData;
 
 pub use num;
