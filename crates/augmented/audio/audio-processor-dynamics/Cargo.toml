@@ -1,6 +1,7 @@
 [package]
 name = "audio-processor-dynamics"
 version = "0.1.0"
+description = "Implements a compressor"
 edition = "2021"
 license = "MIT"
 authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]

@@ -1,6 +1,7 @@
 [package]
 name = "audio-processor-pitch-shifter"
 version = "0.1.0"
+description = "A phase-vocoder pitch-shifter implementation"
 edition = "2021"
 license = "MIT"
 authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]

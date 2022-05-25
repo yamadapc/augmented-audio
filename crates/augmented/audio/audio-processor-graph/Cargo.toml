@@ -1,6 +1,7 @@
 [package]
 name = "audio-processor-graph"
 version = "0.1.0"
+description = "Run graphs of AudioProcessors"
 edition = "2018"
 license = "MIT"
 authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]

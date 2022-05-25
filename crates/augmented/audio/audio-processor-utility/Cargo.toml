@@ -1,6 +1,7 @@
 [package]
 name = "audio-processor-utility"
 version = "0.1.0"
+description = "Utility AudioProcessor implementations (pan, gain, mono, noise)"
 edition = "2018"
 license = "MIT"
 authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]

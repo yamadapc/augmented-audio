@@ -3,6 +3,7 @@ name = "audio-processor-bitcrusher"
 version = "0.1.0-alpha.1"
 edition = "2021"
 license = "MIT"
+description = "Implements a simple bitcrusher based on sample-and-hold."
 authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
