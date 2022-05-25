@@ -32,7 +32,7 @@ audio-parameter-store = { path = "../audio/audio-parameter-store" }
 audio-processor-graph = { path = "../audio/audio-processor-graph" }
 audio-processor-traits = { path = "../audio/audio-processor-traits" , version = "1.0.0-alpha.7" }
 audio-processor-utility = { path = "../audio/audio-processor-utility" }
-audio-processor-analysis = { path = "../audio/audio-processor-analysis" }
+audio-processor-analysis = { path = "../audio/audio-processor-analysis" , version = "0.1.0-alpha.8" }
 audio-processor-bitcrusher = { path = "../audio/audio-processor-bitcrusher" }
 audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" }
 audio-processor-time = { path = "../audio/audio-processor-time" }
