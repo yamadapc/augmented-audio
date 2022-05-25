@@ -50,7 +50,7 @@ chrono = "0.4"
 audio-processor-metronome = { path = "../../../augmented/audio/audio-processor-metronome" , version = "1.0.0-alpha.2" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.0-alpha.4" }
 augmented-adsr-envelope = { version = "0.1.0-alpha.5", path = "../../../augmented/audio/adsr-envelope" }
-augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.1.0-alpha.7" }
+augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.1.0-alpha.8" }
 augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.1.0-alpha.6" }
 audio-garbage-collector = { version = "1.0.0-alpha.5", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../../augmented/application/audio-processor-standalone" }
