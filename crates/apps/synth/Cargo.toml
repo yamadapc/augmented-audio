@@ -9,7 +9,7 @@ license = "MIT"
 [dependencies]
 audio-garbage-collector = { version = "1.0.0-alpha.5", path = "../../augmented/audio/audio-garbage-collector" }
 audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../augmented/audio/audio-processor-traits" }
-augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.5" }
+augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , version = "0.1.0-alpha.6" }
 augmented_oscillator = { version = "1.0.0-alpha.6", path = "../../augmented/audio/oscillator" }
 audio-processor-standalone = { version = "1.0.0-alpha.12", path = "../../augmented/application/audio-processor-standalone" }
 num = "^0.4.0"
