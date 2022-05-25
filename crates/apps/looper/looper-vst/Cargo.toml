@@ -49,7 +49,7 @@ iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = 
 # Storybook
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook" }
 derive_more = "^0.99.16"
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.0.0-alpha.6" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.0.0-alpha.7" }
 
 # Audio
 augmented = { path = "../../../augmented/augmented" }
