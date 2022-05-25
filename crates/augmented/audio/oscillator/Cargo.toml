@@ -1,6 +1,6 @@
 [package]
 name = "augmented_oscillator"
-version = "1.0.0-alpha.5"
+version = "1.0.0-alpha.6"
 authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
 edition = "2018"
 description = "Very simple implementation of an oscillator."
