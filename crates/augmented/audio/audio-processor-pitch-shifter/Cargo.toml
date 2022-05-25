@@ -14,7 +14,7 @@ private = true
 [dependencies]
 audio-processor-analysis = { path = "../audio-processor-analysis" , version = "0.1.0-alpha.7" }
 audio-processor-traits = { path = "../audio-processor-traits" , version = "1.0.0-alpha.6" }
-audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.4" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.5" }
 
 [dev-dependencies]
 audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../application/audio-processor-standalone" }

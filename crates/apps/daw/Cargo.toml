@@ -20,7 +20,7 @@ flexbuffers = "2.0.0"
 serde = "^1.0.130"
 serde_json = "^1.0.71"
 
-audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
+audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.5" }
 audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.0.0-alpha.6" }
 audio-processor-time = { path = "../../augmented/audio/audio-processor-time" , version = "0.1.0-alpha.2" }
 augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.6" }
