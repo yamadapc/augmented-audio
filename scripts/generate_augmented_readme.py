@@ -51,6 +51,26 @@ def build_main_readme():
     output = ""
     output += "# augmented\n"
     output += "The augmented audio libraries are separated onto categories:\n\n"
+    output += "\n## Summary\n\n"
+    for category_path in categories:
+        if not os.path.isdir(category_path):
+            continue
+        if 'development' in category_path:
+            continue
+
+        category = os.path.basename(category_path)
+        if category == 'augmented':
+            continue
+        augmented_crates = set([
+            f
+            for f in glob(f"{category_path}/**/Cargo.toml", recursive=True)
+            if "target" not in f and "vendor" not in f and "midir" not in f
+        ])
+        augmented_crates = list(augmented_crates)
+        augmented_crates.sort()
+        description = category_descriptions[category]
+        output += f"* [**{category}** - {description}]({category})\n"
+    output += "\n## All crates\n\n"
     for category_path in categories:
         if not os.path.isdir(category_path):
             continue

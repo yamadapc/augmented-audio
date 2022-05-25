@@ -1,6 +1,19 @@
 # augmented
 The augmented audio libraries are separated onto categories:
 
+
+## Summary
+
+* [**application** - Stand-alone app functionality](application)
+* [**audio** - Audio app functionality](audio)
+* [**data** - Data-structures](data)
+* [**dsp** - DSP](dsp)
+* [**gui** - GUI](gui)
+* [**ops** - Operations](ops)
+* [**testing** - Testing](testing)
+
+## All crates
+
 * [**application** - Stand-alone app functionality](application)
   * [**actix-system-threads** - This is a wrapper for `actix` that provides a single global dispatcher into several actix `Arbiter` threads.](application/actix-system-threads)
   * [**audio-processor-standalone-gui** - Provides generic `iced` GUI for implementations of `audio_processor_traits::parameters::AudioProcessorHandle`](application/audio-processor-standalone-gui)
