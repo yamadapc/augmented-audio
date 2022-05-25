@@ -40,7 +40,7 @@ def build_category_readme(category_path):
         package_name = t['package']['name']
         package_description = t['package'].get('description', None)
         package_description = f" - {package_description}" if package_description is not None else ""
-        output += f"* [**{package_name}**{package_description}]({category}/{os.path.basename(os.path.dirname(crate))})\n"
+        output += f"* [**{package_name}**{package_description}]({os.path.basename(os.path.dirname(crate))})\n"
 
     return output
 
