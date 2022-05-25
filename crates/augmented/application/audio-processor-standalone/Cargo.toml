@@ -19,7 +19,7 @@ thiserror = "^1.0.25"
 # Augmented
 audio-processor-file = { path = "../../audio/audio-processor-file", version = "1.0.0-alpha.7" }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector", version = "1.0.0-alpha.5" }
-audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../audio/audio-processor-traits" }
 augmented-midi = { path = "../../data/augmented-midi", version = "1.0.0-alpha.6" }
 
 # Audio

@@ -9,7 +9,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.6", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.7", path = "../audio-processor-traits" }
 daggy = "^0.7.0"
 thiserror = "^1.0.26"
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.5" }
