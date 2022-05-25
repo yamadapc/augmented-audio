@@ -37,7 +37,7 @@ audio-processor-bitcrusher = { path = "../audio/audio-processor-bitcrusher" }
 audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" }
 audio-processor-time = { path = "../audio/audio-processor-time" }
 audio-processor-file = { path = "../audio/audio-processor-file" , version = "1.0.0-alpha.8" }
-audio-processor-metronome = { path = "../audio/audio-processor-metronome" }
+audio-processor-metronome = { path = "../audio/audio-processor-metronome" , version = "1.0.0-alpha.3" }
 audio-processor-pitch-shifter = { path = "../audio/audio-processor-pitch-shifter" }
 augmented_oscillator = { path = "../audio/oscillator" , version = "1.0.0-alpha.6" }
 cpal = { version = "^0.13.3" }

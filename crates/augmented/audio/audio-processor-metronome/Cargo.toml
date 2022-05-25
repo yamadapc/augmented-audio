@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-metronome"
-version = "1.0.0-alpha.2"
+version = "1.0.0-alpha.3"
 description = "Implements a simple metronome processor"
 license = "MIT"
 edition = "2021"

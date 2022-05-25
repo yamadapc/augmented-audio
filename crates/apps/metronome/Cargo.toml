@@ -10,7 +10,7 @@ license = "AGPL-3.0"
 crate-type = ["staticlib", "lib"]
 
 [dependencies]
-audio-processor-metronome = { path = "../../augmented/audio/audio-processor-metronome" , version = "1.0.0-alpha.2" }
+audio-processor-metronome = { path = "../../augmented/audio/audio-processor-metronome" , version = "1.0.0-alpha.3" }
 audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" , version = "1.0.0-alpha.12" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.5" }
 anyhow = "1.0.52"
