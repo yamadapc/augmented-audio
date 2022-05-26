@@ -1,15 +1,9 @@
 import {LogLevel, LogMessage} from "../logger/types";
-import memoize from "lodash/memoize";
-import chroma from "chroma-js";
 import chalk from "chalk";
 
 export interface LoggerSink {
   log(message: LogMessage): void;
 }
-
-const getNameColor = memoize((_name: string, light) =>
-  light ? chroma.random().brighten(1.5).hex() : chroma.random().darken(1).hex()
-);
 
 function getConsoleMethod(level: LogLevel): "log" | "debug" | "warn" | "error" {
   switch (level) {
@@ -48,9 +42,7 @@ export class PrettyConsoleSink implements LoggerSink {
     console[getConsoleMethod(message.level)](
       `${chalk.keyword(getLevelColor(message.level))(
         message.level.toUpperCase()
-      )} [${chalk.blackBright(message.time.toISOString())}] (${chalk.hex(
-        getNameColor(message.logger, true)
-      )(message.logger)}) ${chalk.white.bold(message.message)} ${variables}`
+      )} [${chalk.blackBright(message.time.toISOString())}] (${message.logger}) ${chalk.white.bold(message.message)} ${variables}`
     );
   }
 }
@@ -69,11 +61,6 @@ export class DelegatingSink implements LoggerSink {
   }
 }
 
-// @ts-ignore
-const useLightColors =
-  typeof localStorage != "undefined" &&
-  localStorage.getItem("wisual:use-light-colors-logger") === "true";
-
 export class PrettyBrowserSink implements LoggerSink {
   static shared = new PrettyBrowserSink();
 
@@ -83,7 +70,7 @@ export class PrettyBrowserSink implements LoggerSink {
         message.level
       }) %c${message.message} %c`,
       "opacity: 0.8",
-      `color: ${getNameColor(message.logger, useLightColors)}`,
+      `color: ${message.logger}`,
       "font-weight: bold",
       "opacity: 0.8",
       {
