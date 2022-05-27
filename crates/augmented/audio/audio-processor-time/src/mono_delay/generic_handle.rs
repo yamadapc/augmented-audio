@@ -20,11 +20,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use crate::MonoDelayProcessorHandle;
+
 use audio_garbage_collector::Shared;
 use audio_processor_traits::parameters::{
     AudioProcessorHandle, FloatType, ParameterSpec, ParameterType, ParameterValue,
 };
+
+use crate::MonoDelayProcessorHandle;
 
 pub struct GenericHandle(pub Shared<MonoDelayProcessorHandle>);
 
