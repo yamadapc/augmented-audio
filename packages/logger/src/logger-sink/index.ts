@@ -7,7 +7,7 @@ export { PrettyBrowserSink, PrettyConsoleSink, }
 export type { LoggerSink }
 
 export function getDefaultSink(): LoggerSink {
-  return typeof window !== "undefined"
+  return process.env.IS_BROWSER === 'true' || typeof window !== "undefined"
     ? PrettyBrowserSink.shared
     : PrettyConsoleSink.shared;
 }

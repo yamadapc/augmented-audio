@@ -9,7 +9,6 @@ import {
   DelegatingSink,
   LoggerSink,
   PrettyBrowserSink,
-  PrettyConsoleSink
 } from "./logger-sink";
 
 export type { LoggerMap, LoggerSink };
@@ -17,7 +16,6 @@ export {
   Logger,
   LoggerContext,
   LoggerFactory,
-  PrettyConsoleSink,
   PrettyBrowserSink,
   DelegatingSink,
 };
