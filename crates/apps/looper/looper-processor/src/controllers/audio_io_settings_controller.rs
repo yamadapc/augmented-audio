@@ -20,7 +20,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-pub mod audio_io_settings_controller;
-pub mod autosave_controller;
-pub mod events_controller;
-pub mod load_project_controller;
+use anyhow::Result;
+use cpal::traits::{DeviceTrait, HostTrait};
+use cpal::Device;
+
+pub struct AudioDevice {
+    pub name: String,
+}
+
+#[derive(Default)]
+pub struct AudioIOSettingsController {}
+
+impl AudioIOSettingsController {
+    pub fn list_input_devices(&self) -> Result<Vec<AudioDevice>> {
+        let host = cpal::default_host();
+        let devices = host.input_devices()?;
+        Self::build_domain_model(devices)
+    }
+
+    pub fn list_output_devices(&self) -> Result<Vec<AudioDevice>> {
+        let host = cpal::default_host();
+        let devices = host.output_devices()?;
+        Self::build_domain_model(devices)
+    }
+
+    fn build_domain_model(devices: impl Iterator<Item = Device>) -> Result<Vec<AudioDevice>> {
+        let mut result = vec![];
+
+        for device in devices {
+            let name = device.name()?;
+            result.push(AudioDevice { name });
+        }
+
+        Ok(result)
+    }
+}

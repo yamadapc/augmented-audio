@@ -4106,6 +4106,7 @@ dependencies = [
  "bytesize",
  "cacao",
  "chrono",
+ "cpal",
  "criterion",
  "crossbeam",
  "iai",

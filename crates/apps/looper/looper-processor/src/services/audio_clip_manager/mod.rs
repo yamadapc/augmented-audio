@@ -142,7 +142,7 @@ mod test {
     use crate::services::project_manager::{
         LoadLatestProjectMessage, ProjectManager, SaveProjectMessage,
     };
-    use crate::{LooperOptions, MultiTrackLooper};
+    use crate::{controllers, LooperOptions, MultiTrackLooper};
 
     use super::*;
 
@@ -201,13 +201,13 @@ mod test {
             })
             .unwrap()
             .unwrap();
-        crate::controllers::load_project_controller::load_and_hydrate_latest_project(LoadContext {
+        controllers::load_project_controller::load_and_hydrate_latest_project(LoadContext {
             handle: looper.handle().clone(),
             project_manager,
             audio_clip_manager,
             events_controller: ActorSystem::start(EventsController::default()),
         })
-        .unwrap();
+        .unwrap_or_else(|err| log::error!("Failed to load saved project: {}", err));
 
         // Test buffer is properly set
         let voice: &LooperVoice = &looper.handle().voices()[0];

@@ -21,8 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use basedrop::Shared;
 use std::ptr::null;
+
+use basedrop::Shared;
 
 use audio_processor_traits::AudioProcessorSettings;
 use augmented_atomics::AtomicValue;
@@ -39,6 +40,7 @@ use crate::TimeInfoProvider;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 pub use self::analytics::*;
 pub use self::audio_clip_manager::*;
+pub use self::audio_io_settings_controller::*;
 pub use self::entity_id::*;
 pub use self::events::*;
 pub use self::foreign_callback::*;
@@ -50,6 +52,7 @@ pub use self::midi_callback::*;
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 mod analytics;
 mod audio_clip_manager;
+mod audio_io_settings_controller;
 pub mod effects;
 mod entity_id;
 mod events;

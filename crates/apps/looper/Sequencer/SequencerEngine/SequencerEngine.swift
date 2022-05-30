@@ -29,10 +29,10 @@ import SequencerUI
  */
 class EngineImpl {
     let _effectsService = EffectsServiceImpl()
+    let _audioIOSettingsController: AudioIOSettingsControllerImpl
 
     private var engine: OpaquePointer!
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineImpl")
-
     var midi: AnyPublisher<MidiEvent, Never>?
 
     init() {
@@ -47,6 +47,7 @@ class EngineImpl {
         engine = looper_engine__new()
 
         logger.info("Building rust MIDI subscription")
+        self._audioIOSettingsController = AudioIOSettingsControllerImpl(engine: engine)
         midi = buildStream(
             registerStream: { callback in
                 looper_engine__register_midi_callback(self.engine, callback)
@@ -63,6 +64,9 @@ class EngineImpl {
 extension EngineImpl: SequencerEngine {
     var effectsService: EffectsService {
         _effectsService
+    }
+    var audioIOPreferencesController: AudioIOSettingsController {
+        _audioIOSettingsController
     }
 
     func loadFile(atPath path: String) {

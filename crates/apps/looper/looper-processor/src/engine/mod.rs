@@ -32,6 +32,7 @@ use audio_processor_standalone::StandaloneHandles;
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::audio::time_info_provider::HostCallback;
+use crate::controllers::audio_io_settings_controller::AudioIOSettingsController;
 use crate::controllers::autosave_controller::AutosaveController;
 use crate::controllers::events_controller::EventsController;
 use crate::controllers::load_project_controller;
@@ -70,7 +71,7 @@ impl Default for LooperEngineParams {
     fn default() -> Self {
         Self {
             audio_mode: AudioModeParams::Standalone,
-            is_persistence_enabled: false,
+            is_persistence_enabled: true,
         }
     }
 }
@@ -85,6 +86,8 @@ pub struct LooperEngine {
     #[cfg(any(target_os = "ios", target_os = "macos"))]
     analytics_service: Addr<analytics::AnalyticsService>,
     audio_state: AudioState,
+
+    audio_io_settings_controller: AudioIOSettingsController,
     _autosave_controller: Option<AutosaveController>,
 }
 
@@ -171,6 +174,7 @@ impl LooperEngine {
             audio_state,
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             analytics_service,
+            audio_io_settings_controller: AudioIOSettingsController::default(),
             _autosave_controller: autosave_controller,
         }
     }
@@ -211,6 +215,10 @@ impl LooperEngine {
     #[cfg(any(target_os = "ios", target_os = "macos"))]
     pub fn analytics_service(&self) -> &Addr<AnalyticsService> {
         &self.analytics_service
+    }
+
+    pub fn audio_io_settings_controller(&self) -> &AudioIOSettingsController {
+        &self.audio_io_settings_controller
     }
 }
 
