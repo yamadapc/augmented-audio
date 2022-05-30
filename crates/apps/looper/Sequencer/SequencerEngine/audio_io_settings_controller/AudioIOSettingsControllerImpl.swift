@@ -35,6 +35,18 @@ class AudioIOSettingsControllerImpl: AudioIOSettingsController {
         let c_devices = audio_io_settings_controller__list_input_devices(engine)
         return toSwiftModel(c_devices)
     }
+
+    func setInputDevice(_ device: AudioDevice) {
+        let name = device.name
+        let c_name = name.cString(using: .utf8)
+        audio_io_settings_controller__set_input_device(engine, c_name)
+    }
+
+    func setOutputDevice(_ device: AudioDevice) {
+        let name = device.name
+        let c_name = name.cString(using: .utf8)
+        audio_io_settings_controller__set_output_device(engine, c_name)
+    }
 }
 
 private func toSwiftModel(_ c_devices: UnsafeMutablePointer<CAudioDeviceList>?) -> [AudioDevice] {

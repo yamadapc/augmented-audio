@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use std::ffi::CString;
+use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
 use std::ptr::null_mut;
 
@@ -94,6 +94,26 @@ pub extern "C" fn audio_io_settings_controller__list_output_devices(
     let controller = unsafe { (*engine).audio_io_settings_controller() };
     let devices = controller.list_output_devices();
     into_ptr(into_c_model(devices))
+}
+
+#[no_mangle]
+pub extern "C" fn audio_io_settings_controller__set_input_device(
+    engine: *mut LooperEngine,
+    device: *const c_char,
+) {
+    let controller = unsafe { (*engine).audio_io_settings_controller() };
+    let device = unsafe { CStr::from_ptr(device) }.to_str().unwrap_or("");
+    controller.set_input_device(device);
+}
+
+#[no_mangle]
+pub extern "C" fn audio_io_settings_controller__set_output_device(
+    engine: *mut LooperEngine,
+    device: *const c_char,
+) {
+    let controller = unsafe { (*engine).audio_io_settings_controller() };
+    let device = unsafe { CStr::from_ptr(device) }.to_str().unwrap_or("");
+    controller.set_output_device(device);
 }
 
 fn into_c_model(devices: anyhow::Result<Vec<AudioDevice>>) -> CAudioDeviceList {

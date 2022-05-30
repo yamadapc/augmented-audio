@@ -32,6 +32,16 @@ pub struct AudioDevice {
 pub struct AudioIOSettingsController {}
 
 impl AudioIOSettingsController {
+    pub fn set_input_device(&self, device: &str) {
+        log::info!("NOT IMPLEMENTED, SET INPUT DEVICE {}", device);
+    }
+
+    pub fn set_output_device(&self, device: &str) {
+        log::info!("NOT IMPLEMENTED, SET OUTPUT DEVICE {}", device);
+    }
+}
+
+impl AudioIOSettingsController {
     pub fn list_input_devices(&self) -> Result<Vec<AudioDevice>> {
         let host = cpal::default_host();
         let devices = host.input_devices()?;

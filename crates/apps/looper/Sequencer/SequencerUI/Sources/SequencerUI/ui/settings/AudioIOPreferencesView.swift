@@ -18,10 +18,12 @@
 
 import SwiftUI
 
+@available(macOS 11.0, *)
 struct AudioIOPreferencesView: View {
     @EnvironmentObject var store: Store
     @State var inputDevices: [AudioDevice] = []
     @State var outputDevices: [AudioDevice] = []
+
     @State var inputDevice: AudioDevice?
     @State var outputDevice: AudioDevice?
 
@@ -41,6 +43,10 @@ struct AudioIOPreferencesView: View {
                         }
                     }
                 )
+                .onChange(of: inputDevice?.id, perform: { _ in
+                    guard let inputDevice = inputDevice else { return }
+                    store.engine?.audioIOPreferencesController.setInputDevice(inputDevice)
+                })
 
                 Picker(
                     "Output device",
@@ -51,11 +57,16 @@ struct AudioIOPreferencesView: View {
                         }
                     }
                 )
+                .onChange(of: outputDevice?.id, perform: { _ in
+                    guard let outputDevice = outputDevice else { return }
+                    store.engine?.audioIOPreferencesController.setOutputDevice(outputDevice)
+                })
             }
         }
         .onAppear {
-            inputDevices = store.engine?.audioIOPreferencesController.listInputDevices() ?? []
-            outputDevices = store.engine?.audioIOPreferencesController.listInputDevices() ?? []
+            let controller = store.engine?.audioIOPreferencesController
+            inputDevices = controller?.listInputDevices() ?? []
+            outputDevices = controller?.listInputDevices() ?? []
         }
         .padding(PADDING)
         .frame(maxHeight: .infinity, alignment: .topLeading)

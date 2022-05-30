@@ -18,8 +18,7 @@
 
 public struct AudioDevice: Identifiable, Hashable {
     public var id: String { name }
-
-    let name: String
+    public let name: String
 
     public init(name: String) {
         self.name = name
@@ -29,4 +28,6 @@ public struct AudioDevice: Identifiable, Hashable {
 public protocol AudioIOSettingsController {
     func listInputDevices() -> [AudioDevice]
     func listOutputDevices() -> [AudioDevice]
+    func setInputDevice(_ device: AudioDevice)
+    func setOutputDevice(_ device: AudioDevice)
 }
