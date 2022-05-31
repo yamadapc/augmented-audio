@@ -42,18 +42,18 @@ pub struct CAudioDeviceList {
 }
 
 #[no_mangle]
-pub extern "C" fn audio_device_list__count(device_list: *mut CAudioDeviceList) -> usize {
-    let device_list = unsafe { &(*device_list) };
+pub unsafe extern "C" fn audio_device_list__count(device_list: *mut CAudioDeviceList) -> usize {
+    let device_list = &(*device_list);
     if device_list.inner == null_mut() {
         0
     } else {
-        let inner = unsafe { &(*device_list.inner) };
+        let inner = &(*device_list.inner);
         inner.len()
     }
 }
 
 #[no_mangle]
-pub extern "C" fn audio_device_list__get(
+pub unsafe extern "C" fn audio_device_list__get(
     device_list: *mut CAudioDeviceList,
     index: usize,
 ) -> *mut AudioDevice {
@@ -61,11 +61,11 @@ pub extern "C" fn audio_device_list__get(
         return null_mut();
     }
 
-    let device_list = unsafe { &(*device_list) };
+    let device_list = &(*device_list);
     if device_list.inner == null_mut() {
         null_mut()
     } else {
-        let inner = unsafe { &(*device_list.inner) };
+        let inner = &(*device_list.inner);
         inner.get(index).cloned().unwrap_or(null_mut())
     }
 }
@@ -79,40 +79,40 @@ pub unsafe extern "C" fn audio_device_list__free(device_list: *mut CAudioDeviceL
 }
 
 #[no_mangle]
-pub extern "C" fn audio_io_settings_controller__list_input_devices(
+pub unsafe extern "C" fn audio_io_settings_controller__list_input_devices(
     engine: *mut LooperEngine,
 ) -> *mut CAudioDeviceList {
-    let controller = unsafe { (*engine).audio_io_settings_controller() };
+    let controller = (*engine).audio_io_settings_controller();
     let devices = controller.list_input_devices();
     into_ptr(into_c_model(devices))
 }
 
 #[no_mangle]
-pub extern "C" fn audio_io_settings_controller__list_output_devices(
+pub unsafe extern "C" fn audio_io_settings_controller__list_output_devices(
     engine: *mut LooperEngine,
 ) -> *mut CAudioDeviceList {
-    let controller = unsafe { (*engine).audio_io_settings_controller() };
+    let controller = (*engine).audio_io_settings_controller();
     let devices = controller.list_output_devices();
     into_ptr(into_c_model(devices))
 }
 
 #[no_mangle]
-pub extern "C" fn audio_io_settings_controller__set_input_device(
+pub unsafe extern "C" fn audio_io_settings_controller__set_input_device(
     engine: *mut LooperEngine,
     device: *const c_char,
 ) {
-    let controller = unsafe { (*engine).audio_io_settings_controller() };
-    let device = unsafe { CStr::from_ptr(device) }.to_str().unwrap_or("");
+    let controller = (*engine).audio_io_settings_controller();
+    let device = CStr::from_ptr(device).to_str().unwrap_or("");
     controller.set_input_device(device);
 }
 
 #[no_mangle]
-pub extern "C" fn audio_io_settings_controller__set_output_device(
+pub unsafe extern "C" fn audio_io_settings_controller__set_output_device(
     engine: *mut LooperEngine,
     device: *const c_char,
 ) {
-    let controller = unsafe { (*engine).audio_io_settings_controller() };
-    let device = unsafe { CStr::from_ptr(device) }.to_str().unwrap_or("");
+    let controller = (*engine).audio_io_settings_controller();
+    let device = CStr::from_ptr(device).to_str().unwrap_or("");
     controller.set_output_device(device);
 }
 
