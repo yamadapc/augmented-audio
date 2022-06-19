@@ -97,6 +97,26 @@ pub unsafe extern "C" fn audio_io_settings_controller__list_output_devices(
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn audio_io_settings_controller__get_input_device(
+    engine: *mut LooperEngine,
+) -> *mut c_char {
+    let controller = (*engine).audio_io_settings_controller();
+    CString::new(controller.input_device())
+        .unwrap_or_else(|_| CString::default())
+        .into_raw()
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn audio_io_settings_controller__get_output_device(
+    engine: *mut LooperEngine,
+) -> *mut c_char {
+    let controller = (*engine).audio_io_settings_controller();
+    CString::new(controller.output_device())
+        .unwrap_or_else(|_| CString::default())
+        .into_raw()
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn audio_io_settings_controller__set_input_device(
     engine: *mut LooperEngine,
     device: *const c_char,

@@ -30,4 +30,6 @@ public protocol AudioIOSettingsController {
     func listOutputDevices() -> [AudioDevice]
     func setInputDevice(_ device: AudioDevice)
     func setOutputDevice(_ device: AudioDevice)
+    func getInputDevice() -> AudioDevice
+    func getOutputDevice() -> AudioDevice
 }

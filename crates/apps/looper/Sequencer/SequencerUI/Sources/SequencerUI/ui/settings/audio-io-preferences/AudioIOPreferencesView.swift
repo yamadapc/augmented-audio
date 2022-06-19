@@ -67,6 +67,8 @@ struct AudioIOPreferencesView: View {
             let controller = store.engine?.audioIOPreferencesController
             inputDevices = controller?.listInputDevices() ?? []
             outputDevices = controller?.listInputDevices() ?? []
+            inputDevice = controller?.getInputDevice()
+            outputDevice = controller?.getOutputDevice()
         }
         .padding(PADDING)
         .frame(maxHeight: .infinity, alignment: .topLeading)

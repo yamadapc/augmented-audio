@@ -39,6 +39,20 @@ impl AudioIOSettingsController {
     pub fn set_output_device(&self, device: &str) {
         log::info!("NOT IMPLEMENTED, SET OUTPUT DEVICE {}", device);
     }
+
+    pub fn input_device(&self) -> String {
+        cpal::default_host()
+            .default_input_device()
+            .map(|d| d.name().unwrap_or_else(|_| "".to_string()))
+            .unwrap_or_else(|| "".to_string())
+    }
+
+    pub fn output_device(&self) -> String {
+        cpal::default_host()
+            .default_output_device()
+            .map(|d| d.name().unwrap_or_else(|_| "".to_string()))
+            .unwrap_or_else(|| "".to_string())
+    }
 }
 
 impl AudioIOSettingsController {
