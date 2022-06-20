@@ -33,7 +33,7 @@ use audio_processor_traits::{
 use midi::{flush_midi_events, initialize_midi_host, MidiContext, MidiReference};
 
 use crate::standalone_processor::{
-    StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
+    StandaloneAudioOnlyProcessor, StandaloneOptions, StandaloneProcessor, StandaloneProcessorImpl,
 };
 
 mod midi;
@@ -100,14 +100,21 @@ pub fn standalone_start(
                     48000
                 }
             };
-            let accepts_input = app.options().accepts_input;
+
+            let options = app.options();
+            let accepts_input = options.accepts_input;
             let input_tuple = if accepts_input {
-                Some(configure_input_device(&host, buffer_size, sample_rate))
+                Some(configure_input_device(
+                    &host,
+                    &options,
+                    buffer_size,
+                    sample_rate,
+                ))
             } else {
                 None
             };
             let (output_device, output_config) =
-                configure_output_device(host, buffer_size, sample_rate);
+                configure_output_device(host, &options, buffer_size, sample_rate);
 
             let num_output_channels = output_config.channels.into();
             let num_input_channels = input_tuple
@@ -313,10 +320,19 @@ fn build_input_stream(
 
 fn configure_input_device(
     host: &Host,
+    options: &StandaloneOptions,
     buffer_size: usize,
     sample_rate: usize,
 ) -> (Device, StreamConfig) {
-    let input_device = host.default_input_device().unwrap();
+    let input_device = options
+        .input_device
+        .as_ref()
+        .map(|device_name| {
+            let mut input_devices = host.input_devices().unwrap();
+            input_devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
+        })
+        .flatten()
+        .unwrap_or_else(|| host.default_input_device().unwrap());
     let supported_configs = input_device.supported_input_configs().unwrap();
     let mut supports_stereo = false;
     for config in supported_configs {
@@ -349,17 +365,26 @@ fn configure_input_device(
 
 fn configure_output_device(
     host: Host,
+    options: &StandaloneOptions,
     buffer_size: usize,
     sample_rate: usize,
 ) -> (Device, StreamConfig) {
-    let output_device = host.default_output_device().unwrap();
-    for config in output_device.supported_input_configs().unwrap() {
+    let output_device = options
+        .input_device
+        .as_ref()
+        .map(|device_name| {
+            let mut output_devices = host.output_devices().unwrap();
+            output_devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
+        })
+        .flatten()
+        .unwrap_or_else(|| host.default_output_device().unwrap());
+    for config in output_device.supported_output_configs().unwrap() {
         log::info!("  OUTPUT Supported config: {:?}", config);
     }
     let output_config = output_device.default_output_config().unwrap();
     let mut output_config: StreamConfig = output_config.into();
     output_config.channels = output_device
-        .supported_input_configs()
+        .supported_output_configs()
         .unwrap()
         .map(|config| config.channels())
         .max()

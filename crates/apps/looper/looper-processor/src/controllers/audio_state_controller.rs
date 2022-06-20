@@ -1,11 +1,17 @@
 use actix::Actor;
-use audio_processor_standalone::StandaloneHandles;
+use basedrop::Shared;
+
+use audio_processor_standalone::standalone_processor::StandaloneOptions;
+use audio_processor_standalone::{StandaloneHandles, StandaloneProcessorImpl};
 
 use crate::audio::time_info_provider::HostCallback;
-use crate::MultiTrackLooper;
+use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
-pub enum AudioState {
-    Standalone(StandaloneHandles),
+enum AudioState {
+    Standalone {
+        handles: StandaloneHandles,
+        options: StandaloneOptions,
+    },
     Hosted(MultiTrackLooper),
 }
 
@@ -15,22 +21,39 @@ pub enum AudioModeParams {
 }
 
 pub struct AudioStateController {
+    handle: Shared<MultiTrackLooperHandle>,
     state: AudioState,
 }
 
 impl AudioStateController {
     pub fn new(audio_mode: AudioModeParams, processor: MultiTrackLooper) -> Self {
+        let standalone_options = StandaloneOptions::default();
+        let handle = processor.handle().clone();
         let state = match audio_mode {
-            AudioModeParams::Standalone => {
-                AudioState::Standalone(audio_processor_standalone::audio_processor_start_with_midi(
-                    processor,
-                    audio_garbage_collector::handle(),
-                ))
-            }
+            AudioModeParams::Standalone => setup_audio_state(standalone_options, processor),
             AudioModeParams::Hosted(_) => AudioState::Hosted(processor),
         };
 
-        Self { state }
+        Self { handle, state }
+    }
+
+    /// Update audio options. Resets the audio threads and re-creates the MultiTrackLooper
+    /// processor.
+    pub fn set_options(&mut self, options: StandaloneOptions) {
+        todo!("WHAT SHOULD THIS DO EXACTLY?")
+    }
+}
+
+/// Set-up *stand-alone* audio state.
+fn setup_audio_state(options: StandaloneOptions, processor: MultiTrackLooper) -> AudioState {
+    let standalone_processor = StandaloneProcessorImpl::new_with(processor, options.clone());
+
+    AudioState::Standalone {
+        options,
+        handles: audio_processor_standalone::standalone_start(
+            standalone_processor,
+            Some(audio_garbage_collector::handle()),
+        ),
     }
 }
 
