@@ -75,7 +75,7 @@ impl<T> From<Shared<T>> for SharedPtr<T> {
 }
 
 #[no_mangle]
-pub extern "C" fn looper_engine__new() -> *mut LooperEngine {
+pub extern "C" fn looper_engine__new() -> *const LooperEngine {
     let engine = LooperEngine::default();
     into_ptr(engine)
 }
@@ -105,7 +105,7 @@ impl From<ParameterValue> for CParameterValue {
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_parameter_value(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: LooperId,
     parameter_id: ParameterId,
 ) -> CParameterValue {
@@ -118,13 +118,13 @@ pub unsafe extern "C" fn looper_engine__get_parameter_value(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__free(engine: *mut LooperEngine) {
-    let _ = Box::from_raw(engine);
+pub unsafe extern "C" fn looper_engine__free(engine: *const LooperEngine) {
+    let _ = Box::from_raw(engine as *mut LooperEngine);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__toggle_trigger(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     position_beats: usize,
 ) {
@@ -155,7 +155,7 @@ pub extern "C" fn looper_engine__lfo_parameter_id(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_boolean_parameter(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     parameter_id: ParameterId,
     value: bool,
@@ -167,7 +167,7 @@ pub unsafe extern "C" fn looper_engine__set_boolean_parameter(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_scene_slider_value(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     value: f32,
 ) {
     (*engine).handle().set_scene_value(value);
@@ -175,7 +175,7 @@ pub unsafe extern "C" fn looper_engine__set_scene_slider_value(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_scene_parameter_lock(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     scene_id: usize,
     looper_id: usize,
     parameter_id: ParameterId,
@@ -188,7 +188,7 @@ pub unsafe extern "C" fn looper_engine__add_scene_parameter_lock(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__remove_scene_parameter_lock(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     scene_id: usize,
     looper_id: usize,
     parameter_id: ParameterId,
@@ -200,7 +200,7 @@ pub unsafe extern "C" fn looper_engine__remove_scene_parameter_lock(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_parameter_lock(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     position_beats: usize,
     parameter_id: ParameterId,
@@ -213,7 +213,7 @@ pub unsafe extern "C" fn looper_engine__add_parameter_lock(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__remove_parameter_lock(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     position_beats: usize,
     parameter_id: ParameterId,
@@ -233,18 +233,18 @@ pub struct CTimeInfo {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__playhead_stop(engine: *mut LooperEngine) {
+pub unsafe extern "C" fn looper_engine__playhead_stop(engine: *const LooperEngine) {
     (*engine).handle().stop();
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__playhead_play(engine: *mut LooperEngine) {
+pub unsafe extern "C" fn looper_engine__playhead_play(engine: *const LooperEngine) {
     (*engine).handle().play();
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_envelope_parameter(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     track_id: usize,
     envelope_parameter_id: EnvelopeParameter,
     value: f32,
@@ -257,7 +257,7 @@ pub unsafe extern "C" fn looper_engine__set_envelope_parameter(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_source_parameter_int(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     track_id: usize,
     parameter_id: SourceParameter,
     value: i32,
@@ -272,7 +272,7 @@ pub unsafe extern "C" fn looper_engine__set_source_parameter_int(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_quantization_mode(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     track_id: usize,
     quantization_mode: CQuantizeMode,
 ) {
@@ -284,7 +284,7 @@ pub unsafe extern "C" fn looper_engine__set_quantization_mode(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_tempo_control(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     track_id: usize,
     tempo_control: TempoControl,
 ) {
@@ -296,7 +296,7 @@ pub unsafe extern "C" fn looper_engine__set_tempo_control(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_source_parameter(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     parameter_id: SourceParameter,
     value: f32,
@@ -307,14 +307,14 @@ pub unsafe extern "C" fn looper_engine__set_source_parameter(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__set_tempo(engine: *mut LooperEngine, tempo: f32) {
+pub unsafe extern "C" fn looper_engine__set_tempo(engine: *const LooperEngine, tempo: f32) {
     let handle = &(*engine).handle();
     handle.set_tempo(tempo);
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_playhead_position(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
 ) -> CTimeInfo {
     let handle = &(*engine).handle();
     let time_info_provider = handle.time_info_provider();
@@ -330,7 +330,7 @@ pub unsafe extern "C" fn looper_engine__get_playhead_position(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_volume(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     volume: f32,
 ) {
@@ -339,7 +339,7 @@ pub unsafe extern "C" fn looper_engine__set_volume(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_metronome_volume(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     volume: f32,
 ) {
     (*engine).handle().set_metronome_volume(volume);

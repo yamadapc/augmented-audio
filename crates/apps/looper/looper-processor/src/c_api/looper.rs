@@ -1,3 +1,4 @@
+use crate::{LooperEngine, LooperHandleThread, LooperId};
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -23,17 +24,16 @@
 use crate::audio::multi_track_looper::slice_worker::SliceResult;
 use crate::audio::processor::handle::LooperState;
 use crate::c_api::into_ptr;
-use crate::{LooperEngine, LooperHandleThread, LooperId};
 
 pub use self::looper_buffer::*;
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__num_loopers(engine: *mut LooperEngine) -> usize {
+pub unsafe extern "C" fn looper_engine__num_loopers(engine: *const LooperEngine) -> usize {
     (*engine).handle().voices().len()
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__record(engine: *mut LooperEngine, looper_id: usize) {
+pub unsafe extern "C" fn looper_engine__record(engine: *const LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Recording {}", looper_id);
     (*engine)
         .handle()
@@ -41,20 +41,20 @@ pub unsafe extern "C" fn looper_engine__record(engine: *mut LooperEngine, looper
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__play(engine: *mut LooperEngine, looper_id: usize) {
+pub unsafe extern "C" fn looper_engine__play(engine: *const LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Playing {}", looper_id);
     (*engine).handle().toggle_playback(LooperId(looper_id));
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__clear(engine: *mut LooperEngine, looper_id: usize) {
+pub unsafe extern "C" fn looper_engine__clear(engine: *const LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Clearing {}", looper_id);
     (*engine).handle().clear(LooperId(looper_id));
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_active_looper(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
 ) {
     (*engine).handle().set_active_looper(LooperId(looper_id));
@@ -62,7 +62,7 @@ pub unsafe extern "C" fn looper_engine__set_active_looper(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_looper_num_samples(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
 ) -> usize {
     (*engine).handle().get_num_samples(LooperId(looper_id))
@@ -70,7 +70,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_num_samples(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_looper_state(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
 ) -> LooperState {
     (*engine).handle().get_looper_state(LooperId(looper_id))
@@ -78,7 +78,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_state(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_looper_position(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
 ) -> f32 {
     (*engine).handle().get_position_percent(LooperId(looper_id))
@@ -86,7 +86,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_position(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__has_looper_buffer(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
 ) -> bool {
     let engine = &(*engine);
@@ -116,7 +116,7 @@ mod looper_buffer {
 
     #[no_mangle]
     pub unsafe extern "C" fn looper_engine__get_looper_buffer(
-        engine: *mut LooperEngine,
+        engine: *const LooperEngine,
         looper_id: usize,
     ) -> *mut LooperBuffer {
         let engine = &(*engine);
@@ -162,7 +162,7 @@ mod looper_buffer {
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_looper_slices(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
 ) -> *mut Option<SliceResult> {
     let engine = &(*engine);

@@ -33,7 +33,7 @@ use crate::LooperEngine;
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_midi_mapping(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     controller_number: i32,
     entity_id: EntityId,
 ) {
@@ -53,7 +53,7 @@ pub unsafe extern "C" fn looper_engine__add_midi_mapping(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__register_midi_callback(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     callback: ForeignCallback<MidiEvent>,
 ) {
     let engine = &(*engine);

@@ -1,3 +1,4 @@
+use crate::{LooperEngine, LooperId};
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,12 +22,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use crate::parameters::{LFOMode, LFOParameter, ParameterId};
-use crate::{LooperEngine, LooperId};
 
 /// Change LFO parameters on a given track and LFO path
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     track_id: usize,
     lfo: usize,
     parameter_id: LFOParameter,
@@ -40,7 +40,7 @@ pub unsafe extern "C" fn looper_engine__set_lfo_parameter(
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_lfo_mode(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     lfo_id: usize,
     mode: LFOMode,
@@ -54,7 +54,7 @@ pub unsafe extern "C" fn looper_engine__set_lfo_mode(
 /// Map an LFO to another parameter
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_lfo_mapping(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     lfo_id: usize,
     parameter_id: ParameterId,
@@ -68,7 +68,7 @@ pub unsafe extern "C" fn looper_engine__add_lfo_mapping(
 /// Unmap an LFO from a parameter
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__remove_lfo_mapping(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     lfo_id: usize,
     parameter_id: ParameterId,

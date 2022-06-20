@@ -68,8 +68,6 @@ pub struct StandaloneHandles {
     // Handles contain a join handle with the thread, this might be used in the future.
     #[allow(unused)]
     handle: std::thread::JoinHandle<()>,
-    // input_stream: Option<cpal::Stream>,
-    // output_stream: cpal::Stream,
     #[allow(unused)]
     midi_reference: MidiReference,
 }

@@ -1,3 +1,6 @@
+use std::ffi::CStr;
+use std::os::raw::c_char;
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,15 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use actix_system_threads::ActorSystem;
-use std::ffi::CStr;
-use std::os::raw::c_char;
 
 use crate::services::audio_clip_manager::LoadClipMessage;
 use crate::LooperEngine;
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__load_file(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     file_path: *const c_char,
 ) {
     let engine = &(*engine);

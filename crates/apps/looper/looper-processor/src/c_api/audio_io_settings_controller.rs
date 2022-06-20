@@ -80,7 +80,7 @@ pub unsafe extern "C" fn audio_device_list__free(device_list: *mut CAudioDeviceL
 
 #[no_mangle]
 pub unsafe extern "C" fn audio_io_settings_controller__list_input_devices(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
 ) -> *mut CAudioDeviceList {
     let controller = (*engine).audio_io_settings_controller();
     let devices = controller.list_input_devices();
@@ -89,7 +89,7 @@ pub unsafe extern "C" fn audio_io_settings_controller__list_input_devices(
 
 #[no_mangle]
 pub unsafe extern "C" fn audio_io_settings_controller__list_output_devices(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
 ) -> *mut CAudioDeviceList {
     let controller = (*engine).audio_io_settings_controller();
     let devices = controller.list_output_devices();
@@ -98,7 +98,7 @@ pub unsafe extern "C" fn audio_io_settings_controller__list_output_devices(
 
 #[no_mangle]
 pub unsafe extern "C" fn audio_io_settings_controller__get_input_device(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
 ) -> *mut c_char {
     let controller = (*engine).audio_io_settings_controller();
     CString::new(controller.input_device())
@@ -108,7 +108,7 @@ pub unsafe extern "C" fn audio_io_settings_controller__get_input_device(
 
 #[no_mangle]
 pub unsafe extern "C" fn audio_io_settings_controller__get_output_device(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
 ) -> *mut c_char {
     let controller = (*engine).audio_io_settings_controller();
     CString::new(controller.output_device())
@@ -118,7 +118,7 @@ pub unsafe extern "C" fn audio_io_settings_controller__get_output_device(
 
 #[no_mangle]
 pub unsafe extern "C" fn audio_io_settings_controller__set_input_device(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     device: *const c_char,
 ) {
     let controller = (*engine).audio_io_settings_controller();
@@ -128,7 +128,7 @@ pub unsafe extern "C" fn audio_io_settings_controller__set_input_device(
 
 #[no_mangle]
 pub unsafe extern "C" fn audio_io_settings_controller__set_output_device(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     device: *const c_char,
 ) {
     let controller = (*engine).audio_io_settings_controller();

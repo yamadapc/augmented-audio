@@ -202,7 +202,7 @@ mod test {
         assert_eq!(
             opaque_value.rust_code,
             r#"
-pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine) {
+pub extern "C" fn boxed__LooperEngine__trigger(ptr: *const LooperEngine) {
     let value: &LooperEngine = unsafe { &(*ptr) };
     LooperEngine::trigger(value)
 }
@@ -224,7 +224,7 @@ pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine) {
         assert_eq!(
             opaque_value.rust_code,
             r#"
-pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine, something: f32, something_else: i32) {
+pub extern "C" fn boxed__LooperEngine__trigger(ptr: *const LooperEngine, something: f32, something_else: i32) {
     let value: &LooperEngine = unsafe { &(*ptr) };
     LooperEngine::trigger(value, something, something_else)
 }
@@ -243,7 +243,7 @@ pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine, something
         assert_eq!(
             opaque_value.rust_code,
             r#"
-pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine) -> *mut SomeOtherValue {
+pub extern "C" fn boxed__LooperEngine__trigger(ptr: *const LooperEngine) -> *mut SomeOtherValue {
     let value: &LooperEngine = unsafe { &(*ptr) };
     let result = LooperEngine::trigger(value);
     Box::into_raw(Box::new(result))
@@ -261,7 +261,7 @@ pub extern "C" fn boxed__LooperEngine__trigger(ptr: *mut LooperEngine) -> *mut S
             opaque_value.rust_code,
             r#"
 #[no_mangle]
-pub extern "C" fn boxed__LooperEngine__delete(ptr: *mut LooperEngine) {
+pub extern "C" fn boxed__LooperEngine__delete(ptr: *const LooperEngine) {
     let _ = unsafe { Box::from_raw(ptr) };
 }
 "#

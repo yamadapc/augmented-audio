@@ -193,7 +193,7 @@ pub unsafe extern "C" fn looper_engine__get_effect_definitions() -> *mut CEffect
 /// Add an effect of type `EffectType` into the track with `LooperId`.
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__add_effect(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     looper_id: usize,
     effect_type: usize,
 ) {

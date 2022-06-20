@@ -51,7 +51,7 @@ impl From<AudioProcessorMetricsStats> for CAudioProcessorMetricsStats {
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__get_stats(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
 ) -> CAudioProcessorMetricsStats {
     let metrics_actor = &(*engine).metrics_actor();
     if let Ok(mut metrics_actor) = metrics_actor.lock() {
