@@ -132,7 +132,7 @@ fn main() {
 struct Model {
     handle: Shared<Handle>,
     wgpu_model: WGPUModel,
-    _audio_handles: StandaloneHandles,
+    _audio_handles: StandaloneHandles<StandaloneAudioOnlyProcessor<Processor>>,
 }
 
 fn model(app: &App) -> Model {

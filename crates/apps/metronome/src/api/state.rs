@@ -27,12 +27,19 @@ use anyhow::Result;
 use lazy_static::lazy_static;
 
 use audio_garbage_collector::Shared;
-use audio_processor_metronome::{MetronomeProcessor, MetronomeProcessorHandle};
+use audio_processor_metronome::{
+    DefaultMetronomePlayhead, MetronomeProcessor, MetronomeProcessorHandle,
+};
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
-use audio_processor_standalone::{standalone_start, StandaloneAudioOnlyProcessor};
+use audio_processor_standalone::{
+    standalone_start, StandaloneAudioOnlyProcessor, StandaloneHandles,
+};
+
+type DefaultMetronome = MetronomeProcessor<DefaultMetronomePlayhead>;
+type StandaloneMetronomeHandle = StandaloneHandles<StandaloneAudioOnlyProcessor<DefaultMetronome>>;
 
 pub struct State {
-    _handles: audio_processor_standalone::StandaloneHandles,
+    _handles: StandaloneMetronomeHandle,
     pub processor_handle: Shared<MetronomeProcessorHandle>,
 }
 

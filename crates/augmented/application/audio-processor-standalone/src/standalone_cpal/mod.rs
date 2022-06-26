@@ -1,4 +1,3 @@
-use std::sync::mpsc;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -49,7 +48,7 @@ pub fn audio_processor_start_with_midi<
 >(
     audio_processor: Processor,
     handle: &Handle,
-) -> StandaloneHandles {
+) -> StandaloneHandles<StandaloneProcessorImpl<Processor>> {
     let app = StandaloneProcessorImpl::new(audio_processor);
     standalone_start(app, Some(handle))
 }
@@ -59,28 +58,37 @@ pub fn audio_processor_start_with_midi<
 /// Returns the [`cpal::Stream`] streams. The audio-thread will keep running until these are dropped.
 pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
-) -> StandaloneHandles {
+) -> StandaloneHandles<StandaloneAudioOnlyProcessor<Processor>> {
     let app = StandaloneAudioOnlyProcessor::new(audio_processor, Default::default());
     standalone_start(app, None)
 }
 
 /// Handles to the CPAL streams and MIDI host. Playback will stop when these are dropped.
-pub struct StandaloneHandles {
+pub struct StandaloneHandles<SP: StandaloneProcessor> {
     // Handles contain a join handle with the thread, this might be used in the future.
-    #[allow(unused)]
-    handle: std::thread::JoinHandle<()>,
+    handle: Option<std::thread::JoinHandle<SP>>,
     #[allow(unused)]
     midi_reference: MidiReference,
+}
+
+impl<SP: StandaloneProcessor> StandaloneHandles<SP> {
+    pub fn stop(&mut self) -> SP {
+        if let Some(handle) = self.handle.take() {
+            handle.thread().unpark();
+            handle.join().unwrap();
+        }
+        todo!("ops")
+    }
 }
 
 /// Start a processor using CPAL. Returns [`StandaloneHandles`] which can be used to take the
 /// processor back and stop the stream.
 ///
 /// Playback will stop when this value is dropped.
-pub fn standalone_start(
-    mut app: impl StandaloneProcessor,
+pub fn standalone_start<SP: StandaloneProcessor>(
+    mut app: SP,
     handle: Option<&Handle>,
-) -> StandaloneHandles {
+) -> StandaloneHandles<SP> {
     let _ = wisual_logger::try_init_from_env();
 
     let (midi_reference, midi_context) = initialize_midi_host(&mut app, handle);
@@ -149,11 +157,14 @@ pub fn standalone_start(
             };
 
             audio_thread_run(run_params, app);
+            std::thread::park();
+
+            todo!("HERE")
         })
         .unwrap();
 
     StandaloneHandles {
-        handle,
+        handle: Some(handle),
         midi_reference,
     }
 }
@@ -279,14 +290,14 @@ fn build_output_stream(
         .build_output_stream(
             &output_config,
             move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-                output_stream_with_context(
-                    midi_context.as_mut(),
-                    &mut app,
+                output_stream_with_context(OutputStreamContext {
+                    midi_context: midi_context.as_mut(),
+                    processor: &mut app,
                     num_input_channels,
                     num_output_channels,
-                    &mut input_consumer,
+                    consumer: &mut input_consumer,
                     data,
-                );
+                });
             },
             |err| {
                 log::error!("Playback error: {:?}", err);
@@ -419,16 +430,27 @@ fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
     }
 }
 
-fn output_stream_with_context<Processor: StandaloneProcessor>(
-    midi_context: Option<&mut MidiContext>,
-    processor: &mut Processor,
-    // 1-2
+struct OutputStreamContext<'a, SP: StandaloneProcessor> {
+    midi_context: Option<&'a mut MidiContext>,
+    processor: &'a mut SP,
     num_input_channels: usize,
-    // 1-2
     num_output_channels: usize,
-    consumer: &mut Consumer<f32>,
-    data: &mut [f32],
-) {
+    consumer: &'a mut Consumer<f32>,
+    data: &'a mut [f32],
+}
+
+/// Tick one frame of the output stream.
+///
+/// This will be called repeatedly for every audio buffer we must produce.
+fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamContext<SP>) {
+    let OutputStreamContext {
+        midi_context,
+        processor,
+        num_input_channels,
+        num_output_channels,
+        consumer,
+        data,
+    } = context;
     let mut audio_buffer = InterleavedAudioBuffer::new(num_output_channels, data);
 
     for frame in audio_buffer.frames_mut() {
@@ -452,6 +474,66 @@ fn output_stream_with_context<Processor: StandaloneProcessor>(
     flush_midi_events(midi_context, processor);
 
     processor.processor().process(&mut audio_buffer);
+}
+
+#[cfg(test)]
+mod test {
+    use audio_processor_traits::{AudioBuffer, AudioProcessor};
+
+    use crate::standalone_cpal::output_stream_with_context;
+    use crate::{StandaloneAudioOnlyProcessor, StandaloneProcessor};
+
+    use super::OutputStreamContext;
+
+    #[test]
+    fn test_tick_output_stream_reads_from_consumer_and_calls_process() {
+        struct MockProcessor {
+            inputs: Vec<f32>,
+        }
+        impl AudioProcessor for MockProcessor {
+            type SampleType = f32;
+
+            fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+                &mut self,
+                data: &mut BufferType,
+            ) {
+                for i in data.slice_mut() {
+                    self.inputs.push(*i);
+                    *i = *i * 2.0;
+                }
+            }
+        }
+
+        let buf = ringbuf::RingBuffer::new(10);
+        let (mut producer, mut consumer) = buf.split();
+        let processor = MockProcessor { inputs: vec![] };
+        let mut processor: StandaloneAudioOnlyProcessor<MockProcessor> =
+            StandaloneAudioOnlyProcessor::new(processor, Default::default());
+
+        for i in 0..10 {
+            producer.push(i as f32).expect("Pushing sample failed");
+        }
+
+        let mut data = [0.0; 10];
+        let context = OutputStreamContext {
+            processor: &mut processor,
+            consumer: &mut consumer,
+            num_output_channels: 1,
+            num_input_channels: 1,
+            midi_context: None,
+            data: &mut data,
+        };
+        output_stream_with_context(context);
+
+        assert_eq!(
+            processor.processor().inputs,
+            vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
+        );
+        assert_eq!(
+            data,
+            [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0]
+        )
+    }
 }
 
 #[macro_export]

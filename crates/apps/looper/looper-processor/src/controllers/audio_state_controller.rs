@@ -9,7 +9,7 @@ use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
 enum AudioState {
     Standalone {
-        handles: StandaloneHandles,
+        handles: StandaloneHandles<StandaloneProcessorImpl<MultiTrackLooper>>,
         options: StandaloneOptions,
     },
     Hosted(MultiTrackLooper),
