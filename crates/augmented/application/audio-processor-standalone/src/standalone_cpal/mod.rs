@@ -1,3 +1,4 @@
+use std::sync::mpsc;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -72,7 +73,10 @@ pub struct StandaloneHandles {
     midi_reference: MidiReference,
 }
 
-/// Start a processor using CPAL.
+/// Start a processor using CPAL. Returns [`StandaloneHandles`] which can be used to take the
+/// processor back and stop the stream.
+///
+/// Playback will stop when this value is dropped.
 pub fn standalone_start(
     mut app: impl StandaloneProcessor,
     handle: Option<&Handle>,
@@ -121,6 +125,7 @@ pub fn standalone_start(
                 .as_ref()
                 .map(|(_, input_config)| input_config.channels.into())
                 .unwrap_or(num_output_channels);
+
             let settings = AudioProcessorSettings::new(
                 output_config.sample_rate.0 as f32,
                 num_input_channels,
@@ -129,22 +134,21 @@ pub fn standalone_start(
             );
             app.processor().prepare(settings);
 
-            audio_thread_run(
-                AudioThreadRunParams {
-                    io_hints: AudioThreadIOHints {
-                        buffer_size,
-                        num_output_channels,
-                        num_input_channels,
-                    },
-                    cpal_streams: AudioThreadCPalStreams {
-                        output_config,
-                        input_tuple,
-                        output_device,
-                    },
-                    midi_context,
+            let run_params = AudioThreadRunParams {
+                io_hints: AudioThreadIOHints {
+                    buffer_size,
+                    num_output_channels,
+                    num_input_channels,
                 },
-                app,
-            );
+                cpal_streams: AudioThreadCPalStreams {
+                    output_config,
+                    input_tuple,
+                    output_device,
+                },
+                midi_context,
+            };
+
+            audio_thread_run(run_params, app);
         })
         .unwrap();
 
@@ -175,6 +179,7 @@ struct AudioThreadIOHints {
     num_input_channels: usize,
 }
 
+/// Input and output audio streams.
 struct AudioThreadCPalStreams {
     output_config: StreamConfig,
     input_tuple: Option<(Device, StreamConfig)>,
@@ -187,7 +192,8 @@ struct AudioThreadRunParams {
     cpal_streams: AudioThreadCPalStreams,
 }
 
-// Audio-thread main
+// Start this processor with given run parameters.
+// The processor should be prepared at this point.
 fn audio_thread_run(params: AudioThreadRunParams, app: impl StandaloneProcessor) {
     let AudioThreadRunParams {
         midi_context,
