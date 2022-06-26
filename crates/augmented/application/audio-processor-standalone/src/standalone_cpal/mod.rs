@@ -20,23 +20,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use basedrop::Handle;
-use cpal::{
-    traits::{DeviceTrait, HostTrait, StreamTrait},
-    BufferSize, Device, Host, SampleRate, Stream, StreamConfig,
-};
-use ringbuf::{Consumer, Producer};
 
-use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer, MidiEventHandler,
-};
-use midi::{flush_midi_events, initialize_midi_host, MidiContext, MidiReference};
+use basedrop::Handle;
+use cpal::{traits::StreamTrait, Device, Stream, StreamConfig};
+
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 
 use crate::standalone_processor::{
-    StandaloneAudioOnlyProcessor, StandaloneOptions, StandaloneProcessor, StandaloneProcessorImpl,
+    StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
 };
 
+use self::error::AudioThreadError;
+use self::midi::{initialize_midi_host, MidiContext, MidiReference};
+
+mod error;
+mod input_handling;
 mod midi;
+mod options;
+mod output_handling;
 
 /// Start an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
 /// messages received on all inputs to it.
@@ -116,7 +117,7 @@ pub fn standalone_start<SP: StandaloneProcessor>(
             let options = app.options();
             let accepts_input = options.accepts_input;
             let input_tuple = if accepts_input {
-                Some(configure_input_device(
+                Some(options::configure_input_device(
                     &host,
                     &options,
                     buffer_size,
@@ -126,7 +127,7 @@ pub fn standalone_start<SP: StandaloneProcessor>(
                 None
             };
             let (output_device, output_config) =
-                configure_output_device(host, &options, buffer_size, sample_rate);
+                options::configure_output_device(host, &options, buffer_size, sample_rate);
 
             let num_output_channels = output_config.channels.into();
             let num_input_channels = input_tuple
@@ -167,19 +168,6 @@ pub fn standalone_start<SP: StandaloneProcessor>(
         handle: Some(handle),
         midi_reference,
     }
-}
-
-#[derive(thiserror::Error, Debug)]
-#[allow(clippy::enum_variant_names)]
-enum AudioThreadError {
-    #[error("Failed to configure input stream")]
-    BuildInputStreamError(cpal::BuildStreamError),
-    #[error("Failed to configure output stream")]
-    BuildOutputStreamError(cpal::BuildStreamError),
-    #[error("Failed to start input stream")]
-    InputStreamError(cpal::PlayStreamError),
-    #[error("Failed to start output stream")]
-    OutputStreamError(cpal::PlayStreamError),
 }
 
 /// At this point we have "negotiated" the nº of channels and buffer size.
@@ -225,8 +213,8 @@ fn audio_thread_run(params: AudioThreadRunParams, app: impl StandaloneProcessor)
     let build_streams = move || -> Result<(Option<Stream>, Stream), AudioThreadError> {
         let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
         let (producer, consumer) = buffer.split();
-        let input_stream = build_input_stream(input_tuple, producer)?;
-        let output_stream = build_output_stream(
+        let input_stream = input_handling::build_input_stream(input_tuple, producer)?;
+        let output_stream = output_handling::build_output_stream(
             app,
             midi_context,
             num_output_channels,
@@ -267,273 +255,6 @@ fn audio_thread_run(params: AudioThreadRunParams, app: impl StandaloneProcessor)
         Err(err) => {
             log::error!("Audio-thread failed to start with {}", err);
         }
-    }
-}
-
-fn build_output_stream(
-    mut app: impl StandaloneProcessor,
-    mut midi_context: Option<MidiContext>,
-    num_output_channels: usize,
-    num_input_channels: usize,
-    mut input_consumer: Consumer<f32>,
-    output_device: Device,
-    output_config: StreamConfig,
-) -> Result<Stream, AudioThreadError> {
-    // Output callback section
-    log::info!(
-        "num_input_channels={} num_output_channels={} sample_rate={}",
-        num_input_channels,
-        num_output_channels,
-        output_config.sample_rate.0
-    );
-    let output_stream = output_device
-        .build_output_stream(
-            &output_config,
-            move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-                output_stream_with_context(OutputStreamFrameContext {
-                    midi_context: midi_context.as_mut(),
-                    processor: &mut app,
-                    num_input_channels,
-                    num_output_channels,
-                    consumer: &mut input_consumer,
-                    data,
-                });
-            },
-            |err| {
-                log::error!("Playback error: {:?}", err);
-            },
-        )
-        .map_err(AudioThreadError::BuildOutputStreamError)?;
-
-    Ok(output_stream)
-}
-
-fn build_input_stream(
-    input_tuple: Option<(Device, StreamConfig)>,
-    mut producer: Producer<f32>,
-) -> Result<Option<Stream>, AudioThreadError> {
-    let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
-        input_device
-            .build_input_stream(
-                input_config,
-                move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
-                    input_stream_callback(&mut producer, data)
-                },
-                |err| {
-                    log::error!("Input error: {:?}", err);
-                },
-            )
-            .map_err(AudioThreadError::BuildInputStreamError)
-    });
-
-    let input_stream = if let Some(input_stream) = input_stream {
-        Some(input_stream?)
-    } else {
-        None
-    };
-
-    Ok(input_stream)
-}
-
-fn configure_input_device(
-    host: &Host,
-    options: &StandaloneOptions,
-    buffer_size: usize,
-    sample_rate: usize,
-) -> (Device, StreamConfig) {
-    let input_device = options
-        .input_device
-        .as_ref()
-        .map(|device_name| {
-            let mut input_devices = host.input_devices().unwrap();
-            input_devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
-        })
-        .flatten()
-        .unwrap_or_else(|| host.default_input_device().unwrap());
-    let supported_configs = input_device.supported_input_configs().unwrap();
-    let mut supports_stereo = false;
-    for config in supported_configs {
-        log::info!("  INPUT Supported config: {:?}", config);
-        if config.channels() > 1 {
-            supports_stereo = true;
-        }
-    }
-
-    let input_config = input_device.default_input_config().unwrap();
-    let mut input_config: StreamConfig = input_config.into();
-    input_config.channels = if supports_stereo { 2 } else { 1 };
-    input_config.sample_rate = SampleRate(sample_rate as u32);
-    input_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
-
-    #[cfg(target_os = "ios")]
-    {
-        input_config.buffer_size = BufferSize::Default;
-    }
-
-    log::info!(
-        "Using input name={} sample_rate={} buffer_size={:?}",
-        input_device.name().unwrap(),
-        sample_rate,
-        input_config.buffer_size
-    );
-
-    (input_device, input_config)
-}
-
-fn configure_output_device(
-    host: Host,
-    options: &StandaloneOptions,
-    buffer_size: usize,
-    sample_rate: usize,
-) -> (Device, StreamConfig) {
-    let output_device = options
-        .input_device
-        .as_ref()
-        .map(|device_name| {
-            let mut output_devices = host.output_devices().unwrap();
-            output_devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
-        })
-        .flatten()
-        .unwrap_or_else(|| host.default_output_device().unwrap());
-    for config in output_device.supported_output_configs().unwrap() {
-        log::info!("  OUTPUT Supported config: {:?}", config);
-    }
-    let output_config = output_device.default_output_config().unwrap();
-    let mut output_config: StreamConfig = output_config.into();
-    output_config.channels = output_device
-        .supported_output_configs()
-        .unwrap()
-        .map(|config| config.channels())
-        .max()
-        .unwrap_or(2)
-        .min(2);
-    output_config.sample_rate = SampleRate(sample_rate as u32);
-    output_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
-
-    #[cfg(target_os = "ios")]
-    {
-        output_config.buffer_size = BufferSize::Default;
-    }
-
-    log::info!(
-        "Using output name={} sample_rate={} buffer_size={:?}",
-        output_device.name().unwrap(),
-        sample_rate,
-        output_config.buffer_size
-    );
-    (output_device, output_config)
-}
-
-fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
-    for sample in data {
-        while producer.push(*sample).is_err() {}
-    }
-}
-
-/// Data borrowed to process a single output frame.
-struct OutputStreamFrameContext<'a, SP: StandaloneProcessor> {
-    midi_context: Option<&'a mut MidiContext>,
-    processor: &'a mut SP,
-    num_input_channels: usize,
-    num_output_channels: usize,
-    consumer: &'a mut Consumer<f32>,
-    data: &'a mut [f32],
-}
-
-/// Tick one frame of the output stream.
-///
-/// This will be called repeatedly for every audio buffer we must produce.
-fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFrameContext<SP>) {
-    let OutputStreamFrameContext {
-        midi_context,
-        processor,
-        num_input_channels,
-        num_output_channels,
-        consumer,
-        data,
-    } = context;
-    let mut audio_buffer = InterleavedAudioBuffer::new(num_output_channels, data);
-
-    for frame in audio_buffer.frames_mut() {
-        if num_input_channels == num_output_channels {
-            for sample in frame {
-                if let Some(input_sample) = consumer.pop() {
-                    *sample = input_sample;
-                } else {
-                }
-            }
-        } else if let Some(input_sample) = consumer.pop() {
-            for sample in frame {
-                *sample = input_sample
-            }
-        } else {
-            break;
-        }
-    }
-
-    // Collect MIDI
-    flush_midi_events(midi_context, processor);
-
-    processor.processor().process(&mut audio_buffer);
-}
-
-#[cfg(test)]
-mod test {
-    use audio_processor_traits::{AudioBuffer, AudioProcessor};
-
-    use crate::standalone_cpal::output_stream_with_context;
-    use crate::{StandaloneAudioOnlyProcessor, StandaloneProcessor};
-
-    use super::OutputStreamFrameContext;
-
-    #[test]
-    fn test_tick_output_stream_reads_from_consumer_and_calls_process() {
-        struct MockProcessor {
-            inputs: Vec<f32>,
-        }
-        impl AudioProcessor for MockProcessor {
-            type SampleType = f32;
-
-            fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-                &mut self,
-                data: &mut BufferType,
-            ) {
-                for i in data.slice_mut() {
-                    self.inputs.push(*i);
-                    *i = *i * 2.0;
-                }
-            }
-        }
-
-        let buf = ringbuf::RingBuffer::new(10);
-        let (mut producer, mut consumer) = buf.split();
-        let processor = MockProcessor { inputs: vec![] };
-        let mut processor: StandaloneAudioOnlyProcessor<MockProcessor> =
-            StandaloneAudioOnlyProcessor::new(processor, Default::default());
-
-        for i in 0..10 {
-            producer.push(i as f32).expect("Pushing sample failed");
-        }
-
-        let mut data = [0.0; 10];
-        let context = OutputStreamFrameContext {
-            processor: &mut processor,
-            consumer: &mut consumer,
-            num_output_channels: 1,
-            num_input_channels: 1,
-            midi_context: None,
-            data: &mut data,
-        };
-        output_stream_with_context(context);
-
-        assert_eq!(
-            processor.processor().inputs,
-            vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
-        );
-        assert_eq!(
-            data,
-            [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0]
-        )
     }
 }
 
