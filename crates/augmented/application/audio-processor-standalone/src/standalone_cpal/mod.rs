@@ -290,7 +290,7 @@ fn build_output_stream(
         .build_output_stream(
             &output_config,
             move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
-                output_stream_with_context(OutputStreamContext {
+                output_stream_with_context(OutpuStreamFrameContext {
                     midi_context: midi_context.as_mut(),
                     processor: &mut app,
                     num_input_channels,
@@ -430,7 +430,8 @@ fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
     }
 }
 
-struct OutputStreamContext<'a, SP: StandaloneProcessor> {
+/// Data borrowed to process a single output frame.
+struct OutpuStreamFrameContext<'a, SP: StandaloneProcessor> {
     midi_context: Option<&'a mut MidiContext>,
     processor: &'a mut SP,
     num_input_channels: usize,
@@ -442,8 +443,8 @@ struct OutputStreamContext<'a, SP: StandaloneProcessor> {
 /// Tick one frame of the output stream.
 ///
 /// This will be called repeatedly for every audio buffer we must produce.
-fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamContext<SP>) {
-    let OutputStreamContext {
+fn output_stream_with_context<SP: StandaloneProcessor>(context: OutpuStreamFrameContext<SP>) {
+    let OutpuStreamFrameContext {
         midi_context,
         processor,
         num_input_channels,
@@ -483,7 +484,7 @@ mod test {
     use crate::standalone_cpal::output_stream_with_context;
     use crate::{StandaloneAudioOnlyProcessor, StandaloneProcessor};
 
-    use super::OutputStreamContext;
+    use super::OutpuStreamFrameContext;
 
     #[test]
     fn test_tick_output_stream_reads_from_consumer_and_calls_process() {
@@ -515,7 +516,7 @@ mod test {
         }
 
         let mut data = [0.0; 10];
-        let context = OutputStreamContext {
+        let context = OutpuStreamFrameContext {
             processor: &mut processor,
             consumer: &mut consumer,
             num_output_channels: 1,
