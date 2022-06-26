@@ -27,10 +27,99 @@
 
 use cpal::{
     traits::{DeviceTrait, HostTrait},
-    BufferSize, Device, Host, SampleRate, StreamConfig,
+    BufferSize, DefaultStreamConfigError, Device, DevicesError, Host, SampleRate, StreamConfig,
+    SupportedStreamConfig,
 };
 
 use crate::standalone_processor::StandaloneOptions;
+
+#[derive(Clone, Copy)]
+enum AudioIOMode {
+    Input,
+    Output,
+}
+
+fn list_devices(
+    host: &Host,
+    mode: AudioIOMode,
+) -> Result<impl Iterator<Item = Device>, DevicesError> {
+    match mode {
+        AudioIOMode::Input => host.input_devices(),
+        AudioIOMode::Output => host.output_devices(),
+    }
+}
+
+fn supported_configs(
+    device: &Device,
+    mode: AudioIOMode,
+) -> Result<Vec<cpal::SupportedStreamConfigRange>, cpal::SupportedStreamConfigsError> {
+    match mode {
+        AudioIOMode::Input => device.supported_input_configs().map(|i| i.collect()),
+        AudioIOMode::Output => device.supported_output_configs().map(|i| i.collect()),
+    }
+}
+
+fn device_name(options: &StandaloneOptions, mode: AudioIOMode) -> Option<&String> {
+    match mode {
+        AudioIOMode::Input => options.input_device.as_ref(),
+        AudioIOMode::Output => options.output_device.as_ref(),
+    }
+}
+
+fn default_device(host: &Host, mode: AudioIOMode) -> Option<Device> {
+    match mode {
+        AudioIOMode::Input => host.default_input_device(),
+        AudioIOMode::Output => host.default_output_device(),
+    }
+}
+
+fn default_config(
+    device: &Device,
+    mode: AudioIOMode,
+) -> Result<SupportedStreamConfig, DefaultStreamConfigError> {
+    match mode {
+        AudioIOMode::Input => device.default_input_config(),
+        AudioIOMode::Output => device.default_output_config(),
+    }
+}
+
+fn configure_device(
+    host: &Host,
+    options: &StandaloneOptions,
+    mode: AudioIOMode,
+    buffer_size: usize,
+    sample_rate: usize,
+) -> (Device, StreamConfig) {
+    let device_name = device_name(&options, mode);
+    let device = device_name
+        .map(|device_name| {
+            let mut devices = list_devices(host, mode).unwrap();
+            devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
+        })
+        .flatten()
+        .unwrap_or_else(|| default_device(host, mode).unwrap());
+    let supported_configs = supported_configs(&device, mode).unwrap();
+    let mut supports_stereo = false;
+    for config in supported_configs {
+        log::info!("  Supported config: {:?}", config);
+        if config.channels() > 1 {
+            supports_stereo = true;
+        }
+    }
+
+    let config = default_config(&device, mode).unwrap();
+    let mut config: StreamConfig = config.into();
+    config.channels = if supports_stereo { 2 } else { 1 };
+    config.sample_rate = SampleRate(sample_rate as u32);
+    config.buffer_size = BufferSize::Fixed(buffer_size as u32);
+
+    #[cfg(target_os = "ios")]
+    {
+        config.buffer_size = BufferSize::Default;
+    }
+
+    (device, config)
+}
 
 pub fn configure_input_device(
     host: &Host,
@@ -38,42 +127,14 @@ pub fn configure_input_device(
     buffer_size: usize,
     sample_rate: usize,
 ) -> (Device, StreamConfig) {
-    let input_device = options
-        .input_device
-        .as_ref()
-        .map(|device_name| {
-            let mut input_devices = host.input_devices().unwrap();
-            input_devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
-        })
-        .flatten()
-        .unwrap_or_else(|| host.default_input_device().unwrap());
-    let supported_configs = input_device.supported_input_configs().unwrap();
-    let mut supports_stereo = false;
-    for config in supported_configs {
-        log::info!("  INPUT Supported config: {:?}", config);
-        if config.channels() > 1 {
-            supports_stereo = true;
-        }
-    }
-
-    let input_config = input_device.default_input_config().unwrap();
-    let mut input_config: StreamConfig = input_config.into();
-    input_config.channels = if supports_stereo { 2 } else { 1 };
-    input_config.sample_rate = SampleRate(sample_rate as u32);
-    input_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
-
-    #[cfg(target_os = "ios")]
-    {
-        input_config.buffer_size = BufferSize::Default;
-    }
-
+    let (input_device, input_config) =
+        configure_device(host, options, AudioIOMode::Input, buffer_size, sample_rate);
     log::info!(
         "Using input name={} sample_rate={} buffer_size={:?}",
         input_device.name().unwrap(),
         sample_rate,
         input_config.buffer_size
     );
-
     (input_device, input_config)
 }
 
@@ -83,35 +144,13 @@ pub fn configure_output_device(
     buffer_size: usize,
     sample_rate: usize,
 ) -> (Device, StreamConfig) {
-    let output_device = options
-        .input_device
-        .as_ref()
-        .map(|device_name| {
-            let mut output_devices = host.output_devices().unwrap();
-            output_devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
-        })
-        .flatten()
-        .unwrap_or_else(|| host.default_output_device().unwrap());
-    for config in output_device.supported_output_configs().unwrap() {
-        log::info!("  OUTPUT Supported config: {:?}", config);
-    }
-    let output_config = output_device.default_output_config().unwrap();
-    let mut output_config: StreamConfig = output_config.into();
-    output_config.channels = output_device
-        .supported_output_configs()
-        .unwrap()
-        .map(|config| config.channels())
-        .max()
-        .unwrap_or(2)
-        .min(2);
-    output_config.sample_rate = SampleRate(sample_rate as u32);
-    output_config.buffer_size = BufferSize::Fixed(buffer_size as u32);
-
-    #[cfg(target_os = "ios")]
-    {
-        output_config.buffer_size = BufferSize::Default;
-    }
-
+    let (output_device, output_config) = configure_device(
+        &host,
+        options,
+        AudioIOMode::Output,
+        buffer_size,
+        sample_rate,
+    );
     log::info!(
         "Using output name={} sample_rate={} buffer_size={:?}",
         output_device.name().unwrap(),
