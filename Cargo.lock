@@ -5826,7 +5826,7 @@ dependencies = [
  "criterion",
  "derivative",
  "derive_more",
- "dirs 3.0.2",
+ "dirs 4.0.0",
  "iced",
  "iced_core",
  "iced_futures",
