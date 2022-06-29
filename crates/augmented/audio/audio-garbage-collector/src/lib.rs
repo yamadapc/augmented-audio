@@ -65,10 +65,13 @@ pub fn make_shared<T: Send + 'static>(value: T) -> Shared<T> {
     Shared::new(handle(), value)
 }
 
+/// Errors that may be emitted when stopping the GC
 #[derive(Debug, Error)]
 pub enum GarbageCollectorError {
+    /// Emitted if the GC thread panicked during a GC run
     #[error("Failed to acquire lock")]
     LockError,
+    /// Emitted if the GC thread panicked at another point
     #[error("Failed to join the GC thread")]
     JoinError,
 }
