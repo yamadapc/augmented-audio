@@ -107,6 +107,7 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
                 }
             }
         } else if let Some(input_sample) = consumer.pop() {
+            // This only works if num_input_channels == 1
             for sample in frame {
                 *sample = input_sample
             }
