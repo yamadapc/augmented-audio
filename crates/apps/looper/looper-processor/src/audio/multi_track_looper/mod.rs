@@ -125,9 +125,8 @@ impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
 
-        let metronome = audio_processor_metronome::MetronomeProcessor::new(
-            TimeInfoMetronomePlayhead(time_info_provider.clone()),
-        );
+        let metronome =
+            MetronomeProcessor::new(TimeInfoMetronomePlayhead(time_info_provider.clone()));
         let metronome_handle = metronome.handle().clone();
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);

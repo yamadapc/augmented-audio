@@ -1,3 +1,6 @@
+use std::ffi::CString;
+use std::os::raw::c_char;
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,8 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use actix_system_threads::ActorSystem;
-use std::ffi::CString;
-use std::os::raw::c_char;
 
 use crate::services::analytics::{
     GetAnalyticsEnabled, SendAnalyticsEvent, ServiceAnalyticsEvent, SetAnalyticsEnabled,
@@ -79,7 +80,7 @@ impl From<CAnalyticsEvent> for ServiceAnalyticsEvent {
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__send_analytics(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     event: CAnalyticsEvent,
 ) {
     let engine = &*engine;
@@ -93,7 +94,7 @@ pub unsafe extern "C" fn looper_engine__send_analytics(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__has_analytics_enabled(engine: *mut LooperEngine) -> bool {
+pub unsafe extern "C" fn looper_engine__has_analytics_enabled(engine: *const LooperEngine) -> bool {
     let engine = &*engine;
     let analytics_service = engine.analytics_service().clone();
     ActorSystem::current()
@@ -102,7 +103,7 @@ pub unsafe extern "C" fn looper_engine__has_analytics_enabled(engine: *mut Loope
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__get_analytics_enabled(engine: *mut LooperEngine) -> bool {
+pub unsafe extern "C" fn looper_engine__get_analytics_enabled(engine: *const LooperEngine) -> bool {
     let engine = &*engine;
     let analytics_service = engine.analytics_service().clone();
     ActorSystem::current()
@@ -112,7 +113,7 @@ pub unsafe extern "C" fn looper_engine__get_analytics_enabled(engine: *mut Loope
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_analytics_enabled(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     enabled: bool,
 ) {
     let engine = &*engine;

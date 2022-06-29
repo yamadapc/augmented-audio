@@ -20,8 +20,43 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-pub mod audio_io_settings_controller;
-pub mod audio_state_controller;
-pub mod autosave_controller;
-pub mod events_controller;
-pub mod load_project_controller;
+
+//! Input handling should push samples onto a ring-buffer.
+
+use cpal::{traits::DeviceTrait, Device, Stream, StreamConfig};
+use ringbuf::Producer;
+
+use crate::standalone_cpal::error::AudioThreadError;
+
+pub fn build_input_stream(
+    input_tuple: Option<(Device, StreamConfig)>,
+    mut producer: Producer<f32>,
+) -> Result<Option<Stream>, AudioThreadError> {
+    let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
+        input_device
+            .build_input_stream(
+                input_config,
+                move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
+                    input_stream_callback(&mut producer, data)
+                },
+                |err| {
+                    log::error!("Input error: {:?}", err);
+                },
+            )
+            .map_err(AudioThreadError::BuildInputStreamError)
+    });
+
+    let input_stream = if let Some(input_stream) = input_stream {
+        Some(input_stream?)
+    } else {
+        None
+    };
+
+    Ok(input_stream)
+}
+
+fn input_stream_callback(producer: &mut Producer<f32>, data: &[f32]) {
+    for sample in data {
+        while producer.push(*sample).is_err() {}
+    }
+}

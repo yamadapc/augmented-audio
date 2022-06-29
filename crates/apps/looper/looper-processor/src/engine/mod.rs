@@ -27,11 +27,11 @@ use actix::Addr;
 use basedrop::Shared;
 
 use actix_system_threads::ActorSystem;
-use audio_processor_standalone::StandaloneHandles;
 
 use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsActor;
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
-use crate::audio::time_info_provider::HostCallback;
+use crate::controllers::audio_io_settings_controller::AudioIOSettingsController;
+use crate::controllers::audio_state_controller::{AudioModeParams, AudioStateController};
 use crate::controllers::autosave_controller::AutosaveController;
 use crate::controllers::events_controller::EventsController;
 use crate::controllers::load_project_controller;
@@ -49,16 +49,6 @@ use crate::{
     MAX_LOOP_LENGTH_SECS,
 };
 
-enum AudioState {
-    Standalone(StandaloneHandles),
-    Hosted(MultiTrackLooper),
-}
-
-pub enum AudioModeParams {
-    Standalone,
-    Hosted(Option<HostCallback>),
-}
-
 pub struct LooperEngineParams {
     pub audio_mode: AudioModeParams,
 
@@ -70,12 +60,18 @@ impl Default for LooperEngineParams {
     fn default() -> Self {
         Self {
             audio_mode: AudioModeParams::Standalone,
-            is_persistence_enabled: false,
+            is_persistence_enabled: true,
         }
     }
 }
 
 /// This is Continuous' main entry-point
+///
+/// How to treat this struct:
+///
+/// * NO logic, only holds pointers to other bits of the app
+/// * This is the entry-point for the C API. The C API is not safe and mutability in this struct
+///   may end-up in disaster
 pub struct LooperEngine {
     handle: Shared<MultiTrackLooperHandle>,
     metrics_actor: Mutex<AudioProcessorMetricsActor>,
@@ -84,7 +80,9 @@ pub struct LooperEngine {
     events_controller: Addr<EventsController>,
     #[cfg(any(target_os = "ios", target_os = "macos"))]
     analytics_service: Addr<analytics::AnalyticsService>,
-    audio_state: AudioState,
+    audio_state_controller: Addr<AudioStateController>,
+
+    audio_io_settings_controller: AudioIOSettingsController,
     _autosave_controller: Option<AutosaveController>,
 }
 
@@ -141,15 +139,8 @@ impl LooperEngine {
         let analytics_service = ActorSystem::start(AnalyticsService::default());
 
         // Start audio
-        let audio_state = match params.audio_mode {
-            AudioModeParams::Standalone => {
-                AudioState::Standalone(audio_processor_standalone::audio_processor_start_with_midi(
-                    processor,
-                    audio_garbage_collector::handle(),
-                ))
-            }
-            AudioModeParams::Hosted(_) => AudioState::Hosted(processor),
-        };
+        let audio_state_controller =
+            ActorSystem::start(AudioStateController::new(params.audio_mode, processor));
 
         #[cfg(any(target_os = "ios", target_os = "macos"))]
         {
@@ -168,9 +159,10 @@ impl LooperEngine {
             audio_clip_manager,
             project_manager,
             events_controller,
-            audio_state,
+            audio_state_controller,
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             analytics_service,
+            audio_io_settings_controller: AudioIOSettingsController::default(),
             _autosave_controller: autosave_controller,
         }
     }
@@ -179,13 +171,6 @@ impl LooperEngine {
         let metrics_handle = handle.metrics_handle().clone();
 
         Mutex::new(AudioProcessorMetricsActor::new(metrics_handle))
-    }
-
-    pub fn processor(&self) -> Option<&MultiTrackLooper> {
-        match &self.audio_state {
-            AudioState::Standalone(_) => None,
-            AudioState::Hosted(processor) => Some(processor),
-        }
     }
 
     pub fn handle(&self) -> &Shared<MultiTrackLooperHandle> {
@@ -211,6 +196,10 @@ impl LooperEngine {
     #[cfg(any(target_os = "ios", target_os = "macos"))]
     pub fn analytics_service(&self) -> &Addr<AnalyticsService> {
         &self.analytics_service
+    }
+
+    pub fn audio_io_settings_controller(&self) -> &AudioIOSettingsController {
+        &self.audio_io_settings_controller
     }
 }
 

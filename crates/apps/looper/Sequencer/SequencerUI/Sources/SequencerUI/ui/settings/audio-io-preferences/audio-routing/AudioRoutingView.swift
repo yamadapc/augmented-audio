@@ -15,36 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  ContentView.swift
-//  Sequencer
-//
-//  Created by Pedro Tacla Yamada on 28/2/2022.
-//
-
 import SwiftUI
 
-/**
- * Holds the whole application GUI
- */
-public struct ContentView: View {
-    public init() {}
+struct AudioInputView: View {
+    var body: some View {
+        Text("Audio input X")
+    }
+}
 
-    public var body: some View {
-        let view = SequencerView()
-            .background(SequencerColors.black1)
-            .frame(minWidth: 900, maxWidth: .infinity, minHeight: 900, maxHeight: .infinity)
-            .frame(idealWidth: 1000, idealHeight: 900)
+struct AudioRoutingView: View {
+    @EnvironmentObject var store: Store
 
-        ZStack {
-            if #available(macOS 11.0, *) {
-                view.preferredColorScheme(.dark)
-            } else {
-                view
-            }
+    var body: some View {
+        VStack {
+            AudioInputView()
         }
-        #if os(macOS)
-        .fixedSize()
-        #endif
     }
 }

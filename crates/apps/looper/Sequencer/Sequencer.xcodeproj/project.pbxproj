@@ -53,6 +53,7 @@
 		CBADD5B52810DC300024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B62810DC3D0024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B82810EC9D0024DAE6 /* license.html in Resources */ = {isa = PBXBuildFile; fileRef = CBADD5B72810EC9D0024DAE6 /* license.html */; };
+		CBD6415628442D2700825185 /* AudioIOSettingsControllerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */; };
 		CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
 		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
 		CBECE3BC27ED43DB0054BB43 /* SequencerEngine.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */; };
@@ -221,6 +222,7 @@
 		CBA4DABF27DE948400A530E3 /* liblooperengine_sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine_sim.a; path = "../../../../crates/apps/looper/looper-processor/public/lib/ios-aarch64-sim/liblooperengine_sim.a"; sourceTree = "<group>"; };
 		CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesWindowViewController.swift; sourceTree = "<group>"; };
 		CBADD5B72810EC9D0024DAE6 /* license.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = license.html; path = "../looper-processor/license.html"; sourceTree = "<group>"; };
+		CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioIOSettingsControllerImpl.swift; sourceTree = "<group>"; };
 		CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineController.swift; sourceTree = "<group>"; };
 		CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequencerEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineTests.swift; sourceTree = "<group>"; };
@@ -491,10 +493,10 @@
 				CB3D995727EFD78E00E5ECBA /* Sequencer-Mac-Info.plist */,
 				CB801A1727D8AE6600D7788E /* AppDelegate.swift */,
 				CB801A1927D8AE6600D7788E /* MainWindowViewController.swift */,
+				CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */,
 				CB801A1B27D8AE6600D7788E /* Assets.xcassets */,
 				CB801A1D27D8AE6600D7788E /* Main.storyboard */,
 				CB801A2027D8AE6600D7788E /* Sequencer_Mac.entitlements */,
-				CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */,
 			);
 			path = "Sequencer Mac";
 			sourceTree = "<group>";
@@ -509,6 +511,7 @@
 				CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */,
 				CB24DF59282F0A210066A172 /* AudioBuffers.swift */,
 				CB3D995827EFE4A000E5ECBA /* Parameters.swift */,
+				CBD6415428442D1400825185 /* audio_io_settings_controller */,
 				CB59A60B27FF0570004BC156 /* effects */,
 				CB59A60827FDA7DA004BC156 /* foreign_callbacks */,
 				CB3D995A27EFE4E300E5ECBA /* store_subscriptions */,
@@ -523,6 +526,14 @@
 				CBA4DAAD27DDF67700A530E3 /* SequencerEngine_ios.h */,
 			);
 			path = SequencerEngine_ios;
+			sourceTree = "<group>";
+		};
+		CBD6415428442D1400825185 /* audio_io_settings_controller */ = {
+			isa = PBXGroup;
+			children = (
+				CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */,
+			);
+			path = audio_io_settings_controller;
 			sourceTree = "<group>";
 		};
 		CBECE3B927ED43DB0054BB43 /* SequencerEngineTests */ = {
@@ -967,6 +978,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CBD6415628442D2700825185 /* AudioIOSettingsControllerImpl.swift in Sources */,
 				CB3D995C27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */,
 				CBA4DAA027DDF23600A530E3 /* SequencerEngine.swift in Sources */,
 				CB3948F127EC3B24009A650D /* MidiEventStream.swift in Sources */,

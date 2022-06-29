@@ -19,9 +19,13 @@
 import SwiftUI
 import WebView
 
+enum PreferencesTab {
+    case audioIO, about, privacy
+}
+
 @available(macOS 11.0, *)
 public struct SettingsView: View {
-    @State private var selectedTab: String? = "About"
+    @State private var selectedTab: PreferencesTab? = .audioIO
     @EnvironmentObject var store: Store
 
     public init() {}
@@ -29,12 +33,23 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationView {
             List {
+                if SequencerUIFeatureFlags.isAudioIOSettingsEnabled {
+                    NavigationLink(
+                        destination: AudioIOPreferencesView(),
+                        tag: PreferencesTab.audioIO,
+                        selection: $selectedTab,
+                        label: {
+                            Text("Audio I/O Preferences")
+                        }
+                    )
+                }
+
                 NavigationLink(
                     destination: VStack {
                         AboutPageView()
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity),
-                    tag: "About",
+                    tag: PreferencesTab.about,
                     selection: $selectedTab,
                     label: {
                         Text("About")
@@ -42,7 +57,7 @@ public struct SettingsView: View {
                 )
                 NavigationLink(
                     destination: PrivacyPreferencesView(),
-                    tag: "Privacy",
+                    tag: PreferencesTab.privacy,
                     selection: $selectedTab,
                     label: {
                         Text("Privacy")
