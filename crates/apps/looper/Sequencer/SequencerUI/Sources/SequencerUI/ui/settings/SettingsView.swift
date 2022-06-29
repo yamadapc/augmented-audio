@@ -33,14 +33,17 @@ public struct SettingsView: View {
     public var body: some View {
         NavigationView {
             List {
-                NavigationLink(
-                    destination: AudioIOPreferencesView(),
-                    tag: PreferencesTab.audioIO,
-                    selection: $selectedTab,
-                    label: {
-                        Text("Audio I/O Preferences")
-                    }
-                )
+                if SequencerUIFeatureFlags.isAudioIOSettingsEnabled {
+                    NavigationLink(
+                        destination: AudioIOPreferencesView(),
+                        tag: PreferencesTab.audioIO,
+                        selection: $selectedTab,
+                        label: {
+                            Text("Audio I/O Preferences")
+                        }
+                    )
+                }
+
                 NavigationLink(
                     destination: VStack {
                         AboutPageView()
