@@ -26,11 +26,7 @@ import SequencerUI
 class AppDelegate: NSObject, NSApplicationDelegate {
     var engineController = EngineController()
 
-    func applicationDidFinishLaunching(_: Notification) {
-        // TODO: - Remove this
-        let preferences: NSWindowController = NSStoryboard.main?.instantiateController(withIdentifier: "PreferencesWindowController") as! NSWindowController
-        preferences.showWindow(nil)
-    }
+    func applicationDidFinishLaunching(_: Notification) {}
 
     func applicationWillTerminate(_: Notification) {}
 
