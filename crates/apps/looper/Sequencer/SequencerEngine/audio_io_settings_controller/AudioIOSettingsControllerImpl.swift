@@ -32,7 +32,7 @@ class AudioIOSettingsControllerImpl: AudioIOSettingsController {
     }
 
     func listOutputDevices() -> [AudioDevice] {
-        let c_devices = audio_io_settings_controller__list_input_devices(engine)
+        let c_devices = audio_io_settings_controller__list_output_devices(engine)
         return toSwiftModel(c_devices)
     }
 

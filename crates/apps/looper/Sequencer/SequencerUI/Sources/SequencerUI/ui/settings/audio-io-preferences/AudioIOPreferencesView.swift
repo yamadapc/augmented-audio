@@ -66,7 +66,7 @@ struct AudioIOPreferencesView: View {
         .onAppear {
             let controller = store.engine?.audioIOPreferencesController
             inputDevices = controller?.listInputDevices() ?? []
-            outputDevices = controller?.listInputDevices() ?? []
+            outputDevices = controller?.listOutputDevices() ?? []
             inputDevice = controller?.getInputDevice()
             outputDevice = controller?.getOutputDevice()
         }

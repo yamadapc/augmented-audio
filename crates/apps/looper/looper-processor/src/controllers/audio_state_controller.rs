@@ -67,6 +67,18 @@ impl AudioStateController {
     /// Update audio options. Resets the audio threads and re-creates the MultiTrackLooper
     /// processor.
     pub fn set_options(&mut self, options: StandaloneOptions) {
+        let current_options = self.get_options().unwrap_or_default();
+        if options.output_device == current_options.output_device
+            && options.output_device == current_options.output_device
+        {
+            log::warn!(
+                "Ignoring noop IO options update input={:?} output={:?}",
+                options.input_device,
+                options.output_device
+            );
+            return;
+        }
+
         let state = self.state.take();
         drop(state);
         let processor = MultiTrackLooper::from_handle(Default::default(), 8, self.handle.clone());
@@ -89,14 +101,28 @@ impl AudioStateController {
 /// Set-up *stand-alone* audio state.
 fn setup_audio_state(options: StandaloneOptions, processor: MultiTrackLooper) -> AudioState {
     let standalone_processor = StandaloneProcessorImpl::new_with(processor, options.clone());
-
-    AudioState::Standalone {
-        options,
-        handles: audio_processor_standalone::standalone_start(
-            standalone_processor,
-            Some(audio_garbage_collector::handle()),
+    let handles = audio_processor_standalone::standalone_start(
+        standalone_processor,
+        Some(audio_garbage_collector::handle()),
+    );
+    let options = StandaloneOptions {
+        accepts_input: true,
+        input_device: handles
+            .configuration()
+            .input_configuration()
+            .as_ref()
+            .map(|config| config.name().to_string()),
+        output_device: Some(
+            handles
+                .configuration()
+                .output_configuration()
+                .name()
+                .to_string(),
         ),
-    }
+        handle: None,
+    };
+
+    AudioState::Standalone { options, handles }
 }
 
 impl Actor for AudioStateController {

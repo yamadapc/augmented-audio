@@ -5846,7 +5846,7 @@ dependencies = [
  "tinyfiledialogs",
  "tokio",
  "tokio-stream",
- "uuid 0.8.2",
+ "uuid 1.1.2",
  "vst",
  "wisual-logger",
 ]

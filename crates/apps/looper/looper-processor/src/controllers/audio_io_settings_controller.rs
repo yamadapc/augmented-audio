@@ -73,14 +73,18 @@ impl AudioIOSettingsController {
         let addr = self.audio_state_controller.clone();
         let options = ActorSystem::current()
             .spawn_result(async move { addr.send(GetOptions {}).await.ok().flatten().unwrap() });
-        options.input_device.unwrap()
+        let device = options.input_device.unwrap();
+        log::info!("Retrieving input device {}", device);
+        device
     }
 
     pub fn output_device(&self) -> String {
         let addr = self.audio_state_controller.clone();
         let options = ActorSystem::current()
             .spawn_result(async move { addr.send(GetOptions {}).await.ok().flatten().unwrap() });
-        options.output_device.unwrap()
+        let device = options.output_device.unwrap();
+        log::info!("Retrieving output device {}", device);
+        device
     }
 }
 
