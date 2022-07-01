@@ -40,7 +40,6 @@ use crate::services::audio_clip_manager::AudioClipManager;
 use crate::services::project_manager::ProjectManager;
 #[cfg(any(target_os = "ios", target_os = "macos"))]
 use crate::services::{
-    analytics,
     analytics::AnalyticsService,
     analytics::{send_analytics, ServiceAnalyticsEvent},
 };
@@ -79,7 +78,7 @@ pub struct LooperEngine {
     project_manager: Addr<ProjectManager>,
     events_controller: Addr<EventsController>,
     #[cfg(any(target_os = "ios", target_os = "macos"))]
-    analytics_service: Addr<analytics::AnalyticsService>,
+    analytics_service: Addr<AnalyticsService>,
     audio_state_controller: Addr<AudioStateController>,
 
     audio_io_settings_controller: AudioIOSettingsController,
@@ -153,6 +152,9 @@ impl LooperEngine {
             send_analytics(&analytics_service, looper_loaded_event);
         }
 
+        let audio_io_settings_controller =
+            AudioIOSettingsController::new(audio_state_controller.clone());
+
         LooperEngine {
             handle,
             metrics_actor,
@@ -162,7 +164,7 @@ impl LooperEngine {
             audio_state_controller,
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             analytics_service,
-            audio_io_settings_controller: AudioIOSettingsController::default(),
+            audio_io_settings_controller,
             _autosave_controller: autosave_controller,
         }
     }
@@ -196,6 +198,10 @@ impl LooperEngine {
     #[cfg(any(target_os = "ios", target_os = "macos"))]
     pub fn analytics_service(&self) -> &Addr<AnalyticsService> {
         &self.analytics_service
+    }
+
+    pub fn audio_state_controller(&self) -> &Addr<AudioStateController> {
+        &self.audio_state_controller
     }
 
     pub fn audio_io_settings_controller(&self) -> &AudioIOSettingsController {

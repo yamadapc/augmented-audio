@@ -133,22 +133,8 @@ impl MultiTrackLooper {
 
         let (processors, voices) = Self::build_voices(&options, num_voices, &time_info_provider);
 
-        let parameters_scratch = voices
-            .iter()
-            .map(|voice| {
-                voice
-                    .parameter_ids()
-                    .iter()
-                    .map(|id| voice.user_parameters().get(id.clone()).clone())
-                    .collect()
-            })
-            .collect();
-        let parameter_scratch_indexes = voices[0]
-            .parameter_ids()
-            .iter()
-            .enumerate()
-            .map(|(idx, id)| (id.clone(), idx))
-            .collect();
+        let (parameters_scratch, parameter_scratch_indexes) =
+            Self::make_parameters_scratch(&voices);
 
         let metrics = AudioProcessorMetrics::default();
         let handle = make_shared(MultiTrackLooperHandle::new(
@@ -174,6 +160,61 @@ impl MultiTrackLooper {
             parameter_scratch_indexes,
             lfos,
             metrics,
+            record_midi_button: MIDIButton::new(),
+        }
+    }
+
+    fn make_parameters_scratch(
+        voices: &Vec<LooperVoice>,
+    ) -> (ParametersScratch, ParametersScratchIndexes) {
+        let parameters_scratch = voices
+            .iter()
+            .map(|voice| {
+                voice
+                    .parameter_ids()
+                    .iter()
+                    .map(|id| voice.user_parameters().get(id.clone()).clone())
+                    .collect()
+            })
+            .collect();
+        let parameter_scratch_indexes = voices[0]
+            .parameter_ids()
+            .iter()
+            .enumerate()
+            .map(|(idx, id)| (id.clone(), idx))
+            .collect();
+        (parameters_scratch, parameter_scratch_indexes)
+    }
+
+    pub fn from_handle(
+        options: LooperOptions,
+        num_voices: usize,
+        handle: Shared<MultiTrackLooperHandle>,
+    ) -> Self {
+        let metronome = MetronomeProcessor::from_handle(
+            TimeInfoMetronomePlayhead(handle.time_info_provider().clone()),
+            handle.metronome_handle().clone(),
+        );
+        let (processors, voices) =
+            Self::build_voices(&options, num_voices, handle.time_info_provider());
+        let (parameters_scratch, parameter_scratch_indexes) =
+            Self::make_parameters_scratch(&voices);
+        let metrics = AudioProcessorMetrics::from_handle(handle.metrics_handle().clone());
+        let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
+        let lfos = processors
+            .iter()
+            .map(|_| (Oscillator::sine(44100.0), Oscillator::sine(44100.0)))
+            .collect();
+        let graph = Self::build_audio_graph(processors, metronome);
+
+        Self {
+            graph,
+            handle,
+            step_trackers,
+            lfos,
+            metrics,
+            parameters_scratch,
+            parameter_scratch_indexes,
             record_midi_button: MIDIButton::new(),
         }
     }

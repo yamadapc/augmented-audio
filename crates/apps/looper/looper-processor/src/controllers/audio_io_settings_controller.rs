@@ -20,38 +20,67 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+use actix::Addr;
 use anyhow::Result;
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::Device;
+
+use actix_system_threads::ActorSystem;
+
+use crate::controllers::audio_state_controller::{AudioStateController, GetOptions, SetOptions};
 
 pub struct AudioDevice {
     pub name: String,
 }
 
-#[derive(Default)]
-pub struct AudioIOSettingsController {}
+pub struct AudioIOSettingsController {
+    audio_state_controller: Addr<AudioStateController>,
+}
 
 impl AudioIOSettingsController {
+    pub fn new(audio_state_controller: Addr<AudioStateController>) -> Self {
+        Self {
+            audio_state_controller,
+        }
+    }
+
     pub fn set_input_device(&self, device: &str) {
-        log::info!("NOT IMPLEMENTED, SET INPUT DEVICE {}", device);
+        let device = device.to_string();
+        let addr = self.audio_state_controller.clone();
+        ActorSystem::current().spawn(async move {
+            addr.send(SetOptions::InputDevice(device))
+                .await
+                .unwrap_or_else(|err| {
+                    log::error!("Failed to set input device {}", err);
+                });
+        });
     }
 
     pub fn set_output_device(&self, device: &str) {
-        log::info!("NOT IMPLEMENTED, SET OUTPUT DEVICE {}", device);
+        let device = device.to_string();
+        let addr = self.audio_state_controller.clone();
+        ActorSystem::current().spawn(async move {
+            addr.send(SetOptions::OutputDevice(device))
+                .await
+                .unwrap_or_else(|err| {
+                    log::error!("Failed to set input device {}", err);
+                });
+        });
     }
 
     pub fn input_device(&self) -> String {
-        cpal::default_host()
-            .default_input_device()
-            .map(|d| d.name().unwrap_or_else(|_| "".to_string()))
-            .unwrap_or_else(|| "".to_string())
+        let addr = self.audio_state_controller.clone();
+        let options = ActorSystem::current()
+            .spawn_result(async move { addr.send(GetOptions {}).await.ok().flatten().unwrap() });
+        options.input_device.unwrap()
     }
 
     pub fn output_device(&self) -> String {
-        cpal::default_host()
-            .default_output_device()
-            .map(|d| d.name().unwrap_or_else(|_| "".to_string()))
-            .unwrap_or_else(|| "".to_string())
+        let addr = self.audio_state_controller.clone();
+        let options = ActorSystem::current()
+            .spawn_result(async move { addr.send(GetOptions {}).await.ok().flatten().unwrap() });
+        options.output_device.unwrap()
     }
 }
 

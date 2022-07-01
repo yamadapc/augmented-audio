@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use actix::Actor;
+use actix::{Actor, Handler};
 use basedrop::Shared;
 
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
@@ -31,7 +31,9 @@ use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
 enum AudioState {
     Standalone {
-        handles: StandaloneHandles<StandaloneProcessorImpl<MultiTrackLooper>>,
+        #[allow(unused)]
+        handles: StandaloneHandles,
+        #[allow(unused)]
         options: StandaloneOptions,
     },
     Hosted(MultiTrackLooper),
@@ -44,7 +46,7 @@ pub enum AudioModeParams {
 
 pub struct AudioStateController {
     handle: Shared<MultiTrackLooperHandle>,
-    state: AudioState,
+    state: Option<AudioState>,
 }
 
 impl AudioStateController {
@@ -56,13 +58,31 @@ impl AudioStateController {
             AudioModeParams::Hosted(_) => AudioState::Hosted(processor),
         };
 
-        Self { handle, state }
+        Self {
+            handle,
+            state: Some(state),
+        }
     }
 
     /// Update audio options. Resets the audio threads and re-creates the MultiTrackLooper
     /// processor.
     pub fn set_options(&mut self, options: StandaloneOptions) {
-        todo!("WHAT SHOULD THIS DO EXACTLY?")
+        let state = self.state.take();
+        drop(state);
+        let processor = MultiTrackLooper::from_handle(Default::default(), 8, self.handle.clone());
+        self.state = Some(setup_audio_state(options, processor));
+    }
+
+    fn get_options(&mut self) -> Option<StandaloneOptions> {
+        let options = self
+            .state
+            .as_ref()
+            .map(|state| match state {
+                AudioState::Standalone { options, .. } => Some(options.clone()),
+                _ => None,
+            })
+            .flatten();
+        options
     }
 }
 
@@ -81,4 +101,44 @@ fn setup_audio_state(options: StandaloneOptions, processor: MultiTrackLooper) ->
 
 impl Actor for AudioStateController {
     type Context = actix::Context<Self>;
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "()")]
+pub enum SetOptions {
+    StandaloneOptions(StandaloneOptions),
+    InputDevice(String),
+    OutputDevice(String),
+}
+
+impl Handler<SetOptions> for AudioStateController {
+    type Result = ();
+
+    fn handle(&mut self, msg: SetOptions, _ctx: &mut Self::Context) -> Self::Result {
+        let options = self.get_options().unwrap_or_default();
+        match msg {
+            SetOptions::StandaloneOptions(options) => {
+                self.set_options(options);
+            }
+            SetOptions::InputDevice(input_device) => self.set_options(StandaloneOptions {
+                input_device: Some(input_device),
+                ..options
+            }),
+            SetOptions::OutputDevice(output_device) => self.set_options(StandaloneOptions {
+                output_device: Some(output_device),
+                ..options
+            }),
+        }
+    }
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "Option<StandaloneOptions>")]
+pub struct GetOptions {}
+
+impl Handler<GetOptions> for AudioStateController {
+    type Result = Option<StandaloneOptions>;
+    fn handle(&mut self, _msg: GetOptions, _ctx: &mut Self::Context) -> Self::Result {
+        self.get_options()
+    }
 }

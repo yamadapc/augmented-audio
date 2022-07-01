@@ -598,6 +598,10 @@ impl MultiTrackLooperHandle {
         }
     }
 
+    pub fn metronome_handle(&self) -> &Shared<MetronomeProcessorHandle> {
+        &self.metronome_handle
+    }
+
     pub fn set_metronome_volume(&self, volume: f32) {
         self.metronome_handle.set_volume(volume);
     }

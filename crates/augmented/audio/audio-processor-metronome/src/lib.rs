@@ -165,6 +165,26 @@ struct MetronomeProcessorState {
     last_position: f32,
 }
 
+impl Default for MetronomeProcessorState {
+    fn default() -> Self {
+        Self {
+            last_position: 0.0,
+            oscillator: Oscillator::sine(DEFAULT_SAMPLE_RATE),
+            is_beeping: false,
+            envelope: build_envelope(),
+        }
+    }
+}
+
+fn build_envelope() -> Envelope {
+    let envelope = Envelope::new();
+    envelope.set_attack(Duration::from_millis(DEFAULT_CLICK_ATTACK_MS));
+    envelope.set_decay(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
+    envelope.set_sustain(0.0);
+    envelope.set_release(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
+    envelope
+}
+
 pub struct MetronomeProcessor<P: MetronomePlayhead> {
     state: MetronomeProcessorState,
     handle: Shared<MetronomeProcessorHandle>,
@@ -180,25 +200,23 @@ impl Default for MetronomeProcessor<DefaultMetronomePlayhead> {
 /// Public methods
 impl<P: MetronomePlayhead> MetronomeProcessor<P> {
     pub fn new(playhead: P) -> Self {
-        let envelope = Self::build_envelope();
-
-        let sample_rate = DEFAULT_SAMPLE_RATE;
-        let tempo = DEFAULT_TEMPO;
-
         MetronomeProcessor {
             handle: make_shared(MetronomeProcessorHandle {
                 is_playing: AtomicBool::new(true),
-                tempo: AtomicF32::new(tempo as f32),
+                tempo: AtomicF32::new(DEFAULT_TEMPO as f32),
                 volume: AtomicF32::new(1.0),
                 position_beats: AtomicF32::new(0.0),
                 beats_per_bar: AtomicI32::new(4),
             }),
-            state: MetronomeProcessorState {
-                last_position: 0.0,
-                oscillator: Oscillator::sine(sample_rate),
-                is_beeping: false,
-                envelope,
-            },
+            state: MetronomeProcessorState::default(),
+            playhead,
+        }
+    }
+
+    pub fn from_handle(playhead: P, handle: Shared<MetronomeProcessorHandle>) -> Self {
+        Self {
+            handle,
+            state: MetronomeProcessorState::default(),
             playhead,
         }
     }
@@ -243,15 +261,6 @@ impl<P: MetronomePlayhead> AudioProcessor for MetronomeProcessor<P> {
 
 /// Private methods
 impl<P: MetronomePlayhead> MetronomeProcessor<P> {
-    fn build_envelope() -> Envelope {
-        let envelope = Envelope::new();
-        envelope.set_attack(Duration::from_millis(DEFAULT_CLICK_ATTACK_MS));
-        envelope.set_decay(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
-        envelope.set_sustain(0.0);
-        envelope.set_release(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
-        envelope
-    }
-
     fn process_frame(&mut self, frame: &mut [f32]) {
         self.playhead.accept_samples(1);
         self.state.envelope.tick();

@@ -49,7 +49,7 @@ pub fn audio_processor_start_with_midi<
 >(
     audio_processor: Processor,
     handle: &Handle,
-) -> StandaloneHandles<StandaloneProcessorImpl<Processor>> {
+) -> StandaloneHandles {
     let app = StandaloneProcessorImpl::new(audio_processor);
     standalone_start(app, Some(handle))
 }
@@ -59,27 +59,18 @@ pub fn audio_processor_start_with_midi<
 /// Returns the [`cpal::Stream`] streams. The audio-thread will keep running until these are dropped.
 pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
-) -> StandaloneHandles<StandaloneAudioOnlyProcessor<Processor>> {
+) -> StandaloneHandles {
     let app = StandaloneAudioOnlyProcessor::new(audio_processor, Default::default());
     standalone_start(app, None)
 }
 
 /// Handles to the CPAL streams and MIDI host. Playback will stop when these are dropped.
-pub struct StandaloneHandles<SP: StandaloneProcessor> {
+pub struct StandaloneHandles {
     // Handles contain a join handle with the thread, this might be used in the future.
-    handle: Option<std::thread::JoinHandle<SP>>,
+    #[allow(unused)]
+    handle: std::thread::JoinHandle<()>,
     #[allow(unused)]
     midi_reference: MidiReference,
-}
-
-impl<SP: StandaloneProcessor> StandaloneHandles<SP> {
-    pub fn stop(&mut self) -> SP {
-        if let Some(handle) = self.handle.take() {
-            handle.thread().unpark();
-            handle.join().unwrap();
-        }
-        todo!("ops")
-    }
 }
 
 /// Start a processor using CPAL. Returns [`StandaloneHandles`] which can be used to take the
@@ -89,7 +80,7 @@ impl<SP: StandaloneProcessor> StandaloneHandles<SP> {
 pub fn standalone_start<SP: StandaloneProcessor>(
     mut app: SP,
     handle: Option<&Handle>,
-) -> StandaloneHandles<SP> {
+) -> StandaloneHandles {
     let _ = wisual_logger::try_init_from_env();
 
     let (midi_reference, midi_context) = initialize_midi_host(&mut app, handle);
@@ -159,13 +150,11 @@ pub fn standalone_start<SP: StandaloneProcessor>(
 
             audio_thread_run(run_params, app);
             std::thread::park();
-
-            todo!("HERE")
         })
         .unwrap();
 
     StandaloneHandles {
-        handle: Some(handle),
+        handle,
         midi_reference,
     }
 }
