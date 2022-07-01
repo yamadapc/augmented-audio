@@ -41,6 +41,6 @@ struct StatusBarView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(PADDING * 0.5)
         .background(SequencerColors.black)
-        .fixedSize()
+        .fixedSize(horizontal: false, vertical: true)
     }
 }
