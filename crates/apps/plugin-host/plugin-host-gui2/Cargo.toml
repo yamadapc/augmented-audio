@@ -22,7 +22,7 @@ vst = { path = "../../../vendor/vst" }
 baseview = { path = "../../../vendor/baseview" }
 raw-window-handle = "0.3.3"
 derive_more = "^0.99.16"
-uuid = { version = "^0.8", features = ["v4"] }
+uuid = { version = "^1.1", features = ["v4"] }
 notify = "^4.0.17"
 md5 = "^0.7.0"
 derivative = "^2.2.0"
