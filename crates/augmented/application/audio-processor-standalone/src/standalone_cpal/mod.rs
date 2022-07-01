@@ -22,7 +22,11 @@
 // THE SOFTWARE.
 
 use basedrop::Handle;
-use cpal::{traits::StreamTrait, Device, Stream, StreamConfig};
+use cpal::traits::DeviceTrait;
+use cpal::{
+    traits::StreamTrait, BufferSize, ChannelCount, Device, SampleRate, Stream, StreamConfig,
+};
+use std::sync::mpsc::channel;
 
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 
@@ -64,13 +68,67 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send 
     standalone_start(app, None)
 }
 
+/// After negotiating options this struct is built with whatever devices and configuration used
+/// for them.
+pub struct ResolvedStandaloneConfiguration {
+    host: String,
+    input_configuration: Option<IOConfiguration>,
+    output_configuration: IOConfiguration,
+}
+
+impl ResolvedStandaloneConfiguration {
+    pub fn host(&self) -> &str {
+        &self.host
+    }
+
+    pub fn input_configuration(&self) -> &Option<IOConfiguration> {
+        &self.input_configuration
+    }
+
+    pub fn output_configuration(&self) -> &IOConfiguration {
+        &self.output_configuration
+    }
+}
+
+pub struct IOConfiguration {
+    name: String,
+    buffer_size: BufferSize,
+    sample_rate: SampleRate,
+    num_channels: ChannelCount,
+}
+
+impl IOConfiguration {
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn buffer_size(&self) -> &BufferSize {
+        &self.buffer_size
+    }
+
+    pub fn sample_rate(&self) -> SampleRate {
+        self.sample_rate
+    }
+
+    pub fn num_channels(&self) -> ChannelCount {
+        self.num_channels
+    }
+}
+
 /// Handles to the CPAL streams and MIDI host. Playback will stop when these are dropped.
 pub struct StandaloneHandles {
+    configuration: ResolvedStandaloneConfiguration,
     // Handles contain a join handle with the thread, this might be used in the future.
     #[allow(unused)]
     handle: std::thread::JoinHandle<()>,
     #[allow(unused)]
     midi_reference: MidiReference,
+}
+
+impl StandaloneHandles {
+    pub fn configuration(&self) -> &ResolvedStandaloneConfiguration {
+        &self.configuration
+    }
 }
 
 /// Start a processor using CPAL. Returns [`StandaloneHandles`] which can be used to take the
@@ -85,6 +143,7 @@ pub fn standalone_start<SP: StandaloneProcessor>(
 
     let (midi_reference, midi_context) = initialize_midi_host(&mut app, handle);
 
+    let (configuration_tx, configuration_rx) = channel();
     // On iOS start takes over the calling thread, so this needs to be spawned in order for this
     // function to exit
     let handle = std::thread::Builder::new()
@@ -92,6 +151,7 @@ pub fn standalone_start<SP: StandaloneProcessor>(
         .spawn(move || {
             // Audio set-up
             let host = cpal::default_host();
+            let host_name = host.id().name().to_string();
             log::info!("Using host: {}", host.id().name());
             let buffer_size = 512;
             let sample_rate = {
@@ -134,6 +194,26 @@ pub fn standalone_start<SP: StandaloneProcessor>(
             );
             app.processor().prepare(settings);
 
+            configuration_tx
+                .send(ResolvedStandaloneConfiguration {
+                    host: host_name,
+                    input_configuration: input_tuple.as_ref().map(|(input_device, config)| {
+                        IOConfiguration {
+                            name: input_device.name().unwrap(),
+                            sample_rate: config.sample_rate.clone(),
+                            buffer_size: config.buffer_size.clone(),
+                            num_channels: config.channels,
+                        }
+                    }),
+                    output_configuration: IOConfiguration {
+                        name: output_device.name().unwrap(),
+                        sample_rate: output_config.sample_rate.clone(),
+                        buffer_size: output_config.buffer_size.clone(),
+                        num_channels: output_config.channels.clone(),
+                    },
+                })
+                .unwrap();
+
             let run_params = AudioThreadRunParams {
                 io_hints: AudioThreadIOHints {
                     buffer_size,
@@ -153,7 +233,10 @@ pub fn standalone_start<SP: StandaloneProcessor>(
         })
         .unwrap();
 
+    let configuration = configuration_rx.recv().unwrap();
+
     StandaloneHandles {
+        configuration,
         handle,
         midi_reference,
     }
