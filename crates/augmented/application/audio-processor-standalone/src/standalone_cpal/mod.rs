@@ -21,12 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use std::sync::mpsc::channel;
+
 use basedrop::Handle;
 use cpal::traits::DeviceTrait;
 use cpal::{
     traits::StreamTrait, BufferSize, ChannelCount, Device, SampleRate, Stream, StreamConfig,
 };
-use std::sync::mpsc::channel;
 
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 
@@ -123,6 +124,13 @@ pub struct StandaloneHandles {
     handle: std::thread::JoinHandle<()>,
     #[allow(unused)]
     midi_reference: MidiReference,
+}
+
+impl Drop for StandaloneHandles {
+    fn drop(&mut self) {
+        self.handle.thread().unpark();
+        log::info!("Cleaning-up standalone handles");
+    }
 }
 
 impl StandaloneHandles {
