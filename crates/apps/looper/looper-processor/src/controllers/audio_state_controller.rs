@@ -68,7 +68,7 @@ impl AudioStateController {
     /// processor.
     pub fn set_options(&mut self, options: StandaloneOptions) {
         let current_options = self.get_options().unwrap_or_default();
-        if options.output_device == current_options.output_device
+        if options.input_device == current_options.input_device
             && options.output_device == current_options.output_device
         {
             log::warn!(
