@@ -59,7 +59,7 @@ impl Default for LooperEngineParams {
     fn default() -> Self {
         Self {
             audio_mode: AudioModeParams::Standalone,
-            is_persistence_enabled: true,
+            is_persistence_enabled: false,
         }
     }
 }
