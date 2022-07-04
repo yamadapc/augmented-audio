@@ -39,10 +39,10 @@ enum AudioIOMode {
     Output,
 }
 
-fn list_devices(
+fn list_devices<Host: HostTrait>(
     host: &Host,
     mode: AudioIOMode,
-) -> Result<impl Iterator<Item = Device>, DevicesError> {
+) -> Result<impl Iterator<Item = Host::Device>, DevicesError> {
     match mode {
         AudioIOMode::Input => host.input_devices(),
         AudioIOMode::Output => host.output_devices(),
@@ -50,7 +50,7 @@ fn list_devices(
 }
 
 fn supported_configs(
-    device: &Device,
+    device: &impl DeviceTrait,
     mode: AudioIOMode,
 ) -> Result<Vec<cpal::SupportedStreamConfigRange>, cpal::SupportedStreamConfigsError> {
     match mode {
@@ -101,7 +101,7 @@ fn configure_device(
     let supported_configs = supported_configs(&device, mode).unwrap();
     let mut supports_stereo = false;
     for config in supported_configs {
-        log::info!("  Supported config: {:?}", config);
+        log::debug!("  Supported config: {:?}", config);
         if config.channels() > 1 {
             supports_stereo = true;
         }
@@ -158,4 +158,84 @@ pub fn configure_output_device(
         output_config.buffer_size
     );
     (output_device, output_config)
+}
+
+#[cfg(test)]
+mod test {
+    use crate::standalone_cpal::mock_cpal::*;
+
+    use super::*;
+
+    #[test]
+    fn test_none_device_name() {
+        let options = StandaloneOptions::default();
+        assert!(device_name(&options, AudioIOMode::Input).is_none());
+        assert!(device_name(&options, AudioIOMode::Output).is_none());
+    }
+
+    #[test]
+    fn test_device_name_for_input() {
+        let options = StandaloneOptions {
+            input_device: Some("input-name".to_string()),
+            ..StandaloneOptions::default()
+        };
+        let name = device_name(&options, AudioIOMode::Input);
+        assert_eq!(name.unwrap(), "input-name");
+    }
+
+    #[test]
+    fn test_device_name_for_output() {
+        let options = StandaloneOptions {
+            output_device: Some("output-name".to_string()),
+            ..StandaloneOptions::default()
+        };
+        let name = device_name(&options, AudioIOMode::Output);
+        assert_eq!(name.unwrap(), "output-name");
+    }
+
+    #[test]
+    fn test_list_devices_calls_host_input_devices() {
+        let mut host = MockHost::default();
+        host.expect_input_devices().returning(|| {
+            let mock_devices = vec![MockDevice::default()];
+
+            Ok(MockVecIterator::from(mock_devices).filter(|_| true))
+        });
+        let result = list_devices(&host, AudioIOMode::Input);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn test_list_devices_calls_host_output_devices() {
+        let mut host = MockHost::default();
+        host.expect_output_devices().returning(|| {
+            let mock_devices = vec![MockDevice::default()];
+
+            Ok(MockVecIterator::from(mock_devices).filter(|_| true))
+        });
+        let result = list_devices(&host, AudioIOMode::Output);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn supported_configs_works_for_input_devices() {
+        let mut device = MockDevice::default();
+        device
+            .expect_supported_input_configs()
+            .returning(|| Ok(MockVecIterator::from(vec![])));
+
+        let result = supported_configs(&device, AudioIOMode::Input);
+        assert!(result.is_ok());
+    }
+
+    #[test]
+    fn supported_configs_works_for_output_devices() {
+        let mut device = MockDevice::default();
+        device
+            .expect_supported_output_configs()
+            .returning(|| Ok(MockVecIterator::from(vec![])));
+
+        let result = supported_configs(&device, AudioIOMode::Output);
+        assert!(result.is_ok());
+    }
 }

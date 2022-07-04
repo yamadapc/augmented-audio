@@ -29,29 +29,21 @@ use ringbuf::Producer;
 use crate::standalone_cpal::error::AudioThreadError;
 
 pub fn build_input_stream(
-    input_tuple: Option<(Device, StreamConfig)>,
+    input_device: Device,
+    input_config: StreamConfig,
     mut producer: Producer<f32>,
-) -> Result<Option<Stream>, AudioThreadError> {
-    let input_stream = input_tuple.as_ref().map(|(input_device, input_config)| {
-        input_device
-            .build_input_stream(
-                input_config,
-                move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
-                    input_stream_callback(&mut producer, data)
-                },
-                |err| {
-                    log::error!("Input error: {:?}", err);
-                },
-            )
-            .map_err(AudioThreadError::BuildInputStreamError)
-    });
-
-    let input_stream = if let Some(input_stream) = input_stream {
-        Some(input_stream?)
-    } else {
-        None
-    };
-
+) -> Result<Stream, AudioThreadError> {
+    let input_stream = input_device
+        .build_input_stream(
+            &input_config,
+            move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
+                input_stream_callback(&mut producer, data)
+            },
+            |err| {
+                log::error!("Input error: {:?}", err);
+            },
+        )
+        .map_err(AudioThreadError::BuildInputStreamError)?;
     Ok(input_stream)
 }
 

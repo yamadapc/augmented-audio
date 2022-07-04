@@ -21,28 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::sync::mpsc::{channel, Sender};
+use std::sync::mpsc::channel;
 
 use basedrop::Handle;
 use cpal::traits::DeviceTrait;
-use cpal::{
-    traits::StreamTrait, BufferSize, ChannelCount, Device, SampleRate, Stream, StreamConfig,
-};
+use cpal::{BufferSize, ChannelCount, Device, SampleRate, StreamConfig};
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
+use audio_processor_traits::{AudioProcessor, MidiEventHandler};
 
 use crate::standalone_processor::{
     StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
 };
 
-use self::error::AudioThreadError;
-use self::midi::{initialize_midi_host, MidiContext, MidiReference};
+use self::midi::{initialize_midi_host, MidiReference};
 
+mod audio_thread;
 mod error;
 mod input_handling;
 mod midi;
 mod options;
 mod output_handling;
+
+#[cfg(test)]
+mod mock_cpal;
 
 /// Start an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
 /// messages received on all inputs to it.
@@ -71,6 +72,7 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send 
 
 /// After negotiating options this struct is built with whatever devices and configuration used
 /// for them.
+#[derive(Debug)]
 pub struct ResolvedStandaloneConfiguration {
     host: String,
     input_configuration: Option<IOConfiguration>,
@@ -91,6 +93,7 @@ impl ResolvedStandaloneConfiguration {
     }
 }
 
+#[derive(Debug)]
 pub struct IOConfiguration {
     name: String,
     buffer_size: BufferSize,
@@ -99,6 +102,15 @@ pub struct IOConfiguration {
 }
 
 impl IOConfiguration {
+    pub fn new(device: &Device, config: &StreamConfig) -> IOConfiguration {
+        IOConfiguration {
+            name: device.name().unwrap(),
+            sample_rate: config.sample_rate.clone(),
+            buffer_size: config.buffer_size.clone(),
+            num_channels: config.channels,
+        }
+    }
+
     pub fn name(&self) -> &str {
         &self.name
     }
@@ -159,192 +171,17 @@ pub fn standalone_start<SP: StandaloneProcessor>(
     let handle = std::thread::Builder::new()
         .name(String::from("audio_thread"))
         .spawn(move || {
-            audio_thread_main(app, midi_context, configuration_tx);
+            audio_thread::audio_thread_main(app, midi_context, configuration_tx);
         })
         .unwrap();
 
     let configuration = configuration_rx.recv().unwrap();
+    log::info!("Received configuration {:?}", configuration);
 
     StandaloneHandles {
         configuration,
         handle: Some(handle),
         midi_reference,
-    }
-}
-
-fn audio_thread_main<SP: StandaloneProcessor>(
-    mut app: SP,
-    midi_context: Option<MidiContext>,
-    configuration_tx: Sender<ResolvedStandaloneConfiguration>,
-) {
-    // Audio set-up
-    let host = cpal::default_host();
-    let host_name = host.id().name().to_string();
-    log::info!("Using host: {}", host.id().name());
-    let buffer_size = 512;
-    let sample_rate = {
-        #[cfg(not(target_os = "ios"))]
-        {
-            44100
-        }
-        #[cfg(target_os = "ios")]
-        {
-            48000
-        }
-    };
-
-    let options = app.options();
-    let accepts_input = options.accepts_input;
-    let input_tuple = if accepts_input {
-        Some(options::configure_input_device(
-            &host,
-            &options,
-            buffer_size,
-            sample_rate,
-        ))
-    } else {
-        None
-    };
-    let (output_device, output_config) =
-        options::configure_output_device(host, &options, buffer_size, sample_rate);
-
-    let num_output_channels = output_config.channels.into();
-    let num_input_channels = input_tuple
-        .as_ref()
-        .map(|(_, input_config)| input_config.channels.into())
-        .unwrap_or(num_output_channels);
-
-    let settings = AudioProcessorSettings::new(
-        output_config.sample_rate.0 as f32,
-        num_input_channels,
-        num_output_channels,
-        buffer_size,
-    );
-    app.processor().prepare(settings);
-
-    configuration_tx
-        .send(ResolvedStandaloneConfiguration {
-            host: host_name,
-            input_configuration: input_tuple.as_ref().map(|(input_device, config)| {
-                IOConfiguration {
-                    name: input_device.name().unwrap(),
-                    sample_rate: config.sample_rate.clone(),
-                    buffer_size: config.buffer_size.clone(),
-                    num_channels: config.channels,
-                }
-            }),
-            output_configuration: IOConfiguration {
-                name: output_device.name().unwrap(),
-                sample_rate: output_config.sample_rate.clone(),
-                buffer_size: output_config.buffer_size.clone(),
-                num_channels: output_config.channels.clone(),
-            },
-        })
-        .unwrap();
-
-    let run_params = AudioThreadRunParams {
-        io_hints: AudioThreadIOHints {
-            buffer_size,
-            num_output_channels,
-            num_input_channels,
-        },
-        cpal_streams: AudioThreadCPalStreams {
-            output_config,
-            input_tuple,
-            output_device,
-        },
-        midi_context,
-    };
-
-    audio_thread_run_processor(run_params, app);
-    std::thread::park();
-}
-
-/// At this point we have "negotiated" the nº of channels and buffer size.
-/// These will be used in logic on the callbacks as well as to size our ringbuffer.
-struct AudioThreadIOHints {
-    buffer_size: usize,
-    num_output_channels: usize,
-    num_input_channels: usize,
-}
-
-/// Input and output audio streams.
-struct AudioThreadCPalStreams {
-    output_config: StreamConfig,
-    input_tuple: Option<(Device, StreamConfig)>,
-    output_device: Device,
-}
-
-struct AudioThreadRunParams {
-    midi_context: Option<MidiContext>,
-    io_hints: AudioThreadIOHints,
-    cpal_streams: AudioThreadCPalStreams,
-}
-
-/// Start this processor with given run parameters.
-/// The processor should be prepared at this point.
-fn audio_thread_run_processor(params: AudioThreadRunParams, app: impl StandaloneProcessor) {
-    let AudioThreadRunParams {
-        midi_context,
-        io_hints,
-        cpal_streams,
-    } = params;
-    let AudioThreadIOHints {
-        buffer_size,
-        num_output_channels,
-        num_input_channels,
-    } = io_hints;
-    let AudioThreadCPalStreams {
-        output_config,
-        input_tuple,
-        output_device,
-    } = cpal_streams;
-
-    let build_streams = move || -> Result<(Option<Stream>, Stream), AudioThreadError> {
-        let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
-        let (producer, consumer) = buffer.split();
-        let input_stream = input_handling::build_input_stream(input_tuple, producer)?;
-        let output_stream = output_handling::build_output_stream(
-            app,
-            midi_context,
-            num_output_channels,
-            num_input_channels,
-            consumer,
-            output_device,
-            output_config,
-        )?;
-
-        Ok((input_stream, output_stream))
-    };
-
-    match build_streams() {
-        Ok((input_stream, output_stream)) => {
-            log::info!("Audio streams starting on audio-thread");
-            let play = || -> Result<(), AudioThreadError> {
-                if let Some(input_stream) = &input_stream {
-                    input_stream
-                        .play()
-                        .map_err(AudioThreadError::InputStreamError)?;
-                }
-
-                output_stream
-                    .play()
-                    .map_err(AudioThreadError::OutputStreamError)?;
-
-                Ok(())
-            };
-
-            if let Err(err) = play() {
-                log::error!("Audio-thread failed to start with {}", err);
-                return;
-            }
-
-            log::info!("Audio streams started");
-            std::thread::park();
-        }
-        Err(err) => {
-            log::error!("Audio-thread failed to start with {}", err);
-        }
     }
 }
 
@@ -366,4 +203,20 @@ macro_rules! generic_standalone_run {
             }
         }
     };
+}
+
+#[cfg(test)]
+mod test {
+    use audio_processor_traits::{BufferProcessor, NoopAudioProcessor};
+
+    use crate::{standalone_start, StandaloneAudioOnlyProcessor};
+
+    #[test]
+    fn test_standalone_start_and_stop_processor() {
+        let _ = wisual_logger::try_init_from_env();
+        let processor = BufferProcessor(NoopAudioProcessor::default());
+        let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
+        let handles = standalone_start(processor, None);
+        drop(handles);
+    }
 }

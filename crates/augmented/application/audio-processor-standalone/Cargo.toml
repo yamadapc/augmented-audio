@@ -34,6 +34,7 @@ audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-
 [dev-dependencies]
 atomic-queue = { version = "1.0.0-alpha.4", path = "../../data/atomic-queue" }
 audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../testing/audio-processor-testing-helpers" }
+mockall = "0.11.1"
 
 [package.metadata.augmented]
 private = false
