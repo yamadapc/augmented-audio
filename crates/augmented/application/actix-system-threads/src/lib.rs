@@ -75,7 +75,7 @@ impl ActorSystem {
         let (tx, rx) = channel();
         let (sys_tx, sys_rx) = channel();
 
-        let num_threads = 1; // num_cpus::get();
+        let num_threads = 0; // num_cpus::get();
         log::info!("Starting actor system on {} threads", num_threads);
         std::thread::Builder::new()
             .name("actor-system-main".into())
