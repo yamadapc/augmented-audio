@@ -545,7 +545,6 @@ impl AudioProcessor for MultiTrackLooper {
         data: &mut BufferType,
     ) {
         assert_no_alloc(|| {
-            AudioThreadLogger::handle().info("MultiTrackLooper::process");
             self.metrics.on_process_start();
 
             self.process_scenes();
