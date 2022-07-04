@@ -249,7 +249,8 @@ mod test {
     #[actix::test]
     async fn test_load_latest_project() {
         wisual_logger::init_from_env();
-        let data_path = tempdir::TempDir::new("looper_processor__project_manager").unwrap();
+        let data_path =
+            tempdir::TempDir::new("looper_processor__test_load_latest_project").unwrap();
         log::info!("data_path={:?}", data_path.path());
 
         let latest_project = load_latest_project(data_path.path()).await.unwrap();
@@ -259,7 +260,10 @@ mod test {
     #[actix::test]
     async fn test_actor_load_latest_project() {
         wisual_logger::init_from_env();
-        let data_path = tempdir::TempDir::new("looper_processor__project_manager").unwrap();
+        let data_path = tempdir::TempDir::new(
+            "looper_processor__project_manager__test_actor_load_latest_project",
+        )
+        .unwrap();
         log::info!("data_path={:?}", data_path.path());
         let project_manager = ProjectManager::new(data_path.path().to_path_buf()).start();
         project_manager
