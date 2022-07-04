@@ -34,7 +34,7 @@ use cpal::{
 use crate::standalone_processor::StandaloneOptions;
 
 #[derive(Clone, Copy)]
-enum AudioIOMode {
+pub enum AudioIOMode {
     Input,
     Output,
 }

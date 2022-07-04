@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Sender};
 
 use basedrop::Handle;
 use cpal::traits::DeviceTrait;
@@ -34,6 +34,7 @@ use crate::standalone_processor::{
 };
 
 use self::midi::{initialize_midi_host, MidiReference};
+pub use self::options::AudioIOMode;
 
 mod audio_thread;
 mod error;
@@ -133,6 +134,7 @@ pub struct StandaloneHandles {
     configuration: ResolvedStandaloneConfiguration,
     // Handles contain a join handle with the thread, this might be used in the future.
     handle: Option<std::thread::JoinHandle<()>>,
+    stop_signal_tx: Sender<()>,
     #[allow(unused)]
     midi_reference: MidiReference,
 }
@@ -140,7 +142,7 @@ pub struct StandaloneHandles {
 impl Drop for StandaloneHandles {
     fn drop(&mut self) {
         if let Some(handle) = self.handle.take() {
-            handle.thread().unpark();
+            let _ = self.stop_signal_tx.send(());
             handle.join().unwrap();
         }
         log::info!("Cleaning-up standalone handles");
@@ -166,12 +168,13 @@ pub fn standalone_start<SP: StandaloneProcessor>(
     let (midi_reference, midi_context) = initialize_midi_host(&mut app, handle);
 
     let (configuration_tx, configuration_rx) = channel();
+    let (stop_signal_tx, stop_signal_rx) = channel();
     // On iOS start takes over the calling thread, so this needs to be spawned in order for this
     // function to exit
     let handle = std::thread::Builder::new()
         .name(String::from("audio_thread"))
         .spawn(move || {
-            audio_thread::audio_thread_main(app, midi_context, configuration_tx);
+            audio_thread::audio_thread_main(app, midi_context, configuration_tx, stop_signal_rx);
         })
         .unwrap();
 
@@ -181,6 +184,7 @@ pub fn standalone_start<SP: StandaloneProcessor>(
     StandaloneHandles {
         configuration,
         handle: Some(handle),
+        stop_signal_tx,
         midi_reference,
     }
 }

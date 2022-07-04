@@ -22,7 +22,9 @@
 // THE SOFTWARE.
 use actix::{Actor, Handler};
 use basedrop::Shared;
+use cpal::traits::{DeviceTrait, HostTrait};
 
+use audio_processor_standalone::standalone_cpal::AudioIOMode;
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{StandaloneHandles, StandaloneProcessorImpl};
 
@@ -83,6 +85,7 @@ impl AudioStateController {
         drop(state);
         let processor = MultiTrackLooper::from_handle(Default::default(), 8, self.handle.clone());
         self.state = Some(setup_audio_state(options, processor));
+        log::info!("=== Restarted audio-thread successfully ======\n");
     }
 
     fn get_options(&mut self) -> Option<StandaloneOptions> {
@@ -167,4 +170,41 @@ impl Handler<GetOptions> for AudioStateController {
     fn handle(&mut self, _msg: GetOptions, _ctx: &mut Self::Context) -> Self::Result {
         self.get_options()
     }
+}
+
+pub struct AudioDevice {
+    pub name: String,
+}
+
+#[derive(actix::Message)]
+#[rtype(result = "anyhow::Result<Vec<AudioDevice>>")]
+pub struct ListDevices {
+    pub mode: AudioIOMode,
+}
+
+impl Handler<ListDevices> for AudioStateController {
+    type Result = anyhow::Result<Vec<AudioDevice>>;
+
+    fn handle(&mut self, msg: ListDevices, _ctx: &mut Self::Context) -> Self::Result {
+        let mode = msg.mode;
+        let host = cpal::default_host();
+        let devices = match mode {
+            AudioIOMode::Input => host.input_devices()?,
+            AudioIOMode::Output => host.output_devices()?,
+        };
+        build_domain_model(devices)
+    }
+}
+
+fn build_domain_model(
+    devices: impl Iterator<Item = cpal::Device>,
+) -> anyhow::Result<Vec<AudioDevice>> {
+    let mut result = vec![];
+
+    for device in devices {
+        let name = device.name()?;
+        result.push(AudioDevice { name });
+    }
+
+    Ok(result)
 }

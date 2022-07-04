@@ -26,7 +26,7 @@ use std::os::raw::c_char;
 use std::ptr::null_mut;
 
 use crate::c_api::into_ptr;
-use crate::controllers::audio_io_settings_controller::AudioDevice;
+use crate::controllers::audio_state_controller::AudioDevice;
 use crate::LooperEngine;
 
 #[no_mangle]

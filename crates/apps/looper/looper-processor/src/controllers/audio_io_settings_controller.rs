@@ -23,16 +23,13 @@
 
 use actix::Addr;
 use anyhow::Result;
-use cpal::traits::{DeviceTrait, HostTrait};
-use cpal::Device;
 
 use actix_system_threads::ActorSystem;
+use audio_processor_standalone::standalone_cpal::AudioIOMode;
 
-use crate::controllers::audio_state_controller::{AudioStateController, GetOptions, SetOptions};
-
-pub struct AudioDevice {
-    pub name: String,
-}
+use crate::controllers::audio_state_controller::{
+    AudioDevice, AudioStateController, GetOptions, ListDevices, SetOptions,
+};
 
 pub struct AudioIOSettingsController {
     audio_state_controller: Addr<AudioStateController>,
@@ -90,25 +87,24 @@ impl AudioIOSettingsController {
 
 impl AudioIOSettingsController {
     pub fn list_input_devices(&self) -> Result<Vec<AudioDevice>> {
-        let host = cpal::default_host();
-        let devices = host.input_devices()?;
-        Self::build_domain_model(devices)
+        let addr = self.audio_state_controller.clone();
+        ActorSystem::current().spawn_result(async move {
+            addr.send(ListDevices {
+                mode: AudioIOMode::Input,
+            })
+            .await
+            .expect("Failed to list devices")
+        })
     }
 
     pub fn list_output_devices(&self) -> Result<Vec<AudioDevice>> {
-        let host = cpal::default_host();
-        let devices = host.output_devices()?;
-        Self::build_domain_model(devices)
-    }
-
-    fn build_domain_model(devices: impl Iterator<Item = Device>) -> Result<Vec<AudioDevice>> {
-        let mut result = vec![];
-
-        for device in devices {
-            let name = device.name()?;
-            result.push(AudioDevice { name });
-        }
-
-        Ok(result)
+        let addr = self.audio_state_controller.clone();
+        ActorSystem::current().spawn_result(async move {
+            addr.send(ListDevices {
+                mode: AudioIOMode::Output,
+            })
+            .await
+            .expect("Failed to list devices")
+        })
     }
 }

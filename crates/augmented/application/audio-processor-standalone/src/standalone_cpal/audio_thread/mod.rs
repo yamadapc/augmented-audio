@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::sync::mpsc::Sender;
+use std::sync::mpsc::{Receiver, Sender};
 
 use cpal::traits::StreamTrait;
 use cpal::{Device, Stream, StreamConfig};
@@ -39,6 +39,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor>(
     mut app: SP,
     midi_context: Option<MidiContext>,
     configuration_tx: Sender<ResolvedStandaloneConfiguration>,
+    stop_signal_rx: Receiver<()>,
 ) {
     // Audio set-up
     let host = cpal::default_host();
@@ -111,7 +112,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor>(
 
     audio_thread_run_processor(run_params, app);
 
-    std::thread::park();
+    let _ = stop_signal_rx.recv();
 }
 
 /// At this point we have "negotiated" the nº of channels and buffer size.
