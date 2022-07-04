@@ -129,6 +129,10 @@ impl LoopShufflerProcessor {
         }
     }
 
+    pub fn from_handle(handle: Shared<LoopShufflerProcessorHandle>) -> Self {
+        Self { cursor: 0, handle }
+    }
+
     pub fn handle(&self) -> &Shared<LoopShufflerProcessorHandle> {
         &self.handle
     }

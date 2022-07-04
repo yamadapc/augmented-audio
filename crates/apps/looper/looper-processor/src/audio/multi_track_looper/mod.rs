@@ -37,6 +37,7 @@ use audio_processor_traits::{
 use augmented_atomics::AtomicValue;
 use augmented_oscillator::Oscillator;
 
+use crate::audio::multi_track_looper::metrics::audio_thread_logger::AudioThreadLogger;
 use crate::audio::time_info_provider::TimeInfoMetronomePlayhead;
 use crate::parameters::LFOMode;
 use crate::{LooperOptions, TimeInfoProvider, TimeInfoProviderImpl};
@@ -131,7 +132,8 @@ impl MultiTrackLooper {
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);
 
-        let (processors, voices) = Self::build_voices(&options, num_voices, &time_info_provider);
+        let (processors, voices) =
+            Self::build_voices(&options, num_voices, &time_info_provider, None);
 
         let (parameters_scratch, parameter_scratch_indexes) =
             Self::make_parameters_scratch(&voices);
@@ -195,8 +197,12 @@ impl MultiTrackLooper {
             TimeInfoMetronomePlayhead(handle.time_info_provider().clone()),
             handle.metronome_handle().clone(),
         );
-        let (processors, voices) =
-            Self::build_voices(&options, num_voices, handle.time_info_provider());
+        let (processors, voices) = Self::build_voices(
+            &options,
+            num_voices,
+            handle.time_info_provider(),
+            Some(handle.voices()),
+        );
         let (parameters_scratch, parameter_scratch_indexes) =
             Self::make_parameters_scratch(&voices);
         let metrics = AudioProcessorMetrics::from_handle(handle.metrics_handle().clone());
@@ -227,10 +233,17 @@ impl MultiTrackLooper {
         options: &LooperOptions,
         num_voices: usize,
         time_info_provider: &Shared<TimeInfoProviderImpl>,
+        previous_handles: Option<&[LooperVoice]>,
     ) -> (Vec<VoiceProcessors>, Vec<LooperVoice>) {
-        let processors: Vec<VoiceProcessors> = (0..num_voices)
-            .map(|_| looper_voice::build_voice_processor(options, time_info_provider))
-            .collect();
+        let processors: Vec<VoiceProcessors> = match previous_handles {
+            None => (0..num_voices)
+                .map(|_| looper_voice::build_voice_processor(options, time_info_provider))
+                .collect(),
+            Some(previous_handles) => previous_handles
+                .iter()
+                .map(|handle| looper_voice::from_handle(handle))
+                .collect(),
+        };
 
         let voices: Vec<LooperVoice> = processors
             .iter()
@@ -532,6 +545,7 @@ impl AudioProcessor for MultiTrackLooper {
         data: &mut BufferType,
     ) {
         assert_no_alloc(|| {
+            AudioThreadLogger::handle().info("MultiTrackLooper::process");
             self.metrics.on_process_start();
 
             self.process_scenes();

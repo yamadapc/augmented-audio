@@ -167,6 +167,11 @@ impl EffectsProcessor {
         }
     }
 
+    pub fn from_handle(handle: Shared<EffectsProcessorHandle>) -> Self {
+        let graph = AudioProcessorGraph::from_handle(handle.graph_handle.clone());
+        Self { graph, handle }
+    }
+
     pub fn handle(&self) -> &Shared<EffectsProcessorHandle> {
         &self.handle
     }

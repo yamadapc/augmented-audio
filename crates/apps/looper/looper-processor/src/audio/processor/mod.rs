@@ -56,6 +56,16 @@ impl LooperProcessor {
         }
     }
 
+    pub fn from_handle(
+        handle: Shared<LooperHandle>,
+        shuffle_handler: Shared<LoopShufflerProcessorHandle>,
+    ) -> Self {
+        Self {
+            handle: handle.clone(),
+            sequencer: LoopShufflerProcessor::from_handle(shuffle_handler),
+        }
+    }
+
     pub fn from_options(options: handle::LooperOptions) -> Self {
         let handle = make_shared(LooperHandle::from_options(options));
         Self {

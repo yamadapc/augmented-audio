@@ -110,9 +110,11 @@ pub fn audio_thread_main<SP: StandaloneProcessor>(
         midi_context,
     };
 
-    audio_thread_run_processor(run_params, app);
+    let streams = audio_thread_run_processor(run_params, app);
 
     let _ = stop_signal_rx.recv();
+
+    drop(streams);
 }
 
 /// At this point we have "negotiated" the nº of channels and buffer size.
@@ -138,7 +140,10 @@ struct AudioThreadRunParams {
 
 /// Start this processor with given run parameters.
 /// The processor should be prepared at this point.
-fn audio_thread_run_processor(params: AudioThreadRunParams, app: impl StandaloneProcessor) {
+fn audio_thread_run_processor(
+    params: AudioThreadRunParams,
+    app: impl StandaloneProcessor,
+) -> Option<(Option<Stream>, Stream)> {
     let AudioThreadRunParams {
         midi_context,
         io_hints,
@@ -180,7 +185,7 @@ fn audio_thread_run_processor(params: AudioThreadRunParams, app: impl Standalone
     match build_streams() {
         Ok((input_stream, output_stream)) => {
             log::info!("Audio streams starting on audio-thread");
-            let play = || -> Result<(), AudioThreadError> {
+            let play = || -> Result<(Option<Stream>, Stream), AudioThreadError> {
                 if let Some(input_stream) = &input_stream {
                     input_stream
                         .play()
@@ -191,18 +196,23 @@ fn audio_thread_run_processor(params: AudioThreadRunParams, app: impl Standalone
                     .play()
                     .map_err(AudioThreadError::OutputStreamError)?;
 
-                Ok(())
+                Ok((input_stream, output_stream))
             };
 
-            if let Err(err) = play() {
-                log::error!("Audio-thread failed to start with {}", err);
-                return;
+            match play() {
+                Ok(streams) => {
+                    log::info!("Audio streams started");
+                    Some(streams)
+                }
+                Err(err) => {
+                    log::error!("Audio-thread failed to start with {}", err);
+                    None
+                }
             }
-
-            log::info!("Audio streams started");
         }
         Err(err) => {
             log::error!("Audio-thread failed to start with {}", err);
+            None
         }
     }
 }

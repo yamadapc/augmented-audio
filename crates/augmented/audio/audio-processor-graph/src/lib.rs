@@ -204,6 +204,15 @@ impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphImpl<P> {
         }
     }
 
+    pub fn from_handle(handle: Shared<AudioProcessorGraphHandleImpl<P>>) -> Self {
+        Self {
+            input_node: handle.input_node,
+            output_node: handle.output_node,
+            handle,
+            temporary_buffer: VecAudioBuffer::new(),
+        }
+    }
+
     pub fn input(&self) -> NodeIndex {
         self.input_node
     }

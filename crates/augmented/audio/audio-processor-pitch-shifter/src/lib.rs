@@ -330,6 +330,12 @@ pub struct MultiChannelPitchShifterProcessor {
 }
 
 impl MultiChannelPitchShifterProcessor {
+    pub fn from_handle(handle: Shared<MultiChannelPitchShifterProcessorHandle>) -> Self {
+        let mut result = Self::default();
+        result.handle = handle;
+        result
+    }
+
     pub fn handle(&self) -> &Shared<MultiChannelPitchShifterProcessorHandle> {
         &self.handle
     }
