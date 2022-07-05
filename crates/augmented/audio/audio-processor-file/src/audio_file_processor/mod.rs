@@ -34,6 +34,7 @@ use audio_processor_traits::{
 use file_io::AudioFileError;
 
 pub mod file_io;
+mod streaming_server;
 
 pub struct InMemoryAudioFile {
     audio_file: ProbeResult,
@@ -276,7 +277,7 @@ mod test {
         let path = format!(
             "{}{}",
             env!("CARGO_MANIFEST_DIR"),
-            "/../../../../input-files/1sec-sine.mp3"
+            "/../../../../input-files/bass.mp3"
         );
         let audio_file_settings = InMemoryAudioFile::from_path(&path).unwrap();
         (garbage_collector, audio_file_settings)
@@ -302,6 +303,8 @@ mod test {
         audio_file_processor.process(&mut sample_buffer);
 
         assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) < f32::EPSILON);
+        assert!(!audio_file_processor.is_playing());
+        assert!(!audio_file_processor.handle().is_playing());
     }
 
     /**

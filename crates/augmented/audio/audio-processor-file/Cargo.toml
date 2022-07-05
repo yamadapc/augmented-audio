@@ -26,6 +26,10 @@ audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-colle
 audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../../augmented/audio/audio-processor-traits" }
 augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.5" }
 augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.7" }
+wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
+ringbuf = "0.2.8"
+
+tokio = { version = "1.19.2", features = ["rt-multi-thread", "fs", "io-std", "io-util"] }
 
 [dev-dependencies]
 audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../../augmented/testing/audio-processor-testing-helpers" }

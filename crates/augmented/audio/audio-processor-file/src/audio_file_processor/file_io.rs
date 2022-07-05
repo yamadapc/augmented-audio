@@ -23,8 +23,8 @@
 use std::fs::File;
 use std::path::Path;
 
+use symphonia::core::audio::Signal;
 use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef};
-use symphonia::core::audio::{AudioBuffer, Signal};
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
@@ -116,7 +116,9 @@ pub fn read_file_contents(
     ))
 }
 
-fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> AudioBuffer<f32> {
+pub(crate) fn convert_audio_buffer_sample_type(
+    audio_buffer: AudioBufferRef,
+) -> SymphoniaAudioBuffer<f32> {
     let mut destination =
         SymphoniaAudioBuffer::new(audio_buffer.capacity() as u64, *audio_buffer.spec());
     let _ = destination.fill(|_, _| Ok(()));
@@ -153,7 +155,7 @@ pub fn convert_audio_file_sample_rate(
     channel.resize(output_size, 0.0);
 
     // Convert sample rate from audio file to in-memory
-    log::info!(
+    log::debug!(
         "Converting sample_rate channel={} input_rate={} output_rate={}",
         channel_number,
         input_rate,
