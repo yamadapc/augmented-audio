@@ -65,13 +65,14 @@ impl MonoDelayProcessorHandle {
     pub fn set_delay_time_secs(&self, value: f32) {
         self.delay_time_secs.set(value);
 
-        let write_position = self.current_write_position.get();
+        // Cast to i64 to prevent negative overflow
+        let write_position = self.current_write_position.get() as i64;
         let sample_rate = self.sample_rate.get();
-        let buffer_size = self.buffer_size.get();
-        self.current_read_position.store(
-            (write_position - (value * sample_rate) as usize + buffer_size) % buffer_size,
-            Ordering::Relaxed,
-        );
+        let buffer_size = self.buffer_size.get() as i64;
+        let offset = (sample_rate * value) as i64;
+        let cursor = write_position - offset + buffer_size;
+        self.current_read_position
+            .store((cursor % buffer_size) as usize, Ordering::Relaxed);
     }
 }
 
