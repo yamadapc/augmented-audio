@@ -156,6 +156,10 @@ impl StreamTrait for VirtualHostStream {
 
 #[cfg(test)]
 mod test {
+    use audio_processor_traits::{BufferProcessor, NoopAudioProcessor};
+
+    use crate::{standalone_start_with, StandaloneAudioOnlyProcessor, StandaloneStartOptions};
+
     use super::*;
 
     #[test]
@@ -166,5 +170,18 @@ mod test {
     #[test]
     fn test_create_virtual_device() {
         let _device = VirtualHostDevice::default();
+    }
+
+    #[test]
+    fn test_run_virtual_host_with_standalone_run() {
+        let processor = BufferProcessor(NoopAudioProcessor::default());
+        let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
+
+        let _handles = standalone_start_with(
+            processor,
+            StandaloneStartOptions {
+                ..StandaloneStartOptions::default()
+            },
+        );
     }
 }

@@ -57,7 +57,7 @@ impl State {
                 ..Default::default()
             },
         );
-        let handles = standalone_start(app, None);
+        let handles = standalone_start(app);
         Self {
             processor_handle,
             _handles: handles,

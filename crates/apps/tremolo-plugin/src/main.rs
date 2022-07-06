@@ -91,10 +91,10 @@ fn main() {
 
     let parameters = Arc::new(build_parameters());
     let processor = Processor::new(parameters.clone());
-    let _handles = audio_processor_standalone::standalone_start(
-        StandaloneAudioOnlyProcessor::new(processor, StandaloneOptions::default()),
-        Some(&audio_garbage_collector::handle()),
-    );
+    let _handles = audio_processor_standalone::standalone_start(StandaloneAudioOnlyProcessor::new(
+        processor,
+        StandaloneOptions::default(),
+    ));
 
     let editor = build_parameters_editor(&parameters);
 

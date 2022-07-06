@@ -58,7 +58,13 @@ pub fn audio_processor_start_with_midi<
     handle: &Handle,
 ) -> StandaloneHandles {
     let app = StandaloneProcessorImpl::new(audio_processor);
-    standalone_start(app, Some(handle))
+    standalone_start_with(
+        app,
+        StandaloneStartOptions {
+            handle: Some(handle.clone()),
+            ..StandaloneStartOptions::default()
+        },
+    )
 }
 
 /// Start an [`AudioProcessor`] as a stand-alone cpal app>
@@ -68,7 +74,7 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send 
     audio_processor: Processor,
 ) -> StandaloneHandles {
     let app = StandaloneAudioOnlyProcessor::new(audio_processor, Default::default());
-    standalone_start(app, None)
+    standalone_start(app)
 }
 
 /// After negotiating options this struct is built with whatever devices and configuration used
@@ -155,17 +161,40 @@ impl StandaloneHandles {
     }
 }
 
+pub struct StandaloneStartOptions<Host = cpal::Host> {
+    pub host: Host,
+    pub handle: Option<Handle>,
+}
+
+impl Default for StandaloneStartOptions<cpal::Host> {
+    fn default() -> Self {
+        Self {
+            host: cpal::default_host(),
+            handle: Some(audio_garbage_collector::handle().clone()),
+        }
+    }
+}
+
 /// Start a processor using CPAL. Returns [`StandaloneHandles`] which can be used to take the
 /// processor back and stop the stream.
 ///
 /// Playback will stop when this value is dropped.
-pub fn standalone_start<SP: StandaloneProcessor>(
+///
+/// See [`standalone_start_with`] for more options
+pub fn standalone_start<SP: StandaloneProcessor>(app: SP) -> StandaloneHandles {
+    standalone_start_with(app, Default::default())
+}
+
+/// Same as [`standalone_start`] but takes an options parameter.
+pub fn standalone_start_with<SP: StandaloneProcessor>(
     mut app: SP,
-    handle: Option<&Handle>,
+    options: StandaloneStartOptions,
 ) -> StandaloneHandles {
+    let StandaloneStartOptions { handle, .. } = options;
+
     let _ = wisual_logger::try_init_from_env();
 
-    let (midi_reference, midi_context) = initialize_midi_host(&mut app, handle);
+    let (midi_reference, midi_context) = initialize_midi_host(&mut app, handle.as_ref());
 
     let (configuration_tx, configuration_rx) = channel();
     let (stop_signal_tx, stop_signal_rx) = channel();
@@ -220,7 +249,7 @@ mod test {
         let _ = wisual_logger::try_init_from_env();
         let processor = BufferProcessor(NoopAudioProcessor::default());
         let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
-        let handles = standalone_start(processor, None);
+        let handles = standalone_start(processor);
         drop(handles);
     }
 }

@@ -104,10 +104,7 @@ impl AudioStateController {
 /// Set-up *stand-alone* audio state.
 fn setup_audio_state(options: StandaloneOptions, processor: MultiTrackLooper) -> AudioState {
     let standalone_processor = StandaloneProcessorImpl::new_with(processor, options.clone());
-    let handles = audio_processor_standalone::standalone_start(
-        standalone_processor,
-        Some(audio_garbage_collector::handle()),
-    );
+    let handles = audio_processor_standalone::standalone_start(standalone_processor);
     let options = StandaloneOptions {
         accepts_input: true,
         input_device: handles
