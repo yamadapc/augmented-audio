@@ -37,7 +37,6 @@ use audio_processor_traits::{
 use augmented_atomics::AtomicValue;
 use augmented_oscillator::Oscillator;
 
-use crate::audio::multi_track_looper::metrics::audio_thread_logger::AudioThreadLogger;
 use crate::audio::time_info_provider::TimeInfoMetronomePlayhead;
 use crate::parameters::LFOMode;
 use crate::{LooperOptions, TimeInfoProvider, TimeInfoProviderImpl};

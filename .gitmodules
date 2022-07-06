@@ -43,3 +43,6 @@
 [submodule "crates/vendor/assert-no-alloc"]
 	path = crates/vendor/assert-no-alloc
 	url = git@github.com:yamadapc/rust-assert-no-alloc
+[submodule "crates/vendor/cpal"]
+	path = crates/vendor/cpal
+	url = git@github.com:yamadapc/cpal

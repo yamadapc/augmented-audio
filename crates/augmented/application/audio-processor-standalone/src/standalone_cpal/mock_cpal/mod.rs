@@ -25,40 +25,17 @@
 
 use mockall::mock;
 
-pub struct MockVecIterator<T> {
-    inner: Vec<T>,
-    cursor: usize,
-}
+use self::vec_iterator::VecIterator;
 
-impl<T: Clone> Iterator for MockVecIterator<T> {
-    type Item = T;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.cursor >= self.inner.len() {
-            None
-        } else {
-            let item = T::clone(&self.inner[self.cursor]);
-            self.cursor += 1;
-            Some(item)
-        }
-    }
-}
-
-impl<T> From<Vec<T>> for MockVecIterator<T> {
-    fn from(v: Vec<T>) -> Self {
-        MockVecIterator {
-            inner: v,
-            cursor: 0,
-        }
-    }
-}
+pub mod vec_iterator;
+pub mod virtual_host;
 
 mock! {
     #[derive(Debug)]
     pub Host {}
 
     impl cpal::traits::HostTrait for Host {
-        type Devices = MockVecIterator<MockDevice>;
+        type Devices = VecIterator<MockDevice>;
         type Device = MockDevice;
 
         fn is_available() -> bool;
@@ -84,8 +61,8 @@ mock! {
     }
 
     impl cpal::traits::DeviceTrait for Device {
-        type SupportedInputConfigs = MockVecIterator<cpal::SupportedStreamConfigRange>;
-        type SupportedOutputConfigs = MockVecIterator<cpal::SupportedStreamConfigRange>;
+        type SupportedInputConfigs = VecIterator<cpal::SupportedStreamConfigRange>;
+        type SupportedOutputConfigs = VecIterator<cpal::SupportedStreamConfigRange>;
         type Stream = MockStream;
 
         fn name(&self) -> Result<String, cpal::DeviceNameError>;

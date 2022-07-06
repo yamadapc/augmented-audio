@@ -162,6 +162,7 @@ pub fn configure_output_device(
 
 #[cfg(test)]
 mod test {
+    use crate::standalone_cpal::mock_cpal::vec_iterator::VecIterator;
     use crate::standalone_cpal::mock_cpal::*;
 
     use super::*;
@@ -199,7 +200,7 @@ mod test {
         host.expect_input_devices().returning(|| {
             let mock_devices = vec![MockDevice::default()];
 
-            Ok(MockVecIterator::from(mock_devices).filter(|_| true))
+            Ok(VecIterator::from(mock_devices).filter(|_| true))
         });
         let result = list_devices(&host, AudioIOMode::Input);
         assert!(result.is_ok());
@@ -211,7 +212,7 @@ mod test {
         host.expect_output_devices().returning(|| {
             let mock_devices = vec![MockDevice::default()];
 
-            Ok(MockVecIterator::from(mock_devices).filter(|_| true))
+            Ok(VecIterator::from(mock_devices).filter(|_| true))
         });
         let result = list_devices(&host, AudioIOMode::Output);
         assert!(result.is_ok());
@@ -222,7 +223,7 @@ mod test {
         let mut device = MockDevice::default();
         device
             .expect_supported_input_configs()
-            .returning(|| Ok(MockVecIterator::from(vec![])));
+            .returning(|| Ok(VecIterator::from(vec![])));
 
         let result = supported_configs(&device, AudioIOMode::Input);
         assert!(result.is_ok());
@@ -233,7 +234,7 @@ mod test {
         let mut device = MockDevice::default();
         device
             .expect_supported_output_configs()
-            .returning(|| Ok(MockVecIterator::from(vec![])));
+            .returning(|| Ok(VecIterator::from(vec![])));
 
         let result = supported_configs(&device, AudioIOMode::Output);
         assert!(result.is_ok());
