@@ -20,6 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! The long-term goal of this module is to provide a full mocked environment
+//! which exposes one input device and one output device.
+//!
+//! In this mocked environment, extra APIs would allow a consumer to push buffers
+//! into an input buffer queue and read buffers that have been processed by
+//! the output callbacks.
+//!
+//! This would be used for integration testing.
+
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{
     BuildStreamError, Data, DefaultStreamConfigError, DeviceNameError, DevicesError,
