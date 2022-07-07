@@ -46,8 +46,8 @@ mod generic_handle;
 mod mix_matrix;
 
 fn flip_polarities(frame: &mut [f32]) {
-    for i in 0..frame.len() {
-        frame[i] = -frame[i];
+    for sample in frame {
+        *sample = -*sample
     }
 }
 
@@ -237,8 +237,8 @@ where
 {
     fn new(mut rng: SmallRng) -> Self {
         let mut shuffle_positions: [usize; CHANNELS] = [0; CHANNELS];
-        for i in 0..CHANNELS {
-            shuffle_positions[i] = i;
+        for (i, shuffle_pos) in shuffle_positions.iter_mut().enumerate().take(CHANNELS) {
+            *shuffle_pos = i;
         }
         shuffle_positions.shuffle(&mut rng);
 
