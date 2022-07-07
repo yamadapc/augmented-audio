@@ -25,7 +25,7 @@ use std::sync::mpsc::{channel, Sender};
 
 use basedrop::Handle;
 use cpal::traits::DeviceTrait;
-use cpal::{BufferSize, ChannelCount, Device, SampleRate, StreamConfig};
+use cpal::{BufferSize, ChannelCount, SampleRate, StreamConfig};
 
 use audio_processor_traits::{AudioProcessor, MidiEventHandler};
 
@@ -58,11 +58,11 @@ pub fn audio_processor_start_with_midi<
     handle: &Handle,
 ) -> StandaloneHandles {
     let app = StandaloneProcessorImpl::new(audio_processor);
-    standalone_start_with(
+    standalone_start_with::<StandaloneProcessorImpl<Processor>, cpal::Host>(
         app,
         StandaloneStartOptions {
             handle: Some(handle.clone()),
-            ..StandaloneStartOptions::default()
+            ..StandaloneStartOptions::<cpal::Host>::default()
         },
     )
 }
@@ -109,7 +109,7 @@ pub struct IOConfiguration {
 }
 
 impl IOConfiguration {
-    pub fn new(device: &Device, config: &StreamConfig) -> IOConfiguration {
+    pub fn new(device: &impl DeviceTrait, config: &StreamConfig) -> IOConfiguration {
         IOConfiguration {
             name: device.name().unwrap(),
             sample_rate: config.sample_rate.clone(),
@@ -161,15 +161,19 @@ impl StandaloneHandles {
     }
 }
 
-pub struct StandaloneStartOptions<Host = cpal::Host> {
+pub struct StandaloneStartOptions<Host: cpal::traits::HostTrait> {
     pub host: Host,
+    pub host_name: String,
     pub handle: Option<Handle>,
 }
 
 impl Default for StandaloneStartOptions<cpal::Host> {
     fn default() -> Self {
+        let host = cpal::default_host();
+        let host_name = host.id().name().to_string();
         Self {
-            host: cpal::default_host(),
+            host,
+            host_name,
             handle: Some(audio_garbage_collector::handle().clone()),
         }
     }
@@ -182,15 +186,22 @@ impl Default for StandaloneStartOptions<cpal::Host> {
 ///
 /// See [`standalone_start_with`] for more options
 pub fn standalone_start<SP: StandaloneProcessor>(app: SP) -> StandaloneHandles {
-    standalone_start_with(app, Default::default())
+    standalone_start_with::<SP, cpal::Host>(app, StandaloneStartOptions::<cpal::Host>::default())
 }
 
 /// Same as [`standalone_start`] but takes an options parameter.
-pub fn standalone_start_with<SP: StandaloneProcessor>(
+pub fn standalone_start_with<
+    SP: StandaloneProcessor,
+    Host: cpal::traits::HostTrait + Send + 'static,
+>(
     mut app: SP,
-    options: StandaloneStartOptions,
+    options: StandaloneStartOptions<Host>,
 ) -> StandaloneHandles {
-    let StandaloneStartOptions { handle, .. } = options;
+    let StandaloneStartOptions {
+        handle,
+        host,
+        host_name,
+    } = options;
 
     let _ = wisual_logger::try_init_from_env();
 
@@ -203,7 +214,18 @@ pub fn standalone_start_with<SP: StandaloneProcessor>(
     let handle = std::thread::Builder::new()
         .name(String::from("audio_thread"))
         .spawn(move || {
-            audio_thread::audio_thread_main(app, midi_context, configuration_tx, stop_signal_rx);
+            let result = audio_thread::audio_thread_main(
+                host,
+                host_name,
+                app,
+                midi_context,
+                configuration_tx,
+                stop_signal_rx,
+            );
+
+            if let Err(err) = result {
+                log::error!("Audio-thread failed with {}", err);
+            }
         })
         .unwrap();
 

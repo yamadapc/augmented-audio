@@ -27,7 +27,7 @@
 //! It will also forward MIDI events that happened between frames.
 
 use audio_processor_traits::{AudioBuffer, AudioProcessor, InterleavedAudioBuffer};
-use cpal::{traits::DeviceTrait, Device, Stream, StreamConfig};
+use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Consumer;
 
 use crate::StandaloneProcessor;
@@ -36,7 +36,7 @@ use super::error::AudioThreadError;
 use super::midi::MidiContext;
 
 /// Build the output callback stream with CPAL and return it.
-pub fn build_output_stream(
+pub fn build_output_stream<Device: DeviceTrait>(
     mut app: impl StandaloneProcessor,
     mut midi_context: Option<MidiContext>,
     num_output_channels: usize,
@@ -44,7 +44,7 @@ pub fn build_output_stream(
     mut input_consumer: Consumer<f32>,
     output_device: Device,
     output_config: StreamConfig,
-) -> Result<Stream, AudioThreadError> {
+) -> Result<Device::Stream, AudioThreadError> {
     // Output callback section
     log::info!(
         "num_input_channels={} num_output_channels={} sample_rate={}",

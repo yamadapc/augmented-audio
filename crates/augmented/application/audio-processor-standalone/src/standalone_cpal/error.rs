@@ -21,9 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use crate::standalone_cpal::options::ConfigureDeviceError;
+
 #[derive(thiserror::Error, Debug)]
 #[allow(clippy::enum_variant_names)]
 pub enum AudioThreadError {
+    #[error("Failed to configure device: {0}")]
+    ConfigureDeviceError(#[from] ConfigureDeviceError),
     #[error("Failed to configure input stream")]
     BuildInputStreamError(cpal::BuildStreamError),
     #[error("Failed to configure output stream")]

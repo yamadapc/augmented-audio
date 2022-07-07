@@ -23,16 +23,16 @@
 
 //! Input handling should push samples onto a ring-buffer.
 
-use cpal::{traits::DeviceTrait, Device, Stream, StreamConfig};
+use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Producer;
 
 use crate::standalone_cpal::error::AudioThreadError;
 
-pub fn build_input_stream(
+pub fn build_input_stream<Device: DeviceTrait>(
     input_device: Device,
     input_config: StreamConfig,
     mut producer: Producer<f32>,
-) -> Result<Stream, AudioThreadError> {
+) -> Result<Device::Stream, AudioThreadError> {
     let input_stream = input_device
         .build_input_stream(
             &input_config,

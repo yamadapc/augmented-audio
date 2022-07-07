@@ -160,7 +160,7 @@ pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send +
 }
 
 /// Internal main function used by `audio_processor_main`.
-fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
+fn standalone_main<SP: StandaloneProcessor>(mut app: SP, handle: Option<&Handle>) {
     let options = options::parse_options(ParseOptionsParams {
         supports_midi: app.supports_midi(),
     });
@@ -168,7 +168,7 @@ fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
     match options.rendering() {
         RenderingOptions::Online { .. } => {
             log::info!("Starting stand-alone online rendering with default IO config");
-            let _handles = standalone_start_with(
+            let _handles = standalone_start_with::<SP, cpal::Host>(
                 app,
                 StandaloneStartOptions {
                     handle: handle.cloned(),

@@ -1,3 +1,25 @@
+// Augmented Audio: Audio libraries and applications
+// Copyright (c) 2022 Pedro Tacla Yamada
+//
+// The MIT License (MIT)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::{
     BuildStreamError, Data, DefaultStreamConfigError, DeviceNameError, DevicesError,
@@ -11,12 +33,16 @@ use crate::standalone_cpal::mock_cpal::vec_iterator::VecIterator;
 const DEFAULT_SAMPLE_RATE: u32 = 44100;
 
 struct VirtualHost {
-    devices: Vec<VirtualHostDevice>,
+    input_device: VirtualHostDevice,
+    output_device: VirtualHostDevice,
 }
 
 impl Default for VirtualHost {
     fn default() -> Self {
-        Self { devices: vec![] }
+        Self {
+            input_device: VirtualHostDevice::default(),
+            output_device: VirtualHostDevice::default(),
+        }
     }
 }
 
@@ -29,15 +55,18 @@ impl HostTrait for VirtualHost {
     }
 
     fn devices(&self) -> Result<Self::Devices, DevicesError> {
-        Ok(VecIterator::from(self.devices.clone()))
+        Ok(VecIterator::from(vec![
+            self.input_device.clone(),
+            self.output_device.clone(),
+        ]))
     }
 
     fn default_input_device(&self) -> Option<Self::Device> {
-        self.devices.get(0).cloned()
+        Some(self.input_device.clone())
     }
 
     fn default_output_device(&self) -> Option<Self::Device> {
-        self.devices.get(1).cloned()
+        Some(self.output_device.clone())
     }
 }
 
@@ -124,7 +153,7 @@ impl DeviceTrait for VirtualHostDevice {
         D: FnMut(&Data, &InputCallbackInfo) + Send + 'static,
         E: FnMut(StreamError) + Send + 'static,
     {
-        todo!()
+        Ok(VirtualHostStream::default())
     }
 
     fn build_output_stream_raw<D, E>(
@@ -138,10 +167,11 @@ impl DeviceTrait for VirtualHostDevice {
         D: FnMut(&mut Data, &OutputCallbackInfo) + Send + 'static,
         E: FnMut(StreamError) + Send + 'static,
     {
-        todo!()
+        Ok(VirtualHostStream::default())
     }
 }
 
+#[derive(Default)]
 struct VirtualHostStream {}
 
 impl StreamTrait for VirtualHostStream {
@@ -174,13 +204,19 @@ mod test {
 
     #[test]
     fn test_run_virtual_host_with_standalone_run() {
+        let host = VirtualHost::default();
         let processor = BufferProcessor(NoopAudioProcessor::default());
         let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
 
-        let _handles = standalone_start_with(
+        let _handles = standalone_start_with::<
+            StandaloneAudioOnlyProcessor<BufferProcessor<NoopAudioProcessor<f32>>>,
+            VirtualHost,
+        >(
             processor,
             StandaloneStartOptions {
-                ..StandaloneStartOptions::default()
+                host,
+                host_name: "VirtualHost".to_string(),
+                handle: Some(audio_garbage_collector::handle().clone()),
             },
         );
     }

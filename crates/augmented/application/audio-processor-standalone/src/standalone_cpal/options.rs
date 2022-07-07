@@ -27,7 +27,7 @@
 
 use cpal::{
     traits::{DeviceTrait, HostTrait},
-    BufferSize, DefaultStreamConfigError, Device, DevicesError, Host, SampleRate, StreamConfig,
+    BufferSize, DefaultStreamConfigError, DevicesError, SampleRate, StreamConfig,
     SupportedStreamConfig,
 };
 
@@ -66,7 +66,7 @@ fn device_name(options: &StandaloneOptions, mode: AudioIOMode) -> Option<&String
     }
 }
 
-fn default_device(host: &Host, mode: AudioIOMode) -> Option<Device> {
+fn default_device<Host: HostTrait>(host: &Host, mode: AudioIOMode) -> Option<Host::Device> {
     match mode {
         AudioIOMode::Input => host.default_input_device(),
         AudioIOMode::Output => host.default_output_device(),
@@ -74,7 +74,7 @@ fn default_device(host: &Host, mode: AudioIOMode) -> Option<Device> {
 }
 
 fn default_config(
-    device: &Device,
+    device: &impl DeviceTrait,
     mode: AudioIOMode,
 ) -> Result<SupportedStreamConfig, DefaultStreamConfigError> {
     match mode {
@@ -83,13 +83,19 @@ fn default_config(
     }
 }
 
-fn configure_device(
+#[derive(Debug, thiserror::Error)]
+pub enum ConfigureDeviceError {
+    #[error("Missing device: {0:?}")]
+    MissingDevice(Option<String>),
+}
+
+fn configure_device<Host: HostTrait>(
     host: &Host,
     options: &StandaloneOptions,
     mode: AudioIOMode,
     buffer_size: usize,
     sample_rate: usize,
-) -> (Device, StreamConfig) {
+) -> Result<(Host::Device, StreamConfig), ConfigureDeviceError> {
     let device_name = device_name(&options, mode);
     let device = device_name
         .map(|device_name| {
@@ -97,7 +103,12 @@ fn configure_device(
             devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
         })
         .flatten()
-        .unwrap_or_else(|| default_device(host, mode).unwrap());
+        .map(|d| Ok(d))
+        .unwrap_or_else(|| {
+            default_device(host, mode)
+                .map(|d| Ok(d))
+                .unwrap_or_else(|| Err(ConfigureDeviceError::MissingDevice(device_name.cloned())))
+        })?;
     let supported_configs = supported_configs(&device, mode).unwrap();
     let mut supports_stereo = false;
     for config in supported_configs {
@@ -118,46 +129,46 @@ fn configure_device(
         config.buffer_size = BufferSize::Default;
     }
 
-    (device, config)
+    Ok((device, config))
 }
 
-pub fn configure_input_device(
+pub fn configure_input_device<Host: HostTrait>(
     host: &Host,
     options: &StandaloneOptions,
     buffer_size: usize,
     sample_rate: usize,
-) -> (Device, StreamConfig) {
+) -> Result<(Host::Device, StreamConfig), ConfigureDeviceError> {
     let (input_device, input_config) =
-        configure_device(host, options, AudioIOMode::Input, buffer_size, sample_rate);
+        configure_device(host, options, AudioIOMode::Input, buffer_size, sample_rate)?;
     log::info!(
         "Using input name={} sample_rate={} buffer_size={:?}",
         input_device.name().unwrap(),
         sample_rate,
         input_config.buffer_size
     );
-    (input_device, input_config)
+    Ok((input_device, input_config))
 }
 
-pub fn configure_output_device(
+pub fn configure_output_device<Host: HostTrait>(
     host: Host,
     options: &StandaloneOptions,
     buffer_size: usize,
     sample_rate: usize,
-) -> (Device, StreamConfig) {
+) -> Result<(Host::Device, StreamConfig), ConfigureDeviceError> {
     let (output_device, output_config) = configure_device(
         &host,
         options,
         AudioIOMode::Output,
         buffer_size,
         sample_rate,
-    );
+    )?;
     log::info!(
         "Using output name={} sample_rate={} buffer_size={:?}",
         output_device.name().unwrap(),
         sample_rate,
         output_config.buffer_size
     );
-    (output_device, output_config)
+    Ok((output_device, output_config))
 }
 
 #[cfg(test)]

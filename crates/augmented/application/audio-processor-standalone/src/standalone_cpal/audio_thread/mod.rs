@@ -23,8 +23,8 @@
 
 use std::sync::mpsc::{Receiver, Sender};
 
-use cpal::traits::StreamTrait;
-use cpal::{Device, Stream, StreamConfig};
+use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
+use cpal::StreamConfig;
 
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
@@ -35,16 +35,15 @@ use super::{
     IOConfiguration, ResolvedStandaloneConfiguration,
 };
 
-pub fn audio_thread_main<SP: StandaloneProcessor>(
+pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
+    host: Host,
+    host_name: String,
     mut app: SP,
     midi_context: Option<MidiContext>,
     configuration_tx: Sender<ResolvedStandaloneConfiguration>,
     stop_signal_rx: Receiver<()>,
-) {
-    // Audio set-up
-    let host = cpal::default_host();
-    let host_name = host.id().name().to_string();
-    log::info!("Using host: {}", host.id().name());
+) -> Result<(), AudioThreadError> {
+    log::info!("Using host: {}", host_name);
     let buffer_size = 512;
     let sample_rate = {
         #[cfg(not(target_os = "ios"))]
@@ -70,13 +69,21 @@ pub fn audio_thread_main<SP: StandaloneProcessor>(
         None
     };
     let (output_device, output_config) =
-        options::configure_output_device(host, &options, buffer_size, sample_rate);
+        options::configure_output_device(host, &options, buffer_size, sample_rate)?;
 
     let num_output_channels = output_config.channels.into();
     let num_input_channels = input_tuple
         .as_ref()
-        .map(|(_, input_config)| input_config.channels.into())
+        .map(|t| t.as_ref().ok().map(|(_, input_config)| input_config))
+        .flatten()
+        .map(|input_config| input_config.channels.into())
         .unwrap_or(num_output_channels);
+
+    let input_tuple = if let Some(input_tuple) = input_tuple {
+        input_tuple.map(|i| Some(i))
+    } else {
+        Ok(None)
+    }?;
 
     let settings = AudioProcessorSettings::new(
         output_config.sample_rate.0 as f32,
@@ -96,17 +103,18 @@ pub fn audio_thread_main<SP: StandaloneProcessor>(
         })
         .unwrap();
 
-    let run_params = AudioThreadRunParams {
+    let cpal_streams: AudioThreadCPalStreams<Host::Device> = AudioThreadCPalStreams {
+        output_config,
+        input_tuple,
+        output_device,
+    };
+    let run_params: AudioThreadRunParams<Host::Device> = AudioThreadRunParams {
         io_hints: AudioThreadIOHints {
             buffer_size,
             num_output_channels,
             num_input_channels,
         },
-        cpal_streams: AudioThreadCPalStreams {
-            output_config,
-            input_tuple,
-            output_device,
-        },
+        cpal_streams: cpal_streams,
         midi_context,
     };
 
@@ -115,6 +123,8 @@ pub fn audio_thread_main<SP: StandaloneProcessor>(
     let _ = stop_signal_rx.recv();
 
     drop(streams);
+
+    Ok(())
 }
 
 /// At this point we have "negotiated" the nº of channels and buffer size.
@@ -126,24 +136,24 @@ struct AudioThreadIOHints {
 }
 
 /// Input and output audio streams.
-struct AudioThreadCPalStreams {
+struct AudioThreadCPalStreams<D: DeviceTrait> {
     output_config: StreamConfig,
-    input_tuple: Option<(Device, StreamConfig)>,
-    output_device: Device,
+    input_tuple: Option<(D, StreamConfig)>,
+    output_device: D,
 }
 
-struct AudioThreadRunParams {
+struct AudioThreadRunParams<D: DeviceTrait> {
     midi_context: Option<MidiContext>,
     io_hints: AudioThreadIOHints,
-    cpal_streams: AudioThreadCPalStreams,
+    cpal_streams: AudioThreadCPalStreams<D>,
 }
 
 /// Start this processor with given run parameters.
 /// The processor should be prepared at this point.
-fn audio_thread_run_processor(
-    params: AudioThreadRunParams,
+fn audio_thread_run_processor<D: DeviceTrait>(
+    params: AudioThreadRunParams<D>,
     app: impl StandaloneProcessor,
-) -> Option<(Option<Stream>, Stream)> {
+) -> Option<(Option<D::Stream>, D::Stream)> {
     let AudioThreadRunParams {
         midi_context,
         io_hints,
@@ -160,7 +170,7 @@ fn audio_thread_run_processor(
         output_device,
     } = cpal_streams;
 
-    let build_streams = move || -> Result<(Option<Stream>, Stream), AudioThreadError> {
+    let build_streams = move || -> Result<(Option<D::Stream>, D::Stream), AudioThreadError> {
         let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
         let (producer, consumer) = buffer.split();
         let input_stream = input_tuple
@@ -185,7 +195,7 @@ fn audio_thread_run_processor(
     match build_streams() {
         Ok((input_stream, output_stream)) => {
             log::info!("Audio streams starting on audio-thread");
-            let play = || -> Result<(Option<Stream>, Stream), AudioThreadError> {
+            let play = || -> Result<(Option<D::Stream>, D::Stream), AudioThreadError> {
                 if let Some(input_stream) = &input_stream {
                     input_stream
                         .play()
