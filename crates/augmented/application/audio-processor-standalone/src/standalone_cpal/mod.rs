@@ -40,11 +40,9 @@ mod audio_thread;
 mod error;
 mod input_handling;
 mod midi;
+pub mod mock_cpal;
 mod options;
 mod output_handling;
-
-#[cfg(test)]
-mod mock_cpal;
 
 /// Start an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
 /// messages received on all inputs to it.

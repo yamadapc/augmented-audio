@@ -42,7 +42,7 @@ use crate::standalone_cpal::mock_cpal::vec_iterator::VecIterator;
 
 const DEFAULT_SAMPLE_RATE: u32 = 44100;
 
-struct VirtualHost {
+pub struct VirtualHost {
     input_device: VirtualHostDevice,
     output_device: VirtualHostDevice,
 }
@@ -81,7 +81,7 @@ impl HostTrait for VirtualHost {
 }
 
 #[derive(Clone)]
-struct VirtualHostDevice {
+pub struct VirtualHostDevice {
     name: String,
     supported_input_configs: Vec<SupportedStreamConfigRange>,
     supported_output_configs: Vec<SupportedStreamConfigRange>,
@@ -182,7 +182,7 @@ impl DeviceTrait for VirtualHostDevice {
 }
 
 #[derive(Default)]
-struct VirtualHostStream {}
+pub struct VirtualHostStream {}
 
 impl StreamTrait for VirtualHostStream {
     fn play(&self) -> Result<(), PlayStreamError> {

@@ -23,92 +23,98 @@
 
 //! This module starts providing mocks for cpal streams.
 
-use mockall::mock;
-
-use self::vec_iterator::VecIterator;
+#[cfg(test)]
+pub use mockall_mocks::*;
 
 pub mod vec_iterator;
 pub mod virtual_host;
 
-mock! {
-    #[derive(Debug)]
-    pub Host {}
+#[cfg(test)]
+mod mockall_mocks {
+    use mockall::mock;
 
-    impl cpal::traits::HostTrait for Host {
-        type Devices = VecIterator<MockDevice>;
-        type Device = MockDevice;
+    use super::vec_iterator::VecIterator;
 
-        fn is_available() -> bool;
+    mock! {
+        #[derive(Debug)]
+        pub Host {}
 
-        fn devices(&self) -> Result<<MockHost as cpal::traits::HostTrait>::Devices, cpal::DevicesError>;
+        impl cpal::traits::HostTrait for Host {
+            type Devices = VecIterator<MockDevice>;
+            type Device = MockDevice;
 
-        fn default_input_device(&self) -> Option<<MockHost as cpal::traits::HostTrait>::Device>;
+            fn is_available() -> bool;
 
-        fn default_output_device(&self) -> Option<<MockHost as cpal::traits::HostTrait>::Device>;
+            fn devices(&self) -> Result<<MockHost as cpal::traits::HostTrait>::Devices, cpal::DevicesError>;
 
-        fn input_devices(&self) -> Result<cpal::InputDevices<<MockHost as cpal::traits::HostTrait>::Devices>, cpal::DevicesError>;
+            fn default_input_device(&self) -> Option<<MockHost as cpal::traits::HostTrait>::Device>;
 
-        fn output_devices(&self) -> Result<cpal::OutputDevices<<MockHost as cpal::traits::HostTrait>::Devices>, cpal::DevicesError>;
-    }
-}
+            fn default_output_device(&self) -> Option<<MockHost as cpal::traits::HostTrait>::Device>;
 
-mock! {
-    #[derive(Debug)]
-    pub Device {}
+            fn input_devices(&self) -> Result<cpal::InputDevices<<MockHost as cpal::traits::HostTrait>::Devices>, cpal::DevicesError>;
 
-    impl Clone for Device {
-        fn clone(&self) -> Self;
+            fn output_devices(&self) -> Result<cpal::OutputDevices<<MockHost as cpal::traits::HostTrait>::Devices>, cpal::DevicesError>;
+        }
     }
 
-    impl cpal::traits::DeviceTrait for Device {
-        type SupportedInputConfigs = VecIterator<cpal::SupportedStreamConfigRange>;
-        type SupportedOutputConfigs = VecIterator<cpal::SupportedStreamConfigRange>;
-        type Stream = MockStream;
+    mock! {
+        #[derive(Debug)]
+        pub Device {}
 
-        fn name(&self) -> Result<String, cpal::DeviceNameError>;
+        impl Clone for Device {
+            fn clone(&self) -> Self;
+        }
 
-        fn supported_input_configs(
-            &self,
-        ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::SupportedInputConfigs, cpal::SupportedStreamConfigsError>;
+        impl cpal::traits::DeviceTrait for Device {
+            type SupportedInputConfigs = VecIterator<cpal::SupportedStreamConfigRange>;
+            type SupportedOutputConfigs = VecIterator<cpal::SupportedStreamConfigRange>;
+            type Stream = MockStream;
 
-        fn supported_output_configs(
-            &self,
-        ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::SupportedOutputConfigs, cpal::SupportedStreamConfigsError>;
+            fn name(&self) -> Result<String, cpal::DeviceNameError>;
 
-        fn default_input_config(&self) -> Result<cpal::SupportedStreamConfig, cpal::DefaultStreamConfigError>;
+            fn supported_input_configs(
+                &self,
+            ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::SupportedInputConfigs, cpal::SupportedStreamConfigsError>;
 
-        fn default_output_config(&self) -> Result<cpal::SupportedStreamConfig, cpal::DefaultStreamConfigError>;
+            fn supported_output_configs(
+                &self,
+            ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::SupportedOutputConfigs, cpal::SupportedStreamConfigsError>;
 
-        fn build_input_stream_raw<D, E>(
-            &self,
-            config: &cpal::StreamConfig,
-            sample_format: cpal::SampleFormat,
-            data_callback: D,
-            error_callback: E,
-        ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::Stream, cpal::BuildStreamError>
-        where
-            D: FnMut(&cpal::Data, &cpal::InputCallbackInfo) + Send + 'static,
-            E: FnMut(cpal::StreamError) + Send + 'static;
+            fn default_input_config(&self) -> Result<cpal::SupportedStreamConfig, cpal::DefaultStreamConfigError>;
 
-        fn build_output_stream_raw<D, E>(
-            &self,
-            config: &cpal::StreamConfig,
-            sample_format: cpal::SampleFormat,
-            data_callback: D,
-            error_callback: E,
-        ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::Stream, cpal::BuildStreamError>
-        where
-            D: FnMut(&mut cpal::Data, &cpal::OutputCallbackInfo) + Send + 'static,
-            E: FnMut(cpal::StreamError) + Send + 'static;
+            fn default_output_config(&self) -> Result<cpal::SupportedStreamConfig, cpal::DefaultStreamConfigError>;
+
+            fn build_input_stream_raw<D, E>(
+                &self,
+                config: &cpal::StreamConfig,
+                sample_format: cpal::SampleFormat,
+                data_callback: D,
+                error_callback: E,
+            ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::Stream, cpal::BuildStreamError>
+            where
+                D: FnMut(&cpal::Data, &cpal::InputCallbackInfo) + Send + 'static,
+                E: FnMut(cpal::StreamError) + Send + 'static;
+
+            fn build_output_stream_raw<D, E>(
+                &self,
+                config: &cpal::StreamConfig,
+                sample_format: cpal::SampleFormat,
+                data_callback: D,
+                error_callback: E,
+            ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::Stream, cpal::BuildStreamError>
+            where
+                D: FnMut(&mut cpal::Data, &cpal::OutputCallbackInfo) + Send + 'static,
+                E: FnMut(cpal::StreamError) + Send + 'static;
+        }
     }
-}
 
-mock! {
-    #[derive(Debug, Clone)]
-    pub Stream {}
+    mock! {
+        #[derive(Debug, Clone)]
+        pub Stream {}
 
-    impl cpal::traits::StreamTrait for Stream {
-        fn play(&self) -> Result<(), cpal::PlayStreamError>;
-        fn pause(&self) -> Result<(), cpal::PauseStreamError>;
+        impl cpal::traits::StreamTrait for Stream {
+            fn play(&self) -> Result<(), cpal::PlayStreamError>;
+            fn pause(&self) -> Result<(), cpal::PauseStreamError>;
+        }
     }
 }

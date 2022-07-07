@@ -29,9 +29,7 @@ use lazy_static::lazy_static;
 use audio_garbage_collector::Shared;
 use audio_processor_metronome::{MetronomeProcessor, MetronomeProcessorHandle};
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
-use audio_processor_standalone::{
-    standalone_start, StandaloneAudioOnlyProcessor, StandaloneHandles,
-};
+use audio_processor_standalone::{StandaloneAudioOnlyProcessor, StandaloneHandles};
 
 type StandaloneMetronomeHandle = StandaloneHandles;
 
@@ -57,7 +55,28 @@ impl State {
                 ..Default::default()
             },
         );
-        let handles = standalone_start(app);
+
+        let handles = {
+            #[cfg(not(test))]
+            {
+                audio_processor_standalone::standalone_start(app)
+            }
+
+            #[cfg(test)]
+            {
+                audio_processor_standalone::standalone_start_with(
+                    app,
+                    audio_processor_standalone::standalone_cpal::StandaloneStartOptions {
+                        handle: Some(audio_garbage_collector::handle().clone()),
+                        host:
+                        audio_processor_standalone::standalone_cpal::mock_cpal::virtual_host::VirtualHost::default(
+                        ),
+                        host_name: "virtual host".to_string(),
+                    },
+                )
+            }
+        };
+
         Self {
             processor_handle,
             _handles: handles,
