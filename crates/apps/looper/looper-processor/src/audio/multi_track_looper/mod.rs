@@ -166,7 +166,7 @@ impl MultiTrackLooper {
     }
 
     fn make_parameters_scratch(
-        voices: &Vec<LooperVoice>,
+        voices: &[LooperVoice],
     ) -> (ParametersScratch, ParametersScratchIndexes) {
         let parameters_scratch = voices
             .iter()
@@ -240,7 +240,7 @@ impl MultiTrackLooper {
                 .collect(),
             Some(previous_handles) => previous_handles
                 .iter()
-                .map(|handle| looper_voice::from_handle(handle))
+                .map(looper_voice::from_handle)
                 .collect(),
         };
 

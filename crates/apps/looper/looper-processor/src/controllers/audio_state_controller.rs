@@ -89,21 +89,17 @@ impl AudioStateController {
     }
 
     fn get_options(&mut self) -> Option<StandaloneOptions> {
-        let options = self
-            .state
-            .as_ref()
-            .map(|state| match state {
-                AudioState::Standalone { options, .. } => Some(options.clone()),
-                _ => None,
-            })
-            .flatten();
+        let options = self.state.as_ref().and_then(|state| match state {
+            AudioState::Standalone { options, .. } => Some(options.clone()),
+            _ => None,
+        });
         options
     }
 }
 
 /// Set-up *stand-alone* audio state.
 fn setup_audio_state(options: StandaloneOptions, processor: MultiTrackLooper) -> AudioState {
-    let standalone_processor = StandaloneProcessorImpl::new_with(processor, options.clone());
+    let standalone_processor = StandaloneProcessorImpl::new_with(processor, options);
     let handles = audio_processor_standalone::standalone_start(standalone_processor);
     let options = StandaloneOptions {
         accepts_input: true,

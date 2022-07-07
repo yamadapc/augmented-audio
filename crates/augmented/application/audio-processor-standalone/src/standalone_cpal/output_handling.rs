@@ -144,7 +144,7 @@ mod test {
             ) {
                 for i in data.slice_mut() {
                     self.inputs.push(*i);
-                    *i = *i * 2.0;
+                    *i *= 2.0;
                 }
             }
         }

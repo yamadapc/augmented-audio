@@ -112,7 +112,7 @@ impl IOConfiguration {
     pub fn new(device: &impl DeviceTrait, config: &StreamConfig) -> IOConfiguration {
         IOConfiguration {
             name: device.name().unwrap(),
-            sample_rate: config.sample_rate.clone(),
+            sample_rate: config.sample_rate,
             buffer_size: config.buffer_size.clone(),
             num_channels: config.channels,
         }

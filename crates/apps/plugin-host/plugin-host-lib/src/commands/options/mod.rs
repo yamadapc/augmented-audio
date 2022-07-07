@@ -222,8 +222,8 @@ mod test {
         assert_eq!(options.watch(), true);
         assert_eq!(options.open_editor(), true);
         assert_eq!(options.audio_host_id().as_ref().unwrap(), "CoreAudio");
-        assert_eq!(options.buffer_size().clone().unwrap(), 64);
-        assert_eq!(options.sample_rate().clone().unwrap(), 1000);
+        assert_eq!(options.buffer_size().unwrap(), 64);
+        assert_eq!(options.sample_rate().unwrap(), 1000);
         assert_eq!(options.use_default_input_device(), false);
         assert_eq!(options.use_mono_input(), Some(1));
     }

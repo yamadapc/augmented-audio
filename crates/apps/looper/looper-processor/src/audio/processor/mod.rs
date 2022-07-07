@@ -61,7 +61,7 @@ impl LooperProcessor {
         shuffle_handler: Shared<LoopShufflerProcessorHandle>,
     ) -> Self {
         Self {
-            handle: handle.clone(),
+            handle,
             sequencer: LoopShufflerProcessor::from_handle(shuffle_handler),
         }
     }

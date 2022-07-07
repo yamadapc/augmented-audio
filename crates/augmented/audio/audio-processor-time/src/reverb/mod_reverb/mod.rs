@@ -193,7 +193,7 @@ impl AudioProcessor for ModReverbProcessor {
                 frame8.iter_mut().zip(&mut self.delay).zip(delayed)
             {
                 delay.write(*sample + delay_output * delay_feedback);
-                *sample = *sample + delay_output * delay_volume;
+                *sample += delay_output * delay_volume;
             }
 
             // Mix the multi-channel output back into stereo

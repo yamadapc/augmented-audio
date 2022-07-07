@@ -45,7 +45,7 @@ pub struct CAudioDeviceList {
 #[no_mangle]
 pub unsafe extern "C" fn audio_device_list__count(device_list: *mut CAudioDeviceList) -> usize {
     let device_list = &(*device_list);
-    if device_list.inner == null_mut() {
+    if device_list.inner.is_null() {
         0
     } else {
         let inner = &(*device_list.inner);
@@ -58,12 +58,12 @@ pub unsafe extern "C" fn audio_device_list__get(
     device_list: *mut CAudioDeviceList,
     index: usize,
 ) -> *mut AudioDevice {
-    if device_list == null_mut() {
+    if device_list.is_null() {
         return null_mut();
     }
 
     let device_list = &(*device_list);
-    if device_list.inner == null_mut() {
+    if device_list.inner.is_null() {
         null_mut()
     } else {
         let inner = &(*device_list.inner);
@@ -140,7 +140,7 @@ pub unsafe extern "C" fn audio_io_settings_controller__set_output_device(
 fn into_c_model(devices: anyhow::Result<Vec<AudioDevice>>) -> CAudioDeviceList {
     match devices {
         Ok(device) => {
-            let inner = into_ptr(device.into_iter().map(|device| into_ptr(device)).collect());
+            let inner = into_ptr(device.into_iter().map(into_ptr).collect());
             CAudioDeviceList { inner }
         }
         Err(err) => {

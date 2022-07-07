@@ -60,7 +60,7 @@ mod hadamard {
             let mut inner = build_hadamard_matrix();
             let scaling = (1.0 / D as f32).sqrt();
             for sample in inner.iter_mut() {
-                *sample = *sample * scaling;
+                *sample *= scaling;
             }
 
             Self { inner }
@@ -99,7 +99,7 @@ mod hadamard {
                     storage[(i + x) * D + (j + x)] = -storage[i * D + j];
                 }
             }
-            x = 2 * x;
+            x *= 2;
         }
 
         let matrix: Matrix<f32, Const<D>, Const<D>, ArrayStorage<f32, D, D>> =

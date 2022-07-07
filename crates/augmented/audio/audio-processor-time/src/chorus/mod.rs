@@ -46,7 +46,7 @@ impl AudioProcessor for ChorusProcessor {
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         self.mono_delay_processor
-            .resize_with(settings.output_channels(), || MonoDelayProcessor::default());
+            .resize_with(settings.output_channels(), MonoDelayProcessor::default);
         for processor in &mut self.mono_delay_processor {
             processor.s_prepare(settings);
             processor.handle().set_feedback(0.0);

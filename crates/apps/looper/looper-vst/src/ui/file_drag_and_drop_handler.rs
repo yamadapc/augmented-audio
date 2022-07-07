@@ -25,7 +25,7 @@ use iced::Subscription;
 use super::Message;
 
 pub fn drag_and_drop_subscription() -> Subscription<Message> {
-    iced_native::subscription::events().map(|event| iced_event_to_drag_message(event))
+    iced_native::subscription::events().map(iced_event_to_drag_message)
 }
 
 fn iced_event_to_drag_message(event: iced_native::Event) -> Message {

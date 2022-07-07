@@ -43,8 +43,7 @@ fn main() {
 
     if let Some(run_options) = matches
         .subcommand_matches("run")
-        .map(options::parse_run_options)
-        .flatten()
+        .and_then(options::parse_run_options)
     {
         run_test(run_options);
     } else {

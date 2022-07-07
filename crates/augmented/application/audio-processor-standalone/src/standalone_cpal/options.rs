@@ -96,17 +96,16 @@ fn configure_device<Host: HostTrait>(
     buffer_size: usize,
     sample_rate: usize,
 ) -> Result<(Host::Device, StreamConfig), ConfigureDeviceError> {
-    let device_name = device_name(&options, mode);
+    let device_name = device_name(options, mode);
     let device = device_name
-        .map(|device_name| {
+        .and_then(|device_name| {
             let mut devices = list_devices(host, mode).unwrap();
             devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
         })
-        .flatten()
-        .map(|d| Ok(d))
+        .map(Ok)
         .unwrap_or_else(|| {
             default_device(host, mode)
-                .map(|d| Ok(d))
+                .map(Ok)
                 .unwrap_or_else(|| Err(ConfigureDeviceError::MissingDevice(device_name.cloned())))
         })?;
     let supported_configs = supported_configs(&device, mode).unwrap();

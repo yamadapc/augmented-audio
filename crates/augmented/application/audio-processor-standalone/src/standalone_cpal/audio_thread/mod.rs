@@ -61,7 +61,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
     let input_tuple = if accepts_input {
         Some(options::configure_input_device(
             &host,
-            &options,
+            options,
             buffer_size,
             sample_rate,
         ))
@@ -69,18 +69,17 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
         None
     };
     let (output_device, output_config) =
-        options::configure_output_device(host, &options, buffer_size, sample_rate)?;
+        options::configure_output_device(host, options, buffer_size, sample_rate)?;
 
     let num_output_channels = output_config.channels.into();
     let num_input_channels = input_tuple
         .as_ref()
-        .map(|t| t.as_ref().ok().map(|(_, input_config)| input_config))
-        .flatten()
+        .and_then(|t| t.as_ref().ok().map(|(_, input_config)| input_config))
         .map(|input_config| input_config.channels.into())
         .unwrap_or(num_output_channels);
 
     let input_tuple = if let Some(input_tuple) = input_tuple {
-        input_tuple.map(|i| Some(i))
+        input_tuple.map(Some)
     } else {
         Ok(None)
     }?;
@@ -114,7 +113,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
             num_output_channels,
             num_input_channels,
         },
-        cpal_streams: cpal_streams,
+        cpal_streams,
         midi_context,
     };
 
@@ -178,7 +177,7 @@ fn audio_thread_run_processor<D: DeviceTrait>(
                 input_handling::build_input_stream(input_device, input_config, producer)
             })
             // "invert" Option<Result<...>> to Result<Option<...>, ...>
-            .map_or(Ok(None), |v| v.map(|v| Some(v)))?;
+            .map_or(Ok(None), |v| v.map(Some))?;
         let output_stream = output_handling::build_output_stream(
             app,
             midi_context,
