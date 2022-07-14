@@ -29,12 +29,12 @@ use cpal::{BufferSize, ChannelCount, SampleRate, StreamConfig};
 
 use audio_processor_traits::{AudioProcessor, MidiEventHandler};
 
-use crate::standalone_cpal::mock_cpal::virtual_host::VirtualHost;
 use crate::standalone_processor::{
     StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
 };
 
 use self::midi::{initialize_midi_host, MidiReference};
+pub use self::mock_cpal::virtual_host::{VirtualHost, VirtualHostDevice, VirtualHostStream};
 pub use self::options::AudioIOMode;
 
 mod audio_thread;
@@ -250,7 +250,7 @@ pub fn standalone_start_for_env(
             StandaloneStartOptions {
                 host: VirtualHost::default(),
                 host_name: "Test Host".to_string(),
-                handle: Some(audio_garbage_collector::default().clone()),
+                handle: Some(audio_garbage_collector::handle().clone()),
             },
         )
     }
@@ -284,24 +284,14 @@ macro_rules! generic_standalone_run {
 mod test {
     use audio_processor_traits::{BufferProcessor, NoopAudioProcessor};
 
-    use crate::{
-        standalone_start, standalone_start_with, StandaloneAudioOnlyProcessor,
-        StandaloneStartOptions,
-    };
+    use super::*;
 
     #[test]
     fn test_standalone_start_and_stop_processor() {
         let _ = wisual_logger::try_init_from_env();
         let processor = BufferProcessor(NoopAudioProcessor::default());
         let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
-        let handles = standalone_start_with(
-            processor,
-            StandaloneStartOptions {
-                handle: Some(audio_garbage_collector::handle().clone()),
-                host: VirtualHost::default(),
-                host_name: "virtual-host".to_string(),
-            },
-        );
+        let handles = standalone_start_for_env(processor);
         drop(handles);
     }
 }
