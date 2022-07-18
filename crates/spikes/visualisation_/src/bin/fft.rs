@@ -1,3 +1,4 @@
+use std::ops::Deref;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -201,8 +202,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
         render_pass.draw(vertex_range, instance_range);
     }
 
+    let rms = { model.handle.rms.calculate_rms(0) + model.handle.rms.calculate_rms(1) };
     let draw = app.draw();
     draw.texture(&wgpu_model.texture)
+        .x(rms * app.window_rect().w())
         .w(app.window_rect().w())
         .h(app.window_rect().h())
         .finish();
