@@ -76,7 +76,14 @@ impl Actor for ProjectManager {
     type Context = actix::Context<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
-        ctx.address().do_send(LoadLatestProjectMessage);
+        let addr = ctx.address();
+        ctx.wait(
+            async move {
+                let _ = addr.send(LoadLatestProjectMessage).await;
+            }
+            .into_actor(self),
+        );
+        log::info!("ProjectManager started");
     }
 }
 
