@@ -41,6 +41,8 @@ pub mod model;
 pub enum ProjectManagerError {
     #[error("IO error {0}")]
     IOError(#[from] std::io::Error),
+    #[error("Decode project error {0}")]
+    DecodeProject(#[from] rmp_serde::decode::Error),
 }
 
 pub struct ProjectManager {
@@ -160,7 +162,8 @@ async fn load_latest_project(data_path: impl AsRef<Path>) -> Result<Project, Pro
 
     log::info!("project.msgpack found");
     let contents = tokio::fs::read(project_manifest).await?;
-    let result: Project = rmp_serde::from_slice(&contents).unwrap();
+    let result: Project =
+        rmp_serde::from_slice(&contents).map_err(ProjectManagerError::DecodeProject)?;
     log::debug!("  PROJECT=\n{:#?}\n", result);
 
     Ok(result)
@@ -251,6 +254,9 @@ mod test {
         wisual_logger::init_from_env();
         let data_path =
             tempdir::TempDir::new("looper_processor__test_load_latest_project").unwrap();
+        std::fs::remove_dir_all(data_path.path()).unwrap();
+        std::fs::create_dir_all(data_path.path()).unwrap();
+
         log::info!("data_path={:?}", data_path.path());
 
         let latest_project = load_latest_project(data_path.path()).await.unwrap();
@@ -264,6 +270,9 @@ mod test {
             "looper_processor__project_manager__test_actor_load_latest_project",
         )
         .unwrap();
+        std::fs::remove_dir_all(data_path.path()).unwrap();
+        std::fs::create_dir_all(data_path.path()).unwrap();
+
         log::info!("data_path={:?}", data_path.path());
         let project_manager = ProjectManager::new(data_path.path().to_path_buf()).start();
         project_manager
