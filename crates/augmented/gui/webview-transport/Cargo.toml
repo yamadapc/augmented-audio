@@ -12,7 +12,7 @@ thiserror = "^1.0.25"
 env_logger = "0.9"
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
 futures-util = "^0.3.15"
-tokio-tungstenite = "^0.14.0"
+tokio-tungstenite = "^0.17.2"
 serde_json = "^1.0.64"
 crossbeam = "^0.8.0"
 log = "^0.4.11"
