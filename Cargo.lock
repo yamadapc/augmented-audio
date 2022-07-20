@@ -1747,9 +1747,9 @@ dependencies = [
 
 [[package]]
 name = "crates_io_api"
-version = "0.7.3"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0ab4553806e9495b7e78a66454c16c5021cd3816d7b8e7e8fe28aa5474346bb"
+checksum = "86f8072e3f4581325ee6c8e3c900099b303924a9c592ab4d23bb87ee5bdc6f7b"
 dependencies = [
  "chrono",
  "futures 0.3.21",
