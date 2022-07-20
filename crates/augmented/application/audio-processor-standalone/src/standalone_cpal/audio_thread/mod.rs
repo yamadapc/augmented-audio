@@ -90,8 +90,10 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
         num_output_channels,
         buffer_size,
     );
+    log::info!("Preparing processor {:?}", settings);
     app.processor().prepare(settings);
 
+    log::info!("Sending back configuration");
     configuration_tx
         .send(ResolvedStandaloneConfiguration {
             host: host_name,

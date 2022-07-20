@@ -1,4 +1,3 @@
-use std::ops::Deref;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //

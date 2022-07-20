@@ -93,5 +93,7 @@ mod test {
             event,
             ApplicationEvent::ApplicationEventLooperClipUpdated { looper_id: 10 }
         );
+
+        log::info!("Test is done, dropping values");
     }
 }

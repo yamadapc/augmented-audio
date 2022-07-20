@@ -22,13 +22,18 @@ jobs:
           submodules: recursive
           lfs: true
       - uses: Swatinem/rust-cache@v1
+      - name: Install cargo-nextest
+        run: |
+          if ! [ -x "$(command -v cargo-nextest)" ]; then
+            cargo install cargo-nextest
+          fi
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
             cargo install --force --version 0.15.2 uniffi_bindgen
           fi
       - name: Run tests
-        run: cargo test --verbose --workspace --features story --exclude augmented-ui --exclude midir --exclude assert-no-alloc
+        run: cargo nextest run --verbose --workspace --features story --exclude augmented-ui --exclude midir --exclude assert-no-alloc
 
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
