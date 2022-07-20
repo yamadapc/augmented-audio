@@ -24,7 +24,10 @@ use std::io::Error;
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
-use actix::{Actor, ActorFutureExt, AsyncContext, Handler, Message, ResponseActFuture, WrapFuture};
+use actix::{
+    Actor, ActorFutureExt, AsyncContext, AtomicResponse, Handler, Message, ResponseActFuture,
+    WrapFuture,
+};
 use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
@@ -76,14 +79,7 @@ impl Actor for ProjectManager {
     type Context = actix::Context<Self>;
 
     fn started(&mut self, ctx: &mut Self::Context) {
-        let addr = ctx.address();
-        ctx.wait(
-            async move {
-                let _ = addr.send(LoadLatestProjectMessage).await;
-            }
-            .into_actor(self),
-        );
-        log::info!("ProjectManager started");
+        ctx.address().do_send(LoadLatestProjectMessage);
     }
 }
 
@@ -122,7 +118,7 @@ impl Handler<SaveProjectMessage> for ProjectManager {
 pub struct LoadLatestProjectMessage;
 
 impl Handler<LoadLatestProjectMessage> for ProjectManager {
-    type Result = ResponseActFuture<Self, Result<Shared<Project>, ProjectManagerError>>;
+    type Result = AtomicResponse<Self, Result<Shared<Project>, ProjectManagerError>>;
 
     fn handle(&mut self, _msg: LoadLatestProjectMessage, _ctx: &mut Self::Context) -> Self::Result {
         log::info!("Loading latest project from disk");
@@ -136,7 +132,7 @@ impl Handler<LoadLatestProjectMessage> for ProjectManager {
                 Ok(project)
             });
 
-        Box::pin(result_fut)
+        AtomicResponse::new(Box::pin(result_fut))
     }
 }
 
