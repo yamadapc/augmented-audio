@@ -7,7 +7,7 @@ edition = "2018"
 crate-type = ["staticlib", "cdylib"]
 
 [dependencies]
-uniffi = "0.14"
+uniffi = "0.19"
 uniffi_macros = "0.14"
 anyhow = "=1.0.52" # https://github.com/mozilla/uniffi-rs/issues/1109
 
