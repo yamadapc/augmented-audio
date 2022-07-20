@@ -22,6 +22,8 @@ jobs:
           submodules: recursive
           lfs: true
       - uses: Swatinem/rust-cache@v1
+      - name: apt-get update
+        run: sudo apt-get update
       - name: Install APT dependencies
         uses: awalsh128/cache-apt-pkgs-action@v1
         with:
