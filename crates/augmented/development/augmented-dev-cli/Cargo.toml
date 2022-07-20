@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-clap = "3.1.6"
+clap = "3.2.11"
 log = "^0.4.14"
 wisual-logger = { version = "^0.1.3", path = "../../ops/wisual-logger" }
 cmd_lib = "^1.3.0"

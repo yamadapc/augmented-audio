@@ -390,7 +390,7 @@ dependencies = [
  "audio-processor-file",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
- "clap 2.34.0",
+ "clap 3.2.13",
  "image 0.23.14",
  "log",
  "nannou",
@@ -520,7 +520,7 @@ dependencies = [
  "audio-processor-traits",
  "augmented-midi",
  "basedrop",
- "clap 2.34.0",
+ "clap 3.2.13",
  "cpal",
  "itertools 0.10.3",
  "log",
@@ -775,7 +775,7 @@ name = "augmented-dev-cli"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "clap 3.2.8",
+ "clap 3.2.13",
  "cmd_lib",
  "crates_io_api",
  "daggy 0.8.0",
@@ -845,7 +845,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 name = "autosync-submodules"
 version = "0.1.0"
 dependencies = [
- "clap 3.2.8",
+ "clap 3.2.13",
  "cmd_lib",
  "log",
  "serde",
@@ -1194,7 +1194,7 @@ version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6358dedf60f4d9b8db43ad187391afe959746101346fe51bb978126bec61dfb"
 dependencies = [
- "clap 3.2.8",
+ "clap 3.2.13",
  "heck 0.4.0",
  "indexmap",
  "log",
@@ -1322,9 +1322,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.2.8"
+version = "3.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "190814073e85d238f31ff738fcb0bf6910cedeb73376c87cd69291028966fd83"
+checksum = "ac2bd7a1eb07da9ac757c923f69373deb7bc2ba5efc951b873bcb5e693992dca"
 dependencies = [
  "atty",
  "bitflags",
@@ -5827,7 +5827,7 @@ name = "plugin-host"
 version = "0.1.0"
 dependencies = [
  "actix",
- "clap 2.34.0",
+ "clap 3.2.13",
  "plugin-host-lib",
  "wisual-logger",
 ]
@@ -5895,7 +5895,7 @@ dependencies = [
  "augmented_oscillator",
  "basedrop",
  "circular-data-structures",
- "clap 2.34.0",
+ "clap 3.2.13",
  "concread",
  "cpal",
  "criterion",
@@ -6439,7 +6439,7 @@ dependencies = [
 name = "ruas-bundler"
 version = "0.1.0"
 dependencies = [
- "clap 2.34.0",
+ "clap 3.2.13",
  "cmd_lib",
  "log",
  "plist",

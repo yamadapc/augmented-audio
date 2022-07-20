@@ -89,8 +89,8 @@ impl RunOptions {
 }
 
 /// Build RunOptions parser
-pub fn build_run_command<'a, 'b>() -> App<'a, 'b> {
-    clap::App::new("run")
+pub fn build_run_command<'a>() -> App<'a> {
+    App::new("run")
         .about("Process audio")
         .arg(clap::Arg::from_usage(
             "-p, --plugin=<PLUGIN_PATH> 'An audio-plugin to load'",
