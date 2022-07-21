@@ -36,6 +36,26 @@ impl<T> Consumer<T> for dyn Fn(T) {
 }
 
 #[cfg(test)]
+mod test {
+    use std::sync::mpsc::channel;
+
+    use super::*;
+
+    #[test]
+    fn test_fn_consumer() {
+        let (tx, rx) = channel();
+
+        fn sample_consumer(tx: std::sync::mpsc::Sender<bool>) {
+            tx.send(true).unwrap();
+        }
+
+        let consumer: Box<dyn Fn(std::sync::mpsc::Sender<bool>)> = Box::new(sample_consumer);
+        consumer.accept(tx);
+        assert!(rx.recv().unwrap());
+    }
+}
+
+#[cfg(test)]
 mod closure_consumer {
     use std::marker::PhantomData;
 
