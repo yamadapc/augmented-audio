@@ -51,10 +51,13 @@ jobs:
             ${{ runner.os }}-sccache-
       - name: Start sccache server
         run: sccache --start-server
+
       - name: Install APT dependencies
         run: ./scripts/install-ubuntu-apt-dependencies.sh
+
       - name: Install Rust dependencies
         run: ./scripts/install-ubuntu-rust-dependencies.sh
+
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -102,7 +105,8 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources \
+              --exclude macos-bundle-resources
+
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -131,11 +135,7 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources \
-              -- -Z unstable-options --format json | tee cargo-output.json
-          cargo install --force --version 0.1.10 cargo2junit
-          mkdir -p junit
-          cat cargo-output.json | cargo2junit > junit/results.xml
+              --exclude macos-bundle-resources
 
       - name: Upload tarpaulin report
         uses: actions/upload-artifact@v2
