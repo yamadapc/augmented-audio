@@ -72,6 +72,7 @@ mod test {
 
     use super::*;
 
+    #[ignore]
     #[test]
     fn test_backoff_pre_10() {
         let mut backoff = LongBackoff::new();
@@ -93,6 +94,7 @@ mod test {
         );
     }
 
+    #[ignore]
     #[test]
     fn test_backoff_past_20() {
         let mut backoff = LongBackoff::new();

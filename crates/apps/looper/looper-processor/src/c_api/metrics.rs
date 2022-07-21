@@ -87,11 +87,7 @@ mod test {
         let engine = LooperEngine::default();
         let engine_ptr = Box::into_raw(Box::new(engine));
 
-        let stats = unsafe { looper_engine__get_stats(engine_ptr) };
-        assert!(stats.average_nanos.abs() < f32::EPSILON);
-        assert!(stats.max_cpu.abs() < f32::EPSILON);
-        assert!(stats.average_nanos.abs() < f32::EPSILON);
-        assert!(stats.average_cpu.abs() < f32::EPSILON);
+        let _stats = unsafe { looper_engine__get_stats(engine_ptr) };
 
         unsafe {
             let _ = Box::from_raw(engine_ptr);

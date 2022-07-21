@@ -235,3 +235,59 @@ pub fn run_sequencer(params: &LoopShufflerParams) -> LoopShufflerOutput {
         sequence_step_size: slice_len.min(max_step_len),
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_shuffler_processor_is_silent_when_empty() {
+        let handle = make_shared(LooperProcessorHandle::default());
+        let mut processor = LoopShufflerProcessor::new(handle);
+        let mut buffer = VecAudioBuffer::empty_with(1, 10, 0.0);
+        audio_processor_traits::simple_processor::process_buffer(&mut processor, &mut buffer);
+        assert_eq!(buffer.slice(), &[0.0; 10]);
+    }
+
+    #[test]
+    fn test_run_sequencer_with_an_empty_slices_returns_empty() {
+        let sequence = run_sequencer(&LoopShufflerParams {
+            // 8 steps
+            sequence_length: 8,
+            // 10s of audio
+            num_samples: 48000 * 10,
+            // 32 slices
+            num_slices: 0,
+        });
+        assert_eq!(sequence.sequence_step_size, 0);
+        assert_eq!(sequence.sequence.len(), 0);
+    }
+
+    #[test]
+    fn test_run_sequencer_with_an_empty_sequence_returns_empty() {
+        let sequence = run_sequencer(&LoopShufflerParams {
+            // 8 steps
+            sequence_length: 0,
+            // 10s of audio
+            num_samples: 48000 * 10,
+            // 32 slices
+            num_slices: 32,
+        });
+        assert_eq!(sequence.sequence_step_size, 0);
+        assert_eq!(sequence.sequence.len(), 0);
+    }
+
+    #[test]
+    fn test_run_sequencer_returns_n_steps() {
+        let sequence = run_sequencer(&LoopShufflerParams {
+            // 8 steps
+            sequence_length: 8,
+            // 10s of audio
+            num_samples: 48000 * 10,
+            // 32 slices
+            num_slices: 32,
+        });
+        assert_eq!(sequence.sequence_step_size, 15000);
+        assert_eq!(sequence.sequence.len(), 8);
+    }
+}
