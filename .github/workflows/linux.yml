@@ -201,4 +201,3 @@ jobs:
       with:
         name: ${{ runner.os }}-libtas_v2-dylib
         path: ./target/release/libtas_v2.dylib
-

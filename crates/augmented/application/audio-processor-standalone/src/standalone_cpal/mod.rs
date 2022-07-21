@@ -246,18 +246,18 @@ macro_rules! standalone_start_for_env {
         #[cfg(test)]
         {
             log::warn!("Starting testing CPAL virtual host");
-            standalone_start_with(
+            ::audio_processor_standalone::standalone_cpal::standalone_start_with(
                 $standalone_processor,
-                StandaloneStartOptions {
-                    host: VirtualHost::default(),
+                ::audio_processor_standalone::standalone_cpal::StandaloneStartOptions {
+                    host: ::audio_processor_standalone::standalone_cpal::VirtualHost::default(),
                     host_name: "Test Host".to_string(),
-                    handle: Some(audio_garbage_collector::handle().clone()),
+                    handle: Some(::audio_garbage_collector::handle().clone()),
                 },
             )
         }
         #[cfg(not(test))]
         {
-            standalone_start($standalone_processor)
+            ::audio_processor_standalone::standalone_cpal::standalone_start($standalone_processor)
         }
     }};
 }
