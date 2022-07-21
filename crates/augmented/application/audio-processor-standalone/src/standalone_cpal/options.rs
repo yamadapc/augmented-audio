@@ -27,8 +27,8 @@
 
 use cpal::{
     traits::{DeviceTrait, HostTrait},
-    BufferSize, DefaultStreamConfigError, DevicesError, SampleRate, StreamConfig,
-    SupportedStreamConfig,
+    BufferSize, DefaultStreamConfigError, DeviceNameError, DevicesError, SampleRate, StreamConfig,
+    SupportedStreamConfig, SupportedStreamConfigsError,
 };
 
 use crate::standalone_processor::StandaloneOptions;
@@ -87,6 +87,12 @@ fn default_config(
 pub enum ConfigureDeviceError {
     #[error("Missing device: {0:?}")]
     MissingDevice(Option<String>),
+    #[error("Supported streams listing error: {0:?}")]
+    SupportedStreamConfig(#[from] SupportedStreamConfigsError),
+    #[error("Default stream config error: {0:?}")]
+    DefaultStreamConfig(#[from] DefaultStreamConfigError),
+    #[error("Name error: {0:?}")]
+    NameError(#[from] DeviceNameError),
 }
 
 fn configure_device<Host: HostTrait>(
@@ -99,7 +105,7 @@ fn configure_device<Host: HostTrait>(
     let device_name = device_name(options, mode);
     let device = device_name
         .and_then(|device_name| {
-            let mut devices = list_devices(host, mode).unwrap();
+            let mut devices = list_devices(host, mode).map(Some).unwrap_or(None)?;
             devices.find(|device| matches!(device.name(), Ok(name) if &name == device_name))
         })
         .map(Ok)
@@ -108,7 +114,7 @@ fn configure_device<Host: HostTrait>(
                 .map(Ok)
                 .unwrap_or_else(|| Err(ConfigureDeviceError::MissingDevice(device_name.cloned())))
         })?;
-    let supported_configs = supported_configs(&device, mode).unwrap();
+    let supported_configs = supported_configs(&device, mode)?;
     let mut supports_stereo = false;
     for config in supported_configs {
         log::debug!("  Supported config: {:?}", config);
@@ -117,7 +123,7 @@ fn configure_device<Host: HostTrait>(
         }
     }
 
-    let config = default_config(&device, mode).unwrap();
+    let config = default_config(&device, mode)?;
     let mut config: StreamConfig = config.into();
     config.channels = if supports_stereo { 2 } else { 1 };
     config.sample_rate = SampleRate(sample_rate as u32);
@@ -141,7 +147,7 @@ pub fn configure_input_device<Host: HostTrait>(
         configure_device(host, options, AudioIOMode::Input, buffer_size, sample_rate)?;
     log::info!(
         "Using input name={} sample_rate={} buffer_size={:?}",
-        input_device.name().unwrap(),
+        input_device.name()?,
         sample_rate,
         input_config.buffer_size
     );
@@ -163,7 +169,7 @@ pub fn configure_output_device<Host: HostTrait>(
     )?;
     log::info!(
         "Using output name={} sample_rate={} buffer_size={:?}",
-        output_device.name().unwrap(),
+        output_device.name()?,
         sample_rate,
         output_config.buffer_size
     );
