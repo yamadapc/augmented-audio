@@ -13,6 +13,7 @@ actix = "0.13.0"
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 plugin-host-lib = { path = "../plugin-host-lib" }
 clap = "^2.33.3"
+mockall = "0.11.1"
 
 [package.metadata.augmented]
 private = true

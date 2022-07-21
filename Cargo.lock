@@ -5828,6 +5828,7 @@ version = "0.1.0"
 dependencies = [
  "actix",
  "clap 2.34.0",
+ "mockall 0.11.1",
  "plugin-host-lib",
  "wisual-logger",
 ]
