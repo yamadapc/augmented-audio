@@ -263,6 +263,7 @@ impl WebviewHolder {
         self.on_message_callback = None;
     }
 
+    #[allow(clippy::let_unit_value)]
     pub fn send_message<Msg>(&self, message: &Msg) -> Result<(), Box<dyn Error>>
     where
         Msg: Serialize,
@@ -284,6 +285,7 @@ impl WebviewHolder {
 }
 
 /// Pin one NSView to a parent NSView so it'll resize to fit it
+#[allow(clippy::let_unit_value)]
 unsafe fn pin_to_parent(parent_id: id, webview_id: id) {
     let _: () = msg_send![webview_id, setTranslatesAutoresizingMaskIntoConstraints: NO];
 

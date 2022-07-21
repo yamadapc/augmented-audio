@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use std::collections::HashMap;
+use std::fmt::Write;
+
 use syn::{Type, Variant};
 
 use super::CodegenOutput;
@@ -28,7 +30,7 @@ use super::CodegenOutput;
 pub fn generate_swift_enum(i: &syn::ItemEnum) -> CodegenOutput {
     let mut swift_code = String::new();
     let ident = i.ident.clone();
-    swift_code += &format!("enum {} {{ ", ident);
+    write!(&mut swift_code, "enum {} {{ ", ident).unwrap();
     if !i.variants.is_empty() {
         swift_code += "case ";
         let variant_code = i

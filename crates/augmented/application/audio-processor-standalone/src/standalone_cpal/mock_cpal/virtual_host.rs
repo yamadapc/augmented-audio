@@ -42,18 +42,10 @@ use crate::standalone_cpal::mock_cpal::vec_iterator::VecIterator;
 
 const DEFAULT_SAMPLE_RATE: u32 = 44100;
 
+#[derive(Default)]
 pub struct VirtualHost {
     input_device: VirtualHostDevice,
     output_device: VirtualHostDevice,
-}
-
-impl Default for VirtualHost {
-    fn default() -> Self {
-        Self {
-            input_device: VirtualHostDevice::default(),
-            output_device: VirtualHostDevice::default(),
-        }
-    }
 }
 
 impl HostTrait for VirtualHost {
