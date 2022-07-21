@@ -9,7 +9,7 @@ sudo apt-get install --fix-missing -y \
     expat \
     libexpat1-dev \
     libglib2.0-dev \
-    libcairo2-dev \
+    libcairo-dev \
     libpango1.0-dev \
     libatk1.0-dev \
     libgdk-pixbuf2.0-dev \
