@@ -245,6 +245,7 @@ pub fn standalone_start_for_env(
 ) -> StandaloneHandles {
     #[cfg(test)]
     {
+        log::warn!("Starting testing CPAL virtual host");
         standalone_start_with(
             standalone_processor,
             StandaloneStartOptions {
