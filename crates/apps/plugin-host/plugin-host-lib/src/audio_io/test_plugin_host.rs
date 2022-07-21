@@ -446,7 +446,7 @@ impl Handler<StopMessage> for TestPluginHost {
     type Result = ();
 
     fn handle(&mut self, _msg: StopMessage, _ctx: &mut Self::Context) -> Self::Result {
-        let _ = self.stop(); // todo - log error
+        self.stop();
     }
 }
 

@@ -20,10 +20,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use basedrop::Handle;
 use std::sync::{Arc, Mutex};
 
+use basedrop::Handle;
+
 pub use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
+use audio_processor_standalone_midi::host::MidiError;
 pub use audio_processor_standalone_midi::host::MidiHost;
 pub use audio_processor_standalone_midi::host::MidiMessageQueue;
 use audio_processor_traits::MidiEventHandler;
@@ -32,7 +34,7 @@ use crate::StandaloneProcessor;
 
 use super::MidiContext;
 
-pub type MidiReference = Arc<Mutex<Option<MidiHost>>>;
+pub type MidiReference = Arc<Mutex<Option<Result<MidiHost, MidiError>>>>;
 
 pub fn initialize_midi_host(
     app: &mut impl StandaloneProcessor,
@@ -56,11 +58,17 @@ pub fn initialize_midi_host(
         let midi_ref = midi_ref.clone();
         std::thread::Builder::new()
             .name(String::from("MIDI Host start thread"))
-            .spawn(move || {
-                midi_host.start_midi().expect("Failed to start MIDI host");
-                let mut midi_ref = midi_ref.lock().unwrap();
-                *midi_ref = Some(midi_host);
-                log::info!("MIDI Host ready");
+            .spawn(move || match midi_host.start_midi() {
+                Ok(_) => {
+                    let mut midi_ref = midi_ref.lock().unwrap();
+                    *midi_ref = Some(Ok(midi_host));
+                    log::info!("MIDI Host ready");
+                }
+                Err(err) => {
+                    log::error!("MIDI Host start error {}", err);
+                    let mut midi_ref = midi_ref.lock().unwrap();
+                    *midi_ref = Some(Err(err));
+                }
             })
             .unwrap();
     }

@@ -105,7 +105,7 @@ impl<EditorPluginInstanceProvider: IEditorPluginInstanceProvider>
         }
 
         if self.editor_is_floating {
-            let _ = self.float_window();
+            self.float_window();
         }
     }
 

@@ -16,16 +16,48 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
+
+    env:
+      RUST_BACKTRACE: full
+      RUSTC_WRAPPER: sccache
+      SCCACHE_CACHE_SIZE: 2G
+      SCCACHE_DIR: ${{ matrix.sccache-path }}
+      # SCCACHE_RECACHE: 1 # Uncomment this to clear cache, then comment it back out
+
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
           lfs: true
+      - name: Install sccache (ubuntu-latest)
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          LINK: https://github.com/mozilla/sccache/releases/download
+          SCCACHE_VERSION: 0.2.13
+        run: |
+          SCCACHE_FILE=sccache-$SCCACHE_VERSION-x86_64-unknown-linux-musl
+          mkdir -p $HOME/.local/bin
+          curl -L "$LINK/$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz" | tar xz
+          mv -f $SCCACHE_FILE/sccache $HOME/.local/bin/sccache
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - uses: Swatinem/rust-cache@v1
+      - name: Save sccache
+        uses: actions/cache@v2
+        continue-on-error: true
+        with:
+          path: /home/runner/.cache/sccache
+          key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-
+      - name: Start sccache server
+        run: sccache --start-server
+
       - name: Install APT dependencies
         run: ./scripts/install-ubuntu-apt-dependencies.sh
+
       - name: Install Rust dependencies
         run: ./scripts/install-ubuntu-rust-dependencies.sh
+
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -73,7 +105,8 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources \
+              --exclude macos-bundle-resources
+
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -102,17 +135,17 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources \
-              -- -Z unstable-options --format json | tee cargo-output.json
-          cargo install --force --version 0.1.10 cargo2junit
-          mkdir -p junit
-          cat cargo-output.json | cargo2junit > junit/results.xml
+              --exclude macos-bundle-resources
 
       - name: Upload tarpaulin report
         uses: actions/upload-artifact@v2
         with:
           name: tarpaulin-report
           path: ./tarpaulin-report
+      - name: Print sccache stats
+        run: sccache --show-stats
+      - name: Stop sccache server
+        run: sccache --stop-server || true
 
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
@@ -158,4 +191,3 @@ jobs:
       with:
         name: ${{ runner.os }}-libtas_v2-dylib
         path: ./target/release/libtas_v2.dylib
-

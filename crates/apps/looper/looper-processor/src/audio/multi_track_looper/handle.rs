@@ -483,7 +483,7 @@ impl MultiTrackLooperHandle {
             }
 
             let parameters = voice.user_parameters();
-            let _ = parameters.set(parameter_id, ParameterValue::Bool(value.into()));
+            parameters.set(parameter_id, ParameterValue::Bool(value.into()));
         }
     }
 
