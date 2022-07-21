@@ -52,7 +52,7 @@ jobs:
             ${{ runner.os }}-cargo-
       - name: Save sccache
         uses: actions/cache@v2
-        continue-on-error: false
+        continue-on-error: true
         with:
           path: /home/runner/.cache/sccache
           key: ${{ runner.os }}-sccache-${{ hashFiles('**/Cargo.lock') }}

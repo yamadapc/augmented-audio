@@ -240,25 +240,26 @@ pub fn standalone_start_with<
 }
 
 /// Use [`VirtualHost`] on cfg(test), otherwise call `standalone_start`.
-pub fn standalone_start_for_env(
-    standalone_processor: impl StandaloneProcessor,
-) -> StandaloneHandles {
-    #[cfg(test)]
-    {
-        log::warn!("Starting testing CPAL virtual host");
-        standalone_start_with(
-            standalone_processor,
-            StandaloneStartOptions {
-                host: VirtualHost::default(),
-                host_name: "Test Host".to_string(),
-                handle: Some(audio_garbage_collector::handle().clone()),
-            },
-        )
-    }
-    #[cfg(not(test))]
-    {
-        standalone_start(standalone_processor)
-    }
+#[macro_export]
+macro_rules! standalone_start_for_env {
+    ($standalone_processor:ident) => {{
+        #[cfg(test)]
+        {
+            log::warn!("Starting testing CPAL virtual host");
+            standalone_start_with(
+                $standalone_processor,
+                StandaloneStartOptions {
+                    host: VirtualHost::default(),
+                    host_name: "Test Host".to_string(),
+                    handle: Some(audio_garbage_collector::handle().clone()),
+                },
+            )
+        }
+        #[cfg(not(test))]
+        {
+            standalone_start($standalone_processor)
+        }
+    }};
 }
 
 #[macro_export]
@@ -292,7 +293,7 @@ mod test {
         let _ = wisual_logger::try_init_from_env();
         let processor = BufferProcessor(NoopAudioProcessor::default());
         let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
-        let handles = standalone_start_for_env(processor);
+        let handles = standalone_start_for_env!(processor);
         drop(handles);
     }
 }

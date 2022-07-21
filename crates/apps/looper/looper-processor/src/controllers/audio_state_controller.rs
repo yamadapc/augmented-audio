@@ -100,8 +100,9 @@ impl AudioStateController {
 /// Set-up *stand-alone* audio state.
 fn setup_audio_state(options: StandaloneOptions, processor: MultiTrackLooper) -> AudioState {
     let standalone_processor = StandaloneProcessorImpl::new_with(processor, options);
-    let handles =
-        audio_processor_standalone::standalone_cpal::standalone_start_for_env(standalone_processor);
+    let handles = audio_processor_standalone::standalone_cpal::standalone_start_for_env!(
+        standalone_processor
+    );
     let options = StandaloneOptions {
         accepts_input: true,
         input_device: handles
