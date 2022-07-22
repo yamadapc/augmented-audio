@@ -50,11 +50,12 @@ circular-data-structures = { path = "../../../augmented/data/circular-data-struc
 augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.7" }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator", version = "1.0.0-alpha.6" }
 actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }
+mockall = "0.11.1"
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.7" }
-mockall = "0.11.0"
+tempdir = "0.3.7"
 
 [[bench]]
 name = "plugin_host_lib_criterion"

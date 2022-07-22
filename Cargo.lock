@@ -5918,6 +5918,7 @@ dependencies = [
  "symphonia",
  "symphonia-bundle-mp3",
  "tao",
+ "tempdir",
  "thiserror",
  "tokio",
  "uuid 1.1.2",
