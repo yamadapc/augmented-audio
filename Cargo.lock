@@ -648,7 +648,7 @@ dependencies = [
  "avfaudio-sys",
  "bitflags",
  "block",
- "cacao",
+ "cacao 0.3.0",
  "cocoa 0.24.0",
  "objc",
  "objc_id",
@@ -1042,6 +1042,24 @@ name = "cacao"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f127f049857f8fbf2dad41b378c2f14aae4b888bcb3a7c42998f454fd616fa1c"
+dependencies = [
+ "block",
+ "core-foundation 0.9.3",
+ "core-graphics 0.22.3",
+ "dispatch",
+ "lazy_static",
+ "libc",
+ "objc",
+ "objc_id",
+ "os_info",
+ "url",
+]
+
+[[package]]
+name = "cacao"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a29e7c6aa1c9b7b74975710740745a33944ee69048969796b8a29b6201b49928"
 dependencies = [
  "block",
  "core-foundation 0.9.3",
@@ -2821,7 +2839,7 @@ name = "generic-parameters-editor"
 version = "0.1.0"
 dependencies = [
  "audio-parameter-store",
- "cacao",
+ "cacao 0.2.1",
  "darwin-webkit 0.1.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "log",
  "macos-bundle-resources",
@@ -4117,7 +4135,7 @@ dependencies = [
  "augmented_oscillator",
  "basedrop",
  "bytesize",
- "cacao",
+ "cacao 0.2.1",
  "chrono",
  "cpal",
  "criterion",
@@ -7368,7 +7386,7 @@ dependencies = [
  "audio-processor-standalone",
  "audio-processor-traits",
  "augmented_oscillator",
- "cacao",
+ "cacao 0.2.1",
  "cocoa 0.24.0",
  "crossbeam",
  "darwin-webkit 0.1.3",
