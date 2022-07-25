@@ -10,6 +10,6 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [dependencies]
 wisual-logger = "0.1"
 log = "^0.4.14"
-rosc = "0.6.0"
+rosc = "0.8.1"
 hostname = "0.3.1"
 thiserror = "^1.0.25"
