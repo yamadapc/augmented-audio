@@ -20,9 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+use cacao::appkit::window::Window;
+use cacao::appkit::{App, AppDelegate};
 use cacao::foundation::id;
-use cacao::macos::window::Window;
-use cacao::macos::{App, AppDelegate};
 use cacao::objc::runtime::Object;
 use cacao::utils::Controller;
 use objc_id::ShareId;
