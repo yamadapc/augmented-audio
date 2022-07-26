@@ -10,7 +10,7 @@ readme = "README.md"
 
 [dependencies]
 # Logging & options
-clap = "^2.33.3"
+clap = "^3.2.15"
 log = "^0.4.14"
 wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }
 itertools = "0.10.1"
