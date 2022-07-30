@@ -391,7 +391,7 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "clap 2.34.0",
- "image 0.23.14",
+ "image 0.24.3",
  "log",
  "nannou",
  "piet",
@@ -524,7 +524,7 @@ dependencies = [
  "cpal",
  "itertools 0.10.3",
  "log",
- "mockall 0.11.1",
+ "mockall",
  "ringbuf",
  "thiserror",
  "vst",
@@ -711,7 +711,7 @@ dependencies = [
  "async-trait",
  "itertools 0.10.3",
  "log",
- "mockall 0.10.2",
+ "mockall",
  "mockall_double",
  "reqwest",
  "serde",
@@ -780,7 +780,7 @@ dependencies = [
  "crates_io_api",
  "daggy 0.8.0",
  "log",
- "mockall 0.10.2",
+ "mockall",
  "plist",
  "semver 1.0.12",
  "serde",
@@ -944,6 +944,12 @@ name = "bit-vec"
 version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "349f9b6a179ed607305526ca489b34ad0a41aed5f7980fa90eb03160b69598fb"
+
+[[package]]
+name = "bit_field"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dcb6dd1c2376d2e096796e234a70e17e94cc2d5d54ff8ce42b28cef1d0d359a4"
 
 [[package]]
 name = "bitflags"
@@ -1520,17 +1526,14 @@ dependencies = [
 
 [[package]]
 name = "concread"
-version = "0.2.21"
+version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcc9816f5ac93ebd51c37f7f9a6bf2b40dfcd42978ad2aea5d542016e9244cf6"
+checksum = "91896ebca83fd5ac051ee12ab048a4bcfd8c887397127c8f883b77b05288e935"
 dependencies = [
  "ahash",
  "crossbeam",
  "crossbeam-epoch 0.9.9",
- "crossbeam-utils 0.8.10",
  "lru",
- "parking_lot 0.11.2",
- "rand 0.8.5",
  "smallvec",
  "tokio",
 ]
@@ -2126,12 +2129,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "difference"
-version = "2.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "524cbf6897b527295dff137cec09ecf3a05f4fddffd7dfcd1585403449e74198"
-
-[[package]]
 name = "difflib"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2235,12 +2232,6 @@ dependencies = [
  "wasm-bindgen-futures 0.4.31",
  "web-sys",
 ]
-
-[[package]]
-name = "downcast"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bb454f0228b18c7f4c3b0ebbee346ed9c52e7443b0999cd543ff3571205701d"
 
 [[package]]
 name = "downcast"
@@ -2372,6 +2363,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "exr"
+version = "1.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "14cc0e06fb5f67e5d6beadf3a382fec9baca1aa751c6d5368fdeee7e5932c215"
+dependencies = [
+ "bit_field",
+ "deflate 1.0.0",
+ "flume",
+ "half",
+ "inflate",
+ "lebe",
+ "smallvec",
+ "threadpool",
+]
+
+[[package]]
 name = "faccess"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2432,6 +2439,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
 
 [[package]]
+name = "flate2"
+version = "1.0.24"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f82b0f4c27ad9f8bfd1f3208d882da2b09c301bc1c828fd3a00d0216d2fbbff6"
+dependencies = [
+ "crc32fast",
+ "miniz_oxide 0.5.3",
+]
+
+[[package]]
 name = "flexbuffers"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2442,15 +2459,6 @@ dependencies = [
  "num_enum",
  "serde",
  "serde_derive",
-]
-
-[[package]]
-name = "float-cmp"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1267f4ac4f343772758f7b1bdcbe767c218bbab93bb432acbf5162bbf85a6c4"
-dependencies = [
- "num-traits 0.2.15",
 ]
 
 [[package]]
@@ -2475,6 +2483,19 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4fc612c5837986b7104a87a0df74a5460931f1c5274be12f8d0f40aa2f30d632"
 dependencies = [
  "num-traits 0.2.15",
+]
+
+[[package]]
+name = "flume"
+version = "0.10.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1657b4441c3403d9f7b3409e47575237dac27b1b5726df654a6ecbf92f0f7577"
+dependencies = [
+ "futures-core",
+ "futures-sink",
+ "nanorand",
+ "pin-project",
+ "spin",
 ]
 
 [[package]]
@@ -2879,8 +2900,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4eb1a864a501629691edf6c15a593b7a51eebaa1e8468e9ddc623de7c9b58ec6"
 dependencies = [
  "cfg-if 1.0.0",
+ "js-sys",
  "libc",
  "wasi 0.11.0+wasi-snapshot-preview1",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -3699,23 +3722,26 @@ dependencies = [
  "num-traits 0.2.15",
  "png 0.16.8",
  "scoped_threadpool",
- "tiff",
+ "tiff 0.6.1",
 ]
 
 [[package]]
 name = "image"
-version = "0.24.2"
+version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28edd9d7bc256be2502e325ac0628bde30b7001b9b52e0abe31a1a9dc2701212"
+checksum = "7e30ca2ecf7666107ff827a8e481de6a132a9b687ed3bb20bb1c144a36c00964"
 dependencies = [
  "bytemuck",
  "byteorder 1.4.3",
  "color_quant",
+ "exr",
+ "gif",
  "jpeg-decoder 0.2.6",
- "num-iter",
  "num-rational 0.4.1",
  "num-traits 0.2.15",
  "png 0.17.5",
+ "scoped_threadpool",
+ "tiff 0.7.3",
 ]
 
 [[package]]
@@ -3726,6 +3752,15 @@ checksum = "10a35a97730320ffe8e2d410b5d3b69279b98d2c14bdb8b70ea89ecf7888d41e"
 dependencies = [
  "autocfg",
  "hashbrown 0.12.1",
+]
+
+[[package]]
+name = "inflate"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cdb29978cc5797bd8dcc8e5bf7de604891df2a8dc576973d71a281e916db2ff"
+dependencies = [
+ "adler32",
 ]
 
 [[package]]
@@ -3875,6 +3910,9 @@ name = "jpeg-decoder"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9478aa10f73e7528198d75109c8be5cd7d15fb530238040148d5f9a22d4c5b3b"
+dependencies = [
+ "rayon",
+]
 
 [[package]]
 name = "js-sys"
@@ -3953,6 +3991,12 @@ name = "lazycell"
 version = "1.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
+
+[[package]]
+name = "lebe"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7efd1d698db0759e6ef11a7cd44407407399a910c774dd804c64c032da7826ff"
 
 [[package]]
 name = "libc"
@@ -4125,7 +4169,7 @@ dependencies = [
  "lockfree",
  "log",
  "midir",
- "mockall 0.11.1",
+ "mockall",
  "num 0.4.0",
  "num-derive",
  "num-traits 0.2.15",
@@ -4539,51 +4583,24 @@ dependencies = [
 
 [[package]]
 name = "mockall"
-version = "0.10.2"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6ab571328afa78ae322493cacca3efac6a0f2e0a67305b4df31fd439ef129ac0"
+checksum = "e2be9a9090bc1cac2930688fa9478092a64c6a92ddc6ae0692d46b37d9cab709"
 dependencies = [
  "cfg-if 1.0.0",
- "downcast 0.10.0",
+ "downcast",
  "fragile",
  "lazy_static",
- "mockall_derive 0.10.2",
- "predicates 1.0.8",
- "predicates-tree",
-]
-
-[[package]]
-name = "mockall"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5641e476bbaf592a3939a7485fa079f427b4db21407d5ebfd5bba4e07a1f6f4c"
-dependencies = [
- "cfg-if 1.0.0",
- "downcast 0.11.0",
- "fragile",
- "lazy_static",
- "mockall_derive 0.11.1",
- "predicates 2.1.1",
+ "mockall_derive",
+ "predicates",
  "predicates-tree",
 ]
 
 [[package]]
 name = "mockall_derive"
-version = "0.10.2"
+version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e7e25b214433f669161f414959594216d8e6ba83b6679d3db96899c0b4639033"
-dependencies = [
- "cfg-if 1.0.0",
- "proc-macro2 1.0.40",
- "quote 1.0.20",
- "syn",
-]
-
-[[package]]
-name = "mockall_derive"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "262d56735932ee0240d515656e5a7667af3af2a5b0af4da558c4cff2b2aeb0c7"
+checksum = "86d702a0530a0141cf4ed147cf5ec7be6f2c187d4e37fcbefc39cf34116bfe8f"
 dependencies = [
  "cfg-if 1.0.0",
  "proc-macro2 1.0.40",
@@ -4715,6 +4732,15 @@ dependencies = [
  "instant",
  "num_cpus",
  "wgpu",
+]
+
+[[package]]
+name = "nanorand"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a51313c5820b0b02bd422f4b44776fbf47961755c74ce64afc73bfad10226c3"
+dependencies = [
+ "getrandom 0.2.7",
 ]
 
 [[package]]
@@ -5778,7 +5804,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c4a1f21490a6cf4a84c272ad20bd7844ed99a3178187a4c5ab7f2051295beef"
 dependencies = [
  "gif",
- "image 0.24.2",
+ "image 0.24.3",
  "plotters-backend",
 ]
 
@@ -5797,7 +5823,7 @@ version = "0.1.0"
 dependencies = [
  "actix",
  "clap 2.34.0",
- "mockall 0.11.1",
+ "mockall",
  "plugin-host-lib",
  "wisual-logger",
 ]
@@ -5876,7 +5902,7 @@ dependencies = [
  "log",
  "md5",
  "midir",
- "mockall 0.11.1",
+ "mockall",
  "notify",
  "num-traits 0.2.15",
  "rayon",
@@ -5927,25 +5953,12 @@ checksum = "eb9f9e6e233e5c4a35559a617bf40a4ec447db2e84c20b55a6f83167b7e57872"
 
 [[package]]
 name = "predicates"
-version = "1.0.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f49cfaf7fdaa3bfacc6fa3e7054e65148878354a5cfddcf661df4c851f8021df"
-dependencies = [
- "difference",
- "float-cmp 0.8.0",
- "normalize-line-endings",
- "predicates-core",
- "regex",
-]
-
-[[package]]
-name = "predicates"
 version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a5aab5be6e4732b473071984b3164dbbfb7a3674d30ea5ff44410b6bcd960c3c"
 dependencies = [
  "difflib",
- "float-cmp 0.9.0",
+ "float-cmp",
  "itertools 0.10.3",
  "normalize-line-endings",
  "predicates-core",
@@ -6913,6 +6926,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "spin"
+version = "0.9.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f6002a767bff9e83f8eeecf883ecb8011875a21ae8da43bffb817a57e78cc09"
+dependencies = [
+ "lock_api",
+]
+
+[[package]]
 name = "spirv"
 version = "0.2.0+1.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7305,7 +7327,7 @@ dependencies = [
  "glib 0.15.12",
  "glib-sys 0.15.10",
  "gtk",
- "image 0.24.2",
+ "image 0.24.3",
  "instant",
  "jni",
  "lazy_static",
@@ -7462,6 +7484,17 @@ checksum = "9a53f4706d65497df0c4349241deddf35f84cee19c87ed86ea8ca590f4464437"
 dependencies = [
  "jpeg-decoder 0.1.22",
  "miniz_oxide 0.4.4",
+ "weezl",
+]
+
+[[package]]
+name = "tiff"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7259662e32d1e219321eb309d5f9d898b779769d81b76e762c07c8e5d38fcb65"
+dependencies = [
+ "flate2",
+ "jpeg-decoder 0.2.6",
  "weezl",
 ]
 
