@@ -20,13 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use crate::processor::ProcessorHandleRef;
+
+use std::sync::Arc;
+
 use augmented::vst::buffer::AudioBuffer;
 use augmented::vst::editor::Editor;
 use augmented::vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 use augmented::vst::plugin_main;
-use processor::Processor;
-use std::sync::Arc;
+
+use crate::processor::Processor;
+use crate::processor::ProcessorHandleRef;
 
 pub mod processor;
 

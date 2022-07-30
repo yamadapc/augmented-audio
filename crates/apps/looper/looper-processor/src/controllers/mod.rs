@@ -20,6 +20,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+pub mod audio_io_settings_controller;
+pub mod audio_state_controller;
 pub mod autosave_controller;
 pub mod events_controller;
 pub mod load_project_controller;

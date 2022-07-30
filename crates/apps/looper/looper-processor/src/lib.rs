@@ -70,4 +70,8 @@ mod common;
 #[cfg(test)]
 pub mod integration_test;
 
+#[cfg(test)]
+const MAX_LOOP_LENGTH_SECS: f32 = 20.0;
+
+#[cfg(not(test))]
 const MAX_LOOP_LENGTH_SECS: f32 = 600.0;

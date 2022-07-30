@@ -13,29 +13,23 @@ Experiments trying to use Rust for audio programming.
 
 Consider anything in this repository a draft.
 
-## Goals
+<details>
+  <summary>⚠️ <strong>Goals</strong></summary>
+
 * **Goal 1:** Learn & have fun
   * This is goal #1 and it's very important to keep it in mind if you end-up
     depending on one of the crates in this repository
 * **Goal 2:** Build tools for aiding development
 * **Goal 3:** Experiment with audio software GUI in Rust
 
+</details>
+
 ## License
 Most of this repository is published under the MIT LICENSE.
 
 Some directories which contain full applications are licensed under the AGPLv3 license. Check the `LICENSE` and `README.md` files.
 
-## Binary downloads
-* [See releases to download binaries](https://github.com/yamadapc/augmented-audio/releases)
-* [Simple Metronome on App Store](https://apps.apple.com/au/app/simple-metronome/id1604183938?mt=12)
-
-## Blog posts
-* [Initial 'Test Plugin Host' post](https://beijaflor.io/blog/07-2021/rust-audio-experiments-2/)
-* [Simple Metronome release](https://beijaflor.io/blog/01-2022/rust-audio-experiments-3/)
-* [Generic AudioProcessors in Rust](https://beijaflor.io/blog/02-2022/rust-audio-experiments-4/)
-* [Continuous Looper - 8-track live-looper and performance sampler](https://beijaflor.io/blog/04-2022/rust-audio-experiments-5/)
-
-## Documentation
+## 📖 Documentation
 
 * [Augmented Audio Libraries](crates/augmented#readme)
 * [Applications in this repository](crates/apps#readme)
@@ -43,6 +37,16 @@ Some directories which contain full applications are licensed under the AGPLv3 l
   - [Metronome](crates/apps/metronome#readme)
   - [Continuous Looper (native macOS)](crates/apps/looper/Sequencer#readme)
   - [Looper VST (iced)](crates/apps/looper#readme)
+
+## ⬇️ Binary downloads
+* [See releases to download binaries](https://github.com/yamadapc/augmented-audio/releases)
+* [Simple Metronome on App Store](https://apps.apple.com/au/app/simple-metronome/id1604183938?mt=12)
+
+## 💬 Blog posts
+* [Initial 'Test Plugin Host' post](https://beijaflor.io/blog/07-2021/rust-audio-experiments-2/)
+* [Simple Metronome release](https://beijaflor.io/blog/01-2022/rust-audio-experiments-3/)
+* [Generic AudioProcessors in Rust](https://beijaflor.io/blog/02-2022/rust-audio-experiments-4/)
+* [Continuous Looper - 8-track live-looper and performance sampler](https://beijaflor.io/blog/04-2022/rust-audio-experiments-5/)
 
 - - -
 
@@ -56,7 +60,7 @@ Some directories which contain full applications are licensed under the AGPLv3 l
   * [Bit-crusher](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-bitcrusher)
   * [Utility (pan, mono, gain)](https://github.com/yamadapc/augmented-audio/tree/master/crates/augmented/audio/audio-processor-utility)
 
-## Screenshots
+## 📸 Screenshots
 
 <p align="center" style="display: flex">
   <img alt="Sequencer screenshot" src="https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/apps/looper/Sequencer/screenshot.png" width="300" /> 
@@ -79,11 +83,11 @@ Some directories which contain full applications are licensed under the AGPLv3 l
   <img height="100" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/tremolo-screenshot.png" />
 </p>
 
-# Web GUI
+## 👩 Web GUI
 See [`docs/misc/WEB_GUI.md`](docs/misc/WEB_GUI.md).
 
-# Rust libraries and tooling
-## Workspace & Building
+## 🛠 Rust libraries and tooling
+### Workspace & Building
 The project is set-up with a cargo workspace. Running `cargo` commands at the root directory should compile all crates
 sharing caches.
 
@@ -100,23 +104,23 @@ cargo test
 
 Build outputs should be on `target/debug` or `target/release`.
 
-### Building on linux
+#### Building on linux
 Since this is bringing in all the possible rust crates, you'll need to install quite a few dependencies.
 
 See `.github/workflows/default.yml` for a list of what's needed on Ubuntu.
 
-## Linting
+### Linting
 ```shell
 cargo clippy
 ```
 
-## Benchmarking
+### Benchmarking
 Benchmarks using `criterion` will be slowly added. In order to run benchmarks use:
 ```shell
 cargo bench
 ```
 
-### Profiling on macOS
+#### Profiling on macOS
 > https://crates.io/crates/cargo-instruments
 
 ```shell
@@ -124,7 +128,7 @@ cd ./crates/oscillator
 cargo instruments -t time --bench sine_oscillator_benchmark -- --bench
 ```
 
-### Generating flamegraphs from benchmarks
+#### Generating flamegraphs from benchmarks
 > **NOTE** I couldn't get this to work on macOS
 
 Flamegraphs can be generated using `cargo-flamegraph`:

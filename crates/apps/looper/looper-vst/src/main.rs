@@ -37,7 +37,7 @@ fn main() {
         LooperOptions {
             ..LooperOptions::default()
         },
-        3,
+        1,
     );
     let processor_handle = loopi_processor.handle().clone();
     let _audio_handles = augmented::application::audio_processor_start_with_midi(

@@ -24,6 +24,9 @@
 
 import SwiftUI
 
+/**
+ * Holds the whole application GUI
+ */
 public struct ContentView: View {
     public init() {}
 

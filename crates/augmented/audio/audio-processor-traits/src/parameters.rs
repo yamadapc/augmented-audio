@@ -20,19 +20,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//! Provides a basic mechanism for defining float parameters and modifying them
+//! through introspection at runtime.
+
 use std::convert::TryFrom;
 
 use audio_garbage_collector::{make_shared, Shared};
 
+/// A shared reference to a boxed generic handle
 pub type AudioProcessorHandleRef = Shared<Box<dyn AudioProcessorHandle>>;
+
+/// Build a shared reference to a boxed generic handle
 pub fn make_handle_ref<T: AudioProcessorHandle + 'static>(v: T) -> AudioProcessorHandleRef {
     make_shared(Box::new(v))
 }
 
+/// A type which can create an `AudioProcessorHandleRef`
 pub trait AudioProcessorHandleProvider {
     fn generic_handle(&self) -> AudioProcessorHandleRef;
 }
 
+/// An empty handle with no parameters
 pub struct AudioProcessorEmptyHandle;
 
 impl AudioProcessorHandle for AudioProcessorEmptyHandle {
@@ -54,18 +62,28 @@ impl AudioProcessorHandle for AudioProcessorEmptyHandle {
 /// This trait can be implemented by AudioProcessor handles to provide runtime introspection on
 /// the parameters that a processor provides.
 pub trait AudioProcessorHandle: Send + Sync {
+    /// This method should return the name of the processor. This may displayed in a GUI application
+    /// as the effect/instrument name.
     fn name(&self) -> String {
         "AudioProcessorHandle::name can be set at the processor handle with a name for the handle"
             .to_string()
     }
 
+    /// Should return the number of parameters.
     fn parameter_count(&self) -> usize;
+
+    /// After finding the number of parameters a callee will get `ParameterSpec` declarations
+    /// giving more metadata about this parameter.
     fn get_parameter_spec(&self, index: usize) -> ParameterSpec;
 
+    /// Should return the value for the parameter at this index
     fn get_parameter(&self, index: usize) -> Option<ParameterValue>;
+
+    /// Should set the value for the parameter at this index
     fn set_parameter(&self, index: usize, request: ParameterValue);
 }
 
+/// A runtime typed parameter value
 #[derive(PartialEq, Clone, Debug)]
 pub enum ParameterValue {
     Float { value: f32 },
@@ -104,6 +122,8 @@ impl ParameterType {
     }
 }
 
+/// Meta-data around a parameter. A GUI application may use this information to display
+/// the label around the parameter and decide what type of control to render to modify it.
 #[derive(Debug, Clone)]
 pub struct ParameterSpec {
     name: String,

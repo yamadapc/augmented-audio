@@ -242,8 +242,13 @@ fn run_initialize_file_watch_thread(
             .watch(run_options.plugin_path(), RecursiveMode::NonRecursive)
             .expect("Failed to watch file");
 
-        let handle =
-            std::thread::spawn(move || file_watch::run_file_watch_loop(rx, run_options, host));
+        let handle = thread::spawn(move || {
+            file_watch::run_file_watch_loop(
+                rx,
+                run_options.plugin_path().as_ref(),
+                host.recipient(),
+            )
+        });
         Some((watcher, handle))
     } else {
         None

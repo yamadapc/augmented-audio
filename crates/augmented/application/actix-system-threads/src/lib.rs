@@ -20,6 +20,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! This is a wrapper struct for `actix` that provides a single global dispatcher into several actix
+//! `Arbiter` threads.
+//!
+//! Futures are spawned round-robin on a different arbiter.
+//!
+//! ## Usage
+//! ```
+//! use actix_system_threads::ActorSystem;
+//! let system = ActorSystem::current();
+//!
+//! system.spawn(async move {
+//!     // ...
+//! });
+//! let x = system.spawn_result(async move {
+//!     10
+//! });
+//! assert_eq!(x, 10);
+//! ```
+
 use std::future::Future;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::mpsc::channel;
@@ -35,6 +55,7 @@ lazy_static! {
     };
 }
 
+/// Wraps `actix` system and a number of `Arbiter` threads.
 #[derive(Debug)]
 pub struct ActorSystem {
     #[allow(dead_code)]
@@ -44,6 +65,8 @@ pub struct ActorSystem {
 }
 
 impl ActorSystem {
+    /// Get the current global actor system. This will initialize the system when called the first
+    /// time.
     pub fn current() -> &'static Self {
         &THREAD
     }
@@ -52,7 +75,7 @@ impl ActorSystem {
         let (tx, rx) = channel();
         let (sys_tx, sys_rx) = channel();
 
-        let num_threads = num_cpus::get();
+        let num_threads = 0; // num_cpus::get();
         log::info!("Starting actor system on {} threads", num_threads);
         std::thread::Builder::new()
             .name("actor-system-main".into())
@@ -79,6 +102,7 @@ impl ActorSystem {
         }
     }
 
+    /// Spawn a future on the next available arbiter thread. Returns immediately.
     #[allow(unused)]
     pub fn spawn<Fut>(&self, fut: Fut)
     where
@@ -89,6 +113,8 @@ impl ActorSystem {
         self.arbiters[target_id].spawn(fut);
     }
 
+    /// Spawn a future on the next available arbiter and return the result. Blocks waiting on the
+    /// result.
     #[allow(unused)]
     pub fn spawn_result<Fut, T>(&self, fut: Fut) -> T
     where

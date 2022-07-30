@@ -28,7 +28,7 @@ use crate::engine::LooperEngine;
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__register_events_callback(
-    engine: *mut LooperEngine,
+    engine: *const LooperEngine,
     callback: ForeignCallback<ApplicationEvent>,
 ) {
     let engine = &*engine;
@@ -93,5 +93,7 @@ mod test {
             event,
             ApplicationEvent::ApplicationEventLooperClipUpdated { looper_id: 10 }
         );
+
+        log::info!("Test is done, dropping values");
     }
 }

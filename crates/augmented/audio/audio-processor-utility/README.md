@@ -1,4 +1,5 @@
 # audio-processor-utility
+
 Utility `AudioProcessor` implementations.
 
 ## Utilities
@@ -6,3 +7,6 @@ Utility `AudioProcessor` implementations.
 * Stereo to mono
 * Mono to stereo
 * Panning
+* White noise
+
+License: MIT

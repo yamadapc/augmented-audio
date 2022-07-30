@@ -79,12 +79,18 @@ impl MidiHost {
 
         let virtual_port_name = Self::virtual_port_name();
         log::info!("Creating virtual MIDI input `{}`", virtual_port_name);
-        let virtual_input = input.create_virtual(
+        match input.create_virtual(
             &*virtual_port_name,
             midi_callback,
             MidiCallbackContext::new(self.handle.clone(), self.current_messages.clone()),
-        )?;
-        self.connections.push(virtual_input);
+        ) {
+            Ok(virtual_input) => {
+                self.connections.push(virtual_input);
+            }
+            Err(err) => {
+                log::warn!("Failed to create virtual input. This means the port already exists on this PID. Error: {}", err);
+            }
+        }
 
         let input = MidiInput::new("audio_processor_standalone_midi")?;
         for port in &input.ports() {

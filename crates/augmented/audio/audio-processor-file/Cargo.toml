@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-file"
-version = "1.0.0-alpha.7"
+version = "1.0.0-alpha.8"
 edition = "2021"
 description = "`AudioProcessor` implementations for audio file playback & writing."
 license = "MIT"
@@ -22,13 +22,13 @@ symphonia-format-wav = "0.5.0"
 hound = "^3.4.0"
 
 # Augmented
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
-audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../../augmented/audio/audio-processor-traits" }
-augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.4" }
-augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.6" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.5" }
+audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../../augmented/audio/audio-processor-traits" }
+augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.5" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.7" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { version = "1.0.0-alpha.6", path = "../../../augmented/testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../../augmented/testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = false

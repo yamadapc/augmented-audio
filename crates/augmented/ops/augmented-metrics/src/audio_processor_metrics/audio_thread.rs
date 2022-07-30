@@ -74,6 +74,13 @@ impl Default for AudioProcessorMetrics {
 }
 
 impl AudioProcessorMetrics {
+    pub fn from_handle(handle: Shared<AudioProcessorMetricsHandle>) -> Self {
+        Self {
+            last_start_time: Instant::now(),
+            handle,
+        }
+    }
+
     pub fn handle(&self) -> Shared<AudioProcessorMetricsHandle> {
         self.handle.clone()
     }

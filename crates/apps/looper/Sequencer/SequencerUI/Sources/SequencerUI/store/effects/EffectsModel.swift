@@ -51,7 +51,7 @@ public class EffectSlotModel: ObservableObject, Identifiable {
     @Published var definition: EffectDefinition? = nil
 
     init(slotId: UInt, definition: EffectDefinition?) {
-        id = slotId
+        self.id = slotId
         self.definition = definition
     }
 

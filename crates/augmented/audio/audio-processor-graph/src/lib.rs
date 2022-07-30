@@ -20,6 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! WIP - Draft of a version of https://github.com/RustAudio/dsp-chain which will work with the
+//! `audio-processor-traits` crate (support for abstract `AudioBuffer` / `AudioProcessor`s).
+
 use std::cell::UnsafeCell;
 use std::collections::HashMap;
 use std::ops::Deref;
@@ -196,6 +200,15 @@ impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphImpl<P> {
                 processors: make_shared_cell(HashMap::new()),
                 buffers: make_shared_cell(HashMap::new()),
             }),
+            temporary_buffer: VecAudioBuffer::new(),
+        }
+    }
+
+    pub fn from_handle(handle: Shared<AudioProcessorGraphHandleImpl<P>>) -> Self {
+        Self {
+            input_node: handle.input_node,
+            output_node: handle.output_node,
+            handle,
             temporary_buffer: VecAudioBuffer::new(),
         }
     }

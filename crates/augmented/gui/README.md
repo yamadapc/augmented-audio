@@ -1,0 +1,11 @@
+# [**gui** - GUI](gui)
+
+* [**audio-processor-iced-design-system**](audio-processor-iced-design-system)
+* [**audio-processor-iced-storybook**](audio-processor-iced-storybook)
+* [**audio-settings-gui** - Helper for rendering Audio IO settings GUI](audio-settings-gui)
+* [**darwin-webkit** - Bindings to some of the WebKit's API on MacOS for Rust](darwin-webkit)
+* [**generic-parameters-editor**](generic-parameters-editor)
+* [**iced-editor** - Iced based VST editor](iced-editor)
+* [**macos-bundle-resources**](macos-bundle-resources)
+* [**webview-holder**](webview-holder)
+* [**webview-transport**](webview-transport)

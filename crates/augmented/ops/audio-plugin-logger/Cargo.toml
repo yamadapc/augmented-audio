@@ -1,5 +1,6 @@
 [package]
 name = "audio-plugin-logger"
+description = "Preset configuration for log4rs inside of a VST plugin."
 version = "0.1.0"
 edition = "2018"
 license = "MIT"

@@ -135,6 +135,26 @@ pub fn build_voice_handle(id: usize, voice_processors: &VoiceProcessors) -> Loop
     }
 }
 
+pub fn from_handle(handle: &LooperVoice) -> VoiceProcessors {
+    let effects_processor = EffectsProcessor::from_handle(handle.effects_handle.clone());
+    let looper = LooperProcessor::from_handle(
+        handle.looper_handle.clone(),
+        handle.sequencer_handle.clone(),
+    );
+    let envelope = EnvelopeProcessor {
+        handle: handle.envelope.clone(),
+    };
+    let pitch_shifter =
+        MultiChannelPitchShifterProcessor::from_handle(handle.pitch_shifter_handle.clone());
+
+    VoiceProcessors {
+        looper,
+        effects_processor,
+        envelope,
+        pitch_shifter,
+    }
+}
+
 pub fn build_voice_processor(
     options: &LooperOptions,
     time_info_provider: &Shared<TimeInfoProviderImpl>,

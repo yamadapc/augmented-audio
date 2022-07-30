@@ -1,5 +1,8 @@
 # augmented
-The augmented audio libraries separated onto categories.
+The augmented audio libraries are separated onto categories:
+
+
+## Summary
 
 * [**application** - Stand-alone app functionality](application)
 * [**audio** - Audio app functionality](audio)
@@ -8,6 +11,63 @@ The augmented audio libraries separated onto categories.
 * [**gui** - GUI](gui)
 * [**ops** - Operations](ops)
 * [**testing** - Testing](testing)
+
+## All crates
+
+* [**application** - Stand-alone app functionality](application)
+  * [**actix-system-threads** - This is a wrapper for `actix` that provides a single global dispatcher into several actix `Arbiter` threads.](application/actix-system-threads)
+  * [**audio-processor-standalone-gui** - Provides generic `iced` GUI for implementations of `audio_processor_traits::parameters::AudioProcessorHandle`](application/audio-processor-standalone-gui)
+  * [**audio-processor-standalone-midi** - Stand-alone MIDI hosting for a VST host or an `audio-processor-traits` implementor](application/audio-processor-standalone-midi)
+  * [**audio-processor-standalone-osc**](application/audio-processor-standalone-osc)
+  * [**audio-processor-standalone** - Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`](application/audio-processor-standalone)
+* [**audio** - Audio app functionality](audio)
+  * [**augmented-adsr-envelope** - ADSR envelope implementation](audio/adsr-envelope)
+  * [**audio-garbage-collector-v2** - Smart pointers that get de-allocated on a background thread when dropped for use in real-time systems.](audio/audio-garbage-collector-v2)
+  * [**audio-garbage-collector** - Wrapper on top of `basedrop` that provides a drop-in GC API that'll collect reference-counted values on a background thread.](audio/audio-garbage-collector)
+  * [**audio-parameter-store** - A simple parameters representation for audio plugins](audio/audio-parameter-store)
+  * [**audio-processor-analysis** - Audio analysis processors](audio/audio-processor-analysis)
+  * [**audio-processor-bitcrusher** - Implements a simple bitcrusher based on sample-and-hold.](audio/audio-processor-bitcrusher)
+  * [**audio-processor-dynamics** - Implements a compressor](audio/audio-processor-dynamics)
+  * [**audio-processor-file** - `AudioProcessor` implementations for audio file playback & writing.](audio/audio-processor-file)
+  * [**audio-processor-graph** - Run graphs of AudioProcessors](audio/audio-processor-graph)
+  * [**audio-processor-metronome** - Implements a simple metronome processor](audio/audio-processor-metronome)
+  * [**audio-processor-pitch-shifter** - A phase-vocoder pitch-shifter implementation](audio/audio-processor-pitch-shifter)
+  * [**audio-processor-time** - Time based effects processors: delay/reverb](audio/audio-processor-time)
+  * [**audio-processor-traits-derive**](audio/audio-processor-traits-derive)
+  * [**audio-processor-traits** - Traits for audio processor types and audio buffer types. Heavily subject to change.](audio/audio-processor-traits)
+  * [**audio-processor-utility** - Utility AudioProcessor implementations (pan, gain, mono, noise)](audio/audio-processor-utility)
+  * [**audiounit**](audio/audiounit)
+  * [**avfaudio-sys**](audio/avfaudio-sys)
+  * [**lame-mp3**](audio/lame-mp3)
+  * [**augmented_oscillator** - Very simple implementation of an oscillator.](audio/oscillator)
+* [**data** - Data-structures](data)
+  * [**atomic-queue** - Simple bounded lock-free queue for use in Audio applications, ported from https://github.com/max0x7ba/atomic_queue.](data/atomic-queue)
+  * [**augmented-atomics** - Implements some extra types and utilities over atomics for building audio-thread / GUI synchronization](data/atomics)
+  * [**augmented-audio-volume** - Provides a data-type for representing audio volume](data/audio-volume)
+  * [**augmented-midi** - Experimental MIDI file/event parser using nom combinators](data/augmented-midi)
+  * [**augmented-playhead** - Implements some extra types and utilities over atomics for building audio-thread / GUI synchronization](data/augmented-playhead)
+  * [**circular-data-structures** - Very simple circular buffer based on a vec.](data/circular-data-structures)
+  * [**smooth-value**](data/smooth-value)
+* [**dsp** - DSP](dsp)
+  * [**augmented-convert-sample-rate** - audio sample-rate conversion, delegates to `samplerate`](dsp/convert-sample-rate)
+  * [**augmented-dsp-filters** - Audio filters (port of C++ DSPFilters)](dsp/dsp-filters)
+* [**gui** - GUI](gui)
+  * [**audio-processor-iced-design-system**](gui/audio-processor-iced-design-system)
+  * [**audio-processor-iced-storybook**](gui/audio-processor-iced-storybook)
+  * [**audio-settings-gui** - Helper for rendering Audio IO settings GUI](gui/audio-settings-gui)
+  * [**darwin-webkit** - Bindings to some of the WebKit's API on MacOS for Rust](gui/darwin-webkit)
+  * [**generic-parameters-editor**](gui/generic-parameters-editor)
+  * [**iced-editor** - Iced based VST editor](gui/iced-editor)
+  * [**macos-bundle-resources**](gui/macos-bundle-resources)
+  * [**webview-holder**](gui/webview-holder)
+  * [**webview-transport**](gui/webview-transport)
+* [**ops** - Operations](ops)
+  * [**audio-plugin-logger** - Preset configuration for log4rs inside of a VST plugin.](ops/audio-plugin-logger)
+  * [**augmented-analytics**](ops/augmented-analytics)
+  * [**augmented-audio-metrics** - Metrics helpers for augmented audio applications.](ops/augmented-metrics)
+  * [**wisual-logger** - Just a pretty printer configuration for `env_logger`](ops/wisual-logger)
+* [**testing** - Testing](testing)
+  * [**audio-processor-testing-helpers** - Collection of testing utilities for audio processors](testing/audio-processor-testing-helpers)
 
 ## Internal tooling
 * [**development** - Development tools](development)

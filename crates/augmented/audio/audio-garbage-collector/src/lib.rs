@@ -20,6 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! Batteries included solution to using reference counted values on the audio-thread.
+//!
+//! Wraps `basedrop` so that smart pointers are dropped on a background thread. Exposes a default
+//! global GC thread and helpers to create pointers attached to it.
+//!
+//! # Collection frequency
+//! Collection is based on polling the queue. If references are created and dropped very frequently
+//! this will not be adequate.
+
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;
 use std::time::Duration;
@@ -43,20 +53,25 @@ pub fn handle() -> &'static Handle {
     GARBAGE_COLLECTOR.handle()
 }
 
+/// Create a new [`basedrop::SharedCell`] value using the default global [`GarbageCollector`]
+/// instance.
 pub fn make_shared_cell<T: Send + 'static>(value: T) -> SharedCell<T> {
     SharedCell::new(make_shared(value))
 }
 
-/// Create a new `basedrop::Shared` value using the default global `GarbageCollector`
+/// Create a new [`basedrop::Shared`] value using the default global [`GarbageCollector`]
 /// instance.
 pub fn make_shared<T: Send + 'static>(value: T) -> Shared<T> {
     Shared::new(handle(), value)
 }
 
+/// Errors that may be emitted when stopping the GC
 #[derive(Debug, Error)]
 pub enum GarbageCollectorError {
+    /// Emitted if the GC thread panicked during a GC run
     #[error("Failed to acquire lock")]
     LockError,
+    /// Emitted if the GC thread panicked at another point
     #[error("Failed to join the GC thread")]
     JoinError,
 }

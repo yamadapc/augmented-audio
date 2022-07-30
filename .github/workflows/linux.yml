@@ -16,6 +16,10 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
+
+    env:
+      RUST_BACKTRACE: full
+
     steps:
       - uses: actions/checkout@v2
         with:
@@ -24,8 +28,10 @@ jobs:
       - uses: Swatinem/rust-cache@v1
       - name: Install APT dependencies
         run: ./scripts/install-ubuntu-apt-dependencies.sh
+
       - name: Install Rust dependencies
         run: ./scripts/install-ubuntu-rust-dependencies.sh
+
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -73,7 +79,8 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources \
+              --exclude macos-bundle-resources
+
       - name: Test
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
@@ -102,11 +109,7 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
-              --exclude macos-bundle-resources \
-              -- -Z unstable-options --format json | tee cargo-output.json
-          cargo install --force --version 0.1.10 cargo2junit
-          mkdir -p junit
-          cat cargo-output.json | cargo2junit > junit/results.xml
+              --exclude macos-bundle-resources
 
       - name: Upload tarpaulin report
         uses: actions/upload-artifact@v2
@@ -158,4 +161,3 @@ jobs:
       with:
         name: ${{ runner.os }}-libtas_v2-dylib
         path: ./target/release/libtas_v2.dylib
-

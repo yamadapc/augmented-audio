@@ -33,6 +33,7 @@ pub trait MidiEventHandler {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]);
 }
 
+/// An instance of MidiEventHandler that doesn't do anything with its events.
 pub struct NoopMidiEventHandler {}
 
 impl Default for NoopMidiEventHandler {

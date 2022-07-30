@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-testing-helpers"
-version = "1.0.0-alpha.6"
+version = "1.0.0-alpha.7"
 edition = "2018"
 description = "Collection of testing utilities for audio processors"
 license = "MIT"
@@ -9,8 +9,8 @@ repository = "https://github.com/yamadapc/augmented-audio"
 
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../audio/audio-processor-traits" }
-augmented_oscillator = { path = "../../audio/oscillator" , version = "1.0.0-alpha.5" }
+audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../audio/audio-processor-traits" }
+augmented_oscillator = { path = "../../audio/oscillator" , version = "1.0.0-alpha.6" }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 plotters = { version = "0.3" }

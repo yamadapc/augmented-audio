@@ -23,6 +23,7 @@ import Foundation
  */
 public protocol SequencerEngine {
     var effectsService: EffectsService { get }
+    var audioIOPreferencesController: AudioIOSettingsController { get }
 
     func onClickPlayheadStop()
     func onClickPlayheadPlay()

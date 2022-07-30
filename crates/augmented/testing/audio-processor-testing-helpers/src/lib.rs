@@ -20,6 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! Provides helpers for testing audio processors.
+//!
+//! * Drawing charts from a vector with `plotters` - `charts`
+//! * Getting asset paths relative to the crate being tested - `relative_path!`
+//! * Comparing floats - `assert_f_eq`
+//! * Calculating RMS - `rms_level`
+//! * Generating sine buffers - `sine_buffer`
+//! * Generating frequency response charts - `charts`
+
 pub use generators::*;
 pub use util::rms_level;
 
@@ -27,6 +37,7 @@ pub mod charts;
 mod generators;
 mod util;
 
+/// Compare two floats are equal using `f32::EPSILON`
 #[macro_export]
 macro_rules! assert_f_eq {
     ($left:expr, $right:expr) => {{
@@ -43,6 +54,9 @@ macro_rules! assert_f_eq {
     }};
 }
 
+/// Get a path relative to the root directory (the one with `Cargo.toml`) of the current crate.
+///
+/// Use in unit-tests to get test asset paths.
 #[macro_export]
 macro_rules! relative_path {
     ($path: expr) => {

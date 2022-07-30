@@ -12,7 +12,7 @@ actix = "0.13.0"
 tokio = "1.13.0"
 tokio-stream = { version = "0.1.8", features = ["sync"] }
 
-dirs = "^3.0.2"
+dirs = "^4.0.0"
 log = "^0.4.14"
 tinyfiledialogs = "^3.0"
 thiserror = "^1.0.25"
@@ -22,7 +22,7 @@ vst = { path = "../../../vendor/vst" }
 baseview = { path = "../../../vendor/baseview" }
 raw-window-handle = "0.3.3"
 derive_more = "^0.99.16"
-uuid = { version = "^0.8", features = ["v4"] }
+uuid = { version = "^1.1", features = ["v4"] }
 notify = "^4.0.17"
 md5 = "^0.7.0"
 derivative = "^2.2.0"
@@ -31,11 +31,11 @@ shaku = { version = "^0.6.1", features = ["derive"] }
 
 augmented = { path = "../../../augmented/augmented", features = ["glow"] }
 
-audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../../augmented/audio/audio-processor-traits" }
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.4" }
+audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../../augmented/audio/audio-processor-traits" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.5" }
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook" }
 audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", features = ["glow"], default-features = false }
-augmented-audio-volume = { path = "../../../augmented/data/audio-volume" , version = "0.1.0-alpha.6" }
+augmented-audio-volume = { path = "../../../augmented/data/audio-volume" , version = "0.1.0-alpha.7" }
 iced = { version = "^0.3.0", path = "../../../vendor/iced", features = ["debug", "glow", "glow_canvas"], default-features = false }
 iced_core = { version = "^0.4", path = "../../../vendor/iced/core", default-features = false  }
 iced_native = { version = "^0.4", path = "../../../vendor/iced/native", default-features = false }
@@ -45,8 +45,8 @@ wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger"
 
 [dev-dependencies]
 criterion = { version = "^0.3.4", features = ["html_reports"] }
-augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.5" }
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.6" }
+augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.6" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.7" }
 tempdir = "0.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]

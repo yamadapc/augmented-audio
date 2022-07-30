@@ -20,6 +20,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! Preset configuration for `log4rs` inside of a VST plugin.
+//!
+//! `get_configuration_root_path()` will return the user $HOME/.ruas directory.
+//!
+//! `init("logger-name")` will set-up logging within this directory. Logs will rotate if they are
+//! over 10MB. The directories will be created automatically.
+
 use std::path::PathBuf;
 
 pub mod logging;

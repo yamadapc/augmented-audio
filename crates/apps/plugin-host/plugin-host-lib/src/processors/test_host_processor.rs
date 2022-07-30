@@ -212,7 +212,7 @@ impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginIns
         let num_channels = self.audio_settings.input_channels();
 
         // Mono the input source
-        mono_input_source(self.mono_input.clone(), output);
+        mono_input_source(self.mono_input, output);
 
         // Input generation section
         if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
@@ -362,7 +362,7 @@ mod test {
         let sample_rate = 44100.0;
 
         let mut host =
-            TestHostProcessorImpl::new(gc_handle, None, plugin.clone(), sample_rate, 2, 512, None);
+            TestHostProcessorImpl::new(gc_handle, None, plugin, sample_rate, 2, 512, None);
 
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 1000.0;

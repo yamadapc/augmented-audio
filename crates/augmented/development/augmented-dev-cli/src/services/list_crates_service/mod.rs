@@ -51,13 +51,21 @@ impl Default for ListCratesService {
 }
 
 impl ListCratesService {
-    pub fn run(&self) {
-        log::info!("Finding crates...");
+    pub fn run(&self, simple: bool) {
+        if !simple {
+            log::info!("Finding crates...");
+        }
 
         let manifests = self.find_manifests();
 
-        for (_, manifest) in manifests {
-            self.run_get_info(manifest);
+        if simple {
+            for (path, manifest) in manifests {
+                println!("{} {}", path, manifest.package.name);
+            }
+        } else {
+            for (_, manifest) in manifests {
+                self.run_get_info(manifest);
+            }
         }
     }
 

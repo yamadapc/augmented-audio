@@ -20,6 +20,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! Provides generic [`iced`] GUI for implementations of [`audio_processor_traits::parameters::AudioProcessorHandle`]
+//!
+//! GUI can be ran as a standalone app or as a `vst::editor::Editor`
+//!
+//! * [`open`] runs the app standalone
+//! * [`editor`] runs a boxed `Editor` instance
+
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
 use iced::{Alignment, Column, Command, Container, Length, Row, Text};
 use iced_audio::{Normal, NormalParam};
@@ -151,15 +159,17 @@ fn parameter_view(
     }
 }
 
+/// Create a VST editor for this handle
 pub fn editor(handle: AudioProcessorHandleRef) -> Box<dyn vst::editor::Editor> {
     let editor = iced_editor::IcedEditor::<GenericAudioProcessorApplication>::new(Flags { handle });
     Box::new(editor)
 }
 
+/// Open this generic editor as a standalone app. Will block, needs to be run on the main-thread.
 pub fn open(handle: AudioProcessorHandleRef) {
     IcedWindow::<GenericAudioProcessorApplication>::open_blocking(Settings {
         window: WindowOpenOptions {
-            title: "bitcrusher".to_string(),
+            title: "audio-processor-standalone".to_string(),
             size: Size {
                 width: 300.0,
                 height: 300.0,

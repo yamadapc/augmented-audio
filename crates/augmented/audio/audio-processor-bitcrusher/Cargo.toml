@@ -3,6 +3,7 @@ name = "audio-processor-bitcrusher"
 version = "0.1.0-alpha.1"
 edition = "2021"
 license = "MIT"
+description = "Implements a simple bitcrusher based on sample-and-hold."
 authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
@@ -12,13 +13,13 @@ name = "bitcrusher_vst"
 crate-type = ["cdylib"]
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.6", path = "../audio-processor-traits" }
-audio-garbage-collector = { version = "1.0.0-alpha.4", path = "../audio-garbage-collector" }
+audio-processor-traits = { version = "1.0.0-alpha.7", path = "../audio-processor-traits" }
+audio-garbage-collector = { version = "1.0.0-alpha.5", path = "../audio-garbage-collector" }
 
 [dev-dependencies]
-audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../application/audio-processor-standalone" }
+audio-processor-standalone = { version = "1.0.0-alpha.12", path = "../../application/audio-processor-standalone" }
 audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" }
-audio-processor-testing-helpers = { version = "1.0.0-alpha.6", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 processor_examples = ["bitcrusher"]

@@ -22,13 +22,18 @@ jobs:
           submodules: recursive
           lfs: true
       - uses: Swatinem/rust-cache@v1
+      - name: Install cargo-nextest
+        run: |
+          if ! [ -x "$(command -v cargo-nextest)" ]; then
+            cargo install cargo-nextest
+          fi
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
-            cargo install --force --version 0.15.2 uniffi_bindgen
+            cargo install --version 0.15.2 uniffi_bindgen
           fi
       - name: Run tests
-        run: cargo test --verbose --workspace --features story --exclude augmented-ui --exclude midir --exclude assert-no-alloc
+        run: cargo nextest run --verbose --workspace --features story --exclude augmented-ui --exclude midir --exclude assert-no-alloc
 
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
@@ -57,7 +62,7 @@ jobs:
         lfs: true
     - uses: Swatinem/rust-cache@v1
     - name: Install uniffi bindgen
-      run: cargo install --force --version 0.15.2 uniffi_bindgen
+      run: cargo install --version 0.15.2 uniffi_bindgen
     - name: Build release
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
     - name: Upload plugin-host binary
@@ -79,6 +84,7 @@ jobs:
       run: |
         cargo install cargo-about
         cargo about generate about.hbs
+
 
   run-snapshot-tests:
     name: Run snapshot tests
@@ -139,6 +145,7 @@ jobs:
           cd ./crates/apps/looper/Sequencer
           brew install xcbeautify
           make test
+
 
 
   build-docs:

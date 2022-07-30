@@ -49,16 +49,16 @@ iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = 
 # Storybook
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook" }
 derive_more = "^0.99.16"
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.0.0-alpha.6" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.0.0-alpha.7" }
 
 # Audio
 augmented = { path = "../../../augmented/augmented" }
-audio-processor-analysis = { version = "0.1.0-alpha.7", path = "../../../augmented/audio/audio-processor-analysis" }
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector", version = "1.0.0-alpha.4" }
+audio-processor-analysis = { version = "0.1.0-alpha.8", path = "../../../augmented/audio/audio-processor-analysis" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector", version = "1.0.0-alpha.5" }
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
-audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../../augmented/audio/audio-processor-traits" }
 audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
-audio-processor-file = { version = "1.0.0-alpha.7", path = "../../../augmented/audio/audio-processor-file" }
+audio-processor-file = { version = "1.0.0-alpha.8", path = "../../../augmented/audio/audio-processor-file" }
 looper-processor = { path = "../looper-processor" }
 
 tokio = "1.17.0"

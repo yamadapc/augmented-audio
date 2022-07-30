@@ -125,31 +125,17 @@ impl MultiTrackLooper {
     pub fn new(options: LooperOptions, num_voices: usize) -> Self {
         let time_info_provider = make_shared(TimeInfoProviderImpl::new(options.host_callback));
 
-        let metronome = audio_processor_metronome::MetronomeProcessor::new(
-            TimeInfoMetronomePlayhead(time_info_provider.clone()),
-        );
+        let metronome =
+            MetronomeProcessor::new(TimeInfoMetronomePlayhead(time_info_provider.clone()));
         let metronome_handle = metronome.handle().clone();
         metronome_handle.set_is_playing(false);
         metronome_handle.set_volume(0.7);
 
-        let (processors, voices) = Self::build_voices(&options, num_voices, &time_info_provider);
+        let (processors, voices) =
+            Self::build_voices(&options, num_voices, &time_info_provider, None);
 
-        let parameters_scratch = voices
-            .iter()
-            .map(|voice| {
-                voice
-                    .parameter_ids()
-                    .iter()
-                    .map(|id| voice.user_parameters().get(id.clone()).clone())
-                    .collect()
-            })
-            .collect();
-        let parameter_scratch_indexes = voices[0]
-            .parameter_ids()
-            .iter()
-            .enumerate()
-            .map(|(idx, id)| (id.clone(), idx))
-            .collect();
+        let (parameters_scratch, parameter_scratch_indexes) =
+            Self::make_parameters_scratch(&voices);
 
         let metrics = AudioProcessorMetrics::default();
         let handle = make_shared(MultiTrackLooperHandle::new(
@@ -179,6 +165,65 @@ impl MultiTrackLooper {
         }
     }
 
+    fn make_parameters_scratch(
+        voices: &[LooperVoice],
+    ) -> (ParametersScratch, ParametersScratchIndexes) {
+        let parameters_scratch = voices
+            .iter()
+            .map(|voice| {
+                voice
+                    .parameter_ids()
+                    .iter()
+                    .map(|id| voice.user_parameters().get(id.clone()).clone())
+                    .collect()
+            })
+            .collect();
+        let parameter_scratch_indexes = voices[0]
+            .parameter_ids()
+            .iter()
+            .enumerate()
+            .map(|(idx, id)| (id.clone(), idx))
+            .collect();
+        (parameters_scratch, parameter_scratch_indexes)
+    }
+
+    pub fn from_handle(
+        options: LooperOptions,
+        num_voices: usize,
+        handle: Shared<MultiTrackLooperHandle>,
+    ) -> Self {
+        let metronome = MetronomeProcessor::from_handle(
+            TimeInfoMetronomePlayhead(handle.time_info_provider().clone()),
+            handle.metronome_handle().clone(),
+        );
+        let (processors, voices) = Self::build_voices(
+            &options,
+            num_voices,
+            handle.time_info_provider(),
+            Some(handle.voices()),
+        );
+        let (parameters_scratch, parameter_scratch_indexes) =
+            Self::make_parameters_scratch(&voices);
+        let metrics = AudioProcessorMetrics::from_handle(handle.metrics_handle().clone());
+        let step_trackers = processors.iter().map(|_| StepTracker::default()).collect();
+        let lfos = processors
+            .iter()
+            .map(|_| (Oscillator::sine(44100.0), Oscillator::sine(44100.0)))
+            .collect();
+        let graph = Self::build_audio_graph(processors, metronome);
+
+        Self {
+            graph,
+            handle,
+            step_trackers,
+            lfos,
+            metrics,
+            parameters_scratch,
+            parameter_scratch_indexes,
+            record_midi_button: MIDIButton::new(),
+        }
+    }
+
     pub fn handle(&self) -> &Shared<MultiTrackLooperHandle> {
         &self.handle
     }
@@ -187,10 +232,17 @@ impl MultiTrackLooper {
         options: &LooperOptions,
         num_voices: usize,
         time_info_provider: &Shared<TimeInfoProviderImpl>,
+        previous_handles: Option<&[LooperVoice]>,
     ) -> (Vec<VoiceProcessors>, Vec<LooperVoice>) {
-        let processors: Vec<VoiceProcessors> = (0..num_voices)
-            .map(|_| looper_voice::build_voice_processor(options, time_info_provider))
-            .collect();
+        let processors: Vec<VoiceProcessors> = match previous_handles {
+            None => (0..num_voices)
+                .map(|_| looper_voice::build_voice_processor(options, time_info_provider))
+                .collect(),
+            Some(previous_handles) => previous_handles
+                .iter()
+                .map(looper_voice::from_handle)
+                .collect(),
+        };
 
         let voices: Vec<LooperVoice> = processors
             .iter()

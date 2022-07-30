@@ -18,11 +18,11 @@ serde = { version = "^1.0", features = [ "derive" ] }
 toml = "^0.5.8"
 urlencoding = "2.1.0"
 plist = "^1.1.0"
-mockall = "0.10.2"
-crates_io_api = "0.7.3"
+mockall = "0.11.2"
+crates_io_api = "0.8.0"
 daggy = "0.8.0"
 semver = "1.0.4"
-toml_edit = "0.12.4"
+toml_edit = "0.14.4"
 
 [package.metadata.augmented]
 private = true

@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone"
-version = "1.0.0-alpha.11"
+version = "1.0.0-alpha.12"
 edition = "2018"
 description = "Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`"
 license = "MIT"
@@ -17,10 +17,10 @@ itertools = "0.10.1"
 thiserror = "^1.0.25"
 
 # Augmented
-audio-processor-file = { path = "../../audio/audio-processor-file", version = "1.0.0-alpha.7" }
-audio-garbage-collector = { path = "../../audio/audio-garbage-collector", version = "1.0.0-alpha.4" }
-audio-processor-traits = { version = "1.0.0-alpha.6", path = "../../audio/audio-processor-traits" }
-augmented-midi = { path = "../../data/augmented-midi", version = "1.0.0-alpha.6" }
+audio-processor-file = { path = "../../audio/audio-processor-file", version = "1.0.0-alpha.8" }
+audio-garbage-collector = { path = "../../audio/audio-garbage-collector", version = "1.0.0-alpha.5" }
+audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../audio/audio-processor-traits" }
+augmented-midi = { path = "../../data/augmented-midi", version = "1.0.0-alpha.7" }
 
 # Audio
 basedrop = "^0.1.2"
@@ -33,7 +33,8 @@ audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-
 
 [dev-dependencies]
 atomic-queue = { version = "1.0.0-alpha.4", path = "../../data/atomic-queue" }
-audio-processor-testing-helpers = { version = "1.0.0-alpha.6", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../testing/audio-processor-testing-helpers" }
+mockall = "0.11.1"
 
 [package.metadata.augmented]
 private = false

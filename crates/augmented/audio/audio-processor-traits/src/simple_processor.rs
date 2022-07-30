@@ -20,6 +20,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+//! Provides what is in some cases a simpler form of expressing signal processing.
+//!
+//! The [`SimpleAudioProcessor`] is essentially a function of `f32` to `f32` (or a
+//! function that takes a multi-channel `frame` of `f32`s and mutates it.
+//!
+//! Additionally, [`process_buffer`] and [`BufferProcessor`] are exposed to "lift" a
+//! [`SimpleAudioProcessor`] onto a buffered [`AudioProcessor`] instance.
+
 use crate::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
 use crate::{
     AudioBuffer, AudioProcessor, AudioProcessorSettings, MidiEventHandler, MidiMessageLike,

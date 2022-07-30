@@ -24,12 +24,12 @@ thiserror = "^1.0.25"
 
 webview-transport = { path = "../../augmented/gui/webview-transport" }
 audio-parameter-store = { path = "../../augmented/audio/audio-parameter-store" }
-audio-processor-standalone = { version = "1.0.0-alpha.11", path = "../../augmented/application/audio-processor-standalone" }
-audio-garbage-collector = { version = "1.0.0-alpha.4", path = "../../augmented/audio/audio-garbage-collector" }
-augmented_oscillator = { path = "../../augmented/audio/oscillator", version = "1.0.0-alpha.5" }
+audio-processor-standalone = { version = "1.0.0-alpha.12", path = "../../augmented/application/audio-processor-standalone" }
+audio-garbage-collector = { version = "1.0.0-alpha.5", path = "../../augmented/audio/audio-garbage-collector" }
+augmented_oscillator = { path = "../../augmented/audio/oscillator", version = "1.0.0-alpha.6" }
 wisual-logger = { version = "^0.1", path = "../../augmented/ops/wisual-logger" }
 generic-parameters-editor = { path = "../../augmented/gui/generic-parameters-editor" }
-audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits", version = "1.0.0-alpha.6" }
+audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits", version = "1.0.0-alpha.7" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cacao = { version = "0.2.1" }

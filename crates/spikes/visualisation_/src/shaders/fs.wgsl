@@ -23,13 +23,16 @@ fn main(v: VertexOutput) -> [[location(0)]] vec4<f32> {
     let fft_idx = sqrt(v.position.y / v.dimensions[0]) * 2048.0;
     let fft_value = s.fft[u32(fft_idx)];
 
-    let ratio_x = (v.coord.x + 1.0) / 2.0;
-    let a = step(1.0 - ratio_x, 0.01);
-    let c = a * fft_value;
+    let ratio_x = step(1.0 - v.coord.x, 0.1);
+    let a = ratio_x;
+    let c1 = a * fft_value;
+    let c2 = sin(a) * fft_value;
+    let c3 = a * 0.2 * fft_value;
 
-    let prev_coord = vec2<f32>(v.position.x + 0.01 * v.dimensions[0], v.position.y);
-    let prev_output = (1.0 - a) * textureSample(prev_frame, s_prev_frame, prev_coord);
+    let prev_coord = vec2<f32>(v.coord.x + 0.01, v.coord.y);
+    let prev_output = textureSample(prev_frame, s_prev_frame, prev_coord);
 
-    let new_output = vec4<f32>(c, c, c, a);
-    return new_output + prev_output + vec4<f32>(0.0, 0.0, 0.0, 1.0);
+    let new_output = vec4<f32>(c1, c2, c3, a);
+    // + vec4<f32>(0.0, 0.0, 0.0, 1.0) */
+    return new_output + prev_output;
 }

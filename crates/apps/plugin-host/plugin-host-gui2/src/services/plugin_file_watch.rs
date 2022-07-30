@@ -240,7 +240,7 @@ mod test {
             move || run_file_watch_loop(&file_path, irx, tx)
         });
 
-        tokio::time::sleep(Duration::from_millis(10)).await;
+        tokio::time::sleep(Duration::from_millis(100)).await;
         std::fs::write(&file_path, "something else").unwrap();
         itx.send(DebouncedEvent::Write(file_path)).unwrap();
         let r = rx.recv().await.unwrap();

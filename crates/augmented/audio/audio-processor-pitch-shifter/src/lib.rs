@@ -20,6 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+//! This is a phase-vocoder pitch-shifter implementation.
+//!
+//! Currently, it implements only very old strategies.
+//!
+//! # References
+//! * "Audio Effects: Theory, Implementation and Application: Joshua D. Reiss and Andrew Mcpherson"
+//! * "Phase-locked Vocoder: Miller Puckette"
+//! * "New phase-vocoder techniques for pitch-shifting, harmonizing and other exotic effects: Jean Laroche and Mark Dolson"
+
 use std::f32::consts::PI;
 
 use audio_garbage_collector::{make_shared, Shared};
@@ -320,6 +330,13 @@ pub struct MultiChannelPitchShifterProcessor {
 }
 
 impl MultiChannelPitchShifterProcessor {
+    pub fn from_handle(handle: Shared<MultiChannelPitchShifterProcessorHandle>) -> Self {
+        Self {
+            handle,
+            ..Self::default()
+        }
+    }
+
     pub fn handle(&self) -> &Shared<MultiChannelPitchShifterProcessorHandle> {
         &self.handle
     }

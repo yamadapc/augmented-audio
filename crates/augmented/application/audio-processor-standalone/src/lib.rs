@@ -96,11 +96,13 @@
 
 use basedrop::Handle;
 
+use crate::standalone_cpal::StandaloneStartOptions;
 use audio_processor_traits::{AudioProcessor, MidiEventHandler};
 use options::{ParseOptionsParams, RenderingOptions};
 #[doc(inline)]
 pub use standalone_cpal::{
-    audio_processor_start, audio_processor_start_with_midi, standalone_start, StandaloneHandles,
+    audio_processor_start, audio_processor_start_with_midi, standalone_start,
+    standalone_start_with, StandaloneHandles,
 };
 #[doc(inline)]
 pub use standalone_processor::{
@@ -158,7 +160,7 @@ pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send +
 }
 
 /// Internal main function used by `audio_processor_main`.
-fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
+fn standalone_main<SP: StandaloneProcessor>(mut app: SP, handle: Option<&Handle>) {
     let options = options::parse_options(ParseOptionsParams {
         supports_midi: app.supports_midi(),
     });
@@ -166,7 +168,13 @@ fn standalone_main(mut app: impl StandaloneProcessor, handle: Option<&Handle>) {
     match options.rendering() {
         RenderingOptions::Online { .. } => {
             log::info!("Starting stand-alone online rendering with default IO config");
-            let _handles = standalone_start(app, handle);
+            let _handles = standalone_start_with::<SP, cpal::Host>(
+                app,
+                StandaloneStartOptions {
+                    handle: handle.cloned(),
+                    ..StandaloneStartOptions::default()
+                },
+            );
             std::thread::park();
         }
         #[cfg(not(target_os = "ios"))]

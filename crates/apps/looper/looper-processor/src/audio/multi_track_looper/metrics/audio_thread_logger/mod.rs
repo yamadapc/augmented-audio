@@ -125,6 +125,14 @@ mod test {
         let logger = AudioThreadLogger::new();
         let handle = logger.handle.clone();
         handle.info("Hello world");
-        std::thread::sleep(Duration::from_millis(200));
+        std::thread::sleep(Duration::from_millis(20));
+    }
+
+    #[test]
+    fn test_log_a_message_with_global_logger() {
+        wisual_logger::init_from_env();
+        let logger = AudioThreadLogger::handle();
+        logger.info("Global logger");
+        std::thread::sleep(Duration::from_millis(20));
     }
 }

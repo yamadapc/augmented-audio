@@ -138,16 +138,14 @@ struct Model {
 fn model(app: &App) -> Model {
     let processor = Processor::new();
     let handle = processor.handle.clone();
-    let audio_handles = audio_processor_standalone::standalone_start(
-        StandaloneAudioOnlyProcessor::new(
+    let audio_handles =
+        audio_processor_standalone::standalone_start(StandaloneAudioOnlyProcessor::new(
             processor,
             StandaloneOptions {
                 accepts_input: false,
                 ..StandaloneOptions::default()
             },
-        ),
-        None,
-    );
+        ));
 
     Model {
         handle,
@@ -203,8 +201,10 @@ fn view(app: &App, model: &Model, frame: Frame) {
         render_pass.draw(vertex_range, instance_range);
     }
 
+    let rms = { model.handle.rms.calculate_rms(0) + model.handle.rms.calculate_rms(1) };
     let draw = app.draw();
     draw.texture(&wgpu_model.texture)
+        .x(rms * app.window_rect().w())
         .w(app.window_rect().w())
         .h(app.window_rect().h())
         .finish();

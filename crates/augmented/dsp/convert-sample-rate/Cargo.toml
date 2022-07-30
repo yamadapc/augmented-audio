@@ -1,6 +1,6 @@
 [package]
 name = "augmented-convert-sample-rate"
-version = "1.0.0-alpha.6"
+version = "1.0.0-alpha.7"
 authors = ["yamadapc <tacla.yamada@gmail.com>"]
 edition = "2018"
 description = "audio sample-rate conversion, delegates to `samplerate`"
@@ -13,8 +13,8 @@ samplerate = "0.2.4"
 
 [dev-dependencies]
 rand = "^0.8.3"
-augmented_oscillator = { version = "1.0.0-alpha.5", path = "../../audio/oscillator" }
-audio-processor-testing-helpers = { version = "1.0.0-alpha.6", path = "../../testing/audio-processor-testing-helpers" }
+augmented_oscillator = { version = "1.0.0-alpha.6", path = "../../audio/oscillator" }
+audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = false

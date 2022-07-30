@@ -20,8 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use basedrop::{Shared, SharedCell};
+
 use std::ops::Deref;
+
+use basedrop::{Shared, SharedCell};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_bitcrusher::BitCrusherProcessor;
@@ -163,6 +165,11 @@ impl EffectsProcessor {
                 settings: make_shared_cell(Default::default()),
             }),
         }
+    }
+
+    pub fn from_handle(handle: Shared<EffectsProcessorHandle>) -> Self {
+        let graph = AudioProcessorGraph::from_handle(handle.graph_handle.clone());
+        Self { graph, handle }
     }
 
     pub fn handle(&self) -> &Shared<EffectsProcessorHandle> {

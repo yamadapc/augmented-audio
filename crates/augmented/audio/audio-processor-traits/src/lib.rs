@@ -30,6 +30,16 @@
 //! buffer types and audio processing back-ends.
 //!
 //! Start looking at [AudioProcessor], then have a look at [AudioBuffer] and [MidiEventHandler].
+//!
+//! # Running the audio processors as CLIs, GUIs, VSTs or CPAL threads
+//! See [`audio_processor_standalone`]
+//!
+//! # Running a graph of audio processors
+//! See [`audio_processor_graph`]
+//!
+//! # AudioProcessor implementations
+//! See: <https://github.com/yamadapc/augmented-audio/>
+//!
 use std::marker::PhantomData;
 
 pub use num;
@@ -55,9 +65,13 @@ pub mod simple_processor;
 /// Options provided to the audio-processor before calling `process`.
 #[derive(Clone, PartialEq, Debug, Copy)]
 pub struct AudioProcessorSettings {
+    /// The sample rate of the signal
     pub sample_rate: f32,
+    /// The number of input channels to the signal
     pub input_channels: usize,
+    /// The number of output channels to the signal
     pub output_channels: usize,
+    /// Buffer size of this processing loop
     pub block_size: usize,
 }
 
@@ -68,6 +82,7 @@ impl Default for AudioProcessorSettings {
 }
 
 impl AudioProcessorSettings {
+    /// Create audio processor settings with the given options
     pub fn new(
         sample_rate: f32,
         input_channels: usize,
@@ -104,18 +119,22 @@ impl AudioProcessorSettings {
 }
 
 impl AudioProcessorSettings {
+    /// Set the sample rate of this settings object
     pub fn set_sample_rate(&mut self, sample_rate: f32) {
         self.sample_rate = sample_rate;
     }
 
+    /// Set the number of input channels of this settings object
     pub fn set_input_channels(&mut self, input_channels: usize) {
         self.input_channels = input_channels;
     }
 
+    /// Set the number of output channels of this settings object
     pub fn set_output_channels(&mut self, output_channels: usize) {
         self.output_channels = output_channels;
     }
 
+    /// Set the buffer size of this settings object
     pub fn set_block_size(&mut self, block_size: usize) {
         self.block_size = block_size;
     }

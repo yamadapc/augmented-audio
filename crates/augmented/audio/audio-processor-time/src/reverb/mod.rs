@@ -28,3 +28,6 @@ mod lowpass_feedback_comb_filter;
 pub mod mod_reverb;
 mod tuning;
 mod utils;
+
+#[cfg(test)]
+mod test_allocator;

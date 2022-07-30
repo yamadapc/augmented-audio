@@ -1,3 +1,12 @@
 # audio-garbage-collector
-Wrapper on top of `basedrop` that provides a drop-in GC API that will collect reference-counted values on a background
-thread.
+
+Batteries included solution to using reference counted values on the audio-thread.
+
+Wraps `basedrop` so that smart pointers are dropped on a background thread. Exposes a default
+global GC thread and helpers to create pointers attached to it.
+
+## Collection frequency
+Collection is based on polling the queue. If references are created and dropped very frequently
+this will not be adequate.
+
+License: MIT

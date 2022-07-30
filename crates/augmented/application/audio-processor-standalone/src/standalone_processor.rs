@@ -45,8 +45,20 @@ pub trait StandaloneProcessor: Send + 'static {
     }
 }
 
+/// Options for `audio-processor-standalone`, this is provided by the `StandaloneProcessor` trait
+/// implementation at the moment, which is less than ideal.
+#[derive(Clone)]
 pub struct StandaloneOptions {
+    /// If true a callback will be created for an input device
     pub accepts_input: bool,
+    /// If set starting this processor will attempt to find this device and use it
+    pub input_device: Option<String>,
+    /// If set starting this processor will attempt to find this device and use it
+    pub output_device: Option<String>,
+    /// If set and running in a VST and the VST uses the generated GUI, this will be used
+    /// to build a generic GUI over the generic audio processor handle.
+    ///
+    /// TODO - Move this somewhere else
     pub handle: Option<AudioProcessorHandleRef>,
 }
 
@@ -54,6 +66,8 @@ impl Default for StandaloneOptions {
     fn default() -> Self {
         StandaloneOptions {
             accepts_input: true,
+            input_device: None,
+            output_device: None,
             handle: None,
         }
     }
