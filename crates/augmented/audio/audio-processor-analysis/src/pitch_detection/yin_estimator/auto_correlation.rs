@@ -25,6 +25,7 @@ pub fn auto_correlation(signal: &[f32]) -> Vec<Vec<f32>> {
 
 #[cfg(test)]
 mod test {
+    use std::cmp::Ordering;
     use std::time::Duration;
 
     use audio_processor_testing_helpers::charts::{draw_vec_chart, SVGBackend};
@@ -75,23 +76,23 @@ mod test {
         );
         input_processor.process(&mut input_signal);
         let input_signal: Vec<f32> = input_signal.frames().map(|frame| frame[0]).collect();
-        let output_path = relative_path!("pitch-detection-auto-correlation-piano.svg");
+        let output_path = relative_path!("pitch-detection-auto-correlation-piano.png");
         let output_signal = auto_correlation(&input_signal);
 
-        let area = SVGBackend::new(&output_path, (800, 800)).into_drawing_area();
+        let area = BitMapBackend::new(&output_path, (800, 800)).into_drawing_area();
         area.fill(&WHITE).unwrap();
 
-        let x_axis = (-0.5..0.5).step(0.01);
-        let z_axis = (-0.5..0.5).step(0.01);
+        let x_axis = (-400.0..400.0).step(0.01);
+        let z_axis = (-400.0..400.0).step(0.01);
 
         let mut chart = ChartBuilder::on(&area)
             .caption(format!("3D Plot Test"), ("sans", 20))
-            .build_cartesian_3d(x_axis.clone(), -3.0..3.0, z_axis.clone())
+            .build_cartesian_3d(x_axis.clone(), -1.0..1.0, z_axis.clone())
             .unwrap();
 
         chart.with_projection(|mut pb| {
             pb.yaw = 0.5;
-            pb.scale = 0.3;
+            pb.scale = 0.8;
             pb.into_matrix()
         });
 
@@ -100,6 +101,14 @@ mod test {
             .light_grid_style(BLACK.mix(0.15))
             .draw()
             .unwrap();
+
+        let scaling_factor = output_signal
+            .iter()
+            .map(|s| s.iter())
+            .flatten()
+            .max_by(|a, b| f32::partial_cmp(a, b).unwrap_or(Ordering::Equal))
+            .cloned()
+            .unwrap_or(1.0);
 
         chart
             .draw_series(
@@ -118,7 +127,7 @@ mod test {
                         .collect::<Vec<f64>>()
                         .iter()
                         .cloned(),
-                    |x, y| output_signal[x as usize][y as usize] as f64,
+                    |x, y| (scaling_factor * output_signal[x as usize][y as usize]) as f64,
                 )
                 .style(BLUE.mix(0.2).filled()),
             )
