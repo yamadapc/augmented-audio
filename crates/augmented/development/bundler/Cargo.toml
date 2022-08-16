@@ -8,7 +8,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 license = "MIT"
 
 [dependencies]
-clap = "^2.33.3"
+clap = "^3.2.17"
 log = "^0.4.14"
 plist = "^1.1.0"
 serde = { version = "^1.0.126", features = ["derive"] }
