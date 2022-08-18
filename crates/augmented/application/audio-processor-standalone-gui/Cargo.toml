@@ -40,7 +40,7 @@ audio-processor-traits = { version = "1.0.0-alpha.7",  path = "../../audio/audio
 vst = { version = "0.2.1", path = "../../../vendor/vst" }
 
 # GUI dependencies
-iced = { version = "^0.3.0", path = "../../../vendor/iced", default-features = false, optional = true }
+iced = { version = "0.4.2", default-features = false, optional = true }
 iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false, optional = true }
 iced_audio = { path = "../../../vendor/iced_audio", default-features = false, optional = true }
 baseview = { path = "../../../vendor/baseview", optional = true }
