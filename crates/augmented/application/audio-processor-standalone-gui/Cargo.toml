@@ -23,8 +23,8 @@ default = [
 glow = [
     "iced/glow",
     "iced_baseview/glow",
-    "iced/glow_canvas",
-    "iced_baseview/glow_canvas",
+    "iced/canvas",
+    "iced_baseview/canvas",
     "audio-processor-iced-design-system/glow",
 ]
 wgpu = [

@@ -10,7 +10,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [features]
 default = ["wgpu"]
 wgpu = ["iced/tokio", "iced/wgpu", "iced/canvas"]
-glow = ["iced/tokio", "iced/glow", "iced/glow_canvas"]
+glow = ["iced/tokio", "iced/glow", "iced/canvas"]
 
 [package.metadata.augmented]
 private = true

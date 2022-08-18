@@ -252,14 +252,23 @@ version = "0.33.3+1.2.191"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc4f1d82f164f838ae413296d1131aa6fa79b917d25bebaa7033d25620c09219"
 dependencies = [
- "libloading 0.7.3",
+    "libloading 0.7.3",
+]
+
+[[package]]
+name = "ash"
+version = "0.34.0+1.2.203"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0f780da53d0063880d45554306489f09dd8d1bda47688b4a57bc579119356df"
+dependencies = [
+    "libloading 0.7.3",
 ]
 
 [[package]]
 name = "assert_no_alloc"
 version = "1.1.2"
 dependencies = [
- "backtrace",
+    "backtrace",
 ]
 
 [[package]]
@@ -464,23 +473,23 @@ dependencies = [
 name = "audio-processor-iced-design-system"
 version = "0.1.0-alpha.0"
 dependencies = [
- "iced",
- "iced_audio",
- "iced_graphics",
- "iced_native",
- "iced_style",
- "log",
- "wisual-logger",
+    "iced 0.3.0",
+    "iced_audio",
+    "iced_graphics 0.2.0",
+    "iced_native 0.4.0",
+    "iced_style 0.3.0",
+    "log",
+    "wisual-logger",
 ]
 
 [[package]]
 name = "audio-processor-iced-storybook"
 version = "0.1.0"
 dependencies = [
- "audio-processor-iced-design-system",
- "iced",
- "log",
- "wisual-logger",
+    "audio-processor-iced-design-system",
+    "iced 0.4.2",
+    "log",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -535,14 +544,14 @@ dependencies = [
 name = "audio-processor-standalone-gui"
 version = "0.1.0"
 dependencies = [
- "audio-processor-iced-design-system",
- "audio-processor-traits",
- "baseview",
- "iced",
- "iced-editor",
- "iced_audio",
- "iced_baseview",
- "vst",
+    "audio-processor-iced-design-system",
+    "audio-processor-traits",
+    "baseview",
+    "iced 0.4.2",
+    "iced-editor",
+    "iced_audio",
+    "iced_baseview",
+    "vst",
 ]
 
 [[package]]
@@ -635,10 +644,10 @@ dependencies = [
 name = "audio-settings-gui"
 version = "0.1.0"
 dependencies = [
- "audio-processor-iced-design-system",
- "audio-processor-iced-storybook",
- "derive_more",
- "iced",
+    "audio-processor-iced-design-system",
+    "audio-processor-iced-storybook",
+    "derive_more",
+    "iced 0.4.2",
 ]
 
 [[package]]
@@ -675,23 +684,23 @@ dependencies = [
  "audio-processor-standalone-midi",
  "audio-processor-testing-helpers",
  "audio-processor-time",
- "audio-processor-traits",
- "audio-processor-utility",
- "augmented-adsr-envelope",
- "augmented-audio-volume",
- "augmented-convert-sample-rate",
- "augmented-dsp-filters",
- "augmented_oscillator",
- "baseview",
- "circular-data-structures",
- "cpal",
- "iced",
- "iced-editor",
- "iced_audio",
- "macos-bundle-resources",
- "smooth-value",
- "vst",
- "wisual-logger",
+    "audio-processor-traits",
+    "audio-processor-utility",
+    "augmented-adsr-envelope",
+    "augmented-audio-volume",
+    "augmented-convert-sample-rate",
+    "augmented-dsp-filters",
+    "augmented_oscillator",
+    "baseview",
+    "circular-data-structures",
+    "cpal",
+    "iced 0.4.2",
+    "iced-editor",
+    "iced_audio",
+    "macos-bundle-resources",
+    "smooth-value",
+    "vst",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -1988,7 +1997,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "91a9304e55e9d601a39ae4deaba85406d5c0980e106f65afcf0460e9af1e7602"
 dependencies = [
- "petgraph 0.6.2",
+    "petgraph 0.6.2",
 ]
 
 [[package]]
@@ -1997,8 +2006,18 @@ version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0d706e75d87e35569db781a9b5e2416cff1236a47ed380831f959382ccd5f858"
 dependencies = [
- "darling_core",
- "darling_macro",
+    "darling_core 0.10.2",
+    "darling_macro 0.10.2",
+]
+
+[[package]]
+name = "darling"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a01d95850c592940db9b8194bc39f4bc0e89dee5c4265e4b1807c34a9aba453c"
+dependencies = [
+    "darling_core 0.13.4",
+    "darling_macro 0.13.4",
 ]
 
 [[package]]
@@ -2007,12 +2026,26 @@ version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0c960ae2da4de88a91b2d920c2a7233b400bc33cb28453a2987822d8392519b"
 dependencies = [
- "fnv",
- "ident_case",
- "proc-macro2 1.0.40",
- "quote 1.0.20",
- "strsim 0.9.3",
- "syn",
+    "fnv",
+    "ident_case",
+    "proc-macro2 1.0.40",
+    "quote 1.0.20",
+    "strsim 0.9.3",
+    "syn",
+]
+
+[[package]]
+name = "darling_core"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "859d65a907b6852c9361e3185c862aae7fafd2887876799fa55f5f99dc40d610"
+dependencies = [
+    "fnv",
+    "ident_case",
+    "proc-macro2 1.0.40",
+    "quote 1.0.20",
+    "strsim 0.10.0",
+    "syn",
 ]
 
 [[package]]
@@ -2021,17 +2054,28 @@ version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9b5a2f4ac4969822c62224815d069952656cadc7084fdca9751e6d959189b72"
 dependencies = [
- "darling_core",
- "quote 1.0.20",
- "syn",
+    "darling_core 0.10.2",
+    "quote 1.0.20",
+    "syn",
+]
+
+[[package]]
+name = "darling_macro"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9c972679f83bdf9c42bd905396b6c3588a843a17f0f16dfcfa3e2c5d57441835"
+dependencies = [
+    "darling_core 0.13.4",
+    "quote 1.0.20",
+    "syn",
 ]
 
 [[package]]
 name = "darwin-webkit"
 version = "0.1.3"
 dependencies = [
- "block",
- "cocoa 0.24.0",
+    "block",
+    "cocoa 0.24.0",
  "core-graphics 0.22.3",
  "criterion",
  "dispatch",
@@ -2329,16 +2373,16 @@ dependencies = [
 name = "example-iced-audio-viz"
 version = "0.1.0"
 dependencies = [
- "atomic-queue",
- "audio-garbage-collector",
- "audio-processor-standalone",
- "audio-processor-traits",
- "basedrop",
- "circular-data-structures",
- "cpal",
- "iced",
- "log",
- "vst",
+    "atomic-queue",
+    "audio-garbage-collector",
+    "audio-processor-standalone",
+    "audio-processor-traits",
+    "basedrop",
+    "circular-data-structures",
+    "cpal",
+    "iced 0.3.0",
+    "log",
+    "vst",
 ]
 
 [[package]]
@@ -3108,10 +3152,22 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0510450eb46dd2b8e3284b50b08bfd870f1ef93a55045f54d7376fbcb63b1cb"
 dependencies = [
- "bytemuck",
- "glow 0.6.1",
- "glyph_brush",
- "log",
+    "bytemuck",
+    "glow 0.6.1",
+    "glyph_brush",
+    "log",
+]
+
+[[package]]
+name = "glow_glyph"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0f4e62c64947b9a24fe20e2bba9ad819ecb506ef5c8df7ffc4737464c6df9510"
+dependencies = [
+    "bytemuck",
+    "glow 0.11.2",
+    "glyph_brush",
+    "log",
 ]
 
 [[package]]
@@ -3119,25 +3175,52 @@ name = "glutin"
 version = "0.27.0"
 source = "git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da52284305fd128346#492c20605907accf2b5dc2da52284305fd128346"
 dependencies = [
- "android_glue",
- "cgl",
- "cocoa 0.24.0",
- "core-foundation 0.9.3",
- "glutin_egl_sys",
- "glutin_emscripten_sys",
- "glutin_gles2_sys",
- "glutin_glx_sys",
- "glutin_wgl_sys",
- "lazy_static",
- "libloading 0.7.3",
- "log",
- "objc",
- "osmesa-sys",
- "parking_lot 0.11.2",
- "wayland-client 0.28.6",
- "wayland-egl",
- "winapi 0.3.9",
- "winit 0.25.0 (git+https://github.com/iced-rs/winit?rev=1e6623c4d06d110e5408dcbdf1edebd07e6a200e)",
+    "android_glue",
+    "cgl",
+    "cocoa 0.24.0",
+    "core-foundation 0.9.3",
+    "glutin_egl_sys 0.1.5",
+    "glutin_emscripten_sys 0.1.1 (git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da52284305fd128346)",
+    "glutin_gles2_sys 0.1.5 (git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da52284305fd128346)",
+    "glutin_glx_sys 0.1.7",
+    "glutin_wgl_sys 0.1.5 (git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da52284305fd128346)",
+    "lazy_static",
+    "libloading 0.7.3",
+    "log",
+    "objc",
+    "osmesa-sys",
+    "parking_lot 0.11.2",
+    "wayland-client 0.28.6",
+    "wayland-egl 0.28.6",
+    "winapi 0.3.9",
+    "winit 0.25.0 (git+https://github.com/iced-rs/winit?rev=1e6623c4d06d110e5408dcbdf1edebd07e6a200e)",
+]
+
+[[package]]
+name = "glutin"
+version = "0.28.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "00ea9dbe544bc8a657c4c4a798c2d16cd01b549820e47657297549d28371f6d2"
+dependencies = [
+    "android_glue",
+    "cgl",
+    "cocoa 0.24.0",
+    "core-foundation 0.9.3",
+    "glutin_egl_sys 0.1.6",
+    "glutin_emscripten_sys 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+    "glutin_gles2_sys 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+    "glutin_glx_sys 0.1.8",
+    "glutin_wgl_sys 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
+    "lazy_static",
+    "libloading 0.7.3",
+    "log",
+    "objc",
+    "osmesa-sys",
+    "parking_lot 0.11.2",
+    "wayland-client 0.29.4",
+    "wayland-egl 0.29.4",
+    "winapi 0.3.9",
+    "winit 0.26.1",
 ]
 
 [[package]]
@@ -3145,9 +3228,25 @@ name = "glutin_egl_sys"
 version = "0.1.5"
 source = "git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da52284305fd128346#492c20605907accf2b5dc2da52284305fd128346"
 dependencies = [
- "gl_generator",
- "winapi 0.3.9",
+    "gl_generator",
+    "winapi 0.3.9",
 ]
+
+[[package]]
+name = "glutin_egl_sys"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68900f84b471f31ea1d1355567eb865a2cf446294f06cef8d653ed7bcf5f013d"
+dependencies = [
+    "gl_generator",
+    "winapi 0.3.9",
+]
+
+[[package]]
+name = "glutin_emscripten_sys"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "80de4146df76e8a6c32b03007bc764ff3249dcaeb4f675d68a06caf1bac363f1"
 
 [[package]]
 name = "glutin_emscripten_sys"
@@ -3157,10 +3256,20 @@ source = "git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da5228
 [[package]]
 name = "glutin_gles2_sys"
 version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8094e708b730a7c8a1954f4f8a31880af00eb8a1c5b5bf85d28a0a3c6d69103"
+dependencies = [
+    "gl_generator",
+    "objc",
+]
+
+[[package]]
+name = "glutin_gles2_sys"
+version = "0.1.5"
 source = "git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da52284305fd128346#492c20605907accf2b5dc2da52284305fd128346"
 dependencies = [
- "gl_generator",
- "objc",
+    "gl_generator",
+    "objc",
 ]
 
 [[package]]
@@ -3168,8 +3277,27 @@ name = "glutin_glx_sys"
 version = "0.1.7"
 source = "git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da52284305fd128346#492c20605907accf2b5dc2da52284305fd128346"
 dependencies = [
- "gl_generator",
- "x11-dl",
+    "gl_generator",
+    "x11-dl",
+]
+
+[[package]]
+name = "glutin_glx_sys"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d93d0575865098580c5b3a423188cd959419912ea60b1e48e8b3b526f6d02468"
+dependencies = [
+    "gl_generator",
+    "x11-dl",
+]
+
+[[package]]
+name = "glutin_wgl_sys"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3da5951a1569dbab865c6f2a863efafff193a93caf05538d193e9e3816d21696"
+dependencies = [
+    "gl_generator",
 ]
 
 [[package]]
@@ -3177,7 +3305,7 @@ name = "glutin_wgl_sys"
 version = "0.1.5"
 source = "git+https://github.com/iced-rs/glutin?rev=492c20605907accf2b5dc2da52284305fd128346#492c20605907accf2b5dc2da52284305fd128346"
 dependencies = [
- "gl_generator",
+    "gl_generator",
 ]
 
 [[package]]
@@ -3519,174 +3647,317 @@ checksum = "71a816c97c42258aa5834d07590b718b4c9a598944cd39a52dc25b351185d678"
 name = "iced"
 version = "0.3.0"
 dependencies = [
- "iced_core",
- "iced_futures",
- "iced_glow",
- "iced_glutin",
- "iced_web",
- "iced_wgpu",
- "iced_winit",
- "thiserror",
+    "iced_core 0.4.0",
+    "iced_futures 0.3.0",
+    "iced_glow 0.2.0",
+    "iced_glutin 0.2.0",
+    "iced_web",
+    "iced_wgpu 0.4.0",
+    "iced_winit 0.3.0",
+    "thiserror",
+]
+
+[[package]]
+name = "iced"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6025abe6b1056c9b5adad79c484c5fd8b7012e5230f3b0439a1294ade7ded7bf"
+dependencies = [
+    "iced_core 0.5.0",
+    "iced_futures 0.4.1",
+    "iced_glow 0.3.0",
+    "iced_glutin 0.3.0",
+    "iced_graphics 0.3.1",
+    "iced_native 0.5.1",
+    "iced_wgpu 0.5.1",
+    "iced_winit 0.4.0",
+    "thiserror",
 ]
 
 [[package]]
 name = "iced-editor"
 version = "0.1.0-alpha.0"
 dependencies = [
- "baseview",
- "cocoa 0.24.0",
- "iced",
- "iced_baseview",
- "log",
- "objc",
- "raw-window-handle 0.4.3",
- "vst",
- "wisual-logger",
+    "baseview",
+    "cocoa 0.24.0",
+    "iced 0.4.2",
+    "iced_baseview",
+    "log",
+    "objc",
+    "raw-window-handle 0.4.3",
+    "vst",
+    "wisual-logger",
 ]
 
 [[package]]
 name = "iced_audio"
 version = "0.7.0"
 dependencies = [
- "iced_graphics",
- "iced_native",
+    "iced_graphics 0.2.0",
+    "iced_native 0.4.0",
 ]
 
 [[package]]
 name = "iced_baseview"
 version = "0.0.3"
 dependencies = [
- "baseview",
- "iced_core",
- "iced_futures",
- "iced_glow",
- "iced_graphics",
- "iced_native",
- "iced_wgpu",
- "keyboard-types",
- "raw-gl-context",
- "raw-window-handle 0.4.3",
+    "baseview",
+    "iced_core 0.4.0",
+    "iced_futures 0.3.0",
+    "iced_glow 0.2.0",
+    "iced_graphics 0.2.0",
+    "iced_native 0.4.0",
+    "iced_wgpu 0.4.0",
+    "keyboard-types",
+    "raw-gl-context",
+    "raw-window-handle 0.4.3",
 ]
 
 [[package]]
 name = "iced_core"
 version = "0.4.0"
 dependencies = [
- "bitflags",
+    "bitflags",
+]
+
+[[package]]
+name = "iced_core"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ccf9133ceb345ec640047d5597fb8aa88e9cf74ce2d0277a9a62e2d6ed4a8148"
+dependencies = [
+    "bitflags",
+    "wasm-timer",
 ]
 
 [[package]]
 name = "iced_futures"
 version = "0.3.0"
 dependencies = [
- "futures 0.3.21",
- "log",
- "tokio",
- "wasm-bindgen-futures 0.4.31",
+    "futures 0.3.21",
+    "log",
+    "tokio",
+    "wasm-bindgen-futures 0.4.31",
+]
+
+[[package]]
+name = "iced_futures"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13d13241d5ed32846bbcffaf60e27e7ceebb60cf16d791ff00d582f0d4d1b07b"
+dependencies = [
+    "futures 0.3.21",
+    "log",
+    "tokio",
+    "wasm-bindgen-futures 0.4.31",
+    "wasm-timer",
 ]
 
 [[package]]
 name = "iced_glow"
 version = "0.2.0"
 dependencies = [
- "bytemuck",
- "euclid",
- "glow 0.6.1",
- "glow_glyph",
- "glyph_brush",
- "iced_graphics",
- "iced_native",
- "log",
+    "bytemuck",
+    "euclid",
+    "glow 0.6.1",
+    "glow_glyph 0.4.0",
+    "glyph_brush",
+    "iced_graphics 0.2.0",
+    "iced_native 0.4.0",
+    "log",
+]
+
+[[package]]
+name = "iced_glow"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f8d1a2a04e2570230df7c864c1012b88ec0027a94baaf7664e3045651db87ae"
+dependencies = [
+    "bytemuck",
+    "euclid",
+    "glow 0.11.2",
+    "glow_glyph 0.5.1",
+    "glyph_brush",
+    "iced_graphics 0.3.1",
+    "iced_native 0.5.1",
+    "log",
 ]
 
 [[package]]
 name = "iced_glutin"
 version = "0.2.0"
 dependencies = [
- "glutin",
- "iced_graphics",
- "iced_native",
- "iced_winit",
+    "glutin 0.27.0",
+    "iced_graphics 0.2.0",
+    "iced_native 0.4.0",
+    "iced_winit 0.3.0",
+]
+
+[[package]]
+name = "iced_glutin"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e18f56d746d304b92a7dcdfcffa93fafb732aec046b0bf9fb1b39d6bc91c20a7"
+dependencies = [
+    "glutin 0.28.0",
+    "iced_graphics 0.3.1",
+    "iced_native 0.5.1",
+    "iced_winit 0.4.0",
 ]
 
 [[package]]
 name = "iced_graphics"
 version = "0.2.0"
 dependencies = [
- "bytemuck",
- "font-kit",
- "glam 0.10.2",
- "iced_native",
- "iced_style",
- "lyon",
- "raw-window-handle 0.3.4",
- "thiserror",
+    "bytemuck",
+    "font-kit",
+    "glam 0.10.2",
+    "iced_native 0.4.0",
+    "iced_style 0.3.0",
+    "lyon",
+    "raw-window-handle 0.3.4",
+    "thiserror",
+]
+
+[[package]]
+name = "iced_graphics"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2adcf703fc326e0985ea99c75f1b73e718560a7b220d57ec6478417ccb2f463f"
+dependencies = [
+    "bytemuck",
+    "glam 0.10.2",
+    "iced_native 0.5.1",
+    "iced_style 0.4.0",
+    "lyon",
+    "raw-window-handle 0.4.3",
+    "thiserror",
 ]
 
 [[package]]
 name = "iced_native"
 version = "0.4.0"
 dependencies = [
- "iced_core",
- "iced_futures",
- "num-traits 0.2.15",
- "twox-hash",
- "unicode-segmentation",
+    "iced_core 0.4.0",
+    "iced_futures 0.3.0",
+    "num-traits 0.2.15",
+    "twox-hash",
+    "unicode-segmentation",
+]
+
+[[package]]
+name = "iced_native"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8ca174d4693a5daa2ffcae38d5c28cf0dbd54bd8fc19848f28392cd52624751a"
+dependencies = [
+    "iced_core 0.5.0",
+    "iced_futures 0.4.1",
+    "iced_style 0.4.0",
+    "num-traits 0.2.15",
+    "twox-hash",
+    "unicode-segmentation",
 ]
 
 [[package]]
 name = "iced_style"
 version = "0.3.0"
 dependencies = [
- "iced_core",
+    "iced_core 0.4.0",
+]
+
+[[package]]
+name = "iced_style"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a90028c94ab62c13cd3b6fb1499a593a51510d4729c5b4e8e60705b2b28c6bc2"
+dependencies = [
+    "iced_core 0.5.0",
 ]
 
 [[package]]
 name = "iced_web"
 version = "0.4.0"
 dependencies = [
- "base64",
- "dodrio",
- "iced_core",
- "iced_futures",
- "iced_style",
- "num-traits 0.2.15",
- "url",
- "wasm-bindgen",
- "wasm-bindgen-futures 0.4.31",
- "web-sys",
+    "base64",
+    "dodrio",
+    "iced_core 0.4.0",
+    "iced_futures 0.3.0",
+    "iced_style 0.3.0",
+    "num-traits 0.2.15",
+    "url",
+    "wasm-bindgen",
+    "wasm-bindgen-futures 0.4.31",
+    "web-sys",
 ]
 
 [[package]]
 name = "iced_wgpu"
 version = "0.4.0"
 dependencies = [
- "bitflags",
- "bytemuck",
- "futures 0.3.21",
- "glyph_brush",
- "guillotiere",
- "iced_graphics",
- "iced_native",
- "kamadak-exif",
- "log",
- "raw-window-handle 0.3.4",
- "wgpu",
- "wgpu_glyph",
+    "bitflags",
+    "bytemuck",
+    "futures 0.3.21",
+    "glyph_brush",
+    "guillotiere",
+    "iced_graphics 0.2.0",
+    "iced_native 0.4.0",
+    "kamadak-exif",
+    "log",
+    "raw-window-handle 0.3.4",
+    "wgpu 0.11.1",
+    "wgpu_glyph 0.15.2",
+]
+
+[[package]]
+name = "iced_wgpu"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8bc44ca209f77bd855f035d2e86e50e66332f55fb60d9fb67eeb09eae9d9de2e"
+dependencies = [
+    "bitflags",
+    "bytemuck",
+    "futures 0.3.21",
+    "glyph_brush",
+    "guillotiere",
+    "iced_graphics 0.3.1",
+    "iced_native 0.5.1",
+    "kamadak-exif",
+    "log",
+    "raw-window-handle 0.4.3",
+    "wgpu 0.12.0",
+    "wgpu_glyph 0.16.0",
 ]
 
 [[package]]
 name = "iced_winit"
 version = "0.3.0"
 dependencies = [
- "iced_futures",
- "iced_graphics",
- "iced_native",
- "log",
- "thiserror",
- "winapi 0.3.9",
- "window_clipboard",
- "winit 0.25.0 (git+https://github.com/iced-rs/winit?rev=1e6623c4d06d110e5408dcbdf1edebd07e6a200e)",
+    "iced_futures 0.3.0",
+    "iced_graphics 0.2.0",
+    "iced_native 0.4.0",
+    "log",
+    "thiserror",
+    "winapi 0.3.9",
+    "window_clipboard",
+    "winit 0.25.0 (git+https://github.com/iced-rs/winit?rev=1e6623c4d06d110e5408dcbdf1edebd07e6a200e)",
+]
+
+[[package]]
+name = "iced_winit"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72011b895e439e2ebad8f545720e3e97c7368ecfc47a23cbfeaa9508a98af90c"
+dependencies = [
+    "iced_futures 0.4.1",
+    "iced_graphics 0.3.1",
+    "iced_native 0.5.1",
+    "log",
+    "thiserror",
+    "web-sys",
+    "winapi 0.3.9",
+    "window_clipboard",
+    "winit 0.26.1",
 ]
 
 [[package]]
@@ -4195,28 +4466,28 @@ version = "0.1.0"
 dependencies = [
  "audio-garbage-collector",
  "audio-parameter-store",
- "audio-plugin-logger",
- "audio-processor-analysis",
- "audio-processor-file",
- "audio-processor-iced-design-system",
- "audio-processor-iced-storybook",
- "audio-processor-testing-helpers",
- "audio-processor-traits",
- "augmented",
- "derive_more",
- "dirs 3.0.2",
- "iced",
- "iced-editor",
- "iced_audio",
- "iced_baseview",
- "iced_native",
- "itertools 0.10.3",
- "log",
- "log4rs",
- "looper-processor",
- "thiserror",
- "tokio",
- "vst",
+    "audio-plugin-logger",
+    "audio-processor-analysis",
+    "audio-processor-file",
+    "audio-processor-iced-design-system",
+    "audio-processor-iced-storybook",
+    "audio-processor-testing-helpers",
+    "audio-processor-traits",
+    "augmented",
+    "derive_more",
+    "dirs 3.0.2",
+    "iced 0.4.2",
+    "iced-editor",
+    "iced_audio",
+    "iced_baseview",
+    "iced_native 0.5.1",
+    "itertools 0.10.3",
+    "log",
+    "log4rs",
+    "looper-processor",
+    "thiserror",
+    "tokio",
+    "vst",
 ]
 
 [[package]]
@@ -4634,14 +4905,32 @@ checksum = "806f448a7ce662ca79ef5484ef8f451a9b7c51b8166c95f5a667228b3825a6ca"
 dependencies = [
  "bit-set",
  "bitflags",
- "codespan-reporting",
- "fxhash",
- "hexf-parse",
- "indexmap",
- "log",
- "num-traits 0.2.15",
- "spirv",
- "thiserror",
+    "codespan-reporting",
+    "fxhash",
+    "hexf-parse",
+    "indexmap",
+    "log",
+    "num-traits 0.2.15",
+    "spirv",
+    "thiserror",
+]
+
+[[package]]
+name = "naga"
+version = "0.8.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3012f2dbcc79e8e0b5825a4836a7106a75dd9b2fe42c528163be0f572538c705"
+dependencies = [
+    "bit-set",
+    "bitflags",
+    "codespan-reporting",
+    "hexf-parse",
+    "indexmap",
+    "log",
+    "num-traits 0.2.15",
+    "rustc-hash",
+    "spirv",
+    "thiserror",
 ]
 
 [[package]]
@@ -4650,9 +4939,9 @@ version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "18a89248335f688e4bd994e6d030fd7e185eb41769b8c435395075425e100ac6"
 dependencies = [
- "approx 0.5.1",
- "matrixmultiply",
- "nalgebra-macros",
+    "approx 0.5.1",
+    "matrixmultiply",
+    "nalgebra-macros",
  "num-complex 0.4.2",
  "num-rational 0.4.1",
  "num-traits 0.2.15",
@@ -4685,18 +4974,18 @@ dependencies = [
  "nannou_core",
  "nannou_mesh",
  "nannou_wgpu",
- "noise",
- "notosans",
- "num_cpus",
- "pennereq",
- "rusttype 0.8.3",
- "serde",
- "serde_derive",
- "serde_json",
- "toml",
- "walkdir",
- "wgpu",
- "winit 0.25.0 (registry+https://github.com/rust-lang/crates.io-index)",
+    "noise",
+    "notosans",
+    "num_cpus",
+    "pennereq",
+    "rusttype 0.8.3",
+    "serde",
+    "serde_derive",
+    "serde_json",
+    "toml",
+    "walkdir",
+    "wgpu 0.11.1",
+    "winit 0.25.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -4727,11 +5016,11 @@ version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0ca299eec1e956df21430f66e8fe210f992f4348c1406e6ed965579d9d00d167"
 dependencies = [
- "futures 0.3.21",
- "image 0.23.14",
- "instant",
- "num_cpus",
- "wgpu",
+    "futures 0.3.21",
+    "image 0.23.14",
+    "instant",
+    "num_cpus",
+    "wgpu 0.11.1",
 ]
 
 [[package]]
@@ -4767,10 +5056,23 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8794322172319b972f528bf90c6b467be0079f1fa82780ffb431088e741a73ab"
 dependencies = [
- "jni-sys",
- "ndk-sys 0.2.2",
- "num_enum",
- "thiserror",
+    "jni-sys",
+    "ndk-sys 0.2.2",
+    "num_enum",
+    "thiserror",
+]
+
+[[package]]
+name = "ndk"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "96d868f654c72e75f8687572699cdabe755f03effbb62542768e995d5b8d699d"
+dependencies = [
+    "bitflags",
+    "jni-sys",
+    "ndk-sys 0.2.2",
+    "num_enum",
+    "thiserror",
 ]
 
 [[package]]
@@ -4779,9 +5081,9 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2032c77e030ddee34a6787a64166008da93f6a352b629261d0fee232b8742dd4"
 dependencies = [
- "bitflags",
- "jni-sys",
- "ndk-sys 0.3.0",
+    "bitflags",
+    "jni-sys",
+    "ndk-sys 0.3.0",
  "num_enum",
  "thiserror",
 ]
@@ -4798,12 +5100,27 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c5caf0c24d51ac1c905c27d4eda4fa0635bbe0de596b8f79235e0b17a4d29385"
 dependencies = [
- "lazy_static",
- "libc",
- "log",
- "ndk 0.3.0",
- "ndk-macro",
- "ndk-sys 0.2.2",
+    "lazy_static",
+    "libc",
+    "log",
+    "ndk 0.3.0",
+    "ndk-macro 0.2.0",
+    "ndk-sys 0.2.2",
+]
+
+[[package]]
+name = "ndk-glue"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c71bee8ea72d685477e28bd004cfe1bf99c754d688cd78cad139eae4089484d4"
+dependencies = [
+    "lazy_static",
+    "libc",
+    "log",
+    "ndk 0.5.0",
+    "ndk-context",
+    "ndk-macro 0.3.0",
+    "ndk-sys 0.2.2",
 ]
 
 [[package]]
@@ -4812,11 +5129,24 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "05d1c6307dc424d0f65b9b06e94f88248e6305726b14729fd67a5e47b2dc481d"
 dependencies = [
- "darling",
- "proc-macro-crate 0.1.5",
- "proc-macro2 1.0.40",
- "quote 1.0.20",
- "syn",
+    "darling 0.10.2",
+    "proc-macro-crate 0.1.5",
+    "proc-macro2 1.0.40",
+    "quote 1.0.20",
+    "syn",
+]
+
+[[package]]
+name = "ndk-macro"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0df7ac00c4672f9d5aece54ee3347520b7e20f158656c7db2e6de01902eb7a6c"
+dependencies = [
+    "darling 0.13.4",
+    "proc-macro-crate 1.1.3",
+    "proc-macro2 1.0.40",
+    "quote 1.0.20",
+    "syn",
 ]
 
 [[package]]
@@ -5837,30 +6167,30 @@ dependencies = [
  "audio-processor-iced-design-system",
  "audio-processor-iced-storybook",
  "audio-processor-testing-helpers",
- "audio-processor-traits",
- "augmented",
- "augmented-audio-volume",
- "augmented_oscillator",
- "baseview",
- "cocoa 0.24.0",
- "criterion",
- "derivative",
- "derive_more",
- "dirs 4.0.0",
- "iced",
- "iced_core",
- "iced_futures",
- "iced_native",
- "log",
- "md5",
- "notify",
- "objc",
- "opener",
- "plugin-host-lib",
- "raw-window-handle 0.3.4",
- "serde",
- "serde_json",
- "shaku",
+    "audio-processor-traits",
+    "augmented",
+    "augmented-audio-volume",
+    "augmented_oscillator",
+    "baseview",
+    "cocoa 0.24.0",
+    "criterion",
+    "derivative",
+    "derive_more",
+    "dirs 4.0.0",
+    "iced 0.4.2",
+    "iced_core 0.5.0",
+    "iced_futures 0.4.1",
+    "iced_native 0.5.1",
+    "log",
+    "md5",
+    "notify",
+    "objc",
+    "opener",
+    "plugin-host-lib",
+    "raw-window-handle 0.3.4",
+    "serde",
+    "serde_json",
+    "shaku",
  "tempdir",
  "thiserror",
  "tinyfiledialogs",
@@ -8115,8 +8445,23 @@ version = "0.2.50"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0789dac148a8840bbcf9efe13905463b733fa96543bfbf263790535c11af7ba5"
 dependencies = [
- "proc-macro2 0.4.30",
- "quote 0.6.13",
+    "proc-macro2 0.4.30",
+    "quote 0.6.13",
+]
+
+[[package]]
+name = "wasm-timer"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be0ecb0db480561e9a7642b5d3e4187c128914e58aa84330b9493e3eb68c5e7f"
+dependencies = [
+    "futures 0.3.21",
+    "js-sys",
+    "parking_lot 0.11.2",
+    "pin-utils",
+    "wasm-bindgen",
+    "wasm-bindgen-futures 0.4.31",
+    "web-sys",
 ]
 
 [[package]]
@@ -8125,9 +8470,9 @@ version = "0.28.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3ab332350e502f159382201394a78e3cc12d0f04db863429260164ea40e0355"
 dependencies = [
- "bitflags",
- "downcast-rs",
- "libc",
+    "bitflags",
+    "downcast-rs",
+    "libc",
  "nix 0.20.0",
  "scoped-tls",
  "wayland-commons 0.28.6",
@@ -8203,8 +8548,18 @@ version = "0.28.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "99ba1ab1e18756b23982d36f08856d521d7df45015f404a2d7c4f0b2d2f66956"
 dependencies = [
- "wayland-client 0.28.6",
- "wayland-sys 0.28.6",
+    "wayland-client 0.28.6",
+    "wayland-sys 0.28.6",
+]
+
+[[package]]
+name = "wayland-egl"
+version = "0.29.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83281d69ee162b59031c666385e93bde4039ec553b90c4191cdb128ceea29a3a"
+dependencies = [
+    "wayland-client 0.29.4",
+    "wayland-sys 0.29.4",
 ]
 
 [[package]]
@@ -8213,9 +8568,9 @@ version = "0.28.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "286620ea4d803bacf61fa087a4242ee316693099ee5a140796aaba02b29f861f"
 dependencies = [
- "bitflags",
- "wayland-client 0.28.6",
- "wayland-commons 0.28.6",
+    "bitflags",
+    "wayland-client 0.28.6",
+    "wayland-commons 0.28.6",
  "wayland-scanner 0.28.6",
 ]
 
@@ -8328,18 +8683,39 @@ version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eae7181fe6ba5f4b632a9079cc9e922a64555156c87def72c063f94b180c7d68"
 dependencies = [
- "arrayvec 0.7.2",
- "js-sys",
- "log",
- "parking_lot 0.11.2",
- "raw-window-handle 0.3.4",
- "smallvec",
- "wasm-bindgen",
- "wasm-bindgen-futures 0.4.31",
- "web-sys",
- "wgpu-core",
- "wgpu-hal",
- "wgpu-types",
+    "arrayvec 0.7.2",
+    "js-sys",
+    "log",
+    "parking_lot 0.11.2",
+    "raw-window-handle 0.3.4",
+    "smallvec",
+    "wasm-bindgen",
+    "wasm-bindgen-futures 0.4.31",
+    "web-sys",
+    "wgpu-core 0.11.3",
+    "wgpu-hal 0.11.5",
+    "wgpu-types 0.11.0",
+]
+
+[[package]]
+name = "wgpu"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b97cd781ff044d6d697b632a2e212032c2e957d1afaa21dbf58069cbb8f78567"
+dependencies = [
+    "arrayvec 0.7.2",
+    "js-sys",
+    "log",
+    "naga 0.8.5",
+    "parking_lot 0.11.2",
+    "raw-window-handle 0.4.3",
+    "smallvec",
+    "wasm-bindgen",
+    "wasm-bindgen-futures 0.4.31",
+    "web-sys",
+    "wgpu-core 0.12.2",
+    "wgpu-hal 0.12.5",
+    "wgpu-types 0.12.0",
 ]
 
 [[package]]
@@ -8348,20 +8724,43 @@ version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "35600627b6c718ad0e23ed75fb6140bfe32cdf21c8f539ce3c9ab8180e2cb38e"
 dependencies = [
- "arrayvec 0.7.2",
- "bitflags",
- "cfg_aliases",
- "copyless",
- "fxhash",
- "log",
- "naga",
- "parking_lot 0.11.2",
- "profiling",
- "raw-window-handle 0.3.4",
- "smallvec",
- "thiserror",
- "wgpu-hal",
- "wgpu-types",
+    "arrayvec 0.7.2",
+    "bitflags",
+    "cfg_aliases",
+    "copyless",
+    "fxhash",
+    "log",
+    "naga 0.7.3",
+    "parking_lot 0.11.2",
+    "profiling",
+    "raw-window-handle 0.3.4",
+    "smallvec",
+    "thiserror",
+    "wgpu-hal 0.11.5",
+    "wgpu-types 0.11.0",
+]
+
+[[package]]
+name = "wgpu-core"
+version = "0.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c4688c000eb841ca55f7b35db659b78d6e1cd77d7caf8fb929f4e181f754047d"
+dependencies = [
+    "arrayvec 0.7.2",
+    "bitflags",
+    "cfg_aliases",
+    "codespan-reporting",
+    "copyless",
+    "fxhash",
+    "log",
+    "naga 0.8.5",
+    "parking_lot 0.11.2",
+    "profiling",
+    "raw-window-handle 0.4.3",
+    "smallvec",
+    "thiserror",
+    "wgpu-hal 0.12.5",
+    "wgpu-types 0.12.0",
 ]
 
 [[package]]
@@ -8370,36 +8769,74 @@ version = "0.11.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af28b29ef0b44cd22dd9895d4349b9d5a687df42f58da234871198637eabe328"
 dependencies = [
- "arrayvec 0.7.2",
- "ash",
- "bit-set",
- "bitflags",
- "block",
- "core-graphics-types",
- "d3d12",
- "foreign-types",
- "fxhash",
- "glow 0.11.2",
- "gpu-alloc",
- "gpu-descriptor",
- "inplace_it",
- "js-sys",
- "khronos-egl",
- "libloading 0.7.3",
- "log",
- "metal",
- "naga",
- "objc",
- "parking_lot 0.11.2",
- "profiling",
- "range-alloc",
- "raw-window-handle 0.3.4",
- "renderdoc-sys",
- "thiserror",
- "wasm-bindgen",
- "web-sys",
- "wgpu-types",
- "winapi 0.3.9",
+    "arrayvec 0.7.2",
+    "ash 0.33.3+1.2.191",
+    "bit-set",
+    "bitflags",
+    "block",
+    "core-graphics-types",
+    "d3d12",
+    "foreign-types",
+    "fxhash",
+    "glow 0.11.2",
+    "gpu-alloc",
+    "gpu-descriptor",
+    "inplace_it",
+    "js-sys",
+    "khronos-egl",
+    "libloading 0.7.3",
+    "log",
+    "metal",
+    "naga 0.7.3",
+    "objc",
+    "parking_lot 0.11.2",
+    "profiling",
+    "range-alloc",
+    "raw-window-handle 0.3.4",
+    "renderdoc-sys",
+    "thiserror",
+    "wasm-bindgen",
+    "web-sys",
+    "wgpu-types 0.11.0",
+    "winapi 0.3.9",
+]
+
+[[package]]
+name = "wgpu-hal"
+version = "0.12.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d684ea6a34974a2fc19f1dfd183d11a62e22d75c4f187a574bb1224df8e056c2"
+dependencies = [
+    "arrayvec 0.7.2",
+    "ash 0.34.0+1.2.203",
+    "bit-set",
+    "bitflags",
+    "block",
+    "core-graphics-types",
+    "d3d12",
+    "foreign-types",
+    "fxhash",
+    "glow 0.11.2",
+    "gpu-alloc",
+    "gpu-descriptor",
+    "inplace_it",
+    "js-sys",
+    "khronos-egl",
+    "libloading 0.7.3",
+    "log",
+    "metal",
+    "naga 0.8.5",
+    "objc",
+    "parking_lot 0.11.2",
+    "profiling",
+    "range-alloc",
+    "raw-window-handle 0.4.3",
+    "renderdoc-sys",
+    "thiserror",
+    "wasm-bindgen",
+    "web-sys",
+    "wgpu-types 0.12.0",
+    "winapi 0.3.9",
 ]
 
 [[package]]
@@ -8408,7 +8845,16 @@ version = "0.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e15e44ba88ec415466e18e91881319e7c9e96cb905dc623305168aea65b85ccc"
 dependencies = [
- "bitflags",
+    "bitflags",
+]
+
+[[package]]
+name = "wgpu-types"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "549533d9e1cdd4b4cda7718d33ff500fc4c34b5467b71d76b547ae0324f3b2a2"
+dependencies = [
+    "bitflags",
 ]
 
 [[package]]
@@ -8417,10 +8863,22 @@ version = "0.15.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f5774759a6288a2bf29dd56d04ef79e73c1bc2b1c289fdf25e502a2a7dc3eda"
 dependencies = [
- "bytemuck",
- "glyph_brush",
- "log",
- "wgpu",
+    "bytemuck",
+    "glyph_brush",
+    "log",
+    "wgpu 0.11.1",
+]
+
+[[package]]
+name = "wgpu_glyph"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8134edb15ae465caf308125646c9e98bdef7398cdefc69227ac77a5eb795e7fe"
+dependencies = [
+    "bytemuck",
+    "glyph_brush",
+    "log",
+    "wgpu 0.12.0",
 ]
 
 [[package]]
@@ -8429,8 +8887,8 @@ version = "4.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5c4fb54e6113b6a8772ee41c3404fb0301ac79604489467e0a9ce1f3e97c24ae"
 dependencies = [
- "either",
- "lazy_static",
+    "either",
+    "lazy_static",
  "libc",
 ]
 
@@ -8665,27 +9123,27 @@ dependencies = [
  "bitflags",
  "cocoa 0.24.0",
  "core-foundation 0.9.3",
- "core-graphics 0.22.3",
- "core-video-sys",
- "dispatch",
- "instant",
- "lazy_static",
- "libc",
- "log",
- "mio 0.7.14",
- "mio-misc",
- "ndk 0.3.0",
- "ndk-glue",
- "ndk-sys 0.2.2",
- "objc",
- "parking_lot 0.11.2",
- "percent-encoding",
- "raw-window-handle 0.3.4",
- "scopeguard",
- "smithay-client-toolkit 0.12.3",
- "wayland-client 0.28.6",
- "winapi 0.3.9",
- "x11-dl",
+    "core-graphics 0.22.3",
+    "core-video-sys",
+    "dispatch",
+    "instant",
+    "lazy_static",
+    "libc",
+    "log",
+    "mio 0.7.14",
+    "mio-misc",
+    "ndk 0.3.0",
+    "ndk-glue 0.3.0",
+    "ndk-sys 0.2.2",
+    "objc",
+    "parking_lot 0.11.2",
+    "percent-encoding",
+    "raw-window-handle 0.3.4",
+    "scopeguard",
+    "smithay-client-toolkit 0.12.3",
+    "wayland-client 0.28.6",
+    "winapi 0.3.9",
+    "x11-dl",
 ]
 
 [[package]]
@@ -8696,29 +9154,62 @@ dependencies = [
  "bitflags",
  "block",
  "cocoa 0.24.0",
- "core-foundation 0.9.3",
- "core-graphics 0.22.3",
- "core-video-sys",
- "dispatch",
- "instant",
- "lazy_static",
- "libc",
- "log",
- "mio 0.7.14",
- "ndk 0.3.0",
- "ndk-glue",
- "ndk-sys 0.2.2",
- "objc",
- "parking_lot 0.11.2",
- "percent-encoding",
- "raw-window-handle 0.3.4",
- "smithay-client-toolkit 0.15.4",
- "wasm-bindgen",
- "wayland-client 0.29.4",
- "wayland-protocols 0.29.4",
- "web-sys",
- "winapi 0.3.9",
- "x11-dl",
+    "core-foundation 0.9.3",
+    "core-graphics 0.22.3",
+    "core-video-sys",
+    "dispatch",
+    "instant",
+    "lazy_static",
+    "libc",
+    "log",
+    "mio 0.7.14",
+    "ndk 0.3.0",
+    "ndk-glue 0.3.0",
+    "ndk-sys 0.2.2",
+    "objc",
+    "parking_lot 0.11.2",
+    "percent-encoding",
+    "raw-window-handle 0.3.4",
+    "smithay-client-toolkit 0.15.4",
+    "wasm-bindgen",
+    "wayland-client 0.29.4",
+    "wayland-protocols 0.29.4",
+    "web-sys",
+    "winapi 0.3.9",
+    "x11-dl",
+]
+
+[[package]]
+name = "winit"
+version = "0.26.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b43cc931d58b99461188607efd7acb2a093e65fc621f54cad78517a6063e73a"
+dependencies = [
+    "bitflags",
+    "cocoa 0.24.0",
+    "core-foundation 0.9.3",
+    "core-graphics 0.22.3",
+    "core-video-sys",
+    "dispatch",
+    "instant",
+    "lazy_static",
+    "libc",
+    "log",
+    "mio 0.8.4",
+    "ndk 0.5.0",
+    "ndk-glue 0.5.2",
+    "ndk-sys 0.2.2",
+    "objc",
+    "parking_lot 0.11.2",
+    "percent-encoding",
+    "raw-window-handle 0.4.3",
+    "smithay-client-toolkit 0.15.4",
+    "wasm-bindgen",
+    "wayland-client 0.29.4",
+    "wayland-protocols 0.29.4",
+    "web-sys",
+    "winapi 0.3.9",
+    "x11-dl",
 ]
 
 [[package]]

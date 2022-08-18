@@ -11,7 +11,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [features]
 default = ["glow", "tokio"]
 tokio = ["iced_baseview/tokio", "iced/tokio"]
-glow = ["iced/glow", "iced/glow_canvas", "iced_baseview/glow", "iced_baseview/glow_canvas"]
+glow = ["iced/glow", "iced/canvas", "iced_baseview/glow", "iced_baseview/glow_canvas"]
 wgpu = ["iced/wgpu", "iced/canvas", "iced_baseview/canvas", "iced_baseview/wgpu"]
 
 [dependencies]
