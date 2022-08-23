@@ -17,7 +17,7 @@ lazy_static = "1.4.0"
 basedrop = "^0.1.2"
 clap = "^2.33.3"
 concread = "^0.3.7"
-cpal = { version = "^0.13.3" }
+cpal = { version = "^0.14.0" }
 hound = "^3.4.0"
 log = "^0.4.14"
 md5 = "^0.7.0"
