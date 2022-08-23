@@ -47,7 +47,7 @@ augmented-analytics = { path = "../../../augmented/ops/augmented-analytics" }
 chrono = "0.4"
 
 # Audio
-cpal = "0.13.5"
+cpal = "0.14.0"
 audio-processor-metronome = { path = "../../../augmented/audio/audio-processor-metronome" , version = "1.0.0-alpha.3" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.0-alpha.4" }
 augmented-adsr-envelope = { version = "0.1.0-alpha.6", path = "../../../augmented/audio/adsr-envelope" }
