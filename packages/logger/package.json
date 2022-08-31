@@ -1,6 +1,6 @@
 {
   "name": "@wisual/logger",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "sideEffects": false,
   "main": "lib/index.js",
   "license": "MIT",
@@ -15,7 +15,7 @@
     "chalk": "^4.1.0"
   },
   "peerDependencies": {
-    "react": ">=16.0.0 && <18"
+    "react": ">=16.0.0 && <19"
   },
   "devDependencies": {
     "@swc/core": "^1.2.128",
