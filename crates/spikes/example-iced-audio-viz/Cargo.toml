@@ -7,7 +7,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-iced = { path = "../../vendor/iced", version = "^0.3.0", features = ["tokio", "canvas"] }
+iced = { version = "0.4.2", features = ["tokio", "canvas"] }
 basedrop = "^0.1.2"
 log = "^0.4.14"
 cpal = { version = "^0.13.3" }
