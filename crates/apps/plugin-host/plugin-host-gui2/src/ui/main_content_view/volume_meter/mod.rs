@@ -22,14 +22,14 @@
 // THE SOFTWARE.
 // use std::cell::RefCell;
 
-use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, Vector};
-use iced::canvas::{Cache, Cursor, Event, Frame, Geometry, Program, Stroke};
 use iced::canvas::event::Status;
+use iced::canvas::{Cache, Cursor, Event, Frame, Geometry, Program, Stroke};
 use iced::mouse::Interaction;
 use iced::widget::canvas::Fill;
+use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, Vector};
 
 use audio_garbage_collector::Shared;
-use audio_processor_iced_design_system::colors::Colors;
+use audio_processor_iced_design_system::colors::{darken_color, Colors};
 use audio_processor_iced_design_system::spacing::Spacing;
 use augmented_audio_volume::{Amplitude, Decibels};
 use plugin_host_lib::audio_io::processor_handle_registry::ProcessorHandleRegistry;
@@ -316,7 +316,7 @@ impl VolumeMeter {
         frame.fill_rectangle(
             Point::new(offset_x, peak_y_coord),
             Size::new(bar_width, peak_bar_height),
-            Fill::from(Colors::success() /* TODO .darken(0.4) */),
+            Fill::from(darken_color(Colors::success(), 0.4)),
         );
         // RMS Volume
         frame.fill_rectangle(
@@ -344,7 +344,7 @@ impl VolumeMeter {
 
         frame.fill(
             &handle_path.build(),
-            Fill::from(Colors::border_color() /* TODO .darken(-0.5) */),
+            Fill::from(darken_color(Colors::border_color(), -0.5)),
         );
     }
 

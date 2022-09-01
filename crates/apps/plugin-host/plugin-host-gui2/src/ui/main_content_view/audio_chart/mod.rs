@@ -28,7 +28,7 @@ use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
 use iced::{canvas, Canvas, Element, Length, Point, Rectangle};
 
 use audio_garbage_collector::Shared;
-use audio_processor_iced_design_system::colors::Colors;
+use audio_processor_iced_design_system::colors::{darken_color, Colors};
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 use audio_processor_traits::AudioBuffer;
 use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessorHandle;
@@ -133,7 +133,7 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChartV
 
         frame.fill(
             &path.build(),
-            Fill::from(Colors::border_color() /* TODO .darken(-0.3) */),
+            Fill::from(darken_color(Colors::border_color(), -0.3)),
         );
 
         vec![frame.into_geometry()]

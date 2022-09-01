@@ -46,7 +46,6 @@ pub fn light_gray() -> Color {
     rgb(60, 60, 60)
 }
 
-#[allow(unused)]
 fn super_light_gray() -> Color {
     rgb(118, 118, 118)
 }
@@ -107,8 +106,7 @@ impl Colors {
     }
 
     pub fn border_color() -> Color {
-        // super_light_gray.darken(0.3)
-        Color::BLACK
+        darken_color(super_light_gray(), 0.3)
     }
 
     pub fn selected_background() -> Color {
@@ -122,4 +120,14 @@ impl Colors {
 
 fn rgb(r: i32, g: i32, b: i32) -> Color {
     Color::new(r as f32 / 255., g as f32 / 255., b as f32 / 255., 1.)
+}
+
+/// Returns a darkened [`Color`].
+pub fn darken_color(target: Color, amount: f32) -> Color {
+    Color::new(
+        target.r * (1. - amount),
+        target.g * (1. - amount),
+        target.b * (1. - amount),
+        target.a,
+    )
 }
