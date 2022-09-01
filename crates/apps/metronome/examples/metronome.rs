@@ -20,5 +20,6 @@ use metronome::MetronomeProcessor;
 
 fn main() {
     let metronome = MetronomeProcessor::default();
+    metronome.handle().set_tempo(120.0);
     audio_processor_main(metronome);
 }
