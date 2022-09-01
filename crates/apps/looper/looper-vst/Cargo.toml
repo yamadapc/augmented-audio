@@ -9,7 +9,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
 default = [
-    "glow",
+    "wgpu",
     "iced/tokio",
     "iced_baseview/tokio",
 ]

@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
-default = ["glow", "story"]
+default = ["wgpu", "story"]
 glow = ["iced/glow", "iced/canvas", "audio-processor-iced-storybook/glow"]
 wgpu = ["iced/wgpu", "iced/canvas", "audio-processor-iced-storybook/wgpu"]
 story = []

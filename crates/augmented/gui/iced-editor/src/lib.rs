@@ -86,6 +86,7 @@ where
                 height: self.size.1 as f64,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
+            #[cfg(feature = "glow")]
             gl_config: None,
         };
         let settings = Settings {

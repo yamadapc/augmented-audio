@@ -9,7 +9,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
-default = ["glow", "tokio"]
+default = ["wgpu", "tokio"]
 tokio = ["iced_baseview/tokio", "iced/tokio"]
 glow = ["iced/glow", "iced/canvas", "iced_baseview/glow", "iced_baseview/glow_canvas"]
 wgpu = ["iced/wgpu", "iced/canvas", "iced_baseview/wgpu_canvas", "iced_baseview/wgpu"]

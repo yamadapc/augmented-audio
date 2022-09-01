@@ -16,7 +16,7 @@ default = [
     "iced-editor",
     "audio-processor-iced-design-system",
     "baseview",
-    "glow",
+    "wgpu",
     "iced/tokio",
     "iced_baseview/tokio",
 ]
