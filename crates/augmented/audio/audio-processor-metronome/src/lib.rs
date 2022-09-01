@@ -36,6 +36,9 @@ use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProces
 use augmented_adsr_envelope::Envelope;
 use augmented_oscillator::Oscillator;
 use augmented_playhead::{PlayHead, PlayHeadOptions};
+pub use playhead::{DefaultMetronomePlayhead, MetronomePlayhead};
+
+mod playhead;
 
 const DEFAULT_CLICK_ATTACK_MS: u64 = 3;
 const DEFAULT_CLICK_DECAY_RELEASE_MS: u64 = 10;
@@ -86,73 +89,6 @@ impl MetronomeProcessorHandle {
 
     pub fn set_beats_per_bar(&self, value: i32) {
         self.beats_per_bar.store(value, Ordering::Relaxed);
-    }
-}
-
-/// This is so that consumers can control the play-head and metronome just follow
-///
-/// There are two types of methods here:
-///
-/// * Mutation methods: reset, set_tempo, prepare
-///   - These should be used by the metronome app only and noop if there's another master
-/// * Getter methods
-///   - These must be implemented
-pub trait MetronomePlayhead {
-    fn reset(&mut self) {}
-    fn set_tempo(&mut self, _tempo: f32) {}
-    fn prepare(&mut self, _settings: &AudioProcessorSettings, _tempo: f32) {}
-    fn accept_samples(&mut self, _samples: u32) {}
-    fn tempo(&self) -> Option<f32> {
-        None
-    }
-
-    fn position_beats(&self) -> f64;
-}
-
-pub struct DefaultMetronomePlayhead {
-    playhead: PlayHead,
-}
-
-impl Default for DefaultMetronomePlayhead {
-    fn default() -> Self {
-        let sample_rate = DEFAULT_SAMPLE_RATE;
-        let tempo = DEFAULT_TEMPO;
-        let playhead = PlayHead::new(PlayHeadOptions::new(
-            Some(sample_rate),
-            Some(tempo),
-            Some(16),
-        ));
-        Self { playhead }
-    }
-}
-
-impl MetronomePlayhead for DefaultMetronomePlayhead {
-    fn reset(&mut self) {
-        self.playhead.set_position_seconds(0.0);
-    }
-
-    fn set_tempo(&mut self, tempo: f32) {
-        self.playhead.set_tempo(tempo);
-    }
-
-    fn prepare(&mut self, settings: &AudioProcessorSettings, tempo: f32) {
-        self.playhead = PlayHead::new(PlayHeadOptions::new(
-            Some(settings.sample_rate()),
-            Some(tempo),
-            self.playhead.options().ticks_per_quarter_note(),
-        ));
-    }
-
-    fn accept_samples(&mut self, samples: u32) {
-        self.playhead.accept_samples(samples)
-    }
-
-    fn tempo(&self) -> Option<f32> {
-        self.playhead.options().tempo()
-    }
-
-    fn position_beats(&self) -> f64 {
-        self.playhead.position_beats()
     }
 }
 
