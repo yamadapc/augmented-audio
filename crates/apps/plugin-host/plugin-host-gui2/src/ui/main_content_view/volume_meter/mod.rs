@@ -20,13 +20,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use std::cell::RefCell;
+// use std::cell::RefCell;
 
-use iced::canvas::event::Status;
+use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, Vector};
 use iced::canvas::{Cache, Cursor, Event, Frame, Geometry, Program, Stroke};
+use iced::canvas::event::Status;
 use iced::mouse::Interaction;
 use iced::widget::canvas::Fill;
-use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, Vector};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
@@ -88,7 +88,7 @@ struct MouseState {
 pub struct VolumeMeter {
     volume_info: VolumeInfo,
     state: State,
-    frame: RefCell<Frame>,
+    // frame: RefCell<Frame>,
     left_cache: Cache,
     right_cache: Cache,
 }
@@ -104,7 +104,7 @@ impl VolumeMeter {
         Self {
             volume_info: VolumeInfo::default(),
             state: State::default(),
-            frame: RefCell::new(Frame::new(Size::new(100., 100.))),
+            // frame: RefCell::new(Frame::new(Size::new(100., 100.))),
             left_cache: Default::default(),
             right_cache: Default::default(),
         }
@@ -210,8 +210,8 @@ impl Program<Message> for VolumeMeter {
     }
 
     fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
-        let mut frame = self.frame.borrow_mut();
-        frame.resize(bounds.size());
+        let mut frame = Frame::new(bounds.size()); // self.frame.borrow_mut();
+                                                   // frame.resize(bounds.size());
 
         let spacing = Spacing::small_spacing() as f32 / 2.;
         let bar_width = bounds.width / 4. - spacing / 2.;
@@ -243,7 +243,7 @@ impl Program<Message> for VolumeMeter {
             bar_width + spacing,
         );
         Self::draw_volume_handle(&mut frame, bar_width * 2. + spacing, self.state.volume);
-        geometry.push(frame.geometry());
+        geometry.push(frame.into_geometry());
 
         geometry
     }
@@ -316,7 +316,7 @@ impl VolumeMeter {
         frame.fill_rectangle(
             Point::new(offset_x, peak_y_coord),
             Size::new(bar_width, peak_bar_height),
-            Fill::from(Colors::success().darken(0.4)),
+            Fill::from(Colors::success() /* TODO .darken(0.4) */),
         );
         // RMS Volume
         frame.fill_rectangle(
@@ -344,7 +344,7 @@ impl VolumeMeter {
 
         frame.fill(
             &handle_path.build(),
-            Fill::from(Colors::border_color().darken(-0.5)),
+            Fill::from(Colors::border_color() /* TODO .darken(-0.5) */),
         );
     }
 

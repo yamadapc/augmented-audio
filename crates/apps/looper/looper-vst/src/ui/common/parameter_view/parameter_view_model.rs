@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced_audio::{knob, IntRange, NormalParam};
+use iced_audio::{IntRange, knob, Normal, NormalParam};
 
 pub struct ParameterViewModel<ParameterId> {
     pub id: ParameterId,
@@ -45,9 +45,10 @@ impl<ParameterId> ParameterViewModel<ParameterId> {
             name: name.into(),
             suffix: suffix.into(),
             value,
-            knob_state: knob::State::new(NormalParam::from(
-                (value - range.0) / (range.1 - range.0),
-            )),
+            knob_state: knob::State::new(NormalParam {
+                value: Normal::from((value - range.0) / (range.1 - range.0)),
+                default: Normal::from((value - range.0) / (range.1 - range.0)),
+            }),
             int_range: None,
             range,
         }
@@ -62,8 +63,9 @@ impl<ParameterId> ParameterViewModel<ParameterId> {
 
 #[cfg(test)]
 mod test {
-    use crate::ui::bottom_panel::ParameterId;
     use audio_processor_testing_helpers::assert_f_eq;
+
+    use crate::ui::bottom_panel::ParameterId;
 
     use super::*;
 

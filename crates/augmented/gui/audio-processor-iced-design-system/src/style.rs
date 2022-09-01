@@ -273,8 +273,8 @@ pub mod pick_list {
 }
 
 pub mod container {
-    use iced::container::Style;
     use iced::Background;
+    use iced::container::Style;
 
     use crate::colors::Colors;
 
@@ -351,11 +351,11 @@ pub mod container {
 }
 
 mod hover_container {
+    use crate::colors::Colors;
     use crate::container::hover_container::style::Style;
     use crate::container::hover_container::style::StyleSheet;
 
-    use crate::colors::Colors;
-
+    #[derive(Default)]
     pub struct HoverContainer;
 
     impl StyleSheet for HoverContainer {
@@ -382,9 +382,10 @@ mod hover_container {
 }
 
 pub mod v_slider {
-    use crate::colors::Colors;
     use iced_audio::graphics::v_slider::Style;
     use iced_audio::v_slider::RectStyle;
+
+    use crate::colors::Colors;
 
     pub struct VSlider;
 

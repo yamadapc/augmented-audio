@@ -549,7 +549,7 @@ dependencies = [
  "baseview",
  "iced 0.4.2",
  "iced-editor",
- "iced_audio 0.7.0",
+ "iced_audio 0.8.0",
  "iced_baseview",
  "vst",
 ]
@@ -912,7 +912,7 @@ dependencies = [
  "uuid 0.8.2",
  "winapi 0.3.9",
  "x11",
- "xcb",
+ "xcb 0.9.0",
  "xcb-util",
 ]
 
@@ -1379,6 +1379,16 @@ dependencies = [
 
 [[package]]
 name = "clipboard-win"
+version = "3.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9fdf5e01086b6be750428ba4a40619f847eb2e95756eee84b18e06e5f0b50342"
+dependencies = [
+ "lazy-bytes-cast",
+ "winapi 0.3.9",
+]
+
+[[package]]
+name = "clipboard-win"
 version = "4.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2f3e1238132dc01f081e1cbb9dace14e5ef4c3a51ee244bd982275fb514605db"
@@ -1580,6 +1590,20 @@ name = "copyless"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2df960f5d869b2dd8532793fde43eb5427cceb126c929747a26823ab0eeb536"
+
+[[package]]
+name = "copypasta"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4423d79fed83ebd9ab81ec21fa97144300a961782158287dc9bf7eddac37ff0b"
+dependencies = [
+ "clipboard-win 3.1.1",
+ "objc",
+ "objc-foundation",
+ "objc_id",
+ "smithay-clipboard",
+ "x11-clipboard",
+]
 
 [[package]]
 name = "core-foundation"
@@ -3124,38 +3148,14 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 
 [[package]]
 name = "glow"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1625b792e2f9267116dd41eb7d325e0ea2572ceba5069451906745e04f852f33"
-dependencies = [
- "js-sys",
- "slotmap 0.4.3",
- "wasm-bindgen",
- "web-sys",
-]
-
-[[package]]
-name = "glow"
 version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8bd5877156a19b8ac83a29b2306fe20537429d318f3ff0a1a2119f8d9c61919"
 dependencies = [
  "js-sys",
- "slotmap 1.0.6",
+ "slotmap",
  "wasm-bindgen",
  "web-sys",
-]
-
-[[package]]
-name = "glow_glyph"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0510450eb46dd2b8e3284b50b08bfd870f1ef93a55045f54d7376fbcb63b1cb"
-dependencies = [
- "bytemuck",
- "glow 0.6.1",
- "glyph_brush",
- "log",
 ]
 
 [[package]]
@@ -3165,7 +3165,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0f4e62c64947b9a24fe20e2bba9ad819ecb506ef5c8df7ffc4737464c6df9510"
 dependencies = [
  "bytemuck",
- "glow 0.11.2",
+ "glow",
  "glyph_brush",
  "log",
 ]
@@ -3597,7 +3597,7 @@ checksum = "6025abe6b1056c9b5adad79c484c5fd8b7012e5230f3b0439a1294ade7ded7bf"
 dependencies = [
  "iced_core 0.5.0",
  "iced_futures 0.4.1",
- "iced_glow 0.3.0",
+ "iced_glow",
  "iced_glutin",
  "iced_graphics 0.3.1",
  "iced_native 0.5.1",
@@ -3644,14 +3644,14 @@ name = "iced_baseview"
 version = "0.0.3"
 dependencies = [
  "baseview",
- "iced_core 0.4.0",
- "iced_futures 0.3.0",
- "iced_glow 0.2.0",
- "iced_graphics 0.2.0",
- "iced_native 0.4.0",
- "iced_wgpu 0.4.0",
+ "copypasta",
+ "iced_core 0.5.0",
+ "iced_futures 0.4.1",
+ "iced_glow",
+ "iced_graphics 0.3.1",
+ "iced_native 0.5.1",
+ "iced_wgpu 0.5.1",
  "keyboard-types",
- "raw-gl-context",
  "raw-window-handle 0.4.3",
 ]
 
@@ -3697,28 +3697,14 @@ dependencies = [
 
 [[package]]
 name = "iced_glow"
-version = "0.2.0"
-dependencies = [
- "bytemuck",
- "euclid",
- "glow 0.6.1",
- "glow_glyph 0.4.0",
- "glyph_brush",
- "iced_graphics 0.2.0",
- "iced_native 0.4.0",
- "log",
-]
-
-[[package]]
-name = "iced_glow"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f8d1a2a04e2570230df7c864c1012b88ec0027a94baaf7664e3045651db87ae"
 dependencies = [
  "bytemuck",
  "euclid",
- "glow 0.11.2",
- "glow_glyph 0.5.1",
+ "glow",
+ "glow_glyph",
  "glyph_brush",
  "iced_graphics 0.3.1",
  "iced_native 0.5.1",
@@ -4184,6 +4170,12 @@ name = "lame-mp3"
 version = "0.1.0"
 
 [[package]]
+name = "lazy-bytes-cast"
+version = "5.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10257499f089cd156ad82d0a9cd57d9501fa2c989068992a97eb3c27836f206b"
+
+[[package]]
 name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4410,7 +4402,7 @@ dependencies = [
  "dirs 3.0.2",
  "iced 0.4.2",
  "iced-editor",
- "iced_audio 0.7.0",
+ "iced_audio 0.8.0",
  "iced_baseview",
  "iced_native 0.5.1",
  "itertools 0.10.3",
@@ -6320,6 +6312,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2f61dcf0b917cd75d4521d7343d1ffff3d1583054133c9b5cbea3375c703c40d"
 
 [[package]]
+name = "quick-xml"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8533f14c8382aaad0d592c812ac3b826162128b65662331e1127b45c3d18536b"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "quote"
 version = "0.6.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6460,20 +6461,6 @@ name = "range-alloc"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "63e935c45e09cc6dcf00d2f0b2d630a58f4095320223d47fc68918722f0538b6"
-
-[[package]]
-name = "raw-gl-context"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c4590d88b5f7f4a7b140a2bbb90085c2c3c9ac80832e53521a47c6a4ac1adbc3"
-dependencies = [
- "cocoa 0.24.0",
- "core-foundation 0.9.3",
- "objc",
- "raw-window-handle 0.3.4",
- "winapi 0.3.9",
- "x11",
-]
 
 [[package]]
 name = "raw-window-handle"
@@ -7085,12 +7072,6 @@ name = "slab"
 version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eb703cfe953bccee95685111adeedb76fabe4e97549a58d16f03ea7b9367bb32"
-
-[[package]]
-name = "slotmap"
-version = "0.4.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6bf34684c5767b87de9119790e92e9a1d60056be2ceeaf16a8e6ef13082aeab1"
 
 [[package]]
 name = "slotmap"
@@ -8700,7 +8681,7 @@ dependencies = [
  "d3d12",
  "foreign-types",
  "fxhash",
- "glow 0.11.2",
+ "glow",
  "gpu-alloc",
  "gpu-descriptor",
  "inplace_it",
@@ -8738,7 +8719,7 @@ dependencies = [
  "d3d12",
  "foreign-types",
  "fxhash",
- "glow 0.11.2",
+ "glow",
  "gpu-alloc",
  "gpu-descriptor",
  "inplace_it",
@@ -8882,7 +8863,7 @@ version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b47d7fb4df5cd1fea61e5ee3841380f54359bac814e227d8f72709f4f193f8cf"
 dependencies = [
- "clipboard-win",
+ "clipboard-win 4.4.1",
  "clipboard_macos",
  "clipboard_wayland",
  "clipboard_x11",
@@ -9182,6 +9163,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "x11-clipboard"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "473068b7b80ac86a18328824f1054e5e007898c47b5bbc281bd7abe32bc3653c"
+dependencies = [
+ "xcb 0.10.1",
+]
+
+[[package]]
 name = "x11-dl"
 version = "2.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9216,13 +9206,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "xcb"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "771e2b996df720cd1c6dd9ff90f62d91698fd3610cc078388d0564bdd6622a9c"
+dependencies = [
+ "libc",
+ "log",
+ "quick-xml",
+]
+
+[[package]]
 name = "xcb-util"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43893e47f27bf7d81d489feef3a0e34a457e90bc314b7e74ad9bb3980e4c1c48"
 dependencies = [
  "libc",
- "xcb",
+ "xcb 0.9.0",
 ]
 
 [[package]]

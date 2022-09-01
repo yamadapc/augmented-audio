@@ -27,9 +27,9 @@ extern crate objc;
 use std::ffi::c_void;
 
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
+use iced_baseview::{Application, IcedBaseviewSettings, IcedWindow, Settings, WindowHandle};
 use vst::editor::Editor;
 
-use iced_baseview::{Application, IcedWindow, Settings, WindowHandle};
 use plugin_window::PluginWindow;
 
 #[cfg(target_os = "macos")]
@@ -86,10 +86,15 @@ where
                 height: self.size.1 as f64,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
+            gl_config: None,
         };
         let settings = Settings {
             window: window_open_options,
             flags: self.flags.clone(),
+            iced_baseview: IcedBaseviewSettings {
+                ignore_non_modifier_keys: false,
+                always_redraw: true,
+            },
         };
         let handle = IcedWindow::<App>::open_parented(&window_handle, settings);
         self.handle = Some(handle);

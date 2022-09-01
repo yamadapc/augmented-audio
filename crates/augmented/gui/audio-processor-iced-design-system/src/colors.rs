@@ -106,7 +106,8 @@ impl Colors {
     }
 
     pub fn border_color() -> Color {
-        super_light_gray().darken(0.3)
+        // super_light_gray.darken(0.3)
+        Color::BLACK
     }
 
     pub fn selected_background() -> Color {
