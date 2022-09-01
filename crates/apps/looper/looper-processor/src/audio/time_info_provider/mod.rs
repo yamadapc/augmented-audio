@@ -29,7 +29,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use mockall::automock;
 
-use audio_processor_metronome::playhead::MetronomePlayhead;
+use audio_processor_metronome::MetronomePlayhead;
 #[cfg(not(target_os = "ios"))]
 use audio_processor_standalone::standalone_vst::vst;
 #[cfg(not(target_os = "ios"))]
