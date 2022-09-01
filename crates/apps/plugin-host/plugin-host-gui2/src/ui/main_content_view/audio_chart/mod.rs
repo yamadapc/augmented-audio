@@ -24,8 +24,8 @@
 // use std::cell::RefCell;
 use std::time::SystemTime;
 
-use iced::{canvas, Canvas, Element, Length, Point, Rectangle, Size};
 use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
+use iced::{canvas, Canvas, Element, Length, Point, Rectangle};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;

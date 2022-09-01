@@ -102,8 +102,16 @@ impl TestPluginHost {
     ) -> Self {
         let actor_system_thread = ActorSystem::current();
 
+        // At the moment there's a design problem here.
+        // actix does not work well with multi-threading, but we relied on `ActorSystem` do handle
+        // that.
+        // Since it does not handle multi-threading well, it is disabled, however this block is
+        // broken without it.
         log::info!("Starting MIDI thread");
-        let midi_host = actor_system_thread.spawn_result(async move { MidiHost::from_registry() });
+        let midi_host = actor_system_thread.spawn_result(async move {
+            log::info!("MIDI from registry");
+            MidiHost::from_registry()
+        });
 
         log::info!("Starting audio-thread");
         let audio_thread =

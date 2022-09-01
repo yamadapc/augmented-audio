@@ -46,6 +46,7 @@ pub fn light_gray() -> Color {
     rgb(60, 60, 60)
 }
 
+#[allow(unused)]
 fn super_light_gray() -> Color {
     rgb(118, 118, 118)
 }
