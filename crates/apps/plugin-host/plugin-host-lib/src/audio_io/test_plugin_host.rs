@@ -101,16 +101,21 @@ impl TestPluginHost {
         start_paused: bool,
     ) -> Self {
         let actor_system_thread = ActorSystem::current();
+
+        log::info!("Starting MIDI thread");
         let midi_host = actor_system_thread.spawn_result(async move { MidiHost::from_registry() });
+
+        log::info!("Starting audio-thread");
         let audio_thread =
             actor_system_thread.spawn_result(async move { AudioThread::from_registry() });
-
+        log::info!("Restoring audio-thread settings");
         audio_thread.do_send(audio_thread::actor::AudioThreadMessage::SetOptions {
             host_id: audio_thread_options.host_id,
             input_device_id: audio_thread_options.input_device_id,
             output_device_id: audio_thread_options.output_device_id,
         });
 
+        log::info!("Init sequence complete");
         TestPluginHost {
             audio_thread,
             audio_settings,
