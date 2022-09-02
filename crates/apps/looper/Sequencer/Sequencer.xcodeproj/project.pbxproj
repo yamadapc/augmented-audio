@@ -60,6 +60,7 @@
 		CBB47B2A28C2B6F10069D916 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B2928C2B6F10069D916 /* Assets.xcassets */; };
 		CBB47B2D28C2B6F10069D916 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B2B28C2B6F10069D916 /* LaunchScreen.storyboard */; };
 		CBB47B3728C2BBD70069D916 /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CBB47B3628C2BBD70069D916 /* SequencerUI */; };
+		CBB47B3A28C2BCFC0069D916 /* PlaygroundRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB47B3928C2BCFC0069D916 /* PlaygroundRootView.swift */; };
 		CBD6415628442D2700825185 /* AudioIOSettingsControllerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */; };
 		CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
 		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
@@ -237,6 +238,7 @@
 		CBB47B2928C2B6F10069D916 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CBB47B2C28C2B6F10069D916 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		CBB47B2E28C2B6F10069D916 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CBB47B3928C2BCFC0069D916 /* PlaygroundRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaygroundRootView.swift; sourceTree = "<group>"; };
 		CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioIOSettingsControllerImpl.swift; sourceTree = "<group>"; };
 		CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineController.swift; sourceTree = "<group>"; };
 		CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequencerEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -556,6 +558,7 @@
 		CBB47B1F28C2B6F00069D916 /* SequencerUI-Playground */ = {
 			isa = PBXGroup;
 			children = (
+				CBB47B3828C2BCF00069D916 /* ui */,
 				CBB47B2028C2B6F00069D916 /* AppDelegate.swift */,
 				CBB47B2228C2B6F00069D916 /* SceneDelegate.swift */,
 				CBB47B2428C2B6F00069D916 /* ViewController.swift */,
@@ -565,6 +568,14 @@
 				CBB47B2E28C2B6F10069D916 /* Info.plist */,
 			);
 			path = "SequencerUI-Playground";
+			sourceTree = "<group>";
+		};
+		CBB47B3828C2BCF00069D916 /* ui */ = {
+			isa = PBXGroup;
+			children = (
+				CBB47B3928C2BCFC0069D916 /* PlaygroundRootView.swift */,
+			);
+			path = ui;
 			sourceTree = "<group>";
 		};
 		CBD6415428442D1400825185 /* audio_io_settings_controller */ = {
@@ -1083,6 +1094,7 @@
 				CBB47B2528C2B6F00069D916 /* ViewController.swift in Sources */,
 				CBB47B2128C2B6F00069D916 /* AppDelegate.swift in Sources */,
 				CBB47B2328C2B6F00069D916 /* SceneDelegate.swift in Sources */,
+				CBB47B3A28C2BCFC0069D916 /* PlaygroundRootView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

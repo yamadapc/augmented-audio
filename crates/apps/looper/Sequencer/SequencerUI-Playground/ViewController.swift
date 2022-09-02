@@ -30,7 +30,17 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let hostingViewController = UIHostingController(rootView: SequencerRootAppView())
+        let rootView = PlaygroundRootView()
+        let hostingViewController = UIHostingController(rootView: rootView)
         addChild(hostingViewController)
+
+        hostingViewController.view.translatesAutoresizingMaskIntoConstraints = true
+        hostingViewController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        hostingViewController.view.frame = view.frame
+
+        view.addSubview(hostingViewController.view)
+
+        view.translatesAutoresizingMaskIntoConstraints = true
+        view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
     }
 }
