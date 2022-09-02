@@ -22,15 +22,15 @@
 //  Created by Pedro Tacla Yamada on 3/9/2022.
 //
 
+import SequencerUI
+import SwiftUI
 import UIKit
 
 class ViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
 
-  override func viewDidLoad() {
-    super.viewDidLoad()
-    // Do any additional setup after loading the view.
-  }
-
-
+        let hostingViewController = UIHostingController(rootView: SequencerRootAppView())
+        addChild(hostingViewController)
+    }
 }
-

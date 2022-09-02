@@ -21,7 +21,6 @@ import CoreGraphics
 import DequeModule
 import Foundation
 import Logging
-import OSCKit
 
 public class Store: ObservableObject {
     var logger: Logger = .init(label: "com.beijaflor.sequencerui.store.Store")
@@ -50,7 +49,6 @@ public class Store: ObservableObject {
     let modalState = ModalState()
 
     let focusState = FocusState()
-    var oscClient = OSCClient()
     var engine: SequencerEngine? {
         didSet {
             onEngineUpdate()

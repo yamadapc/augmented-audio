@@ -105,6 +105,7 @@ struct KnobView: View {
     }
 
     #if canImport(AppKit)
+        @available(macOS 11, *)
         func renderMacOS() -> MacKnobView {
             return MacKnobView(
                 value: Float(value),
