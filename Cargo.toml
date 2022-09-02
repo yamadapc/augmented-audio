@@ -89,7 +89,7 @@ debug = true
 wisual-logger = { version = "0.1", path = "crates/augmented/ops/wisual-logger" }
 
 # Vendor overrides
-iced = { version = "^0.3.0", path = "crates/vendor/iced" }
+# iced = { version = "^0.3.0", path = "crates/vendor/iced" }
 cpal = { path = "crates/vendor/cpal" }
 vst = { path = "crates/vendor/vst" }
 libsamplerate-sys = { path = "crates/vendor/libsamplerate-sys" }

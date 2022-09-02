@@ -8,13 +8,13 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
-default = ["glow", "story"]
-glow = ["iced/glow", "iced/glow_canvas", "audio-processor-iced-storybook/glow"]
+default = ["wgpu", "story"]
+glow = ["iced/glow", "iced/canvas", "audio-processor-iced-storybook/glow"]
 wgpu = ["iced/wgpu", "iced/canvas", "audio-processor-iced-storybook/wgpu"]
 story = []
 
 [dependencies]
-iced = { version = "^0.3.0", path = "../../../vendor/iced", default-features = false }
+iced = { version = "0.4.2", default-features = false }
 # Augmented
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" }
 audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" }

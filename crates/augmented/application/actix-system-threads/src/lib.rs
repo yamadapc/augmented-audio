@@ -87,6 +87,7 @@ impl ActorSystem {
                 }
                 tx.send(arbiters).unwrap();
                 sys_tx.send(System::current()).unwrap();
+                log::warn!("System started");
                 system.run().unwrap();
                 log::warn!("System has stopped");
             })
@@ -182,6 +183,7 @@ mod test {
             type Result = String;
 
             fn handle(&mut self, _msg: Ping, _ctx: &mut Self::Context) -> Self::Result {
+                log::info!("ping <-> pong");
                 "pong".to_string()
             }
         }
@@ -189,11 +191,22 @@ mod test {
         let _ = wisual_logger::try_init_from_env();
         let actor_system_thread = ActorSystem::with_new_system();
 
-        let addr: Addr<TestActor> =
+        let addr1: Addr<TestActor> =
             actor_system_thread.spawn_result(async { TestActor {}.start() });
-
+        let addr2: Addr<TestActor> =
+            actor_system_thread.spawn_result(async { TestActor {}.start() });
+        let addr3: Addr<TestActor> =
+            actor_system_thread.spawn_result(async { TestActor {}.start() });
         let result = actor_system_thread
-            .spawn_result(async move { addr.send(Ping).await })
+            .spawn_result(async move { addr1.send(Ping).await })
+            .unwrap();
+        assert_eq!(result, "pong");
+        let result = actor_system_thread
+            .spawn_result(async move { addr2.send(Ping).await })
+            .unwrap();
+        assert_eq!(result, "pong");
+        let result = actor_system_thread
+            .spawn_result(async move { addr3.send(Ping).await })
             .unwrap();
         assert_eq!(result, "pong");
     }

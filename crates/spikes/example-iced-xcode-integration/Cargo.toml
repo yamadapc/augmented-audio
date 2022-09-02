@@ -8,7 +8,7 @@ name = "example_iced_xcode_integration"
 crate-type = ["staticlib"]
 
 [dependencies]
-iced_baseview = { path = "../../vendor/iced-baseview", features = ["tokio", "canvas"] }
+iced_baseview = { path = "../../vendor/iced-baseview", features = ["tokio", "wgpu_canvas"] }
 baseview = { path = "../../vendor/baseview" }
 raw-window-handle = "0.4.3"
 objc = "0.2.7"

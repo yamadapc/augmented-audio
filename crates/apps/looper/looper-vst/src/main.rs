@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced_baseview::{IcedWindow, Settings};
+use iced_baseview::{IcedBaseviewSettings, IcedWindow, Settings};
 
 use augmented::gui::baseview::{Size, WindowOpenOptions, WindowScalePolicy};
 use looper_processor::{LooperOptions, MultiTrackLooper};
@@ -53,7 +53,13 @@ fn main() {
                 height: 700.0,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
+            #[cfg(feature = "glow")]
+            gl_config: None,
         },
         flags: Flags { processor_handle },
+        iced_baseview: IcedBaseviewSettings {
+            always_redraw: true,
+            ignore_non_modifier_keys: false,
+        },
     });
 }
