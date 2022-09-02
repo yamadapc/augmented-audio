@@ -15,26 +15,22 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+//
+//  ViewController.swift
+//  SequencerUI-Playground
+//
+//  Created by Pedro Tacla Yamada on 3/9/2022.
+//
 
-import Cocoa
-import SequencerEngine
-import SequencerUI
-import SwiftUI
+import UIKit
 
-/**
- * ViewController for the main application window.
- */
-class MainWindowViewController: NSViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
+class ViewController: UIViewController {
 
-        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        let contentView = SequencerRootAppView()
-            .environmentObject(engineController.store)
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    // Do any additional setup after loading the view.
+  }
 
-        let cachingView = NSHostingView(rootView: contentView)
-        cachingView.translatesAutoresizingMaskIntoConstraints = true
-        cachingView.autoresizingMask = [.height, .width]
-        view = cachingView
-    }
+
 }
+

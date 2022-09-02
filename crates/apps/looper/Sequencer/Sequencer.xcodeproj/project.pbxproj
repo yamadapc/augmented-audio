@@ -53,6 +53,12 @@
 		CBADD5B52810DC300024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B62810DC3D0024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B82810EC9D0024DAE6 /* license.html in Resources */ = {isa = PBXBuildFile; fileRef = CBADD5B72810EC9D0024DAE6 /* license.html */; };
+		CBB47B2128C2B6F00069D916 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB47B2028C2B6F00069D916 /* AppDelegate.swift */; };
+		CBB47B2328C2B6F00069D916 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB47B2228C2B6F00069D916 /* SceneDelegate.swift */; };
+		CBB47B2528C2B6F00069D916 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB47B2428C2B6F00069D916 /* ViewController.swift */; };
+		CBB47B2828C2B6F00069D916 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B2628C2B6F00069D916 /* Main.storyboard */; };
+		CBB47B2A28C2B6F10069D916 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B2928C2B6F10069D916 /* Assets.xcassets */; };
+		CBB47B2D28C2B6F10069D916 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B2B28C2B6F10069D916 /* LaunchScreen.storyboard */; };
 		CBD6415628442D2700825185 /* AudioIOSettingsControllerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */; };
 		CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
 		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
@@ -222,6 +228,14 @@
 		CBA4DABF27DE948400A530E3 /* liblooperengine_sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = liblooperengine_sim.a; path = "../../../../crates/apps/looper/looper-processor/public/lib/ios-aarch64-sim/liblooperengine_sim.a"; sourceTree = "<group>"; };
 		CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesWindowViewController.swift; sourceTree = "<group>"; };
 		CBADD5B72810EC9D0024DAE6 /* license.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = license.html; path = "../looper-processor/license.html"; sourceTree = "<group>"; };
+		CBB47B1E28C2B6F00069D916 /* SequencerUI-Playground.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SequencerUI-Playground.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		CBB47B2028C2B6F00069D916 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		CBB47B2228C2B6F00069D916 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		CBB47B2428C2B6F00069D916 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		CBB47B2728C2B6F00069D916 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		CBB47B2928C2B6F10069D916 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CBB47B2C28C2B6F10069D916 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		CBB47B2E28C2B6F10069D916 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioIOSettingsControllerImpl.swift; sourceTree = "<group>"; };
 		CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineController.swift; sourceTree = "<group>"; };
 		CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequencerEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -292,6 +306,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CBB47B1B28C2B6F00069D916 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CBECE3B527ED43DB0054BB43 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -317,6 +338,7 @@
 				CB1666C127CCAD07000F9E21 /* SequencerUITests */,
 				CB1666B727CCAD07000F9E21 /* SequencerTests */,
 				CBA4DA6327DC5EE100A530E3 /* BuildTools */,
+				CBB47B1F28C2B6F00069D916 /* SequencerUI-Playground */,
 				CB1666A527CCAD04000F9E21 /* Products */,
 				CB23ADA227D33F4700C6289F /* Frameworks */,
 			);
@@ -334,6 +356,7 @@
 				CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */,
 				CB3948F627ED24BA009A650D /* Sequencer MacUITests.xctest */,
 				CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */,
+				CBB47B1E28C2B6F00069D916 /* SequencerUI-Playground.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -526,6 +549,20 @@
 				CBA4DAAD27DDF67700A530E3 /* SequencerEngine_ios.h */,
 			);
 			path = SequencerEngine_ios;
+			sourceTree = "<group>";
+		};
+		CBB47B1F28C2B6F00069D916 /* SequencerUI-Playground */ = {
+			isa = PBXGroup;
+			children = (
+				CBB47B2028C2B6F00069D916 /* AppDelegate.swift */,
+				CBB47B2228C2B6F00069D916 /* SceneDelegate.swift */,
+				CBB47B2428C2B6F00069D916 /* ViewController.swift */,
+				CBB47B2628C2B6F00069D916 /* Main.storyboard */,
+				CBB47B2928C2B6F10069D916 /* Assets.xcassets */,
+				CBB47B2B28C2B6F10069D916 /* LaunchScreen.storyboard */,
+				CBB47B2E28C2B6F10069D916 /* Info.plist */,
+			);
+			path = "SequencerUI-Playground";
 			sourceTree = "<group>";
 		};
 		CBD6415428442D1400825185 /* audio_io_settings_controller */ = {
@@ -731,6 +768,24 @@
 			productReference = CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		CBB47B1D28C2B6F00069D916 /* SequencerUI-Playground */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CBB47B2F28C2B6F10069D916 /* Build configuration list for PBXNativeTarget "SequencerUI-Playground" */;
+			buildPhases = (
+				CBB47B1A28C2B6F00069D916 /* Sources */,
+				CBB47B1B28C2B6F00069D916 /* Frameworks */,
+				CBB47B1C28C2B6F00069D916 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CBB47B3328C2B6F90069D916 /* PBXTargetDependency */,
+			);
+			name = "SequencerUI-Playground";
+			productName = "SequencerUI-Playground";
+			productReference = CBB47B1E28C2B6F00069D916 /* SequencerUI-Playground.app */;
+			productType = "com.apple.product-type.application";
+		};
 		CBECE3B727ED43DB0054BB43 /* SequencerEngineTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CBECE3BF27ED43DB0054BB43 /* Build configuration list for PBXNativeTarget "SequencerEngineTests" */;
@@ -756,7 +811,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1330;
+				LastSwiftUpdateCheck = 1340;
 				LastUpgradeCheck = 1320;
 				TargetAttributes = {
 					CB1666A327CCAD04000F9E21 = {
@@ -785,6 +840,9 @@
 					};
 					CBA4DAAA27DDF67700A530E3 = {
 						CreatedOnToolsVersion = 13.2.1;
+					};
+					CBB47B1D28C2B6F00069D916 = {
+						CreatedOnToolsVersion = 13.4.1;
 					};
 					CBECE3B727ED43DB0054BB43 = {
 						CreatedOnToolsVersion = 13.3;
@@ -816,6 +874,7 @@
 				CB3948C327EA6BFC009A650D /* Sequencer AudioUnit */,
 				CB3948F527ED24BA009A650D /* Sequencer MacUITests */,
 				CBECE3B727ED43DB0054BB43 /* SequencerEngineTests */,
+				CBB47B1D28C2B6F00069D916 /* SequencerUI-Playground */,
 			);
 		};
 /* End PBXProject section */
@@ -883,6 +942,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CBB47B1C28C2B6F00069D916 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CBB47B2D28C2B6F10069D916 /* LaunchScreen.storyboard in Resources */,
+				CBB47B2A28C2B6F10069D916 /* Assets.xcassets in Resources */,
+				CBB47B2828C2B6F00069D916 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1002,6 +1071,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CBB47B1A28C2B6F00069D916 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CBB47B2528C2B6F00069D916 /* ViewController.swift in Sources */,
+				CBB47B2128C2B6F00069D916 /* AppDelegate.swift in Sources */,
+				CBB47B2328C2B6F00069D916 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		CBECE3B427ED43DB0054BB43 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1057,6 +1136,10 @@
 			target = CBA4DAAA27DDF67700A530E3 /* SequencerEngine_ios */;
 			targetProxy = CBA4DAAF27DDF67700A530E3 /* PBXContainerItemProxy */;
 		};
+		CBB47B3328C2B6F90069D916 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = CBB47B3228C2B6F90069D916 /* SequencerUI */;
+		};
 		CBECE3BE27ED43DB0054BB43 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CBA4DA8F27DDF21800A530E3 /* SequencerEngine */;
@@ -1079,6 +1162,22 @@
 				CB801A1E27D8AE6600D7788E /* Base */,
 			);
 			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		CBB47B2628C2B6F00069D916 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CBB47B2728C2B6F00069D916 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		CBB47B2B28C2B6F10069D916 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CBB47B2C28C2B6F10069D916 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1670,6 +1769,64 @@
 			};
 			name = Release;
 		};
+		CBB47B3028C2B6F10069D916 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q39U2SBP6Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SequencerUI-Playground/Info.plist";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerUI-Playground";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CBB47B3128C2B6F10069D916 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = Q39U2SBP6Z;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "SequencerUI-Playground/Info.plist";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerUI-Playground";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		CBECE3C027ED43DB0054BB43 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1788,6 +1945,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		CBB47B2F28C2B6F10069D916 /* Build configuration list for PBXNativeTarget "SequencerUI-Playground" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CBB47B3028C2B6F10069D916 /* Debug */,
+				CBB47B3128C2B6F10069D916 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		CBECE3BF27ED43DB0054BB43 /* Build configuration list for PBXNativeTarget "SequencerEngineTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1828,6 +1994,10 @@
 			productName = SequencerUI;
 		};
 		CBA4DAB827DDF78000A530E3 /* SequencerUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SequencerUI;
+		};
+		CBB47B3228C2B6F90069D916 /* SequencerUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SequencerUI;
 		};

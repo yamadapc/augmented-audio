@@ -16,8 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
-import AppKit
 import SwiftUI
+
+#if os(macOS)
+    import AppKit
+#endif
 
 /**
  * This struct represents an Arc that will be drawn for either the background or the filled track of a knob
@@ -159,216 +162,220 @@ func buildPointerPath(
     )
 }
 
-/**
- * This is required because SwiftUI has poor performance for rendering the knob, found in `KnobView`.
- *
- * This implementation has significantly better performance and is much more responsive, because updating
- * the SwiftUI implementation on drag causes a lot of layout operations around its ZStack and VStacks.
- *
- * It might be possible to optimise the SwiftUI implementation as well.
- */
-@available(macOS 11, *)
-class MacKnobNSView: NSView {
-    var value: Float = 0.0 {
-        didSet {
-            needsDisplay = true
+// MARK: MAC Specific code
+
+#if os(macOS)
+    /**
+     * This is required because SwiftUI has poor performance for rendering the knob, found in `KnobView`.
+     *
+     * This implementation has significantly better performance and is much more responsive, because updating
+     * the SwiftUI implementation on drag causes a lot of layout operations around its ZStack and VStacks.
+     *
+     * It might be possible to optimise the SwiftUI implementation as well.
+     */
+    @available(macOS 11, *)
+    class MacKnobNSView: NSView {
+        var value: Float = 0.0 {
+            didSet {
+                needsDisplay = true
+            }
+        }
+
+        var style: KnobStyle = .normal
+        var radius = 30.0
+        var strokeWidth = 5.0
+
+        override func draw(_: NSRect) {
+            let context = NSGraphicsContext.current?.cgContext
+
+            context?.translateBy(x: 0, y: -10)
+
+            context?.saveGState()
+            let bgPath = buildPath(1.0)
+            context?.addPath(bgPath)
+            context?.setLineWidth(strokeWidth)
+            context?.setStrokeColor(SequencerColors.black1.cgColor!)
+            context?.strokePath()
+            context?.restoreGState()
+
+            context?.saveGState()
+            let trackSliderPath = buildFilledValuePath()
+            context?.addPath(trackSliderPath)
+            context?.setLineWidth(strokeWidth)
+            context?.setStrokeColor(SequencerColors.blue.cgColor!)
+            context?.strokePath()
+            context?.restoreGState()
+
+            context?.saveGState()
+            context?.addPath(buildPointer())
+            context?.setLineWidth(strokeWidth / 2.0)
+            context?.setStrokeColor(SequencerColors.white.cgColor!)
+            context?.strokePath()
+            context?.restoreGState()
+        }
+
+        func buildPointer() -> CGPath {
+            let pointerPath = buildPointerPath(
+                radius: radius,
+                style: style,
+                strokeWidth: strokeWidth,
+                value: Double(value)
+            )
+            let path = CGMutablePath()
+            path.move(to: pointerPath.start)
+            path.addLine(to: pointerPath.end)
+            return path
+        }
+
+        func buildFilledValuePath() -> CGPath {
+            switch style {
+            case .normal:
+                return buildPath(Double(value))
+            case .center:
+                return buildCenterPath()
+            }
+        }
+
+        func buildCenterPath() -> CGPath {
+            let arc = buildCenterValueTrack(
+                radius: radius,
+                strokeWidth: strokeWidth,
+                value: Double(value)
+            )
+            let path = CGMutablePath()
+            path.addArc(
+                center: arc.center,
+                radius: arc.radius,
+                startAngle: arc.startAngle,
+                endAngle: arc.endAngle,
+                clockwise: true
+            )
+
+            return path
+        }
+
+        func buildPath(_ value: Double) -> CGPath {
+            let arc = buildValueTrack(
+                radius: radius,
+                strokeWidth: strokeWidth,
+                value: value
+            )
+
+            let path = CGMutablePath()
+            path.addArc(
+                center: arc.center,
+                radius: arc.radius,
+                startAngle: arc.startAngle,
+                endAngle: arc.endAngle,
+                clockwise: true
+            )
+
+            return path
         }
     }
 
-    var style: KnobStyle = .normal
-    var radius = 30.0
-    var strokeWidth = 5.0
+    @available(macOS 11, *)
+    class MacKnobViewWithText: NSView {
+        var valueTextView: NSTextView
+        var labelView: NSTextView
+        var knobView: MacKnobNSView
+        var style: KnobStyle = .normal {
+            didSet {
+                knobView.style = style
+            }
+        }
 
-    override func draw(_: NSRect) {
-        let context = NSGraphicsContext.current?.cgContext
+        var value: Float {
+            get { knobView.value }
+            set {
+                knobView.value = newValue
+            }
+        }
 
-        context?.translateBy(x: 0, y: -10)
+        var label: String = "" {
+            didSet {
+                labelView.string = label
+            }
+        }
 
-        context?.saveGState()
-        let bgPath = buildPath(1.0)
-        context?.addPath(bgPath)
-        context?.setLineWidth(strokeWidth)
-        context?.setStrokeColor(SequencerColors.black1.cgColor!)
-        context?.strokePath()
-        context?.restoreGState()
+        var formattedValue: String = "" {
+            didSet {
+                valueTextView.string = formattedValue
+            }
+        }
 
-        context?.saveGState()
-        let trackSliderPath = buildFilledValuePath()
-        context?.addPath(trackSliderPath)
-        context?.setLineWidth(strokeWidth)
-        context?.setStrokeColor(SequencerColors.blue.cgColor!)
-        context?.strokePath()
-        context?.restoreGState()
+        init() {
+            knobView = MacKnobNSView()
+            valueTextView = NSTextView()
+            labelView = NSTextView()
+            labelView.textContainer?.maximumNumberOfLines = 1
+            super.init(frame: NSRect.zero)
+            setupSubViews()
+        }
 
-        context?.saveGState()
-        context?.addPath(buildPointer())
-        context?.setLineWidth(strokeWidth / 2.0)
-        context?.setStrokeColor(SequencerColors.white.cgColor!)
-        context?.strokePath()
-        context?.restoreGState()
-    }
+        required init?(coder: NSCoder) {
+            valueTextView = NSTextView()
+            labelView = NSTextView()
+            knobView = MacKnobNSView()
+            super.init(coder: coder)
+            setupSubViews()
+        }
 
-    func buildPointer() -> CGPath {
-        let pointerPath = buildPointerPath(
-            radius: radius,
-            style: style,
-            strokeWidth: strokeWidth,
-            value: Double(value)
-        )
-        let path = CGMutablePath()
-        path.move(to: pointerPath.start)
-        path.addLine(to: pointerPath.end)
-        return path
-    }
+        func setupSubViews() {
+            valueTextView.isEditable = false
+            labelView.isEditable = false
+            valueTextView.alignment = .center
+            labelView.alignment = .center
+            valueTextView.drawsBackground = false
+            labelView.drawsBackground = false
 
-    func buildFilledValuePath() -> CGPath {
-        switch style {
-        case .normal:
-            return buildPath(Double(value))
-        case .center:
-            return buildCenterPath()
+            knobView.wantsLayer = true
+
+            addSubview(valueTextView)
+            addSubview(labelView)
+            addSubview(knobView)
+
+            layout()
+        }
+
+        override func layout() {
+            let (valueFrame, remaining1) = frame.divided(
+                atDistance: 20, from: .maxYEdge
+            )
+            valueTextView.frame = valueFrame
+            let (labelFrame, remaining2) = remaining1.divided(
+                atDistance: 20, from: .minYEdge
+            )
+            labelView.frame = labelFrame
+
+            knobView.frame = remaining2
         }
     }
 
-    func buildCenterPath() -> CGPath {
-        let arc = buildCenterValueTrack(
-            radius: radius,
-            strokeWidth: strokeWidth,
-            value: Double(value)
-        )
-        let path = CGMutablePath()
-        path.addArc(
-            center: arc.center,
-            radius: arc.radius,
-            startAngle: arc.startAngle,
-            endAngle: arc.endAngle,
-            clockwise: true
-        )
+    @available(macOS 11, *)
+    struct MacKnobView: NSViewRepresentable {
+        var value: Float
+        var label: String
+        var formattedValue: String
+        var style: KnobStyle
 
-        return path
-    }
+        typealias NSViewType = MacKnobViewWithText
 
-    func buildPath(_ value: Double) -> CGPath {
-        let arc = buildValueTrack(
-            radius: radius,
-            strokeWidth: strokeWidth,
-            value: value
-        )
+        func makeNSView(context _: Context) -> MacKnobViewWithText {
+            let view = MacKnobViewWithText()
+            view.value = value
+            view.label = label
+            view.formattedValue = formattedValue
+            view.style = style
+            return view
+        }
 
-        let path = CGMutablePath()
-        path.addArc(
-            center: arc.center,
-            radius: arc.radius,
-            startAngle: arc.startAngle,
-            endAngle: arc.endAngle,
-            clockwise: true
-        )
-
-        return path
-    }
-}
-
-@available(macOS 11, *)
-class MacKnobViewWithText: NSView {
-    var valueTextView: NSTextView
-    var labelView: NSTextView
-    var knobView: MacKnobNSView
-    var style: KnobStyle = .normal {
-        didSet {
-            knobView.style = style
+        func updateNSView(_ nsView: MacKnobViewWithText, context _: Context) {
+            nsView.value = value
+            nsView.label = label
+            nsView.formattedValue = formattedValue
+            nsView.style = style
+            nsView.needsDisplay = true
         }
     }
-
-    var value: Float {
-        get { knobView.value }
-        set {
-            knobView.value = newValue
-        }
-    }
-
-    var label: String = "" {
-        didSet {
-            labelView.string = label
-        }
-    }
-
-    var formattedValue: String = "" {
-        didSet {
-            valueTextView.string = formattedValue
-        }
-    }
-
-    init() {
-        knobView = MacKnobNSView()
-        valueTextView = NSTextView()
-        labelView = NSTextView()
-        labelView.textContainer?.maximumNumberOfLines = 1
-        super.init(frame: NSRect.zero)
-        setupSubViews()
-    }
-
-    required init?(coder: NSCoder) {
-        valueTextView = NSTextView()
-        labelView = NSTextView()
-        knobView = MacKnobNSView()
-        super.init(coder: coder)
-        setupSubViews()
-    }
-
-    func setupSubViews() {
-        valueTextView.isEditable = false
-        labelView.isEditable = false
-        valueTextView.alignment = .center
-        labelView.alignment = .center
-        valueTextView.drawsBackground = false
-        labelView.drawsBackground = false
-
-        knobView.wantsLayer = true
-
-        addSubview(valueTextView)
-        addSubview(labelView)
-        addSubview(knobView)
-
-        layout()
-    }
-
-    override func layout() {
-        let (valueFrame, remaining1) = frame.divided(
-            atDistance: 20, from: .maxYEdge
-        )
-        valueTextView.frame = valueFrame
-        let (labelFrame, remaining2) = remaining1.divided(
-            atDistance: 20, from: .minYEdge
-        )
-        labelView.frame = labelFrame
-
-        knobView.frame = remaining2
-    }
-}
-
-@available(macOS 11, *)
-struct MacKnobView: NSViewRepresentable {
-    var value: Float
-    var label: String
-    var formattedValue: String
-    var style: KnobStyle
-
-    typealias NSViewType = MacKnobViewWithText
-
-    func makeNSView(context _: Context) -> MacKnobViewWithText {
-        let view = MacKnobViewWithText()
-        view.value = value
-        view.label = label
-        view.formattedValue = formattedValue
-        view.style = style
-        return view
-    }
-
-    func updateNSView(_ nsView: MacKnobViewWithText, context _: Context) {
-        nsView.value = value
-        nsView.label = label
-        nsView.formattedValue = formattedValue
-        nsView.style = style
-        nsView.needsDisplay = true
-    }
-}
+#endif
