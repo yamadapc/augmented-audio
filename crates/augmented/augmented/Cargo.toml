@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
-default = []
+default = ["wgpu"]
 wgpu = [
     "iced/wgpu",
     "audio-processor-iced-design-system/wgpu",
@@ -58,7 +58,7 @@ audio-processor-iced-storybook = { path = "../gui/audio-processor-iced-storybook
 iced-editor = { path = "../gui/iced-editor" }
 macos-bundle-resources = { path = "../gui/macos-bundle-resources" }
 
-iced = { path = "../../vendor/iced" }
+iced = "0.4.2"
 iced_audio = { path = "../../vendor/iced_audio" }
 baseview = { path = "../../vendor/baseview" }
 

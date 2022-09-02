@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+use audio_processor_iced_design_system::colors::darken_color;
 use iced::container::Style;
 use iced::{
     container, Background, Color, Container, Direction, Gradient, GradientStop, Length,
@@ -192,8 +193,10 @@ fn main() -> iced::Result {
                                     },
                                     GradientStop {
                                         percentage: 1.0,
-                                        color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.)
-                                            .darken(0.9),
+                                        color: darken_color(
+                                            Color::from_rgb(33. / 255., 34. / 255., 43. / 255.),
+                                            0.9,
+                                        ),
                                     },
                                 ],
                             },
@@ -367,15 +370,24 @@ impl container::StyleSheet for ContainerPrettyStyle {
                         },
                         GradientStop {
                             percentage: 0.25,
-                            color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.).darken(0.3),
+                            color: darken_color(
+                                Color::from_rgb(33. / 255., 34. / 255., 43. / 255.),
+                                0.3,
+                            ),
                         },
                         GradientStop {
                             percentage: 0.75,
-                            color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.).darken(0.4),
+                            color: darken_color(
+                                Color::from_rgb(33. / 255., 34. / 255., 43. / 255.),
+                                0.4,
+                            ),
                         },
                         GradientStop {
                             percentage: 1.0,
-                            color: Color::from_rgb(33. / 255., 34. / 255., 43. / 255.).darken(0.7),
+                            color: darken_color(
+                                Color::from_rgb(33. / 255., 34. / 255., 43. / 255.),
+                                0.7,
+                            ),
                         },
                     ],
                 },
