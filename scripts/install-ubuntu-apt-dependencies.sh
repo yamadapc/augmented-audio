@@ -24,6 +24,7 @@ sudo apt-get install --fix-missing -y \
     libxcb-icccm4-dev \
     libxcb-shape0-dev \
     libxcb-dri2-0-dev \
+    libxcb-xfixes0-dev \
     libavahi-client-dev \
     nvidia-utils-465 \
     lame \
