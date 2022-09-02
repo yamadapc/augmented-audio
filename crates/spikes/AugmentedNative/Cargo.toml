@@ -15,7 +15,7 @@ plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
 log = "0.4"
 cocoa = "0.24.0"
-metal = "0.23.1"
+metal = "0.24.0"
 core-graphics-types = "0.1.1"
 
 [build-dependencies]
