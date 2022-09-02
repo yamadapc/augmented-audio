@@ -59,6 +59,7 @@
 		CBB47B2828C2B6F00069D916 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B2628C2B6F00069D916 /* Main.storyboard */; };
 		CBB47B2A28C2B6F10069D916 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B2928C2B6F10069D916 /* Assets.xcassets */; };
 		CBB47B2D28C2B6F10069D916 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B2B28C2B6F10069D916 /* LaunchScreen.storyboard */; };
+		CBB47B3728C2BBD70069D916 /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CBB47B3628C2BBD70069D916 /* SequencerUI */; };
 		CBD6415628442D2700825185 /* AudioIOSettingsControllerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */; };
 		CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
 		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
@@ -310,6 +311,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CBB47B3728C2BBD70069D916 /* SequencerUI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -782,6 +784,9 @@
 				CBB47B3328C2B6F90069D916 /* PBXTargetDependency */,
 			);
 			name = "SequencerUI-Playground";
+			packageProductDependencies = (
+				CBB47B3628C2BBD70069D916 /* SequencerUI */,
+			);
 			productName = "SequencerUI-Playground";
 			productReference = CBB47B1E28C2B6F00069D916 /* SequencerUI-Playground.app */;
 			productType = "com.apple.product-type.application";
@@ -1998,6 +2003,10 @@
 			productName = SequencerUI;
 		};
 		CBB47B3228C2B6F90069D916 /* SequencerUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SequencerUI;
+		};
+		CBB47B3628C2BBD70069D916 /* SequencerUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SequencerUI;
 		};
