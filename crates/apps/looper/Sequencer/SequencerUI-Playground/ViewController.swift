@@ -30,7 +30,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        let rootView = PlaygroundRootView()
+        let rootView = PlaygroundRootView(stories: getStories())
         let hostingViewController = UIHostingController(rootView: rootView)
         addChild(hostingViewController)
 

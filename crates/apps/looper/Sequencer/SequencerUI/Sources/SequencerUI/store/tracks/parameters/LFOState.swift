@@ -79,7 +79,7 @@ public class LFOState: ObservableObject {
     ] }
     private var mapping: [ParameterId: LFOMapping] = [:]
 
-    init(trackId: UInt, index: UInt) {
+    public init(trackId: UInt, index: UInt) {
         id = LFOId(trackId: trackId, index: index)
 
         frequencyParameter = .init(

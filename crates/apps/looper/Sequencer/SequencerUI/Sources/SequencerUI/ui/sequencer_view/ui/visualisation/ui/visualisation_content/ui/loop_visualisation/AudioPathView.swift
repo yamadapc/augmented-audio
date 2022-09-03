@@ -77,7 +77,7 @@ import MetalKit
 #endif
 
 // This is technically bad as it will cache across heights
-let PATH_CACHE: LRUCache<Int, Path> = LRUCache(
+let PATH_CACHE: LRUCache<Int, CGPath> = LRUCache(
     totalCostLimit: 10,
     countLimit: 10
 )
@@ -93,13 +93,13 @@ func buildCacheKey(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Int {
     return hash.finalize()
 }
 
-func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
+func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> CGPath {
     let cacheKey = buildCacheKey(geometry, buffer)
     if let cachedPath = PATH_CACHE.value(forKey: cacheKey) {
         return cachedPath
     }
 
-    var path = Path()
+    let path = CGMutablePath()
     let height = geometry.size.height
     let width = Int(geometry.size.width)
 
@@ -108,9 +108,7 @@ func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
     }
 
     var maxSample = 0.0
-    for overSampledX in 0 ... (width * 2) {
-        let x = Double(overSampledX) / 2.0
-        let index = Int(x / Double(width) * Double(buffer.count))
+    for index in 0 ..< buffer.count {
         let value: Float = abs(buffer[index % buffer.count])
         maxSample = max(maxSample, Double(value))
     }
@@ -119,14 +117,13 @@ func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
         return path
     }
 
-    for overSampledX in 0 ... (width * 2) {
-        let x = Double(overSampledX) / 2.0
-        let index = Int(x / Double(width) * Double(buffer.count))
-        let value = buffer[index % buffer.count]
+    for index in 0 ..< buffer.count {
+        let x = (Double(index) / Double(buffer.count)) * Double(width)
+        let value = buffer[index]
         let ratio = Double(value) / maxSample
         let h = ratio * height / 2 + height / 2
 
-        if overSampledX == 0 {
+        if index == 0 {
             path.move(to: CGPoint(x: x, y: h))
         }
         path.addLine(to: CGPoint(x: x, y: h))
@@ -136,24 +133,48 @@ func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Path {
     return path
 }
 
-struct AudioPathView: View {
+public struct AudioPathView: View {
     var tick: Int
     var buffer: TrackBuffer
     var geometry: GeometryProxy
+    @State
+    var uiImage: UIImage? = nil
 
-    var body: some View {
-        Path { path in
-            let audioPath = timeFunction("AudioPathView::buildPath") {
-                buildPath(geometry, buffer)
+    public init(tick: Int, buffer: TrackBuffer, geometry: GeometryProxy) {
+        self.tick = tick
+        self.buffer = buffer
+        self.geometry = geometry
+    }
+
+    public var body: some View {
+        ZStack {
+            if let uiImage = uiImage {
+                Image(uiImage: uiImage)
+                  .resizable()
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                Text("Drawing...")
             }
-            path.addPath(audioPath)
         }
-        .stroke(SequencerColors.blue, lineWidth: 1)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .onAppear {
+            DispatchQueue.global(qos: .userInitiated).async {
+                let path = timeFunction("Building path") { buildPath(geometry, buffer) }
+                let renderer = UIGraphicsImageRenderer(bounds: geometry.frame(in: .local), format: .init())
+                self.uiImage = timeFunction("Drawing image") { renderer.image { renderContext in
+                    let cgContext = renderContext.cgContext
+                    cgContext.addPath(path)
+                    cgContext.setLineWidth(1.0)
+                    cgContext.setStrokeColor(CGColor(red: 1.0, green: 0, blue: 0, alpha: 1))
+                    cgContext.strokePath()
+                } }
+            }
+        }
     }
 }
 
 extension AudioPathView: Equatable {
-    static func == (lhs: Self, rhs: Self) -> Bool {
+    public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.buffer.equals(other: rhs.buffer) && lhs.geometry.size == rhs.geometry.size
     }
 }

@@ -2,8 +2,11 @@ format: FORCE
 	./scripts/format.sh
 	python3 ./scripts/add_license_preamble.py
 
-build: FORCE
+build-rust-lib: FORCE
 	cd ../looper-processor && make
+
+build: FORCE
+	make build-rust-lib
 	xcodebuild -project Sequencer.xcodeproj -scheme "Sequencer Mac" -configuration Release
 
 test: FORCE
