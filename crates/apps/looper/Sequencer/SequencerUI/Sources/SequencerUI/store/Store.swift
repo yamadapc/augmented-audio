@@ -116,8 +116,8 @@ extension Store {
                 parameterId: hoveredId,
                 source: source
             ))
-        } else if let hoveredId = focusState.mouseOverObject,
-                  let source = focusState.draggingSource,
+        } else if let _ = focusState.mouseOverObject,
+                  let _ = focusState.draggingSource,
                   focusState.dragMode == .copy
         {
             // TODO: - implement copy

@@ -35,6 +35,8 @@
 		CB59A60A27FDA7EE004BC156 /* ApplicationEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */; };
 		CB59A60D27FF057E004BC156 /* EffectsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60C27FF057E004BC156 /* EffectsService.swift */; };
 		CB59A61127FFA1E3004BC156 /* EffectsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */; };
+		CB5D801128C60349002501F2 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = CB5D801028C60349002501F2 /* Logging */; };
+		CB5D801428C6079E002501F2 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = CB5D801328C6079E002501F2 /* Logging */; };
 		CB801A1827D8AE6600D7788E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1727D8AE6600D7788E /* AppDelegate.swift */; };
 		CB801A1A27D8AE6600D7788E /* MainWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB801A1927D8AE6600D7788E /* MainWindowViewController.swift */; };
 		CB801A1C27D8AE6600D7788E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB801A1B27D8AE6600D7788E /* Assets.xcassets */; };
@@ -49,7 +51,6 @@
 		CBA4DAB227DDF67700A530E3 /* SequencerEngine.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CBA4DAB727DDF72B00A530E3 /* SequencerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBA4DA8927DDF20000A530E3 /* SequencerEngine.swift */; };
 		CBA4DAB927DDF78000A530E3 /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CBA4DAB827DDF78000A530E3 /* SequencerUI */; };
-		CBADD5B42810DB200024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B52810DC300024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B62810DC3D0024DAE6 /* PreferencesWindowViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADD5B22810DB180024DAE6 /* PreferencesWindowViewController.swift */; };
 		CBADD5B82810EC9D0024DAE6 /* license.html in Resources */ = {isa = PBXBuildFile; fileRef = CBADD5B72810EC9D0024DAE6 /* license.html */; };
@@ -68,7 +69,6 @@
 		CBB47B4628C2C1160069D916 /* AudioIOSettingsControllerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */; };
 		CBB47B4728C2C1190069D916 /* EffectsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60C27FF057E004BC156 /* EffectsService.swift */; };
 		CBB47B4828C2C11C0069D916 /* ApplicationEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */; };
-		CBB47B4D28C2C25B0069D916 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = CBB47B4C28C2C25B0069D916 /* Logging */; };
 		CBB47B4F28C2C2780069D916 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = CBB47B4E28C2C2780069D916 /* Logging */; };
 		CBB47B5228C2DBF60069D916 /* example-song.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B5028C2DB290069D916 /* example-song.mp3 */; };
 		CBD6415628442D2700825185 /* AudioIOSettingsControllerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */; };
@@ -234,6 +234,7 @@
 		CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationEventStream.swift; sourceTree = "<group>"; };
 		CB59A60C27FF057E004BC156 /* EffectsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsService.swift; sourceTree = "<group>"; };
 		CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsServiceTests.swift; sourceTree = "<group>"; };
+		CB5D801228C605CE002501F2 /* swift-log */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swift-log"; path = "/Users/yamadapc/projects/rust-audio-software/crates/apps/looper/Sequencer/build/Sequencer/SourcePackages/checkouts/swift-log"; sourceTree = "<absolute>"; };
 		CB801A1527D8AE6600D7788E /* Continuous Looper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Continuous Looper.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB801A1727D8AE6600D7788E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB801A1927D8AE6600D7788E /* MainWindowViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowViewController.swift; sourceTree = "<group>"; };
@@ -327,6 +328,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB5D801128C60349002501F2 /* Logging in Frameworks */,
 				CB0F71C527E1204E00C08404 /* liblooperengine.a in Frameworks */,
 				CBA4DA9F27DDF22700A530E3 /* SequencerUI in Frameworks */,
 			);
@@ -345,7 +347,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CBB47B4D28C2C25B0069D916 /* Logging in Frameworks */,
+				CB5D801428C6079E002501F2 /* Logging in Frameworks */,
 				CBB47B4028C2BFF40069D916 /* SequencerEngine.framework in Frameworks */,
 				CBB47B3728C2BBD70069D916 /* SequencerUI in Frameworks */,
 			);
@@ -441,6 +443,7 @@
 			children = (
 				CBB47B4928C2C1EE0069D916 /* OSLog.framework */,
 				CB0F71C427E1204800C08404 /* liblooperengine.a */,
+				CB5D801228C605CE002501F2 /* swift-log */,
 				CBA4DABF27DE948400A530E3 /* liblooperengine_sim.a */,
 				CBA4DABC27DE015200A530E3 /* liblooper_processor.a */,
 				CBA4DABE27DE93B200A530E3 /* liblooper_processor.a */,
@@ -792,6 +795,7 @@
 			name = SequencerEngine;
 			packageProductDependencies = (
 				CBA4DA9E27DDF22700A530E3 /* SequencerUI */,
+				CB5D801028C60349002501F2 /* Logging */,
 			);
 			productName = SequencerEngine;
 			productReference = CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */;
@@ -837,7 +841,7 @@
 			name = "SequencerUI-Playground";
 			packageProductDependencies = (
 				CBB47B3628C2BBD70069D916 /* SequencerUI */,
-				CBB47B4C28C2C25B0069D916 /* Logging */,
+				CB5D801328C6079E002501F2 /* Logging */,
 			);
 			productName = "SequencerUI-Playground";
 			productReference = CBB47B1E28C2B6F00069D916 /* SequencerUI-Playground.app */;
@@ -1086,7 +1090,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CBADD5B42810DB200024DAE6 /* PreferencesWindowViewController.swift in Sources */,
 				CB3948FB27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift in Sources */,
 				CB3948F927ED24BA009A650D /* Sequencer_MacUITests.swift in Sources */,
 			);
@@ -1602,7 +1605,7 @@
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = "Sequencer Mac";
+				TEST_TARGET_NAME = "Continuous Looper";
 			};
 			name = Debug;
 		};
@@ -1620,7 +1623,7 @@
 				SDKROOT = macosx;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = "Sequencer Mac";
+				TEST_TARGET_NAME = "Continuous Looper";
 			};
 			name = Release;
 		};
@@ -2064,6 +2067,16 @@
 			isa = XCSwiftPackageProductDependency;
 			productName = SequencerUI;
 		};
+		CB5D801028C60349002501F2 /* Logging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CBB47B4B28C2C25B0069D916 /* XCRemoteSwiftPackageReference "swift-log" */;
+			productName = Logging;
+		};
+		CB5D801328C6079E002501F2 /* Logging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CBB47B4B28C2C25B0069D916 /* XCRemoteSwiftPackageReference "swift-log" */;
+			productName = Logging;
+		};
 		CB801A4427D8B13B00D7788E /* SequencerUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SequencerUI;
@@ -2083,11 +2096,6 @@
 		CBB47B3628C2BBD70069D916 /* SequencerUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SequencerUI;
-		};
-		CBB47B4C28C2C25B0069D916 /* Logging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = CBB47B4B28C2C25B0069D916 /* XCRemoteSwiftPackageReference "swift-log" */;
-			productName = Logging;
 		};
 		CBB47B4E28C2C2780069D916 /* Logging */ = {
 			isa = XCSwiftPackageProductDependency;

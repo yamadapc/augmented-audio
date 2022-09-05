@@ -64,6 +64,10 @@ let package = Package(
                 "SequencerUI",
                 "ViewInspector",
                 .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
+            ],
+            exclude: [
+                "./__Snapshots__/SequencerUITests/testSnapshotRendering.1.png",
+                "./ui/common/parameter_knob_view/__Snapshots__/ParameterKnobViewTests/testCreateParameterKnobView.1.png",
             ]
         ),
     ]
