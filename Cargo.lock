@@ -743,7 +743,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-audio-metrics"
-version = "1.0.0-alpha.5"
+version = "1.0.0-alpha.6"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-traits",
