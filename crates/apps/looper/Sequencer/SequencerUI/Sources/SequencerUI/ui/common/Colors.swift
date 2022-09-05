@@ -44,7 +44,7 @@ func color(_ r: Double, _ g: Double, _ b: Double) -> Color {
 //    // static let yellow = color(245, 187, 0)
 // }
 
-enum SequencerColors {
+public enum SequencerColors {
     static let transparent = Color.white.opacity(0)
     static let black0 = color(20, 20, 20)
     static let black = color(0, 0, 0)
@@ -62,7 +62,7 @@ enum SequencerColors {
 
     static let tooltipColor = color(194, 0, 251)
 
-    static let colors = [
+    public static let colors = [
         green,
         blue,
         yellow,

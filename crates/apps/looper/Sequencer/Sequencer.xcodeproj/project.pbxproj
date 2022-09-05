@@ -32,6 +32,9 @@
 		CB3D995927EFE4A000E5ECBA /* Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995827EFE4A000E5ECBA /* Parameters.swift */; };
 		CB3D995C27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */; };
 		CB3D995D27EFE50000E5ECBA /* StoreSubscriptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */; };
+		CB43DA3928C611E1007025AF /* Algorithms in Frameworks */ = {isa = PBXBuildFile; productRef = CB43DA3828C611E1007025AF /* Algorithms */; };
+		CB43DA3C28C61280007025AF /* AudioPathViewStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB43DA3B28C61280007025AF /* AudioPathViewStory.swift */; };
+		CB43DA3E28C612BD007025AF /* ColorsStory.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB43DA3D28C612BD007025AF /* ColorsStory.swift */; };
 		CB59A60A27FDA7EE004BC156 /* ApplicationEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */; };
 		CB59A60D27FF057E004BC156 /* EffectsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60C27FF057E004BC156 /* EffectsService.swift */; };
 		CB59A61127FFA1E3004BC156 /* EffectsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */; };
@@ -231,6 +234,8 @@
 		CB3D995727EFD78E00E5ECBA /* Sequencer-Mac-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "Sequencer-Mac-Info.plist"; sourceTree = SOURCE_ROOT; };
 		CB3D995827EFE4A000E5ECBA /* Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Parameters.swift; sourceTree = "<group>"; };
 		CB3D995B27EFE50000E5ECBA /* StoreSubscriptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreSubscriptions.swift; sourceTree = "<group>"; };
+		CB43DA3B28C61280007025AF /* AudioPathViewStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioPathViewStory.swift; sourceTree = "<group>"; };
+		CB43DA3D28C612BD007025AF /* ColorsStory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorsStory.swift; sourceTree = "<group>"; };
 		CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationEventStream.swift; sourceTree = "<group>"; };
 		CB59A60C27FF057E004BC156 /* EffectsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsService.swift; sourceTree = "<group>"; };
 		CB59A60F27FFA19E004BC156 /* EffectsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectsServiceTests.swift; sourceTree = "<group>"; };
@@ -347,6 +352,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB43DA3928C611E1007025AF /* Algorithms in Frameworks */,
 				CB5D801428C6079E002501F2 /* Logging in Frameworks */,
 				CBB47B4028C2BFF40069D916 /* SequencerEngine.framework in Frameworks */,
 				CBB47B3728C2BBD70069D916 /* SequencerUI in Frameworks */,
@@ -527,6 +533,15 @@
 			path = store_subscriptions;
 			sourceTree = "<group>";
 		};
+		CB43DA3A28C61273007025AF /* stories */ = {
+			isa = PBXGroup;
+			children = (
+				CB43DA3B28C61280007025AF /* AudioPathViewStory.swift */,
+				CB43DA3D28C612BD007025AF /* ColorsStory.swift */,
+			);
+			path = stories;
+			sourceTree = "<group>";
+		};
 		CB59A60827FDA7DA004BC156 /* foreign_callbacks */ = {
 			isa = PBXGroup;
 			children = (
@@ -614,6 +629,7 @@
 			children = (
 				CBB47B3928C2BCFC0069D916 /* PlaygroundRootView.swift */,
 				CBB47B3B28C2BE900069D916 /* Stories.swift */,
+				CB43DA3A28C61273007025AF /* stories */,
 			);
 			path = ui;
 			sourceTree = "<group>";
@@ -842,6 +858,7 @@
 			packageProductDependencies = (
 				CBB47B3628C2BBD70069D916 /* SequencerUI */,
 				CB5D801328C6079E002501F2 /* Logging */,
+				CB43DA3828C611E1007025AF /* Algorithms */,
 			);
 			productName = "SequencerUI-Playground";
 			productReference = CBB47B1E28C2B6F00069D916 /* SequencerUI-Playground.app */;
@@ -922,6 +939,7 @@
 			packageReferences = (
 				CB23AD9C27D2EDFD00C6289F /* XCRemoteSwiftPackageReference "OSCKit" */,
 				CBB47B4B28C2C25B0069D916 /* XCRemoteSwiftPackageReference "swift-log" */,
+				CB43DA3728C611E1007025AF /* XCRemoteSwiftPackageReference "swift-algorithms" */,
 			);
 			productRefGroup = CB1666A527CCAD04000F9E21 /* Products */;
 			projectDirPath = "";
@@ -1141,6 +1159,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB43DA3E28C612BD007025AF /* ColorsStory.swift in Sources */,
+				CB43DA3C28C61280007025AF /* AudioPathViewStory.swift in Sources */,
 				CBB47B2528C2B6F00069D916 /* ViewController.swift in Sources */,
 				CBB47B2128C2B6F00069D916 /* AppDelegate.swift in Sources */,
 				CBB47B2328C2B6F00069D916 /* SceneDelegate.swift in Sources */,
@@ -2048,6 +2068,14 @@
 				minimumVersion = 3.0.0;
 			};
 		};
+		CB43DA3728C611E1007025AF /* XCRemoteSwiftPackageReference "swift-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		CBB47B4B28C2C25B0069D916 /* XCRemoteSwiftPackageReference "swift-log" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-log.git";
@@ -2066,6 +2094,11 @@
 		CB3948EE27EA6DA3009A650D /* SequencerUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SequencerUI;
+		};
+		CB43DA3828C611E1007025AF /* Algorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB43DA3728C611E1007025AF /* XCRemoteSwiftPackageReference "swift-algorithms" */;
+			productName = Algorithms;
 		};
 		CB5D801028C60349002501F2 /* Logging */ = {
 			isa = XCSwiftPackageProductDependency;

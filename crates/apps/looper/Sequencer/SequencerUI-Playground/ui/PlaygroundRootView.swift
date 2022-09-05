@@ -42,7 +42,7 @@ struct PlaygroundRootView: View {
             List {
                 ForEach(stories, id: \.label) { item in
                     NavigationLink(
-                        destination: item.view,
+                        destination: item.view.navigationTitle(item.label),
                         label: { Text(item.label) }
                     )
                 }

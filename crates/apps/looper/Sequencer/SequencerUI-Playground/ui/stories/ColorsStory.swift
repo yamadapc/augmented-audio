@@ -16,25 +16,23 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
-import Algorithms
-import Logging
-import SequencerEngine
-import SequencerUI
 import SwiftUI
+import SequencerUI
 
-func getStories() -> [PlaygroundStory] {
-    EngineImpl.initLogging()
-
-    return [
-        colorsStory(),
-
-        story("LFOVisualisationView") {
-            LFOVisualisationView(lfoState: LFOState(trackId: 0, index: 0))
-                .environmentObject(Store(engine: nil))
-        },
-
-        story("AudioPathView") {
-            AudioPathViewStory()
-        },
-    ]
+func colorsStory() -> PlaygroundStory {
+    return story("Colors") {
+          ScrollView {
+              ForEach(SequencerColors.colors.chunks(ofCount: 4), id: \.self) { colorChunk in
+                  HStack {
+                      ForEach(colorChunk, id: \.self) { color in
+                          RoundedRectangle(cornerSize: .init(width: BORDER_RADIUS, height: BORDER_RADIUS))
+                              .fill(color)
+                              .frame(width: 100, height: 100, alignment: .center)
+                      }
+                  }
+              }
+              .frame(maxWidth: .infinity)
+          }
+          .frame(maxWidth: .infinity)
+        }
 }

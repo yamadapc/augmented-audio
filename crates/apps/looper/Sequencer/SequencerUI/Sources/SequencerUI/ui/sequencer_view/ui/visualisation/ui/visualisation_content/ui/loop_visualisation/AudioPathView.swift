@@ -137,13 +137,13 @@ public struct AudioPathView: View {
     var tick: Int
     var buffer: TrackBuffer
     var geometry: GeometryProxy
-#if canImport(UIKit)
-    @State
-    var image: UIImage? = nil
-#elseif canImport(AppKit)
-    @State
-    var image: NSImage? = nil
-#endif
+    #if canImport(UIKit)
+        @State
+        var image: UIImage? = nil
+    #elseif canImport(AppKit)
+        @State
+        var image: NSImage? = nil
+    #endif
 
     public init(tick: Int, buffer: TrackBuffer, geometry: GeometryProxy) {
         self.tick = tick
@@ -154,15 +154,15 @@ public struct AudioPathView: View {
     public var body: some View {
         ZStack {
             if let image = image {
-              #if canImport(UIKit)
-                Image(uiImage: image)
-                  .resizable()
-                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-              #else
-                Image(nsImage: image)
-                  .resizable()
-                  .frame(maxWidth: .infinity, maxHeight: .infinity)
-              #endif
+                #if canImport(UIKit)
+                    Image(uiImage: image)
+                        .resizable()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                #else
+                    Image(nsImage: image)
+                        .resizable()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                #endif
             } else {
                 Text("Drawing...")
             }
@@ -174,28 +174,29 @@ public struct AudioPathView: View {
             let size = geometry.size
             DispatchQueue.global(qos: .userInitiated).async {
                 let path = timeFunction("Building path") { buildPath(size, buffer) }
-              #if canImport(UIKit)
-                let renderer = UIGraphicsImageRenderer(bounds: frame, format: .init())
-                self.image = timeFunction("Drawing image") { renderer.image { renderContext in
-                    let cgContext = renderContext.cgContext
-                    cgContext.addPath(path)
-                    cgContext.setLineWidth(1.0)
-                    cgContext.setStrokeColor(SequencerColors.blue.cgColor!)
-                    cgContext.strokePath()
-                } }
-              #else
-                self.image = timeFunction("Drawing image") {
-                  NSImage(size: size, flipped: false, drawingHandler: { rect in
-                    let cgContext = NSGraphicsContext.current!.cgContext
-                    cgContext.addPath(path)
-                    cgContext.setLineWidth(1.0)
-                    if #available(macOS 11, *) {
+                #if canImport(UIKit)
+                    let renderer = UIGraphicsImageRenderer(bounds: frame, format: .init())
+                    self.image = timeFunction("Drawing image") { renderer.image { renderContext in
+                        let cgContext = renderContext.cgContext
+                        cgContext.addPath(path)
+                        cgContext.setLineWidth(1.0)
                         cgContext.setStrokeColor(SequencerColors.blue.cgColor!)
+                        cgContext.strokePath()
+                    } }
+                #else
+                    self.image = timeFunction("Drawing image") {
+                        NSImage(size: size, flipped: false, drawingHandler: { _ in
+                            let cgContext = NSGraphicsContext.current!.cgContext
+                            cgContext.addPath(path)
+                            cgContext.setLineWidth(1.0)
+                            if #available(macOS 11, *) {
+                                cgContext.setStrokeColor(SequencerColors.blue.cgColor!)
+                            }
+                            cgContext.strokePath()
+                            return true
+                        })
                     }
-                    cgContext.strokePath()
-                return true
-                }) }
-              #endif
+                #endif
             }
         }
     }
