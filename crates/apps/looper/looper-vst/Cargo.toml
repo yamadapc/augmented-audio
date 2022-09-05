@@ -59,7 +59,7 @@ audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-colle
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
 audio-processor-traits = { version = "1.0.0-alpha.8", path = "../../../augmented/audio/audio-processor-traits" }
 audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
-audio-processor-file = { version = "1.0.0-alpha.8", path = "../../../augmented/audio/audio-processor-file" }
+audio-processor-file = { version = "1.0.0-alpha.9", path = "../../../augmented/audio/audio-processor-file" }
 looper-processor = { path = "../looper-processor" }
 
 tokio = "1.17.0"

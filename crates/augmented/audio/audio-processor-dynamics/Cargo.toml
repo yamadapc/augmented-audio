@@ -19,7 +19,7 @@ audio-garbage-collector = { version = "1.0.0-alpha.6", path = "../audio-garbage-
 augmented-audio-volume = { path = "../../data/audio-volume" , version = "0.1.0-alpha.7" }
 
 [dev-dependencies]
-audio-processor-file = { version = "1.0.0-alpha.8", path = "../audio-processor-file" }
+audio-processor-file = { version = "1.0.0-alpha.9", path = "../audio-processor-file" }
 audio-processor-testing-helpers = { version = "1.0.0-alpha.8", path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-standalone = { version = "1.0.0-alpha.12", path = "../../application/audio-processor-standalone" }
 
