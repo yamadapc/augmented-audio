@@ -31,7 +31,7 @@ use augmented_atomics::{AtomicEnum, AtomicValue};
 
 use crate::audio::loop_quantization::LoopQuantizerMode;
 
-#[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum QuantizeMode {
     None = 0,
     SnapNext = 1,

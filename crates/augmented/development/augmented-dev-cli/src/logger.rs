@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 
 use std::io::Write;
-use std::{io, thread};
+use std::io;
 
-use env_logger::fmt::{Color, Formatter};
+use env_logger::fmt::Formatter;
 use log::{Record, SetLoggerError};
 
 pub struct LogFormatter;
@@ -32,8 +32,6 @@ pub struct LogFormatter;
 impl LogFormatter {
     /// Output log message with level, time, thread & pid
     pub fn format(buf: &mut Formatter, record: &Record) -> io::Result<()> {
-        let metadata = record.metadata();
-
         let level_style = buf.default_styled_level(record.level());
         writeln!(buf, "{} {}", level_style, record.args())
     }

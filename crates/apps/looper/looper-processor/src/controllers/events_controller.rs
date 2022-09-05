@@ -30,7 +30,7 @@ use actix::{Actor, Handler};
 
 use crate::common::Consumer;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 #[repr(C)]
 pub enum ApplicationEvent {
     ApplicationEventLooperClipUpdated {

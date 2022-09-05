@@ -43,7 +43,7 @@ pub enum State {
     Finished,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum FileWatchMessage {
     Started,
     Changed,

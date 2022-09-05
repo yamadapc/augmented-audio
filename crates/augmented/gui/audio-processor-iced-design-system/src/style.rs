@@ -116,19 +116,19 @@ pub mod button {
 
     impl iced::button::StyleSheet for Button {
         fn active(&self) -> Style {
-            self.active_style.clone()
+            self.active_style
         }
 
         fn hovered(&self) -> Style {
-            self.hovered_style.clone()
+            self.hovered_style
         }
 
         fn pressed(&self) -> Style {
-            self.pressed_style.clone()
+            self.pressed_style
         }
 
         fn disabled(&self) -> Style {
-            self.disabled_style.clone()
+            self.disabled_style
         }
     }
 

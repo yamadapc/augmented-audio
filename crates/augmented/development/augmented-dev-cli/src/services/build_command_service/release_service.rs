@@ -91,7 +91,7 @@ fn compress_release(cargo_toml: &CargoToml, local_package: &LocalPackage) -> Str
         .clone();
     let dmg_name = format!("{}.dmg", volume_name);
     let target_path = {
-        let path = Path::new(&*path);
+        let path = Path::new(path);
         let parent = path.parent().unwrap();
         let dmg_path = parent.join(&*dmg_name);
         dmg_path.to_str().unwrap().to_string()
@@ -108,7 +108,7 @@ fn compress_release(cargo_toml: &CargoToml, local_package: &LocalPackage) -> Str
     )
     .unwrap();
 
-    Path::new(&*path)
+    Path::new(path)
         .parent()
         .unwrap()
         .to_str()

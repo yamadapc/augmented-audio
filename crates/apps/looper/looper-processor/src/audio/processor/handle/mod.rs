@@ -73,7 +73,7 @@ mod utils;
 /// caller to decide and implement if pausing the looper mid recording should capture the partial
 /// recording or do something else).
 #[repr(C)]
-#[derive(Debug, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy, FromPrimitive, ToPrimitive)]
 pub enum LooperState {
     Empty = 0,
     Recording = 1,

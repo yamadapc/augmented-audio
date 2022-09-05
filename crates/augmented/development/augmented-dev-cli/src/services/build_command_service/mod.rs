@@ -76,7 +76,7 @@ impl BuildCommandService {
         for (manifest_path, manifest) in manifests {
             // Some packages shouldn't be built by default, those are marked with `package.metadata.skip = true`
             let metadata = &manifest.package.metadata;
-            let skip = metadata.as_ref().map(|m| m.skip).flatten().unwrap_or(false);
+            let skip = metadata.as_ref().and_then(|m| m.skip).unwrap_or(false);
             if skip {
                 continue;
             }

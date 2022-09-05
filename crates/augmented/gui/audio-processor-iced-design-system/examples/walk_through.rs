@@ -28,7 +28,6 @@ use iced::pane_grid::Axis;
 use iced_audio::NormalParam;
 use widget::pane_grid;
 
-use audio_processor_iced_design_system::container::hover_container::style::StyleSheet;
 use audio_processor_iced_design_system::container::HoverContainer;
 use audio_processor_iced_design_system::knob::Knob;
 use audio_processor_iced_design_system::spacing::Spacing;

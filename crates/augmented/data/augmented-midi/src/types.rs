@@ -150,7 +150,7 @@ impl<B: Borrow<[u8]>> From<MIDIMessage<B>> for Vec<u8> {
 pub type Input<'a> = &'a [u8];
 
 /// Describes how the file is organized
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum MIDIFileFormat {
     /// The file contains a single multi-channel track
     ///
@@ -170,7 +170,7 @@ pub enum MIDIFileFormat {
     Unknown,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum MIDIFileDivision {
     /// The `ticks_per_quarter_note` field contains how many [`MIDITrackEvent::delta_time`] ticks
     /// make up a quarter-note.
@@ -184,7 +184,7 @@ pub enum MIDIFileDivision {
 }
 
 /// The header chunk's contents
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct MIDIFileHeader {
     /// How the file is organized
     pub format: MIDIFileFormat,

@@ -24,12 +24,9 @@ pub use hover_container::HoverContainer;
 
 /// Modified `iced_native::container::Container` to have styles on hover/pressed
 pub mod hover_container {
-    use std::hash::Hash;
-
     use iced::{Alignment, Color, Length, Point, Rectangle};
     use iced::canvas::event::Status;
-    use iced_audio::knob::Style;
-    use iced_native::{Clipboard, Element, Event, Hasher, Layout, overlay, Padding, Shell, Widget};
+    use iced_native::{Clipboard, Element, Event, Layout, overlay, Padding, Shell, Widget};
     use iced_native::layout::{Limits, Node};
     use iced_native::renderer::Quad;
 

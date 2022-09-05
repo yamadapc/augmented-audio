@@ -33,7 +33,7 @@ jobs:
             cargo install --version 0.15.2 uniffi_bindgen
           fi
       - name: Run tests
-        run: cargo nextest run --verbose --workspace --features story --exclude augmented-ui --exclude midir --exclude assert-no-alloc
+        run: ./scripts/test.sh
 
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
