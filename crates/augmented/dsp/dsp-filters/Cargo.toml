@@ -1,6 +1,6 @@
 [package]
 name = "augmented-dsp-filters"
-version = "1.0.0-alpha.7"
+version = "1.0.0-alpha.8"
 edition = "2018"
 description = "Audio filters (port of C++ DSPFilters)"
 license = "MIT"
