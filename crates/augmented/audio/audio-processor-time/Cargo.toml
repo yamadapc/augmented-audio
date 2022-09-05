@@ -30,5 +30,5 @@ augmented-atomics = { version = "0.1.0-alpha.8", path = "../../data/atomics" }
 augmented-dsp-filters = { version = "1.0.0-alpha.7", path = "../../dsp/dsp-filters" }
 
 [dev-dependencies]
-audio-processor-standalone = { version = "1.0.0-alpha.12", path = "../../application/audio-processor-standalone" }
+audio-processor-standalone = { version = "1.0.0-alpha.13", path = "../../application/audio-processor-standalone" }
 audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" }
