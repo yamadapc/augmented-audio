@@ -106,7 +106,7 @@ struct KnobView: View {
 
     #if canImport(AppKit)
         @available(macOS 11, *)
-        func renderMacOS() -> MacKnobView {
+        func renderMacOS() -> some View {
             return MacKnobView(
                 value: Float(value),
                 label: label,
@@ -173,12 +173,12 @@ struct KnobView: View {
     var body: some View {
         if #available(macOS 11, *) {
             #if canImport(AppKit)
-                return renderMacOS()
+                return AnyView(renderMacOS())
             #else
-                return renderFallback()
+                return AnyView(renderFallback())
             #endif
         } else {
-            return renderFallback()
+            return AnyView(renderFallback())
         }
     }
 

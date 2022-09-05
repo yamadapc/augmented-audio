@@ -82,26 +82,26 @@ let PATH_CACHE: LRUCache<Int, CGPath> = LRUCache(
     countLimit: 10
 )
 
-func buildCacheKey(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> Int {
+func buildCacheKey(_ size: CGSize, _ buffer: TrackBuffer) -> Int {
     var hash = Hasher()
     hash.combine(buffer.id)
-    hash.combine(geometry.size.height)
-    hash.combine(geometry.size.width.hashValue)
+    hash.combine(size.height)
+    hash.combine(size.width.hashValue)
     for sample in 0 ..< buffer.count {
         hash.combine(buffer[sample].hashValue)
     }
     return hash.finalize()
 }
 
-func buildPath(_ geometry: GeometryProxy, _ buffer: TrackBuffer) -> CGPath {
-    let cacheKey = buildCacheKey(geometry, buffer)
+func buildPath(_ size: CGSize, _ buffer: TrackBuffer) -> CGPath {
+    let cacheKey = buildCacheKey(size, buffer)
     if let cachedPath = PATH_CACHE.value(forKey: cacheKey) {
         return cachedPath
     }
 
     let path = CGMutablePath()
-    let height = geometry.size.height
-    let width = Int(geometry.size.width)
+    let height = size.height
+    let width = Int(size.width)
 
     if buffer.count == 0 {
         return path
@@ -137,8 +137,13 @@ public struct AudioPathView: View {
     var tick: Int
     var buffer: TrackBuffer
     var geometry: GeometryProxy
+#if canImport(UIKit)
     @State
-    var uiImage: UIImage? = nil
+    var image: UIImage? = nil
+#elseif canImport(AppKit)
+    @State
+    var image: NSImage? = nil
+#endif
 
     public init(tick: Int, buffer: TrackBuffer, geometry: GeometryProxy) {
         self.tick = tick
@@ -148,26 +153,49 @@ public struct AudioPathView: View {
 
     public var body: some View {
         ZStack {
-            if let uiImage = uiImage {
-                Image(uiImage: uiImage)
+            if let image = image {
+              #if canImport(UIKit)
+                Image(uiImage: image)
                   .resizable()
                   .frame(maxWidth: .infinity, maxHeight: .infinity)
+              #else
+                Image(nsImage: image)
+                  .resizable()
+                  .frame(maxWidth: .infinity, maxHeight: .infinity)
+              #endif
             } else {
                 Text("Drawing...")
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .onAppear {
+            // On macOS accessing the geometry proxy outside of the main thread will panic.
+            let frame = geometry.frame(in: .local)
+            let size = geometry.size
             DispatchQueue.global(qos: .userInitiated).async {
-                let path = timeFunction("Building path") { buildPath(geometry, buffer) }
-                let renderer = UIGraphicsImageRenderer(bounds: geometry.frame(in: .local), format: .init())
-                self.uiImage = timeFunction("Drawing image") { renderer.image { renderContext in
+                let path = timeFunction("Building path") { buildPath(size, buffer) }
+              #if canImport(UIKit)
+                let renderer = UIGraphicsImageRenderer(bounds: frame, format: .init())
+                self.image = timeFunction("Drawing image") { renderer.image { renderContext in
                     let cgContext = renderContext.cgContext
                     cgContext.addPath(path)
                     cgContext.setLineWidth(1.0)
-                    cgContext.setStrokeColor(CGColor(red: 1.0, green: 0, blue: 0, alpha: 1))
+                    cgContext.setStrokeColor(SequencerColors.blue.cgColor!)
                     cgContext.strokePath()
                 } }
+              #else
+                self.image = timeFunction("Drawing image") {
+                  NSImage(size: size, flipped: false, drawingHandler: { rect in
+                    let cgContext = NSGraphicsContext.current!.cgContext
+                    cgContext.addPath(path)
+                    cgContext.setLineWidth(1.0)
+                    if #available(macOS 11, *) {
+                        cgContext.setStrokeColor(SequencerColors.blue.cgColor!)
+                    }
+                    cgContext.strokePath()
+                return true
+                }) }
+              #endif
             }
         }
     }
