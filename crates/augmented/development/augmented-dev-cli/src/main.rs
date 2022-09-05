@@ -23,6 +23,7 @@
 use crate::services::release_service::prerelease_all_crates;
 use crate::services::snapshot_tests_service::run_all_snapshot_tests;
 
+mod logger;
 mod manifests;
 mod services;
 
@@ -36,7 +37,7 @@ fn get_cli_version() -> String {
 }
 
 fn main() {
-    wisual_logger::init_from_env();
+    logger::try_init_from_env().unwrap();
     log::warn!(
         "Starting augmented-dev-cli VERSION={} GIT_REV={} GIT_REV_SHORT={}",
         get_cli_version(),
@@ -90,8 +91,7 @@ fn main() {
         list_crates_service.run(matches.is_present("simple"));
     } else if let Some(matches) = matches.subcommand_matches("build") {
         let mut build_service = services::BuildCommandService::default();
-        let crate_path = matches.value_of("crate").unwrap();
-
+        let crate_path = matches.value_of("crate");
         build_service.run_build(crate_path);
     } else if let Some(matches) = matches.subcommand_matches("test-snapshots") {
         run_all_snapshot_tests(Default::default(), matches.is_present("update-snapshots"));

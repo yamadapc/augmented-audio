@@ -34,6 +34,7 @@ use crate::services::build_command_service::release_service::{
     ReleaseInput, ReleaseService, ReleaseServiceImpl,
 };
 use crate::services::cargo_toml_reader::{CargoTomlReader, CargoTomlReaderImpl};
+use crate::services::ListCratesService;
 
 mod git_release_provider;
 mod packager_service;
@@ -44,6 +45,7 @@ pub struct BuildCommandService {
     git_release_provider: Box<dyn GitReleaseProvider>,
     packager_service: Box<dyn PackagerService>,
     release_service: Box<dyn ReleaseService>,
+    list_crates_service: Box<ListCratesService>,
 }
 
 impl Default for BuildCommandService {
@@ -53,24 +55,48 @@ impl Default for BuildCommandService {
             git_release_provider: Box::new(GitReleaseProviderImpl::default()),
             packager_service: Box::new(PackagerServiceImpl::default()),
             release_service: Box::new(ReleaseServiceImpl::default()),
+            list_crates_service: Box::new(ListCratesService::default()),
         }
     }
 }
 
 impl BuildCommandService {
-    pub fn run_build(&mut self, crate_path: &str) {
-        log::info!("Starting build crate={}", crate_path,);
+    pub fn run_build(&mut self, crate_path: Option<&str>) {
+        log::info!("Starting build crate={:?}", crate_path);
 
+        if let Some(crate_path) = crate_path {
+            self.run_build_crate(crate_path)
+        } else {
+            self.run_build_all()
+        }
+    }
+
+    fn run_build_all(&mut self) {
+        let manifests = self.list_crates_service.find_manifests();
+        for (manifest_path, manifest) in manifests {
+            // Some packages shouldn't be built by default, those are marked with `package.metadata.skip = true`
+            let metadata = &manifest.package.metadata;
+            let skip = metadata.as_ref().map(|m| m.skip).flatten().unwrap_or(false);
+            if skip {
+                continue;
+            }
+            self.run_build_crate(&manifest_path);
+        }
+    }
+
+    fn run_build_crate(&mut self, crate_path: &str) {
+        if self.run_build_crate_vst(crate_path).is_none() {
+            BuildCommandService::force_build(crate_path, &None);
+        }
+    }
+
+    fn run_build_crate_vst(&mut self, crate_path: &str) -> Option<()> {
         let cargo_toml = self.cargo_toml_reader.read(crate_path);
         let release_key = self
             .git_release_provider
             .get_key(&cargo_toml.package.version);
 
-        let metadata = cargo_toml
-            .package
-            .metadata
-            .as_ref()
-            .expect("No package.metadata section found");
+        let metadata = cargo_toml.package.metadata.as_ref()?;
         let vst_examples = metadata
             .augmented
             .as_ref()
@@ -103,6 +129,8 @@ impl BuildCommandService {
                 None,
             )
         }
+
+        Some(())
     }
 
     fn run_build_and_publish(

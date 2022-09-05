@@ -23,5 +23,5 @@ audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../tes
 
 [package.metadata.augmented]
 processor_examples = ["bitcrusher"]
-vst_examples = ["bitcrusher"]
+vst_examples = ["bitcrusher_vst"]
 private = true

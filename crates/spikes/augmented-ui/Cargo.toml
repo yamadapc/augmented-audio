@@ -11,3 +11,6 @@ stretch = "0.3"
 cocoa = "0.24"
 objc = "0.2"
 lazy_static = "1.4"
+
+[package.metadata]
+skip = true

@@ -788,6 +788,7 @@ dependencies = [
  "cmd_lib",
  "crates_io_api",
  "daggy 0.8.0",
+ "env_logger",
  "log",
  "mockall",
  "plist",

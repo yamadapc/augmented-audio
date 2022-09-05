@@ -79,6 +79,7 @@ pub struct AugmentedMetadata {
 pub struct CargoTomlPackageMetadata {
     pub app: Option<AppConfig>,
     pub augmented: Option<AugmentedMetadata>,
+    pub skip: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
