@@ -23,7 +23,7 @@ baseview = { path = "../../../vendor/baseview" }
 raw-window-handle = "0.3.3"
 derive_more = "^0.99.16"
 uuid = { version = "^1.1", features = ["v4"] }
-notify = "^4.0.17"
+notify = "^5.0.0"
 md5 = "^0.7.0"
 derivative = "^2.2.0"
 opener = "^0.5.0"
