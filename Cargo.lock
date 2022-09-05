@@ -556,7 +556,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-standalone-midi"
-version = "1.0.0-alpha.10"
+version = "1.0.0-alpha.11"
 dependencies = [
  "actix",
  "assert_no_alloc",
