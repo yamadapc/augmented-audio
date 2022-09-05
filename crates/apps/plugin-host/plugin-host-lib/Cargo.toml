@@ -45,7 +45,7 @@ audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-an
 augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , version = "1.0.0-alpha.5" }
 audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" , version = "1.0.0-alpha.8" }
 audio-processor-standalone-midi = { version = "1.0.0-alpha.10", path = "../../../augmented/application/audio-processor-standalone-midi" }
-audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.8", path = "../../../augmented/audio/audio-processor-traits" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
 augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.7" }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator", version = "1.0.0-alpha.6" }

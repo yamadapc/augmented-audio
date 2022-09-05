@@ -10,7 +10,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 proc-macro = true
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.7", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.8", path = "../audio-processor-traits" }
 syn = "1.0.86"
 quote = "1.0.15"
 proc-macro2 = "1.0.36"

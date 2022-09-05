@@ -13,7 +13,7 @@ name = "bitcrusher_vst"
 crate-type = ["cdylib"]
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.7", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "1.0.0-alpha.8", path = "../audio-processor-traits" }
 audio-garbage-collector = { version = "1.0.0-alpha.6", path = "../audio-garbage-collector" }
 
 [dev-dependencies]
