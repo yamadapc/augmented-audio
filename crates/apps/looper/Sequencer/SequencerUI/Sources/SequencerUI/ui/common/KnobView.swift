@@ -104,13 +104,11 @@ struct KnobView: View {
         )
     }
 
-    var body: some View {
-        let color = SequencerColors.blue
-        let trackColor = SequencerColors.black1
-
-        if #available(macOS 11, *) {
-            MacKnobView(
-                value: Float(self.value),
+    #if canImport(AppKit)
+        @available(macOS 11, *)
+        func renderMacOS() -> some View {
+            return MacKnobView(
+                value: Float(value),
                 label: label,
                 formattedValue: getFormattedValue(),
                 style: style
@@ -123,47 +121,64 @@ struct KnobView: View {
                     .onEnded { _ in self.onEnded?() },
                 including: .all
             )
-        } else {
-            VStack {
-                Text(self.getFormattedValue())
+        }
+    #endif
 
+    func renderFallback() -> some View {
+        let color = SequencerColors.blue
+        let trackColor = SequencerColors.black1
+
+        return VStack {
+            Text(self.getFormattedValue())
+
+            ZStack {
+                Rectangle()
+                    .fill(Color.red.opacity(0))
+                    .position(x: radius + 5, y: radius - 5)
+                    .frame(width: radius * 2 + 10, height: radius * 2 + 10)
                 ZStack {
-                    Rectangle()
-                        .fill(Color.red.opacity(0))
-                        .position(x: radius + 5, y: radius - 5)
-                        .frame(width: radius * 2 + 10, height: radius * 2 + 10)
-                    ZStack {
-                        TrackBackgroundView(
-                            trackColor: trackColor,
-                            strokeWidth: strokeWidth,
-                            radius: radius
-                        ).body
-                        TrackSliderView(
-                            style: style,
-                            value: value,
-                            strokeWidth: strokeWidth,
-                            radius: radius,
-                            color: color
-                        ).body
+                    TrackBackgroundView(
+                        trackColor: trackColor,
+                        strokeWidth: strokeWidth,
+                        radius: radius
+                    ).body
+                    TrackSliderView(
+                        style: style,
+                        value: value,
+                        strokeWidth: strokeWidth,
+                        radius: radius,
+                        color: color
+                    ).body
 
-                        renderThumbAndPointer()
-                    }
+                    renderThumbAndPointer()
                 }
-                .frame(width: radius * 2, height: radius * 2)
-                .contentShape(Rectangle())
-                .gesture(
-                    DragGesture(minimumDistance: 3.0)
-                        .onChanged { value in self.onGestureChanged(value) }
-                        .onEnded { _ in self.onEnded?() },
-                    including: .all
-                )
-                .fixedSize()
-
-                Text(label)
-                    .fixedSize()
-                    .allowsTightening(true)
-                    .lineLimit(1)
             }
+            .frame(width: radius * 2, height: radius * 2)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 3.0)
+                    .onChanged { value in self.onGestureChanged(value) }
+                    .onEnded { _ in self.onEnded?() },
+                including: .all
+            )
+            .fixedSize()
+
+            Text(label)
+                .fixedSize()
+                .allowsTightening(true)
+                .lineLimit(1)
+        }
+    }
+
+    var body: some View {
+        if #available(macOS 11, *) {
+            #if canImport(AppKit)
+                return AnyView(renderMacOS())
+            #else
+                return AnyView(renderFallback())
+            #endif
+        } else {
+            return AnyView(renderFallback())
         }
     }
 

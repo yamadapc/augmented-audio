@@ -99,10 +99,14 @@ struct LFOVisualisationViewInner: View {
     }
 }
 
-struct LFOVisualisationView: View {
+public struct LFOVisualisationView: View {
     var lfoState: LFOState
 
-    var body: some View {
+    public init(lfoState: LFOState) {
+        self.lfoState = lfoState
+    }
+
+    public var body: some View {
         LFOVisualisationViewInner(
             lfoAmount: lfoState.amountParameter,
             lfoFrequency: lfoState.frequencyParameter,

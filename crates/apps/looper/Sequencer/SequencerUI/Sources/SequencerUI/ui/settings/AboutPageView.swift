@@ -19,12 +19,20 @@ import SwiftUI
 import WebKit
 import WebView
 
+func openURL(_ url: URL) {
+    #if os(macOS)
+        NSWorkspace.shared.open(url)
+    #else
+        UIApplication.shared.open(url)
+    #endif
+}
+
 class AboutNavigationDelegate: NSObject, WKNavigationDelegate {
     func webView(_: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
         if let url = navigationAction.request.mainDocumentURL,
            !url.isFileURL
         {
-            NSWorkspace.shared.open(url)
+            openURL(url)
             return WKNavigationActionPolicy.cancel
         }
         return WKNavigationActionPolicy.allow

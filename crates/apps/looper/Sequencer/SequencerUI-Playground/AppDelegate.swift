@@ -15,26 +15,27 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+//
+//  AppDelegate.swift
+//  SequencerUI-Playground
+//
+//  Created by Pedro Tacla Yamada on 3/9/2022.
+//
 
-import Cocoa
-import SequencerEngine
-import SequencerUI
-import SwiftUI
+import UIKit
 
-/**
- * ViewController for the main application window.
- */
-class MainWindowViewController: NSViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        let contentView = SequencerRootAppView()
-            .environmentObject(engineController.store)
-
-        let cachingView = NSHostingView(rootView: contentView)
-        cachingView.translatesAutoresizingMaskIntoConstraints = true
-        cachingView.autoresizingMask = [.height, .width]
-        view = cachingView
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate {
+    func application(_: UIApplication, didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Override point for customization after application launch.
+        return true
     }
+
+    // MARK: UISceneSession Lifecycle
+
+    func application(_: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options _: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
+    }
+
+    func application(_: UIApplication, didDiscardSceneSessions _: Set<UISceneSession>) {}
 }

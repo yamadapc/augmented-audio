@@ -16,25 +16,23 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
-import Cocoa
-import SequencerEngine
-import SequencerUI
 import SwiftUI
+import SequencerUI
 
-/**
- * ViewController for the main application window.
- */
-class MainWindowViewController: NSViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        let contentView = SequencerRootAppView()
-            .environmentObject(engineController.store)
-
-        let cachingView = NSHostingView(rootView: contentView)
-        cachingView.translatesAutoresizingMaskIntoConstraints = true
-        cachingView.autoresizingMask = [.height, .width]
-        view = cachingView
-    }
+func colorsStory() -> PlaygroundStory {
+    return story("Colors") {
+          ScrollView {
+              ForEach(SequencerColors.colors.chunks(ofCount: 4), id: \.self) { colorChunk in
+                  HStack {
+                      ForEach(colorChunk, id: \.self) { color in
+                          RoundedRectangle(cornerSize: .init(width: BORDER_RADIUS, height: BORDER_RADIUS))
+                              .fill(color)
+                              .frame(width: 100, height: 100, alignment: .center)
+                      }
+                  }
+              }
+              .frame(maxWidth: .infinity)
+          }
+          .frame(maxWidth: .infinity)
+        }
 }

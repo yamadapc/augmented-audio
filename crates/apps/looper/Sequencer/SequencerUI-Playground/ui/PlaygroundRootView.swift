@@ -15,26 +15,38 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-
-import Cocoa
-import SequencerEngine
-import SequencerUI
 import SwiftUI
 
-/**
- * ViewController for the main application window.
- */
-class MainWindowViewController: NSViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
+struct PlaygroundContentView: View {
+    let story: PlaygroundStory
 
-        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        let contentView = SequencerRootAppView()
-            .environmentObject(engineController.store)
+    var body: some View {
+        story.view
+    }
+}
 
-        let cachingView = NSHostingView(rootView: contentView)
-        cachingView.translatesAutoresizingMaskIntoConstraints = true
-        cachingView.autoresizingMask = [.height, .width]
-        view = cachingView
+struct PlaygroundStory {
+    let label: String
+    let view: AnyView
+}
+
+func story<V: View>(_ label: String, _ builder: () -> V) -> PlaygroundStory {
+    return PlaygroundStory(label: label, view: AnyView(builder()))
+}
+
+struct PlaygroundRootView: View {
+    let stories: [PlaygroundStory]
+
+    var body: some View {
+        NavigationView {
+            List {
+                ForEach(stories, id: \.label) { item in
+                    NavigationLink(
+                        destination: item.view.navigationTitle(item.label),
+                        label: { Text(item.label) }
+                    )
+                }
+            }
+        }
     }
 }

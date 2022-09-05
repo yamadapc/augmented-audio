@@ -7,3 +7,4 @@ swiftformat ./SequencerUI/**/*.swift
 swiftformat ./Sequencer\ Mac/**/*.swift
 swiftformat ./Sequencer\ MacUITests/**/*.swift
 swiftformat ./SequencerEngine/**/*.swift
+swiftformat ./SequencerUI-Playground/**/*.swift

@@ -16,25 +16,25 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
-import Cocoa
+import Algorithms
+import Logging
 import SequencerEngine
 import SequencerUI
 import SwiftUI
 
-/**
- * ViewController for the main application window.
- */
-class MainWindowViewController: NSViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
+func getStories() -> [PlaygroundStory] {
+    EngineImpl.initLogging()
 
-        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        let contentView = SequencerRootAppView()
-            .environmentObject(engineController.store)
+    return [
+        colorsStory(),
 
-        let cachingView = NSHostingView(rootView: contentView)
-        cachingView.translatesAutoresizingMaskIntoConstraints = true
-        cachingView.autoresizingMask = [.height, .width]
-        view = cachingView
-    }
+        story("LFOVisualisationView") {
+            LFOVisualisationView(lfoState: LFOState(trackId: 0, index: 0))
+                .environmentObject(Store(engine: nil))
+        },
+
+        story("AudioPathView") {
+            AudioPathViewStory()
+        },
+    ]
 }

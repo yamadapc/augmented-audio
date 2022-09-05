@@ -19,9 +19,9 @@
 import Logging
 import SwiftUI
 
-let PADDING: Double = 10
-let BORDER_RADIUS: Double = 8
-let SHADOW_RADIUS: Double = 3
+public let PADDING: Double = 10
+public let BORDER_RADIUS: Double = 8
+public let SHADOW_RADIUS: Double = 3
 
 struct SequencerView: View {
     @EnvironmentObject var store: Store

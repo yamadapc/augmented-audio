@@ -15,19 +15,13 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-//
-//  ContentView.swift
-//  Sequencer
-//
-//  Created by Pedro Tacla Yamada on 28/2/2022.
-//
 
 import SwiftUI
 
 /**
  * Holds the whole application GUI
  */
-public struct ContentView: View {
+public struct SequencerRootAppView: View {
     public init() {}
 
     public var body: some View {
