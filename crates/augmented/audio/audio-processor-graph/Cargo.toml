@@ -12,7 +12,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 audio-processor-traits = { version = "1.0.0-alpha.7", path = "../audio-processor-traits" }
 daggy = "^0.7.0"
 thiserror = "^1.0.26"
-audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.5" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.6" }
 num-traits = "0.2.14"
 augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.6" }
 

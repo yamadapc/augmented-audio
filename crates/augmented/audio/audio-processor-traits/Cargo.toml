@@ -16,7 +16,7 @@ vst_support = ["vst"]
 num = "^0.4.0"
 vst = { version = "^0.2", path = "../../../vendor/vst", optional = true }
 augmented-atomics = { path = "../../data/atomics" , version = "0.1.0-alpha.8" }
-audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.5" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.6" }
 
 [dev-dependencies]
 criterion = "^0.3.4"
