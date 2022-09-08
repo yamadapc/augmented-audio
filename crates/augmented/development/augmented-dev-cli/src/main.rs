@@ -73,6 +73,12 @@ fn main() {
         .subcommand(
             clap::Command::new("build")
                 .about("Build a release package for a given app")
+                .arg(
+                    clap::Arg::new("upload")
+                        .long("upload")
+                        .short('u')
+                        .help("Upload artifacts to S3"),
+                )
                 .arg(clap::Arg::new("crate").takes_value(true)),
         )
         .version(&*version)
@@ -91,8 +97,9 @@ fn main() {
         list_crates_service.run(matches.is_present("simple"));
     } else if let Some(matches) = matches.subcommand_matches("build") {
         let mut build_service = services::BuildCommandService::default();
+        let upload = matches.is_present("upload");
         let crate_path = matches.value_of("crate");
-        build_service.run_build(crate_path);
+        build_service.run_build(crate_path, upload);
     } else if let Some(matches) = matches.subcommand_matches("test-snapshots") {
         run_all_snapshot_tests(Default::default(), matches.is_present("update-snapshots"));
     } else {

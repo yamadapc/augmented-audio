@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use chrono::prelude::*;
-use cmd_lib::spawn;
+use cmd_lib::spawn_with_output;
 
 use crate::manifests::{CargoToml, ReleaseJson};
 use crate::services::build_command_service::git_release_provider::{
@@ -61,17 +61,17 @@ impl Default for BuildCommandService {
 }
 
 impl BuildCommandService {
-    pub fn run_build(&mut self, crate_path: Option<&str>) {
-        log::info!("Starting build crate={:?}", crate_path);
+    pub fn run_build(&mut self, crate_path: Option<&str>, upload: bool) {
+        log::info!("Starting build crate_path={:?}", crate_path);
 
         if let Some(crate_path) = crate_path {
-            self.run_build_crate(crate_path)
+            self.run_build_crate(crate_path, upload)
         } else {
-            self.run_build_all()
+            self.run_build_all(upload)
         }
     }
 
-    fn run_build_all(&mut self) {
+    fn run_build_all(&mut self, upload: bool) {
         let manifests = self.list_crates_service.find_manifests();
         for (manifest_path, manifest) in manifests {
             // Some packages shouldn't be built by default, those are marked with `package.metadata.skip = true`
@@ -80,17 +80,17 @@ impl BuildCommandService {
             if skip {
                 continue;
             }
-            self.run_build_crate(&manifest_path);
+            self.run_build_crate(&manifest_path, upload);
         }
     }
 
-    fn run_build_crate(&mut self, crate_path: &str) {
-        if self.run_build_crate_vst(crate_path).is_none() {
-            BuildCommandService::force_build(crate_path, &None);
+    fn run_build_crate(&mut self, crate_path: &str, upload: bool) {
+        if self.run_build_crate_vst(crate_path, upload).is_none() {
+            BuildCommandService::force_build(crate_path, &None).unwrap();
         }
     }
 
-    fn run_build_crate_vst(&mut self, crate_path: &str) -> Option<()> {
+    fn run_build_crate_vst(&mut self, crate_path: &str, upload: bool) -> Option<()> {
         let cargo_toml = self.cargo_toml_reader.read(crate_path);
         let release_key = self
             .git_release_provider
@@ -114,6 +114,7 @@ impl BuildCommandService {
                 &cargo_toml,
                 &release_key,
                 Some(&example),
+                upload,
             )
         }
 
@@ -127,6 +128,7 @@ impl BuildCommandService {
                 &cargo_toml,
                 &release_key,
                 None,
+                upload,
             )
         }
 
@@ -141,6 +143,7 @@ impl BuildCommandService {
         cargo_toml: &CargoToml,
         release_key: &str,
         example_name: Option<&str>,
+        upload: bool,
     ) {
         let release_json = ReleaseJson {
             name: cargo_toml.package.name.clone(),
@@ -151,19 +154,22 @@ impl BuildCommandService {
             user_download_url: None,
         };
 
-        log::info!("Release:\n{:#?}", release_json);
-        log::info!("Read Cargo.toml:\n{:#?}", cargo_toml);
+        log::debug!("Release: {:?}", release_json);
+        log::debug!("Read Cargo.toml: {:?}", cargo_toml);
 
         // Force the package to be built
-        BuildCommandService::force_build(crate_path, &example_name);
+        BuildCommandService::force_build(crate_path, &example_name).unwrap();
 
-        if let Some(local_package) = self.packager_service.create_local_package(PackagerInput {
-            public_name,
-            crate_path,
-            cargo_toml,
-            release_json: &release_json,
-            example_name,
-        }) {
+        if let (Some(local_package), true) = (
+            self.packager_service.create_local_package(PackagerInput {
+                public_name,
+                crate_path,
+                cargo_toml,
+                release_json: &release_json,
+                example_name,
+            }),
+            upload,
+        ) {
             self.release_service.release(ReleaseInput {
                 cargo_toml,
                 local_package: &local_package,
@@ -172,21 +178,21 @@ impl BuildCommandService {
         }
     }
 
-    fn force_build(crate_path: &str, example_name: &Option<&str>) {
-        let current = std::env::current_dir().unwrap();
-        log::info!("cd {}", crate_path);
-        std::env::set_current_dir(crate_path).unwrap();
-        if let Some(example) = example_name {
-            log::info!("cargo build --release --example {}", example);
-            spawn!(cargo build --release --example ${example})
-                .unwrap()
-                .wait()
-                .unwrap();
+    fn force_build(crate_path: &str, example_name: &Option<&str>) -> anyhow::Result<()> {
+        let current = std::env::current_dir()?;
+        println!("- Building {} example={:?}", crate_path, example_name);
+        log::debug!("cd {}", crate_path);
+        std::env::set_current_dir(crate_path)?;
+        let mut handle = if let Some(example) = example_name {
+            log::debug!("cargo build --release --example {}", example);
+            spawn_with_output!(cargo build --release --example ${example})?
         } else {
-            log::info!("cargo build --release");
-            spawn!(cargo build --release).unwrap().wait().unwrap();
-        }
-        std::env::set_current_dir(current).unwrap();
+            log::debug!("cargo build --release");
+            spawn_with_output!(cargo build --release)?
+        };
+        handle.wait_with_output()?;
+        std::env::set_current_dir(current)?;
+        Ok(())
     }
 
     fn get_public_path(&self, release_key: &str, public_name: &str) -> String {

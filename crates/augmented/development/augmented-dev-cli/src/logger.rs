@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::io::Write;
 use std::io;
+use std::io::Write;
 
 use env_logger::fmt::Formatter;
 use log::{Record, SetLoggerError};
@@ -39,7 +39,7 @@ impl LogFormatter {
 
 pub fn try_init_from_env() -> Result<(), SetLoggerError> {
     env_logger::Builder::from_env(
-        env_logger::Env::default().default_filter_or("info,wgpu_core=off"),
+        env_logger::Env::default().default_filter_or("info,wgpu_core=off,cmd_lib=off"),
     )
     .format(LogFormatter::format)
     .try_init()
