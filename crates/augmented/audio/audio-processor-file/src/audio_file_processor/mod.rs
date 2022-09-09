@@ -169,12 +169,31 @@ impl AudioFileProcessor {
 
         let start = Instant::now();
         log::info!("Reading audio file onto memory");
-        let audio_file_contents =
-            file_io::read_file_contents(&mut self.audio_file_settings.audio_file);
-        match audio_file_contents {
+
+        let mut run = || -> Result<(), file_io::AudioFileError> {
+            let input_stream =
+                file_io::FileContentsStream::new(&mut self.audio_file_settings.audio_file)?;
+            let converted_stream = file_io::convert_audio_file_stream_sample_rate(
+                input_stream,
+                audio_settings.sample_rate(),
+            );
+
+            for buffer in converted_stream {
+                self.buffer.resize(buffer.num_channels(), vec![]);
+                for frame in buffer.frames() {
+                    for channel in 0..buffer.num_channels() {
+                        self.buffer[channel].push(frame[channel]);
+                    }
+                }
+            }
+
+            Ok(())
+        };
+
+        match run() {
             Ok(audio_file_contents) => {
                 log::info!("Read input file duration={}ms", start.elapsed().as_millis());
-                self.set_audio_file_contents(audio_file_contents)
+                // self.set_audio_file_contents(audio_file_contents)
             }
             Err(err) => {
                 log::error!("Failed to read input file {}", err);
@@ -272,6 +291,8 @@ mod test {
     use super::*;
 
     fn setup() -> (GarbageCollector, InMemoryAudioFile) {
+        wisual_logger::init_from_env();
+
         let garbage_collector = GarbageCollector::default();
         let path = format!(
             "{}{}",

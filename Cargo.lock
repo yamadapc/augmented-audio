@@ -444,10 +444,12 @@ dependencies = [
  "hound",
  "log",
  "rayon",
+ "samplerate",
  "symphonia",
  "symphonia-bundle-mp3",
  "symphonia-format-wav",
  "thiserror",
+ "wisual-logger",
 ]
 
 [[package]]
@@ -834,6 +836,14 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "augmented-atomics",
+]
+
+[[package]]
+name = "augmented-streams"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "ringbuf",
 ]
 
 [[package]]
@@ -7265,9 +7275,9 @@ dependencies = [
 
 [[package]]
 name = "symphonia"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb30457ee7a904dae1e4ace25156dcabaf71e425db318e7885267f09cd8fb648"
+checksum = "17033fe05e4f7f10a6ad602c272bafd2520b2e5cdd9feb61494d9cdce08e002f"
 dependencies = [
  "lazy_static",
  "symphonia-bundle-flac",
@@ -7297,9 +7307,9 @@ dependencies = [
 
 [[package]]
 name = "symphonia-bundle-mp3"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9130cae661447f234b58759d74d23500e9c95697b698589b34196cb0fb488a61"
+checksum = "db5d3d53535ae2b7d0e39e82f683cac5398a6c8baca25ff1183e107d13959d3e"
 dependencies = [
  "bitflags",
  "lazy_static",
@@ -7393,9 +7403,9 @@ dependencies = [
 
 [[package]]
 name = "symphonia-format-wav"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "66b2016576a9f7e5e95f9354993116458170a9077845a908ee67a4c81e8072c0"
+checksum = "5f9d771aa6889f05b771e629110f6a60b5e1c0ad580fc41da574bc490fbe2822"
 dependencies = [
  "log",
  "symphonia-core",
