@@ -15,3 +15,4 @@ augmented-adsr-envelope = { path = "../adsr-envelope" , version = "0.1.0-alpha.7
 
 [package.metadata.augmented]
 private = false
+processor_examples = ["audio_processor_metronome_example"]
