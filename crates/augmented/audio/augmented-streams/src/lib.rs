@@ -9,7 +9,7 @@ pub struct ProducerActor<T, B: ProducerProcedure<Item = T>> {
     producer: ringbuf::Producer<T>,
 }
 
-impl<T, B: ProducerProcedure<Item = T>> ProducerActor<T, B> {
+impl<T: std::fmt::Debug, B: ProducerProcedure<Item = T>> ProducerActor<T, B> {
     pub fn new(read_block: B, producer: ringbuf::Producer<T>) -> Self {
         Self {
             read_block,
@@ -19,12 +19,12 @@ impl<T, B: ProducerProcedure<Item = T>> ProducerActor<T, B> {
 
     pub fn pull(&mut self) {
         if let Some(v) = self.read_block.pull() {
-            self.producer.push(v);
+            self.producer.push(v).unwrap();
         }
     }
 }
 
-struct FnProcedure<F>(F);
+pub struct FnProcedure<F>(F);
 
 impl<F> FnProcedure<F> {
     pub fn new(f: F) -> Self {
@@ -44,6 +44,7 @@ where
 }
 
 pub struct ConsumerActor<T> {
+    #[allow(dead_code)]
     rx: ringbuf::Consumer<T>,
 }
 

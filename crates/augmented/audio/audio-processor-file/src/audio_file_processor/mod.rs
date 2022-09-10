@@ -24,7 +24,6 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Instant;
 
 use rayon::prelude::*;
-use symphonia::core::audio::AudioBuffer as SymphoniaAudioBuffer;
 use symphonia::core::probe::ProbeResult;
 
 use audio_garbage_collector::{Handle, Shared};
@@ -191,40 +190,13 @@ impl AudioFileProcessor {
         };
 
         match run() {
-            Ok(audio_file_contents) => {
+            Ok(_) => {
                 log::info!("Read input file duration={}ms", start.elapsed().as_millis());
-                // self.set_audio_file_contents(audio_file_contents)
             }
             Err(err) => {
                 log::error!("Failed to read input file {}", err);
             }
         }
-    }
-
-    /// Performs sample-rate conversion of the input file in multiple threads
-    fn set_audio_file_contents(&mut self, audio_file_contents: SymphoniaAudioBuffer<f32>) {
-        let start = Instant::now();
-        log::info!("Performing sample rate conversion");
-        let output_rate = self.audio_settings.sample_rate();
-        let converted_channels: Vec<Vec<f32>> = (0..audio_file_contents.spec().channels.count())
-            .into_par_iter()
-            .map(|channel_number| {
-                file_io::convert_audio_file_sample_rate(
-                    &audio_file_contents,
-                    output_rate,
-                    channel_number,
-                )
-            })
-            .collect();
-
-        for channel in converted_channels {
-            self.buffer.push(channel);
-        }
-
-        log::info!(
-            "Performed sample rate conversion duration={}ms",
-            start.elapsed().as_millis()
-        );
     }
 
     pub fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &mut BufferType) {

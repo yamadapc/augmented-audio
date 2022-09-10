@@ -20,9 +20,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use std::sync::Arc;
 
-use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::StandaloneAudioOnlyProcessor;
 use tas_v2::build_parameters_editor;
 use tas_v2::config::get_configuration_root_path;
@@ -91,10 +91,8 @@ fn main() {
 
     let parameters = Arc::new(build_parameters());
     let processor = Processor::new(parameters.clone());
-    let _handles = audio_processor_standalone::standalone_start(StandaloneAudioOnlyProcessor::new(
-        processor,
-        StandaloneOptions::default(),
-    ));
+    let _handles =
+        audio_processor_standalone::standalone_start(StandaloneAudioOnlyProcessor::from(processor));
 
     let editor = build_parameters_editor(&parameters);
 

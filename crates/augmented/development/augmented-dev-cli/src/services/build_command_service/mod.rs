@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use chrono::prelude::*;
 use cmd_lib::spawn_with_output;
 
@@ -58,6 +59,16 @@ impl Default for BuildCommandService {
             list_crates_service: Box::new(ListCratesService::default()),
         }
     }
+}
+
+struct BuildAndPublishOptions<'a> {
+    crate_path: &'a str,
+    public_name: &'a str,
+    public_path: &'a str,
+    cargo_toml: &'a CargoToml,
+    release_key: &'a str,
+    example_name: Option<&'a str>,
+    upload: bool,
 }
 
 impl BuildCommandService {
@@ -107,44 +118,44 @@ impl BuildCommandService {
             let package_name = &cargo_toml.package.name;
             let public_name = format!("{}__{}", package_name, example);
             let public_path = self.get_public_path(&release_key, &public_name);
-            self.run_build_and_publish(
+            self.run_build_and_publish(BuildAndPublishOptions {
                 crate_path,
-                &public_name,
-                &public_path,
-                &cargo_toml,
-                &release_key,
-                Some(&example),
+                public_name: &public_name,
+                public_path: &public_path,
+                cargo_toml: &cargo_toml,
+                release_key: &release_key,
+                example_name: Some(&example),
                 upload,
-            )
+            })
         }
 
         if let Some(app_config) = &metadata.app {
             let public_name = &app_config.public_name;
             let public_path = self.get_public_path(&release_key, public_name);
-            self.run_build_and_publish(
+            self.run_build_and_publish(BuildAndPublishOptions {
                 crate_path,
                 public_name,
-                &public_path,
-                &cargo_toml,
-                &release_key,
-                None,
+                public_path: &public_path,
+                cargo_toml: &cargo_toml,
+                release_key: &release_key,
+                example_name: None,
                 upload,
-            )
+            })
         }
 
         Some(())
     }
 
-    fn run_build_and_publish(
-        &mut self,
-        crate_path: &str,
-        public_name: &str,
-        public_path: &str,
-        cargo_toml: &CargoToml,
-        release_key: &str,
-        example_name: Option<&str>,
-        upload: bool,
-    ) {
+    fn run_build_and_publish(&mut self, options: BuildAndPublishOptions) {
+        let BuildAndPublishOptions {
+            crate_path,
+            public_name,
+            public_path,
+            cargo_toml,
+            release_key,
+            example_name,
+            upload,
+        } = options;
         let release_json = ReleaseJson {
             name: cargo_toml.package.name.clone(),
             key: release_key.to_string(),

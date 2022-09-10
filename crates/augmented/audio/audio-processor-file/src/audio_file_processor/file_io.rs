@@ -21,11 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::cmp::Ordering;
 use std::fs::File;
 use std::path::Path;
 
-use audio_processor_traits::{InterleavedAudioBuffer, VecAudioBuffer};
+use audio_processor_traits::VecAudioBuffer;
 use samplerate::Samplerate;
 use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef};
 use symphonia::core::audio::{AudioBuffer, Signal};
