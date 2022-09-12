@@ -11,7 +11,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 augmented-atomics = { path = "../../data/atomics" , version = "0.1.0-alpha.8" }
 
 [dev-dependencies]
-criterion = "^0.3"
+criterion = "^0.4"
 ringbuf = "^0.2.6"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
