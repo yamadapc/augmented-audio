@@ -19,7 +19,7 @@ augmented-atomics = { path = "../../data/atomics" , version = "0.1.0-alpha.8" }
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.6" }
 
 [dev-dependencies]
-criterion = "^0.3.4"
+criterion = "^0.4.0"
 augmented_oscillator = { version = "1.0.0-alpha.6", path = "../oscillator" }
 
 [[bench]]
