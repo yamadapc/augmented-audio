@@ -18,7 +18,7 @@ nom = "7.1.0"
 cookie-factory = "0.3"
 
 [dev-dependencies]
-criterion = "^0.3.4"
+criterion = "^0.4.0"
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 log = "0.4.14"
 itertools = "0.10.1"
