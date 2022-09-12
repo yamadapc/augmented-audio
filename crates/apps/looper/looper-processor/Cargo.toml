@@ -79,7 +79,7 @@ audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-pro
 cacao = { version = "0.2.1" }
 
 [dev-dependencies]
-criterion = "^0.3.4"
+criterion = "^0.4.0"
 iai = "0.1"
 
 [build-dependencies]
