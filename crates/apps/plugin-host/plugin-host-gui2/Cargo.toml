@@ -44,7 +44,7 @@ plugin-host-lib = { path = "../plugin-host-lib" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 
 [dev-dependencies]
-criterion = { version = "^0.3.4", features = ["html_reports"] }
+criterion = { version = "^0.4.0", features = ["html_reports"] }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.0.0-alpha.6" }
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.8" }
 tempdir = "0.3"
