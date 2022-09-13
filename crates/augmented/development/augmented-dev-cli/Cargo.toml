@@ -25,6 +25,7 @@ crates_io_api = "0.8.0"
 daggy = "0.8.0"
 semver = "1.0.4"
 toml_edit = "0.14.4"
+rand = "0.8.5"
 
 [package.metadata.augmented]
 private = true

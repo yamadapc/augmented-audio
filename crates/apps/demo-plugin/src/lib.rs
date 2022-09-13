@@ -23,6 +23,8 @@
 
 use std::sync::Arc;
 
+use augmented::gui::iced_baseview;
+use augmented::gui::iced_baseview::{Application, Command, Element, Text, WindowQueue};
 use augmented::vst::buffer::AudioBuffer;
 use augmented::vst::editor::Editor;
 use augmented::vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
@@ -40,11 +42,12 @@ struct DemoPlugin {
 impl Plugin for DemoPlugin {
     fn get_info(&self) -> Info {
         Info {
-            name: "Demo".to_string(),
+            name: "DemoPlugin2".to_string(),
             category: Category::Effect,
-            vendor: "Beijaflor Software".to_string(),
-            unique_id: 2501, // Used by hosts to differentiate between plugins.
-            parameters: 1,
+            vendor: "Beijaflor".to_string(),
+            unique_id: 3390, // Used by hosts to differentiate between plugins.
+            version: 0_1_3_3,
+            parameters: 0,
             ..Default::default()
         }
     }
@@ -75,13 +78,39 @@ impl Plugin for DemoPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        None
+        Some(Box::new(
+            augmented::gui::iced_editor::IcedEditor::<DemoApp>::new(()),
+        ))
     }
 }
 
 impl Drop for DemoPlugin {
     fn drop(&mut self) {
         log::info!("Shutting-down plugin");
+    }
+}
+
+struct DemoApp {}
+
+impl Application for DemoApp {
+    type Executor = iced_baseview::executor::Default;
+    type Message = ();
+    type Flags = ();
+
+    fn new(_: ()) -> (Self, Command<()>) {
+        (Self {}, Command::none())
+    }
+
+    fn update(
+        &mut self,
+        _queue: &mut WindowQueue,
+        _message: Self::Message,
+    ) -> Command<Self::Message> {
+        Command::none()
+    }
+
+    fn view(&mut self) -> Element<'_, Self::Message> {
+        Text::new("Hello world").into()
     }
 }
 

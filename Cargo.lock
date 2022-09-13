@@ -700,6 +700,7 @@ dependencies = [
  "iced",
  "iced-editor",
  "iced_audio 0.7.0",
+ "iced_baseview",
  "macos-bundle-resources",
  "smooth-value",
  "vst",
@@ -796,6 +797,7 @@ dependencies = [
  "log",
  "mockall",
  "plist",
+ "rand 0.8.5",
  "semver 1.0.12",
  "serde",
  "serde_json",
@@ -2173,7 +2175,7 @@ dependencies = [
 
 [[package]]
 name = "demo_plugin"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "augmented",
  "log",
