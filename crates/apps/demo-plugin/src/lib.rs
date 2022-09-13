@@ -23,8 +23,6 @@
 
 use std::sync::Arc;
 
-use augmented::gui::iced_baseview;
-use augmented::gui::iced_baseview::{Application, Command, Element, Text, WindowQueue};
 use augmented::vst::buffer::AudioBuffer;
 use augmented::vst::editor::Editor;
 use augmented::vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
@@ -33,7 +31,8 @@ use augmented::vst::plugin_main;
 use crate::processor::Processor;
 use crate::processor::ProcessorHandleRef;
 
-pub mod processor;
+mod processor;
+mod view;
 
 struct DemoPlugin {
     processor: Processor,
@@ -78,39 +77,13 @@ impl Plugin for DemoPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        Some(Box::new(
-            augmented::gui::iced_editor::IcedEditor::<DemoApp>::new(()),
-        ))
+        Some(view::get_editor())
     }
 }
 
 impl Drop for DemoPlugin {
     fn drop(&mut self) {
         log::info!("Shutting-down plugin");
-    }
-}
-
-struct DemoApp {}
-
-impl Application for DemoApp {
-    type Executor = iced_baseview::executor::Default;
-    type Message = ();
-    type Flags = ();
-
-    fn new(_: ()) -> (Self, Command<()>) {
-        (Self {}, Command::none())
-    }
-
-    fn update(
-        &mut self,
-        _queue: &mut WindowQueue,
-        _message: Self::Message,
-    ) -> Command<Self::Message> {
-        Command::none()
-    }
-
-    fn view(&mut self) -> Element<'_, Self::Message> {
-        Text::new("Hello world").into()
     }
 }
 

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 use chrono::prelude::*;
-use cmd_lib::spawn_with_output;
+use cmd_lib::spawn;
 
 use crate::manifests::{CargoToml, ReleaseJson};
 use crate::services::build_command_service::git_release_provider::{
@@ -97,7 +97,7 @@ impl BuildCommandService {
 
     fn run_build_crate(&mut self, crate_path: &str, upload: bool) {
         if self.run_build_crate_vst(crate_path, upload).is_none() {
-            BuildCommandService::force_build(crate_path, &None).unwrap();
+            self.force_build(crate_path, &None).unwrap();
         }
     }
 
@@ -169,7 +169,7 @@ impl BuildCommandService {
         log::debug!("Read Cargo.toml: {:?}", cargo_toml);
 
         // Force the package to be built
-        BuildCommandService::force_build(crate_path, &example_name).unwrap();
+        self.force_build(crate_path, &example_name).unwrap();
 
         if let (Some(local_package), true) = (
             self.packager_service.create_local_package(PackagerInput {
@@ -189,20 +189,43 @@ impl BuildCommandService {
         }
     }
 
-    fn force_build(crate_path: &str, example_name: &Option<&str>) -> anyhow::Result<()> {
+    fn force_build(&self, crate_path: &str, example_name: &Option<&str>) -> anyhow::Result<()> {
         let current = std::env::current_dir()?;
         println!("- Building {} example={:?}", crate_path, example_name);
         log::debug!("cd {}", crate_path);
+
+        // TODO fix this for all builds
+        let cargo_toml = self.cargo_toml_reader.read(crate_path);
+
         std::env::set_current_dir(crate_path)?;
-        let mut handle = if let Some(example) = example_name {
-            log::debug!("cargo build --release --example {}", example);
-            spawn_with_output!(cargo build --release --example ${example})?
+        if let Some(example) = example_name {
+            println!("cargo build --release --example {} (multi-arch)", example);
+            spawn!(cargo build --target aarch64-apple-darwin --release --example ${example})?
+                .wait()?;
+            spawn!(cargo build --target x86_64-apple-darwin --release --example ${example})?
+                .wait()?;
         } else {
-            log::debug!("cargo build --release");
-            spawn_with_output!(cargo build --release)?
-        };
-        handle.wait_with_output()?;
+            // VST plugins are only recognized by Ableton if they are universal binaries, so we must
+            // build both architectures and combine them with lipo
+            println!("cargo build --release (multi-arch)");
+            spawn!(cargo build --target aarch64-apple-darwin --release)?.wait()?;
+            spawn!(cargo build --target x86_64-apple-darwin --release)?.wait()?;
+        }
         std::env::set_current_dir(current)?;
+
+        if let Some(lib_name) = cargo_toml.lib.map(|l| l.name).flatten() {
+            let lipo_args = vec![
+                format!(
+                    "./target/aarch64-apple-darwin/release/lib{}.dylib",
+                    lib_name
+                ),
+                format!("./target/x86_64-apple-darwin/release/lib{}.dylib", lib_name),
+                "-output".to_string(),
+                format!("./target/release/lib{}.dylib", lib_name),
+            ];
+            spawn!(lipo -create $[lipo_args])?.wait()?;
+        }
+
         Ok(())
     }
 
