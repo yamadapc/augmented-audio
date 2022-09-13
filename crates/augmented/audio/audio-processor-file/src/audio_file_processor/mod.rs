@@ -205,12 +205,30 @@ impl AudioProcessor for AudioFileProcessor {
                 audio_settings.sample_rate(),
             );
 
-            for buffer in converted_stream {
+            let start = Instant::now();
+            let mut samples_read = 0;
+            let total_frames = converted_stream.len();
+
+            for (i, buffer) in converted_stream.enumerate() {
                 self.buffer.resize(buffer.num_channels(), vec![]);
+
                 for frame in buffer.frames() {
                     for channel in 0..buffer.num_channels() {
                         self.buffer[channel].push(frame[channel]);
                     }
+                }
+
+                samples_read += buffer.num_samples();
+                if i % 80 == 0 {
+                    let rate = samples_read as f32 / start.elapsed().as_secs_f32();
+                    let eta = (total_frames - samples_read) as f32 / rate;
+                    log::info!(
+                        "progress {:.1}% - elapsed: {:.1}s - rate: {:.0} samples/s - eta: {:.1}s",
+                        (samples_read as f32 / total_frames as f32) * 100.0,
+                        start.elapsed().as_secs_f32(),
+                        rate,
+                        eta,
+                    );
                 }
             }
 

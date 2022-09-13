@@ -118,6 +118,16 @@ impl<'a> Iterator for FileContentsStream<'a> {
     }
 }
 
+impl<'a> ExactSizeIterator for FileContentsStream<'a> {
+    fn len(&self) -> usize {
+        self.audio_file
+            .format
+            .default_track()
+            .map(|track| track.codec_params.n_frames.unwrap_or(0))
+            .unwrap_or(0) as usize
+    }
+}
+
 pub fn read_file_contents(
     audio_file: &mut ProbeResult,
 ) -> Result<SymphoniaAudioBuffer<f32>, AudioFileError> {
@@ -208,6 +218,12 @@ impl<'a> Iterator for ConvertedFileContentsStream<'a> {
         let result = decoder.process(&interleaved_buffer).ok()?;
 
         Some(VecAudioBuffer::new_with(result, num_channels, num_samples))
+    }
+}
+
+impl<'a> ExactSizeIterator for ConvertedFileContentsStream<'a> {
+    fn len(&self) -> usize {
+        self.audio_file_stream.len()
     }
 }
 

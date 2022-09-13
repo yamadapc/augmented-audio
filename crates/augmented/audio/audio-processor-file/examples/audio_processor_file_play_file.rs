@@ -1,14 +1,20 @@
 use audio_processor_testing_helpers::relative_path;
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioProcessor, InterleavedAudioBuffer};
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, SampleRate, StreamConfig};
 
 fn main() {
     wisual_logger::init_from_env();
+    let args: Vec<String> = std::env::args().collect();
+    let file_path = args
+        .get(1)
+        .cloned()
+        .unwrap_or(relative_path!("../../../../input-files/bass.wav"));
+
     let mut processor = audio_processor_file::AudioFileProcessor::from_path(
         audio_garbage_collector::handle(),
         Default::default(),
-        &relative_path!("../../../../input-files/bass.wav"),
+        &file_path,
     )
     .unwrap();
     processor.prepare(Default::default());
@@ -25,11 +31,11 @@ fn run_audio(mut processor: impl AudioProcessor<SampleType = f32> + Send + 'stat
                 channels: 2,
                 sample_rate: SampleRate(44100),
             },
-            move |data, info| {
+            move |data, _info| {
                 let mut buffer = InterleavedAudioBuffer::new(2, data);
                 processor.process(&mut buffer);
             },
-            |err| {},
+            |err| log::error!("CPAL stream error: {}", err),
         )
         .unwrap();
     std::thread::park();
