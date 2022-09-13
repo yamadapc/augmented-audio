@@ -36,9 +36,9 @@ mod app {
     use std::ffi::c_void;
     use std::ops::Deref;
 
+    use cacao::appkit::window::Window;
+    use cacao::appkit::AppDelegate;
     use cacao::layout::Layout;
-    use cacao::macos::window::Window;
-    use cacao::macos::AppDelegate;
     use cacao::view::View;
     use objc::{msg_send, sel, sel_impl};
     use vst::editor::Editor;
@@ -97,7 +97,7 @@ fn main() {
     let editor = build_parameters_editor(&parameters);
 
     #[cfg(target_os = "macos")]
-    cacao::macos::App::new("com.beijaflor.tasv2", app::TremoloApp::new(editor)).run();
+    cacao::appkit::App::new("com.beijaflor.tasv2", app::TremoloApp::new(editor)).run();
 
     #[cfg(not(target_os = "macos"))]
     std::thread::park();

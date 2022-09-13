@@ -76,7 +76,7 @@ augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters" , version 
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.8" }
 
 [target.'cfg(any(target_os = "macos", target_os="ios"))'.dependencies]
-cacao = { version = "0.2.1" }
+cacao = "0.3"
 
 [dev-dependencies]
 criterion = "^0.3.4"
