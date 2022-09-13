@@ -441,6 +441,7 @@ dependencies = [
  "audio-processor-traits",
  "augmented-audio-metrics",
  "augmented-convert-sample-rate",
+ "cpal",
  "hound",
  "log",
  "rayon",

@@ -28,6 +28,8 @@ audio-processor-traits = { version = "1.0.0-alpha.8", path = "../../../augmented
 augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.6" }
 augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.8" }
 
+cpal = "0.14.0"
+
 [dev-dependencies]
 audio-processor-testing-helpers = { version = "1.0.0-alpha.8", path = "../../../augmented/testing/audio-processor-testing-helpers" }
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }

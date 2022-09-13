@@ -28,7 +28,7 @@ use symphonia::core::probe::ProbeResult;
 
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
 };
 use file_io::AudioFileError;
 
@@ -155,11 +155,39 @@ impl AudioFileProcessor {
         &self.buffer
     }
 
+    pub fn handle(&self) -> &Shared<AudioFileProcessorHandle> {
+        &self.handle
+    }
+
+    /// Resume playback
+    pub fn play(&self) {
+        self.handle.play()
+    }
+
+    /// Pause playback
+    pub fn pause(&self) {
+        self.handle.pause()
+    }
+
+    /// Stop playback and go back to the start of the file
+    pub fn stop(&self) {
+        self.handle.stop()
+    }
+
+    /// Whether the file is being played back
+    pub fn is_playing(&self) -> bool {
+        self.handle.is_playing()
+    }
+}
+
+impl AudioProcessor for AudioFileProcessor {
+    type SampleType = f32;
+
     /// Prepares for playback
     ///
     /// Note: Currently this will load the audio file on the audio-thread.
     /// It'd be an interesting exercise to perform this on a background thread.
-    pub fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
+    fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
 
@@ -199,7 +227,7 @@ impl AudioFileProcessor {
         }
     }
 
-    pub fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &mut BufferType) {
+    fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &mut BufferType) {
         let is_playing = self.handle.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
@@ -228,30 +256,6 @@ impl AudioFileProcessor {
             Ordering::Relaxed,
             Ordering::Relaxed,
         );
-    }
-
-    pub fn handle(&self) -> &Shared<AudioFileProcessorHandle> {
-        &self.handle
-    }
-
-    /// Resume playback
-    pub fn play(&self) {
-        self.handle.play()
-    }
-
-    /// Pause playback
-    pub fn pause(&self) {
-        self.handle.pause()
-    }
-
-    /// Stop playback and go back to the start of the file
-    pub fn stop(&self) {
-        self.handle.stop()
-    }
-
-    /// Whether the file is being played back
-    pub fn is_playing(&self) -> bool {
-        self.handle.is_playing()
     }
 }
 
