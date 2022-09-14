@@ -26,7 +26,7 @@ function RotaryControl({ state: parameter, declaration, onChange }: Props) {
   const cleanUpTasks = useRef<(() => void)[]>([]);
 
   const setValue = useCallback(
-    (val) => {
+    (val: number) => {
       console.log(val);
       parameter.value = val;
       onChange(declaration.id, val);

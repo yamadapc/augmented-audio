@@ -42,7 +42,7 @@ export class Logger {
     });
   }
 
-  error(msg: string, variables: LoggerMap = {}) {
+  error(msg: unknown | string, variables: LoggerMap = {}) {
     if (shouldSkipLogging() || !this.shouldLog("error")) {
       return;
     }

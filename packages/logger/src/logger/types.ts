@@ -15,7 +15,7 @@ export const logLevelValue: {
 
 export interface LogMessage {
   level: LogLevel;
-  message: string;
+  message: unknown;
   time: Date;
   logger: string;
   variables: LoggerMap;
