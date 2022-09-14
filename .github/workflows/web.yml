@@ -19,22 +19,20 @@ jobs:
           submodules: recursive
       - uses: actions/setup-node@v2
         with:
-          node-version: '16'
-      - name: restore lerna
+          node-version: '18.9.0'
+      - name: restore caches
         uses: actions/cache@v2
         with:
           path: |
             node_modules
             */*/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-      - name: Install lerna
-        run: npm install
-      - name: Bootstrap packages
-        run: ./node_modules/.bin/lerna bootstrap --hoist
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      - name: Install dependencies
+        run: yarn
       - name: Run tests
-        run: npm run test
+        run: yarn run test
       - name: Run builds
-        run: npm run build
+        run: yarn run build
       - name: Upload tremolo-plugin-frontend build
         uses: actions/upload-artifact@v2
         with:
