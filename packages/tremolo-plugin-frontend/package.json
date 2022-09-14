@@ -5,7 +5,7 @@
   "homepage": "./",
   "dependencies": {
     "@wisual/logger": "^1.2.0",
-    "@wisual/webview-transport": "^1.0.0",
+    "@wisual/webview-transport": "*",
     "@ruas/generic-parameters-editor-runtime": "^1.0.0",
     "lodash": "^4.17.21",
     "mobx": "^6.6.2",
