@@ -52,26 +52,26 @@ updates:
     directory: "./crates/augmented/data/circular-data-structures"
     schedule:
       interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/example-druid-audio-viz"
-    schedule:
-      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/example-druid-audio-viz"
+#    schedule:
+#      interval: "daily"
   - package-ecosystem: "cargo"
     directory: "./crates/augmented/audio/audio-processor-analysis"
     schedule:
       interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/visualisation_"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/example-iced-xcode-integration"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/example-iced-audio-viz"
-    schedule:
-      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/visualisation_"
+#    schedule:
+#      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/example-iced-xcode-integration"
+#    schedule:
+#      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/example-iced-audio-viz"
+#    schedule:
+#      interval: "daily"
   - package-ecosystem: "cargo"
     directory: "./crates/augmented/audio/audio-processor-utility"
     schedule:
