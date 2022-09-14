@@ -4309,7 +4309,7 @@ dependencies = [
  "audio-processor-traits",
  "augmented",
  "derive_more",
- "dirs 3.0.2",
+ "dirs 4.0.0",
  "iced",
  "iced-editor",
  "iced_audio 0.8.0",
