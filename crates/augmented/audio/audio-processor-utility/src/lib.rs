@@ -41,5 +41,5 @@ pub mod pan;
 /// Convert mono signals to stereo
 pub mod stereo;
 
-#[cfg(test)]
+#[cfg(all(test, debug_assertions))]
 mod test_allocator;

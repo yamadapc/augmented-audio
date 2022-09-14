@@ -17,7 +17,7 @@ dispatch = "0.2.0"
 block = "0.1.6"
 
 [dev-dependencies]
-criterion = "0.3.3"
+criterion = "0.4"
 
 #[[bench]]
 #name = "count_benchmark"

@@ -24,12 +24,11 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Instant;
 
 use rayon::prelude::*;
-use symphonia::core::audio::AudioBuffer as SymphoniaAudioBuffer;
 use symphonia::core::probe::ProbeResult;
 
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
 };
 use file_io::AudioFileError;
 
@@ -156,11 +155,39 @@ impl AudioFileProcessor {
         &self.buffer
     }
 
+    pub fn handle(&self) -> &Shared<AudioFileProcessorHandle> {
+        &self.handle
+    }
+
+    /// Resume playback
+    pub fn play(&self) {
+        self.handle.play()
+    }
+
+    /// Pause playback
+    pub fn pause(&self) {
+        self.handle.pause()
+    }
+
+    /// Stop playback and go back to the start of the file
+    pub fn stop(&self) {
+        self.handle.stop()
+    }
+
+    /// Whether the file is being played back
+    pub fn is_playing(&self) -> bool {
+        self.handle.is_playing()
+    }
+}
+
+impl AudioProcessor for AudioFileProcessor {
+    type SampleType = f32;
+
     /// Prepares for playback
     ///
     /// Note: Currently this will load the audio file on the audio-thread.
     /// It'd be an interesting exercise to perform this on a background thread.
-    pub fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
+    fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
 
@@ -169,12 +196,48 @@ impl AudioFileProcessor {
 
         let start = Instant::now();
         log::info!("Reading audio file onto memory");
-        let audio_file_contents =
-            file_io::read_file_contents(&mut self.audio_file_settings.audio_file);
-        match audio_file_contents {
-            Ok(audio_file_contents) => {
+
+        let mut run = || -> Result<(), file_io::AudioFileError> {
+            let input_stream =
+                file_io::FileContentsStream::new(&mut self.audio_file_settings.audio_file)?;
+            let converted_stream = file_io::convert_audio_file_stream_sample_rate(
+                input_stream,
+                audio_settings.sample_rate(),
+            );
+
+            let start = Instant::now();
+            let mut samples_read = 0;
+            let total_frames = converted_stream.len();
+
+            for (i, buffer) in converted_stream.enumerate() {
+                self.buffer.resize(buffer.num_channels(), vec![]);
+
+                for frame in buffer.frames() {
+                    for channel in 0..buffer.num_channels() {
+                        self.buffer[channel].push(frame[channel]);
+                    }
+                }
+
+                samples_read += buffer.num_samples();
+                if i % 80 == 0 {
+                    let rate = samples_read as f32 / start.elapsed().as_secs_f32();
+                    let eta = (total_frames - samples_read) as f32 / rate;
+                    log::info!(
+                        "progress {:.1}% - elapsed: {:.1}s - rate: {:.0} samples/s - eta: {:.1}s",
+                        (samples_read as f32 / total_frames as f32) * 100.0,
+                        start.elapsed().as_secs_f32(),
+                        rate,
+                        eta,
+                    );
+                }
+            }
+
+            Ok(())
+        };
+
+        match run() {
+            Ok(_) => {
                 log::info!("Read input file duration={}ms", start.elapsed().as_millis());
-                self.set_audio_file_contents(audio_file_contents)
             }
             Err(err) => {
                 log::error!("Failed to read input file {}", err);
@@ -182,33 +245,7 @@ impl AudioFileProcessor {
         }
     }
 
-    /// Performs sample-rate conversion of the input file in multiple threads
-    fn set_audio_file_contents(&mut self, audio_file_contents: SymphoniaAudioBuffer<f32>) {
-        let start = Instant::now();
-        log::info!("Performing sample rate conversion");
-        let output_rate = self.audio_settings.sample_rate();
-        let converted_channels: Vec<Vec<f32>> = (0..audio_file_contents.spec().channels.count())
-            .into_par_iter()
-            .map(|channel_number| {
-                file_io::convert_audio_file_sample_rate(
-                    &audio_file_contents,
-                    output_rate,
-                    channel_number,
-                )
-            })
-            .collect();
-
-        for channel in converted_channels {
-            self.buffer.push(channel);
-        }
-
-        log::info!(
-            "Performed sample rate conversion duration={}ms",
-            start.elapsed().as_millis()
-        );
-    }
-
-    pub fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &mut BufferType) {
+    fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &mut BufferType) {
         let is_playing = self.handle.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
@@ -238,30 +275,6 @@ impl AudioFileProcessor {
             Ordering::Relaxed,
         );
     }
-
-    pub fn handle(&self) -> &Shared<AudioFileProcessorHandle> {
-        &self.handle
-    }
-
-    /// Resume playback
-    pub fn play(&self) {
-        self.handle.play()
-    }
-
-    /// Pause playback
-    pub fn pause(&self) {
-        self.handle.pause()
-    }
-
-    /// Stop playback and go back to the start of the file
-    pub fn stop(&self) {
-        self.handle.stop()
-    }
-
-    /// Whether the file is being played back
-    pub fn is_playing(&self) -> bool {
-        self.handle.is_playing()
-    }
 }
 
 #[cfg(test)]
@@ -272,6 +285,8 @@ mod test {
     use super::*;
 
     fn setup() -> (GarbageCollector, InMemoryAudioFile) {
+        wisual_logger::init_from_env();
+
         let garbage_collector = GarbageCollector::default();
         let path = format!(
             "{}{}",

@@ -27,7 +27,7 @@ use std::ptr::null;
 
 use basedrop::Shared;
 
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 use augmented_atomics::AtomicValue;
 
 pub use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;

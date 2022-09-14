@@ -40,7 +40,7 @@ use audio_processor_traits::{
     AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, Zero,
 };
 
-#[cfg(test)]
+#[cfg(all(test, debug_assertions))]
 mod test_allocator;
 
 fn make_vec(size: usize) -> Vec<f32> {

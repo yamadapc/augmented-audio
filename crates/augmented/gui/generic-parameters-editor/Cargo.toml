@@ -19,5 +19,5 @@ webview-holder = { path = "../webview-holder" }
 webview-transport = { path = "../webview-transport" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-cacao = "0.2.1"
+cacao = "0.3"
 darwin-webkit = "^0.1.3"

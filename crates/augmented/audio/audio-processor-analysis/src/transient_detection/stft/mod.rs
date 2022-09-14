@@ -367,7 +367,9 @@ mod test {
     use audio_processor_testing_helpers::relative_path;
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
-    use audio_processor_traits::{AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer};
+    use audio_processor_traits::{
+        AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+    };
 
     use super::*;
 

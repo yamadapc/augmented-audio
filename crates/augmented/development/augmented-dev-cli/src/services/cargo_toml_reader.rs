@@ -38,6 +38,7 @@ pub struct CargoTomlReaderImpl {}
 impl CargoTomlReader for CargoTomlReaderImpl {
     fn read(&self, crate_path: &str) -> CargoToml {
         let config_path = Path::new(crate_path).join("Cargo.toml");
+        log::info!("Reading cargo toml at: {:?}", config_path);
         let input_cargo_file = read_to_string(config_path).expect("Failed to read toml file");
         let cargo_toml: CargoToml = toml::from_str(&input_cargo_file).unwrap_or_else(|err| {
             log::error!("Parse error: {}", err);

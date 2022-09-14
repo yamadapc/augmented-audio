@@ -85,6 +85,15 @@ pub struct StandaloneAudioOnlyProcessor<P> {
     options: StandaloneOptions,
 }
 
+impl<P: AudioProcessor> From<P> for StandaloneAudioOnlyProcessor<P> {
+    fn from(processor: P) -> Self {
+        Self {
+            processor,
+            options: Default::default(),
+        }
+    }
+}
+
 impl<P> StandaloneAudioOnlyProcessor<P> {
     pub fn new(processor: P, options: StandaloneOptions) -> Self {
         StandaloneAudioOnlyProcessor { processor, options }

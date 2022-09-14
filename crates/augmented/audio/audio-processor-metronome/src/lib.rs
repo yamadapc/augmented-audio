@@ -103,7 +103,7 @@ struct MetronomeProcessorState {
 impl Default for MetronomeProcessorState {
     fn default() -> Self {
         Self {
-            last_position: 0.0,
+            last_position: -1.0,
             oscillator: Oscillator::sine(DEFAULT_SAMPLE_RATE),
             is_beeping: false,
             envelope: build_envelope(),

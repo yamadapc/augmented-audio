@@ -42,10 +42,20 @@ fn run_example_snapshot_tests(crate_name: &str, example: &str, update_snapshots:
         .expect("Failed to build example");
 
     run_cmd!(mkdir -p test/snapshots/${crate_name}/).unwrap();
-    spawn!(cargo run --package ${crate_name} --release --example ${example} -- --input-file ./input-files/C3-loop.mp3 --output-file test/snapshots/${crate_name}/${example}.tmp.wav)
-        .unwrap()
-        .wait()
-        .expect("Failed to run example");
+    #[cfg(target_os = "macos")]
+    {
+        spawn!(cargo run --target x86_64-apple-darwin --package ${crate_name} --release --example ${example} -- --input-file ./input-files/C3-loop.mp3 --output-file test/snapshots/${crate_name}/${example}.tmp.wav)
+            .unwrap()
+            .wait()
+            .expect("Failed to run example");
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        spawn!(cargo run --package ${crate_name} --release --example ${example} -- --input-file ./input-files/C3-loop.mp3 --output-file test/snapshots/${crate_name}/${example}.tmp.wav)
+            .unwrap()
+            .wait()
+            .expect("Failed to run example");
+    }
 
     let md5_commit =
         run_fun!(md5 -q test/snapshots/${crate_name}/${example}.wav).unwrap_or_else(|_| "".into());

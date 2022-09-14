@@ -80,6 +80,9 @@ impl VstHandler {
         );
         std::fs::copy(source_dylib_path, target_dylib_path).expect("Failed to copy binary lib");
 
+        std::fs::write(output_path.join("Contents/PkgInfo"), "BNDL????")
+            .expect("Failed to create PkgInfo");
+
         None
     }
 }
@@ -99,17 +102,34 @@ fn build_plist(public_name: &str, toml_file: &CargoToml, vst: &VstConfig) -> pli
         plist::Value::from(toml_file.package.version.clone()),
     );
     plist_file.insert(
+        String::from("CFBundleLongVersionString"),
+        plist::Value::from(toml_file.package.version.clone()),
+    );
+    plist_file.insert(
+        String::from("CFBundleShortVersionString"),
+        plist::Value::from(toml_file.package.version.clone()),
+    );
+    plist_file.insert(
         String::from("CFBundleExecutable"),
         plist::Value::from(toml_file.package.name.clone()),
     );
     plist_file.insert(
-        String::from("CFResourcesFileMapped"),
-        plist::Value::from(""),
+        String::from("CFBundleSignature"),
+        plist::Value::from(format!("{}", rand::random::<usize>() % 9999)),
+    );
+    plist_file.insert(
+        String::from("CFBundleSupportedPlatforms"),
+        plist::Value::from(vec![plist::Value::from("MacOSX")]),
     );
     plist_file.insert(
         String::from("CFBundleGetInfoString"),
         plist::Value::from("vst"),
     );
+    plist_file.insert(
+        String::from("CSResourcesFileMapped"),
+        plist::Value::from(true),
+    );
+
     plist_file.insert(String::from("CFBundleIconFile"), plist::Value::from(""));
     plist_file.insert(
         String::from("CFBundleInfoDictionaryVersion"),
@@ -117,8 +137,17 @@ fn build_plist(public_name: &str, toml_file: &CargoToml, vst: &VstConfig) -> pli
     );
     plist_file.insert(
         String::from("CFBundlePackageType"),
-        plist::Value::from("BNDL"),
+        plist::Value::from("APPL"),
     );
+    // plist_file.insert(String::from("DTPlatformName"), plist::Value::from("macosx"));
+    // plist_file.insert(
+    //     String::from("DTPlatformVersion"),
+    //     plist::Value::from("11.1"),
+    // );
+    // plist_file.insert(
+    //     String::from("LSMinimumSystemVersion"),
+    //     plist::Value::from("10.10"),
+    // );
     plist_file.insert(
         String::from("CFBundleDevelopmentRegion"),
         plist::Value::from("English"),

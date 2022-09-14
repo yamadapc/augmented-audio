@@ -75,11 +75,14 @@ augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters" , version 
 
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.8" }
 
-[target.'cfg(any(target_os = "macos", target_os="ios"))'.dependencies]
-cacao = { version = "0.2.1" }
+[target.'cfg(target_os="ios")'.dependencies]
+cacao = { version = "0.3", features = ["uikit"], default-features = false }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cacao = { version = "0.3", features = ["appkit"] }
 
 [dev-dependencies]
-criterion = "^0.3.4"
+criterion = "0.4"
 iai = "0.1"
 
 [build-dependencies]

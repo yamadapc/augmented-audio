@@ -21,8 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::io::Write;
 use std::io;
+use std::io::Write;
 
 use env_logger::fmt::Formatter;
 use log::{Record, SetLoggerError};

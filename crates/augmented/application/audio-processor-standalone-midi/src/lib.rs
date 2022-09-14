@@ -139,5 +139,5 @@ pub mod host;
 /// VST API conversion
 pub mod vst;
 
-#[cfg(test)]
+#[cfg(all(test, debug_assertions))]
 pub(crate) mod test_util;

@@ -31,7 +31,8 @@ use augmented::vst::plugin_main;
 use crate::processor::Processor;
 use crate::processor::ProcessorHandleRef;
 
-pub mod processor;
+mod processor;
+mod view;
 
 struct DemoPlugin {
     processor: Processor,
@@ -40,11 +41,12 @@ struct DemoPlugin {
 impl Plugin for DemoPlugin {
     fn get_info(&self) -> Info {
         Info {
-            name: "Demo".to_string(),
+            name: "DemoPlugin2".to_string(),
             category: Category::Effect,
-            vendor: "Beijaflor Software".to_string(),
-            unique_id: 2501, // Used by hosts to differentiate between plugins.
-            parameters: 1,
+            vendor: "Beijaflor".to_string(),
+            unique_id: 3390, // Used by hosts to differentiate between plugins.
+            version: 0_1_3_3,
+            parameters: 0,
             ..Default::default()
         }
     }
@@ -75,7 +77,7 @@ impl Plugin for DemoPlugin {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        None
+        Some(view::get_editor())
     }
 }
 
