@@ -9,7 +9,7 @@ crate-type = ["staticlib", "cdylib"]
 [dependencies]
 uniffi = "0.14"
 uniffi_macros = "0.14"
-anyhow = "=1.0.52" # https://github.com/mozilla/uniffi-rs/issues/1109
+anyhow = "=1.0.65" # https://github.com/mozilla/uniffi-rs/issues/1109
 
 plugin-host-lib = { path = "../../apps/plugin-host/plugin-host-lib" }
 wisual-logger = { path = "../../augmented/ops/wisual-logger" }
