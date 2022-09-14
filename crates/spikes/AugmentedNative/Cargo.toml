@@ -19,7 +19,7 @@ metal = "0.23.1"
 core-graphics-types = "0.1.1"
 
 [build-dependencies]
-uniffi_build = "0.14"
+uniffi_build = "0.20"
 cbindgen = "0.20.0"
 
 [package.metadata.vcpkg]
