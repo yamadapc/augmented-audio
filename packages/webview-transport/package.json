@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "lib/index.js",
   "scripts": {
-    "build": "tsc",
+    "tsc": "tsc",
     "prepublish": "tsc",
     "test": "jest"
   },

@@ -7,7 +7,7 @@
   "homepage": "https://github.com/yamadapc/augmented-audio/",
   "repository": "https://github.com/yamadapc/augmented-audio/",
   "scripts": {
-    "build": "tsc",
+    "tsc": "tsc",
     "prepublish": "tsc",
     "test": "jest"
   },

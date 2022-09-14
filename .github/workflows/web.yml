@@ -27,7 +27,7 @@ jobs:
             node_modules
             */*/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install lerna
+      - name: Install dependencies
         run: yarn
       - name: Run tests
         run: yarn run test

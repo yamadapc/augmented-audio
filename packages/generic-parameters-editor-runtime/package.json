@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc",
+    "tsc": "tsc",
     "prepublish": "tsc",
     "test": "jest"
   },
