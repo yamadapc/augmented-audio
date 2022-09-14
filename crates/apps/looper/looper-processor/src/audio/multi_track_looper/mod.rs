@@ -793,11 +793,15 @@ mod test {
         processor.process(&mut buffer);
 
         assert_eq!(
-            buffer.slice(),
-            &(0..num_samples)
+            buffer
+                .slice()
+                .iter()
+                .map(|f| (f * 10000.0).round() as usize)
+                .collect::<Vec<usize>>(),
+            (0..num_samples)
                 .into_iter()
-                .map(|i| i as f32)
-                .collect::<Vec<f32>>()
+                .map(|i| ((i as f32) * 10000.0).round() as usize)
+                .collect::<Vec<usize>>()
         );
         // Check internal state
         assert_eq!(
