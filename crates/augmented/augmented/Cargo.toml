@@ -73,4 +73,4 @@ wisual-logger = { version = "0.1", path = "../ops/wisual-logger" }
 audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.8" }
 
 # plug-ins
-vst = { version = "^0.2.1", path = "../../vendor/vst" }
+vst = { version = "0.3", path = "../../vendor/vst" }

@@ -26,7 +26,7 @@ augmented-midi = { path = "../../data/augmented-midi", version = "1.0.0-alpha.8"
 basedrop = "^0.1.2"
 cpal = { version = "0.14.0" }
 ringbuf = "^0.2.5"
-vst = { version = "0.2.1", path = "../../../vendor/vst" }
+vst = { version = "0.3", path = "../../../vendor/vst" }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-processor-standalone-midi" }
