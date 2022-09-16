@@ -426,7 +426,7 @@ impl MultiTrackLooper {
 
 // Scenes handling
 impl MultiTrackLooper {
-    // Public for benchmarking
+    /// Public for benchmarking
     pub fn process_scenes(&mut self) {
         let scene_value = self.handle.scene_handle().get_slider();
 

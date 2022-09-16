@@ -173,11 +173,11 @@ impl BuildCommandService {
 
         if let (Some(local_package), true) = (
             self.packager_service.create_local_package(PackagerInput {
-                public_name,
-                crate_path,
-                cargo_toml,
-                release_json: &release_json,
-                example_name,
+                public_name: public_name.to_string(),
+                crate_path: crate_path.to_string(),
+                cargo_toml: cargo_toml.clone(),
+                release_json: release_json.clone(),
+                example_name: example_name.map(|s| s.to_string()),
             }),
             upload,
         ) {
@@ -198,7 +198,7 @@ impl BuildCommandService {
         let cargo_toml = self.cargo_toml_reader.read(crate_path);
 
         std::env::set_current_dir(crate_path)?;
-        if let Some(example) = example_name {
+        if let Some(example) = &example_name {
             println!("cargo build --release --example {} (multi-arch)", example);
             spawn!(cargo build --target aarch64-apple-darwin --release --example ${example})?
                 .wait()?;
@@ -222,6 +222,22 @@ impl BuildCommandService {
                 format!("./target/x86_64-apple-darwin/release/lib{}.dylib", lib_name),
                 "-output".to_string(),
                 format!("./target/release/lib{}.dylib", lib_name),
+            ];
+            spawn!(lipo -create $[lipo_args])?.wait()?;
+        }
+
+        if let Some(example) = &example_name {
+            let lipo_args = vec![
+                format!(
+                    "./target/aarch64-apple-darwin/release/examples/lib{}.dylib",
+                    example
+                ),
+                format!(
+                    "./target/x86_64-apple-darwin/release/examples/lib{}.dylib",
+                    example
+                ),
+                "-output".to_string(),
+                format!("./target/release/examples/lib{}.dylib", example),
             ];
             spawn!(lipo -create $[lipo_args])?.wait()?;
         }

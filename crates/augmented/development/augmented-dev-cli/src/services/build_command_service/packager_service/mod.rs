@@ -33,24 +33,27 @@ mod app_template_handler;
 mod vst_handler;
 
 /// Represents an App package that has been built
-pub struct PackagerInput<'a> {
-    pub public_name: &'a str,
-    pub crate_path: &'a str,
-    pub cargo_toml: &'a CargoToml,
-    pub release_json: &'a ReleaseJson,
-    pub example_name: Option<&'a str>,
+#[derive(Debug, Clone)]
+pub struct PackagerInput {
+    pub public_name: String,
+    pub crate_path: String,
+    pub cargo_toml: CargoToml,
+    pub release_json: ReleaseJson,
+    pub example_name: Option<String>,
 }
 
 /// Represents an App package that has been built
+#[derive(Debug)]
 pub struct LocalPackage {
     pub path: String,
     pub target_app_path: PathBuf,
+    pub input: PackagerInput,
 }
 
 #[automock]
 pub trait PackagerService {
     #[allow(clippy::needless_lifetimes)]
-    fn create_local_package<'a>(&self, input: PackagerInput<'a>) -> Option<LocalPackage>;
+    fn create_local_package(&self, input: PackagerInput) -> Option<LocalPackage>;
 }
 
 #[derive(Default)]
@@ -66,12 +69,12 @@ impl PackagerService for PackagerServiceImpl {
             .and_then(|m| m.app)
             .and_then(|a| a.macos);
 
-        if let Some(example) = input.example_name {
+        if let Some(example) = &input.example_name {
             let target_path =
                 Self::build_target_path(&input.cargo_toml.package.name, &input.release_json.key);
             return VstHandler::handle(
                 target_path,
-                &input,
+                input.clone(),
                 VstConfig {
                     identifier: format!(
                         "com.beijaflor.{}__{}",
@@ -87,10 +90,11 @@ impl PackagerService for PackagerServiceImpl {
                 Self::build_target_path(&input.cargo_toml.package.name, &input.release_json.key);
             let result = match macos_config {
                 MacosAppConfig::AppTemplate(config) => {
-                    AppTemplateHandler::handle(target_path, &input, config)
+                    AppTemplateHandler::handle(target_path, input.clone(), config)
                 }
-                MacosAppConfig::Vst(vst) => VstHandler::handle(target_path, &input, vst),
+                MacosAppConfig::Vst(vst) => VstHandler::handle(target_path, input.clone(), vst),
             };
+            log::info!("Finished packaging with result: {:#?}", result);
 
             log::info!("Updating latest symlink");
             let package_name = &input.cargo_toml.package.name;

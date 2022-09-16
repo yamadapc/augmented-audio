@@ -32,10 +32,10 @@ pub struct AppTemplateHandler {}
 impl AppTemplateHandler {
     pub fn handle(
         base_target_path: PathBuf,
-        input: &PackagerInput,
+        input: PackagerInput,
         config: AppTemplateConfig,
     ) -> Option<LocalPackage> {
-        let template_path = Path::new(input.crate_path).join(config.template_path);
+        let template_path = Path::new(&input.crate_path).join(config.template_path);
 
         log::info!(
             "Copying template into `{}` directory",
@@ -56,6 +56,7 @@ impl AppTemplateHandler {
 
         Some(LocalPackage {
             path: base_target_path.to_str().unwrap().to_string(),
+            input,
             target_app_path,
         })
     }
