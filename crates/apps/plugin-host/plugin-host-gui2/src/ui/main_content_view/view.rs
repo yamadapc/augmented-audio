@@ -248,8 +248,8 @@ mod route_button_style {
     use audio_processor_iced_design_system::style;
     use iced::widget::button;
 
-    use augmented::gui::design::colors::Colors;
     use augmented::gui::iced::button::Style;
+    use augmented::gui::iced_design_system::colors::Colors;
 
     pub struct RouteButtonStyle {
         pub is_active: bool,

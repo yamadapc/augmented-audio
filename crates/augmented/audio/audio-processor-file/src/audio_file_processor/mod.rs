@@ -213,8 +213,8 @@ impl AudioProcessor for AudioFileProcessor {
                 self.buffer.resize(buffer.num_channels(), vec![]);
 
                 for frame in buffer.frames() {
-                    for channel in 0..buffer.num_channels() {
-                        self.buffer[channel].push(frame[channel]);
+                    for (target_buffer, sample) in self.buffer.iter_mut().zip(frame) {
+                        target_buffer.push(*sample);
                     }
                 }
 

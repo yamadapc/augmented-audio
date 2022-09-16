@@ -24,11 +24,11 @@ pub use hover_container::HoverContainer;
 
 /// Modified `iced_native::container::Container` to have styles on hover/pressed
 pub mod hover_container {
-    use iced::{Alignment, Color, Length, Point, Rectangle};
     use iced::canvas::event::Status;
-    use iced_native::{Clipboard, Element, Event, Layout, overlay, Padding, Shell, Widget};
+    use iced::{Alignment, Color, Length, Point, Rectangle};
     use iced_native::layout::{Limits, Node};
     use iced_native::renderer::Quad;
+    use iced_native::{overlay, Clipboard, Element, Event, Layout, Padding, Shell, Widget};
 
     pub struct HoverContainer<'a, Message, Renderer: iced_native::Renderer> {
         padding: Padding,

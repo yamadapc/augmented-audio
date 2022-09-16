@@ -32,10 +32,10 @@ pub struct AppTemplateHandler {}
 impl AppTemplateHandler {
     pub fn handle(
         base_target_path: PathBuf,
-        input: &PackagerInput,
+        input: PackagerInput,
         config: AppTemplateConfig,
     ) -> Option<LocalPackage> {
-        let template_path = Path::new(input.crate_path).join(config.template_path);
+        let template_path = Path::new(&input.crate_path).join(config.template_path);
 
         log::info!(
             "Copying template into `{}` directory",
@@ -47,6 +47,7 @@ impl AppTemplateHandler {
         let release_path =
             Path::new("./target/release/").join(input.cargo_toml.package.name.clone());
         let target_app_path = base_target_path.join(template_path.file_name().unwrap());
+        run_cmd!(mkdir -p ${target_app_path}/Contents/MacOS/).unwrap();
         run_cmd!(cp ${release_path} ${target_app_path}/Contents/MacOS/).unwrap();
 
         let release_json_path = base_target_path.join("release.json");
@@ -56,6 +57,7 @@ impl AppTemplateHandler {
 
         Some(LocalPackage {
             path: base_target_path.to_str().unwrap().to_string(),
+            input,
             target_app_path,
         })
     }

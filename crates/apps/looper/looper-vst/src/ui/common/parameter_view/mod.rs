@@ -23,8 +23,8 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-use iced::{Alignment, Column, Length, Text};
 use iced::Element;
+use iced::{Alignment, Column, Length, Text};
 use iced_audio::{IntRange, Normal};
 use itertools::Itertools;
 

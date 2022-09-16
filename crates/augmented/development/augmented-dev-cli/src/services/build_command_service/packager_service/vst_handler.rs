@@ -33,12 +33,12 @@ pub struct VstHandler {}
 impl VstHandler {
     pub fn handle(
         target_path: PathBuf,
-        input: &PackagerInput,
+        input: PackagerInput,
         vst: VstConfig,
     ) -> Option<LocalPackage> {
-        let public_name = input.public_name;
+        let public_name = &input.public_name;
 
-        let plist_file = build_plist(public_name, input.cargo_toml, &vst);
+        let plist_file = build_plist(public_name, &input.cargo_toml, &vst);
         run_cmd!(mkdir -p ${target_path}).unwrap();
 
         let output_path = target_path.join(format!("{}.vst", public_name));
@@ -57,6 +57,7 @@ impl VstHandler {
 
         let source_dylib_path = input
             .example_name
+            .clone()
             .map(|example| format!("./target/release/examples/lib{}.dylib", example))
             .unwrap_or_else(|| {
                 format!(
@@ -83,7 +84,11 @@ impl VstHandler {
         std::fs::write(output_path.join("Contents/PkgInfo"), "BNDL????")
             .expect("Failed to create PkgInfo");
 
-        None
+        Some(LocalPackage {
+            input,
+            path: output_path.to_str().unwrap().to_string(),
+            target_app_path: output_path,
+        })
     }
 }
 

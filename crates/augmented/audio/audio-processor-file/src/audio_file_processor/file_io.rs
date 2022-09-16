@@ -131,10 +131,10 @@ impl<'a> ExactSizeIterator for FileContentsStream<'a> {
 pub fn read_file_contents(
     audio_file: &mut ProbeResult,
 ) -> Result<SymphoniaAudioBuffer<f32>, AudioFileError> {
-    let mut stream = FileContentsStream::new(audio_file)?;
+    let stream = FileContentsStream::new(audio_file)?;
 
     let mut channel_buffers: Vec<SymphoniaAudioBuffer<f32>> = Vec::new();
-    while let Some(buffer) = stream.next() {
+    for buffer in stream {
         channel_buffers.push(buffer)
     }
 
@@ -210,6 +210,7 @@ impl<'a> Iterator for ConvertedFileContentsStream<'a> {
         interleaved_buffer.resize(num_samples * num_channels, 0.0);
         let channels: Vec<&[f32]> = (0..num_channels).map(|c| audio_buffer.chan(c)).collect();
         for sample in 0..num_samples {
+            #[allow(clippy::needless_range_loop)]
             for channel in 0..num_channels {
                 let index = sample * num_channels + channel;
                 interleaved_buffer[index] = channels[channel][sample];
@@ -227,10 +228,10 @@ impl<'a> ExactSizeIterator for ConvertedFileContentsStream<'a> {
     }
 }
 
-pub fn convert_audio_file_stream_sample_rate<'a>(
-    audio_file_stream: FileContentsStream<'a>,
+pub fn convert_audio_file_stream_sample_rate(
+    audio_file_stream: FileContentsStream,
     output_rate: f32,
-) -> ConvertedFileContentsStream<'a> {
+) -> ConvertedFileContentsStream {
     ConvertedFileContentsStream {
         audio_file_stream,
         output_rate,

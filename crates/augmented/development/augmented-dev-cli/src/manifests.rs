@@ -94,6 +94,7 @@ pub struct CargoTomlPackage {
 #[serde(rename_all = "kebab-case")]
 pub struct CargoLib {
     pub name: Option<String>,
+    pub crate_type: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

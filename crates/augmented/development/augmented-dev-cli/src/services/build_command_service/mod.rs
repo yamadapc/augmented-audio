@@ -21,8 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use anyhow::Error;
 use chrono::prelude::*;
 use cmd_lib::spawn;
+use std::path::Path;
 
 use crate::manifests::{CargoToml, ReleaseJson};
 use crate::services::build_command_service::git_release_provider::{
@@ -173,11 +175,11 @@ impl BuildCommandService {
 
         if let (Some(local_package), true) = (
             self.packager_service.create_local_package(PackagerInput {
-                public_name,
-                crate_path,
-                cargo_toml,
-                release_json: &release_json,
-                example_name,
+                public_name: public_name.to_string(),
+                crate_path: crate_path.to_string(),
+                cargo_toml: cargo_toml.clone(),
+                release_json: release_json.clone(),
+                example_name: example_name.map(|s| s.to_string()),
             }),
             upload,
         ) {
@@ -190,43 +192,7 @@ impl BuildCommandService {
     }
 
     fn force_build(&self, crate_path: &str, example_name: &Option<&str>) -> anyhow::Result<()> {
-        let current = std::env::current_dir()?;
-        println!("- Building {} example={:?}", crate_path, example_name);
-        log::debug!("cd {}", crate_path);
-
-        // TODO fix this for all builds
-        let cargo_toml = self.cargo_toml_reader.read(crate_path);
-
-        std::env::set_current_dir(crate_path)?;
-        if let Some(example) = example_name {
-            println!("cargo build --release --example {} (multi-arch)", example);
-            spawn!(cargo build --target aarch64-apple-darwin --release --example ${example})?
-                .wait()?;
-            spawn!(cargo build --target x86_64-apple-darwin --release --example ${example})?
-                .wait()?;
-        } else {
-            // VST plugins are only recognized by Ableton if they are universal binaries, so we must
-            // build both architectures and combine them with lipo
-            println!("cargo build --release (multi-arch)");
-            spawn!(cargo build --target aarch64-apple-darwin --release)?.wait()?;
-            spawn!(cargo build --target x86_64-apple-darwin --release)?.wait()?;
-        }
-        std::env::set_current_dir(current)?;
-
-        if let Some(lib_name) = cargo_toml.lib.map(|l| l.name).flatten() {
-            let lipo_args = vec![
-                format!(
-                    "./target/aarch64-apple-darwin/release/lib{}.dylib",
-                    lib_name
-                ),
-                format!("./target/x86_64-apple-darwin/release/lib{}.dylib", lib_name),
-                "-output".to_string(),
-                format!("./target/release/lib{}.dylib", lib_name),
-            ];
-            spawn!(lipo -create $[lipo_args])?.wait()?;
-        }
-
-        Ok(())
+        build_crate_universal_binary(&*self.cargo_toml_reader, crate_path, example_name)
     }
 
     fn get_public_path(&self, release_key: &str, public_name: &str) -> String {
@@ -240,4 +206,110 @@ impl BuildCommandService {
         );
         artifact_path
     }
+}
+
+#[derive(Debug)]
+enum CrateArtifact {
+    Bin,
+    CDylib,
+    Rlib,
+}
+
+fn build_crate_universal_binary(
+    cargo_toml_reader: &dyn CargoTomlReader,
+    crate_path: &str,
+    example_name: &Option<&str>,
+) -> Result<(), Error> {
+    let current = std::env::current_dir()?;
+    println!("- Building {} example={:?}", crate_path, example_name);
+    log::debug!("cd {}", crate_path);
+
+    let cargo_toml = cargo_toml_reader.read(crate_path);
+    let artifacts = get_crate_artifacts(&std::path::PathBuf::from(crate_path), &cargo_toml);
+    log::info!("Crate has artifacts: {:?}", artifacts);
+
+    std::env::set_current_dir(crate_path)?;
+    if let Some(example) = &example_name {
+        println!("cargo build --release --example {} (multi-arch)", example);
+        spawn!(cargo build --target aarch64-apple-darwin --release --example ${example})?.wait()?;
+        spawn!(cargo build --target x86_64-apple-darwin --release --example ${example})?.wait()?;
+    } else {
+        // VST plugins are only recognized by Ableton if they are universal binaries, so we must
+        // build both architectures and combine them with lipo
+        println!("cargo build --release (multi-arch)");
+        spawn!(cargo build --target aarch64-apple-darwin --release)?.wait()?;
+        spawn!(cargo build --target x86_64-apple-darwin --release)?.wait()?;
+    }
+    std::env::set_current_dir(current)?;
+
+    if cargo_toml.is_augmented_crate() {
+        if let Some(lib_name) = cargo_toml.lib.and_then(|l| l.name) {
+            let lipo_args = vec![
+                format!(
+                    "./target/aarch64-apple-darwin/release/lib{}.dylib",
+                    lib_name
+                ),
+                format!("./target/x86_64-apple-darwin/release/lib{}.dylib", lib_name),
+                "-output".to_string(),
+                format!("./target/release/lib{}.dylib", lib_name),
+            ];
+            spawn!(lipo -create $[lipo_args])?.wait()?;
+        } else if artifacts
+            .iter()
+            .any(|a| matches!(a, CrateArtifact::Bin { .. }))
+        {
+            let bin_name = &cargo_toml.package.name;
+            log::info!("Creating universal binary for bin crate {}", bin_name);
+            let lipo_args = vec![
+                format!("./target/aarch64-apple-darwin/release/{}", bin_name),
+                format!("./target/x86_64-apple-darwin/release/{}", bin_name),
+                "-output".to_string(),
+                format!("./target/release/{}", bin_name),
+            ];
+            spawn!(lipo -create $[lipo_args])?.wait()?;
+        }
+
+        if let Some(example) = &example_name {
+            let lipo_args = vec![
+                format!(
+                    "./target/aarch64-apple-darwin/release/examples/lib{}.dylib",
+                    example
+                ),
+                format!(
+                    "./target/x86_64-apple-darwin/release/examples/lib{}.dylib",
+                    example
+                ),
+                "-output".to_string(),
+                format!("./target/release/examples/lib{}.dylib", example),
+            ];
+            spawn!(lipo -create $[lipo_args])?.wait()?;
+        }
+    }
+
+    Ok(())
+}
+
+fn get_crate_artifacts(crate_path: &Path, manifest: &CargoToml) -> Vec<CrateArtifact> {
+    let mut artifacts = vec![];
+
+    let src_path = crate_path.join("src");
+    if src_path.join("main.rs").exists() {
+        artifacts.push(CrateArtifact::Bin);
+    }
+    if src_path.join("lib.rs").exists() {
+        artifacts.push(CrateArtifact::Rlib);
+
+        if manifest
+            .lib
+            .as_ref()
+            .and_then(|l| l.crate_type.as_ref())
+            .unwrap_or(&vec![])
+            .iter()
+            .any(|t| *t == "cdylib")
+        {
+            artifacts.push(CrateArtifact::CDylib);
+        }
+    }
+
+    artifacts
 }
