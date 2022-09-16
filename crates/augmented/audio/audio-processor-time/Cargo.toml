@@ -20,7 +20,7 @@ vst_examples = ["delay_vst"]
 private = true
 
 [dependencies]
-assert_no_alloc = "1.1.2"
+augmented_assert_no_alloc = { path = "../../../vendor/assert-no-alloc" }
 audio-processor-traits = { path = "../audio-processor-traits", version = "1.0.0-alpha.8" }
 audio-garbage-collector = { path = "../audio-garbage-collector", version = "1.0.0-alpha.6" }
 rand = { version = "0.8.5", features = ["small_rng"] }

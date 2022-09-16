@@ -168,7 +168,7 @@ mod test {
     use audio_processor_traits::MidiMessageLike;
 
     use crate::host::MidiMessageWrapper;
-    use assert_no_alloc::assert_no_alloc;
+    use augmented_assert_no_alloc::assert_no_alloc;
 
     use super::*;
 

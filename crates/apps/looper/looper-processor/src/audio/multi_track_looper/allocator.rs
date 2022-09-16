@@ -28,4 +28,4 @@
 /// avoid having to resize)
 #[cfg(all(debug_assertions, not(target_os = "ios"), not(target_os = "linux")))]
 #[global_allocator]
-static A: assert_no_alloc::AllocDisabler = assert_no_alloc::AllocDisabler;
+static A: augmented_assert_no_alloc::AllocDisabler = augmented_assert_no_alloc::AllocDisabler;

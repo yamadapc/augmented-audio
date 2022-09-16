@@ -234,7 +234,7 @@ pub trait MidiStoreActorDelegate {
 
 #[cfg(test)]
 mod test {
-    use assert_no_alloc::assert_no_alloc;
+    use augmented_assert_no_alloc::assert_no_alloc;
     use basedrop::Owned;
     use itertools::Itertools;
 

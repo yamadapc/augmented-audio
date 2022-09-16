@@ -540,7 +540,7 @@ mod test {
         let input_path = format!("{}/bach_846.mid", env!("CARGO_MANIFEST_DIR"));
         let file_contents = std::fs::read(input_path).unwrap();
         // let file_contents: Vec<u8> = file_contents.into_iter().take(8000).collect();
-        let (_rest, _midi_stream) = assert_no_alloc::assert_no_alloc(|| {
+        let (_rest, _midi_stream) = augmented_assert_no_alloc::assert_no_alloc(|| {
             parse_midi_file::<String, Vec<u8>>(&file_contents).unwrap()
         });
     }
@@ -550,7 +550,7 @@ mod test {
         let input_path = format!("{}/bach_846.mid", env!("CARGO_MANIFEST_DIR"));
         let file_contents = std::fs::read(input_path).unwrap();
         // let file_contents: Vec<u8> = file_contents.into_iter().take(8000).collect();
-        let (_rest, _midi_stream) = assert_no_alloc::assert_no_alloc(|| {
+        let (_rest, _midi_stream) = augmented_assert_no_alloc::assert_no_alloc(|| {
             parse_midi_file::<&str, &[u8]>(&file_contents).unwrap()
         });
         // println!("{:?}", midi_stream);

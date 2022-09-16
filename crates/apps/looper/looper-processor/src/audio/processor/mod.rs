@@ -117,10 +117,10 @@ impl MidiEventHandler for LooperProcessor {
 mod test {
     use std::time::Duration;
 
-    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::sine_buffer;
     use audio_processor_testing_helpers::test_level_equivalence;
     use audio_processor_testing_helpers::{assert_f_eq, rms_level};
+    use augmented_assert_no_alloc::assert_no_alloc;
     use itertools::Itertools;
 
     use audio_processor_traits::{

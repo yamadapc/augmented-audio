@@ -99,7 +99,7 @@ mod test {
     #[test]
     fn test_no_alloc() {
         let mut processor = WhiteNoiseProcessor::default();
-        assert_no_alloc::assert_no_alloc(|| {
+        augmented_assert_no_alloc::assert_no_alloc(|| {
             for i in 0..10 {
                 processor.s_process(i as f32);
             }

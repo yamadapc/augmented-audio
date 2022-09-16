@@ -427,8 +427,8 @@ impl SimpleAudioProcessor for PitchShifterProcessor {
 
 #[cfg(test)]
 mod test {
-    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::{relative_path, rms_level};
+    use augmented_assert_no_alloc::assert_no_alloc;
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
     use audio_processor_traits::{

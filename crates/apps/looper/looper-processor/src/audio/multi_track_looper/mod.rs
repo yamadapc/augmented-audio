@@ -25,7 +25,7 @@
 //! with shared tempo.
 use std::convert::TryFrom;
 
-use assert_no_alloc::assert_no_alloc;
+use augmented_assert_no_alloc::assert_no_alloc;
 use rustc_hash::FxHashMap as HashMap;
 
 use audio_garbage_collector::{make_shared, Shared};

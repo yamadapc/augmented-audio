@@ -95,4 +95,13 @@ cpal = { path = "crates/vendor/cpal" }
 vst = { path = "crates/vendor/vst" }
 libsamplerate-sys = { path = "crates/vendor/libsamplerate-sys" }
 midir = { path = "crates/augmented/data/augmented-midi/midir" }
-assert_no_alloc = { version = "1.1.2", path = "crates/vendor/assert-no-alloc" }
+# assert_no_alloc = { version = "1.1.2", path = "crates/vendor/assert-no-alloc" }
+
+[workspace.metadata.raze]
+workspace_path = "//cargo"
+package_aliases_dir = "."
+targets = [
+    "x86_64-apple-darwin",
+    "aarch64-apple-darwin",
+]
+genmode = "Remote"

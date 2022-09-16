@@ -776,8 +776,8 @@ fn calculate_fade_volume(fade_perc: f32, length: usize, cursor: f32) -> f32 {
 
 #[cfg(test)]
 mod test {
-    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::assert_f_eq;
+    use augmented_assert_no_alloc::assert_no_alloc;
 
     use audio_processor_traits::AudioProcessor;
 

@@ -434,9 +434,9 @@ fn copy_buffer<SampleType, InputBufferType, OutputBufferType>(
 mod test {
     use std::time::Duration;
 
-    use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::{assert_f_eq, test_level_equivalence};
     use audio_processor_testing_helpers::{rms_level, sine_buffer};
+    use augmented_assert_no_alloc::assert_no_alloc;
 
     use audio_processor_traits::audio_buffer::VecAudioBuffer;
     use audio_processor_utility::gain::GainProcessor;

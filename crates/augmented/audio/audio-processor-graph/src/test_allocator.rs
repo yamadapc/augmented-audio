@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 #[cfg(debug_assertions)]
-use assert_no_alloc::AllocDisabler;
+use augmented_assert_no_alloc::AllocDisabler;
 
 #[cfg(debug_assertions)]
 #[global_allocator]

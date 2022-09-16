@@ -250,7 +250,7 @@ fn midi_callback(timestamp: u64, bytes: &[u8], context: &mut MidiCallbackContext
 
 #[cfg(test)]
 mod test {
-    use assert_no_alloc::assert_no_alloc;
+    use augmented_assert_no_alloc::assert_no_alloc;
 
     use audio_garbage_collector::make_shared;
 

@@ -75,7 +75,7 @@ impl MidiAudioThreadHandler {
 
 #[cfg(test)]
 mod test {
-    use assert_no_alloc::assert_no_alloc;
+    use augmented_assert_no_alloc::assert_no_alloc;
     use basedrop::{Collector, Owned};
 
     use audio_processor_traits::MidiMessageLike;
