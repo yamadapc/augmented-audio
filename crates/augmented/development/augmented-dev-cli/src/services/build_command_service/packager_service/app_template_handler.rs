@@ -47,6 +47,7 @@ impl AppTemplateHandler {
         let release_path =
             Path::new("./target/release/").join(input.cargo_toml.package.name.clone());
         let target_app_path = base_target_path.join(template_path.file_name().unwrap());
+        run_cmd!(mkdir -p ${target_app_path}/Contents/MacOS/).unwrap();
         run_cmd!(cp ${release_path} ${target_app_path}/Contents/MacOS/).unwrap();
 
         let release_json_path = base_target_path.join("release.json");

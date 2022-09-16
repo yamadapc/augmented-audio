@@ -111,6 +111,18 @@ impl PackagerService for PackagerServiceImpl {
             );
             cmd_lib::run_cmd!(ln -s $release_path/ $latest_path).unwrap();
 
+            if let Some(LocalPackage {
+                target_app_path, ..
+            }) = &result
+            {
+                cmd_lib::run_cmd!(mkdir -p ./target/apps/macos/latest/).unwrap();
+                let target_app_path_base = Path::new(target_app_path).file_name().unwrap();
+                let all_latest_path =
+                    Path::new("./target/apps/macos/latest/").join(target_app_path_base);
+                cmd_lib::run_cmd!(rm $all_latest_path).unwrap();
+                cmd_lib::run_cmd!(cp -r $target_app_path $all_latest_path).unwrap();
+            }
+
             result
         } else {
             log::error!("There's no package config");

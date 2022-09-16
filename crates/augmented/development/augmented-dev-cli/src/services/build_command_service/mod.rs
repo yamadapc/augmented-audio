@@ -23,6 +23,7 @@
 
 use chrono::prelude::*;
 use cmd_lib::spawn;
+use std::path::Path;
 
 use crate::manifests::{CargoToml, ReleaseJson};
 use crate::services::build_command_service::git_release_provider::{
@@ -196,6 +197,8 @@ impl BuildCommandService {
 
         // TODO fix this for all builds
         let cargo_toml = self.cargo_toml_reader.read(crate_path);
+        let artifacts = get_crate_artifacts(&std::path::PathBuf::from(crate_path), &cargo_toml);
+        log::info!("Crate has artifacts: {:?}", artifacts);
 
         std::env::set_current_dir(crate_path)?;
         if let Some(example) = &example_name {
@@ -213,33 +216,48 @@ impl BuildCommandService {
         }
         std::env::set_current_dir(current)?;
 
-        if let Some(lib_name) = cargo_toml.lib.map(|l| l.name).flatten() {
-            let lipo_args = vec![
-                format!(
-                    "./target/aarch64-apple-darwin/release/lib{}.dylib",
-                    lib_name
-                ),
-                format!("./target/x86_64-apple-darwin/release/lib{}.dylib", lib_name),
-                "-output".to_string(),
-                format!("./target/release/lib{}.dylib", lib_name),
-            ];
-            spawn!(lipo -create $[lipo_args])?.wait()?;
-        }
+        if cargo_toml.is_augmented_crate() {
+            if let Some(lib_name) = cargo_toml.lib.map(|l| l.name).flatten() {
+                let lipo_args = vec![
+                    format!(
+                        "./target/aarch64-apple-darwin/release/lib{}.dylib",
+                        lib_name
+                    ),
+                    format!("./target/x86_64-apple-darwin/release/lib{}.dylib", lib_name),
+                    "-output".to_string(),
+                    format!("./target/release/lib{}.dylib", lib_name),
+                ];
+                spawn!(lipo -create $[lipo_args])?.wait()?;
+            } else if let Some(_) = artifacts
+                .iter()
+                .find(|a| matches!(a, CrateArtifact::Bin { .. }))
+            {
+                let bin_name = &cargo_toml.package.name;
+                log::info!("Creating universal binary for bin crate {}", bin_name);
+                let lipo_args = vec![
+                    format!("./target/aarch64-apple-darwin/release/{}", bin_name),
+                    format!("./target/x86_64-apple-darwin/release/{}", bin_name),
+                    "-output".to_string(),
+                    format!("./target/release/{}", bin_name),
+                ];
+                spawn!(lipo -create $[lipo_args])?.wait()?;
+            }
 
-        if let Some(example) = &example_name {
-            let lipo_args = vec![
-                format!(
-                    "./target/aarch64-apple-darwin/release/examples/lib{}.dylib",
-                    example
-                ),
-                format!(
-                    "./target/x86_64-apple-darwin/release/examples/lib{}.dylib",
-                    example
-                ),
-                "-output".to_string(),
-                format!("./target/release/examples/lib{}.dylib", example),
-            ];
-            spawn!(lipo -create $[lipo_args])?.wait()?;
+            if let Some(example) = &example_name {
+                let lipo_args = vec![
+                    format!(
+                        "./target/aarch64-apple-darwin/release/examples/lib{}.dylib",
+                        example
+                    ),
+                    format!(
+                        "./target/x86_64-apple-darwin/release/examples/lib{}.dylib",
+                        example
+                    ),
+                    "-output".to_string(),
+                    format!("./target/release/examples/lib{}.dylib", example),
+                ];
+                spawn!(lipo -create $[lipo_args])?.wait()?;
+            }
         }
 
         Ok(())
@@ -256,4 +274,38 @@ impl BuildCommandService {
         );
         artifact_path
     }
+}
+
+#[derive(Debug)]
+enum CrateArtifact {
+    Bin,
+    CDylib,
+    Rlib,
+}
+
+fn get_crate_artifacts(crate_path: &Path, manifest: &CargoToml) -> Vec<CrateArtifact> {
+    let mut artifacts = vec![];
+
+    let src_path = crate_path.join("src");
+    if src_path.join("main.rs").exists() {
+        artifacts.push(CrateArtifact::Bin);
+    }
+    if src_path.join("lib.rs").exists() {
+        artifacts.push(CrateArtifact::Rlib);
+
+        if manifest
+            .lib
+            .as_ref()
+            .map(|l| l.crate_type.as_ref())
+            .flatten()
+            .unwrap_or(&vec![])
+            .iter()
+            .find(|t| **t == "cdylib")
+            .is_some()
+        {
+            artifacts.push(CrateArtifact::CDylib);
+        }
+    }
+
+    artifacts
 }

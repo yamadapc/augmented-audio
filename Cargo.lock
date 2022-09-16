@@ -1197,25 +1197,6 @@ checksum = "37b2a672a2cb129a2e41c10b1224bb368f9f37a2b16b612598138befd7b37eb5"
 
 [[package]]
 name = "cbindgen"
-version = "0.20.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "51e3973b165dc0f435831a9e426de67e894de532754ff7a3f307c03ee5dec7dc"
-dependencies = [
- "clap 2.34.0",
- "heck 0.3.3",
- "indexmap",
- "log",
- "proc-macro2 1.0.40",
- "quote 1.0.20",
- "serde",
- "serde_json",
- "syn",
- "tempfile",
- "toml",
-]
-
-[[package]]
-name = "cbindgen"
 version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6358dedf60f4d9b8db43ad187391afe959746101346fe51bb978126bec61dfb"
@@ -2123,7 +2104,7 @@ dependencies = [
  "audio-processor-traits",
  "audio-processor-utility",
  "augmented-dsp-filters",
- "cbindgen 0.20.0",
+ "cbindgen",
  "flexbuffers",
  "flutter_rust_bridge",
  "flutter_rust_bridge_codegen",
@@ -2547,7 +2528,7 @@ checksum = "e62d45c628f88f4dd0e27c660fe8772142a17d7f3eb995ed24617eaaba3a499a"
 dependencies = [
  "anyhow",
  "cargo_metadata",
- "cbindgen 0.24.3",
+ "cbindgen",
  "convert_case 0.5.0",
  "enum_dispatch",
  "env_logger",
@@ -4487,7 +4468,7 @@ dependencies = [
  "audio-garbage-collector",
  "audio-processor-metronome",
  "audio-processor-standalone",
- "cbindgen 0.20.0",
+ "cbindgen",
  "flutter_rust_bridge",
  "flutter_rust_bridge_codegen",
  "lazy_static",

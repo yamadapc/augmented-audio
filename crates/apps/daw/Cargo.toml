@@ -28,5 +28,5 @@ plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }
 wisual-logger = { version = "0.1", path = "../../augmented/ops/wisual-logger" }
 
 [build-dependencies]
-cbindgen = "^0.20.0"
+cbindgen = "0.24.3"
 flutter_rust_bridge_codegen = "^1.13.0"

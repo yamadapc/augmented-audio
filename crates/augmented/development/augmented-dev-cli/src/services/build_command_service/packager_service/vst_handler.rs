@@ -84,7 +84,11 @@ impl VstHandler {
         std::fs::write(output_path.join("Contents/PkgInfo"), "BNDL????")
             .expect("Failed to create PkgInfo");
 
-        None
+        Some(LocalPackage {
+            input,
+            path: output_path.clone().to_str().unwrap().to_string(),
+            target_app_path: output_path.clone(),
+        })
     }
 }
 
