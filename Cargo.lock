@@ -391,7 +391,7 @@ dependencies = [
 name = "audio-plugin-logger"
 version = "0.1.0"
 dependencies = [
- "dirs 4.0.0",
+ "dirs",
  "log",
  "log4rs",
  "thiserror",
@@ -2209,15 +2209,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3dd60d1080a57a05ab032377049e0591415d2b31afd7028356dbf3cc6dcb066"
 dependencies = [
  "generic-array",
-]
-
-[[package]]
-name = "dirs"
-version = "3.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30baa043103c9d0c2a57cf537cc2f35623889dc0d405e6c3cccfadbc81c71309"
-dependencies = [
- "dirs-sys",
 ]
 
 [[package]]
@@ -4117,16 +4108,6 @@ checksum = "349d5a591cd28b49e1d1037471617a32ddcda5731b99419008085f72d5a53836"
 
 [[package]]
 name = "libloading"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f2b111a074963af1d37a139918ac6d49ad1d0d5e47f72fd55388619691a7d753"
-dependencies = [
- "cc",
- "winapi 0.3.9",
-]
-
-[[package]]
-name = "libloading"
 version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "351a32417a12d5f7e82c368a66781e307834dae04c6ce0cd4456d52989229883"
@@ -4309,7 +4290,7 @@ dependencies = [
  "audio-processor-traits",
  "augmented",
  "derive_more",
- "dirs 4.0.0",
+ "dirs",
  "iced",
  "iced-editor",
  "iced_audio 0.8.0",
@@ -6033,7 +6014,7 @@ dependencies = [
  "criterion",
  "derivative",
  "derive_more",
- "dirs 4.0.0",
+ "dirs",
  "iced",
  "iced_core 0.5.0",
  "iced_futures 0.4.1",
@@ -7536,7 +7517,7 @@ dependencies = [
  "cocoa 0.24.0",
  "crossbeam",
  "darwin-webkit 0.1.3",
- "dirs 3.0.2",
+ "dirs",
  "env_logger",
  "futures-util",
  "generic-parameters-editor",
@@ -7933,7 +7914,7 @@ version = "1.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
 dependencies = [
- "cfg-if 1.0.0",
+ "cfg-if 0.1.10",
  "rand 0.8.5",
  "static_assertions",
 ]
@@ -8152,13 +8133,14 @@ dependencies = [
 
 [[package]]
 name = "vst"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "bitflags",
  "libc",
- "libloading 0.5.2",
+ "libloading 0.7.3",
  "log",
  "num-traits 0.2.15",
+ "num_enum",
 ]
 
 [[package]]
@@ -9181,7 +9163,7 @@ version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c4583db5cbd4c4c0303df2d15af80f0539db703fa1c68802d4cbbd2dd0f88f6"
 dependencies = [
- "dirs 4.0.0",
+ "dirs",
 ]
 
 [[package]]

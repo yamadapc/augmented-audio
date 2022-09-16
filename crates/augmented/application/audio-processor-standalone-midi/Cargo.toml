@@ -13,7 +13,7 @@ basedrop = "^0.1.2"
 thiserror = "^1.0.26"
 midir = { version = "0.8.0-pre", path = "../../data/augmented-midi/midir" }
 log = "^0.4.14"
-vst = { version = "^0.2.1", path = "../../../vendor/vst" }
+vst = { version = "0.3", path = "../../../vendor/vst" }
 
 # augmented
 atomic-queue = { version = "1.0.0-alpha.4", path = "../../data/atomic-queue" }
