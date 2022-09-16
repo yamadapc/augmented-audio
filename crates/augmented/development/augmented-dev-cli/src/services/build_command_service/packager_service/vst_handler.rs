@@ -38,7 +38,7 @@ impl VstHandler {
     ) -> Option<LocalPackage> {
         let public_name = &input.public_name;
 
-        let plist_file = build_plist(&public_name, &input.cargo_toml, &vst);
+        let plist_file = build_plist(public_name, &input.cargo_toml, &vst);
         run_cmd!(mkdir -p ${target_path}).unwrap();
 
         let output_path = target_path.join(format!("{}.vst", public_name));
@@ -86,8 +86,8 @@ impl VstHandler {
 
         Some(LocalPackage {
             input,
-            path: output_path.clone().to_str().unwrap().to_string(),
-            target_app_path: output_path.clone(),
+            path: output_path.to_str().unwrap().to_string(),
+            target_app_path: output_path,
         })
     }
 }

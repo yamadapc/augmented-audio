@@ -45,7 +45,7 @@ impl Plugin for DemoPlugin {
             category: Category::Effect,
             vendor: "Beijaflor".to_string(),
             unique_id: 3390, // Used by hosts to differentiate between plugins.
-            version: 0_1_3_3,
+            version: 1_3_3,
             parameters: 0,
             ..Default::default()
         }
