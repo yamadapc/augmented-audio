@@ -81,3 +81,7 @@ xcuserdata
 .idea/shelf
 
 cmake-build-debug
+bazel-bin/
+bazel-out/
+bazel-rust-audio-software/
+bazel-testlogs/
