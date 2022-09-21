@@ -495,10 +495,10 @@ packages:
   macos_ui:
     dependency: "direct main"
     description:
-      name: macos_ui
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.7.5"
+      path: "vendor/macos_ui"
+      relative: true
+    source: path
+    version: "1.7.6"
   matcher:
     dependency: transitive
     description:

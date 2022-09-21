@@ -46,3 +46,6 @@
 [submodule "crates/vendor/cpal"]
 	path = crates/vendor/cpal
 	url = git@github.com:yamadapc/cpal
+[submodule "crates/apps/metronome/vendor/macos_ui"]
+	path = crates/apps/metronome/vendor/macos_ui
+	url = git@github.com:GroovinChip/macos_ui
