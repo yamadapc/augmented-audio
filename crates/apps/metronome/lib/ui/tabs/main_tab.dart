@@ -4,7 +4,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:metronome/modules/state/metronome_state_model.dart';
+import 'package:metronome/bridge_generated.dart';
 
 import '../../modules/state/metronome_state_controller.dart';
 import '../controls/beats_per_bar_control.dart';
@@ -79,7 +79,7 @@ class _MainPageTabState extends State<MainPageTab> {
                       child: SizedBox(
                         width: double.infinity,
                         height: 25,
-                        child: MacosPopupButton<MetronomeSound>(
+                        child: MacosPopupButton<MetronomeSoundTypeTag>(
                           value: widget.stateController.model.sound,
                           focusNode: FocusNode(skipTraversal: true),
                           onChanged: (item) {
@@ -88,10 +88,11 @@ class _MainPageTabState extends State<MainPageTab> {
                           popupColor: CupertinoColors.activeBlue,
                           items: const [
                             MacosPopupMenuItem(
-                                value: MetronomeSound.sine,
+                                value: MetronomeSoundTypeTag.Sine,
                                 child: Text("Sine")),
                             MacosPopupMenuItem(
-                                value: MetronomeSound.tube, child: Text("Tube"))
+                                value: MetronomeSoundTypeTag.Tube,
+                                child: Text("Tube"))
                           ],
                         ),
                       ),

@@ -36,9 +36,18 @@ abstract class Metronome {
 
   FlutterRustBridgeTaskConstMeta get kSetBeatsPerBarConstMeta;
 
+  Future<int> setSound({required MetronomeSoundTypeTag value, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kSetSoundConstMeta;
+
   Stream<double> getPlayhead({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta;
+}
+
+enum MetronomeSoundTypeTag {
+  Sine,
+  Tube,
 }
 
 class MetronomeImpl extends FlutterRustBridgeBase<MetronomeWire>
@@ -138,6 +147,22 @@ class MetronomeImpl extends FlutterRustBridgeBase<MetronomeWire>
         argNames: ["value"],
       );
 
+  Future<int> setSound({required MetronomeSoundTypeTag value, dynamic hint}) =>
+      executeNormal(FlutterRustBridgeTask(
+        callFfi: (port_) => inner.wire_set_sound(
+            port_, _api2wire_metronome_sound_type_tag(value)),
+        parseSuccessData: _wire2api_i32,
+        constMeta: kSetSoundConstMeta,
+        argValues: [value],
+        hint: hint,
+      ));
+
+  FlutterRustBridgeTaskConstMeta get kSetSoundConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "set_sound",
+        argNames: ["value"],
+      );
+
   Stream<double> getPlayhead({dynamic hint}) =>
       executeStream(FlutterRustBridgeTask(
         callFfi: (port_) => inner.wire_get_playhead(port_),
@@ -164,6 +189,10 @@ class MetronomeImpl extends FlutterRustBridgeBase<MetronomeWire>
 
   int _api2wire_i32(int raw) {
     return raw;
+  }
+
+  int _api2wire_metronome_sound_type_tag(MetronomeSoundTypeTag raw) {
+    return _api2wire_i32(raw.index);
   }
 
   // Section: api_fill_to_wire
@@ -292,6 +321,22 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
           'wire_set_beats_per_bar');
   late final _wire_set_beats_per_bar =
       _wire_set_beats_per_barPtr.asFunction<void Function(int, int)>();
+
+  void wire_set_sound(
+    int port_,
+    int value,
+  ) {
+    return _wire_set_sound(
+      port_,
+      value,
+    );
+  }
+
+  late final _wire_set_soundPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
+          'wire_set_sound');
+  late final _wire_set_sound =
+      _wire_set_soundPtr.asFunction<void Function(int, int)>();
 
   void wire_get_playhead(
     int port_,

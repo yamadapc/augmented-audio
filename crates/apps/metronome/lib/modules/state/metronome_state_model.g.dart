@@ -89,6 +89,22 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
     });
   }
 
+  late final _$soundAtom =
+      Atom(name: '_MetronomeStateModel.sound', context: context);
+
+  @override
+  MetronomeSoundTypeTag get sound {
+    _$soundAtom.reportRead();
+    return super.sound;
+  }
+
+  @override
+  set sound(MetronomeSoundTypeTag value) {
+    _$soundAtom.reportWrite(value, super.sound, () {
+      super.sound = value;
+    });
+  }
+
   late final _$_MetronomeStateModelActionController =
       ActionController(name: '_MetronomeStateModel', context: context);
 
@@ -148,13 +164,25 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
   }
 
   @override
+  void setSound(MetronomeSoundTypeTag value) {
+    final _$actionInfo = _$_MetronomeStateModelActionController.startAction(
+        name: '_MetronomeStateModel.setSound');
+    try {
+      return super.setSound(value);
+    } finally {
+      _$_MetronomeStateModelActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 isPlaying: ${isPlaying},
 volume: ${volume},
 tempo: ${tempo},
 playhead: ${playhead},
-beatsPerBar: ${beatsPerBar}
+beatsPerBar: ${beatsPerBar},
+sound: ${sound}
     ''';
   }
 }

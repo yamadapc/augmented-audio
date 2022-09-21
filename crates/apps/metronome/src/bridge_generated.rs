@@ -102,6 +102,21 @@ pub extern "C" fn wire_set_beats_per_bar(port_: i64, value: i32) {
 }
 
 #[no_mangle]
+pub extern "C" fn wire_set_sound(port_: i64, value: i32) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "set_sound",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_value = value.wire2api();
+            move |task_callback| set_sound(api_value)
+        },
+    )
+}
+
+#[no_mangle]
 pub extern "C" fn wire_get_playhead(port_: i64) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
@@ -155,6 +170,16 @@ impl Wire2Api<f32> for f32 {
 impl Wire2Api<i32> for i32 {
     fn wire2api(self) -> i32 {
         self
+    }
+}
+
+impl Wire2Api<MetronomeSoundTypeTag> for i32 {
+    fn wire2api(self) -> MetronomeSoundTypeTag {
+        match self {
+            0 => MetronomeSoundTypeTag::Sine,
+            1 => MetronomeSoundTypeTag::Tube,
+            _ => unreachable!("Invalid variant for MetronomeSoundTypeTag: {}", self),
+        }
     }
 }
 

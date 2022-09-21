@@ -36,7 +36,7 @@ use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProces
 use self::constants::{build_envelope, DEFAULT_SAMPLE_RATE, DEFAULT_TEMPO};
 pub use self::playhead::{DefaultMetronomePlayhead, MetronomePlayhead};
 use self::sound::MetronomeSoundSine;
-pub use self::sound::{MetronomeSound, MetronomeSoundAny, MetronomeSoundType};
+pub use self::sound::{MetronomeSound, MetronomeSoundType};
 
 mod constants;
 mod playhead;
@@ -145,8 +145,9 @@ impl<P: MetronomePlayhead> MetronomeProcessor<P> {
         }
     }
 
-    pub fn set_sound(&mut self, sound: MetronomeSoundType) {
-        self.state.metronome_sound = sound;
+    pub fn set_sound(&mut self, mut sound: MetronomeSoundType) -> MetronomeSoundType {
+        std::mem::swap(&mut self.state.metronome_sound, &mut sound);
+        sound
     }
 
     pub fn handle(&self) -> &Shared<MetronomeProcessorHandle> {

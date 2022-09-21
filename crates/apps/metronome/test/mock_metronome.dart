@@ -71,6 +71,15 @@ class MockMetronomeLib implements Metronome {
   @override
   FlutterRustBridgeTaskConstMeta get kSetVolumeConstMeta =>
       throw UnimplementedError();
+
+  @override
+  FlutterRustBridgeTaskConstMeta get kSetSoundConstMeta =>
+      throw UnimplementedError();
+
+  @override
+  Future<int> setSound({required MetronomeSoundTypeTag value, hint}) {
+    return Future.value(0);
+  }
 }
 
 Future<MockEnvironment> buildTestEnvironment() async {

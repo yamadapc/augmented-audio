@@ -39,7 +39,6 @@ pub trait MetronomeSound {
 pub enum MetronomeSoundType {
     Sine(MetronomeSoundSine),
     File(MetronomeSoundFile),
-    Any(MetronomeSoundAny),
 }
 
 impl MetronomeSoundType {
@@ -48,32 +47,6 @@ impl MetronomeSoundType {
             file_processor: file,
             envelope: crate::build_envelope(),
         })
-    }
-}
-
-pub struct MetronomeSoundAny(Box<dyn MetronomeSound + Send>);
-
-impl MetronomeSoundAny {
-    pub fn new(sound: Box<dyn MetronomeSound + Send>) -> Self {
-        Self(sound)
-    }
-}
-
-impl MetronomeSound for MetronomeSoundAny {
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.0.prepare(settings);
-    }
-
-    fn set_accent_beat(&mut self, is_accent: bool) {
-        self.0.set_accent_beat(is_accent);
-    }
-
-    fn trigger(&mut self) {
-        self.0.trigger();
-    }
-
-    fn process(&mut self) -> f32 {
-        self.0.process()
     }
 }
 

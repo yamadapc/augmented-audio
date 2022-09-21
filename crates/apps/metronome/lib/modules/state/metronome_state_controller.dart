@@ -80,7 +80,8 @@ class MetronomeStateController {
     });
   }
 
-  void setSound(MetronomeSound sound) {
+  void setSound(MetronomeSoundTypeTag sound) {
     model.setSound(sound);
+    metronome.setSound(value: sound);
   }
 }

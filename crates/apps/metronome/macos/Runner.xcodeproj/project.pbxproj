@@ -27,6 +27,7 @@
 		33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F22044A3C60003C045 /* Assets.xcassets */; };
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
+		CB2724F428DBA95A00A655E4 /* sounds in Resources */ = {isa = PBXBuildFile; fileRef = CB2724F328DBA95A00A655E4 /* sounds */; };
 		CB2BD6F1278E047B004D4594 /* CoreAudioKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F0278E047B004D4594 /* CoreAudioKit.framework */; };
 		CB2BD6F3278E0489004D4594 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F2278E0489004D4594 /* CoreAudio.framework */; };
 		CB2BD6F5278E0494004D4594 /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB2BD6F4278E0494004D4594 /* AVFAudio.framework */; };
@@ -79,6 +80,7 @@
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		C2DBF53A961A077016D314F2 /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
+		CB2724F328DBA95A00A655E4 /* sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sounds; path = ../sounds; sourceTree = "<group>"; };
 		CB2BD6EA278D9248004D4594 /* libmetronome.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmetronome.a; path = ../../../../target/release/libmetronome.a; sourceTree = "<group>"; };
 		CB2BD6EC278E03AA004D4594 /* bridge_generated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge_generated.h; sourceTree = "<group>"; };
 		CB2BD6ED278E03E5004D4594 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -125,6 +127,7 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
+				CB2724F328DBA95A00A655E4 /* sounds */,
 				33FAB671232836740065AC1E /* Runner */,
 				33CEB47122A05771004F2AC0 /* Flutter */,
 				33CC10EE2044A3C60003C045 /* Products */,
@@ -284,6 +287,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB2724F428DBA95A00A655E4 /* sounds in Resources */,
 				33CC10F32044A3C60003C045 /* Assets.xcassets in Resources */,
 				33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */,
 			);
