@@ -27,6 +27,7 @@ dependencies:
   timezone: ^0.9.0
   flutter_native_timezone: ^2.0.0
   ffi: ^2.0.1
+  macos_ui: ^1.7.5
 
 dev_dependencies:
   flutter_test:

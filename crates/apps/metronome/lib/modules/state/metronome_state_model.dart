@@ -2,6 +2,11 @@ import 'package:mobx/mobx.dart';
 
 part 'metronome_state_model.g.dart';
 
+enum MetronomeSound {
+  tube,
+  sine,
+}
+
 // ignore: library_private_types_in_public_api
 class MetronomeStateModel = _MetronomeStateModel with _$MetronomeStateModel;
 
@@ -20,6 +25,9 @@ abstract class _MetronomeStateModel with Store {
 
   @observable
   int beatsPerBar = 4;
+
+  @observable
+  MetronomeSound sound = MetronomeSound.sine;
 
   @action
   void setPlayhead(double value) {
@@ -48,5 +56,10 @@ abstract class _MetronomeStateModel with Store {
   @action
   void setBeatsPerBar(int value) {
     beatsPerBar = value;
+  }
+
+  @action
+  void setSound(MetronomeSound value) {
+    sound = value;
   }
 }
