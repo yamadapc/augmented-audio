@@ -85,10 +85,11 @@ abstract class _MIDIEditorViewModel with Store {
       // TODO - Don't iterate over all MIDI notes as this list can be massive
       for (var note in midiClipModel.midiNotes) {
         var noteX = note.time * viewportWidth;
+        var noteWidth = note.duration * viewportWidth;
         var noteY = rowPositions[note.note.getSymbol()]!;
-        var notePosition = Point<double>(noteX, noteY);
+        var noteRectangle = Rectangle(noteX, noteY, noteWidth, noteHeight);
 
-        if (fixedBox.containsPoint(notePosition)) {
+        if (fixedBox.intersects(noteRectangle)) {
           midiClipModel.selectedNotes.add(note);
         }
       }
