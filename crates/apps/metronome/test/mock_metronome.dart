@@ -1,3 +1,4 @@
+import 'package:flutter_rust_bridge/src/platform_independent.dart';
 import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/logger.dart';
 import 'package:metronome/modules/database.dart';
@@ -42,6 +43,27 @@ class MockMetronomeLib implements Metronome {
   Future<int> setVolume({required double value, hint}) {
     return Future.value(0);
   }
+
+  @override
+  FlutterRustBridgeTaskConstMeta get kDeinitializeConstMeta => throw UnimplementedError();
+
+  @override
+  FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta => throw UnimplementedError();
+
+  @override
+  FlutterRustBridgeTaskConstMeta get kInitializeConstMeta => throw UnimplementedError();
+
+  @override
+  FlutterRustBridgeTaskConstMeta get kSetBeatsPerBarConstMeta => throw UnimplementedError();
+
+  @override
+  FlutterRustBridgeTaskConstMeta get kSetIsPlayingConstMeta => throw UnimplementedError();
+
+  @override
+  FlutterRustBridgeTaskConstMeta get kSetTempoConstMeta => throw UnimplementedError();
+
+  @override
+  FlutterRustBridgeTaskConstMeta get kSetVolumeConstMeta => throw UnimplementedError();
 }
 
 Future<MockEnvironment> buildTestEnvironment() async {

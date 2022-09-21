@@ -15,12 +15,12 @@ audio-processor-standalone = { path = "../../augmented/application/audio-process
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.6" }
 anyhow = "1.0.52"
 log = "^0.4.14"
-flutter_rust_bridge = "^1.13.0"
+flutter_rust_bridge = "1.44.0"
 lazy_static = "1.4.0"
 
 [build-dependencies]
 cbindgen = "0.24.3"
-flutter_rust_bridge_codegen = "^1.13.0"
+flutter_rust_bridge_codegen = "1.44.0"
 
 [package.metadata.augmented]
 private = true

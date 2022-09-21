@@ -128,9 +128,9 @@ dependencies = [
 
 [[package]]
 name = "allo-isolate"
-version = "0.1.13-beta.5"
+version = "0.1.14-beta.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5c1a52c9b965fdaf940102bcb1a0aef4bc2f56489056f5872cef705651c7972e"
+checksum = "f5b87bcc97026b6557def5230f18efba99e733257f7ab772456a56a31d4e49c3"
 dependencies = [
  "atomic",
 ]
@@ -798,7 +798,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
- "clap 3.2.8",
+ "clap 3.2.22",
  "cmd_lib",
  "crates_io_api",
  "daggy",
@@ -878,7 +878,7 @@ checksum = "d468802bab17cbc0cc575e9b053f41e72aa36bfa6b7f55e3529ffa43161b97fa"
 name = "autosync-submodules"
 version = "0.1.0"
 dependencies = [
- "clap 3.2.8",
+ "clap 3.2.22",
  "cmd_lib",
  "log",
  "serde",
@@ -1204,7 +1204,7 @@ version = "0.24.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6358dedf60f4d9b8db43ad187391afe959746101346fe51bb978126bec61dfb"
 dependencies = [
- "clap 3.2.8",
+ "clap 3.2.22",
  "heck 0.4.0",
  "indexmap",
  "log",
@@ -1359,17 +1359,32 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.2.8"
+version = "3.2.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "190814073e85d238f31ff738fcb0bf6910cedeb73376c87cd69291028966fd83"
+checksum = "86447ad904c7fb335a790c9d7fe3d0d971dc523b8ccd1561a520de9a85302750"
 dependencies = [
  "atty",
  "bitflags",
+ "clap_derive",
  "clap_lex",
  "indexmap",
+ "once_cell",
  "strsim 0.10.0",
  "termcolor",
- "textwrap 0.15.0",
+ "textwrap 0.15.1",
+]
+
+[[package]]
+name = "clap_derive"
+version = "3.2.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ea0c8bce528c4be4da13ea6fead8965e95b6073585a2f05204bd8f4119f82a65"
+dependencies = [
+ "heck 0.4.0",
+ "proc-macro-error",
+ "proc-macro2 1.0.40",
+ "quote 1.0.20",
+ "syn",
 ]
 
 [[package]]
@@ -1840,7 +1855,7 @@ dependencies = [
  "atty",
  "cast",
  "ciborium",
- "clap 3.2.8",
+ "clap 3.2.22",
  "criterion-plot",
  "itertools 0.10.3",
  "lazy_static",
@@ -2396,6 +2411,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "extend"
+version = "1.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c5216e387a76eebaaf11f6d871ec8a4aae0b25f05456ee21f228e024b1b3610"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2 1.0.40",
+ "quote 1.0.20",
+ "syn",
+]
+
+[[package]]
 name = "faccess"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2511,9 +2538,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "1.37.1"
+version = "1.44.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85dfb10a95f372aaa9c4d8b1eb5da0cd5c80bff4c93e78be2d71d0e36b063036"
+checksum = "a12dd1b9a3cf6be58e6f1cb09bc156b94d86a35782df4453488a8bbeffb810bc"
 dependencies = [
  "allo-isolate",
  "anyhow",
@@ -2525,16 +2552,19 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_codegen"
-version = "1.37.1"
+version = "1.46.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e62d45c628f88f4dd0e27c660fe8772142a17d7f3eb995ed24617eaaba3a499a"
+checksum = "47c276576f29e24b23fdf73741fbd4413db3e123b7e09f53745d2f6eac1a469b"
 dependencies = [
  "anyhow",
  "cargo_metadata",
  "cbindgen",
+ "clap 3.2.22",
  "convert_case 0.5.0",
  "enum_dispatch",
  "env_logger",
+ "extend",
+ "itertools 0.10.3",
  "lazy_static",
  "log",
  "pathdiff",
@@ -2542,7 +2572,6 @@ dependencies = [
  "regex",
  "serde",
  "serde_yaml",
- "structopt",
  "syn",
  "tempfile",
  "thiserror",
@@ -7107,30 +7136,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
-name = "structopt"
-version = "0.3.26"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c6b5c64445ba8094a6ab0c3cd2ad323e07171012d9c98b0b15651daf1787a10"
-dependencies = [
- "clap 2.34.0",
- "lazy_static",
- "structopt-derive",
-]
-
-[[package]]
-name = "structopt-derive"
-version = "0.4.18"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dcb5ae327f9cc13b68763b5749770cb9e048a99bd9dfdfa58d0cf05d5f64afe0"
-dependencies = [
- "heck 0.3.3",
- "proc-macro-error",
- "proc-macro2 1.0.40",
- "quote 1.0.20",
- "syn",
-]
-
-[[package]]
 name = "strum"
 version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7543,9 +7548,9 @@ dependencies = [
 
 [[package]]
 name = "textwrap"
-version = "0.15.0"
+version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b1141d4d61095b28419e22cb0bbf02755f5e54e0526f97f1e3d1d160e60885fb"
+checksum = "949517c0cf1bf4ee812e2e07e08ab448e3ae0d23472aee8a06c985f0c8815b16"
 
 [[package]]
 name = "thiserror"
