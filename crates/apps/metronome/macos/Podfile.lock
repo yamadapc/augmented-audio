@@ -6,11 +6,11 @@ PODS:
     - FirebaseAnalytics (~> 8.11.0)
   - Firebase/CoreOnly (8.11.0):
     - FirebaseCore (= 8.11.0)
-  - firebase_analytics (9.1.7):
+  - firebase_analytics (9.3.5):
     - Firebase/Analytics (= 8.11.0)
     - firebase_core
     - FlutterMacOS
-  - firebase_core (1.16.0):
+  - firebase_core (1.22.0):
     - Firebase/CoreOnly (~> 8.11.0)
     - FlutterMacOS
   - FirebaseAnalytics (8.11.0):
@@ -149,8 +149,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Firebase: 44dd9724c84df18b486639e874f31436eaa9a20c
-  firebase_analytics: 575bdf1fb718edc893b1de7cc79bed5c1dded116
-  firebase_core: 99ecba9eea08a29da97c382f03eb916940a9faf3
+  firebase_analytics: 532d0900a3ec9a4b0505e11f7b5d90ac35ff7ed2
+  firebase_core: 4107437acdacefd41d33468fe1f33de58c53cff4
   FirebaseAnalytics: 4e4b13031034e6561ed3bd1d47b6fdabbd6487c6
   FirebaseCore: 2f4f85b453cc8fea4bb2b37e370007d2bcafe3f0
   FirebaseCoreDiagnostics: 64d9709d804a6c25bd77841371c1fcfd909d5601
