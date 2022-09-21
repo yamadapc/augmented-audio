@@ -45,25 +45,32 @@ class MockMetronomeLib implements Metronome {
   }
 
   @override
-  FlutterRustBridgeTaskConstMeta get kDeinitializeConstMeta => throw UnimplementedError();
+  FlutterRustBridgeTaskConstMeta get kDeinitializeConstMeta =>
+      throw UnimplementedError();
 
   @override
-  FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta => throw UnimplementedError();
+  FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta =>
+      throw UnimplementedError();
 
   @override
-  FlutterRustBridgeTaskConstMeta get kInitializeConstMeta => throw UnimplementedError();
+  FlutterRustBridgeTaskConstMeta get kInitializeConstMeta =>
+      throw UnimplementedError();
 
   @override
-  FlutterRustBridgeTaskConstMeta get kSetBeatsPerBarConstMeta => throw UnimplementedError();
+  FlutterRustBridgeTaskConstMeta get kSetBeatsPerBarConstMeta =>
+      throw UnimplementedError();
 
   @override
-  FlutterRustBridgeTaskConstMeta get kSetIsPlayingConstMeta => throw UnimplementedError();
+  FlutterRustBridgeTaskConstMeta get kSetIsPlayingConstMeta =>
+      throw UnimplementedError();
 
   @override
-  FlutterRustBridgeTaskConstMeta get kSetTempoConstMeta => throw UnimplementedError();
+  FlutterRustBridgeTaskConstMeta get kSetTempoConstMeta =>
+      throw UnimplementedError();
 
   @override
-  FlutterRustBridgeTaskConstMeta get kSetVolumeConstMeta => throw UnimplementedError();
+  FlutterRustBridgeTaskConstMeta get kSetVolumeConstMeta =>
+      throw UnimplementedError();
 }
 
 Future<MockEnvironment> buildTestEnvironment() async {
