@@ -77,6 +77,7 @@ impl InMemoryAudioFile {
 pub struct AudioFileProcessorHandle {
     audio_file_cursor: AtomicUsize,
     is_playing: AtomicBool,
+    should_loop: AtomicBool,
 }
 
 impl AudioFileProcessorHandle {
@@ -99,6 +100,14 @@ impl AudioFileProcessorHandle {
     /// Whether the file is being played back
     pub fn is_playing(&self) -> bool {
         self.is_playing.load(Ordering::Relaxed)
+    }
+
+    pub fn set_should_loop(&self, should_loop: bool) {
+        self.should_loop.store(should_loop, Ordering::Relaxed);
+    }
+
+    pub fn should_loop(&self) -> bool {
+        self.should_loop.load(Ordering::Relaxed)
     }
 }
 
@@ -130,6 +139,7 @@ impl AudioFileProcessor {
             AudioFileProcessorHandle {
                 audio_file_cursor: AtomicUsize::new(0),
                 is_playing: AtomicBool::new(true),
+                should_loop: AtomicBool::new(true),
             },
         );
 
@@ -177,6 +187,26 @@ impl AudioFileProcessor {
     /// Whether the file is being played back
     pub fn is_playing(&self) -> bool {
         self.handle.is_playing()
+    }
+
+    pub fn process_single(&self) -> impl Iterator<Item = f32> + '_ {
+        let handle = &self.handle;
+        let audio_file_cursor = handle.audio_file_cursor.load(Ordering::Relaxed);
+        let iterator = self
+            .buffer
+            .iter()
+            .map(move |channel| channel[audio_file_cursor]);
+
+        let mut audio_file_cursor: usize = audio_file_cursor;
+        audio_file_cursor += 1;
+        if audio_file_cursor >= self.buffer[0].len() {
+            audio_file_cursor = 0;
+        }
+        handle
+            .audio_file_cursor
+            .store(audio_file_cursor, Ordering::Relaxed);
+
+        iterator
     }
 }
 
@@ -252,6 +282,7 @@ impl AudioProcessor for AudioFileProcessor {
             return;
         }
 
+        let should_loop = self.handle.should_loop();
         let start_cursor = self.handle.audio_file_cursor.load(Ordering::Relaxed);
         let mut audio_file_cursor = start_cursor;
 
@@ -265,6 +296,11 @@ impl AudioProcessor for AudioFileProcessor {
             audio_file_cursor += 1;
             if audio_file_cursor >= self.buffer[0].len() {
                 audio_file_cursor = 0;
+
+                if !should_loop {
+                    self.handle.stop();
+                    break;
+                }
             }
         }
 

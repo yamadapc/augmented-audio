@@ -506,11 +506,14 @@ name = "audio-processor-metronome"
 version = "1.0.0-alpha.4"
 dependencies = [
  "audio-garbage-collector",
+ "audio-processor-file",
  "audio-processor-standalone",
+ "audio-processor-testing-helpers",
  "audio-processor-traits",
  "augmented-adsr-envelope",
  "augmented-playhead",
  "augmented_oscillator",
+ "enum_dispatch",
 ]
 
 [[package]]

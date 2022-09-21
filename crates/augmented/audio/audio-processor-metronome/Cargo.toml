@@ -12,6 +12,11 @@ audio-processor-standalone = { path = "../../application/audio-processor-standal
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.6" }
 augmented-playhead = { path = "../../data/augmented-playhead" , version = "0.1.0-alpha.8" }
 augmented-adsr-envelope = { path = "../adsr-envelope" , version = "0.1.0-alpha.7" }
+audio-processor-file = { path = "../audio-processor-file", version = "1.0.0-alpha.9" }
+enum_dispatch = "0.3.8"
+
+[dev-dependencies]
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers", version = "1.0.0-alpha.8" }
 
 [package.metadata.augmented]
 private = false
