@@ -38,6 +38,7 @@ RUN apt-get install --fix-missing -y \
 
 RUN . $HOME/.cargo/env && cargo install --version 0.15.2 uniffi_bindgen
 RUN . $HOME/.cargo/env && cargo install cargo-nextest
+RUN . $HOME/.cargo/env && cargo install cargo-tarpaulin
 
 ADD ./scripts/install-llvm-cov.sh /app/scripts/install-llvm-cov.sh
 RUN . $HOME/.cargo/env && ./scripts/install-llvm-cov.sh
