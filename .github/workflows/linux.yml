@@ -25,7 +25,7 @@ jobs:
       - name: Setup path
         run: |
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          . "$HOME/.cargo/env"
+          ls "$HOME/.cargo/"
       - uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -130,7 +130,7 @@ jobs:
     - name: Setup path
       run: |
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        . "$HOME/.cargo/env"
+        ls "$HOME/.cargo/"
     - uses: actions/checkout@v2
       with:
         submodules: recursive
