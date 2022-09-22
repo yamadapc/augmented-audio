@@ -22,6 +22,9 @@ jobs:
       RUST_BACKTRACE: full
 
     steps:
+      - name: Setup path
+        run: |
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -123,6 +126,9 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     steps:
+    - name: Setup path
+      run: |
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
     - uses: actions/checkout@v2
       with:
         submodules: recursive
