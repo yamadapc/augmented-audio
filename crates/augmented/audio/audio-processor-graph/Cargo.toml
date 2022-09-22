@@ -21,7 +21,7 @@ audio-processor-testing-helpers = { path = "../../testing/audio-processor-testin
 audio-processor-utility = { path = "../audio-processor-utility" }
 audio-processor-time = { path = "../audio-processor-time" , version = "0.1.0-alpha.2" }
 augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "1.0.0-alpha.8" }
-audio-processor-standalone = { path = "../../application/audio-processor-standalone", version = "1.0.0-alpha.13" }
+audio-processor-standalone = { path = "../../application/audio-processor-standalone", version = "1.1.0" }
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }
 
 criterion = "0.4"
