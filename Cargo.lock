@@ -844,7 +844,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-playhead"
-version = "0.1.0-alpha.8"
+version = "0.2.0"
 dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
