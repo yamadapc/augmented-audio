@@ -363,7 +363,7 @@ fn lint_manifest(manifest: &CargoToml) {
 
 fn is_valid_version(value: &Value) -> bool {
     if let Some(s) = value.as_str() {
-        !s.contains("alpha") && !s.contains("pre") && !s.contains("beta")
+        !s.contains("alpha")
     } else if let Some(table_ver) = value.as_table() {
         table_ver
             .get("version")
