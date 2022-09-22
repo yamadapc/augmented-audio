@@ -7,6 +7,7 @@ WORKDIR /app
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get install --fix-missing -y \
     git \
+    git-lfs \
     libasound2-dev \
     libssl-dev \
     cmake \
