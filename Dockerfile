@@ -2,6 +2,7 @@ FROM ubuntu:20.04
 
 RUN apt-get update && apt-get install -y sudo curl
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > init-rustup.sh && chmod +x ./init-rustup.sh && ./init-rustup.sh -y
+RUN rustup default stable
 
 WORKDIR /app
 ARG DEBIAN_FRONTEND=noninteractive

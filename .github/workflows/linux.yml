@@ -20,6 +20,8 @@ jobs:
 
     env:
       RUST_BACKTRACE: full
+      RUSTUP_HOME: /root/rust/.rustup
+      CARGO_HOME: /root/rust/.cargo
 
     steps:
       - name: Setup path
