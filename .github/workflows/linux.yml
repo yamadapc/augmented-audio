@@ -24,8 +24,8 @@ jobs:
     steps:
       - name: Setup path
         run: |
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          ls "$HOME/.cargo/"
+          echo "/root/.cargo/bin" >> $GITHUB_PATH
+          ls "/root/.cargo/"
       - uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -129,8 +129,8 @@ jobs:
     steps:
     - name: Setup path
       run: |
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        ls "$HOME/.cargo/"
+        echo "/root/.cargo/bin" >> $GITHUB_PATH
+        ls "/root/.cargo/"
     - uses: actions/checkout@v2
       with:
         submodules: recursive
