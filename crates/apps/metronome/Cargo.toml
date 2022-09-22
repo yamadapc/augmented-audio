@@ -20,7 +20,7 @@ ringbuf = "0.2.8"
 wisual-logger = { path = "../../augmented/ops/wisual-logger", version = "0.1.4" }
 audio-processor-metronome = { path = "../../augmented/audio/audio-processor-metronome" , version = "1.0.0-alpha.4" }
 audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" , version = "1.0.0-alpha.13" }
-audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.6" }
+audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.1.0" }
 audio-processor-file = { path = "../../augmented/audio/audio-processor-file", version = "1.0.0-alpha.9" }
 audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits", version = "1.0.0-alpha.8" }
 macos-bundle-resources = { path = "../../augmented/gui/macos-bundle-resources" }

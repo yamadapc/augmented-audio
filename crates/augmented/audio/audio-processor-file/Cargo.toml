@@ -23,7 +23,7 @@ hound = "^3.4.0"
 samplerate = "0.2.4"
 
 # Augmented
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.6" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.1.0" }
 audio-processor-traits = { version = "1.0.0-alpha.8", path = "../../../augmented/audio/audio-processor-traits" }
 augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.6" }
 augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.8" }
