@@ -42,7 +42,7 @@ jobs:
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
             echo "::group::Installing uniffi_bindgen"
-            cargo install --version 0.15.2 uniffi_bindgen
+            cargo install --force --version 0.15.2 uniffi_bindgen
             echo "::endgroup::"
           fi
           which uniffi_bindgen
@@ -86,7 +86,7 @@ jobs:
           ~/.cargo/bin/
         key: ${{ runner.os }}-cargo-bin
     - name: Install uniffi bindgen
-      run: cargo install --version 0.15.2 uniffi_bindgen
+      run: cargo install --force --version 0.15.2 uniffi_bindgen
     - name: Build release
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
     - name: Upload plugin-host binary
