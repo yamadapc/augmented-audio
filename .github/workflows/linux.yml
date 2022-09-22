@@ -28,6 +28,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux"
+
       - name: Install APT dependencies
         run: ./scripts/install-ubuntu-apt-dependencies.sh
 
