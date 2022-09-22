@@ -1,3 +1,5 @@
+import 'package:augmented_midi_editor/midi_editor/midi_editor.dart';
+import 'package:augmented_midi_editor/midi_editor/midi_editor_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/ui_state.dart';
 import 'package:flutter_daw_mock_ui/ui/common/styles.dart';
@@ -5,8 +7,6 @@ import 'package:flutter_daw_mock_ui/ui/common/tabs.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'bottom_panel/track_effects.dart';
-import 'midi_editor/midi_editor.dart';
-import 'midi_editor/midi_editor_view_model.dart';
 
 class BottomPanel extends StatelessWidget {
   final DetailsPanelState detailsPanelState;

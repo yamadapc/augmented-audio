@@ -26,8 +26,9 @@ use std::sync::Mutex;
 use anyhow::Result;
 use lazy_static::lazy_static;
 
+use crate::api::processor::{build_app_processor, AppAudioThreadMessage};
 use audio_garbage_collector::Shared;
-use audio_processor_metronome::{MetronomeProcessor, MetronomeProcessorHandle};
+use audio_processor_metronome::MetronomeProcessorHandle;
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{StandaloneAudioOnlyProcessor, StandaloneHandles};
 
@@ -35,6 +36,7 @@ type StandaloneMetronomeHandle = StandaloneHandles;
 
 pub struct State {
     _handles: StandaloneMetronomeHandle,
+    pub app_processor_messages: ringbuf::Producer<AppAudioThreadMessage>,
     pub processor_handle: Shared<MetronomeProcessorHandle>,
 }
 
@@ -45,39 +47,19 @@ unsafe impl Send for State {}
 
 impl State {
     pub fn new() -> Self {
-        let processor = MetronomeProcessor::default();
-        let processor_handle = processor.handle().clone();
-        processor_handle.set_is_playing(false);
+        let (app_processor_messages, app_processor) = build_app_processor();
+        let processor_handle = app_processor.metronome_handle().clone();
         let app = StandaloneAudioOnlyProcessor::new(
-            processor,
+            app_processor,
             StandaloneOptions {
                 accepts_input: false,
                 ..Default::default()
             },
         );
-
-        let handles = {
-            #[cfg(not(test))]
-            {
-                audio_processor_standalone::standalone_start(app)
-            }
-
-            #[cfg(test)]
-            {
-                audio_processor_standalone::standalone_start_with(
-                    app,
-                    audio_processor_standalone::standalone_cpal::StandaloneStartOptions {
-                        handle: Some(audio_garbage_collector::handle().clone()),
-                        host:
-                        audio_processor_standalone::standalone_cpal::mock_cpal::virtual_host::VirtualHost::default(
-                        ),
-                        host_name: "virtual host".to_string(),
-                    },
-                )
-            }
-        };
+        let handles = audio_processor_standalone::standalone_start_for_env!(app);
 
         Self {
+            app_processor_messages,
             processor_handle,
             _handles: handles,
         }
@@ -89,6 +71,7 @@ lazy_static! {
 }
 
 pub fn initialize() {
+    wisual_logger::init_from_env();
     let mut state = STATE.lock().unwrap();
     *state = Some(State::new());
 }
@@ -98,16 +81,16 @@ pub fn deinitialize() {
     *handles = None;
 }
 
-pub fn with_state0(f: impl FnOnce(&State)) -> Result<i32> {
+pub fn with_state0(f: impl FnOnce(&mut State)) -> Result<i32> {
     with_state(|state| {
         f(state);
         Ok(0)
     })
 }
 
-pub fn with_state<T>(f: impl FnOnce(&State) -> Result<T>) -> Result<T> {
-    let state = STATE.lock().unwrap();
-    if let Some(state) = &*state {
+pub fn with_state<T>(f: impl FnOnce(&mut State) -> Result<T>) -> Result<T> {
+    let mut state = STATE.lock().unwrap();
+    if let Some(state) = &mut *state {
         f(state)
     } else {
         Err(anyhow::Error::msg(

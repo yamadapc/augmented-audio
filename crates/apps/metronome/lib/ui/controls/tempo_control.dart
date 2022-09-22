@@ -45,7 +45,7 @@ class _TempoControlState extends State<TempoControl> {
     var model = widget.stateController.model;
     return Observer(
         builder: (_) => Column(children: [
-              const Text("Tempo", textScaleFactor: .8),
+              const Text("Tempo"),
               Row(children: [
                 CupertinoButton(
                     child: const Text("-10"),

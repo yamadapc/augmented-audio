@@ -1,0 +1,8 @@
+name: augmented-audio
+
+packages:
+  - "dart/*"
+
+command:
+  bootstrap:
+    usePubspecOverrides: true

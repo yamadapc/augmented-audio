@@ -1,17 +1,17 @@
+import 'package:augmented_midi_editor/midi_editor/standalone_midi_editor.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_daw_mock_ui/state/project.dart';
-import 'package:flutter_daw_mock_ui/state/ui_state.dart';
-import 'package:flutter_daw_mock_ui/ui/examples.dart';
-import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/standalone_midi_editor.dart';
-import 'package:flutter_daw_mock_ui/ui/settings/settings_view.dart';
-import 'package:flutter_daw_mock_ui/ui/vst_development/vst_development.dart';
 
-import 'common/status_bar.dart';
-import 'common/tabs.dart';
-import 'main_content_layout/bottom_panel.dart';
-import 'main_content_layout/header.dart';
-import 'main_content_layout/sidebar.dart';
-import 'main_content_layout/tracks_view.dart';
+import './common/status_bar.dart';
+import './common/tabs.dart';
+import './main_content_layout/bottom_panel.dart';
+import './main_content_layout/header.dart';
+import './main_content_layout/sidebar.dart';
+import './main_content_layout/tracks_view.dart';
+import '../state/project.dart';
+import '../state/ui_state.dart';
+import '../ui/examples.dart';
+import '../ui/settings/settings_view.dart';
+import '../ui/vst_development/vst_development.dart';
 
 class MainContentLayout extends StatelessWidget {
   final Project project;

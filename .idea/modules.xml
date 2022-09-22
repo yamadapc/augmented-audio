@@ -2,9 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/DSPFilters_Solution.iml" filepath="$PROJECT_DIR$/.idea/DSPFilters_Solution.iml" />
+      <module fileurl="file://$PROJECT_DIR$/melos_augmented-audio.iml" filepath="$PROJECT_DIR$/melos_augmented-audio.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/rust-audio-software.iml" filepath="$PROJECT_DIR$/.idea/rust-audio-software.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/rust-audio-software2.iml" filepath="$PROJECT_DIR$/.idea/rust-audio-software2.iml" />
     </modules>
   </component>
 </project>

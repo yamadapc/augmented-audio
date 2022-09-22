@@ -79,4 +79,9 @@ class MetronomeStateController {
       await sharedPreferences.setInt(PreferenceKey.beatsPerBar, value);
     });
   }
+
+  void setSound(MetronomeSoundTypeTag sound) {
+    model.setSound(sound);
+    metronome.setSound(value: sound);
+  }
 }

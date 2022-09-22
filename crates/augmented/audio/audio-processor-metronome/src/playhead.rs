@@ -24,7 +24,7 @@
 use audio_processor_traits::AudioProcessorSettings;
 use augmented_playhead::{PlayHead, PlayHeadOptions};
 
-use crate::{DEFAULT_SAMPLE_RATE, DEFAULT_TEMPO};
+use crate::constants::{DEFAULT_SAMPLE_RATE, DEFAULT_TEMPO};
 
 /// This is so that consumers can control the play-head and metronome just follow
 ///
