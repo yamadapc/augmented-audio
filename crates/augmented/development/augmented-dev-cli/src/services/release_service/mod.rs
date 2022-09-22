@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use std::path::PathBuf;
 use std::time::Duration;
 
 use semver::Version;
@@ -55,7 +56,7 @@ pub fn prerelease_all_crates(
 
         let changes = crate_has_changes(&path, &manifest)?;
         if !changes.is_empty() {
-            prerelease_crate(&path, &manifest, &all_crates, dry_run, &changes);
+            prerelease_crate(&path, &manifest, &all_crates, dry_run, &changes)?;
 
             if !dry_run {
                 log::info!(
@@ -139,10 +140,10 @@ fn prerelease_crate(
     all_crates: &[(String, CargoToml)],
     dry_run: bool,
     changes: &[ChangeRecord],
-) {
+) -> anyhow::Result<()> {
     log::info!("Running pre-release proc for {} dry_run={}", path, dry_run);
 
-    let new_version = bump_own_version(&manifest.package.name, path, dry_run, changes);
+    let new_version = bump_own_version(&manifest.package.name, path, dry_run, changes)?;
 
     log::info!(
         "  => New version is {}, will now bump it throughout the repo",
@@ -175,6 +176,8 @@ fn prerelease_crate(
     if !dry_run {
         publish_and_release(path, manifest, new_version);
     }
+
+    Ok(())
 }
 
 fn bump_dependency(
@@ -259,7 +262,12 @@ fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
 }
 
 /// Modify version field in a certain manifest to be bumped to the next pre-release major version
-fn bump_own_version(name: &str, path: &str, dry_run: bool, changes: &[ChangeRecord]) -> Version {
+fn bump_own_version(
+    name: &str,
+    path: &str,
+    dry_run: bool,
+    changes: &[ChangeRecord],
+) -> anyhow::Result<Version> {
     let manifest_path = format!("{}/Cargo.toml", path);
     let cargo_manifest_str = std::fs::read_to_string(&manifest_path).unwrap();
     let mut cargo_manifest = cargo_manifest_str.parse::<Document>().unwrap();
@@ -269,7 +277,7 @@ fn bump_own_version(name: &str, path: &str, dry_run: bool, changes: &[ChangeReco
     let sem_version = Version::parse(version).unwrap();
     let next_version = bump_version(sem_version, changes);
 
-    // write_changelog_json(name, &next_version, changes)?;
+    write_changelog(path, name, &next_version, changes)?;
 
     cargo_manifest["package"]["version"] = value_from_version(&next_version);
     let cargo_manifest_str = cargo_manifest.to_string();
@@ -278,7 +286,7 @@ fn bump_own_version(name: &str, path: &str, dry_run: bool, changes: &[ChangeReco
         std::fs::write(&manifest_path, cargo_manifest_str).unwrap();
     }
 
-    next_version
+    Ok(next_version)
 }
 
 fn value_from_version(next_version: &Version) -> Item {
@@ -303,19 +311,41 @@ fn bump_version(sem_version: Version, changes: &[ChangeRecord]) -> Version {
     next_version
 }
 
-// fn write_changelog_json(
-//     name: &str,
-//     next_version: &Version,
-//     changes: &[ChangeRecord],
-// ) -> anyhow::Result<()> {
-//     let changelogs_path = PathBuf::from("./changelogs");
-//     std::fs::create_dir_all(&changelogs_path)?;
-//     let changelog_file_name = format!("{}@{}.json", name, next_version.to_string());
-//     let changelog_path = changelogs_path.join(changelog_file_name);
-//     log::info!("Writing {:?}", changelog_path);
-//     std::fs::write(changelog_path, serde_json::to_string(changes)?)?;
-//     Ok(())
-// }
+fn write_changelog(
+    path: &str,
+    _name: &str,
+    next_version: &Version,
+    changes: &[ChangeRecord],
+) -> anyhow::Result<()> {
+    // let changelogs_path = PathBuf::from(path).join("./changelogs");
+    // std::fs::create_dir_all(&changelogs_path)?;
+    // let changelog_file_name = format!("{}@{}.json", name, next_version.to_string());
+    // let changelog_path = changelogs_path.join(changelog_file_name);
+    // log::info!("Writing {:?}", changelog_path);
+    // std::fs::write(changelog_path, serde_json::to_string(changes)?)?;
+    // let changelog_file_md = format!("{}@{}.md", name, next_version.to_string());
+
+    let mut changelog_md = format!("## v{}\n\n", next_version.to_string());
+    for change in changes {
+        changelog_md += &format!(
+            "* [`{}`](https://github.com/yamadapc/augmented-audio/commits/{}) {} ({:?})\n",
+            change.commit, change.commit, change.summary, change.change_level
+        );
+    }
+
+    // let changelog_path = changelogs_path.join(changelog_file_md);
+    // std::fs::write(changelog_path, &changelog_md)?;
+
+    let full_changelog_path = PathBuf::from(path).join("./CHANGELOG.md");
+    let changelog_contents =
+        std::fs::read_to_string(&full_changelog_path).unwrap_or_else(|_| "".to_string());
+    std::fs::write(
+        full_changelog_path,
+        format!("{}\n{}", changelog_md, changelog_contents),
+    )?;
+
+    Ok(())
+}
 
 fn lint_manifest(manifest: &CargoToml) {
     // No pre-release dependencies
