@@ -57,7 +57,14 @@ pub fn prerelease_all_crates(
             continue;
         }
 
-        let changes = crate_has_changes(&path, &manifest)?;
+        let changes = crate_has_changes(&path, &manifest).unwrap_or_else(|_| {
+            vec![ChangeRecord {
+                commit: "".to_string(),
+                summary: "Initial release".to_string(),
+                change_level: ChangeLevel::Minor,
+            }]
+        });
+
         if !changes.is_empty() {
             prerelease_crate(&path, &manifest, &all_crates, dry_run, &changes)?;
 
