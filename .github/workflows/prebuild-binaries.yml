@@ -1,0 +1,30 @@
+name: Dependency binaries
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build-binaries:
+    name: Build dependency binaries
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-12]
+    steps:
+      - name: Install cargo-nextest
+        run: |
+          cargo install cargo-nextest
+      - name: Install uniffi bindgen
+        run: |
+          cargo install --force --version 0.15.2 uniffi_bindgen
+      - name: Archive nextest
+        uses: actions/upload-artifact@v3
+        with:
+          name: cargo-nextest
+          path: ~/.cargo/bin/cargo-nextest
+      - name: Archive uniffi
+        uses: actions/upload-artifact@v3
+        with:
+          name: cargo-nextest
+          path: ~/.cargo/bin/uniffi-bindgen
