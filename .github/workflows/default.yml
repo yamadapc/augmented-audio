@@ -78,6 +78,11 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-macos"
+    - name: Cache cargo binaries
+      with:
+        path: |
+          ~/.cargo/bin/
+        key: ${{ runner.os }}-cargo-bin
     - name: Install uniffi bindgen
       run: cargo install --version 0.15.2 uniffi_bindgen
     - name: Build release
@@ -142,6 +147,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos"
+      - name: Cache cargo binaries
+        with:
+          path: |
+            ~/.cargo/bin/
+          key: ${{ runner.os }}-cargo-bin
       - name: Install cargo-lipo
         run: |
           cargo install cargo-lipo
