@@ -13,6 +13,7 @@ jobs:
   test-rust:
     name: Run unit-tests on rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    container: ghcr.io/yamadapc/augmented-audio-builder:latest
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -28,12 +29,6 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux"
-
-      - name: Install APT dependencies
-        run: ./scripts/install-ubuntu-apt-dependencies.sh
-
-      - name: Install Rust dependencies
-        run: ./scripts/install-ubuntu-rust-dependencies.sh
 
       - name: Test with coverage
         env:
@@ -123,6 +118,7 @@ jobs:
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    container: ghcr.io/yamadapc/augmented-audio-builder:latest
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -134,10 +130,6 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-linux"
-    - name: Install APT dependencies
-      run: ./scripts/install-ubuntu-apt-dependencies.sh
-    - name: Install Rust dependencies
-      run: ./scripts/install-ubuntu-rust-dependencies.sh
     - name: Build release
       run: |
         cargo build --release --workspace \
