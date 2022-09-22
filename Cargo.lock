@@ -329,7 +329,7 @@ dependencies = [
 
 [[package]]
 name = "atomic-queue"
-version = "1.0.0-alpha.4"
+version = "1.0.1"
 dependencies = [
  "criterion",
  "log",
