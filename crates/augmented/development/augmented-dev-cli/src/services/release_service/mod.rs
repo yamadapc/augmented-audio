@@ -32,16 +32,19 @@ use toml_edit::{Document, Item};
 use itertools::Itertools;
 
 use crate::manifests::CargoToml;
+use crate::services::cargo_toml_reader::{CargoTomlReader, CargoTomlReaderImpl};
 use crate::services::ListCratesService;
 
 pub fn prerelease_all_crates(
     list_crates_service: &ListCratesService,
     dry_run: bool,
 ) -> anyhow::Result<()> {
+    let cargo_toml_reader = CargoTomlReaderImpl::default();
     let all_crates = list_crates_service.find_manifests();
     let crates = list_crates_service.find_augmented_crates();
 
     for (path, manifest) in crates {
+        let manifest = cargo_toml_reader.read(&path);
         let augmented_metadata = manifest
             .package
             .metadata
