@@ -42,7 +42,7 @@ atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.1.0" }
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" }
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.1.0-alpha.9" }
-augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , version = "1.0.0-alpha.6" }
+augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , version = "1.1.0" }
 audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" , version = "1.0.0-alpha.9" }
 audio-processor-standalone-midi = { version = "1.0.0-alpha.11", path = "../../../augmented/application/audio-processor-standalone-midi" }
 audio-processor-traits = { version = "1.1.0", path = "../../../augmented/audio/audio-processor-traits" }
