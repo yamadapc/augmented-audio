@@ -1,4 +1,3 @@
-use std::time::Duration;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,10 +20,14 @@ use std::time::Duration;
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use crate::manifests::CargoToml;
-use crate::services::ListCratesService;
+
+use std::time::Duration;
+
 use semver::{Prerelease, Version};
 use toml_edit::{Document, Item};
+
+use crate::manifests::CargoToml;
+use crate::services::ListCratesService;
 
 pub fn prerelease_all_crates(list_crates_service: &ListCratesService) {
     let all_crates = list_crates_service.find_manifests();
