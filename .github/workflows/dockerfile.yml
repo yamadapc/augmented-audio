@@ -20,5 +20,5 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: false
-          tags: yamadapc/augmented-audio-builder
+          push: true
+          tags: ghcr.io/yamadapc/augmented-audio-builder:latest
