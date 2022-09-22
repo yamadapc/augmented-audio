@@ -26,5 +26,5 @@ jobs:
       - name: Archive uniffi
         uses: actions/upload-artifact@v3
         with:
-          name: cargo-nextest
+          name: uniffi-bindgen
           path: ~/.cargo/bin/uniffi-bindgen
