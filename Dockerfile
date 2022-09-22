@@ -6,6 +6,7 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > init-rustup.sh &
 WORKDIR /app
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get install --fix-missing -y \
+    git \
     libasound2-dev \
     libssl-dev \
     cmake \
