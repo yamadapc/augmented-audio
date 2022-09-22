@@ -25,6 +25,7 @@ jobs:
         with:
           shared-key: "rust-cache-macos"
       - name: Cache cargo binaries
+        uses: actions/cache@v2
         with:
           path: |
             ~/.cargo/bin/
@@ -79,6 +80,7 @@ jobs:
       with:
         shared-key: "rust-cache-macos"
     - name: Cache cargo binaries
+      uses: actions/cache@v2
       with:
         path: |
           ~/.cargo/bin/
@@ -148,6 +150,7 @@ jobs:
         with:
           shared-key: "rust-cache-macos"
       - name: Cache cargo binaries
+        uses: actions/cache@v2
         with:
           path: |
             ~/.cargo/bin/
