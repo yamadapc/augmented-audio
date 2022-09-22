@@ -28,9 +28,10 @@ use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 use vst::plugin_main;
 
 use audio_parameter_store::ParameterStore;
-use audio_processor_traits::audio_buffer::vst::VSTAudioBuffer;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{
+    AudioBuffer, AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+};
 use iced_editor::IcedEditor;
 use looper_processor::{LooperOptions, MultiTrackLooper};
 
@@ -44,6 +45,7 @@ pub struct LoopiPlugin {
     parameters: Arc<ParameterStore>,
     processor: MultiTrackLooper,
     settings: AudioProcessorSettings,
+    buffer: VecAudioBuffer<f32>,
 }
 
 impl Plugin for LoopiPlugin {
@@ -75,6 +77,7 @@ impl Plugin for LoopiPlugin {
             processor,
             parameters: Arc::new(ParameterStore::default()),
             settings: AudioProcessorSettings::default(),
+            buffer: VecAudioBuffer::new(),
         }
     }
 
@@ -86,13 +89,33 @@ impl Plugin for LoopiPlugin {
     fn set_block_size(&mut self, size: i64) {
         self.settings.set_block_size(size as usize);
         self.processor.prepare(self.settings);
+        self.buffer.resize(2, size as usize, 0.0);
     }
 
     fn process(&mut self, buffer: &mut vst::buffer::AudioBuffer<f32>) {
-        let (inputs, outputs) = buffer.split();
-        #[allow(deprecated)]
-        let mut vst_buffer = VSTAudioBuffer::new(inputs, outputs);
-        self.processor.process(&mut vst_buffer);
+        let num_samples = buffer.samples();
+        let (inputs, mut outputs) = buffer.split();
+        // TODO extract this
+        self.buffer.resize(2, num_samples as usize, 0.0);
+        {
+            let buffer_slice = self.buffer.slice_mut();
+            for (channel, input) in inputs.into_iter().take(2).enumerate() {
+                for (index, sample) in input.iter().enumerate() {
+                    buffer_slice[index * 2 + channel] = *sample;
+                }
+            }
+        }
+
+        self.processor.process(&mut self.buffer);
+
+        {
+            let buffer_slice = self.buffer.slice();
+            for (channel, output) in outputs.into_iter().take(2).enumerate() {
+                for (index, sample) in output.iter_mut().enumerate() {
+                    *sample = buffer_slice[index * 2 + channel];
+                }
+            }
+        }
     }
 
     fn process_events(&mut self, _events: &Events) {
