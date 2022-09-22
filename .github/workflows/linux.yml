@@ -8,6 +8,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUSTUP_HOME: /root/.rustup
+  CARGO_HOME: /root/.cargo
 
 jobs:
   test-rust:
@@ -20,8 +22,6 @@ jobs:
 
     env:
       RUST_BACKTRACE: full
-      RUSTUP_HOME: /root/rust/.rustup
-      CARGO_HOME: /root/rust/.cargo
 
     steps:
       - name: Setup path
