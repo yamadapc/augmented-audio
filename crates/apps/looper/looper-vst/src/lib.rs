@@ -68,7 +68,7 @@ impl Plugin for LoopiPlugin {
             LooperOptions {
                 ..Default::default()
             },
-            3,
+            1,
         );
 
         LoopiPlugin {
