@@ -54,7 +54,7 @@ audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-pro
 
 # Audio
 augmented = { path = "../../../augmented/augmented" }
-audio-processor-analysis = { version = "0.1.0-alpha.9", path = "../../../augmented/audio/audio-processor-analysis" }
+audio-processor-analysis = { version = "0.2.0", path = "../../../augmented/audio/audio-processor-analysis" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector", version = "1.1.0" }
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
 audio-processor-traits = { version = "1.1.0", path = "../../../augmented/audio/audio-processor-traits" }

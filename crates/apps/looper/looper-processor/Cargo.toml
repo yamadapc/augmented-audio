@@ -70,7 +70,7 @@ audio-processor-pitch-shifter = { path = "../../../augmented/audio/audio-process
 audio-processor-bitcrusher = { path = "../../../augmented/audio/audio-processor-bitcrusher" }
 audio-processor-time = { path = "../../../augmented/audio/audio-processor-time" , version = "0.1.0-alpha.2" }
 audio-processor-dynamics = { path = "../../../augmented/audio/audio-processor-dynamics" }
-audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.1.0-alpha.9" }
+audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.2.0" }
 augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters" , version = "1.0.0-alpha.8" }
 
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.1.0" }
