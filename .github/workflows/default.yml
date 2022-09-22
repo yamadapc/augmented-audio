@@ -86,7 +86,13 @@ jobs:
           ~/.cargo/bin/
         key: ${{ runner.os }}-cargo-bin
     - name: Install uniffi bindgen
-      run: cargo install --force --version 0.15.2 uniffi_bindgen
+      run: |
+        if ! [ -x "$(command -v uniffi-bindgen)" ]; then
+          echo "::group::Installing uniffi_bindgen"
+          cargo install --force --version 0.15.2 uniffi_bindgen
+          echo "::endgroup::"
+        fi
+        which uniffi-bindgen
     - name: Build release
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
     - name: Upload plugin-host binary
@@ -106,7 +112,9 @@ jobs:
         path: ./target/release/libtas_v2.dylib
     - name: Validate license information
       run: |
-        cargo install cargo-about
+        if ! [ -x "$(command -v cargo-about)" ]; then
+          cargo install cargo-about
+        fi
         cargo about generate about.hbs
 
 
@@ -157,7 +165,9 @@ jobs:
           key: ${{ runner.os }}-cargo-bin
       - name: Install cargo-lipo
         run: |
-          cargo install cargo-lipo
+          if ! [ -x "$(command -v cargo-lipo)" ]; then
+            cargo install cargo-lipo
+          fi
       - name: Install ARM/x86 toolchains
         run: |
           rustup target add aarch64-apple-darwin
