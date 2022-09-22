@@ -31,12 +31,12 @@ fn load_sounds() -> Option<Vec<MetronomeSoundType>> {
                 )
                 .ok()
             })
-            .map(|file_processor| MetronomeSoundType::file(file_processor))
+            .map(MetronomeSoundType::file)
             .collect();
 
         Some(sounds)
     }
-    .unwrap_or(vec![]);
+    .unwrap_or_default();
 
     log::info!("Read sounds {}", file_sounds.len());
     Some(file_sounds)
@@ -60,7 +60,7 @@ pub struct AppAudioProcessor {
 
 pub fn build_app_processor() -> (ringbuf::Producer<AppAudioThreadMessage>, AppAudioProcessor) {
     // Load sounds
-    let mut sounds = load_sounds().unwrap_or(vec![]);
+    let mut sounds = load_sounds().unwrap_or_default();
     let mut sounds_map = HashMap::default();
     if let Some(tube_sound) = sounds.pop() {
         sounds_map.insert(MetronomeSoundTypeTag::Tube, tube_sound);

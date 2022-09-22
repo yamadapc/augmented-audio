@@ -43,7 +43,7 @@ pub fn prerelease_all_crates(
     let all_crates = list_crates_service.find_manifests();
     let crates = list_crates_service.find_augmented_crates();
 
-    for (path, manifest) in crates {
+    for (path, _manifest) in crates {
         let manifest = cargo_toml_reader.read(&path);
         let augmented_metadata = manifest
             .package
@@ -89,7 +89,7 @@ struct ChangeRecord {
 
 fn crate_has_changes(path: &str, manifest: &CargoToml) -> anyhow::Result<Vec<ChangeRecord>> {
     let previous_version = &manifest.package.version;
-    let tag = format!("{}@{}", &*manifest.package.name, &*previous_version);
+    let tag = format!("{}@{}", &*manifest.package.name, previous_version);
     let result = cmd_lib::run_fun!(PAGER= git diff $tag $path)?;
     log::debug!("git diff {} {}\n    ==>\n\n{}\n\n", tag, path, result);
     let commit_list = cmd_lib::run_fun!(PAGER= git log --oneline $tag...HEAD $path)?;
@@ -99,9 +99,9 @@ fn crate_has_changes(path: &str, manifest: &CargoToml) -> anyhow::Result<Vec<Cha
         vec![]
     } else {
         let mut changes = vec![];
-        for line in commit_list.split("\n") {
-            let commit = line.clone().split(" ").take(1).join("");
-            let summary = line.split(" ").skip(1).join(" ");
+        for line in commit_list.split('\n') {
+            let commit = line.split(' ').take(1).join("");
+            let summary = line.split(' ').skip(1).join(" ");
             let change_level = resolve_change_level(&commit, &summary);
             changes.push(ChangeRecord {
                 commit,
@@ -126,7 +126,7 @@ fn resolve_change_level(commit: &str, summary: &str) -> ChangeLevel {
     let notes = cmd_lib::run_fun!(git notes show $commit).unwrap_or_else(|_| "".to_string());
     let full_text = format!("{}\n\nNotes:\n{}", summary, notes);
 
-    return if full_text.contains(":bug:") || full_text.contains(":patch:") {
+    if full_text.contains(":bug:") || full_text.contains(":patch:") {
         ChangeLevel::Patch
     } else if full_text.contains(":feature:") || full_text.contains(":minor:") {
         ChangeLevel::Minor
@@ -134,7 +134,7 @@ fn resolve_change_level(commit: &str, summary: &str) -> ChangeLevel {
         ChangeLevel::Major
     } else {
         ChangeLevel::Minor
-    };
+    }
 }
 
 fn prerelease_crate(
@@ -320,6 +320,8 @@ fn write_changelog(
     next_version: &Version,
     changes: &[ChangeRecord],
 ) -> anyhow::Result<()> {
+    use std::fmt::Write;
+
     // let changelogs_path = PathBuf::from(path).join("./changelogs");
     // std::fs::create_dir_all(&changelogs_path)?;
     // let changelog_file_name = format!("{}@{}.json", name, next_version.to_string());
@@ -328,12 +330,13 @@ fn write_changelog(
     // std::fs::write(changelog_path, serde_json::to_string(changes)?)?;
     // let changelog_file_md = format!("{}@{}.md", name, next_version.to_string());
 
-    let mut changelog_md = format!("## v{}\n\n", next_version.to_string());
+    let mut changelog_md = format!("## v{}\n\n", next_version);
     for change in changes {
-        changelog_md += &format!(
-            "* [`{}`](https://github.com/yamadapc/augmented-audio/commits/{}) {} ({:?})\n",
+        writeln!(
+            changelog_md,
+            "* [`{}`](https://github.com/yamadapc/augmented-audio/commits/{}) {} ({:?})",
             change.commit, change.commit, change.summary, change.change_level
-        );
+        )?;
     }
 
     // let changelog_path = changelogs_path.join(changelog_file_md);

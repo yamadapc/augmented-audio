@@ -63,9 +63,13 @@ pub fn set_beats_per_bar(value: i32) -> Result<i32> {
 pub fn set_sound(value: MetronomeSoundTypeTag) -> Result<i32> {
     with_state0(|state| {
         log::info!("set_sound({:?})", value);
-        if let Err(_) = state.app_processor_messages.push(
-            self::processor::AppAudioThreadMessage::SetMetronomeSound(value),
-        ) {
+        if state
+            .app_processor_messages
+            .push(self::processor::AppAudioThreadMessage::SetMetronomeSound(
+                value,
+            ))
+            .is_err()
+        {
             log::error!("Message queue is full!");
         }
     })

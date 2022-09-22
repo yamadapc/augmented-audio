@@ -45,7 +45,7 @@ jobs:
             cargo install --force --version 0.15.2 uniffi_bindgen
             echo "::endgroup::"
           fi
-          which uniffi_bindgen
+          which uniffi-bindgen
       - name: Run tests
         run: ./scripts/test.sh
 
