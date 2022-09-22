@@ -24,6 +24,11 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos"
+      - name: Cache cargo binaries
+        with:
+          path: |
+            ~/.cargo/bin/
+          key: ${{ runner.os }}-cargo-bin
       - name: Install cargo-nextest
         run: |
           if ! [ -x "$(command -v cargo-nextest)" ]; then
