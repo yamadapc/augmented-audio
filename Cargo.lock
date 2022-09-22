@@ -543,7 +543,7 @@ dependencies = [
  "basedrop",
  "clap 2.34.0",
  "cpal",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "log",
  "mockall",
  "ringbuf",
@@ -731,7 +731,7 @@ name = "augmented-analytics"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "log",
  "mockall",
  "mockall_double",
@@ -803,6 +803,7 @@ dependencies = [
  "crates_io_api",
  "daggy",
  "env_logger",
+ "itertools 0.10.5",
  "log",
  "mockall",
  "plist",
@@ -833,7 +834,7 @@ dependencies = [
  "audio-processor-traits",
  "cookie-factory",
  "criterion",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "log",
  "midir",
  "nom",
@@ -1857,7 +1858,7 @@ dependencies = [
  "ciborium",
  "clap 3.2.22",
  "criterion-plot",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "lazy_static",
  "num-traits 0.2.15",
  "oorandom",
@@ -1878,7 +1879,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6b50826342786a51a89e2da3a28f1c32b06e387201bc2d19791f622c673706b1"
 dependencies = [
  "cast",
- "itertools 0.10.3",
+ "itertools 0.10.5",
 ]
 
 [[package]]
@@ -2564,7 +2565,7 @@ dependencies = [
  "enum_dispatch",
  "env_logger",
  "extend",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "lazy_static",
  "log",
  "pathdiff",
@@ -3935,9 +3936,9 @@ dependencies = [
 
 [[package]]
 name = "itertools"
-version = "0.10.3"
+version = "0.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a9a9d19fa1e79b6215ff29b9d6880b706147f16e9b1dbb1e4e5947b5b02bc5e3"
+checksum = "b0fd2260e829bddf4cb6ea802289de2f86d6a7a690192fbe91b3f46e0f2c8473"
 dependencies = [
  "either",
 ]
@@ -4247,7 +4248,7 @@ dependencies = [
  "criterion",
  "crossbeam",
  "iai",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "lazy_static",
  "lockfree",
  "log",
@@ -4293,7 +4294,7 @@ dependencies = [
  "iced_audio 0.8.0",
  "iced_baseview",
  "iced_native 0.5.1",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "log",
  "log4rs",
  "looper-processor",
@@ -6058,7 +6059,7 @@ dependencies = [
  "criterion",
  "futures-util",
  "hound",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "lazy_static",
  "log",
  "md5",
@@ -6120,7 +6121,7 @@ checksum = "a5aab5be6e4732b473071984b3164dbbfb7a3674d30ea5ff44410b6bcd960c3c"
 dependencies = [
  "difflib",
  "float-cmp",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "normalize-line-endings",
  "predicates-core",
  "regex",
@@ -7405,7 +7406,7 @@ dependencies = [
  "anyhow",
  "cfg-expr 0.8.1",
  "heck 0.3.3",
- "itertools 0.10.3",
+ "itertools 0.10.5",
  "pkg-config",
  "strum 0.21.0",
  "strum_macros 0.21.1",
@@ -7775,7 +7776,7 @@ checksum = "5376256e44f2443f8896ac012507c19a012df0fe8758b55246ae51a2279db51f"
 dependencies = [
  "combine",
  "indexmap",
- "itertools 0.10.3",
+ "itertools 0.10.5",
 ]
 
 [[package]]

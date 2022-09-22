@@ -23,13 +23,20 @@
 
 use std::time::Duration;
 
-use semver::{Prerelease, Version};
+use semver::Version;
+use serde::{Deserialize, Serialize};
+use toml::Value;
 use toml_edit::{Document, Item};
+
+use itertools::Itertools;
 
 use crate::manifests::CargoToml;
 use crate::services::ListCratesService;
 
-pub fn prerelease_all_crates(list_crates_service: &ListCratesService) {
+pub fn prerelease_all_crates(
+    list_crates_service: &ListCratesService,
+    dry_run: bool,
+) -> anyhow::Result<()> {
     let all_crates = list_crates_service.find_manifests();
     let crates = list_crates_service.find_augmented_crates();
 
@@ -46,37 +53,96 @@ pub fn prerelease_all_crates(list_crates_service: &ListCratesService) {
             continue;
         }
 
-        if crate_has_changes(&path, &manifest) {
-            prerelease_crate(&path, &manifest, &all_crates);
-            log::info!(
-                "Waiting for upload to finish. It takes a while before the crate is visible"
-            );
-            std::thread::sleep(Duration::from_secs(30));
+        let changes = crate_has_changes(&path, &manifest)?;
+        if !changes.is_empty() {
+            prerelease_crate(&path, &manifest, &all_crates, dry_run, &changes);
+
+            if !dry_run {
+                log::info!(
+                    "Waiting for upload to finish. It takes a while before the crate is visible"
+                );
+                std::thread::sleep(Duration::from_secs(30));
+            }
         }
     }
+
+    Ok(())
 }
 
-fn crate_has_changes(path: &str, manifest: &CargoToml) -> bool {
-    let tag = format!("{}@{}", &*manifest.package.name, &*manifest.package.version);
-    let result = cmd_lib::run_fun!(PAGER= git diff $tag $path);
-    log::info!("git diff {} {}\n    ==> {:?}", tag, path, result);
+#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq, Serialize, Deserialize)]
+enum ChangeLevel {
+    Major = 3,
+    Minor = 2,
+    Patch = 1,
+}
 
-    match result {
-        Ok(s) if s.is_empty() => {
-            log::warn!("SKIPPING - NO changes in {}", path);
-            false
+#[derive(Debug, Serialize, Deserialize)]
+struct ChangeRecord {
+    commit: String,
+    summary: String,
+    change_level: ChangeLevel,
+}
+
+fn crate_has_changes(path: &str, manifest: &CargoToml) -> anyhow::Result<Vec<ChangeRecord>> {
+    let previous_version = &manifest.package.version;
+    let tag = format!("{}@{}", &*manifest.package.name, &*previous_version);
+    let result = cmd_lib::run_fun!(PAGER= git diff $tag $path)?;
+    log::debug!("git diff {} {}\n    ==>\n\n{}\n\n", tag, path, result);
+    let commit_list = cmd_lib::run_fun!(PAGER= git log --oneline $tag...HEAD $path)?;
+    log::debug!("git log {}...HEAD --oneline {}", tag, path);
+
+    let changes = if result.is_empty() {
+        vec![]
+    } else {
+        let mut changes = vec![];
+        for line in commit_list.split("\n") {
+            let commit = line.clone().split(" ").take(1).join("");
+            let summary = line.split(" ").skip(1).join(" ");
+            let change_level = resolve_change_level(&commit, &summary);
+            changes.push(ChangeRecord {
+                commit,
+                summary,
+                change_level,
+            })
         }
-        _ => {
-            log::warn!("BUMPING - Found changes in {}", path);
-            true
-        }
+        changes
+    };
+
+    if result.is_empty() {
+        log::warn!("SKIPPING - NO changes in {}", path);
+    } else {
+        log::warn!("BUMPING - Found changes in {}", path);
+        log::info!("Changes in release:\n{:#?}", changes);
     }
+
+    Ok(changes)
 }
 
-fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &[(String, CargoToml)]) {
-    log::info!("Running pre-release proc for {}", path);
+fn resolve_change_level(commit: &str, summary: &str) -> ChangeLevel {
+    let notes = cmd_lib::run_fun!(git notes show $commit).unwrap_or_else(|_| "".to_string());
+    let full_text = format!("{}\n\nNotes:\n{}", summary, notes);
 
-    let new_version = bump_own_version_prerelease(&manifest.package.name, path);
+    return if full_text.contains(":bug:") || full_text.contains(":patch:") {
+        ChangeLevel::Patch
+    } else if full_text.contains(":feature:") || full_text.contains(":minor:") {
+        ChangeLevel::Minor
+    } else if full_text.contains(":breaking:") || full_text.contains(":major:") {
+        ChangeLevel::Major
+    } else {
+        ChangeLevel::Minor
+    };
+}
+
+fn prerelease_crate(
+    path: &str,
+    manifest: &CargoToml,
+    all_crates: &[(String, CargoToml)],
+    dry_run: bool,
+    changes: &[ChangeRecord],
+) {
+    log::info!("Running pre-release proc for {} dry_run={}", path, dry_run);
+
+    let new_version = bump_own_version(&manifest.package.name, path, dry_run, changes);
 
     log::info!(
         "  => New version is {}, will now bump it throughout the repo",
@@ -101,10 +167,14 @@ fn prerelease_crate(path: &str, manifest: &CargoToml, all_crates: &[(String, Car
             &mut cargo_manifest,
             package_name,
             &new_version,
+            dry_run,
         )
     }
 
-    publish_and_release(path, manifest, new_version);
+    lint_manifest(manifest);
+    if !dry_run {
+        publish_and_release(path, manifest, new_version);
+    }
 }
 
 fn bump_dependency(
@@ -112,6 +182,7 @@ fn bump_dependency(
     target_package_manifest: &mut Document,
     bump_package_name: String,
     bump_package_version: &Version,
+    dry_run: bool,
 ) {
     let other_crate_name = target_package_manifest["package"]["name"]
         .as_str()
@@ -135,7 +206,10 @@ fn bump_dependency(
                 }
 
                 let cargo_manifest_str = target_package_manifest.to_string();
-                std::fs::write(&target_package_path, cargo_manifest_str).unwrap();
+
+                if !dry_run {
+                    std::fs::write(&target_package_path, cargo_manifest_str).unwrap();
+                }
             }
         }
     };
@@ -185,7 +259,7 @@ fn publish_and_release(path: &str, manifest: &CargoToml, new_version: Version) {
 }
 
 /// Modify version field in a certain manifest to be bumped to the next pre-release major version
-fn bump_own_version_prerelease(name: &str, path: &str) -> Version {
+fn bump_own_version(name: &str, path: &str, dry_run: bool, changes: &[ChangeRecord]) -> Version {
     let manifest_path = format!("{}/Cargo.toml", path);
     let cargo_manifest_str = std::fs::read_to_string(&manifest_path).unwrap();
     let mut cargo_manifest = cargo_manifest_str.parse::<Document>().unwrap();
@@ -193,33 +267,76 @@ fn bump_own_version_prerelease(name: &str, path: &str) -> Version {
     log::info!("  => Found name={} version={}", name, version);
 
     let sem_version = Version::parse(version).unwrap();
-    let next_version = prerelease_bump(sem_version);
+    let next_version = bump_version(sem_version, changes);
+
+    // write_changelog_json(name, &next_version, changes)?;
 
     cargo_manifest["package"]["version"] = value_from_version(&next_version);
     let cargo_manifest_str = cargo_manifest.to_string();
-    std::fs::write(&manifest_path, cargo_manifest_str).unwrap();
+
+    if !dry_run {
+        std::fs::write(&manifest_path, cargo_manifest_str).unwrap();
+    }
 
     next_version
 }
 
 fn value_from_version(next_version: &Version) -> Item {
-    toml_edit::Item::Value(toml_edit::Value::from(next_version.to_string()))
+    Item::Value(toml_edit::Value::from(next_version.to_string()))
 }
 
-/// Bumps the major version and sets a pre-release alpha counter or bumps the pre-release counter
-fn prerelease_bump(sem_version: Version) -> Version {
-    let next_version = if !sem_version.pre.is_empty() {
-        let mut next_version =
-            Version::new(sem_version.major, sem_version.minor, sem_version.patch);
-        let old_bump: i32 = sem_version.pre.split('.').collect::<Vec<&str>>()[1]
-            .parse()
-            .unwrap();
-        next_version.pre = Prerelease::new(&*format!("alpha.{}", old_bump + 1)).unwrap();
-        next_version
-    } else {
-        let mut next_version = Version::new(sem_version.major + 1, 0, 0);
-        next_version.pre = Prerelease::new("alpha.1").unwrap();
-        next_version
-    };
+/// Bumps the package version based on a set of changes and returns the new version
+fn bump_version(sem_version: Version, changes: &[ChangeRecord]) -> Version {
+    let change_level = changes
+        .iter()
+        .map(|c| c.change_level)
+        .max()
+        .unwrap_or(ChangeLevel::Patch);
+
+    let mut next_version = Version::new(sem_version.major, sem_version.minor, sem_version.patch);
+    match change_level {
+        ChangeLevel::Minor => next_version.minor += 1,
+        ChangeLevel::Major => next_version.major += 1,
+        ChangeLevel::Patch => next_version.patch += 1,
+    }
+
     next_version
+}
+
+// fn write_changelog_json(
+//     name: &str,
+//     next_version: &Version,
+//     changes: &[ChangeRecord],
+// ) -> anyhow::Result<()> {
+//     let changelogs_path = PathBuf::from("./changelogs");
+//     std::fs::create_dir_all(&changelogs_path)?;
+//     let changelog_file_name = format!("{}@{}.json", name, next_version.to_string());
+//     let changelog_path = changelogs_path.join(changelog_file_name);
+//     log::info!("Writing {:?}", changelog_path);
+//     std::fs::write(changelog_path, serde_json::to_string(changes)?)?;
+//     Ok(())
+// }
+
+fn lint_manifest(manifest: &CargoToml) {
+    // No pre-release dependencies
+    if let Some(dependencies) = &manifest.dependencies {
+        for (dep, version) in dependencies {
+            println!("{} = {}", dep, version);
+
+            assert!(is_valid_version(version), "INVALID DEPENDENCY VERSION")
+        }
+    }
+}
+
+fn is_valid_version(value: &Value) -> bool {
+    if let Some(s) = value.as_str() {
+        !s.contains("alpha") && !s.contains("pre") && !s.contains("beta")
+    } else if let Some(table_ver) = value.as_table() {
+        table_ver
+            .get("version")
+            .map(is_valid_version)
+            .unwrap_or(false)
+    } else {
+        false
+    }
 }

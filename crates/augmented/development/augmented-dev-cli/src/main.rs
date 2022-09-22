@@ -59,7 +59,13 @@ fn main() {
                 ),
         )
         .subcommand(
-            clap::Command::new("prerelease-all").about("Bump all crates into a pre-release state"),
+            clap::Command::new("prerelease-all")
+                .about("Bump all crates into a pre-release state")
+                .arg(
+                    clap::Arg::new("dry-run")
+                        .long("dry-run")
+                        .help("Don't run `cargo publish`"),
+                ),
         )
         .subcommand(clap::Command::new("outdated").about("List outdated dependencies"))
         .subcommand(
@@ -87,9 +93,10 @@ fn main() {
 
     let matches = app.clone().get_matches();
 
-    if matches.subcommand_matches("prerelease-all").is_some() {
+    if let Some(matches) = matches.subcommand_matches("prerelease-all") {
         let list_crates_service = services::ListCratesService::default();
-        prerelease_all_crates(&list_crates_service);
+        let dry_run = matches.is_present("dry-run");
+        prerelease_all_crates(&list_crates_service, dry_run).expect("Failed to prerelease");
     } else if matches.subcommand_matches("outdated").is_some() {
         let outdated_crates_service = services::OutdatedCratesService::default();
         outdated_crates_service.run();
