@@ -44,6 +44,7 @@ pub use atomic_option::AtomicOption;
 mod atomic_enum;
 mod atomic_option;
 
+/// Trait of values that can be loaded / stored with relaxed operations.
 pub trait AtomicValue {
     type Inner;
 
