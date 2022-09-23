@@ -132,7 +132,7 @@ impl Widget<AudioData> for AudioWave {
 
     // This is of course super slow due to using CoreGraphics
     fn paint(&mut self, ctx: &mut PaintCtx, data: &AudioData, _env: &Env) {
-        ctx.clear(Color::BLACK);
+        // ctx.clear(Color::BLACK);
         let AudioData(data) = data;
         if data.is_empty() {
             return;
