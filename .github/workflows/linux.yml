@@ -45,22 +45,22 @@ jobs:
               --features story \
               --lcov \
               --output-path ./lcov.info \
-              --exclude-files "*crates/vendor/*" \
-              --exclude-files "*crates/spikes/*" \
-              --exclude-files "*crates/scripts/*" \
-              --exclude-files "*crates/augmented/gui/*" \
-              --exclude-files "*crates/augmented/application/audio-processor-standalone/examples/*" \
-              --exclude-files "*crates/augmented/application/audio-processor-standalone-gui/*" \
-              --exclude-files "*crates/augmented/audio/audiounit/*" \
-              --exclude-files "*crates/augmented/development/*" \
-              --exclude-files "*crates/augmented/data/augmented-midi/midir/*" \
-              --exclude-files "*crates/apps/daw/*" \
-              --exclude-files "*crates/apps/demo-plugin/*" \
-              --exclude-files "*crates/apps/recording_buddy/*" \
-              --exclude-files "*crates/apps/tremolo-plugin/*" \
-              --exclude-files "*crates/apps/synth/*" \
-              --exclude-files "*crates/apps/looper/augmented-codegen/*" \
-              --exclude-files "*/bridge_generated.rs" \
+              --ignore-filename-regex ".*crates/vendor/.*" \
+              --ignore-filename-regex ".*crates/spikes/.*" \
+              --ignore-filename-regex ".*crates/scripts/.*" \
+              --ignore-filename-regex ".*crates/augmented/gui/.*" \
+              --ignore-filename-regex ".*crates/augmented/application/audio-processor-standalone/examples/.*" \
+              --ignore-filename-regex ".*crates/augmented/application/audio-processor-standalone-gui/.*" \
+              --ignore-filename-regex ".*crates/augmented/audio/audiounit/.*" \
+              --ignore-filename-regex ".*crates/augmented/development/.*" \
+              --ignore-filename-regex ".*crates/augmented/data/augmented-midi/midir/.*" \
+              --ignore-filename-regex ".*crates/apps/daw/.*" \
+              --ignore-filename-regex ".*crates/apps/demo-plugin/.*" \
+              --ignore-filename-regex ".*crates/apps/recording_buddy/.*" \
+              --ignore-filename-regex ".*crates/apps/tremolo-plugin/.*" \
+              --ignore-filename-regex ".*crates/apps/synth/.*" \
+              --ignore-filename-regex ".*crates/apps/looper/augmented-codegen/.*" \
+              --ignore-filename-regex ".*/bridge_generated.rs" \
               --exclude assert-no-alloc \
               --exclude augmented-ui \
               --exclude audiounit \
