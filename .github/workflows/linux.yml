@@ -41,11 +41,10 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
-          cargo tarpaulin --skip-clean --workspace \
+          cargo llvm-cov nextest --workspace \
               --features story \
-              --coveralls $COVERALLS_TOKEN \
-              --out lcov \
-              --output-dir ./tarpaulin-report \
+              --lcov \
+              --output-path ./lcov.info \
               --exclude-files "*crates/vendor/*" \
               --exclude-files "*crates/spikes/*" \
               --exclude-files "*crates/scripts/*" \
@@ -84,6 +83,8 @@ jobs:
               --exclude darwin-webkit \
               --exclude webview-holder \
               --exclude macos-bundle-resources
+
+          coveralls-lcov --repo-token $COVERALLS_TOKEN lcov.info
 
       - name: Test
         env:
