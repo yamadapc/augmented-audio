@@ -69,7 +69,7 @@ jobs:
               --exclude webview-holder \
               --exclude macos-bundle-resources
 
-          coveralls-lcov --repo-token $COVERALLS_TOKEN lcov.info
+#          coveralls-lcov --repo-token $COVERALLS_TOKEN lcov.info
 
       - name: Test
         env:
@@ -101,11 +101,11 @@ jobs:
               --exclude webview-holder \
               --exclude macos-bundle-resources
 
-      - name: Upload tarpaulin report
-        uses: actions/upload-artifact@v2
-        with:
-          name: tarpaulin-report
-          path: ./tarpaulin-report
+#      - name: Upload tarpaulin report
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: tarpaulin-report
+#          path: ./tarpaulin-report
 
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
