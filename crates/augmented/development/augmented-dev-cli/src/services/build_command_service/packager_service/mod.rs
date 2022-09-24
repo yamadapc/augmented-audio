@@ -72,7 +72,7 @@ impl PackagerService for PackagerServiceImpl {
         if let Some(example) = &input.example_name {
             let target_path =
                 Self::build_target_path(&input.cargo_toml.package.name, &input.release_json.key);
-            return VstHandler::handle(
+            let result = VstHandler::handle(
                 target_path,
                 input.clone(),
                 VstConfig {
@@ -83,6 +83,10 @@ impl PackagerService for PackagerServiceImpl {
                     ),
                 },
             );
+
+            Self::copy_vst_to_latest(&result);
+
+            return result;
         }
 
         if let Some(macos_config) = macos_config {
@@ -111,17 +115,7 @@ impl PackagerService for PackagerServiceImpl {
             );
             cmd_lib::run_cmd!(ln -s $release_path/ $latest_path).unwrap();
 
-            if let Some(LocalPackage {
-                target_app_path, ..
-            }) = &result
-            {
-                cmd_lib::run_cmd!(mkdir -p ./target/apps/macos/latest/).unwrap();
-                let target_app_path_base = Path::new(target_app_path).file_name().unwrap();
-                let all_latest_path =
-                    Path::new("./target/apps/macos/latest/").join(target_app_path_base);
-                cmd_lib::run_cmd!(rm -rf $all_latest_path).unwrap();
-                cmd_lib::run_cmd!(cp -r $target_app_path $all_latest_path).unwrap();
-            }
+            Self::copy_vst_to_latest(&result);
 
             result
         } else {
@@ -138,6 +132,20 @@ impl PackagerServiceImpl {
             .join(release_key)
             .join("artifacts");
         base_target_path
+    }
+
+    fn copy_vst_to_latest(result: &Option<LocalPackage>) {
+        if let Some(LocalPackage {
+            target_app_path, ..
+        }) = &result
+        {
+            cmd_lib::run_cmd!(mkdir -p ./target/apps/macos/latest/).unwrap();
+            let target_app_path_base = Path::new(target_app_path).file_name().unwrap();
+            let all_latest_path =
+                Path::new("./target/apps/macos/latest/").join(target_app_path_base);
+            cmd_lib::run_cmd!(rm -rf $all_latest_path).unwrap();
+            cmd_lib::run_cmd!(cp -r $target_app_path $all_latest_path).unwrap();
+        }
     }
 }
 
