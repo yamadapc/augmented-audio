@@ -28,10 +28,8 @@ use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 use vst::plugin_main;
 
 use audio_parameter_store::ParameterStore;
-
-use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
-};
+use audio_processor_traits::audio_buffer::vst::VSTBufferHandler;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
 use iced_editor::IcedEditor;
 use looper_processor::{LooperOptions, MultiTrackLooper};
 
@@ -45,7 +43,7 @@ pub struct LoopiPlugin {
     parameters: Arc<ParameterStore>,
     processor: MultiTrackLooper,
     settings: AudioProcessorSettings,
-    buffer: VecAudioBuffer<f32>,
+    buffer_handler: VSTBufferHandler<f32>,
 }
 
 impl Plugin for LoopiPlugin {
@@ -77,7 +75,7 @@ impl Plugin for LoopiPlugin {
             processor,
             parameters: Arc::new(ParameterStore::default()),
             settings: AudioProcessorSettings::default(),
-            buffer: VecAudioBuffer::new(),
+            buffer_handler: Default::default(),
         }
     }
 
@@ -89,38 +87,20 @@ impl Plugin for LoopiPlugin {
     fn set_block_size(&mut self, size: i64) {
         self.settings.set_block_size(size as usize);
         self.processor.prepare(self.settings);
-        self.buffer.resize(2, size as usize, 0.0);
+        self.buffer_handler.set_block_size(size as usize);
     }
 
-    fn process(&mut self, buffer: &mut vst::buffer::AudioBuffer<f32>) {
-        let num_samples = buffer.samples();
-        let (inputs, mut outputs) = buffer.split();
-        // TODO extract this
-        self.buffer.resize(2, num_samples as usize, 0.0);
-        {
-            let buffer_slice = self.buffer.slice_mut();
-            for (channel, input) in inputs.into_iter().take(2).enumerate() {
-                for (index, sample) in input.iter().enumerate() {
-                    buffer_slice[index * 2 + channel] = *sample;
-                }
-            }
-        }
-
-        self.processor.process(&mut self.buffer);
-
-        {
-            let buffer_slice = self.buffer.slice();
-            for (channel, output) in outputs.into_iter().take(2).enumerate() {
-                for (index, sample) in output.iter_mut().enumerate() {
-                    *sample = buffer_slice[index * 2 + channel];
-                }
-            }
-        }
+    fn process(&mut self, vst_buffer: &mut vst::buffer::AudioBuffer<f32>) {
+        let processor = &mut self.processor;
+        self.buffer_handler.with_buffer(vst_buffer, |buffer| {
+            processor.process(buffer);
+        });
     }
 
-    fn process_events(&mut self, _events: &Events) {
-        // self.processor
-        //     .process_midi_events(midi_slice_from_events(events));
+    fn process_events(&mut self, events: &Events) {
+        self.processor.process_midi_events(
+            audio_processor_traits::midi::vst::midi_slice_from_events(events),
+        );
     }
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {

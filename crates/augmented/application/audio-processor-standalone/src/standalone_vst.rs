@@ -30,10 +30,8 @@ use vst::{
     plugin::{HostCallback, Info},
 };
 
-use audio_processor_traits::{
-    audio_buffer::OwnedAudioBuffer, AudioBuffer, AudioProcessor, AudioProcessorSettings,
-    VecAudioBuffer,
-};
+use audio_processor_traits::audio_buffer::vst::VSTBufferHandler;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
 use crate::{StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl};
 
@@ -78,7 +76,7 @@ where
 
 pub struct StandaloneVSTPlugin<SPF, SP> {
     processor: SP,
-    buffer: VecAudioBuffer<f32>,
+    buffer_handler: VSTBufferHandler<f32>,
     settings: AudioProcessorSettings,
     factory: PhantomData<SPF>,
 }
@@ -149,7 +147,7 @@ where
     {
         Self {
             processor: ProcessorFactory::new_for_host(StandalonePluginContext {}),
-            buffer: VecAudioBuffer::new(),
+            buffer_handler: VSTBufferHandler::new(),
             settings: AudioProcessorSettings::default(),
             factory: PhantomData::default(),
         }
@@ -161,7 +159,7 @@ where
     }
 
     fn set_block_size(&mut self, size: i64) {
-        self.buffer.resize(2, size as usize, 0.0);
+        self.buffer_handler.set_block_size(size as usize);
         self.settings.block_size = size as usize;
         self.processor.processor().prepare(self.settings);
     }
@@ -170,30 +168,12 @@ where
         self.processor.processor().prepare(self.settings);
     }
 
-    fn process(&mut self, buffer: &mut VSTAudioBuffer<f32>) {
-        let num_samples = buffer.samples();
-        let (inputs, mut outputs) = buffer.split();
+    fn process(&mut self, vst_buffer: &mut VSTAudioBuffer<f32>) {
+        let processor = self.processor.processor();
 
-        self.buffer.resize(2, num_samples as usize, 0.0);
-        {
-            let buffer_slice = self.buffer.slice_mut();
-            for (channel, input) in inputs.into_iter().take(2).enumerate() {
-                for (index, sample) in input.iter().enumerate() {
-                    buffer_slice[index * 2 + channel] = *sample;
-                }
-            }
-        }
-
-        self.processor.processor().process(&mut self.buffer);
-
-        {
-            let buffer_slice = self.buffer.slice();
-            for (channel, output) in outputs.into_iter().take(2).enumerate() {
-                for (index, sample) in output.iter_mut().enumerate() {
-                    *sample = buffer_slice[index * 2 + channel];
-                }
-            }
-        }
+        self.buffer_handler.with_buffer(vst_buffer, |buffer| {
+            processor.process(buffer);
+        });
     }
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
