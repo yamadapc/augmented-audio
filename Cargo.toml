@@ -13,6 +13,8 @@ members = [
     "crates/apps/demo-plugin",
     "crates/apps/metronome",
     "crates/apps/daw",
+    # Examples
+    "crates/examples/host-tempo-plugin",
     # Repository scripts
     "crates/scripts/autosync-submodules",
     "crates/scripts/midi-logger-host",
