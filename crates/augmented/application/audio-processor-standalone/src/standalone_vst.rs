@@ -181,10 +181,10 @@ where
     }
 
     #[cfg(feature = "gui")]
-    fn get_editor(&mut self) -> Option<Box<dyn vst::editor::Editor>> {
+    fn get_editor(&mut self) -> Option<Box<dyn ::vst::editor::Editor>> {
         self.processor
             .handle()
-            .map(|handle| crate::gui::editor(handle))
+            .map(|handle| ::audio_processor_standalone_gui::editor(handle))
     }
 }
 

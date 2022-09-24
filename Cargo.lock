@@ -536,6 +536,7 @@ dependencies = [
  "atomic-queue",
  "audio-garbage-collector",
  "audio-processor-file",
+ "audio-processor-standalone-gui",
  "audio-processor-standalone-midi",
  "audio-processor-testing-helpers",
  "audio-processor-traits",

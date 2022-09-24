@@ -8,6 +8,10 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 readme = "README.md"
 
+[features]
+default = []
+gui = ["audio-processor-standalone-gui"]
+
 [dependencies]
 # Logging & options
 clap = "^2.33.3"
@@ -27,6 +31,8 @@ basedrop = "^0.1.2"
 cpal = { version = "0.14.0" }
 ringbuf = "^0.2.5"
 vst = { version = "0.3", path = "../../../vendor/vst" }
+
+audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", optional = true }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-processor-standalone-midi" }
