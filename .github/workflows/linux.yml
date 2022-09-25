@@ -101,6 +101,14 @@ jobs:
               --exclude webview-holder \
               --exclude macos-bundle-resources
 
+      - name: Deploy to GitHub Pages
+        if: success() and github.ref == 'ref/head/master'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/llvm-cov/html
+          destination_dir: coverage
+
 #      - name: Upload tarpaulin report
 #        uses: actions/upload-artifact@v2
 #        with:

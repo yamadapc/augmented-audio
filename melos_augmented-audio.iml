@@ -100,6 +100,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/spikes/example-iced-xcode-integration/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/spikes/visualisation_/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/spikes/example-druid-audio-viz/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/examples/host-tempo-plugin/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
