@@ -10,37 +10,32 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [features]
 default = ["wgpu"]
 wgpu = ["iced/tokio", "iced/wgpu", "iced/canvas"]
-glow = ["iced/tokio", "iced/glow", "iced/glow_canvas"]
+glow = ["iced/tokio", "iced/glow", "iced/canvas"]
 
 [package.metadata.augmented]
 private = true
 
 [dependencies]
-log = "^0.4.14"
+log = "0.4.17"
 
 [dependencies.iced_style]
-version = "0.3"
-path = "../../../vendor/iced/style"
+version = "0.4.0"
 default-features = false
 
 [dependencies.iced_audio]
-version = "^0.7.0"
-path = "../../../vendor/iced_audio"
+version = "0.8.0"
 default-features = false
 
 [dependencies.iced_graphics]
-version = "0.2"
-path = "../../../vendor/iced/graphics"
+version = "0.3.1"
 default-features = false
 
 [dependencies.iced_native]
-version = "0.4"
-path = "../../../vendor/iced/native"
+version = "0.5.1"
 default-features = false
 
 [dependencies.iced]
-path = "../../../vendor/iced"
-version = "^0.3.0"
+version = "0.4.2"
 default-features = false
 
 [dev-dependencies]

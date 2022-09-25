@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Debug, Deserialize, Clone, PartialEq)]
+#[derive(Serialize, Debug, Deserialize, Clone, PartialEq, Eq)]
 pub struct ClientMetadata {
     pub client_id: String,
 }
@@ -35,7 +35,7 @@ impl ClientMetadata {
     }
 }
 
-#[derive(Serialize, Debug, Deserialize, Clone, PartialEq)]
+#[derive(Serialize, Debug, Deserialize, Clone, PartialEq, Eq)]
 pub enum AnalyticsEvent {
     ScreenView {
         application: String,

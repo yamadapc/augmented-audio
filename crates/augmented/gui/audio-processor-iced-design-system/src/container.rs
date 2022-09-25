@@ -25,12 +25,12 @@ pub use hover_container::HoverContainer;
 /// Modified `iced_native::container::Container` to have styles on hover/pressed
 pub mod hover_container {
     use iced::canvas::event::Status;
-    use iced::{Alignment, Length, Point, Rectangle};
+    use iced::{Alignment, Color, Length, Point, Rectangle};
     use iced_native::layout::{Limits, Node};
-    use iced_native::{overlay, Clipboard, Element, Event, Hasher, Layout, Padding, Widget};
-    use std::hash::Hash;
+    use iced_native::renderer::Quad;
+    use iced_native::{overlay, Clipboard, Element, Event, Layout, Padding, Shell, Widget};
 
-    pub struct HoverContainer<'a, Message, Renderer: self::Renderer> {
+    pub struct HoverContainer<'a, Message, Renderer: iced_native::Renderer> {
         padding: Padding,
         content: Element<'a, Message, Renderer>,
         width: Length,
@@ -39,12 +39,12 @@ pub mod hover_container {
         max_height: u32,
         horizontal_alignment: Alignment,
         vertical_alignment: Alignment,
-        style: Renderer::Style,
+        style: Box<dyn self::style::StyleSheet>,
     }
 
     impl<'a, Message, Renderer> HoverContainer<'a, Message, Renderer>
     where
-        Renderer: self::Renderer,
+        Renderer: iced_native::Renderer,
     {
         pub fn new<T>(content: T) -> Self
         where
@@ -58,7 +58,7 @@ pub mod hover_container {
                 max_height: u32::MAX,
                 horizontal_alignment: Alignment::Start,
                 vertical_alignment: Alignment::Start,
-                style: Renderer::Style::default(),
+                style: Box::new(crate::style::HoverContainer::default()),
                 content: content.into(),
             }
         }
@@ -117,16 +117,16 @@ pub mod hover_container {
             self
         }
 
-        /// Sets the style of the [`Container`].
-        pub fn style(mut self, style: impl Into<Renderer::Style>) -> Self {
-            self.style = style.into();
+        /// Sets the stylesheet of the [`Container`].
+        pub fn style(mut self, stylesheet: impl Into<Box<dyn self::style::StyleSheet>>) -> Self {
+            self.style = stylesheet.into();
             self
         }
     }
 
     impl<'a, Message, Renderer> Widget<Message, Renderer> for HoverContainer<'a, Message, Renderer>
     where
-        Renderer: self::Renderer,
+        Renderer: iced_native::Renderer,
     {
         fn width(&self) -> Length {
             self.width
@@ -160,33 +160,37 @@ pub mod hover_container {
         fn draw(
             &self,
             renderer: &mut Renderer,
-            defaults: &Renderer::Defaults,
+            style: &iced_native::renderer::Style,
             layout: Layout<'_>,
             cursor_position: Point,
             viewport: &Rectangle,
-        ) -> Renderer::Output {
-            renderer.draw(
-                defaults,
-                layout.bounds(),
+        ) {
+            let is_hovered = layout.bounds().contains(cursor_position);
+            let container_style = if is_hovered {
+                self.style.hovered()
+            } else {
+                self.style.style()
+            };
+            renderer.fill_quad(
+                Quad {
+                    bounds: layout.bounds(),
+                    border_radius: container_style.border_radius,
+                    border_color: container_style.border_color,
+                    border_width: container_style.border_width,
+                },
+                container_style
+                    .background
+                    .unwrap_or_else(|| Color::TRANSPARENT.into()),
+            );
+            self.content.draw(
+                renderer,
+                &iced_native::renderer::Style {
+                    text_color: container_style.text_color.unwrap_or(style.text_color),
+                },
+                layout.children().next().unwrap(),
                 cursor_position,
                 viewport,
-                &self.style,
-                &self.content,
-                layout.children().next().unwrap(),
-            )
-        }
-
-        fn hash_layout(&self, state: &mut Hasher) {
-            struct Marker;
-            std::any::TypeId::of::<Marker>().hash(state);
-
-            self.padding.hash(state);
-            self.width.hash(state);
-            self.height.hash(state);
-            self.max_width.hash(state);
-            self.max_height.hash(state);
-
-            self.content.hash_layout(state);
+            );
         }
 
         fn on_event(
@@ -196,7 +200,7 @@ pub mod hover_container {
             cursor_position: Point,
             renderer: &Renderer,
             clipboard: &mut dyn Clipboard,
-            messages: &mut Vec<Message>,
+            messages: &mut Shell<Message>,
         ) -> Status {
             self.content.on_event(
                 event,
@@ -211,33 +215,17 @@ pub mod hover_container {
         fn overlay(
             &mut self,
             layout: Layout<'_>,
+            renderer: &Renderer,
         ) -> Option<overlay::Element<'_, Message, Renderer>> {
-            self.content.overlay(layout.children().next().unwrap())
+            self.content
+                .overlay(layout.children().next().unwrap(), renderer)
         }
-    }
-
-    pub trait Renderer: iced_native::Renderer {
-        /// The style supported by this renderer.
-        type Style: Default;
-
-        /// Draws a [`Container`].
-        #[allow(clippy::too_many_arguments)]
-        fn draw<Message>(
-            &mut self,
-            defaults: &Self::Defaults,
-            bounds: Rectangle,
-            cursor_position: Point,
-            viewport: &Rectangle,
-            style: &Self::Style,
-            content: &Element<'_, Message, Self>,
-            content_layout: Layout<'_>,
-        ) -> Self::Output;
     }
 
     impl<'a, Message, Renderer> From<HoverContainer<'a, Message, Renderer>>
         for Element<'a, Message, Renderer>
     where
-        Renderer: 'a + self::Renderer,
+        Renderer: 'a + iced_native::Renderer,
         Message: 'a,
     {
         fn from(
@@ -309,74 +297,6 @@ pub mod hover_container {
         {
             fn from(style: T) -> Self {
                 Box::new(style)
-            }
-        }
-    }
-
-    pub mod renderer {
-        use iced::{Background, Color, Point, Rectangle};
-        use iced_graphics::defaults::{self, Defaults};
-        use iced_graphics::{Backend, Primitive};
-        use iced_native::{Element, Layout};
-
-        impl<B> super::Renderer for iced_graphics::Renderer<B>
-        where
-            B: Backend,
-        {
-            type Style = Box<dyn super::style::StyleSheet>;
-
-            fn draw<Message>(
-                &mut self,
-                defaults: &Defaults,
-                bounds: Rectangle,
-                cursor_position: Point,
-                viewport: &Rectangle,
-                style_sheet: &Self::Style,
-                content: &Element<'_, Message, Self>,
-                content_layout: Layout<'_>,
-            ) -> Self::Output {
-                let style = if bounds.contains(cursor_position) {
-                    style_sheet.hovered()
-                } else {
-                    style_sheet.style()
-                };
-
-                let defaults = Defaults {
-                    text: defaults::Text {
-                        color: style.text_color.unwrap_or(defaults.text.color),
-                    },
-                };
-
-                let (content, mouse_interaction) =
-                    content.draw(self, &defaults, content_layout, cursor_position, viewport);
-
-                if let Some(background) = background(bounds, &style) {
-                    (
-                        Primitive::Group {
-                            primitives: vec![background, content],
-                        },
-                        mouse_interaction,
-                    )
-                } else {
-                    (content, mouse_interaction)
-                }
-            }
-        }
-
-        pub fn background(bounds: Rectangle, style: &super::style::Style) -> Option<Primitive> {
-            if style.background.is_some() || style.border_width > 0.0 {
-                Some(Primitive::Quad {
-                    bounds,
-                    background: style
-                        .background
-                        .clone()
-                        .unwrap_or(Background::Color(Color::TRANSPARENT)),
-                    border_radius: style.border_radius,
-                    border_width: style.border_width,
-                    border_color: style.border_color,
-                })
-            } else {
-                None
             }
         }
     }

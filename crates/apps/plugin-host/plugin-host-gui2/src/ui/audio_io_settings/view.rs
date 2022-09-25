@@ -158,7 +158,7 @@ fn section_heading<'a, T: Into<String>>(label: T) -> impl Into<Element<'a, Messa
     ])
 }
 
-fn horizontal_rule() -> Rule {
+fn horizontal_rule() -> Rule<'static> {
     Rule::horizontal(1).style(audio_processor_iced_design_system::style::Rule)
 }
 

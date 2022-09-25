@@ -25,7 +25,7 @@ use std::time::{Duration, Instant};
 use thiserror::Error;
 use vst::plugin::Plugin;
 
-use audio_processor_traits::{AudioProcessorSettings, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_io::AudioHostPluginLoadError;

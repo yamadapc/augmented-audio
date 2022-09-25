@@ -9,13 +9,13 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
-default = ["glow", "tokio"]
+default = ["wgpu", "tokio"]
 tokio = ["iced_baseview/tokio", "iced/tokio"]
-glow = ["iced/glow", "iced/glow_canvas", "iced_baseview/glow", "iced_baseview/glow_canvas"]
-wgpu = ["iced/wgpu", "iced/canvas", "iced_baseview/canvas", "iced_baseview/wgpu"]
+glow = ["iced/glow", "iced/canvas", "iced_baseview/glow", "iced_baseview/glow_canvas"]
+wgpu = ["iced/wgpu", "iced/canvas", "iced_baseview/wgpu_canvas", "iced_baseview/wgpu"]
 
 [dependencies]
-iced = { version = "^0.3.0", path = "../../../vendor/iced", default-features = false }
+iced = { version = "0.4.2", default-features = false }
 log = "^0.4.14"
 vst = { path = "../../../vendor/vst" }
 wisual-logger = { path = "../../ops/wisual-logger" }

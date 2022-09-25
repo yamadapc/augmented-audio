@@ -15,37 +15,56 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-12]
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
           lfs: true
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "rust-cache-macos"
+
+      - name: Cache cargo binaries
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+          key: ${{ runner.os }}-cargo-bin
+
       - name: Install cargo-nextest
         run: |
+          ls ~/.cargo/bin/
           if ! [ -x "$(command -v cargo-nextest)" ]; then
+            echo "::group::Installing cargo-nextest"
             cargo install cargo-nextest
+            echo "::endgroup::"
           fi
+          which cargo-nextest
       - name: Install uniffi bindgen
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
-            cargo install --version 0.15.2 uniffi_bindgen
+            echo "::group::Installing uniffi_bindgen"
+            cargo install --force --version 0.15.2 uniffi_bindgen
+            echo "::endgroup::"
           fi
+          which uniffi-bindgen
       - name: Run tests
-        run: cargo nextest run --verbose --workspace --features story --exclude augmented-ui --exclude midir --exclude assert-no-alloc
+        run: ./scripts/test.sh
 
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-12]
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "rust-cache-macos"
       - name: Run clippy
         run: ./scripts/clippy.sh
 
@@ -54,15 +73,29 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-12]
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
         lfs: true
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: "rust-cache-macos"
+    - name: Cache cargo binaries
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/bin/
+        key: ${{ runner.os }}-cargo-bin
     - name: Install uniffi bindgen
-      run: cargo install --version 0.15.2 uniffi_bindgen
+      run: |
+        if ! [ -x "$(command -v uniffi-bindgen)" ]; then
+          echo "::group::Installing uniffi_bindgen"
+          cargo install --force --version 0.15.2 uniffi_bindgen
+          echo "::endgroup::"
+        fi
+        which uniffi-bindgen
     - name: Build release
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
     - name: Upload plugin-host binary
@@ -82,8 +115,11 @@ jobs:
         path: ./target/release/libtas_v2.dylib
     - name: Validate license information
       run: |
-        cargo install cargo-about
+        if ! [ -x "$(command -v cargo-about)" ]; then
+          cargo install cargo-about
+        fi
         cargo about generate about.hbs
+
 
 
   run-snapshot-tests:
@@ -91,13 +127,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-12]
     steps:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
         lfs: true
-    - uses: Swatinem/rust-cache@v1
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: "rust-cache-macos"
     - name: Run snapshot tests
       run: |
         ./scripts/dev.sh test-snapshots
@@ -113,16 +151,26 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest]
+        os: [macos-12]
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
           lfs: true
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "rust-cache-macos"
+      - name: Cache cargo binaries
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/bin/
+          key: ${{ runner.os }}-cargo-bin
       - name: Install cargo-lipo
         run: |
-          cargo install cargo-lipo
+          if ! [ -x "$(command -v cargo-lipo)" ]; then
+            cargo install cargo-lipo
+          fi
       - name: Install ARM/x86 toolchains
         run: |
           rustup target add aarch64-apple-darwin
@@ -145,21 +193,3 @@ jobs:
           cd ./crates/apps/looper/Sequencer
           brew install xcbeautify
           make test
-
-
-
-  build-docs:
-    name: Build documentation
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          lfs: true
-      - uses: Swatinem/rust-cache@v1
-      - name: Build documentation
-        run: |
-          cargo doc

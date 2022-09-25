@@ -136,7 +136,6 @@ pub fn get_path(
         }
 
         let output_str = string_from_cfstring(url_cfstring)?;
-
         Some(PathBuf::from(output_str))
     }
 }

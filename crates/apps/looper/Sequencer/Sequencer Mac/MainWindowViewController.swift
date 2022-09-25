@@ -29,7 +29,7 @@ class MainWindowViewController: NSViewController {
         super.viewDidLoad()
 
         let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        let contentView = ContentView()
+        let contentView = SequencerRootAppView()
             .environmentObject(engineController.store)
 
         let cachingView = NSHostingView(rootView: contentView)

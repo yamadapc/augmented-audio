@@ -63,8 +63,11 @@ class _$MetronomeDatabase extends MetronomeDatabase {
 
   SessionDao? _sessionDaoInstance;
 
-  Future<sqflite.Database> open(String path, List<Migration> migrations,
-      [Callback? callback]) async {
+  Future<sqflite.Database> open(
+    String path,
+    List<Migration> migrations, [
+    Callback? callback,
+  ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
       version: 5,
       onConfigure: (database) async {
@@ -102,8 +105,10 @@ class _$MetronomeDatabase extends MetronomeDatabase {
 }
 
 class _$SessionDao extends SessionDao {
-  _$SessionDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database),
+  _$SessionDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
         _sessionInsertionAdapter = InsertionAdapter(
             database,
             'Session',

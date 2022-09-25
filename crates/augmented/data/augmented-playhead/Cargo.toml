@@ -1,6 +1,6 @@
 [package]
 name = "augmented-playhead"
-version = "0.1.0-alpha.7"
+version = "0.2.0"
 edition = "2021"
 description = "Implements some extra types and utilities over atomics for building audio-thread / GUI synchronization"
 license = "MIT"
@@ -8,11 +8,11 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-audio-processor-traits = { path = "../../audio/audio-processor-traits", version = "1.0.0-alpha.7" }
-augmented-atomics = { path = "../atomics" , version = "0.1.0-alpha.8" }
+audio-processor-traits = { path = "../../audio/audio-processor-traits", version = "1.1.0" }
+augmented-atomics = { path = "../atomics" , version = "0.1.1" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.7" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.1.0" }
 
 [package.metadata.augmented]
 private = false

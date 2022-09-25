@@ -26,8 +26,11 @@ use std::path::PathBuf;
 use std::process::exit;
 use std::sync::mpsc::channel;
 use std::thread;
+use std::thread::JoinHandle;
 use std::time::Duration;
 
+use actix::{Actor, Addr};
+use cpal::SampleRate;
 use notify::{watcher, RecommendedWatcher, RecursiveMode, Watcher};
 use tao::event::{Event, WindowEvent};
 use tao::event_loop::ControlFlow;
@@ -35,6 +38,8 @@ use tao::event_loop::ControlFlow;
 use tao::platform::macos::WindowExtMacOS;
 use vst::host::PluginInstance;
 use vst::plugin::Plugin;
+
+use audio_processor_traits::AudioProcessorSettings;
 
 use crate::actor_system::ActorSystem;
 use crate::audio_io::audio_thread::options::{
@@ -46,10 +51,6 @@ use crate::audio_io::test_plugin_host::TestPluginHost;
 use crate::audio_io::WaitMessage;
 use crate::commands::options::RunOptions;
 use crate::processors::shared_processor::SharedProcessor;
-use actix::{Actor, Addr};
-use audio_processor_traits::AudioProcessorSettings;
-use cpal::SampleRate;
-use std::thread::JoinHandle;
 
 mod file_watch;
 
@@ -70,13 +71,17 @@ pub fn run_test(run_options: RunOptions) {
     let actor_system_thread = ActorSystem::current();
 
     let (audio_settings, audio_thread_options) = get_audio_options(&run_options);
-    let mut host = actor_system_thread.spawn_result(async move {
-        TestPluginHost::new(audio_settings, audio_thread_options, false)
-    });
+    log::info!("Creating host...");
+    let mut host = TestPluginHost::new(audio_settings, audio_thread_options, false);
     host.set_mono_input(run_options.use_mono_input());
+
+    log::info!("Loading input audio file...");
     run_load_audio_file(&run_options, &mut host);
+
+    log::info!("Initializing plugin...");
     run_initialize_plugin(&run_options, &mut host);
 
+    log::info!("Initializing file-watcher...");
     let instance = host.plugin_instance();
     let host = actor_system_thread.spawn_result(async move { host.start() });
     // This needs to be kept around otherwise the watcher will stop when dropped
@@ -91,6 +96,7 @@ pub fn run_test(run_options: RunOptions) {
         thread::park();
     }
 
+    log::info!("Waiting...");
     {
         host.do_send(WaitMessage);
         log::info!("Closing...");

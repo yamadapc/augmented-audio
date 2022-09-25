@@ -9,22 +9,22 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-audio-processor-traits = { version = "1.0.0-alpha.7", path = "../audio-processor-traits" }
-daggy = "^0.7.0"
+audio-processor-traits = { version = "1.1.0", path = "../audio-processor-traits" }
+daggy = "0.8"
 thiserror = "^1.0.26"
-audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.0.0-alpha.5" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.1.0" }
 num-traits = "0.2.14"
-augmented_oscillator = { path = "../oscillator" , version = "1.0.0-alpha.6" }
+augmented_oscillator = { path = "../oscillator" , version = "1.1.0" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.0.0-alpha.7" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.1.0" }
 audio-processor-utility = { path = "../audio-processor-utility" }
 audio-processor-time = { path = "../audio-processor-time" , version = "0.1.0-alpha.2" }
-augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "1.0.0-alpha.7" }
-audio-processor-standalone = { path = "../../application/audio-processor-standalone", version = "1.0.0-alpha.12" }
+augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "1.1.0" }
+audio-processor-standalone = { path = "../../application/audio-processor-standalone", version = "1.1.0" }
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }
 
-criterion = "^0.3.4"
+criterion = "0.4"
 
 [package.metadata.augmented]
 

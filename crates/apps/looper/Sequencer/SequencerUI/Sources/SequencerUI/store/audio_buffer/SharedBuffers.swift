@@ -43,18 +43,22 @@ public protocol SliceBuffer {
 /**
  * Implementation of track buffers based on `float*`.
  */
-struct UnsafeBufferTrackBuffer {
+public struct UnsafeBufferTrackBuffer {
     let inner: UnsafeBufferPointer<Float32>
+
+    public init(inner: UnsafeBufferPointer<Float32>) {
+        self.inner = inner
+    }
 }
 
 extension UnsafeBufferTrackBuffer: TrackBuffer {
-    var id: Int { inner.baseAddress?.hashValue ?? 0 }
-    var count: Int { inner.count }
-    subscript(index: Int) -> Float {
+    public var id: Int { inner.baseAddress?.hashValue ?? 0 }
+    public var count: Int { inner.count }
+    public subscript(index: Int) -> Float {
         inner[index]
     }
 
-    func equals(other: TrackBuffer) -> Bool {
+    public func equals(other: TrackBuffer) -> Bool {
         if let otherBuffer = other as? UnsafeBufferTrackBuffer {
             return inner.baseAddress == otherBuffer.inner.baseAddress
         } else {

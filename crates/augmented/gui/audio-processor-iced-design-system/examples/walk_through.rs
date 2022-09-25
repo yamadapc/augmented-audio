@@ -1,3 +1,7 @@
+use iced::{
+    alignment, pick_list, widget, Alignment, Application, Button, Column, Command, Container,
+    Element, Length, PaneGrid, Row, Rule, Settings, Text,
+};
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,10 +25,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use iced::pane_grid::Axis;
-use iced::{
-    alignment, pick_list, widget, Alignment, Application, Button, Column, Command, Container,
-    Element, Length, PaneGrid, Row, Rule, Settings, Text,
-};
+use iced_audio::NormalParam;
 use widget::pane_grid;
 
 use audio_processor_iced_design_system::container::HoverContainer;
@@ -33,7 +34,6 @@ use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style as audio_style;
 use audio_processor_iced_design_system::tabs;
 use audio_processor_iced_design_system::{knob as audio_knob, menu_list, tree_view};
-use iced_audio::NormalParam;
 
 fn main() -> iced::Result {
     wisual_logger::init_from_env();
@@ -313,7 +313,7 @@ impl KnobsView {
                 HoverContainer::new(
                     Column::with_children(vec![
                         Text::new("Dry/Wet").size(Spacing::small_font_size()).into(),
-                        Knob::new(knob_state, |_| {})
+                        Knob::new(knob_state, |_| {}, || None, || None)
                             .size(Length::Units(Spacing::base_control_size()))
                             .style(audio_knob::style::Knob)
                             .into(),
@@ -322,7 +322,7 @@ impl KnobsView {
                     .align_items(Alignment::Center)
                     .spacing(Spacing::small_spacing()),
                 )
-                .style(audio_style::HoverContainer)
+                .style(audio_style::HoverContainer::default())
                 .into()
             })
             .collect();

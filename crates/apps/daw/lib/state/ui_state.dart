@@ -1,8 +1,8 @@
-import 'package:flutter_daw_mock_ui/ui/main_content_layout/midi_editor/midi_model.dart';
+import 'package:augmented_midi_editor/midi_editor/midi_model.dart';
 import 'package:graphx/graphx.dart';
 import 'package:mobx/mobx.dart';
 
-import 'entity.dart';
+import './entity.dart';
 
 part 'ui_state.g.dart';
 

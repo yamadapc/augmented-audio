@@ -1,17 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:timezone/data/latest_10y.dart';
 import 'package:timezone/timezone.dart';
 
 class GoalPanel extends StatelessWidget {
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
   GoalPanel({Key? key}) : super(key: key) {
     flutterLocalNotificationsPlugin.initialize(const InitializationSettings(
-        macOS: MacOSInitializationSettings(
+        macOS: DarwinInitializationSettings(
       requestAlertPermission: true,
     )));
   }
@@ -34,7 +33,7 @@ class GoalPanel extends StatelessWidget {
               TZDateTime.from(
                   DateTime.now().add(const Duration(seconds: 2)), location),
               const NotificationDetails(
-                  macOS: MacOSNotificationDetails(
+                  macOS: DarwinNotificationDetails(
                 presentAlert: true,
                 presentBadge: false,
                 presentSound: false,
@@ -43,7 +42,6 @@ class GoalPanel extends StatelessWidget {
               androidAllowWhileIdle: false,
               uiLocalNotificationDateInterpretation:
                   UILocalNotificationDateInterpretation.absoluteTime);
-          print("GOAL START");
         });
   }
 }

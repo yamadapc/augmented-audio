@@ -5,7 +5,6 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronome/modules/state/history_state_model.dart';
 import 'package:metronome/ui/controls/beats_per_bar_control.dart';
 
-import './goal_panel.dart';
 import './history_chart.dart';
 import './history_list_item.dart';
 import '../../../modules/state/history_state_controller.dart';

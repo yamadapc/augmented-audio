@@ -1,0 +1,19 @@
+{
+  "$schema": "https://turborepo.org/schema.json",
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^tsc"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx"],
+      "outputs": ["dist/**", "build/**", "lib/**"]
+    },
+    "test": {
+      "dependsOn": ["^tsc"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx"]
+    },
+    "tsc": {
+      "dependsOn": ["^tsc"],
+      "inputs": ["src/**/*.ts", "src/**/*.tsx"],
+      "outputs": ["build/**", "lib/**"]
+    }
+  }
+}

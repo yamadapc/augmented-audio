@@ -60,7 +60,10 @@ impl ListCratesService {
 
         if simple {
             for (path, manifest) in manifests {
-                println!("{} {}", path, manifest.package.name);
+                println!(
+                    "{} {} {}",
+                    path, manifest.package.name, manifest.package.version
+                );
             }
         } else {
             for (_, manifest) in manifests {

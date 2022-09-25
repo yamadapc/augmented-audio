@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:macos_ui/macos_ui.dart';
 import 'package:mobx/mobx.dart';
 
 import 'home_page.dart';
@@ -18,6 +20,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
+
     super.initState();
   }
 
@@ -37,10 +40,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) => CupertinoApp(
+      builder: (_) => MacosApp(
         title: 'Metronome',
-        theme:
-            CupertinoThemeData(brightness: brightness.value ?? Brightness.dark),
+        theme: MacosThemeData(
+            brightness: brightness.value ?? Brightness.dark,
+            typography: MacosTypography(
+                color: Colors.black, body: const TextStyle(fontSize: 50)),
+            primaryColor: CupertinoColors.activeBlue,
+            canvasColor: CupertinoColors.activeBlue),
         home: const HomePage(title: 'Metronome'),
       ),
     );

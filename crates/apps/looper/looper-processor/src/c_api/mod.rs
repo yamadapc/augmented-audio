@@ -21,11 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use std::ffi::CStr;
+use std::os::raw::c_char;
 use std::ptr::null;
 
 use basedrop::Shared;
 
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 use augmented_atomics::AtomicValue;
 
 pub use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;
@@ -351,43 +353,44 @@ pub struct ExampleBuffer {
     pub count: usize,
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn looper__get_example_buffer() -> ExampleBuffer {
-    use audio_processor_file::AudioFileProcessor;
-
+fn get_example_buffer(example_path: &CStr) -> anyhow::Result<ExampleBuffer> {
     let settings = AudioProcessorSettings::default();
-    let processor = AudioFileProcessor::from_path(
+    let example_path: String = example_path.to_str()?.to_string();
+    let mut processor = audio_processor_file::AudioFileProcessor::from_path(
         audio_garbage_collector::handle(),
         settings,
-        &audio_processor_testing_helpers::relative_path!(
-            "../../../augmented/audio/audio-processor-analysis/hiphop-drum-loop.mp3"
-        ),
-    );
-
-    match processor {
-        Ok(mut processor) => {
-            processor.prepare(settings);
-            let channels = processor.buffer().clone();
-            let mut output = vec![];
-            for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {
-                output.push(s1 + s2);
-            }
-            let mut output = output.into_boxed_slice();
-            let output_ptr = output.as_mut_ptr();
-            let size = output.len();
-            std::mem::forget(output);
-
-            ExampleBuffer {
-                ptr: output_ptr,
-                count: size,
-            }
-        }
-        Err(err) => {
-            log::error!("Failed to open example file {}", err);
-            ExampleBuffer {
-                ptr: null(),
-                count: 0,
-            }
-        }
+        &example_path,
+    )?;
+    processor.prepare(settings);
+    let channels = processor.buffer().clone();
+    let mut output = vec![];
+    for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {
+        output.push(s1 + s2);
     }
+    let mut output = output.into_boxed_slice();
+    let output_ptr = output.as_mut_ptr();
+    let size = output.len();
+    std::mem::forget(output);
+
+    Ok(ExampleBuffer {
+        ptr: output_ptr,
+        count: size,
+    })
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper__get_example_buffer(example_path: *const c_char) -> ExampleBuffer {
+    let example_path: &CStr = CStr::from_ptr(example_path);
+    get_example_buffer(example_path).unwrap_or_else(|err: anyhow::Error| {
+        log::error!("Failed to open example file {}", err);
+        ExampleBuffer {
+            ptr: null(),
+            count: 0,
+        }
+    })
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper__init_logging() {
+    wisual_logger::init_from_env();
 }

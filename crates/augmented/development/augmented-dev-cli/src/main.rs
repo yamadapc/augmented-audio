@@ -20,9 +20,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use crate::services::release_service::prerelease_all_crates;
 use crate::services::snapshot_tests_service::run_all_snapshot_tests;
 
+mod logger;
 mod manifests;
 mod services;
 
@@ -36,7 +38,7 @@ fn get_cli_version() -> String {
 }
 
 fn main() {
-    wisual_logger::init_from_env();
+    logger::try_init_from_env().unwrap();
     log::warn!(
         "Starting augmented-dev-cli VERSION={} GIT_REV={} GIT_REV_SHORT={}",
         get_cli_version(),
@@ -57,7 +59,13 @@ fn main() {
                 ),
         )
         .subcommand(
-            clap::Command::new("prerelease-all").about("Bump all crates into a pre-release state"),
+            clap::Command::new("prerelease-all")
+                .about("Bump all crates into a pre-release state")
+                .arg(
+                    clap::Arg::new("dry-run")
+                        .long("dry-run")
+                        .help("Don't run `cargo publish`"),
+                ),
         )
         .subcommand(clap::Command::new("outdated").about("List outdated dependencies"))
         .subcommand(
@@ -72,6 +80,12 @@ fn main() {
         .subcommand(
             clap::Command::new("build")
                 .about("Build a release package for a given app")
+                .arg(
+                    clap::Arg::new("upload")
+                        .long("upload")
+                        .short('u')
+                        .help("Upload artifacts to S3"),
+                )
                 .arg(clap::Arg::new("crate").takes_value(true)),
         )
         .version(&*version)
@@ -79,9 +93,10 @@ fn main() {
 
     let matches = app.clone().get_matches();
 
-    if matches.subcommand_matches("prerelease-all").is_some() {
+    if let Some(matches) = matches.subcommand_matches("prerelease-all") {
         let list_crates_service = services::ListCratesService::default();
-        prerelease_all_crates(&list_crates_service);
+        let dry_run = matches.is_present("dry-run");
+        prerelease_all_crates(&list_crates_service, dry_run).expect("Failed to prerelease");
     } else if matches.subcommand_matches("outdated").is_some() {
         let outdated_crates_service = services::OutdatedCratesService::default();
         outdated_crates_service.run();
@@ -90,9 +105,9 @@ fn main() {
         list_crates_service.run(matches.is_present("simple"));
     } else if let Some(matches) = matches.subcommand_matches("build") {
         let mut build_service = services::BuildCommandService::default();
-        let crate_path = matches.value_of("crate").unwrap();
-
-        build_service.run_build(crate_path);
+        let upload = matches.is_present("upload");
+        let crate_path = matches.value_of("crate");
+        build_service.run_build(crate_path, upload);
     } else if let Some(matches) = matches.subcommand_matches("test-snapshots") {
         run_all_snapshot_tests(Default::default(), matches.is_present("update-snapshots"));
     } else {

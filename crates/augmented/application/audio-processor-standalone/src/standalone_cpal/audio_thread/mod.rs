@@ -43,7 +43,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
     configuration_tx: Sender<ResolvedStandaloneConfiguration>,
     stop_signal_rx: Receiver<()>,
 ) -> Result<(), AudioThreadError> {
-    log::info!("Using host: {}", host_name);
+    log::info!("Using host={}", host_name);
     let buffer_size = 512;
     let sample_rate = {
         #[cfg(not(target_os = "ios"))]

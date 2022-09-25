@@ -25,10 +25,12 @@ extern crate objc;
 
 use std::ffi::c_void;
 
-use cocoa::base::id;
-
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
-use iced_baseview::{Application, Command, Element, IcedWindow, Settings, Text};
+use cocoa::base::id;
+use iced_baseview::{
+    Application, Command, Element, IcedBaseviewSettings, IcedWindow, Settings, Text,
+};
+
 use window::WindowHolder;
 
 mod macos;
@@ -48,6 +50,10 @@ pub extern "C" fn attach_to_view(ns_view: id) {
     let settings = Settings {
         window: window_open_options,
         flags: (),
+        iced_baseview: IcedBaseviewSettings {
+            ignore_non_modifier_keys: false,
+            always_redraw: true,
+        },
     };
     IcedWindow::<App>::open_parented(&window, settings);
 }

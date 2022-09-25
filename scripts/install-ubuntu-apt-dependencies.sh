@@ -22,8 +22,10 @@ sudo apt-get install --fix-missing -y \
     libwebkit2gtk-4.0-dev \
     libx11-xcb-dev \
     libxcb-icccm4-dev \
+    libxcb-shape0-dev \
     libxcb-dri2-0-dev \
+    libxcb-xfixes0-dev \
     libavahi-client-dev \
-    nvidia-utils-465 \
     lame \
     libgtk-3-dev
+    # nvidia-utils-465 \

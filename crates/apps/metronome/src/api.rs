@@ -22,8 +22,10 @@ use std::time::Duration;
 use anyhow::Result;
 use flutter_rust_bridge::StreamSink;
 
-use state::{with_state, with_state0};
+pub use self::processor::MetronomeSoundTypeTag;
+use self::state::{with_state, with_state0};
 
+mod processor;
 mod state;
 
 pub fn initialize() -> Result<i32> {
@@ -58,15 +60,30 @@ pub fn set_beats_per_bar(value: i32) -> Result<i32> {
     })
 }
 
+pub fn set_sound(value: MetronomeSoundTypeTag) -> Result<i32> {
+    with_state0(|state| {
+        log::info!("set_sound({:?})", value);
+        if state
+            .app_processor_messages
+            .push(self::processor::AppAudioThreadMessage::SetMetronomeSound(
+                value,
+            ))
+            .is_err()
+        {
+            log::error!("Message queue is full!");
+        }
+    })
+}
+
 pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
     with_state(|state| {
         let handle = state.processor_handle.clone();
         std::thread::spawn(move || {
-            loop {
-                sink.add(handle.position_beats());
+            log::info!("Starting streaming of playhead");
+            while sink.add(handle.position_beats()) {
                 std::thread::sleep(Duration::from_millis(50));
             }
-            // sink.close();
+            log::info!("Stream closed, stopping streaming of playhead");
         });
         Ok(0)
     })

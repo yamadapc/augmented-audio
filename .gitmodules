@@ -28,15 +28,6 @@
 [submodule "crates/vendor/skribo"]
 	path = crates/vendor/skribo
 	url = git@github.com:yamadapc/skribo
-[submodule "crates/augmented/data/augmented-midi/midir"]
-	path = crates/augmented/data/augmented-midi/midir
-	url = https://github.com/yamadapc/midir/
-[submodule "crates/daisy/DaisySP"]
-	path = crates/daisy/DaisySP
-	url = https://github.com/electro-smith/DaisySP
-[submodule "crates/daisy/libDaisy"]
-	path = crates/daisy/libDaisy
-	url = https://github.com/electro-smith/libDaisy
 [submodule "crates/vendor/libsamplerate-sys"]
 	path = crates/vendor/libsamplerate-sys
 	url = git@github.com:yamadapc/libsamplerate-sys
@@ -46,3 +37,6 @@
 [submodule "crates/vendor/cpal"]
 	path = crates/vendor/cpal
 	url = git@github.com:yamadapc/cpal
+[submodule "crates/apps/metronome/vendor/macos_ui"]
+	path = crates/apps/metronome/vendor/macos_ui
+	url = git@github.com:GroovinChip/macos_ui

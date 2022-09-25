@@ -99,7 +99,7 @@ mod backend;
 mod model;
 
 /// Configuration for the worker
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
 pub struct AnalyticsWorkerConfig {
     /// This is the debounce time. If events are fired in a period smaller than this duration, their
     /// post request will be delayed, unless the max-batch-size is reached.

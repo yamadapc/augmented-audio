@@ -41,7 +41,8 @@ fn main() {
 trait Runner {
     fn run_list_devices(&self);
     fn run_test(&self, run_options: RunOptions);
-    fn print_help<'a, 'b>(&self, app: App<'a, 'b>);
+    #[allow(clippy::needless_lifetimes)]
+    fn print_help<'a, 'b>(&self, _app: App<'a, 'b>);
 }
 
 struct RunnerImpl {}

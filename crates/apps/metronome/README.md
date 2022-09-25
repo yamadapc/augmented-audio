@@ -21,7 +21,7 @@ And you can download it from the app store on [Simple Metronome](https://apps.ap
 
 ## Generating bridge
 ```
-cargo install flutter_rust_bridge_codegen --version "^1.13"
+cargo install flutter_rust_bridge_codegen --version "1.44"
 ```
 
 Then:

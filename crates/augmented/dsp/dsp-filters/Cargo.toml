@@ -1,6 +1,6 @@
 [package]
 name = "augmented-dsp-filters"
-version = "1.0.0-alpha.7"
+version = "1.1.0"
 edition = "2018"
 description = "Audio filters (port of C++ DSPFilters)"
 license = "MIT"
@@ -9,10 +9,10 @@ repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 num = "^0.4.0"
-audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "1.1.0", path = "../../audio/audio-processor-traits" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.1.0", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = false

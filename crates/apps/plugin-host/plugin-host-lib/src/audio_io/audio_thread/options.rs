@@ -65,7 +65,7 @@ impl Default for AudioDeviceId {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Clone, Eq)]
 pub enum BufferSize {
     Default,
     Fixed(usize),
@@ -86,7 +86,7 @@ impl From<BufferSize> for cpal::BufferSize {
     }
 }
 
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct AudioThreadOptions {
     pub host_id: AudioHostId,
     pub output_device_id: AudioDeviceId,

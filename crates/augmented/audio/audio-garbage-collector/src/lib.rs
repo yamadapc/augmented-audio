@@ -27,8 +27,10 @@
 //! global GC thread and helpers to create pointers attached to it.
 //!
 //! # Collection frequency
-//! Collection is based on polling the queue. If references are created and dropped very frequently
-//! this will not be adequate.
+//! Collection is based on polling the queue every 100ms by default.
+//!
+//! If references are created and dropped very frequently this strategy is not adequate. This also
+//! adds some small overhead.
 
 use std::sync::{Arc, Mutex};
 use std::thread::JoinHandle;

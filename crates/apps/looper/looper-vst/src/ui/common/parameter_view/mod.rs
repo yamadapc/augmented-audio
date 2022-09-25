@@ -144,9 +144,12 @@ pub fn view<ParameterId: 'static + Clone + Copy + Debug>(
     HoverContainer::new(
         Column::with_children(vec![
             Text::new(label).size(Spacing::small_font_size()).into(),
-            Knob::new(&mut parameter_view_model.knob_state, move |value| {
-                map_normal_to_message(parameter_id, range, int_range, value)
-            })
+            Knob::new(
+                &mut parameter_view_model.knob_state,
+                move |value| map_normal_to_message(parameter_id, range, int_range, value),
+                || None,
+                || None,
+            )
             .size(Length::Units(Spacing::base_control_size()))
             .style(audio_knob::style::Knob)
             .into(),

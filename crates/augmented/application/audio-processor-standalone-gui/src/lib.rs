@@ -29,9 +29,11 @@
 //! * [`editor`] runs a boxed `Editor` instance
 
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
-use iced::{Alignment, Column, Command, Container, Length, Row, Text};
 use iced_audio::{Normal, NormalParam};
-use iced_baseview::{Application, Element, IcedWindow, Settings};
+use iced_baseview::{
+    Alignment, Application, Column, Command, Container, Element, IcedWindow, Length, Row, Settings,
+    Text,
+};
 
 use audio_processor_iced_design_system::knob as audio_knob;
 use audio_processor_iced_design_system::knob::Knob;
@@ -79,7 +81,10 @@ impl Application for GenericAudioProcessorApplication {
             };
             parameter_models.push(ParameterModel {
                 spec,
-                knob_state: iced_audio::knob::State::new(NormalParam::new(Normal::from(value))),
+                knob_state: iced_audio::knob::State::new(NormalParam {
+                    value: Normal::from(value),
+                    default: Normal::from(value),
+                }),
             });
         }
 
@@ -141,10 +146,15 @@ fn parameter_view(
                 Text::new(model.spec.name())
                     .size(Spacing::small_font_size())
                     .into(),
-                Knob::new(&mut model.knob_state, move |value| {
-                    let n_value = range.0 + value.as_f32() * (range.1 - range.0);
-                    Message::KnobChange(parameter_index, n_value)
-                })
+                Knob::new(
+                    &mut model.knob_state,
+                    move |value| {
+                        let n_value = range.0 + value.as_f32() * (range.1 - range.0);
+                        Message::KnobChange(parameter_index, n_value)
+                    },
+                    || None,
+                    || None,
+                )
                 .size(Length::Units(Spacing::base_control_size()))
                 .style(audio_knob::style::Knob)
                 .into(),
@@ -175,6 +185,12 @@ pub fn open(handle: AudioProcessorHandleRef) {
                 height: 300.0,
             },
             scale: WindowScalePolicy::SystemScaleFactor,
+            #[cfg(feature = "glow")]
+            gl_config: None,
+        },
+        iced_baseview: iced_baseview::IcedBaseviewSettings {
+            ignore_non_modifier_keys: false,
+            always_redraw: true,
         },
         flags: Flags { handle },
     });

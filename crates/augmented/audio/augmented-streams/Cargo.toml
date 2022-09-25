@@ -1,0 +1,9 @@
+[package]
+name = "augmented-streams"
+description = "Streaming abstractions for real-time audio processing"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ringbuf = "0.2.8"
+anyhow = "1.0.64"

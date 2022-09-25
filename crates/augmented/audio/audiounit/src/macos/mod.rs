@@ -413,7 +413,7 @@ impl AVAudioUnitComponent {
 /// Wraps `AudioComponentDescription` - <https://developer.apple.com/documentation/audiotoolbox/audiocomponentdescription?language=objc>
 ///
 /// Identifying information for an audio component.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(C)]
 #[allow(non_snake_case)]
 pub struct AudioComponentDescription {

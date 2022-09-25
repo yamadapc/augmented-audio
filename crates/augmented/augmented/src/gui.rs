@@ -23,8 +23,9 @@
 pub use baseview;
 pub use iced;
 pub use iced_audio;
+pub use iced_baseview;
 
-pub use audio_processor_iced_design_system as design;
-pub use audio_processor_iced_storybook as story;
+pub use audio_processor_iced_design_system as iced_design_system;
+pub use audio_processor_iced_storybook as iced_storybook;
 pub use iced_editor;
 pub use macos_bundle_resources;

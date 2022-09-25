@@ -95,8 +95,10 @@
 //! ```
 
 use basedrop::Handle;
+use cpal::traits::HostTrait;
 
 use crate::standalone_cpal::StandaloneStartOptions;
+use crate::standalone_processor::StandaloneOptions;
 use audio_processor_traits::{AudioProcessor, MidiEventHandler};
 use options::{ParseOptionsParams, RenderingOptions};
 #[doc(inline)]
@@ -155,7 +157,18 @@ pub fn audio_processor_main_with_midi<
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
 ) {
-    let app = StandaloneAudioOnlyProcessor::new(audio_processor, Default::default());
+    // Options are parsed twice which isn't good
+    let options = options::parse_options(ParseOptionsParams {
+        supports_midi: false,
+    });
+    let app = StandaloneAudioOnlyProcessor::new(
+        audio_processor,
+        StandaloneOptions {
+            input_device: options.rendering().input_device(),
+            output_device: options.rendering().output_device(),
+            ..Default::default()
+        },
+    );
     standalone_main(app, None);
 }
 
@@ -164,6 +177,10 @@ fn standalone_main<SP: StandaloneProcessor>(mut app: SP, handle: Option<&Handle>
     let options = options::parse_options(ParseOptionsParams {
         supports_midi: app.supports_midi(),
     });
+
+    if handle_list_commands(&options) {
+        return;
+    }
 
     match options.rendering() {
         RenderingOptions::Online { .. } => {
@@ -205,4 +222,30 @@ fn standalone_main<SP: StandaloneProcessor>(mut app: SP, handle: Option<&Handle>
             std::process::exit(1)
         }
     }
+}
+
+fn handle_list_commands(options: &options::Options) -> bool {
+    if options.list_hosts() {
+        for host in cpal::available_hosts() {
+            println!("{:?}", host.name());
+        }
+        return true;
+    }
+
+    if options.list_input_devices() || options.list_output_devices() {
+        use cpal::traits::DeviceTrait;
+
+        let host = cpal::default_host();
+        let devices = if options.list_input_devices() {
+            host.input_devices()
+        } else {
+            host.output_devices()
+        };
+        for device in devices.expect("Failed to list devices") {
+            println!("{:?}", device.name().expect("Failed to get device name"));
+        }
+        return true;
+    }
+
+    false
 }

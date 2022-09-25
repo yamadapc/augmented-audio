@@ -312,7 +312,10 @@ fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
         }
     }
 
-    output
+    // TODO Is this the best way to do latency compensation?
+    // We have to skip the first frame because of the buffering delay.
+    // * Should we wait only one overlap window?
+    output.iter().skip(fft_size).cloned().collect()
 }
 
 fn initialize_result_transient_magnitude_frames(magnitudes: &mut [Vec<f32>]) -> Vec<Vec<f32>> {
@@ -364,7 +367,9 @@ mod test {
     use audio_processor_testing_helpers::relative_path;
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
-    use audio_processor_traits::{AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer};
+    use audio_processor_traits::{
+        AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+    };
 
     use super::*;
 
@@ -419,7 +424,10 @@ mod test {
             },
             &mut input,
         );
-        assert_eq!(frames.len(), transients.len());
+        assert_eq!(
+            frames.len() - IterativeTransientDetectionParams::default().fft_size,
+            transients.len()
+        );
         draw(&output_path, &frames, &transients);
 
         let settings = AudioProcessorSettings {

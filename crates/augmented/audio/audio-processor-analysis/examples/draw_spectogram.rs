@@ -23,7 +23,7 @@
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{
     audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, simple_processor,
-    AudioProcessorSettings, SimpleAudioProcessor,
+    AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
 
 use audio_processor_analysis::fft_processor::FftProcessor;

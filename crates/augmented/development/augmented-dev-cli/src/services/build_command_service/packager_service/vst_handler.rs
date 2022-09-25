@@ -33,12 +33,12 @@ pub struct VstHandler {}
 impl VstHandler {
     pub fn handle(
         target_path: PathBuf,
-        input: &PackagerInput,
+        input: PackagerInput,
         vst: VstConfig,
     ) -> Option<LocalPackage> {
-        let public_name = input.public_name;
+        let public_name = &input.public_name;
 
-        let plist_file = build_plist(public_name, input.cargo_toml, &vst);
+        let plist_file = build_plist(public_name, &input.cargo_toml, &vst);
         run_cmd!(mkdir -p ${target_path}).unwrap();
 
         let output_path = target_path.join(format!("{}.vst", public_name));
@@ -57,6 +57,7 @@ impl VstHandler {
 
         let source_dylib_path = input
             .example_name
+            .clone()
             .map(|example| format!("./target/release/examples/lib{}.dylib", example))
             .unwrap_or_else(|| {
                 format!(
@@ -80,7 +81,14 @@ impl VstHandler {
         );
         std::fs::copy(source_dylib_path, target_dylib_path).expect("Failed to copy binary lib");
 
-        None
+        std::fs::write(output_path.join("Contents/PkgInfo"), "BNDL????")
+            .expect("Failed to create PkgInfo");
+
+        Some(LocalPackage {
+            input,
+            path: output_path.to_str().unwrap().to_string(),
+            target_app_path: output_path,
+        })
     }
 }
 
@@ -99,17 +107,34 @@ fn build_plist(public_name: &str, toml_file: &CargoToml, vst: &VstConfig) -> pli
         plist::Value::from(toml_file.package.version.clone()),
     );
     plist_file.insert(
+        String::from("CFBundleLongVersionString"),
+        plist::Value::from(toml_file.package.version.clone()),
+    );
+    plist_file.insert(
+        String::from("CFBundleShortVersionString"),
+        plist::Value::from(toml_file.package.version.clone()),
+    );
+    plist_file.insert(
         String::from("CFBundleExecutable"),
         plist::Value::from(toml_file.package.name.clone()),
     );
     plist_file.insert(
-        String::from("CFResourcesFileMapped"),
-        plist::Value::from(""),
+        String::from("CFBundleSignature"),
+        plist::Value::from(format!("{}", rand::random::<usize>() % 9999)),
+    );
+    plist_file.insert(
+        String::from("CFBundleSupportedPlatforms"),
+        plist::Value::from(vec![plist::Value::from("MacOSX")]),
     );
     plist_file.insert(
         String::from("CFBundleGetInfoString"),
         plist::Value::from("vst"),
     );
+    plist_file.insert(
+        String::from("CSResourcesFileMapped"),
+        plist::Value::from(true),
+    );
+
     plist_file.insert(String::from("CFBundleIconFile"), plist::Value::from(""));
     plist_file.insert(
         String::from("CFBundleInfoDictionaryVersion"),
@@ -117,8 +142,17 @@ fn build_plist(public_name: &str, toml_file: &CargoToml, vst: &VstConfig) -> pli
     );
     plist_file.insert(
         String::from("CFBundlePackageType"),
-        plist::Value::from("BNDL"),
+        plist::Value::from("APPL"),
     );
+    // plist_file.insert(String::from("DTPlatformName"), plist::Value::from("macosx"));
+    // plist_file.insert(
+    //     String::from("DTPlatformVersion"),
+    //     plist::Value::from("11.1"),
+    // );
+    // plist_file.insert(
+    //     String::from("LSMinimumSystemVersion"),
+    //     plist::Value::from("10.10"),
+    // );
     plist_file.insert(
         String::from("CFBundleDevelopmentRegion"),
         plist::Value::from("English"),

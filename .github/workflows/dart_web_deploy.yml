@@ -17,9 +17,8 @@ jobs:
         run: cd ./crates/apps/daw && flutter build web --base-href="/augmented-audio/"
       - name: Deploy to GitHub Pages
         if: success()
-        uses: crazy-max/ghaction-github-pages@v2
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          target_branch: gh-pages
-          build_dir: ./crates/apps/daw/build/web
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./crates/apps/daw/build/web
+          destination_dir: daw

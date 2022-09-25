@@ -29,5 +29,5 @@ pub mod mod_reverb;
 mod tuning;
 mod utils;
 
-#[cfg(test)]
+#[cfg(all(test, debug_assertions))]
 mod test_allocator;

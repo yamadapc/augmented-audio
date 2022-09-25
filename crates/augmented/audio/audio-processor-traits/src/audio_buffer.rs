@@ -327,78 +327,57 @@ impl<SampleType> VecAudioBuffer<SampleType> {
     }
 }
 
-/// VST compatibility, enabled by the `vst_support` feature.
-#[cfg(feature = "vst_support")]
 pub mod vst {
-    use super::*;
+    use super::{AudioBuffer, Float, OwnedAudioBuffer, VecAudioBuffer};
 
-    /// Wraps a VST buffer with a generic AudioBuffer.
-    ///
-    /// ## NOTE:
-    /// Due to Rust VST using different references for input & output buffers the API here is
-    /// slightly dubious.
-    ///
-    /// `audio_buffer.get(channel, sample)` will return a sample from the INPUT buffer.
-    /// Meanwhile `audio_buffer.get_mut(channel, sample)` will return a sample from the OUTPUT
-    /// buffer.
-    ///
-    /// This means it might be that `audio_buffer.get(channel, sample)` is different to
-    /// `audio_buffer.get_mut(channel, sample)`.
-    pub struct VSTAudioBuffer<'a, SampleType> {
-        inputs: ::vst::buffer::Inputs<'a, SampleType>,
-        outputs: ::vst::buffer::Outputs<'a, SampleType>,
+    pub struct VSTBufferHandler<SampleType> {
+        buffer: VecAudioBuffer<SampleType>,
     }
 
-    impl<'a, SampleType: Float> VSTAudioBuffer<'a, SampleType> {
-        #[deprecated]
-        pub fn new(
-            inputs: ::vst::buffer::Inputs<'a, SampleType>,
-            outputs: ::vst::buffer::Outputs<'a, SampleType>,
-        ) -> Self {
-            VSTAudioBuffer { inputs, outputs }
-        }
-
-        #[deprecated]
-        pub fn with_buffer(buffer: &'a mut ::vst::buffer::AudioBuffer<'a, SampleType>) -> Self {
-            let (inputs, outputs) = buffer.split();
-            #[allow(deprecated)]
-            Self::new(inputs, outputs)
+    impl<SampleType: Float> Default for VSTBufferHandler<SampleType> {
+        fn default() -> Self {
+            Self::new()
         }
     }
 
-    impl<'a, SampleType> AudioBuffer for VSTAudioBuffer<'a, SampleType> {
-        type SampleType = SampleType;
-
-        fn num_channels(&self) -> usize {
-            self.outputs.len()
-        }
-
-        fn num_samples(&self) -> usize {
-            if self.outputs.is_empty() {
-                0
-            } else {
-                self.outputs.get(0).len()
+    impl<SampleType: Float> VSTBufferHandler<SampleType> {
+        pub fn new() -> Self {
+            Self {
+                buffer: VecAudioBuffer::new(),
             }
         }
 
-        fn slice(&self) -> &[Self::SampleType] {
-            &[]
+        pub fn set_block_size(&mut self, block_size: usize) {
+            self.buffer.resize(2, block_size, SampleType::zero());
         }
 
-        fn slice_mut(&mut self) -> &mut [Self::SampleType] {
-            &mut []
-        }
+        pub fn with_buffer<F>(&mut self, buffer: &mut vst::buffer::AudioBuffer<SampleType>, f: F)
+        where
+            F: FnOnce(&mut VecAudioBuffer<SampleType>),
+        {
+            let num_samples = buffer.samples();
+            let (inputs, mut outputs) = buffer.split();
+            self.buffer
+                .resize(2, num_samples as usize, SampleType::zero());
+            {
+                let buffer_slice = self.buffer.slice_mut();
+                for (channel, input) in inputs.into_iter().take(2).enumerate() {
+                    for (index, sample) in input.iter().enumerate() {
+                        buffer_slice[index * 2 + channel] = *sample;
+                    }
+                }
+            }
 
-        fn get(&self, channel: usize, sample: usize) -> &Self::SampleType {
-            &self.inputs.get(channel)[sample]
-        }
+            f(&mut self.buffer);
 
-        fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
-            &mut self.outputs.get_mut(channel)[sample]
-        }
-
-        fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
-            self.outputs.get_mut(channel)[sample] = value;
+            {
+                let buffer_slice = self.buffer.slice();
+                for (channel, output) in outputs.into_iter().take(2).enumerate() {
+                    for (index, sample) in output.iter_mut().enumerate() {
+                        *sample = buffer_slice[index * 2 + channel];
+                    }
+                }
+            }
         }
     }
 }

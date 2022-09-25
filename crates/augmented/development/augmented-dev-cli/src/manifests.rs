@@ -79,6 +79,7 @@ pub struct AugmentedMetadata {
 pub struct CargoTomlPackageMetadata {
     pub app: Option<AppConfig>,
     pub augmented: Option<AugmentedMetadata>,
+    pub skip: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -93,6 +94,7 @@ pub struct CargoTomlPackage {
 #[serde(rename_all = "kebab-case")]
 pub struct CargoLib {
     pub name: Option<String>,
+    pub crate_type: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

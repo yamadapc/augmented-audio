@@ -51,7 +51,8 @@ impl ManifestDependency {
         if let Some(s) = value.as_str() {
             Some(s.to_string())
         } else if let Some(t) = value.as_table() {
-            t.get("version").and_then(|s| s.as_str())
+            t.get("version")
+                .and_then(|s| s.as_str())
                 .map(|s| s.to_string())
         } else {
             None
@@ -84,13 +85,15 @@ impl OutdatedCratesService {
             .collect();
 
         let dependencies = augmented_crates
-            .iter().flat_map(|(_pth, manifest)| {
+            .iter()
+            .flat_map(|(_pth, manifest)| {
                 manifest
                     .dependencies
                     .as_ref()
                     .map(|deps| {
                         ManifestDependency::from_dependencies_table(&manifest.package.name, deps)
-                    }).unwrap_or_default()
+                    })
+                    .unwrap_or_default()
             })
             .filter(|dependency| !internal_crates.contains(&dependency.name))
             .collect::<Vec<ManifestDependency>>();
@@ -101,6 +104,7 @@ impl OutdatedCratesService {
                 if let Some(dep) = info_cache.get(&dependency.name) {
                     dep
                 } else {
+                    log::info!("Fetching latest crate info {}", &dependency.name);
                     let dep = self.client.get_crate(&dependency.name).unwrap();
                     info_cache.insert(dependency.name.clone(), dep);
                     info_cache.get(&dependency.name).unwrap()

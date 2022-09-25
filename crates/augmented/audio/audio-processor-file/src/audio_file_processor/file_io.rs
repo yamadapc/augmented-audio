@@ -20,11 +20,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use std::fs::File;
 use std::path::Path;
 
+use audio_processor_traits::VecAudioBuffer;
+use samplerate::Samplerate;
 use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef};
 use symphonia::core::audio::{AudioBuffer, Signal};
+use symphonia::core::codecs::Decoder;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
@@ -74,37 +78,65 @@ fn try_set_audio_file_hint(hint: &mut Hint, audio_input_path: &Path) -> Option<(
     Some(())
 }
 
+pub struct FileContentsStream<'a> {
+    audio_file: &'a mut ProbeResult,
+    decoder: Box<dyn Decoder>,
+    audio_file_stream_id: u32,
+}
+
+impl<'a> FileContentsStream<'a> {
+    pub fn new(audio_file: &'a mut ProbeResult) -> Result<Self, AudioFileError> {
+        let audio_file_stream = audio_file
+            .format
+            .default_track()
+            .ok_or(AudioFileError::OpenStreamError)?;
+        let decoder = symphonia::default::get_codecs()
+            .make(&audio_file_stream.codec_params, &Default::default())?;
+        let audio_file_stream_id = audio_file_stream.id;
+
+        Ok(FileContentsStream {
+            audio_file,
+            audio_file_stream_id,
+            decoder,
+        })
+    }
+}
+
+impl<'a> Iterator for FileContentsStream<'a> {
+    type Item = SymphoniaAudioBuffer<f32>;
+
+    fn next(&mut self) -> Option<SymphoniaAudioBuffer<f32>> {
+        let packet = self.audio_file.format.next_packet().ok()?;
+
+        if packet.track_id() != self.audio_file_stream_id {
+            return None;
+        }
+
+        let audio_buffer = self.decoder.decode(&packet).ok()?;
+        let destination = convert_audio_buffer_sample_type(audio_buffer);
+        Some(destination)
+    }
+}
+
+impl<'a> ExactSizeIterator for FileContentsStream<'a> {
+    fn len(&self) -> usize {
+        self.audio_file
+            .format
+            .default_track()
+            .map(|track| track.codec_params.n_frames.unwrap_or(0))
+            .unwrap_or(0) as usize
+    }
+}
+
 pub fn read_file_contents(
     audio_file: &mut ProbeResult,
 ) -> Result<SymphoniaAudioBuffer<f32>, AudioFileError> {
-    let audio_file_stream = audio_file
-        .format
-        .default_track()
-        .ok_or(AudioFileError::OpenStreamError)?;
-    let mut decoder = symphonia::default::get_codecs()
-        .make(&audio_file_stream.codec_params, &Default::default())?;
-    let audio_file_stream_id = audio_file_stream.id;
+    let stream = FileContentsStream::new(audio_file)?;
 
     let mut channel_buffers: Vec<SymphoniaAudioBuffer<f32>> = Vec::new();
-    metrics::time("AudioFileProcessor - Reading file packages", || loop {
-        match audio_file.format.next_packet().ok() {
-            None => break,
-            Some(packet) => {
-                if packet.track_id() != audio_file_stream_id {
-                    break;
-                }
-
-                let decoded = decoder.decode(&packet).ok();
-                match decoded {
-                    Some(audio_buffer) => {
-                        let destination = convert_audio_buffer_sample_type(audio_buffer);
-                        channel_buffers.push(destination);
-                    }
-                    _ => break,
-                }
-            }
-        }
-    });
+    for buffer in stream {
+        channel_buffers.push(buffer)
+    }
 
     if channel_buffers.is_empty() {
         return Err(AudioFileError::EmptyFileError);
@@ -116,7 +148,7 @@ pub fn read_file_contents(
     ))
 }
 
-fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> AudioBuffer<f32> {
+pub fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> AudioBuffer<f32> {
     let mut destination =
         SymphoniaAudioBuffer::new(audio_buffer.capacity() as u64, *audio_buffer.spec());
     let _ = destination.fill(|_, _| Ok(()));
@@ -137,6 +169,74 @@ fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> AudioBuffer
         AudioBufferRef::F64(inner) => inner.convert(&mut destination),
     }
     destination
+}
+
+pub struct ConvertedFileContentsStream<'a> {
+    audio_file_stream: FileContentsStream<'a>,
+    output_rate: f32,
+
+    decoder: Option<Result<Samplerate, samplerate::Error>>,
+}
+
+impl<'a> ConvertedFileContentsStream<'a> {
+    fn get_decoder(&mut self, from_rate: u32, channels: usize) -> Option<&mut Samplerate> {
+        if self.decoder.is_none() {
+            self.decoder = Some(samplerate::Samplerate::new(
+                samplerate::ConverterType::SincBestQuality,
+                from_rate,
+                self.output_rate as u32,
+                channels,
+            ));
+        }
+
+        if let Some(Ok(decoder)) = &mut self.decoder {
+            Some(decoder)
+        } else {
+            None
+        }
+    }
+}
+
+impl<'a> Iterator for ConvertedFileContentsStream<'a> {
+    type Item = VecAudioBuffer<f32>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let audio_buffer = self.audio_file_stream.next()?;
+        let num_samples = audio_buffer.frames();
+        let num_channels = audio_buffer.spec().channels.count();
+        let decoder = self.get_decoder(audio_buffer.spec().rate, num_channels)?;
+
+        let mut interleaved_buffer = vec![];
+        interleaved_buffer.resize(num_samples * num_channels, 0.0);
+        let channels: Vec<&[f32]> = (0..num_channels).map(|c| audio_buffer.chan(c)).collect();
+        for sample in 0..num_samples {
+            #[allow(clippy::needless_range_loop)]
+            for channel in 0..num_channels {
+                let index = sample * num_channels + channel;
+                interleaved_buffer[index] = channels[channel][sample];
+            }
+        }
+        let result = decoder.process(&interleaved_buffer).ok()?;
+
+        Some(VecAudioBuffer::new_with(result, num_channels, num_samples))
+    }
+}
+
+impl<'a> ExactSizeIterator for ConvertedFileContentsStream<'a> {
+    fn len(&self) -> usize {
+        self.audio_file_stream.len()
+    }
+}
+
+pub fn convert_audio_file_stream_sample_rate(
+    audio_file_stream: FileContentsStream,
+    output_rate: f32,
+) -> ConvertedFileContentsStream {
+    ConvertedFileContentsStream {
+        audio_file_stream,
+        output_rate,
+        decoder: None,
+    }
 }
 
 pub fn convert_audio_file_sample_rate(

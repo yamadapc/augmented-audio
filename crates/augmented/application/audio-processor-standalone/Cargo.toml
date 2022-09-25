@@ -1,12 +1,16 @@
 [package]
 name = "audio-processor-standalone"
-version = "1.0.0-alpha.12"
+version = "1.1.0"
 edition = "2018"
 description = "Stand-alone Audio/MIDI CLI runner for `audio-processor-traits`"
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 readme = "README.md"
+
+[features]
+default = []
+gui = ["audio-processor-standalone-gui"]
 
 [dependencies]
 # Logging & options
@@ -17,23 +21,25 @@ itertools = "0.10.1"
 thiserror = "^1.0.25"
 
 # Augmented
-audio-processor-file = { path = "../../audio/audio-processor-file", version = "1.0.0-alpha.8" }
-audio-garbage-collector = { path = "../../audio/audio-garbage-collector", version = "1.0.0-alpha.5" }
-audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../audio/audio-processor-traits" }
-augmented-midi = { path = "../../data/augmented-midi", version = "1.0.0-alpha.7" }
+audio-processor-file = { path = "../../audio/audio-processor-file", version = "1.1.0" }
+audio-garbage-collector = { path = "../../audio/audio-garbage-collector", version = "1.1.0" }
+audio-processor-traits = { version = "1.1.0", path = "../../audio/audio-processor-traits" }
+augmented-midi = { path = "../../data/augmented-midi", version = "1.1.0" }
 
 # Audio
 basedrop = "^0.1.2"
-cpal = { version = "^0.13.3" }
+cpal = { version = "0.14.0" }
 ringbuf = "^0.2.5"
-vst = { version = "0.2.1", path = "../../../vendor/vst" }
+vst = { version = "0.3", path = "../../../vendor/vst" }
+
+audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", optional = true }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-processor-standalone-midi" }
 
 [dev-dependencies]
-atomic-queue = { version = "1.0.0-alpha.4", path = "../../data/atomic-queue" }
-audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../testing/audio-processor-testing-helpers" }
+atomic-queue = { version = "1.0.1", path = "../../data/atomic-queue" }
+audio-processor-testing-helpers = { version = "1.1.0", path = "../../testing/audio-processor-testing-helpers" }
 mockall = "0.11.1"
 
 [package.metadata.augmented]

@@ -29,18 +29,18 @@
 //! * [Continuous Looper](https://beijaflor.io/blog/04-2022/rust-audio-experiments-5/)
 
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
-use std::time::Duration;
 
 use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
-use augmented_adsr_envelope::Envelope;
-use augmented_oscillator::Oscillator;
-use augmented_playhead::{PlayHead, PlayHeadOptions};
 
-const DEFAULT_CLICK_ATTACK_MS: u64 = 3;
-const DEFAULT_CLICK_DECAY_RELEASE_MS: u64 = 10;
-const DEFAULT_SAMPLE_RATE: f32 = 44100.0;
-const DEFAULT_TEMPO: f32 = 120.0;
+use self::constants::{build_envelope, DEFAULT_SAMPLE_RATE, DEFAULT_TEMPO};
+pub use self::playhead::{DefaultMetronomePlayhead, MetronomePlayhead};
+use self::sound::MetronomeSoundSine;
+pub use self::sound::{MetronomeSound, MetronomeSoundType};
+
+mod constants;
+mod playhead;
+mod sound;
 
 /// Public metronome API
 pub struct MetronomeProcessorHandle {
@@ -89,100 +89,24 @@ impl MetronomeProcessorHandle {
     }
 }
 
-/// This is so that consumers can control the play-head and metronome just follow
-///
-/// There are two types of methods here:
-///
-/// * Mutation methods: reset, set_tempo, prepare
-///   - These should be used by the metronome app only and noop if there's another master
-/// * Getter methods
-///   - These must be implemented
-pub trait MetronomePlayhead {
-    fn reset(&mut self) {}
-    fn set_tempo(&mut self, _tempo: f32) {}
-    fn prepare(&mut self, _settings: &AudioProcessorSettings, _tempo: f32) {}
-    fn accept_samples(&mut self, _samples: u32) {}
-    fn tempo(&self) -> Option<f32> {
-        None
-    }
-
-    fn position_beats(&self) -> f64;
-}
-
-pub struct DefaultMetronomePlayhead {
-    playhead: PlayHead,
-}
-
-impl Default for DefaultMetronomePlayhead {
-    fn default() -> Self {
-        let sample_rate = DEFAULT_SAMPLE_RATE;
-        let tempo = DEFAULT_TEMPO;
-        let playhead = PlayHead::new(PlayHeadOptions::new(
-            Some(sample_rate),
-            Some(tempo),
-            Some(16),
-        ));
-        Self { playhead }
-    }
-}
-
-impl MetronomePlayhead for DefaultMetronomePlayhead {
-    fn reset(&mut self) {
-        self.playhead.set_position_seconds(0.0);
-    }
-
-    fn set_tempo(&mut self, tempo: f32) {
-        self.playhead.set_tempo(tempo);
-    }
-
-    fn prepare(&mut self, settings: &AudioProcessorSettings, tempo: f32) {
-        self.playhead = PlayHead::new(PlayHeadOptions::new(
-            Some(settings.sample_rate()),
-            Some(tempo),
-            self.playhead.options().ticks_per_quarter_note(),
-        ));
-    }
-
-    fn accept_samples(&mut self, samples: u32) {
-        self.playhead.accept_samples(samples)
-    }
-
-    fn tempo(&self) -> Option<f32> {
-        self.playhead.options().tempo()
-    }
-
-    fn position_beats(&self) -> f64 {
-        self.playhead.position_beats()
-    }
-}
-
 /// Holds mutable state for the metronome
 struct MetronomeProcessorState {
-    // playhead: PlayHead,
-    oscillator: Oscillator<f32>,
     is_beeping: bool,
-    envelope: Envelope,
+    metronome_sound: MetronomeSoundType,
     last_position: f32,
 }
 
 impl Default for MetronomeProcessorState {
     fn default() -> Self {
         Self {
-            last_position: 0.0,
-            oscillator: Oscillator::sine(DEFAULT_SAMPLE_RATE),
+            last_position: -1.0,
             is_beeping: false,
-            envelope: build_envelope(),
+            metronome_sound: MetronomeSoundType::Sine(MetronomeSoundSine::new(
+                DEFAULT_SAMPLE_RATE,
+                build_envelope(),
+            )),
         }
     }
-}
-
-fn build_envelope() -> Envelope {
-    let envelope = Envelope::new();
-    envelope.set_attack(Duration::from_millis(DEFAULT_CLICK_ATTACK_MS));
-    envelope.set_decay(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
-    envelope.set_sustain(0.0);
-    envelope.set_release(Duration::from_millis(DEFAULT_CLICK_DECAY_RELEASE_MS));
-    envelope
 }
 
 pub struct MetronomeProcessor<P: MetronomePlayhead> {
@@ -221,6 +145,11 @@ impl<P: MetronomePlayhead> MetronomeProcessor<P> {
         }
     }
 
+    pub fn set_sound(&mut self, mut sound: MetronomeSoundType) -> MetronomeSoundType {
+        std::mem::swap(&mut self.state.metronome_sound, &mut sound);
+        sound
+    }
+
     pub fn handle(&self) -> &Shared<MetronomeProcessorHandle> {
         &self.handle
     }
@@ -231,10 +160,7 @@ impl<P: MetronomePlayhead> AudioProcessor for MetronomeProcessor<P> {
 
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         self.playhead.prepare(&settings, self.handle.tempo.get());
-        self.state.envelope.set_sample_rate(settings.sample_rate());
-        self.state
-            .oscillator
-            .set_sample_rate(settings.sample_rate())
+        self.state.metronome_sound.prepare(settings);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
@@ -263,16 +189,13 @@ impl<P: MetronomePlayhead> AudioProcessor for MetronomeProcessor<P> {
 impl<P: MetronomePlayhead> MetronomeProcessor<P> {
     fn process_frame(&mut self, frame: &mut [f32]) {
         self.playhead.accept_samples(1);
-        self.state.envelope.tick();
-        self.state.oscillator.tick();
 
         let position = self.playhead.position_beats() as f32;
         self.handle.position_beats.set(position);
 
         self.trigger_click(position);
 
-        let out =
-            self.state.oscillator.get() * self.handle.volume.get() * self.state.envelope.volume();
+        let out = self.state.metronome_sound.process() * self.handle.volume.get();
 
         for sample in frame {
             *sample = out;
@@ -288,16 +211,13 @@ impl<P: MetronomePlayhead> MetronomeProcessor<P> {
             let beats_per_bar = self.handle.beats_per_bar.load(Ordering::Relaxed);
             let f_beats_per_bar = beats_per_bar as f32;
 
-            if beats_per_bar != 1 && position % f_beats_per_bar < 1.0 {
-                self.state.oscillator.set_frequency(880.0);
-            } else {
-                self.state.oscillator.set_frequency(440.0);
-            }
+            let is_beat_1 = beats_per_bar != 1 && position % f_beats_per_bar < 1.0;
+            self.state.metronome_sound.set_accent_beat(is_beat_1);
         }
 
         if !self.state.is_beeping && position.floor() != self.state.last_position.floor() {
             self.state.is_beeping = true;
-            self.state.envelope.note_on();
+            self.state.metronome_sound.trigger();
         } else {
             self.state.is_beeping = false;
         }

@@ -58,6 +58,7 @@ pub struct LooperApplication {
     looper_visualizations: Vec<LooperVisualizationView>,
     knobs_view: bottom_panel::BottomPanelView,
     sequencer_view: sequencer::SequencerView,
+    #[allow(dead_code)]
     audio_editor_view: AudioEditorView,
     tabs_view: tabs::State,
 }
@@ -170,6 +171,7 @@ impl Application for LooperApplication {
             .height(Length::Units(100))
             .into();
 
+        #[allow(unused_variables)]
         let sequencer_view = self.sequencer_view.view().map(|_| Message::None);
 
         let main_tab = tabs::Tab::new(
@@ -178,7 +180,7 @@ impl Application for LooperApplication {
                 status_bar,
                 looper_views,
                 knobs,
-                sequencer_view,
+                // sequencer_view,
             ]))
             .center_x()
             .center_y()
@@ -191,10 +193,10 @@ impl Application for LooperApplication {
             .tabs_view
             .view(vec![
                 main_tab,
-                tabs::Tab::new(
-                    "File Editor",
-                    self.audio_editor_view.view().map(|_msg| Message::None),
-                ),
+                // tabs::Tab::new(
+                //     "File Editor",
+                //     self.audio_editor_view.view().map(|_msg| Message::None),
+                // ),
             ])
             .map(WrapperMessage::TabsView)])
         .into()

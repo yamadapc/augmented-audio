@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-file"
-version = "1.0.0-alpha.8"
+version = "1.1.0"
 edition = "2021"
 description = "`AudioProcessor` implementations for audio file playback & writing."
 license = "MIT"
@@ -16,19 +16,23 @@ thiserror = "^1.0.30"
 rayon = "^1.5.1"
 
 # Audio read/write respectively
-symphonia = { version = "0.5.0", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
-symphonia-bundle-mp3 = "0.5.0"
-symphonia-format-wav = "0.5.0"
+symphonia = { version = "0.5.1", features = ["mp3", "wav", "flac", "isomp4", "aac"] }
+symphonia-bundle-mp3 = "0.5.1"
+symphonia-format-wav = "0.5.1"
 hound = "^3.4.0"
+samplerate = "0.2.4"
 
 # Augmented
-audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.0.0-alpha.5" }
-audio-processor-traits = { version = "1.0.0-alpha.7", path = "../../../augmented/audio/audio-processor-traits" }
-augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.0.0-alpha.5" }
-augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.0.0-alpha.7" }
+audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.1.0" }
+audio-processor-traits = { version = "1.1.0", path = "../../../augmented/audio/audio-processor-traits" }
+augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.1.0" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.1.0" }
+
+cpal = "0.14.0"
 
 [dev-dependencies]
-audio-processor-testing-helpers = { version = "1.0.0-alpha.7", path = "../../../augmented/testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.1.0", path = "../../../augmented/testing/audio-processor-testing-helpers" }
+wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 
 [package.metadata.augmented]
 private = false

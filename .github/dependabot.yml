@@ -52,26 +52,26 @@ updates:
     directory: "./crates/augmented/data/circular-data-structures"
     schedule:
       interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/example-druid-audio-viz"
-    schedule:
-      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/example-druid-audio-viz"
+#    schedule:
+#      interval: "daily"
   - package-ecosystem: "cargo"
     directory: "./crates/augmented/audio/audio-processor-analysis"
     schedule:
       interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/visualisation_"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/example-iced-xcode-integration"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/example-iced-audio-viz"
-    schedule:
-      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/visualisation_"
+#    schedule:
+#      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/example-iced-xcode-integration"
+#    schedule:
+#      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/example-iced-audio-viz"
+#    schedule:
+#      interval: "daily"
   - package-ecosystem: "cargo"
     directory: "./crates/augmented/audio/audio-processor-utility"
     schedule:
@@ -112,34 +112,34 @@ updates:
     directory: "./crates/apps/plugin-host/plugin-host-lib"
     schedule:
       interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/AugmentedNative"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/thread_memory_usage"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/spikes/augmented-ui"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/scripts/autosync-submodules"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/scripts/midi-logger-host"
-    schedule:
-      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/AugmentedNative"
+#    schedule:
+#      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/thread_memory_usage"
+#    schedule:
+#      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/spikes/augmented-ui"
+#    schedule:
+#      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/scripts/autosync-submodules"
+#    schedule:
+#      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/scripts/midi-logger-host"
+#    schedule:
+#      interval: "daily"
   - package-ecosystem: "cargo"
     directory: "./crates/augmented/development/augmented-dev-cli"
     schedule:
       interval: "daily"
-  - package-ecosystem: "cargo"
-    directory: "./crates/augmented/development/bundler"
-    schedule:
-      interval: "daily"
+#  - package-ecosystem: "cargo"
+#    directory: "./crates/augmented/development/bundler"
+#    schedule:
+#      interval: "daily"
   - package-ecosystem: "cargo"
     directory: "./crates/augmented/data/audio-volume"
     schedule:

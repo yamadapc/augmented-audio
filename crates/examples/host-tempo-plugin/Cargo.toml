@@ -1,0 +1,24 @@
+[package]
+name = "host_tempo_plugin"
+version = "0.0.2"
+authors = ["Pedro Tacla Yamada <tacla.yamada@gmail.com>"]
+edition = "2018"
+license = "MIT"
+homepage = "https://github.com/yamadapc/augmented-audio"
+repository = "https://github.com/yamadapc/augmented-audio"
+
+[dependencies]
+augmented = { path = "../../augmented/augmented" }
+log = "^0.4.11"
+
+[lib]
+name = "demo_plugin"
+crate-type = ["cdylib", "lib"]
+
+[package.metadata]
+augmented.private = true
+app.public-name = "HostTempo"
+app.macos.type = "vst"
+app.macos.identifier = "com.beijaflor.hosttempo"
+bundle.name = "HostTempo"
+bundle.macos.properties.CFBundleGetInfoString = "vst"
