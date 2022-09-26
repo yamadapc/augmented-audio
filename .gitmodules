@@ -7,12 +7,6 @@
 [submodule "crates/vendor/baseview"]
 	path = crates/vendor/baseview
 	url = https://github.com/yamadapc/baseview
-[submodule "crates/vendor/iced"]
-	path = crates/vendor/iced
-	url = https://github.com/yamadapc/iced
-[submodule "crates/vendor/iced_audio"]
-	path = crates/vendor/iced_audio
-	url = https://github.com/yamadapc/iced_audio
 [submodule "crates/vendor/lyon"]
 	path = crates/vendor/lyon
 	url = git@github.com:yamadapc/lyon
