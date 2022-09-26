@@ -21,10 +21,6 @@ jobs:
       RUST_BACKTRACE: full
 
     steps:
-      - name: Setup path
-        run: |
-          echo "/root/.cargo/bin" >> $GITHUB_PATH
-          ls "/root/.cargo/"
       - uses: actions/checkout@v2
         with:
           submodules: recursive
@@ -131,10 +127,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
     steps:
-    - name: Setup path
-      run: |
-        echo "/root/.cargo/bin" >> $GITHUB_PATH
-        ls "/root/.cargo/"
     - uses: actions/checkout@v2
       with:
         submodules: recursive
@@ -142,6 +134,12 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-linux"
+
+    - name: Install dependencies
+      run: |
+        ./scripts/install-ubuntu-apt-dependencies.sh
+        ./scripts/install-ubuntu-rust-dependencies.sh
+
     - name: Build release
       run: |
         cargo build --release --workspace \
