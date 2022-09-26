@@ -8,14 +8,11 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  RUSTUP_HOME: /root/.rustup
-  CARGO_HOME: /root/.cargo
 
 jobs:
   test-rust:
     name: Run unit-tests on rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    container: ghcr.io/yamadapc/augmented-audio-builder:latest
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -36,16 +33,37 @@ jobs:
         with:
           shared-key: "rust-cache-linux"
 
+      - name: Install dependencies
+        run: |
+          ./scripts/install-ubuntu-apt-dependencies.sh
+          ./scripts/install-ubuntu-rust-dependencies.sh
+
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
-          cargo llvm-cov nextest --workspace \
+          cargo tarpaulin --skip-clean --workspace \
               --features story \
-              --lcov \
-              --output-path ./lcov.info \
-              --ignore-filename-regex "(.*crates/(vendor|spikes|scripts|augmented/gui|.*examples|augmented/development|.*midir.*|apps/daw|apps/demo-plugin|apps/tremolo-plugin|apps/synth|.*codegen|)/.*)|bridge-generated.rs" \
+              --coveralls $COVERALLS_TOKEN \
+              --out lcov \
+              --output-dir ./tarpaulin-report \
+              --exclude-files "*crates/vendor/*" \
+              --exclude-files "*crates/spikes/*" \
+              --exclude-files "*crates/scripts/*" \
+              --exclude-files "*crates/augmented/gui/*" \
+              --exclude-files "*crates/augmented/application/audio-processor-standalone/examples/*" \
+              --exclude-files "*crates/augmented/application/audio-processor-standalone-gui/*" \
+              --exclude-files "*crates/augmented/audio/audiounit/*" \
+              --exclude-files "*crates/augmented/development/*" \
+              --exclude-files "*crates/augmented/data/augmented-midi/midir/*" \
+              --exclude-files "*crates/apps/daw/*" \
+              --exclude-files "*crates/apps/demo-plugin/*" \
+              --exclude-files "*crates/apps/recording_buddy/*" \
+              --exclude-files "*crates/apps/tremolo-plugin/*" \
+              --exclude-files "*crates/apps/synth/*" \
+              --exclude-files "*crates/apps/looper/augmented-codegen/*" \
+              --exclude-files "*/bridge_generated.rs" \
               --exclude assert-no-alloc \
               --exclude augmented-ui \
               --exclude audiounit \
@@ -68,8 +86,6 @@ jobs:
               --exclude darwin-webkit \
               --exclude webview-holder \
               --exclude macos-bundle-resources
-
-#          coveralls-lcov --repo-token $COVERALLS_TOKEN lcov.info
 
       - name: Test
         env:
@@ -101,19 +117,11 @@ jobs:
               --exclude webview-holder \
               --exclude macos-bundle-resources
 
-      - name: Deploy to GitHub Pages
-        if: success() && github.ref == 'ref/head/master'
-        uses: peaceiris/actions-gh-pages@v3
+      - name: Upload tarpaulin report
+        uses: actions/upload-artifact@v2
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./target/llvm-cov/html
-          destination_dir: coverage
-
-#      - name: Upload tarpaulin report
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: tarpaulin-report
-#          path: ./tarpaulin-report
+          name: tarpaulin-report
+          path: ./tarpaulin-report
 
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
