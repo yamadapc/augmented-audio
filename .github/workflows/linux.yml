@@ -27,7 +27,7 @@ jobs:
           lfs: true
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: "rust-cache-linux"
+          shared-key: "rust-cache-linux2"
 
       - name: Install dependencies
         run: |
@@ -122,7 +122,6 @@ jobs:
   build-rust:
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    container: ghcr.io/yamadapc/augmented-audio-builder:latest
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -133,7 +132,7 @@ jobs:
         lfs: true
     - uses: Swatinem/rust-cache@v2
       with:
-        shared-key: "rust-cache-linux"
+        shared-key: "rust-cache-linux2"
 
     - name: Install dependencies
       run: |
