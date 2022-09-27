@@ -105,6 +105,12 @@
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/spikes/example-druid-audio-viz/target" />
+      <excludeFolder url="file://$MODULE_DIR$/dart/augmented_midi_editor/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/dart/augmented_midi_editor/build" />
+      <excludeFolder url="file://$MODULE_DIR$/dart/augmented_midi_editor/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/dart/augmented_midi_editor/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/dart/augmented_midi_editor/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/dart/augmented_midi_editor/example/.dart_tool" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />
