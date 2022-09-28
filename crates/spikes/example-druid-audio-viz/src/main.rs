@@ -134,11 +134,20 @@ impl Widget<AudioData> for AudioWave {
         {
             let value = data.0;
             let height = self.image.height() as f32;
-            let y = (height / 2.0 + value * height / 2.0) as u32;
+            let mid_point = height / 2.0;
+            let y = (mid_point + value * mid_point) as u32;
             let cursor = (self.cursor as u32) % self.image.width();
-            let px = self.image.get_pixel_mut(cursor, y);
 
-            *px = image::Rgba::from([255, 0, 0, 255]);
+            let mid_point = mid_point as u32;
+            let (start, end) = if mid_point > y {
+                (y, mid_point)
+            } else {
+                (mid_point, y)
+            };
+            for i in start..(end + 1) {
+                let px = self.image.get_pixel_mut(cursor, i);
+                *px = image::Rgba::from([255, 0, 0, 255]);
+            }
         }
 
         self.cursor += 1.0;
