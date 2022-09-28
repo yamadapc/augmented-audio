@@ -49,24 +49,25 @@ pub fn spawn_audio_drawer(
     let (tx, rx) = std::sync::mpsc::channel();
 
     let mut cursor = 0;
-    let frame_size = samples.num_samples() / 10;
+    let frame_size = samples.num_samples() / 1000;
     let mut state = DrawState::new(height);
     std::thread::spawn(move || loop {
         if cursor >= samples.num_samples() {
             break;
         }
+        let offset = state.previous_point.1;
         let (new_state, path) = draw_audio(
             &samples,
             (cursor, cursor + frame_size),
             (width, height),
             state.clone(),
         );
-        state = new_state;
 
         let frame = AudioWaveFrame {
-            offset: ((cursor as f32 / samples.num_samples() as f32) * width) as usize,
+            offset:  state.previous_point.0 as usize,
             path,
         };
+        state = new_state;
         let result = tx.send(frame);
 
         if result.is_err() {
@@ -102,10 +103,7 @@ pub fn draw_audio(
     let num_samples = samples.num_samples();
 
     path.move_to((state.previous_point.0, height / 2.0));
-    for (i, frame) in samples.frames().enumerate() {
-        if i < start || i > end {
-            continue;
-        }
+    for (i, frame) in samples.frames().enumerate().skip(start - 1).take(end - start) {
         let sample = (frame[0] + frame[1]) / 2.0;
 
         let x = (i as f32 / num_samples as f32) * width;
