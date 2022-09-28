@@ -6,10 +6,13 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-druid = "^0.7.0"
-instant = "^0.1.9"
-basedrop = "^0.1.2"
-log = "^0.4.14"
+druid = "0.7"
+# druid = { git = "https://github.com/lapce/druid", branch = "shell_opengl", features = [ "svg", "im", "serde", ] }
+image = "0.24.4"
+
+instant = "0.1"
+basedrop = "0.1"
+log = "0.4"
 
 audio-processor-standalone = { version = "1.1.0", path = "../../augmented/application/audio-processor-standalone" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.1.0" }

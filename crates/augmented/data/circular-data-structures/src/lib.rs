@@ -23,7 +23,7 @@
 use std::ops::{Index, IndexMut, Rem};
 use std::slice::SliceIndex;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CircularVec<T> {
     inner: Vec<T>,
 }

@@ -51,8 +51,9 @@ impl AudioProcessor for BufferAnalyserProcessor {
         &mut self,
         data: &mut BufferType,
     ) {
-        for frame in data.slice().chunks(data.num_channels()) {
+        for frame in data.frames_mut() {
             self.buffer.push(frame[0]);
+            frame.iter_mut().for_each(|s| *s = 0.0);
         }
     }
 }
