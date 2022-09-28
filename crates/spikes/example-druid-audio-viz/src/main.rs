@@ -45,6 +45,7 @@ use circular_data_structures::CircularVec;
 use druid::kurbo::BezPath;
 use druid::piet::{CoreGraphicsImage, ImageFormat};
 use druid::widget::Image;
+use image::RgbImage;
 
 mod buffer_analyser;
 
@@ -101,7 +102,7 @@ impl Data for AudioData {
 
 /// A widget that displays a color.
 struct AudioWave {
-    image: image::RgbaImage,
+    image: RgbImage,
     cursor: f32,
 }
 
@@ -145,12 +146,16 @@ impl Widget<AudioData> for AudioWave {
                 (mid_point, y)
             };
             for i in start..(end + 1) {
-                let px = self.image.get_pixel_mut(cursor, i);
-                *px = image::Rgba::from([255, 0, 0, 255]);
+                let px = self.image.get_pixel_mut(cursor, i % height as u32);
+                *px = image::Rgb::from([255, 0, 0]);
             }
         }
 
         self.cursor += 1.0;
+        if self.cursor as u32 >= self.image.width() {
+            self.cursor = 0.0;
+            self.image.iter_mut().for_each(|px| *px = 0);
+        }
 
         ctx.request_paint();
     }
@@ -162,13 +167,13 @@ impl Widget<AudioData> for AudioWave {
     // This is of course super slow due to using CoreGraphics
     fn paint(&mut self, ctx: &mut PaintCtx, data: &AudioData, _env: &Env) {
         let image = ctx
-            .make_image(500, 500, self.image.as_ref(), ImageFormat::RgbaPremul)
+            .make_image(1000, 1000, self.image.as_ref(), ImageFormat::Rgb)
             .unwrap();
         let size = ctx.size();
         ctx.draw_image(
             &image,
             Rect::from_origin_size(druid::Point::ZERO, size),
-            druid::piet::InterpolationMode::Bilinear,
+            druid::piet::InterpolationMode::NearestNeighbor,
         );
 
         // // ctx.clear(Color::BLACK);
@@ -215,11 +220,12 @@ impl Widget<AudioData> for AudioWave {
 }
 
 fn make_ui() -> impl Widget<AudioData> {
-    let img: image::DynamicImage = image::DynamicImage::new_rgba8(500, 500);
+    let img: image::DynamicImage = image::DynamicImage::new_rgba8(1000, 1000);
     let fmt = ImageFormat::RgbaPremul;
 
+    let buffer = img.into_rgb8();
     AudioWave {
-        image: img.to_rgba8(),
+        image: buffer,
         cursor: 0.0,
     }
     .expand()
