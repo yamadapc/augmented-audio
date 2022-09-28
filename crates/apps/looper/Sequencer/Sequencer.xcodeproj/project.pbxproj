@@ -74,6 +74,7 @@
 		CBB47B4828C2C11C0069D916 /* ApplicationEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB59A60927FDA7EE004BC156 /* ApplicationEventStream.swift */; };
 		CBB47B4F28C2C2780069D916 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = CBB47B4E28C2C2780069D916 /* Logging */; };
 		CBB47B5228C2DBF60069D916 /* example-song.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = CBB47B5028C2DB290069D916 /* example-song.mp3 */; };
+		CBBEA84628E43CB300C86F95 /* LRUCache in Frameworks */ = {isa = PBXBuildFile; productRef = CBBEA84528E43CB300C86F95 /* LRUCache */; };
 		CBD6415628442D2700825185 /* AudioIOSettingsControllerImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */; };
 		CBECE3B327ED434C0054BB43 /* SequencerEngineController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */; };
 		CBECE3BB27ED43DB0054BB43 /* SequencerEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */; };
@@ -336,6 +337,7 @@
 				CB5D801128C60349002501F2 /* Logging in Frameworks */,
 				CB0F71C527E1204E00C08404 /* liblooperengine.a in Frameworks */,
 				CBA4DA9F27DDF22700A530E3 /* SequencerUI in Frameworks */,
+				CBBEA84628E43CB300C86F95 /* LRUCache in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -812,6 +814,7 @@
 			packageProductDependencies = (
 				CBA4DA9E27DDF22700A530E3 /* SequencerUI */,
 				CB5D801028C60349002501F2 /* Logging */,
+				CBBEA84528E43CB300C86F95 /* LRUCache */,
 			);
 			productName = SequencerEngine;
 			productReference = CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */;
@@ -940,6 +943,7 @@
 				CB23AD9C27D2EDFD00C6289F /* XCRemoteSwiftPackageReference "OSCKit" */,
 				CBB47B4B28C2C25B0069D916 /* XCRemoteSwiftPackageReference "swift-log" */,
 				CB43DA3728C611E1007025AF /* XCRemoteSwiftPackageReference "swift-algorithms" */,
+				CBBEA84428E43CB300C86F95 /* XCRemoteSwiftPackageReference "LRUCache" */,
 			);
 			productRefGroup = CB1666A527CCAD04000F9E21 /* Products */;
 			projectDirPath = "";
@@ -2084,6 +2088,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		CBBEA84428E43CB300C86F95 /* XCRemoteSwiftPackageReference "LRUCache" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nicklockwood/LRUCache";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -2134,6 +2146,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = CBB47B4B28C2C25B0069D916 /* XCRemoteSwiftPackageReference "swift-log" */;
 			productName = Logging;
+		};
+		CBBEA84528E43CB300C86F95 /* LRUCache */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CBBEA84428E43CB300C86F95 /* XCRemoteSwiftPackageReference "LRUCache" */;
+			productName = LRUCache;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
