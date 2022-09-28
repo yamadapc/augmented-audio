@@ -1,5 +1,5 @@
 use audio_processor_traits::AudioBuffer;
-use skia_safe::{Canvas, Color4f, Paint, Path, Point, Vector};
+use skia_safe::{Canvas, Color4f, Paint, Path, Vector};
 
 struct AudioWaveFrame {
     offset: usize,
@@ -50,7 +50,7 @@ pub fn spawn_audio_drawer(
 
     let mut cursor = 0;
     let frame_size = samples.num_samples() / 10;
-    let mut state = DrawState::new(width, height);
+    let mut state = DrawState::new(height);
     std::thread::spawn(move || loop {
         if cursor >= samples.num_samples() {
             break;
@@ -84,7 +84,7 @@ pub struct DrawState {
 }
 
 impl DrawState {
-    pub fn new(width: f32, height: f32) -> Self {
+    pub fn new(height: f32) -> Self {
         Self {
             previous_point: (0.0, height / 2.0),
         }
@@ -100,17 +100,15 @@ pub fn draw_audio(
     let mut path = Path::new();
 
     let num_samples = samples.num_samples();
-    let mut x = 0.0;
 
     path.move_to((state.previous_point.0, height / 2.0));
-    let start_point = state.previous_point;
     for (i, frame) in samples.frames().enumerate() {
         if i < start || i > end {
             continue;
         }
         let sample = (frame[0] + frame[1]) / 2.0;
 
-        x = (i as f32 / num_samples as f32) * width;
+        let x = (i as f32 / num_samples as f32) * width;
         let y = sample * height / 2.0 + height / 2.0;
 
         path.line_to((x, y));

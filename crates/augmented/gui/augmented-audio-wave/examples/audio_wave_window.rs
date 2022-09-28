@@ -13,7 +13,7 @@ use winit::platform::macos::WindowExtMacOS;
 
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
-use augmented_audio_wave::{draw_audio, spawn_audio_drawer};
+use augmented_audio_wave::spawn_audio_drawer;
 
 fn read_test_buffer() -> VecAudioBuffer<f32> {
     let input = audio_processor_testing_helpers::relative_path!("../../../../input-files/bass.mp3");
@@ -90,6 +90,9 @@ fn main() {
             match event {
                 Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                    WindowEvent::Touch(t) => {
+                        log::info!("{:?}", t);
+                    }
                     WindowEvent::CursorMoved { position, .. } => {
                         mouse_position.x = position.x as scalar;
                         mouse_position.y = position.y as scalar;
@@ -109,11 +112,20 @@ fn main() {
 
                             canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
 
+                            let mut path = Path::new();
+                            let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+                            paint.set_stroke(true);
+                            paint.set_stroke_width(2.0);
+                            let size = window.inner_size();
+                            path.move_to((0.0, size.height as f32 / 2.0));
+                            path.line_to((size.width as f32, size.height as f32 / 2.0));
+                            canvas.draw_path(&path, &paint);
+
                             if path_renderer.draw(canvas) {
                                 window.request_redraw();
                             }
                             let paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
-                            canvas.draw_circle(mouse_position, 30.0, &paint);
+                            canvas.draw_circle(mouse_position, 10.0, &paint);
 
                             surface.flush_and_submit();
                             drop(surface);
@@ -169,6 +181,7 @@ fn read_surface(
     }
 }
 
+#[allow(unused)]
 fn draw(canvas: &mut Canvas, path: &Path, mouse_position: Point) {
     let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
     paint.set_anti_alias(true);
