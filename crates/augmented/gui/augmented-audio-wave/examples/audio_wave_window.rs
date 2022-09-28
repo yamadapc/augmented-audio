@@ -13,7 +13,7 @@ use winit::platform::macos::WindowExtMacOS;
 
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
-use augmented_audio_wave::draw_audio;
+use augmented_audio_wave::{draw_audio, spawn_audio_drawer};
 
 fn read_test_buffer() -> VecAudioBuffer<f32> {
     let input = audio_processor_testing_helpers::relative_path!("../../../../input-files/bass.mp3");
@@ -40,6 +40,7 @@ fn read_test_buffer() -> VecAudioBuffer<f32> {
 }
 
 fn main() {
+    wisual_logger::init_from_env();
     let ev = winit::event_loop::EventLoop::new();
     let window = winit::window::Window::new(&ev).unwrap();
 
@@ -76,13 +77,12 @@ fn main() {
 
     let mut mouse_position = Point::new(0.0, 0.0);
     let draw_size = window.inner_size();
-    let mut path = draw_audio(
-        &test_buffer,
+    let mut path_renderer = spawn_audio_drawer(
+        test_buffer,
         (draw_size.width as f32, draw_size.height as f32),
     );
 
-    // let image_surface = Surface::from_ca_metal_layer(&context, )
-
+    log::info!("Starting to render");
     ev.run(move |event, _target, control_flow| {
         autoreleasepool(|| {
             *control_flow = ControlFlow::Wait;
@@ -109,7 +109,12 @@ fn main() {
 
                             canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
 
-                            draw(canvas, &path, mouse_position);
+                            if path_renderer.draw(canvas) {
+                                window.request_redraw();
+                            }
+                            let paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+                            canvas.draw_circle(mouse_position, 30.0, &paint);
+
                             surface.flush_and_submit();
                             drop(surface);
 
