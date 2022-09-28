@@ -54,7 +54,7 @@ fn main() {
     };
     let mut context = DirectContext::new_metal(&backend, None).unwrap();
 
-    // let test_buffer = read_test_buffer();
+    let test_buffer = read_test_buffer();
 
     let build_layer = || {
         let draw_size = window.inner_size();
@@ -72,11 +72,16 @@ fn main() {
         layer.set_drawable_size(CGSize::new(draw_size.width as f64, draw_size.height as f64));
         layer
     };
-
     let metal_layer = build_layer();
 
-    let mut cleared = 0;
     let mut mouse_position = Point::new(0.0, 0.0);
+    let draw_size = window.inner_size();
+    let mut path = draw_audio(
+        &test_buffer,
+        (draw_size.width as f32, draw_size.height as f32),
+    );
+
+    // let image_surface = Surface::from_ca_metal_layer(&context, )
 
     ev.run(move |event, _target, control_flow| {
         autoreleasepool(|| {
@@ -100,14 +105,11 @@ fn main() {
                 Event::RedrawRequested(_) => {
                     get_drawable_surface(&metal_layer, &mut context).map(
                         |(drawable, mut surface)| {
-                            // let draw_size = window.inner_size();
-                            // let path = draw_audio(
-                            //     &test_buffer,
-                            //     (draw_size.width as f32, draw_size.height as f32),
-                            // );
-                            let path = Path::new();
+                            let canvas = surface.canvas();
 
-                            draw(surface.canvas(), &path, mouse_position);
+                            canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
+
+                            draw(canvas, &path, mouse_position);
                             surface.flush_and_submit();
                             drop(surface);
 
@@ -141,7 +143,7 @@ fn read_surface(
         Size::new(size.width as scalar, size.height as scalar)
     };
 
-    let surface = unsafe {
+    unsafe {
         let texture_info = mtl::TextureInfo::new(drawable.texture().as_ptr() as mtl::Handle);
 
         let backend_render_target = BackendRenderTarget::new_metal(
@@ -159,19 +161,14 @@ fn read_surface(
             None,
         )
         .unwrap()
-    };
-    surface
+    }
 }
 
 fn draw(canvas: &mut Canvas, path: &Path, mouse_position: Point) {
-    // canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
+    let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+    paint.set_anti_alias(true);
+    canvas.draw_path(path, &paint);
 
     let paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
     canvas.draw_circle(mouse_position, 30.0, &paint);
-
-    // let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
-    // paint.set_dither(true);
-    // paint.set_anti_alias(true);
-    // // assert!(!paint.is_anti_alias()); //paint.set_anti_alias(false);
-    // canvas.draw_path(path, &paint);
 }

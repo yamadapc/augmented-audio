@@ -8,6 +8,7 @@ skia-safe = { version = "0.54.0", features = ["metal"] }
 audio-processor-traits = { version = "1.1", path = "../../audio/audio-processor-traits" }
 
 [dev-dependencies]
+
 audio-processor-testing-helpers = { version = "1.1", path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-file = { version = "1.1", path = "../../audio/audio-processor-file" }
 audio-garbage-collector = { version = "1.1", path = "../../audio/audio-garbage-collector" }
