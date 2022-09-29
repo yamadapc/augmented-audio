@@ -1,3 +1,7 @@
+## v1.3.0
+
+* [`ef2551333`](https://github.com/yamadapc/augmented-audio/commits/ef2551333) audio-processor-standalone@1.3.0 (Minor)
+
 ## v1.2.0
 
 * [`f919cac13`](https://github.com/yamadapc/augmented-audio/commits/f919cac13) augmented-playhead@0.3.0 (Minor)
