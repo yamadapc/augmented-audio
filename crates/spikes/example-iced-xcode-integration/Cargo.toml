@@ -8,8 +8,8 @@ name = "example_iced_xcode_integration"
 crate-type = ["staticlib"]
 
 [dependencies]
-iced_baseview = { path = "../../vendor/iced-baseview", features = ["tokio", "wgpu_canvas"] }
-baseview = { path = "../../vendor/baseview" }
+iced_baseview = { git = "https://github.com/yamadapc/iced_baseview", rev = "2714c97a431b1c7eba8bc0c67055ac35e80b29ce", default-features = false }
+baseview = { git = "https://github.com/yamadapc/baseview", rev = "a82acc4017443e652fd218d28d20f2546be3bf22" }
 raw-window-handle = "0.4.3"
 objc = "0.2.7"
 cocoa = "0.24.0"

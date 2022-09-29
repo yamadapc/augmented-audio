@@ -19,7 +19,7 @@ thiserror = "^1.0.25"
 serde = { version = "^1.0.126", features = ["derive"] }
 serde_json = "^1.0.64"
 vst = { path = "../../../vendor/vst" }
-baseview = { path = "../../../vendor/baseview" }
+baseview = { git = "https://github.com/yamadapc/baseview", rev = "a82acc4017443e652fd218d28d20f2546be3bf22" }
 raw-window-handle = "0.3.3"
 derive_more = "^0.99.16"
 uuid = { version = "^1.1", features = ["v4"] }
