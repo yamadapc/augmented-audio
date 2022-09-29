@@ -8,6 +8,16 @@ struct AudioWaveFrame {
     offset: f32,
     path: Path,
 }
+
+impl AudioWaveFrame {
+    fn draw(&self, canvas: &mut Canvas) {
+        let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+        paint.set_anti_alias(true);
+        paint.set_stroke(true);
+        canvas.draw_path(&self.path, &paint);
+    }
+}
+
 unsafe impl Send for AudioWaveFrame {}
 
 pub struct PathRendererHandle {
@@ -24,6 +34,7 @@ impl PathRendererHandle {
     pub fn draw(&mut self, canvas: &mut Canvas, size: (f32, f32)) -> bool {
         let mut has_more = true;
 
+        // How many new "pages" to receive per frame
         for i in 0..10 {
             match self.rx.try_recv() {
                 Ok(frame) => {
@@ -46,10 +57,7 @@ impl PathRendererHandle {
         canvas.save();
         canvas.set_matrix(&M44::scale(size.0 as scalar, size.1 as scalar, 1.0));
         for frame in &self.frames {
-            let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
-            paint.set_anti_alias(true);
-            paint.set_stroke(true);
-            canvas.draw_path(&frame.path, &paint);
+            frame.draw(canvas);
         }
         canvas.restore();
 
@@ -63,6 +71,7 @@ pub fn spawn_audio_drawer(
     let (tx, rx) = std::sync::mpsc::channel();
 
     let mut cursor = 0;
+    // How many samples to draw per path "page"
     let frame_size: usize = samples.num_samples() / 100;
     let mut state = DrawState::new(1.0);
     std::thread::spawn(move || {
