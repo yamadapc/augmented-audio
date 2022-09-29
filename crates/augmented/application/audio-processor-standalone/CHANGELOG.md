@@ -1,3 +1,7 @@
+## v1.3.0
+
+* [`953e5fbde`](https://github.com/yamadapc/augmented-audio/commits/953e5fbde) audio-processor-standalone-gui@0.5.0 (Minor)
+
 ## v1.2.0
 
 * [`9ce8c7e52`](https://github.com/yamadapc/augmented-audio/commits/9ce8c7e52) Bump audio-processor-standalone-midi :patch: (Patch)
