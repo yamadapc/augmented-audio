@@ -120,12 +120,12 @@ struct DrawAudioParams<'a, B: AudioBuffer<SampleType = f32>> {
     state: DrawState,
 }
 
-fn draw_audio<'a, B: AudioBuffer<SampleType = f32>>(
+fn draw_audio<B: AudioBuffer<SampleType = f32>>(
     DrawAudioParams {
         samples,
         bounds: (start, end),
         mut state,
-    }: DrawAudioParams<'a, B>,
+    }: DrawAudioParams<B>,
 ) -> (DrawState, Path) {
     let mut path = Path::new();
 
