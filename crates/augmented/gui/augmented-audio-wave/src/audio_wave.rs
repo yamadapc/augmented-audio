@@ -71,6 +71,7 @@ pub fn spawn_audio_drawer(
     // How many samples to draw per path "page"
     let frame_size: usize = samples.num_samples() / 100;
     let mut state = DrawState::new(1.0);
+
     std::thread::spawn(move || {
         log::info!("Starting renderer thread");
         loop {
@@ -145,44 +146,4 @@ fn draw_audio<B: AudioBuffer<SampleType = f32>>(
     path.line_to((state.previous_point.0, 0.5));
 
     (state, path)
-}
-
-#[cfg(test)]
-mod tests {
-    use audio_processor_file::AudioFileProcessor;
-    use audio_processor_traits::{
-        AudioProcessor, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer,
-    };
-
-    use super::*;
-
-    #[test]
-    fn it_renders_audio_files() {
-        let buffer = read_test_buffer();
-        // draw_audio(&buffer);
-    }
-
-    fn read_test_buffer() -> VecAudioBuffer<f32> {
-        let input = audio_processor_testing_helpers::relative_path!("../../../../input-files");
-        let input = std::path::Path::new(&input).canonicalize().unwrap();
-
-        let mut input_file = AudioFileProcessor::from_path(
-            audio_garbage_collector::handle(),
-            Default::default(),
-            input.to_str().unwrap(),
-        )
-        .unwrap();
-
-        input_file.prepare(Default::default());
-        let input_file = input_file.buffer();
-
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(input_file.len(), input_file[0].len(), 0.0);
-        for (c, channel) in input_file.iter().enumerate() {
-            for (s, sample) in channel.iter().enumerate() {
-                buffer.set(c, s, *sample);
-            }
-        }
-        buffer
-    }
 }
