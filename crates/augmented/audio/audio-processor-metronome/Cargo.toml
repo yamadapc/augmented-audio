@@ -12,7 +12,7 @@ audio-processor-standalone = { path = "../../application/audio-processor-standal
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.1.0" }
 augmented-playhead = { path = "../../data/augmented-playhead" , version = "0.2.0" }
 augmented-adsr-envelope = { path = "../adsr-envelope" , version = "0.2.0" }
-audio-processor-file = { path = "../audio-processor-file", version = "1.1.0" }
+audio-processor-file = { path = "../audio-processor-file", version = "1.2.0" }
 enum_dispatch = "0.3.8"
 
 [dev-dependencies]
