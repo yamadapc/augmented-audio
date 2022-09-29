@@ -13,7 +13,7 @@ processor_examples = ["gain", "mono", "pan"]
 private = true
 
 [dependencies]
-audio-processor-traits = { version = "1.1.0", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "2.1.0", path = "../audio-processor-traits" }
 audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.1.0" }
 assert_no_alloc = "1.1"
 rand = { version = "0.8", features = ["small_rng"] }

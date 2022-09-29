@@ -14,7 +14,7 @@ f32 = ["augmented-audio-volume/f32"]
 f64 = ["augmented-audio-volume/f64"]
 
 [dependencies]
-audio-processor-traits = { version = "1.1.0", path = "../audio-processor-traits" }
+audio-processor-traits = { version = "2.1.0", path = "../audio-processor-traits" }
 audio-garbage-collector = { version = "1.1.0", path = "../audio-garbage-collector" }
 augmented-audio-volume = { path = "../../data/audio-volume" , version = "0.2.0" }
 

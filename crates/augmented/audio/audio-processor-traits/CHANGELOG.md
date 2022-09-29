@@ -1,3 +1,7 @@
+## v2.1.0
+
+* [`665a0e189`](https://github.com/yamadapc/augmented-audio/commits/665a0e189) Remove vst buffer and add buffer handler :breaking: (Major)
+
 ## v1.1.0
 
 * [`7e397e13a`](https://github.com/yamadapc/augmented-audio/commits/7e397e13a) audio-garbage-collector@1.1.0 (Minor)
