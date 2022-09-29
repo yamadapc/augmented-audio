@@ -1,5 +1,8 @@
-use audio_processor_traits::AudioBuffer;
+use std::str::FromStr;
+
 use skia_safe::{Canvas, Color4f, Paint, Path, Vector};
+
+use audio_processor_traits::AudioBuffer;
 
 struct AudioWaveFrame {
     offset: usize,
@@ -10,19 +13,34 @@ unsafe impl Send for AudioWaveFrame {}
 pub struct PathRendererHandle {
     frames: Vec<AudioWaveFrame>,
     rx: std::sync::mpsc::Receiver<AudioWaveFrame>,
+    closed: bool,
 }
 
 impl PathRendererHandle {
+    pub fn closed(&self) -> bool {
+        self.closed
+    }
+
     pub fn draw(&mut self, canvas: &mut Canvas) -> bool {
         let mut has_more = true;
-        match self.rx.try_recv() {
-            Ok(frame) => {
-                self.frames.push(frame);
+
+        for i in 0..10 {
+            match self.rx.try_recv() {
+                Ok(frame) => {
+                    self.frames.push(frame);
+                }
+                Err(std::sync::mpsc::TryRecvError::Disconnected) => {
+                    has_more = false;
+                    if !self.closed {
+                        log::info!("Finished rendering");
+                        self.closed = true;
+                    }
+                    break;
+                }
+                _ => {
+                    break;
+                }
             }
-            Err(std::sync::mpsc::TryRecvError::Disconnected) => {
-                has_more = false;
-            }
-            _ => {}
         }
 
         for frame in &self.frames {
@@ -32,7 +50,7 @@ impl PathRendererHandle {
             paint.set_anti_alias(true);
             paint.set_stroke(true);
             paint.set_stroke_width(1.0);
-            canvas.translate(Vector::new(frame.offset as f32, 0.0));
+            // canvas.translate(Vector::new(frame.offset as f32, 0.0));
             canvas.draw_path(&frame.path, &paint);
 
             canvas.restore();
@@ -49,34 +67,41 @@ pub fn spawn_audio_drawer(
     let (tx, rx) = std::sync::mpsc::channel();
 
     let mut cursor = 0;
-    let frame_size = samples.num_samples() / 1000;
+    let frame_size: usize = 5000;
     let mut state = DrawState::new(height);
-    std::thread::spawn(move || loop {
-        if cursor >= samples.num_samples() {
-            break;
-        }
-        let offset = state.previous_point.1;
-        let (new_state, path) = draw_audio(
-            &samples,
-            (cursor, cursor + frame_size),
-            (width, height),
-            state.clone(),
-        );
+    std::thread::spawn(move || {
+        log::info!("Starting renderer thread");
+        loop {
+            if cursor >= samples.num_samples() {
+                break;
+            }
+            let offset = state.previous_point.0;
+            let (new_state, path) = draw_audio(
+                &samples,
+                (cursor, cursor + frame_size),
+                (width, height),
+                state.clone(),
+            );
 
-        let frame = AudioWaveFrame {
-            offset:  state.previous_point.0 as usize,
-            path,
-        };
-        state = new_state;
-        let result = tx.send(frame);
+            let frame = AudioWaveFrame {
+                offset: offset as usize,
+                path,
+            };
+            state = new_state;
+            let result = tx.send(frame);
 
-        if result.is_err() {
-            break;
+            if result.is_err() {
+                break;
+            }
+            cursor += frame_size;
         }
-        cursor += frame_size;
     });
 
-    PathRendererHandle { frames: vec![], rx }
+    PathRendererHandle {
+        frames: vec![],
+        rx,
+        closed: false,
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -103,7 +128,7 @@ pub fn draw_audio(
     let num_samples = samples.num_samples();
 
     path.move_to((state.previous_point.0, height / 2.0));
-    for (i, frame) in samples.frames().enumerate().skip(start - 1).take(end - start) {
+    for (i, frame) in samples.frames().enumerate().skip(start).take(end - start) {
         let sample = (frame[0] + frame[1]) / 2.0;
 
         let x = (i as f32 / num_samples as f32) * width;

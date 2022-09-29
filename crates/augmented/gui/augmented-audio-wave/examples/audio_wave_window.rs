@@ -78,7 +78,7 @@ fn main() {
     let mut mouse_position = Point::new(0.0, 0.0);
     let draw_size = window.inner_size();
     let mut path_renderer = spawn_audio_drawer(
-        test_buffer,
+        test_buffer.clone(),
         (draw_size.width as f32, draw_size.height as f32),
     );
 
@@ -101,6 +101,10 @@ fn main() {
                     WindowEvent::Resized(size) => {
                         metal_layer
                             .set_drawable_size(CGSize::new(size.width as f64, size.height as f64));
+                        path_renderer = spawn_audio_drawer(
+                            test_buffer.clone(),
+                            (size.width as f32, size.height as f32),
+                        );
                         window.request_redraw();
                     }
                     _ => (),
