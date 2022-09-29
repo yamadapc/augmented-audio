@@ -8,7 +8,7 @@ use skia_safe::gpu::mtl::BackendContext;
 use skia_safe::gpu::{mtl, BackendRenderTarget, DirectContext, RecordingContext, SurfaceOrigin};
 use skia_safe::{
     scalar, AlphaType, Budgeted, Canvas, Color4f, ColorType, ISize, ImageInfo, Paint, Path, Point,
-    SamplingOptions, Size, Surface, M44,
+    SamplingOptions, Size, Surface,
 };
 use winit::dpi::PhysicalSize;
 use winit::event::{Event, WindowEvent};

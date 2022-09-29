@@ -1,11 +1,8 @@
-use std::str::FromStr;
-
-use skia_safe::{scalar, Canvas, Color4f, Paint, Path, Vector, M44};
+use skia_safe::{scalar, Canvas, Color4f, Paint, Path, M44};
 
 use audio_processor_traits::AudioBuffer;
 
 struct AudioWaveFrame {
-    offset: f32,
     path: Path,
 }
 
@@ -35,7 +32,7 @@ impl PathRendererHandle {
         let mut has_more = true;
 
         // How many new "pages" to receive per frame
-        for i in 0..10 {
+        for _i in 0..10 {
             match self.rx.try_recv() {
                 Ok(frame) => {
                     self.frames.push(frame);
@@ -80,11 +77,13 @@ pub fn spawn_audio_drawer(
             if cursor >= samples.num_samples() {
                 break;
             }
-            let offset = state.previous_point.0;
-            let (new_state, path) =
-                draw_audio(&samples, (cursor, cursor + frame_size), state.clone());
+            let (new_state, path) = draw_audio(DrawAudioParams {
+                samples: &samples,
+                bounds: (cursor, cursor + frame_size),
+                state: state.clone(),
+            });
 
-            let frame = AudioWaveFrame { offset, path };
+            let frame = AudioWaveFrame { path };
             state = new_state;
             let result = tx.send(frame);
 
@@ -115,10 +114,18 @@ impl DrawState {
     }
 }
 
-pub fn draw_audio(
-    samples: &impl AudioBuffer<SampleType = f32>,
-    (start, end): (usize, usize),
-    mut state: DrawState,
+struct DrawAudioParams<'a, B: AudioBuffer<SampleType = f32>> {
+    samples: &'a B,
+    bounds: (usize, usize),
+    state: DrawState,
+}
+
+fn draw_audio<'a, B: AudioBuffer<SampleType = f32>>(
+    DrawAudioParams {
+        samples,
+        bounds: (start, end),
+        mut state,
+    }: DrawAudioParams<'a, B>,
 ) -> (DrawState, Path) {
     let mut path = Path::new();
 
@@ -128,7 +135,7 @@ pub fn draw_audio(
     for (i, frame) in samples.frames().enumerate().skip(start).take(end - start) {
         let sample = (frame[0] + frame[1]) / 2.0;
 
-        let x = (i as f32 / num_samples as f32);
+        let x = i as f32 / num_samples as f32;
         let y = sample * 0.5 + 0.5;
 
         path.line_to((x, y));
