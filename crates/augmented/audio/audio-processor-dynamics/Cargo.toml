@@ -26,4 +26,4 @@ audio-processor-standalone = { version = "1.3.0", path = "../../application/audi
 [package.metadata.augmented]
 # uncommenting this will enable snapshot tests
 # processor_examples = ["compressor"]
-private = true
+private = false
