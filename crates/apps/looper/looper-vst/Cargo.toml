@@ -44,7 +44,7 @@ iced = { version = "0.4.2", default-features = false }
 iced_native = { version = "0.5.1" }
 iced_audio = { version = "0.8.0", default-features = false }
 iced_baseview = { git = "https://github.com/yamadapc/iced_baseview", rev = "2714c97a431b1c7eba8bc0c67055ac35e80b29ce", default-features = false, optional = true }
-augmented-iced-editor = { version = "0.1", path = "../../../augmented/gui/iced-editor", default-features = false }
+augmented-iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false }
 
 # Storybook
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook", default-features = false }
