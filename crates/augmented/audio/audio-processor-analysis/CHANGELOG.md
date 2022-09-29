@@ -1,3 +1,9 @@
+## v0.3.0
+
+* [`86fd67222`](https://github.com/yamadapc/augmented-audio/commits/86fd67222) audio-processor-file@1.2.0 (Minor)
+* [`27535547c`](https://github.com/yamadapc/augmented-audio/commits/27535547c) audio-processor-testing-helpers@1.2.0 (Minor)
+* [`b0bfa7ee6`](https://github.com/yamadapc/augmented-audio/commits/b0bfa7ee6) audio-processor-traits@2.1.0 (Minor)
+
 ## v0.2.0
 
 * [`ebc51522c`](https://github.com/yamadapc/augmented-audio/commits/ebc51522c) audio-processor-file@1.1.0 (Minor)
