@@ -228,8 +228,8 @@ where
 
     fn s_process_frame(&mut self, frame: &mut [SampleType]) {
         let sum = frame.iter().cloned().sum();
-        let output =
-            self.s_process(sum) / SampleType::from(frame.len()).unwrap_or(SampleType::one());
+        let output = self.s_process(sum)
+            / SampleType::from(frame.len()).unwrap_or_else(|| SampleType::one());
 
         for sample in frame.iter_mut() {
             *sample = output;
