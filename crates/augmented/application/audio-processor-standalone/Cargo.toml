@@ -32,7 +32,7 @@ cpal = { version = "0.14.0" }
 ringbuf = "^0.2.5"
 vst = { version = "0.3", path = "../../../vendor/vst" }
 
-audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", optional = true , version = "0.3.0" }
+audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", optional = true , version = "0.4.0" }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.0.0-alpha.4", path = "../audio-processor-standalone-midi" }
