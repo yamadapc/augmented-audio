@@ -1,10 +1,15 @@
 [package]
 name = "audio-processor-iced-storybook"
+description = "Storybook for Iced GUI • augmented-audio experiments"
 version = "0.1.0"
 edition = "2018"
 license = "MIT"
+authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
+
+[package.metadata.augmented]
+private = false
 
 [features]
 default = []
