@@ -5,8 +5,12 @@ use foreign_types_shared::{ForeignType, ForeignTypeRef};
 use metal::{Device, MTLPixelFormat, MetalDrawableRef, MetalLayer};
 use objc::rc::autoreleasepool;
 use skia_safe::gpu::mtl::BackendContext;
-use skia_safe::gpu::{mtl, BackendRenderTarget, DirectContext, SurfaceOrigin};
-use skia_safe::{scalar, Canvas, Color4f, ColorType, Paint, Path, Point, Size, Surface};
+use skia_safe::gpu::{mtl, BackendRenderTarget, DirectContext, RecordingContext, SurfaceOrigin};
+use skia_safe::{
+    scalar, AlphaType, Budgeted, Canvas, Color4f, ColorType, ISize, ImageInfo, Paint, Path, Point,
+    SamplingOptions, Size, Surface,
+};
+use winit::dpi::PhysicalSize;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::ControlFlow;
 use winit::platform::macos::WindowExtMacOS;
@@ -81,6 +85,25 @@ fn main() {
         test_buffer.clone(),
         (draw_size.width as f32, draw_size.height as f32),
     );
+    let mut recording_context = RecordingContext::from(context.clone());
+    let mut make_surface = move |draw_size: PhysicalSize<u32>| {
+        Surface::new_render_target(
+            &mut recording_context,
+            Budgeted::No,
+            &ImageInfo::new(
+                ISize::new(draw_size.width as i32, draw_size.height as i32),
+                ColorType::BGRA8888,
+                AlphaType::Premul,
+                None,
+            ),
+            None,
+            None,
+            None,
+            None,
+        )
+        .unwrap()
+    };
+    let mut secondary_surface = make_surface(draw_size);
 
     log::info!("Starting to render");
     ev.run(move |event, _target, control_flow| {
@@ -101,6 +124,7 @@ fn main() {
                     WindowEvent::Resized(size) => {
                         metal_layer
                             .set_drawable_size(CGSize::new(size.width as f64, size.height as f64));
+                        secondary_surface = make_surface(size);
                         path_renderer = spawn_audio_drawer(
                             test_buffer.clone(),
                             (size.width as f32, size.height as f32),
@@ -110,25 +134,39 @@ fn main() {
                     _ => (),
                 },
                 Event::RedrawRequested(_) => {
+                    if !path_renderer.closed() {
+                        let canvas = secondary_surface.canvas();
+
+                        canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
+
+                        let mut path = Path::new();
+                        let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+                        paint.set_stroke(true);
+                        paint.set_stroke_width(2.0);
+                        let size = window.inner_size();
+                        path.move_to((0.0, size.height as f32 / 2.0));
+                        path.line_to((size.width as f32, size.height as f32 / 2.0));
+                        canvas.draw_path(&path, &paint);
+
+                        if path_renderer.draw(canvas) {
+                            window.request_redraw();
+                        }
+
+                        secondary_surface.flush_and_submit();
+                    }
+
                     get_drawable_surface(&metal_layer, &mut context).map(
                         |(drawable, mut surface)| {
                             let canvas = surface.canvas();
 
-                            canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
-
-                            let mut path = Path::new();
-                            let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
-                            paint.set_stroke(true);
-                            paint.set_stroke_width(2.0);
-                            let size = window.inner_size();
-                            path.move_to((0.0, size.height as f32 / 2.0));
-                            path.line_to((size.width as f32, size.height as f32 / 2.0));
-                            canvas.draw_path(&path, &paint);
-
-                            if path_renderer.draw(canvas) {
-                                window.request_redraw();
-                            }
                             let paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+
+                            secondary_surface.draw(
+                                canvas,
+                                (0.0, 0.0),
+                                SamplingOptions::default(),
+                                None,
+                            );
                             canvas.draw_circle(mouse_position, 10.0, &paint);
 
                             surface.flush_and_submit();

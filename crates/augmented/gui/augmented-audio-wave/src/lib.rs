@@ -67,7 +67,7 @@ pub fn spawn_audio_drawer(
     let (tx, rx) = std::sync::mpsc::channel();
 
     let mut cursor = 0;
-    let frame_size: usize = 5000;
+    let frame_size: usize = samples.num_samples() / 100;
     let mut state = DrawState::new(height);
     std::thread::spawn(move || {
         log::info!("Starting renderer thread");
