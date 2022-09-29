@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-bitcrusher"
-version = "0.1.0-alpha.1"
+version = "0.1.0"
 edition = "2021"
 license = "MIT"
 description = "Implements a simple bitcrusher based on sample-and-hold."
@@ -24,4 +24,4 @@ audio-processor-testing-helpers = { version = "1.2.0", path = "../../testing/aud
 [package.metadata.augmented]
 processor_examples = ["bitcrusher"]
 vst_examples = ["bitcrusher_vst"]
-private = true
+private = false
