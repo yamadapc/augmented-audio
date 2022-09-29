@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-time"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "Time based effects processors: delay/reverb"
 license = "MIT"
