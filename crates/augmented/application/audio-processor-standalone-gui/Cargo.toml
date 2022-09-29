@@ -44,7 +44,7 @@ iced = { version = "0.4.2", default-features = false, optional = true }
 iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false, optional = true }
 iced_audio = { version = "0.8.0", default-features = false, optional = true }
 baseview = { path = "../../../vendor/baseview", optional = true }
-iced-editor = { path = "../../gui/iced-editor", optional = true }
+augmented-iced-editor = { path = "../../gui/iced-editor", optional = true }
 
 [dependencies.audio-processor-iced-design-system]
 path = "../../gui/audio-processor-iced-design-system"

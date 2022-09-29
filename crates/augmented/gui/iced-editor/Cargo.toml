@@ -1,6 +1,6 @@
 [package]
-name = "iced-editor"
-version = "0.1.0-alpha.0"
+name = "augmented-iced-editor"
+version = "0.1.0"
 edition = "2018"
 description = "Iced based VST editor"
 license = "MIT"
@@ -17,11 +17,11 @@ wgpu = ["iced/wgpu", "iced/canvas", "iced_baseview/wgpu_canvas", "iced_baseview/
 [dependencies]
 iced = { version = "0.4.2", default-features = false }
 log = "^0.4.14"
-vst = { path = "../../../vendor/vst" }
-wisual-logger = { path = "../../ops/wisual-logger" }
+vst = { version = "0.3.0", path = "../../../vendor/vst" }
+wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 
-baseview = { path = "../../../vendor/baseview" }
-iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false }
+baseview = { version = "0.1", path = "../../../vendor/baseview" }
+iced_baseview = { version = "0.0.1", path = "../../../vendor/iced-baseview", default-features = false }
 raw-window-handle = "0.4.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -29,4 +29,4 @@ objc = "^0.2.7"
 cocoa = "^0.24.0"
 
 [package.metadata]
-augmented.private = true
+augmented.private = false

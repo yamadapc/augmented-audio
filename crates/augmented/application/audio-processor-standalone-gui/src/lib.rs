@@ -171,7 +171,10 @@ fn parameter_view(
 
 /// Create a VST editor for this handle
 pub fn editor(handle: AudioProcessorHandleRef) -> Box<dyn vst::editor::Editor> {
-    let editor = iced_editor::IcedEditor::<GenericAudioProcessorApplication>::new(Flags { handle });
+    let editor =
+        augmented_iced_editor::IcedEditor::<GenericAudioProcessorApplication>::new(Flags {
+            handle,
+        });
     Box::new(editor)
 }
 
