@@ -19,7 +19,7 @@ glow = [
     "iced/canvas",
     "iced_baseview/glow_canvas",
     "audio-processor-iced-design-system/glow",
-    "iced-editor/glow"
+    "augmented-iced-editor/glow"
 ]
 wgpu = [
     "iced/wgpu",
@@ -27,7 +27,7 @@ wgpu = [
     "iced/canvas",
     "iced_baseview/wgpu_canvas",
     "audio-processor-iced-design-system/wgpu",
-    "iced-editor/wgpu"
+    "augmented-iced-editor/wgpu"
 ]
 
 [dependencies]

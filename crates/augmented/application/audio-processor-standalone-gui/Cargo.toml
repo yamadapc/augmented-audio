@@ -13,7 +13,7 @@ default = [
     "iced",
     "iced_audio",
     "iced_baseview",
-    "iced-editor",
+    "augmented-iced-editor",
     "audio-processor-iced-design-system",
     "baseview",
     "wgpu",

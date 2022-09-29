@@ -559,9 +559,9 @@ version = "0.1.0"
 dependencies = [
  "audio-processor-iced-design-system",
  "audio-processor-traits",
+ "augmented-iced-editor",
  "baseview",
  "iced",
- "iced-editor",
  "iced_audio",
  "iced_baseview",
  "vst",
@@ -703,12 +703,12 @@ dependencies = [
  "augmented-audio-volume",
  "augmented-convert-sample-rate",
  "augmented-dsp-filters",
+ "augmented-iced-editor",
  "augmented_oscillator",
  "baseview",
  "circular-data-structures",
  "cpal",
  "iced",
- "iced-editor",
  "iced_audio",
  "iced_baseview",
  "macos-bundle-resources",
@@ -825,6 +825,21 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "num 0.4.0",
+]
+
+[[package]]
+name = "augmented-iced-editor"
+version = "0.1.0"
+dependencies = [
+ "baseview",
+ "cocoa 0.24.0",
+ "iced",
+ "iced_baseview",
+ "log",
+ "objc",
+ "raw-window-handle 0.4.3",
+ "vst",
+ "wisual-logger",
 ]
 
 [[package]]
@@ -3561,21 +3576,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "iced-editor"
-version = "0.1.0-alpha.0"
-dependencies = [
- "baseview",
- "cocoa 0.24.0",
- "iced",
- "iced_baseview",
- "log",
- "objc",
- "raw-window-handle 0.4.3",
- "vst",
- "wisual-logger",
-]
-
-[[package]]
 name = "iced_audio"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4213,10 +4213,10 @@ dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
  "augmented",
+ "augmented-iced-editor",
  "derive_more",
  "dirs",
  "iced",
- "iced-editor",
  "iced_audio",
  "iced_baseview",
  "iced_native",
