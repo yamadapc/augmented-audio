@@ -50,7 +50,7 @@ augmented-iced-editor = { path = "../../gui/iced-editor", optional = true }
 path = "../../gui/audio-processor-iced-design-system"
 default-features = false
 optional = true
-version = "0.2.0"
+version = "0.2.1"
 
 [package.metadata.augmented]
 private = true

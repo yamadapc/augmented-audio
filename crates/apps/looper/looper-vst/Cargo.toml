@@ -39,7 +39,7 @@ dirs = "^4.0.0"
 thiserror = "^1.0.25"
 
 # GUI
-audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", default-features = false , version = "0.2.0" }
+audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", default-features = false , version = "0.2.1" }
 iced = { version = "0.4.2", default-features = false }
 iced_native = { version = "0.5.1" }
 iced_audio = { version = "0.8.0", default-features = false }
