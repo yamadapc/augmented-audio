@@ -47,7 +47,7 @@ iced_baseview = { version = "0", path = "../../../vendor/iced-baseview", package
 augmented-iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false , version = "0.2.0" }
 
 # Storybook
-audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook", default-features = false }
+audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook", default-features = false , version = "0.2.0" }
 derive_more = "^0.99.16"
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.2.0" }
 

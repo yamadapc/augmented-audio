@@ -56,7 +56,7 @@ augmented-dsp-filters = { version = "1.2.1", path = "../dsp/dsp-filters" }
 
 # gui
 audio-processor-iced-design-system = { path = "../gui/audio-processor-iced-design-system" , version = "0.3.1" }
-audio-processor-iced-storybook = { path = "../gui/audio-processor-iced-storybook" }
+audio-processor-iced-storybook = { path = "../gui/audio-processor-iced-storybook" , version = "0.2.0" }
 augmented-iced-editor = { path = "../gui/iced-editor" , version = "0.2.0" }
 macos-bundle-resources = { path = "../gui/macos-bundle-resources" }
 

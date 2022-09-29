@@ -493,7 +493,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-iced-storybook"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "audio-processor-iced-design-system",
  "iced",
