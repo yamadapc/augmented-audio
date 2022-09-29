@@ -10,7 +10,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 
 [package.metadata.augmented]
 processor_examples = ["gain", "mono", "pan"]
-private = true
+private = false
 
 [dependencies]
 audio-processor-traits = { version = "2.1.0", path = "../audio-processor-traits" }

@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-time"
-version = "0.1.0-alpha.2"
+version = "0.1.0"
 edition = "2021"
 description = "Time based effects processors: delay/reverb"
 license = "MIT"
@@ -17,7 +17,7 @@ crate-type = ["cdylib"]
 [package.metadata.augmented]
 processor_examples = ["delay"]
 vst_examples = ["delay_vst"]
-private = true
+private = false
 
 [dependencies]
 assert_no_alloc = "1.1.2"
