@@ -20,7 +20,7 @@ augmented_oscillator = { path = "../oscillator" , version = "1.1.0" }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "1.2.0" }
 audio-processor-utility = { path = "../audio-processor-utility" }
 audio-processor-time = { path = "../audio-processor-time" , version = "0.1.0-alpha.2" }
-augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "1.1.0" }
+augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "1.2.0" }
 audio-processor-standalone = { path = "../../application/audio-processor-standalone", version = "1.2.0" }
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }
 
