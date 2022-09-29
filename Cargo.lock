@@ -942,7 +942,6 @@ checksum = "47611e530cf21bb89fbfe322aa8b1feae1ace33ff65f8ebf40fe3b4b99b7c9a2"
 [[package]]
 name = "baseview"
 version = "0.1.0"
-source = "git+https://github.com/yamadapc/baseview?rev=a82acc4017443e652fd218d28d20f2546be3bf22#a82acc4017443e652fd218d28d20f2546be3bf22"
 dependencies = [
  "cocoa 0.24.0",
  "core-foundation 0.9.3",
@@ -3589,7 +3588,6 @@ dependencies = [
 [[package]]
 name = "iced_baseview"
 version = "0.0.3"
-source = "git+https://github.com/yamadapc/iced_baseview?rev=2714c97a431b1c7eba8bc0c67055ac35e80b29ce#2714c97a431b1c7eba8bc0c67055ac35e80b29ce"
 dependencies = [
  "baseview",
  "copypasta",
@@ -9022,11 +9020,3 @@ checksum = "56c1936c4cc7a1c9ab21a1ebb602eb942ba868cbd44a99cb7cdc5892335e1c85"
 dependencies = [
  "linked-hash-map",
 ]
-
-[[patch.unused]]
-name = "baseview"
-version = "0.1.0"
-
-[[patch.unused]]
-name = "iced_baseview"
-version = "0.0.3"

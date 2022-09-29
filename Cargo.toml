@@ -88,12 +88,16 @@ exclude = [
 [profile.bench]
 debug = true
 
+[patch."https://github.com/yamadapc/baseview"]
+baseview = { path = "crates/vendor/baseview" }
+
+[patch."https://github.com/yamadapc/iced_baseview"]
+iced_baseview = { path = "crates/vendor/iced-baseview" }
+
 [patch.crates-io]
 wisual-logger = { version = "0.1", path = "crates/augmented/ops/wisual-logger" }
 
 # Vendor overrides
-baseview = { path = "crates/vendor/baseview" }
-iced_baseview = { path = "crates/vendor/iced-baseview" }
 # iced = { version = "^0.3.0", path = "crates/vendor/iced" }
 cpal = { path = "crates/vendor/cpal" }
 vst = { path = "crates/vendor/vst" }
