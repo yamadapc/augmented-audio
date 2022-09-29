@@ -63,61 +63,61 @@ pub mod hover_container {
             }
         }
 
-        /// Sets the [`Padding`] of the [`Container`].
+        /// Sets the [`Padding`] of the [`iced::Container`].
         pub fn padding<P: Into<Padding>>(mut self, padding: P) -> Self {
             self.padding = padding.into();
             self
         }
 
-        /// Sets the width of the [`Container`].
+        /// Sets the width of the [`iced::Container`].
         pub fn width(mut self, width: Length) -> Self {
             self.width = width;
             self
         }
 
-        /// Sets the height of the [`Container`].
+        /// Sets the height of the [`iced::Container`].
         pub fn height(mut self, height: Length) -> Self {
             self.height = height;
             self
         }
 
-        /// Sets the maximum width of the [`Container`].
+        /// Sets the maximum width of the [`iced::Container`].
         pub fn max_width(mut self, max_width: u32) -> Self {
             self.max_width = max_width;
             self
         }
 
-        /// Sets the maximum height of the [`Container`] in pixels.
+        /// Sets the maximum height of the [`iced::Container`] in pixels.
         pub fn max_height(mut self, max_height: u32) -> Self {
             self.max_height = max_height;
             self
         }
 
-        /// Sets the content alignment for the horizontal axis of the [`Container`].
+        /// Sets the content alignment for the horizontal axis of the [`iced::Container`].
         pub fn align_x(mut self, alignment: Alignment) -> Self {
             self.horizontal_alignment = alignment;
             self
         }
 
-        /// Sets the content alignment for the vertical axis of the [`Container`].
+        /// Sets the content alignment for the vertical axis of the [`iced::Container`].
         pub fn align_y(mut self, alignment: Alignment) -> Self {
             self.vertical_alignment = alignment;
             self
         }
 
-        /// Centers the contents in the horizontal axis of the [`Container`].
+        /// Centers the contents in the horizontal axis of the [`iced::Container`].
         pub fn center_x(mut self) -> Self {
             self.horizontal_alignment = Alignment::Center;
             self
         }
 
-        /// Centers the contents in the vertical axis of the [`Container`].
+        /// Centers the contents in the vertical axis of the [`iced::Container`].
         pub fn center_y(mut self) -> Self {
             self.vertical_alignment = Alignment::Center;
             self
         }
 
-        /// Sets the stylesheet of the [`Container`].
+        /// Sets the stylesheet of the [`iced::Container`].
         pub fn style(mut self, stylesheet: impl Into<Box<dyn self::style::StyleSheet>>) -> Self {
             self.style = stylesheet.into();
             self

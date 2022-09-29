@@ -1,3 +1,15 @@
+## v1.3.0
+
+* [`ef2551333`](https://github.com/yamadapc/augmented-audio/commits/ef2551333) audio-processor-standalone@1.3.0 (Minor)
+
+## v1.2.0
+
+* [`f919cac13`](https://github.com/yamadapc/augmented-audio/commits/f919cac13) augmented-playhead@0.3.0 (Minor)
+* [`be7491c90`](https://github.com/yamadapc/augmented-audio/commits/be7491c90) audio-processor-standalone@1.2.0 (Minor)
+* [`86fd67222`](https://github.com/yamadapc/augmented-audio/commits/86fd67222) audio-processor-file@1.2.0 (Minor)
+* [`27535547c`](https://github.com/yamadapc/augmented-audio/commits/27535547c) audio-processor-testing-helpers@1.2.0 (Minor)
+* [`b0bfa7ee6`](https://github.com/yamadapc/augmented-audio/commits/b0bfa7ee6) audio-processor-traits@2.1.0 (Minor)
+
 ## v1.1.0
 
 * [`7ff794ffb`](https://github.com/yamadapc/augmented-audio/commits/7ff794ffb) augmented-playhead@0.2.0 (Minor)

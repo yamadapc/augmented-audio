@@ -13,11 +13,11 @@ log = "^0.4.14"
 cpal = { version = "0.14.0" }
 vst = { path = "../../vendor/vst" }
 
-audio-processor-standalone = { version = "1.1.0", path = "../../augmented/application/audio-processor-standalone" }
+audio-processor-standalone = { version = "1.3.0", path = "../../augmented/application/audio-processor-standalone" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.1.0" }
 atomic-queue = { path = "../../augmented/data/atomic-queue" , version = "1.0.1" }
 circular-data-structures = { path = "../../augmented/data/circular-data-structures" }
-audio-processor-traits = { version = "1.1.0", path = "../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "2.1.0", path = "../../augmented/audio/audio-processor-traits" }
 
 [package.metadata.augmented]
 private = true

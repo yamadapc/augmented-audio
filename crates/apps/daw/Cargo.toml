@@ -19,11 +19,11 @@ serde = "^1.0.130"
 serde_json = "^1.0.71"
 
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.1.0" }
-audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "1.1.0" }
-audio-processor-time = { path = "../../augmented/audio/audio-processor-time" , version = "0.1.0-alpha.2" }
-augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" , version = "1.1.0" }
-audio-processor-utility = { path = "../../augmented/audio/audio-processor-utility" }
-audio-processor-graph = { path = "../../augmented/audio/audio-processor-graph" }
+audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "2.1.0" }
+audio-processor-time = { path = "../../augmented/audio/audio-processor-time" , version = "0.2.0" }
+augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" , version = "1.2.1" }
+audio-processor-utility = { path = "../../augmented/audio/audio-processor-utility" , version = "0.2.0" }
+audio-processor-graph = { path = "../../augmented/audio/audio-processor-graph" , version = "0.2.0" }
 plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }
 wisual-logger = { version = "0.1", path = "../../augmented/ops/wisual-logger" }
 

@@ -30,7 +30,7 @@ use vst::plugin_main;
 use audio_parameter_store::ParameterStore;
 use audio_processor_traits::audio_buffer::vst::VSTBufferHandler;
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
-use iced_editor::IcedEditor;
+use augmented_iced_editor::IcedEditor;
 use looper_processor::{LooperOptions, MultiTrackLooper};
 
 pub use crate::ui::LooperApplication;

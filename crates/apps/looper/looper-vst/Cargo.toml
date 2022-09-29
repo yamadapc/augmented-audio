@@ -19,7 +19,7 @@ glow = [
     "iced/canvas",
     "iced_baseview/glow_canvas",
     "audio-processor-iced-design-system/glow",
-    "iced-editor/glow"
+    "augmented-iced-editor/glow"
 ]
 wgpu = [
     "iced/wgpu",
@@ -27,7 +27,7 @@ wgpu = [
     "iced/canvas",
     "iced_baseview/wgpu_canvas",
     "audio-processor-iced-design-system/wgpu",
-    "iced-editor/wgpu"
+    "augmented-iced-editor/wgpu"
 ]
 
 [dependencies]
@@ -39,26 +39,26 @@ dirs = "^4.0.0"
 thiserror = "^1.0.25"
 
 # GUI
-audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", default-features = false }
+audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", default-features = false , version = "0.3.1" }
 iced = { version = "0.4.2", default-features = false }
 iced_native = { version = "0.5.1" }
 iced_audio = { version = "0.8.0", default-features = false }
-iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false }
-iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false }
+iced_baseview = { version = "0", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
+augmented-iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false , version = "0.2.0" }
 
 # Storybook
-audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook", default-features = false }
+audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook", default-features = false , version = "0.2.0" }
 derive_more = "^0.99.16"
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.1.0" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.2.0" }
 
 # Audio
 augmented = { path = "../../../augmented/augmented" }
-audio-processor-analysis = { version = "0.2.0", path = "../../../augmented/audio/audio-processor-analysis" }
+audio-processor-analysis = { version = "0.3.0", path = "../../../augmented/audio/audio-processor-analysis" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector", version = "1.1.0" }
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
-audio-processor-traits = { version = "1.1.0", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "2.1.0", path = "../../../augmented/audio/audio-processor-traits" }
 audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
-audio-processor-file = { version = "1.1.0", path = "../../../augmented/audio/audio-processor-file" }
+audio-processor-file = { version = "1.2.0", path = "../../../augmented/audio/audio-processor-file" }
 looper-processor = { path = "../looper-processor" }
 
 tokio = "1.17.0"

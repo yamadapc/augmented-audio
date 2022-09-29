@@ -98,8 +98,9 @@ where
     }
 }
 
-impl<SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst>
-    FilterProcessor<SampleType>
+impl<SampleType> FilterProcessor<SampleType>
+where
+    SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst + std::iter::Sum,
 {
     /// Create a new [`FilterProcessor`] with the [`FilterType`] and an initial state.
     ///
@@ -202,7 +203,13 @@ impl<SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatCon
 
 impl<SampleType> SimpleAudioProcessor for FilterProcessor<SampleType>
 where
-    SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst + Send + Sync,
+    SampleType: Pow<SampleType, Output = SampleType>
+        + Debug
+        + Float
+        + FloatConst
+        + Send
+        + Sync
+        + std::iter::Sum<SampleType>,
 {
     type SampleType = SampleType;
 
@@ -211,15 +218,21 @@ where
         self.setup();
     }
 
-    fn s_process_frame(&mut self, frame: &mut [SampleType]) {
-        let input = frame[0];
-        let output = self.filter.state.process1(
+    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+        self.filter.state.process1(
             &self.filter.coefficients,
-            input,
+            sample,
             self.filter.denormal_prevention.alternating_current(),
-        );
-        for value in frame {
-            *value = output;
+        )
+    }
+
+    fn s_process_frame(&mut self, frame: &mut [SampleType]) {
+        let sum = frame.iter().cloned().sum();
+        let output = self.s_process(sum)
+            / SampleType::from(frame.len()).unwrap_or_else(|| SampleType::one());
+
+        for sample in frame.iter_mut() {
+            *sample = output;
         }
     }
 }
