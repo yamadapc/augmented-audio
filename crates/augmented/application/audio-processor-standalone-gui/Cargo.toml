@@ -41,9 +41,9 @@ vst = { version = "0.3", path = "../../../vendor/vst" }
 
 # GUI dependencies
 iced = { version = "0.4.2", default-features = false, optional = true }
-iced_baseview = { git = "https://github.com/yamadapc/iced_baseview", rev = "2714c97a431b1c7eba8bc0c67055ac35e80b29ce", default-features = false, optional = true }
+iced_baseview = { version = "0", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
 iced_audio = { version = "0.8.0", default-features = false, optional = true }
-baseview = { git = "https://github.com/yamadapc/baseview", rev = "a82acc4017443e652fd218d28d20f2546be3bf22", optional = true }
+baseview = { package = "augmented_baseview", path = "../../../vendor/baseview", version = "0.1", optional = true }
 augmented-iced-editor = { path = "../../gui/iced-editor", optional = true }
 audio-processor-iced-design-system = { path = "../../gui/audio-processor-iced-design-system", default-features = false, optional = true, version = "0.2.1" }
 

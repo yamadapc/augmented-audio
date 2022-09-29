@@ -560,10 +560,10 @@ dependencies = [
  "audio-processor-iced-design-system",
  "audio-processor-traits",
  "augmented-iced-editor",
- "baseview",
+ "augmented_baseview",
+ "augmented_iced_baseview",
  "iced",
  "iced_audio",
- "iced_baseview",
  "vst",
 ]
 
@@ -704,13 +704,13 @@ dependencies = [
  "augmented-convert-sample-rate",
  "augmented-dsp-filters",
  "augmented-iced-editor",
+ "augmented_baseview",
+ "augmented_iced_baseview",
  "augmented_oscillator",
- "baseview",
  "circular-data-structures",
  "cpal",
  "iced",
  "iced_audio",
- "iced_baseview",
  "macos-bundle-resources",
  "smooth-value",
  "vst",
@@ -831,10 +831,10 @@ dependencies = [
 name = "augmented-iced-editor"
 version = "0.1.0"
 dependencies = [
- "baseview",
+ "augmented_baseview",
+ "augmented_iced_baseview",
  "cocoa 0.24.0",
  "iced",
- "iced_baseview",
  "log",
  "objc",
  "raw-window-handle 0.4.3",
@@ -873,6 +873,40 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "ringbuf",
+]
+
+[[package]]
+name = "augmented_baseview"
+version = "0.1.0"
+dependencies = [
+ "cocoa 0.24.0",
+ "core-foundation 0.9.3",
+ "keyboard-types",
+ "log",
+ "nix 0.22.3",
+ "objc",
+ "raw-window-handle 0.4.3",
+ "uuid 0.8.2",
+ "winapi 0.3.9",
+ "x11",
+ "xcb 0.9.0",
+ "xcb-util",
+]
+
+[[package]]
+name = "augmented_iced_baseview"
+version = "0.0.3"
+dependencies = [
+ "augmented_baseview",
+ "copypasta",
+ "iced_core",
+ "iced_futures",
+ "iced_glow",
+ "iced_graphics",
+ "iced_native",
+ "iced_wgpu",
+ "keyboard-types",
+ "raw-window-handle 0.4.3",
 ]
 
 [[package]]
@@ -938,24 +972,6 @@ name = "basedrop"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47611e530cf21bb89fbfe322aa8b1feae1ace33ff65f8ebf40fe3b4b99b7c9a2"
-
-[[package]]
-name = "baseview"
-version = "0.1.0"
-dependencies = [
- "cocoa 0.24.0",
- "core-foundation 0.9.3",
- "keyboard-types",
- "log",
- "nix 0.22.3",
- "objc",
- "raw-window-handle 0.4.3",
- "uuid 0.8.2",
- "winapi 0.3.9",
- "x11",
- "xcb 0.9.0",
- "xcb-util",
-]
 
 [[package]]
 name = "bindgen"
@@ -2384,9 +2400,9 @@ dependencies = [
 name = "example-iced-xcode-integration"
 version = "0.1.0"
 dependencies = [
- "baseview",
+ "augmented_baseview",
+ "augmented_iced_baseview",
  "cocoa 0.24.0",
- "iced_baseview",
  "objc",
  "raw-window-handle 0.4.3",
 ]
@@ -3586,22 +3602,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "iced_baseview"
-version = "0.0.3"
-dependencies = [
- "baseview",
- "copypasta",
- "iced_core",
- "iced_futures",
- "iced_glow",
- "iced_graphics",
- "iced_native",
- "iced_wgpu",
- "keyboard-types",
- "raw-window-handle 0.4.3",
-]
-
-[[package]]
 name = "iced_core"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4214,11 +4214,11 @@ dependencies = [
  "audio-processor-traits",
  "augmented",
  "augmented-iced-editor",
+ "augmented_iced_baseview",
  "derive_more",
  "dirs",
  "iced",
  "iced_audio",
- "iced_baseview",
  "iced_native",
  "itertools 0.10.5",
  "log",
@@ -5928,8 +5928,8 @@ dependencies = [
  "audio-processor-traits",
  "augmented",
  "augmented-audio-volume",
+ "augmented_baseview",
  "augmented_oscillator",
- "baseview",
  "cocoa 0.24.0",
  "criterion",
  "derivative",

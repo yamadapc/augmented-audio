@@ -61,9 +61,9 @@ augmented-iced-editor = { path = "../gui/iced-editor" }
 macos-bundle-resources = { path = "../gui/macos-bundle-resources" }
 
 iced = "0.4.2"
-iced_baseview = { git = "https://github.com/yamadapc/iced_baseview", rev = "2714c97a431b1c7eba8bc0c67055ac35e80b29ce", default-features = false, optional = true }
+iced_baseview = { version = "0", path = "../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
 iced_audio = { version = "0.8.0" }
-baseview = { git = "https://github.com/yamadapc/baseview", rev = "a82acc4017443e652fd218d28d20f2546be3bf22" }
+baseview = { path = "../../vendor/baseview", version = "0.1", package = "augmented_baseview" }
 
 # ops
 audio-plugin-logger = { path = "../ops/audio-plugin-logger" }

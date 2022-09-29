@@ -20,8 +20,8 @@ log = "^0.4.14"
 vst = { version = "0.3.0", path = "../../../vendor/vst" }
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 
-baseview = { version = "*", git = "https://github.com/yamadapc/baseview", rev = "a82acc4017443e652fd218d28d20f2546be3bf22" }
-iced_baseview = { version = "*", git = "https://github.com/yamadapc/iced_baseview", rev = "2714c97a431b1c7eba8bc0c67055ac35e80b29ce", default-features = false, optional = true }
+baseview = { version = "0.1", path = "../../../vendor/baseview", package = "augmented_baseview" }
+iced_baseview = { version = "0", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
 raw-window-handle = "0.4.3"
 
 [target.'cfg(target_os = "macos")'.dependencies]
