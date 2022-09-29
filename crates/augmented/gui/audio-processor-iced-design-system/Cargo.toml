@@ -1,5 +1,6 @@
 [package]
 name = "audio-processor-iced-design-system"
+description = "Iced GUI styles for augmented-audio experiments"
 version = "0.2.0"
 edition = "2018"
 license = "MIT"
