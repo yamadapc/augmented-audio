@@ -1,11 +1,11 @@
 use std::str::FromStr;
 
-use skia_safe::{Canvas, Color4f, Paint, Path, Vector};
+use skia_safe::{scalar, Canvas, Color4f, Paint, Path, Vector, M44};
 
 use audio_processor_traits::AudioBuffer;
 
 struct AudioWaveFrame {
-    offset: usize,
+    offset: f32,
     path: Path,
 }
 unsafe impl Send for AudioWaveFrame {}
@@ -21,7 +21,7 @@ impl PathRendererHandle {
         self.closed
     }
 
-    pub fn draw(&mut self, canvas: &mut Canvas) -> bool {
+    pub fn draw(&mut self, canvas: &mut Canvas, size: (f32, f32)) -> bool {
         let mut has_more = true;
 
         for i in 0..10 {
@@ -43,18 +43,15 @@ impl PathRendererHandle {
             }
         }
 
+        canvas.save();
+        canvas.set_matrix(&M44::scale(size.0 as scalar, size.1 as scalar, 1.0));
         for frame in &self.frames {
-            canvas.save();
-
             let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
             paint.set_anti_alias(true);
             paint.set_stroke(true);
-            paint.set_stroke_width(1.0);
-            // canvas.translate(Vector::new(frame.offset as f32, 0.0));
             canvas.draw_path(&frame.path, &paint);
-
-            canvas.restore();
         }
+        canvas.restore();
 
         has_more
     }
@@ -62,13 +59,12 @@ impl PathRendererHandle {
 
 pub fn spawn_audio_drawer(
     samples: impl AudioBuffer<SampleType = f32> + Send + 'static,
-    (width, height): (f32, f32),
 ) -> PathRendererHandle {
     let (tx, rx) = std::sync::mpsc::channel();
 
     let mut cursor = 0;
     let frame_size: usize = samples.num_samples() / 100;
-    let mut state = DrawState::new(height);
+    let mut state = DrawState::new(1.0);
     std::thread::spawn(move || {
         log::info!("Starting renderer thread");
         loop {
@@ -76,17 +72,10 @@ pub fn spawn_audio_drawer(
                 break;
             }
             let offset = state.previous_point.0;
-            let (new_state, path) = draw_audio(
-                &samples,
-                (cursor, cursor + frame_size),
-                (width, height),
-                state.clone(),
-            );
+            let (new_state, path) =
+                draw_audio(&samples, (cursor, cursor + frame_size), state.clone());
 
-            let frame = AudioWaveFrame {
-                offset: offset as usize,
-                path,
-            };
+            let frame = AudioWaveFrame { offset, path };
             state = new_state;
             let result = tx.send(frame);
 
@@ -120,25 +109,24 @@ impl DrawState {
 pub fn draw_audio(
     samples: &impl AudioBuffer<SampleType = f32>,
     (start, end): (usize, usize),
-    (width, height): (f32, f32),
     mut state: DrawState,
 ) -> (DrawState, Path) {
     let mut path = Path::new();
 
     let num_samples = samples.num_samples();
 
-    path.move_to((state.previous_point.0, height / 2.0));
+    path.move_to((state.previous_point.0, 0.5));
     for (i, frame) in samples.frames().enumerate().skip(start).take(end - start) {
         let sample = (frame[0] + frame[1]) / 2.0;
 
-        let x = (i as f32 / num_samples as f32) * width;
-        let y = sample * height / 2.0 + height / 2.0;
+        let x = (i as f32 / num_samples as f32);
+        let y = sample * 0.5 + 0.5;
 
         path.line_to((x, y));
 
         state.previous_point = (x, y);
     }
-    path.line_to((state.previous_point.0, height / 2.0));
+    path.line_to((state.previous_point.0, 0.5));
 
     (state, path)
 }
@@ -167,7 +155,7 @@ mod tests {
             Default::default(),
             input.to_str().unwrap(),
         )
-            .unwrap();
+        .unwrap();
 
         input_file.prepare(Default::default());
         let input_file = input_file.buffer();

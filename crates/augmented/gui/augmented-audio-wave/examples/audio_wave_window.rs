@@ -8,7 +8,7 @@ use skia_safe::gpu::mtl::BackendContext;
 use skia_safe::gpu::{mtl, BackendRenderTarget, DirectContext, RecordingContext, SurfaceOrigin};
 use skia_safe::{
     scalar, AlphaType, Budgeted, Canvas, Color4f, ColorType, ISize, ImageInfo, Paint, Path, Point,
-    SamplingOptions, Size, Surface,
+    SamplingOptions, Size, Surface, M44,
 };
 use winit::dpi::PhysicalSize;
 use winit::event::{Event, WindowEvent};
@@ -81,10 +81,7 @@ fn main() {
 
     let mut mouse_position = Point::new(0.0, 0.0);
     let draw_size = window.inner_size();
-    let mut path_renderer = spawn_audio_drawer(
-        test_buffer.clone(),
-        (draw_size.width as f32, draw_size.height as f32),
-    );
+    let mut path_renderer = spawn_audio_drawer(test_buffer.clone());
     let mut recording_context = RecordingContext::from(context.clone());
     let mut make_surface = move |draw_size: PhysicalSize<u32>| {
         Surface::new_render_target(
@@ -125,10 +122,7 @@ fn main() {
                         metal_layer
                             .set_drawable_size(CGSize::new(size.width as f64, size.height as f64));
                         secondary_surface = make_surface(size);
-                        path_renderer = spawn_audio_drawer(
-                            test_buffer.clone(),
-                            (size.width as f32, size.height as f32),
-                        );
+                        path_renderer = spawn_audio_drawer(test_buffer.clone());
                         window.request_redraw();
                     }
                     _ => (),
@@ -148,7 +142,7 @@ fn main() {
                         path.line_to((size.width as f32, size.height as f32 / 2.0));
                         canvas.draw_path(&path, &paint);
 
-                        if path_renderer.draw(canvas) {
+                        if path_renderer.draw(canvas, (size.width as f32, size.height as f32)) {
                             window.request_redraw();
                         }
 
