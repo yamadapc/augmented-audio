@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone-gui"
-version = "0.1.0"
+version = "0.3.0"
 description = "Provides generic `iced` GUI for implementations of `audio_processor_traits::parameters::AudioProcessorHandle`"
 edition = "2021"
 license = "MIT"
@@ -45,12 +45,7 @@ iced_baseview = { git = "https://github.com/yamadapc/iced_baseview", rev = "2714
 iced_audio = { version = "0.8.0", default-features = false, optional = true }
 baseview = { git = "https://github.com/yamadapc/baseview", rev = "a82acc4017443e652fd218d28d20f2546be3bf22", optional = true }
 augmented-iced-editor = { path = "../../gui/iced-editor", optional = true }
-
-[dependencies.audio-processor-iced-design-system]
-path = "../../gui/audio-processor-iced-design-system"
-default-features = false
-optional = true
-version = "0.2.1"
+audio-processor-iced-design-system = { path = "../../gui/audio-processor-iced-design-system", default-features = false, optional = true, version = "0.2.1" }
 
 [package.metadata.augmented]
-private = true
+private = false
