@@ -1,6 +1,8 @@
+use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
 use skia_safe::{scalar, Canvas, Color4f, Paint, Path, M44};
+use std::time::Duration;
 
-use audio_processor_traits::AudioBuffer;
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor};
 
 struct AudioWaveFrame {
     path: Path,
@@ -18,7 +20,7 @@ impl AudioWaveFrame {
 unsafe impl Send for AudioWaveFrame {}
 
 pub struct PathRendererHandle {
-    frames: Vec<AudioWaveFrame>,
+    // frames: Vec<AudioWaveFrame>,
     rx: std::sync::mpsc::Receiver<AudioWaveFrame>,
     closed: bool,
 }
@@ -31,11 +33,15 @@ impl PathRendererHandle {
     pub fn draw(&mut self, canvas: &mut Canvas, size: (f32, f32)) -> bool {
         let mut has_more = true;
 
+        canvas.save();
+        canvas.set_matrix(&M44::scale(size.0 as scalar, size.1 as scalar, 1.0));
+
         // How many new "pages" to receive per frame
         for _i in 0..10 {
             match self.rx.try_recv() {
                 Ok(frame) => {
-                    self.frames.push(frame);
+                    frame.draw(canvas);
+                    // self.frames.push(frame);
                 }
                 Err(std::sync::mpsc::TryRecvError::Disconnected) => {
                     has_more = false;
@@ -51,11 +57,9 @@ impl PathRendererHandle {
             }
         }
 
-        canvas.save();
-        canvas.set_matrix(&M44::scale(size.0 as scalar, size.1 as scalar, 1.0));
-        for frame in &self.frames {
-            frame.draw(canvas);
-        }
+        // for frame in &self.frames {
+        //     frame.draw(canvas);
+        // }
         canvas.restore();
 
         has_more
@@ -63,7 +67,7 @@ impl PathRendererHandle {
 }
 
 pub fn spawn_audio_drawer(
-    samples: impl AudioBuffer<SampleType = f32> + Send + 'static,
+    mut samples: impl AudioBuffer<SampleType = f32> + Send + 'static,
 ) -> PathRendererHandle {
     let (tx, rx) = std::sync::mpsc::channel();
 
@@ -71,6 +75,9 @@ pub fn spawn_audio_drawer(
     // How many samples to draw per path "page"
     let frame_size: usize = samples.num_samples() / 100;
     let mut state = DrawState::new(1.0);
+    state
+        .rms_processor
+        .s_prepare(AudioProcessorSettings::default());
 
     std::thread::spawn(move || {
         log::info!("Starting renderer thread");
@@ -78,10 +85,11 @@ pub fn spawn_audio_drawer(
             if cursor >= samples.num_samples() {
                 break;
             }
+
             let (new_state, path) = draw_audio(DrawAudioParams {
-                samples: &samples,
+                samples: &mut samples,
                 bounds: (cursor, cursor + frame_size),
-                state: state.clone(),
+                state,
             });
 
             let frame = AudioWaveFrame { path };
@@ -96,27 +104,31 @@ pub fn spawn_audio_drawer(
     });
 
     PathRendererHandle {
-        frames: vec![],
+        // frames: vec![],
         rx,
         closed: false,
     }
 }
 
-#[derive(Clone, Copy)]
 pub struct DrawState {
     previous_point: (f32, f32),
+    rms_processor: RunningRMSProcessor,
 }
 
 impl DrawState {
     pub fn new(height: f32) -> Self {
         Self {
             previous_point: (0.0, height / 2.0),
+            rms_processor: RunningRMSProcessor::new_with_duration(
+                audio_garbage_collector::handle(),
+                Duration::from_millis(1),
+            ),
         }
     }
 }
 
 struct DrawAudioParams<'a, B: AudioBuffer<SampleType = f32>> {
-    samples: &'a B,
+    samples: &'a mut B,
     bounds: (usize, usize),
     state: DrawState,
 }
@@ -133,12 +145,20 @@ fn draw_audio<B: AudioBuffer<SampleType = f32>>(
     let num_samples = samples.num_samples();
 
     path.move_to((state.previous_point.0, 0.5));
-    for (i, frame) in samples.frames().enumerate().skip(start).take(end - start) {
-        let sample = (frame[0] + frame[1]) / 2.0;
+    for (i, frame) in samples
+        .frames_mut()
+        .enumerate()
+        .skip(start)
+        .take(end - start)
+    {
+        state.rms_processor.s_process_frame(frame);
+        let rms = state.rms_processor.handle().calculate_rms(0);
 
         let x = i as f32 / num_samples as f32;
-        let y = sample * 0.5 + 0.5;
 
+        let y = rms * 0.5 + 0.5;
+        path.line_to((x, y));
+        let y = -rms * 0.5 + 0.5;
         path.line_to((x, y));
 
         state.previous_point = (x, y);

@@ -45,6 +45,10 @@ fn read_test_buffer() -> VecAudioBuffer<f32> {
 
 fn main() {
     wisual_logger::init_from_env();
+
+    let test_buffer = read_test_buffer();
+    let mut path_renderer = spawn_audio_drawer(test_buffer.clone());
+
     let ev = winit::event_loop::EventLoop::new();
     let window = winit::window::Window::new(&ev).unwrap();
 
@@ -58,8 +62,6 @@ fn main() {
         )
     };
     let mut context = DirectContext::new_metal(&backend, None).unwrap();
-
-    let test_buffer = read_test_buffer();
 
     let build_layer = || {
         let draw_size = window.inner_size();
@@ -81,10 +83,9 @@ fn main() {
 
     let mut mouse_position = Point::new(0.0, 0.0);
     let draw_size = window.inner_size();
-    let mut path_renderer = spawn_audio_drawer(test_buffer.clone());
     let mut recording_context = RecordingContext::from(context.clone());
     let mut make_surface = move |draw_size: PhysicalSize<u32>| {
-        Surface::new_render_target(
+        let mut surface = Surface::new_render_target(
             &mut recording_context,
             Budgeted::No,
             &ImageInfo::new(
@@ -98,7 +99,13 @@ fn main() {
             None,
             None,
         )
-        .unwrap()
+        .unwrap();
+
+        let canvas = surface.canvas();
+        canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
+        surface.flush_and_submit();
+
+        surface
     };
     let mut secondary_surface = make_surface(draw_size);
 
@@ -130,8 +137,6 @@ fn main() {
                 Event::RedrawRequested(_) => {
                     if !path_renderer.closed() {
                         let canvas = secondary_surface.canvas();
-
-                        canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
 
                         let mut path = Path::new();
                         let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
