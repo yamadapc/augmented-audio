@@ -67,7 +67,7 @@ augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , 
 
 # FX
 audio-processor-pitch-shifter = { path = "../../../augmented/audio/audio-processor-pitch-shifter" }
-audio-processor-bitcrusher = { path = "../../../augmented/audio/audio-processor-bitcrusher" }
+audio-processor-bitcrusher = { path = "../../../augmented/audio/audio-processor-bitcrusher" , version = "0.2.0" }
 audio-processor-time = { path = "../../../augmented/audio/audio-processor-time" , version = "0.1.0-alpha.2" }
 audio-processor-dynamics = { path = "../../../augmented/audio/audio-processor-dynamics" }
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis" , version = "0.3.0" }
