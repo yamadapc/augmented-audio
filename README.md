@@ -41,6 +41,7 @@ Some directories which contain full applications are licensed under the AGPLv3 l
 ## ⬇️ Binary downloads
 * [See releases to download binaries](https://github.com/yamadapc/augmented-audio/releases)
 * [Simple Metronome on App Store](https://apps.apple.com/au/app/simple-metronome/id1604183938?mt=12)
+* [Continuous Looper on App Store](https://apps.apple.com/au/app/continuous-looper/id1616355791)
 
 ## 💬 Blog posts
 * [Initial 'Test Plugin Host' post](https://beijaflor.io/blog/07-2021/rust-audio-experiments-2/)
@@ -102,7 +103,17 @@ To run tests:
 cargo test
 ```
 
+On OSX you might want to run `./scripts/test.sh` instead of that command.
+
 Build outputs should be on `target/debug` or `target/release`.
+
+### Packaging apps and VSTs
+
+Package VSTs using `./scripts/dev.sh build`. This will build all the packages, build specific crates' outputs with
+`./scripts/dev.sh build <path>`.
+
+#### Looper, Metronome and other (flutter / macOS builds)
+See instructions on their READMEs under `crates/apps`.
 
 #### Building on linux
 Since this is bringing in all the possible rust crates, you'll need to install quite a few dependencies.

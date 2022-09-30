@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone-gui"
-version = "0.1.0"
+version = "0.5.0"
 description = "Provides generic `iced` GUI for implementations of `audio_processor_traits::parameters::AudioProcessorHandle`"
 edition = "2021"
 license = "MIT"
@@ -13,7 +13,7 @@ default = [
     "iced",
     "iced_audio",
     "iced_baseview",
-    "iced-editor",
+    "augmented-iced-editor",
     "audio-processor-iced-design-system",
     "baseview",
     "wgpu",
@@ -36,20 +36,16 @@ wgpu = [
 ]
 
 [dependencies]
-audio-processor-traits = { version = "1.1.0",  path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "2.1.0",  path = "../../audio/audio-processor-traits" }
 vst = { version = "0.3", path = "../../../vendor/vst" }
 
 # GUI dependencies
 iced = { version = "0.4.2", default-features = false, optional = true }
-iced_baseview = { path = "../../../vendor/iced-baseview", default-features = false, optional = true }
+iced_baseview = { version = "0", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
 iced_audio = { version = "0.8.0", default-features = false, optional = true }
-baseview = { path = "../../../vendor/baseview", optional = true }
-iced-editor = { path = "../../gui/iced-editor", optional = true }
-
-[dependencies.audio-processor-iced-design-system]
-path = "../../gui/audio-processor-iced-design-system"
-default-features = false
-optional = true
+baseview = { package = "augmented_baseview", path = "../../../vendor/baseview", version = "0.1", optional = true }
+augmented-iced-editor = { path = "../../gui/iced-editor", optional = true , version = "0.2.0" }
+audio-processor-iced-design-system = { path = "../../gui/audio-processor-iced-design-system", default-features = false, optional = true, version = "0.3.1" }
 
 [package.metadata.augmented]
-private = true
+private = false

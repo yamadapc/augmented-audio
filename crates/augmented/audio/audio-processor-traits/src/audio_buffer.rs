@@ -320,7 +320,17 @@ impl<SampleType: Clone> OwnedAudioBuffer for VecAudioBuffer<SampleType> {
     }
 }
 
-impl<SampleType> VecAudioBuffer<SampleType> {
+impl<SampleType: Clone> VecAudioBuffer<SampleType> {
+    pub fn new_with_size(num_channels: usize, num_samples: usize, sample: SampleType) -> Self {
+        let mut buffer = Vec::with_capacity(num_samples * num_channels);
+        buffer.resize(num_channels * num_samples, sample);
+        VecAudioBuffer {
+            num_channels,
+            num_samples,
+            buffer,
+        }
+    }
+
     /// Get an `InterleavedAudioBuffer` reference type out this `VecAudioBuffer`.
     pub fn interleaved(&mut self) -> InterleavedAudioBuffer<SampleType> {
         InterleavedAudioBuffer::new(self.num_channels, &mut self.buffer)

@@ -1,3 +1,10 @@
+## v1.2.0
+
+* [`ecaf019f7`](https://github.com/yamadapc/augmented-audio/commits/ecaf019f7) augmented-convert-sample-rate@1.2.0 (Minor)
+* [`27535547c`](https://github.com/yamadapc/augmented-audio/commits/27535547c) audio-processor-testing-helpers@1.2.0 (Minor)
+* [`f4f0690c3`](https://github.com/yamadapc/augmented-audio/commits/f4f0690c3) augmented-audio-metrics@1.2.0 (Minor)
+* [`b0bfa7ee6`](https://github.com/yamadapc/augmented-audio/commits/b0bfa7ee6) audio-processor-traits@2.1.0 (Minor)
+
 ## v1.1.0
 
 * [`b21d47882`](https://github.com/yamadapc/augmented-audio/commits/b21d47882) augmented-convert-sample-rate@1.1.0 (Minor)

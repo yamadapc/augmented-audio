@@ -1,6 +1,7 @@
 [package]
 name = "audio-processor-iced-design-system"
-version = "0.1.0-alpha.0"
+description = "Iced GUI styles for augmented-audio experiments"
+version = "0.3.1"
 edition = "2018"
 license = "MIT"
 authors = ["Pedro Tacla Yamada (@yamadapc) <tacla.yamada@gmail.com>"]
@@ -13,7 +14,7 @@ wgpu = ["iced/tokio", "iced/wgpu", "iced/canvas"]
 glow = ["iced/tokio", "iced/glow", "iced/canvas"]
 
 [package.metadata.augmented]
-private = true
+private = false
 
 [dependencies]
 log = "0.4.17"

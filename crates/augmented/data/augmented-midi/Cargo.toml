@@ -1,6 +1,6 @@
 [package]
 name = "augmented-midi"
-version = "1.1.0"
+version = "1.2.0"
 edition = "2021"
 description = "Experimental MIDI file/event parser using nom combinators"
 license = "MIT"
@@ -13,7 +13,7 @@ exclude = [
 ]
 
 [dependencies]
-audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "1.1.0" }
+audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "2.1.0" }
 nom = "7.1.0"
 cookie-factory = "0.3"
 

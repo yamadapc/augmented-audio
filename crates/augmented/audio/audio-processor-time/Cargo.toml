@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-time"
-version = "0.1.0-alpha.2"
+version = "0.2.0"
 edition = "2021"
 description = "Time based effects processors: delay/reverb"
 license = "MIT"
@@ -17,18 +17,18 @@ crate-type = ["cdylib"]
 [package.metadata.augmented]
 processor_examples = ["delay"]
 vst_examples = ["delay_vst"]
-private = true
+private = false
 
 [dependencies]
 assert_no_alloc = "1.1.2"
-audio-processor-traits = { path = "../audio-processor-traits", version = "1.1.0" }
+audio-processor-traits = { path = "../audio-processor-traits", version = "2.1.0" }
 audio-garbage-collector = { path = "../audio-garbage-collector", version = "1.1.0" }
 rand = { version = "0.8.5", features = ["small_rng"] }
 nalgebra = "0.31.0"
 augmented_oscillator = { version = "1.1.0", path = "../oscillator" }
 augmented-atomics = { version = "0.1.1", path = "../../data/atomics" }
-augmented-dsp-filters = { version = "1.1.0", path = "../../dsp/dsp-filters" }
+augmented-dsp-filters = { version = "1.2.1", path = "../../dsp/dsp-filters" }
 
 [dev-dependencies]
-audio-processor-standalone = { version = "1.1.0", path = "../../application/audio-processor-standalone", features = ["gui"] }
-audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" }
+audio-processor-standalone = { version = "1.3.0", path = "../../application/audio-processor-standalone", features = ["gui"] }
+audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" , version = "0.5.0" }

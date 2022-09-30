@@ -378,7 +378,7 @@ fn is_valid_version(value: &Value) -> bool {
         table_ver
             .get("version")
             .map(is_valid_version)
-            .unwrap_or(false)
+            .unwrap_or_else(|| table_ver.get("git").is_some())
     } else {
         false
     }

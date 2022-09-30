@@ -16,11 +16,6 @@
     "branch": "main"
   },
   {
-    "path": "crates/vendor/iced",
-    "url": "https://github.com/yamadapc/iced",
-    "upstream_url": "https://github.com/hecrj/iced"
-  },
-  {
     "path": "crates/vendor/baseview",
     "url": "https://github.com/yamadapc/iced",
     "upstream_url": "https://github.com/RustAudio/baseview"

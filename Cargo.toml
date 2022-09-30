@@ -88,6 +88,12 @@ exclude = [
 [profile.bench]
 debug = true
 
+[patch."https://github.com/yamadapc/baseview"]
+augmented_baseview = { path = "crates/vendor/baseview" }
+
+[patch."https://github.com/yamadapc/iced_baseview"]
+augmented_iced_baseview = { path = "crates/vendor/iced-baseview" }
+
 [patch.crates-io]
 wisual-logger = { version = "0.1", path = "crates/augmented/ops/wisual-logger" }
 

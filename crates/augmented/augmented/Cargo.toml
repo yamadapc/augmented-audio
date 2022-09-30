@@ -24,53 +24,53 @@ glow = [
 
 [dependencies]
 # application
-audio-processor-standalone = { version = "1.1.0", path = "../application/audio-processor-standalone" }
-audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" , version = "1.1.0" }
+audio-processor-standalone = { version = "1.3.0", path = "../application/audio-processor-standalone" }
+audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" , version = "1.2.0" }
 
 # audio
 augmented-adsr-envelope = { path = "../audio/adsr-envelope" , version = "0.2.0" }
 audio-garbage-collector = { path = "../audio/audio-garbage-collector" , version = "1.1.0" }
 audio-parameter-store = { path = "../audio/audio-parameter-store" }
-audio-processor-graph = { path = "../audio/audio-processor-graph" }
-audio-processor-traits = { path = "../audio/audio-processor-traits" , version = "1.1.0" }
-audio-processor-utility = { path = "../audio/audio-processor-utility" }
-audio-processor-analysis = { path = "../audio/audio-processor-analysis" , version = "0.2.0" }
-audio-processor-bitcrusher = { path = "../audio/audio-processor-bitcrusher" }
-audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" }
-audio-processor-time = { path = "../audio/audio-processor-time" }
-audio-processor-file = { path = "../audio/audio-processor-file" , version = "1.1.0" }
-audio-processor-metronome = { path = "../audio/audio-processor-metronome" , version = "1.1.0" }
+audio-processor-graph = { path = "../audio/audio-processor-graph" , version = "0.2.0" }
+audio-processor-traits = { path = "../audio/audio-processor-traits" , version = "2.1.0" }
+audio-processor-utility = { path = "../audio/audio-processor-utility" , version = "0.2.0" }
+audio-processor-analysis = { path = "../audio/audio-processor-analysis" , version = "0.3.0" }
+audio-processor-bitcrusher = { path = "../audio/audio-processor-bitcrusher" , version = "0.2.0" }
+audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" , version = "0.2.0" }
+audio-processor-time = { path = "../audio/audio-processor-time" , version = "0.2.0" }
+audio-processor-file = { path = "../audio/audio-processor-file" , version = "1.2.0" }
+audio-processor-metronome = { path = "../audio/audio-processor-metronome" , version = "1.3.0" }
 audio-processor-pitch-shifter = { path = "../audio/audio-processor-pitch-shifter" }
 augmented_oscillator = { path = "../audio/oscillator" , version = "1.1.0" }
 cpal = { version = "0.14.0" }
 
 # data
 atomic-queue = { path = "../data/atomic-queue" , version = "1.0.1" }
-augmented-audio-volume = { path = "../data/audio-volume" , version = "0.2.0" }
+augmented-audio-volume = { path = "../data/audio-volume" , version = "0.3.0" }
 circular-data-structures = { path = "../data/circular-data-structures" }
 smooth-value = { path = "../data/smooth-value" }
 
 # dsp
-augmented-convert-sample-rate = { path = "../dsp/convert-sample-rate" , version = "1.1.0" }
-augmented-dsp-filters = { version = "1.1.0", path = "../dsp/dsp-filters" }
+augmented-convert-sample-rate = { path = "../dsp/convert-sample-rate" , version = "1.2.0" }
+augmented-dsp-filters = { version = "1.2.1", path = "../dsp/dsp-filters" }
 
 # gui
-audio-processor-iced-design-system = { path = "../gui/audio-processor-iced-design-system" }
-audio-processor-iced-storybook = { path = "../gui/audio-processor-iced-storybook" }
-iced-editor = { path = "../gui/iced-editor" }
+audio-processor-iced-design-system = { path = "../gui/audio-processor-iced-design-system" , version = "0.3.1" }
+audio-processor-iced-storybook = { path = "../gui/audio-processor-iced-storybook" , version = "0.2.0" }
+augmented-iced-editor = { path = "../gui/iced-editor" , version = "0.2.0" }
 macos-bundle-resources = { path = "../gui/macos-bundle-resources" }
 
 iced = "0.4.2"
-iced_baseview = { path = "../../vendor/iced-baseview", default-features = false }
-iced_audio = { path = "../../vendor/iced_audio" }
-baseview = { path = "../../vendor/baseview" }
+iced_baseview = { version = "0", path = "../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
+iced_audio = { version = "0.8.0" }
+baseview = { path = "../../vendor/baseview", version = "0.1", package = "augmented_baseview" }
 
 # ops
 audio-plugin-logger = { path = "../ops/audio-plugin-logger" }
 wisual-logger = { version = "0.1", path = "../ops/wisual-logger" }
 
 # testing
-audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" , version = "1.1.0" }
+audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" , version = "1.2.0" }
 
 # plug-ins
 vst = { version = "0.3", path = "../../vendor/vst" }
