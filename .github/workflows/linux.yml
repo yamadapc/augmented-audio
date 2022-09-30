@@ -27,7 +27,7 @@ jobs:
           lfs: true
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: "rust-cache-linux2"
+          shared-key: "rust-cache-linux-tarpaulin"
 
       - name: Install dependencies
         run: |
@@ -39,7 +39,7 @@ jobs:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
-          cargo tarpaulin --skip-clean --workspace \
+          cargo tarpaulin --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
               --out lcov \
