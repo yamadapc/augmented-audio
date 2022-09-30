@@ -81,6 +81,7 @@ jobs:
               --exclude recording_buddy \
               --exclude darwin-webkit \
               --exclude webview-holder \
+              --exclude visualisation_ \
               --exclude macos-bundle-resources
 
       - name: Test
