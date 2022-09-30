@@ -15,7 +15,7 @@ futures-util = "0.3.17"
 lazy_static = "1.4.0"
 
 basedrop = "^0.1.2"
-clap = "^2.33.3"
+clap = "^4.0.4"
 concread = "^0.4.0"
 cpal = { version = "0.14.0" }
 hound = "^3.4.0"
