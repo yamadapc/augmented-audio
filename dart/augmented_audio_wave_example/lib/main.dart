@@ -15,7 +15,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  var nativeApi = AugmentedAudioWaveExampleImpl(DynamicLibrary.executable());
+  var nativeApi = AugmentedAudioWaveExampleImpl(DynamicLibrary.open("augmented_audio_wave_example.dylib"));
   var value = 0;
 
   @override
@@ -36,7 +36,7 @@ class _MyAppState extends State<MyApp> {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: Text("Hello world $value"),
+      home: Scaffold(body: Center(child: Text("add(10, 20) => $value"))),
     );
   }
 }
