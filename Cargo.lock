@@ -875,6 +875,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "augmented_audio_wave_example"
+version = "0.1.0"
+dependencies = [
+ "flutter_rust_bridge",
+]
+
+[[package]]
 name = "augmented_baseview"
 version = "0.1.0"
 dependencies = [

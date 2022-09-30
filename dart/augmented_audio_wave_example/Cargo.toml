@@ -1,0 +1,11 @@
+[package]
+name = "augmented_audio_wave_example"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "augmented_audio_wave_example"
+crate-type = ["cdylib"]
+
+[dependencies]
+flutter_rust_bridge = "1.12"

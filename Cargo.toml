@@ -73,6 +73,7 @@ members = [
     "crates/augmented/ops/augmented-analytics",
     "crates/augmented/ops/augmented-metrics",
     "crates/augmented/ops/wisual-logger",
+    "dart/augmented_audio_wave_example",
 ]
 
 exclude = [
