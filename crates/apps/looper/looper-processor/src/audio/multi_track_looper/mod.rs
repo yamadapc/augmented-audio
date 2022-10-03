@@ -70,6 +70,7 @@ mod parameters_map;
 pub(crate) mod scene_state;
 pub(crate) mod slice_worker;
 mod tempo_estimation;
+mod track_events_worker;
 pub(crate) mod trigger_model;
 
 /// During audio-processing, parameters are written into this storage to apply different phases

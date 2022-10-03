@@ -35,6 +35,7 @@ use augmented_atomics::{AtomicF32, AtomicValue};
 
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::audio::multi_track_looper::scene_state::SceneHandle;
+use crate::audio::multi_track_looper::track_events_worker::TrackEventsWorker;
 use crate::audio::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
 use crate::parameters::LFOMode;
 use crate::{QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
@@ -55,6 +56,7 @@ pub struct MultiTrackLooperHandle {
     metronome_handle: Shared<MetronomeProcessorHandle>,
     input_meter_handle: Shared<RunningRMSProcessorHandle>,
     slice_worker: SliceWorker,
+    track_events_worker: Shared<TrackEventsWorker>,
     settings: SharedCell<AudioProcessorSettings>,
     metrics_handle: Shared<AudioProcessorMetricsHandle>,
     midi_store: Shared<MidiStoreHandle>,
@@ -77,8 +79,9 @@ impl MultiTrackLooperHandle {
             input_meter_handle,
             settings: make_shared_cell(AudioProcessorSettings::default()),
             slice_worker: SliceWorker::new(),
+            track_events_worker: make_shared(TrackEventsWorker::new()),
             metrics_handle: metrics.handle(),
-            midi_store: make_shared(super::midi_store::MidiStoreHandle::default()),
+            midi_store: make_shared(MidiStoreHandle::default()),
             active_looper: AtomicUsize::new(0),
         }
     }
@@ -146,6 +149,11 @@ impl MultiTrackLooperHandle {
                 self.slice_worker.add_job(
                     looper_id.0,
                     *self.settings.get(),
+                    handle.looper().looper_clip(),
+                );
+                self.track_events_worker.on_stopped_recording(
+                    looper_id,
+                    self.settings.get(),
                     handle.looper().looper_clip(),
                 );
 

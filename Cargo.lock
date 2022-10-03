@@ -4231,6 +4231,7 @@ dependencies = [
  "num-derive",
  "num-traits 0.2.15",
  "rand 0.8.5",
+ "ringbuf",
  "rmp-serde",
  "rustc-hash",
  "serde",
