@@ -1,6 +1,3 @@
-use std::ffi::CStr;
-use std::os::raw::c_char;
-
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -23,6 +20,10 @@ use std::os::raw::c_char;
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+use std::ffi::CStr;
+use std::os::raw::c_char;
+
 use actix_system_threads::ActorSystem;
 
 use crate::services::audio_clip_manager::LoadClipMessage;
