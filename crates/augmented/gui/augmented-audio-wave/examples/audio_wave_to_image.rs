@@ -8,7 +8,7 @@ use skia_safe::{
 
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
-use augmented_audio_wave::audio_wave::spawn_audio_drawer;
+use augmented_audio_wave::spawn_audio_drawer;
 
 fn read_test_buffer() -> VecAudioBuffer<f32> {
     let input = audio_processor_testing_helpers::relative_path!("../../../../input-files/bass.mp3");

@@ -1,1 +1,2 @@
-pub mod audio_wave;
+mod audio_wave;
+pub use audio_wave::*;

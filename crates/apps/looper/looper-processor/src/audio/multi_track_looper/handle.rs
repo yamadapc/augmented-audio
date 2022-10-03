@@ -28,6 +28,7 @@ use basedrop::SharedCell;
 use num::ToPrimitive;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
+use audio_processor_analysis::running_rms_processor::RunningRMSProcessorHandle;
 use audio_processor_metronome::MetronomeProcessorHandle;
 use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
@@ -52,6 +53,7 @@ pub struct MultiTrackLooperHandle {
     time_info_provider: Shared<TimeInfoProviderImpl>,
     scene_handle: SceneHandle,
     metronome_handle: Shared<MetronomeProcessorHandle>,
+    input_meter_handle: Shared<RunningRMSProcessorHandle>,
     slice_worker: SliceWorker,
     settings: SharedCell<AudioProcessorSettings>,
     metrics_handle: Shared<AudioProcessorMetricsHandle>,
@@ -63,6 +65,7 @@ impl MultiTrackLooperHandle {
     pub fn new(
         time_info_provider: Shared<TimeInfoProviderImpl>,
         metronome_handle: Shared<MetronomeProcessorHandle>,
+        input_meter_handle: Shared<RunningRMSProcessorHandle>,
         metrics: &AudioProcessorMetrics,
         voices: Vec<LooperVoice>,
     ) -> Self {
@@ -71,6 +74,7 @@ impl MultiTrackLooperHandle {
             time_info_provider,
             scene_handle: SceneHandle::new(8, 2),
             metronome_handle,
+            input_meter_handle,
             settings: make_shared_cell(AudioProcessorSettings::default()),
             slice_worker: SliceWorker::new(),
             metrics_handle: metrics.handle(),
@@ -596,6 +600,10 @@ impl MultiTrackLooperHandle {
                 self.play();
             }
         }
+    }
+
+    pub fn input_meter_handle(&self) -> &Shared<RunningRMSProcessorHandle> {
+        &self.input_meter_handle
     }
 
     pub fn metronome_handle(&self) -> &Shared<MetronomeProcessorHandle> {

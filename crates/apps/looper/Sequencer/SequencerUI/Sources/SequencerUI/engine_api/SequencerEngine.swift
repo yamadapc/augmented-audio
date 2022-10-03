@@ -25,6 +25,7 @@ public protocol SequencerEngine {
     var effectsService: EffectsService { get }
     var audioIOPreferencesController: AudioIOSettingsController { get }
 
+    func getInputLevel() -> Float
     func onClickPlayheadStop()
     func onClickPlayheadPlay()
 

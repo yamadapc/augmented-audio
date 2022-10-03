@@ -153,7 +153,6 @@ pub fn audio_processor_main_with_midi<
 /// * CPAL audio app processing an audio input file (MP3)
 /// * Offline rendering into a WAV file
 ///
-/// Returns the [`cpal::Stream`] streams. The audio-thread will keep running until these are dropped.
 pub fn audio_processor_main<Processor: AudioProcessor<SampleType = f32> + Send + 'static>(
     audio_processor: Processor,
 ) {

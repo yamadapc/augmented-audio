@@ -69,6 +69,10 @@ extension EngineImpl: SequencerEngine {
         _audioIOSettingsController
     }
 
+    public func getInputLevel() -> Float {
+        return looper_engine__get_input_level(engine)
+    }
+
     public func loadFile(atPath path: String) {
         path.withCString { cPath in
             looper_engine__load_file(engine, cPath)

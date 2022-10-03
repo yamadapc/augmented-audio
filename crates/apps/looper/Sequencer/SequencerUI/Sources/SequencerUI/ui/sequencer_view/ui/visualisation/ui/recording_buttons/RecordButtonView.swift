@@ -21,6 +21,9 @@ struct RecordButtonView: View {
     @ObservedObject var store: Store
     @ObservedObject var trackState: TrackState
     @State var isAnimating = false
+  @State var level: Double = 0
+
+    let timer = Timer.publish(every: 1 / 60, on: .current, in: .common).autoconnect()
 
     var body: some View {
         let button = ContinuousButton(
@@ -28,13 +31,16 @@ struct RecordButtonView: View {
             label: "Record",
             isDisabled: store.midiMappingActive,
             isSelected: trackState.looperState.isRecording,
-            backgroundColor: buttonColor()
+            backgroundColor: buttonColor().opacity(min(max(level * 20, 0.3), 1))
         )
         .bindToParameterId(
             store: store,
             parameterId: .recordButton(trackId: trackState.id)
         )
         .testId("recordButton")
+        .onReceive(self.timer) { _ in
+            self.level = Double(store.engine?.getInputLevel() ?? 0)
+        }
 
         if trackState.looperState == .recordingScheduled {
             button

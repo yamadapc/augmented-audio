@@ -53,7 +53,18 @@ pub struct AudioStateController {
 
 impl AudioStateController {
     pub fn new(audio_mode: AudioModeParams, processor: MultiTrackLooper) -> Self {
-        let standalone_options = StandaloneOptions::default();
+        let user_defaults = cacao::defaults::UserDefaults::default();
+        let standalone_options = StandaloneOptions {
+            input_device: user_defaults
+                .get("input-device")
+                .map(|s| s.as_str().map(|s| s.to_string()))
+                .flatten(),
+            output_device: user_defaults
+                .get("output-device")
+                .map(|s| s.as_str().map(|s| s.to_string()))
+                .flatten(),
+            ..StandaloneOptions::default()
+        };
         let handle = processor.handle().clone();
         let state = match audio_mode {
             AudioModeParams::Standalone => setup_audio_state(standalone_options, processor),
@@ -70,6 +81,14 @@ impl AudioStateController {
     /// processor.
     pub fn set_options(&mut self, options: StandaloneOptions) {
         let current_options = self.get_options().unwrap_or_default();
+        let mut user_defaults = cacao::defaults::UserDefaults::default();
+        let mut insert_some = |key, maybe_str: &Option<String>| {
+            if let Some(str) = maybe_str {
+                user_defaults.insert(key, cacao::defaults::Value::string(str));
+            }
+        };
+        insert_some("input-device", &options.input_device);
+        insert_some("output-device", &options.output_device);
         if options.input_device == current_options.input_device
             && options.output_device == current_options.output_device
         {

@@ -41,6 +41,13 @@ pub unsafe extern "C" fn looper_engine__record(engine: *const LooperEngine, loop
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_input_level(engine: *const LooperEngine) -> f32 {
+    ((*engine).handle().input_meter_handle().calculate_rms(0)
+        + (*engine).handle().input_meter_handle().calculate_rms(1))
+        / 2.0
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__play(engine: *const LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Playing {}", looper_id);
     (*engine).handle().toggle_playback(LooperId(looper_id));
