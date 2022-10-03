@@ -1,5 +1,6 @@
 use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
 use skia_safe::{scalar, Canvas, Color4f, Paint, Path, M44};
+use std::sync::mpsc::RecvError;
 use std::time::Duration;
 
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor};
@@ -20,14 +21,18 @@ impl AudioWaveFrame {
 unsafe impl Send for AudioWaveFrame {}
 
 pub struct PathRendererHandle {
-    // frames: Vec<AudioWaveFrame>,
     rx: std::sync::mpsc::Receiver<AudioWaveFrame>,
+    closed_rx: std::sync::mpsc::Receiver<()>,
     closed: bool,
 }
 
 impl PathRendererHandle {
     pub fn closed(&self) -> bool {
         self.closed
+    }
+
+    pub fn wait(&mut self) -> Result<(), RecvError> {
+        self.closed_rx.recv()
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas, size: (f32, f32)) -> bool {
@@ -41,7 +46,6 @@ impl PathRendererHandle {
             match self.rx.try_recv() {
                 Ok(frame) => {
                     frame.draw(canvas);
-                    // self.frames.push(frame);
                 }
                 Err(std::sync::mpsc::TryRecvError::Disconnected) => {
                     has_more = false;
@@ -57,9 +61,6 @@ impl PathRendererHandle {
             }
         }
 
-        // for frame in &self.frames {
-        //     frame.draw(canvas);
-        // }
         canvas.restore();
 
         has_more
@@ -70,6 +71,7 @@ pub fn spawn_audio_drawer(
     mut samples: impl AudioBuffer<SampleType = f32> + Send + 'static,
 ) -> PathRendererHandle {
     let (tx, rx) = std::sync::mpsc::channel();
+    let (closed_tx, closed_rx) = std::sync::mpsc::channel();
 
     let mut cursor = 0;
     // How many samples to draw per path "page"
@@ -101,11 +103,13 @@ pub fn spawn_audio_drawer(
             }
             cursor += frame_size;
         }
+
+        let _ = closed_tx.send(());
     });
 
     PathRendererHandle {
-        // frames: vec![],
         rx,
+        closed_rx,
         closed: false,
     }
 }
