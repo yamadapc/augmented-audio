@@ -23,32 +23,32 @@ struct RecordButtonView: View {
     @State var isAnimating = false
     @State var level: Double = 0
 
-    let timer = Timer.publish(every: 1 / 60, on: .current, in: .common).autoconnect()
+    // let timer = Timer.publish(every: 1 / 60, on: .current, in: .common).autoconnect()
 
     var body: some View {
         let button = ContinuousButton(
             action: { store.onClickRecord() },
-            label: "Record",
-            isDisabled: store.midiMappingActive,
-            isSelected: trackState.looperState.isRecording,
-            backgroundColor: buttonColor().opacity(min(max(level * 20, 0.3), 1))
+                label: "Record",
+                isDisabled: store.midiMappingActive,
+                isSelected: trackState.looperState.isRecording,
+                backgroundColor: buttonColor().opacity(min(max(level * 20, 0.3), 1))
         )
-        .bindToParameterId(
-            store: store,
-            parameterId: .recordButton(trackId: trackState.id)
-        )
-        .testId("recordButton")
-        .onReceive(self.timer) { _ in
-            self.level = Double(store.engine?.getInputLevel() ?? 0)
-        }
+                .bindToParameterId(
+                        store: store,
+                        parameterId: .recordButton(trackId: trackState.id)
+                )
+                .testId("recordButton")
+        // .onReceive(self.timer) { _ in
+        //     self.level = Double(store.engine?.getInputLevel() ?? 0)
+        // }
 
         if trackState.looperState == .recordingScheduled {
             button
-                .onAppear {
-                    withAnimation(.easeInOut(duration: BUTTON_ANIMATION_DURATION_SECS).repeatForever()) {
-                        isAnimating.toggle()
+                    .onAppear {
+                        withAnimation(.easeInOut(duration: BUTTON_ANIMATION_DURATION_SECS).repeatForever()) {
+                            isAnimating.toggle()
+                        }
                     }
-                }
         } else {
             button
         }

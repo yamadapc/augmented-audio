@@ -24,7 +24,6 @@ struct AudioPathMetalView: NSViewRepresentable {
 
     var layer: CAMetalLayer?
     var size: CGSize
-    var nsView: NSView?
 
     func makeNSView(context _: Context) -> NSView {
         let view = NSView()
@@ -35,10 +34,36 @@ struct AudioPathMetalView: NSViewRepresentable {
         return view
     }
 
-    func updateNSView(_ nsView: NSView, context _: Context) {
-        nsView.layer = layer
-        nsView.frame.size = size
-        layer?.drawableSize = nsView.frame.size
+    func updateNSView(_ view: NSView, context _: Context) {
+        view.layer = layer
+        view.frame.size = size
+        layer?.drawableSize = view.frame.size
+    }
+}
+#elseif os(iOS)
+struct AudioPathMetalView: UIViewRepresentable {
+    typealias UIViewType = UIView
+
+    var layer: CAMetalLayer?
+    var size: CGSize
+
+    func makeUIView(context _: Context) -> UIView {
+        let view = UIView()
+        view.layer.addSublayer(layer!)
+        view.frame.size = size
+        layer?.drawableSize = size
+        return view
+    }
+
+    func updateUIView(_ view: UIView, context _: Context) {
+        let isEmptyLayer = view.layer.sublayers?.isEmpty ?? true
+        if !isEmptyLayer {
+            view.layer.replaceSublayer(view.layer.sublayers![0], with: layer!)
+        } else {
+            view.layer.addSublayer(layer!)
+        }
+        view.frame.size = size
+        layer?.drawableSize = view.frame.size
     }
 }
 #endif

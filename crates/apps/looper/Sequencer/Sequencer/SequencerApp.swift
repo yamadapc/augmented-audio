@@ -29,9 +29,10 @@ import SwiftUI
 @main
 struct SequencerApp: App {
     var engineController = EngineController()
+
     var body: some Scene {
         WindowGroup {
-            ContentView().environmentObject(engineController.store)
+            SequencerRootAppView().environmentObject(engineController.store)
         }
     }
 }
