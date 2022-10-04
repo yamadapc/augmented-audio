@@ -21,7 +21,7 @@ struct RecordButtonView: View {
     @ObservedObject var store: Store
     @ObservedObject var trackState: TrackState
     @State var isAnimating = false
-  @State var level: Double = 0
+    @State var level: Double = 0
 
     let timer = Timer.publish(every: 1 / 60, on: .current, in: .common).autoconnect()
 

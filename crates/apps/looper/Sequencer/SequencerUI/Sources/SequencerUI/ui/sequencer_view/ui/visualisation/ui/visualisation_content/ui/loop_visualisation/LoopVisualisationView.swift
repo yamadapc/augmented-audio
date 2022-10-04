@@ -33,14 +33,18 @@ struct LoopVisualisationView: View {
         }
     }
 
-    func renderInner(tick: Int) -> some View {
+    func renderInner(tick _: Int) -> some View {
         VStack {
             GeometryReader { geometry in
-                AudioPathMetalView(layer: trackState.metalLayer, size: geometry.size)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .onAppear {
-                        store.engine?.startRendering(looperId: trackState.id, layer: trackState.metalLayer!)
-                    }
+                ZStack(alignment: .topLeading) {
+                    AudioPathMetalView(layer: trackState.metalLayer, size: geometry.size)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .onAppear {
+                                store.engine?.startRendering(looperId: trackState.id)
+                            }
+                    PlayheadView(position: trackState.position, size: geometry.size)
+                    SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
+                }
             }
 
 //            if let buffer = trackState.buffer {

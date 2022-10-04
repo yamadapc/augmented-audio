@@ -197,12 +197,14 @@ extension EngineImpl: SequencerEngine {
     }
 
     public func getLFOSample(mode: SequencerUI.LFOMode, phase: Float) -> Float {
-        guard let rustMode = LFO_MODES[mode] else { return 0.0 }
+        guard let rustMode = LFO_MODES[mode] else {
+            return 0.0
+        }
         return looper_engine__get_lfo_sample(rustMode, phase)
     }
 
-    public func startRendering(looperId: UInt, layer: CAMetalLayer) {
-        looper_engine__start_rendering(engine, looperId, layer)
+    public func startRendering(looperId: UInt) {
+        looper_engine__start_rendering(engine, looperId)
     }
 }
 

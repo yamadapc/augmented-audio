@@ -51,5 +51,5 @@ public protocol SequencerEngine {
 
     func getLFOSample(mode: LFOMode, phase: Float) -> Float
 
-    func startRendering(looperId: UInt, layer: CAMetalLayer)
+    func startRendering(looperId: UInt)
 }

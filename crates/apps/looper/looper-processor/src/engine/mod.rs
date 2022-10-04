@@ -32,6 +32,7 @@ use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioPro
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::controllers::audio_io_settings_controller::AudioIOSettingsController;
 use crate::controllers::audio_state_controller::{AudioModeParams, AudioStateController};
+use crate::controllers::audio_wave_rendering_controller::AudioWaveRenderingController;
 use crate::controllers::autosave_controller::AutosaveController;
 use crate::controllers::events_controller::EventsController;
 use crate::controllers::load_project_controller;
@@ -83,6 +84,7 @@ pub struct LooperEngine {
 
     audio_io_settings_controller: AudioIOSettingsController,
     pub(crate) device: metal::Device,
+    audio_wave_rendering_controller: AudioWaveRenderingController,
     _autosave_controller: Option<AutosaveController>,
 }
 
@@ -156,6 +158,10 @@ impl LooperEngine {
         let audio_io_settings_controller =
             AudioIOSettingsController::new(audio_state_controller.clone());
 
+        let device = metal::Device::system_default().unwrap();
+        let queue = handle.track_events_worker().queue();
+        let audio_wave_rendering_controller = AudioWaveRenderingController::new(&device, queue);
+
         LooperEngine {
             handle,
             metrics_actor,
@@ -166,7 +172,8 @@ impl LooperEngine {
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             analytics_service,
             audio_io_settings_controller,
-            device: metal::Device::system_default().unwrap(),
+            device,
+            audio_wave_rendering_controller,
             _autosave_controller: autosave_controller,
         }
     }
@@ -208,6 +215,10 @@ impl LooperEngine {
 
     pub fn audio_io_settings_controller(&self) -> &AudioIOSettingsController {
         &self.audio_io_settings_controller
+    }
+
+    pub fn audio_wave_rendering_controller(&mut self) -> &mut AudioWaveRenderingController {
+        &mut self.audio_wave_rendering_controller
     }
 }
 

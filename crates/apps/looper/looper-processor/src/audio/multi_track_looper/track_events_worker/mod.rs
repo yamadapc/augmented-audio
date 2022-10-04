@@ -38,7 +38,7 @@ use augmented_audio_wave::spawn_audio_drawer;
 use crate::audio::multi_track_looper::long_backoff::LongBackoff;
 use crate::LooperId;
 
-enum TrackEventsMessage {
+pub enum TrackEventsMessage {
     StoppedRecording {
         looper_id: LooperId,
         settings: Shared<AudioProcessorSettings>,
@@ -51,45 +51,49 @@ pub struct TrackEventsWorker {
 }
 
 impl TrackEventsWorker {
+    pub fn queue(&self) -> Shared<Queue<TrackEventsMessage>> {
+        self.tx.clone()
+    }
+
     pub fn new() -> Self {
         let queue = make_shared(Queue::new(10));
         let tx = queue.clone();
 
-        std::thread::spawn(move || {
-            let mut backoff = LongBackoff::new();
-            let mut audio_drawers = HashMap::new();
-
-            loop {
-                if let Some(msg) = queue.pop() {
-                    match msg {
-                        TrackEventsMessage::StoppedRecording {
-                            looper_id,
-                            looper_clip,
-                            ..
-                        } => {
-                            let looper_clip = looper_clip.borrow();
-                            let looper_clip_copy: Vec<f32> = looper_clip
-                                .slice()
-                                .iter()
-                                .map(|sample| sample.get())
-                                .collect();
-                            let looper_clip_copy = VecAudioBuffer::new_with(
-                                looper_clip_copy,
-                                looper_clip.num_channels(),
-                                looper_clip.num_samples(),
-                            );
-                            let drawer = spawn_audio_drawer(looper_clip_copy);
-                            audio_drawers.insert(looper_id, drawer);
-                        }
-                    }
-
-                    println!("StoppedRecording message");
-                    backoff.reset();
-                } else {
-                    backoff.snooze();
-                }
-            }
-        });
+        // std::thread::spawn(move || {
+        //     let mut backoff = LongBackoff::new();
+        //     let mut audio_drawers = HashMap::new();
+        //
+        //     loop {
+        //         if let Some(msg) = queue.pop() {
+        //             match msg {
+        //                 TrackEventsMessage::StoppedRecording {
+        //                     looper_id,
+        //                     looper_clip,
+        //                     ..
+        //                 } => {
+        //                     let looper_clip = looper_clip.borrow();
+        //                     let looper_clip_copy: Vec<f32> = looper_clip
+        //                         .slice()
+        //                         .iter()
+        //                         .map(|sample| sample.get())
+        //                         .collect();
+        //                     let looper_clip_copy = VecAudioBuffer::new_with(
+        //                         looper_clip_copy,
+        //                         looper_clip.num_channels(),
+        //                         looper_clip.num_samples(),
+        //                     );
+        //                     let drawer = spawn_audio_drawer(looper_clip_copy);
+        //                     audio_drawers.insert(looper_id, drawer);
+        //                 }
+        //             }
+        //
+        //             println!("StoppedRecording message");
+        //             backoff.reset();
+        //         } else {
+        //             backoff.snooze();
+        //         }
+        //     }
+        // });
 
         Self { tx }
     }
