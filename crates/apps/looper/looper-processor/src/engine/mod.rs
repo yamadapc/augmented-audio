@@ -82,6 +82,7 @@ pub struct LooperEngine {
     audio_state_controller: Addr<AudioStateController>,
 
     audio_io_settings_controller: AudioIOSettingsController,
+    pub(crate) device: metal::Device,
     _autosave_controller: Option<AutosaveController>,
 }
 
@@ -165,6 +166,7 @@ impl LooperEngine {
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             analytics_service,
             audio_io_settings_controller,
+            device: metal::Device::system_default().unwrap(),
             _autosave_controller: autosave_controller,
         }
     }

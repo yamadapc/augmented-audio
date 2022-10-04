@@ -1,4 +1,3 @@
-use crate::{LooperEngine, LooperHandleThread, LooperId};
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,9 +20,13 @@ use crate::{LooperEngine, LooperHandleThread, LooperId};
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+use foreign_types_shared::ForeignType;
+
 use crate::audio::multi_track_looper::slice_worker::SliceResult;
 use crate::audio::processor::handle::LooperState;
 use crate::c_api::into_ptr;
+use crate::{LooperEngine, LooperHandleThread, LooperId};
 
 pub use self::looper_buffer::*;
 
@@ -89,6 +92,131 @@ pub unsafe extern "C" fn looper_engine__get_looper_position(
     looper_id: usize,
 ) -> f32 {
     (*engine).handle().get_position_percent(LooperId(looper_id))
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__start_rendering(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    layer: *mut metal::CAMetalLayer,
+) {
+    fn get_drawable_surface<'a>(
+        metal_layer: &'a MetalLayer,
+        context: &'a mut skia_safe::gpu::DirectContext,
+    ) -> Option<(&'a metal::MetalDrawableRef, skia_safe::Surface)> {
+        let drawable = metal_layer.next_drawable();
+        drawable.map(|drawable| (drawable, read_surface(context, &metal_layer, drawable)))
+    }
+
+    fn read_surface(
+        mut context: &mut skia_safe::gpu::DirectContext,
+        metal_layer: &MetalLayer,
+        drawable: &metal::MetalDrawableRef,
+    ) -> skia_safe::Surface {
+        let drawable_size = {
+            let size = metal_layer.drawable_size();
+            skia_safe::Size::new(
+                size.width as skia_safe::scalar,
+                size.height as skia_safe::scalar,
+            )
+        };
+
+        unsafe {
+            let texture_info = skia_safe::gpu::mtl::TextureInfo::new(
+                drawable.texture().as_ptr() as skia_safe::gpu::mtl::Handle
+            );
+
+            let backend_render_target = skia_safe::gpu::BackendRenderTarget::new_metal(
+                (drawable_size.width as i32, drawable_size.height as i32),
+                1,
+                &texture_info,
+            );
+
+            skia_safe::Surface::from_backend_render_target(
+                &mut context,
+                &backend_render_target,
+                skia_safe::gpu::SurfaceOrigin::TopLeft,
+                skia_safe::ColorType::BGRA8888,
+                None,
+                None,
+            )
+            .unwrap()
+        }
+    }
+
+    use cocoa::appkit::NSView;
+    use foreign_types_shared::{ForeignType, ForeignTypeRef};
+    use metal::{Device, MTLPixelFormat, MetalLayer};
+
+    let device = &(*engine).device;
+    let queue = device.new_command_queue();
+    let backend = unsafe {
+        skia_safe::gpu::mtl::BackendContext::new(
+            device.as_ptr() as skia_safe::gpu::mtl::Handle,
+            queue.as_ptr() as skia_safe::gpu::mtl::Handle,
+            std::ptr::null(),
+        )
+    };
+    let mut context = skia_safe::gpu::DirectContext::new_metal(&backend, None).unwrap();
+
+    let layer = MetalLayer::from_ptr(layer);
+    let drawable_size = {
+        let size = layer.drawable_size();
+        skia_safe::Size::new(
+            size.width as skia_safe::scalar,
+            size.height as skia_safe::scalar,
+        )
+    };
+
+    let (drawable_ref, mut surface) = get_drawable_surface(&layer, &mut context).unwrap();
+    let canvas = surface.canvas();
+    canvas.clear(skia_safe::Color4f::new(0.0, 0.0, 0.0, 1.0));
+    let mut paint = skia_safe::Paint::new(skia_safe::Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+    paint.set_anti_alias(true);
+    canvas.draw_circle(
+        (drawable_size.width / 2.0, drawable_size.height / 2.0),
+        drawable_size.height / 2.0,
+        &paint,
+    );
+    surface.flush_and_submit();
+
+    let command_buffer = queue.new_command_buffer();
+    command_buffer.present_drawable(drawable_ref);
+    command_buffer.commit();
+
+    // TODO - fix memory leaking?
+    std::mem::forget(layer);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__create_metal_layer(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+) -> *mut metal::CAMetalLayer {
+    use cocoa::appkit::NSView;
+    use foreign_types_shared::{ForeignType, ForeignTypeRef};
+    use metal::{Device, MTLPixelFormat, MetalLayer};
+
+    let layer = MetalLayer::new();
+    layer.set_device(&(*engine).device);
+    layer.set_pixel_format(MTLPixelFormat::BGRA8Unorm);
+    layer.set_presents_with_transaction(false);
+    layer.set_drawable_size(core_graphics_types::geometry::CGSize::new(500.0, 500.0));
+
+    let ptr = layer.as_ptr();
+    std::mem::forget(layer);
+    ptr
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__render_looper_buffer(
+    engine: *const LooperEngine,
+    looper_id: usize,
+    ns_view: cocoa::base::id,
+) {
+    let handle = (*engine).handle();
+    let track_events_worker = handle.track_events_worker();
+    track_events_worker.render_looper_buffer(LooperId(looper_id), ns_view);
 }
 
 #[no_mangle]

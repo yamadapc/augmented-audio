@@ -278,6 +278,8 @@
 		CBB47B4928C2C1EE0069D916 /* OSLog.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OSLog.framework; path = System/Library/Frameworks/OSLog.framework; sourceTree = SDKROOT; };
 		CBB47B5028C2DB290069D916 /* example-song.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "example-song.mp3"; sourceTree = "<group>"; };
 		CBD6415528442D2700825185 /* AudioIOSettingsControllerImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioIOSettingsControllerImpl.swift; sourceTree = "<group>"; };
+		CBE75E5D28EC2D4A005C2D34 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/Metal.framework; sourceTree = DEVELOPER_DIR; };
+		CBE75E5F28EC2D81005C2D34 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.3.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = DEVELOPER_DIR; };
 		CBECE3B227ED434C0054BB43 /* SequencerEngineController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineController.swift; sourceTree = "<group>"; };
 		CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SequencerEngineTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBECE3BA27ED43DB0054BB43 /* SequencerEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerEngineTests.swift; sourceTree = "<group>"; };
@@ -449,6 +451,8 @@
 		CB23ADA227D33F4700C6289F /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CBE75E5F28EC2D81005C2D34 /* CoreGraphics.framework */,
+				CBE75E5D28EC2D4A005C2D34 /* Metal.framework */,
 				CBB47B4928C2C1EE0069D916 /* OSLog.framework */,
 				CB0F71C427E1204800C08404 /* liblooperengine.a */,
 				CB5D801228C605CE002501F2 /* swift-log */,
@@ -1740,6 +1744,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../looper-processor/public/lib/macos/";
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerEngine";
 				PRODUCT_NAME = SequencerEngine;
 				SDKROOT = macosx;
@@ -1777,6 +1782,7 @@
 				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../looper-processor/public/lib/macos/";
 				MACOSX_DEPLOYMENT_TARGET = 11.3;
 				MARKETING_VERSION = 1.0;
+				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.SequencerEngine";
 				PRODUCT_NAME = SequencerEngine;
 				SDKROOT = macosx;

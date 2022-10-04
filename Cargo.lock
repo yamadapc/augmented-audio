@@ -4217,14 +4217,18 @@ dependencies = [
  "bytesize",
  "cacao",
  "chrono",
+ "cocoa 0.24.0",
+ "core-graphics-types",
  "cpal",
  "criterion",
  "crossbeam",
+ "foreign-types-shared",
  "iai",
  "itertools 0.10.5",
  "lazy_static",
  "lockfree",
  "log",
+ "metal 0.24.0",
  "midir",
  "mockall",
  "num 0.4.0",
@@ -4236,6 +4240,7 @@ dependencies = [
  "rustc-hash",
  "serde",
  "serde_derive",
+ "skia-safe",
  "strum 0.24.1",
  "strum_macros 0.24.2",
  "swift-bridge-build",
@@ -4458,6 +4463,20 @@ name = "metal"
 version = "0.23.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0514f491f4cc03632ab399ee01e2c1c1b12d3e1cf2d667c1ff5f87d6dcd2084"
+dependencies = [
+ "bitflags",
+ "block",
+ "core-graphics-types",
+ "foreign-types",
+ "log",
+ "objc",
+]
+
+[[package]]
+name = "metal"
+version = "0.24.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "de11355d1f6781482d027a3b4d4de7825dcedb197bf573e0596d00008402d060"
 dependencies = [
  "bitflags",
  "block",
@@ -8620,7 +8639,7 @@ dependencies = [
  "khronos-egl",
  "libloading 0.7.3",
  "log",
- "metal",
+ "metal 0.23.1",
  "naga 0.7.3",
  "objc",
  "parking_lot 0.11.2",
@@ -8658,7 +8677,7 @@ dependencies = [
  "khronos-egl",
  "libloading 0.7.3",
  "log",
- "metal",
+ "metal 0.23.1",
  "naga 0.8.5",
  "objc",
  "parking_lot 0.11.2",

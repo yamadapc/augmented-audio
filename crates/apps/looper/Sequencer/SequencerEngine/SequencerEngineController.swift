@@ -58,6 +58,8 @@ public class EngineController {
             if engine.hasLooperBuffer(looperId: track.id) {
                 readLooperBuffer(track.id)
             }
+
+            track.metalLayer = engine.createMetalLayer(looperId: track.id)
         }
     }
 

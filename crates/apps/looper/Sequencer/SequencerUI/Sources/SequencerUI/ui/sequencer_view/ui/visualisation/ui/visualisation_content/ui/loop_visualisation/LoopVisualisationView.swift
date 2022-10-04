@@ -18,6 +18,7 @@
 import SwiftUI
 
 struct LoopVisualisationView: View {
+    @EnvironmentObject var store: Store
     @ObservedObject var trackState: TrackState
     @State var tick: Int = 0
 
@@ -34,19 +35,27 @@ struct LoopVisualisationView: View {
 
     func renderInner(tick: Int) -> some View {
         VStack {
-            if let buffer = trackState.buffer {
-                GeometryReader { geometry in
-                    ZStack(alignment: .topLeading) {
-                        AudioPathView(tick: tick, buffer: buffer, geometry: geometry)
-                            .equatable()
-                        PlayheadView(position: trackState.position, size: geometry.size)
-                        SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
+            GeometryReader { geometry in
+                AudioPathMetalView(layer: trackState.metalLayer, size: geometry.size)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .onAppear {
+                        store.engine?.startRendering(looperId: trackState.id, layer: trackState.metalLayer!)
                     }
-                }
-            } else {
-                Text("No loop buffer")
-                    .frame(maxHeight: .infinity)
             }
+
+//            if let buffer = trackState.buffer {
+//                GeometryReader { geometry in
+//                    ZStack(alignment: .topLeading) {
+//                        AudioPathView(tick: tick, buffer: buffer, geometry: geometry)
+//                            .equatable()
+//                        PlayheadView(position: trackState.position, size: geometry.size)
+//                        SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
+//                    }
+//                }
+//            } else {
+//                Text("No loop buffer")
+//                    .frame(maxHeight: .infinity)
+//            }
 
             HStack {
                 ToggleParameterView(parameter: trackState.sourceParameters.loopEnabled)

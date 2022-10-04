@@ -466,6 +466,10 @@ impl MultiTrackLooperHandle {
         self.voices[looper_id.0].looper().state()
     }
 
+    pub fn track_events_worker(&self) -> &Shared<TrackEventsWorker> {
+        &self.track_events_worker
+    }
+
     pub fn get_looper_slices(&self, looper_id: LooperId) -> Option<SliceResult> {
         self.slice_worker.result(looper_id.0)
     }
