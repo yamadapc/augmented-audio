@@ -34,11 +34,8 @@ struct AudioWaveFrame {
 }
 
 impl AudioWaveFrame {
-    fn draw(&self, canvas: &mut Canvas) {
-        let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
-        paint.set_anti_alias(true);
-        paint.set_stroke(true);
-        canvas.draw_path(&self.path, &paint);
+    fn draw(&self, canvas: &mut Canvas, paint: &Paint) {
+        canvas.draw_path(&self.path, paint);
     }
 }
 
@@ -60,6 +57,10 @@ impl PathRendererHandle {
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas, size: (f32, f32)) -> bool {
+        let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+        paint.set_anti_alias(true);
+        paint.set_stroke(true);
+
         let mut has_more = true;
 
         canvas.save();
@@ -69,7 +70,7 @@ impl PathRendererHandle {
         for _i in 0..10 {
             match self.rx.try_recv() {
                 Ok(frame) => {
-                    frame.draw(canvas);
+                    frame.draw(canvas, &paint);
                 }
                 Err(std::sync::mpsc::TryRecvError::Disconnected) => {
                     has_more = false;
