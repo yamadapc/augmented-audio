@@ -23,6 +23,7 @@ struct RecordButtonView: View {
     @State var isAnimating = false
     @State var level: Double = 0
 
+    // TODO: This is broken
     // let timer = Timer.publish(every: 1 / 60, on: .current, in: .common).autoconnect()
 
     var body: some View {

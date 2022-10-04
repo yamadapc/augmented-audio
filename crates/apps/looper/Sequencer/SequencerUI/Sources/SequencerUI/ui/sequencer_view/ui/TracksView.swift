@@ -19,6 +19,7 @@
 import SwiftUI
 
 struct TrackOverlay: View {
+    // TODO: This is broken
     // @ObservedObject var position: LoopPosition
     var position: LoopPosition
 

@@ -18,6 +18,8 @@
 import SwiftUI
 
 struct PlayheadView: View {
+    // TODO: This is broken
+    // @ObservedObject var position: LoopPosition
     var position: LoopPosition
     // @ObservedObject var position: LoopPosition
     var size: CGSize
