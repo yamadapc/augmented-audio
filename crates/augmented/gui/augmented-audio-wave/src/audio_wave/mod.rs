@@ -20,11 +20,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
-use skia_safe::{scalar, Canvas, Color4f, Paint, Path, M44};
+
 use std::sync::mpsc::RecvError;
 use std::time::Duration;
 
+use skia_safe::{scalar, Canvas, Color4f, Paint, Path, M44};
+
+use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor};
 
 struct AudioWaveFrame {

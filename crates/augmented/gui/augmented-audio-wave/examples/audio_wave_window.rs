@@ -20,26 +20,27 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use cocoa::appkit::NSView;
-use cocoa::base::{id, YES};
-use core_graphics_types::geometry::CGSize;
-use foreign_types_shared::{ForeignType, ForeignTypeRef};
-use metal::{Device, MTLPixelFormat, MetalDrawableRef, MetalLayer};
-use objc::rc::autoreleasepool;
+
 use skia_safe::gpu::mtl::BackendContext;
 use skia_safe::gpu::{mtl, BackendRenderTarget, DirectContext, RecordingContext, SurfaceOrigin};
 use skia_safe::{
     scalar, AlphaType, Budgeted, Canvas, Color4f, ColorType, ISize, ImageInfo, Paint, Path, Point,
     SamplingOptions, Size, Surface,
 };
-use winit::dpi::PhysicalSize;
-use winit::event::{Event, WindowEvent};
-use winit::event_loop::ControlFlow;
-use winit::platform::macos::WindowExtMacOS;
 
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
 use augmented_audio_wave::spawn_audio_drawer;
+use cocoa::appkit::NSView;
+use cocoa::base::{id, YES};
+use core_graphics_types::geometry::CGSize;
+use foreign_types_shared::{ForeignType, ForeignTypeRef};
+use metal::{Device, MTLPixelFormat, MetalDrawableRef, MetalLayer};
+use objc::rc::autoreleasepool;
+use winit::dpi::PhysicalSize;
+use winit::event::{Event, WindowEvent};
+use winit::event_loop::ControlFlow;
+use winit::platform::macos::WindowExtMacOS;
 
 fn read_test_buffer() -> VecAudioBuffer<f32> {
     let input = audio_processor_testing_helpers::relative_path!("../../../../input-files/bass.mp3");

@@ -20,8 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use foreign_types_shared::ForeignType;
-use metal::Device;
+
 use skia_safe::gpu::mtl::BackendContext;
 use skia_safe::gpu::{mtl, DirectContext, RecordingContext};
 use skia_safe::{
@@ -31,6 +30,8 @@ use skia_safe::{
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
 use augmented_audio_wave::spawn_audio_drawer;
+use foreign_types_shared::ForeignType;
+use metal::Device;
 
 fn read_test_buffer() -> VecAudioBuffer<f32> {
     let input = audio_processor_testing_helpers::relative_path!("../../../../input-files/bass.mp3");
