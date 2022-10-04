@@ -115,16 +115,16 @@ pub unsafe extern "C" fn looper_engine__create_metal_layer(
         .create_layer(LooperId(looper_id))
 }
 
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__render_looper_buffer(
-    engine: *const LooperEngine,
-    looper_id: usize,
-    ns_view: cocoa::base::id,
-) {
-    let handle = (*engine).handle();
-    let track_events_worker = handle.track_events_worker();
-    track_events_worker.render_looper_buffer(LooperId(looper_id), ns_view);
-}
+// #[no_mangle]
+// pub unsafe extern "C" fn looper_engine__render_looper_buffer(
+//     engine: *const LooperEngine,
+//     looper_id: usize,
+//     ns_view: cocoa::base::id,
+// ) {
+//     let handle = (*engine).handle();
+//     let track_events_worker = handle.track_events_worker();
+//     track_events_worker.render_looper_buffer(LooperId(looper_id), ns_view);
+// }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__has_looper_buffer(

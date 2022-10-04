@@ -24,7 +24,6 @@
 use std::collections::HashMap;
 
 use basedrop::Shared;
-use cocoa::appkit::NSView;
 use foreign_types_shared::{ForeignType, ForeignTypeRef};
 use metal::{CAMetalLayer, CommandQueue, Device, MTLPixelFormat, MetalLayer};
 use skia_safe::gpu::mtl::BackendContext;
@@ -90,7 +89,6 @@ impl AudioWaveRenderingController {
     }
 
     pub fn draw(&mut self, looper_id: LooperId) -> Option<()> {
-        use cocoa::appkit::NSView;
         use foreign_types_shared::{ForeignType, ForeignTypeRef};
         use metal::{Device, MTLPixelFormat, MetalLayer};
 

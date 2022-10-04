@@ -111,9 +111,9 @@ impl TrackEventsWorker {
         });
     }
 
-    pub fn render_looper_buffer(&self, looper_id: LooperId, ns_view: cocoa::base::id) {
-        let layer = LooperBufferLayer::new(looper_id, ns_view);
-    }
+    // pub fn render_looper_buffer(&self, looper_id: LooperId, ns_view: cocoa::base::id) {
+    //     let layer = LooperBufferLayer::new(looper_id, ns_view);
+    // }
 }
 
 struct TrackEventsRenderer {
@@ -126,64 +126,66 @@ struct LooperBufferLayer {
     layer: metal::MetalLayer,
 }
 
-impl LooperBufferLayer {
-    fn new(looper_id: LooperId, ns_view: cocoa::base::id) -> Self {
-        use cocoa::appkit::NSView;
-        use foreign_types_shared::{ForeignType, ForeignTypeRef};
-        use metal::{Device, MTLPixelFormat, MetalLayer};
-
-        let device = Device::system_default().unwrap();
-        let queue = device.new_command_queue();
-
-        let layer = MetalLayer::new();
-        layer.set_device(&device);
-        layer.set_pixel_format(MTLPixelFormat::BGRA8Unorm);
-        layer.set_presents_with_transaction(false);
-
-        unsafe {
-            ns_view.setWantsLayer(cocoa::base::YES);
-            ns_view.setLayer(layer.as_ref() as *const _ as _);
-        }
-        let size = unsafe { ns_view.frame().size };
-
-        layer.set_drawable_size(core_graphics_types::geometry::CGSize::new(
-            size.width,
-            size.height,
-        ));
-
-        let backend = unsafe {
-            skia_safe::gpu::mtl::BackendContext::new(
-                device.as_ptr() as skia_safe::gpu::mtl::Handle,
-                queue.as_ptr() as skia_safe::gpu::mtl::Handle,
-                std::ptr::null(),
-            )
-        };
-        let mut context = skia_safe::gpu::DirectContext::new_metal(&backend, None).unwrap();
-        let mut recording_context = skia_safe::gpu::RecordingContext::from(context.clone());
-        let mut surface = skia_safe::Surface::new_render_target(
-            &mut recording_context,
-            skia_safe::Budgeted::No,
-            &skia_safe::ImageInfo::new(
-                skia_safe::ISize::new(size.width as i32, size.height as i32),
-                skia_safe::ColorType::BGRA8888,
-                skia_safe::AlphaType::Premul,
-                None,
-            ),
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
-
-        let canvas = surface.canvas();
-        canvas.clear(skia_safe::Color4f::new(0.0, 0.0, 0.0, 1.0));
-        surface.flush_and_submit();
-
-        Self {
-            looper_id,
-            surface,
-            layer,
-        }
-    }
-}
+// impl LooperBufferLayer {
+//     fn new(looper_id: LooperId, ns_view: cocoa::base::id) -> Self {
+//         #[cfg(target_os = "macos")]
+//         use cocoa::appkit::NSView as MacView;
+//
+//         use foreign_types_shared::{ForeignType, ForeignTypeRef};
+//         use metal::{Device, MTLPixelFormat, MetalLayer};
+//
+//         let device = Device::system_default().unwrap();
+//         let queue = device.new_command_queue();
+//
+//         let layer = MetalLayer::new();
+//         layer.set_device(&device);
+//         layer.set_pixel_format(MTLPixelFormat::BGRA8Unorm);
+//         layer.set_presents_with_transaction(false);
+//
+//         unsafe {
+//             ns_view.setWantsLayer(cocoa::base::YES);
+//             ns_view.setLayer(layer.as_ref() as *const _ as _);
+//         }
+//         let size = unsafe { ns_view.frame().size };
+//
+//         layer.set_drawable_size(core_graphics_types::geometry::CGSize::new(
+//             size.width,
+//             size.height,
+//         ));
+//
+//         let backend = unsafe {
+//             skia_safe::gpu::mtl::BackendContext::new(
+//                 device.as_ptr() as skia_safe::gpu::mtl::Handle,
+//                 queue.as_ptr() as skia_safe::gpu::mtl::Handle,
+//                 std::ptr::null(),
+//             )
+//         };
+//         let mut context = skia_safe::gpu::DirectContext::new_metal(&backend, None).unwrap();
+//         let mut recording_context = skia_safe::gpu::RecordingContext::from(context.clone());
+//         let mut surface = skia_safe::Surface::new_render_target(
+//             &mut recording_context,
+//             skia_safe::Budgeted::No,
+//             &skia_safe::ImageInfo::new(
+//                 skia_safe::ISize::new(size.width as i32, size.height as i32),
+//                 skia_safe::ColorType::BGRA8888,
+//                 skia_safe::AlphaType::Premul,
+//                 None,
+//             ),
+//             None,
+//             None,
+//             None,
+//             None,
+//         )
+//         .unwrap();
+//
+//         let canvas = surface.canvas();
+//         canvas.clear(skia_safe::Color4f::new(0.0, 0.0, 0.0, 1.0));
+//         surface.flush_and_submit();
+//
+//         Self {
+//             looper_id,
+//             surface,
+//             layer,
+//         }
+//     }
+// }
