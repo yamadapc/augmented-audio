@@ -143,7 +143,7 @@ pub struct LooperHandle {
     length: AtomicUsize,
     scheduled_playback: AtomicUsize,
     /// Circular buffer that is always recording
-    scratch_pad: AtomicRefCell<scratch_pad::ScratchPad>,
+    scratch_pad: AtomicRefCell<ScratchPad>,
     /// The current clip being played back
     looper_clip: LooperClip,
     /// Temporary swap buffer
@@ -194,7 +194,7 @@ impl LooperHandle {
             state: AtomicEnum::new(LooperState::Empty),
             start_cursor: AtomicUsize::new(0),
             length: AtomicUsize::new(0),
-            scratch_pad: AtomicRefCell::new(scratch_pad::ScratchPad::new(VecAudioBuffer::new())),
+            scratch_pad: AtomicRefCell::new(ScratchPad::new(VecAudioBuffer::new())),
             looper_clip: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
             looper_clip1: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
             scheduled_playback: AtomicUsize::new(0),
@@ -583,10 +583,8 @@ impl LooperHandle {
         let num_channels = settings.output_channels();
 
         // Pre-allocate scratch-pad
-        let scratch_pad = scratch_pad::ScratchPad::new(utils::empty_buffer(
-            num_channels,
-            max_loop_length_samples,
-        ));
+        let scratch_pad =
+            ScratchPad::new(utils::empty_buffer(num_channels, max_loop_length_samples));
         *self.scratch_pad.borrow_mut() = scratch_pad;
 
         // Pre-allocate looper clip
@@ -793,7 +791,6 @@ mod test {
         use augmented_atomics::AtomicValue;
 
         use crate::audio::processor::handle::LooperState;
-        use crate::QuantizeMode::SnapNext;
         use crate::{
             LooperHandleThread, LooperOptions, LooperProcessorHandle, QuantizeMode,
             TimeInfoProvider, TimeInfoProviderImpl,
@@ -829,7 +826,7 @@ mod test {
             looper.prepare(test_settings());
             // 1 beat per sec
             looper.set_tempo(60.0);
-            looper.quantize_options().set_mode(SnapNext);
+            looper.quantize_options().set_mode(QuantizeMode::SnapNext);
 
             // Move the looper 3 samples forward, we're now past beat 0 and
             // the looper should wait until sample 400 to start recording
@@ -1054,7 +1051,7 @@ mod test {
             let handle = LooperHandle::default();
             handle.prepare(AudioProcessorSettings::default());
             let quantize_options = handle.quantize_options();
-            quantize_options.set_mode(quantize_mode::QuantizeMode::SnapNext);
+            quantize_options.set_mode(QuantizeMode::SnapNext);
 
             let offset = handle.get_quantized_offset();
             assert!(offset.is_none());
@@ -1085,7 +1082,7 @@ mod test {
             handle.prepare(AudioProcessorSettings::new(100.0, 1, 1, 512));
             handle.set_tempo(60.0);
             let quantize_options = handle.quantize_options();
-            quantize_options.set_mode(quantize_mode::QuantizeMode::SnapNext);
+            quantize_options.set_mode(QuantizeMode::SnapNext);
 
             // At the start, offset is 0
             let offset = handle.get_quantized_offset();
@@ -1108,7 +1105,7 @@ mod test {
             handle.prepare(AudioProcessorSettings::new(100.0, 1, 1, 512));
             handle.set_tempo(60.0);
             let quantize_options = handle.quantize_options();
-            quantize_options.set_mode(quantize_mode::QuantizeMode::SnapClosest);
+            quantize_options.set_mode(QuantizeMode::SnapClosest);
 
             // At the start, offset is 0
             let offset = handle.get_quantized_offset();
