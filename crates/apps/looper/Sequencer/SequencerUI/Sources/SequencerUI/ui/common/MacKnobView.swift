@@ -186,32 +186,34 @@ func buildPointerPath(
         var strokeWidth = 5.0
 
         override func draw(_: NSRect) {
-            let context = NSGraphicsContext.current?.cgContext
+            guard let context: CGContext = NSGraphicsContext.current?.cgContext else {
+                return
+            }
 
-            context?.translateBy(x: 0, y: -10)
+            context.translateBy(x: 0, y: -10)
 
-            context?.saveGState()
+            context.saveGState()
             let bgPath = buildPath(1.0)
-            context?.addPath(bgPath)
-            context?.setLineWidth(strokeWidth)
-            context?.setStrokeColor(SequencerColors.black1.cgColor!)
-            context?.strokePath()
-            context?.restoreGState()
+            context.addPath(bgPath)
+            context.setLineWidth(strokeWidth)
+            context.setStrokeColor(SequencerColors.black1.cgColor!)
+            context.strokePath()
+            context.restoreGState()
 
-            context?.saveGState()
+            context.saveGState()
             let trackSliderPath = buildFilledValuePath()
-            context?.addPath(trackSliderPath)
-            context?.setLineWidth(strokeWidth)
-            context?.setStrokeColor(SequencerColors.blue.cgColor!)
-            context?.strokePath()
-            context?.restoreGState()
+            context.addPath(trackSliderPath)
+            context.setLineWidth(strokeWidth)
+            context.setStrokeColor(SequencerColors.blue.cgColor!)
+            context.strokePath()
+            context.restoreGState()
 
-            context?.saveGState()
-            context?.addPath(buildPointer())
-            context?.setLineWidth(strokeWidth / 2.0)
-            context?.setStrokeColor(SequencerColors.white.cgColor!)
-            context?.strokePath()
-            context?.restoreGState()
+            context.saveGState()
+            context.addPath(buildPointer())
+            context.setLineWidth(strokeWidth / 2.0)
+            context.setStrokeColor(SequencerColors.white.cgColor!)
+            context.strokePath()
+            context.restoreGState()
         }
 
         func buildPointer() -> CGPath {
