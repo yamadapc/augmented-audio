@@ -21,8 +21,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use foreign_types_shared::ForeignType;
-
 use crate::audio::multi_track_looper::slice_worker::SliceResult;
 use crate::audio::processor::handle::LooperState;
 use crate::c_api::into_ptr;
@@ -114,17 +112,6 @@ pub unsafe extern "C" fn looper_engine__create_metal_layer(
         .audio_wave_rendering_controller()
         .create_layer(LooperId(looper_id))
 }
-
-// #[no_mangle]
-// pub unsafe extern "C" fn looper_engine__render_looper_buffer(
-//     engine: *const LooperEngine,
-//     looper_id: usize,
-//     ns_view: cocoa::base::id,
-// ) {
-//     let handle = (*engine).handle();
-//     let track_events_worker = handle.track_events_worker();
-//     track_events_worker.render_looper_buffer(LooperId(looper_id), ns_view);
-// }
 
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__has_looper_buffer(

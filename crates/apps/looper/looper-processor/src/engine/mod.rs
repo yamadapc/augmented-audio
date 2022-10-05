@@ -83,7 +83,6 @@ pub struct LooperEngine {
     audio_state_controller: Addr<AudioStateController>,
 
     audio_io_settings_controller: AudioIOSettingsController,
-    pub(crate) device: metal::Device,
     audio_wave_rendering_controller: AudioWaveRenderingController,
     _autosave_controller: Option<AutosaveController>,
 }
@@ -160,7 +159,8 @@ impl LooperEngine {
 
         let device = metal::Device::system_default().unwrap();
         let queue = handle.track_events_worker().queue();
-        let audio_wave_rendering_controller = AudioWaveRenderingController::new(&device, queue);
+        let audio_wave_rendering_controller =
+            AudioWaveRenderingController::new(&device, handle.clone(), queue);
 
         LooperEngine {
             handle,
@@ -172,7 +172,6 @@ impl LooperEngine {
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             analytics_service,
             audio_io_settings_controller,
-            device,
             audio_wave_rendering_controller,
             _autosave_controller: autosave_controller,
         }

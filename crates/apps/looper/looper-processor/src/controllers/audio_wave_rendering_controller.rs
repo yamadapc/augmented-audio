@@ -26,16 +26,20 @@ use std::collections::HashMap;
 use basedrop::Shared;
 use foreign_types_shared::{ForeignType, ForeignTypeRef};
 use metal::{CAMetalLayer, CommandQueue, Device, MTLPixelFormat, MetalLayer};
-use skia_safe::gpu::mtl::BackendContext;
-use skia_safe::gpu::{DirectContext, RecordingContext};
-use skia_safe::{AlphaType, Budgeted, ColorType, ISize, ImageInfo, SamplingOptions, Size, Surface};
+use skia_safe::{
+    gpu::{mtl::BackendContext, DirectContext, RecordingContext},
+    AlphaType, Budgeted, Color4f, ColorType, ISize, ImageInfo, Paint, Rect, SamplingOptions, Size,
+    Surface,
+};
 
 use atomic_queue::Queue;
 use audio_processor_traits::{AudioBuffer, VecAudioBuffer};
 use augmented_audio_wave::spawn_audio_drawer;
 
-use crate::audio::multi_track_looper::track_events_worker::TrackEventsMessage;
-use crate::LooperId;
+use crate::{
+    audio::multi_track_looper::track_events_worker::TrackEventsMessage, LooperId,
+    MultiTrackLooperHandle,
+};
 
 pub struct AudioWaveRenderingController {
     layers: HashMap<LooperId, MetalLayer>,
@@ -43,14 +47,19 @@ pub struct AudioWaveRenderingController {
     surfaces: HashMap<LooperId, Surface>,
     device: Device,
     queue: CommandQueue,
-    backend: BackendContext,
+    _backend: BackendContext,
     context: DirectContext,
     recording_context: RecordingContext,
+    handle: Shared<MultiTrackLooperHandle>,
     track_events: Shared<Queue<TrackEventsMessage>>,
 }
 
 impl AudioWaveRenderingController {
-    pub fn new(device: &Device, track_events: Shared<Queue<TrackEventsMessage>>) -> Self {
+    pub fn new(
+        device: &Device,
+        handle: Shared<MultiTrackLooperHandle>,
+        track_events: Shared<Queue<TrackEventsMessage>>,
+    ) -> Self {
         let queue = device.new_command_queue();
         let backend = unsafe {
             BackendContext::new(
@@ -66,10 +75,11 @@ impl AudioWaveRenderingController {
             layers: Default::default(),
             drawers: Default::default(),
             surfaces: Default::default(),
+            handle,
             device: device.clone(),
             queue,
             context,
-            backend,
+            _backend: backend,
             track_events,
             recording_context,
         }
@@ -89,15 +99,12 @@ impl AudioWaveRenderingController {
     }
 
     pub fn draw(&mut self, looper_id: LooperId) -> Option<()> {
-        use foreign_types_shared::{ForeignType, ForeignTypeRef};
-        use metal::{Device, MTLPixelFormat, MetalLayer};
-
         let layer = self.layers.get(&looper_id)?;
         let drawable_size = layer_size(layer);
 
         let (drawable_ref, mut surface) = get_drawable_surface(&layer, &mut self.context)?;
         let canvas = surface.canvas();
-        canvas.clear(skia_safe::Color4f::new(0.0, 0.0, 0.0, 1.0));
+        canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
 
         if !self.surfaces.contains_key(&looper_id) {
             let surface = Surface::new_render_target(
@@ -118,44 +125,69 @@ impl AudioWaveRenderingController {
             self.surfaces.insert(looper_id.clone(), surface);
         }
 
-        // let mut paint = skia_safe::Paint::new(skia_safe::Color4f::new(1.0, 0.0, 0.0, 1.0), None);
-        // paint.set_anti_alias(true);
-        // canvas.draw_circle(
-        //     (drawable_size.width / 2.0, drawable_size.height / 2.0),
-        //     drawable_size.height / 2.0,
-        //     &paint,
-        // );
-        if let Some(TrackEventsMessage::StoppedRecording {
-            looper_clip,
-            looper_id,
-            ..
-        }) = self.track_events.pop()
-        {
-            let looper_clip = looper_clip.borrow();
-            let looper_clip_copy: Vec<f32> = looper_clip
-                .slice()
-                .iter()
-                .map(|sample| sample.get())
-                .collect();
-            let looper_clip_copy = VecAudioBuffer::new_with(
-                looper_clip_copy,
-                looper_clip.num_channels(),
-                looper_clip.num_samples(),
-            );
-            self.drawers
-                .insert(looper_id, spawn_audio_drawer(looper_clip_copy));
+        if let Some(msg) = self.track_events.pop() {
+            match msg {
+                TrackEventsMessage::StoppedRecording {
+                    looper_id,
+                    looper_clip,
+                    ..
+                } => {
+                    let looper_clip = looper_clip.borrow();
+                    let looper_clip_copy: Vec<f32> = looper_clip
+                        .slice()
+                        .iter()
+                        .map(|sample| sample.get())
+                        .collect();
+                    let looper_clip_copy = VecAudioBuffer::new_with(
+                        looper_clip_copy,
+                        looper_clip.num_channels(),
+                        looper_clip.num_samples(),
+                    );
+                    self.drawers
+                        .insert(looper_id, spawn_audio_drawer(looper_clip_copy));
+                }
+                TrackEventsMessage::ClearedBuffer { looper_id } => {
+                    let partial_surface = self.surfaces.get_mut(&looper_id).unwrap();
+                    let partial_canvas = partial_surface.canvas();
+                    partial_canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
+                }
+            }
         }
 
         let partial_surface = self.surfaces.get_mut(&looper_id).unwrap();
         let partial_canvas = partial_surface.canvas();
 
         if let Some(drawer) = self.drawers.get_mut(&looper_id) {
-            let _ = drawer.wait();
-            while drawer.draw(partial_canvas, (drawable_size.width, drawable_size.height)) {}
+            // let _ = drawer.wait();
+            drawer.draw(partial_canvas, (drawable_size.width, drawable_size.height));
             partial_surface.flush_and_submit();
         }
 
         partial_surface.draw(canvas, (0.0, 0.0), SamplingOptions::default(), None);
+        let position = self.handle.get_position_percent(looper_id);
+        let paint = Paint::new(
+            Color4f::new(77.0 / 255.0, 139.0 / 255.0, 49.0 / 255.0, 1.0),
+            None,
+        );
+        let x = position * drawable_size.width;
+
+        let playhead_height = (drawable_size.height)
+            * self
+                .handle
+                .get(looper_id)
+                .unwrap()
+                .envelope()
+                .adsr_envelope
+                .volume();
+        canvas.draw_rect(
+            Rect::new(
+                x,
+                drawable_size.height - playhead_height,
+                2.0,
+                playhead_height,
+            ),
+            &paint,
+        );
 
         surface.flush_and_submit();
         let command_buffer = self.queue.new_command_buffer();
@@ -170,15 +202,7 @@ fn get_drawable_surface<'a>(
     layer: &'a MetalLayer,
     context: &'a mut DirectContext,
 ) -> Option<(&'a metal::MetalDrawableRef, Surface)> {
-    let drawable = layer.next_drawable();
-    drawable.map(|drawable| (drawable, read_surface(context, &layer, drawable)))
-}
-
-fn read_surface(
-    mut context: &mut DirectContext,
-    layer: &MetalLayer,
-    drawable: &metal::MetalDrawableRef,
-) -> Surface {
+    let drawable = layer.next_drawable()?;
     let drawable_size = layer_size(layer);
 
     let texture_info = unsafe {
@@ -193,15 +217,16 @@ fn read_surface(
         &texture_info,
     );
 
-    Surface::from_backend_render_target(
-        &mut context,
+    let surface = Surface::from_backend_render_target(
+        context,
         &backend_render_target,
         skia_safe::gpu::SurfaceOrigin::TopLeft,
-        skia_safe::ColorType::BGRA8888,
+        ColorType::BGRA8888,
         None,
         None,
-    )
-    .unwrap()
+    )?;
+
+    Some((drawable, surface))
 }
 
 fn layer_size(layer: &MetalLayer) -> Size {

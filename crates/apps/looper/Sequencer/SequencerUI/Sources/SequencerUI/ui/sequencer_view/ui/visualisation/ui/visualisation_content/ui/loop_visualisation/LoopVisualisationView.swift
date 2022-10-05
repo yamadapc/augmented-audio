@@ -22,6 +22,8 @@ struct LoopVisualisationView: View {
     @ObservedObject var trackState: TrackState
     @State var tick: Int = 0
 
+    var timer = Timer.publish(every: 1 / 60, on: .main, in: .default).autoconnect()
+
     var body: some View {
         if #available(macOS 12.0, *) {
             self.renderInner(tick: 0)
@@ -38,28 +40,17 @@ struct LoopVisualisationView: View {
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
                     AudioPathMetalView(layer: trackState.metalLayer, size: geometry.size)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .onAppear {
-                            store.engine?.startRendering(looperId: trackState.id)
-                        }
-                    PlayheadView(position: trackState.position, size: geometry.size)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .onAppear {
+                                store.engine?.startRendering(looperId: trackState.id)
+                            }
+                            .onReceive(timer) { _ in
+                                store.engine?.startRendering(looperId: trackState.id)
+                            }
+
                     SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
                 }
             }
-
-//            if let buffer = trackState.buffer {
-//                GeometryReader { geometry in
-//                    ZStack(alignment: .topLeading) {
-//                        AudioPathView(tick: tick, buffer: buffer, geometry: geometry)
-//                            .equatable()
-//                        PlayheadView(position: trackState.position, size: geometry.size)
-//                        SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
-//                    }
-//                }
-//            } else {
-//                Text("No loop buffer")
-//                    .frame(maxHeight: .infinity)
-//            }
 
             HStack {
                 ToggleParameterView(parameter: trackState.sourceParameters.loopEnabled)

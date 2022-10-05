@@ -22,12 +22,13 @@
 // THE SOFTWARE.
 
 use std::sync::mpsc::RecvError;
-use std::time::Duration;
+// use std::time::Duration;
 
 use skia_safe::{scalar, Canvas, Color4f, Paint, Path, M44};
 
-use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor};
+// use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
+// use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor};
+use audio_processor_traits::AudioBuffer;
 
 struct AudioWaveFrame {
     path: Path,
@@ -57,7 +58,10 @@ impl PathRendererHandle {
     }
 
     pub fn draw(&mut self, canvas: &mut Canvas, size: (f32, f32)) -> bool {
-        let mut paint = Paint::new(Color4f::new(1.0, 0.0, 0.0, 1.0), None);
+        let mut paint = Paint::new(
+            Color4f::new(8.0 / 255.0, 178.0 / 255.0, 227.0 / 255.0, 1.0),
+            None,
+        );
         paint.set_anti_alias(true);
         paint.set_stroke(true);
 
@@ -101,10 +105,18 @@ pub fn spawn_audio_drawer(
     let mut cursor = 0;
     // How many samples to draw per path "page"
     let frame_size: usize = samples.num_samples() / 100;
+    let mut max_sample = 0.0;
+    for frame in samples.frames_mut() {
+        let sample = (frame[0] + frame[1]) / 2.0;
+        let sample = sample.abs();
+        if sample > max_sample {
+            max_sample = sample;
+        }
+    }
     let mut state = DrawState::new(1.0);
-    state
-        .rms_processor
-        .s_prepare(AudioProcessorSettings::default());
+    // state
+    //     .rms_processor
+    //     .s_prepare(AudioProcessorSettings::default());
 
     std::thread::spawn(move || {
         log::info!("Starting renderer thread");
@@ -115,6 +127,7 @@ pub fn spawn_audio_drawer(
 
             let (new_state, path) = draw_audio(DrawAudioParams {
                 samples: &mut samples,
+                max_sample,
                 bounds: (cursor, cursor + frame_size),
                 state,
             });
@@ -141,23 +154,24 @@ pub fn spawn_audio_drawer(
 
 pub struct DrawState {
     previous_point: (f32, f32),
-    rms_processor: RunningRMSProcessor,
+    // rms_processor: RunningRMSProcessor,
 }
 
 impl DrawState {
     pub fn new(height: f32) -> Self {
         Self {
             previous_point: (0.0, height / 2.0),
-            rms_processor: RunningRMSProcessor::new_with_duration(
-                audio_garbage_collector::handle(),
-                Duration::from_millis(1),
-            ),
+            // rms_processor: RunningRMSProcessor::new_with_duration(
+            //     audio_garbage_collector::handle(),
+            //     Duration::from_micros(100),
+            // ),
         }
     }
 }
 
 struct DrawAudioParams<'a, B: AudioBuffer<SampleType = f32>> {
     samples: &'a mut B,
+    max_sample: f32,
     bounds: (usize, usize),
     state: DrawState,
 }
@@ -165,6 +179,7 @@ struct DrawAudioParams<'a, B: AudioBuffer<SampleType = f32>> {
 fn draw_audio<B: AudioBuffer<SampleType = f32>>(
     DrawAudioParams {
         samples,
+        max_sample,
         bounds: (start, end),
         mut state,
     }: DrawAudioParams<B>,
@@ -180,14 +195,11 @@ fn draw_audio<B: AudioBuffer<SampleType = f32>>(
         .skip(start)
         .take(end - start)
     {
-        state.rms_processor.s_process_frame(frame);
-        let rms = state.rms_processor.handle().calculate_rms(0);
+        let sample = (frame[0] + frame[1]) / 2.0;
+        let y = 0.5 + (sample / max_sample) * 0.5;
 
         let x = i as f32 / num_samples as f32;
 
-        let y = rms * 0.5 + 0.5;
-        path.line_to((x, y));
-        let y = -rms * 0.5 + 0.5;
         path.line_to((x, y));
 
         state.previous_point = (x, y);

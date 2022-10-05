@@ -18,31 +18,33 @@
 import SwiftUI
 
 struct SliceVisualisationView: View {
+    @EnvironmentObject var store: Store
     @ObservedObject var trackState: TrackState
+    var timer = Timer.publish(every: 1 / 60, on: .main, in: .default).autoconnect()
 
     var body: some View {
         VStack {
             if let buffer = trackState.buffer {
                 GeometryReader { geometry in
                     ZStack(alignment: .topLeading) {
-                        AudioPathView(
-                            tick: 0,
-                            buffer: buffer,
-                            geometry: geometry
-                        )
-                        .equatable()
-
-                        PlayheadView(position: trackState.position, size: geometry.size)
+                        AudioPathMetalView(layer: trackState.metalLayer, size: geometry.size)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                .onAppear {
+                                    store.engine?.startRendering(looperId: trackState.id)
+                                }
+                                .onReceive(timer) { _ in
+                                    store.engine?.startRendering(looperId: trackState.id)
+                                }
 
                         if let sliceBuffer = trackState.sliceBuffer {
-                            ForEach(0 ..< sliceBuffer.count, id: \.self) { i in
+                            ForEach(0..<sliceBuffer.count, id: \.self) { i in
                                 let positionSamples = sliceBuffer[i]
                                 let offsetPerc = CGFloat(positionSamples) / CGFloat(buffer.count)
 
                                 GeometryReader { geometry in
                                     Rectangle()
-                                        .fill()
-                                        .frame(width: 1)
+                                            .fill()
+                                            .frame(width: 1)
                                         .frame(maxHeight: .infinity)
                                         .position(x: 0, y: 0)
                                         .offset(x: offsetPerc * geometry.size.width, y: geometry.size.height / 2)
