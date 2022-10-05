@@ -104,6 +104,9 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-wave/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-wave/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/dart/augmented_audio_wave_example/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-knob/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-shell/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-shell/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
@@ -126,6 +129,8 @@
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-knob/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-shell/target" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />

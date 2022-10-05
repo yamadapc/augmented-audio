@@ -11,7 +11,6 @@ audio-processor-analysis = { version = "0.3", path = "../../audio/audio-processo
 audio-garbage-collector = { version = "1", path = "../../audio/audio-garbage-collector" }
 
 [dev-dependencies]
-
 audio-processor-testing-helpers = { version = "1", path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-file = { version = "1", path = "../../audio/audio-processor-file" }
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
