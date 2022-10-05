@@ -25,11 +25,11 @@ struct TrackOverlay: View {
 
     var body: some View {
         Rectangle()
-                .fill(SequencerColors.green.opacity(0.4))
-                .frame(width: 70, height: 70)
-                .scaleEffect(x: CGFloat(position.positionPercent), y: 1.0, anchor: .leading)
-                .cornerRadius(BORDER_RADIUS)
-                .allowsHitTesting(false)
+            .fill(SequencerColors.green.opacity(0.4))
+            .frame(width: 70, height: 70)
+            .scaleEffect(x: CGFloat(position.positionPercent), y: 1.0, anchor: .leading)
+            .cornerRadius(BORDER_RADIUS)
+            .allowsHitTesting(false)
     }
 }
 

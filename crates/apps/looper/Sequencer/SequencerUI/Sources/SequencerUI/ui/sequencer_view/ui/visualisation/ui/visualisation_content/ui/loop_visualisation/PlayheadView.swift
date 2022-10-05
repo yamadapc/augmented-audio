@@ -18,20 +18,31 @@
 import SwiftUI
 
 struct PlayheadView: View {
-    // TODO: This is broken
-    // @ObservedObject var position: LoopPosition
     var position: LoopPosition
-    // @ObservedObject var position: LoopPosition
     var size: CGSize
 
     var body: some View {
-        GeometryReader { geometry in
-            Rectangle()
+        if #available(macOS 12, *) {
+            TimelineView(.animation(minimumInterval: nil, paused: false)) { _ in
+                Rectangle()
+                    .fill(SequencerColors.green)
+                    .frame(width: 1.0, height: size.height)
+                    .position(x: 0.0, y: size.height / 2)
+                    .fixedSize()
+                    .transformEffect(
+                        .init(translationX: size.width * CGFloat(position.positionPercent), y: 0.0)
+                    )
+            }
+            .fixedSize()
+        } else {
+            GeometryReader { geometry in
+                Rectangle()
                     .fill(SequencerColors.green)
                     .frame(width: 1.0, height: size.height)
                     .position(x: 0.0, y: geometry.size.height / 2)
                     .transformEffect(
-                            .init(translationX: size.width * CGFloat(position.positionPercent), y: 0.0))
+                        .init(translationX: size.width * CGFloat(position.positionPercent), y: 0.0))
+            }
         }
     }
 }

@@ -34,8 +34,7 @@ struct SequencerView: View {
 
             SequencerContentView()
 
-            StatusBarView()
-                .bindToNilParameter(store: store)
+            StatusBarView().bindToNilParameter(store: store)
         }
         .bindToNilParameter(store: store)
         .foregroundColor(SequencerColors.white)

@@ -19,51 +19,52 @@
 import SwiftUI
 
 #if os(macOS)
-struct AudioPathMetalView: NSViewRepresentable {
-    typealias NSViewType = NSView
+    struct AudioPathMetalView: NSViewRepresentable {
+        typealias NSViewType = NSView
 
-    var layer: CAMetalLayer?
-    var size: CGSize
+        var layer: CAMetalLayer?
+        var size: CGSize
 
-    func makeNSView(context _: Context) -> NSView {
-        let view = NSView()
-        view.wantsLayer = true
-        view.layer = layer!
-        view.frame.size = size
-        layer?.drawableSize = size
-        return view
-    }
-
-    func updateNSView(_ view: NSView, context _: Context) {
-        view.layer = layer
-        view.frame.size = size
-        layer?.drawableSize = view.frame.size
-    }
-}
-#elseif os(iOS)
-struct AudioPathMetalView: UIViewRepresentable {
-    typealias UIViewType = UIView
-
-    var layer: CAMetalLayer?
-    var size: CGSize
-
-    func makeUIView(context _: Context) -> UIView {
-        let view = UIView()
-        view.layer.addSublayer(layer!)
-        view.frame.size = size
-        layer?.drawableSize = size
-        return view
-    }
-
-    func updateUIView(_ view: UIView, context _: Context) {
-        let isEmptyLayer = view.layer.sublayers?.isEmpty ?? true
-        if !isEmptyLayer {
-            view.layer.replaceSublayer(view.layer.sublayers![0], with: layer!)
-        } else {
-            view.layer.addSublayer(layer!)
+        func makeNSView(context _: Context) -> NSView {
+            let view = NSView()
+            view.wantsLayer = true
+            view.layer = layer!
+            view.frame.size = size
+            layer?.drawableSize = size
+            return view
         }
-        view.frame.size = size
-        layer?.drawableSize = view.frame.size
+
+        func updateNSView(_ view: NSView, context _: Context) {
+            view.layer = layer
+            view.frame.size = size
+            layer?.drawableSize = view.frame.size
+        }
     }
-}
+
+#elseif os(iOS)
+    struct AudioPathMetalView: UIViewRepresentable {
+        typealias UIViewType = UIView
+
+        var layer: CAMetalLayer?
+        var size: CGSize
+
+        func makeUIView(context _: Context) -> UIView {
+            let view = UIView()
+            view.layer.addSublayer(layer!)
+            view.frame.size = size
+            layer?.drawableSize = size
+            return view
+        }
+
+        func updateUIView(_ view: UIView, context _: Context) {
+            let isEmptyLayer = view.layer.sublayers?.isEmpty ?? true
+            if !isEmptyLayer {
+                view.layer.replaceSublayer(view.layer.sublayers![0], with: layer!)
+            } else {
+                view.layer.addSublayer(layer!)
+            }
+            view.frame.size = size
+            layer?.drawableSize = view.frame.size
+        }
+    }
 #endif

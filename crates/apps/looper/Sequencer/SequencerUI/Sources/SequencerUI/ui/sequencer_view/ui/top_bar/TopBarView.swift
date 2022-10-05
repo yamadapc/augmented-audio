@@ -68,7 +68,7 @@ struct TopBarView: View {
             HStack(spacing: 0) {
                 HStack(spacing: 10) {
                     TransportTempoView(
-                        timeInfo: store.timeInfo
+                        model: TransportTempoViewModel(timeInfo: store.timeInfo)
                     ).frame(alignment: .trailing)
 
                     MetronomeToggleButton(metronomeVolume: store.metronomeVolume)

@@ -21,35 +21,33 @@ struct RecordButtonView: View {
     @ObservedObject var store: Store
     @ObservedObject var trackState: TrackState
     @State var isAnimating = false
-    @State var level: Double = 0
-
-    // TODO: This is broken
-    // let timer = Timer.publish(every: 1 / 60, on: .current, in: .common).autoconnect()
+    @State var level: Double = 1
 
     var body: some View {
         let button = ContinuousButton(
             action: { store.onClickRecord() },
-                label: "Record",
-                isDisabled: store.midiMappingActive,
-                isSelected: trackState.looperState.isRecording,
-                backgroundColor: buttonColor().opacity(min(max(level * 20, 0.3), 1))
+            label: "Record",
+            isDisabled: store.midiMappingActive,
+            isSelected: trackState.looperState.isRecording,
+            backgroundColor: buttonColor()
         )
-                .bindToParameterId(
-                        store: store,
-                        parameterId: .recordButton(trackId: trackState.id)
-                )
-                .testId("recordButton")
+        .opacity(min(max(level * 20, 0.3), 1))
+        .bindToParameterId(
+            store: store,
+            parameterId: .recordButton(trackId: trackState.id)
+        )
+        .testId("recordButton")
         // .onReceive(self.timer) { _ in
         //     self.level = Double(store.engine?.getInputLevel() ?? 0)
         // }
 
         if trackState.looperState == .recordingScheduled {
             button
-                    .onAppear {
-                        withAnimation(.easeInOut(duration: BUTTON_ANIMATION_DURATION_SECS).repeatForever()) {
-                            isAnimating.toggle()
-                        }
+                .onAppear {
+                    withAnimation(.easeInOut(duration: BUTTON_ANIMATION_DURATION_SECS).repeatForever()) {
+                        isAnimating.toggle()
                     }
+                }
         } else {
             button
         }

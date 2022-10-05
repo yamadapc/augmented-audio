@@ -28,6 +28,7 @@ public class EngineController {
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineController")
     private var cancellables: Set<AnyCancellable> = Set()
     private let storeSubscriptionsController: StoreSubscriptionsController
+    private var timer: Timer? = nil
 
     public init() {
         engine = EngineImpl()
@@ -44,11 +45,12 @@ public class EngineController {
         setupApplicationEventsSubscription()
 
         logger.info("Setting-up store <- engine polling")
-        DispatchQueue.main.async {
+        self.timer = Timer.scheduledTimer(withTimeInterval: 1 / 60, repeats: true, block: { _ in
             self.flushPollInfo()
             self.flushMetricsInfo()
             self.flushParametersInfo(parameters: allParameters())
-        }
+        })
+        self.timer?.tolerance = 0.1
 
         loadInitialState()
     }
@@ -108,9 +110,6 @@ public class EngineController {
             averageNanos: stats.average_nanos,
             maxNanos: stats.max_nanos
         )
-        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(100))) {
-            self.flushMetricsInfo()
-        }
     }
 
     func flushParametersInfo(parameters: [SequencerUI.AnyParameter]) {
@@ -137,10 +136,6 @@ public class EngineController {
                 break
             }
         }
-
-        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16))) {
-            self.flushParametersInfo(parameters: parameters)
-        }
     }
 
     func flushPollInfo() {
@@ -165,10 +160,6 @@ public class EngineController {
         }
 
         // store.allParameters
-
-        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16)), qos: .userInitiated) {
-            self.flushPollInfo()
-        }
     }
 
     // This is a super super messy approach, but it is efficient

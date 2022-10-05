@@ -29,7 +29,9 @@ import Combine
 public class ProcessorMetrics: ObservableObject {
     @Published private var inner = Stats(
         averageCpu: 0,
-        maximumCpu: 0, averageNanos: 0, maximumNanos: 0
+        maximumCpu: 0,
+        averageNanos: 0,
+        maximumNanos: 0
     )
 
     init() {}
@@ -44,12 +46,14 @@ public class ProcessorMetrics: ObservableObject {
         averageNanos: Float,
         maxNanos: Float
     ) {
-        inner = Stats(
-            averageCpu: averageCpu,
-            maximumCpu: maxCpu,
-            averageNanos: averageNanos,
-            maximumNanos: maxNanos
-        )
+        if inner.maximumCpu.distance(to: maxCpu) > 0.01 {
+            inner = Stats(
+                averageCpu: averageCpu,
+                maximumCpu: maxCpu,
+                averageNanos: averageNanos,
+                maximumNanos: maxNanos
+            )
+        }
     }
 
     struct Stats {

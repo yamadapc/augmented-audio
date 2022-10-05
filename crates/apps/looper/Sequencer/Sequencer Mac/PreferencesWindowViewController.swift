@@ -17,26 +17,26 @@
 // = /copyright ===================================================================
 
 #if os(macOS)
-import Cocoa
-import SequencerEngine
-import SequencerUI
-import SwiftUI
+    import Cocoa
+    import SequencerEngine
+    import SequencerUI
+    import SwiftUI
 
-/**
- * ViewController for the preferences window content view.
- */
-class PreferencesWindowViewController: NSViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    /**
+     * ViewController for the preferences window content view.
+     */
+    class PreferencesWindowViewController: NSViewController {
+        override func viewDidLoad() {
+            super.viewDidLoad()
 
-        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        let contentView = SettingsView()
-            .environmentObject(engineController.store)
+            let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
+            let contentView = SettingsView()
+                .environmentObject(engineController.store)
 
-        let content = NSHostingView(rootView: contentView)
-        content.translatesAutoresizingMaskIntoConstraints = true
-        content.autoresizingMask = [.height, .width]
-        view = content
+            let content = NSHostingView(rootView: contentView)
+            content.translatesAutoresizingMaskIntoConstraints = true
+            content.autoresizingMask = [.height, .width]
+            view = content
+        }
     }
-}
 #endif
