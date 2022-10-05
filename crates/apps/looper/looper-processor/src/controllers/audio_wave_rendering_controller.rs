@@ -158,7 +158,6 @@ impl AudioWaveRenderingController {
         let partial_canvas = partial_surface.canvas();
 
         if let Some(drawer) = self.drawers.get_mut(&looper_id) {
-            // let _ = drawer.wait();
             drawer.draw(partial_canvas, (drawable_size.width, drawable_size.height));
             partial_surface.flush_and_submit();
         }
@@ -183,7 +182,7 @@ impl AudioWaveRenderingController {
             Rect::new(
                 x,
                 drawable_size.height - playhead_height,
-                2.0,
+                x + 2.0,
                 playhead_height,
             ),
             &paint,
