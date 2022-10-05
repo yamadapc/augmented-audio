@@ -15,6 +15,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import SwiftUI
 
 struct PlayheadView: View {
@@ -22,27 +23,13 @@ struct PlayheadView: View {
     var size: CGSize
 
     var body: some View {
-        if #available(macOS 12, *) {
-            TimelineView(.animation(minimumInterval: nil, paused: false)) { _ in
-                Rectangle()
-                    .fill(SequencerColors.green)
-                    .frame(width: 1.0, height: size.height)
-                    .position(x: 0.0, y: size.height / 2)
-                    .fixedSize()
-                    .transformEffect(
-                        .init(translationX: size.width * CGFloat(position.positionPercent), y: 0.0)
-                    )
-            }
-            .fixedSize()
-        } else {
-            GeometryReader { geometry in
-                Rectangle()
-                    .fill(SequencerColors.green)
-                    .frame(width: 1.0, height: size.height)
-                    .position(x: 0.0, y: geometry.size.height / 2)
-                    .transformEffect(
-                        .init(translationX: size.width * CGFloat(position.positionPercent), y: 0.0))
-            }
+        GeometryReader { geometry in
+            Rectangle()
+                .fill(SequencerColors.green)
+                .frame(width: 1.0, height: size.height)
+                .position(x: 0.0, y: geometry.size.height / 2)
+                .transformEffect(
+                    .init(translationX: size.width * CGFloat(position.positionPercent), y: 0.0))
         }
     }
 }
