@@ -1,7 +1,7 @@
 use skia_safe::{Color4f, Paint, Point};
 
 fn main() {
-    augmented_audio_shell::sketch(|ctx| {
+    augmented_audio_gui_basics::sketch(|ctx| {
         let size = ctx.size();
         let canvas = ctx.canvas();
 

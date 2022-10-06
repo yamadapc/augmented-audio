@@ -5,12 +5,6 @@ edition = "2021"
 
 [dependencies]
 skia-safe = { version = "0.54.0", features = ["metal"] }
+augmented-audio-gui-basics = { path = "../augmented-audio-gui-basics" }
 
 [dev-dependencies]
-wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
-foreign-types-shared = "0.1"
-cocoa = "0.24.0"
-core-graphics-types = "0.1.1"
-objc = "*"
-metal = "0.24.0"
-winit = "0.27.3"

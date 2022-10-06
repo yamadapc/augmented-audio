@@ -227,9 +227,9 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96e14cb2a51c8b45d26a4219981985c7350fc05eacb7b5b2939bceb2ffefdf3e"
 dependencies = [
- "itertools 0.9.0",
- "proc-macro-error",
- "proc-macro2",
+    "itertools 0.9.0",
+    "proc-macro-error",
+    "proc-macro2",
     "quote",
     "syn",
 ]
@@ -762,7 +762,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "augmented-audio-knob"
+name = "augmented-audio-gui-basics"
 version = "0.1.0"
 dependencies = [
     "cocoa 0.24.0",
@@ -773,6 +773,14 @@ dependencies = [
     "skia-safe",
     "winit 0.27.3",
     "wisual-logger",
+]
+
+[[package]]
+name = "augmented-audio-knob"
+version = "0.1.0"
+dependencies = [
+    "augmented-audio-gui-basics",
+    "skia-safe",
 ]
 
 [[package]]
@@ -783,20 +791,6 @@ dependencies = [
     "audio-processor-traits",
     "augmented-atomics",
     "log",
-]
-
-[[package]]
-name = "augmented-audio-shell"
-version = "0.1.0"
-dependencies = [
-    "cocoa 0.24.0",
-    "core-graphics-types",
-    "foreign-types-shared 0.1.1",
-    "metal 0.24.0",
-    "objc",
-    "skia-safe",
-    "winit 0.27.3",
-    "wisual-logger",
 ]
 
 [[package]]
@@ -1458,8 +1452,8 @@ version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "213030a2b5a4e0c0892b6652260cf6ccac84827b83a85a534e178e3906c4cf1b"
 dependencies = [
- "ciborium-io",
- "half",
+    "ciborium-io",
+    "half 1.8.2",
 ]
 
 [[package]]
@@ -1946,19 +1940,20 @@ dependencies = [
 
 [[package]]
 name = "crates_io_api"
-version = "0.8.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86f8072e3f4581325ee6c8e3c900099b303924a9c592ab4d23bb87ee5bdc6f7b"
+checksum = "9fdfaac64c5eb7a33a5b895ffbaf6f1146721b6cd4c889010d19c8a1c1cae562"
 dependencies = [
- "chrono",
- "futures",
- "log",
- "reqwest",
- "serde",
- "serde_derive",
- "serde_json",
- "tokio",
- "url",
+    "chrono",
+    "futures",
+    "log",
+    "reqwest",
+    "serde",
+    "serde_derive",
+    "serde_json",
+    "serde_path_to_error",
+    "tokio",
+    "url",
 ]
 
 [[package]]
@@ -2134,6 +2129,12 @@ dependencies = [
     "servo-fontconfig",
     "winapi 0.3.9",
 ]
+
+[[package]]
+name = "crunchy"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 
 [[package]]
 name = "cty"
@@ -2546,18 +2547,17 @@ dependencies = [
 
 [[package]]
 name = "exr"
-version = "1.4.2"
+version = "1.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "14cc0e06fb5f67e5d6beadf3a382fec9baca1aa751c6d5368fdeee7e5932c215"
+checksum = "8eb5f255b5980bb0c8cf676b675d1a99be40f316881444f44e0462eaf5df5ded"
 dependencies = [
- "bit_field",
- "deflate 1.0.0",
- "flume",
- "half",
- "inflate",
- "lebe",
- "smallvec",
- "threadpool",
+    "bit_field",
+    "flume",
+    "half 2.1.0",
+    "lebe",
+    "miniz_oxide 0.6.2",
+    "smallvec",
+    "threadpool",
 ]
 
 [[package]]
@@ -2751,16 +2751,16 @@ dependencies = [
  "core-foundation 0.9.3",
  "core-graphics 0.22.3",
  "core-text",
- "dirs-next",
- "dwrote",
- "float-ord",
- "freetype",
- "lazy_static",
- "libc",
- "log",
- "pathfinder_geometry",
- "pathfinder_simd",
- "servo-fontconfig",
+    "dirs-next",
+    "dwrote",
+    "float-ord",
+    "freetype",
+    "lazy_static",
+    "libc",
+    "log",
+    "pathfinder_geometry",
+    "pathfinder_simd",
+    "servo-fontconfig",
     "walkdir",
     "winapi 0.3.9",
 ]
@@ -3576,8 +3576,8 @@ dependencies = [
  "indexmap",
  "slab",
  "tokio",
- "tokio-util",
- "tracing",
+    "tokio-util",
+    "tracing",
 ]
 
 [[package]]
@@ -3587,12 +3587,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eabb4a44450da02c90444cf74558da904edde8fb4e9035a9a6a4e15445af0bd7"
 
 [[package]]
+name = "half"
+version = "2.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ad6a9459c9c30b177b925162351f97e7d967c7ea8bab3b8352805327daf45554"
+dependencies = [
+    "crunchy",
+]
+
+[[package]]
 name = "hashbrown"
 version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
 dependencies = [
- "ahash",
+    "ahash",
 ]
 
 [[package]]
@@ -3958,15 +3967,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "inflate"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1cdb29978cc5797bd8dcc8e5bf7de604891df2a8dc576973d71a281e916db2ff"
-dependencies = [
- "adler32",
-]
-
-[[package]]
 name = "inotify"
 version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4185,9 +4185,9 @@ checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
 name = "lebe"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7efd1d698db0759e6ef11a7cd44407407399a910c774dd804c64c032da7826ff"
+checksum = "03087c2bad5e1034e8cace5926dec053fb3790248370865f5117a7d0213354c8"
 
 [[package]]
 name = "libc"
@@ -4321,16 +4321,16 @@ dependencies = [
  "audio-processor-standalone-midi",
  "audio-processor-standalone-osc",
  "audio-processor-testing-helpers",
- "audio-processor-time",
- "audio-processor-traits",
- "augmented-adsr-envelope",
- "augmented-analytics",
- "augmented-atomics",
- "augmented-audio-metrics",
- "augmented-audio-wave",
- "augmented-dsp-filters",
- "augmented-midi",
- "augmented-playhead",
+    "audio-processor-time",
+    "audio-processor-traits",
+    "augmented-adsr-envelope",
+    "augmented-analytics",
+    "augmented-atomics",
+    "augmented-audio-metrics",
+    "augmented-audio-wave",
+    "augmented-dsp-filters",
+    "augmented-midi",
+    "augmented-playhead",
     "augmented_oscillator",
     "basedrop",
     "bytesize",
@@ -4352,16 +4352,16 @@ dependencies = [
     "mockall",
     "num 0.4.0",
     "num-derive",
- "num-traits 0.2.15",
- "rand 0.8.5",
- "ringbuf",
- "rmp-serde",
- "rustc-hash",
- "serde",
- "serde_derive",
- "skia-safe",
- "strum 0.24.1",
- "strum_macros 0.24.2",
+    "num-traits 0.2.15",
+    "rand 0.8.5",
+    "ringbuf",
+    "rmp-serde",
+    "rustc-hash",
+    "serde",
+    "serde_derive",
+    "skia-safe",
+    "strum 0.24.1",
+    "strum_macros 0.24.2",
  "swift-bridge-build",
  "syn",
  "tempdir",
@@ -4691,7 +4691,16 @@ version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6f5c75688da582b8ffc1f1799e9db273f32133c49e048f614d22ec3256773ccc"
 dependencies = [
- "adler",
+    "adler",
+]
+
+[[package]]
+name = "miniz_oxide"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b275950c28b37e794e8c55d88aeb5e139d0ce23fdbbeda68f8d7174abdf9e8fa"
+dependencies = [
+    "adler",
 ]
 
 [[package]]
@@ -4700,9 +4709,9 @@ version = "0.6.23"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4afd66f5b91bf2a3bc13fad0e21caedac168ca4c707504e75585648ae80e4cc4"
 dependencies = [
- "cfg-if 0.1.10",
- "fuchsia-zircon",
- "fuchsia-zircon-sys",
+    "cfg-if 0.1.10",
+    "fuchsia-zircon",
+    "fuchsia-zircon-sys",
  "iovec",
  "kernel32-sys",
  "libc",
@@ -5093,8 +5102,8 @@ dependencies = [
     "darling 0.10.2",
     "proc-macro-crate 0.1.5",
     "proc-macro2",
- "quote",
- "syn",
+    "quote",
+    "syn",
 ]
 
 [[package]]
@@ -6054,12 +6063,12 @@ version = "1.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd39bc6cdc9355ad1dc5eeedefee696bb35c34caf21768741e81826c0bbd7225"
 dependencies = [
- "base64",
- "indexmap",
- "line-wrap",
- "serde",
- "time 0.3.11",
- "xml-rs",
+    "base64",
+    "indexmap",
+    "line-wrap",
+    "serde",
+    "time 0.3.15",
+    "xml-rs",
 ]
 
 [[package]]
@@ -6925,8 +6934,8 @@ dependencies = [
     "bitflags",
     "core-foundation 0.9.3",
     "core-foundation-sys 0.8.3",
- "libc",
- "security-framework-sys",
+    "libc",
+    "security-framework-sys",
 ]
 
 [[package]]
@@ -7002,9 +7011,18 @@ version = "1.0.82"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "82c2c1fdcd807d1098552c5b9a36e425e42e9fbd7c6a37a8425f390f781f7fa7"
 dependencies = [
- "itoa",
- "ryu",
- "serde",
+    "itoa",
+    "ryu",
+    "serde",
+]
+
+[[package]]
+name = "serde_path_to_error"
+version = "0.1.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "184c643044780f7ceb59104cef98a5a6f12cb2288a7bc701ab93a362b49fd47d"
+dependencies = [
+    "serde",
 ]
 
 [[package]]
@@ -7013,9 +7031,9 @@ version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d3491c14715ca2294c4d6a88f15e84739788c1d030eed8c110436aafdaa2f3fd"
 dependencies = [
- "form_urlencoded",
- "itoa",
- "ryu",
+    "form_urlencoded",
+    "itoa",
+    "ryu",
  "serde",
 ]
 
@@ -7850,9 +7868,9 @@ dependencies = [
 
 [[package]]
 name = "time"
-version = "0.3.11"
+version = "0.3.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72c91f41dcb2f096c05f0873d667dceec1087ce5bcf984ec8ffb19acddbb3217"
+checksum = "d634a985c4d4238ec39cacaed2e7ae552fbd3c476b552c1deac3021b7d7eaf0c"
 dependencies = [
     "itoa",
     "libc",
@@ -8823,16 +8841,16 @@ dependencies = [
     "libloading 0.7.3",
     "log",
     "metal 0.23.1",
- "naga 0.7.3",
- "objc",
- "parking_lot 0.11.2",
- "profiling",
- "range-alloc",
- "raw-window-handle 0.3.4",
- "renderdoc-sys",
- "thiserror",
- "wasm-bindgen",
- "web-sys",
+    "naga 0.7.3",
+    "objc",
+    "parking_lot 0.11.2",
+    "profiling",
+    "range-alloc",
+    "raw-window-handle 0.3.4",
+    "renderdoc-sys",
+    "thiserror",
+    "wasm-bindgen",
+    "web-sys",
  "wgpu-types 0.11.0",
  "winapi 0.3.9",
 ]
@@ -8861,16 +8879,16 @@ dependencies = [
     "libloading 0.7.3",
     "log",
     "metal 0.23.1",
- "naga 0.8.5",
- "objc",
- "parking_lot 0.11.2",
- "profiling",
- "range-alloc",
- "raw-window-handle 0.4.3",
- "renderdoc-sys",
- "thiserror",
- "wasm-bindgen",
- "web-sys",
+    "naga 0.8.5",
+    "objc",
+    "parking_lot 0.11.2",
+    "profiling",
+    "range-alloc",
+    "raw-window-handle 0.4.3",
+    "renderdoc-sys",
+    "thiserror",
+    "wasm-bindgen",
+    "web-sys",
  "wgpu-types 0.12.0",
  "winapi 0.3.9",
 ]
@@ -9225,16 +9243,16 @@ dependencies = [
  "core-graphics 0.22.3",
  "core-video-sys",
  "dispatch",
- "instant",
- "lazy_static",
- "libc",
- "log",
- "mio 0.8.4",
- "ndk 0.5.0",
- "ndk-glue 0.5.2",
- "ndk-sys 0.2.2",
- "objc",
- "parking_lot 0.11.2",
+    "instant",
+    "lazy_static",
+    "libc",
+    "log",
+    "mio 0.8.4",
+    "ndk 0.5.0",
+    "ndk-glue 0.5.2",
+    "ndk-sys 0.2.2",
+    "objc",
+    "parking_lot 0.11.2",
     "percent-encoding",
     "raw-window-handle 0.4.3",
     "smithay-client-toolkit 0.15.4",

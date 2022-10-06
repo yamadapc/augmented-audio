@@ -14,6 +14,8 @@ use winit::{
     platform::macos::WindowExtMacOS,
 };
 
+pub mod colors;
+
 pub struct SketchContext<'a> {
     canvas: &'a mut Canvas,
     size: Size,
