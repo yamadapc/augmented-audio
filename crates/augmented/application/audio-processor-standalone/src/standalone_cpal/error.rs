@@ -28,12 +28,12 @@ use crate::standalone_cpal::options::ConfigureDeviceError;
 pub enum AudioThreadError {
     #[error("Failed to configure device: {0}")]
     ConfigureDeviceError(#[from] ConfigureDeviceError),
-    #[error("Failed to configure input stream")]
+    #[error("Failed to configure input stream: {0}")]
     BuildInputStreamError(cpal::BuildStreamError),
-    #[error("Failed to configure output stream")]
+    #[error("Failed to configure output stream: {0}")]
     BuildOutputStreamError(cpal::BuildStreamError),
-    #[error("Failed to start input stream")]
+    #[error("Failed to start input stream: {0}")]
     InputStreamError(cpal::PlayStreamError),
-    #[error("Failed to start output stream")]
+    #[error("Failed to start output stream: {0}")]
     OutputStreamError(cpal::PlayStreamError),
 }

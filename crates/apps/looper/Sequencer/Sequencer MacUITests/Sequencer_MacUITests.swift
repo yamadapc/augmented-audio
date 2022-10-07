@@ -33,10 +33,10 @@ class Sequencer_MacUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
         measure(metrics: [XCTCPUMetric()]) {
-          app.buttons["trackButton_0"].click()
-          app.buttons["trackButton_1"].click()
-          app.buttons["trackButton_3"].click()
-          app.buttons["trackButton_1"].click()
+            app.buttons["trackButton_0"].click()
+            app.buttons["trackButton_1"].click()
+            app.buttons["trackButton_3"].click()
+            app.buttons["trackButton_1"].click()
         }
     }
 

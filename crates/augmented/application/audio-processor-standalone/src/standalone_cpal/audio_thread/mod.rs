@@ -130,6 +130,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
 
 /// At this point we have "negotiated" the nº of channels and buffer size.
 /// These will be used in logic on the callbacks as well as to size our ringbuffer.
+#[derive(Debug)]
 struct AudioThreadIOHints {
     buffer_size: usize,
     num_output_channels: usize,
@@ -137,6 +138,7 @@ struct AudioThreadIOHints {
 }
 
 /// Input and output audio streams.
+#[derive(Debug)]
 struct AudioThreadCPalStreams<D: DeviceTrait> {
     output_config: StreamConfig,
     input_tuple: Option<(D, StreamConfig)>,
@@ -155,6 +157,11 @@ fn audio_thread_run_processor<D: DeviceTrait>(
     params: AudioThreadRunParams<D>,
     app: impl StandaloneProcessor,
 ) -> Option<(Option<D::Stream>, D::Stream)> {
+    log::info!(
+        "Starting audio streams\n    params.io_hints={:#?}\n",
+        params.io_hints
+    );
+
     let AudioThreadRunParams {
         midi_context,
         io_hints,

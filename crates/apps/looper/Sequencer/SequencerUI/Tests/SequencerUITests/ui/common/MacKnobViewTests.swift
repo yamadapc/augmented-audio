@@ -16,11 +16,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
+import AppKit
 @testable import SequencerUI
+import SnapshotTesting
 import SwiftUI
 import XCTest
-import SnapshotTesting
-import AppKit
 
 // Unit-tests are using `0` stroke width and `1.0` radius because this makes
 // positions easer to understand.
@@ -104,8 +104,8 @@ class MacKnobViewTests: XCTestCase {
 
         let viewController = NSHostingController(
             rootView: knob
-              .colorScheme(.dark)
-              .background(SequencerColors.black)
+                .colorScheme(.dark)
+                .background(SequencerColors.black)
         )
         viewController.view.frame = .init(
             origin: .zero,
@@ -125,8 +125,8 @@ class MacKnobViewTests: XCTestCase {
 
         let viewController = NSHostingController(
             rootView: knob
-              .colorScheme(.dark)
-              .background(SequencerColors.black)
+                .colorScheme(.dark)
+                .background(SequencerColors.black)
         )
         viewController.view.frame = .init(
             origin: .zero,
