@@ -15,6 +15,8 @@ use winit::{
 };
 
 pub mod colors;
+pub mod prelude;
+mod widget;
 
 pub struct SketchContext<'a> {
     canvas: &'a mut Canvas,
@@ -28,6 +30,12 @@ impl<'a> SketchContext<'a> {
 
     pub fn size(&self) -> Size {
         self.size
+    }
+
+    pub fn widget_draw_context(&mut self) -> widget::DrawContext {
+        widget::DrawContext {
+            canvas: self.canvas,
+        }
     }
 }
 

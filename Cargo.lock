@@ -771,6 +771,7 @@ dependencies = [
     "metal 0.24.0",
     "objc",
     "skia-safe",
+    "taffy",
     "winit 0.27.3",
     "wisual-logger",
 ]
@@ -2746,11 +2747,11 @@ version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "46c9a156ec38864999bc9c4156e5f3b50224d4a5578028a64e5a3875caa9ee28"
 dependencies = [
- "bitflags",
- "byteorder 1.4.3",
- "core-foundation 0.9.3",
- "core-graphics 0.22.3",
- "core-text",
+    "bitflags",
+    "byteorder 1.4.3",
+    "core-foundation 0.9.3",
+    "core-graphics 0.22.3",
+    "core-text",
     "dirs-next",
     "dwrote",
     "float-ord",
@@ -3567,15 +3568,15 @@ version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37a82c6d637fc9515a4694bbf1cb2457b79d81ce52b3108bdeea58b07dd34a57"
 dependencies = [
- "bytes",
- "fnv",
- "futures-core",
- "futures-sink",
- "futures-util",
- "http",
- "indexmap",
- "slab",
- "tokio",
+    "bytes",
+    "fnv",
+    "futures-core",
+    "futures-sink",
+    "futures-util",
+    "http",
+    "indexmap",
+    "slab",
+    "tokio",
     "tokio-util",
     "tracing",
 ]
@@ -4311,16 +4312,16 @@ dependencies = [
  "atomic_refcell",
  "audio-garbage-collector",
  "audio-processor-analysis",
- "audio-processor-bitcrusher",
- "audio-processor-dynamics",
- "audio-processor-file",
- "audio-processor-graph",
- "audio-processor-metronome",
- "audio-processor-pitch-shifter",
- "audio-processor-standalone",
- "audio-processor-standalone-midi",
- "audio-processor-standalone-osc",
- "audio-processor-testing-helpers",
+    "audio-processor-bitcrusher",
+    "audio-processor-dynamics",
+    "audio-processor-file",
+    "audio-processor-graph",
+    "audio-processor-metronome",
+    "audio-processor-pitch-shifter",
+    "audio-processor-standalone",
+    "audio-processor-standalone-midi",
+    "audio-processor-standalone-osc",
+    "audio-processor-testing-helpers",
     "audio-processor-time",
     "audio-processor-traits",
     "augmented-adsr-envelope",
@@ -4362,13 +4363,13 @@ dependencies = [
     "skia-safe",
     "strum 0.24.1",
     "strum_macros 0.24.2",
- "swift-bridge-build",
- "syn",
- "tempdir",
- "thiserror",
- "tokio",
- "uuid 1.1.2",
- "wisual-logger",
+    "swift-bridge-build",
+    "syn",
+    "tempdir",
+    "thiserror",
+    "tokio",
+    "uuid 1.1.2",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -4712,14 +4713,14 @@ dependencies = [
     "cfg-if 0.1.10",
     "fuchsia-zircon",
     "fuchsia-zircon-sys",
- "iovec",
- "kernel32-sys",
- "libc",
- "log",
- "miow 0.2.2",
- "net2",
- "slab",
- "winapi 0.2.8",
+    "iovec",
+    "kernel32-sys",
+    "libc",
+    "log",
+    "miow 0.2.2",
+    "net2",
+    "slab",
+    "winapi 0.2.8",
 ]
 
 [[package]]
@@ -7034,7 +7035,7 @@ dependencies = [
     "form_urlencoded",
     "itoa",
     "ryu",
- "serde",
+    "serde",
 ]
 
 [[package]]
@@ -7644,11 +7645,21 @@ version = "6.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1a45a1c4c9015217e12347f2a411b57ce2c4fc543913b14b6fe40483328e709"
 dependencies = [
- "cfg-expr 0.10.3",
- "heck 0.4.0",
- "pkg-config",
- "toml",
- "version-compare 0.1.0",
+    "cfg-expr 0.10.3",
+    "heck 0.4.0",
+    "pkg-config",
+    "toml",
+    "version-compare 0.1.0",
+]
+
+[[package]]
+name = "taffy"
+version = "0.2.0"
+source = "git+https://github.com/DioxusLabs/taffy#d295d9b5a1de28fa6644a7a4d5fefcd3b6957773"
+dependencies = [
+    "arrayvec 0.7.2",
+    "num-traits 0.2.15",
+    "slotmap",
 ]
 
 [[package]]
@@ -7657,9 +7668,9 @@ version = "0.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43336f5d1793543ba96e2a1e75f3a5c7dcd592743be06a0ab3a190f4fcb4b934"
 dependencies = [
- "bitflags",
- "cairo-rs 0.15.12",
- "cc",
+    "bitflags",
+    "cairo-rs 0.15.12",
+    "cc",
  "cocoa 0.24.0",
  "core-foundation 0.9.3",
  "core-graphics 0.22.3",
@@ -8851,8 +8862,8 @@ dependencies = [
     "thiserror",
     "wasm-bindgen",
     "web-sys",
- "wgpu-types 0.11.0",
- "winapi 0.3.9",
+    "wgpu-types 0.11.0",
+    "winapi 0.3.9",
 ]
 
 [[package]]
@@ -8889,8 +8900,8 @@ dependencies = [
     "thiserror",
     "wasm-bindgen",
     "web-sys",
- "wgpu-types 0.12.0",
- "winapi 0.3.9",
+    "wgpu-types 0.12.0",
+    "winapi 0.3.9",
 ]
 
 [[package]]
@@ -9237,12 +9248,12 @@ version = "0.26.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9b43cc931d58b99461188607efd7acb2a093e65fc621f54cad78517a6063e73a"
 dependencies = [
- "bitflags",
- "cocoa 0.24.0",
- "core-foundation 0.9.3",
- "core-graphics 0.22.3",
- "core-video-sys",
- "dispatch",
+    "bitflags",
+    "cocoa 0.24.0",
+    "core-foundation 0.9.3",
+    "core-graphics 0.22.3",
+    "core-video-sys",
+    "dispatch",
     "instant",
     "lazy_static",
     "libc",

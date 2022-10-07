@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 skia-safe = { version = "0.54.0", features = ["metal"] }
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
+taffy = { git = "https://github.com/DioxusLabs/taffy", ref = "d295d9b5a1de28fa6644a7a4d5fefcd3b6957773" }
 foreign-types-shared = "0.1"
 cocoa = "0.24.0"
 core-graphics-types = "0.1.1"
