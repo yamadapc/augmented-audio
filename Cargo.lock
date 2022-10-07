@@ -768,6 +768,7 @@ name = "augmented-audio-gui-basics"
 version = "0.1.0"
 dependencies = [
  "cocoa 0.24.0",
+ "core-foundation-sys 0.8.3",
  "core-graphics-types",
  "foreign-types-shared 0.1.1",
  "metal 0.24.0",

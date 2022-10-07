@@ -23,6 +23,7 @@ pub fn render(canvas: &mut Canvas, size: Size, mut root: Element) {
             ..FlexboxLayout::DEFAULT
         })
         .unwrap();
+
     let root_node = layout_tree
         .new_with_children(
             FlexboxLayout {
@@ -58,6 +59,13 @@ pub fn render(canvas: &mut Canvas, size: Size, mut root: Element) {
 
     let mut draw_context = DrawContext { canvas };
     root.widget.draw(&mut draw_context, bounds);
+}
+
+fn vstack(children: impl Into<Vec<Element>>) -> Element {
+    Element {
+        widget: Box::new(Rectangle::default()),
+        children: children.into(),
+    }
 }
 
 pub struct Element {

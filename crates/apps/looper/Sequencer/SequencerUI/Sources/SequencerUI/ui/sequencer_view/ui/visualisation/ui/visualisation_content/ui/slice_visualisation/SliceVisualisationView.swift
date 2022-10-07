@@ -28,23 +28,23 @@ struct SliceVisualisationView: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .topLeading) {
                         AudioPathMetalView(layer: trackState.metalLayer, size: geometry.size)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                .onAppear {
-                                    store.engine?.startRendering(looperId: trackState.id)
-                                }
-                                .onReceive(timer) { _ in
-                                    store.engine?.startRendering(looperId: trackState.id)
-                                }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .onAppear {
+                                store.engine?.startRendering(looperId: trackState.id)
+                            }
+                            .onReceive(timer) { _ in
+                                store.engine?.startRendering(looperId: trackState.id)
+                            }
 
                         if let sliceBuffer = trackState.sliceBuffer {
-                            ForEach(0..<sliceBuffer.count, id: \.self) { i in
+                            ForEach(0 ..< sliceBuffer.count, id: \.self) { i in
                                 let positionSamples = sliceBuffer[i]
                                 let offsetPerc = CGFloat(positionSamples) / CGFloat(buffer.count)
 
                                 GeometryReader { geometry in
                                     Rectangle()
-                                            .fill()
-                                            .frame(width: 1)
+                                        .fill()
+                                        .frame(width: 1)
                                         .frame(maxHeight: .infinity)
                                         .position(x: 0, y: 0)
                                         .offset(x: offsetPerc * geometry.size.width, y: geometry.size.height / 2)

@@ -78,13 +78,11 @@ struct ParameterLockOverlayView: View {
     @EnvironmentObject var store: Store
 
     var body: some View {
-        ZStack {
-            if showParameterLockOverlay {
-                ConnectedParameterLockOverlayView(
-                    parameterLockStore: store.parameterLockStore,
-                    parameterId: parameterId
-                )
-            }
+        if showParameterLockOverlay {
+            ConnectedParameterLockOverlayView(
+                parameterLockStore: store.parameterLockStore,
+                parameterId: parameterId
+            )
         }
     }
 }

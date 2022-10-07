@@ -10,6 +10,7 @@ taffy = { git = "https://github.com/DioxusLabs/taffy", ref = "d295d9b5a1de28fa66
 foreign-types-shared = "0.1"
 cocoa = "0.24.0"
 core-graphics-types = "0.1.1"
+core-foundation-sys = "0.8.3"
 objc = "*"
 metal = "0.24.0"
 winit = "0.27.3"

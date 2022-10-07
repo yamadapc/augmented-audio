@@ -15,6 +15,7 @@ use winit::{
 };
 
 pub mod colors;
+pub mod multitouch;
 pub mod prelude;
 mod widget;
 
@@ -81,6 +82,24 @@ where
             match event {
                 Event::WindowEvent { event, .. } => match event {
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                    WindowEvent::CursorMoved {
+                        device_id,
+                        position,
+                        ..
+                    } => {
+                        println!("{:?} {:?}", device_id, position);
+                    }
+                    WindowEvent::MouseInput {
+                        button,
+                        state,
+                        device_id,
+                        ..
+                    } => {
+                        println!("{:?} {:?} {:?}", button, state, device_id);
+                    }
+                    WindowEvent::Touch(touch) => {
+                        println!("{:?}", touch);
+                    }
                     WindowEvent::Resized(size) => {
                         metal_layer
                             .set_drawable_size(CGSize::new(size.width as f64, size.height as f64));

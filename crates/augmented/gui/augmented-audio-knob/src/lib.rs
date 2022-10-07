@@ -119,10 +119,15 @@ fn build_pointer_path(radius: f32, style: KnobStyle, value: f32) -> KnobPointerP
     };
 }
 
+pub struct KnobViewStyle {
+    background_color: Color,
+}
+
 pub struct KnobView {
     radius: f32,
     stroke_width: f32,
     value: f32,
+    style: KnobViewStyle,
 }
 
 impl Default for KnobView {

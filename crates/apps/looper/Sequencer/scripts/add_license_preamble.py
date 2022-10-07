@@ -3,6 +3,8 @@ import subprocess
 
 
 def is_file_ignored(f):
+    if f.startswith("./build"):
+        return True
     ignore_out = subprocess.run(["git", "check-ignore", f])
     return ignore_out.returncode == 0
 
