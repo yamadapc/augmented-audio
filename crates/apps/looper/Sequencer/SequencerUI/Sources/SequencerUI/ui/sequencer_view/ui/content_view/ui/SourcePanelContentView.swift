@@ -31,8 +31,8 @@ struct SliceParameterKnobView: View {
 
 struct SourcePanelContentView: View {
     @ObservedObject var sourceParameters: SourceParametersState
-    var parameters: [[Any]] {
-        var output: [[Any]] = []
+    var parameters: [[ParameterLike]] {
+        var output: [[ParameterLike]] = []
         var i = 0
         for parameter in sourceParameters.parameters {
             if i % 4 == 0 {
@@ -59,9 +59,11 @@ struct SourcePanelContentView: View {
         }
     }
 
+    @ViewBuilder
     func renderParameterRows() -> some View {
         let parameters = self.parameters
-        return VStack(alignment: .center, spacing: 6) {
+
+        VStack(alignment: .center, spacing: 6) {
             ForEach(0 ..< parameters.count, id: \.self) { parameterRowIndex in
                 let parameterRow = parameters[parameterRowIndex]
 
