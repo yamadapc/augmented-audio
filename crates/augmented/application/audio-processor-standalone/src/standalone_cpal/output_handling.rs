@@ -98,6 +98,9 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
         data,
     } = context;
     let mut audio_buffer = InterleavedAudioBuffer::new(num_output_channels, data);
+    let on_under_run = || {
+        log::info!("INPUT UNDER-RUN");
+    };
 
     for frame in audio_buffer.frames_mut() {
         if num_input_channels == num_output_channels {
@@ -105,6 +108,7 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
                 if let Some(input_sample) = consumer.pop() {
                     *sample = input_sample;
                 } else {
+                    on_under_run();
                 }
             }
         } else if let Some(input_sample) = consumer.pop() {
@@ -113,7 +117,7 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
                 *sample = input_sample
             }
         } else {
-            log::info!("INPUT UNDER-RUN");
+            on_under_run();
         }
     }
 
