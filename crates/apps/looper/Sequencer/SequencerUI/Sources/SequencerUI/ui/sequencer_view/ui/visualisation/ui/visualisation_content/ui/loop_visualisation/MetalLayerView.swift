@@ -19,7 +19,7 @@
 import MetalKit
 import SwiftUI
 
-fileprivate var metalViewDelegate = CALayerBackedView.CALayerBackedUIViewDelegate()
+private var metalViewDelegate = CALayerBackedView.CALayerBackedUIViewDelegate()
 class CALayerBackedView: MTKView {
     #if os(iOS)
         override class var layerClass: AnyClass {
@@ -29,11 +29,11 @@ class CALayerBackedView: MTKView {
     var drawFn: ((CAMetalLayer) -> Void)?
 
     class CALayerBackedUIViewDelegate: NSObject, MTKViewDelegate {
-        func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        //    let view = view as! CALayerBackedView
-        //    let layer = view.layer as! CAMetalLayer
-        //    layer.drawableSize = size
-        //    view.drawFn?(layer)
+        func mtkView(_: MTKView, drawableSizeWillChange _: CGSize) {
+            //    let view = view as! CALayerBackedView
+            //    let layer = view.layer as! CAMetalLayer
+            //    layer.drawableSize = size
+            //    view.drawFn?(layer)
         }
 
         func draw(in view: MTKView) {
