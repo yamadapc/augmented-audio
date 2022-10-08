@@ -19,8 +19,8 @@
 import MetalKit
 import SwiftUI
 
-var caLayerBackedUIViewDelegate = CALayerBackedView.CALayerBackedUIViewDelegate()
-class CALayerBackedView: MTKView {
+fileprivate var caLayerBackedUIViewDelegate = CALayerBackedView.CALayerBackedUIViewDelegate()
+fileprivate class CALayerBackedView: MTKView {
     #if os(iOS)
         override class var layerClass: AnyClass {
             CAMetalLayer.self
@@ -77,13 +77,13 @@ class CALayerBackedView: MTKView {
 
 #elseif os(iOS)
     struct AudioPathMetalView: UIViewRepresentable {
-        typealias UIViewType = CALayerBackedUIView
+        typealias UIViewType = CALayerBackedView
 
         var size: CGSize
         var draw: ((CAMetalLayer) -> Void)?
 
-        func makeUIView(context _: Context) -> CALayerBackedUIView {
-            let view = CALayerBackedUIView()
+        func makeUIView(context _: Context) -> CALayerBackedView {
+            let view = CALayerBackedView()
             view.frame.size = size
             view.drawFn = draw
             view.delegate = caLayerBackedUIViewDelegate
@@ -92,7 +92,7 @@ class CALayerBackedView: MTKView {
             return view
         }
 
-        func updateUIView(_ view: CALayerBackedUIView, context _: Context) {
+        func updateUIView(_ view: CALayerBackedView, context _: Context) {
             view.frame.size = size
             view.drawFn = draw
             let metalLayer = view.layer as! CAMetalLayer
