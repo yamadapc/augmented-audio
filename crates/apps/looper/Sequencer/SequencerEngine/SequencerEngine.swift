@@ -203,6 +203,10 @@ extension EngineImpl: SequencerEngine {
         return looper_engine__get_lfo_sample(rustMode, phase)
     }
 
+    public func triggerLooper(looperId: UInt) {
+        looper_engine__trigger_looper(engine, looperId)
+    }
+
     public func drawLooperBuffer(looperId: UInt, layer: CAMetalLayer) {
         looper_engine__draw_looper_buffer(engine, looperId, layer)
     }

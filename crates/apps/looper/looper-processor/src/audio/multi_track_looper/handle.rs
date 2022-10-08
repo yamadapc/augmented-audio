@@ -23,6 +23,7 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
+use atomic_queue::Queue;
 use atomic_refcell::AtomicRefCell;
 use basedrop::SharedCell;
 use num::ToPrimitive;
@@ -49,6 +50,10 @@ use super::parameters::{
 use super::slice_worker::{SliceResult, SliceWorker};
 use super::tempo_estimation::estimate_tempo;
 
+pub enum UIEvent {
+    Trigger { looper_id: LooperId },
+}
+
 pub struct MultiTrackLooperHandle {
     voices: Vec<LooperVoice>,
     time_info_provider: Shared<TimeInfoProviderImpl>,
@@ -61,6 +66,7 @@ pub struct MultiTrackLooperHandle {
     metrics_handle: Shared<AudioProcessorMetricsHandle>,
     midi_store: Shared<MidiStoreHandle>,
     active_looper: AtomicUsize,
+    pub(crate) ui_events: Shared<Queue<UIEvent>>,
 }
 
 impl MultiTrackLooperHandle {
@@ -82,6 +88,7 @@ impl MultiTrackLooperHandle {
             track_events: make_shared(TrackEventsBus::new()),
             metrics_handle: metrics.handle(),
             midi_store: make_shared(MidiStoreHandle::default()),
+            ui_events: make_shared(Queue::new(100)),
             active_looper: AtomicUsize::new(0),
         }
     }
@@ -564,6 +571,10 @@ impl MultiTrackLooperHandle {
         self.voices[looper_id.0]
             .trigger_model()
             .remove_lock(position_beats, parameter_id);
+    }
+
+    pub fn trigger(&self, looper_id: LooperId) {
+        self.ui_events.push(UIEvent::Trigger { looper_id });
     }
 
     pub fn toggle_trigger(&self, looper_id: LooperId, position_beats: usize) {

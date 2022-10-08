@@ -63,6 +63,14 @@ pub unsafe extern "C" fn looper_engine__clear(engine: *const LooperEngine, loope
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__trigger_looper(
+    engine: *const LooperEngine,
+    looper_id: usize,
+) {
+    (*engine).handle().trigger(LooperId(looper_id));
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__set_active_looper(
     engine: *const LooperEngine,
     looper_id: usize,

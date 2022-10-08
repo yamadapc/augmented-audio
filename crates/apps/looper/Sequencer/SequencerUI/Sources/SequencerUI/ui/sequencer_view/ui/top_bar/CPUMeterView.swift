@@ -40,7 +40,7 @@ struct CPUMeterView: View {
 
     var body: some View {
         let stats = processorMetrics.getStats()
-        let cpuPercentText = "\(String(format: "%.0f", stats.maximumCpu * 100))%"
+        let cpuPercentText = "\(String(format: "%3.0f", stats.maximumCpu * 100))%"
         CPUMeterTextView(cpuPercentText: cpuPercentText)
     }
 }

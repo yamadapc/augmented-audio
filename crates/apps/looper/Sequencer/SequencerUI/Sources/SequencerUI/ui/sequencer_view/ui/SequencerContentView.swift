@@ -61,7 +61,11 @@ struct SequencerContentView: View {
 
                     TracksView(
                         selectedTrack: store.selectedTrack,
-                        onClickTrack: { i in store.onClickTrack(UInt(i)) }
+                        onClickTrack: { i in
+                            let looperId = UInt(i)
+                            store.onClickTrack(looperId)
+                            store.engine?.triggerLooper(looperId: looperId)
+                        }
                     )
                     .bindToNilParameter(store: store)
                 }
