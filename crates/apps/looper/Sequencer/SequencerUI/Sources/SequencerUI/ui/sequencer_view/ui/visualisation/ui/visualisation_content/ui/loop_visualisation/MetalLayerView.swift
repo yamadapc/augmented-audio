@@ -30,18 +30,16 @@ class CALayerBackedView: MTKView {
 
     class CALayerBackedUIViewDelegate: NSObject, MTKViewDelegate {
         func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-            let view = view as! CALayerBackedView
-            let layer = view.layer as! CAMetalLayer
-            layer.drawableSize = size
-            view.drawFn?(layer)
-            #if os(iOS)
-                view.setNeedsDisplay()
-            #endif
+        //    let view = view as! CALayerBackedView
+        //    let layer = view.layer as! CAMetalLayer
+        //    layer.drawableSize = size
+        //    view.drawFn?(layer)
         }
 
         func draw(in view: MTKView) {
             let view = view as! CALayerBackedView
             let layer = view.layer as! CAMetalLayer
+            layer.drawableSize = view.frame.size
             view.drawFn?(layer)
             #if os(iOS)
                 view.setNeedsDisplay()
@@ -64,6 +62,7 @@ class CALayerBackedView: MTKView {
             view.delegate = metalViewDelegate
             let metalLayer = view.layer as! CAMetalLayer
             metalLayer.drawableSize = view.frame.size
+            metalLayer.frame = view.frame
             return view
         }
 
@@ -72,6 +71,7 @@ class CALayerBackedView: MTKView {
             view.drawFn = draw
             let metalLayer = view.layer as! CAMetalLayer
             metalLayer.drawableSize = view.frame.size
+            metalLayer.frame = view.frame
         }
     }
 
@@ -89,6 +89,7 @@ class CALayerBackedView: MTKView {
             view.delegate = metalViewDelegate
             let metalLayer = view.layer as! CAMetalLayer
             metalLayer.drawableSize = view.frame.size
+            metalLayer.frame = view.frame
             return view
         }
 
@@ -97,6 +98,7 @@ class CALayerBackedView: MTKView {
             view.drawFn = draw
             let metalLayer = view.layer as! CAMetalLayer
             metalLayer.drawableSize = view.frame.size
+            metalLayer.frame = view.frame
         }
     }
 #endif
