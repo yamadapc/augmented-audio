@@ -14,7 +14,7 @@ fn main() {
         let size = ctx.size();
         let canvas = ctx.canvas();
         canvas.clear(black());
-    
+
         let widget = Rectangle::default();
         render(canvas, size, widget.into());
     })

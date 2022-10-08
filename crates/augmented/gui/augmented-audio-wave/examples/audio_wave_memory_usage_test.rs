@@ -23,9 +23,7 @@
 
 use skia_safe::gpu::mtl::BackendContext;
 use skia_safe::gpu::{mtl, DirectContext, RecordingContext};
-use skia_safe::{
-    AlphaType, Budgeted, ColorType, ISize, ImageInfo, Size, Surface,
-};
+use skia_safe::{AlphaType, Budgeted, ColorType, ISize, ImageInfo, Size, Surface};
 use std::time::Duration;
 
 use foreign_types_shared::ForeignType;
