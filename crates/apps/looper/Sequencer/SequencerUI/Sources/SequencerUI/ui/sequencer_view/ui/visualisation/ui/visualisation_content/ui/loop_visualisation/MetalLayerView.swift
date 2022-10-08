@@ -16,82 +16,87 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
-import SwiftUI
 import MetalKit
+import SwiftUI
 
-#if os(macOS)
-    struct AudioPathMetalView: NSViewRepresentable {
-        typealias NSViewType = NSView
-
-        var layer: CAMetalLayer?
-        var size: CGSize
-        var onLayer: ((CAMetalLayer) -> Void)?
-
-        func makeNSView(context _: Context) -> NSView {
-            let view = NSView()
-            view.wantsLayer = true
-            view.layer = layer!
-            view.frame.size = size
-            layer?.drawableSize = size
-            return view
+var caLayerBackedUIViewDelegate = CALayerBackedView.CALayerBackedUIViewDelegate()
+class CALayerBackedView: MTKView {
+    #if os(iOS)
+        override class var layerClass: AnyClass {
+            CAMetalLayer.self
         }
-
-        func updateNSView(_ view: NSView, context _: Context) {
-            view.layer = layer
-            view.frame.size = size
-            layer?.drawableSize = view.frame.size
-        }
-    }
-
-#elseif os(iOS)
-class CALayerBackedUIView: MTKView {
-    override class var layerClass: AnyClass {
-        CAMetalLayer.self
-    }
+    #endif
     var drawFn: ((CAMetalLayer) -> Void)?
 
     class CALayerBackedUIViewDelegate: NSObject, MTKViewDelegate {
         func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-            let view = view as! CALayerBackedUIView
+            let view = view as! CALayerBackedView
             let layer = view.layer as! CAMetalLayer
             layer.drawableSize = size
             view.drawFn?(layer)
-            view.setNeedsDisplay()
+            #if os(iOS)
+                view.setNeedsDisplay()
+            #endif
         }
 
         func draw(in view: MTKView) {
-            let view = view as! CALayerBackedUIView
+            let view = view as! CALayerBackedView
             let layer = view.layer as! CAMetalLayer
             view.drawFn?(layer)
-            view.setNeedsDisplay()
+            #if os(iOS)
+                view.setNeedsDisplay()
+            #endif
         }
     }
 }
 
-var caLayerBackedUIViewDelegate = CALayerBackedUIView.CALayerBackedUIViewDelegate()
+#if os(macOS)
+    struct AudioPathMetalView: NSViewRepresentable {
+        typealias NSViewType = CALayerBackedView
 
-struct AudioPathMetalView: UIViewRepresentable {
-    typealias UIViewType = CALayerBackedUIView
+        var size: CGSize
+        var draw: ((CAMetalLayer) -> Void)?
 
-    var layer: CAMetalLayer?
-    var size: CGSize
-    var draw: ((CAMetalLayer) -> Void)?
+        func makeNSView(context _: Context) -> CALayerBackedView {
+            let view = CALayerBackedView()
+            view.frame.size = size
+            view.drawFn = draw
+            view.delegate = caLayerBackedUIViewDelegate
+            let metalLayer = view.layer as! CAMetalLayer
+            metalLayer.drawableSize = view.frame.size
+            return view
+        }
 
-    func makeUIView(context _: Context) -> CALayerBackedUIView {
-        let view = CALayerBackedUIView()
-        view.frame.size = size
-        view.drawFn = draw
-        view.delegate = caLayerBackedUIViewDelegate
-        let metalLayer = view.layer as! CAMetalLayer
-        metalLayer.drawableSize = view.frame.size
-        return view
+        func updateNSView(_ view: CALayerBackedView, context _: Context) {
+            view.frame.size = size
+            view.drawFn = draw
+            let metalLayer = view.layer as! CAMetalLayer
+            metalLayer.drawableSize = view.frame.size
+        }
     }
 
-    func updateUIView(_ view: CALayerBackedUIView, context _: Context) {
-        view.frame.size = size
-        view.drawFn = draw
-        let metalLayer = view.layer as! CAMetalLayer
-        metalLayer.drawableSize = view.frame.size
-    }
+#elseif os(iOS)
+    struct AudioPathMetalView: UIViewRepresentable {
+        typealias UIViewType = CALayerBackedUIView
+
+        var size: CGSize
+        var draw: ((CAMetalLayer) -> Void)?
+
+        func makeUIView(context _: Context) -> CALayerBackedUIView {
+            let view = CALayerBackedUIView()
+            view.frame.size = size
+            view.drawFn = draw
+            view.delegate = caLayerBackedUIViewDelegate
+            let metalLayer = view.layer as! CAMetalLayer
+            metalLayer.drawableSize = view.frame.size
+            return view
+        }
+
+        func updateUIView(_ view: CALayerBackedUIView, context _: Context) {
+            view.frame.size = size
+            view.drawFn = draw
+            let metalLayer = view.layer as! CAMetalLayer
+            metalLayer.drawableSize = view.frame.size
+        }
     }
 #endif

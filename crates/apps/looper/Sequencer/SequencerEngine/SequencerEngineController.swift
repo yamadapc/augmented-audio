@@ -71,10 +71,6 @@ public class EngineController {
             if engine.hasLooperBuffer(looperId: track.id) {
                 readLooperBuffer(track.id)
             }
-
-            #if os(macOS)
-            track.metalLayer = engine.createMetalLayer(looperId: track.id)
-            #endif
         }
     }
 
