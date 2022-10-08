@@ -34,3 +34,6 @@
 [submodule "crates/apps/metronome/vendor/macos_ui"]
 	path = crates/apps/metronome/vendor/macos_ui
 	url = git@github.com:GroovinChip/macos_ui
+[submodule "crates/vendor/coreaudio-rs"]
+	path = crates/vendor/coreaudio-rs
+	url = git@github.com:yamadapc/coreaudio-rs

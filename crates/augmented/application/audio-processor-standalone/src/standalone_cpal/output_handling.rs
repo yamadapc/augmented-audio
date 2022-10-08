@@ -26,9 +26,10 @@
 //!
 //! It will also forward MIDI events that happened between frames.
 
-use audio_processor_traits::{AudioBuffer, AudioProcessor, InterleavedAudioBuffer};
 use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Consumer;
+
+use audio_processor_traits::{AudioBuffer, AudioProcessor, InterleavedAudioBuffer};
 
 use crate::StandaloneProcessor;
 
@@ -112,7 +113,7 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
                 *sample = input_sample
             }
         } else {
-            break;
+            log::info!("INPUT UNDER-RUN");
         }
     }
 

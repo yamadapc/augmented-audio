@@ -52,6 +52,11 @@ class CALayerBackedUIView: MTKView {
 
     class CALayerBackedUIViewDelegate: NSObject, MTKViewDelegate {
         func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+            let view = view as! CALayerBackedUIView
+            let layer = view.layer as! CAMetalLayer
+            layer.drawableSize = size
+            view.drawFn?(layer)
+            view.setNeedsDisplay()
         }
 
         func draw(in view: MTKView) {
@@ -75,18 +80,18 @@ struct AudioPathMetalView: UIViewRepresentable {
     func makeUIView(context _: Context) -> CALayerBackedUIView {
         let view = CALayerBackedUIView()
         view.frame.size = size
+        view.drawFn = draw
         view.delegate = caLayerBackedUIViewDelegate
         let metalLayer = view.layer as! CAMetalLayer
         metalLayer.drawableSize = view.frame.size
-        view.drawFn = draw
         return view
     }
 
     func updateUIView(_ view: CALayerBackedUIView, context _: Context) {
         view.frame.size = size
+        view.drawFn = draw
         let metalLayer = view.layer as! CAMetalLayer
         metalLayer.drawableSize = view.frame.size
-        view.drawFn = draw
     }
     }
 #endif
