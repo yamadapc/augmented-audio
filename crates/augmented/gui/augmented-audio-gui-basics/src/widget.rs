@@ -1,13 +1,12 @@
 use skia_safe::{Canvas, Color4f, Paint, Rect, Size};
 use taffy::prelude::Dimension;
-use taffy::prelude::Display::Flex;
 use taffy::style::{FlexDirection, FlexboxLayout};
 
 pub struct DrawContext<'a> {
     pub(crate) canvas: &'a mut Canvas,
 }
 
-pub fn render(canvas: &mut Canvas, size: Size, mut root: Element) {
+pub fn render(canvas: &mut Canvas, size: Size, root: Element) {
     let mut layout_tree = taffy::Taffy::new();
 
     let node = layout_tree
@@ -61,23 +60,16 @@ pub fn render(canvas: &mut Canvas, size: Size, mut root: Element) {
     root.widget.draw(&mut draw_context, bounds);
 }
 
-fn vstack(children: impl Into<Vec<Element>>) -> Element {
-    Element {
-        widget: Box::new(Rectangle::default()),
-        children: children.into(),
-    }
-}
-
 pub struct Element {
     widget: Box<dyn Widget>,
-    children: Vec<Element>,
+    _children: Vec<Element>,
 }
 
 impl<W: Widget + 'static> From<W> for Element {
     fn from(w: W) -> Self {
         Element {
             widget: Box::new(w),
-            children: vec![],
+            _children: vec![],
         }
     }
 }

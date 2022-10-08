@@ -24,13 +24,10 @@
 use skia_safe::gpu::mtl::BackendContext;
 use skia_safe::gpu::{mtl, DirectContext, RecordingContext};
 use skia_safe::{
-    AlphaType, Budgeted, Color4f, ColorType, EncodedImageFormat, ISize, ImageInfo, Size, Surface,
+    AlphaType, Budgeted, ColorType, ISize, ImageInfo, Size, Surface,
 };
 use std::time::Duration;
 
-use audio_processor_file::AudioFileProcessor;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
-use augmented_audio_wave::spawn_audio_drawer;
 use foreign_types_shared::ForeignType;
 use metal::Device;
 
@@ -51,7 +48,7 @@ fn main() {
 
     let mut recording_context = RecordingContext::from(context.clone());
     let surfaces: Vec<Surface> = (0..500)
-        .map(|i| {
+        .map(|_i| {
             Surface::new_render_target(
                 &mut recording_context,
                 Budgeted::No,
@@ -71,5 +68,6 @@ fn main() {
         .collect();
 
     log::info!("Created 100 surfaces of 500x500 pixels");
-    std::thread::sleep(Duration::from_secs(60))
+    std::thread::sleep(Duration::from_secs(60));
+    drop(surfaces);
 }

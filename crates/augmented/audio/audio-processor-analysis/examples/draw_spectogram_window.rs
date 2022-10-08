@@ -165,24 +165,20 @@ vec4 main(float2 coord) {
         )
         .unwrap();
 
-        for (i, frame) in magnitude_frames.iter().enumerate() {
-            let data = [
-                magnitude_frames.len() as f32,
-                magnitude_frames[0].len() as f32,
-                size.width,
-                size.height,
-            ];
-            let data = bytemuck::cast_slice(&data);
-            assert!(data.len() > 4);
-            let uniforms = Data::new_copy(data);
-            let shader = effect
-                .make_shader(uniforms, &[ChildPtr::Shader(bitmap)], None)
-                .unwrap();
-            let mut paint = Paint::default();
-            paint.set_shader(shader);
-            canvas.draw_paint(&paint);
-
-            break;
-        }
+        let data = [
+            magnitude_frames.len() as f32,
+            magnitude_frames[0].len() as f32,
+            size.width,
+            size.height,
+        ];
+        let data = bytemuck::cast_slice(&data);
+        assert!(data.len() > 4);
+        let uniforms = Data::new_copy(data);
+        let shader = effect
+            .make_shader(uniforms, &[ChildPtr::Shader(bitmap)], None)
+            .unwrap();
+        let mut paint = Paint::default();
+        paint.set_shader(shader);
+        canvas.draw_paint(&paint);
     });
 }

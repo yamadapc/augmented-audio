@@ -28,7 +28,7 @@ use crate::audio::multi_track_looper::effects_processor::EffectType;
 use crate::audio::multi_track_looper::parameters::LooperId;
 use crate::audio::processor::handle::LooperHandleThread;
 use crate::audio::processor::handle::LooperState;
-use crate::engine::LooperEngine;
+use crate::engine::{save_project, LooperEngine};
 use crate::services::project_manager::PROJECT_MANAGER_DATA_PATH_KEY;
 
 #[test]
@@ -78,7 +78,9 @@ fn test_start_engine_and_record_audio() {
         }
     }
 
+    let project_manager = engine.project_manager().clone();
+    let handle = engine.handle().clone();
     let _ = ActorSystem::current().spawn_result(async move {
-        engine.save_project().await;
+        save_project(project_manager, handle).await;
     });
 }

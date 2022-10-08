@@ -219,18 +219,21 @@ impl LooperEngine {
     pub fn audio_wave_rendering_controller(&mut self) -> &mut AudioWaveRenderingController {
         &mut self.audio_wave_rendering_controller
     }
+
+    pub fn project_manager(&self) -> &Addr<ProjectManager> {
+        &self.project_manager
+    }
 }
 
-impl LooperEngine {
-    pub async fn save_project(&self) {
-        self.project_manager
-            .send(services::project_manager::SaveProjectMessage {
-                handle: self.handle.clone(),
-            })
-            .await
-            .unwrap()
-            .unwrap();
-    }
+pub async fn save_project(
+    project_manager: Addr<ProjectManager>,
+    handle: Shared<MultiTrackLooperHandle>,
+) {
+    project_manager
+        .send(services::project_manager::SaveProjectMessage { handle })
+        .await
+        .unwrap()
+        .unwrap();
 }
 
 #[cfg(test)]

@@ -8,6 +8,7 @@ pub enum KnobStyle {
 }
 
 /// Represents an Arc that will be drawn for either the background or the filled track of a knob
+#[allow(unused)]
 struct KnobPathArc {
     center: (f32, f32),
     start_angle: f32,
@@ -23,6 +24,7 @@ struct KnobPathArc {
 /// For example, if the value is 0.5, the knob should be filled between 135º and 270º.
 ///
 /// Drawing is inverted so angles are negative.
+#[allow(unused)]
 fn build_value_track(radius: f32, stroke_width: f32, value: f32) -> KnobPathArc {
     let center = (radius + stroke_width, radius + stroke_width);
     let start_angle = 0.0 - 0.75 * PI;
@@ -45,6 +47,7 @@ fn build_value_track(radius: f32, stroke_width: f32, value: f32) -> KnobPathArc 
 /// then starting at the `0` point at 270º.
 ///
 /// If the value is negative, we rotate the *starting angle* counterclockwise by this amount.
+#[allow(unused)]
 fn build_center_value_track(radius: f32, stroke_width: f32, value: f32) -> KnobPathArc {
     let sweep_angle = sweep_angle(KnobStyle::Center);
     let center = (radius + stroke_width, radius + stroke_width);
@@ -119,20 +122,23 @@ fn build_pointer_path(radius: f32, style: KnobStyle, value: f32) -> KnobPointerP
     };
 }
 
-pub struct KnobViewStyle {
-    background_color: Color,
-}
+// pub struct KnobViewStyle {
+//     background_color: Color,
+// }
 
 pub struct KnobView {
     radius: f32,
     stroke_width: f32,
     value: f32,
-    style: KnobViewStyle,
+    // style: KnobViewStyle,
 }
 
 impl Default for KnobView {
     fn default() -> Self {
         Self {
+            // style: KnobViewStyle { background_color: Color {
+
+            // } },
             radius: 100.0,
             stroke_width: 8.0,
             value: 0.5,
