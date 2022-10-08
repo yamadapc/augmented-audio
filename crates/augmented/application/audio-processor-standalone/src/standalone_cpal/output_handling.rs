@@ -99,7 +99,7 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
     } = context;
     let mut audio_buffer = InterleavedAudioBuffer::new(num_output_channels, data);
     let on_under_run = || {
-        log::info!("INPUT UNDER-RUN");
+        // log::info!("INPUT UNDER-RUN");
     };
 
     for frame in audio_buffer.frames_mut() {
