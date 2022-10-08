@@ -89,7 +89,7 @@ impl AudioWaveRenderingController {
         layer.set_pixel_format(MTLPixelFormat::BGRA8Unorm);
         layer.set_presents_with_transaction(false);
 
-        log::info!("DRAW {:?} {:?}", looper_id, layer.as_ptr());
+        log::debug!("DRAW {:?} {:?}", looper_id, layer.as_ptr());
         let drawable_size = layer_size(&layer);
 
         let (drawable_ref, mut surface) = get_drawable_surface(&layer, &mut self.context)?;
