@@ -337,17 +337,6 @@ impl MultiTrackLooper {
                 )
             }
         }
-
-        while let Some(event) = self.handle().ui_events.pop() {
-            match event {
-                handle::UIEvent::Trigger { looper_id } => {
-                    if let Some(voice) = self.handle.voices().get(looper_id.0) {
-                        voice.looper().trigger();
-                        voice.envelope().adsr_envelope.note_on();
-                    }
-                }
-            }
-        }
     }
 
     fn process_triggers_for_voice(
