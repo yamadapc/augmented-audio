@@ -39,14 +39,13 @@ struct LoopVisualisationView: View {
         VStack {
             GeometryReader { geometry in
                 ZStack(alignment: .topLeading) {
-                    AudioPathMetalView(layer: trackState.metalLayer, size: geometry.size)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .onAppear {
-                            store.engine?.startRendering(looperId: trackState.id)
-                        }
-                        .onReceive(timer) { _ in
-                            store.engine?.startRendering(looperId: trackState.id)
-                        }
+                    AudioPathMetalView(
+                            size: geometry.size,
+                            draw: { layer in
+                                store.engine?.drawLooperBuffer(looperId: trackState.id, layer: layer)
+                            }
+                    )
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                     SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
                 }

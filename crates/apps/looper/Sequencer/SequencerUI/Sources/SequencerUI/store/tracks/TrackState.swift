@@ -23,7 +23,6 @@ public class TrackState: ObservableObject {
     @FastPublished public var sliceBuffer: SliceBuffer? = nil // public for ref checks
     @FastPublished public var looperState: LooperState = .empty
     @FastPublished public var volumeParameter: FloatParameter
-    @FastPublished public var metalLayer: CAMetalLayer? = nil
 
     public let sourceParameters: SourceParametersState
     public let envelope: EnvelopeState

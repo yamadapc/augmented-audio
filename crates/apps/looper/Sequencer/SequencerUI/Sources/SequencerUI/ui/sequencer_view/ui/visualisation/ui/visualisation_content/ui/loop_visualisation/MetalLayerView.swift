@@ -17,6 +17,7 @@
 // = /copyright ===================================================================
 
 import SwiftUI
+import MetalKit
 
 #if os(macOS)
     struct AudioPathMetalView: NSViewRepresentable {
@@ -24,6 +25,7 @@ import SwiftUI
 
         var layer: CAMetalLayer?
         var size: CGSize
+        var onLayer: ((CAMetalLayer) -> Void)?
 
         func makeNSView(context _: Context) -> NSView {
             let view = NSView()
@@ -42,29 +44,49 @@ import SwiftUI
     }
 
 #elseif os(iOS)
-    struct AudioPathMetalView: UIViewRepresentable {
-        typealias UIViewType = UIView
+class CALayerBackedUIView: MTKView {
+    override class var layerClass: AnyClass {
+        CAMetalLayer.self
+    }
+    var drawFn: ((CAMetalLayer) -> Void)?
 
-        var layer: CAMetalLayer?
-        var size: CGSize
-
-        func makeUIView(context _: Context) -> UIView {
-            let view = UIView()
-            view.layer.addSublayer(layer!)
-            view.frame.size = size
-            layer?.drawableSize = size
-            return view
+    class CALayerBackedUIViewDelegate: NSObject, MTKViewDelegate {
+        func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         }
 
-        func updateUIView(_ view: UIView, context _: Context) {
-            let isEmptyLayer = view.layer.sublayers?.isEmpty ?? true
-            if !isEmptyLayer {
-                view.layer.replaceSublayer(view.layer.sublayers![0], with: layer!)
-            } else {
-                view.layer.addSublayer(layer!)
-            }
-            view.frame.size = size
-            layer?.drawableSize = view.frame.size
+        func draw(in view: MTKView) {
+            let view = view as! CALayerBackedUIView
+            let layer = view.layer as! CAMetalLayer
+            view.drawFn?(layer)
+            view.setNeedsDisplay()
         }
+    }
+}
+
+var caLayerBackedUIViewDelegate = CALayerBackedUIView.CALayerBackedUIViewDelegate()
+
+struct AudioPathMetalView: UIViewRepresentable {
+    typealias UIViewType = CALayerBackedUIView
+
+    var layer: CAMetalLayer?
+    var size: CGSize
+    var draw: ((CAMetalLayer) -> Void)?
+
+    func makeUIView(context _: Context) -> CALayerBackedUIView {
+        let view = CALayerBackedUIView()
+        view.frame.size = size
+        view.delegate = caLayerBackedUIViewDelegate
+        let metalLayer = view.layer as! CAMetalLayer
+        metalLayer.drawableSize = view.frame.size
+        view.drawFn = draw
+        return view
+    }
+
+    func updateUIView(_ view: CALayerBackedUIView, context _: Context) {
+        view.frame.size = size
+        let metalLayer = view.layer as! CAMetalLayer
+        metalLayer.drawableSize = view.frame.size
+        view.drawFn = draw
+    }
     }
 #endif

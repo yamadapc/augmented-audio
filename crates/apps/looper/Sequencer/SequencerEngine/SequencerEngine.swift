@@ -203,8 +203,8 @@ extension EngineImpl: SequencerEngine {
         return looper_engine__get_lfo_sample(rustMode, phase)
     }
 
-    public func startRendering(looperId: UInt) {
-        looper_engine__start_rendering(engine, looperId)
+    public func drawLooperBuffer(looperId: UInt, layer: CAMetalLayer) {
+        looper_engine__draw_looper_buffer(engine, looperId, layer)
     }
 }
 
@@ -352,10 +352,6 @@ extension EngineImpl {
     func getLooperSlices(looperId: UInt) -> SliceBufferImpl {
         let sliceBuffer = looper_engine__get_looper_slices(engine, looperId)
         return SliceBufferImpl(inner: sliceBuffer!)
-    }
-
-    func createMetalLayer(looperId: UInt) -> CAMetalLayer {
-        return looper_engine__create_metal_layer(engine, looperId)
     }
 }
 

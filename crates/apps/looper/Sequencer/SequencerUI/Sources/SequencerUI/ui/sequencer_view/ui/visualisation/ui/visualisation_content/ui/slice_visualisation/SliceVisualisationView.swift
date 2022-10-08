@@ -27,6 +27,7 @@ struct SliceVisualisationView: View {
             if let buffer = trackState.buffer {
                 GeometryReader { geometry in
                     ZStack(alignment: .topLeading) {
+                        /*
                         AudioPathMetalView(layer: trackState.metalLayer, size: geometry.size)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .onAppear {
@@ -35,6 +36,7 @@ struct SliceVisualisationView: View {
                             .onReceive(timer) { _ in
                                 store.engine?.startRendering(looperId: trackState.id)
                             }
+                      */
 
                         if let sliceBuffer = trackState.sliceBuffer {
                             ForEach(0 ..< sliceBuffer.count, id: \.self) { i in

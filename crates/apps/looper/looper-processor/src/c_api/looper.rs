@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use metal::CAMetalLayer;
+
 use crate::audio::multi_track_looper::slice_worker::SliceResult;
 use crate::audio::processor::handle::LooperState;
 use crate::c_api::into_ptr;
@@ -93,24 +95,14 @@ pub unsafe extern "C" fn looper_engine__get_looper_position(
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn looper_engine__start_rendering(
+pub unsafe extern "C" fn looper_engine__draw_looper_buffer(
     engine: *mut LooperEngine,
     looper_id: usize,
+    layer: *mut CAMetalLayer,
 ) {
-    (*engine)
+    let _ = (*engine)
         .audio_wave_rendering_controller()
-        .draw(LooperId(looper_id))
-        .unwrap();
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn looper_engine__create_metal_layer(
-    engine: *mut LooperEngine,
-    looper_id: usize,
-) -> *mut metal::CAMetalLayer {
-    (*engine)
-        .audio_wave_rendering_controller()
-        .create_layer(LooperId(looper_id))
+        .draw(LooperId(looper_id), layer);
 }
 
 #[no_mangle]

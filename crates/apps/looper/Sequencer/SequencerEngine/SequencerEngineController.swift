@@ -15,11 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import Combine
 import Foundation
 import Logging
 import SequencerEngine_private
 import SequencerUI
+import AVFAudio
+
+func prepareAudioSession() {
+    #if os(iOS)
+    let session = AVAudioSession.sharedInstance()
+    try! session.setCategory(.playAndRecord, options: [.defaultToSpeaker, .allowBluetooth])
+    #endif
+}
 
 public class EngineController {
     public let store: Store
@@ -31,12 +40,14 @@ public class EngineController {
     private var timer: Timer? = nil
 
     public init() {
+        prepareAudioSession()
+
         engine = EngineImpl()
         store = Store(engine: engine)
 
         storeSubscriptionsController = StoreSubscriptionsController(
-            store: store,
-            engine: engine
+                store: store,
+                engine: engine
         )
 
         logger.info("Setting-up store -> engine subscriptions")
@@ -61,7 +72,9 @@ public class EngineController {
                 readLooperBuffer(track.id)
             }
 
+            #if os(macOS)
             track.metalLayer = engine.createMetalLayer(looperId: track.id)
+            #endif
         }
     }
 

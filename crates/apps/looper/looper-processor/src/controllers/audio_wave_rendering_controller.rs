@@ -42,7 +42,6 @@ use crate::{
 };
 
 pub struct AudioWaveRenderingController {
-    layers: HashMap<LooperId, MetalLayer>,
     drawers: HashMap<LooperId, augmented_audio_wave::PathRendererHandle>,
     surfaces: HashMap<LooperId, Surface>,
     device: Device,
@@ -72,7 +71,6 @@ impl AudioWaveRenderingController {
         let recording_context = RecordingContext::from(context.clone());
 
         Self {
-            layers: Default::default(),
             drawers: Default::default(),
             surfaces: Default::default(),
             handle,
@@ -85,22 +83,14 @@ impl AudioWaveRenderingController {
         }
     }
 
-    pub fn create_layer(&mut self, looper_id: LooperId) -> *mut CAMetalLayer {
-        let layer = MetalLayer::new();
+    pub fn draw(&mut self, looper_id: LooperId, layer: *mut CAMetalLayer) -> Option<()> {
+        let layer = unsafe { MetalLayer::from_ptr(layer) };
         layer.set_device(&self.device);
         layer.set_pixel_format(MTLPixelFormat::BGRA8Unorm);
         layer.set_presents_with_transaction(false);
-        layer.set_drawable_size(core_graphics_types::geometry::CGSize::new(500.0, 500.0));
 
-        self.layers.insert(looper_id, layer.clone());
-
-        let ptr = layer.as_ptr();
-        ptr
-    }
-
-    pub fn draw(&mut self, looper_id: LooperId) -> Option<()> {
-        let layer = self.layers.get(&looper_id)?;
-        let drawable_size = layer_size(layer);
+        log::info!("DRAW {:?} {:?}", looper_id, layer.as_ptr());
+        let drawable_size = layer_size(&layer);
 
         let (drawable_ref, mut surface) = get_drawable_surface(&layer, &mut self.context)?;
         let canvas = surface.canvas();
@@ -121,7 +111,7 @@ impl AudioWaveRenderingController {
                 None,
                 None,
             )
-            .unwrap();
+            .expect("Skia surface creation failed");
             self.surfaces.insert(looper_id.clone(), surface);
         }
 
@@ -147,14 +137,20 @@ impl AudioWaveRenderingController {
                         .insert(looper_id, spawn_audio_drawer(looper_clip_copy));
                 }
                 TrackEventsMessage::ClearedBuffer { looper_id } => {
-                    let partial_surface = self.surfaces.get_mut(&looper_id).unwrap();
+                    let partial_surface = self
+                        .surfaces
+                        .get_mut(&looper_id)
+                        .expect("Surface was not present");
                     let partial_canvas = partial_surface.canvas();
                     partial_canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
                 }
             }
         }
 
-        let partial_surface = self.surfaces.get_mut(&looper_id).unwrap();
+        let partial_surface = self
+            .surfaces
+            .get_mut(&looper_id)
+            .expect("Surface was not present");
         let partial_canvas = partial_surface.canvas();
 
         if let Some(drawer) = self.drawers.get_mut(&looper_id) {
@@ -193,6 +189,7 @@ impl AudioWaveRenderingController {
         command_buffer.present_drawable(drawable_ref);
         command_buffer.commit();
 
+        std::mem::forget(layer);
         Some(())
     }
 }
