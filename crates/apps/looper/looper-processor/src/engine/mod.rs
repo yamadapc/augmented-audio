@@ -32,6 +32,7 @@ use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioPro
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::controllers::audio_io_settings_controller::AudioIOSettingsController;
 use crate::controllers::audio_state_controller::{AudioModeParams, AudioStateController};
+#[cfg(any(target_os = "ios", target_os = "macos"))]
 use crate::controllers::audio_wave_rendering_controller::AudioWaveRenderingController;
 use crate::controllers::autosave_controller::AutosaveController;
 use crate::controllers::events_controller::EventsController;
@@ -83,6 +84,7 @@ pub struct LooperEngine {
     audio_state_controller: Addr<AudioStateController>,
 
     audio_io_settings_controller: AudioIOSettingsController,
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
     audio_wave_rendering_controller: Option<AudioWaveRenderingController>,
     _autosave_controller: Option<AutosaveController>,
 }
@@ -158,6 +160,7 @@ impl LooperEngine {
             AudioIOSettingsController::new(audio_state_controller.clone());
 
         let queue = handle.track_events_worker().queue();
+        #[cfg(any(target_os = "ios", target_os = "macos"))]
         let audio_wave_rendering_controller =
             AudioWaveRenderingController::new(handle.clone(), queue);
 
@@ -171,6 +174,7 @@ impl LooperEngine {
             #[cfg(any(target_os = "ios", target_os = "macos"))]
             analytics_service,
             audio_io_settings_controller,
+            #[cfg(any(target_os = "ios", target_os = "macos"))]
             audio_wave_rendering_controller,
             _autosave_controller: autosave_controller,
         }
@@ -215,6 +219,7 @@ impl LooperEngine {
         &self.audio_io_settings_controller
     }
 
+    #[cfg(any(target_os = "ios", target_os = "macos"))]
     pub fn audio_wave_rendering_controller(&mut self) -> Option<&mut AudioWaveRenderingController> {
         self.audio_wave_rendering_controller.as_mut()
     }

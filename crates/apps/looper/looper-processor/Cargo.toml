@@ -80,6 +80,7 @@ audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-pro
 skia-safe = { version = "0.54.0", features = ["metal"] }
 foreign-types-shared = "0.1"
 
+[target.'cfg(any(target_os="ios", target_os="macos"))'.dependencies]
 cocoa = { version = "0.24.0" }
 metal = "0.24.0"
 core-graphics-types = "0.1.1"

@@ -23,7 +23,9 @@
 
 pub mod audio_io_settings_controller;
 pub mod audio_state_controller;
-pub mod audio_wave_rendering_controller;
 pub mod autosave_controller;
 pub mod events_controller;
 pub mod load_project_controller;
+
+#[cfg(any(target_os = "macos", target_os = "ios"))]
+pub mod audio_wave_rendering_controller;

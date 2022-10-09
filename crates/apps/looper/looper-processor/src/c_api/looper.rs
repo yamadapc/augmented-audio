@@ -102,6 +102,7 @@ pub unsafe extern "C" fn looper_engine__get_looper_position(
     (*engine).handle().get_position_percent(LooperId(looper_id))
 }
 
+#[cfg(any(target_os = "ios", target_os = "macos"))]
 #[no_mangle]
 pub unsafe extern "C" fn looper_engine__draw_looper_buffer(
     engine: *mut LooperEngine,
