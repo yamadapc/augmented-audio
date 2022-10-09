@@ -55,10 +55,10 @@ pub struct AudioWaveRenderingController {
 
 impl AudioWaveRenderingController {
     pub fn new(
-        device: &Device,
         handle: Shared<MultiTrackLooperHandle>,
         track_events: Shared<Queue<TrackEventsMessage>>,
-    ) -> Self {
+    ) -> Option<Self> {
+        let device = Device::system_default()?;
         let queue = device.new_command_queue();
         let backend = unsafe {
             BackendContext::new(
@@ -67,10 +67,10 @@ impl AudioWaveRenderingController {
                 std::ptr::null(),
             )
         };
-        let context = DirectContext::new_metal(&backend, None).unwrap();
+        let context = DirectContext::new_metal(&backend, None)?;
         let recording_context = RecordingContext::from(context.clone());
 
-        Self {
+        Some(Self {
             drawers: Default::default(),
             surfaces: Default::default(),
             handle,
@@ -80,7 +80,7 @@ impl AudioWaveRenderingController {
             _backend: backend,
             track_events,
             recording_context,
-        }
+        })
     }
 
     pub fn draw(&mut self, looper_id: LooperId, layer: *mut CAMetalLayer) -> Option<()> {
@@ -169,8 +169,7 @@ impl AudioWaveRenderingController {
         let playhead_height = (drawable_size.height)
             * self
                 .handle
-                .get(looper_id)
-                .unwrap()
+                .get(looper_id)?
                 .envelope()
                 .adsr_envelope
                 .volume();

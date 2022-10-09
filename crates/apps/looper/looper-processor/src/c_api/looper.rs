@@ -110,7 +110,9 @@ pub unsafe extern "C" fn looper_engine__draw_looper_buffer(
 ) {
     let _ = (*engine)
         .audio_wave_rendering_controller()
-        .draw(LooperId(looper_id), layer);
+        .map(|controller| {
+            controller.draw(LooperId(looper_id), layer);
+        });
 }
 
 #[no_mangle]

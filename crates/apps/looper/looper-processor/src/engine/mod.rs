@@ -83,7 +83,7 @@ pub struct LooperEngine {
     audio_state_controller: Addr<AudioStateController>,
 
     audio_io_settings_controller: AudioIOSettingsController,
-    audio_wave_rendering_controller: AudioWaveRenderingController,
+    audio_wave_rendering_controller: Option<AudioWaveRenderingController>,
     _autosave_controller: Option<AutosaveController>,
 }
 
@@ -157,10 +157,9 @@ impl LooperEngine {
         let audio_io_settings_controller =
             AudioIOSettingsController::new(audio_state_controller.clone());
 
-        let device = metal::Device::system_default().unwrap();
         let queue = handle.track_events_worker().queue();
         let audio_wave_rendering_controller =
-            AudioWaveRenderingController::new(&device, handle.clone(), queue);
+            AudioWaveRenderingController::new(handle.clone(), queue);
 
         LooperEngine {
             handle,
@@ -216,8 +215,8 @@ impl LooperEngine {
         &self.audio_io_settings_controller
     }
 
-    pub fn audio_wave_rendering_controller(&mut self) -> &mut AudioWaveRenderingController {
-        &mut self.audio_wave_rendering_controller
+    pub fn audio_wave_rendering_controller(&mut self) -> Option<&mut AudioWaveRenderingController> {
+        self.audio_wave_rendering_controller.as_mut()
     }
 
     pub fn project_manager(&self) -> &Addr<ProjectManager> {
