@@ -79,6 +79,8 @@ jobs:
               --exclude example-iced-xcode-integration \
               --exclude avfaudio-sys \
               --exclude recording_buddy \
+              --exclude augmented-audio-knob \
+              --exclude augmented-audio-gui-basics \
               --exclude darwin-webkit \
               --exclude webview-holder \
               --exclude visualisation_ \
