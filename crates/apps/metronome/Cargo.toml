@@ -15,7 +15,7 @@ log = "^0.4.14"
 flutter_rust_bridge = "1.44.0"
 lazy_static = "1.4.0"
 urlencoding = "2.1.2"
-ringbuf = "0.2.8"
+ringbuf = "0.3.0"
 
 wisual-logger = { path = "../../augmented/ops/wisual-logger", version = "0.1.4" }
 audio-processor-metronome = { path = "../../augmented/audio/audio-processor-metronome" , version = "1.3.0" }
