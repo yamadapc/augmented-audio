@@ -21,17 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use crate::skia_safe::{ColorType, ISize, SamplingOptions};
 use audio_processor_analysis::fft_processor::FftProcessor;
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{
     audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, simple_processor,
     AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
-use augmented_audio_gui_basics::prelude::skia_safe;
-use augmented_audio_gui_basics::prelude::skia_safe::runtime_effect::ChildPtr;
 use augmented_audio_gui_basics::prelude::skia_safe::{
-    AlphaType, Color4f, Data, FilterMode, MipmapMode, Paint,
+    self, runtime_effect::ChildPtr, AlphaType, Color4f, ColorType, Data, FilterMode, ISize,
+    MipmapMode, Paint, SamplingOptions,
 };
 
 fn main() {

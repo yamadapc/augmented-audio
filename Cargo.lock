@@ -411,8 +411,6 @@ dependencies = [
  "audio-processor-file",
  "audio-processor-testing-helpers",
  "audio-processor-traits",
- "augmented-audio-gui-basics",
- "bytemuck",
  "clap 2.34.0",
  "image 0.24.3",
  "log",

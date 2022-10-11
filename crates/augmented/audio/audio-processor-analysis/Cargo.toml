@@ -29,8 +29,6 @@ image = "0.24.3"
 clap = "2.34.0"
 piet = "0.5.0"
 piet-common = { version = "0.5.0", features = ["png"] }
-augmented-audio-gui-basics = { path = "../../gui/augmented-audio-gui-basics" }
-bytemuck = "1.12.1"
 
 [package.metadata.augmented]
 private = false

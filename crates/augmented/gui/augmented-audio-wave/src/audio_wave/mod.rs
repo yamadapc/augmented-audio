@@ -114,9 +114,6 @@ pub fn spawn_audio_drawer(
         }
     }
     let mut state = DrawState::new(1.0);
-    // state
-    //     .rms_processor
-    //     .s_prepare(AudioProcessorSettings::default());
 
     std::thread::spawn(move || {
         log::info!("Starting renderer thread");
@@ -154,17 +151,12 @@ pub fn spawn_audio_drawer(
 
 pub struct DrawState {
     previous_point: (f32, f32),
-    // rms_processor: RunningRMSProcessor,
 }
 
 impl DrawState {
     pub fn new(height: f32) -> Self {
         Self {
             previous_point: (0.0, height / 2.0),
-            // rms_processor: RunningRMSProcessor::new_with_duration(
-            //     audio_garbage_collector::handle(),
-            //     Duration::from_micros(100),
-            // ),
         }
     }
 }
