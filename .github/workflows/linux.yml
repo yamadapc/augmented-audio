@@ -27,7 +27,7 @@ jobs:
           lfs: true
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: "rust-cache-linux2"
+          shared-key: "rust-cache-linux3"
 
       - name: Install dependencies
         run: |
@@ -37,7 +37,6 @@ jobs:
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        if: ${{ env.COVERALLS_TOKEN != 0 }}
         run: |
           cargo tarpaulin --skip-clean --workspace \
               --features story \
@@ -86,36 +85,6 @@ jobs:
               --exclude visualisation_ \
               --exclude macos-bundle-resources
 
-      - name: Test
-        env:
-          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-        if: ${{ env.COVERALLS_TOKEN == 0 }}
-        run: |
-          cargo test --workspace \
-              --features story \
-              --exclude augmented-ui \
-              --exclude audiounit \
-              --exclude assert-no-alloc \
-              --exclude basedrop \
-              --exclude midir \
-              --exclude gfx \
-              --exclude iced \
-              --exclude iced-baseview \
-              --exclude iced_audio \
-              --exclude libloading \
-              --exclude lyon \
-              --exclude pathfinder \
-              --exclude piet \
-              --exclude plotters \
-              --exclude skribo \
-              --exclude vst \
-              --exclude example-iced-xcode-integration \
-              --exclude avfaudio-sys \
-              --exclude recording_buddy \
-              --exclude darwin-webkit \
-              --exclude webview-holder \
-              --exclude macos-bundle-resources
-
       - name: Upload tarpaulin report
         uses: actions/upload-artifact@v2
         with:
@@ -135,7 +104,7 @@ jobs:
         lfs: true
     - uses: Swatinem/rust-cache@v2
       with:
-        shared-key: "rust-cache-linux2"
+        shared-key: "rust-cache-linux3"
 
     - name: Install dependencies
       run: |
