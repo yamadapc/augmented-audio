@@ -10,7 +10,7 @@ foreign-types-shared = "0.1"
 
 [dependencies.taffy]
 git = "https://github.com/DioxusLabs/taffy"
-# ref = "d295d9b5a1de28fa6644a7a4d5fefcd3b6957773"
+rev = "d295d9b5a1de28fa6644a7a4d5fefcd3b6957773"
 
 [target.'cfg(any(target_os = "linux"))'.dependencies]
 skia-safe = { version = "0.54.0" }

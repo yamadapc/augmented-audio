@@ -7657,7 +7657,7 @@ dependencies = [
 [[package]]
 name = "taffy"
 version = "0.2.0"
-source = "git+https://github.com/DioxusLabs/taffy#d295d9b5a1de28fa6644a7a4d5fefcd3b6957773"
+source = "git+https://github.com/DioxusLabs/taffy?rev=d295d9b5a1de28fa6644a7a4d5fefcd3b6957773#d295d9b5a1de28fa6644a7a4d5fefcd3b6957773"
 dependencies = [
  "arrayvec 0.7.2",
  "num-traits 0.2.15",
