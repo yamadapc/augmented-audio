@@ -7,8 +7,11 @@ license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
+[features]
+default = []
+actix = ["dep:actix"]
+
 [dependencies]
-actix = "0.13.0"
 basedrop = "^0.1.2"
 thiserror = "^1.0.26"
 midir = "0.8"
@@ -19,6 +22,8 @@ vst = { version = "0.3", path = "../../../vendor/vst" }
 atomic-queue = { version = "1.0.1", path = "../../data/atomic-queue" }
 audio-processor-traits = { version = "2.1.0", path = "../../audio/audio-processor-traits" }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.1.0" }
+
+actix = { version = "0.13.0", optional = true }
 
 [dev-dependencies]
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }
