@@ -79,7 +79,7 @@ audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-pro
 
 foreign-types-shared = "0.1"
 
-[target.'cfg(any(target_os = "linux"))'.dependencies]
+[target.'cfg(target_os = "linux")'.dependencies]
 skia-safe = { version = "0.54.0" }
 
 [target.'cfg(any(target_os="ios", target_os="macos"))'.dependencies]

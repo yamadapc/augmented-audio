@@ -9,7 +9,7 @@ log = "0.4.17"
 audio-processor-analysis = { version = "0.3", path = "../../audio/audio-processor-analysis" }
 audio-garbage-collector = { version = "1", path = "../../audio/audio-garbage-collector" }
 
-[target.'cfg(any(target_os = "linux"))'.dependencies]
+[target.'cfg(target_os = "linux")'.dependencies]
 skia-safe = { version = "0.54.0" }
 
 [target.'cfg(any(target_os="ios", target_os="macos"))'.dependencies]
