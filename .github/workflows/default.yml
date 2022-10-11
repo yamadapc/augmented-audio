@@ -37,7 +37,7 @@ jobs:
           ls ~/.cargo/bin/
           if ! [ -x "$(command -v cargo-nextest)" ]; then
             echo "::group::Installing cargo-nextest"
-            cargo install cargo-nextest
+            curl -LsSf https://get.nexte.st/latest/mac | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
             echo "::endgroup::"
           fi
           which cargo-nextest
