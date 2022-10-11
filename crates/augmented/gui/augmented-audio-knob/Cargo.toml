@@ -4,7 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-skia-safe = { version = "0.54.0", features = ["metal"] }
 augmented-audio-gui-basics = { path = "../augmented-audio-gui-basics" }
+
+[target.'cfg(any(target_os = "linux"))'.dependencies]
+skia-safe = { version = "0.54.0" }
+
+[target.'cfg(any(target_os="ios", target_os="macos"))'.dependencies]
+skia-safe = { version = "0.54.0", features = ["metal"] }
 
 [dev-dependencies]

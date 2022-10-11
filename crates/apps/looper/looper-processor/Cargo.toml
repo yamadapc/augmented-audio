@@ -77,11 +77,14 @@ augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters", version =
 
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "1.2.0" }
 
-skia-safe = { version = "0.54.0", features = ["metal"] }
 foreign-types-shared = "0.1"
+
+[target.'cfg(any(target_os = "linux"))'.dependencies]
+skia-safe = { version = "0.54.0" }
 
 [target.'cfg(any(target_os="ios", target_os="macos"))'.dependencies]
 cocoa = { version = "0.24.0" }
+skia-safe = { version = "0.54.0", features = ["metal"] }
 metal = "0.24.0"
 core-graphics-types = "0.1.1"
 

@@ -4,11 +4,16 @@ version = "0.1.0-alpha.1"
 edition = "2021"
 
 [dependencies]
-skia-safe = { version = "0.54.0", features = ["metal"] }
 audio-processor-traits = { version = "2", path = "../../audio/audio-processor-traits" }
 log = "0.4.17"
 audio-processor-analysis = { version = "0.3", path = "../../audio/audio-processor-analysis" }
 audio-garbage-collector = { version = "1", path = "../../audio/audio-garbage-collector" }
+
+[target.'cfg(any(target_os = "linux"))'.dependencies]
+skia-safe = { version = "0.54.0" }
+
+[target.'cfg(any(target_os="ios", target_os="macos"))'.dependencies]
+skia-safe = { version = "0.54.0", features = ["metal"] }
 
 [dev-dependencies]
 audio-processor-testing-helpers = { version = "1", path = "../../testing/audio-processor-testing-helpers" }
