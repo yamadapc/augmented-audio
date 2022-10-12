@@ -65,7 +65,8 @@ fn main() {
                 .arg(
                     clap::Arg::new("dry-run")
                         .long("dry-run")
-                        .help("Don't run `cargo publish`"),
+                        .help("Don't run `cargo publish`")
+                        .num_args(0),
                 ),
         )
         .subcommand(clap::Command::new("outdated").about("List outdated dependencies"))
@@ -75,7 +76,8 @@ fn main() {
                 .arg(
                     clap::Arg::new("update-snapshots")
                         .long("update-snapshots")
-                        .short('u'),
+                        .short('u')
+                        .num_args(0),
                 ),
         )
         .subcommand(
@@ -85,7 +87,8 @@ fn main() {
                     clap::Arg::new("upload")
                         .long("upload")
                         .short('u')
-                        .help("Upload artifacts to S3"),
+                        .help("Upload artifacts to S3")
+                        .num_args(0),
                 )
                 .arg(clap::Arg::new("crate").num_args(1)),
         )
