@@ -14,7 +14,7 @@ gui = ["audio-processor-standalone-gui"]
 
 [dependencies]
 # Logging & options
-clap = "^2.33.3"
+clap = "^4.0.13"
 log = "^0.4.14"
 wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }
 itertools = "0.10.1"
