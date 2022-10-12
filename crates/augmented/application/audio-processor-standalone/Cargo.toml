@@ -29,7 +29,7 @@ augmented-midi = { path = "../../data/augmented-midi", version = "1.2.0" }
 # Audio
 basedrop = "^0.1.2"
 cpal = { version = "0.14.0" }
-ringbuf = "^0.2.5"
+ringbuf = "^0.3.1"
 vst = { version = "0.3", path = "../../../vendor/vst" }
 
 audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", optional = true , version = "0.5.0" }
