@@ -30,6 +30,7 @@ use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{StandaloneHandles, StandaloneProcessorImpl};
 
 use crate::audio::time_info_provider::HostCallback;
+use crate::services::defaults_service;
 use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
 enum AudioState {
@@ -54,14 +55,11 @@ pub struct AudioStateController {
 
 impl AudioStateController {
     pub fn new(audio_mode: AudioModeParams, processor: MultiTrackLooper) -> Self {
-        let user_defaults = cacao::defaults::UserDefaults::default();
         let standalone_options = StandaloneOptions {
-            input_device: user_defaults
-                .get("input-device")
+            input_device: defaults_service::get("input-device")
                 .map(|s| s.as_str().map(|s| s.to_string()))
                 .flatten(),
-            output_device: user_defaults
-                .get("output-device")
+            output_device: defaults_service::get("output-device")
                 .map(|s| s.as_str().map(|s| s.to_string()))
                 .flatten(),
             ..StandaloneOptions::default()
@@ -82,10 +80,9 @@ impl AudioStateController {
     /// processor.
     pub fn set_options(&mut self, options: StandaloneOptions) {
         let current_options = self.get_options().unwrap_or_default();
-        let mut user_defaults = cacao::defaults::UserDefaults::default();
-        let mut insert_some = |key, maybe_str: &Option<String>| {
+        let insert_some = |key, maybe_str: &Option<String>| {
             if let Some(str) = maybe_str {
-                user_defaults.insert(key, cacao::defaults::Value::string(str));
+                defaults_service::set(key, defaults_service::Value::String(str.clone()));
             }
         };
         insert_some("input-device", &options.input_device);
