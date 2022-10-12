@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+#[cfg(any(target_os = "ios", target_os = "macos"))]
 use metal::CAMetalLayer;
 
 use crate::audio::multi_track_looper::slice_worker::SliceResult;
