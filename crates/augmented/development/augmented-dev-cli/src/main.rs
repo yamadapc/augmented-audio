@@ -55,7 +55,8 @@ fn main() {
                     clap::Arg::new("simple")
                         .long("simple")
                         .help("Only list names and prevent logs")
-                        .short('s'),
+                        .short('s')
+                        .num_args(0),
                 ),
         )
         .subcommand(
@@ -86,30 +87,30 @@ fn main() {
                         .short('u')
                         .help("Upload artifacts to S3"),
                 )
-                .arg(clap::Arg::new("crate").takes_value(true)),
+                .arg(clap::Arg::new("crate").num_args(1)),
         )
-        .version(&*version)
+        .version(version)
         .about("Development CLI for augmented projects, helps build and deploy apps");
 
     let matches = app.clone().get_matches();
 
     if let Some(matches) = matches.subcommand_matches("prerelease-all") {
         let list_crates_service = services::ListCratesService::default();
-        let dry_run = matches.is_present("dry-run");
+        let dry_run = matches.get_flag("dry-run");
         prerelease_all_crates(&list_crates_service, dry_run).expect("Failed to prerelease");
     } else if matches.subcommand_matches("outdated").is_some() {
         let outdated_crates_service = services::OutdatedCratesService::default();
         outdated_crates_service.run();
     } else if let Some(matches) = matches.subcommand_matches("list-crates") {
         let list_crates_service = services::ListCratesService::default();
-        list_crates_service.run(matches.is_present("simple"));
+        list_crates_service.run(matches.get_flag("simple"));
     } else if let Some(matches) = matches.subcommand_matches("build") {
         let mut build_service = services::BuildCommandService::default();
-        let upload = matches.is_present("upload");
-        let crate_path = matches.value_of("crate");
+        let upload = matches.get_flag("upload");
+        let crate_path = matches.get_one::<String>("crate").map(|s| s.as_str());
         build_service.run_build(crate_path, upload);
     } else if let Some(matches) = matches.subcommand_matches("test-snapshots") {
-        run_all_snapshot_tests(Default::default(), matches.is_present("update-snapshots"));
+        run_all_snapshot_tests(Default::default(), matches.get_flag("update-snapshots"));
     } else {
         app.print_help().unwrap();
         std::process::exit(1);

@@ -100,43 +100,52 @@ impl OutdatedCratesService {
 
         let mut info_cache = HashMap::new();
         for dependency in dependencies {
-            let published_dependency = {
-                if let Some(dep) = info_cache.get(&dependency.name) {
-                    dep
+            let mut run_dep = || -> anyhow::Result<()> {
+                let published_dependency = {
+                    if let Some(dep) = info_cache.get(&dependency.name) {
+                        Ok(dep)
+                    } else {
+                        log::info!("Fetching latest crate info {}", &dependency.name);
+                        let dep = self.client.get_crate(&dependency.name)?;
+                        info_cache.insert(dependency.name.clone(), dep);
+                        info_cache
+                            .get(&dependency.name)
+                            .map_or(Err(anyhow::Error::msg("Missing name")), Ok)
+                    }
+                }?;
+                let latest_version = {
+                    let mut vs = published_dependency
+                        .versions
+                        .iter()
+                        .map(|v| semver::Version::parse(&v.num).unwrap())
+                        .filter(|v| v.pre.is_empty())
+                        .collect::<Vec<semver::Version>>();
+                    vs.sort();
+                    vs.last().unwrap().clone()
+                };
+                let version_req = semver::VersionReq::parse(&dependency.version).unwrap();
+                if !version_req.matches(&latest_version) {
+                    log::warn!(
+                        "OUTDATED Source: {} Dependency: {} Version: {} Latest version: {}",
+                        &dependency.source_package,
+                        &dependency.name,
+                        &dependency.version,
+                        latest_version,
+                    );
                 } else {
-                    log::info!("Fetching latest crate info {}", &dependency.name);
-                    let dep = self.client.get_crate(&dependency.name).unwrap();
-                    info_cache.insert(dependency.name.clone(), dep);
-                    info_cache.get(&dependency.name).unwrap()
+                    log::debug!(
+                        "OK Source: {} Dependency: {} Version: {} Latest version: {}",
+                        &dependency.source_package,
+                        &dependency.name,
+                        &dependency.version,
+                        latest_version,
+                    );
                 }
+
+                Ok(())
             };
-            let latest_version = {
-                let mut vs = published_dependency
-                    .versions
-                    .iter()
-                    .map(|v| semver::Version::parse(&v.num).unwrap())
-                    .filter(|v| v.pre.is_empty())
-                    .collect::<Vec<semver::Version>>();
-                vs.sort();
-                vs.last().unwrap().clone()
-            };
-            let version_req = semver::VersionReq::parse(&dependency.version).unwrap();
-            if !version_req.matches(&latest_version) {
-                log::warn!(
-                    "OUTDATED Source: {} Dependency: {} Version: {} Latest version: {}",
-                    &dependency.source_package,
-                    &dependency.name,
-                    &dependency.version,
-                    latest_version,
-                );
-            } else {
-                log::debug!(
-                    "OK Source: {} Dependency: {} Version: {} Latest version: {}",
-                    &dependency.source_package,
-                    &dependency.name,
-                    &dependency.version,
-                    latest_version,
-                );
+            if let Err(err) = run_dep() {
+                log::error!("Failed {dependency:?} {err}");
             }
         }
     }
