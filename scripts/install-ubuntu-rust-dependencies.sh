@@ -15,3 +15,7 @@ if ! [ -x "$(command -v cargo-llvm-cov)" ]; then
   # Download binary and install to $HOME/.cargo/bin
   curl -LsSf https://github.com/taiki-e/cargo-llvm-cov/releases/latest/download/cargo-llvm-cov-$host.tar.gz | tar xzf - -C $HOME/.cargo/bin
 fi
+
+#if ! [ -x "$(command -v cargo-nextest)" ]; then
+#  curl -LsSf https://get.nexte.st/latest/linux | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
+#fi

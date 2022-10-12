@@ -36,8 +36,8 @@ class Knob extends StatelessWidget {
 
     // TODO - fix this stuff to not have conditional branches
     var startAngle = 0.75 * Math.PI;
-    var sweepAngle = 0.75 * Math.PI_2;
-    var scope = (sweepAngle + startAngle) - startAngle;
+    var sweep_angle = 0.75 * Math.PI_2;
+    var scope = (sweep_angle + startAngle) - startAngle;
 
     var angle =
         atan2(center.y - localPosition.y, center.x - localPosition.x) + Math.PI;
@@ -76,8 +76,8 @@ class KnobPainter extends CustomPainter {
 
       var coverage = 0.75;
       var startAngle = coverage * Math.PI;
-      var sweepAngle = filled * coverage * Math.PI_2;
-      canvas.drawArc(rect, startAngle, sweepAngle, false, paint);
+      var sweep_angle = filled * coverage * Math.PI_2;
+      canvas.drawArc(rect, startAngle, sweep_angle, false, paint);
     }
 
     drawArc(Colors.black, 1.0);

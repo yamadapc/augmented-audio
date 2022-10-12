@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use actix::{Actor, Handler};
 use basedrop::Shared;
 use cpal::traits::{DeviceTrait, HostTrait};
@@ -29,6 +30,7 @@ use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{StandaloneHandles, StandaloneProcessorImpl};
 
 use crate::audio::time_info_provider::HostCallback;
+use crate::services::defaults_service;
 use crate::{MultiTrackLooper, MultiTrackLooperHandle};
 
 enum AudioState {
@@ -53,7 +55,15 @@ pub struct AudioStateController {
 
 impl AudioStateController {
     pub fn new(audio_mode: AudioModeParams, processor: MultiTrackLooper) -> Self {
-        let standalone_options = StandaloneOptions::default();
+        let standalone_options = StandaloneOptions {
+            input_device: defaults_service::get("input-device")
+                .map(|s| s.as_str().map(|s| s.to_string()))
+                .flatten(),
+            output_device: defaults_service::get("output-device")
+                .map(|s| s.as_str().map(|s| s.to_string()))
+                .flatten(),
+            ..StandaloneOptions::default()
+        };
         let handle = processor.handle().clone();
         let state = match audio_mode {
             AudioModeParams::Standalone => setup_audio_state(standalone_options, processor),
@@ -70,6 +80,13 @@ impl AudioStateController {
     /// processor.
     pub fn set_options(&mut self, options: StandaloneOptions) {
         let current_options = self.get_options().unwrap_or_default();
+        let insert_some = |key, maybe_str: &Option<String>| {
+            if let Some(str) = maybe_str {
+                defaults_service::set(key, defaults_service::Value::String(str.clone()));
+            }
+        };
+        insert_some("input-device", &options.input_device);
+        insert_some("output-device", &options.output_device);
         if options.input_device == current_options.input_device
             && options.output_device == current_options.output_device
         {

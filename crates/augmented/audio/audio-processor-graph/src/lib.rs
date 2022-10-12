@@ -291,10 +291,10 @@ impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
         &mut self,
         data: &mut InputBufferType,
     ) {
-        // TODO: this is bad, but I'm not sure how to handle variable size buffers (maybe process
-        // multiple times)
-        self.temporary_buffer
-            .resize(data.num_channels(), data.num_samples(), 0.0);
+        let num_channels = data.num_channels();
+        let num_samples = data.num_samples();
+        // TODO: this is bad, but I'm not sure how to handle variable size buffers (maybe process multiple times)
+        self.temporary_buffer.resize(num_channels, num_samples, 0.0);
 
         let handle = self.handle.deref();
         let dag = handle.dag.get();
@@ -311,11 +311,9 @@ impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
                 .edge_weight(connection_id)
                 .and(buffers.get(&connection_id))
             {
-                let buffer = buffer_ref.deref().0.get();
-                unsafe {
-                    (*buffer).resize(data.num_channels(), data.num_samples(), 0.0);
-                    copy_buffer(data, &mut *buffer);
-                }
+                let buffer = unsafe { &mut *buffer_ref.deref().0.get() };
+                buffer.resize(num_channels, num_samples, 0.0);
+                copy_buffer(data, buffer);
             }
         }
 
@@ -338,9 +336,10 @@ impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
                     .and(buffers.get(&connection_id))
                 {
                     let buffer = buffer_ref.deref().0.get();
-
                     unsafe {
-                        for (s, d) in (&*buffer)
+                        let buffer = &mut *buffer;
+                        buffer.resize(num_channels, num_samples, 0.0);
+                        for (s, d) in buffer
                             .slice()
                             .iter()
                             .zip(self.temporary_buffer.slice_mut())
@@ -383,9 +382,9 @@ impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
                     .and(buffers.get(&connection_id))
                 {
                     let buffer = buffer_ref.deref().0.get();
-                    unsafe {
-                        copy_buffer(&self.temporary_buffer, &mut *buffer);
-                    }
+                    let buffer = unsafe { &mut *buffer };
+                    buffer.resize(num_channels, num_samples, 0.0);
+                    copy_buffer(&self.temporary_buffer, buffer);
                 }
             }
         }

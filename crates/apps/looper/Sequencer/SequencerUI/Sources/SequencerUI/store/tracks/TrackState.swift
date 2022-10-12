@@ -16,12 +16,14 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 import Combine
+import QuartzCore
 
 public class TrackState: ObservableObject {
     public let id: UInt
     @FastPublished public var sliceBuffer: SliceBuffer? = nil // public for ref checks
     @FastPublished public var looperState: LooperState = .empty
     @FastPublished public var volumeParameter: FloatParameter
+
     public let sourceParameters: SourceParametersState
     public let envelope: EnvelopeState
     public let quantizationParameters: QuantizationParameters

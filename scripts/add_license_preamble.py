@@ -49,7 +49,7 @@ def add_preamble(target):
     if "Copyright (c)" not in data and "= copyright ==" not in data:
         print(f"  {target} doesn't have contents")
         commented_contents = "\n".join([("// " + l).strip() for l in preamble_contents.splitlines()])
-        new_data = commented_contents + "\n" + data
+        new_data = commented_contents + "\n\n" + data
         print(f"Preamble for {target} found at {preamble_path}")
         with open(target, 'w') as fh:
             fh.writelines(new_data)

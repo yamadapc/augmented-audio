@@ -173,12 +173,12 @@ struct KnobView: View {
     var body: some View {
         if #available(macOS 11, *) {
             #if canImport(AppKit)
-                return AnyView(renderMacOS())
+                renderMacOS()
             #else
-                return AnyView(renderFallback())
+                renderFallback()
             #endif
         } else {
-            return AnyView(renderFallback())
+            renderFallback()
         }
     }
 

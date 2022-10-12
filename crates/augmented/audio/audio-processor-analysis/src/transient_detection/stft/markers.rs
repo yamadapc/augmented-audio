@@ -36,8 +36,6 @@ pub fn build_markers(
     params: IterativeTransientDetectionParams,
     gate: f32,
 ) -> Vec<AudioFileMarker> {
-    let latency_offset = params.fft_size;
-
     let transients = find_transients(
         params,
         &mut InterleavedAudioBuffer::new(1, audio_file_buffer),
@@ -59,7 +57,7 @@ pub fn build_markers(
         for (index, sample) in transients.iter().cloned().enumerate() {
             if sample >= gate && !inside_transient {
                 inside_transient = true;
-                markers.push(index - latency_offset);
+                markers.push(index);
             } else if sample < gate {
                 inside_transient = false;
             }

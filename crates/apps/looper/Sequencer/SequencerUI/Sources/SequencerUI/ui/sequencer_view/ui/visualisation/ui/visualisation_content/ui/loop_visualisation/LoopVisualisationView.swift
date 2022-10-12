@@ -18,8 +18,11 @@
 import SwiftUI
 
 struct LoopVisualisationView: View {
+    @EnvironmentObject var store: Store
     @ObservedObject var trackState: TrackState
     @State var tick: Int = 0
+
+    var timer = Timer.publish(every: 1 / 60, on: .main, in: .default).autoconnect()
 
     var body: some View {
         if #available(macOS 12.0, *) {
@@ -32,20 +35,20 @@ struct LoopVisualisationView: View {
         }
     }
 
-    func renderInner(tick: Int) -> some View {
+    func renderInner(tick _: Int) -> some View {
         VStack {
-            if let buffer = trackState.buffer {
-                GeometryReader { geometry in
-                    ZStack(alignment: .topLeading) {
-                        AudioPathView(tick: tick, buffer: buffer, geometry: geometry)
-                            .equatable()
-                        PlayheadView(position: trackState.position, size: geometry.size)
-                        SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
-                    }
+            GeometryReader { geometry in
+                ZStack(alignment: .topLeading) {
+                    AudioPathMetalView(
+                        size: geometry.size,
+                        draw: { layer in
+                            store.engine?.drawLooperBuffer(looperId: trackState.id, layer: layer)
+                        }
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    SourceParametersOverlayView(sourceParameters: trackState.sourceParameters)
                 }
-            } else {
-                Text("No loop buffer")
-                    .frame(maxHeight: .infinity)
             }
 
             HStack {

@@ -29,15 +29,21 @@ struct EnumParameterView<OptionT>: View
         if #available(macOS 11.0, *) {
             Picker(parameter.label, selection: $parameter.value, content: {
                 ForEach(parameter.options, id: \.value) { option in
-                    Text(option.label).tag(option.value)
+                    Text(option.label)
+                      .tag(option.value)
                 }
             })
             .pickerStyle(.menu)
             .padding(PADDING - 2)
             .preferredColorScheme(.dark)
             .foregroundColor(.white)
+            .accentColor(.white)
             .border(SequencerColors.blue, width: 1.0)
-            .bindToParameterId(store: store, parameterId: parameter.globalId, showSelectionOverlay: false)
+            .bindToParameterId(
+                store: store,
+                parameterId: parameter.globalId,
+                showSelectionOverlay: false
+            )
         } else {}
     }
 }

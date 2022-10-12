@@ -25,6 +25,7 @@
 pub mod analytics;
 
 pub mod audio_clip_manager;
+pub mod defaults_service;
 pub mod effects_service;
 pub mod osc_server;
 pub mod project_manager;

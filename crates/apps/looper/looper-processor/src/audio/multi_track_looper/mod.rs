@@ -24,11 +24,13 @@
 //! This module provides a `MultiTrackLooperProcessor`, which can sequence and loop 8 looper tracks
 //! with shared tempo.
 use std::convert::TryFrom;
+use std::time::Duration;
 
 use assert_no_alloc::assert_no_alloc;
 use rustc_hash::FxHashMap as HashMap;
 
 use audio_garbage_collector::{make_shared, Shared};
+use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
 use audio_processor_metronome::MetronomeProcessor;
 use audio_processor_traits::{
@@ -68,6 +70,7 @@ mod parameters_map;
 pub(crate) mod scene_state;
 pub(crate) mod slice_worker;
 mod tempo_estimation;
+pub(crate) mod track_events_worker;
 pub(crate) mod trigger_model;
 
 /// During audio-processing, parameters are written into this storage to apply different phases
@@ -138,9 +141,15 @@ impl MultiTrackLooper {
             Self::make_parameters_scratch(&voices);
 
         let metrics = AudioProcessorMetrics::default();
+
+        let input_meter_processor = RunningRMSProcessor::new_with_duration(
+            audio_garbage_collector::handle(),
+            Duration::from_millis(3),
+        );
         let handle = make_shared(MultiTrackLooperHandle::new(
             time_info_provider,
             metronome_handle,
+            input_meter_processor.handle().clone(),
             &metrics,
             voices,
         ));
@@ -151,7 +160,7 @@ impl MultiTrackLooper {
             .map(|_| (Oscillator::sine(44100.0), Oscillator::sine(44100.0)))
             .collect();
 
-        let graph = Self::build_audio_graph(processors, metronome);
+        let graph = Self::build_audio_graph(input_meter_processor, processors, metronome);
 
         Self {
             graph,
@@ -196,6 +205,8 @@ impl MultiTrackLooper {
             TimeInfoMetronomePlayhead(handle.time_info_provider().clone()),
             handle.metronome_handle().clone(),
         );
+        let input_meter_processor =
+            RunningRMSProcessor::from_handle(handle.input_meter_handle().clone());
         let (processors, voices) = Self::build_voices(
             &options,
             num_voices,
@@ -210,7 +221,7 @@ impl MultiTrackLooper {
             .iter()
             .map(|_| (Oscillator::sine(44100.0), Oscillator::sine(44100.0)))
             .collect();
-        let graph = Self::build_audio_graph(processors, metronome);
+        let graph = Self::build_audio_graph(input_meter_processor, processors, metronome);
 
         Self {
             graph,
@@ -253,11 +264,16 @@ impl MultiTrackLooper {
     }
 
     fn build_audio_graph(
+        input_meter: RunningRMSProcessor,
         processors: Vec<VoiceProcessors>,
         metronome: MetronomeProcessor<TimeInfoMetronomePlayhead>,
     ) -> AudioProcessorGraph {
         let mut graph = AudioProcessorGraph::default();
         let metronome_idx = graph.add_node(NodeType::Buffer(Box::new(metronome)));
+        let input_meter_node_idx = graph.add_node(NodeType::Simple(Box::new(input_meter)));
+        graph
+            .add_connection(graph.input(), input_meter_node_idx)
+            .expect("Shouldn't produce loop");
         graph
             .add_connection(graph.input(), metronome_idx)
             .expect("Shouldn't produce loop");

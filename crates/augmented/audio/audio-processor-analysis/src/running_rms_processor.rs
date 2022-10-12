@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
@@ -34,6 +35,7 @@ pub struct RunningRMSProcessorHandle {
     window: SharedCell<VecAudioBuffer<AtomicF32>>,
     running_sums: SharedCell<Vec<AtomicF32>>,
     cursor: AtomicUsize,
+    duration_micros: AtomicUsize,
 }
 
 impl RunningRMSProcessorHandle {
@@ -43,6 +45,7 @@ impl RunningRMSProcessorHandle {
             window: SharedCell::new(Shared::new(gc_handle, VecAudioBuffer::new())),
             running_sums: SharedCell::new(Shared::new(gc_handle, Vec::new())),
             cursor: AtomicUsize::new(0),
+            duration_micros: AtomicUsize::new(0),
         }
     }
 
@@ -90,12 +93,25 @@ impl RunningRMSProcessor {
     /// samples.
     pub fn new_with_duration(gc_handle: &Handle, duration: Duration) -> Self {
         let handle = Shared::new(gc_handle, RunningRMSProcessorHandle::new(gc_handle));
+        handle
+            .duration_micros
+            .store(duration.as_micros() as usize, Ordering::Relaxed);
 
         RunningRMSProcessor {
             handle,
             duration_samples: 0,
             duration,
             gc_handle: gc_handle.clone(),
+        }
+    }
+
+    pub fn from_handle(handle: Shared<RunningRMSProcessorHandle>) -> Self {
+        let duration = Duration::from_micros(handle.duration_micros.load(Ordering::Relaxed) as u64);
+        Self {
+            gc_handle: audio_garbage_collector::handle().clone(),
+            handle,
+            duration_samples: 0,
+            duration: duration,
         }
     }
 

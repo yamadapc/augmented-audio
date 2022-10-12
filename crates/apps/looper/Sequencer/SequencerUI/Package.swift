@@ -68,6 +68,8 @@ let package = Package(
             exclude: [
                 "./__Snapshots__/SequencerUITests/testSnapshotRendering.1.png",
                 "./ui/common/parameter_knob_view/__Snapshots__/ParameterKnobViewTests/testCreateParameterKnobView.1.png",
+                "./ui/common/__Snapshots__/MacKnobViewTests/testRenderCenterKnob.1.png",
+                "./ui/common/__Snapshots__/MacKnobViewTests/testRenderKnob.1.png",
             ]
         ),
     ]

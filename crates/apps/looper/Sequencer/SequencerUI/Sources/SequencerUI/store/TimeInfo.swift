@@ -24,7 +24,7 @@ import Combine
  */
 public class TimeInfo: ObservableObject {
     public var positionBeats: Double?
-    public var tempo: Double?
+    @FastPublished public var tempo: Double?
 
     init() {}
 }

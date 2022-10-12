@@ -16,7 +16,9 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 
+import AppKit
 @testable import SequencerUI
+import SnapshotTesting
 import SwiftUI
 import XCTest
 
@@ -90,5 +92,47 @@ class MacKnobViewTests: XCTestCase {
         // the numbers are approximately equal to these two intuitive values
         XCTAssert(abs(path.end.x - 1.0) < 0.000001)
         XCTAssert(abs(path.end.y - 2.0) < 0.000001)
+    }
+
+    func testRenderKnob() {
+        let knob = MacKnobView(
+            value: 0.3,
+            label: "Test Knob",
+            formattedValue: "30%",
+            style: .normal
+        )
+
+        let viewController = NSHostingController(
+            rootView: knob
+                .colorScheme(.dark)
+                .background(SequencerColors.black)
+        )
+        viewController.view.frame = .init(
+            origin: .zero,
+            size: .init(width: 70, height: 100)
+        )
+
+        assertSnapshot(matching: viewController, as: .image(precision: 0.9))
+    }
+
+    func testRenderCenterKnob() {
+        let knob = MacKnobView(
+            value: 0.1,
+            label: "Test Knob",
+            formattedValue: "+1",
+            style: .center
+        )
+
+        let viewController = NSHostingController(
+            rootView: knob
+                .colorScheme(.dark)
+                .background(SequencerColors.black)
+        )
+        viewController.view.frame = .init(
+            origin: .zero,
+            size: .init(width: 70, height: 100)
+        )
+
+        assertSnapshot(matching: viewController, as: .image(precision: 0.9))
     }
 }

@@ -23,7 +23,7 @@ jobs:
           lfs: true
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: "rust-cache-macos"
+          shared-key: "rust-cache-macos2"
 
       - name: Cache cargo binaries
         uses: actions/cache@v2
@@ -37,7 +37,7 @@ jobs:
           ls ~/.cargo/bin/
           if ! [ -x "$(command -v cargo-nextest)" ]; then
             echo "::group::Installing cargo-nextest"
-            cargo install cargo-nextest
+            curl -LsSf https://get.nexte.st/latest/mac | tar zxf - -C ${CARGO_HOME:-~/.cargo}/bin
             echo "::endgroup::"
           fi
           which cargo-nextest
@@ -64,7 +64,7 @@ jobs:
           submodules: recursive
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: "rust-cache-macos"
+          shared-key: "rust-cache-macos2"
       - name: Run clippy
         run: ./scripts/clippy.sh
 
@@ -81,7 +81,7 @@ jobs:
         lfs: true
     - uses: Swatinem/rust-cache@v2
       with:
-        shared-key: "rust-cache-macos"
+        shared-key: "rust-cache-macos2"
     - name: Cache cargo binaries
       uses: actions/cache@v2
       with:
@@ -135,7 +135,7 @@ jobs:
         lfs: true
     - uses: Swatinem/rust-cache@v2
       with:
-        shared-key: "rust-cache-macos"
+        shared-key: "rust-cache-macos2"
     - name: Run snapshot tests
       run: |
         ./scripts/dev.sh test-snapshots
@@ -159,7 +159,7 @@ jobs:
           lfs: true
       - uses: Swatinem/rust-cache@v2
         with:
-          shared-key: "rust-cache-macos"
+          shared-key: "rust-cache-macos2"
       - name: Cache cargo binaries
         uses: actions/cache@v2
         with:

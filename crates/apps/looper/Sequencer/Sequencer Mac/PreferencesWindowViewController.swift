@@ -15,25 +15,28 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
-import Cocoa
-import SequencerEngine
-import SequencerUI
-import SwiftUI
 
-/**
- * ViewController for the preferences window content view.
- */
-class PreferencesWindowViewController: NSViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
+#if os(macOS)
+    import Cocoa
+    import SequencerEngine
+    import SequencerUI
+    import SwiftUI
 
-        let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
-        let contentView = SettingsView()
-            .environmentObject(engineController.store)
+    /**
+     * ViewController for the preferences window content view.
+     */
+    class PreferencesWindowViewController: NSViewController {
+        override func viewDidLoad() {
+            super.viewDidLoad()
 
-        let content = NSHostingView(rootView: contentView)
-        content.translatesAutoresizingMaskIntoConstraints = true
-        content.autoresizingMask = [.height, .width]
-        view = content
+            let engineController: EngineController = (NSApp.delegate as! AppDelegate).engineController
+            let contentView = SettingsView()
+                .environmentObject(engineController.store)
+
+            let content = NSHostingView(rootView: contentView)
+            content.translatesAutoresizingMaskIntoConstraints = true
+            content.autoresizingMask = [.height, .width]
+            view = content
+        }
     }
-}
+#endif

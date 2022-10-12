@@ -72,7 +72,7 @@ func buildValueTrack(
  * The path is drawn by calculating what the `value * sweepAngle` total angle is between start/end
  * then starting at the `0` point at 270º.
  *
- * If the value is negative, we rotate the *starting angle* counterclowise by this amount.
+ * If the value is negative, we rotate the *starting angle* counterclockwise by this amount.
  */
 func buildCenterValueTrack(
     radius: Double,
@@ -110,7 +110,7 @@ func buildCenterValueTrack(
  * For a normal knob, the track will start at 135º and end at 405º, counting from 0º at the right side x-axis.
  * The sweep-angle should be 270º degrees. This is the angle between start and end of the track.
  *
- * For a centric knob that goes from -1 to +1 this is halfed.
+ * For a centric knob that goes from -1 to +1 this is halved.
  */
 func getSweepAngle(style: KnobStyle) -> Double {
     return style == .normal
@@ -119,7 +119,7 @@ func getSweepAngle(style: KnobStyle) -> Double {
 }
 
 /**
- * This represents the two points a knob thumb go. This is the line from the center of the knob to
+ * This represents the two points for a knob thumb. This is the line from the center of the knob to
  * the current value.
  */
 struct MacKnobPointerPath {
@@ -186,32 +186,34 @@ func buildPointerPath(
         var strokeWidth = 5.0
 
         override func draw(_: NSRect) {
-            let context = NSGraphicsContext.current?.cgContext
+            guard let context: CGContext = NSGraphicsContext.current?.cgContext else {
+                return
+            }
 
-            context?.translateBy(x: 0, y: -10)
+            context.translateBy(x: 0, y: -10)
 
-            context?.saveGState()
+            context.saveGState()
             let bgPath = buildPath(1.0)
-            context?.addPath(bgPath)
-            context?.setLineWidth(strokeWidth)
-            context?.setStrokeColor(SequencerColors.black1.cgColor!)
-            context?.strokePath()
-            context?.restoreGState()
+            context.addPath(bgPath)
+            context.setLineWidth(strokeWidth)
+            context.setStrokeColor(SequencerColors.black1.cgColor!)
+            context.strokePath()
+            context.restoreGState()
 
-            context?.saveGState()
+            context.saveGState()
             let trackSliderPath = buildFilledValuePath()
-            context?.addPath(trackSliderPath)
-            context?.setLineWidth(strokeWidth)
-            context?.setStrokeColor(SequencerColors.blue.cgColor!)
-            context?.strokePath()
-            context?.restoreGState()
+            context.addPath(trackSliderPath)
+            context.setLineWidth(strokeWidth)
+            context.setStrokeColor(SequencerColors.blue.cgColor!)
+            context.strokePath()
+            context.restoreGState()
 
-            context?.saveGState()
-            context?.addPath(buildPointer())
-            context?.setLineWidth(strokeWidth / 2.0)
-            context?.setStrokeColor(SequencerColors.white.cgColor!)
-            context?.strokePath()
-            context?.restoreGState()
+            context.saveGState()
+            context.addPath(buildPointer())
+            context.setLineWidth(strokeWidth / 2.0)
+            context.setStrokeColor(SequencerColors.white.cgColor!)
+            context.strokePath()
+            context.restoreGState()
         }
 
         func buildPointer() -> CGPath {

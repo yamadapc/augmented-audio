@@ -93,7 +93,7 @@ class EffectsRowViewModel: ObservableObject {
                 id: d.id,
                 label: d.label,
                 parameters: d.parameters.enumerated().map { id, parameter in
-                    var p = AnyParameter(
+                    let p = AnyParameter(
                         inner: parameter.inner.copy()
                     )
                     p.inner.id = .effectsParameter(trackId: track.id, slotId: slotId, parameterId: UInt(id))

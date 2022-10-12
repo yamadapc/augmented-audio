@@ -24,15 +24,23 @@
 
 import SwiftUI
 
+struct CPUMeterTextView: View {
+    var cpuPercentText: String
+    var body: some View {
+        Text(cpuPercentText)
+            .frame(width: 50, alignment: .trailing)
+            .padding(PADDING / 2.0)
+            .background(SequencerColors.black0)
+            .cornerRadius(BORDER_RADIUS / 2)
+    }
+}
+
 struct CPUMeterView: View {
     @ObservedObject var processorMetrics: ProcessorMetrics
 
     var body: some View {
         let stats = processorMetrics.getStats()
-        Text("\(String(format: "%.0f", stats.maximumCpu * 100))%")
-            .frame(width: 50, alignment: .trailing)
-            .padding(PADDING / 2.0)
-            .background(SequencerColors.black0)
-            .cornerRadius(BORDER_RADIUS / 2)
+        let cpuPercentText = "\(String(format: "%3.0f", stats.maximumCpu * 100))%"
+        CPUMeterTextView(cpuPercentText: cpuPercentText)
     }
 }

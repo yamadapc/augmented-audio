@@ -35,21 +35,44 @@ extension Text {
     }
 }
 
-struct TransportTempoView: View {
-    @EnvironmentObject var store: Store
-    @ObservedObject var timeInfo: TimeInfo
+class TransportTempoViewModel: ObservableObject {
+    var timeInfo: TimeInfo
+    @Published var tempoString: String = "Free tempo"
+    var cancellables: Set<AnyCancellable> = Set()
 
+    init(timeInfo: TimeInfo) {
+        self.timeInfo = timeInfo
+        tempoString = getTextContent(tempo: timeInfo.tempo)
+        self.timeInfo.$tempo.sink(receiveValue: { tempo in
+            let tempoString = self.getTextContent(tempo: tempo)
+            if tempoString != self.tempoString {
+                self.tempoString = tempoString
+            }
+        }).store(in: &cancellables)
+    }
+
+    func getTextContent(tempo: Double?) -> String {
+        if let tempo = tempo {
+            return "\(String(format: "%.1f", tempo))bpm"
+        } else {
+            return "Free tempo"
+        }
+    }
+}
+
+struct TransportTempoView: View {
+    @ObservedObject var model: TransportTempoViewModel
+
+    @EnvironmentObject var store: Store
     @State var previousX = 0.0
 
     var body: some View {
-        let content = self.getTextContent()
-
         HStack {
-            Text(content)
+            Text(model.tempoString)
                 .monospacedDigitCompat()
                 .gesture(
                     DragGesture().onChanged { data in
-                        var tempo = timeInfo.tempo ?? 120.0
+                        var tempo = store.timeInfo.tempo ?? 120.0
                         let deltaX = data.translation.width - previousX
                         self.previousX = data.translation.width
                         tempo += Double(deltaX) / 100.0
@@ -63,22 +86,6 @@ struct TransportTempoView: View {
         .padding(PADDING * 0.5)
         .background(SequencerColors.black3)
         .cornerRadius(BORDER_RADIUS / 2)
-    }
-
-    func getTextContent() -> String {
-        if let tempo = timeInfo.tempo {
-            return "\(String(format: "%.1f", tempo))bpm"
-        } else {
-            return "Free tempo"
-        }
-    }
-}
-
-struct TransportBeatsInnerView: View {
-    var text: String
-    var body: some View {
-        Text(text)
-            .monospacedDigitCompat()
     }
 }
 
@@ -154,16 +161,10 @@ struct TransportBeatsInnerView: View {
     }
 #endif
 
-extension TransportBeatsInnerView: Equatable {}
-
 struct TransportBeatsView: View {
     var timeInfo: TimeInfo
 
     var body: some View {
-        // let text = getText()
-//        TransportBeatsInnerView(text: text)
-//            .equatable()
-
         NativeTransportBeats(timeInfo: timeInfo)
             .padding(EdgeInsets(top: PADDING, leading: 0, bottom: 0, trailing: 0))
     }

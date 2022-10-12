@@ -18,21 +18,22 @@
 import SwiftUI
 
 struct SliceVisualisationView: View {
+    @EnvironmentObject var store: Store
     @ObservedObject var trackState: TrackState
+    var timer = Timer.publish(every: 1 / 60, on: .main, in: .default).autoconnect()
 
     var body: some View {
         VStack {
             if let buffer = trackState.buffer {
                 GeometryReader { geometry in
                     ZStack(alignment: .topLeading) {
-                        AudioPathView(
-                            tick: 0,
-                            buffer: buffer,
-                            geometry: geometry
+                        AudioPathMetalView(
+                            size: geometry.size,
+                            draw: { layer in
+                                store.engine?.drawLooperBuffer(looperId: trackState.id, layer: layer)
+                            }
                         )
-                        .equatable()
-
-                        PlayheadView(position: trackState.position, size: geometry.size)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
 
                         if let sliceBuffer = trackState.sliceBuffer {
                             ForEach(0 ..< sliceBuffer.count, id: \.self) { i in

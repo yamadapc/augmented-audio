@@ -15,10 +15,11 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import SwiftUI
 
 struct PlayheadView: View {
-    @ObservedObject var position: LoopPosition
+    var position: LoopPosition
     var size: CGSize
 
     var body: some View {

@@ -21,6 +21,7 @@ import Foundation
 import Logging
 import SequencerEngine_private
 import SequencerUI
+import QuartzCore
 
 /**
  * EngineImpl is a holder for  the *mut LooperEngine* pointer. It creates the audio-engine on init & destroys it when dropped.
@@ -67,6 +68,10 @@ extension EngineImpl: SequencerEngine {
     }
     public var audioIOPreferencesController: AudioIOSettingsController {
         _audioIOSettingsController
+    }
+
+    public func getInputLevel() -> Float {
+        return looper_engine__get_input_level(engine)
     }
 
     public func loadFile(atPath path: String) {
@@ -192,8 +197,18 @@ extension EngineImpl: SequencerEngine {
     }
 
     public func getLFOSample(mode: SequencerUI.LFOMode, phase: Float) -> Float {
-        guard let rustMode = LFO_MODES[mode] else { return 0.0 }
+        guard let rustMode = LFO_MODES[mode] else {
+            return 0.0
+        }
         return looper_engine__get_lfo_sample(rustMode, phase)
+    }
+
+    public func triggerLooper(looperId: UInt) {
+        looper_engine__trigger_looper(engine, looperId)
+    }
+
+    public func drawLooperBuffer(looperId: UInt, layer: CAMetalLayer) {
+        looper_engine__draw_looper_buffer(engine, looperId, layer)
     }
 }
 

@@ -1,0 +1,11 @@
+[package]
+name = "draw_spectogram_window"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+audio-processor-analysis = { path = ".." }
+augmented-audio-gui-basics = { path = "../../../gui/augmented-audio-gui-basics" }
+audio-processor-file = { version = "1.2.0", path = "../../audio-processor-file" }
+audio-processor-traits = { version = "2.1.0", path = "../../audio-processor-traits" }
+bytemuck = "1.12.1"

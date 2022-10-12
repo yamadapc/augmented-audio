@@ -229,7 +229,7 @@ pub fn standalone_start_with<
         .unwrap();
 
     let configuration = configuration_rx.recv().unwrap();
-    log::info!("Received configuration {:?}", configuration);
+    log::info!("Received configuration:\n    {:#?}\n", configuration);
 
     StandaloneHandles {
         configuration,

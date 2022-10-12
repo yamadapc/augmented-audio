@@ -36,10 +36,11 @@ struct SliceHandleView: View {
     var body: some View {
         ZStack {
             GeometryReader { geometry in
+                let size = 30.0
                 Triangle()
                     .rotationEffect(Angle(degrees: inverted ? -90.0 : 90.0))
-                    .frame(width: 10, height: 10)
-                    .position(x: inverted ? -5 : 5, y: inverted ? geometry.size.height : 0)
+                    .frame(width: 30, height: 30)
+                    .position(x: inverted ? -size / 2.0 : size / 2.0, y: inverted ? geometry.size.height - size / 2.0 : size / 2.0)
 
                 Rectangle()
                     .frame(width: 1.0)
@@ -63,12 +64,23 @@ struct SourceParametersOverlayView: View {
 
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
+            ZStack(alignment: .topLeading) {
+                // Touch drag layer
+                Rectangle()
+                    .foregroundColor(SequencerColors.black.opacity(0))
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .gesture(
+                        DragGesture()
+                            .onChanged { dragValue in
+                                print(dragValue)
+                            }
+                    )
+
                 SliceHandleView()
-                    .transformEffect(.init(
-                        translationX: CGFloat(sourceParameters.start.value) * geometry.size.width,
-                        y: 0
-                    ))
+                    .position(
+                        x: CGFloat(sourceParameters.start.value) * geometry.size.width + geometry.size.width / 2.0,
+                        y: geometry.size.height / 2.0
+                    )
                     .gesture(
                         buildGesture(
                             parameter: sourceParameters.start,
@@ -79,10 +91,10 @@ struct SourceParametersOverlayView: View {
                     )
 
                 SliceHandleView(inverted: true)
-                    .transformEffect(.init(
-                        translationX: CGFloat(sourceParameters.end.value) * geometry.size.width,
-                        y: 0
-                    ))
+                    .position(
+                        x: CGFloat(sourceParameters.end.value) * geometry.size.width + geometry.size.width / 2.0,
+                        y: geometry.size.height / 2.0
+                    )
                     .gesture(
                         buildGesture(
                             parameter: sourceParameters.end,
@@ -92,11 +104,13 @@ struct SourceParametersOverlayView: View {
                         )
                     )
             }
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     func buildGesture(parameter: SourceParameter, geometry: GeometryProxy, valueMin: Float, valueMax: Float) -> some Gesture {
-        return DragGesture(minimumDistance: 0)
+        return DragGesture()
             .onChanged { dragValue in
                 var percX = dragValue.location.x / geometry.size.width
                 percX = max(min(percX, 1.0), 0.0)

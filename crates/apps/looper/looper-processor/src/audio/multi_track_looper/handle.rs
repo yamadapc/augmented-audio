@@ -28,12 +28,14 @@ use basedrop::SharedCell;
 use num::ToPrimitive;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
+use audio_processor_analysis::running_rms_processor::RunningRMSProcessorHandle;
 use audio_processor_metronome::MetronomeProcessorHandle;
 use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
 use augmented_atomics::{AtomicF32, AtomicValue};
 
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
 use crate::audio::multi_track_looper::scene_state::SceneHandle;
+use crate::audio::multi_track_looper::track_events_worker::TrackEventsBus;
 use crate::audio::processor::handle::{LooperHandleThread, LooperState, ToggleRecordingResult};
 use crate::parameters::LFOMode;
 use crate::{QuantizeMode, TimeInfoProvider, TimeInfoProviderImpl};
@@ -52,7 +54,9 @@ pub struct MultiTrackLooperHandle {
     time_info_provider: Shared<TimeInfoProviderImpl>,
     scene_handle: SceneHandle,
     metronome_handle: Shared<MetronomeProcessorHandle>,
+    input_meter_handle: Shared<RunningRMSProcessorHandle>,
     slice_worker: SliceWorker,
+    track_events: Shared<TrackEventsBus>,
     settings: SharedCell<AudioProcessorSettings>,
     metrics_handle: Shared<AudioProcessorMetricsHandle>,
     midi_store: Shared<MidiStoreHandle>,
@@ -63,6 +67,7 @@ impl MultiTrackLooperHandle {
     pub fn new(
         time_info_provider: Shared<TimeInfoProviderImpl>,
         metronome_handle: Shared<MetronomeProcessorHandle>,
+        input_meter_handle: Shared<RunningRMSProcessorHandle>,
         metrics: &AudioProcessorMetrics,
         voices: Vec<LooperVoice>,
     ) -> Self {
@@ -71,10 +76,12 @@ impl MultiTrackLooperHandle {
             time_info_provider,
             scene_handle: SceneHandle::new(8, 2),
             metronome_handle,
+            input_meter_handle,
             settings: make_shared_cell(AudioProcessorSettings::default()),
             slice_worker: SliceWorker::new(),
+            track_events: make_shared(TrackEventsBus::new()),
             metrics_handle: metrics.handle(),
-            midi_store: make_shared(super::midi_store::MidiStoreHandle::default()),
+            midi_store: make_shared(MidiStoreHandle::default()),
             active_looper: AtomicUsize::new(0),
         }
     }
@@ -142,6 +149,11 @@ impl MultiTrackLooperHandle {
                 self.slice_worker.add_job(
                     looper_id.0,
                     *self.settings.get(),
+                    handle.looper().looper_clip(),
+                );
+                self.track_events.on_stopped_recording(
+                    looper_id,
+                    self.settings.get(),
                     handle.looper().looper_clip(),
                 );
 
@@ -454,6 +466,10 @@ impl MultiTrackLooperHandle {
         self.voices[looper_id.0].looper().state()
     }
 
+    pub fn track_events_worker(&self) -> &Shared<TrackEventsBus> {
+        &self.track_events
+    }
+
     pub fn get_looper_slices(&self, looper_id: LooperId) -> Option<SliceResult> {
         self.slice_worker.result(looper_id.0)
     }
@@ -550,6 +566,13 @@ impl MultiTrackLooperHandle {
             .remove_lock(position_beats, parameter_id);
     }
 
+    pub fn trigger(&self, looper_id: LooperId) {
+        if let Some(voice) = self.voices().get(looper_id.0) {
+            voice.looper().trigger();
+            voice.envelope().adsr_envelope.note_on();
+        }
+    }
+
     pub fn toggle_trigger(&self, looper_id: LooperId, position_beats: usize) {
         self.voices[looper_id.0]
             .trigger_model()
@@ -598,6 +621,10 @@ impl MultiTrackLooperHandle {
         }
     }
 
+    pub fn input_meter_handle(&self) -> &Shared<RunningRMSProcessorHandle> {
+        &self.input_meter_handle
+    }
+
     pub fn metronome_handle(&self) -> &Shared<MetronomeProcessorHandle> {
         &self.metronome_handle
     }
@@ -618,6 +645,7 @@ impl MultiTrackLooperHandle {
             if self.all_loopers_empty_other_than(looper_id) {
                 self.stop();
             }
+            self.track_events.on_cleared(looper_id);
         }
     }
 

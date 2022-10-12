@@ -72,9 +72,9 @@ extension AnyParameterInner {
 }
 
 /**
- * This is the same as the inner enum, but since ID is constantly read this struct caches the ID
+ * This is the same as the inner enum, but since ID is constantly read this class caches the ID
  */
-public struct AnyParameter: Identifiable {
+public class AnyParameter: Identifiable {
     public let id: ParameterId
     var inner: AnyParameterInner
 

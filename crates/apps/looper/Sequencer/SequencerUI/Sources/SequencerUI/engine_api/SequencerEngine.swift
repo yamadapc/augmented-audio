@@ -16,6 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
 import Foundation
+import QuartzCore
 
 /**
  * Protocol to be implemented by audio-engine.
@@ -25,6 +26,7 @@ public protocol SequencerEngine {
     var effectsService: EffectsService { get }
     var audioIOPreferencesController: AudioIOSettingsController { get }
 
+    func getInputLevel() -> Float
     func onClickPlayheadStop()
     func onClickPlayheadPlay()
 
@@ -48,4 +50,8 @@ public protocol SequencerEngine {
     func setAnalyticsEnabled(_ value: Bool)
 
     func getLFOSample(mode: LFOMode, phase: Float) -> Float
+
+    func triggerLooper(looperId: UInt)
+
+    func drawLooperBuffer(looperId: UInt, layer: CAMetalLayer)
 }

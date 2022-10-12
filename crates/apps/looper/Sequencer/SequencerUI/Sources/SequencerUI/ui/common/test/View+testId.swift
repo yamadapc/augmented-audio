@@ -22,15 +22,16 @@ extension View {
     /**
      * Add accessibility identifier if it is available
      */
+    @ViewBuilder
     func testId(_ id: String) -> some View {
         #if DEBUG
             if #available(macOS 11.0, *) {
-                return AnyView(self.accessibilityIdentifier(id))
+                self.accessibilityIdentifier(id)
             } else {
-                return AnyView(self)
+                self
             }
         #else
-            return self
+            self
         #endif
     }
 }

@@ -15,11 +15,20 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+
 import Combine
 import Foundation
 import Logging
 import SequencerEngine_private
 import SequencerUI
+import AVFAudio
+
+func prepareAudioSession() {
+    #if os(iOS)
+    let session = AVAudioSession.sharedInstance()
+    try! session.setCategory(.playAndRecord, options: [.defaultToSpeaker, .allowBluetooth])
+    #endif
+}
 
 public class EngineController {
     public let store: Store
@@ -28,14 +37,17 @@ public class EngineController {
     private let logger = Logger(label: "com.beijaflor.sequencer.engine.EngineController")
     private var cancellables: Set<AnyCancellable> = Set()
     private let storeSubscriptionsController: StoreSubscriptionsController
+    private var timer: Timer? = nil
 
     public init() {
+        prepareAudioSession()
+
         engine = EngineImpl()
         store = Store(engine: engine)
 
         storeSubscriptionsController = StoreSubscriptionsController(
-            store: store,
-            engine: engine
+                store: store,
+                engine: engine
         )
 
         logger.info("Setting-up store -> engine subscriptions")
@@ -44,11 +56,12 @@ public class EngineController {
         setupApplicationEventsSubscription()
 
         logger.info("Setting-up store <- engine polling")
-        DispatchQueue.main.async {
+        self.timer = Timer.scheduledTimer(withTimeInterval: 1 / 60, repeats: true, block: { _ in
             self.flushPollInfo()
             self.flushMetricsInfo()
             self.flushParametersInfo(parameters: allParameters())
-        }
+        })
+        self.timer?.tolerance = 0.1
 
         loadInitialState()
     }
@@ -106,9 +119,6 @@ public class EngineController {
             averageNanos: stats.average_nanos,
             maxNanos: stats.max_nanos
         )
-        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(100))) {
-            self.flushMetricsInfo()
-        }
     }
 
     func flushParametersInfo(parameters: [SequencerUI.AnyParameter]) {
@@ -135,10 +145,6 @@ public class EngineController {
                 break
             }
         }
-
-        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16))) {
-            self.flushParametersInfo(parameters: parameters)
-        }
     }
 
     func flushPollInfo() {
@@ -163,10 +169,6 @@ public class EngineController {
         }
 
         // store.allParameters
-
-        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .milliseconds(16)), qos: .userInitiated) {
-            self.flushPollInfo()
-        }
     }
 
     // This is a super super messy approach, but it is efficient

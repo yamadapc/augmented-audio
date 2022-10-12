@@ -1,4 +1,3 @@
-use crate::{LooperEngine, LooperHandleThread, LooperId};
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,9 +20,14 @@ use crate::{LooperEngine, LooperHandleThread, LooperId};
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+#[cfg(any(target_os = "ios", target_os = "macos"))]
+use metal::CAMetalLayer;
+
 use crate::audio::multi_track_looper::slice_worker::SliceResult;
 use crate::audio::processor::handle::LooperState;
 use crate::c_api::into_ptr;
+use crate::{LooperEngine, LooperHandleThread, LooperId};
 
 pub use self::looper_buffer::*;
 
@@ -41,6 +45,13 @@ pub unsafe extern "C" fn looper_engine__record(engine: *const LooperEngine, loop
 }
 
 #[no_mangle]
+pub unsafe extern "C" fn looper_engine__get_input_level(engine: *const LooperEngine) -> f32 {
+    ((*engine).handle().input_meter_handle().calculate_rms(0)
+        + (*engine).handle().input_meter_handle().calculate_rms(1))
+        / 2.0
+}
+
+#[no_mangle]
 pub unsafe extern "C" fn looper_engine__play(engine: *const LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Playing {}", looper_id);
     (*engine).handle().toggle_playback(LooperId(looper_id));
@@ -50,6 +61,14 @@ pub unsafe extern "C" fn looper_engine__play(engine: *const LooperEngine, looper
 pub unsafe extern "C" fn looper_engine__clear(engine: *const LooperEngine, looper_id: usize) {
     log::info!("looper_engine - Clearing {}", looper_id);
     (*engine).handle().clear(LooperId(looper_id));
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__trigger_looper(
+    engine: *const LooperEngine,
+    looper_id: usize,
+) {
+    (*engine).handle().trigger(LooperId(looper_id));
 }
 
 #[no_mangle]
@@ -82,6 +101,20 @@ pub unsafe extern "C" fn looper_engine__get_looper_position(
     looper_id: usize,
 ) -> f32 {
     (*engine).handle().get_position_percent(LooperId(looper_id))
+}
+
+#[cfg(any(target_os = "ios", target_os = "macos"))]
+#[no_mangle]
+pub unsafe extern "C" fn looper_engine__draw_looper_buffer(
+    engine: *mut LooperEngine,
+    looper_id: usize,
+    layer: *mut CAMetalLayer,
+) {
+    let _ = (*engine)
+        .audio_wave_rendering_controller()
+        .map(|controller| {
+            controller.draw(LooperId(looper_id), layer);
+        });
 }
 
 #[no_mangle]

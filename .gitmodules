@@ -7,21 +7,9 @@
 [submodule "crates/vendor/baseview"]
 	path = crates/vendor/baseview
 	url = https://github.com/yamadapc/baseview
-[submodule "crates/vendor/lyon"]
-	path = crates/vendor/lyon
-	url = git@github.com:yamadapc/lyon
 [submodule "crates/vendor/vst"]
 	path = crates/vendor/vst
 	url = git@github.com:yamadapc/vst-rs
-[submodule "crates/vendor/piet"]
-	path = crates/vendor/piet
-	url = git@github.com:yamadapc/piet
-[submodule "crates/vendor/pathfinder"]
-	path = crates/vendor/pathfinder
-	url = git@github.com:yamadapc/pathfinder
-[submodule "crates/vendor/skribo"]
-	path = crates/vendor/skribo
-	url = git@github.com:yamadapc/skribo
 [submodule "crates/vendor/libsamplerate-sys"]
 	path = crates/vendor/libsamplerate-sys
 	url = git@github.com:yamadapc/libsamplerate-sys
@@ -34,3 +22,6 @@
 [submodule "crates/apps/metronome/vendor/macos_ui"]
 	path = crates/apps/metronome/vendor/macos_ui
 	url = git@github.com:GroovinChip/macos_ui
+[submodule "crates/vendor/coreaudio-rs"]
+	path = crates/vendor/coreaudio-rs
+	url = git@github.com:yamadapc/coreaudio-rs

@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 use std::ops::Deref;
 
+#[cfg(feature = "actix")]
 use actix::{Actor, Context, Handler, Message, MessageResponse, Supervised, SystemService};
 use basedrop::{Handle, Owned, Shared};
 use thiserror::Error;
@@ -127,6 +128,7 @@ impl Drop for MidiHost {
     }
 }
 
+#[cfg(feature = "actix")]
 impl Actor for MidiHost {
     type Context = Context<Self>;
 }
@@ -137,18 +139,22 @@ impl Default for MidiHost {
     }
 }
 
+#[cfg(feature = "actix")]
 impl Supervised for MidiHost {}
 
+#[cfg(feature = "actix")]
 impl SystemService for MidiHost {
     fn service_started(&mut self, _ctx: &mut Context<Self>) {
         log::info!("MidiHost started");
     }
 }
 
+#[cfg(feature = "actix")]
 #[derive(Message)]
 #[rtype(result = "Result<(), MidiError>")]
 pub struct StartMessage;
 
+#[cfg(feature = "actix")]
 impl Handler<StartMessage> for MidiHost {
     type Result = Result<(), MidiError>;
 
@@ -157,14 +163,17 @@ impl Handler<StartMessage> for MidiHost {
     }
 }
 
+#[cfg(feature = "actix")]
 #[derive(Message)]
 #[rtype(result = "GetQueueMessageResult")]
 pub struct GetQueueMessage;
 
+#[cfg(feature = "actix")]
 #[derive(Message, MessageResponse)]
 #[rtype(result = "()")]
 pub struct GetQueueMessageResult(pub MidiMessageQueue);
 
+#[cfg(feature = "actix")]
 impl Handler<GetQueueMessage> for MidiHost {
     type Result = GetQueueMessageResult;
 
@@ -318,6 +327,7 @@ mod test {
         assert_eq!(msg.message_data, bytes);
     }
 
+    #[cfg(feature = "actix")]
     #[cfg(target_os = "macos")]
     #[actix::test]
     async fn test_midi_handler_actor_start() {

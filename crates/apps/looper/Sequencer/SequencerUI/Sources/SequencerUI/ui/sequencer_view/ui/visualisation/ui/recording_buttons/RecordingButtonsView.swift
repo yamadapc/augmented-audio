@@ -26,6 +26,7 @@ struct RecordingButtonsView: View {
     var body: some View {
         VStack {
             RecordButtonView(store: store, trackState: trackState)
+
             PlayButtonView(store: store, trackState: trackState)
 
             ContinuousButton(
