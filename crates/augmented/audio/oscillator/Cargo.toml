@@ -12,7 +12,7 @@ augmented-atomics = { path = "../../data/atomics" , version = "0.1.1" }
 
 [dev-dependencies]
 criterion = "0.4"
-ringbuf = "^0.2.6"
+ringbuf = "^0.3.1"
 
 [target.'cfg(not(target_arch = "wasm32"))'.dev-dependencies]
 plotters = { version = "0.3" }
