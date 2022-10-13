@@ -65,7 +65,7 @@ augmented-midi = { path = "../../../augmented/data/augmented-midi" , version = "
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.1.0" }
 augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , version = "1.2.0" }
 augmented-audio-wave = { path = "../../../augmented/gui/augmented-audio-wave" }
-ringbuf = "0.2"
+ringbuf = "0.3"
 
 # FX
 audio-processor-pitch-shifter = { path = "../../../augmented/audio/audio-processor-pitch-shifter" }
