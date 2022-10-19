@@ -36,7 +36,6 @@
 use std::sync::atomic::*;
 
 use num_traits::{FromPrimitive, ToPrimitive};
-use serde_derive::{Deserialize, Serialize};
 
 pub use atomic_enum::AtomicEnum;
 pub use atomic_option::AtomicOption;
@@ -86,7 +85,10 @@ macro_rules! atomic_float {
         /// Simple atomic floating point variable with relaxed ordering.
         ///
         /// Fork of atomic float from rust-vst.
-        #[derive(Serialize, Deserialize)]
+        #[cfg_attr(
+            not(target_arch = "wasm32"),
+            derive(serde_derive::Serialize, serde_derive::Deserialize)
+        )]
         pub struct $name {
             atomic: $backing,
         }
