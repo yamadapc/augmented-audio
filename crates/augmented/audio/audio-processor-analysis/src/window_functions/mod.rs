@@ -54,7 +54,7 @@ pub fn hann(n: f32, size: f32) -> f32 {
 }
 
 pub fn blackman_harris(n: f32, size: f32) -> f32 {
-    let a0 = 0.36875;
+    let a0 = 0.35875;
     let a1 = 0.48829;
     let a2 = 0.14128;
     let a3 = 0.01168;
