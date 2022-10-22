@@ -1,3 +1,9 @@
+## v2.2.0
+
+* [`9f02ad99ff`](https://github.com/yamadapc/augmented-audio/commits/9f02ad99ff) augmented_oscillator@1.2.0 (Minor)
+* [`035499207e`](https://github.com/yamadapc/augmented-audio/commits/035499207e) augmented-atomics@0.1.2 (Minor)
+* [`d8684c483c`](https://github.com/yamadapc/augmented-audio/commits/d8684c483c) Add helper to create vec audio buffer :minor: (Minor)
+
 ## v2.1.0
 
 * [`665a0e189`](https://github.com/yamadapc/augmented-audio/commits/665a0e189) Remove vst buffer and add buffer handler :breaking: (Major)
