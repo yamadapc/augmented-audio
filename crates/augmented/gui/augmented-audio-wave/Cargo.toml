@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 audio-processor-traits = { version = "2.2.0", path = "../../audio/audio-processor-traits" }
 log = "0.4.17"
-audio-processor-analysis = { version = "0.3", path = "../../audio/audio-processor-analysis" }
+audio-processor-analysis = { version = "0.4.0", path = "../../audio/audio-processor-analysis" }
 audio-garbage-collector = { version = "1", path = "../../audio/audio-garbage-collector" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
