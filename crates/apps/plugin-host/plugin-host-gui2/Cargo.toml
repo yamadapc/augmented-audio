@@ -45,7 +45,7 @@ wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger"
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
-augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.1.0" }
+augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.2.0" }
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "1.2.0" }
 tempdir = "0.3"
 
