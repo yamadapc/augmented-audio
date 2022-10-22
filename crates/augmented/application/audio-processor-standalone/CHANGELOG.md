@@ -1,3 +1,16 @@
+## v1.4.0
+
+* [`e4e42edddf`](https://github.com/yamadapc/augmented-audio/commits/e4e42edddf) audio-processor-standalone-gui@0.6.0 (Minor)
+* [`d081e18d68`](https://github.com/yamadapc/augmented-audio/commits/d081e18d68) augmented-midi@1.3.0 (Minor)
+* [`82c3f51e01`](https://github.com/yamadapc/augmented-audio/commits/82c3f51e01) audio-processor-file@1.3.0 (Minor)
+* [`15019459e7`](https://github.com/yamadapc/augmented-audio/commits/15019459e7) audio-processor-testing-helpers@1.3.0 (Minor)
+* [`1a71b2ade4`](https://github.com/yamadapc/augmented-audio/commits/1a71b2ade4) audio-processor-traits@2.2.0 (Minor)
+* [`94658c00b2`](https://github.com/yamadapc/augmented-audio/commits/94658c00b2) Remove debug logging from standalone crate (Minor)
+* [`f36f9c20f4`](https://github.com/yamadapc/augmented-audio/commits/f36f9c20f4) Update standalone with under-run logs, this should be removed before releasing (Minor)
+* [`cae1e23a29`](https://github.com/yamadapc/augmented-audio/commits/cae1e23a29) Vendor coreaudio (Minor)
+* [`6797245b0a`](https://github.com/yamadapc/augmented-audio/commits/6797245b0a) Improve error logging and build config :patch: (Patch)
+* [`1d2a15e217`](https://github.com/yamadapc/augmented-audio/commits/1d2a15e217) Update with basic pass-through level indicators (Minor)
+
 ## v1.3.0
 
 * [`953e5fbde`](https://github.com/yamadapc/augmented-audio/commits/953e5fbde) audio-processor-standalone-gui@0.5.0 (Minor)
