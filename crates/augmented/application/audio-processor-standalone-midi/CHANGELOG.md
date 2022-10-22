@@ -1,3 +1,8 @@
+## v1.3.0
+
+* [`1a71b2ade4`](https://github.com/yamadapc/augmented-audio/commits/1a71b2ade4) audio-processor-traits@2.2.0 (Minor)
+* [`6659c3d4a6`](https://github.com/yamadapc/augmented-audio/commits/6659c3d4a6) Try to limit actix usage (Minor)
+
 ## v1.1.0
 
 * [`dcd1dda69`](https://github.com/yamadapc/augmented-audio/commits/dcd1dda69) atomic-queue@1.0.1 (Minor)
