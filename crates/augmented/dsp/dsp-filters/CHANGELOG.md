@@ -1,3 +1,8 @@
+## v1.3.1
+
+* [`15019459e7`](https://github.com/yamadapc/augmented-audio/commits/15019459e7) audio-processor-testing-helpers@1.3.0 (Minor)
+* [`1a71b2ade4`](https://github.com/yamadapc/augmented-audio/commits/1a71b2ade4) audio-processor-traits@2.2.0 (Minor)
+
 ## v1.2.1
 
 * [`1028ea81b`](https://github.com/yamadapc/augmented-audio/commits/1028ea81b) Address clippy error :patch: (Patch)
