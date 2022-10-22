@@ -434,7 +434,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-dynamics"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-file",
