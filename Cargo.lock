@@ -909,7 +909,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-playhead"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "audio-processor-testing-helpers",
  "audio-processor-traits",
