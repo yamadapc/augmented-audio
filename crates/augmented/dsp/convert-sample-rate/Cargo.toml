@@ -14,7 +14,7 @@ samplerate = "0.2.4"
 [dev-dependencies]
 rand = "^0.8.3"
 augmented_oscillator = { version = "1.2.0", path = "../../audio/oscillator" }
-audio-processor-testing-helpers = { version = "1.2.0", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.3.0", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = false

@@ -19,7 +19,7 @@ audio-garbage-collector = { version = "1.1.0", path = "../audio-garbage-collecto
 [dev-dependencies]
 audio-processor-standalone = { version = "1.3.0", path = "../../application/audio-processor-standalone", features = ["gui"] }
 audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" , version = "0.5.0" }
-audio-processor-testing-helpers = { version = "1.2.0", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "1.3.0", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 processor_examples = ["bitcrusher"]
