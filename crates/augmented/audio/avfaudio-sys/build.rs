@@ -81,6 +81,7 @@ fn main() {
         .blocklist_item("objc_object")
         .blocklist_item("id")
         .blocklist_item("timezone")
+        .blocklist_function("settimeofday")
         .opaque_type("FndrOpaqueInfo")
         .opaque_type("HFSPlusCatalogFile")
         .opaque_type("HFSCatalogFile")
