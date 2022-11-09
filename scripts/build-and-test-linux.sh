@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 cargo test --workspace \
+      --target-dir target-linux \
       --features story \
       --exclude augmented-ui \
       --exclude audiounit \
