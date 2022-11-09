@@ -1,5 +1,7 @@
 # Created by https://www.gitignore.io/api/node
 
+.DS_Store
+
 ### Node ###
 # Logs
 logs
@@ -81,3 +83,4 @@ xcuserdata
 .idea/shelf
 
 cmake-build-debug
+target-linux
