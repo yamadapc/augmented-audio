@@ -32,7 +32,7 @@ version = "0.3.1"
 default-features = false
 
 [dependencies.iced_native]
-version = "0.5.1"
+version = "0.6.0"
 default-features = false
 
 [dependencies.iced]
