@@ -1,4 +1,4 @@
-<p align="center"><img height="150" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/Icon%401x.png" /></p>
+<p align="center"><img height="150" src="https://github.com/yamadapc/rust-audio-software/raw/master/design/Icon.png" /></p>
 
 <h1 align="center">Augmented Audio Libraries</h1>
 
