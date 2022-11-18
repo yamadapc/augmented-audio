@@ -14,4 +14,4 @@ objc = "0.2.7"
 block = "0.1.6"
 
 [build-dependencies]
-bindgen = "0.61.0"
+bindgen = "0.62.0"
