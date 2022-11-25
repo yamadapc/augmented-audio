@@ -26,7 +26,7 @@ audio-processor-testing-helpers = { path = "../../testing/audio-processor-testin
 audio-processor-file = { path = "../audio-processor-file", version = "1.3.0" }
 nannou = "0.18.1"
 image = "0.24.3"
-clap = "2.34.0"
+clap = "4.0.27"
 piet = "0.5.0"
 piet-common = { version = "0.5.0", features = ["png"] }
 
