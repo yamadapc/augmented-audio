@@ -16,7 +16,7 @@ tokio-tungstenite = "^0.14.0"
 serde_json = "^1.0.64"
 crossbeam = "^0.8.0"
 log = "^0.4.11"
-tungstenite = "^0.13.0"
+tungstenite = "^0.18.0"
 async-trait = "^0.1.50"
 serde = { version = "^1.0.126", features = ["derive"] }
 
