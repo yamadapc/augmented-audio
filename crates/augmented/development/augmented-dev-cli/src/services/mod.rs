@@ -26,6 +26,7 @@ pub use outdated_crates_service::OutdatedCratesService;
 
 pub mod build_command_service;
 pub mod cargo_toml_reader;
+pub mod content_hashes;
 pub mod list_crates_service;
 pub mod outdated_crates_service;
 pub mod release_service;

@@ -31,6 +31,8 @@ rand = "0.8.5"
 
 toml = "^0.5.8"
 toml_edit = "0.14.4"
+sha3 = "0.10.6"
+hex = "0.4.3"
 
 [package.metadata.augmented]
 private = true

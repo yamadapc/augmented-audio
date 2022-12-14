@@ -109,6 +109,8 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-knob/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/gui/augmented-audio-knob/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-codec-aiff/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-thread-logger/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/augmented-longbackoff/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
@@ -142,6 +144,14 @@
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/audio/augmented-longbackoff/target" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-thread-logger/target" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />

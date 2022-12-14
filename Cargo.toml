@@ -46,6 +46,8 @@ members = [
     "crates/augmented/audio/audio-processor-traits-derive",
     "crates/augmented/audio/audio-processor-utility",
     "crates/augmented/audio/audiounit",
+    "crates/augmented/audio/audio-thread-logger",
+    "crates/augmented/audio/augmented-longbackoff",
     "crates/augmented/audio/augmented-streams",
     "crates/augmented/audio/avfaudio-sys",
     "crates/augmented/audio/lame-mp3",

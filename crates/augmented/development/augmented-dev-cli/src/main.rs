@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use crate::services::content_hashes;
 use crate::services::release_service::prerelease_all_crates;
 use crate::services::snapshot_tests_service::run_all_snapshot_tests;
 
@@ -106,6 +107,7 @@ fn main() {
         outdated_crates_service.run();
     } else if let Some(matches) = matches.subcommand_matches("list-crates") {
         let list_crates_service = services::ListCratesService::default();
+        content_hashes::get_all_package_hashes(&list_crates_service).expect("Failed to get hashes");
         list_crates_service.run(matches.get_flag("simple"));
     } else if let Some(matches) = matches.subcommand_matches("build") {
         let mut build_service = services::BuildCommandService::default();
