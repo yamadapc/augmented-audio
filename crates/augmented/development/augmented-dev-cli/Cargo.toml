@@ -30,7 +30,7 @@ semver = "1.0.4"
 rand = "0.8.5"
 
 toml = "^0.5.8"
-toml_edit = "0.14.4"
+toml_edit = "0.15.0"
 sha3 = "0.10.6"
 hex = "0.4.3"
 
