@@ -88,7 +88,7 @@ mod test {
         }
 
         draw_vec_chart(
-            &*relative_path!("src/audio/multi_track_looper/long_backoff"),
+            &*relative_path!("src/long_backoff"),
             "backoff-example-pre-10__nanoseconds",
             durations,
         );
@@ -109,7 +109,7 @@ mod test {
         }
 
         draw_vec_chart(
-            &*relative_path!("src/audio/multi_track_looper/long_backoff"),
+            &*relative_path!("src/long_backoff"),
             "backoff-example-past-100__nanoseconds",
             durations,
         );

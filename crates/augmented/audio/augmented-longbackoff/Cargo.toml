@@ -1,0 +1,10 @@
+[package]
+name = "augmented-longbackoff"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+crossbeam = ">=0.7, <0.9"
+
+[dev-dependencies]
+audio-processor-testing-helpers = { version = "1", path = "../../testing/audio-processor-testing-helpers" }

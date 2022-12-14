@@ -33,9 +33,9 @@ use augmented_atomics::{AtomicF32, AtomicOption};
 use augmented_midi::{parse_midi_event, MIDIMessage, ParserState};
 
 use crate::audio::midi_map::{MidiControllerNumber, MidiMap};
-use crate::audio::multi_track_looper::long_backoff::LongBackoff;
 use crate::audio::multi_track_looper::parameters::{EntityId, ParameterValue};
 use crate::MultiTrackLooper;
+use augmented_longbackoff::LongBackoff;
 
 #[repr(C)]
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -384,7 +384,9 @@ mod test {
 
             log::info!("Running integration test");
             let midi_host = MidiHost::default();
+            let port_name = midi_host.virtual_port_name();
             let midi_host = midi_host.start();
+
             midi_host
                 .send(host::StartMessage)
                 .await
@@ -393,9 +395,12 @@ mod test {
             let host::GetQueueMessageResult(queue) =
                 midi_host.send(host::GetQueueMessage).await.unwrap();
 
-            let output = midir::MidiOutput::new("looper-tests").unwrap();
+            let output = midir::MidiOutput::new(&format!(
+                "looper-tests-{}",
+                uuid::Uuid::default().to_string()
+            ))
+            .unwrap();
             let ports = output.ports();
-            let port_name = MidiHost::virtual_port_name();
             let output_port = ports
                 .iter()
                 .find(|port| output.port_name(port).unwrap().contains(&port_name))
@@ -404,30 +409,42 @@ mod test {
                 .connect(output_port, &port_name)
                 .expect("Couldn't connect to virtual MIDI port");
 
+            let cc_num = (rand::random::<f32>() * 80.0).floor() as u8;
             output_connection
-                .send(&[0b1011_0001, 55, 80])
+                .send(&[0b1011_0001, cc_num, 80])
                 .expect("Failed to send message to virtual port");
             tokio::time::sleep(Duration::from_secs(1)).await;
 
             let mut midi_handler = MidiAudioThreadHandler::default();
             midi_handler.collect_midi_messages(&queue);
             let messages = midi_handler.buffer();
-            assert_eq!(messages.len(), 1);
-            let result =
-                parse_midi_event::<&[u8]>(&messages[0].message_data, &mut Default::default())
-                    .expect("Failed to parse event")
-                    .1;
-            assert!(matches!(result, MIDIMessage::ControlChange { .. }));
-            if let MIDIMessage::ControlChange {
-                channel,
-                value,
-                controller_number,
-            } = result
-            {
-                assert_eq!(channel, 1);
-                assert_eq!(value, 80);
-                assert_eq!(controller_number, 55);
-            }
+            assert!(messages.len() >= 1);
+            let result = messages
+                .iter()
+                .map(|msg| {
+                    parse_midi_event::<&[u8]>(&msg.message_data, &mut Default::default())
+                        .expect("Failed to parse event")
+                        .1
+                })
+                .collect::<Vec<MIDIMessage<&[u8]>>>();
+
+            result
+                .iter()
+                .find_map(|msg| match msg {
+                    MIDIMessage::ControlChange {
+                        controller_number,
+                        channel: 1,
+                        value: 80,
+                    } if *controller_number == cc_num => Some(()),
+                    _ => None,
+                })
+                .expect(
+                    format!(
+                        "No CC message found for channel=1 value=80 cc={}: {:?}",
+                        cc_num, result
+                    )
+                    .as_str(),
+                );
         }
     }
 }

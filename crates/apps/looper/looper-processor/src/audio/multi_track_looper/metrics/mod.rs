@@ -21,5 +21,3 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 pub use augmented_audio_metrics::audio_processor_metrics;
-
-pub mod audio_thread_logger;

@@ -28,7 +28,7 @@ use lazy_static::lazy_static;
 use atomic_queue::Queue;
 use audio_garbage_collector::make_shared;
 
-use crate::audio::multi_track_looper::long_backoff::LongBackoff;
+use augmented_longbackoff::LongBackoff;
 
 lazy_static! {
     static ref AUDIO_THREAD_LOGGER: AudioThreadLogger = AudioThreadLogger::new();

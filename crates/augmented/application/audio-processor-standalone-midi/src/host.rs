@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use std::ops::Deref;
+use std::sync::atomic::{AtomicU32, Ordering};
 
 #[cfg(feature = "actix")]
 use actix::{Actor, Context, Handler, Message, MessageResponse, Supervised, SystemService};
@@ -39,6 +40,7 @@ use crate::constants::MIDI_BUFFER_CAPACITY;
 ///
 /// The host will close all MIDI connections on drop.
 pub struct MidiHost {
+    id: u32,
     handle: Handle,
     connections: Vec<MidiInputConnection<MidiCallbackContext>>,
     current_messages: MidiMessageQueue,
@@ -48,10 +50,16 @@ impl MidiHost {
     /// Create the host, linked to GC `Handle` and with queue `capacity` of messages.
     pub fn new(handle: &Handle, capacity: usize) -> Self {
         Self {
+            id: Self::get_next_id(),
             handle: handle.clone(),
             connections: Vec::new(),
             current_messages: Shared::new(handle, Queue::new(capacity)),
         }
+    }
+
+    fn get_next_id() -> u32 {
+        static NEXT_ID: AtomicU32 = AtomicU32::new(0);
+        NEXT_ID.fetch_add(1, Ordering::SeqCst)
     }
 
     /// Create the host with default 100 capacity
@@ -62,6 +70,7 @@ impl MidiHost {
     /// Build a MidiHost with a pre-built queue
     pub fn default_with_queue(handle: &Handle, queue: MidiMessageQueue) -> Self {
         Self {
+            id: Self::get_next_id(),
             handle: handle.clone(),
             connections: Vec::new(),
             current_messages: queue,
@@ -78,7 +87,7 @@ impl MidiHost {
         log::info!("Creating MIDI input `audio_processor_standalone_midi`");
         let input = MidiInput::new("audio_processor_standalone_midi")?;
 
-        let virtual_port_name = Self::virtual_port_name();
+        let virtual_port_name = self.virtual_port_name();
         log::info!("Creating virtual MIDI input `{}`", virtual_port_name);
         match input.create_virtual(
             &*virtual_port_name,
@@ -113,8 +122,12 @@ impl MidiHost {
     /// into. This input contains the PID of the host process.
     ///
     /// Generating this name dynamically avoids flakiness in integration tests.
-    pub fn virtual_port_name() -> String {
-        let virtual_port_name = format!("audio_processor_standalone_midi_{}", std::process::id());
+    pub fn virtual_port_name(&self) -> String {
+        let virtual_port_name = format!(
+            "audio_processor_standalone_midi_{}_{}",
+            std::process::id(),
+            self.id
+        );
         virtual_port_name
     }
 }

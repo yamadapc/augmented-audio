@@ -1,0 +1,15 @@
+[package]
+name = "augmented-audio-thread-logger"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lazy_static = "1.4"
+basedrop = "0.1"
+atomic-queue = { version = "1.0", path = "../../data/atomic-queue" }
+audio-garbage-collector = { version = "1.1", path = "../audio-garbage-collector" }
+augmented-longbackoff = { version = "0.1", path = "../augmented-longbackoff" }
+log = "0.4"
+
+[dev-dependencies]
+wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }

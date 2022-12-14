@@ -60,7 +60,6 @@ pub(crate) mod effects_processor;
 mod envelope_processor;
 mod handle;
 pub(crate) mod lfo_processor;
-mod long_backoff;
 pub(crate) mod looper_voice;
 pub(crate) mod metrics;
 mod midi_button;
