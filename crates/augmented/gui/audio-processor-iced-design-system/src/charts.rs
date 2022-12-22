@@ -20,8 +20,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::canvas::{Cursor, Frame, Geometry, Program, Stroke};
-use iced::{canvas, Canvas, Color, Element, Length, Point, Rectangle, Size};
+use iced::widget::canvas::{Cursor, Frame, Geometry, Program, Stroke};
+use iced::{widget::canvas, widget::Canvas, Color, Element, Length, Point, Rectangle, Size};
 
 pub struct LineChart {
     data: Vec<(f32, f32)>,
@@ -40,8 +40,16 @@ impl LineChart {
 #[derive(Debug, Clone)]
 pub enum LineChartMessage {}
 
-impl Program<LineChartMessage> for LineChart {
-    fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+impl Program<LineChartMessage> for &LineChart {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        _theme: &iced_style::Theme,
+        bounds: Rectangle,
+        _cursor: Cursor,
+    ) -> Vec<Geometry> {
         if self.data.is_empty() {
             return vec![];
         }
@@ -71,7 +79,7 @@ impl Program<LineChartMessage> for LineChart {
 }
 
 impl LineChart {
-    pub fn element(&mut self) -> Element<LineChartMessage> {
+    pub fn element(&self) -> Element<LineChartMessage> {
         Canvas::new(self)
             .width(Length::Fill)
             .height(Length::Fill)

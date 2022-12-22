@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use audio_processor_iced_design_system::charts::{LineChart, LineChartMessage};
 use audio_processor_iced_design_system::spacing::Spacing;
-use iced::{Application, Command, Container, Element, Length, Settings, Subscription};
+use iced::{widget::Container, Application, Command, Element, Length, Settings, Subscription};
 use std::time::Duration;
 
 fn main() -> iced::Result {
@@ -46,6 +46,7 @@ impl Application for LineChartApp {
     type Executor = iced::executor::Default;
     type Message = Message;
     type Flags = ();
+    type Theme = iced::theme::Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (
@@ -79,7 +80,7 @@ impl Application for LineChartApp {
         iced::time::every(Duration::from_millis(16)).map(|_| Message::Tick)
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         let chart = self.line_chart.element().map(Message::LineChart);
         Container::new(chart)
             .width(Length::Fill)

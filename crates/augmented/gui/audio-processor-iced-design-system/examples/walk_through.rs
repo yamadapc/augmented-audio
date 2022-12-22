@@ -1,7 +1,3 @@
-use iced::{
-    alignment, pick_list, widget, Alignment, Application, Button, Column, Command, Container,
-    Element, Length, PaneGrid, Row, Rule, Settings, Text,
-};
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -24,8 +20,15 @@ use iced::{
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::pane_grid::Axis;
+
+use iced::widget::pane_grid::Axis;
+use iced::{
+    alignment, widget, widget::pick_list, widget::Button, widget::Column, widget::Container,
+    widget::PaneGrid, widget::Row, widget::Rule, widget::Text, Alignment, Application, Command,
+    Element, Length, Settings,
+};
 use iced_audio::NormalParam;
+use iced_style::Theme;
 use widget::pane_grid;
 
 use audio_processor_iced_design_system::container::HoverContainer;
@@ -66,6 +69,7 @@ struct WalkthroughApp {
 impl Application for WalkthroughApp {
     type Executor = iced::executor::Default;
     type Message = Message;
+    type Theme = Theme;
     type Flags = ();
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
@@ -120,8 +124,8 @@ impl Application for WalkthroughApp {
         Command::none()
     }
 
-    fn view(&mut self) -> Element<Self::Message> {
-        let panel = PaneGrid::new(&mut self.pane_state, |_pane, state| match state {
+    fn view(&self) -> Element<Self::Message> {
+        let panel = PaneGrid::new(&self.pane_state, |_pane, state, _| match state {
             PaneState::Sidebar(sidebar) => sidebar.view().into(),
             PaneState::Content(content) => Column::with_children(vec![content.view()]).into(),
             PaneState::Bottom => BottomPanel::view().into(),
@@ -151,9 +155,6 @@ enum ContentMessage {
 struct Content {
     content_view: ContentView,
     tree_view: tree_view::State<()>,
-    pick_list_state_1: pick_list::State<String>,
-    pick_list_state_2: pick_list::State<String>,
-    pick_list_state_3: pick_list::State<String>,
     selected_option: usize,
     buttons_view: ButtonsView,
     tabs_view: tabs::State,
@@ -192,9 +193,6 @@ impl Content {
         Content {
             content_view: ContentView::Tabs,
             tree_view,
-            pick_list_state_1: pick_list::State::default(),
-            pick_list_state_2: pick_list::State::default(),
-            pick_list_state_3: pick_list::State::default(),
             selected_option: 0,
             buttons_view: ButtonsView::new(),
             tabs_view,
@@ -216,7 +214,7 @@ impl Content {
         }
     }
 
-    fn view(&mut self) -> Element<Message> {
+    fn view(&self) -> Element<Message> {
         let content = self.content_view();
 
         Container::new(content)
@@ -228,33 +226,27 @@ impl Content {
             .into()
     }
 
-    fn content_view(&mut self) -> Element<Message> {
+    fn content_view(&self) -> Element<Message> {
         match self.content_view {
             ContentView::Dropdowns => {
                 let options = vec![String::from("Option 1"), String::from("Option 2")];
                 let selected_option = options[self.selected_option].clone();
                 Column::with_children(vec![
                     Container::new(dropdown_with_label(
-                        &mut self.pick_list_state_1,
                         options.clone(),
                         selected_option.clone(),
                     ))
                     .padding([Spacing::base_spacing(), 0])
                     .into(),
                     Container::new(dropdown_with_label(
-                        &mut self.pick_list_state_2,
                         options.clone(),
                         selected_option.clone(),
                     ))
                     .padding([Spacing::base_spacing(), 0])
                     .into(),
-                    Container::new(dropdown_with_label(
-                        &mut self.pick_list_state_3,
-                        options,
-                        selected_option,
-                    ))
-                    .padding([Spacing::base_spacing(), 0])
-                    .into(),
+                    Container::new(dropdown_with_label(options, selected_option))
+                        .padding([Spacing::base_spacing(), 0])
+                        .into(),
                 ])
                 .into()
             }
@@ -284,7 +276,7 @@ impl Content {
 }
 
 struct KnobsView {
-    knob_states: Vec<iced_audio::knob::State>,
+    knob_states: Vec<iced_audio::NormalParam>,
     sliders: SlidersView,
 }
 
@@ -292,12 +284,12 @@ impl KnobsView {
     pub fn new() -> Self {
         KnobsView {
             knob_states: vec![
-                iced_audio::knob::State::new(Default::default()),
-                iced_audio::knob::State::new(Default::default()),
-                iced_audio::knob::State::new(Default::default()),
-                iced_audio::knob::State::new(Default::default()),
-                iced_audio::knob::State::new(Default::default()),
-                iced_audio::knob::State::new(Default::default()),
+                Default::default(),
+                Default::default(),
+                Default::default(),
+                Default::default(),
+                Default::default(),
+                Default::default(),
             ],
             sliders: SlidersView::new(),
         }
@@ -305,15 +297,15 @@ impl KnobsView {
 }
 
 impl KnobsView {
-    fn view(&mut self) -> Element<()> {
+    fn view(&self) -> Element<()> {
         let knobs = self
             .knob_states
-            .iter_mut()
+            .iter()
             .map(|knob_state| {
                 HoverContainer::new(
                     Column::with_children(vec![
                         Text::new("Dry/Wet").size(Spacing::small_font_size()).into(),
-                        Knob::new(knob_state, |_| {}, || None, || None)
+                        Knob::new(*knob_state, |_| {})
                             .size(Length::Units(Spacing::base_control_size()))
                             .style(audio_knob::style::Knob)
                             .into(),
@@ -348,24 +340,22 @@ impl KnobsView {
 }
 
 struct SlidersView {
-    state: Vec<iced_audio::v_slider::State>,
+    state: Vec<iced_audio::NormalParam>,
 }
 
 impl SlidersView {
     pub fn new() -> Self {
         SlidersView {
-            state: (0..10)
-                .map(|_| iced_audio::v_slider::State::new(NormalParam::default()))
-                .collect(),
+            state: (0..10).map(|_| NormalParam::default()).collect(),
         }
     }
 
-    pub fn view(&mut self) -> Element<()> {
+    pub fn view(&self) -> Element<()> {
         let elements = self
             .state
-            .iter_mut()
+            .iter()
             .map(|state| {
-                iced_audio::VSlider::new(state, |_| ())
+                iced_audio::VSlider::new(*state, |_| ())
                     .style(audio_style::v_slider::VSlider)
                     .into()
             })
@@ -379,24 +369,16 @@ impl SlidersView {
     }
 }
 
-struct ButtonsView {
-    default_button_state: iced::button::State,
-    tiny_button_state: iced::button::State,
-    chromeless_button_state: iced::button::State,
-}
+struct ButtonsView {}
 
 impl ButtonsView {
     pub fn new() -> Self {
-        ButtonsView {
-            default_button_state: iced::button::State::new(),
-            tiny_button_state: iced::button::State::new(),
-            chromeless_button_state: iced::button::State::new(),
-        }
+        ButtonsView {}
     }
 }
 
 impl ButtonsView {
-    fn view(&mut self) -> Element<()> {
+    fn view(&self) -> Element<()> {
         Column::with_children(vec![
             Container::new(Text::new("Buttons"))
                 .padding([0, 0, Spacing::base_spacing(), 0])
@@ -404,29 +386,23 @@ impl ButtonsView {
             Rule::horizontal(1).style(audio_style::Rule).into(),
             Container::new(Column::with_children(vec![
                 Container::new(
-                    Button::new(&mut self.default_button_state, Text::new("Default button"))
+                    Button::new(Text::new("Default button"))
                         .on_press(())
-                        .style(audio_style::Button::default()),
+                        .style(audio_style::Button::default().into()),
                 )
                 .padding([0, 0, Spacing::base_spacing(), 0])
                 .into(),
                 Container::new(
-                    Button::new(
-                        &mut self.tiny_button_state,
-                        Text::new("Tiny button").size(Spacing::small_font_size()),
-                    )
-                    .on_press(())
-                    .style(audio_style::Button::default()),
+                    Button::new(Text::new("Tiny button").size(Spacing::small_font_size()))
+                        .on_press(())
+                        .style(audio_style::Button::default().into()),
                 )
                 .padding([0, 0, Spacing::base_spacing(), 0])
                 .into(),
                 Container::new(
-                    Button::new(
-                        &mut self.chromeless_button_state,
-                        Text::new("Chrome-less button"),
-                    )
-                    .on_press(())
-                    .style(audio_style::ChromelessButton),
+                    Button::new(Text::new("Chrome-less button"))
+                        .on_press(())
+                        .style(audio_style::ChromelessButton.into()),
                 )
                 .padding([0, 0, Spacing::base_spacing(), 0])
                 .into(),
@@ -440,11 +416,7 @@ impl ButtonsView {
     }
 }
 
-fn dropdown_with_label(
-    pick_list_state: &mut pick_list::State<String>,
-    options: Vec<String>,
-    selected_option: String,
-) -> Element<Message> {
+fn dropdown_with_label(options: Vec<String>, selected_option: String) -> Element<'static, Message> {
     Row::with_children(vec![
         Container::new(Text::new("Audio driver"))
             .width(Length::FillPortion(2))
@@ -453,7 +425,7 @@ fn dropdown_with_label(
             .padding([0, Spacing::base_spacing()])
             .into(),
         Container::new(
-            pick_list::PickList::new(pick_list_state, options, Some(selected_option), |option| {
+            pick_list::PickList::new(options, Some(selected_option), |option| {
                 Message::Content(ContentMessage::PickList(option))
             })
             .style(audio_style::PickList)
@@ -498,7 +470,7 @@ impl Sidebar {
         }
     }
 
-    fn view(&mut self) -> Element<Message> {
+    fn view(&self) -> Element<Message> {
         let container = self
             .menu_list
             .view(|text| Text::new(&*text).into())

@@ -22,7 +22,10 @@
 // THE SOFTWARE.
 use std::fmt::Debug;
 
-use iced::{button, Background, Button, Color, Column, Container, Element, Length, Row, Text};
+use iced::{
+    widget::button, widget::Button, widget::Column, widget::Container, widget::Row, widget::Text,
+    Background, Color, Element, Length,
+};
 
 use crate::spacing::Spacing;
 use crate::style;
@@ -36,15 +39,11 @@ pub enum Message<InnerMessage> {
 #[derive(Default)]
 pub struct State {
     selected_tab: usize,
-    buttons: Vec<button::State>,
 }
 
 impl State {
     pub fn new() -> Self {
-        State {
-            selected_tab: 0,
-            buttons: vec![],
-        }
+        State { selected_tab: 0 }
     }
 
     pub fn update<InnerMessage: Clone + Debug>(&mut self, message: Message<InnerMessage>) {
@@ -54,35 +53,31 @@ impl State {
     }
 
     pub fn view<'a, InnerMessage: 'static + Clone + Debug>(
-        &'a mut self,
+        &'a self,
         mut items: Vec<Tab<'a, InnerMessage>>,
     ) -> Element<Message<InnerMessage>> {
-        if self.buttons.len() != items.len() {
-            self.buttons = items.iter().map(|_| button::State::new()).collect();
-        }
-
         let selected_tab = self.selected_tab;
         let heading = Row::with_children(
             items
                 .iter()
-                .zip(&mut self.buttons)
                 .enumerate()
-                .map(|(index, (tab, button_state))| {
-                    Button::new(
-                        button_state,
-                        Text::new(&tab.title).size(Spacing::small_font_size()),
-                    )
-                    .style(style::button::Button::default().set_active(button::Style {
-                        background: if index == selected_tab {
-                            Some(Background::Color(Color::BLACK))
-                        } else {
-                            None
-                        },
-                        border_width: 0.0,
-                        ..style::button::button_base_style()
-                    }))
-                    .on_press(Message::SetTab(index))
-                    .into()
+                .map(|(index, tab)| {
+                    Button::new(Text::new(tab.title.clone()).size(Spacing::small_font_size()))
+                        .style(
+                            style::button::Button::default()
+                                .set_active(button::Appearance {
+                                    background: if index == selected_tab {
+                                        Some(Background::Color(Color::BLACK))
+                                    } else {
+                                        None
+                                    },
+                                    border_width: 0.0,
+                                    ..style::button::button_base_style()
+                                })
+                                .into(),
+                        )
+                        .on_press(Message::SetTab(index))
+                        .into()
                 })
                 .collect(),
         );

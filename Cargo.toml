@@ -20,7 +20,6 @@ members = [
     "crates/scripts/midi-logger-host",
     # Demos & Experiments
     "crates/spikes/example-iced-audio-viz",
-    "crates/spikes/visualisation_",
     "crates/spikes/example-iced-xcode-integration",
     # Augmented framework
     "crates/augmented/augmented",

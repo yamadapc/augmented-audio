@@ -23,15 +23,18 @@
 pub use iced_audio::Knob;
 
 pub mod style {
-    use iced_audio::graphics::knob::{NotchShape, Style, StyleLength};
+    use iced_audio::graphics::knob::{Appearance, NotchShape, StyleLength};
+    use iced_style::Theme;
 
     use crate::colors::Colors;
 
     pub struct Knob;
 
     impl iced_audio::knob::StyleSheet for Knob {
-        fn active(&self) -> Style {
-            Style::Arc(iced_audio::style::knob::ArcStyle {
+        type Style = Theme;
+
+        fn active(&self, _style: &Self::Style) -> Appearance {
+            Appearance::Arc(iced_audio::style::knob::ArcStyle {
                 width: StyleLength::Units(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
@@ -40,8 +43,8 @@ pub mod style {
             })
         }
 
-        fn hovered(&self) -> Style {
-            Style::Arc(iced_audio::style::knob::ArcStyle {
+        fn hovered(&self, _style: &Self::Style) -> Appearance {
+            Appearance::Arc(iced_audio::style::knob::ArcStyle {
                 width: StyleLength::Units(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
@@ -50,8 +53,8 @@ pub mod style {
             })
         }
 
-        fn dragging(&self) -> Style {
-            Style::Arc(iced_audio::style::knob::ArcStyle {
+        fn dragging(&self, _style: &Self::Style) -> Appearance {
+            Appearance::Arc(iced_audio::style::knob::ArcStyle {
                 width: StyleLength::Units(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),

@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use crate::spacing::Spacing;
-use iced::{Button, Column, Element, Length};
+use iced::{widget::Button, widget::Column, Element, Length};
 
 pub struct State<InnerState, MenuOption> {
     selected_child: Option<usize>,
@@ -53,37 +53,28 @@ impl<InnerState, MenuOption: Clone> State<InnerState, MenuOption> {
     }
 
     pub fn view(
-        &mut self,
-        renderer: impl Fn(&mut InnerState) -> Element<Message<MenuOption>>,
+        &self,
+        renderer: impl Fn(&InnerState) -> Element<Message<MenuOption>>,
     ) -> Element<Message<MenuOption>> {
         let selected_child = self.selected_child;
         let children_elements = self
             .children
-            .iter_mut()
+            .iter()
             .enumerate()
-            .map(
-                |(
-                    index,
-                    menu_item::State {
-                        button_state,
-                        state,
-                        option,
-                    },
-                )| {
-                    let is_selected_child =
-                        selected_child.is_some() && selected_child.unwrap() == index;
-                    let inner = renderer(state);
-                    Button::new(button_state, inner)
-                        .width(Length::Fill)
-                        .style(style::Button(is_selected_child))
-                        .padding(Spacing::base_spacing())
-                        .on_press(Message::Selected {
-                            index,
-                            option: option.clone(),
-                        })
-                        .into()
-                },
-            )
+            .map(|(index, menu_item::State { state, option })| {
+                let is_selected_child =
+                    selected_child.is_some() && selected_child.unwrap() == index;
+                let inner = renderer(state);
+                Button::new(inner)
+                    .width(Length::Fill)
+                    .style(style::ButtonStyleSheet(is_selected_child).into())
+                    .padding(Spacing::base_spacing())
+                    .on_press(Message::Selected {
+                        index,
+                        option: option.clone(),
+                    })
+                    .into()
+            })
             .collect();
 
         Column::with_children(children_elements)
@@ -95,32 +86,36 @@ impl<InnerState, MenuOption: Clone> State<InnerState, MenuOption> {
 
 mod menu_item {
     pub struct State<InnerState, MenuOption> {
-        pub(super) button_state: iced::button::State,
         pub state: InnerState,
         pub option: MenuOption,
     }
 
     impl<InnerState, MenuOption> State<InnerState, MenuOption> {
         pub fn new(state: InnerState, option: MenuOption) -> Self {
-            State {
-                button_state: iced::button::State::default(),
-                state,
-                option,
-            }
+            State { state, option }
         }
     }
 }
 
 mod style {
     use crate::colors::Colors;
-    use iced::button::Style;
+    use iced::widget::button::Appearance;
     use iced::Background;
+    use iced_style::Theme;
 
-    pub struct Button(pub bool);
+    pub struct ButtonStyleSheet(pub bool);
 
-    impl iced::button::StyleSheet for Button {
-        fn active(&self) -> Style {
-            Style {
+    impl From<ButtonStyleSheet> for iced::theme::Button {
+        fn from(value: ButtonStyleSheet) -> Self {
+            Self::Custom(Box::new(value))
+        }
+    }
+
+    impl iced::widget::button::StyleSheet for ButtonStyleSheet {
+        type Style = Theme;
+
+        fn active(&self, _style: &Self::Style) -> Appearance {
+            Appearance {
                 shadow_offset: Default::default(),
                 background: if self.0 {
                     Some(Background::Color(Colors::selected_background()))
@@ -134,8 +129,8 @@ mod style {
             }
         }
 
-        fn hovered(&self) -> Style {
-            Style {
+        fn hovered(&self, _style: &Self::Style) -> Appearance {
+            Appearance {
                 shadow_offset: Default::default(),
                 background: if self.0 {
                     Some(Background::Color(Colors::selected_background()))
@@ -149,8 +144,8 @@ mod style {
             }
         }
 
-        fn pressed(&self) -> Style {
-            Style {
+        fn pressed(&self, _style: &Self::Style) -> Appearance {
+            Appearance {
                 shadow_offset: Default::default(),
                 background: if self.0 {
                     Some(Background::Color(Colors::selected_background()))
@@ -164,8 +159,8 @@ mod style {
             }
         }
 
-        fn disabled(&self) -> Style {
-            Style {
+        fn disabled(&self, _style: &Self::Style) -> Appearance {
+            Appearance {
                 shadow_offset: Default::default(),
                 background: None,
                 border_radius: 0.0,

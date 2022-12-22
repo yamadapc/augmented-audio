@@ -24,7 +24,7 @@ pub use hover_container::HoverContainer;
 
 /// Modified `iced_native::container::Container` to have styles on hover/pressed
 pub mod hover_container {
-    use iced::canvas::event::Status;
+    use iced::widget::canvas::event::Status;
     use iced::{Alignment, Color, Length, Point, Rectangle};
     use iced_native::layout::{Limits, Node};
     use iced_native::renderer::Quad;
@@ -145,7 +145,7 @@ pub mod hover_container {
                 .height(self.height)
                 .pad(self.padding);
 
-            let mut content = self.content.layout(renderer, &limits.loose());
+            let mut content = self.content.as_widget().layout(renderer, &limits.loose());
             let size = limits.resolve(content.size());
 
             content.move_to(Point::new(
@@ -159,7 +159,9 @@ pub mod hover_container {
 
         fn draw(
             &self,
+            state: &iced_native::widget::Tree,
             renderer: &mut Renderer,
+            theme: &Renderer::Theme,
             style: &iced_native::renderer::Style,
             layout: Layout<'_>,
             cursor_position: Point,
@@ -174,7 +176,9 @@ pub mod hover_container {
             renderer.fill_quad(
                 Quad {
                     bounds: layout.bounds(),
-                    border_radius: container_style.border_radius,
+                    border_radius: iced_native::renderer::BorderRadius::from(
+                        container_style.border_radius,
+                    ),
                     border_color: container_style.border_color,
                     border_width: container_style.border_width,
                 },
@@ -182,8 +186,10 @@ pub mod hover_container {
                     .background
                     .unwrap_or_else(|| Color::TRANSPARENT.into()),
             );
-            self.content.draw(
+            self.content.as_widget().draw(
+                state,
                 renderer,
+                theme,
                 &iced_native::renderer::Style {
                     text_color: container_style.text_color.unwrap_or(style.text_color),
                 },
@@ -195,30 +201,23 @@ pub mod hover_container {
 
         fn on_event(
             &mut self,
+            state: &mut iced_native::widget::Tree,
             event: Event,
             layout: Layout<'_>,
             cursor_position: Point,
             renderer: &Renderer,
             clipboard: &mut dyn Clipboard,
-            messages: &mut Shell<Message>,
-        ) -> Status {
-            self.content.on_event(
+            shell: &mut Shell<'_, Message>,
+        ) -> iced_native::event::Status {
+            self.content.as_widget_mut().on_event(
+                state,
                 event,
                 layout.children().next().unwrap(),
                 cursor_position,
                 renderer,
                 clipboard,
-                messages,
+                shell,
             )
-        }
-
-        fn overlay(
-            &mut self,
-            layout: Layout<'_>,
-            renderer: &Renderer,
-        ) -> Option<overlay::Element<'_, Message, Renderer>> {
-            self.content
-                .overlay(layout.children().next().unwrap(), renderer)
         }
     }
 

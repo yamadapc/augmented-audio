@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use std::collections::HashMap;
 
-use iced::{Element, Text};
+use iced::{widget::Text, Element};
 
 use crate::updatable::Updatable;
 

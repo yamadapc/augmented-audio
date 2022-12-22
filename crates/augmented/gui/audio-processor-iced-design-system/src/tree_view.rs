@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::{Column, Element, Length};
+use iced::{widget::Column, Element, Length};
 
 pub use item::ItemState;
 
@@ -50,10 +50,10 @@ impl<InnerState: Updatable + 'static> State<InnerState> {
         }
     }
 
-    pub fn view(&mut self) -> Element<Message<InnerState::Message>> {
+    pub fn view(&self) -> Element<Message<InnerState::Message>> {
         let children = self
             .items
-            .iter_mut()
+            .iter()
             .enumerate()
             .map(|(index, item)| item.view().map(move |msg| Message::Child(index, msg)))
             .collect();
@@ -64,7 +64,7 @@ impl<InnerState: Updatable + 'static> State<InnerState> {
 mod item {
     use std::fmt::Debug;
 
-    use iced::{Button, Column, Container, Element, Text};
+    use iced::{widget::Button, widget::Column, widget::Container, widget::Text, Element};
 
     use crate::spacing::Spacing;
     use crate::updatable::Updatable;
@@ -85,7 +85,6 @@ mod item {
         Parent {
             title: String,
             children: Vec<ItemState<InnerState>>,
-            button_state: iced::button::State,
             is_collapsed: bool,
         },
     }
@@ -108,7 +107,6 @@ mod item {
             ItemState::Parent {
                 title,
                 children,
-                button_state: iced::button::State::default(),
                 is_collapsed: false,
             }
         }
@@ -136,18 +134,17 @@ mod item {
             }
         }
 
-        pub fn view(&mut self) -> Element<Message<InnerState::Message>> {
+        pub fn view(&self) -> Element<Message<InnerState::Message>> {
             match self {
                 ItemState::Item { title, .. } => Text::new(&*title).into(),
                 ItemState::Parent {
                     title,
                     children,
-                    button_state,
                     is_collapsed,
                 } => {
                     let child_elements = Container::new(Column::with_children(
                         children
-                            .iter_mut()
+                            .iter()
                             .enumerate()
                             .map(|(index, item)| {
                                 item.view()
@@ -158,9 +155,9 @@ mod item {
                     .padding([0, 0, 0, Spacing::base_spacing()])
                     .into();
 
-                    let toggle_button = Button::new(button_state, Text::new(&*title))
+                    let toggle_button = Button::new(Text::new(&*title))
                         .padding(0)
-                        .style(crate::style::ChromelessButton)
+                        .style(crate::style::ChromelessButton.into())
                         .on_press(Message::Toggle)
                         .into();
 
