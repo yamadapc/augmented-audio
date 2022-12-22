@@ -24,6 +24,7 @@ pub use iced_audio::Knob;
 
 pub mod style {
     use iced_audio::graphics::knob::{Appearance, NotchShape, StyleLength};
+    use iced_audio::knob::ValueArcStyle;
     use iced_style::Theme;
 
     use crate::colors::Colors;
@@ -59,6 +60,17 @@ pub mod style {
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
                 notch: Knob::notch(),
+                cap: Default::default(),
+            })
+        }
+
+        fn value_arc_style(&self, _style: &Self::Style) -> Option<ValueArcStyle> {
+            Some(ValueArcStyle {
+                width: 1.0,
+                offset: 0.0,
+                empty_color: Some(Colors::background_level0()),
+                left_filled_color: Default::default(),
+                right_filled_color: None,
                 cap: Default::default(),
             })
         }

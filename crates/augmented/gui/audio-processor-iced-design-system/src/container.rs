@@ -24,10 +24,10 @@ pub use hover_container::HoverContainer;
 
 /// Modified `iced_native::container::Container` to have styles on hover/pressed
 pub mod hover_container {
-    use iced::widget::canvas::event::Status;
     use iced::{Alignment, Color, Length, Point, Rectangle};
     use iced_native::layout::{Limits, Node};
     use iced_native::renderer::Quad;
+    use iced_native::widget::{Operation, Tree};
     use iced_native::{overlay, Clipboard, Element, Event, Layout, Padding, Shell, Widget};
 
     pub struct HoverContainer<'a, Message, Renderer: iced_native::Renderer> {
@@ -187,7 +187,7 @@ pub mod hover_container {
                     .unwrap_or_else(|| Color::TRANSPARENT.into()),
             );
             self.content.as_widget().draw(
-                state,
+                &state.children[0],
                 renderer,
                 theme,
                 &iced_native::renderer::Style {
@@ -197,6 +197,42 @@ pub mod hover_container {
                 cursor_position,
                 viewport,
             );
+        }
+
+        fn diff(&self, tree: &mut Tree) {
+            tree.diff_children(std::slice::from_ref(&self.content))
+        }
+
+        fn children(&self) -> Vec<Tree> {
+            vec![Tree::new(&self.content)]
+        }
+
+        fn operate(
+            &self,
+            tree: &mut Tree,
+            layout: Layout<'_>,
+            operation: &mut dyn Operation<Message>,
+        ) {
+            operation.container(None, &mut |operation| {
+                self.content.as_widget().operate(
+                    &mut tree.children[0],
+                    layout.children().next().unwrap(),
+                    operation,
+                );
+            });
+        }
+
+        fn overlay<'b>(
+            &'b mut self,
+            state: &'b mut Tree,
+            layout: Layout<'_>,
+            renderer: &Renderer,
+        ) -> Option<overlay::Element<'b, Message, Renderer>> {
+            self.content.as_widget_mut().overlay(
+                &mut state.children[0],
+                layout.children().next().unwrap(),
+                renderer,
+            )
         }
 
         fn on_event(
@@ -210,7 +246,7 @@ pub mod hover_container {
             shell: &mut Shell<'_, Message>,
         ) -> iced_native::event::Status {
             self.content.as_widget_mut().on_event(
-                state,
+                &mut state.children[0],
                 event,
                 layout.children().next().unwrap(),
                 cursor_position,

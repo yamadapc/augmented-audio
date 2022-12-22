@@ -27,7 +27,7 @@ use iced::{
     widget::PaneGrid, widget::Row, widget::Rule, widget::Text, Alignment, Application, Command,
     Element, Length, Settings,
 };
-use iced_audio::NormalParam;
+use iced_audio::{Normal, NormalParam};
 use iced_style::Theme;
 use widget::pane_grid;
 
@@ -51,6 +51,7 @@ fn main() -> iced::Result {
 #[derive(Debug, Clone)]
 enum Message {
     PaneResized(pane_grid::ResizeEvent),
+    KnobChanged(usize, Normal),
     Content(ContentMessage),
     Sidebar(menu_list::Message<ContentView>),
 }
@@ -119,6 +120,16 @@ impl Application for WalkthroughApp {
                         sidebar.update(msg.clone())
                     }
                 }
+            }
+            Message::KnobChanged(knob_id, value) => {
+                self.pane_state.iter_mut().for_each(|(_, pane_state)| {
+                    if let PaneState::Content(content) = pane_state {
+                        if let Some(state) = content.knobs_view.knob_states.get_mut(knob_id) {
+                            state.update(value);
+                        }
+                        content.knobs_view.sliders.state[knob_id].update(value);
+                    }
+                })
             }
         }
         Command::none()
@@ -250,11 +261,7 @@ impl Content {
                 ])
                 .into()
             }
-            ContentView::SlidersAndKnobs => self
-                .knobs_view
-                .view()
-                .map(|_| Message::Content(ContentMessage::None))
-                .into(),
+            ContentView::SlidersAndKnobs => self.knobs_view.view().into(),
             ContentView::TreeView => self
                 .tree_view
                 .view()
@@ -297,19 +304,24 @@ impl KnobsView {
 }
 
 impl KnobsView {
-    fn view(&self) -> Element<()> {
+    fn view(&self) -> Element<Message> {
         let knobs = self
             .knob_states
             .iter()
-            .map(|knob_state| {
+            .enumerate()
+            .map(|(knob_id, knob_state)| {
                 HoverContainer::new(
                     Column::with_children(vec![
                         Text::new("Dry/Wet").size(Spacing::small_font_size()).into(),
-                        Knob::new(*knob_state, |_| {})
-                            .size(Length::Units(Spacing::base_control_size()))
-                            .style(audio_knob::style::Knob)
+                        Knob::new(*knob_state, move |value| {
+                            Message::KnobChanged(knob_id, value)
+                        })
+                        .style(audio_knob::style::Knob)
+                        .size(Length::Units(Spacing::base_control_size()))
+                        .into(),
+                        Text::new(format!("{:.0}%", knob_state.value.as_f32() * 100.0))
+                            .size(Spacing::small_font_size())
                             .into(),
-                        Text::new("0%").size(Spacing::small_font_size()).into(),
                     ])
                     .align_items(Alignment::Center)
                     .spacing(Spacing::small_spacing()),
@@ -340,7 +352,7 @@ impl KnobsView {
 }
 
 struct SlidersView {
-    state: Vec<iced_audio::NormalParam>,
+    state: Vec<NormalParam>,
 }
 
 impl SlidersView {
@@ -350,12 +362,13 @@ impl SlidersView {
         }
     }
 
-    pub fn view(&self) -> Element<()> {
+    pub fn view(&self) -> Element<Message> {
         let elements = self
             .state
             .iter()
-            .map(|state| {
-                iced_audio::VSlider::new(*state, |_| ())
+            .enumerate()
+            .map(|(id, state)| {
+                iced_audio::VSlider::new(*state, move |value| Message::KnobChanged(id, value))
                     .style(audio_style::v_slider::VSlider)
                     .into()
             })

@@ -273,24 +273,28 @@ pub mod pick_list {
         fn into(self) -> iced_style::theme::PickList {
             let t = Rc::new(self);
             // TODO: This is broken
-            iced_style::theme::PickList::Default
+            iced_style::theme::PickList::Custom(t.clone(), t)
+        }
+    }
+
+    impl iced_style::menu::StyleSheet for PickList {
+        type Style = Theme;
+
+        fn appearance(&self, _style: &Self::Style) -> iced_style::menu::Appearance {
+            iced_style::menu::Appearance {
+                text_color: Colors::text(),
+                background: Background::Color(Colors::background_level0()),
+                border_width: 1.0,
+                border_radius: 0.0,
+                border_color: Colors::border_color(),
+                selected_text_color: Colors::text(),
+                selected_background: Background::Color(Colors::selected_background()),
+            }
         }
     }
 
     impl pick_list::StyleSheet for PickList {
         type Style = Theme;
-
-        // fn menu(&self, _style: &Self::Style) -> iced_style::menu::Appearance {
-        //     iced_style::menu::Appearance {
-        //         text_color: Colors::text(),
-        //         background: Background::Color(Colors::background_level0()),
-        //         border_width: 1.0,
-        //         border_radius: 0.0,
-        //         border_color: Colors::border_color(),
-        //         selected_text_color: Colors::text(),
-        //         selected_background: Background::Color(Colors::selected_background()),
-        //     }
-        // }
 
         fn active(&self, _style: &Self::Style) -> Appearance {
             Appearance {
