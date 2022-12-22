@@ -9,7 +9,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
 thiserror = "^1.0.25"
-env_logger = "0.9"
+env_logger = "0.10"
 tokio = { version = "^1.6.0", features = ["rt", "macros", "sync", "time", "rt-multi-thread"] }
 futures-util = "^0.3.15"
 tokio-tungstenite = "^0.14.0"
