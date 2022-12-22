@@ -7,10 +7,7 @@ edition = "2021"
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 winit = "0.27.3"
 foreign-types-shared = "0.1"
-
-[dependencies.taffy]
-git = "https://github.com/DioxusLabs/taffy"
-rev = "d295d9b5a1de28fa6644a7a4d5fefcd3b6957773"
+taffy = "0.2.2"
 
 [target.'cfg(any(target_os = "linux"))'.dependencies]
 skia-safe = { version = "0.54.0" }

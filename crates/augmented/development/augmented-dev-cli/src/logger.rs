@@ -23,24 +23,45 @@
 
 use std::io;
 use std::io::Write;
+use std::sync::atomic::AtomicI64;
 
-use env_logger::fmt::Formatter;
+use env_logger::fmt::{Color, Formatter};
 use log::{Record, SetLoggerError};
 
 pub struct LogFormatter;
 
 impl LogFormatter {
-    /// Output log message with level, time, thread & pid
-    pub fn format(buf: &mut Formatter, record: &Record) -> io::Result<()> {
+    pub fn format(buf: &mut Formatter, record: &Record, last_time: &AtomicI64) -> io::Result<()> {
         let level_style = buf.default_styled_level(record.level());
-        writeln!(buf, "{} {}", level_style, record.args())
+        let timestamp = chrono::Local::now().timestamp_millis();
+        let elapsed = timestamp - last_time.swap(timestamp, std::sync::atomic::Ordering::SeqCst);
+        let mut style = buf.style();
+        let elapsed_str = {
+            let elapsed_str = if elapsed == 0 {
+                format!("(   --   )")
+            } else {
+                format!("(+{:5.0}ms)", elapsed)
+            };
+            if elapsed > 100 {
+                style
+                    .set_dimmed(true)
+                    .set_color(Color::Red)
+                    .value(elapsed_str)
+            } else {
+                style.set_dimmed(true).value(elapsed_str)
+            }
+        };
+        writeln!(buf, "  {} {} {}", level_style, elapsed_str, record.args())
     }
 }
 
 pub fn try_init_from_env() -> Result<(), SetLoggerError> {
+    let now = chrono::Local::now().timestamp_millis();
+    let last_time = AtomicI64::new(now);
+
     env_logger::Builder::from_env(
         env_logger::Env::default().default_filter_or("info,wgpu_core=off"),
     )
-    .format(LogFormatter::format)
+    .format(move |buf, record| LogFormatter::format(buf, record, &last_time))
     .try_init()
 }

@@ -28,7 +28,7 @@ dependencies = [
  "actix_derive",
  "bitflags",
  "bytes",
- "crossbeam-channel 0.5.6",
+ "crossbeam-channel",
  "futures-core",
  "futures-sink",
  "futures-task",
@@ -397,7 +397,7 @@ name = "audio-parameter-store"
 version = "0.1.0"
 dependencies = [
  "audio-processor-testing-helpers",
- "crossbeam 0.8.2",
+ "crossbeam",
  "serde",
  "vst",
 ]
@@ -920,7 +920,7 @@ name = "augmented-longbackoff"
 version = "0.1.0"
 dependencies = [
  "audio-processor-testing-helpers",
- "crossbeam 0.7.3",
+ "crossbeam",
 ]
 
 [[package]]
@@ -1789,7 +1789,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6acd004617e219ee07c26b7f6f5f6b4d489c5595e432b87d0bbd8d88db1eebd3"
 dependencies = [
  "ahash",
- "crossbeam 0.8.2",
+ "crossbeam",
  "crossbeam-epoch 0.9.11",
  "lru",
  "smallvec",
@@ -2093,40 +2093,16 @@ dependencies = [
 
 [[package]]
 name = "crossbeam"
-version = "0.7.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69323bff1fb41c635347b8ead484a5ca6c3f11914d784170b158d8449ab07f8e"
-dependencies = [
- "cfg-if 0.1.10",
- "crossbeam-channel 0.4.4",
- "crossbeam-deque 0.7.4",
- "crossbeam-epoch 0.8.2",
- "crossbeam-queue 0.2.3",
- "crossbeam-utils 0.7.2",
-]
-
-[[package]]
-name = "crossbeam"
 version = "0.8.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2801af0d36612ae591caa9568261fddce32ce6e08a7275ea334a06a4ad021a2c"
 dependencies = [
  "cfg-if 1.0.0",
- "crossbeam-channel 0.5.6",
+ "crossbeam-channel",
  "crossbeam-deque 0.8.2",
  "crossbeam-epoch 0.9.11",
- "crossbeam-queue 0.3.6",
+ "crossbeam-queue",
  "crossbeam-utils 0.8.12",
-]
-
-[[package]]
-name = "crossbeam-channel"
-version = "0.4.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b153fe7cbef478c567df0f972e02e6d736db11affe43dfc9c56a9374d1adfb87"
-dependencies = [
- "crossbeam-utils 0.7.2",
- "maybe-uninit",
 ]
 
 [[package]]
@@ -2187,17 +2163,6 @@ dependencies = [
  "crossbeam-utils 0.8.12",
  "memoffset 0.6.5",
  "scopeguard",
-]
-
-[[package]]
-name = "crossbeam-queue"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "774ba60a54c213d409d5353bda12d49cd68d14e45036a285234c8d6f91f92570"
-dependencies = [
- "cfg-if 0.1.10",
- "crossbeam-utils 0.7.2",
- "maybe-uninit",
 ]
 
 [[package]]
@@ -3606,7 +3571,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6010675390f6889e09a21e2c8b575b3ee25667ea8237a8d59423f73cb8c28610"
 dependencies = [
  "ab_glyph",
- "crossbeam-channel 0.5.6",
+ "crossbeam-channel",
  "crossbeam-deque 0.8.2",
  "linked-hash-map",
  "rayon",
@@ -4571,7 +4536,7 @@ dependencies = [
  "core-graphics-types",
  "cpal",
  "criterion",
- "crossbeam 0.8.2",
+ "crossbeam",
  "foreign-types-shared 0.1.1",
  "iai",
  "itertools 0.10.5",
@@ -4996,8 +4961,8 @@ version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b47412f3a52115b936ff2a229b803498c7b4d332adeb87c2f1498c9da54c398c"
 dependencies = [
- "crossbeam 0.8.2",
- "crossbeam-queue 0.3.6",
+ "crossbeam",
+ "crossbeam-queue",
  "log",
  "mio 0.7.14",
 ]
@@ -6780,7 +6745,7 @@ version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "258bcdb5ac6dad48491bb2992db6b7cf74878b0384908af124823d118c99683f"
 dependencies = [
- "crossbeam-channel 0.5.6",
+ "crossbeam-channel",
  "crossbeam-deque 0.8.2",
  "crossbeam-utils 0.8.12",
  "num_cpus",
@@ -7993,8 +7958,9 @@ dependencies = [
 
 [[package]]
 name = "taffy"
-version = "0.2.0"
-source = "git+https://github.com/DioxusLabs/taffy?rev=d295d9b5a1de28fa6644a7a4d5fefcd3b6957773#d295d9b5a1de28fa6644a7a4d5fefcd3b6957773"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c13e87d38366d3cadcf282165b6ba51d5422ed846459997f55a347fe98242f61"
 dependencies = [
  "arrayvec 0.7.2",
  "num-traits 0.2.15",
@@ -8013,7 +7979,7 @@ dependencies = [
  "cocoa 0.24.1",
  "core-foundation 0.9.3",
  "core-graphics 0.22.3",
- "crossbeam-channel 0.5.6",
+ "crossbeam-channel",
  "dispatch",
  "gdk",
  "gdk-pixbuf",
@@ -8069,7 +8035,7 @@ dependencies = [
  "augmented_oscillator",
  "cacao",
  "cocoa 0.24.1",
- "crossbeam 0.8.2",
+ "crossbeam",
  "darwin-webkit 0.1.3",
  "dirs",
  "env_logger",
@@ -9070,7 +9036,7 @@ name = "webview-transport"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "crossbeam 0.8.2",
+ "crossbeam",
  "env_logger",
  "futures-util",
  "log",

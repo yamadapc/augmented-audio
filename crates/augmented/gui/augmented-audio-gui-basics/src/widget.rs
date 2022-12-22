@@ -22,8 +22,9 @@
 // THE SOFTWARE.
 
 use skia_safe::{Canvas, Color4f, Paint, Rect, Size};
+use taffy::layout::AvailableSpace;
 use taffy::prelude::Dimension;
-use taffy::style::{FlexDirection, FlexboxLayout};
+use taffy::style::{FlexDirection, Style};
 
 pub struct DrawContext<'a> {
     pub(crate) canvas: &'a mut Canvas,
@@ -33,7 +34,7 @@ pub fn render(canvas: &mut Canvas, size: Size, root: Element) {
     let mut layout_tree = taffy::Taffy::new();
 
     let node = layout_tree
-        .new_leaf(FlexboxLayout {
+        .new_leaf(Style {
             min_size: taffy::geometry::Size {
                 width: Dimension::Percent(1.0),
                 height: Dimension::Percent(1.0),
@@ -42,20 +43,20 @@ pub fn render(canvas: &mut Canvas, size: Size, root: Element) {
                 width: Dimension::Percent(1.0),
                 height: Dimension::Percent(1.0),
             },
-            ..FlexboxLayout::DEFAULT
+            ..Style::DEFAULT
         })
         .unwrap();
 
     let root_node = layout_tree
         .new_with_children(
-            FlexboxLayout {
+            Style {
                 padding: taffy::geometry::Rect::from_points(80.0, 80.0, 80.0, 80.0),
                 size: taffy::geometry::Size {
                     width: Dimension::Points(size.width),
                     height: Dimension::Points(size.height),
                 },
                 flex_direction: FlexDirection::Row,
-                ..FlexboxLayout::DEFAULT
+                ..Style::DEFAULT
             },
             &[node],
         )
@@ -64,8 +65,8 @@ pub fn render(canvas: &mut Canvas, size: Size, root: Element) {
         .compute_layout(
             root_node,
             taffy::geometry::Size {
-                width: Some(size.width),
-                height: Some(size.height),
+                width: AvailableSpace::from(size.width),
+                height: AvailableSpace::from(size.height),
             },
         )
         .unwrap();
@@ -98,7 +99,7 @@ impl<W: Widget + 'static> From<W> for Element {
 }
 
 pub trait Widget {
-    fn layout_style(&self) -> FlexboxLayout;
+    fn layout_style(&self) -> Style;
     fn draw(&self, ctx: &mut DrawContext, bounds: Rect);
 }
 
@@ -106,8 +107,8 @@ pub trait Widget {
 pub struct Rectangle {}
 
 impl Widget for Rectangle {
-    fn layout_style(&self) -> FlexboxLayout {
-        FlexboxLayout::DEFAULT
+    fn layout_style(&self) -> Style {
+        Style::DEFAULT
     }
 
     fn draw(&self, ctx: &mut DrawContext, bounds: Rect) {
