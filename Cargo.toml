@@ -105,7 +105,7 @@ wisual-logger = { version = "0.1", path = "crates/augmented/ops/wisual-logger" }
 
 # Vendor overrides
 # iced = { version = "^0.3.0", path = "crates/vendor/iced" }
-cpal = { path = "crates/vendor/cpal" }
+# cpal = { path = "crates/vendor/cpal" }
 coreaudio-rs = { path = "crates/vendor/coreaudio-rs" }
 vst = { path = "crates/vendor/vst" }
 libsamplerate-sys = { path = "crates/vendor/libsamplerate-sys" }
