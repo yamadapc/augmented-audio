@@ -62,7 +62,7 @@ macos-bundle-resources = { path = "../gui/macos-bundle-resources" }
 
 iced = "0.4.2"
 iced_baseview = { version = "0", path = "../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
-iced_audio = { version = "0.8.0" }
+iced_audio = { version = "0.9.0" }
 baseview = { path = "../../vendor/baseview", version = "0.1", package = "augmented_baseview" }
 
 # ops
