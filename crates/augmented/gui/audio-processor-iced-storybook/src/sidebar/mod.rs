@@ -1,3 +1,8 @@
+use iced::{widget::Row, widget::Rule, widget::Text, Command, Element};
+
+use audio_processor_iced_design_system::menu_list;
+use audio_processor_iced_design_system::style;
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,9 +26,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use crate::Options;
-use audio_processor_iced_design_system::menu_list;
-use audio_processor_iced_design_system::style;
-use iced::{Command, Element, Row, Rule, Text};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -67,7 +69,7 @@ impl SidebarView {
         Command::none()
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         let container = self
             .menu_list
             .view(|text| Text::new(&*text).into())

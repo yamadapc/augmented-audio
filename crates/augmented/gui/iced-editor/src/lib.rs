@@ -26,9 +26,11 @@ extern crate objc;
 
 use std::ffi::c_void;
 
-use baseview::{Size, Window, WindowHandle, WindowOpenOptions, WindowScalePolicy};
+use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
+use iced_baseview::window::WindowHandle;
 use iced_baseview::{settings::IcedBaseviewSettings, Application, Settings};
 use vst::editor::Editor;
+use vst::plugin::Plugin;
 
 use plugin_window::PluginWindow;
 
@@ -38,11 +40,11 @@ mod plugin_window;
 
 pub struct IcedEditor<App>
 where
-    App: Application,
+    App: Application + 'static,
     App::Message: 'static,
 {
     flags: App::Flags,
-    handle: Option<WindowHandle>,
+    handle: Option<WindowHandle<App::Message>>,
     size: (i32, i32),
     position: (i32, i32),
 }
@@ -98,7 +100,7 @@ where
                 always_redraw: true,
             },
         };
-        let handle = Window::open_parented(&window_handle, settings);
+        let handle = iced_baseview::open_parented::<App, PluginWindow>(&window_handle, settings);
         self.handle = Some(handle);
         true
     }

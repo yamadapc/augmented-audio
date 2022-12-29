@@ -1,3 +1,5 @@
+use std::convert::TryInto;
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,7 +23,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use iced::{Command, Element, Subscription};
-use std::convert::TryInto;
 
 pub struct Options<StoryMessage> {
     pub stories: Vec<Story<StoryMessage>>,
@@ -42,14 +43,14 @@ pub trait StoryView<StoryMessage> {
         Subscription::none()
     }
 
-    fn view(&mut self) -> Element<StoryMessage>;
+    fn view(&self) -> Element<StoryMessage>;
 }
 
 impl<StoryMessage, F> StoryView<StoryMessage> for F
 where
     F: 'static + Fn() -> Element<'static, StoryMessage>,
 {
-    fn view(&mut self) -> Element<StoryMessage> {
+    fn view(&self) -> Element<StoryMessage> {
         self()
     }
 }
@@ -83,7 +84,7 @@ where
         self.inner.subscription().map(|inner| inner.into())
     }
 
-    fn view(&mut self) -> Element<TargetMessage> {
+    fn view(&self) -> Element<TargetMessage> {
         self.inner.view().map(TargetMessage::from)
     }
 }

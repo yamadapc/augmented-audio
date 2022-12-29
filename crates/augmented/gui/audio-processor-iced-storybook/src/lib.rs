@@ -148,19 +148,16 @@
 use std::fmt::Debug;
 
 use iced::{
-    button, Application, Button, Column, Command, Container, Element, Length, Row, Subscription,
-    Text,
+    widget::{Button, Column, Container, Row, Text},
+    Application, Command, Element, Length, Subscription,
 };
 
-use audio_processor_iced_design_system::menu_list;
-use audio_processor_iced_design_system::spacing::Spacing;
-use audio_processor_iced_design_system::style;
-pub use model::Options;
-pub use model::Story;
+use audio_processor_iced_design_system::{menu_list, spacing::Spacing, style};
 
-pub use crate::model::ConvertingStoryView;
-pub use crate::model::StoryView;
+pub use crate::model::Options;
+pub use crate::model::Story;
 use crate::sidebar::SelectedStory;
+pub use crate::{model::ConvertingStoryView, model::StoryView};
 
 mod model;
 mod sidebar;
@@ -234,13 +231,13 @@ struct StorybookApp<StoryMessage> {
     sidebar: sidebar::SidebarView,
     last_messages: Vec<StoryMessage>,
     logging_enabled: bool,
-    log_button_state: button::State,
 }
 
 impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<StoryMessage> {
     type Executor = iced::executor::Default;
     type Message = Message<StoryMessage>;
     type Flags = Options<StoryMessage>;
+    type Theme = iced::theme::Theme;
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
         let options = flags;
@@ -250,7 +247,6 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
             options,
             last_messages: vec![],
             logging_enabled: false,
-            log_button_state: Default::default(),
         };
         let command = app.select_first_story();
 
@@ -308,8 +304,8 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
         Subscription::batch(subscriptions)
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
-        let story = find_story_mut(&self.selected_story, &mut self.options)
+    fn view(&self) -> Element<'_, Self::Message> {
+        let story = find_story(&self.selected_story, &self.options)
             .map(|story| story.renderer.view().map(Message::Child));
         let story_view = Container::new(Row::with_children(vec![story.unwrap_or_else(|| {
             Container::new(Text::new("Select a story"))
@@ -335,16 +331,13 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
         let bottom_panel = Container::new(Column::with_children(vec![
             Row::with_children(vec![
                 Text::new(" ======== Messages log ========").into(),
-                Button::new(
-                    &mut self.log_button_state,
-                    Text::new(if self.logging_enabled {
-                        "Disable log"
-                    } else {
-                        "Enable log"
-                    }),
-                )
+                Button::new(Text::new(if self.logging_enabled {
+                    "Disable log"
+                } else {
+                    "Enable log"
+                }))
                 .on_press(Message::ToggleLogging)
-                .style(style::Button::default())
+                .style(style::Button::default().into())
                 .into(),
             ])
             .into(),

@@ -473,7 +473,7 @@ name = "audio-processor-iced-storybook"
 version = "0.2.0"
 dependencies = [
  "audio-processor-iced-design-system",
- "iced 0.5.2",
+ "iced 0.6.0",
  "log",
  "wisual-logger",
 ]
@@ -866,15 +866,15 @@ dependencies = [
 name = "augmented-iced-editor"
 version = "0.2.0"
 dependencies = [
-    "augmented_baseview",
-    "augmented_iced_baseview",
-    "cocoa 0.24.1",
-    "iced 0.6.0",
-    "log",
-    "objc",
-    "raw-window-handle 0.4.3",
-    "vst",
-    "wisual-logger",
+ "augmented_baseview",
+ "augmented_iced_baseview",
+ "cocoa 0.24.1",
+ "iced 0.6.0",
+ "log",
+ "objc",
+ "raw-window-handle 0.4.3",
+ "vst",
+ "wisual-logger",
 ]
 
 [[package]]
@@ -947,17 +947,17 @@ dependencies = [
 name = "augmented_iced_baseview"
 version = "0.0.3"
 dependencies = [
-    "augmented_baseview",
-    "cfg-if 1.0.0",
-    "iced_core 0.6.2",
-    "iced_futures 0.5.1",
-    "iced_glow 0.5.1",
-    "iced_graphics 0.5.0",
-    "iced_native 0.7.0",
-    "iced_wgpu 0.7.0",
-    "keyboard-types",
-    "log",
-    "raw-window-handle 0.4.3",
+ "augmented_baseview",
+ "cfg-if 1.0.0",
+ "iced_core 0.6.2",
+ "iced_futures 0.5.1",
+ "iced_glow 0.5.1",
+ "iced_graphics 0.5.0",
+ "iced_native 0.7.0",
+ "iced_wgpu 0.7.0",
+ "keyboard-types",
+ "log",
+ "raw-window-handle 0.4.3",
  "raw-window-handle 0.5.0",
  "thiserror",
  "window_clipboard",
