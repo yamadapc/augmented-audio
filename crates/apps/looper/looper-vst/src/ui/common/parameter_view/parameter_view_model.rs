@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use iced_audio::{IntRange, Normal, NormalParam};
 
 pub struct ParameterViewModel<ParameterId> {
@@ -73,7 +74,7 @@ mod test {
     fn test_construct_parameter() {
         let parameter =
             ParameterViewModel::new(ParameterId::LoopVolume, "Volume", "db", 0.5, (0.0, 2.0));
-        assert_f_eq!(parameter.knob_state.normal().as_f32(), 0.25);
+        assert_f_eq!(parameter.knob_state.value.as_f32(), 0.25);
     }
 
     #[test]
@@ -83,7 +84,11 @@ mod test {
         assert!(parameter.int_range.is_none());
         let parameter = parameter.snap_int();
         assert_f_eq!(
-            parameter.int_range.unwrap().snapped(0.88.into()).as_f32(),
+            parameter
+                .int_range
+                .unwrap()
+                .snapped(Normal::from_clipped(0.88))
+                .as_f32(),
             0.9
         );
     }

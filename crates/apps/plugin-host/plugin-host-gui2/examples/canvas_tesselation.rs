@@ -20,15 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use criterion::black_box;
 /// This is an example here just to get some profiling data
-use iced::canvas::{Fill, Frame};
+use iced::widget::canvas::{Fill, Frame};
 use iced::{Point, Size};
 use std::time::Instant;
 
 fn run_fill(buffer: &[f32]) -> Frame {
     let mut frame = Frame::new(Size::new(1000., 1000.));
-    let mut path = iced::canvas::path::Builder::new();
+    let mut path = iced::widget::canvas::path::Builder::new();
     for (i, point) in buffer.iter().enumerate() {
         path.line_to(Point::new(i as f32, *point));
     }
