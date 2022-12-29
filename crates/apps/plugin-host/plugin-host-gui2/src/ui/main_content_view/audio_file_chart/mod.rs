@@ -1,3 +1,11 @@
+use iced::{
+    widget::{
+        canvas::{Cursor, Geometry, Program},
+        Canvas,
+    },
+    Element, Rectangle,
+};
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,8 +29,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-use iced::canvas::{Cursor, Geometry, Program};
-use iced::{Canvas, Element, Rectangle};
+use augmented::gui::iced_baseview::renderer::Theme;
 
 pub enum Message {
     #[allow(dead_code)]
@@ -58,7 +65,15 @@ impl<'a> View<'a> {
 }
 
 impl<'a> Program<Message> for View<'a> {
-    fn draw(&self, _bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        _theme: &Theme,
+        _bounds: Rectangle,
+        _cursor: Cursor,
+    ) -> Vec<Geometry> {
         vec![]
     }
 }

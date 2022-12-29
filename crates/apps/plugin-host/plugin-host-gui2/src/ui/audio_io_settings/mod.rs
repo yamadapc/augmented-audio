@@ -21,14 +21,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use actix::{Addr, MailboxError};
-
 use iced::{Command, Element};
 
-use crate::ui::audio_io_settings::view::DropdownModel;
 use plugin_host_lib::audio_io::{
     AudioHost, AudioIOService, AudioIOServiceResult, AudioIOState, GetStateMessage, ReloadMessage,
     SetStateMessage,
 };
+
+use crate::ui::audio_io_settings::view::DropdownModel;
 
 pub mod dropdown_with_label;
 pub mod view;
@@ -138,7 +138,7 @@ impl Controller {
         Command::batch(commands)
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         self.view.view().map(Message::View)
     }
 

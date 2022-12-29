@@ -1,3 +1,8 @@
+use iced::{
+    alignment,
+    widget::{pick_list, Container, Row, Text},
+    Alignment, Element, Length,
+};
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,14 +26,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use iced::Command;
-use iced::{alignment, pick_list, Alignment, Container, Element, Length, Row, Text};
 
 use audio_processor_iced_design_system::spacing::Spacing;
 
 type Message = String;
 
 pub struct DropdownWithLabel {
-    pick_list_state: pick_list::State<String>,
     label: String,
     options: Vec<String>,
     selected_option: Option<String>,
@@ -41,7 +44,6 @@ impl DropdownWithLabel {
         selected_option: Option<impl Into<String>>,
     ) -> Self {
         DropdownWithLabel {
-            pick_list_state: pick_list::State::default(),
             label: label.into(),
             options,
             selected_option: selected_option.map(|s| s.into()),
@@ -53,7 +55,7 @@ impl DropdownWithLabel {
         Command::none()
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         Row::with_children(vec![
             Container::new(Text::new(&self.label))
                 .width(Length::FillPortion(2))
@@ -63,7 +65,6 @@ impl DropdownWithLabel {
                 .into(),
             Container::new(
                 pick_list::PickList::new(
-                    &mut self.pick_list_state,
                     self.options.clone(),
                     self.selected_option.clone(),
                     |option| option,
@@ -113,7 +114,7 @@ pub mod story {
             self.dropdown.update(message)
         }
 
-        fn view(&mut self) -> Element<Message> {
+        fn view(&self) -> Element<Message> {
             self.dropdown.view()
         }
     }

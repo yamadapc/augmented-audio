@@ -22,7 +22,10 @@
 // THE SOFTWARE.
 //! Stateless views for `MainContentView` layout
 
-use iced::{button, Button, Column, Container, Element, Length, Row, Rule, Text};
+use iced::{
+    widget::{Button, Column, Container, Row, Rule, Text},
+    Element, Length,
+};
 
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style;
@@ -40,15 +43,11 @@ use crate::ui::main_content_view::{
 
 pub struct StartStopViewModel {
     pub is_started: bool,
-    pub button_state: iced::button::State,
 }
 
 impl Default for StartStopViewModel {
     fn default() -> Self {
-        Self {
-            is_started: true,
-            button_state: Default::default(),
-        }
+        Self { is_started: true }
     }
 }
 
@@ -61,14 +60,14 @@ pub enum Route {
 
 pub struct MainContentViewModel<'a> {
     pub route: &'a Route,
-    pub navigation_header_state: &'a mut NavigationHeaderState,
-    pub audio_io_settings: &'a mut audio_io_settings::Controller,
-    pub plugin_content: &'a mut View,
-    pub audio_chart: &'a mut Option<AudioChart>,
-    pub volume_meter_state: &'a mut volume_meter::VolumeMeter,
-    pub transport_controls: &'a mut TransportControlsView,
+    pub navigation_header_state: &'a NavigationHeaderState,
+    pub audio_io_settings: &'a audio_io_settings::Controller,
+    pub plugin_content: &'a View,
+    pub audio_chart: &'a Option<AudioChart>,
+    pub volume_meter_state: &'a volume_meter::VolumeMeter,
+    pub transport_controls: &'a TransportControlsView,
     pub status_message: &'a StatusBar,
-    pub start_stop_button_state: &'a mut StartStopViewModel,
+    pub start_stop_button_state: &'a StartStopViewModel,
     pub audio_file_model: &'a AudioFileModel,
 }
 
@@ -118,8 +117,8 @@ pub fn main_content_view(view_model: MainContentViewModel) -> Element<Message> {
 }
 
 struct BottomVisualisationViewModel<'a> {
-    audio_chart: &'a mut Option<audio_chart::AudioChart>,
-    volume_meter_state: &'a mut volume_meter::VolumeMeter,
+    audio_chart: &'a Option<audio_chart::AudioChart>,
+    volume_meter_state: &'a volume_meter::VolumeMeter,
 }
 
 #[allow(dead_code)]
@@ -170,7 +169,7 @@ fn bottom_visualisation_content_container(
     .into()
 }
 
-fn plugin_content_container(plugin_content: &mut plugin_content::View) -> Element<Message> {
+fn plugin_content_container(plugin_content: &plugin_content::View) -> Element<Message> {
     Container::new(plugin_content.view().map(Message::PluginContent))
         .style(Container0::default())
         .height(Length::Fill)
@@ -179,7 +178,7 @@ fn plugin_content_container(plugin_content: &mut plugin_content::View) -> Elemen
 }
 
 fn transport_controls_container(
-    transport_controls: &mut transport_controls::TransportControlsView,
+    transport_controls: &transport_controls::TransportControlsView,
 ) -> Element<Message> {
     Container::new(transport_controls.view().map(Message::TransportControls))
         .style(Container1::default())
@@ -198,39 +197,29 @@ fn status_message_container(status_message: &StatusBar) -> Element<Message> {
 }
 
 #[derive(Default)]
-pub struct NavigationHeaderState {
-    main_button_state: button::State,
-    settings_button_state: button::State,
-}
+pub struct NavigationHeaderState {}
 
 fn navigation_header<'a>(
     route: &'a Route,
-    navigation_header_state: &'a mut NavigationHeaderState,
-    start_stop_button_state: &'a mut StartStopViewModel,
+    navigation_header_state: &'a NavigationHeaderState,
+    start_stop_button_state: &'a StartStopViewModel,
 ) -> Element<'a, Message> {
-    let route_button = |button_state, route, label, is_active| {
-        Button::new(button_state, Text::new(label))
-            .style(route_button_style::RouteButtonStyle {
-                is_active,
-                button: style::button::Button::default(),
-            })
+    let route_button = |route, label, is_active| {
+        Button::new(Text::new(label))
+            .style(
+                route_button_style::RouteButtonStyle {
+                    is_active,
+                    button: style::button::Button::default(),
+                }
+                .into(),
+            )
             .on_press(Message::SetRoute(route))
             .into()
     };
 
     let route_buttons = Row::with_children(vec![
-        route_button(
-            &mut navigation_header_state.main_button_state,
-            Route::Development,
-            "Main",
-            Route::Development == *route,
-        ),
-        route_button(
-            &mut navigation_header_state.settings_button_state,
-            Route::Settings,
-            "Settings",
-            Route::Settings == *route,
-        ),
+        route_button(Route::Development, "Main", Route::Development == *route),
+        route_button(Route::Settings, "Settings", Route::Settings == *route),
     ])
     .spacing(Spacing::base_spacing())
     .into();
@@ -245,10 +234,10 @@ fn navigation_header<'a>(
 }
 
 mod route_button_style {
-    use audio_processor_iced_design_system::style;
     use iced::widget::button;
 
-    use augmented::gui::iced::button::Style;
+    use audio_processor_iced_design_system::style;
+    use augmented::gui::iced::widget::button::{Appearance, StyleSheet};
     use augmented::gui::iced_design_system::colors::Colors;
 
     pub struct RouteButtonStyle {
@@ -256,43 +245,48 @@ mod route_button_style {
         pub button: style::button::Button,
     }
 
-    impl button::StyleSheet for RouteButtonStyle {
-        fn active(&self) -> Style {
-            Style {
+    impl From<RouteButtonStyle> for iced::theme::Button {
+        fn from(value: RouteButtonStyle) -> Self {
+            Self::Custom(Box::new(value))
+        }
+    }
+
+    impl StyleSheet for RouteButtonStyle {
+        type Style = iced::Theme;
+
+        fn active(&self, _theme: &Self::Style) -> Appearance {
+            Appearance {
                 border_color: if self.is_active {
                     Colors::active_border_color()
                 } else {
                     Colors::border_color()
                 },
-                ..button::StyleSheet::active(&self.button)
+                ..button::StyleSheet::active(&self.button, _theme)
             }
         }
 
-        fn hovered(&self) -> Style {
-            button::StyleSheet::hovered(&self.button)
+        fn hovered(&self, _theme: &Self::Style) -> Appearance {
+            button::StyleSheet::hovered(&self.button, _theme)
         }
 
-        fn pressed(&self) -> Style {
-            button::StyleSheet::pressed(&self.button)
+        fn pressed(&self, _theme: &Self::Style) -> Appearance {
+            button::StyleSheet::pressed(&self.button, _theme)
         }
 
-        fn disabled(&self) -> Style {
-            button::StyleSheet::disabled(&self.button)
+        fn disabled(&self, _theme: &Self::Style) -> Appearance {
+            button::StyleSheet::disabled(&self.button, _theme)
         }
     }
 }
 
 /// Start/stop engine button view
-fn start_stop_view(start_stop_button_state: &mut StartStopViewModel) -> Element<Message> {
-    Button::new(
-        &mut start_stop_button_state.button_state,
-        if start_stop_button_state.is_started {
-            Text::new("Stop audio engine")
-        } else {
-            Text::new("Start audio engine")
-        },
-    )
+fn start_stop_view(start_stop_button_state: &StartStopViewModel) -> Element<Message> {
+    Button::new(if start_stop_button_state.is_started {
+        Text::new("Stop audio engine")
+    } else {
+        Text::new("Start audio engine")
+    })
     .on_press(Message::StartStopButtonClicked)
-    .style(style::Button::default())
+    .style(style::Button::default().into())
     .into()
 }

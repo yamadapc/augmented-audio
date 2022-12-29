@@ -20,7 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::{Column, Command, Container, Element, Length, Rule, Text};
+use iced::{
+    widget::{Column, Container, Rule, Text},
+    Command, Element, Length,
+};
 
 use audio_processor_iced_design_system::spacing::Spacing;
 use audio_processor_iced_design_system::style::{Container0, Container1};
@@ -98,7 +101,7 @@ impl View {
         Command::none()
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         let header = section_heading("Audio IO Settings");
         let content = self.content_view();
         Column::with_children(vec![header.into(), content.into()])
@@ -106,7 +109,7 @@ impl View {
             .into()
     }
 
-    pub fn content_view(&mut self) -> impl Into<Element<Message>> {
+    pub fn content_view(&self) -> impl Into<Element<Message>> {
         Container::new(
             Column::with_children(vec![
                 self.audio_driver_dropdown
@@ -148,7 +151,7 @@ pub struct DropdownModel {
 }
 
 fn section_heading<'a, T: Into<String>>(label: T) -> impl Into<Element<'a, Message>> {
-    let text = Text::new(label);
+    let text = Text::new(label.into());
     Column::with_children(vec![
         Container::new(text)
             .style(Container0::default())
@@ -158,7 +161,7 @@ fn section_heading<'a, T: Into<String>>(label: T) -> impl Into<Element<'a, Messa
     ])
 }
 
-fn horizontal_rule() -> Rule<'static> {
+fn horizontal_rule() -> Rule<iced::Renderer> {
     Rule::horizontal(1).style(audio_processor_iced_design_system::style::Rule)
 }
 
@@ -213,7 +216,7 @@ pub mod story {
             self.audio_io_settings.update(message)
         }
 
-        fn view(&mut self) -> Element<Message> {
+        fn view(&self) -> Element<Message> {
             self.audio_io_settings.view()
         }
     }

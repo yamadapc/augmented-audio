@@ -210,16 +210,16 @@ impl MainContentView {
         }
     }
 
-    pub fn view(&mut self) -> Element<Message> {
-        let audio_io_settings = &mut self.audio_io_settings;
-        let plugin_content = &mut self.plugin_content;
-        let audio_chart = &mut self.audio_chart;
-        let transport_controls = &mut self.transport_controls;
+    pub fn view(&self) -> Element<Message> {
+        let audio_io_settings = &self.audio_io_settings;
+        let plugin_content = &self.plugin_content;
+        let audio_chart = &self.audio_chart;
+        let transport_controls = &self.transport_controls;
         let status_message = &self.status_message;
-        let volume_meter_state = &mut self.volume_meter_state;
+        let volume_meter_state = &self.volume_meter_state;
         let audio_file_model = &self.audio_file_model;
-        let start_stop_button_state = &mut self.start_stop_button_state;
-        let navigation_header_state = &mut self.navigation_header_state;
+        let start_stop_button_state = &self.start_stop_button_state;
+        let navigation_header_state = &self.navigation_header_state;
 
         view::main_content_view(view::MainContentViewModel {
             route: &self.route,

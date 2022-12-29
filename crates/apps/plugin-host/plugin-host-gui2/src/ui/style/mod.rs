@@ -1,3 +1,5 @@
+use iced::{Background, Color};
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -20,7 +22,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::{Background, Color};
+use augmented::gui::iced_baseview::widget::container::Appearance;
 
 pub struct ContainerStylesheet {
     pub text_color: Option<Color>,
@@ -64,12 +66,12 @@ impl ContainerStylesheet {
 
 impl Default for ContainerStylesheet {
     fn default() -> Self {
-        iced::container::Style::default().into()
+        iced::widget::container::Appearance::default().into()
     }
 }
 
-impl From<iced::container::Style> for ContainerStylesheet {
-    fn from(style: iced::container::Style) -> Self {
+impl From<iced::widget::container::Appearance> for ContainerStylesheet {
+    fn from(style: iced::widget::container::Appearance) -> Self {
         Self {
             text_color: style.text_color,
             background: style.background,
@@ -80,9 +82,11 @@ impl From<iced::container::Style> for ContainerStylesheet {
     }
 }
 
-impl iced::container::StyleSheet for ContainerStylesheet {
-    fn style(&self) -> iced::container::Style {
-        iced::container::Style {
+impl iced::widget::container::StyleSheet for ContainerStylesheet {
+    type Style = iced::Theme;
+
+    fn appearance(&self, style: &Self::Style) -> Appearance {
+        iced::widget::container::Appearance {
             text_color: self.text_color,
             background: self.background,
             border_radius: self.border_radius,

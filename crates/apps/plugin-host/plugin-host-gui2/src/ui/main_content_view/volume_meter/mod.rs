@@ -22,11 +22,13 @@
 // THE SOFTWARE.
 // use std::cell::RefCell;
 
-use iced::canvas::event::Status;
-use iced::canvas::{Cache, Cursor, Event, Frame, Geometry, Program, Stroke};
 use iced::mouse::Interaction;
+use iced::widget::canvas::event::Status;
 use iced::widget::canvas::Fill;
-use iced::{Canvas, Command, Container, Element, Length, Point, Rectangle, Size, Vector};
+use iced::widget::canvas::{Cache, Cursor, Event, Frame, Geometry, Program, Stroke};
+use iced::{
+    widget::Canvas, widget::Container, Command, Element, Length, Point, Rectangle, Size, Vector,
+};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::{darken_color, Colors};
@@ -118,7 +120,7 @@ impl VolumeMeter {
         self.state.volume = value;
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         Container::new(Canvas::new(self).width(Length::Fill).height(Length::Fill))
             .width(Length::Fill)
             .height(Length::Fill)
@@ -149,31 +151,34 @@ pub fn update(message: Message) -> Command<Message> {
 }
 
 impl Program<Message> for VolumeMeter {
+    type State = State;
+
     fn update(
-        &mut self,
+        &self,
+        state: &mut Self::State,
         event: Event,
         bounds: Rectangle,
         cursor: Cursor,
     ) -> (Status, Option<Message>) {
-        let ignore = (iced::canvas::event::Status::Ignored, None);
+        let ignore = (iced::widget::canvas::event::Status::Ignored, None);
         match event {
             Event::Mouse(mouse_event) => match mouse_event {
                 iced::mouse::Event::CursorMoved { position } => {
-                    if self.state.mouse_state.dragging {
+                    if state.mouse_state.dragging {
                         let top_left_position = bounds.y;
                         let relative_y =
                             (bounds.height - (position.y - top_left_position)) / bounds.height;
                         let volume = VolumeMeter::y_perc_to_db(relative_y);
-                        self.state.volume = volume;
+                        state.volume = volume;
                         log::trace!(
                             "VolumeMeter::update relative_y={} volume={}",
                             relative_y,
                             volume.as_db()
                         );
                         (
-                            iced::canvas::event::Status::Captured,
+                            iced::widget::canvas::event::Status::Captured,
                             Some(Message::VolumeChange {
-                                value: self.state.volume,
+                                value: state.volume,
                             }),
                         )
                     } else {
@@ -182,9 +187,9 @@ impl Program<Message> for VolumeMeter {
                 }
                 iced::mouse::Event::ButtonPressed(_) => {
                     if cursor.is_over(&bounds) {
-                        self.state.mouse_state.dragging = true;
+                        state.mouse_state.dragging = true;
                         (
-                            iced::canvas::event::Status::Captured,
+                            iced::widget::canvas::event::Status::Captured,
                             Some(Message::DragStart),
                         )
                     } else {
@@ -193,10 +198,10 @@ impl Program<Message> for VolumeMeter {
                 }
                 iced::mouse::Event::ButtonReleased(_) => {
                     let was_dragging = self.is_dragging();
-                    self.state.mouse_state.dragging = false;
+                    state.mouse_state.dragging = false;
                     if was_dragging {
                         (
-                            iced::canvas::event::Status::Captured,
+                            iced::widget::canvas::event::Status::Captured,
                             Some(Message::DragEnd),
                         )
                     } else {
@@ -209,7 +214,13 @@ impl Program<Message> for VolumeMeter {
         }
     }
 
-    fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+    fn draw(
+        &self,
+        state: &Self::State,
+        _theme: &iced::Theme,
+        bounds: Rectangle,
+        _cursor: Cursor,
+    ) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size()); // self.frame.borrow_mut();
                                                    // frame.resize(bounds.size());
 
@@ -248,7 +259,12 @@ impl Program<Message> for VolumeMeter {
         geometry
     }
 
-    fn mouse_interaction(&self, bounds: Rectangle, cursor: Cursor) -> Interaction {
+    fn mouse_interaction(
+        &self,
+        state: &Self::State,
+        bounds: Rectangle,
+        cursor: Cursor,
+    ) -> Interaction {
         if self.is_dragging() || cursor.is_over(&bounds) {
             iced::mouse::Interaction::ResizingVertically
         } else {
@@ -328,7 +344,7 @@ impl VolumeMeter {
 
     /// Draw the volume handle
     fn draw_volume_handle(frame: &mut Frame, offset_x: f32, volume: Decibels) {
-        let mut handle_path = iced::canvas::path::Builder::new();
+        let mut handle_path = iced::widget::canvas::path::Builder::new();
         let handle_width = 10.0;
 
         let start_x = offset_x - handle_width / 2.;
@@ -352,7 +368,7 @@ impl VolumeMeter {
     fn draw_mark(frame: &mut Frame, bar_width: f32, offset_x: f32, value: Decibels) {
         let text = format!("{:>4.0}", value.as_db());
         let tick_y = Self::decibels_y_position(frame, value);
-        let mut tick_path = iced::canvas::path::Builder::new();
+        let mut tick_path = iced::widget::canvas::path::Builder::new();
         tick_path.move_to(Point::new(offset_x, tick_y));
         tick_path.line_to(Point::new(offset_x + bar_width, tick_y));
         frame.stroke(
@@ -360,10 +376,10 @@ impl VolumeMeter {
             Stroke::default().with_color(Colors::border_color()),
         );
         frame.translate(Vector::new(bar_width * 2. + 5., tick_y - 8.0));
-        frame.fill_text(iced::canvas::Text {
+        frame.fill_text(iced::widget::canvas::Text {
             content: text,
             color: Colors::border_color(),
-            ..iced::canvas::Text::default()
+            ..iced::widget::canvas::Text::default()
         });
         frame.translate(Vector::new(-(bar_width * 2. + 5.), -(tick_y - 8.0)));
     }
@@ -419,7 +435,7 @@ fn interpolate(value: f32, range_from: (f32, f32), range_to: (f32, f32)) -> f32 
 pub mod story {
     use std::time::{Duration, Instant};
 
-    use iced::{Row, Subscription};
+    use iced::{widget::Row, Subscription};
 
     use audio_processor_iced_design_system::style::Container1;
     use audio_processor_iced_storybook::StoryView;
@@ -460,10 +476,10 @@ pub mod story {
             iced::time::every(Duration::from_millis(16)).map(|_| Message::None)
         }
 
-        fn view(&mut self) -> Element<Message> {
+        fn view(&self) -> Element<Message> {
             let children = self
                 .state
-                .iter_mut()
+                .iter()
                 .map(|state| {
                     Container::new(state.view())
                         .style(Container1::default().border())

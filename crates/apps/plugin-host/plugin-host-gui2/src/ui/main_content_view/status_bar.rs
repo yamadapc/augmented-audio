@@ -20,7 +20,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::{Background, Container, Element, Length, Text};
+use iced::{
+    widget::{Container, Text},
+    Background, Element, Length,
+};
 
 use audio_processor_iced_design_system::colors::Colors;
 use audio_processor_iced_design_system::spacing::Spacing;
@@ -48,7 +51,7 @@ impl StatusBar {
     }
 
     pub fn view(self) -> Element<'static, ()> {
-        Container::new(Text::new(&self.message).size(Spacing::small_font_size()))
+        Container::new(Text::new(self.message).size(Spacing::small_font_size()))
             .center_y()
             .padding([0, Spacing::base_spacing()])
             .style(StatusContainer { state: self.state })
@@ -62,9 +65,17 @@ struct StatusContainer {
     state: State,
 }
 
-impl iced::container::StyleSheet for StatusContainer {
-    fn style(&self) -> iced::container::Style {
-        iced::container::Style {
+impl From<StatusContainer> for iced::theme::Container {
+    fn from(value: StatusContainer) -> Self {
+        Self::Custom(Box::new(value))
+    }
+}
+
+impl iced::widget::container::StyleSheet for StatusContainer {
+    type Style = iced::Theme;
+
+    fn appearance(&self, _theme: &Self::Style) -> iced::widget::container::Appearance {
+        iced::widget::container::Appearance {
             text_color: Some(Colors::text()),
             background: match self.state {
                 State::Success => Some(Background::Color(Colors::success())),
@@ -81,7 +92,7 @@ impl iced::container::StyleSheet for StatusContainer {
 
 #[cfg(feature = "story")]
 pub mod story {
-    use iced::Column;
+    use iced::widget::Column;
 
     use audio_processor_iced_storybook::StoryView;
 

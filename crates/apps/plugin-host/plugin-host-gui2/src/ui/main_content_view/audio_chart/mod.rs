@@ -24,13 +24,19 @@
 // use std::cell::RefCell;
 use std::time::SystemTime;
 
-use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
-use iced::{canvas, Canvas, Element, Length, Point, Rectangle};
+use iced::{
+    widget::{
+        canvas::{self, Cursor, Fill, Frame, Geometry, Program},
+        Canvas,
+    },
+    Element, Length, Point, Rectangle,
+};
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::{darken_color, Colors};
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 use audio_processor_traits::AudioBuffer;
+use augmented::gui::iced_baseview::renderer::Theme;
 use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessorHandle;
 
 pub type Message = ();
@@ -73,7 +79,7 @@ impl AudioChart {
         }
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         AudioChartView::new(&self.rms_buffer, self.cursor).view()
     }
 }
@@ -106,7 +112,15 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> AudioChartView<'a, Buffer> {
 }
 
 impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChartView<'a, Buffer> {
-    fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        _theme: &Theme,
+        bounds: Rectangle,
+        _cursor: Cursor,
+    ) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
         let mut path = canvas::path::Builder::new();
 

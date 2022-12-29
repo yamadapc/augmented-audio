@@ -1,3 +1,4 @@
+use iced::{widget::Canvas, Color, Element, Point, Rectangle, Size, Theme};
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -20,10 +21,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
 use iced::mouse::Interaction;
-use iced::{Canvas, Color, Element, Point, Rectangle, Size};
+use iced::widget::canvas::{Cursor, Fill, Frame, Geometry, Program};
 
+#[derive(Copy, Clone)]
 pub struct Stop {
     color: Color,
     hover: Color,
@@ -43,23 +44,31 @@ impl Stop {
         }
     }
 
-    pub fn color(&mut self, color: Color) -> &mut Self {
+    pub fn color(mut self, color: Color) -> Self {
         self.color = color;
         self
     }
 
-    pub fn hover(&mut self, color: Color) -> &mut Self {
+    pub fn hover(mut self, color: Color) -> Self {
         self.hover = color;
         self
     }
 
-    pub fn view(&mut self) -> Element<()> {
+    pub fn view(&self) -> Element<()> {
         Canvas::new(self).into()
     }
 }
 
 impl<Message> Program<Message> for Stop {
-    fn draw(&self, bounds: Rectangle, cursor: Cursor) -> Vec<Geometry> {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        _theme: &Theme,
+        bounds: Rectangle,
+        cursor: Cursor,
+    ) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
         let color = if cursor.is_over(&bounds) {
             self.hover
@@ -75,7 +84,12 @@ impl<Message> Program<Message> for Stop {
         vec![frame.into_geometry()]
     }
 
-    fn mouse_interaction(&self, bounds: Rectangle, cursor: Cursor) -> Interaction {
+    fn mouse_interaction(
+        &self,
+        _state: &Self::State,
+        bounds: Rectangle,
+        cursor: Cursor,
+    ) -> Interaction {
         if cursor.is_over(&bounds) {
             Interaction::Pointer
         } else {

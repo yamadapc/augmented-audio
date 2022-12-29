@@ -25,7 +25,9 @@ use std::time::Duration;
 use derive_more::From;
 
 use audio_processor_iced_design_system as design_system;
-use augmented::gui::iced::{Application, Command, Container, Element, Length, Subscription};
+use augmented::gui::iced::{
+    widget::Container, Application, Command, Element, Length, Subscription,
+};
 use plugin_host_lib::actor_system::ActorSystem;
 use plugin_host_lib::audio_io::audio_thread::options::AudioThreadOptions;
 use plugin_host_lib::audio_io::audio_thread::AudioThread;
@@ -56,6 +58,7 @@ impl Application for App {
     type Executor = executor::PluginHostExecutor;
     type Message = AppMessage;
     type Flags = ();
+    type Theme = iced::Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         let version = utils::get_version();
@@ -123,7 +126,7 @@ impl Application for App {
         Subscription::batch(subscriptions)
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<'_, Self::Message> {
         let content = match &self.start_result {
             Ok(_) => self.main_content_view.view().map(AppMessage::Content),
             Err(err) => ui::start_error_view::StartErrorView::view(err).map(|_| AppMessage::None),

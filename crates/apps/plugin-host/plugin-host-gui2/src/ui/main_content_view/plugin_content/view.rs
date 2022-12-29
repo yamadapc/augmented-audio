@@ -20,18 +20,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::{alignment, Alignment, Button, Column, Command, Container, Element, Length, Row, Text};
+use iced::{
+    alignment,
+    widget::{Button, Column, Container, Row, Text},
+    Alignment, Command, Element, Length,
+};
 
 use audio_processor_iced_design_system::spacing::Spacing;
 
 use crate::utils::command_message;
 
 pub struct View {
-    input_file_path_button_state: iced::button::State,
-    audio_plugin_path_button_state: iced::button::State,
-    plugin_open_button: iced::button::State,
-    plugin_float_button: iced::button::State,
-    reload_plugin_button: iced::button::State,
     plugin_is_open: bool,
     input_file: Option<String>,
     audio_plugin_path: Option<String>,
@@ -52,11 +51,6 @@ pub enum Message {
 impl View {
     pub fn new(input_file: Option<String>, audio_plugin_path: Option<String>) -> Self {
         View {
-            input_file_path_button_state: iced::button::State::new(),
-            audio_plugin_path_button_state: iced::button::State::new(),
-            plugin_open_button: iced::button::State::new(),
-            plugin_float_button: iced::button::State::new(),
-            reload_plugin_button: iced::button::State::new(),
             plugin_is_open: false,
             input_file,
             audio_plugin_path,
@@ -92,18 +86,16 @@ impl View {
         Command::none()
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         let mut children = vec![
             Self::file_picker_with_label(
                 "Input file",
-                &mut self.input_file_path_button_state,
                 &self.input_file,
                 "Select input file",
                 Message::OpenInputFilePathPicker,
             ),
             Self::file_picker_with_label(
                 "Audio plugin",
-                &mut self.audio_plugin_path_button_state,
                 &self.audio_plugin_path,
                 "Select audio plugin",
                 Message::OpenAudioPluginFilePathPicker,
@@ -115,22 +107,22 @@ impl View {
         {
             if !self.plugin_is_open {
                 buttons_row.push(
-                    Button::new(&mut self.plugin_open_button, Text::new("Open editor"))
-                        .style(audio_processor_iced_design_system::style::Button::default())
+                    Button::new(Text::new("Open editor"))
+                        .style(audio_processor_iced_design_system::style::Button::default().into())
                         .on_press(Message::OpenPluginWindow)
                         .into(),
                 );
             } else {
                 buttons_row.push(
-                    Button::new(&mut self.plugin_open_button, Text::new("Close editor"))
-                        .style(audio_processor_iced_design_system::style::Button::default())
+                    Button::new(Text::new("Close editor"))
+                        .style(audio_processor_iced_design_system::style::Button::default().into())
                         .on_press(Message::ClosePluginWindow)
                         .into(),
                 );
             }
             buttons_row.push(
-                Button::new(&mut self.plugin_float_button, Text::new("Float editor"))
-                    .style(audio_processor_iced_design_system::style::Button::default())
+                Button::new(Text::new("Float editor"))
+                    .style(audio_processor_iced_design_system::style::Button::default().into())
                     .on_press(Message::FloatPluginWindow)
                     .into(),
             );
@@ -146,9 +138,9 @@ impl View {
         }
 
         buttons_row.push(
-            Button::new(&mut self.reload_plugin_button, Text::new("Reload plugin"))
+            Button::new(Text::new("Reload plugin"))
                 .on_press(Message::ReloadPlugin)
-                .style(audio_processor_iced_design_system::style::Button::default())
+                .style(audio_processor_iced_design_system::style::Button::default().into())
                 .into(),
         );
         children.push(
@@ -166,28 +158,24 @@ impl View {
 
     fn file_picker_with_label<'a>(
         label: impl Into<String>,
-        state: &'a mut iced::button::State,
         option: &'a Option<String>,
         button_text: impl Into<String>,
         message: Message,
     ) -> Element<'a, Message> {
         Row::with_children(vec![
-            Container::new(Text::new(label))
+            Container::new(Text::new(label.into()))
                 .width(Length::FillPortion(2))
                 .align_x(alignment::Horizontal::Right)
                 .center_y()
                 .padding([0, Spacing::base_spacing()])
                 .into(),
             Container::new(
-                Row::with_children(vec![Button::new(
-                    state,
-                    Text::new(match option {
-                        Some(file) => file.into(),
-                        None => button_text.into(),
-                    }),
-                )
+                Row::with_children(vec![Button::new(Text::new(match option {
+                    Some(file) => file.into(),
+                    None => button_text.into(),
+                }))
                 .on_press(message)
-                .style(audio_processor_iced_design_system::style::Button::default())
+                .style(audio_processor_iced_design_system::style::Button::default().into())
                 .into()])
                 .align_items(Alignment::Center)
                 .spacing(Spacing::base_spacing()),
@@ -228,7 +216,7 @@ pub mod story {
             self.view.update(message)
         }
 
-        fn view(&mut self) -> Element<Message> {
+        fn view(&self) -> Element<Message> {
             self.view.view()
         }
     }
