@@ -216,7 +216,7 @@ impl Program<Message> for VolumeMeter {
 
     fn draw(
         &self,
-        state: &Self::State,
+        _state: &Self::State,
         _theme: &iced::Theme,
         bounds: Rectangle,
         _cursor: Cursor,
@@ -261,7 +261,7 @@ impl Program<Message> for VolumeMeter {
 
     fn mouse_interaction(
         &self,
-        state: &Self::State,
+        _state: &Self::State,
         bounds: Rectangle,
         cursor: Cursor,
     ) -> Interaction {

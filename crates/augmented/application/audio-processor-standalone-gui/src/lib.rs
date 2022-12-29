@@ -29,10 +29,11 @@
 //! * [`editor`] runs a boxed `Editor` instance
 
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
+use iced::Theme;
 use iced_audio::{Normal, NormalParam};
 use iced_baseview::{
-    Alignment, Application, Column, Command, Container, Element, IcedWindow, Length, Row, Settings,
-    Text,
+    widget::Column, widget::Container, widget::Row, widget::Text, Alignment, Application, Command,
+    Element, Length, Settings,
 };
 
 use audio_processor_iced_design_system::knob as audio_knob;
@@ -50,7 +51,7 @@ struct Flags {
 
 struct ParameterModel {
     spec: ParameterSpec,
-    knob_state: iced_audio::knob::State,
+    knob_state: iced_audio::NormalParam,
 }
 
 struct GenericAudioProcessorApplication {
@@ -66,6 +67,7 @@ enum Message {
 impl Application for GenericAudioProcessorApplication {
     type Executor = iced::executor::Default;
     type Message = Message;
+    type Theme = iced::Theme;
     type Flags = Flags;
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
@@ -81,10 +83,10 @@ impl Application for GenericAudioProcessorApplication {
             };
             parameter_models.push(ParameterModel {
                 spec,
-                knob_state: iced_audio::knob::State::new(NormalParam {
-                    value: Normal::from(value),
-                    default: Normal::from(value),
-                }),
+                knob_state: NormalParam {
+                    value: Normal::from_clipped(value),
+                    default: Normal::from_clipped(value),
+                },
             });
         }
 
@@ -97,9 +99,13 @@ impl Application for GenericAudioProcessorApplication {
         )
     }
 
+    fn title(&self) -> String {
+        "Audio processor standalone".to_string()
+    }
+
     fn update(
         &mut self,
-        _window_queue: &mut iced_baseview::WindowQueue,
+        _window_queue: &mut iced_baseview::window::WindowQueue,
         message: Self::Message,
     ) -> Command<Self::Message> {
         match message {
@@ -110,12 +116,12 @@ impl Application for GenericAudioProcessorApplication {
         Command::none()
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<Self::Message, Self::Theme> {
         let handle = &self.handle;
 
         Container::new(Row::with_children(
             self.parameter_models
-                .iter_mut()
+                .iter()
                 .enumerate()
                 .map(|(parameter_index, model)| {
                     let value = handle.get_parameter(parameter_index).unwrap();
@@ -135,9 +141,9 @@ impl Application for GenericAudioProcessorApplication {
 
 fn parameter_view(
     parameter_index: usize,
-    model: &mut ParameterModel,
+    model: &ParameterModel,
     value: ParameterValue,
-) -> Element<Message> {
+) -> Element<Message, Theme> {
     match (value, model.spec.ty()) {
         (ParameterValue::Float { value }, ParameterType::Float(FloatType { range, .. })) => {
             let range = *range;
@@ -146,15 +152,10 @@ fn parameter_view(
                 Text::new(model.spec.name())
                     .size(Spacing::small_font_size())
                     .into(),
-                Knob::new(
-                    &mut model.knob_state,
-                    move |value| {
-                        let n_value = range.0 + value.as_f32() * (range.1 - range.0);
-                        Message::KnobChange(parameter_index, n_value)
-                    },
-                    || None,
-                    || None,
-                )
+                Knob::new(model.knob_state, move |value| {
+                    let n_value = range.0 + value.as_f32() * (range.1 - range.0);
+                    Message::KnobChange(parameter_index, n_value)
+                })
                 .size(Length::Units(Spacing::base_control_size()))
                 .style(audio_knob::style::Knob)
                 .into(),
@@ -180,7 +181,7 @@ pub fn editor(handle: AudioProcessorHandleRef) -> Box<dyn vst::editor::Editor> {
 
 /// Open this generic editor as a standalone app. Will block, needs to be run on the main-thread.
 pub fn open(handle: AudioProcessorHandleRef) {
-    IcedWindow::<GenericAudioProcessorApplication>::open_blocking(Settings {
+    iced_baseview::open_blocking::<GenericAudioProcessorApplication>(Settings {
         window: WindowOpenOptions {
             title: "audio-processor-standalone".to_string(),
             size: Size {
@@ -191,7 +192,7 @@ pub fn open(handle: AudioProcessorHandleRef) {
             #[cfg(feature = "glow")]
             gl_config: None,
         },
-        iced_baseview: iced_baseview::IcedBaseviewSettings {
+        iced_baseview: iced_baseview::settings::IcedBaseviewSettings {
             ignore_non_modifier_keys: false,
             always_redraw: true,
         },

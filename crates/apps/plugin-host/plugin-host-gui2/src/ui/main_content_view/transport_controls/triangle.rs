@@ -64,7 +64,7 @@ impl<Message> Program<Message> for Triangle {
 
     fn draw(
         &self,
-        state: &Self::State,
+        _state: &Self::State,
         _theme: &Theme,
         bounds: Rectangle,
         cursor: Cursor,
@@ -87,7 +87,7 @@ impl<Message> Program<Message> for Triangle {
 
     fn mouse_interaction(
         &self,
-        state: &Self::State,
+        _state: &Self::State,
         bounds: Rectangle,
         cursor: Cursor,
     ) -> Interaction {

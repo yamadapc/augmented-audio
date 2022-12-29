@@ -23,10 +23,10 @@
 use std::time::Duration;
 
 use basedrop::Shared;
-use iced::canvas::{Cursor, Fill, Frame, Geometry, Program};
+use iced::widget::canvas::{Cursor, Fill, Frame, Geometry, Program};
 use iced::{
-    Application, Canvas, Column, Command, Element, Length, Point, Rectangle, Settings, Size,
-    Subscription,
+    widget::Canvas, widget::Column, Application, Command, Element, Length, Point, Rectangle,
+    Settings, Size, Subscription,
 };
 
 use audio_garbage_collector::GarbageCollector;
@@ -98,17 +98,27 @@ impl Application for AudioVisualization {
         iced::time::every(Duration::from_millis(16)).map(|_| Message::Tick)
     }
 
-    fn view(&mut self) -> Element<Self::Message> {
+    fn view(&self) -> Element<Self::Message> {
         let canvas = Canvas::new(self)
             .width(Length::Fill)
             .height(Length::Fill)
             .into();
         Column::with_children(vec![canvas]).into()
     }
+
+    type Theme = iced::Theme;
 }
 
 impl Program<Message> for AudioVisualization {
-    fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        _theme: &iced::Theme,
+        bounds: Rectangle,
+        _cursor: Cursor,
+    ) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
 
         {

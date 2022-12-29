@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 
 use audio_processor_testing_helpers::relative_path;
-use iced::{Column, Command, Length, Text};
+use iced::{widget::Column, widget::Text, Command, Length};
 
 use audio_processor_analysis::transient_detection::stft::{
     markers::build_markers, markers::AudioFileMarker, IterativeTransientDetectionParams,
@@ -144,7 +144,7 @@ impl StoryView<StoryMessage> for Story {
     fn update(&mut self, message: StoryMessage) -> Command<StoryMessage> {
         match message {
             StoryMessage::Inner(message) => {
-                self.editor.update(message);
+                AudioEditorView::update(&mut self.editor, message);
                 Command::none()
             }
             StoryMessage::Knobs(message) => {
@@ -209,7 +209,7 @@ impl StoryView<StoryMessage> for Story {
         }
     }
 
-    fn view(&mut self) -> Element<StoryMessage> {
+    fn view(&self) -> Element<StoryMessage> {
         let view = self.editor.view();
 
         Column::with_children(vec![

@@ -23,8 +23,10 @@
 use std::ops::Deref;
 
 use iced::{
-    canvas::{Cursor, Frame, Geometry, Program, Stroke},
-    Canvas, Column, Element, Length, Point, Rectangle,
+    widget::canvas::{Cursor, Frame, Geometry, Program, Stroke},
+    widget::Canvas,
+    widget::Column,
+    Element, Length, Point, Rectangle,
 };
 
 use audio_garbage_collector::Shared;
@@ -91,7 +93,7 @@ impl LooperVisualizationView {
 
     pub fn clear_visualization(&mut self) {}
 
-    pub fn view(&mut self) -> Element<()> {
+    pub fn view(&self) -> Element<()> {
         Column::with_children(vec![Canvas::new(self)
             .height(Length::Fill)
             .width(Length::Fill)
@@ -101,7 +103,15 @@ impl LooperVisualizationView {
 }
 
 impl Program<()> for LooperVisualizationView {
-    fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        _theme: &iced::Theme,
+        bounds: Rectangle,
+        _cursor: Cursor,
+    ) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
 
         let is_recording = self.model.is_recording();
@@ -135,7 +145,7 @@ fn draw_audio_chart(
     if samples_iterator.num_channels() == 0 {
         return;
     }
-    let mut path = iced::canvas::path::Builder::new();
+    let mut path = iced::widget::canvas::path::Builder::new();
     let step = (samples_iterator.num_samples() / frame.width() as usize).max(1);
     for (index, samples_frame) in samples_iterator.frames().enumerate().step_by(step) {
         let item = samples_frame[0].get() + samples_frame[1].get();
@@ -159,7 +169,7 @@ fn draw_audio_chart(
 }
 
 fn draw_playhead(frame: &mut Frame, playhead: f32, num_samples: f32) {
-    let mut path = iced::canvas::path::Builder::new();
+    let mut path = iced::widget::canvas::path::Builder::new();
     let playhead_ratio = playhead / num_samples;
     if playhead_ratio.is_finite() {
         let playhead_x = playhead_ratio * frame.width();

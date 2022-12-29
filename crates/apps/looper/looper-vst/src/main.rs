@@ -21,7 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use iced_baseview::{IcedBaseviewSettings, IcedWindow, Settings};
+use iced_baseview::settings::IcedBaseviewSettings;
+use iced_baseview::Settings;
 
 use augmented::gui::baseview::{Size, WindowOpenOptions, WindowScalePolicy};
 use looper_processor::{LooperOptions, MultiTrackLooper};
@@ -46,7 +47,7 @@ fn main() {
         audio_garbage_collector::handle(),
     );
 
-    IcedWindow::<LooperApplication>::open_blocking(Settings {
+    iced_baseview::open_blocking::<LooperApplication>(Settings {
         window: WindowOpenOptions {
             title: "Looper".to_string(),
             size: Size {

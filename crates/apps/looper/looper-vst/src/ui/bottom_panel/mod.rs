@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::{Button, Column, Container, Length, Row, Text};
+use iced::{widget::Button, widget::Column, widget::Container, widget::Row, widget::Text, Length};
 use iced_baseview::{Command, Element};
 
 use audio_garbage_collector::Shared;
@@ -57,7 +57,6 @@ pub struct BottomPanelView {
     sequencer_handle: Shared<LoopShufflerProcessorHandle>,
     parameters_view: MultiParameterView<ParameterId>,
     buttons_view: ButtonsView,
-    sequence_button_state: iced::button::State,
 }
 
 impl BottomPanelView {
@@ -104,7 +103,6 @@ impl BottomPanelView {
             sequencer_handle,
             parameters_view,
             buttons_view: ButtonsView::new(processor_handle),
-            sequence_button_state: iced::button::State::new(),
         }
     }
 
@@ -172,7 +170,7 @@ impl BottomPanelView {
         });
     }
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message, iced::Theme> {
         Container::new(Column::with_children(vec![Container::new(
             Row::with_children(vec![
                 Container::new(self.buttons_view.view()).center_y().into(),
@@ -180,12 +178,9 @@ impl BottomPanelView {
                     .view()
                     .map(|msg| Message::KnobChange(msg.id, msg.value)),
                 Container::new(
-                    Button::new(
-                        &mut self.sequence_button_state,
-                        Text::new("Sequence").size(Spacing::small_font_size()),
-                    )
-                    .on_press(Message::SequencePressed)
-                    .style(audio_style::Button::default()),
+                    Button::new(Text::new("Sequence").size(Spacing::small_font_size()))
+                        .on_press(Message::SequencePressed)
+                        .style(audio_style::Button::default().into()),
                 )
                 .center_x()
                 .center_y()
@@ -205,26 +200,16 @@ impl BottomPanelView {
 
 struct ButtonsView {
     processor_handle: Shared<LooperProcessorHandle>,
-    record_state: iced::button::State,
-    clear_state: iced::button::State,
-    stop_state: iced::button::State,
-    quantize_mode_state: iced::button::State,
 }
 
 impl ButtonsView {
     pub fn new(processor_handle: Shared<LooperProcessorHandle>) -> Self {
-        ButtonsView {
-            processor_handle,
-            record_state: iced::button::State::default(),
-            clear_state: iced::button::State::default(),
-            stop_state: iced::button::State::default(),
-            quantize_mode_state: iced::button::State::default(),
-        }
+        ButtonsView { processor_handle }
     }
 }
 
 impl ButtonsView {
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message, iced::Theme> {
         let record_text = if self.processor_handle.is_recording() {
             "Stop recording"
         } else {
@@ -237,36 +222,26 @@ impl ButtonsView {
         };
 
         Row::with_children(vec![
+            Button::new(Text::new(record_text).size(Spacing::small_font_size()))
+                .on_press(Message::RecordPressed)
+                .style(audio_style::Button::default().into())
+                .into(),
+            Button::new(Text::new("Clear").size(Spacing::small_font_size()))
+                .on_press(Message::ClearPressed)
+                .style(audio_style::Button::default().into())
+                .into(),
+            Button::new(Text::new(stop_text).size(Spacing::small_font_size()))
+                .on_press(Message::StopPressed)
+                .style(audio_style::Button::default().into())
+                .into(),
             Button::new(
-                &mut self.record_state,
-                Text::new(record_text).size(Spacing::small_font_size()),
-            )
-            .on_press(Message::RecordPressed)
-            .style(audio_style::Button::default())
-            .into(),
-            Button::new(
-                &mut self.clear_state,
-                Text::new("Clear").size(Spacing::small_font_size()),
-            )
-            .on_press(Message::ClearPressed)
-            .style(audio_style::Button::default())
-            .into(),
-            Button::new(
-                &mut self.stop_state,
-                Text::new(stop_text).size(Spacing::small_font_size()),
-            )
-            .on_press(Message::StopPressed)
-            .style(audio_style::Button::default())
-            .into(),
-            Button::new(
-                &mut self.quantize_mode_state,
                 Text::new(quantize_mode_label(
                     self.processor_handle.quantize_options().mode(),
                 ))
                 .size(Spacing::small_font_size()),
             )
             .on_press(Message::QuantizeModePressed)
-            .style(audio_style::Button::default())
+            .style(audio_style::Button::default().into())
             .into(),
         ])
         .into()

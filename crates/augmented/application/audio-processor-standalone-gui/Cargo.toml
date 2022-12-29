@@ -40,12 +40,19 @@ audio-processor-traits = { version = "2.2.0",  path = "../../audio/audio-process
 vst = { version = "0.3", path = "../../../vendor/vst" }
 
 # GUI dependencies
-iced = { version = "0.5", default-features = false, optional = true }
+iced = { version = "0.6.0", default-features = false, optional = true }
 iced_baseview = { version = "0", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
-iced_audio = { version = "0.8.0", default-features = false, optional = true }
 baseview = { package = "augmented_baseview", path = "../../../vendor/baseview", version = "0.1", optional = true }
 augmented-iced-editor = { path = "../../gui/iced-editor", optional = true , version = "0.2.0" }
 audio-processor-iced-design-system = { path = "../../gui/audio-processor-iced-design-system", default-features = false, optional = true, version = "0.3.1" }
+
+[dependencies.iced_audio]
+# TODO: This is required due to iced@v0.6 support https://github.com/iced-rs/iced_audio/commit/03ff8e94d63eafcc8a7d34569763a4c741688730
+git = "https://github.com/iced-rs/iced_audio"
+rev = "03ff8e94d63eafcc8a7d34569763a4c741688730"
+default-features = false
+optional = true
+# version = "0.8.0"
 
 [package.metadata.augmented]
 private = false

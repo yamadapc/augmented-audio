@@ -201,7 +201,7 @@ pub struct NavigationHeaderState {}
 
 fn navigation_header<'a>(
     route: &'a Route,
-    navigation_header_state: &'a NavigationHeaderState,
+    _navigation_header_state: &'a NavigationHeaderState,
     start_stop_button_state: &'a StartStopViewModel,
 ) -> Element<'a, Message> {
     let route_button = |route, label, is_active| {

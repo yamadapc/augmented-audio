@@ -24,9 +24,10 @@ use std::cmp::Ordering;
 use std::time::Duration;
 
 use iced::{
-    canvas::event::Status, canvas::Cursor, canvas::Event, canvas::Frame, canvas::Geometry,
-    canvas::Program, canvas::Stroke, keyboard, keyboard::KeyCode, mouse, mouse::ScrollDelta,
-    Canvas, Container, Element, Length, Point, Rectangle, Vector,
+    keyboard, keyboard::KeyCode, mouse, mouse::ScrollDelta, widget::canvas::event::Status,
+    widget::canvas::Cursor, widget::canvas::Event, widget::canvas::Frame, widget::canvas::Geometry,
+    widget::canvas::Program, widget::canvas::Stroke, widget::Canvas, widget::Container, Element,
+    Length, Point, Rectangle, Vector,
 };
 
 use audio_chart::{draw_rms_chart, draw_samples_chart};
@@ -114,21 +115,48 @@ impl Default for VisualizationModel {
     }
 }
 
+impl VisualizationModel {
+    fn on_scroll_zoom(&mut self, x: f32, y: f32) {
+        self.zoom_x += x;
+        self.zoom_x = self.zoom_x.min(100.0).max(1.0);
+        self.zoom_y += y;
+        self.zoom_y = self.zoom_y.min(2.0).max(0.2);
+    }
+
+    fn on_scroll(&mut self, bounds: Rectangle, x: f32) {
+        let size = bounds.size();
+        let width = size.width * self.zoom_x;
+        let offset = (self.offset + x).max(0.0).min(width - size.width);
+        self.offset = offset;
+    }
+
+    fn toggle_chart_mode(&mut self) {
+        self.chart_mode = match self.chart_mode {
+            ChartMode::Rms => ChartMode::Samples,
+            ChartMode::Samples => ChartMode::Rms,
+        };
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Message {}
 
 #[derive(Default)]
 pub struct AudioEditorView {
     audio_file_model: Option<AudioFileModel>,
-    visualization_model: VisualizationModel,
     markers: Vec<AudioFileMarker>,
+}
+
+#[derive(Default)]
+pub struct AudioEditorViewState {
+    visualization_model: VisualizationModel,
     shift_down: bool,
 }
 
 impl AudioEditorView {
     pub fn update(&mut self, _message: Message) {}
 
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         // let empty_state = Text::new("Drop a file").into();
         Container::new(Canvas::new(self).width(Length::Fill).height(Length::Fill))
             .center_x()
@@ -138,34 +166,14 @@ impl AudioEditorView {
             .height(Length::Fill)
             .into()
     }
-
-    fn on_scroll_zoom(&mut self, x: f32, y: f32) {
-        self.visualization_model.zoom_x += x;
-        self.visualization_model.zoom_x = self.visualization_model.zoom_x.min(100.0).max(1.0);
-        self.visualization_model.zoom_y += y;
-        self.visualization_model.zoom_y = self.visualization_model.zoom_y.min(2.0).max(0.2);
-    }
-
-    fn on_scroll(&mut self, bounds: Rectangle, x: f32) {
-        let size = bounds.size();
-        let width = size.width * self.visualization_model.zoom_x;
-        let offset = (self.visualization_model.offset + x)
-            .max(0.0)
-            .min(width - size.width);
-        self.visualization_model.offset = offset;
-    }
-
-    fn toggle_chart_mode(&mut self) {
-        self.visualization_model.chart_mode = match self.visualization_model.chart_mode {
-            ChartMode::Rms => ChartMode::Samples,
-            ChartMode::Samples => ChartMode::Rms,
-        };
-    }
 }
 
 impl Program<Message> for AudioEditorView {
+    type State = AudioEditorViewState;
+
     fn update(
-        &mut self,
+        &self,
+        state: &mut Self::State,
         event: Event,
         bounds: Rectangle,
         _cursor: Cursor,
@@ -174,16 +182,16 @@ impl Program<Message> for AudioEditorView {
             Event::Mouse(mouse::Event::WheelScrolled {
                 delta: ScrollDelta::Pixels { x, y },
             }) => {
-                if self.shift_down {
-                    self.on_scroll_zoom(x, y);
+                if state.shift_down {
+                    state.visualization_model.on_scroll_zoom(x, y);
                     (Status::Captured, None)
                 } else {
-                    self.on_scroll(bounds, x);
+                    state.visualization_model.on_scroll(bounds, x);
                     (Status::Captured, None)
                 }
             }
             Event::Keyboard(keyboard::Event::ModifiersChanged(modifiers)) => {
-                self.shift_down = modifiers.shift();
+                state.shift_down = modifiers.shift();
                 (Status::Ignored, None)
             }
             Event::Keyboard(keyboard::Event::KeyPressed {
@@ -191,7 +199,7 @@ impl Program<Message> for AudioEditorView {
                 modifiers,
             }) => {
                 if modifiers.command() {
-                    self.toggle_chart_mode();
+                    state.visualization_model.toggle_chart_mode();
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)
@@ -202,14 +210,14 @@ impl Program<Message> for AudioEditorView {
                 modifiers,
             }) => {
                 if modifiers.shift() && modifiers.command() {
-                    self.visualization_model.zoom_y += 0.1;
-                    self.visualization_model.zoom_y =
-                        self.visualization_model.zoom_y.min(2.0).max(0.2);
+                    state.visualization_model.zoom_y += 0.1;
+                    state.visualization_model.zoom_y =
+                        state.visualization_model.zoom_y.min(2.0).max(0.2);
                     (Status::Captured, None)
                 } else if modifiers.command() {
-                    self.visualization_model.zoom_x *= 10.0;
-                    self.visualization_model.zoom_x =
-                        self.visualization_model.zoom_x.min(100.0).max(1.0);
+                    state.visualization_model.zoom_x *= 10.0;
+                    state.visualization_model.zoom_x =
+                        state.visualization_model.zoom_x.min(100.0).max(1.0);
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)
@@ -220,14 +228,14 @@ impl Program<Message> for AudioEditorView {
                 modifiers,
             }) => {
                 if modifiers.shift() && modifiers.command() {
-                    self.visualization_model.zoom_y -= 0.1;
-                    self.visualization_model.zoom_y =
-                        self.visualization_model.zoom_y.min(2.0).max(0.2);
+                    state.visualization_model.zoom_y -= 0.1;
+                    state.visualization_model.zoom_y =
+                        state.visualization_model.zoom_y.min(2.0).max(0.2);
                     (Status::Captured, None)
                 } else if modifiers.command() {
-                    self.visualization_model.zoom_x /= 10.0;
-                    self.visualization_model.zoom_x =
-                        self.visualization_model.zoom_x.min(100.0).max(1.0);
+                    state.visualization_model.zoom_x /= 10.0;
+                    state.visualization_model.zoom_x =
+                        state.visualization_model.zoom_x.min(100.0).max(1.0);
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)
@@ -237,17 +245,23 @@ impl Program<Message> for AudioEditorView {
         }
     }
 
-    fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
-        let zoom_x = self.visualization_model.zoom_x;
-        let zoom_y = self.visualization_model.zoom_y;
+    fn draw(
+        &self,
+        state: &Self::State,
+        _theme: &iced::Theme,
+        bounds: Rectangle,
+        _cursor: Cursor,
+    ) -> Vec<Geometry> {
+        let zoom_x = state.visualization_model.zoom_x;
+        let zoom_y = state.visualization_model.zoom_y;
         let mut frame = Frame::new(bounds.size());
         if let Some(audio_file_model) = &self.audio_file_model {
             let width = frame.width() * zoom_x;
             let height = frame.height() * zoom_y;
-            let offset = self.visualization_model.offset.min(width - frame.width());
+            let offset = state.visualization_model.offset.min(width - frame.width());
             frame.translate(Vector::from([-offset, 0.0]));
 
-            match self.visualization_model.chart_mode {
+            match state.visualization_model.chart_mode {
                 ChartMode::Samples => {
                     let num_samples = audio_file_model.samples_len() as f32;
 
@@ -287,7 +301,7 @@ fn draw_markers(
     markers: &[AudioFileMarker],
 ) {
     for marker in markers {
-        let mut path = iced::canvas::path::Builder::new();
+        let mut path = iced::widget::canvas::path::Builder::new();
         let x = (marker.position_samples as f32 / num_samples) * total_width;
         path.move_to(Point::new(x, 0.0));
         path.line_to(Point::new(x, frame.height()));

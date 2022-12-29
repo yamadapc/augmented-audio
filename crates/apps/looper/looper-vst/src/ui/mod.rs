@@ -23,8 +23,8 @@
 use std::path::PathBuf;
 use std::time::Duration;
 
-use iced::{Column, Container, Element, Length, Text};
-use iced_baseview::{executor, Subscription, WindowSubs};
+use iced::{widget::Column, widget::Container, widget::Text, Element, Length};
+use iced_baseview::{executor, window::WindowSubs, Subscription};
 use iced_baseview::{Application, Command};
 
 use audio_garbage_collector::Shared;
@@ -116,7 +116,7 @@ impl Application for LooperApplication {
 
     fn update(
         &mut self,
-        _window_queue: &mut iced_baseview::WindowQueue,
+        _window_queue: &mut iced_baseview::window::WindowQueue,
         message: Self::Message,
     ) -> Command<Self::Message> {
         match message {
@@ -140,14 +140,14 @@ impl Application for LooperApplication {
         ])
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> iced_baseview::Element<Self::Message, Self::Theme> {
         let time_info_provider = self.processor_handle.time_info_provider();
         let time_info = time_info_provider.get_time_info();
         let status_bar = status_bar(time_info);
 
         let looper_views = Column::with_children(
             self.looper_visualizations
-                .iter_mut()
+                .iter()
                 .map(|visualization| {
                     let inner: Element<'_, Message> = visualization.view().map(|_| Message::None);
 
@@ -200,6 +200,12 @@ impl Application for LooperApplication {
             ])
             .map(WrapperMessage::TabsView)])
         .into()
+    }
+
+    type Theme = iced::Theme;
+
+    fn title(&self) -> String {
+        "Looper".to_string()
     }
 }
 

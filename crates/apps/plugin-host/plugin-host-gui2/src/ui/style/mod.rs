@@ -85,8 +85,8 @@ impl From<iced::widget::container::Appearance> for ContainerStylesheet {
 impl iced::widget::container::StyleSheet for ContainerStylesheet {
     type Style = iced::Theme;
 
-    fn appearance(&self, style: &Self::Style) -> Appearance {
-        iced::widget::container::Appearance {
+    fn appearance(&self, _style: &Self::Style) -> Appearance {
+        Appearance {
             text_color: self.text_color,
             background: self.background,
             border_radius: self.border_radius,

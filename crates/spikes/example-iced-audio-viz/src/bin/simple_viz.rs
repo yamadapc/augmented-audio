@@ -23,9 +23,10 @@
 use std::time::Duration;
 
 use basedrop::Shared;
-use iced::canvas::{Cursor, Frame, Geometry, Program, Stroke};
+use iced::widget::canvas::{Cursor, Frame, Geometry, Program, Stroke};
 use iced::{
-    Application, Canvas, Column, Command, Element, Length, Point, Rectangle, Settings, Subscription,
+    widget::Canvas, widget::Column, Application, Command, Element, Length, Point, Rectangle,
+    Settings, Subscription,
 };
 
 use atomic_queue::Queue;
@@ -63,6 +64,7 @@ impl Application for AudioVisualization {
     type Executor = iced::executor::Default;
     type Message = Message;
     type Flags = ();
+    type Theme = iced::Theme;
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         let garbage_collector = GarbageCollector::default();
@@ -102,7 +104,7 @@ impl Application for AudioVisualization {
         iced::time::every(Duration::from_millis(100)).map(|_| Message::Tick)
     }
 
-    fn view(&mut self) -> Element<Self::Message> {
+    fn view(&self) -> Element<Self::Message> {
         let canvas = Canvas::new(self)
             .width(Length::Fill)
             .height(Length::Fill)
@@ -112,9 +114,17 @@ impl Application for AudioVisualization {
 }
 
 impl Program<Message> for AudioVisualization {
-    fn draw(&self, bounds: Rectangle, _cursor: Cursor) -> Vec<Geometry> {
+    type State = ();
+
+    fn draw(
+        &self,
+        _state: &Self::State,
+        _theme: &iced::Theme,
+        bounds: Rectangle,
+        _cursor: Cursor,
+    ) -> Vec<Geometry> {
         let mut frame = Frame::new(bounds.size());
-        let mut path = iced::canvas::path::Builder::new();
+        let mut path = iced::widget::canvas::path::Builder::new();
 
         let data = self.buffer.inner();
         let mut prev = data[0];

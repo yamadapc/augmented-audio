@@ -24,7 +24,7 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 
 use iced::Element;
-use iced::{Alignment, Column, Length, Text};
+use iced::{widget::Column, widget::Text, Alignment, Length};
 use iced_audio::{IntRange, Normal};
 use itertools::Itertools;
 
@@ -83,11 +83,13 @@ where
     ) -> Option<&mut ParameterViewModel<ParameterId>> {
         if let Some(state) = self.get_mut(parameter_id) {
             state.value = value;
-            state.knob_state.set_normal(Normal::from(
+            state.knob_state.update(Normal::from_clipped(
                 (value - state.range.0) / (state.range.1 - state.range.0),
             ));
             if let Some(int_range) = &state.int_range {
-                state.knob_state.snap_visible_to(int_range);
+                state
+                    .knob_state
+                    .update(int_range.snapped(state.knob_state.value));
             }
             Some(state)
         } else {
@@ -95,25 +97,25 @@ where
         }
     }
 
-    pub fn view(&mut self) -> Element<KnobChanged<ParameterId>> {
+    pub fn view(&self) -> Element<KnobChanged<ParameterId>> {
         let order: HashMap<ParameterId, usize> = self
             .order
             .iter()
             .enumerate()
             .map(|(order, id)| (*id, order))
             .collect();
-        let values_mut = self
+        let values = self
             .states
-            .values_mut()
+            .values()
             .sorted_by(|v1, v2| order[&v1.id].cmp(&order[&v2.id]));
-        parameters_row(values_mut)
+        parameters_row(values)
     }
 }
 
 pub fn parameters_row<'a, ParameterId: 'static + Clone + Copy + Debug>(
-    parameter_states: impl IntoIterator<Item = &'a mut ParameterViewModel<ParameterId>>,
+    parameter_states: impl IntoIterator<Item = &'a ParameterViewModel<ParameterId>>,
 ) -> Element<'a, KnobChanged<ParameterId>> {
-    use iced::{Container, Row};
+    use iced::{widget::Container, widget::Row};
 
     let knobs = parameter_states
         .into_iter()
@@ -132,7 +134,7 @@ pub fn parameters_row<'a, ParameterId: 'static + Clone + Copy + Debug>(
 }
 
 pub fn view<ParameterId: 'static + Clone + Copy + Debug>(
-    parameter_view_model: &mut ParameterViewModel<ParameterId>,
+    parameter_view_model: &ParameterViewModel<ParameterId>,
 ) -> Element<KnobChanged<ParameterId>> {
     let range = parameter_view_model.range;
     let parameter_id = parameter_view_model.id;
@@ -144,12 +146,9 @@ pub fn view<ParameterId: 'static + Clone + Copy + Debug>(
     HoverContainer::new(
         Column::with_children(vec![
             Text::new(label).size(Spacing::small_font_size()).into(),
-            Knob::new(
-                &mut parameter_view_model.knob_state,
-                move |value| map_normal_to_message(parameter_id, range, int_range, value),
-                || None,
-                || None,
-            )
+            Knob::new(parameter_view_model.knob_state, move |value| {
+                map_normal_to_message(parameter_id, range, int_range, value)
+            })
             .size(Length::Units(Spacing::base_control_size()))
             .style(audio_knob::style::Knob)
             .into(),

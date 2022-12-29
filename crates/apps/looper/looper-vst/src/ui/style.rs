@@ -21,14 +21,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use audio_processor_iced_design_system::colors::Colors;
-use iced_baseview::container::Style;
+use iced_baseview::widget::container::Appearance;
 use iced_baseview::{Background, Color};
 
 pub struct ContainerStyle;
 
-impl iced::container::StyleSheet for ContainerStyle {
-    fn style(&self) -> Style {
-        Style {
+impl From<ContainerStyle> for iced::theme::Container {
+    fn from(value: ContainerStyle) -> Self {
+        Self::Custom(Box::new(value))
+    }
+}
+
+impl iced::widget::container::StyleSheet for ContainerStyle {
+    type Style = iced::Theme;
+
+    fn appearance(&self, _style: &Self::Style) -> Appearance {
+        Appearance {
             text_color: Some(Color::new(1., 1., 1., 1.)),
             background: Some(Background::Color(Colors::background_level0())),
             border_radius: 0.0,

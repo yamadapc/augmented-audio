@@ -21,35 +21,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use iced::Element;
+use iced_baseview::widget::{Button, Row, Text};
 
 use audio_processor_iced_design_system::style;
 
 #[derive(Debug, Clone)]
 pub enum Message {}
 
-pub struct SequencerView {
-    button_states: Vec<iced::button::State>,
-}
+pub struct SequencerView {}
 
 impl Default for SequencerView {
     fn default() -> Self {
-        SequencerView {
-            button_states: (0..8).map(|_| iced::button::State::new()).collect(),
-        }
+        SequencerView {}
     }
 }
 
 impl SequencerView {
-    pub fn view(&mut self) -> Element<Message> {
+    pub fn view(&self) -> Element<Message> {
         use iced::*;
 
-        let buttons = self
-            .button_states
-            .iter_mut()
-            .enumerate()
-            .map(|(i, button_state)| {
-                Button::new(button_state, Text::new(format!("{}", i + 1)))
-                    .style(style::Button::default())
+        let buttons = (0..8)
+            .map(|i| {
+                Button::new(Text::new(format!("{}", i + 1)))
+                    .style(style::Button::default().into())
                     .width(Length::Fill)
                     .into()
             })

@@ -20,14 +20,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced_audio::{knob, IntRange, Normal, NormalParam};
+use iced_audio::{IntRange, Normal, NormalParam};
 
 pub struct ParameterViewModel<ParameterId> {
     pub id: ParameterId,
     pub name: String,
     pub suffix: String,
     pub value: f32,
-    pub knob_state: knob::State,
+    pub knob_state: NormalParam,
     pub int_range: Option<IntRange>,
     pub range: (f32, f32),
 }
@@ -45,10 +45,10 @@ impl<ParameterId> ParameterViewModel<ParameterId> {
             name: name.into(),
             suffix: suffix.into(),
             value,
-            knob_state: knob::State::new(NormalParam {
-                value: Normal::from((value - range.0) / (range.1 - range.0)),
-                default: Normal::from((value - range.0) / (range.1 - range.0)),
-            }),
+            knob_state: NormalParam {
+                value: Normal::from_clipped((value - range.0) / (range.1 - range.0)),
+                default: Normal::from_clipped((value - range.0) / (range.1 - range.0)),
+            },
             int_range: None,
             range,
         }

@@ -30,7 +30,6 @@ use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
 use iced_baseview::window::WindowHandle;
 use iced_baseview::{settings::IcedBaseviewSettings, Application, Settings};
 use vst::editor::Editor;
-use vst::plugin::Plugin;
 
 use plugin_window::PluginWindow;
 

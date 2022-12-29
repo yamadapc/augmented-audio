@@ -27,9 +27,7 @@ use std::ffi::c_void;
 
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
 use cocoa::base::id;
-use iced_baseview::{
-    Application, Command, Element, IcedBaseviewSettings, IcedWindow, Settings, Text,
-};
+use iced_baseview::{widget::Text, Application, Command, Element, Settings};
 
 use window::WindowHolder;
 
@@ -46,16 +44,18 @@ pub extern "C" fn attach_to_view(ns_view: id) {
             height: 300.0,
         },
         scale: WindowScalePolicy::SystemScaleFactor,
+        #[cfg(feature = "opengl")]
+        gl_config: None,
     };
     let settings = Settings {
         window: window_open_options,
         flags: (),
-        iced_baseview: IcedBaseviewSettings {
+        iced_baseview: iced_baseview::settings::IcedBaseviewSettings {
             ignore_non_modifier_keys: false,
             always_redraw: true,
         },
     };
-    IcedWindow::<App>::open_parented(&window, settings);
+    iced_baseview::open_parented::<App, WindowHolder>(&window, settings);
 }
 
 struct App;
@@ -63,21 +63,26 @@ struct App;
 impl Application for App {
     type Executor = iced_baseview::executor::Default;
     type Message = ();
+    type Theme = iced_baseview::renderer::Theme;
     type Flags = ();
 
     fn new(_flags: Self::Flags) -> (Self, Command<Self::Message>) {
         (Self, Command::none())
     }
 
+    fn title(&self) -> String {
+        "Example".to_string()
+    }
+
     fn update(
         &mut self,
-        _window_queue: &mut iced_baseview::WindowQueue,
+        _window_queue: &mut iced_baseview::window::WindowQueue,
         _message: Self::Message,
     ) -> Command<Self::Message> {
         Command::none()
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<Self::Message, Self::Theme> {
         Text::new("Hello world").into()
     }
 }

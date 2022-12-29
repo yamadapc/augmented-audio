@@ -25,11 +25,12 @@ use std::time::Duration;
 
 use augmented::audio::gc::Shared;
 use augmented::gui::iced::Subscription;
-use augmented::gui::iced_baseview;
 use augmented::gui::iced_baseview::{
-    alignment, Application, Command, Container, Element, Length, Text, WindowQueue, WindowSubs,
+    alignment, widget::Container, widget::Text, window::WindowQueue, window::WindowSubs,
+    Application, Command, Element, Length,
 };
 use augmented::gui::iced_editor::IcedEditor;
+use augmented::gui::{iced, iced_baseview};
 use augmented::vst;
 use augmented::vst::editor::Editor;
 use augmented::vst::host::Host;
@@ -89,13 +90,19 @@ impl Application for DemoApp {
         iced_baseview::time::every(Duration::from_millis(32)).map(|_| AppMessage::UpdateTempo)
     }
 
-    fn view(&mut self) -> Element<'_, Self::Message> {
+    fn view(&self) -> Element<Self::Message, Self::Theme> {
         Container::new(Text::new(format!("Tempo: {:.1}", self.tempo)))
             .align_x(alignment::Horizontal::Center)
             .align_y(alignment::Vertical::Center)
             .height(Length::Fill)
             .width(Length::Fill)
             .into()
+    }
+
+    type Theme = iced::Theme;
+
+    fn title(&self) -> String {
+        "Host tempo plugin".to_string()
     }
 }
 

@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use iced::{canvas::Fill, canvas::Frame, canvas::Stroke, Point};
+use iced::{widget::canvas::Fill, widget::canvas::Frame, widget::canvas::Stroke, Point};
 
 use audio_processor_iced_design_system::colors::Colors;
 
@@ -47,7 +47,7 @@ pub fn draw_samples_chart(
         .filter(|(x, _)| *x >= offset && x.is_finite())
         .take_while(|(x, _)| *x < frame.width() + offset);
 
-    let mut path = iced::canvas::path::Builder::new();
+    let mut path = iced::widget::canvas::path::Builder::new();
     points.for_each(|(x, y)| path.line_to(Point::new(x, y)));
     frame.stroke(&path.build(), Stroke::default().with_color(color));
 }
@@ -82,11 +82,11 @@ pub fn draw_rms_chart(
         .collect();
 
     let start_path = || {
-        let mut path = iced::canvas::path::Builder::new();
+        let mut path = iced::widget::canvas::path::Builder::new();
         path.line_to(Point::new(0.0, h / 2.0));
         path
     };
-    let end_path = |path: &mut iced::canvas::path::Builder| {
+    let end_path = |path: &mut iced::widget::canvas::path::Builder| {
         path.line_to(Point::new(w, h / 2.0));
         path.line_to(Point::new(0.0, h / 2.0));
     };
