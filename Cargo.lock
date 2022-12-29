@@ -866,15 +866,15 @@ dependencies = [
 name = "augmented-iced-editor"
 version = "0.2.0"
 dependencies = [
- "augmented_baseview",
- "augmented_iced_baseview",
- "cocoa 0.24.1",
- "iced 0.5.2",
- "log",
- "objc",
- "raw-window-handle 0.4.3",
- "vst",
- "wisual-logger",
+    "augmented_baseview",
+    "augmented_iced_baseview",
+    "cocoa 0.24.1",
+    "iced 0.6.0",
+    "log",
+    "objc",
+    "raw-window-handle 0.4.3",
+    "vst",
+    "wisual-logger",
 ]
 
 [[package]]
@@ -947,17 +947,17 @@ dependencies = [
 name = "augmented_iced_baseview"
 version = "0.0.3"
 dependencies = [
- "baseview",
- "cfg-if 1.0.0",
- "iced_core 0.6.2",
- "iced_futures 0.5.1",
- "iced_glow 0.5.1",
- "iced_graphics 0.5.0",
- "iced_native 0.7.0",
- "iced_wgpu 0.7.0",
- "keyboard-types",
- "log",
- "raw-window-handle 0.4.3",
+    "augmented_baseview",
+    "cfg-if 1.0.0",
+    "iced_core 0.6.2",
+    "iced_futures 0.5.1",
+    "iced_glow 0.5.1",
+    "iced_graphics 0.5.0",
+    "iced_native 0.7.0",
+    "iced_wgpu 0.7.0",
+    "keyboard-types",
+    "log",
+    "raw-window-handle 0.4.3",
  "raw-window-handle 0.5.0",
  "thiserror",
  "window_clipboard",
@@ -1032,24 +1032,6 @@ name = "basedrop"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47611e530cf21bb89fbfe322aa8b1feae1ace33ff65f8ebf40fe3b4b99b7c9a2"
-
-[[package]]
-name = "baseview"
-version = "0.1.0"
-source = "git+https://github.com/RustAudio/baseview.git?rev=ee156fb#ee156fb8840452984b5f9946635e9a35b2857c41"
-dependencies = [
- "cocoa 0.24.1",
- "core-foundation 0.9.3",
- "keyboard-types",
- "nix 0.22.3",
- "objc",
- "raw-window-handle 0.4.3",
- "uuid 0.8.2",
- "winapi 0.3.9",
- "x11",
- "xcb",
- "xcb-util",
-]
 
 [[package]]
 name = "bindgen"

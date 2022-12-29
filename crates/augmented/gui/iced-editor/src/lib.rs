@@ -26,8 +26,8 @@ extern crate objc;
 
 use std::ffi::c_void;
 
-use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
-use iced_baseview::{Application, IcedBaseviewSettings, IcedWindow, Settings, WindowHandle};
+use baseview::{Size, Window, WindowHandle, WindowOpenOptions, WindowScalePolicy};
+use iced_baseview::{settings::IcedBaseviewSettings, Application, Settings};
 use vst::editor::Editor;
 
 use plugin_window::PluginWindow;
@@ -39,9 +39,10 @@ mod plugin_window;
 pub struct IcedEditor<App>
 where
     App: Application,
+    App::Message: 'static,
 {
     flags: App::Flags,
-    handle: Option<WindowHandle<App::Message>>,
+    handle: Option<WindowHandle>,
     size: (i32, i32),
     position: (i32, i32),
 }
@@ -79,25 +80,25 @@ where
 
     fn open(&mut self, parent: *mut c_void) -> bool {
         let window_handle = PluginWindow::new(parent);
-        let window_open_options = WindowOpenOptions {
-            title: "Iced Editor".to_string(),
-            size: Size {
-                width: self.size.0 as f64,
-                height: self.size.1 as f64,
-            },
-            scale: WindowScalePolicy::SystemScaleFactor,
-            #[cfg(feature = "glow")]
-            gl_config: None,
-        };
         let settings = Settings {
-            window: window_open_options,
+            // window: window_open_options,
+            window: WindowOpenOptions {
+                title: "Iced editor".to_string(),
+                size: Size {
+                    width: self.size.0 as f64,
+                    height: self.size.1 as f64,
+                },
+                scale: WindowScalePolicy::SystemScaleFactor,
+                #[cfg(feature = "glow")]
+                gl_config: None,
+            },
             flags: self.flags.clone(),
             iced_baseview: IcedBaseviewSettings {
                 ignore_non_modifier_keys: false,
                 always_redraw: true,
             },
         };
-        let handle = IcedWindow::<App>::open_parented(&window_handle, settings);
+        let handle = Window::open_parented(&window_handle, settings);
         self.handle = Some(handle);
         true
     }
