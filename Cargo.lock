@@ -9108,7 +9108,7 @@ name = "wisual-logger"
 version = "0.1.4"
 dependencies = [
  "chrono",
- "env_logger 0.9.3",
+ "env_logger 0.10.0",
  "log",
 ]
 
