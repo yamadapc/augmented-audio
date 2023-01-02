@@ -21,8 +21,8 @@ const RESOURCES = {
 "assets/FontManifest.json": "533db2964f00aa0a56d9c03607f21c52",
 "assets/fonts/MaterialIcons-Regular.otf": "95db9098c58fd6db106f1116bae85a0b",
 "assets/NOTICES": "f6f06ae2ea0b0e07c3ae38b781c071e0",
-"index.html": "7b4f689eae0f1c6342af5cf9271be8fa",
-"/": "7b4f689eae0f1c6342af5cf9271be8fa",
+"index.html": "985d8bf0deea2733d832cc810e7d5485",
+"/": "985d8bf0deea2733d832cc810e7d5485",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "version.json": "900f7b12a5f5670d739f681cdaaaaa11"
 };
