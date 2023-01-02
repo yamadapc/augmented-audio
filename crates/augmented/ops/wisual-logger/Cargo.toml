@@ -8,8 +8,8 @@ edition = "2018"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-chrono = "^0.4.19"
-env_logger = "0.9"
-log = "^0.4.11"
+chrono = "0.4.19"
+env_logger = "0.10.0"
+log = "0.4.11"
 
 [package.metadata.augmented]
