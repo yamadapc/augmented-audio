@@ -24,7 +24,7 @@ import SwiftUI
  * Because of this, the step buttons (which should flash whenever their beat is active) are written using Cocoa.
  */
 #if os(macOS)
-    final class NativeStepButtonView: NSViewRepresentable {
+    struct NativeStepButtonView: NSViewRepresentable {
         typealias NSViewType = NSView
         var stepModel: StepButtonViewModel
 
@@ -87,7 +87,7 @@ import SwiftUI
         }
     }
 #else
-    final class NativeStepButtonView: UIViewRepresentable {
+    struct NativeStepButtonView: UIViewRepresentable {
         typealias UIViewType = UIView
         var stepModel: StepButtonViewModel
 

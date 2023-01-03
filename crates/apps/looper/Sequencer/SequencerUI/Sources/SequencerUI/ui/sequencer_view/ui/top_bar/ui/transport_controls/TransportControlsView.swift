@@ -90,31 +90,50 @@ struct TransportTempoView: View {
 }
 
 #if os(macOS)
-    final class NativeTransportBeats: NSViewRepresentable {
-        var timeInfo: TimeInfo
+    class TimeInfoTextView: NSView {
+        var view = NSTextView()
+        var timeInfo: TimeInfo = TimeInfo() {
+            didSet {
+                cancellables = Set()
+                timeInfo.objectWillChange.sink(receiveValue: { _ in
+                    DispatchQueue.main.async {
+                        self.view.string = self.getText()
+                    }
+                })
+                .store(in: &cancellables)
+            }
+        }
+
         var cancellables: Set<AnyCancellable> = Set()
 
         init(timeInfo: TimeInfo) {
             self.timeInfo = timeInfo
-        }
 
-        func makeNSView(context _: Context) -> some NSView {
-            let view = NSTextView()
+            super.init(frame: NSRect.zero)
+
             view.string = getText()
             view.isEditable = false
             view.isSelectable = false
             view.isRichText = false
             view.drawsBackground = false
-            timeInfo.objectWillChange.sink(receiveValue: { _ in
-                DispatchQueue.main.async {
-                    view.string = self.getText()
-                }
-            })
-            .store(in: &cancellables)
-            return view
+
+            self.addSubview(view)
+
+            self.wantsLayer = true
+            self.layer?.backgroundColor = NSColor.red.cgColor
+            view.frame = self.frame
+
+            self.addConstraint(view.topAnchor.constraint(equalTo: self.topAnchor))
+            self.translatesAutoresizingMaskIntoConstraints = true
+            self.autoresizingMask = []
+            view.translatesAutoresizingMaskIntoConstraints = true
+            view.autoresizingMask = [.width]
         }
 
-        func updateNSView(_: NSViewType, context _: Context) {}
+        required init?(coder: NSCoder) {
+            self.timeInfo = TimeInfo()
+            super.init(coder: coder)
+        }
 
         func getText() -> String {
             if let beats = timeInfo.positionBeats {
@@ -124,8 +143,22 @@ struct TransportTempoView: View {
             }
         }
     }
+
+    struct NativeTransportBeats: NSViewRepresentable {
+        var timeInfo: TimeInfo
+        typealias NSViewType = TimeInfoTextView
+
+        func makeNSView(context _: Context) -> TimeInfoTextView {
+            let view = TimeInfoTextView(timeInfo: timeInfo)
+            return view
+        }
+
+        func updateNSView(_ view: TimeInfoTextView, context _: Context) {
+            view.timeInfo = timeInfo
+        }
+    }
 #else
-    final class NativeTransportBeats: UIViewRepresentable {
+    struct NativeTransportBeats: UIViewRepresentable {
         typealias UIViewType = UITextView
 
         var timeInfo: TimeInfo
@@ -183,7 +216,9 @@ struct TransportControlsView: View {
 
     var body: some View {
         HStack(alignment: .center) {
-            TransportBeatsView(timeInfo: store.timeInfo).frame(width: 30, alignment: .trailing)
+            TransportBeatsView(timeInfo: store.timeInfo)
+            .frame(width: 30, alignment: .trailing)
+            .offset(y: -5)
 
             Rectangle().fill(SequencerColors.black3).frame(width: 1.0, height: 10.0)
 
