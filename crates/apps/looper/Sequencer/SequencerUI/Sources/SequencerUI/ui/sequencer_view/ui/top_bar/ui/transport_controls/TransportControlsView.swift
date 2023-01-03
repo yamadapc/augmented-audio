@@ -120,7 +120,6 @@ struct TransportTempoView: View {
             self.addSubview(view)
 
             self.wantsLayer = true
-            self.layer?.backgroundColor = NSColor.red.cgColor
             view.frame = self.frame
 
             self.addConstraint(view.topAnchor.constraint(equalTo: self.topAnchor))
