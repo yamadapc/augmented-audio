@@ -16,16 +16,6 @@
 		CB1666C327CCAD07000F9E21 /* SequencerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666C227CCAD07000F9E21 /* SequencerUITests.swift */; };
 		CB1666C527CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB1666C427CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift */; };
 		CB24DF5A282F0A210066A172 /* AudioBuffers.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB24DF59282F0A210066A172 /* AudioBuffers.swift */; };
-		CB3948C927EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.m in Sources */ = {isa = PBXBuildFile; fileRef = CB3948C827EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.m */; };
-		CB3948CD27EA6BFC009A650D /* DSPKernel.hpp in Resources */ = {isa = PBXBuildFile; fileRef = CB3948CC27EA6BFC009A650D /* DSPKernel.hpp */; };
-		CB3948CF27EA6BFC009A650D /* DSPKernel.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB3948CE27EA6BFC009A650D /* DSPKernel.mm */; };
-		CB3948D127EA6BFC009A650D /* BufferedAudioBus.hpp in Resources */ = {isa = PBXBuildFile; fileRef = CB3948D027EA6BFC009A650D /* BufferedAudioBus.hpp */; };
-		CB3948D427EA6BFC009A650D /* Sequencer_AudioUnitDSPKernel.hpp in Resources */ = {isa = PBXBuildFile; fileRef = CB3948D327EA6BFC009A650D /* Sequencer_AudioUnitDSPKernel.hpp */; };
-		CB3948D627EA6BFC009A650D /* Sequencer_AudioUnitDSPKernel.mm in Sources */ = {isa = PBXBuildFile; fileRef = CB3948D527EA6BFC009A650D /* Sequencer_AudioUnitDSPKernel.mm */; };
-		CB3948D927EA6BFC009A650D /* AudioUnitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948D827EA6BFC009A650D /* AudioUnitViewController.swift */; };
-		CB3948DD27EA6BFC009A650D /* AudioUnitViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CB3948DB27EA6BFC009A650D /* AudioUnitViewController.xib */; };
-		CB3948E227EA6BFC009A650D /* Sequencer AudioUnit.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		CB3948EB27EA6D9B009A650D /* SequencerUI in Frameworks */ = {isa = PBXBuildFile; productRef = CB3948EA27EA6D9B009A650D /* SequencerUI */; };
 		CB3948F127EC3B24009A650D /* MidiEventStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F027EC3B24009A650D /* MidiEventStream.swift */; };
 		CB3948F927ED24BA009A650D /* Sequencer_MacUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948F827ED24BA009A650D /* Sequencer_MacUITests.swift */; };
 		CB3948FB27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB3948FA27ED24BA009A650D /* Sequencer_MacUITestsLaunchTests.swift */; };
@@ -99,20 +89,6 @@
 			remoteGlobalIDString = CB1666A327CCAD04000F9E21;
 			remoteInfo = Sequencer;
 		};
-		CB3948E027EA6BFC009A650D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CB16669C27CCAD04000F9E21 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CB3948C327EA6BFC009A650D;
-			remoteInfo = "Sequencer AudioUnit";
-		};
-		CB3948EC27EA6DA0009A650D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CB16669C27CCAD04000F9E21 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = CBA4DA8F27DDF21800A530E3;
-			remoteInfo = SequencerEngine;
-		};
 		CB3948FC27ED24BA009A650D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CB16669C27CCAD04000F9E21 /* Project object */;
@@ -157,7 +133,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				CB3948E227EA6BFC009A650D /* Sequencer AudioUnit.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -214,7 +189,6 @@
 		CB1666C427CCAD07000F9E21 /* SequencerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SequencerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		CB1666D127CCAD18000F9E21 /* Sequencer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sequencer.entitlements; sourceTree = "<group>"; };
 		CB24DF59282F0A210066A172 /* AudioBuffers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBuffers.swift; sourceTree = "<group>"; };
-		CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Sequencer AudioUnit.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB3948C727EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Sequencer_AudioUnitAudioUnit.h; sourceTree = "<group>"; };
 		CB3948C827EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Sequencer_AudioUnitAudioUnit.m; sourceTree = "<group>"; };
 		CB3948CC27EA6BFC009A650D /* DSPKernel.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DSPKernel.hpp; sourceTree = "<group>"; };
@@ -309,14 +283,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CB3948C127EA6BFC009A650D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CB3948EB27EA6D9B009A650D /* SequencerUI in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		CB3948F327ED24BA009A650D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -403,7 +369,6 @@
 				CB801A1527D8AE6600D7788E /* Continuous Looper.app */,
 				CBA4DA9027DDF21800A530E3 /* SequencerEngine.framework */,
 				CBA4DAAB27DDF67700A530E3 /* SequencerEngine.framework */,
-				CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */,
 				CB3948F627ED24BA009A650D /* Sequencer MacUITests.xctest */,
 				CBECE3B827ED43DB0054BB43 /* SequencerEngineTests.xctest */,
 				CBB47B1E28C2B6F00069D916 /* SequencerUI-Playground.app */,
@@ -737,28 +702,6 @@
 			productReference = CB1666BE27CCAD07000F9E21 /* SequencerUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		CB3948C327EA6BFC009A650D /* Sequencer AudioUnit */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = CB3948E627EA6BFC009A650D /* Build configuration list for PBXNativeTarget "Sequencer AudioUnit" */;
-			buildPhases = (
-				CB3948C027EA6BFC009A650D /* Sources */,
-				CB3948C127EA6BFC009A650D /* Frameworks */,
-				CB3948C227EA6BFC009A650D /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				CB3948EF27EA6DA3009A650D /* PBXTargetDependency */,
-				CB3948ED27EA6DA0009A650D /* PBXTargetDependency */,
-			);
-			name = "Sequencer AudioUnit";
-			packageProductDependencies = (
-				CB3948EA27EA6D9B009A650D /* SequencerUI */,
-			);
-			productName = "Sequencer AudioUnit";
-			productReference = CB3948C427EA6BFC009A650D /* Sequencer AudioUnit.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		CB3948F527ED24BA009A650D /* Sequencer MacUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = CB39490027ED24BA009A650D /* Build configuration list for PBXNativeTarget "Sequencer MacUITests" */;
@@ -791,7 +734,6 @@
 			);
 			dependencies = (
 				CBA4DA9527DDF21800A530E3 /* PBXTargetDependency */,
-				CB3948E127EA6BFC009A650D /* PBXTargetDependency */,
 			);
 			name = "Continuous Looper";
 			packageProductDependencies = (
@@ -911,9 +853,6 @@
 						CreatedOnToolsVersion = 13.2.1;
 						TestTargetID = CB1666A327CCAD04000F9E21;
 					};
-					CB3948C327EA6BFC009A650D = {
-						CreatedOnToolsVersion = 13.3;
-					};
 					CB3948F527ED24BA009A650D = {
 						CreatedOnToolsVersion = 13.3;
 						TestTargetID = CB801A1427D8AE6600D7788E;
@@ -960,7 +899,6 @@
 				CB801A1427D8AE6600D7788E /* Continuous Looper */,
 				CBA4DA8F27DDF21800A530E3 /* SequencerEngine */,
 				CBA4DAAA27DDF67700A530E3 /* SequencerEngine_ios */,
-				CB3948C327EA6BFC009A650D /* Sequencer AudioUnit */,
 				CB3948F527ED24BA009A650D /* Sequencer MacUITests */,
 				CBECE3B727ED43DB0054BB43 /* SequencerEngineTests */,
 				CBB47B1D28C2B6F00069D916 /* SequencerUI-Playground */,
@@ -989,17 +927,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		CB3948C227EA6BFC009A650D /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CB3948D427EA6BFC009A650D /* Sequencer_AudioUnitDSPKernel.hpp in Resources */,
-				CB3948DD27EA6BFC009A650D /* AudioUnitViewController.xib in Resources */,
-				CB3948CD27EA6BFC009A650D /* DSPKernel.hpp in Resources */,
-				CB3948D127EA6BFC009A650D /* BufferedAudioBus.hpp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1120,17 +1047,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		CB3948C027EA6BFC009A650D /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				CB3948CF27EA6BFC009A650D /* DSPKernel.mm in Sources */,
-				CB3948D927EA6BFC009A650D /* AudioUnitViewController.swift in Sources */,
-				CB3948D627EA6BFC009A650D /* Sequencer_AudioUnitDSPKernel.mm in Sources */,
-				CB3948C927EA6BFC009A650D /* Sequencer_AudioUnitAudioUnit.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		CB3948F227ED24BA009A650D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1217,20 +1133,6 @@
 			isa = PBXTargetDependency;
 			target = CB1666A327CCAD04000F9E21 /* Sequencer */;
 			targetProxy = CB1666BF27CCAD07000F9E21 /* PBXContainerItemProxy */;
-		};
-		CB3948E127EA6BFC009A650D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = CB3948C327EA6BFC009A650D /* Sequencer AudioUnit */;
-			targetProxy = CB3948E027EA6BFC009A650D /* PBXContainerItemProxy */;
-		};
-		CB3948ED27EA6DA0009A650D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = CBA4DA8F27DDF21800A530E3 /* SequencerEngine */;
-			targetProxy = CB3948EC27EA6DA0009A650D /* PBXContainerItemProxy */;
-		};
-		CB3948EF27EA6DA3009A650D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = CB3948EE27EA6DA3009A650D /* SequencerUI */;
 		};
 		CB3948FD27ED24BA009A650D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1579,64 +1481,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = Sequencer;
-			};
-			name = Release;
-		};
-		CB3948E427EA6BFC009A650D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "Sequencer AudioUnit/Sequencer_AudioUnit.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = Q39U2SBP6Z;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Sequencer AudioUnit/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Sequencer AudioUnit";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 11.3;
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer-Mac.SequencerAudioUnit";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "Sequencer AudioUnit/Sequencer_AudioUnit-Bridging-Header.h";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		CB3948E527EA6BFC009A650D /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = "Sequencer AudioUnit/Sequencer_AudioUnit.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
-				DEVELOPMENT_TEAM = Q39U2SBP6Z;
-				ENABLE_HARDENED_RUNTIME = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "Sequencer AudioUnit/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Sequencer AudioUnit";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@executable_path/../../../../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 11.3;
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "beijaflor-io.Sequencer-Mac.SequencerAudioUnit";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "Sequencer AudioUnit/Sequencer_AudioUnit-Bridging-Header.h";
-				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
 		};
@@ -2033,15 +1877,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		CB3948E627EA6BFC009A650D /* Build configuration list for PBXNativeTarget "Sequencer AudioUnit" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				CB3948E427EA6BFC009A650D /* Debug */,
-				CB3948E527EA6BFC009A650D /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		CB39490027ED24BA009A650D /* Build configuration list for PBXNativeTarget "Sequencer MacUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2134,14 +1969,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		CB3948EA27EA6D9B009A650D /* SequencerUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SequencerUI;
-		};
-		CB3948EE27EA6DA3009A650D /* SequencerUI */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SequencerUI;
-		};
 		CB43DA3828C611E1007025AF /* Algorithms */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = CB43DA3728C611E1007025AF /* XCRemoteSwiftPackageReference "swift-algorithms" */;
