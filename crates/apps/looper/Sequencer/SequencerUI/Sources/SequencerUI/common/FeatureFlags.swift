@@ -18,4 +18,5 @@
 
 enum SequencerUIFeatureFlags {
     static let isAudioIOSettingsEnabled = true
+    static let isAudioFXTabEnabled = false
 }

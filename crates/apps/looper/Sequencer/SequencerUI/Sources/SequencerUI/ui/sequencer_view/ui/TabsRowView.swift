@@ -45,13 +45,17 @@ struct TabsRowView: View {
     @EnvironmentObject var store: Store
     var selectedTab: TabValue
     var onSelectTab: (TabValue) -> Void
-    var tabs: [(TabValue, ParameterId)] = [
+    var tabs: [(TabValue, ParameterId)] = SequencerUIFeatureFlags.isAudioFXTabEnabled ? [
         (.mix, .mixPage),
         (.source, .sourcePage),
         (.slice, .slicePage),
         (.envelope, .envelopePage),
         (.fx, .effectsPage),
-        // .lfos,
+    ] : [
+        (.mix, .mixPage),
+        (.source, .sourcePage),
+        (.slice, .slicePage),
+        (.envelope, .envelopePage),
     ]
 
     var body: some View {

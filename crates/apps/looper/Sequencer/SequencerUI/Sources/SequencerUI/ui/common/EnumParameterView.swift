@@ -30,7 +30,7 @@ struct EnumParameterView<OptionT>: View
             Picker(parameter.label, selection: $parameter.value, content: {
                 ForEach(parameter.options, id: \.value) { option in
                     Text(option.label)
-                      .tag(option.value)
+                        .tag(option.value)
                 }
             })
             .pickerStyle(.menu)

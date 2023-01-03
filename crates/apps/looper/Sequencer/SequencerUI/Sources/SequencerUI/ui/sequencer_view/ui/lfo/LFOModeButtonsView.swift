@@ -36,11 +36,11 @@ struct LFOModeButtonsView: View {
     var body: some View {
         VStack(spacing: 0) {
             EnumParameterView(parameter: lfoState.modeParameter)
-              .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Rectangle()
-              .fill(SequencerColors.white.opacity(0.3))
-              .frame(maxWidth: .infinity, maxHeight: 1)
+                .fill(SequencerColors.white.opacity(0.3))
+                .frame(maxWidth: .infinity, maxHeight: 1)
         }
     }
 }

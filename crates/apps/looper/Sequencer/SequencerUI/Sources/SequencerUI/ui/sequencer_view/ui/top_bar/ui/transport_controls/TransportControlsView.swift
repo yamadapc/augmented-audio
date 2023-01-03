@@ -92,7 +92,7 @@ struct TransportTempoView: View {
 #if os(macOS)
     class TimeInfoTextView: NSView {
         var view = NSTextView()
-        var timeInfo: TimeInfo = TimeInfo() {
+        var timeInfo: TimeInfo = .init() {
             didSet {
                 cancellables = Set()
                 timeInfo.objectWillChange.sink(receiveValue: { _ in
@@ -117,20 +117,20 @@ struct TransportTempoView: View {
             view.isRichText = false
             view.drawsBackground = false
 
-            self.addSubview(view)
+            addSubview(view)
 
-            self.wantsLayer = true
-            view.frame = self.frame
+            wantsLayer = true
+            view.frame = frame
 
-            self.addConstraint(view.topAnchor.constraint(equalTo: self.topAnchor))
-            self.translatesAutoresizingMaskIntoConstraints = true
-            self.autoresizingMask = []
+            addConstraint(view.topAnchor.constraint(equalTo: topAnchor))
+            translatesAutoresizingMaskIntoConstraints = true
+            autoresizingMask = []
             view.translatesAutoresizingMaskIntoConstraints = true
             view.autoresizingMask = [.width]
         }
 
         required init?(coder: NSCoder) {
-            self.timeInfo = TimeInfo()
+            timeInfo = TimeInfo()
             super.init(coder: coder)
         }
 
@@ -216,8 +216,8 @@ struct TransportControlsView: View {
     var body: some View {
         HStack(alignment: .center) {
             TransportBeatsView(timeInfo: store.timeInfo)
-            .frame(width: 30, alignment: .trailing)
-            .offset(y: -5)
+                .frame(width: 30, alignment: .trailing)
+                .offset(y: -5)
 
             Rectangle().fill(SequencerColors.black3).frame(width: 1.0, height: 10.0)
 
