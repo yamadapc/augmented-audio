@@ -253,7 +253,7 @@ fn count_changed_bins_per_frame(
             threshold_frame
                 .iter()
                 .zip(f_frame)
-                .map(|(threshold, f)| if f > *threshold { 1 } else { 0 })
+                .map(|(threshold, f)| usize::from(f > *threshold))
                 // end Γ
                 .sum()
         })

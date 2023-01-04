@@ -46,6 +46,12 @@ pub struct TrackEventsBus {
     tx: Shared<Queue<TrackEventsMessage>>,
 }
 
+impl Default for TrackEventsBus {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TrackEventsBus {
     pub fn queue(&self) -> Shared<Queue<TrackEventsMessage>> {
         self.tx.clone()

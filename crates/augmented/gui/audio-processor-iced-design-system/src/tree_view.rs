@@ -136,7 +136,7 @@ mod item {
 
         pub fn view(&self) -> Element<Message<InnerState::Message>> {
             match self {
-                ItemState::Item { title, .. } => Text::new(&*title).into(),
+                ItemState::Item { title, .. } => Text::new(title).into(),
                 ItemState::Parent {
                     title,
                     children,
@@ -155,7 +155,7 @@ mod item {
                     .padding([0, 0, 0, Spacing::base_spacing()])
                     .into();
 
-                    let toggle_button = Button::new(Text::new(&*title))
+                    let toggle_button = Button::new(Text::new(title))
                         .padding(0)
                         .style(crate::style::ChromelessButton.into())
                         .on_press(Message::Toggle)

@@ -243,7 +243,7 @@ impl PitchShifterProcessor {
     }
 
     fn set_ratio(&mut self, ratio: f32) {
-        let ratio = ratio.min(4.0).max(0.25);
+        let ratio = ratio.clamp(0.25, 4.0);
         let step_len = self.fft_processor.step_len() as f32;
         let fft_size = self.fft_processor.size();
         let resample_buffer_size = fft_size as f32 / ratio;
@@ -307,7 +307,7 @@ impl PitchShifterProcessor {
             output_power += sample.abs();
         }
 
-        let multiplier = (input_power / output_power).min(1.0).max(0.0);
+        let multiplier = (input_power / output_power).clamp(0.0, 1.0);
         for i in 0..self.resample_buffer_size {
             self.resample_buffer[i % resample_buffer_len] *= multiplier;
         }

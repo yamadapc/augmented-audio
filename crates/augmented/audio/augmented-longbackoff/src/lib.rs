@@ -30,6 +30,12 @@ pub struct LongBackoff {
     iterations: usize,
 }
 
+impl Default for LongBackoff {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LongBackoff {
     pub fn new() -> Self {
         Self {

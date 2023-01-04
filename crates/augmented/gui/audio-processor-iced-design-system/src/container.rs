@@ -58,7 +58,7 @@ pub mod hover_container {
                 max_height: u32::MAX,
                 horizontal_alignment: Alignment::Start,
                 vertical_alignment: Alignment::Start,
-                style: Box::new(crate::style::HoverContainer::default()),
+                style: Box::<crate::style::HoverContainer>::default(),
                 content: content.into(),
             }
         }

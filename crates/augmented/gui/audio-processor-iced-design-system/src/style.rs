@@ -269,9 +269,9 @@ pub mod pick_list {
 
     pub struct PickList;
 
-    impl Into<iced::theme::PickList> for PickList {
-        fn into(self) -> iced_style::theme::PickList {
-            let t = Rc::new(self);
+    impl From<PickList> for iced::theme::PickList {
+        fn from(pick_list: PickList) -> iced_style::theme::PickList {
+            let t = Rc::new(pick_list);
             // TODO: This is broken
             iced_style::theme::PickList::Custom(t.clone(), t)
         }

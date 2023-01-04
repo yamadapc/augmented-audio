@@ -112,7 +112,7 @@ impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphHandleImpl<P> {
 
         let mut buffer = VecAudioBuffer::new();
         if let Some(settings) = self.audio_processor_settings.get().deref() {
-            buffer.resize(settings.output_channels, settings.block_size as usize, 0.0);
+            buffer.resize(settings.output_channels, settings.block_size, 0.0);
         }
 
         let buffer = make_shared(BufferCell(UnsafeCell::new(buffer)));
@@ -183,9 +183,9 @@ impl<P: Send + 'static + SliceAudioProcessor> Default for AudioProcessorGraphImp
 
 impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphImpl<P> {
     fn new(mut dag: daggy::Dag<(), ()>) -> Self {
-        let _input_proc: NodeType<P> = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
+        let _input_proc: NodeType<P> = NodeType::Simple(Box::<NoopAudioProcessor<f32>>::default());
         let input_node = dag.add_node(());
-        let _output_proc: NodeType<P> = NodeType::Simple(Box::new(NoopAudioProcessor::default()));
+        let _output_proc: NodeType<P> = NodeType::Simple(Box::<NoopAudioProcessor<f32>>::default());
         let output_node = dag.add_node(());
 
         AudioProcessorGraphImpl {
@@ -405,7 +405,7 @@ impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
                 let buffer = buffer_ref.deref().0.get();
 
                 unsafe {
-                    for (s, d) in (&*buffer).slice().iter().zip(data.slice_mut()) {
+                    for (s, d) in (*buffer).slice().iter().zip(data.slice_mut()) {
                         *d += *s;
                     }
                 }
