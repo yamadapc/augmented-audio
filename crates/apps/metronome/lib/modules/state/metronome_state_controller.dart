@@ -1,9 +1,10 @@
+// ignore_for_file: avoid_positional_boolean_parameters
+
+import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/modules/history/history_controller.dart';
+import 'package:metronome/modules/state/metronome_state_model.dart';
 import 'package:metronome/modules/state/tap_tempo_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../../bridge_generated.dart';
-import 'metronome_state_model.dart';
 
 class PreferenceKey {
   static const String tempo = "tempo";
@@ -27,9 +28,9 @@ class MetronomeStateController {
     });
 
     SharedPreferences.getInstance().then((sharedPreferences) {
-      var tempo = sharedPreferences.getDouble(PreferenceKey.tempo) ?? 120.0;
-      var volume = sharedPreferences.getDouble(PreferenceKey.volume) ?? 0.3;
-      var beatsPerBar =
+      final tempo = sharedPreferences.getDouble(PreferenceKey.tempo) ?? 120.0;
+      final volume = sharedPreferences.getDouble(PreferenceKey.volume) ?? 0.3;
+      final beatsPerBar =
           sharedPreferences.getInt(PreferenceKey.beatsPerBar) ?? 4;
       setTempo(tempo);
       setVolume(volume);
@@ -67,7 +68,7 @@ class MetronomeStateController {
   }
 
   void toggleIsPlaying() {
-    var isPlaying = !model.isPlaying;
+    final isPlaying = !model.isPlaying;
     setIsPlaying(isPlaying);
   }
 

@@ -2,9 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:metronome/ui/home_page.dart';
 import 'package:mobx/mobx.dart';
-
-import 'home_page.dart';
 
 Observable<Brightness?> brightness =
     Observable(WidgetsBinding.instance.window.platformBrightness);
@@ -43,11 +42,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       builder: (_) => MacosApp(
         title: 'Metronome',
         theme: MacosThemeData(
-            brightness: brightness.value ?? Brightness.dark,
-            typography: MacosTypography(
-                color: Colors.black, body: const TextStyle(fontSize: 50)),
-            primaryColor: CupertinoColors.activeBlue,
-            canvasColor: CupertinoColors.activeBlue),
+          brightness: brightness.value ?? Brightness.dark,
+          typography: MacosTypography(
+            color: Colors.black,
+            body: const TextStyle(fontSize: 50),
+          ),
+          primaryColor: CupertinoColors.activeBlue,
+          canvasColor: CupertinoColors.activeBlue,
+        ),
         home: const HomePage(title: 'Metronome'),
       ),
     );

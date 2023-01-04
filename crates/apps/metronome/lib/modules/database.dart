@@ -69,9 +69,9 @@ Future<MetronomeDatabase> buildInMemoryDatabase() {
 const databaseName = 'metronome_database.db';
 
 Future<MetronomeDatabase> buildDatabase() async {
-  var path = await sqfliteDatabaseFactory.getDatabasePath(databaseName);
+  final path = await sqfliteDatabaseFactory.getDatabasePath(databaseName);
   logger.i("Opening SQLite database path=$path");
-  MetronomeDatabase db = await $FloorMetronomeDatabase
+  final MetronomeDatabase db = await $FloorMetronomeDatabase
       .databaseBuilder(databaseName)
       .addMigrations(migrations)
       .build();

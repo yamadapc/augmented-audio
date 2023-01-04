@@ -14,17 +14,24 @@ class Session {
   final int beatsPerBar;
 
   Session(
-      this.id, this.timestampMs, this.durationMs, this.tempo, this.beatsPerBar);
+    this.id,
+    this.timestampMs,
+    this.durationMs,
+    this.tempo,
+    this.beatsPerBar,
+  );
 
-  Session.create(
-      {this.id,
-      required this.timestampMs,
-      required this.durationMs,
-      required this.tempo,
-      required this.beatsPerBar});
+  Session.create({
+    this.id,
+    required this.timestampMs,
+    required this.durationMs,
+    required this.tempo,
+    required this.beatsPerBar,
+  });
 }
 
-@DatabaseView("""
+@DatabaseView(
+  """
 SELECT
   SUM(durationMs) as durationMs,
   ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,
@@ -36,7 +43,9 @@ GROUP BY
   tempo,
   beatsPerBar
 ORDER BY timestampMs DESC
-  """, viewName: "AggregatedSession")
+  """,
+  viewName: "AggregatedSession",
+)
 class AggregatedSession {
   final int durationMs;
   final int timestampMs;
@@ -44,10 +53,15 @@ class AggregatedSession {
   final int beatsPerBar;
 
   AggregatedSession(
-      this.durationMs, this.timestampMs, this.tempo, this.beatsPerBar);
+    this.durationMs,
+    this.timestampMs,
+    this.tempo,
+    this.beatsPerBar,
+  );
 }
 
-@DatabaseView("""
+@DatabaseView(
+  """
   SELECT
       SUM(durationMs) as durationMs,
       strftime('%s', datetime(timestampMs / 1000, 'unixepoch', 'localtime', 'start of day')) * 1000 AS timestampMs
@@ -55,7 +69,9 @@ class AggregatedSession {
   GROUP BY
       datetime(timestampMs / 1000, 'unixepoch', 'localtime', 'start of day')
   ORDER BY timestampMs DESC
-""", viewName: "dailypracticetime")
+""",
+  viewName: "dailypracticetime",
+)
 class DailyPracticeTime {
   final int durationMs;
   final int timestampMs;

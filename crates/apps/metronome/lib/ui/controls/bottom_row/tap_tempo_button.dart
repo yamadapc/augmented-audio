@@ -23,17 +23,20 @@ class TapTempoButton extends StatelessWidget {
         onPressed: () {
           tapTempoController.onPress();
         },
-        child: Observer(builder: (_) {
-          var beatToDisplay = tapTempoController.presses.length %
-              stateController.model.beatsPerBar;
-          if (beatToDisplay == 0) {
-            beatToDisplay = 4;
-          }
+        child: Observer(
+          builder: (_) {
+            var beatToDisplay = tapTempoController.presses.length %
+                stateController.model.beatsPerBar;
+            if (beatToDisplay == 0) {
+              beatToDisplay = 4;
+            }
 
-          return Text(
+            return Text(
               tapTempoController.presses.isNotEmpty ? "$beatToDisplay" : "Tap",
-              style: const TextStyle(color: CupertinoColors.white));
-        }),
+              style: const TextStyle(color: CupertinoColors.white),
+            );
+          },
+        ),
       ),
     );
   }

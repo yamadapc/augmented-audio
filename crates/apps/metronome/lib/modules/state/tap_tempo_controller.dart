@@ -1,8 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/ui/utils/debounce.dart';
 import 'package:mobx/mobx.dart';
-
-import '../../ui/utils/debounce.dart';
-import 'metronome_state_controller.dart';
 
 class TapTempoController {
   final ObservableList<int> presses = ObservableList.of([]);
@@ -29,7 +28,7 @@ class TapTempoController {
         _debounce.debounceMs = 2000;
         presses.clear();
 
-        var analytics = FirebaseAnalytics.instance;
+        final analytics = FirebaseAnalytics.instance;
         analytics.logEvent(name: "TapTempoController__flushed");
       });
     }

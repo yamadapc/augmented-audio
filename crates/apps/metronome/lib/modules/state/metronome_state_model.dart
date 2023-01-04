@@ -1,6 +1,7 @@
-import 'package:mobx/mobx.dart';
+// ignore_for_file: use_setters_to_change_properties, avoid_positional_boolean_parameters
 
-import '../../bridge_generated.dart';
+import 'package:metronome/bridge_generated.dart';
+import 'package:mobx/mobx.dart';
 
 part 'metronome_state_model.g.dart';
 

@@ -26,20 +26,23 @@ class HistoryStateController {
     final lastTwoMonths =
         DateTime.now().millisecondsSinceEpoch - 1000 * 60 * 60 * 24 * 60;
     final dailyTime = await _sessionDao.findDailyPracticeTime(lastTwoMonths);
-    final timePerWeek = {};
-    for (var practiceTime in dailyTime) {
+    final Map<int, int> timePerWeek = {};
+    for (final practiceTime in dailyTime) {
       final timestampMs = startOfWeek(
-              DateTime.fromMillisecondsSinceEpoch(practiceTime.timestampMs))
-          .millisecondsSinceEpoch;
+        DateTime.fromMillisecondsSinceEpoch(practiceTime.timestampMs),
+      ).millisecondsSinceEpoch;
       timePerWeek.update(
-          timestampMs, (value) => value += practiceTime.durationMs,
-          ifAbsent: () => 0);
+        timestampMs,
+        (value) => value += practiceTime.durationMs,
+        ifAbsent: () => 0,
+      );
     }
     final weeklyTime = timePerWeek.entries
         .map((e) => DailyPracticeTime(e.value, e.key))
         .toList();
     weeklyTime.sort(
-        (entry1, entry2) => entry1.timestampMs > entry2.timestampMs ? 1 : -1);
+      (entry1, entry2) => entry1.timestampMs > entry2.timestampMs ? 1 : -1,
+    );
 
     logger.i("Refreshing sessions from DB length=${sessions.length}");
     logger.i("$weeklyTime");
