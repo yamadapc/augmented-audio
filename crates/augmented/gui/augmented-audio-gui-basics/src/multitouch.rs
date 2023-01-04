@@ -58,6 +58,8 @@ pub struct Finger {
 }
 
 type MTDeviceRef = *const c_void;
+type ContactFrameCallback = dyn FnMut(MTDeviceRef, &[Finger], f64, i32);
+type ContactFrameCallbackRef = Box<ContactFrameCallback>;
 
 #[link(name = "MultitouchSupport", kind = "framework")]
 #[link(name = "CoreFoundation", kind = "framework")]
@@ -85,12 +87,12 @@ extern "C" fn callback_handler(
     frame: c_int,
     user_data: *mut c_void,
 ) -> c_int {
-    let closure: &mut &mut dyn FnMut(MTDeviceRef, &[Finger], f64, i32) =
-        unsafe { std::mem::transmute(user_data) };
+    #[allow(clippy::transmute_ptr_to_ref)]
+    let closure: &mut &mut ContactFrameCallback = unsafe { std::mem::transmute(user_data) };
     let fingers = unsafe { std::slice::from_raw_parts(data, length as usize) };
     closure(device, fingers, timestamp, frame);
 
-    return 0 as c_int;
+    0 as c_int
 }
 
 impl MultitouchDevice {
@@ -103,11 +105,10 @@ impl MultitouchDevice {
 
     pub fn register_contact_frame_callback<F>(&mut self, callback: F) -> Result<(), &'static str>
     where
-        F: FnMut(MTDeviceRef, &[Finger], f64, i32),
+        F: FnMut(MTDeviceRef, &[Finger], f64, i32) + 'static,
     {
         if !self.is_started {
-            let cb: Box<Box<dyn FnMut(MTDeviceRef, &[Finger], f64, i32)>> =
-                Box::new(Box::new(callback));
+            let cb: Box<ContactFrameCallbackRef> = Box::new(Box::new(callback));
             unsafe {
                 MTRegisterContactFrameCallbackWithRefcon(
                     self._device,

@@ -38,7 +38,7 @@ impl LogFormatter {
         let mut style = buf.style();
         let elapsed_str = {
             let elapsed_str = if elapsed == 0 {
-                format!("(   --   )")
+                "(   --   )".to_string()
             } else {
                 format!("(+{:5.0}ms)", elapsed)
             };

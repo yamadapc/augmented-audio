@@ -156,12 +156,12 @@ impl View {
             .into()
     }
 
-    fn file_picker_with_label<'a>(
+    fn file_picker_with_label(
         label: impl Into<String>,
-        option: &'a Option<String>,
+        option: &Option<String>,
         button_text: impl Into<String>,
         message: Message,
-    ) -> Element<'a, Message> {
+    ) -> Element<Message> {
         Row::with_children(vec![
             Container::new(Text::new(label.into()))
                 .width(Length::FillPortion(2))

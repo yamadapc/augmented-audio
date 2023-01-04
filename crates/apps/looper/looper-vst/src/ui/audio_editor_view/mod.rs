@@ -118,15 +118,15 @@ impl Default for VisualizationModel {
 impl VisualizationModel {
     fn on_scroll_zoom(&mut self, x: f32, y: f32) {
         self.zoom_x += x;
-        self.zoom_x = self.zoom_x.min(100.0).max(1.0);
+        self.zoom_x = self.zoom_x.clamp(1.0, 100.0);
         self.zoom_y += y;
-        self.zoom_y = self.zoom_y.min(2.0).max(0.2);
+        self.zoom_y = self.zoom_y.clamp(0.2, 2.0);
     }
 
     fn on_scroll(&mut self, bounds: Rectangle, x: f32) {
         let size = bounds.size();
         let width = size.width * self.zoom_x;
-        let offset = (self.offset + x).max(0.0).min(width - size.width);
+        let offset = (self.offset + x).clamp(0.0, width - size.width);
         self.offset = offset;
     }
 
@@ -212,12 +212,12 @@ impl Program<Message> for AudioEditorView {
                 if modifiers.shift() && modifiers.command() {
                     state.visualization_model.zoom_y += 0.1;
                     state.visualization_model.zoom_y =
-                        state.visualization_model.zoom_y.min(2.0).max(0.2);
+                        state.visualization_model.zoom_y.clamp(0.2, 2.0);
                     (Status::Captured, None)
                 } else if modifiers.command() {
                     state.visualization_model.zoom_x *= 10.0;
                     state.visualization_model.zoom_x =
-                        state.visualization_model.zoom_x.min(100.0).max(1.0);
+                        state.visualization_model.zoom_x.clamp(1.0, 100.0);
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)
@@ -230,12 +230,12 @@ impl Program<Message> for AudioEditorView {
                 if modifiers.shift() && modifiers.command() {
                     state.visualization_model.zoom_y -= 0.1;
                     state.visualization_model.zoom_y =
-                        state.visualization_model.zoom_y.min(2.0).max(0.2);
+                        state.visualization_model.zoom_y.clamp(0.2, 2.0);
                     (Status::Captured, None)
                 } else if modifiers.command() {
                     state.visualization_model.zoom_x /= 10.0;
                     state.visualization_model.zoom_x =
-                        state.visualization_model.zoom_x.min(100.0).max(1.0);
+                        state.visualization_model.zoom_x.clamp(1.0, 100.0);
                     (Status::Captured, None)
                 } else {
                     (Status::Ignored, None)

@@ -350,8 +350,8 @@
         <entry key="flutter_lints">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-2.0.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-1.0.4/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-2.0.1/lib" />
             </list>
           </value>
         </entry>
@@ -532,11 +532,18 @@
             </list>
           </value>
         </entry>
+        <entry key="lint">
+          <value>
+            <list>
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lint-2.0.1/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="lints">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-2.0.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-1.0.1/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-2.0.0/lib" />
             </list>
           </value>
         </entry>
@@ -1097,6 +1104,7 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/js-0.6.4/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/json_annotation-4.7.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/json_serializable-6.4.0/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lint-2.0.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-1.0.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-2.0.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lists-1.0.1/lib" />

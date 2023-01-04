@@ -44,7 +44,7 @@ impl Default for ListCratesService {
             .expect("Failed to create crates.io API client");
 
         ListCratesService {
-            cargo_toml_reader: Box::new(CargoTomlReaderImpl::default()),
+            cargo_toml_reader: Box::<CargoTomlReaderImpl>::default(),
             client,
         }
     }
@@ -87,11 +87,11 @@ impl ListCratesService {
 
     fn find_entries(&self) -> Vec<String> {
         let mut crates = Vec::new();
-        self.find_entries_inner("./crates", &mut crates);
+        Self::find_entries_inner("./crates", &mut crates);
         crates
     }
 
-    fn find_entries_inner(&self, root: &str, crates: &mut Vec<String>) {
+    fn find_entries_inner(root: &str, crates: &mut Vec<String>) {
         log::debug!("Scanning {}", root);
         let ignore_dirs: HashSet<&str> = ["vendor", "target"].iter().copied().collect();
 
@@ -119,7 +119,7 @@ impl ListCratesService {
             let is_dir = entry.file_type().unwrap().is_dir();
 
             if is_dir && !ignore_dirs.contains(file_name) {
-                self.find_entries_inner(&format!("{}/{}", root, file_name), crates);
+                Self::find_entries_inner(&format!("{}/{}", root, file_name), crates);
             }
         }
     }
@@ -221,7 +221,7 @@ impl ListCratesService {
         graph: &mut DependencyGraph,
     ) {
         let manifest_path = format!("{}/Cargo.toml", path);
-        let manifest = std::fs::read_to_string(&manifest_path).unwrap();
+        let manifest = std::fs::read_to_string(manifest_path).unwrap();
         let manifest = manifest.parse::<toml_edit::Document>().unwrap();
         let target = manifest["package"]["name"].as_str().unwrap();
         let mut deps_list = vec![];

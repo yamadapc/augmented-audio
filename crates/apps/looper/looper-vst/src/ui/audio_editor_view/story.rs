@@ -152,8 +152,7 @@ impl StoryView<StoryMessage> for Story {
                     match state.id {
                         ParameterId::FFTSize => {
                             self.params.fft_size = ((state.value / 1024.0).floor() * 1024.0)
-                                .max(state.range.0)
-                                .min(state.range.1)
+                                .clamp(state.range.0, state.range.1)
                                 as usize;
                             self.parameters_view
                                 .update(&ParameterId::FFTSize, self.params.fft_size as f32);

@@ -179,20 +179,20 @@ pub fn audio_graph_connect(input_index: u32, output_index: u32) -> Result<u32> {
 
 pub fn audio_node_create(audio_processor_name: String) -> Result<u32> {
     let processor: Result<NodeType<DefaultProcessor>> = match audio_processor_name.as_str() {
-        "delay" => Ok(NodeType::Simple(Box::new(
-            audio_processor_time::MonoDelayProcessor::default(),
-        ))),
+        "delay" => Ok(NodeType::Simple(Box::<
+            audio_processor_time::MonoDelayProcessor<f32>,
+        >::default())),
         "filter" => Ok(NodeType::Simple(Box::new(
             augmented_dsp_filters::rbj::FilterProcessor::new(
                 augmented_dsp_filters::rbj::FilterType::LowPass,
             ),
         ))),
-        "gain" => Ok(NodeType::Simple(Box::new(
-            audio_processor_utility::gain::GainProcessor::default(),
-        ))),
-        "pan" => Ok(NodeType::Simple(Box::new(
-            audio_processor_utility::pan::PanProcessor::default(),
-        ))),
+        "gain" => Ok(NodeType::Simple(Box::<
+            audio_processor_utility::gain::GainProcessor<f32>,
+        >::default())),
+        "pan" => Ok(NodeType::Simple(Box::<
+            audio_processor_utility::pan::PanProcessor<f32>,
+        >::default())),
         _ => Err(anyhow::Error::msg("Failed to create processor")),
     };
     let processor = processor?;

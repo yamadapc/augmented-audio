@@ -204,7 +204,7 @@ fn bump_dependency(
 
     let mut bump_dep = |key| {
         if let Some(deps) = target_package_manifest[key].as_table_mut() {
-            if let Some(subdep) = deps.get_mut(&*bump_package_name) {
+            if let Some(subdep) = deps.get_mut(&bump_package_name) {
                 log::info!(
                     "  => Bumping {}/dependencies/{} to {}",
                     other_crate_name,
@@ -221,7 +221,7 @@ fn bump_dependency(
                 let cargo_manifest_str = target_package_manifest.to_string();
 
                 if !dry_run {
-                    std::fs::write(&target_package_path, cargo_manifest_str).unwrap();
+                    std::fs::write(target_package_path, cargo_manifest_str).unwrap();
                 }
             }
         }

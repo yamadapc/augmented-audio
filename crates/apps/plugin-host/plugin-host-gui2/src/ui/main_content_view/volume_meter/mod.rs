@@ -348,9 +348,7 @@ impl VolumeMeter {
         let handle_width = 10.0;
 
         let start_x = offset_x - handle_width / 2.;
-        let tick_y = Self::decibels_y_position(frame, volume)
-            .max(0.0)
-            .min(frame.height());
+        let tick_y = Self::decibels_y_position(frame, volume).clamp(0.0, frame.height());
         let start_point = Point::new(start_x, tick_y);
 
         handle_path.move_to(start_point);

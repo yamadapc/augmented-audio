@@ -64,7 +64,7 @@ impl<'a> SketchContext<'a> {
 
 pub fn sketch<B>(mut builder: B)
 where
-    B: FnMut(&mut SketchContext) -> () + 'static,
+    B: FnMut(&mut SketchContext) + 'static,
 {
     let ev = winit::event_loop::EventLoop::new();
     let window = winit::window::Window::new(&ev).unwrap();
@@ -130,27 +130,27 @@ where
                     _ => (),
                 },
                 Event::RedrawRequested(_) => {
-                    get_drawable_surface(&metal_layer, &mut context).map(
-                        |(drawable, mut surface)| {
-                            let canvas = surface.canvas();
+                    if let Some((drawable, mut surface)) =
+                        get_drawable_surface(&metal_layer, &mut context)
+                    {
+                        let canvas = surface.canvas();
 
-                            let mut sketch_context = SketchContext {
-                                canvas,
-                                size: {
-                                    let draw_size = metal_layer.drawable_size();
-                                    Size::new(draw_size.width as scalar, draw_size.height as scalar)
-                                },
-                            };
-                            builder(&mut sketch_context);
+                        let mut sketch_context = SketchContext {
+                            canvas,
+                            size: {
+                                let draw_size = metal_layer.drawable_size();
+                                Size::new(draw_size.width as scalar, draw_size.height as scalar)
+                            },
+                        };
+                        builder(&mut sketch_context);
 
-                            surface.flush_and_submit();
-                            drop(surface);
+                        surface.flush_and_submit();
+                        drop(surface);
 
-                            let command_buffer = queue.new_command_buffer();
-                            command_buffer.present_drawable(drawable);
-                            command_buffer.commit();
-                        },
-                    );
+                        let command_buffer = queue.new_command_buffer();
+                        command_buffer.present_drawable(drawable);
+                        command_buffer.commit();
+                    }
                 }
                 _ => {}
             }

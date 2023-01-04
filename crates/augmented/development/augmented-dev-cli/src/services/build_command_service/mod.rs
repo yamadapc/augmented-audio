@@ -51,14 +51,15 @@ pub struct BuildCommandService {
     list_crates_service: Box<ListCratesService>,
 }
 
+#[allow(clippy::derivable_impls)]
 impl Default for BuildCommandService {
     fn default() -> Self {
         Self {
-            cargo_toml_reader: Box::new(CargoTomlReaderImpl::default()),
-            git_release_provider: Box::new(GitReleaseProviderImpl::default()),
-            packager_service: Box::new(PackagerServiceImpl::default()),
-            release_service: Box::new(ReleaseServiceImpl::default()),
-            list_crates_service: Box::new(ListCratesService::default()),
+            cargo_toml_reader: Box::<CargoTomlReaderImpl>::default(),
+            git_release_provider: Box::<GitReleaseProviderImpl>::default(),
+            packager_service: Box::<PackagerServiceImpl>::default(),
+            release_service: Box::<ReleaseServiceImpl>::default(),
+            list_crates_service: Box::default(),
         }
     }
 }
