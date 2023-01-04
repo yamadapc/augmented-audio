@@ -51,6 +51,40 @@ The dev-loop is as follows:
 ## Architecture
 [![](https://mermaid.ink/img/pako:eNpNkMFqwzAMhl9F6NRC8wI5DDKylkEP29Jb0oOJ1cY0sYIsF0rTd5_TpTAdfoT5_l-y7tiyJczxLGbs4FA2HlJt620fVUngJOw1I2-PkGVv06e_8oXCBD8x6GqW9Z-j-t7XqyROCcr39XHJeZoqZSEw3oKQiqMrAfm5STnJ8h_94qCJNP1NXRumXbHaMZ97guL1tsybR88OmArlwbXAI4lRxz5MRbSO66fCoRMyNq2DGxxIBuNs-u19DmlQOxqowTy11silwcY_EhdHa5Q-rEt7Y34yfaANmqhc3XyLuUqkF1Q6ky43LNTjF4tqcOE?type=png)](https://mermaid.live/edit#pako:eNpNkMFqwzAMhl9F6NRC8wI5DDKylkEP29Jb0oOJ1cY0sYIsF0rTd5_TpTAdfoT5_l-y7tiyJczxLGbs4FA2HlJt620fVUngJOw1I2-PkGVv06e_8oXCBD8x6GqW9Z-j-t7XqyROCcr39XHJeZoqZSEw3oKQiqMrAfm5STnJ8h_94qCJNP1NXRumXbHaMZ97guL1tsybR88OmArlwbXAI4lRxz5MRbSO66fCoRMyNq2DGxxIBuNs-u19DmlQOxqowTy11silwcY_EhdHa5Q-rEt7Y34yfaANmqhc3XyLuUqkF1Q6ky43LNTjF4tqcOE)
 
+### Tech-stack
+
+[Flutter](https://flutter.dev/) is used for the UI, with [MobX](https://pub.dev/packages/mobx) for state management and
+[Floor](https://pub.dev/packages/floor) for persistence.
+
+[Flutter](https://flutter.dev/) is a high-level framework for building cross-platform apps using
+[Dart](https://dart.dev/). Apps are built using a declarative UI pattern and implement a flexbox style layout system.
+Internally, the framework will use a custom [`skia`](https://skia.org/) renderer to draw the UI. To interface with
+platform APIs a message passing approach is used. Flutter code will use a single message passing API to interface with
+multiple [platform-specific plug-ins](https://docs.flutter.dev/development/packages-and-plugins/developing-packages).
+
+The `flutter` code runs on a single UI thread.
+
+We don't require any significant plug-ins that weren't available for install from the `pub.dev` registry.
+
+[MobX](https://pub.dev/packages/mobx) is used for state-management. It's based on reactive objects, observers and
+computed properties.
+
+[Rust](https://www.rust-lang.org) is used for audio-thread code. An audio-thread is started when the app boots and a
+shared pointer to atomic state is used to communicate between the flutter UI and the audio-thread. When data to be
+queried / mutated is small we use [atomics](https://doc.rust-lang.org/std/sync/atomic/). When data is larger we use
+one of two other strategies: message-queues or immutable data atomic pointer swaps.
+
+* **UI**
+  * [Flutter](https://flutter.dev/)
+  * [Dart](https://dart.dev/)
+  * [MobX](https://pub.dev/packages/mobx)
+  * [Floor](https://pub.dev/packages/floor)
+  * [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge)
+* **Audio**
+  * [Rust](https://www.rust-lang.org/)
+  * [augmented-audio](https://github.com/yamadapc/augmented-audio)
+  * [cpal](https://github.com/RustAudio/cpal/)
+
 ### Project structure
 
 * `lib` - Flutter app
