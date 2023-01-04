@@ -1,0 +1,6 @@
+graph TD
+    F[Flutter front-end] -->|Invokes| Rust(Rust)
+    SQL[(SQLite DB)]
+    F -->|Store and retrieve entries| SQL
+    F -->|Post analytics|GA(Google Analytics)
+    Rust --> |Atomic operations|Audio[Audio Thread]
