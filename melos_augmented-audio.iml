@@ -111,6 +111,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-codec-aiff/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-thread-logger/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/augmented-longbackoff/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/apps/looper/looper-processor/examples" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
