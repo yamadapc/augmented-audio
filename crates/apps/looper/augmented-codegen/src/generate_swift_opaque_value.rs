@@ -133,7 +133,7 @@ pub extern "C" fn boxed__{}__{}(ptr: *const {}{}){} {{
         .map(|(name, _)| name.clone())
         .collect::<Vec<String>>();
     let mut swift_code = "".to_string();
-    let swift_method_name = to_camel_case(&*value.identifier);
+    let swift_method_name = to_camel_case(&value.identifier);
     let parent_name = format!("Boxed${}", value.parent);
     swift_code += &*format!(
         r#"

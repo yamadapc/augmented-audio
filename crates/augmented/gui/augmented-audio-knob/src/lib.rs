@@ -138,10 +138,10 @@ fn build_pointer_path(radius: f32, style: KnobStyle, value: f32) -> KnobPointerP
         center_coordinate + (radius * 0.8) * thumb_angle.sin(),
     );
 
-    return KnobPointerPath {
+    KnobPointerPath {
         start: (center_coordinate, center_coordinate),
         end: path_position,
-    };
+    }
 }
 
 // pub struct KnobViewStyle {

@@ -98,7 +98,7 @@ impl<AWPP: AudioWavePlayheadProvider> AudioWaveRenderingControllerImpl<AWPP> {
             drawers: Default::default(),
             surfaces: Default::default(),
             handle,
-            device: device.clone(),
+            device,
             queue,
             context,
             _backend: backend,
@@ -116,7 +116,7 @@ impl<AWPP: AudioWavePlayheadProvider> AudioWaveRenderingControllerImpl<AWPP> {
         log::debug!("DRAW {:?} {:?}", looper_id, layer.as_ptr());
         let drawable_size = layer_size(&layer);
 
-        if !self.surfaces.contains_key(&looper_id) {
+        if let std::collections::hash_map::Entry::Vacant(e) = self.surfaces.entry(looper_id) {
             let surface = Surface::new_render_target(
                 &mut self.recording_context,
                 Budgeted::No,
@@ -132,7 +132,7 @@ impl<AWPP: AudioWavePlayheadProvider> AudioWaveRenderingControllerImpl<AWPP> {
                 None,
             )
             .expect("Skia surface creation failed");
-            self.surfaces.insert(looper_id.clone(), surface);
+            e.insert(surface);
         }
 
         self.try_handle_track_event();

@@ -21,13 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use skia_safe::gpu::mtl::BackendContext;
-use skia_safe::gpu::{mtl, DirectContext, RecordingContext};
-use skia_safe::{AlphaType, Budgeted, ColorType, ISize, ImageInfo, Size, Surface};
 use std::time::Duration;
 
 use foreign_types_shared::ForeignType;
 use metal::Device;
+use skia_safe::gpu::mtl::BackendContext;
+use skia_safe::gpu::{mtl, DirectContext, RecordingContext};
+use skia_safe::{AlphaType, Budgeted, ColorType, ISize, ImageInfo, Size, Surface};
 
 fn main() {
     wisual_logger::init_from_env();
@@ -44,7 +44,7 @@ fn main() {
     };
     let context = DirectContext::new_metal(&backend, None).unwrap();
 
-    let mut recording_context = RecordingContext::from(context.clone());
+    let mut recording_context = RecordingContext::from(context);
     let surfaces: Vec<Surface> = (0..500)
         .map(|_i| {
             Surface::new_render_target(

@@ -529,7 +529,7 @@ impl LooperHandle {
                         start_cursor: self.start_cursor.load(Ordering::Relaxed),
                         length: self.length.load(Ordering::Relaxed),
                     },
-                    &mut *buffer,
+                    &mut buffer,
                 );
                 if self.tick_time.get() {
                     self.time_info_provider.play();

@@ -72,7 +72,7 @@ impl SidebarView {
     pub fn view(&self) -> Element<Message> {
         let container = self
             .menu_list
-            .view(|text| Text::new(&*text).into())
+            .view(|text| Text::new(text).into())
             .map(Message::MenuList);
 
         let rule = Rule::vertical(1).style(style::Rule).into();

@@ -213,11 +213,11 @@ fn get_drawable_surface<'a>(
     context: &'a mut DirectContext,
 ) -> Option<(&'a MetalDrawableRef, Surface)> {
     let drawable = metal_layer.next_drawable();
-    drawable.map(|drawable| (drawable, read_surface(context, &metal_layer, drawable)))
+    drawable.map(|drawable| (drawable, read_surface(context, metal_layer, drawable)))
 }
 
 fn read_surface(
-    mut context: &mut DirectContext,
+    context: &mut DirectContext,
     metal_layer: &MetalLayer,
     drawable: &MetalDrawableRef,
 ) -> Surface {
@@ -236,7 +236,7 @@ fn read_surface(
         );
 
         Surface::from_backend_render_target(
-            &mut context,
+            context,
             &backend_render_target,
             SurfaceOrigin::TopLeft,
             ColorType::BGRA8888,

@@ -368,7 +368,7 @@ pub mod vst {
             let num_samples = buffer.samples();
             let (inputs, mut outputs) = buffer.split();
             self.buffer
-                .resize(2, num_samples as usize, SampleType::zero());
+                .resize(2, num_samples, SampleType::zero());
             {
                 let buffer_slice = self.buffer.slice_mut();
                 for (channel, input) in inputs.into_iter().take(2).enumerate() {

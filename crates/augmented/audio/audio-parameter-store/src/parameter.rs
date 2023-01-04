@@ -195,8 +195,8 @@ impl PluginParameterBuilder {
     pub fn build(self) -> PluginParameter {
         PluginParameter::new(
             AtomicCell::new(self.initial_value.unwrap_or(0.0)),
-            self.name.unwrap_or_else(|| "".to_string()),
-            self.label.unwrap_or_else(|| "".to_string()),
+            self.name.unwrap_or_default(),
+            self.label.unwrap_or_default(),
             self.can_be_automated.unwrap_or(true),
             self.value_range.unwrap_or((0., 1.)),
             self.value_type.unwrap_or_default(),
@@ -219,8 +219,9 @@ impl Default for ParameterType {
 
 #[cfg(test)]
 mod test {
-    use super::*;
     use audio_processor_testing_helpers::assert_f_eq;
+
+    use super::*;
 
     #[test]
     fn test_constructor() {

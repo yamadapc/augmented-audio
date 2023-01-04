@@ -136,7 +136,7 @@ mod test {
         let _ = sink_rx.recv_timeout(Duration::from_millis(100)).unwrap();
 
         event_tx
-            .send(DebouncedEvent::Write(test_file_path.clone()))
+            .send(DebouncedEvent::Write(test_file_path))
             .unwrap();
         assert!(sink_rx.recv_timeout(Duration::from_millis(100)).is_err());
     }

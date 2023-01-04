@@ -31,7 +31,7 @@ fn main() {
     }
     {
         let output = Command::new("git")
-            .args(&["rev-parse", "HEAD"])
+            .args(["rev-parse", "HEAD"])
             .output()
             .unwrap();
         let git_rev = String::from_utf8(output.stdout).unwrap().trim().to_string();
@@ -39,7 +39,7 @@ fn main() {
     }
     {
         let output = Command::new("git")
-            .args(&["rev-parse", "--short", "HEAD"])
+            .args(["rev-parse", "--short", "HEAD"])
             .output()
             .unwrap();
         let git_rev = String::from_utf8(output.stdout).unwrap().trim().to_string();

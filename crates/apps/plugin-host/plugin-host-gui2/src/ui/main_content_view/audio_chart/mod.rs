@@ -139,7 +139,7 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChartV
             let item = sample * 10.0;
             let f_index = sample_index as f32;
             let x2_coord = frame.width() - ((f_index + 1.0) / num_samples as f32) * frame.width();
-            let y2_coord = frame.height() - (item as f32) * frame.height();
+            let y2_coord = frame.height() - item * frame.height();
             path.line_to(Point::new(x2_coord, y2_coord));
         }
         path.line_to(Point::new(0.0, frame.height()));

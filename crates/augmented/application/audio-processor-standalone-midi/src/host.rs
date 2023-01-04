@@ -26,12 +26,12 @@ use std::sync::atomic::{AtomicU32, Ordering};
 #[cfg(feature = "actix")]
 use actix::{Actor, Context, Handler, Message, MessageResponse, Supervised, SystemService};
 use basedrop::{Handle, Owned, Shared};
+use midir::os::unix::VirtualInput;
+use midir::{MidiInput, MidiInputConnection};
 use thiserror::Error;
 
 use atomic_queue::Queue;
 use audio_processor_traits::MidiMessageLike;
-use midir::os::unix::VirtualInput;
-use midir::{MidiInput, MidiInputConnection};
 
 use crate::constants::MIDI_BUFFER_CAPACITY;
 
@@ -90,7 +90,7 @@ impl MidiHost {
         let virtual_port_name = self.virtual_port_name();
         log::info!("Creating virtual MIDI input `{}`", virtual_port_name);
         match input.create_virtual(
-            &*virtual_port_name,
+            &virtual_port_name,
             midi_callback,
             MidiCallbackContext::new(self.handle.clone(), self.current_messages.clone()),
         ) {
@@ -348,7 +348,7 @@ mod test {
         let addr =
             MidiHost::default_with_queue(audio_garbage_collector::handle(), source_queue.clone())
                 .start();
-        let _result = addr.send(StartMessage).await.unwrap().unwrap();
+        addr.send(StartMessage).await.unwrap().unwrap();
         let GetQueueMessageResult(queue) = addr.send(GetQueueMessage).await.unwrap();
         assert_eq!(
             queue.deref() as *const Queue<MidiMessageEntry>,

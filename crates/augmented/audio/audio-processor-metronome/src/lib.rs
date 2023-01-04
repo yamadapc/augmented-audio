@@ -127,7 +127,7 @@ impl<P: MetronomePlayhead> MetronomeProcessor<P> {
         MetronomeProcessor {
             handle: make_shared(MetronomeProcessorHandle {
                 is_playing: AtomicBool::new(true),
-                tempo: AtomicF32::new(DEFAULT_TEMPO as f32),
+                tempo: AtomicF32::new(DEFAULT_TEMPO),
                 volume: AtomicF32::new(1.0),
                 position_beats: AtomicF32::new(0.0),
                 beats_per_bar: AtomicI32::new(4),

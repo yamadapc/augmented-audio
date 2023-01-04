@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -21,7 +23,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use audio_processor_traits::num::pow::Pow;
-use std::f32::consts::PI;
 
 pub type WindowFunction = fn(n: f32, size: f32) -> f32;
 
@@ -159,7 +160,7 @@ mod test {
     fn draw_window(label: &str, window_fn: WindowFunction) {
         let window = window_fn(1000);
         draw_vec_chart(
-            &*relative_path!("src/window_functions/windows"),
+            &relative_path!("src/window_functions/windows"),
             label,
             window,
         );

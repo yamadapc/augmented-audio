@@ -27,7 +27,6 @@ use std::path::{Path, PathBuf};
 use std::process;
 
 use complexity::Complexity;
-
 use syn::{
     Attribute, File, FnArg, Ident, ImplItem, ImplItemMethod, Item, ItemImpl, Pat, PatType,
     ReturnType, Type,
@@ -90,7 +89,7 @@ fn main() {
         }
     };
 
-    for filename in glob::glob(&*format!("{}/src/**/*.rs", crate_dir)).unwrap() {
+    for filename in glob::glob(&format!("{}/src/**/*.rs", crate_dir)).unwrap() {
         let filename = filename.unwrap();
         let mut file = std::fs::File::open(&filename).expect("Unable to open file");
         log::debug!("Processing {}", filename.to_str().unwrap());

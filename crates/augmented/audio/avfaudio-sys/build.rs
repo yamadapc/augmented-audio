@@ -29,7 +29,7 @@ fn sdk_path() -> Result<String, std::io::Error> {
     use std::process::Command;
 
     let output = Command::new("xcrun")
-        .args(&["--show-sdk-path"])
+        .args(["--show-sdk-path"])
         .output()?
         .stdout;
     let prefix_str = std::str::from_utf8(&output).expect("invalid output from `xcrun`");
@@ -63,7 +63,7 @@ fn main() {
         &target_arg,
     ];
     if let Some(sdk) = sdk {
-        clang_args.extend(&["-isysroot", sdk]);
+        clang_args.extend(["-isysroot", sdk]);
     }
 
     // The bindgen::Builder is the main entry point

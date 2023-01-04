@@ -206,14 +206,14 @@ mod test {
 
     #[test]
     fn test_create_stop_collector() {
-        let _ = wisual_logger::init_from_env();
+        wisual_logger::init_from_env();
         let mut gc = GarbageCollector::new(Duration::from_secs(1));
         gc.stop().unwrap();
     }
 
     #[test]
     fn test_gc_will_run_after_period() {
-        let _ = wisual_logger::init_from_env();
+        wisual_logger::init_from_env();
         let mut gc = GarbageCollector::new(Duration::from_millis(10));
 
         assert_eq!(gc.blocking_alloc_count(), 0);
@@ -230,7 +230,7 @@ mod test {
 
     #[test]
     fn test_gc_will_run_with_blocking_collect() {
-        let _ = wisual_logger::init_from_env();
+        wisual_logger::init_from_env();
         let mut gc = GarbageCollector::new(Duration::from_millis(100));
 
         assert_eq!(gc.blocking_alloc_count(), 0);

@@ -72,10 +72,11 @@
 //! ------------------
 //! ![](https://raw.githubusercontent.com/yamadapc/augmented-audio/master/crates/augmented/audio/adsr-envelope/src/__plots__/exp-envelope.png)
 
-use augmented_atomics::{AtomicEnum, AtomicF32};
+use std::time::Duration;
+
 use num_derive::{FromPrimitive, ToPrimitive};
 
-use std::time::Duration;
+use augmented_atomics::{AtomicEnum, AtomicF32};
 
 #[derive(Debug, FromPrimitive, ToPrimitive)]
 enum EnvelopeStage {
@@ -472,7 +473,7 @@ mod test {
         chart
             .draw_series(LineSeries::new(
                 output.iter().map(|(x, y)| (*x as f64, *y as f64)),
-                &RED,
+                RED,
             ))
             .unwrap();
         drawing_area.present().unwrap();

@@ -280,7 +280,7 @@ impl TestPluginHost {
         {
             log::info!("Tainting the library with install_name_tool. Multiple versions will be loaded at the same time due to macOS limitations.");
             let _ = Command::new("install_name_tool")
-                .args(&["-id", &load_id, &load_path])
+                .args(["-id", &load_id, &load_path])
                 .output();
         }
 

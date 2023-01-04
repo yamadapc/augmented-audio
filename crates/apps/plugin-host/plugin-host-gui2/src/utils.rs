@@ -45,6 +45,6 @@ pub fn command_message<Message: 'static + Send>(message: Message) -> iced::Comma
 
 pub fn set_status_bar(status: StatusBar) -> Command<Message> {
     Command::perform(iced_futures::futures::future::ready(()), move |_| {
-        Message::SetStatus(status.clone())
+        Message::SetStatus(status)
     })
 }

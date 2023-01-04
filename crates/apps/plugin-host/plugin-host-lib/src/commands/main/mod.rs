@@ -163,13 +163,12 @@ fn get_audio_options(run_options: &RunOptions) -> (AudioProcessorSettings, Audio
     audio_settings.set_block_size(
         run_options
             .buffer_size()
-            .map(|size| size as usize)
             .unwrap_or_else(|| audio_settings.block_size()),
     );
     let mut audio_thread_options = AudioThreadOptions::default();
     audio_thread_options.buffer_size = run_options
         .buffer_size()
-        .map(|s| BufferSize::Fixed(s as usize))
+        .map(BufferSize::Fixed)
         .unwrap_or(audio_thread_options.buffer_size);
     audio_thread_options.output_device_id = run_options
         .output_device_id()

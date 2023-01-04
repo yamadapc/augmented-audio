@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use iced::canvas::{Fill, Frame, Path};
+use iced::widget::canvas::{Fill, Frame, Path};
 use iced::{Point, Size};
 
 fn run_fill(frame: &mut Frame, path: &Path) {
@@ -37,7 +37,7 @@ fn criterion_benchmark(c: &mut Criterion) {
         *sample = oscillator.get();
         oscillator.tick();
     }
-    let mut path = iced::canvas::path::Builder::new();
+    let mut path = iced::widget::canvas::path::Builder::new();
     for (i, point) in output_buffer.iter().enumerate() {
         path.line_to(Point::new(i as f32, *point));
     }

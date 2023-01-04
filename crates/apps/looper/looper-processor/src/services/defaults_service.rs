@@ -87,5 +87,4 @@ pub fn get(key: &str) -> Option<Value> {
 pub fn set(key: &str, value: Value) {
     cacao::defaults::UserDefaults::default()
         .insert(key, value.into())
-        .into()
 }

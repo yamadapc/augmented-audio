@@ -253,7 +253,7 @@ mod test {
         let output: Vec<f32> = output.iter().take(1000).copied().collect();
 
         draw_vec_chart(
-            &*relative_path!("src/fft_processor.png"),
+            &relative_path!("src/fft_processor.png"),
             "FFT_sine_440Hz",
             output,
         );

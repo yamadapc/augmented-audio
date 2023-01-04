@@ -77,7 +77,7 @@ fn build_plist_and_bundle(config_path: &str, output_path: &str) -> PathBuf {
             output_path.to_str().unwrap()
         );
     }
-    create_dir_all(&output_path).expect("Failed to create directory");
+    create_dir_all(output_path).expect("Failed to create directory");
     create_dir_all(output_path.join("Contents")).expect("Failed to create directory");
     create_dir_all(output_path.join("Contents/MacOS")).expect("Failed to create directory");
     let output_path = output_path.canonicalize().unwrap();

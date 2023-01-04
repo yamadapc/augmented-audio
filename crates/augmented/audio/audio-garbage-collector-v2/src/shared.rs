@@ -166,7 +166,7 @@ mod test {
 
     #[test]
     fn test_create_shared_does_not_drop_its_contents() {
-        let mock_handle = Box::into_raw(Box::new(MockGarbageCollector::default()));
+        let mock_handle = Box::into_raw(Box::default());
         let count = Arc::new(AtomicUsize::new(1));
         let value = RefCounter::new(count.clone());
         let _shared = SharedGeneric::<RefCounter, MockGarbageCollector, MockNode<RefCounter>>::new(
@@ -182,7 +182,7 @@ mod test {
 
     #[test]
     fn test_drop_shared_ref() {
-        let mock_handle = Box::into_raw(Box::new(MockGarbageCollector::default()));
+        let mock_handle = Box::into_raw(Box::default());
         let mock_node_count = Arc::new(AtomicUsize::new(1));
         let value_count = Arc::new(AtomicUsize::new(1));
         let value = RefCounter::new(value_count.clone());
@@ -235,7 +235,7 @@ mod test {
 
     #[test]
     fn test_clone() {
-        let mock_handle = Box::into_raw(Box::new(MockGarbageCollector::default()));
+        let mock_handle = Box::into_raw(Box::default());
         let count = Arc::new(AtomicUsize::new(1));
         let value = RefCounter::new(count);
 
@@ -258,7 +258,7 @@ mod test {
 
     #[test]
     fn test_clone_shared_does_not_drop_its_contents_when_1_ref_is_dropped() {
-        let mock_handle = Box::into_raw(Box::new(MockGarbageCollector::default()));
+        let mock_handle = Box::into_raw(Box::default());
         let count = Arc::new(AtomicUsize::new(1));
         let value = RefCounter::new(count.clone());
         let shared = SharedGeneric::<RefCounter, MockGarbageCollector, MockNode<RefCounter>>::new(
@@ -281,7 +281,7 @@ mod test {
 
     #[test]
     fn test_clone_shared_drops_when_all_refs_are_gone() {
-        let mock_handle = Box::into_raw(Box::new(MockGarbageCollector::default()));
+        let mock_handle = Box::into_raw(Box::default());
         let count = Arc::new(AtomicUsize::new(1));
         let value = RefCounter::new(count.clone());
         {

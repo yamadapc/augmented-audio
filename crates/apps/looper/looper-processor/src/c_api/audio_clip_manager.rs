@@ -37,7 +37,7 @@ pub unsafe extern "C" fn looper_engine__load_file(
     let engine = &(*engine);
     let manager = engine.audio_clip_manager();
     let file_path = CStr::from_ptr(file_path).to_str().unwrap().to_string();
-    let _ = ActorSystem::current().spawn_result(async move {
+    ActorSystem::current().spawn_result(async move {
         // TODO handle errors
         let _ = manager
             .send(LoadClipMessage {

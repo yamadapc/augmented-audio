@@ -134,7 +134,7 @@ impl Program<Message> for AudioVisualization {
             let magnitude = item.abs();
             let f_index = index as f32;
             let x_coord = (f_index / data.len() as f32) * frame.width();
-            let magnitude = (magnitude as f32) * frame.height() / 2.0 * 5.0;
+            let magnitude = magnitude * frame.height() / 2.0 * 5.0;
             let y_coord = frame.height() / 2.0 - magnitude / 2.0;
 
             frame.fill_rectangle(

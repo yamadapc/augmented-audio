@@ -98,8 +98,8 @@ impl Handler<SaveProjectMessage> for ProjectManager {
             let (project_path, manifest_path) = default_project_manifest_path(&data_path);
             tokio::fs::create_dir_all(&project_path).await?;
 
-            let looper_paths = persist_handle_clips(&*msg.handle, &*project_path);
-            let project = make_shared(project_from_handle(&*msg.handle, looper_paths));
+            let looper_paths = persist_handle_clips(&msg.handle, &project_path);
+            let project = make_shared(project_from_handle(&msg.handle, looper_paths));
 
             write_project(manifest_path, &project).await?;
 

@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use foreign_types_shared::ForeignType;
+use metal::Device;
 use skia_safe::gpu::mtl::BackendContext;
 use skia_safe::gpu::{mtl, DirectContext, RecordingContext};
 use skia_safe::{
@@ -30,8 +32,6 @@ use skia_safe::{
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
 use augmented_audio_wave::spawn_audio_drawer;
-use foreign_types_shared::ForeignType;
-use metal::Device;
 
 fn read_test_buffer() -> VecAudioBuffer<f32> {
     let input = audio_processor_testing_helpers::relative_path!("../../../../input-files/bass.mp3");
@@ -61,7 +61,7 @@ fn main() {
     wisual_logger::init_from_env();
 
     let test_buffer = read_test_buffer();
-    let mut path_renderer = spawn_audio_drawer(test_buffer.clone());
+    let mut path_renderer = spawn_audio_drawer(test_buffer);
 
     let device = Device::system_default().unwrap();
     let queue = device.new_command_queue();
@@ -75,7 +75,7 @@ fn main() {
     let context = DirectContext::new_metal(&backend, None).unwrap();
 
     let draw_size = Size::new(500.0, 500.0);
-    let mut recording_context = RecordingContext::from(context.clone());
+    let mut recording_context = RecordingContext::from(context);
     let mut surface = Surface::new_render_target(
         &mut recording_context,
         Budgeted::No,
@@ -97,7 +97,7 @@ fn main() {
     let canvas = surface.canvas();
     canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
     while !path_renderer.closed() {
-        path_renderer.draw(canvas, (draw_size.width as f32, draw_size.height as f32));
+        path_renderer.draw(canvas, (draw_size.width, draw_size.height));
     }
     surface.flush_and_submit();
 

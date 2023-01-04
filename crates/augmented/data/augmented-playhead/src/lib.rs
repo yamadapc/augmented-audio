@@ -92,7 +92,7 @@ impl PlayHead {
                 .inner()
                 .zip(self.options.ticks_per_quarter_note.inner())
             {
-                let secs_per_beat = 1.0 / ((tempo as f32) / 60.0);
+                let secs_per_beat = 1.0 / (tempo / 60.0);
                 let elapsed_beats = (elapsed_us / 1_000_000.0) / secs_per_beat;
                 self.position_ticks.store(
                     (ticks_per_quarter_note as f32 * elapsed_beats) as u32,
@@ -112,7 +112,7 @@ impl PlayHead {
             .zip(self.options.ticks_per_quarter_note.inner())
         {
             let elapsed_beats = num_ticks as f32 / ticks_per_quarter_note as f32;
-            let secs_per_beat = 1.0 / ((tempo as f32) / 60.0);
+            let secs_per_beat = 1.0 / (tempo / 60.0);
             let elapsed_seconds = elapsed_beats * secs_per_beat;
             let elapsed_us = (elapsed_seconds * 1_000_000.0) as u64;
             self.position_us.fetch_add(elapsed_us, Ordering::Relaxed);

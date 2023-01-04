@@ -113,7 +113,7 @@ mod test {
         let stored_state = service.fetch().unwrap();
         assert_eq!(stored_state, state);
 
-        std::fs::remove_file(&tmp_file_path).unwrap();
+        std::fs::remove_file(tmp_file_path).unwrap();
     }
 
     #[actix::test]

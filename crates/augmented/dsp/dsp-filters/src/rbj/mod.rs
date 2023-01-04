@@ -264,8 +264,8 @@ mod test {
             processor.set_cutoff(880.0);
             let mut processor = BufferProcessor(processor);
             generate_frequency_response_plot(
-                &*format!("{}{}", env!("CARGO_MANIFEST_DIR"), "/src/rbj/mod.rs"),
-                &*format!("{}-880hz-frequency-response", filter_name),
+                &format!("{}{}", env!("CARGO_MANIFEST_DIR"), "/src/rbj/mod.rs"),
+                &format!("{}-880hz-frequency-response", filter_name),
                 &mut processor,
             );
         }

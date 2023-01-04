@@ -135,8 +135,8 @@ impl Program<Message> for AudioVisualization {
             let f_index = index as f32;
             let x_coord = (f_index / data.len() as f32) * frame.width();
             let x2_coord = ((f_index + 1.0) / data.len() as f32) * frame.width();
-            let y_coord = (prev as f32) * frame.height() / 2.0 + frame.height() / 2.0;
-            let y2_coord = (item as f32) * frame.height() / 2.0 + frame.height() / 2.0;
+            let y_coord = prev * frame.height() / 2.0 + frame.height() / 2.0;
+            let y2_coord = item * frame.height() / 2.0 + frame.height() / 2.0;
 
             path.move_to(Point::new(x_coord, y_coord));
             path.line_to(Point::new(x2_coord, y2_coord));

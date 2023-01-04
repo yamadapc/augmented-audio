@@ -86,7 +86,7 @@ impl OfflineRenderer {
         let audio_file_buffer = audio_file_processor.buffer();
         let audio_file_total_samples = audio_file_buffer[0].len();
         let num_channels = audio_file_buffer.len();
-        let block_size = self.audio_settings.block_size() as usize;
+        let block_size = self.audio_settings.block_size();
         let total_blocks = audio_file_total_samples / block_size;
         log::info!("Going to process input file with {} blocks", total_blocks);
 

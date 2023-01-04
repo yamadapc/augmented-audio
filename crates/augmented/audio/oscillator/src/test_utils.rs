@@ -56,7 +56,7 @@ pub fn generate_plot(file: &str, mut generator: impl FnMut() -> f32, plot_name: 
     chart
         .draw_series(LineSeries::new(
             output_buffer.iter().map(|(x, y)| (*x, *y as f64)),
-            &RED,
+            RED,
         ))
         .unwrap();
     drawing_area.present().unwrap();

@@ -226,7 +226,7 @@ fn draw_transient_lines(
         .map(|(x, _y)| Line::new(Point::new(x, 0.0), (x, fheight)))
         .collect();
     for line in lines {
-        render_context.stroke(&line, signal_color, 3.0);
+        render_context.stroke(line, signal_color, 3.0);
     }
 }
 

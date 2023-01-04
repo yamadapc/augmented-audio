@@ -1,3 +1,5 @@
+use itertools::Itertools;
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -28,7 +30,6 @@ use audio_processor_traits::{
 use augmented_midi::{
     MIDIFile, MIDIFileChunk, MIDIMessage, MIDIMessageNote, MIDITrackEvent, MIDITrackInner,
 };
-use itertools::Itertools;
 
 use crate::StandaloneProcessor;
 
@@ -97,7 +98,7 @@ where
     output_file_processor.prepare(audio_processor_settings);
 
     // Set-up output buffer
-    let block_size = audio_processor_settings.block_size() as usize;
+    let block_size = audio_processor_settings.block_size();
     let total_blocks = audio_file_total_samples / block_size;
     let mut buffer = Vec::new();
     buffer.resize(block_size * audio_processor_settings.input_channels(), 0.0);
@@ -257,13 +258,15 @@ fn get_delta_time_ticks(
 
 #[cfg(test)]
 mod test {
-    use crate::StandaloneAudioOnlyProcessor;
     use audio_processor_testing_helpers::relative_path;
+
     use audio_processor_traits::{AudioProcessorSettings, BufferProcessor, NoopAudioProcessor};
     use augmented_midi::{
         MIDIFile, MIDIFileChunk, MIDIFileDivision, MIDIFileFormat, MIDIFileHeader, MIDITrackEvent,
         MIDITrackInner,
     };
+
+    use crate::StandaloneAudioOnlyProcessor;
 
     use super::*;
 

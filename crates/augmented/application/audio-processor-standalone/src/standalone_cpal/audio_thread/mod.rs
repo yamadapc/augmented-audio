@@ -179,7 +179,7 @@ fn audio_thread_run_processor<D: DeviceTrait>(
     } = cpal_streams;
 
     let build_streams = move || -> Result<(Option<D::Stream>, D::Stream), AudioThreadError> {
-        let buffer = ringbuf::RingBuffer::new((buffer_size * 10) as usize);
+        let buffer = ringbuf::RingBuffer::new(buffer_size * 10);
         let (producer, consumer) = buffer.split();
         let input_stream = input_tuple
             .map(|(input_device, input_config)| {

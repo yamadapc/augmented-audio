@@ -195,7 +195,7 @@ impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginIns
         self.plugin_instance
             .set_block_size(audio_settings.block_size() as i64);
         self.plugin_instance
-            .set_sample_rate(audio_settings.sample_rate() as f32);
+            .set_sample_rate(audio_settings.sample_rate());
         self.audio_settings = audio_settings;
         self.buffer_handler.prepare(&audio_settings);
         if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
@@ -290,11 +290,11 @@ fn mono_input_source<BufferType: AudioBuffer<SampleType = f32>>(
 
 #[cfg(test)]
 mod test {
-    use audio_processor_testing_helpers::assert_f_eq;
     use std::ops::DerefMut;
     use std::ptr::null;
     use std::sync::atomic::Ordering;
 
+    use audio_processor_testing_helpers::assert_f_eq;
     use basedrop::Owned;
     use mockall::mock;
     use vst::plugin::Plugin;

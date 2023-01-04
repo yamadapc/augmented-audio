@@ -93,7 +93,7 @@ pub struct ParseOptionsParams {
 }
 
 pub fn parse_options(params: ParseOptionsParams) -> Options {
-    parse_options_from(params, &mut std::env::args_os())
+    parse_options_from(params, std::env::args_os())
 }
 
 fn parse_options_from<I, T>(params: ParseOptionsParams, args: I) -> Options

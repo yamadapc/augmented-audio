@@ -53,7 +53,7 @@ impl TrackEventsBus {
 
     pub fn new() -> Self {
         let queue = make_shared(Queue::new(10));
-        let tx = queue.clone();
+        let tx = queue;
         Self { tx }
     }
 

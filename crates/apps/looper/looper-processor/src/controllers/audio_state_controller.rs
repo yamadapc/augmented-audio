@@ -57,11 +57,9 @@ impl AudioStateController {
     pub fn new(audio_mode: AudioModeParams, processor: MultiTrackLooper) -> Self {
         let standalone_options = StandaloneOptions {
             input_device: defaults_service::get("input-device")
-                .map(|s| s.as_str().map(|s| s.to_string()))
-                .flatten(),
+                .and_then(|s| s.as_str().map(|s| s.to_string())),
             output_device: defaults_service::get("output-device")
-                .map(|s| s.as_str().map(|s| s.to_string()))
-                .flatten(),
+                .and_then(|s| s.as_str().map(|s| s.to_string())),
             ..StandaloneOptions::default()
         };
         let handle = processor.handle().clone();

@@ -184,7 +184,7 @@ where
     fn get_editor(&mut self) -> Option<Box<dyn ::vst::editor::Editor>> {
         self.processor
             .handle()
-            .map(|handle| ::audio_processor_standalone_gui::editor(handle))
+            .map(::audio_processor_standalone_gui::editor)
     }
 }
 

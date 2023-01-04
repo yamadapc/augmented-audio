@@ -28,13 +28,8 @@ use audio_processor_iced_design_system::style;
 #[derive(Debug, Clone)]
 pub enum Message {}
 
+#[derive(Default)]
 pub struct SequencerView {}
-
-impl Default for SequencerView {
-    fn default() -> Self {
-        SequencerView {}
-    }
-}
 
 impl SequencerView {
     pub fn view(&self) -> Element<Message> {

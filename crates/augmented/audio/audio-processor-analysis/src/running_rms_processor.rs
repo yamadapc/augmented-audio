@@ -111,7 +111,7 @@ impl RunningRMSProcessor {
             gc_handle: audio_garbage_collector::handle().clone(),
             handle,
             duration_samples: 0,
-            duration: duration,
+            duration,
         }
     }
 
