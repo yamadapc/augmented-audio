@@ -660,7 +660,7 @@ impl LooperHandle {
         let length = self.length.get() as f32;
         let fade_samples = fade_perc * length;
         let distance_end = length - cursor - 1.0;
-        (distance_end / fade_samples).clamp(0.0, 1.0)
+        (distance_end / fade_samples).clamp(0.0, 1.0).min(1.0)
     }
 
     fn get_fade_in_volume(&self, cursor: f32) -> f32 {
@@ -769,7 +769,7 @@ fn calculate_fade_volume(fade_perc: f32, length: usize, cursor: f32) -> f32 {
     let fade_samples = fade_perc * length as f32;
     // The volume is the current cursor position within the fade
     // This is linear fade from 0 to 1.0 for the duration of the fade setting.
-    (cursor / fade_samples).clamp(0.0, 1.0)
+    (cursor / fade_samples).clamp(0.0, 1.0).min(1.0)
 }
 
 #[cfg(test)]

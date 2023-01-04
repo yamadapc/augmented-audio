@@ -307,7 +307,7 @@ impl PitchShifterProcessor {
             output_power += sample.abs();
         }
 
-        let multiplier = (input_power / output_power).clamp(0.0, 1.0);
+        let multiplier = (input_power / output_power).clamp(0.0, 1.0).min(1.0);
         for i in 0..self.resample_buffer_size {
             self.resample_buffer[i % resample_buffer_len] *= multiplier;
         }
