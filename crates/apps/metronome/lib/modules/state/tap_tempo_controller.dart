@@ -23,10 +23,10 @@ class TapTempoController {
     if (presses.length > 1) {
       final lastPress = presses[presses.length - 1];
       final secondLastPress = presses[presses.length - 2];
-      _debounce.setDebounceMs((lastPress - secondLastPress) * 2);
+      _debounce.debounceMs = (lastPress - secondLastPress) * 2;
       _debounce.run(() {
         flushPresses();
-        _debounce.setDebounceMs(2000);
+        _debounce.debounceMs = 2000;
         presses.clear();
 
         var analytics = FirebaseAnalytics.instance;

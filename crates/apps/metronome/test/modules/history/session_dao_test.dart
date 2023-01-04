@@ -12,8 +12,14 @@ void main() {
   test("SessionDao can insert sessions", () async {
     final database = await buildInMemoryDatabase();
     expect(await database.sessionDao.findAllSessions(), equals([]));
-    final sessionId = await database.sessionDao.insertSession(Session.create(
-        timestampMs: 0, durationMs: 100, tempo: 120, beatsPerBar: 4));
+    final sessionId = await database.sessionDao.insertSession(
+      Session.create(
+        timestampMs: 0,
+        durationMs: 100,
+        tempo: 120,
+        beatsPerBar: 4,
+      ),
+    );
 
     final sessions = await database.sessionDao.findAllSessions();
     expect(sessions.length, equals(1));

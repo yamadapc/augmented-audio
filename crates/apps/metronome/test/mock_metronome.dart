@@ -10,37 +10,37 @@ import 'package:metronome/modules/state/metronome_state_model.dart';
 
 class MockMetronomeLib implements Metronome {
   @override
-  Future<int> deinitialize({hint}) {
+  Future<int> deinitialize({dynamic hint}) {
     return Future.value(0);
   }
 
   @override
-  Stream<double> getPlayhead({hint}) {
+  Stream<double> getPlayhead({dynamic hint}) {
     return const Stream.empty();
   }
 
   @override
-  Future<int> initialize({hint}) {
+  Future<int> initialize({dynamic hint}) {
     return Future.value(0);
   }
 
   @override
-  Future<int> setBeatsPerBar({required int value, hint}) {
+  Future<int> setBeatsPerBar({required int value, dynamic hint}) {
     return Future.value(0);
   }
 
   @override
-  Future<int> setIsPlaying({required bool value, hint}) {
+  Future<int> setIsPlaying({required bool value, dynamic hint}) {
     return Future.value(0);
   }
 
   @override
-  Future<int> setTempo({required double value, hint}) {
+  Future<int> setTempo({required double value, dynamic hint}) {
     return Future.value(0);
   }
 
   @override
-  Future<int> setVolume({required double value, hint}) {
+  Future<int> setVolume({required double value, dynamic hint}) {
     return Future.value(0);
   }
 
@@ -77,7 +77,7 @@ class MockMetronomeLib implements Metronome {
       throw UnimplementedError();
 
   @override
-  Future<int> setSound({required MetronomeSoundTypeTag value, hint}) {
+  Future<int> setSound({required MetronomeSoundTypeTag value, dynamic hint}) {
     return Future.value(0);
   }
 }
@@ -85,26 +85,27 @@ class MockMetronomeLib implements Metronome {
 Future<MockEnvironment> buildTestEnvironment() async {
   // Set-up mocked environment
   logger.i("Setting-up mock environment");
-  var model = MetronomeStateModel();
-  var metronome = MockMetronomeLib();
-  var database = await buildInMemoryDatabase();
-  var sessionDao = database.sessionDao;
-  var historyStateModel = HistoryStateModel();
-  var historyStateController =
+  final model = MetronomeStateModel();
+  final metronome = MockMetronomeLib();
+  final database = await buildInMemoryDatabase();
+  final sessionDao = database.sessionDao;
+  final historyStateModel = HistoryStateModel();
+  final historyStateController =
       HistoryStateController(sessionDao, historyStateModel);
-  var historyStartStopHandler =
+  final historyStartStopHandler =
       HistoryStartStopHandler(sessionDao, model, historyStateController);
-  var metronomeStateController =
+  final metronomeStateController =
       MetronomeStateController(model, metronome, historyStartStopHandler);
 
   return MockEnvironment.create(
-      model,
-      metronome,
-      database,
-      historyStateModel,
-      historyStateController,
-      historyStartStopHandler,
-      metronomeStateController);
+    model,
+    metronome,
+    database,
+    historyStateModel,
+    historyStateController,
+    historyStartStopHandler,
+    metronomeStateController,
+  );
 }
 
 class MockEnvironment {
@@ -117,11 +118,12 @@ class MockEnvironment {
   MetronomeStateController metronomeStateController;
 
   MockEnvironment.create(
-      this.model,
-      this.metronome,
-      this.database,
-      this.historyStateModel,
-      this.historyStateController,
-      this.historyStartStopHandler,
-      this.metronomeStateController);
+    this.model,
+    this.metronome,
+    this.database,
+    this.historyStateModel,
+    this.historyStateController,
+    this.historyStartStopHandler,
+    this.metronomeStateController,
+  );
 }

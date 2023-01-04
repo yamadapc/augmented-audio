@@ -1,20 +1,19 @@
 import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
-
-import './tabs/history/history_page_tab.dart';
-import './tabs/main_tab.dart';
-import '../bridge_generated.dart';
-import '../logger.dart';
-import '../modules/database.dart';
-import '../modules/history/history_controller.dart';
-import '../modules/state/history_state_controller.dart';
-import '../modules/state/history_state_model.dart';
-import '../modules/state/metronome_state_controller.dart';
-import '../modules/state/metronome_state_model.dart';
+import 'package:metronome/bridge_generated.dart';
+import 'package:metronome/logger.dart';
+import 'package:metronome/modules/database.dart';
+import 'package:metronome/modules/history/history_controller.dart';
+import 'package:metronome/modules/state/history_state_controller.dart';
+import 'package:metronome/modules/state/history_state_model.dart';
+import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/modules/state/metronome_state_model.dart';
+import 'package:metronome/ui/tabs/history/history_page_tab.dart';
+import 'package:metronome/ui/tabs/main_tab.dart';
 
 Metronome buildMetronome() {
-  var metronome = MetronomeImpl(DynamicLibrary.executable());
+  final metronome = MetronomeImpl(DynamicLibrary.executable());
   metronome.initialize();
   return metronome;
 }
@@ -45,18 +44,24 @@ class _HomePageState extends State<HomePage> {
     logger.i("Initializing metronome bridge");
     metronome = buildMetronome();
 
-    var databasePromise = buildDatabase();
+    final databasePromise = buildDatabase();
     databasePromise.then((database) {
       logger.i("Setting-up controllers");
 
       historyStateController =
           HistoryStateController(database.sessionDao, historyStateModel);
-      var historyController = HistoryStartStopHandler(
-          database.sessionDao, metronomeStateModel, historyStateController!);
+      final historyController = HistoryStartStopHandler(
+        database.sessionDao,
+        metronomeStateModel,
+        historyStateController!,
+      );
 
       setState(() {
         metronomeStateController = MetronomeStateController(
-            metronomeStateModel, metronome, historyController);
+          metronomeStateModel,
+          metronome,
+          historyController,
+        );
         metronomeStateController?.setup();
 
         // trace.stop();
@@ -77,8 +82,9 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return HomePageContents(
-        metronomeStateController: metronomeStateController,
-        historyStateController: historyStateController);
+      metronomeStateController: metronomeStateController,
+      historyStateController: historyStateController,
+    );
   }
 }
 
@@ -99,12 +105,18 @@ class HomePageContents extends StatelessWidget {
     }
 
     return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(items: const [
-        BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.play_arrow_solid), label: "Metronome"),
-        BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.book), label: "History")
-      ]),
+      tabBar: CupertinoTabBar(
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.play_arrow_solid),
+            label: "Metronome",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.book),
+            label: "History",
+          )
+        ],
+      ),
       tabBuilder: (context, index) {
         if (index == 0) {
           return MainPageTab(

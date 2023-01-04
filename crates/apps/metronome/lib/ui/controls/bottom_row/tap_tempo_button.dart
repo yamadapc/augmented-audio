@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-
-import '../../../modules/state/metronome_state_controller.dart';
-import '../../../modules/state/tap_tempo_controller.dart';
+import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/modules/state/tap_tempo_controller.dart';
 
 class TapTempoButton extends StatelessWidget {
   const TapTempoButton({

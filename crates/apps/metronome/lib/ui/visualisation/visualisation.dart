@@ -2,8 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
-
-import 'scene.dart';
+import 'package:metronome/ui/visualisation/scene.dart';
 
 class Visualisation extends StatelessWidget {
   const Visualisation({
@@ -15,7 +14,7 @@ class Visualisation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double height = 80;
+    const double height = 80;
 
     return SizedBox(
       height: height,
@@ -33,30 +32,32 @@ class Visualisation extends StatelessWidget {
                 ),
                 back: MetronomeSceneBack(model),
               ),
-              child: null,
             ),
           ),
           Center(
             child: Container(
               padding: const EdgeInsets.only(left: 15, right: 15),
               decoration: BoxDecoration(
-                  border:
-                      Border.all(color: CupertinoColors.secondarySystemFill),
-                  borderRadius: BorderRadius.circular(2.0),
-                  color: CupertinoColors.secondarySystemBackground
-                      .withOpacity(0.7)),
-              child: Observer(builder: (_) {
-                if (!model.isPlaying) {
-                  return const Text("0/0");
-                }
+                border: Border.all(color: CupertinoColors.secondarySystemFill),
+                borderRadius: BorderRadius.circular(2.0),
+                color:
+                    CupertinoColors.secondarySystemBackground.withOpacity(0.7),
+              ),
+              child: Observer(
+                builder: (_) {
+                  if (!model.isPlaying) {
+                    return const Text("0/0");
+                  }
 
-                var beatsPerBar = model.beatsPerBar;
-                var beat = Math.floor((model.playhead) % beatsPerBar)! + 1;
-                var bar = Math.floor(model.playhead / beatsPerBar)!;
+                  final beatsPerBar = model.beatsPerBar;
+                  final beat = Math.floor((model.playhead) % beatsPerBar)! + 1;
+                  final bar = Math.floor(model.playhead / beatsPerBar)!;
 
-                return Text(
-                    "${beat.toStringAsFixed(0)}/${bar.toStringAsFixed(0)}");
-              }),
+                  return Text(
+                    "${beat.toStringAsFixed(0)}/${bar.toStringAsFixed(0)}",
+                  );
+                },
+              ),
             ),
           ),
         ],

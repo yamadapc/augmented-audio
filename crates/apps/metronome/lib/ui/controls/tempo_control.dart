@@ -26,11 +26,13 @@ class _TempoControlState extends State<TempoControl> {
   void initState() {
     super.initState();
     _textEditingController = TextEditingController(
-        text: widget.stateController.model.tempo.toStringAsFixed(0));
+      text: widget.stateController.model.tempo.toStringAsFixed(0),
+    );
 
     autorun((_) {
       _textEditingController.value = _textEditingController.value.copyWith(
-          text: widget.stateController.model.tempo.toStringAsFixed(0));
+        text: widget.stateController.model.tempo.toStringAsFixed(0),
+      );
     });
   }
 
@@ -42,68 +44,78 @@ class _TempoControlState extends State<TempoControl> {
 
   @override
   Widget build(BuildContext context) {
-    var model = widget.stateController.model;
+    final model = widget.stateController.model;
     return Observer(
-        builder: (_) => Column(children: [
-              const Text("Tempo"),
-              Row(children: [
-                CupertinoButton(
-                    child: const Text("-10"),
-                    onPressed: () {
-                      widget.stateController
-                          .setTempo(widget.stateController.model.tempo - 10);
+      builder: (_) => Column(
+        children: [
+          const Text("Tempo"),
+          Row(
+            children: [
+              CupertinoButton(
+                child: const Text("-10"),
+                onPressed: () {
+                  widget.stateController
+                      .setTempo(widget.stateController.model.tempo - 10);
 
-                      var analytics = FirebaseAnalytics.instance;
-                      analytics.logEvent(
-                          name: "TempoControl__quickTempoChange");
-                    }),
-                Expanded(
-                  child: CupertinoTextField.borderless(
-                    autofocus: false,
-                    autocorrect: false,
-                    style: const TextStyle(fontSize: 80.0),
-                    controller: _textEditingController,
-                    textAlign: TextAlign.center,
-                    cursorWidth: 1.0,
-                    onChanged: onTempoTextChanged,
-                    onEditingComplete: onTempoTextEditingComplete,
-                  ),
+                  final analytics = FirebaseAnalytics.instance;
+                  analytics.logEvent(
+                    name: "TempoControl__quickTempoChange",
+                  );
+                },
+              ),
+              Expanded(
+                child: CupertinoTextField.borderless(
+                  autocorrect: false,
+                  style: const TextStyle(fontSize: 80.0),
+                  controller: _textEditingController,
+                  textAlign: TextAlign.center,
+                  cursorWidth: 1.0,
+                  onChanged: onTempoTextChanged,
+                  onEditingComplete: onTempoTextEditingComplete,
                 ),
-                CupertinoButton(
-                    child: const Text("+10"),
-                    onPressed: () {
-                      widget.stateController
-                          .setTempo(widget.stateController.model.tempo + 10);
+              ),
+              CupertinoButton(
+                child: const Text("+10"),
+                onPressed: () {
+                  widget.stateController
+                      .setTempo(widget.stateController.model.tempo + 10);
 
-                      var analytics = FirebaseAnalytics.instance;
-                      analytics.logEvent(
-                          name: "TempoControl__quickTempoChange");
-                    }),
-              ]),
-              SizedBox(
-                width: double.infinity,
-                child: CupertinoSlider(
-                    value: Math.min(Math.max(30, model.tempo), 250),
-                    onChanged: (value) {
-                      widget.stateController.setTempo(value);
-                    }, // onTempoChanged,
-                    onChangeEnd: (value) {
-                      var analytics = FirebaseAnalytics.instance;
-                      analytics.logEvent(
-                          name: "TempoControl__sliderTempoChanged");
-                    },
-                    min: 30,
-                    max: 250),
-              )
-            ]));
+                  final analytics = FirebaseAnalytics.instance;
+                  analytics.logEvent(
+                    name: "TempoControl__quickTempoChange",
+                  );
+                },
+              ),
+            ],
+          ),
+          SizedBox(
+            width: double.infinity,
+            child: CupertinoSlider(
+              value: Math.min(Math.max(30, model.tempo), 250),
+              onChanged: (value) {
+                widget.stateController.setTempo(value);
+              }, // onTempoChanged,
+              onChangeEnd: (value) {
+                final analytics = FirebaseAnalytics.instance;
+                analytics.logEvent(
+                  name: "TempoControl__sliderTempoChanged",
+                );
+              },
+              min: 30,
+              max: 250,
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   void onTempoTextChanged(String value) {
     _onChangeDebounce.run(() {
-      double tempo = Math.max(Math.min(double.parse(value), 250), 30);
+      final double tempo = Math.max(Math.min(double.parse(value), 250), 30);
       widget.stateController.setTempo(tempo);
 
-      var analytics = FirebaseAnalytics.instance;
+      final analytics = FirebaseAnalytics.instance;
       analytics.logEvent(name: "TempoControl__onTempoTextChanged");
     });
   }
@@ -111,7 +123,7 @@ class _TempoControlState extends State<TempoControl> {
   void onTempoTextEditingComplete() {
     _onChangeDebounce.flush();
 
-    var analytics = FirebaseAnalytics.instance;
+    final analytics = FirebaseAnalytics.instance;
     analytics.logEvent(name: "TempoControl__onTempoTextEditingComplete");
   }
 }

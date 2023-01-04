@@ -7,6 +7,9 @@ build_and_test: FORCE
 	flutter test
 	dart format --fix .
 
+lint:
+	flutter analyze
+
 build-dart-codegen: FORCE
 	flutter packages pub run build_runner build --delete-conflicting-outputs
 

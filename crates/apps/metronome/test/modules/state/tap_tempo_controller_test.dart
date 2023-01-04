@@ -6,8 +6,8 @@ import '../../mock_metronome.dart';
 /// This is a useless test at the moment
 void main() {
   test("TapTempoController create", () async {
-    var env = await buildTestEnvironment();
-    var controller = TapTempoController(env.metronomeStateController);
+    final env = await buildTestEnvironment();
+    final controller = TapTempoController(env.metronomeStateController);
     controller.onPress();
   });
 }

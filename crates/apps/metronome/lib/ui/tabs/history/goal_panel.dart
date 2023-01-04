@@ -9,39 +9,45 @@ class GoalPanel extends StatelessWidget {
       FlutterLocalNotificationsPlugin();
 
   GoalPanel({Key? key}) : super(key: key) {
-    flutterLocalNotificationsPlugin.initialize(const InitializationSettings(
-        macOS: DarwinInitializationSettings(
-      requestAlertPermission: true,
-    )));
+    flutterLocalNotificationsPlugin.initialize(
+      const InitializationSettings(
+        macOS: DarwinInitializationSettings(),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
-        padding: EdgeInsets.zero,
-        minSize: 4,
-        child: const Text("Set-up practice goal"),
-        onPressed: () async {
-          initializeTimeZones();
-          final String timeZoneName =
-              await FlutterNativeTimezone.getLocalTimezone();
-          final Location location = getLocation(timeZoneName);
-          flutterLocalNotificationsPlugin.zonedSchedule(
-              0,
-              "Practice goal reminder",
-              "You still need practice hours today to meet your practice goal",
-              TZDateTime.from(
-                  DateTime.now().add(const Duration(seconds: 2)), location),
-              const NotificationDetails(
-                  macOS: DarwinNotificationDetails(
-                presentAlert: true,
-                presentBadge: false,
-                presentSound: false,
-                badgeNumber: 0,
-              )),
-              androidAllowWhileIdle: false,
-              uiLocalNotificationDateInterpretation:
-                  UILocalNotificationDateInterpretation.absoluteTime);
-        });
+      padding: EdgeInsets.zero,
+      minSize: 4,
+      child: const Text("Set-up practice goal"),
+      onPressed: () async {
+        initializeTimeZones();
+        final String timeZoneName =
+            await FlutterNativeTimezone.getLocalTimezone();
+        final Location location = getLocation(timeZoneName);
+        flutterLocalNotificationsPlugin.zonedSchedule(
+          0,
+          "Practice goal reminder",
+          "You still need practice hours today to meet your practice goal",
+          TZDateTime.from(
+            DateTime.now().add(const Duration(seconds: 2)),
+            location,
+          ),
+          const NotificationDetails(
+            macOS: DarwinNotificationDetails(
+              presentAlert: true,
+              presentBadge: false,
+              presentSound: false,
+              badgeNumber: 0,
+            ),
+          ),
+          androidAllowWhileIdle: false,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+      },
+    );
   }
 }

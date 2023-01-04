@@ -1,17 +1,15 @@
 import 'dart:io';
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:metronome/bridge_generated.dart';
-
-import '../../modules/state/metronome_state_controller.dart';
-import '../controls/beats_per_bar_control.dart';
-import '../controls/bottom_row.dart';
-import '../controls/tempo_control.dart';
-import '../controls/volume_control.dart';
-import '../visualisation/visualisation.dart';
+import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/ui/controls/beats_per_bar_control.dart';
+import 'package:metronome/ui/controls/bottom_row.dart';
+import 'package:metronome/ui/controls/tempo_control.dart';
+import 'package:metronome/ui/controls/volume_control.dart';
+import 'package:metronome/ui/visualisation/visualisation.dart';
 
 class MainPageTab extends StatefulWidget {
   const MainPageTab({
@@ -45,9 +43,11 @@ class _MainPageTabState extends State<MainPageTab> {
       return;
     }
 
-    var analytics = FirebaseAnalytics.instance;
+    final analytics = FirebaseAnalytics.instance;
     analytics.logScreenView(
-        screenClass: "MainPageTab", screenName: "Main Page");
+      screenClass: "MainPageTab",
+      screenName: "Main Page",
+    );
   }
 
   @override
@@ -66,13 +66,17 @@ class _MainPageTabState extends State<MainPageTab> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     SingleChildScrollView(
-                        controller: scrollController,
-                        child: Column(children: [
+                      controller: scrollController,
+                      child: Column(
+                        children: [
                           TempoControl(stateController: widget.stateController),
                           const Divider(thickness: 0.5),
                           VolumeControl(
-                              stateController: widget.stateController),
-                        ])),
+                            stateController: widget.stateController,
+                          ),
+                        ],
+                      ),
+                    ),
                     const Spacer(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(15.0, 0.0, 10.0, 10.0),
@@ -88,11 +92,13 @@ class _MainPageTabState extends State<MainPageTab> {
                           popupColor: CupertinoColors.activeBlue,
                           items: const [
                             MacosPopupMenuItem(
-                                value: MetronomeSoundTypeTag.Sine,
-                                child: Text("Sine")),
+                              value: MetronomeSoundTypeTag.Sine,
+                              child: Text("Sine"),
+                            ),
                             MacosPopupMenuItem(
-                                value: MetronomeSoundTypeTag.Tube,
-                                child: Text("Tube"))
+                              value: MetronomeSoundTypeTag.Tube,
+                              child: Text("Tube"),
+                            )
                           ],
                         ),
                       ),

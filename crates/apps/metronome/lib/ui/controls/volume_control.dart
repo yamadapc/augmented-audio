@@ -12,20 +12,20 @@ class VolumeControl extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var model = stateController.model;
+    final model = stateController.model;
     return Observer(
       builder: (_) => Column(
         children: [
           const Text("Volume"),
           SizedBox(
-              width: double.infinity,
-              child: CupertinoSlider(
-                  min: 0,
-                  max: 1.0,
-                  value: model.volume,
-                  onChanged: (value) {
-                    stateController.setVolume(value);
-                  })),
+            width: double.infinity,
+            child: CupertinoSlider(
+              value: model.volume,
+              onChanged: (value) {
+                stateController.setVolume(value);
+              },
+            ),
+          ),
         ],
       ),
     );

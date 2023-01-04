@@ -1,18 +1,18 @@
 import 'dart:async';
 
 import 'package:floor/floor.dart';
+import 'package:metronome/logger.dart';
+import 'package:metronome/modules/history/session_dao.dart';
+import 'package:metronome/modules/history/session_entity.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-
-import './history/session_dao.dart';
-import './history/session_entity.dart';
-import '../logger.dart';
 
 part 'database.g.dart';
 
 @Database(
-    version: 5,
-    entities: [Session],
-    views: [AggregatedSession, DailyPracticeTime])
+  version: 5,
+  entities: [Session],
+  views: [AggregatedSession, DailyPracticeTime],
+)
 abstract class MetronomeDatabase extends FloorDatabase {
   SessionDao get sessionDao;
 }
