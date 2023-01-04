@@ -21,26 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use skia_safe::gpu::mtl::BackendContext;
-use skia_safe::gpu::{mtl, BackendRenderTarget, DirectContext, RecordingContext, SurfaceOrigin};
-use skia_safe::{
-    scalar, AlphaType, Budgeted, Canvas, Color4f, ColorType, ISize, ImageInfo, Paint, Path, Point,
-    SamplingOptions, Size, Surface,
-};
-
-use audio_processor_file::AudioFileProcessor;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
-use augmented_audio_wave::spawn_audio_drawer;
 use cocoa::appkit::NSView;
 use cocoa::base::{id, YES};
 use core_graphics_types::geometry::CGSize;
 use foreign_types_shared::{ForeignType, ForeignTypeRef};
 use metal::{Device, MTLPixelFormat, MetalDrawableRef, MetalLayer};
 use objc::rc::autoreleasepool;
+use skia_safe::gpu::mtl::BackendContext;
+use skia_safe::gpu::{mtl, BackendRenderTarget, DirectContext, RecordingContext, SurfaceOrigin};
+use skia_safe::{
+    scalar, AlphaType, Budgeted, Canvas, Color4f, ColorType, ISize, ImageInfo, Paint, Path, Point,
+    SamplingOptions, Size, Surface,
+};
 use winit::dpi::PhysicalSize;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::ControlFlow;
 use winit::platform::macos::WindowExtMacOS;
+
+use audio_processor_file::AudioFileProcessor;
+use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
+use augmented_audio_wave::spawn_audio_drawer;
 
 fn read_test_buffer() -> VecAudioBuffer<f32> {
     let input = audio_processor_testing_helpers::relative_path!("../../../../input-files/bass.mp3");
@@ -88,6 +88,7 @@ fn main() {
 
     let build_layer = || {
         let draw_size = window.inner_size();
+        log::info!("CA metal layer draw_size={:?}", draw_size);
         let layer = MetalLayer::new();
         layer.set_device(&device);
         layer.set_pixel_format(MTLPixelFormat::BGRA8Unorm);
@@ -106,6 +107,7 @@ fn main() {
 
     let mut mouse_position = Point::new(0.0, 0.0);
     let draw_size = window.inner_size();
+    log::info!("Draw size: {:?}", draw_size);
     let mut recording_context = RecordingContext::from(context.clone());
     let mut make_surface = move |draw_size: PhysicalSize<u32>| {
         let mut surface = Surface::new_render_target(

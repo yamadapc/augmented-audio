@@ -41,23 +41,47 @@ use crate::{
     MultiTrackLooperHandle,
 };
 
-pub struct AudioWaveRenderingController {
+pub struct AudioWavePlayhead {
+    pub position_percent: f32,
+    pub volume: f32,
+}
+
+pub trait AudioWavePlayheadProvider {
+    fn get_playhead_info(&self, looper_id: LooperId) -> AudioWavePlayhead;
+}
+
+impl AudioWavePlayheadProvider for Shared<MultiTrackLooperHandle> {
+    fn get_playhead_info(&self, looper_id: LooperId) -> AudioWavePlayhead {
+        AudioWavePlayhead {
+            position_percent: self.get_position_percent(looper_id),
+            volume: self
+                .get(looper_id)
+                .map(|t| t.envelope().adsr_envelope.volume())
+                .unwrap_or(0.0),
+        }
+    }
+}
+
+pub type AudioWaveRenderingController =
+    AudioWaveRenderingControllerImpl<Shared<MultiTrackLooperHandle>>;
+
+pub struct AudioWaveRenderingControllerImpl<AWPP: AudioWavePlayheadProvider> {
+    // Events / info providers
+    handle: AWPP,
+    track_events: Shared<Queue<TrackEventsMessage>>,
+    // Internal state
     drawers: HashMap<LooperId, augmented_audio_wave::PathRendererHandle>,
     surfaces: HashMap<LooperId, Surface>,
+    // Metal handle references
     device: Device,
     queue: CommandQueue,
     _backend: BackendContext,
     context: DirectContext,
     recording_context: RecordingContext,
-    handle: Shared<MultiTrackLooperHandle>,
-    track_events: Shared<Queue<TrackEventsMessage>>,
 }
 
-impl AudioWaveRenderingController {
-    pub fn new(
-        handle: Shared<MultiTrackLooperHandle>,
-        track_events: Shared<Queue<TrackEventsMessage>>,
-    ) -> Option<Self> {
+impl<AWPP: AudioWavePlayheadProvider> AudioWaveRenderingControllerImpl<AWPP> {
+    pub fn new(handle: AWPP, track_events: Shared<Queue<TrackEventsMessage>>) -> Option<Self> {
         let device = Device::system_default()?;
         let queue = device.new_command_queue();
         let backend = unsafe {
@@ -92,10 +116,6 @@ impl AudioWaveRenderingController {
         log::debug!("DRAW {:?} {:?}", looper_id, layer.as_ptr());
         let drawable_size = layer_size(&layer);
 
-        let (drawable_ref, mut surface) = get_drawable_surface(&layer, &mut self.context)?;
-        let canvas = surface.canvas();
-        canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
-
         if !self.surfaces.contains_key(&looper_id) {
             let surface = Surface::new_render_target(
                 &mut self.recording_context,
@@ -115,6 +135,54 @@ impl AudioWaveRenderingController {
             self.surfaces.insert(looper_id.clone(), surface);
         }
 
+        self.try_handle_track_event();
+
+        let (drawable_ref, mut surface) = get_drawable_surface(&layer, &mut self.context)?;
+        let canvas = surface.canvas();
+        canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
+        let partial_surface = self
+            .surfaces
+            .get_mut(&looper_id)
+            .expect("Surface was not present");
+        let partial_canvas = partial_surface.canvas();
+
+        if let Some(drawer) = self.drawers.get_mut(&looper_id) {
+            drawer.draw(partial_canvas, (drawable_size.width, drawable_size.height));
+            partial_surface.flush_and_submit();
+        }
+
+        partial_surface.draw(canvas, (0.0, 0.0), SamplingOptions::default(), None);
+        let AudioWavePlayhead {
+            volume,
+            position_percent,
+        } = self.handle.get_playhead_info(looper_id);
+        let paint = Paint::new(
+            Color4f::new(77.0 / 255.0, 139.0 / 255.0, 49.0 / 255.0, 1.0),
+            None,
+        );
+        let x = position_percent * drawable_size.width;
+
+        let playhead_height = (drawable_size.height) * volume;
+        canvas.draw_rect(
+            Rect::new(
+                x,
+                drawable_size.height - playhead_height,
+                x + 2.0,
+                playhead_height,
+            ),
+            &paint,
+        );
+
+        surface.flush_and_submit();
+        let command_buffer = self.queue.new_command_buffer();
+        command_buffer.present_drawable(drawable_ref);
+        command_buffer.commit();
+
+        std::mem::forget(layer);
+        Some(())
+    }
+
+    fn try_handle_track_event(&mut self) {
         if let Some(msg) = self.track_events.pop() {
             match msg {
                 TrackEventsMessage::StoppedRecording {
@@ -146,50 +214,6 @@ impl AudioWaveRenderingController {
                 }
             }
         }
-
-        let partial_surface = self
-            .surfaces
-            .get_mut(&looper_id)
-            .expect("Surface was not present");
-        let partial_canvas = partial_surface.canvas();
-
-        if let Some(drawer) = self.drawers.get_mut(&looper_id) {
-            drawer.draw(partial_canvas, (drawable_size.width, drawable_size.height));
-            partial_surface.flush_and_submit();
-        }
-
-        partial_surface.draw(canvas, (0.0, 0.0), SamplingOptions::default(), None);
-        let position = self.handle.get_position_percent(looper_id);
-        let paint = Paint::new(
-            Color4f::new(77.0 / 255.0, 139.0 / 255.0, 49.0 / 255.0, 1.0),
-            None,
-        );
-        let x = position * drawable_size.width;
-
-        let playhead_height = (drawable_size.height)
-            * self
-                .handle
-                .get(looper_id)?
-                .envelope()
-                .adsr_envelope
-                .volume();
-        canvas.draw_rect(
-            Rect::new(
-                x,
-                drawable_size.height - playhead_height,
-                x + 2.0,
-                playhead_height,
-            ),
-            &paint,
-        );
-
-        surface.flush_and_submit();
-        let command_buffer = self.queue.new_command_buffer();
-        command_buffer.present_drawable(drawable_ref);
-        command_buffer.commit();
-
-        std::mem::forget(layer);
-        Some(())
     }
 }
 
