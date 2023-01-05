@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -66,6 +68,7 @@ class _TempoControlState extends State<TempoControl> {
               Expanded(
                 child: CupertinoTextField.borderless(
                   autocorrect: false,
+                  enabled: Platform.isMacOS,
                   style: const TextStyle(fontSize: 80.0),
                   controller: _textEditingController,
                   textAlign: TextAlign.center,
