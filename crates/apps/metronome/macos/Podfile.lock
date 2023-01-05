@@ -6,11 +6,11 @@ PODS:
     - FirebaseAnalytics (~> 8.11.0)
   - Firebase/CoreOnly (8.11.0):
     - FirebaseCore (= 8.11.0)
-  - firebase_analytics (9.3.5):
+  - firebase_analytics (10.1.0):
     - Firebase/Analytics (= 8.11.0)
     - firebase_core
     - FlutterMacOS
-  - firebase_core (1.22.0):
+  - firebase_core (2.4.1):
     - Firebase/CoreOnly (~> 8.11.0)
     - FlutterMacOS
   - FirebaseAnalytics (8.11.0):
@@ -154,8 +154,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Firebase: 44dd9724c84df18b486639e874f31436eaa9a20c
-  firebase_analytics: 532d0900a3ec9a4b0505e11f7b5d90ac35ff7ed2
-  firebase_core: 4107437acdacefd41d33468fe1f33de58c53cff4
+  firebase_analytics: 9bfee029f5de379405b772c873eb25f941b083b1
+  firebase_core: 10838099f79370589da03db868979e897e06ab28
   FirebaseAnalytics: 4e4b13031034e6561ed3bd1d47b6fdabbd6487c6
   FirebaseCore: 2f4f85b453cc8fea4bb2b37e370007d2bcafe3f0
   FirebaseCoreDiagnostics: 64d9709d804a6c25bd77841371c1fcfd909d5601
@@ -173,6 +173,6 @@ SPEC CHECKSUMS:
   shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
 
-PODFILE CHECKSUM: d3fb9b86e7c70754a3ec27b4f1b994b7b944cbce
+PODFILE CHECKSUM: 94be24ac27c4aedc7804c428ce1d7ee82d1859c8
 
 COCOAPODS: 1.11.3

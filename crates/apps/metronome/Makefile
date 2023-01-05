@@ -1,6 +1,7 @@
 build_and_test: FORCE
 	make build-bindings
 	make build-libs
+	make build-libs-ios
 	cargo test
 
 	make build-dart-codegen
