@@ -13,7 +13,8 @@
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
-		CBAD16292779726E000D677A /* libmetronome.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CBAD16282779726E000D677A /* libmetronome.a */; };
+		CB6D5CB229666A300038D94B /* libmetronome.a in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6D5CB129666A300038D94B /* libmetronome.a */; };
+		CB6D5CB429666AF10038D94B /* sounds in Resources */ = {isa = PBXBuildFile; fileRef = CB6D5CB329666AF10038D94B /* sounds */; };
 		CBAD162C277974B5000D677A /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CBAD162B277974B5000D677A /* libresolv.tbd */; };
 		CBAD16302779750D000D677A /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBAD162F2779750D000D677A /* CoreAudio.framework */; };
 		CBAD163427797533000D677A /* AVFAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CBAD163327797533000D677A /* AVFAudio.framework */; };
@@ -52,6 +53,8 @@
 		97C147001CF9000F007C117D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		BF42FA63BBBE154B21648807 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
+		CB6D5CB129666A300038D94B /* libmetronome.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmetronome.a; path = "../public/lib/ios-aarch64/libmetronome.a"; sourceTree = "<group>"; };
+		CB6D5CB329666AF10038D94B /* sounds */ = {isa = PBXFileReference; lastKnownFileType = folder; name = sounds; path = ../sounds; sourceTree = "<group>"; };
 		CBAD16282779726E000D677A /* libmetronome.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmetronome.a; path = ../../../../target/universal/release/libmetronome.a; sourceTree = "<group>"; };
 		CBAD162A277973EE000D677A /* bridge_generated.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridge_generated.h; sourceTree = "<group>"; };
 		CBAD162B277974B5000D677A /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
@@ -72,8 +75,8 @@
 				CBAD163427797533000D677A /* AVFAudio.framework in Frameworks */,
 				CBAD16302779750D000D677A /* CoreAudio.framework in Frameworks */,
 				CBAD162C277974B5000D677A /* libresolv.tbd in Frameworks */,
-				CBAD16292779726E000D677A /* libmetronome.a in Frameworks */,
 				D6F953BC3B532A2A103124A7 /* Pods_Runner.framework in Frameworks */,
+				CB6D5CB229666A300038D94B /* libmetronome.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,6 +107,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				CB6D5CB329666AF10038D94B /* sounds */,
 				9740EEB11CF90186004384FC /* Flutter */,
 				97C146F01CF9000F007C117D /* Runner */,
 				97C146EF1CF9000F007C117D /* Products */,
@@ -139,6 +143,7 @@
 		CBAD16272779726E000D677A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				CB6D5CB129666A300038D94B /* libmetronome.a */,
 				CBAD163527797554000D677A /* AudioToolbox.framework */,
 				CBAD163327797533000D677A /* AVFAudio.framework */,
 				CBAD163127797511000D677A /* AudioUnit.framework */,
@@ -214,6 +219,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB6D5CB429666AF10038D94B /* sounds in Resources */,
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
@@ -393,7 +399,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/ios";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/ios-aarch64";
 				MARKETING_VERSION = 1.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.beijaflor.metronome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -528,7 +534,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/ios";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/ios-aarch64";
 				MARKETING_VERSION = 1.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.beijaflor.metronome;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -555,7 +561,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/ios";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../public/lib/ios-aarch64";
 				MARKETING_VERSION = 1.4.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.beijaflor.metronome;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -96,6 +96,14 @@ pub struct AppAudioProcessor {
 pub fn build_app_processor() -> (ringbuf::Producer<AppAudioThreadMessage>, AppAudioProcessor) {
     // Load sounds
     let sounds = load_sounds().unwrap_or_default();
+    log::info!(
+        "Loaded sounds {:?}",
+        sounds
+            .iter()
+            .map(|sound| sound.file_path.clone())
+            .collect::<Vec<_>>()
+    );
+
     let mut sounds_map: HashMap<MetronomeSoundTypeTag, MetronomeSoundType> = HashMap::default();
     let mut known_sounds: HashMap<String, MetronomeSoundTypeTag> = [
         ("tube-click.wav", MetronomeSoundTypeTag::Tube),

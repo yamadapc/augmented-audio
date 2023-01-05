@@ -1,15 +1,13 @@
 import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:macos_ui/macos_ui.dart';
-import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:metronome/ui/controls/beats_per_bar_control.dart';
 import 'package:metronome/ui/controls/bottom_row.dart';
 import 'package:metronome/ui/controls/tempo_control.dart';
 import 'package:metronome/ui/controls/volume_control.dart';
+import 'package:metronome/ui/tabs/main_tab/sound_selector.dart';
 import 'package:metronome/ui/visualisation/visualisation.dart';
 
 class MainPageTab extends StatefulWidget {
@@ -81,35 +79,8 @@ class _MainPageTabState extends State<MainPageTab> {
                     const Spacer(),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 25,
-                        child: MacosPopupButton<MetronomeSoundTypeTag>(
-                          value: widget.stateController.model.sound,
-                          focusNode: FocusNode(skipTraversal: true),
-                          onChanged: (item) {
-                            widget.stateController.setSound(item!);
-                          },
-                          popupColor: CupertinoColors.activeBlue,
-                          items: const [
-                            MacosPopupMenuItem(
-                              value: MetronomeSoundTypeTag.Sine,
-                              child: Text("Sine"),
-                            ),
-                            MacosPopupMenuItem(
-                              value: MetronomeSoundTypeTag.Tube,
-                              child: Text("Tube"),
-                            ),
-                            MacosPopupMenuItem(
-                              value: MetronomeSoundTypeTag.Snap,
-                              child: Text("Snap"),
-                            ),
-                            MacosPopupMenuItem(
-                              value: MetronomeSoundTypeTag.Glass,
-                              child: Text("Glass"),
-                            ),
-                          ],
-                        ),
+                      child: SoundSelector(
+                        stateController: widget.stateController,
                       ),
                     ),
                     BottomRow(stateController: widget.stateController)
