@@ -8,4 +8,10 @@ audio-processor-analysis = { path = ".." }
 augmented-audio-gui-basics = { path = "../../../gui/augmented-audio-gui-basics" }
 audio-processor-file = { version = "1.2.0", path = "../../audio-processor-file" }
 audio-processor-traits = { version = "2.1.0", path = "../../audio-processor-traits" }
+audio-garbage-collector = { version = "1.1", path = "../../audio-garbage-collector" }
+wisual-logger = { version = "0.1", path = "../../../ops/wisual-logger" }
+log = "0.4.17"
 bytemuck = "1.12.1"
+clap = "3"
+
+[workspace]

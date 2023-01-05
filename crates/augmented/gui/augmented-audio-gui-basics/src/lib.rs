@@ -109,7 +109,7 @@ where
                         position,
                         ..
                     } => {
-                        println!("{:?} {:?}", device_id, position);
+                        log::debug!("{:?} {:?}", device_id, position);
                     }
                     WindowEvent::MouseInput {
                         button,
@@ -117,10 +117,10 @@ where
                         device_id,
                         ..
                     } => {
-                        println!("{:?} {:?} {:?}", button, state, device_id);
+                        log::debug!("{:?} {:?} {:?}", button, state, device_id);
                     }
                     WindowEvent::Touch(touch) => {
-                        println!("{:?}", touch);
+                        log::debug!("{:?}", touch);
                     }
                     WindowEvent::Resized(size) => {
                         metal_layer

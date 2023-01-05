@@ -113,7 +113,7 @@ fn main() {
         let canvas = ctx.canvas();
 
         canvas.clear(Color4f::new(0.0, 0.0, 0.0, 1.0));
-        println!("render!");
+        log::info!("render!");
         let bitmap = bitmap
             .to_shader(
                 None,

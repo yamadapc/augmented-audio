@@ -112,6 +112,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-thread-logger/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/augmented-longbackoff/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/apps/looper/looper-processor/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-processor-analysis/draw_spectrogram_window/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/looper/Sequencer/BuildTools/.build" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
@@ -156,6 +157,7 @@
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-processor-analysis/draw_spectrogram_window/target" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />
