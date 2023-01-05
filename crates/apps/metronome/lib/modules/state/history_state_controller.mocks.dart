@@ -5,6 +5,7 @@
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i4;
 
+import 'package:metronome/modules/history/session_entity.dart' as _i5;
 import 'package:metronome/modules/state/history_state_controller.dart' as _i3;
 import 'package:metronome/modules/state/history_state_model.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
@@ -57,4 +58,30 @@ class MockHistoryStateController extends _i1.Mock
         returnValue: _i4.Future<void>.value(),
         returnValueForMissingStub: _i4.Future<void>.value(),
       ) as _i4.Future<void>);
+  @override
+  _i4.Future<List<_i5.DailyPracticeTime>> findRecentDailyPracticeTime() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #findRecentDailyPracticeTime,
+          [],
+        ),
+        returnValue: _i4.Future<List<_i5.DailyPracticeTime>>.value(
+            <_i5.DailyPracticeTime>[]),
+        returnValueForMissingStub:
+            _i4.Future<List<_i5.DailyPracticeTime>>.value(
+                <_i5.DailyPracticeTime>[]),
+      ) as _i4.Future<List<_i5.DailyPracticeTime>>);
+  @override
+  _i4.Future<List<_i5.AggregatedSession>> findRecentSessions() =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #findRecentSessions,
+          [],
+        ),
+        returnValue: _i4.Future<List<_i5.AggregatedSession>>.value(
+            <_i5.AggregatedSession>[]),
+        returnValueForMissingStub:
+            _i4.Future<List<_i5.AggregatedSession>>.value(
+                <_i5.AggregatedSession>[]),
+      ) as _i4.Future<List<_i5.AggregatedSession>>);
 }

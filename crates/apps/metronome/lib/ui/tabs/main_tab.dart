@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ class _MainPageTabState extends State<MainPageTab> {
                     ),
                     const Spacer(),
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(15.0, 0.0, 10.0, 10.0),
+                      padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
                       child: SizedBox(
                         width: double.infinity,
                         height: 25,
@@ -98,7 +99,15 @@ class _MainPageTabState extends State<MainPageTab> {
                             MacosPopupMenuItem(
                               value: MetronomeSoundTypeTag.Tube,
                               child: Text("Tube"),
-                            )
+                            ),
+                            MacosPopupMenuItem(
+                              value: MetronomeSoundTypeTag.Snap,
+                              child: Text("Snap"),
+                            ),
+                            MacosPopupMenuItem(
+                              value: MetronomeSoundTypeTag.Glass,
+                              child: Text("Glass"),
+                            ),
                           ],
                         ),
                       ),

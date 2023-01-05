@@ -48,6 +48,8 @@ abstract class Metronome {
 enum MetronomeSoundTypeTag {
   Sine,
   Tube,
+  Glass,
+  Snap,
 }
 
 class MetronomeImpl extends FlutterRustBridgeBase<MetronomeWire>

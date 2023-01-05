@@ -22,8 +22,14 @@ use audio_processor_metronome::{
 };
 use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 use std::collections::HashMap;
+use std::hash::Hash;
 
-fn load_sounds() -> Option<Vec<MetronomeSoundType>> {
+struct LoadedSound {
+    sound: MetronomeSoundType,
+    file_path: String,
+}
+
+fn load_sounds() -> Option<Vec<LoadedSound>> {
     let sounds_path =
         macos_bundle_resources::get_path("com.beijaflor.metronome", "sounds", None, None)?;
     let sounds_path = sounds_path.to_str()?;
@@ -32,7 +38,7 @@ fn load_sounds() -> Option<Vec<MetronomeSoundType>> {
     log::info!("Found sounds path: {:?}", sounds_path);
     let settings = audio_processor_traits::AudioProcessorSettings::default();
 
-    let file_sounds: Vec<MetronomeSoundType> = {
+    let file_sounds: Vec<LoadedSound> = {
         let sound_file_paths = std::fs::read_dir(sounds_path).ok()?;
         log::info!("Found sounds: {:?}", sound_file_paths);
 
@@ -41,14 +47,23 @@ fn load_sounds() -> Option<Vec<MetronomeSoundType>> {
             .filter_map(|file_path| {
                 let path = file_path.path();
                 let file_path = path.to_str()?;
-                audio_processor_file::AudioFileProcessor::from_path(
+                let processor = audio_processor_file::AudioFileProcessor::from_path(
                     audio_garbage_collector::handle(),
                     settings,
                     file_path,
                 )
-                .ok()
+                .ok()?;
+
+                let file_name = path.file_name()?.to_str()?.to_string();
+                Some((processor, file_name))
             })
-            .map(MetronomeSoundType::file)
+            .map(|(processor, path)| {
+                let sound = MetronomeSoundType::file(processor);
+                LoadedSound {
+                    sound,
+                    file_path: path,
+                }
+            })
             .collect();
 
         Some(sounds)
@@ -59,10 +74,12 @@ fn load_sounds() -> Option<Vec<MetronomeSoundType>> {
     Some(file_sounds)
 }
 
-#[derive(Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum MetronomeSoundTypeTag {
     Sine,
     Tube,
+    Glass,
+    Snap,
 }
 
 pub enum AppAudioThreadMessage {
@@ -73,14 +90,26 @@ pub struct AppAudioProcessor {
     metronome: MetronomeProcessor<DefaultMetronomePlayhead>,
     sounds: HashMap<MetronomeSoundTypeTag, MetronomeSoundType>,
     messages: ringbuf::Consumer<AppAudioThreadMessage>,
+    tag: MetronomeSoundTypeTag,
 }
 
 pub fn build_app_processor() -> (ringbuf::Producer<AppAudioThreadMessage>, AppAudioProcessor) {
     // Load sounds
-    let mut sounds = load_sounds().unwrap_or_default();
-    let mut sounds_map = HashMap::default();
-    if let Some(tube_sound) = sounds.pop() {
-        sounds_map.insert(MetronomeSoundTypeTag::Tube, tube_sound);
+    let sounds = load_sounds().unwrap_or_default();
+    let mut sounds_map: HashMap<MetronomeSoundTypeTag, MetronomeSoundType> = HashMap::default();
+    let mut known_sounds: HashMap<String, MetronomeSoundTypeTag> = [
+        ("tube-click.wav", MetronomeSoundTypeTag::Tube),
+        ("snap.wav", MetronomeSoundTypeTag::Snap),
+        ("glass.wav", MetronomeSoundTypeTag::Glass),
+    ]
+    .into_iter()
+    .map(|(k, v)| (k.to_string(), v))
+    .collect();
+
+    for loaded_sound in sounds {
+        if let Some(tag) = known_sounds.remove(&loaded_sound.file_path) {
+            sounds_map.insert(tag, loaded_sound.sound);
+        }
     }
 
     // Set-up processor
@@ -91,6 +120,7 @@ pub fn build_app_processor() -> (ringbuf::Producer<AppAudioThreadMessage>, AppAu
             processor.handle().set_is_playing(false);
             processor
         },
+        tag: MetronomeSoundTypeTag::Sine,
         sounds: sounds_map,
         messages: rx,
     };
@@ -114,14 +144,10 @@ impl AppAudioProcessor {
 
     fn set_metronome_sound(&mut self, sound: MetronomeSoundTypeTag) {
         if let Some(new_sound) = self.sounds.remove(&sound) {
+            let old_tag = self.tag;
+            self.tag = sound;
             let old_sound = self.metronome.set_sound(new_sound);
-            self.sounds.insert(
-                match old_sound {
-                    MetronomeSoundType::Sine(_) => MetronomeSoundTypeTag::Sine,
-                    MetronomeSoundType::File(_) => MetronomeSoundTypeTag::Tube,
-                },
-                old_sound,
-            );
+            self.sounds.insert(old_tag, old_sound);
         }
     }
 }

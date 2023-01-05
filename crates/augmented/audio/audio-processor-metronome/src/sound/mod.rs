@@ -1,3 +1,4 @@
+use std::time::Duration;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -99,6 +100,8 @@ impl MetronomeSound for MetronomeSoundFile {
     fn prepare(&mut self, settings: AudioProcessorSettings) {
         audio_processor_traits::AudioProcessor::prepare(&mut self.file_processor, settings);
         self.envelope.set_sample_rate(settings.sample_rate());
+        // Files have a different envelope to develop the sample a bit more
+        self.envelope.set_decay(Duration::from_millis(50));
         self.file_processor.handle().stop();
         self.file_processor.handle().set_should_loop(false);
     }

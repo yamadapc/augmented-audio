@@ -611,6 +611,13 @@
             </list>
           </value>
         </entry>
+        <entry key="mockito">
+          <value>
+            <list>
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mockito-5.3.2/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="package_config">
           <value>
             <list>
@@ -1117,6 +1124,7 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mime-1.0.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mobx-2.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mobx_codegen-2.0.7+3/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mockito-5.3.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-2.0.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-2.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path-1.8.2/lib" />
