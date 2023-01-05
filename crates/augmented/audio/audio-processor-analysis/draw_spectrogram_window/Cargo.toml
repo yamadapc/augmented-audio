@@ -1,5 +1,5 @@
 [package]
-name = "draw_spectogram_window"
+name = "draw_spectrogram_window"
 version = "0.1.0"
 edition = "2021"
 
