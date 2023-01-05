@@ -5,7 +5,7 @@ import 'package:metronome/modules/state/history_state_model.dart';
 
 void main() {
   test("startOfWeek returns the start of that week", () {
-    final start = startOfWeek(DateTime(2021, 1));
+    final start = startOfWeek(DateTime(2021));
     expect(start, DateTime(2020, 12, 28));
   });
 
