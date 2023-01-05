@@ -4,6 +4,13 @@ import 'package:metronome/modules/history/session_dao.dart';
 import 'package:metronome/modules/history/session_entity.dart';
 import 'package:metronome/modules/state/history_state_model.dart';
 import 'package:mobx/mobx.dart';
+import 'package:mockito/annotations.dart';
+
+@GenerateNiceMocks(
+  [MockSpec<HistoryStateController>()],
+)
+// ignore: unused_import, always_use_package_imports
+import './history_state_controller.mocks.dart';
 
 class HistoryStateController {
   final SessionDao _sessionDao;

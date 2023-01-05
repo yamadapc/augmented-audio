@@ -1,5 +1,12 @@
 import 'package:floor/floor.dart';
 import 'package:metronome/modules/history/session_entity.dart';
+import 'package:mockito/annotations.dart';
+
+@GenerateNiceMocks(
+  [MockSpec<SessionDao>()],
+)
+// ignore: unused_import, always_use_package_imports
+import './session_dao.mocks.dart';
 
 @dao
 abstract class SessionDao {

@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:metronome/logger.dart';
 import 'package:metronome/modules/history/session_dao.dart';
 import 'package:metronome/modules/history/session_entity.dart';
@@ -20,7 +21,7 @@ class HistoryStartStopHandler {
   );
 
   void onStart() {
-    start = DateTime.now();
+    start = clock.now();
     logger.i("Session start=$start");
   }
 
@@ -29,7 +30,7 @@ class HistoryStartStopHandler {
       return;
     }
 
-    final now = DateTime.now();
+    final now = clock.now();
     final duration = now.difference(start!);
     final durationMs = duration.inMilliseconds;
 

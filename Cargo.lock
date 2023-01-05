@@ -740,6 +740,7 @@ dependencies = [
  "core-foundation-sys 0.8.3",
  "core-graphics-types",
  "foreign-types-shared 0.1.1",
+ "log",
  "metal",
  "objc",
  "skia-safe",
