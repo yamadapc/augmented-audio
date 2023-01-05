@@ -48,20 +48,24 @@ class SoundSelectorMobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) {
+      builder: (context) {
         final selectedSoundName = sounds
             .firstWhere(
               (element) => element.tag == stateController.model.sound,
             )
             .name;
-        return CupertinoButton(
-          color: CupertinoColors.activeBlue.withOpacity(0.8),
-          child: Text(
-            "Change sound ($selectedSoundName)",
+        return SizedBox(
+          width: double.infinity,
+          child: CupertinoButton(
+            color: CupertinoColors.activeBlue.withOpacity(0.8),
+            child: Text(
+              "Change sound ($selectedSoundName)",
+              style: const TextStyle(color: CupertinoColors.white),
+            ),
+            onPressed: () {
+              _showDialog(context);
+            },
           ),
-          onPressed: () {
-            _showDialog(context);
-          },
         );
       },
     );
@@ -71,21 +75,48 @@ class SoundSelectorMobile extends StatelessWidget {
     showCupertinoModalPopup(
       context: context,
       builder: (ctx) => Container(
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        height: 216,
-        child: SafeArea(
-          child: CupertinoPicker(
-            itemExtent: 32,
-            onSelectedItemChanged: (index) {
-              stateController.setSound(sounds[index].tag);
-            },
-            scrollController: FixedExtentScrollController(
-              initialItem: sounds.indexWhere(
-                (element) => element.tag == stateController.model.sound,
+        color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
+        height: 300,
+        child: Column(
+          children: [
+            Row(
+              children: [
+                const Spacer(),
+                CupertinoButton(
+                  child: const Text("Done"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+            Container(
+              height: 1,
+              width: double.infinity,
+              color: CupertinoColors.opaqueSeparator.resolveFrom(context),
+            ),
+            Expanded(
+              child: CupertinoPicker(
+                itemExtent: 40,
+                onSelectedItemChanged: (index) {
+                  stateController.setSound(sounds[index].tag);
+                },
+                scrollController: FixedExtentScrollController(
+                  initialItem: sounds.indexWhere(
+                    (element) => element.tag == stateController.model.sound,
+                  ),
+                ),
+                children: sounds
+                    .map(
+                      (sound) => Container(
+                        alignment: Alignment.center,
+                        child: Text(sound.name),
+                      ),
+                    )
+                    .toList(),
               ),
             ),
-            children: sounds.map((sound) => Text(sound.name)).toList(),
-          ),
+          ],
         ),
       ),
     );
@@ -103,7 +134,7 @@ class SoundSelectorMacOS extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (ctx) => SizedBox(
+      builder: (context) => SizedBox(
         width: double.infinity,
         height: 25,
         child: MacosPopupButton<MetronomeSoundTypeTag>(
@@ -117,7 +148,10 @@ class SoundSelectorMacOS extends StatelessWidget {
               .map(
                 (sound) => MacosPopupMenuItem(
                   value: sound.tag,
-                  child: Text(sound.name),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 2.0),
+                    child: Text(sound.name),
+                  ),
                 ),
               )
               .toList(),

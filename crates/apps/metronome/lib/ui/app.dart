@@ -39,19 +39,38 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) => MacosApp(
+      builder: (context) => MacosApp(
         title: 'Metronome',
-        theme: MacosThemeData(
-          brightness: brightness.value ?? Brightness.dark,
-          typography: MacosTypography(
-            color: Colors.black,
-            body: const TextStyle(fontSize: 50),
-          ),
-          primaryColor: CupertinoColors.activeBlue,
-          canvasColor: CupertinoColors.activeBlue,
-        ),
+        theme: brightness.value == Brightness.light
+            ? buildMacosThemeData(context)
+            : buildMacosThemeDataDark(context),
+        darkTheme: buildMacosThemeDataDark(context),
         home: const HomePage(title: 'Metronome'),
       ),
+    );
+  }
+
+  MacosThemeData buildMacosThemeDataDark(BuildContext context) {
+    return MacosThemeData(
+      brightness: Brightness.dark,
+      typography: MacosTypography(
+        color: Colors.black,
+        body: const TextStyle(fontSize: 14, color: Colors.white),
+      ),
+      primaryColor: CupertinoColors.activeBlue.resolveFrom(context),
+      canvasColor: CupertinoColors.activeBlue.resolveFrom(context),
+    );
+  }
+
+  MacosThemeData buildMacosThemeData(BuildContext context) {
+    return MacosThemeData(
+      brightness: Brightness.light,
+      typography: MacosTypography(
+        color: Colors.black,
+        body: const TextStyle(fontSize: 14, color: Colors.black),
+      ),
+      primaryColor: CupertinoColors.activeBlue.resolveFrom(context),
+      canvasColor: CupertinoColors.activeBlue.resolveFrom(context),
     );
   }
 }

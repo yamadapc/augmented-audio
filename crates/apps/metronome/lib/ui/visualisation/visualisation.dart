@@ -40,8 +40,9 @@ class Visualisation extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border.all(color: CupertinoColors.secondarySystemFill),
                 borderRadius: BorderRadius.circular(2.0),
-                color:
-                    CupertinoColors.secondarySystemBackground.withOpacity(0.7),
+                color: CupertinoColors.secondarySystemBackground
+                    .resolveFrom(context)
+                    .withOpacity(0.7),
               ),
               child: Observer(
                 builder: (_) {

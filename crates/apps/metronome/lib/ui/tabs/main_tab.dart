@@ -77,12 +77,10 @@ class _MainPageTabState extends State<MainPageTab> {
                       ),
                     ),
                     const Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 10.0),
-                      child: SoundSelector(
-                        stateController: widget.stateController,
-                      ),
+                    SoundSelector(
+                      stateController: widget.stateController,
                     ),
+                    const SizedBox(height: 10),
                     BottomRow(stateController: widget.stateController)
                   ],
                 ),

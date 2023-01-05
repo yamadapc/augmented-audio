@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -41,6 +43,6 @@ class BeatsPerBarControl extends StatelessWidget {
 Widget segmentedControlText(String s) {
   return Padding(
     padding: const EdgeInsets.only(left: 3.0, right: 3.0),
-    child: Text(s, textScaleFactor: 0.85),
+    child: Text(s, textScaleFactor: Platform.isMacOS ? 0.85 : 1.0),
   );
 }
