@@ -5,6 +5,7 @@ import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/logger.dart';
 import 'package:metronome/modules/database.dart';
 import 'package:metronome/modules/history/history_controller.dart';
+import 'package:metronome/modules/performance_metrics/metrics.dart';
 import 'package:metronome/modules/state/history_state_controller.dart';
 import 'package:metronome/modules/state/history_state_model.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
@@ -37,9 +38,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    // var performance = FirebasePerformance.instance;
-    // var trace = performance.newTrace("init-sequence");
-    // trace.start();
+    final performance = getMetrics();
+    final trace = performance.newTrace("init-sequence");
+    trace.start();
 
     logger.i("Initializing metronome bridge");
     metronome = buildMetronome();
@@ -64,7 +65,7 @@ class _HomePageState extends State<HomePage> {
         );
         metronomeStateController?.setup();
 
-        // trace.stop();
+        trace.stop();
       });
     }).catchError((err) {
       logger.e("ERROR: $err");
