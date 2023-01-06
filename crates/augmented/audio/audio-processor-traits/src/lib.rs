@@ -56,6 +56,7 @@ pub use simple_processor::{BufferProcessor, SimpleAudioProcessor};
 pub mod atomic_float;
 /// Provides an abstraction for audio buffers that works for [`cpal`] and [`vst`] layouts
 pub mod audio_buffer;
+pub mod combinators;
 /// The "staged context" for audio processors
 pub mod context;
 /// Provides an abstraction for MIDI processing that works for stand-alone and [`vst`] events
@@ -186,7 +187,7 @@ where
 ///
 /// Given a known buffer-type, audio-processors can be made into objects using this type.
 pub trait ObjectAudioProcessor<BufferType> {
-    fn prepare_obj(&mut self, context: &mut AudioContext, _settings: AudioProcessorSettings) {}
+    fn prepare_obj(&mut self, _context: &mut AudioContext, _settings: AudioProcessorSettings) {}
     fn process_obj(&mut self, context: &mut AudioContext, data: &mut BufferType);
 }
 
@@ -245,7 +246,7 @@ impl<SampleType: Float + Send> AudioProcessor for SilenceAudioProcessor<SampleTy
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
-        context: &mut AudioContext,
+        _context: &mut AudioContext,
         output: &mut BufferType,
     ) {
         for sample in output.slice_mut() {

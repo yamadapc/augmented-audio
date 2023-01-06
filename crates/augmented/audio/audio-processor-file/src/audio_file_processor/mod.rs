@@ -218,7 +218,7 @@ impl AudioProcessor for AudioFileProcessor {
     ///
     /// Note: Currently this will load the audio file on the audio-thread.
     /// It'd be an interesting exercise to perform this on a background thread.
-    fn prepare(&mut self, context: &mut AudioContext, audio_settings: AudioProcessorSettings) {
+    fn prepare(&mut self, _context: &mut AudioContext, audio_settings: AudioProcessorSettings) {
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
 
@@ -278,7 +278,7 @@ impl AudioProcessor for AudioFileProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = f32>>(
         &mut self,
-        context: &mut AudioContext,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         let is_playing = self.handle.is_playing.load(Ordering::Relaxed);

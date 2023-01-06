@@ -40,10 +40,10 @@ use std::ops::Deref;
 pub trait MonoAudioProcessor {
     type SampleType: Copy;
 
-    fn m_prepare(&mut self, context: &mut AudioContext, _settings: AudioProcessorSettings) {}
+    fn m_prepare(&mut self, _context: &mut AudioContext, _settings: AudioProcessorSettings) {}
     fn m_process(
         &mut self,
-        context: &mut AudioContext,
+        _context: &mut AudioContext,
         sample: Self::SampleType,
     ) -> Self::SampleType {
         sample
