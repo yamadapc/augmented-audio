@@ -132,7 +132,7 @@ impl SimpleAudioProcessor for RunningRMSProcessor {
         );
     }
 
-    fn s_process_frame(&mut self, context: &mut AudioContext, frame: &mut [Self::SampleType]) {
+    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
         if self.duration_samples == 0 {
             return;
         }

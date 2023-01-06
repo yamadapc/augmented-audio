@@ -104,7 +104,7 @@ impl Default for BitCrusherProcessor {
 impl AudioProcessor for BitCrusherProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.handle.set_sample_rate(settings.sample_rate());
         if (self.handle.sample_rate() - self.handle.bit_rate()).abs() < f32::EPSILON {
             self.handle.set_bit_rate(settings.sample_rate());

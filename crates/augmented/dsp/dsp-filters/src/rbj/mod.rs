@@ -213,14 +213,14 @@ where
 {
     type SampleType = SampleType;
 
-    fn m_prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn m_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.sample_rate = SampleType::from(settings.sample_rate()).unwrap();
         self.setup();
     }
 
     fn m_process(
         &mut self,
-        context: &mut AudioContext,
+        _context: &mut AudioContext,
         sample: Self::SampleType,
     ) -> Self::SampleType {
         self.filter.state.process1(
