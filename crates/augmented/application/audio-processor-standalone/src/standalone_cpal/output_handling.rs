@@ -36,17 +36,31 @@ use crate::StandaloneProcessor;
 use super::error::AudioThreadError;
 use super::midi::MidiContext;
 
+pub struct BuildOutputStreamParams<SP: StandaloneProcessor, D: DeviceTrait> {
+    pub app: SP,
+    pub midi_context: Option<MidiContext>,
+    pub audio_context: AudioContext,
+    pub num_output_channels: usize,
+    pub num_input_channels: usize,
+    pub input_consumer: Consumer<f32>,
+    pub output_device: D,
+    pub output_config: StreamConfig,
+}
+
 /// Build the output callback stream with CPAL and return it.
-pub fn build_output_stream<Device: DeviceTrait>(
-    mut app: impl StandaloneProcessor,
-    mut midi_context: Option<MidiContext>,
-    mut audio_context: AudioContext,
-    num_output_channels: usize,
-    num_input_channels: usize,
-    mut input_consumer: Consumer<f32>,
-    output_device: Device,
-    output_config: StreamConfig,
+pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
+    params: BuildOutputStreamParams<SP, Device>,
 ) -> Result<Device::Stream, AudioThreadError> {
+    let BuildOutputStreamParams {
+        mut app,
+        mut midi_context,
+        mut audio_context,
+        num_output_channels,
+        num_input_channels,
+        mut input_consumer,
+        output_device,
+        output_config,
+    } = params;
     // Output callback section
     log::info!(
         "num_input_channels={} num_output_channels={} sample_rate={}",
