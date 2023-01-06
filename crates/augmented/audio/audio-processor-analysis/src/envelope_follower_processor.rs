@@ -41,8 +41,8 @@
 //! ```
 
 use audio_garbage_collector::{make_shared, Shared};
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-use audio_processor_traits::{AtomicF32, AudioProcessorSettings};
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
+use audio_processor_traits::{AtomicF32, AudioContext, AudioProcessorSettings};
 use std::time::Duration;
 
 fn calculate_multiplier(sample_rate: f32, duration_ms: f32) -> f32 {
@@ -142,10 +142,10 @@ impl EnvelopeFollowerProcessor {
     }
 }
 
-impl SimpleAudioProcessor for EnvelopeFollowerProcessor {
+impl MonoAudioProcessor for EnvelopeFollowerProcessor {
     type SampleType = f32;
 
-    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+    fn m_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         let sample_rate = settings.sample_rate;
         self.handle.sample_rate.set(sample_rate);
         self.handle.attack_multiplier.set(calculate_multiplier(
@@ -158,7 +158,11 @@ impl SimpleAudioProcessor for EnvelopeFollowerProcessor {
         ));
     }
 
-    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+    fn m_process(
+        &mut self,
+        _context: &mut AudioContext,
+        sample: Self::SampleType,
+    ) -> Self::SampleType {
         let value = sample.abs();
 
         let handle = &self.handle;
@@ -196,16 +200,17 @@ mod test {
         let input_file_path = relative_path!("../../../../input-files/C3-loop.mp3");
 
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut input = AudioFileProcessor::from_path(
             audio_garbage_collector::handle(),
             settings,
             &input_file_path,
         )
         .unwrap();
-        input.prepare(settings);
+        input.prepare(&mut context, settings);
 
         let mut envelope_follower = EnvelopeFollowerProcessor::default();
-        envelope_follower.s_prepare(settings);
+        envelope_follower.m_prepare(&mut context, settings);
 
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, settings.block_size(), 0.0);
@@ -217,10 +222,10 @@ mod test {
                 *sample = 0.0;
             }
 
-            input.process(&mut buffer);
+            input.process(&mut context, &mut buffer);
             for frame in buffer.frames_mut() {
                 let sample = frame[0];
-                envelope_follower.s_process(sample);
+                envelope_follower.m_process(&mut context, sample);
                 envelope_readings.push(envelope_follower.handle.envelope_state.get());
             }
         }

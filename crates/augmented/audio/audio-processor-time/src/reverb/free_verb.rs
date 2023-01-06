@@ -25,7 +25,9 @@ use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandle, AudioProcessorHandleProvider, AudioProcessorHandleRef,
     FloatType, ParameterSpec, ParameterType, ParameterValue,
 };
-use audio_processor_traits::{AtomicF32, AudioProcessorSettings, SimpleAudioProcessor};
+use audio_processor_traits::{
+    AtomicF32, AudioContext, AudioProcessorSettings, SimpleAudioProcessor,
+};
 
 use crate::reverb::all_pass::AllPass;
 use crate::reverb::lowpass_feedback_comb_filter::LowpassFeedbackCombFilter;
@@ -223,7 +225,7 @@ impl FreeverbProcessor {
 impl SimpleAudioProcessor for FreeverbProcessor {
     type SampleType = f32;
 
-    fn s_prepare(&mut self, _settings: AudioProcessorSettings) {
+    fn s_prepare(&mut self, _context: &mut AudioContext, _settings: AudioProcessorSettings) {
         for (allpass_left, allpass_right) in self
             .all_pass_left
             .iter_mut()
@@ -238,7 +240,7 @@ impl SimpleAudioProcessor for FreeverbProcessor {
         self.handle.set_room_size(INITIAL_ROOM);
     }
 
-    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
         // TODO - no need to update on every frame
         self.update();
 

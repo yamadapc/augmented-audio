@@ -32,7 +32,9 @@ use vst::plugin::Plugin;
 
 use audio_garbage_collector::Shared;
 use audio_processor_standalone_midi::host::{MidiError, MidiHost};
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
+use audio_processor_traits::{
+    AudioContext, AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor,
+};
 
 use crate::actor_system::ActorSystem;
 use crate::audio_io::audio_thread;
@@ -213,7 +215,8 @@ impl TestPluginHost {
             audio_settings.block_size(),
             self.mono_input,
         );
-        test_host_processor.prepare(*audio_settings);
+        let mut context = AudioContext::from(*audio_settings);
+        test_host_processor.prepare(&mut context, *audio_settings);
 
         if self.processor.is_none() && self.start_paused {
             test_host_processor.pause();

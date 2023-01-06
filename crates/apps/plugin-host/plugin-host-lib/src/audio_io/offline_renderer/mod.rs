@@ -25,7 +25,9 @@ use std::time::{Duration, Instant};
 use thiserror::Error;
 use vst::plugin::Plugin;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer};
+use audio_processor_traits::{
+    AudioContext, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
+};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_io::AudioHostPluginLoadError;
@@ -80,7 +82,8 @@ impl OfflineRenderer {
 
         plugin.set_sample_rate(self.audio_settings.sample_rate());
         plugin.set_block_size(self.audio_settings.block_size() as i64);
-        audio_file_processor.prepare(self.audio_settings);
+        let mut context = AudioContext::from(self.audio_settings);
+        audio_file_processor.prepare(&mut context, self.audio_settings);
         output_file_processor.prepare(self.audio_settings);
 
         let audio_file_buffer = audio_file_processor.buffer();

@@ -31,7 +31,7 @@ use vst::{
 };
 
 use audio_processor_traits::audio_buffer::vst::VSTBufferHandler;
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioContext, AudioProcessor, AudioProcessorSettings};
 
 use crate::{StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl};
 
@@ -155,24 +155,34 @@ where
 
     fn set_sample_rate(&mut self, rate: f32) {
         self.settings.sample_rate = rate;
-        self.processor.processor().prepare(self.settings);
+        let mut context = AudioContext::from(self.settings);
+        self.processor
+            .processor()
+            .prepare(&mut context, self.settings);
     }
 
     fn set_block_size(&mut self, size: i64) {
         self.buffer_handler.set_block_size(size as usize);
         self.settings.block_size = size as usize;
-        self.processor.processor().prepare(self.settings);
+        let mut context = AudioContext::from(self.settings);
+        self.processor
+            .processor()
+            .prepare(&mut context, self.settings);
     }
 
     fn resume(&mut self) {
-        self.processor.processor().prepare(self.settings);
+        let mut context = AudioContext::from(self.settings);
+        self.processor
+            .processor()
+            .prepare(&mut context, self.settings);
     }
 
     fn process(&mut self, vst_buffer: &mut VSTAudioBuffer<f32>) {
         let processor = self.processor.processor();
 
+        let mut context = AudioContext::from(self.settings);
         self.buffer_handler.with_buffer(vst_buffer, |buffer| {
-            processor.process(buffer);
+            processor.process(&mut context, buffer);
         });
     }
 

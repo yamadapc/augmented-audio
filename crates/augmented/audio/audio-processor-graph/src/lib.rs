@@ -33,10 +33,10 @@ use thiserror::Error;
 
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared, SharedCell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::simple_processor::{MonoAudioProcessor, SimpleAudioProcessor};
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, BufferProcessor, NoopAudioProcessor,
-    SliceAudioProcessor, VecAudioBuffer,
+    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, BufferProcessor,
+    NoopAudioProcessor, SliceAudioProcessor, VecAudioBuffer,
 };
 use augmented_oscillator::Oscillator;
 
@@ -80,10 +80,15 @@ impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphHandleImpl<P> {
         let index = dag.add_node(());
 
         if let Some(settings) = self.audio_processor_settings.get().deref() {
+            let mut context = AudioContext::from(*settings);
             match processor {
-                NodeType::Simple(ref mut processor) => processor.s_prepare(*settings),
-                NodeType::Buffer(ref mut processor) => processor.prepare_slice(*settings),
-                NodeType::Static(ref mut processor) => processor.prepare_slice(*settings),
+                NodeType::Simple(ref mut processor) => processor.s_prepare(&mut context, *settings),
+                NodeType::Buffer(ref mut processor) => {
+                    processor.prepare_slice(&mut context, *settings)
+                }
+                NodeType::Static(ref mut processor) => {
+                    processor.prepare_slice(&mut context, *settings)
+                }
                 _ => {}
             }
         }
@@ -241,7 +246,7 @@ impl<P: Send + 'static + SliceAudioProcessor> AudioProcessorGraphImpl<P> {
 impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.temporary_buffer
             .resize(settings.output_channels(), settings.block_size(), 0.0);
 
@@ -272,13 +277,13 @@ impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
                 unsafe {
                     match &mut *processor.deref().0.get() {
                         NodeType::Simple(processor) => {
-                            processor.s_prepare(settings);
+                            processor.s_prepare(context, settings);
                         }
                         NodeType::Buffer(processor) => {
-                            processor.prepare_slice(settings);
+                            processor.prepare_slice(context, settings);
                         }
                         NodeType::Static(processor) => {
-                            processor.prepare_slice(settings);
+                            processor.prepare_slice(context, settings);
                         }
                         NodeType::None => {}
                     }
@@ -289,6 +294,7 @@ impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
 
     fn process<InputBufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         data: &mut InputBufferType,
     ) {
         let num_channels = data.num_channels();
@@ -360,16 +366,16 @@ impl<P: SliceAudioProcessor> AudioProcessor for AudioProcessorGraphImpl<P> {
                 match processor {
                     NodeType::Simple(processor) => {
                         for frame in self.temporary_buffer.frames_mut().take(data.num_samples()) {
-                            processor.s_process_frame(frame);
+                            processor.s_process_frame(context, frame);
                         }
                     }
                     NodeType::Buffer(processor) => {
                         let temporary_buffer = self.temporary_buffer.slice_mut();
-                        processor.process_slice(data.num_channels(), temporary_buffer);
+                        processor.process_slice(context, data.num_channels(), temporary_buffer);
                     }
                     NodeType::Static(processor) => {
                         let temporary_buffer = self.temporary_buffer.slice_mut();
-                        processor.process_slice(data.num_channels(), temporary_buffer);
+                        processor.process_slice(context, data.num_channels(), temporary_buffer);
                     }
                     NodeType::None => {}
                 }
@@ -477,6 +483,7 @@ mod test {
         type BufferType = VecAudioBuffer<f32>;
 
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
 
         let mut empty_buffer = BufferType::new();
         empty_buffer.resize(1, 1000, 0.0);
@@ -485,10 +492,10 @@ mod test {
         assert!((rms_level(empty_buffer.slice()) - 0.0).abs() < f32::EPSILON);
 
         let mut process_buffer = empty_buffer.clone();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
 
         assert_no_alloc(|| {
-            graph.process(&mut process_buffer);
+            graph.process(&mut context, &mut process_buffer);
         });
 
         test_level_equivalence(
@@ -503,6 +510,7 @@ mod test {
     #[test]
     fn test_empty_graph_passthrough() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::default();
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, 4, 0.0);
         buffer.set(0, 0, 1.0);
@@ -512,9 +520,9 @@ mod test {
 
         let mut graph = AudioProcessorGraph::default();
         graph.add_connection(graph.input(), graph.output()).unwrap();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         assert_no_alloc(|| {
-            graph.process(&mut buffer);
+            graph.process(&mut context, &mut buffer);
         });
         assert_f_eq!(*buffer.get(0, 0), 1.0);
         assert_f_eq!(*buffer.get(0, 1), 2.0);
@@ -525,6 +533,7 @@ mod test {
     #[test]
     fn test_single_node_graph() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, 4, 0.0);
         buffer.set(0, 0, 1.0);
@@ -533,9 +542,13 @@ mod test {
         buffer.set(0, 3, 4.0);
 
         struct Sum10Node {}
-        impl SimpleAudioProcessor for Sum10Node {
+        impl MonoAudioProcessor for Sum10Node {
             type SampleType = f32;
-            fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+            fn m_process(
+                &mut self,
+                _context: &mut AudioContext,
+                sample: Self::SampleType,
+            ) -> Self::SampleType {
                 sample + 10.0
             }
         }
@@ -546,9 +559,9 @@ mod test {
         let sum_10_node = graph.add_node(NodeType::Simple(Box::new(sum_10_node)));
         graph.add_connection(graph.input(), sum_10_node).unwrap();
         graph.add_connection(sum_10_node, graph.output()).unwrap();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         assert_no_alloc(|| {
-            graph.process(&mut buffer);
+            graph.process(&mut context, &mut buffer);
         });
         assert_f_eq!(*buffer.get(0, 0), 11.0);
         assert_f_eq!(*buffer.get(0, 1), 12.0);
@@ -559,6 +572,7 @@ mod test {
     #[test]
     fn test_series_node_graph() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, 4, 0.0);
         buffer.set(0, 0, 1.0);
@@ -568,9 +582,13 @@ mod test {
 
         #[derive(Clone)]
         struct Mult10Node {}
-        impl SimpleAudioProcessor for Mult10Node {
+        impl MonoAudioProcessor for Mult10Node {
             type SampleType = f32;
-            fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+            fn m_process(
+                &mut self,
+                _context: &mut AudioContext,
+                sample: Self::SampleType,
+            ) -> Self::SampleType {
                 sample * 10.0
             }
         }
@@ -583,9 +601,9 @@ mod test {
         graph.add_connection(graph.input(), node1).unwrap();
         graph.add_connection(node1, node2).unwrap();
         graph.add_connection(node2, graph.output()).unwrap();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         assert_no_alloc(|| {
-            graph.process(&mut buffer);
+            graph.process(&mut context, &mut buffer);
         });
         assert_f_eq!(*buffer.get(0, 0), 100.0);
         assert_f_eq!(*buffer.get(0, 1), 200.0);
@@ -596,6 +614,7 @@ mod test {
     #[test]
     fn test_buffer_in_series() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, 4, 0.0);
         buffer.set(0, 0, 1.0);
@@ -609,6 +628,7 @@ mod test {
             type SampleType = f32;
             fn process<BufferType: AudioBuffer<SampleType = f32>>(
                 &mut self,
+                _context: &mut AudioContext,
                 buffer: &mut BufferType,
             ) {
                 for sample in buffer.slice_mut() {
@@ -625,9 +645,9 @@ mod test {
         graph.add_connection(graph.input(), node1).unwrap();
         graph.add_connection(node1, node2).unwrap();
         graph.add_connection(node2, graph.output()).unwrap();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         assert_no_alloc(|| {
-            graph.process(&mut buffer);
+            graph.process(&mut context, &mut buffer);
         });
         assert_f_eq!(*buffer.get(0, 0), 100.0);
         assert_f_eq!(*buffer.get(0, 1), 200.0);
@@ -638,6 +658,7 @@ mod test {
     #[test]
     fn test_buffer_in_parallel() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, 4, 0.0);
         buffer.set(0, 0, 1.0);
@@ -651,6 +672,7 @@ mod test {
             type SampleType = f32;
             fn process<BufferType: AudioBuffer<SampleType = f32>>(
                 &mut self,
+                _context: &mut AudioContext,
                 buffer: &mut BufferType,
             ) {
                 for sample in buffer.slice_mut() {
@@ -668,10 +690,10 @@ mod test {
         graph.add_connection(node1, graph.output()).unwrap();
         graph.add_connection(graph.input(), node2).unwrap();
         graph.add_connection(node2, graph.output()).unwrap();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
 
         assert_no_alloc(|| {
-            graph.process(&mut buffer);
+            graph.process(&mut context, &mut buffer);
         });
 
         assert_f_eq!(*buffer.get(0, 0), 20.0);
@@ -685,6 +707,7 @@ mod test {
         // input -> mult-10 -> mult-10 -> output
         //     \> mult-10 -> mult-10 ----/
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, 4, 0.0);
         buffer.set(0, 0, 1.0);
@@ -698,6 +721,7 @@ mod test {
             type SampleType = f32;
             fn process<BufferType: AudioBuffer<SampleType = f32>>(
                 &mut self,
+                _context: &mut AudioContext,
                 buffer: &mut BufferType,
             ) {
                 for sample in buffer.slice_mut() {
@@ -719,9 +743,9 @@ mod test {
         graph.add_connection(graph.input(), node_b1).unwrap();
         graph.add_connection(node_b1, node_b2).unwrap();
         graph.add_connection(node_b2, graph.output()).unwrap();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         assert_no_alloc(|| {
-            graph.process(&mut buffer);
+            graph.process(&mut context, &mut buffer);
         });
         assert_f_eq!(*buffer.get(0, 0), 200.0);
         assert_f_eq!(*buffer.get(0, 1), 400.0);
@@ -734,6 +758,7 @@ mod test {
         // input -> mult-10 -> mult-10 -> output
         //     \> mult-10 -> mult-10 ----/
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut buffer = VecAudioBuffer::new();
         buffer.resize(1, 4, 0.0);
         buffer.set(0, 0, 1.0);
@@ -747,6 +772,7 @@ mod test {
             type SampleType = f32;
             fn process<BufferType: AudioBuffer<SampleType = f32>>(
                 &mut self,
+                _context: &mut AudioContext,
                 buffer: &mut BufferType,
             ) {
                 for sample in buffer.slice_mut() {
@@ -767,9 +793,9 @@ mod test {
             }
             graph.add_connection(current_idx, graph.output()).unwrap();
         }
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         assert_no_alloc(|| {
-            graph.process(&mut buffer);
+            graph.process(&mut context, &mut buffer);
         });
         assert_f_eq!(*buffer.get(0, 0), 10000.0);
         assert_f_eq!(*buffer.get(0, 1), 20000.0);
@@ -786,15 +812,16 @@ mod test {
         settings.set_output_channels(1);
         let sine_buffer: BufferType =
             sine_buffer(settings.sample_rate, 440.0, Duration::from_millis(3)).into();
+        let mut context = AudioContext::from(settings);
         assert_eq!(sine_buffer.num_channels(), 1);
 
         let mut graph = AudioProcessorGraph::default();
         graph.add_connection(graph.input(), graph.output()).unwrap();
 
         let mut process_buffer = sine_buffer.clone();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         assert_no_alloc(|| {
-            graph.process(&mut process_buffer);
+            graph.process(&mut context, &mut process_buffer);
         });
 
         test_level_equivalence(
@@ -811,6 +838,7 @@ mod test {
         type BufferType = VecAudioBuffer<f32>;
 
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
 
         let mut oscillator = Oscillator::sine(settings.sample_rate);
         oscillator.set_frequency(440.0);
@@ -824,10 +852,10 @@ mod test {
 
         // Unconnected
         let mut graph = AudioProcessorGraph::default();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         let _oscillator_idx = graph.add_node(NodeType::Simple(Box::new(oscillator)));
         assert_no_alloc(|| {
-            graph.process(&mut process_buffer);
+            graph.process(&mut context, &mut process_buffer);
         });
 
         test_level_equivalence(
@@ -842,6 +870,7 @@ mod test {
     #[test]
     fn test_process_sine_generator_is_silent_if_only_connected_to_input() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
 
         let mut oscillator = Oscillator::sine(settings.sample_rate);
         oscillator.set_frequency(440.0);
@@ -855,13 +884,13 @@ mod test {
 
         // Connected to input only
         let mut graph = AudioProcessorGraph::default();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         let oscillator_idx = graph.add_node(NodeType::Simple(Box::new(oscillator)));
         graph
             .add_connection(graph.input_node, oscillator_idx)
             .unwrap();
         assert_no_alloc(|| {
-            graph.process(&mut process_buffer);
+            graph.process(&mut context, &mut process_buffer);
         });
 
         test_level_equivalence(
@@ -876,19 +905,28 @@ mod test {
     #[test]
     fn test_two_nodes_get_summed_if_connected_to_output() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
 
         struct Node1;
-        impl SimpleAudioProcessor for Node1 {
+        impl MonoAudioProcessor for Node1 {
             type SampleType = f32;
-            fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+            fn m_process(
+                &mut self,
+                _context: &mut AudioContext,
+                sample: Self::SampleType,
+            ) -> Self::SampleType {
                 sample + 1.0
             }
         }
 
         struct Node2;
-        impl SimpleAudioProcessor for Node2 {
+        impl MonoAudioProcessor for Node2 {
             type SampleType = f32;
-            fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+            fn m_process(
+                &mut self,
+                _context: &mut AudioContext,
+                sample: Self::SampleType,
+            ) -> Self::SampleType {
                 sample + 2.0
             }
         }
@@ -897,7 +935,7 @@ mod test {
         let node2 = Node2 {};
 
         let mut graph = AudioProcessorGraph::default();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
 
         let input_idx = graph.input();
         let output_idx = graph.output();
@@ -911,7 +949,7 @@ mod test {
         let mut process_buffer = VecAudioBuffer::new();
         process_buffer.resize(1, 3, 0.0);
         assert_no_alloc(|| {
-            graph.process(&mut process_buffer);
+            graph.process(&mut context, &mut process_buffer);
         });
         let output = process_buffer.slice().to_vec();
         assert_eq!(output, vec![3.0, 3.0, 3.0]);
@@ -921,6 +959,7 @@ mod test {
     fn test_process_sine_generator_in_the_graph_produces_sine() {
         type BufferType = VecAudioBuffer<f32>;
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
 
         let mut oscillator = Oscillator::sine(settings.sample_rate);
         oscillator.set_frequency(440.0);
@@ -937,7 +976,7 @@ mod test {
         process_buffer.resize(1, 1000, 0.0);
 
         let mut graph = AudioProcessorGraph::default();
-        graph.prepare(settings);
+        graph.prepare(&mut context, settings);
         let oscillator_idx = graph.add_node(NodeType::Simple(Box::new(oscillator)));
         graph
             .add_connection(graph.input_node, oscillator_idx)
@@ -946,7 +985,7 @@ mod test {
             .add_connection(oscillator_idx, graph.output_node)
             .unwrap();
         assert_no_alloc(|| {
-            graph.process(&mut process_buffer);
+            graph.process(&mut context, &mut process_buffer);
         });
 
         test_level_equivalence(
@@ -965,14 +1004,18 @@ pub struct OscillatorProcessor {
     pub oscillator: Oscillator<f32>,
 }
 
-impl SimpleAudioProcessor for OscillatorProcessor {
+impl MonoAudioProcessor for OscillatorProcessor {
     type SampleType = f32;
 
-    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+    fn m_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.oscillator.set_sample_rate(settings.sample_rate);
     }
 
-    fn s_process(&mut self, _sample: Self::SampleType) -> Self::SampleType {
+    fn m_process(
+        &mut self,
+        _context: &mut AudioContext,
+        _sample: Self::SampleType,
+    ) -> Self::SampleType {
         self.oscillator.next_sample()
     }
 }

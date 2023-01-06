@@ -25,7 +25,7 @@ use std::sync::Arc;
 use vst::buffer::AudioBuffer;
 
 use audio_parameter_store::ParameterStore;
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioContext, AudioProcessor, AudioProcessorSettings};
 use augmented_oscillator::Oscillator;
 
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
@@ -39,12 +39,13 @@ pub struct Processor {
 impl AudioProcessor for Processor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.set_sample_rate(settings.sample_rate());
     }
 
     fn process<BufferType: audio_processor_traits::AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         buffer: &mut BufferType,
     ) {
         let rate = self.parameters.value(RATE_PARAMETER_ID);

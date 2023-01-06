@@ -133,7 +133,7 @@ mod test {
     use audio_processor_testing_helpers::{relative_path, rms_level};
 
     use actix_system_threads::ActorSystem;
-    use audio_processor_traits::AudioProcessor;
+    use audio_processor_traits::{AudioContext, AudioProcessor};
 
     use crate::audio::multi_track_looper::looper_voice::LooperVoice;
     use crate::audio::processor::handle::LooperState;
@@ -220,15 +220,17 @@ mod test {
 
         // ======================================================================
         // Playback tests
-        looper.prepare(AudioProcessorSettings {
+        let settings = AudioProcessorSettings {
             block_size: buffer.num_samples(),
             ..Default::default()
-        });
+        };
+        let mut context = AudioContext::from(settings);
+        looper.prepare(&mut context, settings);
 
         // Test playback works
         looper.handle().voices()[0].looper().play();
         let mut buffer = VecAudioBuffer::empty_with(2, buffer.num_samples(), 0.0);
-        looper.process(&mut buffer);
+        looper.process(&mut context, &mut buffer);
         assert_eq!(buffer.num_samples(), input_buffer.num_samples());
         assert_eq!(buffer.num_channels(), input_buffer.num_channels());
         assert_eq!(buffer.slice(), input_buffer.slice());

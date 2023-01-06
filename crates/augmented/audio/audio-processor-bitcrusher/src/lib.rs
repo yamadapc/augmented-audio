@@ -32,7 +32,9 @@ use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{
+    AtomicF32, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
+};
 pub use generic_handle::BitCrusherHandleRef;
 
 mod generic_handle;
@@ -102,7 +104,7 @@ impl Default for BitCrusherProcessor {
 impl AudioProcessor for BitCrusherProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.handle.set_sample_rate(settings.sample_rate());
         if (self.handle.sample_rate() - self.handle.bit_rate()).abs() < f32::EPSILON {
             self.handle.set_bit_rate(settings.sample_rate());
@@ -111,6 +113,7 @@ impl AudioProcessor for BitCrusherProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         let step_size = self.step_size();
@@ -151,16 +154,18 @@ mod test {
     #[test]
     fn test_step_size_is_1_on_passthrough() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut processor = BitCrusherProcessor::default();
-        processor.prepare(settings);
+        processor.prepare(&mut context, settings);
         assert_eq!(processor.step_size(), 1);
     }
 
     #[test]
     fn test_step_size_is_2_on_lower_bitrate() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut processor = BitCrusherProcessor::default();
-        processor.prepare(settings);
+        processor.prepare(&mut context, settings);
         processor
             .handle()
             .set_bit_rate(settings.sample_rate() / 2.0);
@@ -170,8 +175,9 @@ mod test {
     #[test]
     fn test_passthrough_bitcrusher() {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut processor = BitCrusherProcessor::default();
-        processor.prepare(settings);
+        processor.prepare(&mut context, settings);
 
         let input_buffer = VecAudioBuffer::from(sine_buffer(
             settings.sample_rate(),
@@ -179,7 +185,7 @@ mod test {
             Duration::from_millis(10),
         ));
         let mut output_buffer = input_buffer.clone();
-        processor.process(&mut output_buffer);
+        processor.process(&mut context, &mut output_buffer);
 
         assert_eq!(input_buffer.slice(), output_buffer.slice());
     }

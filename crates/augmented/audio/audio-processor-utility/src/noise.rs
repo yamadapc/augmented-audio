@@ -24,7 +24,8 @@ use std::marker::PhantomData;
 
 use rand::{Rng, SeedableRng};
 
-use audio_processor_traits::{Float, SimpleAudioProcessor};
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
+use audio_processor_traits::{AudioContext, Float};
 
 /// White-noise generator, returns random numbers between -1 and 1 using [`rand::rngs::SmallRng`].
 ///
@@ -82,12 +83,16 @@ impl<SampleType> Default for WhiteNoiseProcessor<SampleType> {
     }
 }
 
-impl<SampleType: Float + rand::distributions::uniform::SampleUniform> SimpleAudioProcessor
+impl<SampleType: Float + rand::distributions::uniform::SampleUniform> MonoAudioProcessor
     for WhiteNoiseProcessor<SampleType>
 {
     type SampleType = SampleType;
 
-    fn s_process(&mut self, _sample: Self::SampleType) -> Self::SampleType {
+    fn m_process(
+        &mut self,
+        _context: &mut AudioContext,
+        _sample: Self::SampleType,
+    ) -> Self::SampleType {
         self.rng.gen_range(-SampleType::one()..SampleType::one())
     }
 }
@@ -98,10 +103,11 @@ mod test {
 
     #[test]
     fn test_no_alloc() {
+        let mut context = AudioContext::default();
         let mut processor = WhiteNoiseProcessor::default();
         assert_no_alloc::assert_no_alloc(|| {
             for i in 0..10 {
-                processor.s_process(i as f32);
+                processor.m_process(&mut context, i as f32);
             }
         })
     }

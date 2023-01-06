@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 use augmented_adsr_envelope::Envelope;
 use augmented_oscillator::Oscillator;
 
@@ -75,7 +75,7 @@ impl Voice {
 impl AudioProcessor for Voice {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         for oscillator in &mut self.oscillators {
             oscillator.set_sample_rate(settings.sample_rate());
         }
@@ -84,6 +84,7 @@ impl AudioProcessor for Voice {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         for frame in data.frames_mut() {

@@ -23,7 +23,7 @@
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{
     audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, simple_processor,
-    AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
+    AudioContext, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
 
 use audio_processor_analysis::fft_processor::FftProcessor;
@@ -43,14 +43,15 @@ fn main() {
         .expect("Please provide --output-file");
     log::info!("Reading input file input_file={}", input_file_path);
     let settings = AudioProcessorSettings::default();
+    let mut context = AudioContext::from(settings);
 
     let mut input =
         AudioFileProcessor::from_path(audio_garbage_collector::handle(), settings, input_file_path)
             .unwrap();
-    input.prepare(settings);
+    input.prepare(&mut context, settings);
 
     let mut fft_processor = FftProcessor::default();
-    fft_processor.s_prepare(settings);
+    fft_processor.s_prepare(&mut context, settings);
 
     let mut buffer = VecAudioBuffer::new();
     buffer.resize(1, fft_processor.size(), 0.0);
@@ -60,8 +61,8 @@ fn main() {
     log::info!("Processing num_chunks={}", num_chunks);
     for _chunk_idx in 0..num_chunks {
         audio_buffer::clear(&mut buffer);
-        input.process(&mut buffer);
-        simple_processor::process_buffer(&mut fft_processor, &mut buffer);
+        input.process(&mut context, &mut buffer);
+        simple_processor::process_buffer(&mut context, &mut fft_processor, &mut buffer);
         frames.push(fft_processor.buffer().clone());
     }
 

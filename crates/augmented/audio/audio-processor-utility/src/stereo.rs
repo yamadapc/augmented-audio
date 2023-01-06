@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{Float, SimpleAudioProcessor};
+use audio_processor_traits::{AudioContext, Float, SimpleAudioProcessor};
 use std::marker::PhantomData;
 
 /// An `AudioProcessor` which will use a "source channel" as the output for all channels.
@@ -63,7 +63,7 @@ where
 {
     type SampleType = SampleType;
 
-    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
         let source_sample = frame[self.source_channel];
 
         for sample in frame.iter_mut() {
@@ -84,8 +84,9 @@ mod test {
         let mut mono = MonoToStereoProcessor::new(1);
         let mut samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
         let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut mono, &mut input);
+        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
 
         for sample_index in 0..input.num_samples() {
             for channel_index in 0..input.num_channels() {
@@ -101,8 +102,9 @@ mod test {
         mono.set_source_channel(0);
         let mut samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
         let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut mono, &mut input);
+        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
 
         for sample_index in 0..input.num_samples() {
             for channel_index in 0..input.num_channels() {

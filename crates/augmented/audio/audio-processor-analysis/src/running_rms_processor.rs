@@ -27,7 +27,7 @@ use std::time::Duration;
 use audio_garbage_collector::{Handle, Shared, SharedCell};
 use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor,
+    AtomicF32, AudioBuffer, AudioContext, AudioProcessorSettings, SimpleAudioProcessor,
 };
 
 /// A shared "processor handle" to `RunningRMSProcessor`
@@ -123,7 +123,7 @@ impl RunningRMSProcessor {
 impl SimpleAudioProcessor for RunningRMSProcessor {
     type SampleType = f32;
 
-    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+    fn s_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.duration_samples = (settings.sample_rate() * self.duration.as_secs_f32()) as usize;
         self.handle.resize(
             &self.gc_handle,
@@ -132,7 +132,7 @@ impl SimpleAudioProcessor for RunningRMSProcessor {
         );
     }
 
-    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+    fn s_process_frame(&mut self, context: &mut AudioContext, frame: &mut [Self::SampleType]) {
         if self.duration_samples == 0 {
             return;
         }
@@ -175,8 +175,9 @@ mod test {
         let mut test_buffer = VecAudioBuffer::new();
 
         test_buffer.resize(2, 1000, 1.0);
-        processor.s_prepare(AudioProcessorSettings::default());
-        process_buffer(&mut processor, &mut test_buffer);
+        let mut context = AudioContext::default();
+        processor.s_prepare(&mut context, AudioProcessorSettings::default());
+        process_buffer(&mut context, &mut processor, &mut test_buffer);
         let rms = processor.handle.calculate_rms(0);
         assert!(rms > 0.0);
     }

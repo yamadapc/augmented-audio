@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use std::time::Duration;
 
-use audio_processor_traits::{AudioBuffer, AudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 
 struct SimpleDelayProcessor {
     current_write_position: usize,
@@ -88,6 +88,7 @@ impl AudioProcessor for SimpleDelayProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         // Mono input stage
