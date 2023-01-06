@@ -519,6 +519,7 @@ dependencies = [
  "audio-processor-traits",
  "augmented-midi",
  "basedrop",
+ "clack-plugin",
  "clap 2.34.0",
  "cpal",
  "itertools 0.10.5",
@@ -1477,6 +1478,24 @@ name = "circular-data-structures"
 version = "0.1.0"
 
 [[package]]
+name = "clack-common"
+version = "0.1.0"
+source = "git+https://github.com/prokopyl/clack?rev=31d247c00ddc228bc0a395c50f0738b3c91f409c#31d247c00ddc228bc0a395c50f0738b3c91f409c"
+dependencies = [
+ "bitflags",
+ "clap-sys",
+]
+
+[[package]]
+name = "clack-plugin"
+version = "0.1.0"
+source = "git+https://github.com/prokopyl/clack?rev=31d247c00ddc228bc0a395c50f0738b3c91f409c#31d247c00ddc228bc0a395c50f0738b3c91f409c"
+dependencies = [
+ "clack-common",
+ "clap-sys",
+]
+
+[[package]]
 name = "clang-sys"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1531,6 +1550,12 @@ dependencies = [
  "strsim 0.10.0",
  "termcolor",
 ]
+
+[[package]]
+name = "clap-sys"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27f4e06657d33d5d194db1155cef359c359483a4170362bf4e105146dd0109e3"
 
 [[package]]
 name = "clap_derive"
