@@ -45,7 +45,7 @@ impl AudioProcessor for BufferAnalyserProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
-        context: &mut AudioContext,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         for sample in data.slice().chunks(data.num_channels()) {
