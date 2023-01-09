@@ -14,7 +14,7 @@ actix = ["dep:actix"]
 [dependencies]
 basedrop = "^0.1.2"
 thiserror = "^1.0.26"
-midir = "0.8"
+midir = "0.9"
 log = "^0.4.14"
 vst = { version = "0.3", path = "../../../vendor/vst" }
 
