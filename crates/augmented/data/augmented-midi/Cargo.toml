@@ -25,7 +25,7 @@ itertools = "0.10.1"
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }
 rimd = "0.0.1"
 
-midir = "0.8"
+midir = "0.9"
 
 [[bench]]
 name = "augmented_midi_criterion"
