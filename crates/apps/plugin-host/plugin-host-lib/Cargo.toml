@@ -21,7 +21,7 @@ cpal = { version = "0.14.0" }
 hound = "^3.4.0"
 log = "^0.4.14"
 md5 = "^0.7.0"
-midir = "0.8"
+midir = "0.9"
 notify = "^4.0.17"
 num-traits = "^0.2.14"
 rayon = "^1.5.1"
