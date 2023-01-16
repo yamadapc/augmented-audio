@@ -37,7 +37,7 @@ audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processo
 audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", features = ["wgpu"], default-features = false , version = "0.3.1" }
 augmented-audio-volume = { path = "../../../augmented/data/audio-volume", version = "0.4.0" }
 iced = { version = "0.6.0", features = ["debug", "wgpu", "canvas"], default-features = false }
-iced_core = { version = "0.6.2", default-features = false }
+iced_core = { version = "0.7.0", default-features = false }
 iced_native = { version = "0.7.0", default-features = false }
 iced_futures = { version = "0.5.1" }
 plugin-host-lib = { path = "../plugin-host-lib" }
