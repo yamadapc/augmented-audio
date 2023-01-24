@@ -41,7 +41,9 @@ build-libs-ios: FORCE
 	mkdir -p public/lib/ios-aarch64
 	mkdir -p public/lib/ios-aarch64-sim
 	mkdir -p public/lib/ios
-	cp ../../../target/aarch64-apple-ios/release/libmetronome.a ./public/lib/ios-aarch64/libmetronome.a
-	cp ../../../target/aarch64-apple-ios-sim/release/libmetronome.a ./public/lib/ios-aarch64-sim/libmetronome.a
+	mkdir -p public/lib/-iphonesimulator
+	mkdir -p public/lib/-iphoneos
+	cp ../../../target/aarch64-apple-ios/release/libmetronome.a ./public/lib/-iphoneos/libmetronome.a
+	cp ../../../target/aarch64-apple-ios-sim/release/libmetronome.a ./public/lib/-iphonesimulator/libmetronome.a
 
 FORCE:
