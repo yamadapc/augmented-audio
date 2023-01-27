@@ -1,0 +1,5 @@
+app_identifier("com.beijaflor.metronome")
+apple_id(ENV["APPLE_USERNAME"])
+
+itc_team_id(ENV["APPLE_ITC_TEAM_ID"])
+team_id(ENV["APPLE_TEAM_ID"])

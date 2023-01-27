@@ -46,3 +46,12 @@ app.*.map.json
 /android/app/release
 
 /public
+/secret
+
+*.cer
+*.mobileprovision
+*.app
+*.app
+*/fastlane/report.xml
+*.dSYM.zip
+*.ipa

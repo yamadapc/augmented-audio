@@ -1,0 +1,17 @@
+default_platform(:ios)
+
+api_key_path = "../secret/apple_api_key.json"
+
+platform :ios do
+  desc "Generate new localized screenshots"
+  lane :screenshots do
+    capture_screenshots(workspace: "Runner.xcworkspace", scheme: "Release")
+  end
+
+  lane :beta do
+    get_certificates
+    get_provisioning_profile
+    build_app(scheme: "Runner")
+    upload_to_testflight(api_key_path: api_key_path)
+  end
+end
