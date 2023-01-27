@@ -46,9 +46,17 @@ abstract class _HistoryStateModel with Store {
 }
 
 mixin ChartTransformer {
-  @visibleForTesting
-  static DateTime startOfDay(DateTime now) {
-    final result = DateTime(now.year, now.month, now.day);
+  static DateTime startOfDate({
+    required DateTime date,
+    HistoryResolution? resolution,
+  }) {
+    if (resolution == HistoryResolution.weeks) {
+      final nowPrime = date.subtract(Duration(days: date.weekday - 1));
+      final result = DateTime(nowPrime.year, nowPrime.month, nowPrime.day);
+      return result;
+    }
+
+    final result = DateTime(date.year, date.month, date.day);
     return result;
   }
 
@@ -57,13 +65,29 @@ mixin ChartTransformer {
     List<DailyPracticeTime> data,
     HistoryResolution historyResolution,
   ) {
-    final DateTime day = startOfDay(now);
+    final DateTime day = startOfDate(
+      date: now,
+      resolution: historyResolution,
+    );
     final List<DateTime> days = [];
+
     for (int i = 1; i <= 7; i++) {
-      final DateTime d = startOfDay(day.subtract(Duration(days: 7 - i)));
-      days.add(d);
+      if (historyResolution == HistoryResolution.weeks) {
+        final DateTime d = startOfDate(
+          date: day.subtract(Duration(days: 49 - i * 7)),
+          resolution: historyResolution,
+        );
+        days.add(d);
+      } else {
+        final DateTime d = startOfDate(
+          date: day.subtract(Duration(days: 7 - i)),
+          resolution: historyResolution,
+        );
+        days.add(d);
+      }
     }
-    final Map<DateTime, DailyPracticeTime> pointsByDay = getPointsByDay(data);
+    final Map<DateTime, DailyPracticeTime> pointsByDay =
+        getPointsByDay(data, historyResolution);
 
     return days
         .map(
@@ -77,13 +101,15 @@ mixin ChartTransformer {
 
   static Map<DateTime, DailyPracticeTime> getPointsByDay(
     List<DailyPracticeTime> data,
+    HistoryResolution historyResolution,
   ) {
     final Map<DateTime, DailyPracticeTime> pointsByDay = {};
     for (final point in data) {
       final DateTime pointDate = DateTime.fromMillisecondsSinceEpoch(
         point.timestampMs,
       );
-      pointsByDay[startOfDay(pointDate)] = point;
+      pointsByDay[startOfDate(date: pointDate, resolution: historyResolution)] =
+          point;
     }
     return pointsByDay;
   }
