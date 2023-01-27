@@ -1,4 +1,6 @@
+import 'package:equatable/equatable.dart';
 import 'package:floor/floor.dart';
+import 'package:mobx/mobx.dart';
 
 @entity
 class Session {
@@ -72,9 +74,17 @@ class AggregatedSession {
 """,
   viewName: "dailypracticetime",
 )
-class DailyPracticeTime {
+class DailyPracticeTime with EquatableMixin {
   final int durationMs;
   final int timestampMs;
 
   DailyPracticeTime(this.durationMs, this.timestampMs);
+
+  static DailyPracticeTime from(
+      {required int durationMs, required int timestampMs}) {
+    return DailyPracticeTime(durationMs, timestampMs);
+  }
+
+  @override
+  List<Object?> get props => [durationMs, timestampMs];
 }

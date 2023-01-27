@@ -15,24 +15,9 @@ class HistoryChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Observer(
       builder: (_) {
-        final DateFormat dateFormat =
-            historyStateModel.historyResolution == HistoryResolution.days
-                ? DateFormat("E")
-                : DateFormat("d/MM/yy");
-        final List<MapEntry<int, int>> data = getData();
-
-        final seriesList = [
-          Series<MapEntry<int, int>, String>(
-            id: "Practice Sessions",
-            data: data,
-            domainFn: (MapEntry<int, int> entry, _) {
-              final formattedDate = dateFormat
-                  .format(DateTime.fromMillisecondsSinceEpoch(entry.key));
-              return formattedDate;
-            },
-            measureFn: (MapEntry<int, int> entry, _) => entry.value,
-          )
-        ];
+        final HistoryChartModel chartModel = historyStateModel.chartModel;
+        final DateFormat dateFormat = chartModel.dateFormat;
+        final HistoryChartSeriesList seriesList = chartModel.seriesList;
 
         return BarChart(
           seriesList,
@@ -56,25 +41,5 @@ class HistoryChart extends StatelessWidget {
         );
       },
     );
-  }
-
-  List<MapEntry<int, int>> getData() {
-    final resolution = historyStateModel.historyResolution;
-
-    if (resolution == HistoryResolution.weeks) {
-      return historyStateModel.weeklyPracticeTime
-          .map(
-            (practiceTime) =>
-                MapEntry(practiceTime.timestampMs, practiceTime.durationMs),
-          )
-          .toList();
-    }
-
-    return historyStateModel.dailyPracticeTime
-        .map(
-          (practiceTime) =>
-              MapEntry(practiceTime.timestampMs, practiceTime.durationMs),
-        )
-        .toList();
   }
 }
