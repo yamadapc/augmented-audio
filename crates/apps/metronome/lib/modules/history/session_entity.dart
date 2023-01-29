@@ -1,6 +1,4 @@
-import 'package:equatable/equatable.dart';
 import 'package:floor/floor.dart';
-import 'package:mobx/mobx.dart';
 
 @entity
 class Session {
@@ -74,7 +72,7 @@ class AggregatedSession {
 """,
   viewName: "dailypracticetime",
 )
-class DailyPracticeTime with EquatableMixin {
+class DailyPracticeTime {
   final int durationMs;
   final int timestampMs;
 
@@ -86,5 +84,13 @@ class DailyPracticeTime with EquatableMixin {
   }
 
   @override
-  List<Object?> get props => [durationMs, timestampMs];
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DailyPracticeTime &&
+          runtimeType == other.runtimeType &&
+          durationMs == other.durationMs &&
+          timestampMs == other.timestampMs;
+
+  @override
+  int get hashCode => durationMs.hashCode ^ timestampMs.hashCode;
 }
