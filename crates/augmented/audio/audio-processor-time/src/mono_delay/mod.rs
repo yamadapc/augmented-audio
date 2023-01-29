@@ -28,8 +28,8 @@ use audio_garbage_collector::Shared;
 use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-use audio_processor_traits::{AtomicF32, AudioProcessorSettings, Float};
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
+use audio_processor_traits::{AtomicF32, AudioContext, AudioProcessorSettings, Float};
 use augmented_atomics::AtomicValue;
 use generic_handle::GenericHandle;
 
@@ -175,10 +175,10 @@ where
     lhs + rhs
 }
 
-impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Sample> {
+impl<Sample: Float + From<f32>> MonoAudioProcessor for MonoDelayProcessor<Sample> {
     type SampleType = Sample;
 
-    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+    fn m_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         let buffer_size = (self.max_delay_time.as_secs_f32() * settings.sample_rate()) as usize;
 
         self.handle
@@ -198,19 +198,16 @@ impl<Sample: Float + From<f32>> SimpleAudioProcessor for MonoDelayProcessor<Samp
             .store(0, Ordering::Relaxed);
     }
 
-    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+    fn m_process(
+        &mut self,
+        _context: &mut AudioContext,
+        sample: Self::SampleType,
+    ) -> Self::SampleType {
         let delay_output = self.read();
 
         let write_sample = sample + delay_output * self.handle.feedback.get().into();
         self.write(write_sample);
 
         delay_output
-    }
-
-    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
-        let sample = frame[0];
-        let delay_output = self.s_process(sample);
-        frame[0] = delay_output;
-        frame[1] = delay_output;
     }
 }

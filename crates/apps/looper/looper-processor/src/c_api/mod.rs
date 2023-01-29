@@ -27,7 +27,7 @@ use std::ptr::null;
 
 use basedrop::Shared;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioContext, AudioProcessor, AudioProcessorSettings};
 use augmented_atomics::AtomicValue;
 
 pub use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;
@@ -355,13 +355,14 @@ pub struct ExampleBuffer {
 
 fn get_example_buffer(example_path: &CStr) -> anyhow::Result<ExampleBuffer> {
     let settings = AudioProcessorSettings::default();
+    let mut context = AudioContext::from(settings);
     let example_path: String = example_path.to_str()?.to_string();
     let mut processor = audio_processor_file::AudioFileProcessor::from_path(
         audio_garbage_collector::handle(),
         settings,
         &example_path,
     )?;
-    processor.prepare(settings);
+    processor.prepare(&mut context, settings);
     let channels = processor.buffer().clone();
     let mut output = vec![];
     for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {

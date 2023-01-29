@@ -48,6 +48,7 @@ pub use num::Zero;
 
 pub use atomic_float::{AtomicF32, AtomicF64};
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
+pub use context::AudioContext;
 pub use midi::{MidiEventHandler, MidiMessageLike, NoopMidiEventHandler};
 pub use simple_processor::{BufferProcessor, SimpleAudioProcessor};
 
@@ -55,6 +56,9 @@ pub use simple_processor::{BufferProcessor, SimpleAudioProcessor};
 pub mod atomic_float;
 /// Provides an abstraction for audio buffers that works for [`cpal`] and [`vst`] layouts
 pub mod audio_buffer;
+pub mod combinators;
+/// The "staged context" for audio processors
+pub mod context;
 /// Provides an abstraction for MIDI processing that works for stand-alone and [`vst`] events
 pub mod midi;
 /// Parameters for [`AudioProcessor`]
@@ -147,11 +151,12 @@ pub trait AudioProcessor {
     type SampleType;
 
     /// Prepare for playback based on current audio settings
-    fn prepare(&mut self, _settings: AudioProcessorSettings) {}
+    fn prepare(&mut self, _context: &mut AudioContext, _settings: AudioProcessorSettings) {}
 
     /// Process a block of samples by mutating the input `AudioBuffer`
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     );
 }
@@ -160,21 +165,21 @@ pub trait AudioProcessor {
 ///
 /// Given a known buffer-type, audio-processors can be made into objects using this type.
 pub trait SliceAudioProcessor {
-    fn prepare_slice(&mut self, _settings: AudioProcessorSettings) {}
-    fn process_slice(&mut self, num_channels: usize, data: &mut [f32]);
+    fn prepare_slice(&mut self, _context: &mut AudioContext, _settings: AudioProcessorSettings) {}
+    fn process_slice(&mut self, _context: &mut AudioContext, num_channels: usize, data: &mut [f32]);
 }
 
 impl<Processor> SliceAudioProcessor for Processor
 where
     Processor: AudioProcessor<SampleType = f32>,
 {
-    fn prepare_slice(&mut self, settings: AudioProcessorSettings) {
-        <Processor as AudioProcessor>::prepare(self, settings);
+    fn prepare_slice(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+        <Processor as AudioProcessor>::prepare(self, context, settings);
     }
 
-    fn process_slice(&mut self, num_channels: usize, data: &mut [f32]) {
+    fn process_slice(&mut self, context: &mut AudioContext, num_channels: usize, data: &mut [f32]) {
         let mut buffer = InterleavedAudioBuffer::new(num_channels, data);
-        <Processor as AudioProcessor>::process(self, &mut buffer);
+        <Processor as AudioProcessor>::process(self, context, &mut buffer);
     }
 }
 
@@ -182,8 +187,8 @@ where
 ///
 /// Given a known buffer-type, audio-processors can be made into objects using this type.
 pub trait ObjectAudioProcessor<BufferType> {
-    fn prepare_obj(&mut self, _settings: AudioProcessorSettings) {}
-    fn process_obj(&mut self, data: &mut BufferType);
+    fn prepare_obj(&mut self, _context: &mut AudioContext, _settings: AudioProcessorSettings) {}
+    fn process_obj(&mut self, context: &mut AudioContext, data: &mut BufferType);
 }
 
 impl<SampleType, BufferType, Processor> ObjectAudioProcessor<BufferType> for Processor
@@ -192,12 +197,12 @@ where
     BufferType: AudioBuffer<SampleType = SampleType>,
     Processor: AudioProcessor<SampleType = SampleType>,
 {
-    fn prepare_obj(&mut self, settings: AudioProcessorSettings) {
-        <Processor as AudioProcessor>::prepare(self, settings);
+    fn prepare_obj(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+        <Processor as AudioProcessor>::prepare(self, context, settings);
     }
 
-    fn process_obj(&mut self, data: &mut BufferType) {
-        <Processor as AudioProcessor>::process(self, data);
+    fn process_obj(&mut self, context: &mut AudioContext, data: &mut BufferType) {
+        <Processor as AudioProcessor>::process(self, context, data);
     }
 }
 
@@ -218,7 +223,7 @@ impl<SampleType> NoopAudioProcessor<SampleType> {
 
 impl<SampleType: Send + Copy> SimpleAudioProcessor for NoopAudioProcessor<SampleType> {
     type SampleType = SampleType;
-    fn s_process_frame(&mut self, _frame: &mut [SampleType]) {}
+    fn s_process_frame(&mut self, _context: &mut AudioContext, _frame: &mut [SampleType]) {}
 }
 
 /// An audio-processor which mutes all channels.
@@ -241,6 +246,7 @@ impl<SampleType: Float + Send> AudioProcessor for SilenceAudioProcessor<SampleTy
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         output: &mut BufferType,
     ) {
         for sample in output.slice_mut() {

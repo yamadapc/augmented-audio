@@ -24,8 +24,8 @@ use audio_garbage_collector::{make_shared, Shared};
 use std::marker::PhantomData;
 use std::ops::Mul;
 
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-use audio_processor_traits::{AtomicF32, Float};
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
+use audio_processor_traits::{AtomicF32, AudioContext, Float};
 
 pub struct GainProcessorHandle {
     gain: AtomicF32,
@@ -85,13 +85,13 @@ impl<SampleType> GainProcessor<SampleType> {
     }
 }
 
-impl<SampleType> SimpleAudioProcessor for GainProcessor<SampleType>
+impl<SampleType> MonoAudioProcessor for GainProcessor<SampleType>
 where
     SampleType: Float + Send + Sync + Mul<Output = SampleType>,
 {
     type SampleType = SampleType;
 
-    fn s_process(&mut self, sample: SampleType) -> SampleType {
+    fn m_process(&mut self, _context: &mut AudioContext, sample: SampleType) -> SampleType {
         SampleType::from(self.gain()).unwrap() * sample
     }
 }
@@ -110,7 +110,8 @@ mod test {
         let mut samples = [1., 1., 1., 1., 1., 1.];
         let mut input = InterleavedAudioBuffer::new(1, &mut samples);
 
-        simple_processor::process_buffer(&mut gain, &mut input);
+        let mut context = AudioContext::default();
+        simple_processor::process_buffer(&mut context, &mut gain, &mut input);
 
         for sample in samples {
             assert_f_eq!(sample, 0.8);
@@ -124,7 +125,8 @@ mod test {
         let mut samples = [1., 1., 1., 1., 1., 1.];
         let mut input = InterleavedAudioBuffer::new(1, &mut samples);
 
-        simple_processor::process_buffer(&mut gain, &mut input);
+        let mut context = AudioContext::default();
+        simple_processor::process_buffer(&mut context, &mut gain, &mut input);
 
         for sample in samples {
             assert_f_eq!(sample, 0.8);

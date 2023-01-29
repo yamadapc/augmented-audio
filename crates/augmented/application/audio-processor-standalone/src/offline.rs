@@ -24,8 +24,8 @@ use itertools::Itertools;
 // THE SOFTWARE.
 use audio_garbage_collector::Handle;
 use audio_processor_traits::{
-    audio_buffer::VecAudioBuffer, AudioBuffer, AudioProcessor, AudioProcessorSettings,
-    MidiEventHandler, MidiMessageLike,
+    audio_buffer::VecAudioBuffer, AudioBuffer, AudioContext, AudioProcessor,
+    AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
 };
 use augmented_midi::{
     MIDIFile, MIDIFileChunk, MIDIMessage, MIDIMessageNote, MIDITrackEvent, MIDITrackInner,
@@ -74,6 +74,7 @@ where
     let buffer_size = 16;
     let sample_rate = 44100.0;
     let audio_processor_settings = AudioProcessorSettings::new(sample_rate, 2, 2, buffer_size);
+    let mut context = AudioContext::from(audio_processor_settings);
 
     let audio_file_settings = audio_processor_file::InMemoryAudioFile::from_path(input_path)
         .expect("Failed to read input file");
@@ -85,7 +86,7 @@ where
         audio_file_settings,
         audio_processor_settings,
     );
-    audio_file_processor.prepare(audio_processor_settings);
+    audio_file_processor.prepare(&mut context, audio_processor_settings);
     let audio_file_buffer = audio_file_processor.buffer();
     let audio_file_total_samples = audio_file_buffer[0].len();
 
@@ -105,7 +106,8 @@ where
     let mut buffer = VecAudioBuffer::new_with(buffer, 2, buffer_size);
 
     log::info!("Setting-up audio processor");
-    app.processor().prepare(audio_processor_settings);
+    app.processor()
+        .prepare(&mut context, audio_processor_settings);
 
     let midi_input_blocks = midi_input_file.map(|midi_input_file| {
         build_midi_input_blocks(&audio_processor_settings, total_blocks, midi_input_file)
@@ -117,7 +119,7 @@ where
             *sample = 0.0;
         }
 
-        audio_file_processor.process(&mut buffer);
+        audio_file_processor.process(&mut context, &mut buffer);
 
         if let Some(midi) = app.midi() {
             if let Some(midi_input_blocks) = &midi_input_blocks {
@@ -129,7 +131,7 @@ where
             }
         }
 
-        app.processor().process(&mut buffer);
+        app.processor().process(&mut context, &mut buffer);
         output_file_processor.process(buffer.slice_mut());
     }
 }

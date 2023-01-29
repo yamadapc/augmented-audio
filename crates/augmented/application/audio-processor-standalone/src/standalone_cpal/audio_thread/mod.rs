@@ -26,7 +26,8 @@ use std::sync::mpsc::{Receiver, Sender};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use crate::standalone_cpal::output_handling::BuildOutputStreamParams;
+use audio_processor_traits::{AudioContext, AudioProcessor, AudioProcessorSettings};
 
 use crate::StandaloneProcessor;
 
@@ -90,8 +91,10 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
         num_output_channels,
         buffer_size,
     );
+    let mut context = AudioContext::from(settings);
+
     log::info!("Preparing processor {:?}", settings);
-    app.processor().prepare(settings);
+    app.processor().prepare(&mut context, settings);
 
     log::info!("Sending back configuration");
     configuration_tx
@@ -187,15 +190,17 @@ fn audio_thread_run_processor<D: DeviceTrait>(
             })
             // "invert" Option<Result<...>> to Result<Option<...>, ...>
             .map_or(Ok(None), |v| v.map(Some))?;
-        let output_stream = output_handling::build_output_stream(
+        let audio_context = AudioContext::default();
+        let output_stream = output_handling::build_output_stream(BuildOutputStreamParams {
             app,
             midi_context,
+            audio_context,
             num_output_channels,
             num_input_channels,
-            consumer,
+            input_consumer: consumer,
             output_device,
             output_config,
-        )?;
+        })?;
 
         Ok((input_stream, output_stream))
     };

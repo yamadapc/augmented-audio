@@ -20,36 +20,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use atomic_queue::Queue;
-use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
-use basedrop::{Handle, Shared};
 
-pub struct BufferAnalyserProcessor {
-    buffer: Shared<Queue<f32>>,
-}
+use audio_processor_time::MonoDelayProcessor;
+use audio_processor_traits::BufferProcessor;
 
-impl BufferAnalyserProcessor {
-    pub fn new(handle: &Handle) -> Self {
-        BufferAnalyserProcessor {
-            buffer: Shared::new(handle, Queue::new((5. * 4410.0) as usize)),
-        }
-    }
-
-    pub fn queue(&self) -> Shared<Queue<f32>> {
-        self.buffer.clone()
-    }
-}
-
-impl AudioProcessor for BufferAnalyserProcessor {
-    type SampleType = f32;
-
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
-        for sample in data.slice().chunks(data.num_channels()) {
-            self.buffer.push(sample[0]);
-        }
-    }
-}
+audio_processor_standalone::standalone_clap!(BufferProcessor<MonoDelayProcessor<f32>>);

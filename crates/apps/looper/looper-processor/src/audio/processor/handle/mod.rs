@@ -777,7 +777,7 @@ mod test {
     use assert_no_alloc::assert_no_alloc;
     use audio_processor_testing_helpers::assert_f_eq;
 
-    use audio_processor_traits::AudioProcessor;
+    use audio_processor_traits::{AudioContext, AudioProcessor};
 
     use crate::LooperProcessor;
 
@@ -993,13 +993,15 @@ mod test {
         handle.play();
 
         let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
-        processor.prepare(AudioProcessorSettings {
+        let settings = AudioProcessorSettings {
             output_channels: 1,
             block_size: 4,
             ..Default::default()
-        });
+        };
+        let mut context = AudioContext::from(settings);
+        processor.prepare(&mut context, settings);
 
-        processor.process(&mut buffer);
+        processor.process(&mut context, &mut buffer);
         assert_eq!(buffer.slice(), &[1.0, 2.0, 3.0, 4.0]);
     }
 

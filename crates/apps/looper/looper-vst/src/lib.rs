@@ -29,7 +29,9 @@ use vst::plugin_main;
 
 use audio_parameter_store::ParameterStore;
 use audio_processor_traits::audio_buffer::vst::VSTBufferHandler;
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, MidiEventHandler};
+use audio_processor_traits::{
+    AudioContext, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
+};
 use augmented_iced_editor::IcedEditor;
 use looper_processor::{LooperOptions, MultiTrackLooper};
 
@@ -81,19 +83,22 @@ impl Plugin for LoopiPlugin {
 
     fn set_sample_rate(&mut self, rate: f32) {
         self.settings.set_sample_rate(rate);
-        self.processor.prepare(self.settings);
+        let mut context = AudioContext::from(self.settings);
+        self.processor.prepare(&mut context, self.settings);
     }
 
     fn set_block_size(&mut self, size: i64) {
         self.settings.set_block_size(size as usize);
-        self.processor.prepare(self.settings);
+        let mut context = AudioContext::from(self.settings);
+        self.processor.prepare(&mut context, self.settings);
         self.buffer_handler.set_block_size(size as usize);
     }
 
     fn process(&mut self, vst_buffer: &mut vst::buffer::AudioBuffer<f32>) {
+        let mut context = AudioContext::from(self.settings);
         let processor = &mut self.processor;
         self.buffer_handler.with_buffer(vst_buffer, |buffer| {
-            processor.process(buffer);
+            processor.process(&mut context, buffer);
         });
     }
 

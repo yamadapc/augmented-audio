@@ -24,8 +24,8 @@ use num::FromPrimitive;
 use rimd::Status;
 
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, BufferProcessor, MidiEventHandler,
-    MidiMessageLike,
+    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, BufferProcessor,
+    MidiEventHandler, MidiMessageLike,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 use voice::Voice;
@@ -63,15 +63,16 @@ impl Synthesizer {
 impl AudioProcessor for Synthesizer {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
         for voice in &mut self.voices {
-            voice.prepare(settings);
+            voice.prepare(context, settings);
         }
-        self.filter.prepare(settings);
+        self.filter.prepare(context, settings);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         // Silence the input
@@ -81,10 +82,10 @@ impl AudioProcessor for Synthesizer {
 
         // Produce output for 4 voices
         for voice in &mut self.voices {
-            voice.process(data);
+            voice.process(context, data);
         }
 
-        self.filter.process(data);
+        self.filter.process(context, data);
     }
 }
 

@@ -31,7 +31,7 @@ use audio_garbage_collector::{Handle, Shared};
 use audio_processor_standalone_midi::host::MidiMessageEntry;
 use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, BufferProcessor,
+    AtomicF32, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, BufferProcessor,
 };
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
@@ -190,7 +190,7 @@ impl<PluginInstanceT: Plugin> TestHostProcessorImpl<PluginInstanceT> {
 impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginInstanceT> {
     type SampleType = f32;
 
-    fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext, audio_settings: AudioProcessorSettings) {
         log::info!("Prepared TestHostProcessor id={}", self.id);
         self.plugin_instance
             .set_block_size(audio_settings.block_size() as i64);
@@ -199,14 +199,15 @@ impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginIns
         self.audio_settings = audio_settings;
         self.buffer_handler.prepare(&audio_settings);
         if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
-            audio_file_processor.prepare(audio_settings);
+            audio_file_processor.prepare(context, audio_settings);
         }
-        self.volume_meter_processor.prepare(audio_settings);
-        self.running_rms_processor.prepare(audio_settings);
+        self.volume_meter_processor.prepare(context, audio_settings);
+        self.running_rms_processor.prepare(context, audio_settings);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         output: &mut BufferType,
     ) {
         let num_channels = self.audio_settings.input_channels();
@@ -216,7 +217,7 @@ impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginIns
 
         // Input generation section
         if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
-            audio_file_processor.process(output);
+            audio_file_processor.process(context, output);
         }
 
         // VST processing section
@@ -237,8 +238,8 @@ impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginIns
         }
 
         // Volume meter
-        self.volume_meter_processor.process(output);
-        self.running_rms_processor.process(output);
+        self.volume_meter_processor.process(context, output);
+        self.running_rms_processor.process(context, output);
     }
 }
 
@@ -367,7 +368,8 @@ mod test {
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 1000.0;
         settings.block_size = 64;
-        host.prepare(settings);
+        let mut context = AudioContext::from(settings);
+        host.prepare(&mut context, settings);
     }
 
     #[test]

@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use rustfft::num_complex::Complex;
 
-use audio_processor_traits::{AudioBuffer, SimpleAudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, SimpleAudioProcessor};
 use dynamic_thresholds::{DynamicThresholds, DynamicThresholdsParams};
 use power_change::{PowerOfChangeFrames, PowerOfChangeParams};
 
@@ -352,8 +352,9 @@ fn get_fft_frames<BufferType: AudioBuffer<SampleType = f32>>(
     });
     let mut fft_frames = vec![];
 
+    let mut context = AudioContext::default();
     for frame in data.frames_mut() {
-        fft.s_process_frame(frame);
+        fft.s_process_frame(&mut context, frame);
         if fft.has_changed() {
             fft_frames.push(fft.buffer().clone());
         }
@@ -383,7 +384,9 @@ mod test {
             input_file_path,
         )
         .unwrap();
-        input.prepare(settings);
+        let mut context = AudioContext::from(settings);
+
+        input.prepare(&mut context, settings);
         let input_buffer = input.buffer();
         let mut buffer = VecAudioBuffer::new();
 

@@ -26,7 +26,7 @@ use std::time::Duration;
 use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 
 pub struct EnvelopeHandle {
     pub adsr_envelope: augmented_adsr_envelope::Envelope,
@@ -56,7 +56,7 @@ impl Default for EnvelopeProcessor {
 impl AudioProcessor for EnvelopeProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.handle
             .adsr_envelope
             .set_sample_rate(settings.sample_rate());
@@ -64,6 +64,7 @@ impl AudioProcessor for EnvelopeProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         if !self.handle.enabled.load(Ordering::Relaxed) {

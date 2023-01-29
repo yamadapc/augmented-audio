@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{AudioBuffer, AudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 
 struct FeedbackProcessor;
 
@@ -29,6 +29,7 @@ impl AudioProcessor for FeedbackProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         _data: &mut BufferType,
     ) {
     }

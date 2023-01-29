@@ -29,7 +29,7 @@ use std::time::Duration;
 use crate::generators::sine_buffer;
 use crate::util::rms_level;
 use audio_processor_traits::audio_buffer::VecAudioBuffer;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 pub use plotters::prelude::*;
 
 struct FrequencyResponseResult {
@@ -49,7 +49,8 @@ where
     let mut input_buffer = VecAudioBuffer::from(input_buffer);
 
     let input_rms = rms_level(input_buffer.slice());
-    audio_processor.process(&mut input_buffer);
+    let mut context = AudioContext::from(AudioProcessorSettings::new(sample_rate, 1, 1, 512));
+    audio_processor.process(&mut context, &mut input_buffer);
     let output_rms = rms_level(input_buffer.slice());
 
     let relative_output_level = output_rms / input_rms;
@@ -114,7 +115,8 @@ pub fn generate_frequency_response_plot<Processor>(
     settings.sample_rate = 22050.0;
     settings.input_channels = 1;
     settings.output_channels = 1;
-    audio_processor.prepare(settings);
+    let mut context = AudioContext::from(settings);
+    audio_processor.prepare(&mut context, settings);
     let sample_rate = settings.sample_rate;
 
     let frequencies = get_test_frequencies();

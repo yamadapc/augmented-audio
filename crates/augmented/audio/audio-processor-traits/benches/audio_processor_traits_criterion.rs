@@ -191,6 +191,23 @@ fn criterion_benchmark(c: &mut Criterion) {
             });
         },
     );
+
+    group.bench_function("Copy 512 samples to buffer", |b| {
+        let mut buffer_l = sine_wave_vec(512);
+        let mut buffer_r = sine_wave_vec(512);
+        let mut vec_buffer = VecAudioBuffer::new_with_size(2, 2000, 0.0);
+
+        b.iter(|| {
+            for sample_index in 0..buffer_l.len() {
+                vec_buffer.set(0, sample_index, buffer_l[sample_index]);
+                vec_buffer.set(1, sample_index, buffer_r[sample_index]);
+            }
+
+            black_box(&mut vec_buffer);
+            black_box(&mut buffer_l);
+            black_box(&mut buffer_r);
+        });
+    });
 }
 
 fn build_sine_audio_buffer() -> VecAudioBuffer<f32> {

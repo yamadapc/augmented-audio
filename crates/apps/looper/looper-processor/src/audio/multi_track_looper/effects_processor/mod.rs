@@ -32,7 +32,8 @@ use audio_processor_time::FreeverbProcessor;
 use audio_processor_time::MonoDelayProcessor;
 use audio_processor_traits::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
 use audio_processor_traits::{
-    simple_processor, AudioBuffer, AudioProcessor, AudioProcessorSettings, SliceAudioProcessor,
+    simple_processor, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
+    SliceAudioProcessor,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 
@@ -105,7 +106,8 @@ impl EffectsProcessorHandle {
         };
 
         let settings = *self.settings.get().deref();
-        processor.prepare_slice(settings);
+        let mut context = AudioContext::from(settings);
+        processor.prepare_slice(&mut context, settings);
         let node_idx = self.graph_handle.add_node(NodeType::Buffer(processor));
         let state = EffectNodeState {
             handle,
@@ -180,16 +182,17 @@ impl EffectsProcessor {
 impl AudioProcessor for EffectsProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
         log::debug!("Preparing EffectsProcessor");
-        self.graph.prepare(settings);
+        self.graph.prepare(context, settings);
         self.handle.settings.set(make_shared(settings));
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         data: &mut BufferType,
     ) {
-        self.graph.process(data)
+        self.graph.process(context, data)
     }
 }

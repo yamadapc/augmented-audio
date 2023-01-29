@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{Float, SimpleAudioProcessor};
+use audio_processor_traits::{AudioContext, Float, SimpleAudioProcessor};
 use std::marker::PhantomData;
 use std::ops::AddAssign;
 
@@ -51,7 +51,7 @@ where
 {
     type SampleType = SampleType;
 
-    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
         if frame.is_empty() {
             return;
         }
@@ -79,8 +79,9 @@ mod test {
         let mut mono = StereoToMonoProcessor::new();
         let mut samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
         let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut mono, &mut input);
+        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let sample = *input.get(0, sample_index);
@@ -93,8 +94,9 @@ mod test {
         let mut mono = StereoToMonoProcessor::new();
         let mut samples = [1., 1., 1., 1., 1., 1.];
         let mut input = InterleavedAudioBuffer::new(1, &mut samples);
+        let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut mono, &mut input);
+        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let sample = *input.get(0, sample_index);
@@ -107,7 +109,8 @@ mod test {
         let mut mono = StereoToMonoProcessor::new();
         let mut samples: [f32; 0] = [];
         let mut input = InterleavedAudioBuffer::new(1, &mut samples);
+        let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut mono, &mut input);
+        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
     }
 }

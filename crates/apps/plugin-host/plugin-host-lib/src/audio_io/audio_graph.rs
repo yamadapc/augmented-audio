@@ -27,7 +27,7 @@ use audio_processor_graph::{
     AudioProcessorGraph, AudioProcessorGraphHandle, DefaultProcessor, NodeIndex, NodeType,
 };
 
-use audio_processor_traits::AudioProcessor;
+use audio_processor_traits::{AudioContext, AudioProcessor};
 
 use crate::audio_io::audio_thread;
 use crate::audio_io::audio_thread::{AudioThread, AudioThreadProcessor};
@@ -66,7 +66,9 @@ impl Handler<SetupGraphMessage> for AudioGraphManager {
 
         let mut audio_graph_processor = AudioProcessorGraph::default();
         // TODO: This is wrong. The graph should negotiate settings with the audio-thread.
-        audio_graph_processor.prepare(AudioThread::default_settings().unwrap());
+        let settings = AudioThread::default_settings().unwrap();
+        let mut context = AudioContext::from(settings);
+        audio_graph_processor.prepare(&mut context, settings);
 
         self.input_idx = Some(audio_graph_processor.input());
         self.output_idx = Some(audio_graph_processor.output());
