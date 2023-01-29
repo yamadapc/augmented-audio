@@ -105,7 +105,7 @@ class _TempoControlState extends State<TempoControl> {
           SizedBox(
             width: double.infinity,
             child: CupertinoSlider(
-              value: Math.min(Math.max(30, model.tempo), 250),
+              value: Math.min(Math.max(1, model.tempo), 350),
               onChanged: (value) {
                 widget.stateController.setTempo(value);
               }, // onTempoChanged,
@@ -115,8 +115,8 @@ class _TempoControlState extends State<TempoControl> {
                   name: "TempoControl__sliderTempoChanged",
                 );
               },
-              min: 30,
-              max: 250,
+              min: 1,
+              max: 350,
             ),
           )
         ],
@@ -126,7 +126,7 @@ class _TempoControlState extends State<TempoControl> {
 
   void onTempoTextChanged(String value) {
     _onChangeDebounce.run(() {
-      final double tempo = Math.max(Math.min(double.parse(value), 250), 30);
+      final double tempo = Math.max(Math.min(double.parse(value), 350), 1);
       widget.stateController.setTempo(tempo);
 
       final analytics = FirebaseAnalytics.instance;
