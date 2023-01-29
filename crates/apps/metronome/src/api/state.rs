@@ -109,6 +109,7 @@ mod test {
 
     #[test]
     fn test_create_new_state() {
+        let _lock = TEST_LOCK.lock().unwrap();
         let _state = State::new();
     }
 
