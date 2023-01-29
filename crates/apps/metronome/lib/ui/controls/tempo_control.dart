@@ -1,10 +1,9 @@
-import 'dart:io';
-
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/ui/controls/tempo_control/keyboard_overlay.dart';
 import 'package:metronome/ui/utils/debounce.dart';
 import 'package:mobx/mobx.dart';
 
@@ -23,6 +22,7 @@ class TempoControl extends StatefulWidget {
 class _TempoControlState extends State<TempoControl> {
   late TextEditingController _textEditingController;
   final Debounce _onChangeDebounce = Debounce(1000);
+  final FocusNode _inputFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -36,12 +36,21 @@ class _TempoControlState extends State<TempoControl> {
         text: widget.stateController.model.tempo.toStringAsFixed(0),
       );
     });
+
+    _inputFocusNode.addListener(() {
+      if (_inputFocusNode.hasFocus) {
+        KeyboardOverlay.showOverlay(context);
+      } else {
+        KeyboardOverlay.removeOverlay();
+      }
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
     _onChangeDebounce.cancel();
+    _inputFocusNode.dispose();
   }
 
   @override
@@ -68,7 +77,9 @@ class _TempoControlState extends State<TempoControl> {
               Expanded(
                 child: CupertinoTextField.borderless(
                   autocorrect: false,
-                  enabled: Platform.isMacOS,
+                  keyboardType: TextInputType.number,
+                  focusNode: _inputFocusNode,
+                  textInputAction: TextInputAction.done,
                   style: const TextStyle(fontSize: 80.0),
                   controller: _textEditingController,
                   textAlign: TextAlign.center,
