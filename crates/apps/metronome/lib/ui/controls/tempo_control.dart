@@ -39,7 +39,7 @@ class _TempoControlState extends State<TempoControl> {
 
     _inputFocusNode.addListener(() {
       if (_inputFocusNode.hasFocus) {
-        KeyboardOverlay.showOverlay(context);
+        KeyboardOverlay.showOverlay(context, _inputFocusNode.parent);
       } else {
         KeyboardOverlay.removeOverlay();
       }
@@ -79,6 +79,9 @@ class _TempoControlState extends State<TempoControl> {
                   autocorrect: false,
                   keyboardType: TextInputType.number,
                   focusNode: _inputFocusNode,
+                  onSubmitted: (value) {
+                    _inputFocusNode.parent?.requestFocus();
+                  },
                   textInputAction: TextInputAction.done,
                   style: const TextStyle(fontSize: 80.0),
                   controller: _textEditingController,

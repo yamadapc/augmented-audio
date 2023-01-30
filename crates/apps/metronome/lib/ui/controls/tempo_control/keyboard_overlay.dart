@@ -25,18 +25,19 @@ import 'package:metronome/ui/controls/tempo_control/input_done_view.dart';
 mixin KeyboardOverlay {
   static OverlayEntry? _overlayEntry;
 
-  static void showOverlay(BuildContext context) {
+  static void showOverlay(BuildContext context, FocusNode? targetFocusNode) {
     if (_overlayEntry != null) {
       return;
     }
 
-    OverlayState? overlayState = Overlay.of(context);
+    final OverlayState? overlayState = Overlay.of(context);
     _overlayEntry = OverlayEntry(builder: (context) {
       return Positioned(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-          right: 0.0,
-          left: 0.0,
-          child: const InputDoneView());
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        right: 0.0,
+        left: 0.0,
+        child: InputDoneView(targetFocusNode: targetFocusNode),
+      );
     });
 
     overlayState!.insert(_overlayEntry!);

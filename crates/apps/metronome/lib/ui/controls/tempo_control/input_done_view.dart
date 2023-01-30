@@ -22,7 +22,9 @@
 import 'package:flutter/cupertino.dart';
 
 class InputDoneView extends StatelessWidget {
-  const InputDoneView({Key? key}) : super(key: key);
+  final FocusNode? targetFocusNode;
+
+  const InputDoneView({Key? key, this.targetFocusNode}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +39,19 @@ class InputDoneView extends StatelessWidget {
               padding:
                   const EdgeInsets.only(right: 24.0, top: 8.0, bottom: 8.0),
               onPressed: () {
-                FocusScope.of(context).requestFocus(FocusNode());
+                if (targetFocusNode != null) {
+                  targetFocusNode!.requestFocus();
+                } else {
+                  final focusScope = FocusScope.of(context);
+                  focusScope.focusedChild?.parent?.requestFocus();
+                }
               },
-              child: const Text("Done",
-                  style: TextStyle(
-                    color: CupertinoColors.activeBlue,
-                  )),
+              child: const Text(
+                "Done",
+                style: TextStyle(
+                  color: CupertinoColors.activeBlue,
+                ),
+              ),
             ),
           )),
     );
