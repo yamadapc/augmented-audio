@@ -46,6 +46,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
             : buildMacosThemeDataDark(context),
         darkTheme: buildMacosThemeDataDark(context),
         home: const HomePage(title: 'Metronome'),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

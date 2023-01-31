@@ -5,6 +5,7 @@
         <entry key="_fe_analyzer_shared">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-52.0.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/_fe_analyzer_shared-47.0.0/lib" />
             </list>
           </value>
@@ -12,13 +13,14 @@
         <entry key="_flutterfire_internals">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/_flutterfire_internals-1.0.12/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/_flutterfire_internals-1.0.12/lib" />
             </list>
           </value>
         </entry>
         <entry key="analyzer">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-5.4.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/analyzer-4.7.0/lib" />
             </list>
           </value>
@@ -27,6 +29,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/archive-3.3.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/archive-3.3.2/lib" />
             </list>
           </value>
         </entry>
@@ -34,6 +37,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/args-2.3.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/args-2.3.2/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/args-2.3.0/lib" />
             </list>
           </value>
@@ -42,6 +46,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/async-2.9.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/async-2.10.0/lib" />
             </list>
           </value>
         </entry>
@@ -49,12 +54,14 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/boolean_selector-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/boolean_selector-2.1.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="build">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/build-2.3.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/build-2.3.1/lib" />
             </list>
           </value>
@@ -63,12 +70,14 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/build_cli_annotations-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/build_cli_annotations-2.1.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="build_config">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/build_config-1.1.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/build_config-1.1.0/lib" />
             </list>
           </value>
@@ -76,6 +85,7 @@
         <entry key="build_daemon">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/build_daemon-3.1.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/build_daemon-3.1.0/lib" />
             </list>
           </value>
@@ -83,6 +93,7 @@
         <entry key="build_resolvers">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/build_resolvers-2.1.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/build_resolvers-2.0.10/lib" />
             </list>
           </value>
@@ -90,6 +101,7 @@
         <entry key="build_runner">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/build_runner-2.3.3/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/build_runner-2.2.1/lib" />
             </list>
           </value>
@@ -97,6 +109,7 @@
         <entry key="build_runner_core">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/build_runner_core-7.2.7/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/build_runner_core-7.2.4/lib" />
             </list>
           </value>
@@ -104,6 +117,7 @@
         <entry key="built_collection">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/built_collection-5.1.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/built_collection-5.1.1/lib" />
             </list>
           </value>
@@ -111,8 +125,9 @@
         <entry key="built_value">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/built_value-8.4.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/built_value-8.4.3/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/built_value-8.1.3/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/built_value-8.4.1/lib" />
             </list>
           </value>
         </entry>
@@ -120,6 +135,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/characters-1.2.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/characters-1.2.1/lib" />
             </list>
           </value>
         </entry>
@@ -133,20 +149,21 @@
         <entry key="charts_common">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/charts_common-0.12.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/charts_common-0.12.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="charts_flutter">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/charts_flutter-0.12.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/charts_flutter-0.12.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="checked_yaml">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/checked_yaml-2.0.2/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/checked_yaml-2.0.1/lib" />
             </list>
           </value>
@@ -155,6 +172,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/cli_util-0.3.5/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/cli_util-0.3.5/lib" />
             </list>
           </value>
         </entry>
@@ -162,12 +180,14 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/clock-1.1.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/clock-1.1.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="code_builder">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/code_builder-4.4.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/code_builder-4.3.0/lib" />
             </list>
           </value>
@@ -176,6 +196,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/collection-1.16.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/collection-1.17.0/lib" />
             </list>
           </value>
         </entry>
@@ -183,6 +204,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/colorize-3.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/colorize-3.0.0/lib" />
             </list>
           </value>
         </entry>
@@ -190,6 +212,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/convert-3.0.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/convert-3.1.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/convert-3.0.1/lib" />
             </list>
           </value>
@@ -198,6 +221,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/crypto-3.0.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/crypto-3.0.2/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/crypto-3.0.1/lib" />
             </list>
           </value>
@@ -206,6 +230,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-1.0.5/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/cupertino_icons-1.0.5/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-1.0.4/lib" />
             </list>
           </value>
@@ -213,6 +238,7 @@
         <entry key="dart_style">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/dart_style-2.2.4/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/dart_style-2.2.4/lib" />
             </list>
           </value>
@@ -220,7 +246,7 @@
         <entry key="dbus">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/dbus-0.7.8/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/dbus-0.7.8/lib" />
             </list>
           </value>
         </entry>
@@ -231,10 +257,18 @@
             </list>
           </value>
         </entry>
+        <entry key="equatable">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/equatable-2.0.5/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="fake_async">
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/fake_async-1.3.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/fake_async-1.3.1/lib" />
             </list>
           </value>
         </entry>
@@ -242,6 +276,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/ffi-2.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/ffi-2.0.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/ffi-1.1.2/lib" />
             </list>
           </value>
@@ -250,6 +285,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/ffigen-6.1.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/ffigen-6.1.2/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/ffigen-4.1.2/lib" />
             </list>
           </value>
@@ -258,6 +294,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/file-6.1.4/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/file-6.1.4/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/file-6.1.2/lib" />
             </list>
           </value>
@@ -272,71 +309,72 @@
         <entry key="firebase_analytics">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-10.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_analytics-10.1.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="firebase_analytics_platform_interface">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics_platform_interface-3.3.17/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_analytics_platform_interface-3.3.17/lib" />
             </list>
           </value>
         </entry>
         <entry key="firebase_analytics_web">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics_web-0.5.1+8/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_analytics_web-0.5.1+8/lib" />
             </list>
           </value>
         </entry>
         <entry key="firebase_core">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-2.4.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_core-2.4.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="firebase_core_platform_interface">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core_platform_interface-4.5.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_core_platform_interface-4.5.2/lib" />
             </list>
           </value>
         </entry>
         <entry key="firebase_core_web">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core_web-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_core_web-2.1.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="fixnum">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/fixnum-1.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/fixnum-1.0.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/fixnum-1.0.0/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/fixnum-1.0.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="floor">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/floor-1.3.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/floor-1.4.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="floor_annotation">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/floor_annotation-1.3.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/floor_annotation-1.4.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="floor_generator">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/floor_generator-1.3.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/floor_generator-1.4.1/lib" />
             </list>
           </value>
         </entry>
@@ -344,42 +382,50 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/packages/flutter/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/flutter/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="flutter_driver">
+          <value>
+            <list>
+              <option value="/opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/flutter_driver/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_launcher_icons">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_launcher_icons-0.10.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_launcher_icons-0.10.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_lints">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-1.0.4/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-2.0.1/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-1.0.4/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_local_notifications">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications-11.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-11.0.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_local_notifications_linux">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications_linux-1.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-1.0.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_local_notifications_platform_interface">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications_platform_interface-6.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-6.0.0/lib" />
             </list>
           </value>
         </entry>
@@ -387,6 +433,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_mobx-2.0.6+4/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_mobx-2.0.6+5/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_mobx-2.0.2/lib" />
             </list>
           </value>
@@ -394,7 +441,7 @@
         <entry key="flutter_native_timezone">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_native_timezone-2.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_native_timezone-2.0.0/lib" />
             </list>
           </value>
         </entry>
@@ -408,9 +455,9 @@
         <entry key="flutter_rust_bridge">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_rust_bridge-1.46.0/lib" />
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_rust_bridge-1.6.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_rust_bridge-1.48.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_rust_bridge-1.62.0/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_rust_bridge-1.6.0/lib" />
             </list>
           </value>
         </entry>
@@ -418,6 +465,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-1.1.5/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_svg-1.1.6/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib" />
             </list>
           </value>
@@ -426,12 +474,14 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/packages/flutter_test/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/flutter_test/lib" />
             </list>
           </value>
         </entry>
         <entry key="flutter_web_plugins">
           <value>
             <list>
+              <option value="/opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/flutter_web_plugins/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/packages/flutter_web_plugins/lib" />
             </list>
           </value>
@@ -439,7 +489,15 @@
         <entry key="frontend_server_client">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/frontend_server_client-3.2.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/frontend_server_client-2.1.3/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="fuchsia_remote_debug_protocol">
+          <value>
+            <list>
+              <option value="/opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/fuchsia_remote_debug_protocol/lib" />
             </list>
           </value>
         </entry>
@@ -447,6 +505,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/glob-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/glob-2.1.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/glob-2.0.2/lib" />
             </list>
           </value>
@@ -461,6 +520,7 @@
         <entry key="graphs">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/graphs-2.2.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/graphs-2.1.0/lib" />
             </list>
           </value>
@@ -469,6 +529,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/graphx-1.0.4/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/graphx-1.0.7/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/graphx-1.0.3/lib" />
             </list>
           </value>
@@ -477,6 +538,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http-0.13.5/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/http-0.13.5/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http-0.13.4/lib" />
             </list>
           </value>
@@ -484,8 +546,9 @@
         <entry key="http_multi_server">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http_multi_server-3.2.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/http_multi_server-3.2.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http_multi_server-3.0.1/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http_multi_server-3.2.1/lib" />
             </list>
           </value>
         </entry>
@@ -493,6 +556,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http_parser-4.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/http_parser-4.0.2/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http_parser-4.0.0/lib" />
             </list>
           </value>
@@ -500,20 +564,28 @@
         <entry key="image">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/image-3.2.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/image-3.3.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="integration_test">
+          <value>
+            <list>
+              <option value="/opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/integration_test/lib" />
             </list>
           </value>
         </entry>
         <entry key="intl">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/intl-0.17.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/intl-0.17.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="io">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/io-1.0.4/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/io-1.0.3/lib" />
             </list>
           </value>
@@ -522,6 +594,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/js-0.6.4/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/js-0.6.5/lib" />
             </list>
           </value>
         </entry>
@@ -529,6 +602,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/json_annotation-4.7.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/json_annotation-4.8.0/lib" />
             </list>
           </value>
         </entry>
@@ -542,29 +616,29 @@
         <entry key="lint">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lint-2.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/lint-2.0.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="lints">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-1.0.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-2.0.0/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-1.0.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="lists">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lists-1.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/lists-1.0.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="logger">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/logger-1.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/logger-1.1.0/lib" />
             </list>
           </value>
         </entry>
@@ -572,6 +646,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/logging-1.0.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/logging-1.1.1/lib" />
             </list>
           </value>
         </entry>
@@ -579,6 +654,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/matcher-0.12.12/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/matcher-0.12.13/lib" />
             </list>
           </value>
         </entry>
@@ -586,6 +662,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/material_color_utilities-0.1.5/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/material_color_utilities-0.2.0/lib" />
             </list>
           </value>
         </entry>
@@ -593,6 +670,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/meta-1.8.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/meta-1.8.0/lib" />
             </list>
           </value>
         </entry>
@@ -600,6 +678,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mime-1.0.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/mime-1.0.4/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mime-1.0.1/lib" />
             </list>
           </value>
@@ -608,12 +687,14 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mobx-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/mobx-2.1.3/lib" />
             </list>
           </value>
         </entry>
         <entry key="mobx_codegen">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/mobx_codegen-2.1.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mobx_codegen-2.0.7+3/lib" />
             </list>
           </value>
@@ -621,15 +702,16 @@
         <entry key="mockito">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mockito-5.3.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/mockito-5.3.2/lib" />
             </list>
           </value>
         </entry>
         <entry key="package_config">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/package_config-2.1.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-2.0.2/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-2.1.0/lib" />
             </list>
           </value>
         </entry>
@@ -637,6 +719,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path-1.8.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path-1.8.2/lib" />
             </list>
           </value>
         </entry>
@@ -644,6 +727,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_drawing-1.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_drawing-1.0.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_drawing-0.5.1+1/lib" />
             </list>
           </value>
@@ -652,6 +736,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_parsing-1.0.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_parsing-1.0.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_parsing-0.2.1/lib" />
             </list>
           </value>
@@ -659,21 +744,21 @@
         <entry key="path_provider_linux">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-2.1.7/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_linux-2.1.7/lib" />
             </list>
           </value>
         </entry>
         <entry key="path_provider_platform_interface">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_platform_interface-2.0.4/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_platform_interface-2.0.5/lib" />
             </list>
           </value>
         </entry>
         <entry key="path_provider_windows">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_windows-2.1.3/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_windows-2.1.3/lib" />
             </list>
           </value>
         </entry>
@@ -681,6 +766,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/petitparser-5.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/petitparser-5.1.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/petitparser-4.4.0/lib" />
             </list>
           </value>
@@ -688,14 +774,14 @@
         <entry key="platform">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/platform-3.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/platform-3.1.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="plugin_platform_interface">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/plugin_platform_interface-2.1.3/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/plugin_platform_interface-2.1.3/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/plugin_platform_interface-2.0.2/lib" />
             </list>
           </value>
@@ -704,6 +790,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pool-1.5.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/pool-1.5.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pool-1.5.0/lib" />
             </list>
           </value>
@@ -711,31 +798,33 @@
         <entry key="process">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/process-4.2.4/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/process-4.2.4/lib" />
             </list>
           </value>
         </entry>
         <entry key="pub_semver">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pub_semver-2.1.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/pub_semver-2.1.3/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pub_semver-2.1.0/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pub_semver-2.1.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="pubspec_parse">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pubspec_parse-1.2.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/pubspec_parse-1.2.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pubspec_parse-1.1.0/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pubspec_parse-1.2.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="puppeteer">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/puppeteer-2.12.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/puppeteer-2.13.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/puppeteer-2.22.0/lib" />
             </list>
           </value>
         </entry>
@@ -743,6 +832,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/quiver-3.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/quiver-3.2.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/quiver-3.0.1+1/lib" />
             </list>
           </value>
@@ -750,56 +840,49 @@
         <entry key="shared_preferences">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-2.0.15/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences-2.0.17/lib" />
             </list>
           </value>
         </entry>
         <entry key="shared_preferences_android">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_android-2.0.13/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.0.15/lib" />
             </list>
           </value>
         </entry>
-        <entry key="shared_preferences_ios">
+        <entry key="shared_preferences_foundation">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_ios-2.1.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.1.2/lib" />
             </list>
           </value>
         </entry>
         <entry key="shared_preferences_linux">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_linux-2.1.1/lib" />
-            </list>
-          </value>
-        </entry>
-        <entry key="shared_preferences_macos">
-          <value>
-            <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_macos-2.0.4/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.1.3/lib" />
             </list>
           </value>
         </entry>
         <entry key="shared_preferences_platform_interface">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_platform_interface-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_platform_interface-2.1.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="shared_preferences_web">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_web-2.0.4/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_web-2.0.4/lib" />
             </list>
           </value>
         </entry>
         <entry key="shared_preferences_windows">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_windows-2.1.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.1.3/lib" />
             </list>
           </value>
         </entry>
@@ -807,6 +890,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shelf-1.4.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shelf-1.4.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shelf-1.2.0/lib" />
             </list>
           </value>
@@ -815,6 +899,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shelf_static-1.1.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shelf_static-1.1.1/lib" />
             </list>
           </value>
         </entry>
@@ -822,6 +907,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shelf_web_socket-1.0.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/shelf_web_socket-1.0.3/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shelf_web_socket-1.0.1/lib" />
             </list>
           </value>
@@ -830,12 +916,14 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/bin/cache/pkg/sky_engine/lib" />
+              <option value="/opt/homebrew/Caskroom/flutter/3.3.10/flutter/bin/cache/pkg/sky_engine/lib" />
             </list>
           </value>
         </entry>
         <entry key="source_gen">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/source_gen-1.2.6/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/source_gen-1.2.5/lib" />
             </list>
           </value>
@@ -851,34 +939,35 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/source_span-1.9.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/source_span-1.9.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="sqflite">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.2.4+1/lib" />
             </list>
           </value>
         </entry>
         <entry key="sqflite_common">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common-2.3.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite_common-2.4.2+2/lib" />
             </list>
           </value>
         </entry>
         <entry key="sqflite_common_ffi">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common_ffi-2.1.1+1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite_common_ffi-2.2.1+1/lib" />
             </list>
           </value>
         </entry>
         <entry key="sqlite3">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/sqlite3-1.9.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sqlite3-1.9.1/lib" />
             </list>
           </value>
         </entry>
@@ -886,6 +975,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/stack_trace-1.10.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/stack_trace-1.11.0/lib" />
             </list>
           </value>
         </entry>
@@ -893,12 +983,14 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/stream_channel-2.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/stream_channel-2.1.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="stream_transform">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/stream_transform-2.1.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/stream_transform-2.0.0/lib" />
             </list>
           </value>
@@ -907,20 +999,28 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/string_scanner-1.1.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/string_scanner-1.2.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="strings">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/strings-0.2.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/strings-0.2.2/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="sync_http">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/sync_http-0.3.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="synchronized">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/synchronized-3.0.0+3/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/synchronized-3.0.1/lib" />
             </list>
           </value>
         </entry>
@@ -928,6 +1028,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/term_glyph-1.2.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/term_glyph-1.2.1/lib" />
             </list>
           </value>
         </entry>
@@ -935,20 +1036,29 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/test_api-0.4.12/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/test_api-0.4.16/lib" />
             </list>
           </value>
         </entry>
         <entry key="timezone">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/timezone-0.9.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/timezone-0.9.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="timing">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/timing-1.0.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/timing-1.0.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="tuple">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/tuple-2.0.1/lib" />
             </list>
           </value>
         </entry>
@@ -956,6 +1066,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/typed_data-1.3.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/typed_data-1.3.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/typed_data-1.3.0/lib" />
             </list>
           </value>
@@ -963,7 +1074,7 @@
         <entry key="unicode">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/unicode-0.3.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/unicode-0.3.1/lib" />
             </list>
           </value>
         </entry>
@@ -971,6 +1082,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/uuid-3.0.6/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/uuid-3.0.7/lib" />
             </list>
           </value>
         </entry>
@@ -978,12 +1090,21 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/vector_math-2.1.2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/vector_math-2.1.4/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="vm_service">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/vm_service-9.4.0/lib" />
             </list>
           </value>
         </entry>
         <entry key="watcher">
           <value>
             <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/watcher-1.0.2/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/watcher-1.0.1/lib" />
             </list>
           </value>
@@ -992,21 +1113,29 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/web_socket_channel-2.2.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/web_socket_channel-2.3.0/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/web_socket_channel-2.1.0/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="webdriver">
+          <value>
+            <list>
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/webdriver-3.0.1/lib" />
             </list>
           </value>
         </entry>
         <entry key="win32">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/win32-3.0.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/win32-3.1.3/lib" />
             </list>
           </value>
         </entry>
         <entry key="xdg_directories">
           <value>
             <list>
-              <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/xdg_directories-0.2.0+2/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/xdg_directories-0.2.0+3/lib" />
             </list>
           </value>
         </entry>
@@ -1014,6 +1143,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/xml-6.1.0/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/xml-6.2.2/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/xml-5.3.1/lib" />
             </list>
           </value>
@@ -1022,6 +1152,7 @@
           <value>
             <list>
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/yaml-3.1.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/yaml-3.1.1/lib" />
               <option value="/opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/yaml-3.1.0/lib" />
             </list>
           </value>
@@ -1029,8 +1160,139 @@
       </option>
     </properties>
     <CLASSES>
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/_fe_analyzer_shared-52.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/_flutterfire_internals-1.0.12/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/analyzer-5.4.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/archive-3.3.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/args-2.3.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/async-2.10.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/boolean_selector-2.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/build-2.3.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/build_cli_annotations-2.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/build_config-1.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/build_daemon-3.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/build_resolvers-2.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/build_runner-2.3.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/build_runner_core-7.2.7/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/built_collection-5.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/built_value-8.4.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/characters-1.2.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/charts_common-0.12.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/charts_flutter-0.12.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/checked_yaml-2.0.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/cli_util-0.3.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/clock-1.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/code_builder-4.4.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/collection-1.17.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/colorize-3.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/convert-3.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/crypto-3.0.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/cupertino_icons-1.0.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/dart_style-2.2.4/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/dbus-0.7.8/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/equatable-2.0.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fake_async-1.3.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/ffi-2.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/ffigen-6.1.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/file-6.1.4/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_analytics-10.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_analytics_platform_interface-3.3.17/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_analytics_web-0.5.1+8/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_core-2.4.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_core_platform_interface-4.5.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/firebase_core_web-2.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/fixnum-1.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/floor-1.4.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/floor_annotation-1.4.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/floor_generator-1.4.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_launcher_icons-0.10.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications-11.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_linux-1.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_local_notifications_platform_interface-6.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_mobx-2.0.6+5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_native_timezone-2.0.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_rust_bridge-1.62.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_svg-1.1.6/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/frontend_server_client-3.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/glob-2.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/graphs-2.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/graphx-1.0.7/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http-0.13.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http_multi_server-3.2.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/http_parser-4.0.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/image-3.3.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/intl-0.17.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/io-1.0.4/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/js-0.6.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/json_annotation-4.8.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/lint-2.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/lists-1.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/logger-1.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/logging-1.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/matcher-0.12.13/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/material_color_utilities-0.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/meta-1.8.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/mime-1.0.4/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/mobx-2.1.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/mobx_codegen-2.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/mockito-5.3.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/package_config-2.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path-1.8.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_drawing-1.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_parsing-1.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_linux-2.1.7/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_platform_interface-2.0.5/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/path_provider_windows-2.1.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/petitparser-5.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/platform-3.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/plugin_platform_interface-2.1.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/pool-1.5.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/process-4.2.4/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/pub_semver-2.1.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/pubspec_parse-1.2.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/puppeteer-2.22.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/quiver-3.2.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences-2.0.17/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_android-2.0.15/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_foundation-2.1.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_linux-2.1.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_platform_interface-2.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_web-2.0.4/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shared_preferences_windows-2.1.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shelf-1.4.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shelf_static-1.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/shelf_web_socket-1.0.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/source_gen-1.2.6/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/source_span-1.9.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite-2.2.4+1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite_common-2.4.2+2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqflite_common_ffi-2.2.1+1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sqlite3-1.9.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/stack_trace-1.11.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/stream_channel-2.1.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/stream_transform-2.1.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/string_scanner-1.2.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/strings-0.2.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/sync_http-0.3.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/synchronized-3.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/term_glyph-1.2.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/test_api-0.4.16/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/timezone-0.9.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/timing-1.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/tuple-2.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/typed_data-1.3.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/unicode-0.3.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/uuid-3.0.7/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/vector_math-2.1.4/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/vm_service-9.4.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/watcher-1.0.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/web_socket_channel-2.3.0/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/webdriver-3.0.1/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/win32-3.1.3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/xdg_directories-0.2.0+3/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/xml-6.2.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/yaml-3.1.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/_fe_analyzer_shared-47.0.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/_flutterfire_internals-1.0.12/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/analyzer-4.7.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/archive-3.3.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/args-2.3.0/lib" />
@@ -1049,8 +1311,6 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/built_value-8.4.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/characters-1.2.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/charcode-1.3.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/charts_common-0.12.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/charts_flutter-0.12.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/checked_yaml-2.0.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/cli_util-0.3.5/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/clock-1.1.1/lib" />
@@ -1064,7 +1324,6 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-1.0.4/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/cupertino_icons-1.0.5/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/dart_style-2.2.4/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/dbus-0.7.8/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/desktop_drop-0.2.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/fake_async-1.3.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/ffi-1.1.2/lib" />
@@ -1074,28 +1333,13 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/file-6.1.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/file-6.1.4/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/file_picker-4.2.4/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics-10.1.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics_platform_interface-3.3.17/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_analytics_web-0.5.1+8/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-2.4.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core_platform_interface-4.5.2/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core_web-2.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/fixnum-1.0.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/fixnum-1.0.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/floor-1.3.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/floor_annotation-1.3.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/floor_generator-1.3.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_launcher_icons-0.10.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-1.0.4/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_lints-2.0.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications-11.0.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications_linux-1.0.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_local_notifications_platform_interface-6.0.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_mobx-2.0.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_mobx-2.0.6+4/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_native_timezone-2.0.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_plugin_android_lifecycle-2.0.4/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_rust_bridge-1.46.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_rust_bridge-1.48.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_rust_bridge-1.6.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_svg-0.22.0/lib" />
@@ -1113,17 +1357,12 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http_multi_server-3.2.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http_parser-4.0.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/http_parser-4.0.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/image-3.2.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/intl-0.17.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/io-1.0.3/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/js-0.6.4/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/json_annotation-4.7.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/json_serializable-6.4.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lint-2.0.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-1.0.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lints-2.0.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/lists-1.0.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/logger-1.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/logging-1.0.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/matcher-0.12.12/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/material_color_utilities-0.1.5/lib" />
@@ -1132,7 +1371,6 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mime-1.0.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mobx-2.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mobx_codegen-2.0.7+3/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/mockito-5.3.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-2.0.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/package_config-2.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path-1.8.2/lib" />
@@ -1140,33 +1378,18 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_drawing-1.0.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_parsing-0.2.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_parsing-1.0.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_linux-2.1.7/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_platform_interface-2.0.4/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/path_provider_windows-2.1.3/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/petitparser-4.4.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/petitparser-5.0.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/platform-3.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/plugin_platform_interface-2.0.2/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/plugin_platform_interface-2.1.3/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pool-1.5.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pool-1.5.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/process-4.2.4/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pub_semver-2.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pub_semver-2.1.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pubspec_parse-1.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/pubspec_parse-1.2.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/puppeteer-2.12.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/puppeteer-2.13.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/quiver-3.0.1+1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/quiver-3.1.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences-2.0.15/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_android-2.0.13/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_ios-2.1.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_linux-2.1.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_macos-2.0.4/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_platform_interface-2.1.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_web-2.0.4/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shared_preferences_windows-2.1.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shelf-1.2.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shelf-1.4.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/shelf_static-1.1.1/lib" />
@@ -1175,30 +1398,20 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/source_gen-1.2.5/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/source_helper-1.3.3/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/source_span-1.9.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite-2.1.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common-2.3.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/sqflite_common_ffi-2.1.1+1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/sqlite3-1.9.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/stack_trace-1.10.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/stream_channel-2.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/stream_transform-2.0.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/string_scanner-1.1.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/strings-0.2.2/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/synchronized-3.0.0+3/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/term_glyph-1.2.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/test_api-0.4.12/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/timezone-0.9.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/timing-1.0.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/typed_data-1.3.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/typed_data-1.3.1/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/unicode-0.3.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/uuid-3.0.6/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/vector_math-2.1.2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/watcher-1.0.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/web_socket_channel-2.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/web_socket_channel-2.2.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/win32-3.0.0/lib" />
-      <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/xdg_directories-0.2.0+2/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/xml-5.3.1/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/xml-6.1.0/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/.pub-cache/hosted/pub.dartlang.org/yaml-3.1.0/lib" />
@@ -1207,6 +1420,13 @@
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/packages/flutter/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/packages/flutter_test/lib" />
       <root url="file:///opt/homebrew/Caskroom/flutter/2.10.3/flutter/packages/flutter_web_plugins/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/3.3.10/flutter/bin/cache/pkg/sky_engine/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/flutter/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/flutter_driver/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/flutter_test/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/flutter_web_plugins/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/fuchsia_remote_debug_protocol/lib" />
+      <root url="file:///opt/homebrew/Caskroom/flutter/3.3.10/flutter/packages/integration_test/lib" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

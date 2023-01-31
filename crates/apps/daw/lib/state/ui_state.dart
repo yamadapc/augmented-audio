@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:augmented_midi_editor/midi_editor/midi_model.dart';
 import 'package:graphx/graphx.dart';
 import 'package:mobx/mobx.dart';
@@ -30,7 +32,7 @@ abstract class _SidebarState with Store, Entity {
   PanelState panelState = PanelState("PanelState");
 
   _SidebarState({required this.id, PanelState? panelState}) {
-    this.panelState = panelState ?? PanelState(id + "/PanelState");
+    this.panelState = panelState ?? PanelState("$id/PanelState");
     this.panelState.isExpanded = false;
   }
 }

@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter_daw_mock_ui/state/entity.dart';
 import 'package:flutter_daw_mock_ui/ui/main_content_layout/tracks_view/track_view/track_controls/knob_field.dart';
 import 'package:graphx/graphx.dart';
@@ -55,8 +57,8 @@ class Track extends _Track with _$Track {
     this.title = title;
     this.clips = clips ?? ObservableList.of([]);
     this.parent = parent;
-    pan = DoubleValue(this.id + "/pan");
-    sends = ObservableList.of([DoubleValue(this.id + "/sends/A")]);
+    pan = DoubleValue("${this.id}/pan");
+    sends = ObservableList.of([DoubleValue("${this.id}/sends/A")]);
   }
 
   @override

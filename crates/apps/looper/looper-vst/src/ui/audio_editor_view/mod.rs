@@ -34,7 +34,7 @@ use audio_chart::{draw_rms_chart, draw_samples_chart};
 use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
 use audio_processor_analysis::transient_detection::stft::markers::AudioFileMarker;
 use audio_processor_iced_design_system::colors::Colors;
-use audio_processor_traits::{AudioProcessorSettings, SimpleAudioProcessor};
+use audio_processor_traits::{AudioContext, AudioProcessorSettings, SimpleAudioProcessor};
 
 use crate::ui::style::ContainerStyle;
 
@@ -62,9 +62,10 @@ impl AudioFileModel {
         );
 
         let mut rms_samples = vec![];
-        rms_processor.s_prepare(settings);
+        let mut context = AudioContext::from(settings);
+        rms_processor.s_prepare(&mut context, settings);
         for sample in samples.iter() {
-            rms_processor.s_process_frame(&mut [*sample]);
+            rms_processor.s_process_frame(&mut context, &mut [*sample]);
             rms_samples.push(rms_processor.handle().calculate_rms(0));
         }
 

@@ -28,7 +28,8 @@ use symphonia::core::probe::ProbeResult;
 
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
+    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer,
+    VecAudioBuffer,
 };
 use file_io::AudioFileError;
 
@@ -217,7 +218,7 @@ impl AudioProcessor for AudioFileProcessor {
     ///
     /// Note: Currently this will load the audio file on the audio-thread.
     /// It'd be an interesting exercise to perform this on a background thread.
-    fn prepare(&mut self, audio_settings: AudioProcessorSettings) {
+    fn prepare(&mut self, _context: &mut AudioContext, audio_settings: AudioProcessorSettings) {
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
 
@@ -275,7 +276,11 @@ impl AudioProcessor for AudioFileProcessor {
         }
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &mut BufferType) {
+    fn process<BufferType: AudioBuffer<SampleType = f32>>(
+        &mut self,
+        _context: &mut AudioContext,
+        data: &mut BufferType,
+    ) {
         let is_playing = self.handle.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
@@ -345,12 +350,13 @@ mod test {
             audio_file_settings,
             Default::default(),
         );
-        audio_file_processor.prepare(Default::default());
+        let mut context = AudioContext::default();
+        audio_file_processor.prepare(&mut context, Default::default());
 
         audio_file_processor.stop();
         let mut sample_buffer = VecAudioBuffer::new();
         sample_buffer.resize(2, 44100, 0.0);
-        audio_file_processor.process(&mut sample_buffer);
+        audio_file_processor.process(&mut context, &mut sample_buffer);
 
         assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) < f32::EPSILON);
     }
@@ -367,12 +373,13 @@ mod test {
             audio_file_settings,
             Default::default(),
         );
-        audio_file_processor.prepare(Default::default());
+        let mut context = AudioContext::default();
+        audio_file_processor.prepare(&mut context, Default::default());
 
         let mut sample_buffer = VecAudioBuffer::new();
         sample_buffer.resize(2, 44100, 0.0);
         audio_file_processor.play();
-        audio_file_processor.process(&mut sample_buffer);
+        audio_file_processor.process(&mut context, &mut sample_buffer);
 
         assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) > f32::EPSILON);
     }

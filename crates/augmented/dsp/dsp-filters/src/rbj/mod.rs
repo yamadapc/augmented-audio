@@ -32,8 +32,8 @@ use num::Float;
 use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
+use audio_processor_traits::{AudioContext, AudioProcessorSettings};
 use generic_handle::GenericHandle;
 
 use crate::state::FilterState;
@@ -201,7 +201,7 @@ where
     }
 }
 
-impl<SampleType> SimpleAudioProcessor for FilterProcessor<SampleType>
+impl<SampleType> MonoAudioProcessor for FilterProcessor<SampleType>
 where
     SampleType: Pow<SampleType, Output = SampleType>
         + Debug
@@ -213,27 +213,21 @@ where
 {
     type SampleType = SampleType;
 
-    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
+    fn m_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.sample_rate = SampleType::from(settings.sample_rate()).unwrap();
         self.setup();
     }
 
-    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+    fn m_process(
+        &mut self,
+        _context: &mut AudioContext,
+        sample: Self::SampleType,
+    ) -> Self::SampleType {
         self.filter.state.process1(
             &self.filter.coefficients,
             sample,
             self.filter.denormal_prevention.alternating_current(),
         )
-    }
-
-    fn s_process_frame(&mut self, frame: &mut [SampleType]) {
-        let sum = frame.iter().cloned().sum();
-        let output = self.s_process(sum)
-            / SampleType::from(frame.len()).unwrap_or_else(|| SampleType::one());
-
-        for sample in frame.iter_mut() {
-            *sample = output;
-        }
     }
 }
 

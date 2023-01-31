@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 use basedrop::{Handle, Shared};
 use std::time::Duration;
 use vst::util::AtomicFloat;
@@ -68,7 +68,7 @@ impl VolumeAnalyser {
 impl AudioProcessor for VolumeAnalyser {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.internal_buffer.resize(
             (self.duration.as_secs_f32() * settings.sample_rate()) as usize,
             (0.0, 0.0),
@@ -77,6 +77,7 @@ impl AudioProcessor for VolumeAnalyser {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         for frame in data.slice().chunks(data.num_channels()) {

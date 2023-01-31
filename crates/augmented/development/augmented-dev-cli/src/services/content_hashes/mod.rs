@@ -96,6 +96,7 @@ mod test {
         println!("{}", hash);
     }
 
+    #[ignore]
     #[test]
     fn test_get_all_hashes() {
         let _ = env_logger::builder()

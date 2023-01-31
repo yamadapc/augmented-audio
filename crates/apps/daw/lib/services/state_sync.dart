@@ -51,7 +51,7 @@ class StateSyncService {
       var entityId =
           _entityActionStack.isEmpty ? null : _entityActionStack.last;
       if (entityId != null) {
-        var changePath = entityId + "/" + event.name.split(".")[1];
+        var changePath = "$entityId/${event.name.split(".")[1]}";
         var newValue =
             event.newValue is Entity ? event.newValue.id : event.newValue;
         logChange(changePath, newValue);

@@ -3,7 +3,9 @@ use cacao::appkit::{App, AppDelegate};
 use cacao::view::View;
 
 use audio_processor_file::AudioFileProcessor;
-use audio_processor_traits::{AudioBuffer, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer};
+use audio_processor_traits::{
+    AudioBuffer, AudioContext, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer,
+};
 
 #[allow(unused)]
 fn read_test_buffer() -> VecAudioBuffer<f32> {
@@ -17,7 +19,8 @@ fn read_test_buffer() -> VecAudioBuffer<f32> {
     )
     .unwrap();
 
-    input_file.prepare(Default::default());
+    let mut context = AudioContext::default();
+    input_file.prepare(&mut context, Default::default());
     let input_file = input_file.buffer();
 
     let mut buffer = VecAudioBuffer::new();

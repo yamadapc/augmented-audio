@@ -15,7 +15,7 @@ DawUi? initialize() {
   try {
     DynamicLibrary dylib = DynamicLibrary.open(
         "/Users/yamadapc/projects/rust-audio-software/target/debug/libdaw_ui.dylib");
-    dawUi = DawUi(dylib);
+    dawUi = DawUiImpl(dylib);
     return dawUi!;
   } catch (err) {
     if (kDebugMode) {

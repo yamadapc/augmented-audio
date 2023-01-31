@@ -31,7 +31,9 @@
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 
 use audio_garbage_collector::{make_shared, Shared};
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{
+    AtomicF32, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
+};
 
 use self::constants::{build_envelope, DEFAULT_SAMPLE_RATE, DEFAULT_TEMPO};
 pub use self::playhead::{DefaultMetronomePlayhead, MetronomePlayhead};
@@ -158,13 +160,14 @@ impl<P: MetronomePlayhead> MetronomeProcessor<P> {
 impl<P: MetronomePlayhead> AudioProcessor for MetronomeProcessor<P> {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.playhead.prepare(&settings, self.handle.tempo.get());
-        self.state.metronome_sound.prepare(settings);
+        self.state.metronome_sound.prepare(context, settings);
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         if !self.handle.is_playing.load(Ordering::Relaxed) {

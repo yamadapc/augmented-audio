@@ -77,4 +77,20 @@ class DailyPracticeTime {
   final int timestampMs;
 
   DailyPracticeTime(this.durationMs, this.timestampMs);
+
+  DailyPracticeTime.from({
+    required this.durationMs,
+    required this.timestampMs,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DailyPracticeTime &&
+          runtimeType == other.runtimeType &&
+          durationMs == other.durationMs &&
+          timestampMs == other.timestampMs;
+
+  @override
+  int get hashCode => durationMs.hashCode ^ timestampMs.hashCode;
 }

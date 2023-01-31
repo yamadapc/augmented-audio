@@ -39,11 +39,12 @@
 
 use std::sync::Arc;
 
+use audio_processor_traits::AudioContext;
 use rustfft::num_complex::Complex;
 pub use rustfft::FftDirection;
 use rustfft::{Fft, FftPlanner};
 
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
 
 use crate::window_functions::{make_window_vec, WindowFunctionType};
 
@@ -190,11 +191,15 @@ impl FftProcessor {
     }
 }
 
-impl SimpleAudioProcessor for FftProcessor {
+impl MonoAudioProcessor for FftProcessor {
     type SampleType = f32;
 
     #[inline]
-    fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+    fn m_process(
+        &mut self,
+        _context: &mut AudioContext,
+        sample: Self::SampleType,
+    ) -> Self::SampleType {
         self.has_changed = false;
         self.input_buffer[self.cursor] = sample;
 
@@ -221,6 +226,7 @@ mod test {
 
     use audio_processor_traits::audio_buffer::VecAudioBuffer;
     use audio_processor_traits::simple_processor::process_buffer;
+    use audio_processor_traits::AudioProcessorSettings;
 
     use super::*;
 
@@ -236,12 +242,13 @@ mod test {
     fn test_draw_fft() {
         println!("Generating signal");
         let signal = oscillator_buffer(44100.0, 440.0, Duration::from_millis(1000), sine_generator);
+        let mut context = AudioContext::from(AudioProcessorSettings::new(44100.0, 1, 1, 512));
         let signal_len = signal.len();
         let mut signal = VecAudioBuffer::new_with(signal, 1, signal_len);
 
         println!("Processing");
         let mut fft_processor = FftProcessor::default();
-        process_buffer(&mut fft_processor, &mut signal);
+        process_buffer(&mut context, &mut fft_processor, &mut signal);
 
         println!("Drawing chart");
         let mut output: Vec<f32> = fft_processor

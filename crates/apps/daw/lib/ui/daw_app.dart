@@ -33,6 +33,7 @@ class DawApp extends StatelessWidget {
       theme: ThemeData(
           primarySwatch: Colors.blue,
           textTheme: const TextTheme(
+            // ignore: deprecated_member_use
             bodyText2: TextStyle(
               fontSize: 12,
             ),

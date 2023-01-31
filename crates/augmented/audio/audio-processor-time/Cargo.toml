@@ -7,11 +7,20 @@ license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
+[features]
+default = []
+clap = ["audio-processor-standalone/clap"]
+
 [[example]]
 name = "delay"
 
 [[example]]
 name = "delay_vst"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "delay_clap"
+required-features = ["clap"]
 crate-type = ["cdylib"]
 
 [package.metadata.augmented]

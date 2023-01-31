@@ -20,8 +20,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
+    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
 };
 use augmented_oscillator::Oscillator;
 
@@ -44,11 +45,11 @@ impl Default for ChorusProcessor {
 impl AudioProcessor for ChorusProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.mono_delay_processor
             .resize_with(settings.output_channels(), MonoDelayProcessor::default);
         for processor in &mut self.mono_delay_processor {
-            processor.s_prepare(settings);
+            processor.s_prepare(context, settings);
             processor.handle().set_feedback(0.0);
             processor.handle().set_delay_time_secs(0.01);
         }
@@ -59,13 +60,14 @@ impl AudioProcessor for ChorusProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         for frame in data.frames_mut() {
             let time = self.oscillator.next_sample();
             for (sample, delay) in frame.iter_mut().zip(&mut self.mono_delay_processor) {
                 delay.handle().set_delay_time_secs(0.02 + time * 0.001);
-                *sample = *sample + 0.4 * delay.s_process(*sample)
+                *sample = *sample + 0.4 * delay.m_process(context, *sample)
             }
         }
     }

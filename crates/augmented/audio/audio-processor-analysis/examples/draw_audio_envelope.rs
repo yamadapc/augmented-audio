@@ -28,10 +28,10 @@ use piet_common::Device;
 
 use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
 use audio_processor_file::AudioFileProcessor;
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::simple_processor::{MonoAudioProcessor, SimpleAudioProcessor};
 use audio_processor_traits::{
     audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, AudioBuffer,
-    AudioProcessor, AudioProcessorSettings,
+    AudioContext, AudioProcessor, AudioProcessorSettings,
 };
 
 fn main() {
@@ -49,11 +49,12 @@ fn main() {
         &input_file_path,
     )
     .unwrap();
-    input.prepare(settings);
+    let mut context = AudioContext::from(settings);
+    input.prepare(&mut context, settings);
 
     let mut envelope_processor =
         EnvelopeFollowerProcessor::new(Duration::from_millis(10), Duration::from_millis(2));
-    envelope_processor.s_prepare(settings);
+    envelope_processor.s_prepare(&mut context, settings);
 
     let mut buffer = VecAudioBuffer::new();
 
@@ -63,9 +64,9 @@ fn main() {
     log::info!("Processing num_chunks={}", num_chunks);
     for _chunk_idx in 0..num_chunks {
         audio_buffer::clear(&mut buffer);
-        input.process(&mut buffer);
+        input.process(&mut context, &mut buffer);
         for frame in buffer.frames_mut() {
-            envelope_processor.s_process(frame[0]);
+            envelope_processor.m_process(&mut context, frame[0]);
             frames.push((frame[0], envelope_processor.handle().state()));
         }
     }

@@ -34,7 +34,8 @@ use basedrop::{Shared, SharedCell};
 use audio_garbage_collector::{make_shared, make_shared_cell};
 use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
 use audio_processor_traits::{
-    AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, VecAudioBuffer,
+    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
+    VecAudioBuffer,
 };
 
 use crate::LooperProcessorHandle;
@@ -143,10 +144,11 @@ impl AudioProcessor for LoopShufflerProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         for frame in data.frames_mut() {
-            self.s_process_frame(frame);
+            self.s_process_frame(context, frame);
         }
     }
 }
@@ -154,11 +156,11 @@ impl AudioProcessor for LoopShufflerProcessor {
 impl SimpleAudioProcessor for LoopShufflerProcessor {
     type SampleType = f32;
 
-    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
-        self.prepare(settings);
+    fn s_prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+        self.prepare(context, settings);
     }
 
-    fn s_process_frame(&mut self, frame: &mut [Self::SampleType]) {
+    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
         if let Some(LoopShufflerOutput {
             sequence,
             sequence_step_size,
@@ -245,7 +247,12 @@ mod test {
         let handle = make_shared(LooperProcessorHandle::default());
         let mut processor = LoopShufflerProcessor::new(handle);
         let mut buffer = VecAudioBuffer::empty_with(1, 10, 0.0);
-        audio_processor_traits::simple_processor::process_buffer(&mut processor, &mut buffer);
+        let mut context = AudioContext::default();
+        audio_processor_traits::simple_processor::process_buffer(
+            &mut context,
+            &mut processor,
+            &mut buffer,
+        );
         assert_eq!(buffer.slice(), &[0.0; 10]);
     }
 

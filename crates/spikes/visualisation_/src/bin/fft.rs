@@ -38,8 +38,8 @@ use audio_processor_standalone::{
     standalone_processor::StandaloneOptions, StandaloneAudioOnlyProcessor, StandaloneHandles,
 };
 use audio_processor_traits::{
-    audio_buffer, simple_processor, AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings,
-    SimpleAudioProcessor, VecAudioBuffer,
+    audio_buffer, simple_processor, simple_processor::MonoAudioProcessor, AtomicF32, AudioBuffer,
+    AudioContext, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, VecAudioBuffer,
 };
 use augmented_atomics::AtomicValue;
 
@@ -92,26 +92,27 @@ impl Processor {
 impl AudioProcessor for Processor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.rms.s_prepare(settings);
-        self.input_file.prepare(settings);
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+        self.rms.s_prepare(context, settings);
+        self.input_file.prepare(context, settings);
         for fft in &mut self.ffts {
-            fft.s_prepare(settings);
+            fft.m_prepare(context, settings);
         }
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         audio_buffer::clear(data);
-        self.input_file.process(data);
-        simple_processor::process_buffer(&mut self.rms, data);
+        self.input_file.process(context, data);
+        simple_processor::process_buffer(context, &mut self.rms, data);
         for frame in data.frames_mut() {
             for (channel, sample) in frame.iter().enumerate() {
                 let fft = &mut self.ffts[channel];
 
-                fft.s_process(*sample);
+                fft.m_process(context, *sample);
                 if fft.has_changed() {
                     for (fft_sample, output_frame) in
                         fft.buffer().iter().zip(self.handle.fft_buffer.frames())

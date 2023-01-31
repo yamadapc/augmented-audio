@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use audio_processor_traits::simple_processor::SimpleAudioProcessor;
-use audio_processor_traits::Float;
+use audio_processor_traits::{AudioContext, Float};
 
 /// An `AudioProcessor` that applies panning on its input.
 ///
@@ -64,7 +64,7 @@ where
 {
     type SampleType = SampleType;
 
-    fn s_process_frame(&mut self, frame: &mut [SampleType]) {
+    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [SampleType]) {
         let zero = SampleType::zero();
         let one = SampleType::one();
         let panning = self.panning;
@@ -103,8 +103,9 @@ mod test {
         let mut pan = PanProcessor::default();
         let mut samples = [1., 1., 1., 1., 1., 1.];
         let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let mut context = AudioContext::default();
 
-        process_buffer(&mut pan, &mut input);
+        process_buffer(&mut context, &mut pan, &mut input);
 
         for frame in input.frames() {
             for sample in frame.iter() {
@@ -118,8 +119,9 @@ mod test {
         let mut pan = PanProcessor::new(-1.0);
         let mut samples = [1., 1., 1., 1., 1., 1.];
         let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let mut context = AudioContext::default();
 
-        process_buffer(&mut pan, &mut input);
+        process_buffer(&mut context, &mut pan, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let left = *input.get(0, sample_index);
@@ -134,8 +136,9 @@ mod test {
         let mut pan = PanProcessor::new(1.0);
         let mut samples = [1., 1., 1., 1., 1., 1.];
         let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let mut context = AudioContext::default();
 
-        process_buffer(&mut pan, &mut input);
+        process_buffer(&mut context, &mut pan, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let left = *input.get(0, sample_index);

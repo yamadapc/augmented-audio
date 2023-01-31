@@ -70,11 +70,6 @@ class HistoryStateController {
   }
 }
 
-@visibleForTesting
-DateTime startOfWeek(DateTime dateTime) {
-  return dateTime.subtract(Duration(days: dateTime.weekday - 1));
-}
-
 /// Group daily practice time by week and create a list of the weekly practice
 /// time with the sum.
 @visibleForTesting
@@ -83,13 +78,15 @@ List<DailyPracticeTime> aggregateWeeklyPracticeTime(
 ) {
   final Map<int, int> timePerWeek = {};
   for (final practiceTime in dailyTime) {
-    final timestampMs = startOfWeek(
-      DateTime.fromMillisecondsSinceEpoch(practiceTime.timestampMs),
+    final timestampMs = ChartTransformer.startOfDate(
+      date: DateTime.fromMillisecondsSinceEpoch(practiceTime.timestampMs),
+      resolution: HistoryResolution.weeks,
     ).millisecondsSinceEpoch;
+
     timePerWeek.update(
       timestampMs,
-      (value) => value += practiceTime.durationMs,
-      ifAbsent: () => 0,
+      (value) => value + practiceTime.durationMs,
+      ifAbsent: () => practiceTime.durationMs,
     );
   }
   final weeklyTime = timePerWeek.entries

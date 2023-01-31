@@ -20,7 +20,7 @@ use audio_processor_metronome::{
     DefaultMetronomePlayhead, MetronomeProcessor, MetronomeProcessorHandle, MetronomeSound,
     MetronomeSoundType,
 };
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 use std::collections::HashMap;
 use std::hash::Hash;
 
@@ -75,6 +75,7 @@ fn load_sounds() -> Option<Vec<LoadedSound>> {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[repr(C)]
 pub enum MetronomeSoundTypeTag {
     Sine,
     Tube,
@@ -163,19 +164,20 @@ impl AppAudioProcessor {
 impl AudioProcessor for AppAudioProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
-        self.metronome.prepare(settings);
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+        self.metronome.prepare(context, settings);
         for sound in self.sounds.values_mut() {
-            sound.prepare(settings);
+            sound.prepare(context, settings);
         }
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         self.drain_message_queue();
 
-        self.metronome.process(data);
+        self.metronome.process(context, data);
     }
 }

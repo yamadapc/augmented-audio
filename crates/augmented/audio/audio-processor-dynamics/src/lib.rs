@@ -27,7 +27,7 @@
 //! * [Digital Dynamic Range Compressor Design — A Tutorial and Analysis](https://www.eecs.qmul.ac.uk/~josh/documents/2012/GiannoulisMassbergReiss-dynamicrangecompression-JAES2012.pdf)
 
 use audio_garbage_collector::{make_shared, Shared};
-use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 use augmented_audio_volume::db_to_amplitude;
 use handle::CompressorHandle;
 
@@ -154,12 +154,13 @@ impl CompressorProcessor {
 impl AudioProcessor for CompressorProcessor {
     type SampleType = FloatT;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.handle.set_sample_rate(settings.sample_rate());
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         for frame in data.frames_mut() {
@@ -263,6 +264,7 @@ mod test {
     fn test_peak_detector_output() {
         let output_path = relative_path!("src/peak-detector");
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::default();
         let mut input = setup_input_processor(settings);
         let mut processor = PeakDetector::default();
         let attack_multi = handle::calculate_multiplier(settings.sample_rate(), 1.0);
@@ -276,7 +278,7 @@ mod test {
             let num_chunks = (input.num_samples() / 8) / settings.block_size();
             for _chunk in 0..num_chunks {
                 audio_buffer::clear(&mut buffer);
-                input.process(&mut buffer);
+                input.process(&mut context, &mut buffer);
                 for frame in buffer.frames() {
                     input_vec.push(average(frame));
                     processor.accept_frame(attack_multi, release_mult, frame);
@@ -296,9 +298,10 @@ mod test {
     fn test_compress_synth_loop() {
         let output_path = relative_path!("src/compressor");
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut input = setup_input_processor(settings);
         let mut processor = CompressorProcessor::new();
-        processor.prepare(settings);
+        processor.prepare(&mut context, settings);
         processor.handle.set_ratio(30.0);
         processor.handle.set_threshold(-10.0);
         processor.handle.set_attack_ms(1.0);
@@ -318,7 +321,7 @@ mod test {
             let num_chunks = (input.num_samples() / 8) / settings.block_size();
             for _chunk in 0..num_chunks {
                 audio_buffer::clear(&mut buffer);
-                input.process(&mut buffer);
+                input.process(&mut context, &mut buffer);
                 for frame in buffer.frames() {
                     input_vec.push(average(frame))
                 }
@@ -326,7 +329,7 @@ mod test {
                 for sample in buffer.slice_mut() {
                     let mut buf = [*sample];
                     let mut one_sample = InterleavedAudioBuffer::new(1, &mut buf);
-                    processor.process(&mut one_sample);
+                    processor.process(&mut context, &mut one_sample);
                     *sample = buf[0];
                     output_vec.push(*sample);
                     gain_vec.push(processor.compute_gain());
@@ -352,7 +355,8 @@ mod test {
             &input_file_path,
         )
         .unwrap();
-        input.prepare(settings);
+        let mut context = AudioContext::from(settings);
+        input.prepare(&mut context, settings);
         input
     }
 }

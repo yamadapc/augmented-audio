@@ -36,8 +36,10 @@ use audio_garbage_collector::{make_shared, Shared};
 use audio_processor_analysis::fft_processor::{FftDirection, FftProcessor, FftProcessorOptions};
 use audio_processor_analysis::window_functions::{make_hann_vec, WindowFunctionType};
 use audio_processor_traits::num::Complex;
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
 use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor, Zero,
+    AtomicF32, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
+    SimpleAudioProcessor, Zero,
 };
 
 #[cfg(all(test, debug_assertions))]
@@ -359,17 +361,18 @@ impl Default for MultiChannelPitchShifterProcessor {
 impl AudioProcessor for MultiChannelPitchShifterProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
         self.processors.resize_with(settings.output_channels(), || {
             PitchShifterProcessor::default()
         });
         for processor in &mut self.processors {
-            processor.s_prepare(settings);
+            processor.s_prepare(context, settings);
         }
     }
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         let ratio = self.handle.ratio.get();
@@ -384,7 +387,7 @@ impl AudioProcessor for MultiChannelPitchShifterProcessor {
         for frame in data.frames_mut() {
             for (i, sample) in frame.iter_mut().enumerate() {
                 let processor = &mut self.processors[i];
-                *sample = processor.s_process(*sample);
+                *sample = processor.m_process(context, *sample);
             }
         }
     }
@@ -401,22 +404,22 @@ fn princ_arg(phase: f32) -> f32 {
     }
 }
 
-impl SimpleAudioProcessor for PitchShifterProcessor {
+impl MonoAudioProcessor for PitchShifterProcessor {
     type SampleType = f32;
 
-    fn s_prepare(&mut self, settings: AudioProcessorSettings) {
-        self.fft_processor.s_prepare(settings);
-        self.inverse_fft_processor.s_prepare(settings);
+    fn m_prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+        self.fft_processor.s_prepare(context, settings);
+        self.inverse_fft_processor.s_prepare(context, settings);
     }
 
     #[inline]
-    fn s_process(&mut self, sample: f32) -> f32 {
+    fn m_process(&mut self, context: &mut AudioContext, sample: f32) -> f32 {
         let output_len = self.output_buffer.len();
         let output = self.output_buffer[self.output_read_cursor % output_len];
         self.output_buffer[self.output_read_cursor % output_len] = 0.0;
         self.output_read_cursor = (self.output_read_cursor + 1) % output_len;
 
-        self.fft_processor.s_process(sample);
+        self.fft_processor.m_process(context, sample);
         if self.fft_processor.has_changed() {
             self.on_fft_frame();
         }
@@ -440,13 +443,14 @@ mod test {
     /// Read an input file for testing
     fn read_input_file(input_file_path: &str) -> impl AudioBuffer<SampleType = f32> {
         let settings = AudioProcessorSettings::default();
+        let mut context = AudioContext::from(settings);
         let mut input = AudioFileProcessor::from_path(
             audio_garbage_collector::handle(),
             settings,
             input_file_path,
         )
         .unwrap();
-        input.prepare(settings);
+        input.prepare(&mut context, settings);
         let input_buffer = input.buffer();
         let mut buffer = VecAudioBuffer::new();
 
@@ -470,10 +474,11 @@ mod test {
         let input_rms = rms_level(input.slice());
 
         let mut pitch_shifter = BufferProcessor(PitchShifterProcessor::default());
-        pitch_shifter.prepare(AudioProcessorSettings::default());
+        let mut context = AudioContext::default();
+        pitch_shifter.prepare(&mut context, AudioProcessorSettings::default());
 
         assert_no_alloc(|| {
-            pitch_shifter.process(&mut input);
+            pitch_shifter.process(&mut context, &mut input);
         });
 
         let output_rms = rms_level(input.slice());

@@ -29,7 +29,7 @@ use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 use audio_processor_standalone_midi::host::MidiMessageQueue;
 
-use audio_processor_traits::{AudioBuffer, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioContext, InterleavedAudioBuffer};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
 use options::AudioThreadOptions;
@@ -304,15 +304,18 @@ fn output_stream_callback(
 
     let shared_processor = processor.get();
     let processor_ptr = shared_processor.0.get();
+    let mut context = AudioContext::default(); // TODO
     match unsafe { &mut (*processor_ptr) } {
         AudioThreadProcessor::Active(processor) => {
             processor.process_midi(midi_message_handler.buffer());
-            processor.process(&mut audio_buffer)
+            processor.process(&mut context, &mut audio_buffer)
         }
-        AudioThreadProcessor::Silence(processor) => (*processor).process(&mut audio_buffer),
+        AudioThreadProcessor::Silence(processor) => {
+            (*processor).process(&mut context, &mut audio_buffer)
+        }
         AudioThreadProcessor::Graph(graph) => {
             // graph.process_midi(midi_message_handler.buffer());
-            graph.process(&mut audio_buffer);
+            graph.process(&mut context, &mut audio_buffer);
         }
     }
 

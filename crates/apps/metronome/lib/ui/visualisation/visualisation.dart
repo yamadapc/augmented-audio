@@ -51,8 +51,8 @@ class Visualisation extends StatelessWidget {
                   }
 
                   final beatsPerBar = model.beatsPerBar;
-                  final beat = Math.floor((model.playhead) % beatsPerBar)! + 1;
-                  final bar = Math.floor(model.playhead / beatsPerBar)!;
+                  final beat = Math.floor((model.playhead) % beatsPerBar) + 1;
+                  final bar = Math.floor(model.playhead / beatsPerBar);
 
                   return Text(
                     "${beat.toStringAsFixed(0)}/${bar.toStringAsFixed(0)}",

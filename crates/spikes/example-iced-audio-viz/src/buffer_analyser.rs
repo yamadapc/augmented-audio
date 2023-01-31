@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use atomic_queue::Queue;
-use audio_processor_traits::{AudioBuffer, AudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use basedrop::{Handle, Shared};
 
 pub struct BufferAnalyserProcessor {
@@ -45,6 +45,7 @@ impl AudioProcessor for BufferAnalyserProcessor {
 
     fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
         &mut self,
+        _context: &mut AudioContext,
         data: &mut BufferType,
     ) {
         for sample in data.slice().chunks(data.num_channels()) {

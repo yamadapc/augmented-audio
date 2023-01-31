@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:metronome/ui/controls/beats_per_bar_control.dart';
 import 'package:metronome/ui/controls/bottom_row.dart';
@@ -51,42 +52,65 @@ class _MainPageTabState extends State<MainPageTab> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          children: [
-            Visualisation(model: widget.stateController.model),
-            BeatsPerBarControl(stateController: widget.stateController),
-            const SizedBox(height: 30),
-            Expanded(
-              child: Center(
+    return Shortcuts(
+      shortcuts: {
+        LogicalKeySet(LogicalKeyboardKey.space): PlayIntent(),
+      },
+      child: Actions(
+        actions: {
+          PlayIntent: CallbackAction<PlayIntent>(
+            onInvoke: (_) {
+              widget.stateController.toggleIsPlaying();
+              return null;
+            },
+          )
+        },
+        child: FocusScope(
+          child: Focus(
+            skipTraversal: true,
+            autofocus: true,
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    SingleChildScrollView(
-                      controller: scrollController,
-                      child: Column(
-                        children: [
-                          TempoControl(stateController: widget.stateController),
-                          const Divider(thickness: 0.5),
-                          VolumeControl(
-                            stateController: widget.stateController,
-                          ),
-                        ],
+                  children: [
+                    Visualisation(model: widget.stateController.model),
+                    BeatsPerBarControl(stateController: widget.stateController),
+                    const SizedBox(height: 30),
+                    Expanded(
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            SingleChildScrollView(
+                              controller: scrollController,
+                              child: Column(
+                                children: [
+                                  TempoControl(
+                                    stateController: widget.stateController,
+                                  ),
+                                  const Divider(thickness: 0.5),
+                                  VolumeControl(
+                                    stateController: widget.stateController,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Spacer(),
+                            SoundSelector(
+                              stateController: widget.stateController,
+                            ),
+                            const SizedBox(height: 10),
+                            BottomRow(stateController: widget.stateController)
+                          ],
+                        ),
                       ),
-                    ),
-                    const Spacer(),
-                    SoundSelector(
-                      stateController: widget.stateController,
-                    ),
-                    const SizedBox(height: 10),
-                    BottomRow(stateController: widget.stateController)
+                    )
                   ],
                 ),
               ),
-            )
-          ],
+            ),
+          ),
         ),
       ),
     );

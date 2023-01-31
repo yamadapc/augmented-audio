@@ -30,7 +30,7 @@ use audio_processor_analysis::transient_detection::stft::{
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_iced_design_system::{spacing::Spacing, style::Container1};
 use audio_processor_iced_storybook::StoryView;
-use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioContext, AudioProcessor, AudioProcessorSettings};
 
 use crate::ui::common::parameter_view::{
     parameter_view_model::ParameterViewModel, KnobChanged, MultiParameterView,
@@ -124,6 +124,7 @@ impl Default for Story {
 }
 
 fn get_example_file_buffer(settings: AudioProcessorSettings) -> Vec<f32> {
+    let mut context = AudioContext::from(settings);
     let mut processor = AudioFileProcessor::from_path(
         audio_garbage_collector::handle(),
         settings,
@@ -131,7 +132,7 @@ fn get_example_file_buffer(settings: AudioProcessorSettings) -> Vec<f32> {
         // &relative_path!("../../../../input-files/synthetizer-loop.mp3"),
     )
     .unwrap();
-    processor.prepare(settings);
+    processor.prepare(&mut context, settings);
     let channels = processor.buffer().clone();
     let mut output = vec![];
     for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {
