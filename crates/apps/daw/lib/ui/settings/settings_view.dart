@@ -110,14 +110,14 @@ class FormFieldView<T> extends StatelessWidget {
   final void Function(T?) onChanged;
   final T? value;
 
-  const FormFieldView(
-      {Key? key,
-      required this.value,
-      required this.label,
-      required this.hint,
-      required this.options,
-      required this.onChanged})
-      : super(key: key);
+  const FormFieldView({
+    Key? key,
+    required this.value,
+    required this.label,
+    required this.hint,
+    required this.options,
+    required this.onChanged,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
