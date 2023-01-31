@@ -68,9 +68,6 @@ class _MainPageTabState extends State<MainPageTab> {
         child: FocusScope(
           child: Focus(
             skipTraversal: true,
-            onFocusChange: (focus) {
-              print(focus);
-            },
             autofocus: true,
             child: SafeArea(
               child: Padding(
@@ -90,7 +87,8 @@ class _MainPageTabState extends State<MainPageTab> {
                               child: Column(
                                 children: [
                                   TempoControl(
-                                      stateController: widget.stateController),
+                                    stateController: widget.stateController,
+                                  ),
                                   const Divider(thickness: 0.5),
                                   VolumeControl(
                                     stateController: widget.stateController,

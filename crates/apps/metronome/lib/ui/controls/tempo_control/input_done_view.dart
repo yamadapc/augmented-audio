@@ -32,28 +32,28 @@ class InputDoneView extends StatelessWidget {
       width: double.infinity,
       color: CupertinoColors.extraLightBackgroundGray,
       child: Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
-            child: CupertinoButton(
-              padding:
-                  const EdgeInsets.only(right: 24.0, top: 8.0, bottom: 8.0),
-              onPressed: () {
-                if (targetFocusNode != null) {
-                  targetFocusNode!.requestFocus();
-                } else {
-                  final focusScope = FocusScope.of(context);
-                  focusScope.focusedChild?.parent?.requestFocus();
-                }
-              },
-              child: const Text(
-                "Done",
-                style: TextStyle(
-                  color: CupertinoColors.activeBlue,
-                ),
+        alignment: Alignment.topRight,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
+          child: CupertinoButton(
+            padding: const EdgeInsets.only(right: 24.0, top: 8.0, bottom: 8.0),
+            onPressed: () {
+              if (targetFocusNode != null) {
+                targetFocusNode!.requestFocus();
+              } else {
+                final focusScope = FocusScope.of(context);
+                focusScope.focusedChild?.parent?.requestFocus();
+              }
+            },
+            child: const Text(
+              "Done",
+              style: TextStyle(
+                color: CupertinoColors.activeBlue,
               ),
             ),
-          )),
+          ),
+        ),
+      ),
     );
   }
 }

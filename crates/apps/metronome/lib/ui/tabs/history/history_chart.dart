@@ -16,7 +16,6 @@ class HistoryChart extends StatelessWidget {
     return Observer(
       builder: (_) {
         final HistoryChartModel chartModel = historyStateModel.chartModel;
-        final DateFormat dateFormat = chartModel.dateFormat;
         final HistoryChartSeriesList seriesList = chartModel.seriesList;
 
         return BarChart(

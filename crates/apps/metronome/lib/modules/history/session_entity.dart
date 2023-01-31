@@ -78,10 +78,10 @@ class DailyPracticeTime {
 
   DailyPracticeTime(this.durationMs, this.timestampMs);
 
-  static DailyPracticeTime from(
-      {required int durationMs, required int timestampMs}) {
-    return DailyPracticeTime(durationMs, timestampMs);
-  }
+  DailyPracticeTime.from({
+    required this.durationMs,
+    required this.timestampMs,
+  });
 
   @override
   bool operator ==(Object other) =>

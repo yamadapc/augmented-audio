@@ -82,7 +82,7 @@ List<DailyPracticeTime> aggregateWeeklyPracticeTime(
       date: DateTime.fromMillisecondsSinceEpoch(practiceTime.timestampMs),
       resolution: HistoryResolution.weeks,
     ).millisecondsSinceEpoch;
-    print(practiceTime.durationMs);
+
     timePerWeek.update(
       timestampMs,
       (value) => value + practiceTime.durationMs,
