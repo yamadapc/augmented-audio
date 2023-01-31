@@ -3,6 +3,7 @@ import 'package:flutter_daw_mock_ui/state/project.dart';
 import 'package:flutter_daw_mock_ui/ui/common/scroll/interactive_viewer.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
+// ignore: depend_on_referenced_packages
 import 'package:vector_math/vector_math_64.dart';
 
 import 'tracks_view/track_view.dart';

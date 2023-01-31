@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:flutter_daw_mock_ui/state/audio_io_state.dart';
 import 'package:flutter_daw_mock_ui/ui/common/generic_sidebar.dart';
@@ -147,8 +149,8 @@ class FormFieldView<T> extends StatelessWidget {
                 items: options
                     .map(
                       (option) => DropdownMenuItem(
-                          child: Text(option.label, style: textStyle),
-                          value: option.value),
+                          value: option.value,
+                          child: Text(option.label, style: textStyle)),
                     )
                     .toList(),
                 onChanged: onChanged),

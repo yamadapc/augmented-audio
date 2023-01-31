@@ -105,7 +105,7 @@ class AudioIOInputDropdownView extends StatelessWidget {
         var dropdownItems = audioIOState.availableInputs
             .map(
               (input) =>
-                  DropdownMenuItem(child: Text(input.title), value: input),
+                  DropdownMenuItem(value: input, child: Text(input.title)),
             )
             .toList();
 
