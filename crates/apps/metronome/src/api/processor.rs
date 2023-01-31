@@ -75,6 +75,7 @@ fn load_sounds() -> Option<Vec<LoadedSound>> {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[repr(C)]
 pub enum MetronomeSoundTypeTag {
     Sine,
     Tube,

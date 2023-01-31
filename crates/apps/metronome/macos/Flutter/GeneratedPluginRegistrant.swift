@@ -10,7 +10,7 @@ import firebase_core
 import flutter_local_notifications
 import flutter_native_timezone
 import macos_ui
-import shared_preferences_macos
+import shared_preferences_foundation
 import sqflite
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
