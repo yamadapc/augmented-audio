@@ -19,6 +19,10 @@ accepted = [
 ]
 ignore-dev-dependencies = true
 
+# Dart is multi-licensed as MIT as well
+[dart-sys]
+accepted = ["GPL-3.0"]
+
 # These are internal crates
 [daw_ui]
 accepted = ["GPL-3.0"]
