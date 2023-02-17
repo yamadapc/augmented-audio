@@ -258,3 +258,40 @@ fn quantize_mode_label(mode: looper_processor::QuantizeMode) -> String {
     }
     .into()
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use audio_garbage_collector::make_shared;
+
+    #[test]
+    fn test_buttons_view() {
+        let processor_handle = make_shared(LooperProcessorHandle::default());
+        let buttons_view = ButtonsView::new(processor_handle);
+        let _view = buttons_view.view();
+    }
+
+    #[test]
+    fn test_quantize_mode_label_none() {
+        assert_eq!(
+            quantize_mode_label(looper_processor::QuantizeMode::None),
+            "Free tempo"
+        );
+    }
+
+    #[test]
+    fn test_quantize_mode_label_snap_next() {
+        assert_eq!(
+            quantize_mode_label(looper_processor::QuantizeMode::SnapNext),
+            "Snap next"
+        );
+    }
+
+    #[test]
+    fn test_quantize_mode_label_snap_closest() {
+        assert_eq!(
+            quantize_mode_label(looper_processor::QuantizeMode::SnapClosest),
+            "Snap closest"
+        );
+    }
+}
