@@ -85,4 +85,12 @@ class MetronomeStateController {
     model.setSound(sound);
     metronome.setSound(value: sound);
   }
+
+  void increaseTempo({double? increment}) {
+    setTempo(model.tempo + (increment ?? 1));
+  }
+
+  void decreaseTempo({double? decrement}) {
+    setTempo(model.tempo - (decrement ?? 1));
+  }
 }

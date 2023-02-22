@@ -11,6 +11,20 @@ import 'package:metronome/ui/controls/volume_control.dart';
 import 'package:metronome/ui/tabs/main_tab/sound_selector.dart';
 import 'package:metronome/ui/visualisation/visualisation.dart';
 
+class PlayIntent extends Intent {}
+
+class IncreaseTempoIntent extends Intent {
+  double value;
+
+  IncreaseTempoIntent({this.value = 1});
+}
+
+class DecreaseTempoIntent extends Intent {
+  double value;
+
+  DecreaseTempoIntent({this.value = 1});
+}
+
 class MainPageTab extends StatefulWidget {
   const MainPageTab({
     Key? key,
@@ -55,6 +69,12 @@ class _MainPageTabState extends State<MainPageTab> {
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.space): PlayIntent(),
+        LogicalKeySet(LogicalKeyboardKey.arrowLeft): DecreaseTempoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.arrowRight): IncreaseTempoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.arrowLeft):
+            DecreaseTempoIntent(value: 10),
+        LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.arrowRight):
+            IncreaseTempoIntent(value: 10),
       },
       child: Actions(
         actions: {
@@ -63,54 +83,70 @@ class _MainPageTabState extends State<MainPageTab> {
               widget.stateController.toggleIsPlaying();
               return null;
             },
-          )
+          ),
+          DecreaseTempoIntent: CallbackAction<DecreaseTempoIntent>(
+            onInvoke: (intent) {
+              widget.stateController.decreaseTempo(decrement: intent.value);
+              return null;
+            },
+          ),
+          IncreaseTempoIntent: CallbackAction<IncreaseTempoIntent>(
+            onInvoke: (intent) {
+              widget.stateController.increaseTempo(increment: intent.value);
+              return null;
+            },
+          ),
         },
         child: FocusScope(
           child: Focus(
             skipTraversal: true,
             autofocus: true,
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
+            child: _buildContent(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Visualisation(model: widget.stateController.model),
+            BeatsPerBarControl(stateController: widget.stateController),
+            const SizedBox(height: 30),
+            Expanded(
+              child: Center(
                 child: Column(
-                  children: [
-                    Visualisation(model: widget.stateController.model),
-                    BeatsPerBarControl(stateController: widget.stateController),
-                    const SizedBox(height: 30),
-                    Expanded(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            SingleChildScrollView(
-                              controller: scrollController,
-                              child: Column(
-                                children: [
-                                  TempoControl(
-                                    stateController: widget.stateController,
-                                  ),
-                                  const Divider(thickness: 0.5),
-                                  VolumeControl(
-                                    stateController: widget.stateController,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const Spacer(),
-                            SoundSelector(
-                              stateController: widget.stateController,
-                            ),
-                            const SizedBox(height: 10),
-                            BottomRow(stateController: widget.stateController)
-                          ],
-                        ),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SingleChildScrollView(
+                      controller: scrollController,
+                      child: Column(
+                        children: [
+                          TempoControl(
+                            stateController: widget.stateController,
+                          ),
+                          const Divider(thickness: 0.5),
+                          VolumeControl(
+                            stateController: widget.stateController,
+                          ),
+                        ],
                       ),
-                    )
+                    ),
+                    const Spacer(),
+                    SoundSelector(
+                      stateController: widget.stateController,
+                    ),
+                    const SizedBox(height: 10),
+                    BottomRow(stateController: widget.stateController)
                   ],
                 ),
               ),
-            ),
-          ),
+            )
+          ],
         ),
       ),
     );
