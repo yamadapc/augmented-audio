@@ -5,6 +5,7 @@ import 'package:metronome/modules/history/history_controller.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
 import 'package:metronome/modules/state/tap_tempo_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:wakelock/wakelock.dart';
 
 class PreferenceKey {
   static const String tempo = "tempo";
@@ -62,8 +63,10 @@ class MetronomeStateController {
 
     if (value) {
       historyController.onStart();
+      Wakelock.enable();
     } else {
       historyController.onEnd();
+      Wakelock.disable();
     }
   }
 
