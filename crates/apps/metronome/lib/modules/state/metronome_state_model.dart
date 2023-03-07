@@ -3,6 +3,8 @@
 import 'package:metronome/bridge_generated.dart';
 import 'package:mobx/mobx.dart';
 
+import 'session_state.dart';
+
 part 'metronome_state_model.g.dart';
 
 // ignore: library_private_types_in_public_api
@@ -26,6 +28,9 @@ abstract class _MetronomeStateModel with Store {
 
   @observable
   MetronomeSoundTypeTag sound = MetronomeSoundTypeTag.Sine;
+
+  @observable
+  SessionState sessionState = SessionState();
 
   @action
   void setPlayhead(double value) {

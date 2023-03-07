@@ -12,8 +12,6 @@ class HistoryStartStopHandler {
   final MetronomeStateModel model;
   final HistoryStateController historyStateController;
 
-  DateTime? start;
-
   HistoryStartStopHandler(
     this.sessionDao,
     this.model,
@@ -21,17 +19,17 @@ class HistoryStartStopHandler {
   );
 
   void onStart() {
-    start = clock.now();
-    logger.i("Session start=$start");
+    model.sessionState.startSession();
+    logger.i("Session start=${model.sessionState.start}");
   }
 
   Future<void> onEnd() async {
-    if (start == null) {
+    if (model.sessionState.start == null) {
       return;
     }
 
     final now = clock.now();
-    final duration = now.difference(start!);
+    final duration = now.difference(model.sessionState.start!);
     final durationMs = duration.inMilliseconds;
 
     if (durationMs < thresholdMs) {
@@ -40,7 +38,7 @@ class HistoryStartStopHandler {
 
     logger.i("Session end durationMs=$durationMs");
     final session = Session.create(
-      timestampMs: start!.millisecondsSinceEpoch,
+      timestampMs: model.sessionState.start!.millisecondsSinceEpoch,
       durationMs: durationMs,
       tempo: model.tempo,
       beatsPerBar: model.beatsPerBar,
@@ -48,6 +46,6 @@ class HistoryStartStopHandler {
     await sessionDao.insertSession(session);
     await historyStateController.refresh();
 
-    start = null;
+    model.sessionState.stopSession();
   }
 }

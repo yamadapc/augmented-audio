@@ -105,6 +105,22 @@ mixin _$MetronomeStateModel on _MetronomeStateModel, Store {
     });
   }
 
+  late final _$sessionStateAtom =
+      Atom(name: '_MetronomeStateModel.sessionState', context: context);
+
+  @override
+  SessionState get sessionState {
+    _$sessionStateAtom.reportRead();
+    return super.sessionState;
+  }
+
+  @override
+  set sessionState(SessionState value) {
+    _$sessionStateAtom.reportWrite(value, super.sessionState, () {
+      super.sessionState = value;
+    });
+  }
+
   late final _$_MetronomeStateModelActionController =
       ActionController(name: '_MetronomeStateModel', context: context);
 
@@ -182,7 +198,8 @@ volume: ${volume},
 tempo: ${tempo},
 playhead: ${playhead},
 beatsPerBar: ${beatsPerBar},
-sound: ${sound}
+sound: ${sound},
+sessionState: ${sessionState}
     ''';
   }
 }
