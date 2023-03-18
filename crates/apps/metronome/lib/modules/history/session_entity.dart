@@ -35,6 +35,7 @@ class Session {
 SELECT
   SUM(durationMs) as durationMs,
   ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,
+  MIN(timestampMs) as startTimestampMs,
   tempo,
   beatsPerBar
 FROM session
@@ -49,12 +50,14 @@ ORDER BY timestampMs DESC
 class AggregatedSession {
   final int durationMs;
   final int timestampMs;
+  final int startTimestampMs;
   final double tempo;
   final int beatsPerBar;
 
   AggregatedSession(
     this.durationMs,
     this.timestampMs,
+    this.startTimestampMs,
     this.tempo,
     this.beatsPerBar,
   );

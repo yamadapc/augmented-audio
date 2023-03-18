@@ -69,7 +69,7 @@ class _$MetronomeDatabase extends MetronomeDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 5,
+      version: 6,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -88,7 +88,7 @@ class _$MetronomeDatabase extends MetronomeDatabase {
             'CREATE TABLE IF NOT EXISTS `Session` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `timestampMs` INTEGER NOT NULL, `durationMs` INTEGER NOT NULL, `tempo` REAL NOT NULL, `beatsPerBar` INTEGER NOT NULL)');
 
         await database.execute(
-            'CREATE VIEW IF NOT EXISTS `AggregatedSession` AS SELECT\n  SUM(durationMs) as durationMs,\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,\n  tempo,\n  beatsPerBar\nFROM session\nGROUP BY\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),\n  tempo,\n  beatsPerBar\nORDER BY timestampMs DESC\n  ');
+            'CREATE VIEW IF NOT EXISTS `AggregatedSession` AS SELECT\n  SUM(durationMs) as durationMs,\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,\n  MIN(timestampMs) as startTimestampMs,\n  tempo,\n  beatsPerBar\nFROM session\nGROUP BY\n  ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),\n  tempo,\n  beatsPerBar\nORDER BY timestampMs DESC\n  ');
         await database.execute(
             'CREATE VIEW IF NOT EXISTS `dailypracticetime` AS   SELECT\n      SUM(durationMs) as durationMs,\n      strftime(\'%s\', datetime(timestampMs / 1000, \'unixepoch\', \'localtime\', \'start of day\')) * 1000 AS timestampMs\n  FROM session\n  GROUP BY\n      datetime(timestampMs / 1000, \'unixepoch\', \'localtime\', \'start of day\')\n  ORDER BY timestampMs DESC\n');
 
@@ -154,11 +154,15 @@ class _$SessionDao extends SessionDao {
   }
 
   @override
-  Future<List<AggregatedSession>> findAggregatedSessions(int startMs) async {
+  Future<List<AggregatedSession>> findAggregatedSessions() async {
     return _queryAdapter.queryList(
-        'SELECT * FROM aggregatedsession WHERE timestampMs >= ?1 ORDER BY timestampMs DESC LIMIT 100',
-        mapper: (Map<String, Object?> row) => AggregatedSession(row['durationMs'] as int, row['timestampMs'] as int, row['tempo'] as double, row['beatsPerBar'] as int),
-        arguments: [startMs]);
+        'SELECT * FROM aggregatedsession ORDER BY startTimestampMs DESC LIMIT 100',
+        mapper: (Map<String, Object?> row) => AggregatedSession(
+            row['durationMs'] as int,
+            row['timestampMs'] as int,
+            row['startTimestampMs'] as int,
+            row['tempo'] as double,
+            row['beatsPerBar'] as int));
   }
 
   @override

@@ -14,9 +14,9 @@ abstract class SessionDao {
   Future<List<Session>> findAllSessions();
 
   @Query(
-    "SELECT * FROM aggregatedsession WHERE timestampMs >= :startMs ORDER BY timestampMs DESC LIMIT 100",
+    "SELECT * FROM aggregatedsession ORDER BY startTimestampMs DESC LIMIT 100",
   )
-  Future<List<AggregatedSession>> findAggregatedSessions(int startMs);
+  Future<List<AggregatedSession>> findAggregatedSessions();
 
   @Query(
     "SELECT * FROM dailypracticetime WHERE timestampMs >= :startMs ORDER BY timestampMs DESC LIMIT 100",

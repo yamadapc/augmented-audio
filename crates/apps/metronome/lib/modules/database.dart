@@ -9,7 +9,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 part 'database.g.dart';
 
 @Database(
-  version: 5,
+  version: 6,
   entities: [Session],
   views: [AggregatedSession, DailyPracticeTime],
 )
@@ -57,7 +57,32 @@ CREATE VIEW IF NOT EXISTS DailyPracticeTime AS
   """);
 });
 
-final migrations = [addBeatsPerBar, addAggregatedSession, addDailyPracticeTime];
+final addStartAggregatedSessionTime = Migration(5, 6, (database) async {
+  logger.i("Migrating aggregated sessions view");
+  await database.execute("""
+DROP VIEW IF EXISTS AggregatedSession;
+CREATE VIEW IF NOT EXISTS AggregatedSession AS
+  SELECT
+    SUM(durationMs) as durationMs,
+    ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)) as timestampMs,
+    MIN(timestampMs) as startTimestampMs,
+    tempo,
+    beatsPerBar
+  FROM session
+  GROUP BY
+    ((timestampMs / (1000 * 60 * 60 * 24)) * (1000 * 60 * 60 * 24)),
+    tempo,
+    beatsPerBar
+  ORDER BY timestampMs DESC
+ """);
+});
+
+final migrations = [
+  addBeatsPerBar,
+  addAggregatedSession,
+  addDailyPracticeTime,
+  addStartAggregatedSessionTime
+];
 
 Future<MetronomeDatabase> buildInMemoryDatabase() {
   return $FloorMetronomeDatabase

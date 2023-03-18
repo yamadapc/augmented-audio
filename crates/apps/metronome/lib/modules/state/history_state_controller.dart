@@ -60,12 +60,10 @@ class HistoryStateController {
     return dailyTime;
   }
 
-  /// Find the last week of practice entries
+  /// Find the 100 practice entries
   @visibleForTesting
   Future<List<AggregatedSession>> findRecentSessions() async {
-    final lastWeek =
-        DateTime.now().millisecondsSinceEpoch - 1000 * 60 * 60 * 24 * 7;
-    final sessions = await _sessionDao.findAggregatedSessions(lastWeek);
+    final sessions = await _sessionDao.findAggregatedSessions();
     return sessions;
   }
 }

@@ -35,12 +35,11 @@ class MockSessionDao extends _i1.Mock implements _i2.SessionDao {
             _i3.Future<List<_i4.Session>>.value(<_i4.Session>[]),
       ) as _i3.Future<List<_i4.Session>>);
   @override
-  _i3.Future<List<_i4.AggregatedSession>> findAggregatedSessions(
-          int? startMs) =>
+  _i3.Future<List<_i4.AggregatedSession>> findAggregatedSessions() =>
       (super.noSuchMethod(
         Invocation.method(
           #findAggregatedSessions,
-          [startMs],
+          [],
         ),
         returnValue: _i3.Future<List<_i4.AggregatedSession>>.value(
             <_i4.AggregatedSession>[]),

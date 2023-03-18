@@ -36,9 +36,9 @@ class HistoryListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    final DateFormat dateFormat = DateFormat("yyyy-MM-dd • hh:mm");
     final formattedDate = dateFormat
-        .format(DateTime.fromMillisecondsSinceEpoch(session.timestampMs));
+        .format(DateTime.fromMillisecondsSinceEpoch(session.startTimestampMs));
     final duration = Duration(milliseconds: session.durationMs);
     final timeSignature = "${session.beatsPerBar}/4";
 

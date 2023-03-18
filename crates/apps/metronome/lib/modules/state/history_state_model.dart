@@ -33,14 +33,22 @@ abstract class _HistoryStateModel with Store {
         : weeklyPracticeTime;
     final DateFormat dateFormat = historyResolution == HistoryResolution.days
         ? DateFormat("E")
-        : DateFormat("d/MM/yy");
+        : DateFormat("d/MM");
     final points = ChartTransformer.preprocessPoints(
       DateTime.now(),
       data,
       historyResolution,
     );
 
-    return HistoryChartModel(data: points, dateFormat: dateFormat);
+    final totalDuration = points
+        .map((e) => e.durationMs)
+        .reduce((value, element) => value + element);
+
+    return HistoryChartModel(
+      data: points,
+      dateFormat: dateFormat,
+      isEmpty: totalDuration <= 0,
+    );
   }
 }
 
@@ -121,8 +129,13 @@ typedef HistoryChartSeriesList = List<HistoryChartSeries>;
 class HistoryChartModel {
   List<DailyPracticeTime> data;
   DateFormat dateFormat;
+  bool isEmpty;
 
-  HistoryChartModel({required this.data, required this.dateFormat});
+  HistoryChartModel({
+    required this.data,
+    required this.dateFormat,
+    required this.isEmpty,
+  });
 
   HistoryChartSeriesList get seriesList {
     return [
