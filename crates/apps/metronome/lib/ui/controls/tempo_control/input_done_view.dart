@@ -36,6 +36,9 @@ class InputDoneView extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
           child: CupertinoButton(
+            key: const Key(
+              "ui.controls.tempo-control.input-done-view.done-button",
+            ),
             padding: const EdgeInsets.only(right: 24.0, top: 8.0, bottom: 8.0),
             onPressed: () {
               if (targetFocusNode != null) {
