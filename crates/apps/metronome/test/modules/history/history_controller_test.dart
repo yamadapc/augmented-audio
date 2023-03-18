@@ -20,7 +20,7 @@ void main() {
 
     withClock(Clock.fixed(DateTime(2000)), () {
       handler.onStart();
-      expect(handler.start, equals(DateTime(2000)));
+      expect(handler.model.sessionState.start, equals(DateTime(2000)));
     });
   });
 
@@ -40,9 +40,9 @@ void main() {
     when(historyStateController.refresh())
         .thenThrow(Exception("Should not be called"));
 
-    expect(handler.start, isNull);
+    expect(handler.model.sessionState.start, isNull);
     handler.onEnd();
-    expect(handler.start, isNull);
+    expect(handler.model.sessionState.start, isNull);
   });
 
   test(
@@ -70,7 +70,7 @@ void main() {
       () => handler.onEnd(),
     );
 
-    expect(handler.start, equals(DateTime(2000)));
+    expect(handler.model.sessionState.start, equals(DateTime(2000)));
     verifyNever(sessionDao.insertSession(any));
     verifyNever(historyStateController.refresh());
   });
@@ -100,7 +100,7 @@ void main() {
       () => handler.onEnd(),
     );
 
-    expect(handler.start, isNull);
+    expect(handler.model.sessionState.start, isNull);
     verify(sessionDao.insertSession(any)).called(1);
     verify(historyStateController.refresh()).called(1);
   });
