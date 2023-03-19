@@ -17,23 +17,32 @@
 // = /copyright ===================================================================
 //! This module contains the public API exposed to flutter
 
+use std::sync::atomic::Ordering;
 use std::time::Duration;
 
 use anyhow::Result;
 use flutter_rust_bridge::StreamSink;
+use lazy_static::lazy_static;
 
 pub use self::processor::MetronomeSoundTypeTag;
 use self::state::{with_state, with_state0};
+use std::sync::atomic::AtomicBool;
 
 mod processor;
 mod state;
 
+lazy_static! {
+    pub static ref IS_RUNNING: AtomicBool = AtomicBool::new(false);
+}
+
 pub fn initialize() -> Result<i32> {
+    IS_RUNNING.store(true, Ordering::Relaxed);
     state::initialize();
     Ok(0)
 }
 
 pub fn deinitialize() -> Result<i32> {
+    IS_RUNNING.store(false, Ordering::Relaxed);
     state::deinitialize();
     Ok(0)
 }
@@ -80,8 +89,13 @@ pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
         let handle = state.processor_handle.clone();
         std::thread::spawn(move || {
             log::info!("Starting streaming of playhead");
-            while sink.add(handle.position_beats()) {
+
+            let get_is_running = || IS_RUNNING.load(Ordering::Relaxed);
+            let mut is_running: bool = get_is_running();
+
+            while is_running && sink.add(handle.position_beats()) {
                 std::thread::sleep(Duration::from_millis(50));
+                is_running = get_is_running();
             }
             log::info!("Stream closed, stopping streaming of playhead");
         });
