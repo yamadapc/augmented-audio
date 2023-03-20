@@ -50,6 +50,12 @@ pub struct DefaultMetronomePlayhead {
     playhead: PlayHead,
 }
 
+impl DefaultMetronomePlayhead {
+    fn playhead(&self) -> &PlayHead {
+        &self.playhead
+    }
+}
+
 impl Default for DefaultMetronomePlayhead {
     fn default() -> Self {
         let sample_rate = DEFAULT_SAMPLE_RATE;
@@ -90,5 +96,54 @@ impl MetronomePlayhead for DefaultMetronomePlayhead {
 
     fn position_beats(&self) -> f64 {
         self.playhead.position_beats()
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::{DefaultMetronomePlayhead, MetronomePlayhead};
+    use audio_processor_testing_helpers::assert_f_eq;
+    use audio_processor_traits::AudioProcessorSettings;
+
+    #[test]
+    fn test_default_metronome_playhead_has_expected_values() {
+        let playhead = DefaultMetronomePlayhead::default();
+        assert_f_eq!(playhead.position_beats(), 0.0);
+        assert_eq!(playhead.tempo(), Some(120.0));
+    }
+
+    #[test]
+    fn test_reset_sets_position_to_zero() {
+        let mut playhead = DefaultMetronomePlayhead::default();
+        playhead.accept_samples(100);
+        playhead.reset();
+        assert_f_eq!(playhead.position_beats(), 0.0);
+    }
+
+    #[test]
+    fn test_set_tempo_changes_tempo() {
+        let mut playhead = DefaultMetronomePlayhead::default();
+        playhead.set_tempo(80.0);
+        assert_eq!(playhead.tempo(), Some(80.0));
+    }
+
+    #[test]
+    fn test_prepare_sets_sample_rate_and_tempo() {
+        let mut playhead = DefaultMetronomePlayhead::default();
+        let settings = AudioProcessorSettings::new(22050.0, 2, 2, 512);
+        playhead.prepare(&settings, 100.0);
+
+        assert_eq!(playhead.tempo(), Some(100.0));
+        let sample_rate = playhead.playhead().options().sample_rate().unwrap();
+        assert_f_eq!(sample_rate, 22050.0);
+    }
+
+    #[test]
+    fn test_accept_samples_updates_position() {
+        let mut playhead = DefaultMetronomePlayhead::default();
+        let settings = AudioProcessorSettings::new(44100.0, 2, 2, 512);
+        playhead.prepare(&settings, 120.0);
+        playhead.accept_samples(4410);
+        assert_f_eq!(playhead.position_beats(), 0.2);
     }
 }
