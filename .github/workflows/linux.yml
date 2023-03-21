@@ -34,7 +34,9 @@ jobs:
           SCCACHE_FILE=sccache-dist-v$SCCACHE_VERSION-$PLATFORM
           SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
           curl -L $SCCACHE_URL | tar xz
+          mv "$(pwd)/$SCCACHE_FILE/sccache-dist" "$(pwd)/$SCCACHE_FILE/sccache"
           echo "$(pwd)/$SCCACHE_FILE/sccache" >> $GITHUB_PATH
+          ls "$(pwd)/$SCCACHE_FILE"
 
       - name: Cache sccache output
         uses: actions/cache@v2
@@ -144,6 +146,7 @@ jobs:
         SCCACHE_FILE=sccache-dist-v$SCCACHE_VERSION-$PLATFORM
         SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
         curl -L $SCCACHE_URL | tar xz
+        mv "$(pwd)/$SCCACHE_FILE/sccache-dist" "$(pwd)/$SCCACHE_FILE/sccache"
         echo "$(pwd)/$SCCACHE_FILE/sccache" >> $GITHUB_PATH
         ls "$(pwd)/$SCCACHE_FILE"
 
