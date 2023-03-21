@@ -78,6 +78,10 @@ jobs:
           RUSTC_WRAPPER: sccache
         run: ./scripts/test.sh
 
+      - name: Print sccache stats
+        run: |
+          sccache --show-stats
+
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
