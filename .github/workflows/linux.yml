@@ -37,6 +37,15 @@ jobs:
           echo "$(pwd)/$SCCACHE_FILE/sccache" >> $GITHUB_PATH
           sccache -s
 
+      - name: Cache sccache output
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/sccache
+          key: ${{ runner.os }}-sccache-test-${{ hashFiles('**/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-sccache-test
+
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux3"
