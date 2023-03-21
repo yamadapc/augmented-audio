@@ -35,7 +35,6 @@ jobs:
           SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
           curl -L $SCCACHE_URL | tar xz
           echo "$(pwd)/$SCCACHE_FILE/sccache" >> $GITHUB_PATH
-          sccache -s
 
       - name: Cache sccache output
         uses: actions/cache@v2
@@ -45,6 +44,10 @@ jobs:
           key: ${{ runner.os }}-sccache-test-${{ hashFiles('**/Cargo.toml') }}
           restore-keys: |
             ${{ runner.os }}-sccache-test
+
+      - name: Print sccache stats
+        run: |
+          sccache -s
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -132,6 +135,31 @@ jobs:
       with:
         submodules: recursive
         lfs: true
+
+    - name: Set up sccache
+      env:
+        SCCACHE_VERSION: 0.4.0
+        PLATFORM: x86_64-unknown-linux-musl
+      run: |
+        SCCACHE_FILE=sccache-dist-v$SCCACHE_VERSION-$PLATFORM
+        SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
+        curl -L $SCCACHE_URL | tar xz
+        echo "$(pwd)/$SCCACHE_FILE/sccache" >> $GITHUB_PATH
+
+    - name: Cache sccache output
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/sccache
+        key: ${{ runner.os }}-sccache-releasebuild-${{ hashFiles('**/Cargo.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-sccache-releasebuild
+
+    - name: Print sccache stats
+      run: |
+        sccache -s
+    
+
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-linux3"
