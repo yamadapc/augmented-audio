@@ -46,6 +46,7 @@ jobs:
               --exclude-files "*crates/vendor/*" \
               --exclude-files "*crates/spikes/*" \
               --exclude-files "*crates/scripts/*" \
+              --exclude-files "*crates/examples/*" \
               --exclude-files "*crates/augmented/gui/*" \
               --exclude-files "*crates/augmented/application/audio-processor-standalone/examples/*" \
               --exclude-files "*crates/augmented/application/audio-processor-standalone-gui/*" \
@@ -59,6 +60,8 @@ jobs:
               --exclude-files "*crates/apps/synth/*" \
               --exclude-files "*crates/apps/looper/augmented-codegen/*" \
               --exclude-files "*/bridge_generated.rs" \
+              --exclude-files "*/bridge_generated.io.rs" \
+              --exclude-files "*crates/apps/*/src/ui/*" \
               --exclude assert-no-alloc \
               --exclude augmented-ui \
               --exclude audiounit \
