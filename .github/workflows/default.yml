@@ -79,6 +79,26 @@ jobs:
       with:
         submodules: recursive
         lfs: true
+    - name: Set up sccache
+      env:
+        SCCACHE_VERSION: 0.4.0
+        PLATFORM: x86_64-apple-darwin
+      run: |
+        SCCACHE_FILE=sccache-dist-v$SCCACHE_VERSION-$PLATFORM
+        SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
+        curl -L $SCCACHE_URL | tar xz
+        echo "$(pwd)/$SCCACHE_FILE/sccache" >> $GITHUB_PATH
+        sccache -s
+
+    - name: Cache sccache output
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cache/sccache
+        key: ${{ runner.os }}-sccache-releasebuild-${{ hashFiles('**/Cargo.toml') }}
+        restore-keys: |
+            ${{ runner.os }}-sccache-releasebuild
+
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-macos2"
@@ -88,7 +108,10 @@ jobs:
         path: |
           ~/.cargo/bin/
         key: ${{ runner.os }}-cargo-bin
+
     - name: Install uniffi bindgen
+      env:
+        RUSTC_WRAPPER: sccache
       run: |
         if ! [ -x "$(command -v uniffi-bindgen)" ]; then
           echo "::group::Installing uniffi_bindgen"
@@ -96,8 +119,16 @@ jobs:
           echo "::endgroup::"
         fi
         which uniffi-bindgen
+
     - name: Build release
+      env:
+        RUSTC_WRAPPER: sccache
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
+
+    - name: Print sccache stats
+      run: |
+        sccache -s
+
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:
