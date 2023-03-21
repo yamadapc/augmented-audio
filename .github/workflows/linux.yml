@@ -34,7 +34,6 @@ jobs:
           SCCACHE_FILE=sccache-dist-v$SCCACHE_VERSION-$PLATFORM
           SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
           curl -L $SCCACHE_URL | tar xz
-          mv "$(pwd)/$SCCACHE_FILE/sccache-dist" "$(pwd)/$SCCACHE_FILE/sccache"
           echo "$(pwd)/$SCCACHE_FILE" >> $GITHUB_PATH
           ls "$(pwd)/$SCCACHE_FILE"
 
@@ -49,7 +48,7 @@ jobs:
 
       - name: Print sccache stats
         run: |
-          sccache -s
+          sccache-dist --show-stats
 
       - uses: Swatinem/rust-cache@v2
         with:
@@ -63,7 +62,7 @@ jobs:
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-          RUSTC_WRAPPER: sccache
+          RUSTC_WRAPPER: sccache-dist
         run: |
           cargo tarpaulin --skip-clean --workspace \
               --features story \
@@ -118,7 +117,7 @@ jobs:
 
       - name: Print sccache stats
         run: |
-          sccache -s
+          sccache-dist --show-stats
 
       - name: Upload tarpaulin report
         uses: actions/upload-artifact@v2
@@ -146,7 +145,6 @@ jobs:
         SCCACHE_FILE=sccache-dist-v$SCCACHE_VERSION-$PLATFORM
         SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
         curl -L $SCCACHE_URL | tar xz
-        mv "$(pwd)/$SCCACHE_FILE/sccache-dist" "$(pwd)/$SCCACHE_FILE/sccache"
         echo "$(pwd)/$SCCACHE_FILE" >> $GITHUB_PATH
         ls "$(pwd)/$SCCACHE_FILE"
 
@@ -161,7 +159,7 @@ jobs:
 
     - name: Print sccache stats
       run: |
-        sccache -s
+        sccache-dist --show-stats
     
 
     - uses: Swatinem/rust-cache@v2
@@ -169,11 +167,15 @@ jobs:
         shared-key: "rust-cache-linux3"
 
     - name: Install dependencies
+      env:
+        RUSTC_WRAPPER: sccache-dist
       run: |
         ./scripts/install-ubuntu-apt-dependencies.sh
         ./scripts/install-ubuntu-rust-dependencies.sh
 
     - name: Build release
+      env:
+        RUSTC_WRAPPER: sccache-dist
       run: |
         cargo build --release --workspace \
             --exclude augmented-ui \
@@ -188,6 +190,11 @@ jobs:
     - name: Run snapshot tests
       run: |
         ./scripts/dev.sh test-snapshots
+
+    - name: Print sccache stats
+      run: |
+        sccache-dist --show-stats
+
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
       with:
