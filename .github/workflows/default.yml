@@ -85,7 +85,7 @@ jobs:
         SCCACHE_VERSION: 0.4.0
         PLATFORM: x86_64-apple-darwin
       run: |
-        SCCACHE_FILE=sccache-dist-v$SCCACHE_VERSION-$PLATFORM
+        SCCACHE_FILE=sccache-v$SCCACHE_VERSION-$PLATFORM
         SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
         curl -L $SCCACHE_URL | tar xz
         echo "$(pwd)/$SCCACHE_FILE" >> $GITHUB_PATH
@@ -102,7 +102,7 @@ jobs:
 
     - name: Print sccache stats
       run: |
-        sccache-dist --show-stats
+        sccache --show-stats
 
     - uses: Swatinem/rust-cache@v2
       with:
@@ -116,7 +116,7 @@ jobs:
 
     - name: Install uniffi bindgen
       env:
-        RUSTC_WRAPPER: sccache-dist
+        RUSTC_WRAPPER: sccache
       run: |
         if ! [ -x "$(command -v uniffi-bindgen)" ]; then
           echo "::group::Installing uniffi_bindgen"
@@ -127,12 +127,12 @@ jobs:
 
     - name: Build release
       env:
-        RUSTC_WRAPPER: sccache-dist
+        RUSTC_WRAPPER: sccache
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
 
     - name: Print sccache stats
       run: |
-        sccache-dist --show-stats
+        sccache --show-stats
 
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
