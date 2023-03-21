@@ -25,6 +25,18 @@ jobs:
         with:
           submodules: recursive
           lfs: true
+
+      - name: Set up sccache
+        env:
+          SCCACHE_VERSION: 0.4.0
+          PLATFORM: x86_64-unknown-linux-musl
+        run: |
+          SCCACHE_FILE=sccache-dist-v$SCCACHE_VERSION-$PLATFORM
+          SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
+          curl -L $SCCACHE_URL | tar xz
+          echo "$(pwd)/$SCCACHE_FILE/sccache" >> $GITHUB_PATH
+          sccache -s
+
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux3"
