@@ -145,6 +145,7 @@ jobs:
         SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
         curl -L $SCCACHE_URL | tar xz
         echo "$(pwd)/$SCCACHE_FILE/sccache" >> $GITHUB_PATH
+        ls "$(pwd)/$SCCACHE_FILE"
 
     - name: Cache sccache output
       uses: actions/cache@v2
