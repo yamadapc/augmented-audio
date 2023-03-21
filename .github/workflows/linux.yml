@@ -58,6 +58,7 @@ jobs:
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+          RUSTC_WRAPPER: sccache
         run: |
           cargo tarpaulin --skip-clean --workspace \
               --features story \
@@ -109,6 +110,10 @@ jobs:
               --exclude webview-holder \
               --exclude visualisation_ \
               --exclude macos-bundle-resources
+
+      - name: Print sccache stats
+        run: |
+          sccache -s
 
       - name: Upload tarpaulin report
         uses: actions/upload-artifact@v2
