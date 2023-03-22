@@ -40,7 +40,7 @@
 //! handle.
 //!
 //! ```rust
-//! use audio_processor_traits::{AudioProcessor, AudioBuffer, AudioProcessorSettings};
+//! use audio_processor_traits::{AudioProcessor, AudioBuffer, AudioProcessorSettings, AudioContext};
 //! use augmented_audio_metrics::audio_processor_metrics::{AudioProcessorMetrics, AudioProcessorMetricsHandle};
 //!
 //! struct TrackedProcessor {
@@ -50,12 +50,17 @@
 //! impl AudioProcessor for TrackedProcessor {
 //!     type SampleType = f32;
 //!
-//!     fn prepare(&mut self, settings: AudioProcessorSettings) {
+//!     fn prepare(
+//!         &mut self,
+//!         _context: &mut AudioContext,
+//!         settings: AudioProcessorSettings
+//!     ) {
 //!         self.metrics.prepare(settings);
 //!     }
 //!
 //!     fn process<BufferType: AudioBuffer<SampleType=Self::SampleType>>(
 //!         &mut self,
+//!         _context: &mut AudioContext,
 //!         data: &mut BufferType
 //!     ) {
 //!         self.metrics.on_process_start();
