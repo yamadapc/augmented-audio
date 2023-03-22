@@ -40,8 +40,8 @@ thiserror = "^1.0.25"
 
 # GUI
 audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", default-features = false , version = "0.3.1" }
-iced = { version = "0.6.0", default-features = false }
-iced_native = { version = "0.7.0" }
+iced = { version = "0.8.0", default-features = false }
+iced_native = { version = "0.9.1" }
 iced_baseview = { version = "0.1", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
 augmented-iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false , version = "0.3.0" }
 
@@ -64,11 +64,7 @@ tokio = "1.17.0"
 itertools = "0.10.3"
 
 [dependencies.iced_audio]
-# TODO: This is required due to iced@v0.6 support https://github.com/iced-rs/iced_audio/commit/03ff8e94d63eafcc8a7d34569763a4c741688730
-git = "https://github.com/iced-rs/iced_audio"
-rev = "03ff8e94d63eafcc8a7d34569763a4c741688730"
-default-features = false
-# version = "0.9.0"
+version = "0.11.0"
 
 [lib]
 name = "loopi"

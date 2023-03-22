@@ -168,7 +168,7 @@ impl Application for LooperApplication {
         .height(Length::Fill)
         .into();
         let knobs = Container::new(self.knobs_view.view().map(Message::BottomPanel))
-            .height(Length::Units(100))
+            .height(Length::Fixed(100.0))
             .into();
 
         #[allow(unused_variables)]

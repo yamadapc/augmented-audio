@@ -149,7 +149,7 @@ pub fn view<ParameterId: 'static + Clone + Copy + Debug>(
             Knob::new(parameter_view_model.knob_state, move |value| {
                 map_normal_to_message(parameter_id, range, int_range, value)
             })
-            .size(Length::Units(Spacing::base_control_size()))
+            .size(Length::Fixed(Spacing::base_control_size() as f32))
             .style(audio_knob::style::Knob)
             .into(),
             Text::new(value_label)
