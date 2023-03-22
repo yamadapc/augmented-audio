@@ -31,7 +31,7 @@ shaku = { version = "^0.6.1", features = ["derive"] }
 
 augmented = { path = "../../../augmented/augmented", features = ["wgpu"] }
 
-audio-processor-traits = { version = "2.2.0", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "3.2.0", path = "../../../augmented/audio/audio-processor-traits" }
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector", version = "1.1.1" }
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook" , version = "0.2.0" }
 audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-processor-iced-design-system", features = ["wgpu"], default-features = false , version = "0.3.1" }

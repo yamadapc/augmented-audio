@@ -30,7 +30,7 @@ private = false
 
 [dependencies]
 assert_no_alloc = "1.1.2"
-audio-processor-traits = { path = "../audio-processor-traits", version = "2.2.0" }
+audio-processor-traits = { path = "../audio-processor-traits", version = "3.2.0" }
 audio-garbage-collector = { path = "../audio-garbage-collector", version = "1.1.1" }
 rand = { version = "0.8.5", features = ["small_rng"] }
 nalgebra = "0.31.0"

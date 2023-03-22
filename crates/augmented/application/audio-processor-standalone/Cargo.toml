@@ -25,7 +25,7 @@ clack-plugin = { git = "https://github.com/prokopyl/clack", rev = "31d247c00ddc2
 # Augmented
 audio-processor-file = { path = "../../audio/audio-processor-file", version = "1.3.0" }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector", version = "1.1.1" }
-audio-processor-traits = { version = "2.2.0", path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "3.2.0", path = "../../audio/audio-processor-traits" }
 augmented-midi = { path = "../../data/augmented-midi", version = "1.3.0" }
 
 # Audio

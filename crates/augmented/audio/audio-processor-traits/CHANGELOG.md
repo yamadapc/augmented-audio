@@ -1,3 +1,12 @@
+## v3.2.0
+
+* [`ce67876edbf`](https://github.com/yamadapc/augmented-audio/commits/ce67876edbf) augmented_oscillator@1.2.1 (Minor)
+* [`93d44428a9a`](https://github.com/yamadapc/augmented-audio/commits/93d44428a9a) audio-garbage-collector@1.1.1 (Minor)
+* [`90164dc4223`](https://github.com/yamadapc/augmented-audio/commits/90164dc4223) Update with a new benchmark (Minor)
+* [`1ef3e6a1fe1`](https://github.com/yamadapc/augmented-audio/commits/1ef3e6a1fe1) Add basic combinators (Minor)
+* [`9a78e0bcc61`](https://github.com/yamadapc/augmented-audio/commits/9a78e0bcc61) Start to add context parameter and combinators :major: (Major)
+* [`cd475f5e06d`](https://github.com/yamadapc/augmented-audio/commits/cd475f5e06d) Fix clippy warnings :patch: (Patch)
+
 ## v2.2.0
 
 * [`9f02ad99ff`](https://github.com/yamadapc/augmented-audio/commits/9f02ad99ff) augmented_oscillator@1.2.0 (Minor)

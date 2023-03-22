@@ -36,7 +36,7 @@ wgpu = [
 ]
 
 [dependencies]
-audio-processor-traits = { version = "2.2.0",  path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "3.2.0",  path = "../../audio/audio-processor-traits" }
 vst = { version = "0.3", path = "../../../vendor/vst" }
 
 # GUI dependencies
