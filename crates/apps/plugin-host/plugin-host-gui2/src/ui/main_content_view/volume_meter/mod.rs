@@ -481,7 +481,7 @@ pub mod story {
                 .map(|state| {
                     Container::new(state.view())
                         .style(Container1::default().border())
-                        .width(Length::Units(Spacing::base_control_size() * 2))
+                        .width(Length::Fixed((Spacing::base_control_size() * 2) as f32))
                         .padding(Spacing::base_spacing())
                         .height(Length::Fill)
                         .into()

@@ -76,22 +76,22 @@ impl TransportControlsView {
             .on_press(Message::Pause)
             .style(style::ChromelessButton.into())
             .padding(0)
-            .width(Length::Units(Spacing::small_control_size()))
-            .height(Length::Units(Spacing::small_control_size()))
+            .width(Length::Fixed(Spacing::small_control_size() as f32))
+            .height(Length::Fixed(Spacing::small_control_size() as f32))
             .into();
         let triangle = Button::new(self.triangle.view().map(|_| Message::None))
             .style(style::ChromelessButton.into())
             .on_press(Message::Play)
             .padding(0)
-            .width(Length::Units(Spacing::small_control_size()))
-            .height(Length::Units(Spacing::small_control_size()))
+            .width(Length::Fixed(Spacing::small_control_size() as f32))
+            .height(Length::Fixed(Spacing::small_control_size() as f32))
             .into();
         let square = Button::new(self.stop.view().map(|_| Message::None))
             .on_press(Message::Stop)
             .style(style::ChromelessButton.into())
             .padding(0)
-            .width(Length::Units(Spacing::small_control_size()))
-            .height(Length::Units(Spacing::small_control_size()))
+            .width(Length::Fixed(Spacing::small_control_size() as f32))
+            .height(Length::Fixed(Spacing::small_control_size() as f32))
             .into();
 
         Container::new(

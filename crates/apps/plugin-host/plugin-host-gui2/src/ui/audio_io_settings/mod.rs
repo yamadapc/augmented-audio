@@ -103,17 +103,27 @@ impl Controller {
         let audio_io_service = self.audio_io_service.clone();
         let command = match message.clone() {
             Message::InitialStateLoaded(state) => {
-                self.view
-                    .update(view::Message::AudioDriverChange(state.host.clone()));
-                if let Some(device) = state.input_device {
+                let mut commands = vec![];
+                commands.push(
                     self.view
-                        .update(view::Message::InputDeviceChange(device.name));
+                        .update(view::Message::AudioDriverChange(state.host.clone()))
+                        .map(Message::View),
+                );
+                if let Some(device) = state.input_device {
+                    commands.push(
+                        self.view
+                            .update(view::Message::InputDeviceChange(device.name))
+                            .map(Message::View),
+                    );
                 }
                 if let Some(device) = state.output_device {
-                    self.view
-                        .update(view::Message::OutputDeviceChange(device.name));
+                    commands.push(
+                        self.view
+                            .update(view::Message::OutputDeviceChange(device.name))
+                            .map(Message::View),
+                    );
                 }
-                Command::none()
+                Command::batch(commands)
             }
             Message::View(view::Message::AudioDriverChange(host_id)) => Command::perform(
                 audio_io_service.send(SetStateMessage::SetHostId { host_id }),

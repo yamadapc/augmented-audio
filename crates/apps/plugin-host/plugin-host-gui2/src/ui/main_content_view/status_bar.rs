@@ -55,7 +55,7 @@ impl StatusBar {
             .center_y()
             .padding([0, Spacing::base_spacing()])
             .style(StatusContainer { state: self.state })
-            .height(Length::Units(20))
+            .height(Length::Fixed(20.0))
             .width(Length::Fill)
             .into()
     }

@@ -28,7 +28,7 @@ use cocoa::base::{id, nil, NO};
 use cocoa::foundation::{NSAutoreleasePool, NSPoint, NSRect, NSSize, NSString};
 use iced::{Point, Rectangle, Size};
 use objc::runtime::Object;
-use raw_window_handle::macos::MacOSHandle;
+use raw_window_handle::AppKitWindowHandle;
 use raw_window_handle::RawWindowHandle;
 use vst::editor::Editor;
 
@@ -63,11 +63,10 @@ pub fn open_plugin_window(
         ns_window
     };
     let ns_view = unsafe { ns_window.contentView() };
-    let raw_window_handle = RawWindowHandle::MacOS(MacOSHandle {
-        ns_window: ns_window as *mut c_void,
-        ns_view: ns_view as *mut c_void,
-        ..MacOSHandle::empty()
-    });
+    let mut app_kit_window_handle = AppKitWindowHandle::empty();
+    app_kit_window_handle.ns_window = ns_window as *mut c_void;
+    app_kit_window_handle.ns_view = ns_view as *mut c_void;
+    let raw_window_handle = RawWindowHandle::AppKit(app_kit_window_handle);
     editor.open(ns_view as *mut c_void);
 
     if let Some(position) = position {
@@ -85,7 +84,7 @@ pub fn open_plugin_window(
 }
 
 pub fn close_window(handle: RawWindowHandle) -> Option<Rectangle> {
-    if let RawWindowHandle::MacOS(MacOSHandle {
+    if let RawWindowHandle::AppKit(AppKitWindowHandle {
         ns_window, ns_view, ..
     }) = handle
     {
@@ -117,7 +116,7 @@ unsafe fn get_window_frame(ns_window: *mut Object) -> Rectangle {
 }
 
 pub fn float_window(handle: &RawWindowHandle) {
-    if let RawWindowHandle::MacOS(MacOSHandle { ns_window, .. }) = handle {
+    if let RawWindowHandle::AppKit(AppKitWindowHandle { ns_window, .. }) = handle {
         unsafe {
             let window = *ns_window as id;
             window.setLevel_(3);

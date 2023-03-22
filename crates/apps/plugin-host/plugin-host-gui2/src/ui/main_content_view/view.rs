@@ -157,14 +157,14 @@ fn bottom_visualisation_content_container(
             .into(),
             Container::new(volume_meter_state.view().map(Message::VolumeMeter))
                 .style(Container1::default().border())
-                .width(Length::Units(Spacing::base_control_size() * 2))
+                .width(Length::Fixed((Spacing::base_control_size() * 2) as f32))
                 .height(Length::Fill)
                 .into(),
         ])
         .width(Length::Fill),
     )
     .style(Container1::default())
-    .height(Length::Units(300))
+    .height(Length::Fixed(300.0))
     .width(Length::Fill)
     .into()
 }
@@ -182,7 +182,7 @@ fn transport_controls_container(
 ) -> Element<Message> {
     Container::new(transport_controls.view().map(Message::TransportControls))
         .style(Container1::default())
-        .height(Length::Units(80))
+        .height(Length::Fixed(80.0))
         .width(Length::Fill)
         .into()
 }
@@ -191,7 +191,7 @@ fn status_message_container(status_message: &StatusBar) -> Element<Message> {
     Container::new(status_message.clone().view().map(|_| Message::None))
         .center_y()
         .style(Container0::default())
-        .height(Length::Units(20))
+        .height(Length::Fixed(20.0))
         .width(Length::Fill)
         .into()
 }
