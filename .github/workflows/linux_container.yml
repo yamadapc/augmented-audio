@@ -1,0 +1,162 @@
+name: Linux in Docker
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  CARGO_TERM_COLOR: always
+  SCCACHE_GHA_ENABLED: true
+  RUSTC_WRAPPER: sccache
+
+jobs:
+  test-rust:
+    name: Run unit-tests on rust crates ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    container: ghcr.io/yamadapc/augmented-audio-builder:latest
+
+    env:
+      RUST_BACKTRACE: full
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          lfs: true
+
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.2
+        with:
+          version: "v0.4.0"
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "rust-cache-linux3"
+
+      - name: Test with coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        run: |
+          cargo tarpaulin --skip-clean --workspace \
+              --features story \
+              --coveralls $COVERALLS_TOKEN \
+              --out lcov \
+              --output-dir ./tarpaulin-report \
+              --exclude-files "*crates/vendor/*" \
+              --exclude-files "*crates/spikes/*" \
+              --exclude-files "*crates/scripts/*" \
+              --exclude-files "*crates/examples/*" \
+              --exclude-files "*crates/augmented/gui/*" \
+              --exclude-files "*crates/augmented/application/audio-processor-standalone/examples/*" \
+              --exclude-files "*crates/augmented/application/audio-processor-standalone-gui/*" \
+              --exclude-files "*crates/augmented/audio/audiounit/*" \
+              --exclude-files "*crates/augmented/development/*" \
+              --exclude-files "*crates/augmented/data/augmented-midi/midir/*" \
+              --exclude-files "*crates/apps/daw/*" \
+              --exclude-files "*crates/apps/demo-plugin/*" \
+              --exclude-files "*crates/apps/recording_buddy/*" \
+              --exclude-files "*crates/apps/tremolo-plugin/*" \
+              --exclude-files "*crates/apps/synth/*" \
+              --exclude-files "*crates/apps/looper/augmented-codegen/*" \
+              --exclude-files "*/bridge_generated.rs" \
+              --exclude-files "*/bridge_generated.io.rs" \
+              --exclude-files "*crates/apps/*/src/ui/*" \
+              --exclude-files "*dart/augmented_audio_wave_example/*" \
+              --exclude assert-no-alloc \
+              --exclude augmented-ui \
+              --exclude audiounit \
+              --exclude basedrop \
+              --exclude midir \
+              --exclude gfx \
+              --exclude iced \
+              --exclude iced-baseview \
+              --exclude iced_audio \
+              --exclude libloading \
+              --exclude lyon \
+              --exclude pathfinder \
+              --exclude piet \
+              --exclude plotters \
+              --exclude skribo \
+              --exclude vst \
+              --exclude example-iced-xcode-integration \
+              --exclude avfaudio-sys \
+              --exclude recording_buddy \
+              --exclude augmented-audio-knob \
+              --exclude augmented-audio-gui-basics \
+              --exclude darwin-webkit \
+              --exclude webview-holder \
+              --exclude visualisation_ \
+              --exclude macos-bundle-resources
+
+      - name: Print sccache stats
+        shell: bash
+        run: ${SCCACHE_PATH} --show-stats
+
+      - name: Upload tarpaulin report
+        uses: actions/upload-artifact@v2
+        with:
+          name: tarpaulin-report
+          path: ./tarpaulin-report
+
+  build-rust:
+    name: Build release rust crates ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    container: ghcr.io/yamadapc/augmented-audio-builder:latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        lfs: true
+
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.2
+      with:
+        version: "v0.4.0"
+
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: "rust-cache-linux3"
+
+    - name: Build release
+      run: |
+        cargo build --release --workspace \
+            --exclude augmented-ui \
+            --exclude audiounit \
+            --exclude example-iced-xcode-integration \
+            --exclude avfaudio-sys \
+            --exclude recording_buddy \
+            --exclude darwin-webkit \
+            --exclude augmented-audio-knob \
+            --exclude augmented-audio-gui-basics \
+            --exclude macos-bundle-resources
+    - name: Run snapshot tests
+      run: |
+        ./scripts/dev.sh test-snapshots
+
+    - name: Print sccache stats
+      shell: bash
+      run: ${SCCACHE_PATH} --show-stats
+
+    - name: Upload plugin-host binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ runner.os }}-plugin-host
+        path: ./target/release/plugin-host
+    - name: Upload plugin-host-gui2 binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ runner.os }}-plugin-host-gui2
+        path: ./target/release/plugin-host-gui2
+    - name: Upload tremolo-plugin dylib
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ runner.os }}-libtas_v2-dylib
+        path: ./target/release/libtas_v2.dylib
