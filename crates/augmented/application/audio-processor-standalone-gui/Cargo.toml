@@ -42,7 +42,7 @@ vst = { version = "0.3", path = "../../../vendor/vst" }
 iced = { version = "0.8.0", default-features = false, optional = true }
 iced_baseview = { version = "0.1", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
 baseview = { package = "augmented_baseview", path = "../../../vendor/baseview", version = "0.1", optional = true }
-augmented-iced-editor = { path = "../../gui/iced-editor", optional = true , version = "0.3.0" }
+augmented-iced-editor = { path = "../../gui/iced-editor", optional = true , version = "1.3.0" }
 audio-processor-iced-design-system = { path = "../../gui/audio-processor-iced-design-system", default-features = false, optional = true, version = "0.3.1" }
 iced_audio = "0.11"
 

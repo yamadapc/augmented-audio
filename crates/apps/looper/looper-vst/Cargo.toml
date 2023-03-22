@@ -43,7 +43,7 @@ audio-processor-iced-design-system = { path = "../../../augmented/gui/audio-proc
 iced = { version = "0.8.0", default-features = false }
 iced_native = { version = "0.9.1" }
 iced_baseview = { version = "0.1", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
-augmented-iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false , version = "0.3.0" }
+augmented-iced-editor = { path = "../../../augmented/gui/iced-editor", default-features = false , version = "1.3.0" }
 
 # Storybook
 audio-processor-iced-storybook = { path = "../../../augmented/gui/audio-processor-iced-storybook", default-features = false , version = "0.2.0" }

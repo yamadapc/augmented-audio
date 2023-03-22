@@ -1,3 +1,8 @@
+## v1.3.0
+
+* [`8ad61d67a53`](https://github.com/yamadapc/augmented-audio/commits/8ad61d67a53) Bump iced-baseview version everywhere (Minor)
+* [`48631da1ae8`](https://github.com/yamadapc/augmented-audio/commits/48631da1ae8) Use iced v0.8 on iced-editor :major: (Major)
+
 ## v0.3.0
 
 * [`70b528827fa`](https://github.com/yamadapc/augmented-audio/commits/70b528827fa) Set right dependency version on iced-editor :minor: (Minor)
