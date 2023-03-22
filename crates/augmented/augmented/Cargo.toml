@@ -39,7 +39,7 @@ audio-processor-bitcrusher = { path = "../audio/audio-processor-bitcrusher" , ve
 audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" , version = "1.0.0" }
 audio-processor-time = { path = "../audio/audio-processor-time" , version = "1.0.0" }
 audio-processor-file = { path = "../audio/audio-processor-file" , version = "2.3.0" }
-audio-processor-metronome = { path = "../audio/audio-processor-metronome" , version = "1.4.0" }
+audio-processor-metronome = { path = "../audio/audio-processor-metronome" , version = "2.0.0" }
 audio-processor-pitch-shifter = { path = "../audio/audio-processor-pitch-shifter" }
 augmented_oscillator = { path = "../audio/oscillator" , version = "1.2.1" }
 cpal = { version = "0.14.0" }

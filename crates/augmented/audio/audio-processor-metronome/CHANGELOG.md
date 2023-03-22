@@ -1,3 +1,19 @@
+## v2.0.0
+
+* [`5bdd1b85a0d`](https://github.com/yamadapc/augmented-audio/commits/5bdd1b85a0d) augmented-playhead@0.5.0 (Minor)
+* [`6d475f62726`](https://github.com/yamadapc/augmented-audio/commits/6d475f62726) augmented-adsr-envelope@0.4.0 (Minor)
+* [`188c3a81bf4`](https://github.com/yamadapc/augmented-audio/commits/188c3a81bf4) audio-processor-standalone@2.0.0 (Minor)
+* [`562533505b2`](https://github.com/yamadapc/augmented-audio/commits/562533505b2) audio-processor-file@2.3.0 (Minor)
+* [`2b729eccd25`](https://github.com/yamadapc/augmented-audio/commits/2b729eccd25) audio-processor-testing-helpers@2.3.0 (Minor)
+* [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
+* [`ce67876edbf`](https://github.com/yamadapc/augmented-audio/commits/ce67876edbf) augmented_oscillator@1.2.1 (Minor)
+* [`93d44428a9a`](https://github.com/yamadapc/augmented-audio/commits/93d44428a9a) audio-garbage-collector@1.1.1 (Minor)
+* [`bce7be1a505`](https://github.com/yamadapc/augmented-audio/commits/bce7be1a505) Remove spikes (Minor)
+* [`3a4991f32c5`](https://github.com/yamadapc/augmented-audio/commits/3a4991f32c5) Add tests for metronome playhead (Minor)
+* [`9a78e0bcc61`](https://github.com/yamadapc/augmented-audio/commits/9a78e0bcc61) Start to add context parameter and combinators :major: (Major)
+* [`7243ed42bd8`](https://github.com/yamadapc/augmented-audio/commits/7243ed42bd8) Make several small improvements to multi-sounds :patch: (Patch)
+* [`cd475f5e06d`](https://github.com/yamadapc/augmented-audio/commits/cd475f5e06d) Fix clippy warnings :patch: (Patch)
+
 ## v1.4.0
 
 * [`ef73951991`](https://github.com/yamadapc/augmented-audio/commits/ef73951991) augmented-playhead@0.4.0 (Minor)
