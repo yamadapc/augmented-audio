@@ -459,7 +459,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-iced-design-system"
-version = "0.3.1"
+version = "1.0.0"
 dependencies = [
  "iced",
  "iced_audio",
