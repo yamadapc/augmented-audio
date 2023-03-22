@@ -20,7 +20,7 @@ audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.1
 
 [dev-dependencies]
 criterion = "0.4"
-augmented_oscillator = { version = "1.2.0", path = "../oscillator" }
+augmented_oscillator = { version = "1.2.1", path = "../oscillator" }
 
 [[bench]]
 name = "audio_processor_traits_criterion"

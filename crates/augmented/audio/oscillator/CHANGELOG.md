@@ -1,3 +1,7 @@
+## v1.2.1
+
+* [`cd475f5e06d`](https://github.com/yamadapc/augmented-audio/commits/cd475f5e06d) Fix clippy warnings :patch: (Patch)
+
 ## v1.2.0
 
 * [`035499207e`](https://github.com/yamadapc/augmented-audio/commits/035499207e) augmented-atomics@0.1.2 (Minor)
