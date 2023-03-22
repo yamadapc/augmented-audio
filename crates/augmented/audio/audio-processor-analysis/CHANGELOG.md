@@ -1,3 +1,19 @@
+## v1.0.0
+
+* [`f105ae502e6`](https://github.com/yamadapc/augmented-audio/commits/f105ae502e6) Fix documentation tests (Minor)
+* [`562533505b2`](https://github.com/yamadapc/augmented-audio/commits/562533505b2) audio-processor-file@2.3.0 (Minor)
+* [`2b729eccd25`](https://github.com/yamadapc/augmented-audio/commits/2b729eccd25) audio-processor-testing-helpers@2.3.0 (Minor)
+* [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
+* [`93d44428a9a`](https://github.com/yamadapc/augmented-audio/commits/93d44428a9a) audio-garbage-collector@1.1.1 (Minor)
+* [`6854e439e99`](https://github.com/yamadapc/augmented-audio/commits/6854e439e99) Fix visualisation_ compilation (Minor)
+* [`9a78e0bcc61`](https://github.com/yamadapc/augmented-audio/commits/9a78e0bcc61) Start to add context parameter and combinators :major: (Major)
+* [`a7a6d3e2fc9`](https://github.com/yamadapc/augmented-audio/commits/a7a6d3e2fc9) Fix compiling window spectrogram example (Minor)
+* [`efb36984dbf`](https://github.com/yamadapc/augmented-audio/commits/efb36984dbf) Fix spectrogram spelling :patch: (Patch)
+* [`ce413f4e67a`](https://github.com/yamadapc/augmented-audio/commits/ce413f4e67a) Fix all remaining clippy errors :patch: (Patch)
+* [`cd475f5e06d`](https://github.com/yamadapc/augmented-audio/commits/cd475f5e06d) Fix clippy warnings :patch: (Patch)
+* [`59c38648282`](https://github.com/yamadapc/augmented-audio/commits/59c38648282) Start to bump iced (Minor)
+* [`23ceace8e8f`](https://github.com/yamadapc/augmented-audio/commits/23ceace8e8f) Update outputs (Minor)
+
 ## v0.4.0
 
 * [`82c3f51e01`](https://github.com/yamadapc/augmented-audio/commits/82c3f51e01) audio-processor-file@1.3.0 (Minor)
