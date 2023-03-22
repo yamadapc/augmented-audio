@@ -8,6 +8,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  SCCACHE_GHA_ENABLED: true
+  RUSTC_WRAPPER: sccache
 
 jobs:
   test-rust:
@@ -43,8 +45,6 @@ jobs:
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
-          SCCACHE_GHA_ENABLED: true
-          RUSTC_WRAPPER: sccache
         run: |
           cargo tarpaulin --skip-clean --workspace \
               --features story \
@@ -129,17 +129,11 @@ jobs:
         shared-key: "rust-cache-linux3"
 
     - name: Install dependencies
-      env:
-        SCCACHE_GHA_ENABLED: true
-        RUSTC_WRAPPER: sccache
       run: |
         ./scripts/install-ubuntu-apt-dependencies.sh
         ./scripts/install-ubuntu-rust-dependencies.sh
 
     - name: Build release
-      env:
-        SCCACHE_GHA_ENABLED: true
-        RUSTC_WRAPPER: sccache
       run: |
         cargo build --release --workspace \
             --exclude augmented-ui \

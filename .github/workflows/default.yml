@@ -8,6 +8,8 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  SCCACHE_GHA_ENABLED: true
+  RUSTC_WRAPPER: sccache
 
 jobs:
   test-rust:
@@ -38,9 +40,6 @@ jobs:
           key: ${{ runner.os }}-cargo-bin
 
       - name: Install cargo-nextest
-        env:
-          SCCACHE_GHA_ENABLED: true
-          RUSTC_WRAPPER: sccache
         run: |
           ls ~/.cargo/bin/
           if ! [ -x "$(command -v cargo-nextest)" ]; then
@@ -50,9 +49,6 @@ jobs:
           fi
           which cargo-nextest
       - name: Install uniffi bindgen
-        env:
-          SCCACHE_GHA_ENABLED: true
-          RUSTC_WRAPPER: sccache
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
             echo "::group::Installing uniffi_bindgen"
@@ -61,9 +57,6 @@ jobs:
           fi
           which uniffi-bindgen
       - name: Run tests
-        env:
-          SCCACHE_GHA_ENABLED: true
-          RUSTC_WRAPPER: sccache
         run: ./scripts/test.sh
 
       - name: Print sccache stats
@@ -85,9 +78,6 @@ jobs:
           shared-key: "rust-cache-macos2"
       - name: Run clippy
         run: ./scripts/clippy.sh
-        env:
-          SCCACHE_GHA_ENABLED: true
-          RUSTC_WRAPPER: sccache
 
   build-rust:
     name: Rust - Build release rust crates ${{ matrix.os }}
@@ -121,9 +111,6 @@ jobs:
         key: ${{ runner.os }}-cargo-bin
 
     - name: Install uniffi bindgen
-      env:
-        SCCACHE_GHA_ENABLED: true
-        RUSTC_WRAPPER: sccache
       run: |
         if ! [ -x "$(command -v uniffi-bindgen)" ]; then
           echo "::group::Installing uniffi_bindgen"
@@ -133,9 +120,6 @@ jobs:
         which uniffi-bindgen
 
     - name: Build release
-      env:
-        SCCACHE_GHA_ENABLED: true
-        RUSTC_WRAPPER: sccache
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
 
     - name: Upload plugin-host binary
@@ -221,9 +205,6 @@ jobs:
             ~/.cargo/bin/
           key: ${{ runner.os }}-cargo-bin
       - name: Install cargo-lipo
-        env:
-          SCCACHE_GHA_ENABLED: true
-          RUSTC_WRAPPER: sccache
         run: |
           if ! [ -x "$(command -v cargo-lipo)" ]; then
             cargo install cargo-lipo
@@ -235,9 +216,6 @@ jobs:
           rustup target add aarch64-apple-ios-sim
           rustup target add aarch64-apple-ios
       - name: Build looper universal libraries
-        env:
-          SCCACHE_GHA_ENABLED: true
-          RUSTC_WRAPPER: sccache
         run: |
           cd ./crates/apps/looper/looper-processor
           make
