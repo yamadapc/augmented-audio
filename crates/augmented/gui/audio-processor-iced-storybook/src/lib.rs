@@ -213,7 +213,7 @@ pub fn main<StoryMessage: 'static + Debug + Clone + Send>(
     log::info!("Initializing iced-storybook");
     StorybookApp::run(iced::Settings {
         antialiasing: true,
-        default_text_size: Spacing::default_font_size(),
+        default_text_size: Spacing::default_font_size() as f32,
         ..iced::Settings::with_flags(options)
     })
 }
@@ -321,7 +321,7 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
 
         let content = Row::with_children(vec![
             Container::new(self.sidebar.view().map(Message::Sidebar))
-                .width(Length::Units(200))
+                .width(Length::Fixed(200.0))
                 .height(Length::Fill)
                 .into(),
             story_view,
@@ -351,7 +351,7 @@ impl<StoryMessage: 'static + Debug + Clone + Send> Application for StorybookApp<
         ]))
         .style(style::Container1::default().border())
         .padding(Spacing::base_spacing())
-        .height(Length::Units(200))
+        .height(Length::Fixed(200.0))
         .width(Length::Fill);
 
         Container::new(Column::with_children(vec![
