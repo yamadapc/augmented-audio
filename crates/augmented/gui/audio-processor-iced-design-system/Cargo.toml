@@ -27,7 +27,7 @@ default-features = false
 # TODO: This is required due to iced@v0.6 support https://github.com/iced-rs/iced_audio/commit/03ff8e94d63eafcc8a7d34569763a4c741688730
 git = "https://github.com/iced-rs/iced_audio"
 rev = "03ff8e94d63eafcc8a7d34569763a4c741688730"
-# version = "0.8.0"
+version = "0.8"
 # default-features = false
 
 [dependencies.iced_graphics]
