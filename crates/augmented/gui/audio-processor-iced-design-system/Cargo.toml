@@ -24,10 +24,7 @@ version = "0.5.1"
 default-features = false
 
 [dependencies.iced_audio]
-# TODO: This is required due to iced@v0.6 support https://github.com/iced-rs/iced_audio/commit/03ff8e94d63eafcc8a7d34569763a4c741688730
-git = "https://github.com/iced-rs/iced_audio"
-rev = "03ff8e94d63eafcc8a7d34569763a4c741688730"
-version = "0.8"
+version = "0.9"
 # default-features = false
 
 [dependencies.iced_graphics]
