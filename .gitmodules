@@ -25,6 +25,3 @@
 [submodule "crates/vendor/coreaudio-rs"]
 	path = crates/vendor/coreaudio-rs
 	url = git@github.com:yamadapc/coreaudio-rs
-[submodule "crates/vendor/xcb-util"]
-	path = crates/vendor/xcb-util
-	url = https://github.com/yamadapc/rust-xcb-util
