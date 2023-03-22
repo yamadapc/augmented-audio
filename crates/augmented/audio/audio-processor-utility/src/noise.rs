@@ -37,25 +37,28 @@ use audio_processor_traits::{AudioContext, Float};
 /// Generating sample by sample see [`audio_processor_traits::SimpleAudioProcessor`]:
 ///
 /// ```
-/// use audio_processor_traits::SimpleAudioProcessor;
+/// use audio_processor_traits::{AudioContext, AudioProcessorSettings};
+/// use audio_processor_traits::simple_processor::MonoAudioProcessor;
 /// use audio_processor_utility::noise::WhiteNoiseProcessor;
 ///
+/// let mut context = AudioContext::from(AudioProcessorSettings::default());
 /// let mut  processor = WhiteNoiseProcessor::<f32>::default();
-/// let noise1 = processor.s_process(0.0);
-/// let noise2 = processor.s_process(0.0);
-/// let noise3 = processor.s_process(0.0);
+/// let noise1 = processor.m_process(&mut context, 0.0);
+/// let noise2 = processor.m_process(&mut context, 0.0);
+/// let noise3 = processor.m_process(&mut context, 0.0);
 /// ```
 ///
 /// Generating buffer by buffer see [`audio_processor_traits::simple_processor::process_buffer`]:
 ///
 /// ```
 /// use audio_processor_traits::simple_processor::process_buffer;
-/// use audio_processor_traits::VecAudioBuffer;
+/// use audio_processor_traits::{AudioContext, AudioProcessorSettings, VecAudioBuffer};
 /// use audio_processor_utility::noise::WhiteNoiseProcessor;
 ///
+/// let mut context = AudioContext::from(AudioProcessorSettings::default());
 /// let mut buffer = VecAudioBuffer::empty_with(2, 1000, 0.0);
 /// let mut  processor = WhiteNoiseProcessor::<f32>::default();
-/// process_buffer(&mut processor, &mut buffer);
+/// process_buffer(&mut context, &mut processor, &mut buffer);
 /// ```
 ///
 /// Using as a standalone processor see [`audio_processor_standalone`]:
