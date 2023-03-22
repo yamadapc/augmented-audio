@@ -15,7 +15,7 @@ glow = ["iced/glow", "iced/canvas", "iced_baseview/glow", "iced_baseview/canvas"
 wgpu = ["iced/wgpu", "iced/canvas", "iced_baseview/canvas", "iced_baseview/wgpu"]
 
 [dependencies]
-iced = { version = "0.6", default-features = false }
+iced = { version = "0.8.0", default-features = false }
 log = "^0.4.14"
 vst = { version = "0.3.0", path = "../../../vendor/vst" }
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
