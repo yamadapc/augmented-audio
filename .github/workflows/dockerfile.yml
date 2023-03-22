@@ -10,18 +10,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            src:
+              - 'Dockerfile'
+              - './scripts/**'
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
+        if: steps.changes.outputs.src == 'true'
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
+        if: steps.changes.outputs.src == 'true'
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
+        if: steps.changes.outputs.src == 'true'
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build image
         uses: docker/build-push-action@v3
+        if: steps.changes.outputs.src == 'true'
         with:
           context: .
           push: true

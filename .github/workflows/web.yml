@@ -17,24 +17,39 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            src:
+              - 'package.json'
+              - 'turbo.json'
+              - 'yarn.lock'
+              - 'packages/**'
       - uses: actions/setup-node@v2
         with:
           node-version: '18.9.0'
+        if: steps.changes.outputs.src == 'true'
       - name: restore caches
         uses: actions/cache@v2
+        if: steps.changes.outputs.src == 'true'
         with:
           path: |
             node_modules
             */*/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
+        if: steps.changes.outputs.src == 'true'
         run: yarn
       - name: Run tests
         run: yarn run test
+        if: steps.changes.outputs.src == 'true'
       - name: Run builds
         run: yarn run build
+        if: steps.changes.outputs.src == 'true'
       - name: Upload tremolo-plugin-frontend build
         uses: actions/upload-artifact@v2
+        if: steps.changes.outputs.src == 'true'
         with:
           name: tremolo-plugin-frontend
           path: ./packages/tremolo-plugin-frontend/build

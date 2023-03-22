@@ -10,13 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            src:
+              - 'crates/apps/daw/**'
       - uses: subosito/flutter-action@v1
+        if: steps.changes.outputs.src == 'true'
       - name: Install dependencies
         run: cd ./crates/apps/daw && flutter pub get
+        if: steps.changes.outputs.src == 'true'
       - name: Build for web
         run: cd ./crates/apps/daw && flutter build web --base-href="/augmented-audio/"
+        if: steps.changes.outputs.src == 'true'
       - name: Deploy to GitHub Pages
-        if: success()
+        if: success() && steps.changes.outputs.src == 'true'
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
