@@ -68,18 +68,20 @@ impl View {
 
     pub fn update(&mut self, message: Message) -> Command<Message> {
         match message {
-            Message::AudioDriverChange(selected) => {
-                self.audio_driver_dropdown.update(selected);
-            }
-            Message::InputDeviceChange(selected) => {
-                self.input_device_dropdown.update(selected);
-            }
-            Message::OutputDeviceChange(selected) => {
-                self.output_device_dropdown.update(selected);
-            }
-            _ => {}
+            Message::AudioDriverChange(selected) => self
+                .audio_driver_dropdown
+                .update(selected)
+                .map(Message::AudioDriverChange),
+            Message::InputDeviceChange(selected) => self
+                .input_device_dropdown
+                .update(selected)
+                .map(Message::InputDeviceChange),
+            Message::OutputDeviceChange(selected) => self
+                .output_device_dropdown
+                .update(selected)
+                .map(Message::OutputDeviceChange),
+            _ => Command::none(),
         }
-        Command::none()
     }
 
     pub fn view(&self) -> Element<Message> {

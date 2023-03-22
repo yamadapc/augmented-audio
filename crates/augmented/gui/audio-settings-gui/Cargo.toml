@@ -14,7 +14,7 @@ wgpu = ["iced/wgpu", "iced/canvas", "audio-processor-iced-storybook/wgpu"]
 story = []
 
 [dependencies]
-iced = { version = "0.6.0", default-features = false }
+iced = { version = "0.8.0", default-features = false }
 # Augmented
 audio-processor-iced-design-system = { path = "../audio-processor-iced-design-system" , version = "0.3.1" }
 audio-processor-iced-storybook = { path = "../audio-processor-iced-storybook" , version = "0.2.0" }
