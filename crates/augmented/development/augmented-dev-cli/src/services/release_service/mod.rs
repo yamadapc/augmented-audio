@@ -313,8 +313,15 @@ fn bump_version(sem_version: Version, changes: &[ChangeRecord]) -> Version {
 
     let mut next_version = Version::new(sem_version.major, sem_version.minor, sem_version.patch);
     match change_level {
-        ChangeLevel::Minor => next_version.minor += 1,
-        ChangeLevel::Major => next_version.major += 1,
+        ChangeLevel::Minor => {
+            next_version.minor += 1;
+            next_version.patch = 0;
+        }
+        ChangeLevel::Major => {
+            next_version.major += 1;
+            next_version.minor = 0;
+            next_version.patch = 0;
+        }
         ChangeLevel::Patch => next_version.patch += 1,
     }
 
