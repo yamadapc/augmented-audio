@@ -30,14 +30,15 @@
 //! use std::time::Duration;
 //! use audio_garbage_collector::Shared;
 //! use audio_processor_analysis::envelope_follower_processor::{EnvelopeFollowerHandle, EnvelopeFollowerProcessor};
-//! use audio_processor_traits::{AudioProcessorSettings, SimpleAudioProcessor};
+//! use audio_processor_traits::{AudioContext, AudioProcessorSettings, simple_processor::MonoAudioProcessor};
 //!
 //! let mut envelope_follower = EnvelopeFollowerProcessor::default();
 //! let handle: Shared<EnvelopeFollowerHandle> = envelope_follower.handle().clone();
 //! handle.set_attack(Duration::from_secs_f32(0.4));
 //!
-//! envelope_follower.s_prepare(AudioProcessorSettings::default());
-//! envelope_follower.s_process(0.0);
+//! let mut context = AudioContext::from(AudioProcessorSettings::default());
+//! envelope_follower.m_prepare(&mut context, AudioProcessorSettings::default());
+//! envelope_follower.m_process(&mut context, 0.0);
 //! ```
 
 use audio_garbage_collector::{make_shared, Shared};
@@ -87,20 +88,21 @@ impl EnvelopeFollowerHandle {
 
 /// An implementation of an envelope follower.
 ///
-/// Implements [`audio_processor_traits::SimpleAudioProcessor`]. Can either use it for per-sample
+/// Implements [`audio_processor_traits::simple_processor::MonoAudioProcessor`]. Can either use it for per-sample
 /// processing or wrap this with [`audio_processor_traits::simple_processor::BufferProcessor`].
 ///
 /// # Example
 /// ```rust
 /// use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
-/// use audio_processor_traits::SimpleAudioProcessor;
+/// use audio_processor_traits::{AudioContext, AudioProcessorSettings, simple_processor::MonoAudioProcessor};
 ///
 /// let mut  envelope_follower = EnvelopeFollowerProcessor::default();
 /// let _handle = envelope_follower.handle(); // can send to another thread
 ///
-/// // Envelope follower implements `SimpleAudioProcessor`
-/// envelope_follower.s_prepare(Default::default());
-/// envelope_follower.s_process(1.0);
+/// // Envelope follower implements `MonoAudioProcessor
+/// let mut context = AudioContext::from(AudioProcessorSettings::default());
+/// envelope_follower.m_prepare(&mut context, Default::default());
+/// envelope_follower.m_process(&mut context, 1.0);
 /// ```
 pub struct EnvelopeFollowerProcessor {
     handle: Shared<EnvelopeFollowerHandle>,
