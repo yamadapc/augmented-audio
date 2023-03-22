@@ -52,7 +52,7 @@ pub mod generic_handle;
 ///
 /// ```
 /// use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-/// use audio_processor_traits::{AudioProcessor, BufferProcessor, AudioProcessorSettings};
+/// use audio_processor_traits::{AudioProcessor, BufferProcessor, AudioProcessorSettings, AudioContext};
 /// use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 ///
 /// let mut audio_buffer = VecAudioBuffer::new();
@@ -61,15 +61,15 @@ pub mod generic_handle;
 ///     sample_rate: 44100.0,
 ///     ..AudioProcessorSettings::default()
 /// };
+/// let mut context = AudioContext::from(settings.clone());
 ///
 /// let mut filter_processor: FilterProcessor<f32> = FilterProcessor::new(FilterType::LowPass);
 /// filter_processor.set_cutoff(880.0);
 /// filter_processor.set_q(1.0);
 ///
 /// let mut filter_processor = BufferProcessor(filter_processor);
-/// filter_processor.prepare(settings);
-///
-/// filter_processor.process(&mut audio_buffer);
+/// filter_processor.prepare(&mut context, settings);
+/// filter_processor.process(&mut context, &mut audio_buffer);
 /// ```
 pub struct FilterProcessor<
     SampleType: Pow<SampleType, Output = SampleType> + Debug + Float + FloatConst,
