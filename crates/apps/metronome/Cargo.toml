@@ -21,7 +21,7 @@ wisual-logger = { path = "../../augmented/ops/wisual-logger", version = "0.1.4" 
 audio-processor-metronome = { path = "../../augmented/audio/audio-processor-metronome" , version = "1.4.0" }
 audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" , version = "1.4.0" }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector" , version = "1.1.1" }
-audio-processor-file = { path = "../../augmented/audio/audio-processor-file", version = "1.3.0" }
+audio-processor-file = { path = "../../augmented/audio/audio-processor-file", version = "2.3.0" }
 audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits", version = "3.2.0" }
 macos-bundle-resources = { path = "../../augmented/gui/macos-bundle-resources" }
 

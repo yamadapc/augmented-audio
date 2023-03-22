@@ -1,3 +1,13 @@
+## v2.3.0
+
+* [`4b40ac2a838`](https://github.com/yamadapc/augmented-audio/commits/4b40ac2a838) augmented-convert-sample-rate@1.4.0 (Minor)
+* [`2b729eccd25`](https://github.com/yamadapc/augmented-audio/commits/2b729eccd25) audio-processor-testing-helpers@2.3.0 (Minor)
+* [`1140cead7aa`](https://github.com/yamadapc/augmented-audio/commits/1140cead7aa) augmented-audio-metrics@1.5.0 (Minor)
+* [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
+* [`93d44428a9a`](https://github.com/yamadapc/augmented-audio/commits/93d44428a9a) audio-garbage-collector@1.1.1 (Minor)
+* [`1ef3e6a1fe1`](https://github.com/yamadapc/augmented-audio/commits/1ef3e6a1fe1) Add basic combinators (Minor)
+* [`9a78e0bcc61`](https://github.com/yamadapc/augmented-audio/commits/9a78e0bcc61) Start to add context parameter and combinators :major: (Major)
+
 ## v1.3.0
 
 * [`b4db3d8240`](https://github.com/yamadapc/augmented-audio/commits/b4db3d8240) augmented-convert-sample-rate@1.3.0 (Minor)

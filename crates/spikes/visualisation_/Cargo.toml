@@ -8,7 +8,7 @@ audio-processor-standalone = { version = "1.4.0", path = "../../augmented/applic
 audio-processor-traits = { version = "3.2.0", path = "../../augmented/audio/audio-processor-traits" }
 audio-garbage-collector = { version = "1.1.1", path = "../../augmented/audio/audio-garbage-collector" }
 audio-processor-analysis = { version = "0.4.0", path = "../../augmented/audio/audio-processor-analysis" }
-audio-processor-file = { version = "1.3.0", path = "../../augmented/audio/audio-processor-file" }
+audio-processor-file = { version = "2.3.0", path = "../../augmented/audio/audio-processor-file" }
 augmented-atomics = { version = "0.1.2", path = "../../augmented/data/atomics" }
 atomic_refcell = "0.1.8"
 nannou = "0.18.1"
