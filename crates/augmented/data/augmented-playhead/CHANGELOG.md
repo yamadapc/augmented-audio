@@ -1,3 +1,9 @@
+## v0.5.0
+
+* [`2b729eccd25`](https://github.com/yamadapc/augmented-audio/commits/2b729eccd25) audio-processor-testing-helpers@2.3.0 (Minor)
+* [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
+* [`cd475f5e06d`](https://github.com/yamadapc/augmented-audio/commits/cd475f5e06d) Fix clippy warnings :patch: (Patch)
+
 ## v0.4.0
 
 * [`15019459e7`](https://github.com/yamadapc/augmented-audio/commits/15019459e7) audio-processor-testing-helpers@1.3.0 (Minor)
