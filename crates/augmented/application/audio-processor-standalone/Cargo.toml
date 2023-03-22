@@ -36,7 +36,7 @@ vst = { version = "0.3", path = "../../../vendor/vst" }
 audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", optional = true , version = "0.7.0" }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
-audio-processor-standalone-midi = { version = "1.2.0", path = "../audio-processor-standalone-midi" }
+audio-processor-standalone-midi = { version = "1.3.0", path = "../audio-processor-standalone-midi" }
 
 [dev-dependencies]
 atomic-queue = { version = "1.0.1", path = "../../data/atomic-queue" }
