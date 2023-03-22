@@ -11,7 +11,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 visualization = ["piet", "piet-common", "audio-processor-testing-helpers", "audio-processor-file"]
 
 [dependencies]
-audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.1.0" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.1.1" }
 audio-processor-traits = { version = "2.2.0", path = "../audio-processor-traits" }
 rustfft = "6.0.1"
 log = "0.4.14"

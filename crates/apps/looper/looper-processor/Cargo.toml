@@ -54,7 +54,7 @@ atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.
 augmented-adsr-envelope = { version = "0.3.0", path = "../../../augmented/audio/adsr-envelope" }
 augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.1.2" }
 augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.4.0" }
-audio-garbage-collector = { version = "1.1.0", path = "../../../augmented/audio/audio-garbage-collector" }
+audio-garbage-collector = { version = "1.1.1", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "1.4.0", path = "../../../augmented/application/audio-processor-standalone" }
 audio-processor-standalone-midi = { path = "../../../augmented/application/audio-processor-standalone-midi", version = "1.3.0", features = ["actix"] }
 audio-processor-standalone-osc = { path = "../../../augmented/application/audio-processor-standalone-osc" }
