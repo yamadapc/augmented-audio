@@ -10,6 +10,8 @@ env:
   CARGO_TERM_COLOR: always
   SCCACHE_GHA_ENABLED: true
   RUSTC_WRAPPER: sccache
+  RUSTUP_HOME: /root/.rustup
+  CARGO_HOME: /root/.cargo
 
 jobs:
   test-rust:
