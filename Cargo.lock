@@ -271,7 +271,7 @@ checksum = "86ea188f25f0255d8f92797797c97ebf5631fa88178beb1a46fdf5622c9a00e4"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.5",
+ "syn 2.0.6",
 ]
 
 [[package]]
@@ -2153,7 +2153,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "scratch",
- "syn 2.0.5",
+ "syn 2.0.6",
 ]
 
 [[package]]
@@ -2170,7 +2170,7 @@ checksum = "631569015d0d8d54e6c241733f944042623ab6df7bc3be7466874b05fcdb1c5f"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.5",
+ "syn 2.0.6",
 ]
 
 [[package]]
@@ -2770,9 +2770,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge"
-version = "1.71.1"
+version = "1.71.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "08359c8042886dc6e3391d10bf96d80177a6ea091025174519da55a72d86aa25"
+checksum = "414ece10555809e79126d9d87b3ebf0e92a62cf5b319bc06dfbd65da4366e6f3"
 dependencies = [
  "allo-isolate",
  "anyhow",
@@ -2795,9 +2795,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_codegen"
-version = "1.71.1"
+version = "1.71.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7257bcb2646b981d7822f4d9c304fe5aac93c726ce5483e721ce0b9dd4eb094"
+checksum = "5db38a34b88f571cedecd8dd8737d2d347d6733974816ea0ab4754d3a71da6f7"
 dependencies = [
  "anyhow",
  "atty",
@@ -2828,9 +2828,9 @@ dependencies = [
 
 [[package]]
 name = "flutter_rust_bridge_macros"
-version = "1.71.1"
+version = "1.71.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eac517393d2fd04c5138ec7fc65453ccd52aa73a3570d55c481082df933648cf"
+checksum = "f154f46e90eb6e1edbbcfd5aa6fe1a4eca520cb62084dfd84320da7eaa4ceff3"
 
 [[package]]
 name = "fnv"
@@ -6848,7 +6848,7 @@ checksum = "e801c1712f48475582b7696ac71e0ca34ebb30e09338425384269d9717c62cad"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.5",
+ "syn 2.0.6",
 ]
 
 [[package]]
@@ -7483,9 +7483,9 @@ dependencies = [
 
 [[package]]
 name = "syn"
-version = "2.0.5"
+version = "2.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "89c2d1c76a26822187a1fbb5964e3fff108bc208f02e820ab9dac1234f6b388a"
+checksum = "ece519cfaf36269ea69d16c363fa1d59ceba8296bbfbfc003c3176d01f2816ee"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -7709,7 +7709,7 @@ checksum = "f9456a42c5b0d803c8cd86e73dd7cc9edd429499f37a3550d286d5e86720569f"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.5",
+ "syn 2.0.6",
 ]
 
 [[package]]
@@ -8064,7 +8064,7 @@ version = "1.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
 dependencies = [
- "cfg-if 0.1.10",
+ "cfg-if 1.0.0",
  "rand 0.8.5",
  "static_assertions",
 ]
