@@ -97,10 +97,6 @@ jobs:
               --exclude visualisation_ \
               --exclude macos-bundle-resources
 
-      - name: Print sccache stats
-        shell: bash
-        run: ${SCCACHE_PATH} --show-stats
-
       - name: Upload tarpaulin report
         uses: actions/upload-artifact@v2
         with:
@@ -148,10 +144,6 @@ jobs:
     - name: Run snapshot tests
       run: |
         ./scripts/dev.sh test-snapshots
-
-    - name: Print sccache stats
-      shell: bash
-      run: ${SCCACHE_PATH} --show-stats
 
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2

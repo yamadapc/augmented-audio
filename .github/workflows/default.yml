@@ -59,10 +59,6 @@ jobs:
       - name: Run tests
         run: ./scripts/test.sh
 
-      - name: Print sccache stats
-        shell: bash
-        run: ${SCCACHE_PATH} --show-stats
-
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -99,10 +95,6 @@ jobs:
       uses: mozilla-actions/sccache-action@v0.0.2
       with:
         version: "v0.4.0"
-
-    - name: Print sccache stats
-      shell: bash
-      run: ${SCCACHE_PATH} --show-stats
 
     - uses: Swatinem/rust-cache@v2
       with:
@@ -148,11 +140,6 @@ jobs:
         fi
         cargo about generate about.hbs
 
-    - name: Print sccache stats
-      shell: bash
-      run: ${SCCACHE_PATH} --show-stats
-
-
   run-snapshot-tests:
     name: Run snapshot tests
     runs-on: ${{ matrix.os }}
@@ -180,9 +167,6 @@ jobs:
         name: ${{ runner.os }}-snapshot-tests
         path: ./test
       if: ${{ failure() }}
-    - name: Print sccache stats
-      shell: bash
-      run: ${SCCACHE_PATH} --show-stats
 
   build-sequencer:
     name: Build Continuous looper
@@ -235,6 +219,3 @@ jobs:
           cd ./crates/apps/looper/Sequencer
           brew install xcbeautify
           make test
-      - name: Print sccache stats
-        shell: bash
-        run: ${SCCACHE_PATH} --show-stats
