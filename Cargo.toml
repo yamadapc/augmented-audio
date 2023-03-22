@@ -18,9 +18,6 @@ members = [
     # Repository scripts
     "crates/scripts/autosync-submodules",
     "crates/scripts/midi-logger-host",
-    # Demos & Experiments
-    "crates/spikes/example-iced-audio-viz",
-    "crates/spikes/example-iced-xcode-integration",
     # Augmented framework
     "crates/augmented/augmented",
     # Augmented components

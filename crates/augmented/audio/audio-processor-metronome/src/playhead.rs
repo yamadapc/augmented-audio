@@ -51,6 +51,7 @@ pub struct DefaultMetronomePlayhead {
 }
 
 impl DefaultMetronomePlayhead {
+    #[cfg(test)]
     fn playhead(&self) -> &PlayHead {
         &self.playhead
     }

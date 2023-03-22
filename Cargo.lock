@@ -461,7 +461,7 @@ dependencies = [
 name = "audio-processor-iced-design-system"
 version = "0.3.1"
 dependencies = [
- "iced 0.6.0",
+ "iced",
  "iced_audio 0.8.0 (git+https://github.com/iced-rs/iced_audio?rev=03ff8e94d63eafcc8a7d34569763a4c741688730)",
  "iced_graphics 0.5.0",
  "iced_native 0.7.0",
@@ -475,7 +475,7 @@ name = "audio-processor-iced-storybook"
 version = "0.2.0"
 dependencies = [
  "audio-processor-iced-design-system",
- "iced 0.6.0",
+ "iced",
  "log",
  "wisual-logger",
 ]
@@ -542,7 +542,7 @@ dependencies = [
  "augmented-iced-editor",
  "augmented_baseview",
  "augmented_iced_baseview",
- "iced 0.6.0",
+ "iced",
  "iced_audio 0.8.0 (git+https://github.com/iced-rs/iced_audio?rev=03ff8e94d63eafcc8a7d34569763a4c741688730)",
  "vst",
 ]
@@ -640,7 +640,7 @@ dependencies = [
  "audio-processor-iced-design-system",
  "audio-processor-iced-storybook",
  "derive_more",
- "iced 0.6.0",
+ "iced",
 ]
 
 [[package]]
@@ -689,7 +689,7 @@ dependencies = [
  "augmented_oscillator",
  "circular-data-structures",
  "cpal",
- "iced 0.6.0",
+ "iced",
  "iced_audio 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "macos-bundle-resources",
  "smooth-value",
@@ -873,7 +873,7 @@ dependencies = [
  "augmented_baseview",
  "augmented_iced_baseview",
  "cocoa 0.24.1",
- "iced 0.6.0",
+ "iced",
  "log",
  "objc",
  "raw-window-handle 0.4.3",
@@ -958,7 +958,7 @@ dependencies = [
  "iced_glow",
  "iced_graphics 0.5.0",
  "iced_native 0.7.0",
- "iced_wgpu 0.7.0",
+ "iced_wgpu",
  "keyboard-types",
  "log",
  "raw-window-handle 0.4.3",
@@ -2616,33 +2616,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "example-iced-audio-viz"
-version = "0.1.0"
-dependencies = [
- "atomic-queue",
- "audio-garbage-collector",
- "audio-processor-standalone",
- "audio-processor-traits",
- "basedrop",
- "circular-data-structures",
- "cpal",
- "iced 0.5.2",
- "log",
- "vst",
-]
-
-[[package]]
-name = "example-iced-xcode-integration"
-version = "0.1.0"
-dependencies = [
- "augmented_baseview",
- "augmented_iced_baseview",
- "cocoa 0.24.1",
- "objc",
- "raw-window-handle 0.4.3",
-]
-
-[[package]]
 name = "expat-sys"
 version = "2.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3890,21 +3863,6 @@ dependencies = [
 
 [[package]]
 name = "iced"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "139821b0929b3c00943b3b73405ee5ecf9a8863122c74622ddeda55a8553db1c"
-dependencies = [
- "iced_core 0.6.2",
- "iced_futures 0.5.1",
- "iced_graphics 0.4.0",
- "iced_native 0.6.1",
- "iced_wgpu 0.6.1",
- "iced_winit 0.5.1",
- "thiserror",
-]
-
-[[package]]
-name = "iced"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47627e5bb0bcc0522aca5e11cf8187e34f072ab6da4e7c2fd3f23ed508697e9f"
@@ -3915,8 +3873,8 @@ dependencies = [
  "iced_glutin",
  "iced_graphics 0.5.0",
  "iced_native 0.7.0",
- "iced_wgpu 0.7.0",
- "iced_winit 0.6.0",
+ "iced_wgpu",
+ "iced_winit",
  "thiserror",
 ]
 
@@ -3938,7 +3896,7 @@ dependencies = [
  "iced_core 0.6.2",
  "iced_graphics 0.5.0",
  "iced_native 0.7.0",
- "iced_wgpu 0.7.0",
+ "iced_wgpu",
 ]
 
 [[package]]
@@ -4012,7 +3970,7 @@ dependencies = [
  "glutin",
  "iced_graphics 0.5.0",
  "iced_native 0.7.0",
- "iced_winit 0.6.0",
+ "iced_winit",
  "log",
 ]
 
@@ -4028,23 +3986,6 @@ dependencies = [
  "iced_style 0.4.0",
  "lyon 0.17.10",
  "raw-window-handle 0.4.3",
- "thiserror",
-]
-
-[[package]]
-name = "iced_graphics"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0bed954a9e61e665c6c965b56a0152d87288088736d1ca99c96b166875c5707"
-dependencies = [
- "bitflags 1.3.2",
- "bytemuck",
- "glam 0.21.3",
- "iced_native 0.6.1",
- "iced_style 0.5.1",
- "log",
- "lyon 1.0.1",
- "raw-window-handle 0.5.1",
  "thiserror",
 ]
 
@@ -4074,20 +4015,6 @@ dependencies = [
  "iced_core 0.5.0",
  "iced_futures 0.4.1",
  "iced_style 0.4.0",
- "num-traits 0.2.15",
- "twox-hash",
- "unicode-segmentation",
-]
-
-[[package]]
-name = "iced_native"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "61964acdd967f58ee6194b0b746c5656826f1e4aafc8f12de28ad4f7ced8ec0b"
-dependencies = [
- "iced_core 0.6.2",
- "iced_futures 0.5.1",
- "iced_style 0.5.1",
  "num-traits 0.2.15",
  "twox-hash",
  "unicode-segmentation",
@@ -4129,27 +4056,6 @@ dependencies = [
 
 [[package]]
 name = "iced_wgpu"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "132e359d07022fb1066cb48f6ab6aba9b1a48c2f51060e7a9929b09851ab45b7"
-dependencies = [
- "bitflags 1.3.2",
- "bytemuck",
- "encase",
- "futures",
- "glam 0.21.3",
- "glyph_brush",
- "guillotiere",
- "iced_graphics 0.4.0",
- "iced_native 0.6.1",
- "log",
- "raw-window-handle 0.5.1",
- "wgpu",
- "wgpu_glyph",
-]
-
-[[package]]
-name = "iced_wgpu"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bb12ce0339a85a62fdb1ea3ce5b4fda1b5b2ab447b39c3982c30f697cc9d6c16"
@@ -4167,23 +4073,6 @@ dependencies = [
  "raw-window-handle 0.5.1",
  "wgpu",
  "wgpu_glyph",
-]
-
-[[package]]
-name = "iced_winit"
-version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "217f078cb38bedf1d4283eca4c82327e1ef0de8c78d2652187108ebd1e613a14"
-dependencies = [
- "iced_futures 0.5.1",
- "iced_graphics 0.4.0",
- "iced_native 0.6.1",
- "log",
- "thiserror",
- "web-sys",
- "winapi 0.3.9",
- "window_clipboard",
- "winit",
 ]
 
 [[package]]
@@ -4708,7 +4597,7 @@ dependencies = [
  "augmented_iced_baseview",
  "derive_more",
  "dirs",
- "iced 0.6.0",
+ "iced",
  "iced_audio 0.8.0 (git+https://github.com/iced-rs/iced_audio?rev=03ff8e94d63eafcc8a7d34569763a4c741688730)",
  "iced_native 0.7.0",
  "itertools 0.10.5",
@@ -6273,7 +6162,7 @@ dependencies = [
  "derivative",
  "derive_more",
  "dirs",
- "iced 0.6.0",
+ "iced",
  "iced_core 0.6.2",
  "iced_futures 0.5.1",
  "iced_native 0.7.0",
