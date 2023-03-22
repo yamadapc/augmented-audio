@@ -868,7 +868,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-iced-editor"
-version = "0.2.0"
+version = "0.3.0"
 dependencies = [
  "augmented_baseview",
  "augmented_iced_baseview",
@@ -931,7 +931,7 @@ dependencies = [
 
 [[package]]
 name = "augmented_baseview"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "cocoa 0.24.1",
  "core-foundation 0.9.3",
@@ -949,7 +949,7 @@ dependencies = [
 
 [[package]]
 name = "augmented_iced_baseview"
-version = "0.0.3"
+version = "0.0.4"
 dependencies = [
  "augmented_baseview",
  "cfg-if 1.0.0",
@@ -8205,8 +8205,8 @@ version = "1.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
 dependencies = [
- "cfg-if 1.0.0",
- "rand 0.8.5",
+ "cfg-if 0.1.10",
+ "rand 0.3.23",
  "static_assertions",
 ]
 
