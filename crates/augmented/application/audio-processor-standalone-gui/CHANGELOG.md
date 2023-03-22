@@ -1,3 +1,13 @@
+## v0.7.0
+
+* [`144c173e61b`](https://github.com/yamadapc/augmented-audio/commits/144c173e61b) audio-processor-iced-design-system@1.0.0 (Minor)
+* [`800a4b3019b`](https://github.com/yamadapc/augmented-audio/commits/800a4b3019b) augmented-iced-editor@1.3.0 (Minor)
+* [`8ad61d67a53`](https://github.com/yamadapc/augmented-audio/commits/8ad61d67a53) Bump iced-baseview version everywhere (Minor)
+* [`736b9f97f49`](https://github.com/yamadapc/augmented-audio/commits/736b9f97f49) augmented-iced-editor@0.3.0 (Minor)
+* [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
+* [`d200ee30665`](https://github.com/yamadapc/augmented-audio/commits/d200ee30665) Bump iced on all of the repository (Minor)
+* [`59c38648282`](https://github.com/yamadapc/augmented-audio/commits/59c38648282) Start to bump iced (Minor)
+
 ## v0.6.0
 
 * [`1a71b2ade4`](https://github.com/yamadapc/augmented-audio/commits/1a71b2ade4) audio-processor-traits@2.2.0 (Minor)
