@@ -35,31 +35,30 @@
 //!
 //! ## Core concepts
 //! Some concepts are shared between all the crates, for example, the [`audio::processor::AudioProcessor`] and
-//! [`audio::processor::SimpleAudioProcessor`] traits are how all audio nodes should be
+//! [`audio::processor::simple_processor::MonoAudioProcessor`] traits are how all audio nodes should be
 //! implemented.
 //!
 //! Here's an example gain node:
 //! ```
-//! use augmented::audio::processor::SimpleAudioProcessor;
+//! use audio_processor_traits::AudioContext;
+//! use audio_processor_traits::simple_processor::MonoAudioProcessor;
 //! struct ExampleGainProcessor {}
-//! impl SimpleAudioProcessor for ExampleGainProcessor {
+//! impl MonoAudioProcessor for ExampleGainProcessor {
 //!     type SampleType = f32;
-//!     fn s_process(&mut self, sample: Self::SampleType) -> Self::SampleType {
+//!     fn m_process(&mut self, _context: &mut AudioContext, sample: Self::SampleType) -> Self::SampleType {
 //!         sample * 0.2
 //!     }
 //! }
 //! ```
 //!
 //! The two traits are two different ways of defining an [`audio::processor::AudioProcessor`].
-//! The [`audio::processor::SimpleAudioProcessor`] is a sample-by-sample (or frame by frame)
+//! The [`audio::processor::simple_processor::MonoAudioProcessor`] is a sample-by-sample (or frame by frame)
 //! processor function, while [`audio::processor::AudioProcessor`] receives one
 //! [`audio::processor::AudioBuffer`] at a time.
 //!
-//! The processors must implement a `prepare` (or `s_prepare`) method, which receives
+//! The processors must implement a `prepare` (or `m_prepare`) method, which receives
 //! [`audio::processor::AudioProcessorSettings`] to configure things like channel count or
 //! sample-rate.
-//!
-//! They must also implement `process`, `s_process` or `s_process_frame` method to process samples.
 //!
 //! For "simple processors", which are defined as sample-by-sample functions, the
 //! [`audio_processor_traits::simple_processor::process_buffer`] and [`audio_processor_traits::BufferProcessor`]
