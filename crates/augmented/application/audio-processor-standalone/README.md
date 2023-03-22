@@ -32,7 +32,7 @@ feature flag.
 Declare the `AudioProcessor`:
 
 ```rust
-use audio_processor_traits::{AudioBuffer, AudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 
 struct GainProcessor {}
 
@@ -40,7 +40,11 @@ impl GainProcessor { fn new() -> Self { GainProcessor {} }}
 
 impl AudioProcessor for GainProcessor {
     type SampleType = f32;
-    fn process<BufferType: AudioBuffer<SampleType=Self::SampleType>>(&mut self, data: &mut BufferType) {
+    fn process<BufferType: AudioBuffer<SampleType=Self::SampleType>>(
+        &mut self,
+        _context: &mut AudioContext,
+        data: &mut BufferType
+    ) {
         for sample in data.slice_mut() {
            *sample = *sample * 0.4;
         }
