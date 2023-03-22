@@ -39,9 +39,11 @@ jobs:
           shared-key: "rust-cache-linux3"
 
       - name: Test with coverage
+        shell: bash
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
+          . $HOME/.cargo/env
           cargo tarpaulin --skip-clean --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
@@ -126,7 +128,9 @@ jobs:
         shared-key: "rust-cache-linux3"
 
     - name: Build release
+      shell: bash
       run: |
+        . $HOME/.cargo/env
         cargo build --release --workspace \
             --exclude augmented-ui \
             --exclude audiounit \
@@ -138,7 +142,9 @@ jobs:
             --exclude augmented-audio-gui-basics \
             --exclude macos-bundle-resources
     - name: Run snapshot tests
+      shell: bash
       run: |
+        . $HOME/.cargo/env
         ./scripts/dev.sh test-snapshots
 
     - name: Print sccache stats
