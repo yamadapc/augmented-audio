@@ -60,9 +60,9 @@ audio-processor-iced-storybook = { path = "../gui/audio-processor-iced-storybook
 augmented-iced-editor = { path = "../gui/iced-editor" , version = "0.3.0" }
 macos-bundle-resources = { path = "../gui/macos-bundle-resources" }
 
-iced = "0.6.0"
+iced = "0.8.0"
 iced_baseview = { version = "0.1", path = "../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
-iced_audio = "0.9"
+iced_audio = "0.11.0"
 baseview = { path = "../../vendor/baseview", version = "0.1", package = "augmented_baseview" }
 
 # ops
