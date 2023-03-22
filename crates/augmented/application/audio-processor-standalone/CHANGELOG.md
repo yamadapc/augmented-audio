@@ -1,3 +1,22 @@
+## v2.0.0
+
+* [`ed78a407ba5`](https://github.com/yamadapc/augmented-audio/commits/ed78a407ba5) Bump midi everywhere :minor: (Minor)
+* [`053c128e183`](https://github.com/yamadapc/augmented-audio/commits/053c128e183) Fix standalone dependency on midi 1.3.0 (Minor)
+* [`1d4e0425313`](https://github.com/yamadapc/augmented-audio/commits/1d4e0425313) Remove unused dependency (Minor)
+* [`3a95ed3b694`](https://github.com/yamadapc/augmented-audio/commits/3a95ed3b694) Update README (Minor)
+* [`945d48e4b2b`](https://github.com/yamadapc/augmented-audio/commits/945d48e4b2b) Fix tests (Minor)
+* [`d2db17a64b2`](https://github.com/yamadapc/augmented-audio/commits/d2db17a64b2) audio-processor-standalone-gui@0.7.0 (Minor)
+* [`d9c2d73899e`](https://github.com/yamadapc/augmented-audio/commits/d9c2d73899e) augmented-midi@1.4.0 (Minor)
+* [`562533505b2`](https://github.com/yamadapc/augmented-audio/commits/562533505b2) audio-processor-file@2.3.0 (Minor)
+* [`2b729eccd25`](https://github.com/yamadapc/augmented-audio/commits/2b729eccd25) audio-processor-testing-helpers@2.3.0 (Minor)
+* [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
+* [`93d44428a9a`](https://github.com/yamadapc/augmented-audio/commits/93d44428a9a) audio-garbage-collector@1.1.1 (Minor)
+* [`d4a2b849dac`](https://github.com/yamadapc/augmented-audio/commits/d4a2b849dac) Update with clippy fix :patch: (Patch)
+* [`335befa7e89`](https://github.com/yamadapc/augmented-audio/commits/335befa7e89) Add clap example for delay processor (Minor)
+* [`1ef3e6a1fe1`](https://github.com/yamadapc/augmented-audio/commits/1ef3e6a1fe1) Add basic combinators (Minor)
+* [`9a78e0bcc61`](https://github.com/yamadapc/augmented-audio/commits/9a78e0bcc61) Start to add context parameter and combinators :major: (Major)
+* [`cd475f5e06d`](https://github.com/yamadapc/augmented-audio/commits/cd475f5e06d) Fix clippy warnings :patch: (Patch)
+
 ## v1.4.0
 
 * [`e4e42edddf`](https://github.com/yamadapc/augmented-audio/commits/e4e42edddf) audio-processor-standalone-gui@0.6.0 (Minor)
