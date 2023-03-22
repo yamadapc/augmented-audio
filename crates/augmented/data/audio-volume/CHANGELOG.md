@@ -1,3 +1,7 @@
+## v0.5.0
+
+* [`2b729eccd25`](https://github.com/yamadapc/augmented-audio/commits/2b729eccd25) audio-processor-testing-helpers@2.3.0 (Minor)
+
 ## v0.4.0
 
 * [`15019459e7`](https://github.com/yamadapc/augmented-audio/commits/15019459e7) audio-processor-testing-helpers@1.3.0 (Minor)
