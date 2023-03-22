@@ -25,25 +25,10 @@ jobs:
         with:
           shared-key: "rust-cache-macos2"
 
-      - name: Set up sccache
-        env:
-          SCCACHE_VERSION: 0.4.0
-          PLATFORM: x86_64-apple-darwin
-        run: |
-          SCCACHE_FILE=sccache-v$SCCACHE_VERSION-$PLATFORM
-          SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
-          curl -L $SCCACHE_URL | tar xz
-          echo "$(pwd)/$SCCACHE_FILE" >> $GITHUB_PATH
-          ls "$(pwd)/$SCCACHE_FILE"
-
-      - name: Cache sccache output
-        uses: actions/cache@v2
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.2
         with:
-          path: |
-            ~/.cache/sccache
-          key: ${{ runner.os }}-sccache-test-${{ hashFiles('**/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-sccache-test
+          version: "v0.4.0"
 
       - name: Cache cargo binaries
         uses: actions/cache@v2
@@ -54,6 +39,7 @@ jobs:
 
       - name: Install cargo-nextest
         env:
+          SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: sccache
         run: |
           ls ~/.cargo/bin/
@@ -65,6 +51,7 @@ jobs:
           which cargo-nextest
       - name: Install uniffi bindgen
         env:
+          SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: sccache
         run: |
           if ! [ -x "$(command -v uniffi-bindgen)" ]; then
@@ -75,12 +62,13 @@ jobs:
           which uniffi-bindgen
       - name: Run tests
         env:
+          SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: sccache
         run: ./scripts/test.sh
 
       - name: Print sccache stats
-        run: |
-          sccache --show-stats
+        shell: bash
+        run: ${SCCACHE_PATH} --show-stats
 
   lint-rust:
     name: Rust - Lint rust crates ${{ matrix.os }}
@@ -97,6 +85,9 @@ jobs:
           shared-key: "rust-cache-macos2"
       - name: Run clippy
         run: ./scripts/clippy.sh
+        env:
+          SCCACHE_GHA_ENABLED: true
+          RUSTC_WRAPPER: sccache
 
   build-rust:
     name: Rust - Build release rust crates ${{ matrix.os }}
@@ -110,29 +101,14 @@ jobs:
         submodules: recursive
         lfs: true
 
-    - name: Set up sccache
-      env:
-        SCCACHE_VERSION: 0.4.0
-        PLATFORM: x86_64-apple-darwin
-      run: |
-        SCCACHE_FILE=sccache-v$SCCACHE_VERSION-$PLATFORM
-        SCCACHE_URL=https://github.com/mozilla/sccache/releases/download/v$SCCACHE_VERSION/$SCCACHE_FILE.tar.gz
-        curl -L $SCCACHE_URL | tar xz
-        echo "$(pwd)/$SCCACHE_FILE" >> $GITHUB_PATH
-        ls "$(pwd)/$SCCACHE_FILE"
-
-    - name: Cache sccache output
-      uses: actions/cache@v2
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.2
       with:
-        path: |
-          ~/.cache/sccache
-        key: ${{ runner.os }}-sccache-releasebuild-${{ hashFiles('**/Cargo.toml') }}
-        restore-keys: |
-            ${{ runner.os }}-sccache-releasebuild
+        version: "v0.4.0"
 
     - name: Print sccache stats
-      run: |
-        sccache --show-stats
+      shell: bash
+      run: ${SCCACHE_PATH} --show-stats
 
     - uses: Swatinem/rust-cache@v2
       with:
@@ -146,6 +122,7 @@ jobs:
 
     - name: Install uniffi bindgen
       env:
+        SCCACHE_GHA_ENABLED: true
         RUSTC_WRAPPER: sccache
       run: |
         if ! [ -x "$(command -v uniffi-bindgen)" ]; then
@@ -157,12 +134,9 @@ jobs:
 
     - name: Build release
       env:
+        SCCACHE_GHA_ENABLED: true
         RUSTC_WRAPPER: sccache
       run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
-
-    - name: Print sccache stats
-      run: |
-        sccache --show-stats
 
     - name: Upload plugin-host binary
       uses: actions/upload-artifact@v2
@@ -186,6 +160,9 @@ jobs:
         fi
         cargo about generate about.hbs
 
+    - name: Print sccache stats
+      shell: bash
+      run: ${SCCACHE_PATH} --show-stats
 
 
   run-snapshot-tests:
@@ -199,6 +176,10 @@ jobs:
       with:
         submodules: recursive
         lfs: true
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.2
+      with:
+        version: "v0.4.0"
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-macos2"
@@ -211,6 +192,9 @@ jobs:
         name: ${{ runner.os }}-snapshot-tests
         path: ./test
       if: ${{ failure() }}
+    - name: Print sccache stats
+      shell: bash
+      run: ${SCCACHE_PATH} --show-stats
 
   build-sequencer:
     name: Build Continuous looper
@@ -223,6 +207,10 @@ jobs:
         with:
           submodules: recursive
           lfs: true
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.2
+        with:
+          version: "v0.4.0"
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos2"
@@ -233,6 +221,9 @@ jobs:
             ~/.cargo/bin/
           key: ${{ runner.os }}-cargo-bin
       - name: Install cargo-lipo
+        env:
+          SCCACHE_GHA_ENABLED: true
+          RUSTC_WRAPPER: sccache
         run: |
           if ! [ -x "$(command -v cargo-lipo)" ]; then
             cargo install cargo-lipo
@@ -244,6 +235,9 @@ jobs:
           rustup target add aarch64-apple-ios-sim
           rustup target add aarch64-apple-ios
       - name: Build looper universal libraries
+        env:
+          SCCACHE_GHA_ENABLED: true
+          RUSTC_WRAPPER: sccache
         run: |
           cd ./crates/apps/looper/looper-processor
           make
@@ -259,3 +253,6 @@ jobs:
           cd ./crates/apps/looper/Sequencer
           brew install xcbeautify
           make test
+      - name: Print sccache stats
+        shell: bash
+        run: ${SCCACHE_PATH} --show-stats

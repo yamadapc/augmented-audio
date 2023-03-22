@@ -19,11 +19,18 @@ jobs:
         with:
           submodules: recursive
           lfs: true
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.2
+        with:
+          version: "v0.4.0"
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos-docs"
       - name: Build documentation
         run: cargo doc
+        env:
+          SCCACHE_GHA_ENABLED: true
+          RUSTC_WRAPPER: sccache
       - name: Deploy to GitHub Pages
         if: success()
         uses: peaceiris/actions-gh-pages@v3
