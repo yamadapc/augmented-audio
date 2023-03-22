@@ -622,7 +622,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-utility"
-version = "0.3.0"
+version = "1.0.0"
 dependencies = [
  "assert_no_alloc",
  "audio-garbage-collector",
