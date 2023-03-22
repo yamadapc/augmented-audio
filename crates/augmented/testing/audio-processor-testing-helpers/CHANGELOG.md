@@ -1,3 +1,9 @@
+## v2.3.0
+
+* [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
+* [`ce67876edbf`](https://github.com/yamadapc/augmented-audio/commits/ce67876edbf) augmented_oscillator@1.2.1 (Minor)
+* [`9a78e0bcc61`](https://github.com/yamadapc/augmented-audio/commits/9a78e0bcc61) Start to add context parameter and combinators :major: (Major)
+
 ## v1.3.0
 
 * [`1a71b2ade4`](https://github.com/yamadapc/augmented-audio/commits/1a71b2ade4) audio-processor-traits@2.2.0 (Minor)
