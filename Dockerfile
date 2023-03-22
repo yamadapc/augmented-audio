@@ -45,4 +45,6 @@ RUN . $HOME/.cargo/env && rustup component add llvm-tools-preview
 RUN sudo apt-get install -y ruby
 RUN gem install coveralls-lcov
 
+RUN echo 'source $HOME/.cargo/env' >> $HOME/.bashrc
+
 ADD . /app/
