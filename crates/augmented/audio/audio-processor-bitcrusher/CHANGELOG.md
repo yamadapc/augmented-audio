@@ -1,3 +1,13 @@
+## v1.0.0
+
+* [`188c3a81bf4`](https://github.com/yamadapc/augmented-audio/commits/188c3a81bf4) audio-processor-standalone@2.0.0 (Minor)
+* [`d2db17a64b2`](https://github.com/yamadapc/augmented-audio/commits/d2db17a64b2) audio-processor-standalone-gui@0.7.0 (Minor)
+* [`2b729eccd25`](https://github.com/yamadapc/augmented-audio/commits/2b729eccd25) audio-processor-testing-helpers@2.3.0 (Minor)
+* [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
+* [`93d44428a9a`](https://github.com/yamadapc/augmented-audio/commits/93d44428a9a) audio-garbage-collector@1.1.1 (Minor)
+* [`6854e439e99`](https://github.com/yamadapc/augmented-audio/commits/6854e439e99) Fix visualisation_ compilation (Minor)
+* [`9a78e0bcc61`](https://github.com/yamadapc/augmented-audio/commits/9a78e0bcc61) Start to add context parameter and combinators :major: (Major)
+
 ## v0.3.0
 
 * [`f7cdd89b30`](https://github.com/yamadapc/augmented-audio/commits/f7cdd89b30) audio-processor-standalone@1.4.0 (Minor)
