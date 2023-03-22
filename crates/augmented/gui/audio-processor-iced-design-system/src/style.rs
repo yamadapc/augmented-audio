@@ -300,23 +300,23 @@ pub mod pick_list {
             Appearance {
                 text_color: Colors::text(),
                 placeholder_color: Default::default(),
+                handle_color: Default::default(),
                 background: Background::Color(Colors::background_level0()),
                 border_radius: 0.0,
                 border_width: 1.0,
                 border_color: Colors::border_color(),
-                icon_size: 0.5,
             }
         }
 
         fn hovered(&self, _style: &Self::Style) -> Appearance {
             Appearance {
                 text_color: Colors::text(),
+                handle_color: Default::default(),
                 placeholder_color: Default::default(),
                 background: Background::Color(Colors::hover_opacity(Colors::background_level0())),
                 border_radius: 0.0,
                 border_width: 1.0,
                 border_color: Colors::selected_background(),
-                icon_size: 0.5,
             }
         }
     }
@@ -449,7 +449,7 @@ mod hover_container {
 }
 
 pub mod v_slider {
-    use iced_audio::v_slider::{Appearance, RectStyle};
+    use iced_audio::v_slider::{Appearance, RectAppearance};
     use iced_style::Theme;
 
     use crate::colors::Colors;
@@ -460,7 +460,7 @@ pub mod v_slider {
         type Style = Theme;
 
         fn active(&self, _style: &Self::Style) -> Appearance {
-            Appearance::Rect(RectStyle {
+            Appearance::Rect(RectAppearance {
                 back_color: Colors::background_level0(),
                 back_border_width: 1.0,
                 back_border_radius: 0.0,
@@ -473,7 +473,7 @@ pub mod v_slider {
         }
 
         fn hovered(&self, _style: &Self::Style) -> Appearance {
-            Appearance::Rect(RectStyle {
+            Appearance::Rect(RectAppearance {
                 back_color: Colors::background_level0(),
                 back_border_width: 1.0,
                 back_border_radius: 0.0,
@@ -486,7 +486,7 @@ pub mod v_slider {
         }
 
         fn dragging(&self, _style: &Self::Style) -> Appearance {
-            Appearance::Rect(RectStyle {
+            Appearance::Rect(RectAppearance {
                 back_color: Colors::background_level0(),
                 back_border_width: 1.0,
                 back_border_radius: 0.0,

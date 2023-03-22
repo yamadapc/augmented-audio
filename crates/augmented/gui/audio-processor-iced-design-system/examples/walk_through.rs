@@ -43,7 +43,7 @@ fn main() -> iced::Result {
     log::info!("Initializing app");
     WalkthroughApp::run(Settings {
         antialiasing: true,
-        default_text_size: Spacing::default_font_size(),
+        default_text_size: Spacing::default_font_size() as f32,
         ..Settings::default()
     })
 }
@@ -317,7 +317,7 @@ impl KnobsView {
                             Message::KnobChanged(knob_id, value)
                         })
                         .style(audio_knob::style::Knob)
-                        .size(Length::Units(Spacing::base_control_size()))
+                        .size(Length::Fixed(Spacing::base_control_size() as f32))
                         .into(),
                         Text::new(format!("{:.0}%", knob_state.value.as_f32() * 100.0))
                             .size(Spacing::small_font_size())

@@ -36,7 +36,7 @@ pub mod updatable;
 pub fn default_settings<Flags: Default>() -> iced::Settings<Flags> {
     iced::Settings {
         antialiasing: true,
-        default_text_size: spacing::Spacing::default_font_size(),
+        default_text_size: spacing::Spacing::default_font_size() as f32,
         window: iced::window::Settings {
             size: (1400, 1024),
             ..iced::window::Settings::default()

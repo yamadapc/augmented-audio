@@ -24,7 +24,7 @@ pub use iced_audio::Knob;
 
 pub mod style {
     use iced_audio::graphics::knob::{Appearance, NotchShape, StyleLength};
-    use iced_audio::knob::ValueArcStyle;
+    use iced_audio::knob::ValueArcAppearance;
     use iced_style::Theme;
 
     use crate::colors::Colors;
@@ -35,8 +35,8 @@ pub mod style {
         type Style = Theme;
 
         fn active(&self, _style: &Self::Style) -> Appearance {
-            Appearance::Arc(iced_audio::style::knob::ArcStyle {
-                width: StyleLength::Units(3.),
+            Appearance::Arc(iced_audio::style::knob::ArcAppearance {
+                width: StyleLength::Fixed(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
                 notch: Knob::notch(),
@@ -45,8 +45,8 @@ pub mod style {
         }
 
         fn hovered(&self, _style: &Self::Style) -> Appearance {
-            Appearance::Arc(iced_audio::style::knob::ArcStyle {
-                width: StyleLength::Units(3.),
+            Appearance::Arc(iced_audio::style::knob::ArcAppearance {
+                width: StyleLength::Fixed(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
                 notch: Knob::notch(),
@@ -55,8 +55,8 @@ pub mod style {
         }
 
         fn dragging(&self, _style: &Self::Style) -> Appearance {
-            Appearance::Arc(iced_audio::style::knob::ArcStyle {
-                width: StyleLength::Units(3.),
+            Appearance::Arc(iced_audio::style::knob::ArcAppearance {
+                width: StyleLength::Fixed(3.),
                 empty_color: Colors::background_level0(),
                 filled_color: Colors::active_border_color(),
                 notch: Knob::notch(),
@@ -64,8 +64,8 @@ pub mod style {
             })
         }
 
-        fn value_arc_style(&self, _style: &Self::Style) -> Option<ValueArcStyle> {
-            Some(ValueArcStyle {
+        fn value_arc_appearance(&self, _style: &Self::Style) -> Option<ValueArcAppearance> {
+            Some(ValueArcAppearance {
                 width: 1.0,
                 offset: 0.0,
                 empty_color: Some(Colors::background_level0()),
@@ -83,7 +83,7 @@ pub mod style {
                 width: StyleLength::Scaled(0.1),
                 length: StyleLength::Scaled(0.4),
                 cap: Default::default(),
-                offset: StyleLength::Units(0.),
+                offset: StyleLength::Fixed(0.),
             })
         }
     }

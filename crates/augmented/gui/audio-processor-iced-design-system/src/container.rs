@@ -139,8 +139,8 @@ pub mod hover_container {
         fn layout(&self, renderer: &Renderer, limits: &Limits) -> Node {
             let limits = limits
                 .loose()
-                .max_width(self.max_width)
-                .max_height(self.max_height)
+                .max_width(self.max_width as f32)
+                .max_height(self.max_height as f32)
                 .width(self.width)
                 .height(self.height)
                 .pad(self.padding);
@@ -211,12 +211,14 @@ pub mod hover_container {
             &self,
             tree: &mut Tree,
             layout: Layout<'_>,
+            renderer: &Renderer,
             operation: &mut dyn Operation<Message>,
         ) {
             operation.container(None, &mut |operation| {
                 self.content.as_widget().operate(
                     &mut tree.children[0],
                     layout.children().next().unwrap(),
+                    renderer,
                     operation,
                 );
             });
