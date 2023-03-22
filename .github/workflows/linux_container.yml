@@ -43,7 +43,7 @@ jobs:
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
         run: |
-          . $HOME/.cargo/env
+          . /root/.cargo/env
           cargo tarpaulin --skip-clean --workspace \
               --features story \
               --coveralls $COVERALLS_TOKEN \
@@ -130,7 +130,7 @@ jobs:
     - name: Build release
       shell: bash
       run: |
-        . $HOME/.cargo/env
+        . /root/.cargo/env
         cargo build --release --workspace \
             --exclude augmented-ui \
             --exclude audiounit \
@@ -144,7 +144,7 @@ jobs:
     - name: Run snapshot tests
       shell: bash
       run: |
-        . $HOME/.cargo/env
+        . /root/.cargo/env
         ./scripts/dev.sh test-snapshots
 
     - name: Print sccache stats
