@@ -74,7 +74,7 @@ audio-processor-bitcrusher = { path = "../../../augmented/audio/audio-processor-
 audio-processor-time = { path = "../../../augmented/audio/audio-processor-time", version = "0.3.0" }
 audio-processor-dynamics = { path = "../../../augmented/audio/audio-processor-dynamics", version = "0.3.0" }
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis", version = "1.0.0" }
-augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters", version = "1.3.1" }
+augmented-dsp-filters = { path = "../../../augmented/dsp/dsp-filters", version = "2.0.0" }
 
 audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers", version = "2.3.0" }
 
