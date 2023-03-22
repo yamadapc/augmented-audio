@@ -92,14 +92,12 @@ debug = true
 
 [patch."https://github.com/yamadapc/baseview"]
 augmented_baseview = { path = "crates/vendor/baseview" }
-xcb-util = { path = "crates/vendor/xcb-util" }
 
 [patch."https://github.com/yamadapc/iced_baseview"]
 augmented_iced_baseview = { path = "crates/vendor/iced-baseview" }
 
 [patch.crates-io]
 wisual-logger = { version = "0.1", path = "crates/augmented/ops/wisual-logger" }
-xcb-util = { path = "crates/vendor/xcb-util" }
 
 # Vendor overrides
 # iced = { version = "^0.3.0", path = "crates/vendor/iced" }
