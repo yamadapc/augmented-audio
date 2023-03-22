@@ -21,7 +21,7 @@ vst = { version = "0.3.0", path = "../../../vendor/vst" }
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 
 baseview = { version = "0.1", path = "../../../vendor/baseview", package = "augmented_baseview" }
-iced_baseview = { version = "0.0.4", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
+iced_baseview = { version = "0.1", path = "../../../vendor/iced-baseview", package = "augmented_iced_baseview", default-features = false, optional = true }
 raw-window-handle = "0.4"
 
 [target.'cfg(target_os = "macos")'.dependencies]

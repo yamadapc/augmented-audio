@@ -67,7 +67,7 @@ enum Message {
 impl Application for GenericAudioProcessorApplication {
     type Executor = iced::executor::Default;
     type Message = Message;
-    type Theme = iced::Theme;
+    type Theme = Theme;
     type Flags = Flags;
 
     fn new(flags: Self::Flags) -> (Self, Command<Self::Message>) {
@@ -156,7 +156,7 @@ fn parameter_view(
                     let n_value = range.0 + value.as_f32() * (range.1 - range.0);
                     Message::KnobChange(parameter_index, n_value)
                 })
-                .size(Length::Units(Spacing::base_control_size()))
+                .size(Length::Fixed(Spacing::base_control_size() as f32))
                 .style(audio_knob::style::Knob)
                 .into(),
                 Text::new(format!("{:.2}", value))
