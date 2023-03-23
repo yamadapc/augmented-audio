@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronome/modules/context/app_context.dart';
@@ -69,6 +70,12 @@ class _HistoryPageTabState extends State<HistoryPageTab> {
               child: ListView.builder(
                 controller: scrollController,
                 itemCount: widget.stateController.model.sessions.length,
+                physics: BouncingScrollPhysics(
+                  decelerationRate:
+                      defaultTargetPlatform == TargetPlatform.macOS
+                          ? ScrollDecelerationRate.fast
+                          : ScrollDecelerationRate.normal,
+                ),
                 itemBuilder: (context, index) => HistoryListItem(
                   session: widget.stateController.model.sessions[index],
                 ),

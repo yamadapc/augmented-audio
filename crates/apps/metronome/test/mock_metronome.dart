@@ -1,6 +1,7 @@
 import 'package:flutter_rust_bridge/src/platform_independent.dart';
 import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/logger.dart';
+import 'package:metronome/modules/analytics/fake_analytics.dart';
 import 'package:metronome/modules/database.dart';
 import 'package:metronome/modules/history/history_controller.dart';
 import 'package:metronome/modules/state/history_state_controller.dart';
@@ -90,12 +91,21 @@ Future<MockEnvironment> buildTestEnvironment() async {
   final database = await buildInMemoryDatabase();
   final sessionDao = database.sessionDao;
   final historyStateModel = HistoryStateModel();
-  final historyStateController =
-      HistoryStateController(sessionDao, historyStateModel);
-  final historyStartStopHandler =
-      HistoryStartStopHandler(sessionDao, model, historyStateController);
-  final metronomeStateController =
-      MetronomeStateController(model, metronome, historyStartStopHandler);
+  final historyStateController = HistoryStateController(
+    sessionDao,
+    historyStateModel,
+  );
+  final historyStartStopHandler = HistoryStartStopHandler(
+    sessionDao,
+    model,
+    historyStateController,
+  );
+  final metronomeStateController = MetronomeStateController(
+    model,
+    metronome,
+    historyStartStopHandler,
+    FakeAnalytics(),
+  );
 
   return MockEnvironment.create(
     model,

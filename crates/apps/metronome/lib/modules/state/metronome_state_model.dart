@@ -1,9 +1,8 @@
 // ignore_for_file: use_setters_to_change_properties, avoid_positional_boolean_parameters
 
 import 'package:metronome/bridge_generated.dart';
+import 'package:metronome/modules/state/session_state.dart';
 import 'package:mobx/mobx.dart';
-
-import 'session_state.dart';
 
 part 'metronome_state_model.g.dart';
 
