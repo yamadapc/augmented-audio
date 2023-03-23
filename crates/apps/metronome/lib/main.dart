@@ -1,8 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:metronome/firebase_options.dart';
+import 'package:metronome/modules/analytics/analytics_impl.dart';
 import 'package:metronome/ui/app.dart';
 
 void main() async {
@@ -11,5 +11,5 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const App());
+  runApp(App(analytics: AnalyticsImpl()));
 }

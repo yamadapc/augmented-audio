@@ -1,36 +1,38 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:metronome/main.dart' as app;
+import 'package:metronome/modules/analytics/fake_analytics.dart';
+import 'package:metronome/ui/app.dart';
+
+import 'utils.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-
   group('end-to-end test', () {
-    testWidgets('tap on the floating action button, verify counter',
-        (tester) async {
-      app.main();
+    testWidgets('wait for metronome to render', (tester) async {
+      await tester.pumpWidget(App(analytics: FakeAnalytics()));
       await tester.pumpAndSettle();
 
-      // Verify the counter starts at 0.
-      expect(find.text('Start'), findsOneWidget);
+      await waitFor(tester, find.byKey(const Key("MainPageTab")));
+      await waitFor(tester, find.byKey(const Key("PlayButton")));
       await binding.convertFlutterSurfaceToImage();
-      await binding.takeScreenshot('screenshot-1-init');
 
-      final Finder start = find.text('Start');
-      await tester.tap(start);
+      await tester.tap(find.byKey(const Key("PlayButton")));
       await tester.pumpAndSettle();
       await binding.convertFlutterSurfaceToImage();
-      await binding.takeScreenshot('screenshot-2-started');
 
-      final Finder stop = find.text('Stop');
-      await tester.tap(stop);
+      await tester.tap(find.byKey(const Key("PlayButton")));
       await tester.pumpAndSettle();
 
-      final Finder history = find.text("History");
-      await tester.tap(history);
+      await tester.tap(find.text("History"));
       await tester.pumpAndSettle();
+      await waitFor(tester, find.byKey(const Key("HistoryPageTab")));
       await binding.convertFlutterSurfaceToImage();
-      await binding.takeScreenshot('screenshot-3-history');
+
+      await tester.tap(find.text("Metronome"));
+      await tester.pumpAndSettle();
+      await waitFor(tester, find.byKey(const Key("MainPageTab")));
+      await binding.convertFlutterSurfaceToImage();
     });
   });
 }

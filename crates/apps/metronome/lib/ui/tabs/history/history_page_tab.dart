@@ -1,7 +1,7 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/history_state_controller.dart';
 import 'package:metronome/modules/state/history_state_model.dart';
 import 'package:metronome/ui/controls/beats_per_bar_control.dart';
@@ -24,8 +24,13 @@ class _HistoryPageTabState extends State<HistoryPageTab> {
   @override
   void initState() {
     widget.stateController.refresh();
-    fireViewedAnalytics();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    fireViewedAnalytics();
   }
 
   @override
@@ -35,7 +40,7 @@ class _HistoryPageTabState extends State<HistoryPageTab> {
   }
 
   void fireViewedAnalytics() {
-    final analytics = FirebaseAnalytics.instance;
+    final analytics = AppContext.of(context).analytics;
     analytics.logScreenView(
       screenClass: "HistoryPageTab",
       screenName: "History Page",

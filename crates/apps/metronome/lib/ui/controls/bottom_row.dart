@@ -1,6 +1,7 @@
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:metronome/ui/controls/bottom_row/tap_tempo_button.dart';
 
@@ -16,11 +17,12 @@ class BottomRow extends StatelessWidget {
       children: [
         Expanded(
           child: CupertinoButton(
+            key: const Key("PlayButton"),
             color: CupertinoColors.activeBlue,
             onPressed: () {
               stateController.toggleIsPlaying();
 
-              final analytics = FirebaseAnalytics.instance;
+              final analytics = AppContext.of(context).analytics;
               analytics.logEvent(name: "BottomRow__toggleIsPlaying");
             },
             child: Observer(

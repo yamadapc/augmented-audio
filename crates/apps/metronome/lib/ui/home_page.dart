@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/cupertino.dart';
 import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/logger.dart';
+import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/database.dart';
 import 'package:metronome/modules/history/history_controller.dart';
 import 'package:metronome/modules/performance_metrics/metrics.dart';
@@ -62,6 +63,7 @@ class _HomePageState extends State<HomePage> {
           metronomeStateModel,
           metronome,
           historyController,
+          AppContext.of(context).analytics,
         );
         metronomeStateController?.setup();
 
@@ -121,10 +123,14 @@ class HomePageContents extends StatelessWidget {
       tabBuilder: (context, index) {
         if (index == 0) {
           return MainPageTab(
+            key: const Key("MainPageTab"),
             stateController: metronomeStateController!,
           );
         } else {
-          return HistoryPageTab(stateController: historyStateController!);
+          return HistoryPageTab(
+            key: const Key("HistoryPageTab"),
+            stateController: historyStateController!,
+          );
         }
       },
     );

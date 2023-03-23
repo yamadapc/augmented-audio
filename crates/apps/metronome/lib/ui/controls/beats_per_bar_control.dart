@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 
 class BeatsPerBarControl extends StatelessWidget {
@@ -32,7 +33,7 @@ class BeatsPerBarControl extends StatelessWidget {
         onValueChanged: (int value) {
           stateController.setBeatsPerBar(value);
 
-          final analytics = FirebaseAnalytics.instance;
+          final analytics = AppContext.of(context).analytics;
           analytics.logEvent(name: "BeatsPerBarControl__onValueChanged");
         },
       ),

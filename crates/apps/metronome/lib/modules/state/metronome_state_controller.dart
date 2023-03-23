@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_positional_boolean_parameters
 
 import 'package:metronome/bridge_generated.dart';
+import 'package:metronome/modules/analytics/analytics.dart';
 import 'package:metronome/modules/history/history_controller.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
 import 'package:metronome/modules/state/tap_tempo_controller.dart';
@@ -18,9 +19,15 @@ class MetronomeStateController {
   final Metronome metronome;
   final HistoryStartStopHandler historyController;
   late final TapTempoController tapTempoController;
+  final Analytics analytics;
 
-  MetronomeStateController(this.model, this.metronome, this.historyController) {
-    tapTempoController = TapTempoController(this);
+  MetronomeStateController(
+    this.model,
+    this.metronome,
+    this.historyController,
+    this.analytics,
+  ) {
+    tapTempoController = TapTempoController(this, analytics);
   }
 
   void setup() {

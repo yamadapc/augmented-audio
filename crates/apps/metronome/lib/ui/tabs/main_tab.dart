@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:metronome/ui/controls/beats_per_bar_control.dart';
 import 'package:metronome/ui/controls/bottom_row.dart';
@@ -14,15 +14,15 @@ import 'package:metronome/ui/visualisation/visualisation.dart';
 class PlayIntent extends Intent {}
 
 class IncreaseTempoIntent extends Intent {
-  double value;
+  final double value;
 
-  IncreaseTempoIntent({this.value = 1});
+  const IncreaseTempoIntent({this.value = 1});
 }
 
 class DecreaseTempoIntent extends Intent {
-  double value;
+  final double value;
 
-  DecreaseTempoIntent({this.value = 1});
+  const DecreaseTempoIntent({this.value = 1});
 }
 
 class MainPageTab extends StatefulWidget {
@@ -43,6 +43,11 @@ class _MainPageTabState extends State<MainPageTab> {
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     fireViewedAnalytics();
   }
 
@@ -57,7 +62,7 @@ class _MainPageTabState extends State<MainPageTab> {
       return;
     }
 
-    final analytics = FirebaseAnalytics.instance;
+    final analytics = AppContext.of(context).analytics;
     analytics.logScreenView(
       screenClass: "MainPageTab",
       screenName: "Main Page",
@@ -69,12 +74,14 @@ class _MainPageTabState extends State<MainPageTab> {
     return Shortcuts(
       shortcuts: {
         LogicalKeySet(LogicalKeyboardKey.space): PlayIntent(),
-        LogicalKeySet(LogicalKeyboardKey.arrowLeft): DecreaseTempoIntent(),
-        LogicalKeySet(LogicalKeyboardKey.arrowRight): IncreaseTempoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.arrowLeft):
+            const DecreaseTempoIntent(),
+        LogicalKeySet(LogicalKeyboardKey.arrowRight):
+            const IncreaseTempoIntent(),
         LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.arrowLeft):
-            DecreaseTempoIntent(value: 10),
+            const DecreaseTempoIntent(value: 10),
         LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.arrowRight):
-            IncreaseTempoIntent(value: 10),
+            const IncreaseTempoIntent(value: 10),
       },
       child: Actions(
         actions: {

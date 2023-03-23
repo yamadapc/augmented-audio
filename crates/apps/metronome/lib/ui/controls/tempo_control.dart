@@ -1,7 +1,7 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
+import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:metronome/ui/controls/tempo_control/keyboard_overlay.dart';
 import 'package:metronome/ui/utils/debounce.dart';
@@ -68,7 +68,7 @@ class _TempoControlState extends State<TempoControl> {
                   widget.stateController
                       .setTempo(widget.stateController.model.tempo - 10);
 
-                  final analytics = FirebaseAnalytics.instance;
+                  final analytics = AppContext.of(context).analytics;
                   analytics.logEvent(
                     name: "TempoControl__quickTempoChange",
                   );
@@ -97,7 +97,7 @@ class _TempoControlState extends State<TempoControl> {
                   widget.stateController
                       .setTempo(widget.stateController.model.tempo + 10);
 
-                  final analytics = FirebaseAnalytics.instance;
+                  final analytics = AppContext.of(context).analytics;
                   analytics.logEvent(
                     name: "TempoControl__quickTempoChange",
                   );
@@ -113,7 +113,7 @@ class _TempoControlState extends State<TempoControl> {
                 widget.stateController.setTempo(value);
               }, // onTempoChanged,
               onChangeEnd: (value) {
-                final analytics = FirebaseAnalytics.instance;
+                final analytics = AppContext.of(context).analytics;
                 analytics.logEvent(
                   name: "TempoControl__sliderTempoChanged",
                 );
@@ -132,7 +132,7 @@ class _TempoControlState extends State<TempoControl> {
       final double tempo = Math.max(Math.min(double.parse(value), 350), 1);
       widget.stateController.setTempo(tempo);
 
-      final analytics = FirebaseAnalytics.instance;
+      final analytics = AppContext.of(context).analytics;
       analytics.logEvent(name: "TempoControl__onTempoTextChanged");
     });
   }
@@ -140,7 +140,7 @@ class _TempoControlState extends State<TempoControl> {
   void onTempoTextEditingComplete() {
     _onChangeDebounce.flush();
 
-    final analytics = FirebaseAnalytics.instance;
+    final analytics = AppContext.of(context).analytics;
     analytics.logEvent(name: "TempoControl__onTempoTextEditingComplete");
   }
 }

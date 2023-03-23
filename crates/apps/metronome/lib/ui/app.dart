@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:macos_ui/macos_ui.dart';
+import 'package:metronome/modules/analytics/analytics.dart';
+import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/ui/home_page.dart';
 import 'package:mobx/mobx.dart';
 
@@ -9,7 +11,9 @@ Observable<Brightness?> brightness =
     Observable(WidgetsBinding.instance.window.platformBrightness);
 
 class App extends StatefulWidget {
-  const App({Key? key}) : super(key: key);
+  final Analytics analytics;
+
+  const App({Key? key, required this.analytics}) : super(key: key);
 
   @override
   State<App> createState() => _AppState();
@@ -38,15 +42,18 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Observer(
-      builder: (context) => MacosApp(
-        title: 'Metronome',
-        theme: brightness.value == Brightness.light
-            ? buildMacosThemeData(context)
-            : buildMacosThemeDataDark(context),
-        darkTheme: buildMacosThemeDataDark(context),
-        home: const HomePage(title: 'Metronome'),
-        debugShowCheckedModeBanner: false,
+    return AppContext(
+      analytics: widget.analytics,
+      child: Observer(
+        builder: (context) => MacosApp(
+          title: 'Metronome',
+          theme: brightness.value == Brightness.light
+              ? buildMacosThemeData(context)
+              : buildMacosThemeDataDark(context),
+          darkTheme: buildMacosThemeDataDark(context),
+          home: const HomePage(title: 'Metronome'),
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }
