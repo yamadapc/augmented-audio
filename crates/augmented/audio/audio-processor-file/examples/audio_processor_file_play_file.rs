@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use audio_processor_testing_helpers::relative_path;
-use audio_processor_traits::{AudioContext, AudioProcessor, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, InterleavedAudioBuffer};
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, SampleRate, StreamConfig};
 
@@ -57,6 +57,9 @@ fn run_audio(mut processor: impl AudioProcessor<SampleType = f32> + Send + 'stat
             },
             move |data, _info| {
                 let mut buffer = InterleavedAudioBuffer::new(2, data);
+                for sample in buffer.slice_mut() {
+                    *sample = 0.0;
+                }
                 processor.process(&mut context, &mut buffer);
             },
             |err| log::error!("CPAL stream error: {}", err),
