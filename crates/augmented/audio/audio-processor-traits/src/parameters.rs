@@ -143,3 +143,47 @@ impl ParameterSpec {
         &self.ty
     }
 }
+
+#[cfg(test)]
+mod test {
+    use std::convert::TryFrom;
+
+    #[test]
+    fn test_parameter_value() {
+        use super::ParameterValue;
+        let v = ParameterValue::Float { value: 0.5 };
+        assert_eq!(v, 0.5.into());
+        assert_eq!(f32::try_from(v).unwrap(), 0.5);
+    }
+
+    #[test]
+    fn test_parameter_type() {
+        use super::{FloatType, ParameterType};
+        let ty = ParameterType::Float(FloatType {
+            range: (0.0, 1.0),
+            step: None,
+        });
+        assert!(ty.float().is_some());
+    }
+
+    #[test]
+    fn test_parameter_spec() {
+        use super::{FloatType, ParameterSpec, ParameterType};
+        let spec = ParameterSpec::new(
+            "test".to_string(),
+            ParameterType::Float(FloatType {
+                range: (0.0, 1.0),
+                step: None,
+            }),
+        );
+        assert_eq!(spec.name(), "test");
+        assert!(spec.ty().float().is_some());
+    }
+
+    #[test]
+    fn test_parameter_value_from_f32() {
+        use super::ParameterValue;
+        let v = ParameterValue::Float { value: 0.5 };
+        assert_eq!(v, 0.5.into());
+    }
+}
