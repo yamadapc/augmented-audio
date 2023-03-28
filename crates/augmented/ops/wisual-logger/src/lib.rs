@@ -41,10 +41,12 @@
 //! ```
 
 use std::io::Write;
-use std::time::SystemTime;
 use std::{io, thread};
 
-use chrono::{DateTime, Utc};
+#[cfg(not(target_arch = "wasm32"))]
+use std::time::SystemTime;
+
+use chrono::Utc;
 use env_logger::fmt::{Color, Formatter};
 use log::{Record, SetLoggerError};
 
@@ -56,7 +58,10 @@ impl LogFormatter {
     pub fn format(buf: &mut Formatter, record: &Record) -> io::Result<()> {
         let metadata = record.metadata();
         let target = metadata.target();
-        let time: DateTime<Utc> = SystemTime::now().into();
+        #[cfg(not(target_arch = "wasm32"))]
+        let time = chrono::DateTime::<Utc>::from(SystemTime::now());
+        #[cfg(target_arch = "wasm32")]
+        let time = Utc::now();
         let time = time.format("%+");
         let current_thread = thread::current();
         let thread_name = current_thread

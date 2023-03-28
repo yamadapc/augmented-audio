@@ -24,10 +24,9 @@
 use std::fs::File;
 use std::path::Path;
 
-use audio_processor_traits::VecAudioBuffer;
-use samplerate::Samplerate;
+use audio_processor_traits::{AudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
+use symphonia::core::audio::Signal;
 use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef};
-use symphonia::core::audio::{AudioBuffer, Signal};
 use symphonia::core::codecs::Decoder;
 use symphonia::core::formats::FormatOptions;
 use symphonia::core::io::MediaSourceStream;
@@ -36,7 +35,10 @@ use symphonia::core::probe::{Hint, ProbeResult};
 use symphonia::default::get_probe;
 use thiserror::Error;
 
+use crate::file_io::sample_rate_converter::BLOCK_SIZE;
 use augmented_audio_metrics as metrics;
+
+mod sample_rate_converter;
 
 #[derive(Error, Debug)]
 pub enum AudioFileError {
@@ -148,7 +150,7 @@ pub fn read_file_contents(
     ))
 }
 
-pub fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> AudioBuffer<f32> {
+pub fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> SymphoniaAudioBuffer<f32> {
     let mut destination =
         SymphoniaAudioBuffer::new(audio_buffer.capacity() as u64, *audio_buffer.spec());
     let _ = destination.fill(|_, _| Ok(()));
@@ -171,25 +173,69 @@ pub fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> AudioBu
     destination
 }
 
-pub struct ConvertedFileContentsStream<'a> {
+struct FileFramesStream<'a> {
     audio_file_stream: FileContentsStream<'a>,
+    buffer: Vec<Vec<f32>>,
+    rate: u32,
+    buffer_size: usize,
+}
+
+impl<'a> Iterator for FileFramesStream<'a> {
+    type Item = Vec<Vec<f32>>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        while let Some(block) = self.audio_file_stream.next() {
+            let channels = block.spec().channels.count();
+            self.rate = block.spec().rate;
+            self.buffer.resize(channels, Vec::new());
+            for channel in 0..channels {
+                self.buffer[channel].extend_from_slice(block.chan(channel));
+            }
+
+            if self.buffer[0].len() >= self.buffer_size {
+                let mut result = Vec::new();
+                for channel in 0..self.buffer.len() {
+                    let channel_buffer = self.buffer[channel].drain(0..self.buffer_size).collect();
+                    result.push(channel_buffer);
+                }
+                return Some(result);
+            }
+        }
+
+        if self.buffer[0].len() > 0 {
+            let mut result = Vec::new();
+            for channel in 0..self.buffer.len() {
+                let mut channel_buffer: Vec<f32> = self.buffer[channel].drain(..).collect();
+                channel_buffer.resize(self.buffer_size, 0.0);
+                result.push(channel_buffer);
+            }
+            return Some(result);
+        }
+        None
+    }
+}
+
+pub struct ConvertedFileContentsStream<'a> {
+    audio_file_stream: FileFramesStream<'a>,
     output_rate: f32,
 
-    decoder: Option<Result<Samplerate, samplerate::Error>>,
+    decoder: Option<sample_rate_converter::Decoder>,
 }
 
 impl<'a> ConvertedFileContentsStream<'a> {
-    fn get_decoder(&mut self, from_rate: u32, channels: usize) -> Option<&mut Samplerate> {
+    fn get_decoder(
+        &mut self,
+        from_rate: u32,
+        channels: usize,
+    ) -> Option<&mut sample_rate_converter::Decoder> {
         if self.decoder.is_none() {
-            self.decoder = Some(samplerate::Samplerate::new(
-                samplerate::ConverterType::SincBestQuality,
-                from_rate,
-                self.output_rate as u32,
-                channels,
-            ));
+            self.decoder = Some(
+                sample_rate_converter::make_decoder(from_rate, self.output_rate as u32, channels)
+                    .unwrap(),
+            );
         }
 
-        if let Some(Ok(decoder)) = &mut self.decoder {
+        if let Some(decoder) = &mut self.decoder {
             Some(decoder)
         } else {
             None
@@ -201,30 +247,30 @@ impl<'a> Iterator for ConvertedFileContentsStream<'a> {
     type Item = VecAudioBuffer<f32>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let audio_buffer = self.audio_file_stream.next()?;
-        let num_samples = audio_buffer.frames();
-        let num_channels = audio_buffer.spec().channels.count();
-        let decoder = self.get_decoder(audio_buffer.spec().rate, num_channels)?;
+        let channels = self.audio_file_stream.next()?;
+        let rate = self.audio_file_stream.rate;
 
-        let mut interleaved_buffer = vec![];
-        interleaved_buffer.resize(num_samples * num_channels, 0.0);
-        let channels: Vec<&[f32]> = (0..num_channels).map(|c| audio_buffer.chan(c)).collect();
-        for sample in 0..num_samples {
-            #[allow(clippy::needless_range_loop)]
-            for channel in 0..num_channels {
-                let index = sample * num_channels + channel;
-                interleaved_buffer[index] = channels[channel][sample];
+        let decoder = self.get_decoder(rate, channels.len()).unwrap();
+
+        assert_eq!(channels.len(), 2);
+        assert_eq!(channels[0].len(), BLOCK_SIZE);
+        let chunk_result = sample_rate_converter::process(decoder, &channels).unwrap();
+
+        let mut interleaved_result = VecAudioBuffer::new();
+        interleaved_result.resize(chunk_result.len(), chunk_result[0].len(), 0.0);
+        for sample in 0..chunk_result[0].len() {
+            for channel in 0..chunk_result.len() {
+                interleaved_result.set(channel, sample, chunk_result[channel][sample]);
             }
         }
-        let result = decoder.process(&interleaved_buffer).ok()?;
 
-        Some(VecAudioBuffer::new_with(result, num_channels, num_samples))
+        Some(interleaved_result)
     }
 }
 
 impl<'a> ExactSizeIterator for ConvertedFileContentsStream<'a> {
     fn len(&self) -> usize {
-        self.audio_file_stream.len()
+        self.audio_file_stream.audio_file_stream.len()
     }
 }
 
@@ -233,12 +279,18 @@ pub fn convert_audio_file_stream_sample_rate(
     output_rate: f32,
 ) -> ConvertedFileContentsStream {
     ConvertedFileContentsStream {
-        audio_file_stream,
+        audio_file_stream: FileFramesStream {
+            audio_file_stream,
+            buffer: Vec::new(),
+            rate: 0,
+            buffer_size: BLOCK_SIZE,
+        },
         output_rate,
         decoder: None,
     }
 }
 
+#[cfg(feature = "samplerate")]
 pub fn convert_audio_file_sample_rate(
     audio_file_contents: &SymphoniaAudioBuffer<f32>,
     output_rate: f32,

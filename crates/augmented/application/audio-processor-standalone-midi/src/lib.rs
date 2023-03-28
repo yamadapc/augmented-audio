@@ -136,6 +136,8 @@ pub mod audio_thread;
 pub mod constants;
 /// Hosting of MIDI
 pub mod host;
+
+#[cfg(feature = "vst")]
 /// VST API conversion
 pub mod vst;
 

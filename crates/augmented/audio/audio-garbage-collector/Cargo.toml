@@ -13,6 +13,9 @@ thiserror = "^1.0.26"
 basedrop = "^0.1.2"
 log = "^0.4.14"
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm_thread = { version = "0.2.0", features = ["es_modules"] }
+
 [dev-dependencies]
 wisual-logger = { version = "^0.1", path = "../../ops/wisual-logger" }
 

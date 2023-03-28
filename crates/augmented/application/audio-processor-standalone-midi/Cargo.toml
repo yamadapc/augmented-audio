@@ -10,13 +10,14 @@ repository = "https://github.com/yamadapc/augmented-audio"
 [features]
 default = []
 actix = ["dep:actix"]
+vst = ["dep:vst"]
 
 [dependencies]
 basedrop = "^0.1.2"
 thiserror = "^1.0.26"
 midir = "0.8"
 log = "^0.4.14"
-vst = { version = "0.3", path = "../../../vendor/vst" }
+vst = { version = "0.3", path = "../../../vendor/vst", optional = true }
 
 # augmented
 atomic-queue = { version = "1.0.1", path = "../../data/atomic-queue" }

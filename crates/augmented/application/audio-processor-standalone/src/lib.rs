@@ -127,7 +127,7 @@ pub mod standalone_processor;
 pub mod offline;
 
 /// VST support (VST is not compiled for iOS)
-#[cfg(not(target_os = "ios"))]
+#[cfg(all(feature = "vst", not(target_os = "ios")))]
 pub mod standalone_vst;
 
 #[cfg(feature = "clap")]
@@ -205,6 +205,7 @@ fn standalone_main<SP: StandaloneProcessor>(mut app: SP, handle: Option<&Handle>
             input_file: input_path,
             output_file: output_path,
         } => {
+            #[cfg(feature = "midi")]
             let midi_input_file = options.midi().input_file.as_ref().map(|midi_input_file| {
                 let file_contents =
                     std::fs::read(midi_input_file).expect("Failed to read input MIDI file");
@@ -219,6 +220,7 @@ fn standalone_main<SP: StandaloneProcessor>(mut app: SP, handle: Option<&Handle>
                 handle,
                 input_path,
                 output_path,
+                #[cfg(feature = "midi")]
                 midi_input_file,
             });
         }

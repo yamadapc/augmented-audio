@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -22,11 +20,17 @@ use itertools::Itertools;
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use audio_garbage_collector::Handle;
 use audio_processor_traits::{
-    audio_buffer::VecAudioBuffer, AudioBuffer, AudioContext, AudioProcessor,
-    AudioProcessorSettings, MidiEventHandler, MidiMessageLike,
+    audio_buffer::VecAudioBuffer, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
 };
+#[cfg(feature = "midi")]
+use audio_processor_traits::{MidiEventHandler, MidiMessageLike};
+#[cfg(feature = "midi")]
+use itertools::Itertools;
+
+#[cfg(feature = "midi")]
 use augmented_midi::{
     MIDIFile, MIDIFileChunk, MIDIMessage, MIDIMessageNote, MIDITrackEvent, MIDITrackInner,
 };
@@ -43,6 +47,7 @@ pub struct OfflineRenderOptions<'a, Processor: StandaloneProcessor> {
     pub input_path: &'a str,
     /// Output audio file path
     pub output_path: &'a str,
+    #[cfg(feature = "midi")]
     /// MIDI input file path
     pub midi_input_file: Option<MIDIFile<String, Vec<u8>>>,
 }
@@ -57,6 +62,7 @@ where
         handle,
         input_path,
         output_path,
+        #[cfg(feature = "midi")]
         midi_input_file,
     } = options;
 
@@ -109,6 +115,7 @@ where
     app.processor()
         .prepare(&mut context, audio_processor_settings);
 
+    #[cfg(feature = "midi")]
     let midi_input_blocks = midi_input_file.map(|midi_input_file| {
         build_midi_input_blocks(&audio_processor_settings, total_blocks, midi_input_file)
     });
@@ -121,6 +128,7 @@ where
 
         audio_file_processor.process(&mut context, &mut buffer);
 
+        #[cfg(feature = "midi")]
         if let Some(midi) = app.midi() {
             if let Some(midi_input_blocks) = &midi_input_blocks {
                 let midi_block = &midi_input_blocks[block_num];
@@ -130,17 +138,21 @@ where
                 }
             }
         }
+        #[cfg(not(feature = "midi"))]
+        std::mem::forget(block_num); // suppress unused error
 
         app.processor().process(&mut context, &mut buffer);
         output_file_processor.process(buffer.slice_mut());
     }
 }
 
+#[cfg(feature = "midi")]
 #[derive(Debug)]
 struct MIDIBytes {
     bytes: Vec<u8>,
 }
 
+#[cfg(feature = "midi")]
 impl MidiMessageLike for MIDIBytes {
     fn is_midi(&self) -> bool {
         true
@@ -151,6 +163,7 @@ impl MidiMessageLike for MIDIBytes {
     }
 }
 
+#[cfg(feature = "midi")]
 /// Converts a MIDI stream's delta_time into absolute ticks.
 fn convert_to_absolute_time(
     mut events: Vec<MIDITrackEvent<Vec<u8>>>,
@@ -163,6 +176,7 @@ fn convert_to_absolute_time(
     events
 }
 
+#[cfg(feature = "midi")]
 /// Builds chunks containing MIDI messages over each block, aligned with their
 /// timing and a 120bpm tempo.
 fn build_midi_input_blocks(
@@ -242,6 +256,7 @@ fn build_midi_input_blocks(
     result
 }
 
+#[cfg(feature = "midi")]
 /// Returns the number of elapsed MIDI ticks based on the current block index
 fn get_delta_time_ticks(
     tempo: f32,
@@ -285,11 +300,13 @@ mod test {
             handle: Some(audio_garbage_collector::handle()),
             input_path: &input_path,
             output_path: &output_path,
+            #[cfg(feature = "midi")]
             midi_input_file: None,
         };
         run_offline_render(options);
     }
 
+    #[cfg(feature = "midi")]
     #[test]
     fn test_build_midi_input_blocks_with_no_blocks() {
         let chunks = vec![
@@ -328,6 +345,7 @@ mod test {
         assert_eq!(result.len(), 0);
     }
 
+    #[cfg(feature = "midi")]
     #[test]
     fn test_build_midi_input_blocks() {
         let chunks = vec![
@@ -379,6 +397,7 @@ mod test {
         assert_eq!(result[20].len(), 1);
     }
 
+    #[cfg(feature = "midi")]
     #[test]
     fn test_get_delta_time_ticks() {
         let delta_time_ticks = get_delta_time_ticks(

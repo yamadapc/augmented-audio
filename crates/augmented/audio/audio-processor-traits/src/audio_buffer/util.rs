@@ -21,10 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use function::*;
-pub use map::*;
-pub use mix::*;
+use crate::AudioBuffer;
 
-mod function;
-mod map;
-mod mix;
+/// Set all samples of an AudioBuffer to a constant
+pub fn set_all<Buffer, SampleType>(buf: &mut Buffer, value: SampleType)
+where
+    Buffer: AudioBuffer<SampleType = SampleType>,
+    SampleType: Clone,
+{
+    for sample in buf.slice_mut() {
+        *sample = value.clone();
+    }
+}
+
+/// Set all samples of an AudioBuffer to Zero::zero
+pub fn clear<Buffer, SampleType>(buf: &mut Buffer)
+where
+    Buffer: AudioBuffer<SampleType = SampleType>,
+    SampleType: num::Zero,
+{
+    for sample in buf.slice_mut() {
+        *sample = SampleType::zero();
+    }
+}

@@ -21,10 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use function::*;
-pub use map::*;
-pub use mix::*;
+use crate::AudioBuffer;
 
-mod function;
-mod map;
-mod mix;
+/// A trait for buffer types that own the data they hold & can be constructed / resized.
+pub trait OwnedAudioBuffer: AudioBuffer {
+    /// Create an empty buffer of this type
+    fn new() -> Self;
+    /// Resize the buffer to fit `num_channels` and `num_samples`
+    fn resize(&mut self, num_channels: usize, num_samples: usize, sample: Self::SampleType);
+}

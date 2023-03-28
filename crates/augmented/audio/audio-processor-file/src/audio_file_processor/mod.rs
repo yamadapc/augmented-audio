@@ -23,14 +23,12 @@
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::time::Instant;
 
-use rayon::prelude::*;
 use symphonia::core::probe::ProbeResult;
 
 use audio_garbage_collector::{Handle, Shared};
-use audio_processor_traits::{
-    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer,
-    VecAudioBuffer,
-};
+#[cfg(feature = "samplerate")]
+use audio_processor_traits::OwnedAudioBuffer;
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 use file_io::AudioFileError;
 
 pub mod file_io;
@@ -50,10 +48,13 @@ impl InMemoryAudioFile {
 
     /// Eagerly read the file onto memory, do sample rate conversion into the target
     /// AudioProcessorSettings and return a VecAudioBuffer containing the file's contents.
+    #[cfg(feature = "samplerate")]
     pub fn read_into_vec_audio_buffer(
         &mut self,
         settings: &AudioProcessorSettings,
-    ) -> Result<VecAudioBuffer<f32>, AudioFileError> {
+    ) -> Result<audio_processor_traits::VecAudioBuffer<f32>, AudioFileError> {
+        use rayon::prelude::*;
+
         let output_rate = settings.sample_rate();
         let contents = file_io::read_file_contents(&mut self.audio_file)?;
         let converted_channels: Vec<Vec<f32>> = (0..contents.spec().channels.count())
@@ -63,7 +64,7 @@ impl InMemoryAudioFile {
             })
             .collect();
 
-        let mut output_buffer = VecAudioBuffer::new();
+        let mut output_buffer = audio_processor_traits::VecAudioBuffer::new();
         output_buffer.resize(settings.output_channels(), converted_channels[0].len(), 0.0);
         for (channel_index, channel) in converted_channels.iter().enumerate() {
             for (sample_index, sample) in channel.iter().enumerate() {

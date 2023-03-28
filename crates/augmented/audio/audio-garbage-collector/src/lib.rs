@@ -33,13 +33,17 @@
 //! adds some small overhead.
 
 use std::sync::{Arc, Mutex};
-use std::thread::JoinHandle;
 use std::time::Duration;
 
 use basedrop::Collector;
 pub use basedrop::{Handle, Owned, Shared, SharedCell};
 use lazy_static::lazy_static;
 use thiserror::Error;
+
+#[cfg(not(target_arch = "wasm32"))]
+use std::thread;
+#[cfg(target_arch = "wasm32")]
+use wasm_thread as thread;
 
 lazy_static! {
     static ref GARBAGE_COLLECTOR: GarbageCollector = GarbageCollector::default();
@@ -90,7 +94,7 @@ struct GarbageCollectorState {
 pub struct GarbageCollector {
     collector: Arc<Mutex<Collector>>,
     state: Arc<Mutex<GarbageCollectorState>>,
-    thread: Option<JoinHandle<()>>,
+    thread: Option<thread::JoinHandle<()>>,
     handle: Handle,
 }
 
@@ -115,10 +119,10 @@ impl GarbageCollector {
         let thread = {
             let collector = collector.clone();
             let state = state.clone();
-            std::thread::Builder::new()
+            thread::Builder::new()
                 .name(String::from("gc-thread"))
                 .spawn(move || run_collector_loop(collector, state))
-                .unwrap()
+                .expect("Failed to start GC thread")
         };
 
         GarbageCollector {

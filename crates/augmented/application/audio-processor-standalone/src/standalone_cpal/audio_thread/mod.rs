@@ -31,16 +31,18 @@ use audio_processor_traits::{AudioContext, AudioProcessor, AudioProcessorSetting
 
 use crate::StandaloneProcessor;
 
+#[cfg(feature = "midi")]
+use super::midi::MidiContext;
 use super::{
-    error::AudioThreadError, input_handling, midi::MidiContext, options, output_handling,
-    IOConfiguration, ResolvedStandaloneConfiguration,
+    error::AudioThreadError, input_handling, options, output_handling, IOConfiguration,
+    ResolvedStandaloneConfiguration,
 };
 
 pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
     host: Host,
     host_name: String,
     mut app: SP,
-    midi_context: Option<MidiContext>,
+    #[cfg(feature = "midi")] midi_context: Option<MidiContext>,
     configuration_tx: Sender<ResolvedStandaloneConfiguration>,
     stop_signal_rx: Receiver<()>,
 ) -> Result<(), AudioThreadError> {
@@ -119,6 +121,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
             num_input_channels,
         },
         cpal_streams,
+        #[cfg(feature = "midi")]
         midi_context,
     };
 
@@ -149,6 +152,7 @@ struct AudioThreadCPalStreams<D: DeviceTrait> {
 }
 
 struct AudioThreadRunParams<D: DeviceTrait> {
+    #[cfg(feature = "midi")]
     midi_context: Option<MidiContext>,
     io_hints: AudioThreadIOHints,
     cpal_streams: AudioThreadCPalStreams<D>,
@@ -166,6 +170,7 @@ fn audio_thread_run_processor<D: DeviceTrait>(
     );
 
     let AudioThreadRunParams {
+        #[cfg(feature = "midi")]
         midi_context,
         io_hints,
         cpal_streams,
@@ -193,6 +198,7 @@ fn audio_thread_run_processor<D: DeviceTrait>(
         let audio_context = AudioContext::default();
         let output_stream = output_handling::build_output_stream(BuildOutputStreamParams {
             app,
+            #[cfg(feature = "midi")]
             midi_context,
             audio_context,
             num_output_channels,

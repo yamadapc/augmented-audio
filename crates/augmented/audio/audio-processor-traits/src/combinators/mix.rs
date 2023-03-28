@@ -21,10 +21,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use function::*;
-pub use map::*;
-pub use mix::*;
+use std::ops::AddAssign;
 
-mod function;
-mod map;
-mod mix;
+use num::{Float, Zero};
+
+use crate::AudioProcessor;
+
+use super::map::map_processor;
+
+pub fn mono<P>(processor: P) -> impl AudioProcessor<SampleType = P::SampleType>
+where
+    P: AudioProcessor,
+    P::SampleType: Float + AddAssign,
+{
+    map_processor(processor, |_ctx, frame| {
+        let mut sum = P::SampleType::zero();
+        for sample in frame.iter() {
+            sum += *sample;
+        }
+        for sample in frame.iter_mut() {
+            *sample = sum;
+        }
+    })
+}

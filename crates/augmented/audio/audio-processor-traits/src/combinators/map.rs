@@ -21,10 +21,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use function::*;
-pub use map::*;
-pub use mix::*;
+use crate::{AudioBuffer, AudioContext, AudioProcessor};
 
-mod function;
-mod map;
-mod mix;
+struct MapProcessor<P, F> {
+    processor: P,
+    f: F,
+}
+
+impl<P, F> AudioProcessor for MapProcessor<P, F>
+where
+    P: AudioProcessor,
+    F: FnMut(&mut AudioContext, &mut [P::SampleType]),
+{
+    type SampleType = P::SampleType;
+
+    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
+        &mut self,
+        context: &mut AudioContext,
+        output: &mut BufferType,
+    ) {
+        self.processor.process(context, output);
+        for frame in output.frames_mut() {
+            (self.f)(context, frame);
+        }
+    }
+}
+
+pub fn map_processor<P: AudioProcessor, F: FnMut(&mut AudioContext, &mut [P::SampleType])>(
+    processor: P,
+    f: F,
+) -> impl AudioProcessor<SampleType = P::SampleType> {
+    MapProcessor { processor, f }
+}

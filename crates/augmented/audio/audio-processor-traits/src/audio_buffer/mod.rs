@@ -21,10 +21,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use function::*;
-pub use map::*;
-pub use mix::*;
+pub use audio_buffer_trait::*;
+pub use interleaved_audio_buffer::*;
+pub use owned_audio_buffer_trait::*;
+pub use util::*;
+pub use vec_audio_buffer::*;
 
-mod function;
-mod map;
-mod mix;
+mod audio_buffer_trait;
+mod interleaved_audio_buffer;
+mod owned_audio_buffer_trait;
+mod util;
+mod vec_audio_buffer;
+
+#[cfg(feature = "vst")]
+pub mod vst;

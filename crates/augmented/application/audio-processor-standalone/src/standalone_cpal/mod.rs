@@ -33,17 +33,21 @@ use crate::standalone_processor::{
     StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
 };
 
-use self::midi::{initialize_midi_host, MidiReference};
 pub use self::mock_cpal::virtual_host::{VirtualHost, VirtualHostDevice, VirtualHostStream};
 pub use self::options::AudioIOMode;
+
+#[cfg(feature = "midi")]
+use self::midi::{initialize_midi_host, MidiReference};
 
 mod audio_thread;
 mod error;
 mod input_handling;
-mod midi;
 pub mod mock_cpal;
 mod options;
 mod output_handling;
+
+#[cfg(feature = "midi")]
+mod midi;
 
 /// Start an [`AudioProcessor`] / [`MidiEventHandler`] as a stand-alone cpal app and forward MIDI
 /// messages received on all inputs to it.
@@ -140,6 +144,7 @@ pub struct StandaloneHandles {
     // Handles contain a join handle with the thread, this might be used in the future.
     handle: Option<std::thread::JoinHandle<()>>,
     stop_signal_tx: Sender<()>,
+    #[cfg(feature = "midi")]
     #[allow(unused)]
     midi_reference: MidiReference,
 }
@@ -193,18 +198,21 @@ pub fn standalone_start_with<
     SP: StandaloneProcessor,
     Host: cpal::traits::HostTrait + Send + 'static,
 >(
-    mut app: SP,
+    #[allow(unused_mut)] mut app: SP,
     options: StandaloneStartOptions<Host>,
 ) -> StandaloneHandles {
     let StandaloneStartOptions {
-        handle,
         host,
         host_name,
+        handle,
     } = options;
 
     let _ = wisual_logger::try_init_from_env();
 
+    #[cfg(feature = "midi")]
     let (midi_reference, midi_context) = initialize_midi_host(&mut app, handle.as_ref());
+    #[cfg(not(feature = "midi"))]
+    std::mem::forget(handle); // suppress unused error
 
     let (configuration_tx, configuration_rx) = channel();
     let (stop_signal_tx, stop_signal_rx) = channel();
@@ -217,6 +225,7 @@ pub fn standalone_start_with<
                 host,
                 host_name,
                 app,
+                #[cfg(feature = "midi")]
                 midi_context,
                 configuration_tx,
                 stop_signal_rx,
@@ -235,6 +244,7 @@ pub fn standalone_start_with<
         configuration,
         handle: Some(handle),
         stop_signal_tx,
+        #[cfg(feature = "midi")]
         midi_reference,
     }
 }

@@ -7,6 +7,11 @@ license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
+[features]
+default = ["rubato"]
+rubato = ["dep:rubato"]
+samplerate = ["dep:samplerate", "dep:augmented-convert-sample-rate"]
+
 [dependencies]
 # Error / Logging
 log = "^0.4.14"
@@ -20,13 +25,14 @@ symphonia = { version = "0.5.1", features = ["mp3", "wav", "flac", "isomp4", "aa
 symphonia-bundle-mp3 = "0.5.1"
 symphonia-format-wav = "0.5.1"
 hound = "^3.4.0"
-samplerate = "0.2.4"
+samplerate = { version = "0.2.4", optional = true }
+rubato = { version = "0.12.0", optional = true }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.4.0", optional = true }
 
 # Augmented
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.1.1" }
-audio-processor-traits = { version = "3.2.0", path = "../../../augmented/audio/audio-processor-traits" }
+audio-processor-traits = { version = "3.2.0", path = "../../../augmented/audio/audio-processor-traits", default-features = false }
 augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.5.0" }
-augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.4.0" }
 
 cpal = "0.14.0"
 

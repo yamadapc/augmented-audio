@@ -34,10 +34,12 @@ use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, Interlea
 use crate::StandaloneProcessor;
 
 use super::error::AudioThreadError;
+#[cfg(feature = "midi")]
 use super::midi::MidiContext;
 
 pub struct BuildOutputStreamParams<SP: StandaloneProcessor, D: DeviceTrait> {
     pub app: SP,
+    #[cfg(feature = "midi")]
     pub midi_context: Option<MidiContext>,
     pub audio_context: AudioContext,
     pub num_output_channels: usize,
@@ -53,6 +55,7 @@ pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
 ) -> Result<Device::Stream, AudioThreadError> {
     let BuildOutputStreamParams {
         mut app,
+        #[cfg(feature = "midi")]
         mut midi_context,
         mut audio_context,
         num_output_channels,
@@ -73,6 +76,7 @@ pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
             &output_config,
             move |data: &mut [f32], _output_info: &cpal::OutputCallbackInfo| {
                 output_stream_with_context(OutputStreamFrameContext {
+                    #[cfg(feature = "midi")]
                     midi_context: midi_context.as_mut(),
                     audio_context: &mut audio_context,
                     processor: &mut app,
@@ -93,6 +97,7 @@ pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
 
 /// Data borrowed to process a single output frame.
 struct OutputStreamFrameContext<'a, SP: StandaloneProcessor> {
+    #[cfg(feature = "midi")]
     midi_context: Option<&'a mut MidiContext>,
     audio_context: &'a mut AudioContext,
     processor: &'a mut SP,
@@ -107,6 +112,7 @@ struct OutputStreamFrameContext<'a, SP: StandaloneProcessor> {
 /// This will be called repeatedly for every audio buffer we must produce.
 fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFrameContext<SP>) {
     let OutputStreamFrameContext {
+        #[cfg(feature = "midi")]
         midi_context,
         audio_context,
         processor,
@@ -140,6 +146,7 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
     }
 
     // Collect MIDI
+    #[cfg(feature = "midi")]
     super::midi::flush_midi_events(midi_context, processor);
 
     processor
@@ -191,6 +198,7 @@ mod test {
             consumer: &mut consumer,
             num_output_channels: 1,
             num_input_channels: 1,
+            #[cfg(feature = "midi")]
             midi_context: None,
             data: &mut data,
             audio_context: &mut Default::default(),

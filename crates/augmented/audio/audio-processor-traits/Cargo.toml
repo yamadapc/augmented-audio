@@ -9,8 +9,8 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
-default = ["vst_support"]
-vst_support = ["vst"]
+default = []
+vst = ["dep:vst"]
 
 [dependencies]
 num = "^0.4.0"
