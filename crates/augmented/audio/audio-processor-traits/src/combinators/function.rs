@@ -97,3 +97,41 @@ where
 {
     mono_processor_function(move |context, _sample| f(context))
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_processor_function() {
+        let mut processor = processor_function(|_context, frame: &mut [f32]| {
+            for channel in frame {
+                *channel *= 2.0;
+            }
+        });
+
+        let mut ctx = AudioContext::default();
+        let mut slice = [2.0, 4.0];
+        processor.s_process_frame(&mut ctx, &mut slice);
+        assert_eq!(slice, [4.0, 8.0]);
+    }
+
+    #[test]
+    fn test_mono_processor_function() {
+        let mut processor =
+            mono_processor_function(|_context, sample: f32| -> f32 { sample * 2.0 });
+
+        let mut ctx = AudioContext::default();
+        let result = processor.m_process(&mut ctx, 2.0);
+        assert_eq!(result, 4.0);
+    }
+
+    #[test]
+    fn test_mono_generator_function() {
+        let mut processor = mono_generator_function(|_context| -> f32 { 2.0 });
+
+        let mut ctx = AudioContext::default();
+        let result = processor.m_process(&mut ctx, 0.0);
+        assert_eq!(result, 2.0);
+    }
+}

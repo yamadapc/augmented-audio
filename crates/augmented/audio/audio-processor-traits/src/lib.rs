@@ -50,6 +50,7 @@ pub use atomic_float::{AtomicF32, AtomicF64};
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
 pub use context::AudioContext;
 pub use midi::{MidiEventHandler, MidiMessageLike, NoopMidiEventHandler};
+pub use settings::*;
 pub use simple_processor::{BufferProcessor, SimpleAudioProcessor};
 
 /// Atomic F32 implementation with `num` trait implementations
@@ -66,83 +67,7 @@ pub mod parameters;
 /// Simpler audio processor trait, ingesting sample by sample
 pub mod simple_processor;
 
-/// Options provided to the audio-processor before calling `process`.
-#[derive(Clone, PartialEq, Debug, Copy)]
-pub struct AudioProcessorSettings {
-    /// The sample rate of the signal
-    pub sample_rate: f32,
-    /// The number of input channels to the signal
-    pub input_channels: usize,
-    /// The number of output channels to the signal
-    pub output_channels: usize,
-    /// Buffer size of this processing loop
-    pub block_size: usize,
-}
-
-impl Default for AudioProcessorSettings {
-    fn default() -> Self {
-        Self::new(44100.0, 2, 2, 512)
-    }
-}
-
-impl AudioProcessorSettings {
-    /// Create audio processor settings with the given options
-    pub fn new(
-        sample_rate: f32,
-        input_channels: usize,
-        output_channels: usize,
-        block_size: usize,
-    ) -> Self {
-        AudioProcessorSettings {
-            sample_rate,
-            input_channels,
-            output_channels,
-            block_size,
-        }
-    }
-
-    /// The sample rate in samples/second as a floating point number
-    pub fn sample_rate(&self) -> f32 {
-        self.sample_rate
-    }
-
-    /// The number of input channels
-    pub fn input_channels(&self) -> usize {
-        self.input_channels
-    }
-
-    /// The number of output channels
-    pub fn output_channels(&self) -> usize {
-        self.output_channels
-    }
-
-    /// The number of samples which will be provided on each `process` call
-    pub fn block_size(&self) -> usize {
-        self.block_size
-    }
-}
-
-impl AudioProcessorSettings {
-    /// Set the sample rate of this settings object
-    pub fn set_sample_rate(&mut self, sample_rate: f32) {
-        self.sample_rate = sample_rate;
-    }
-
-    /// Set the number of input channels of this settings object
-    pub fn set_input_channels(&mut self, input_channels: usize) {
-        self.input_channels = input_channels;
-    }
-
-    /// Set the number of output channels of this settings object
-    pub fn set_output_channels(&mut self, output_channels: usize) {
-        self.output_channels = output_channels;
-    }
-
-    /// Set the buffer size of this settings object
-    pub fn set_block_size(&mut self, block_size: usize) {
-        self.block_size = block_size;
-    }
-}
+mod settings;
 
 /// Represents an audio processing node.
 ///

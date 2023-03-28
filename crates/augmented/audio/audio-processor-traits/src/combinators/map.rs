@@ -53,3 +53,29 @@ pub fn map_processor<P: AudioProcessor, F: FnMut(&mut AudioContext, &mut [P::Sam
 ) -> impl AudioProcessor<SampleType = P::SampleType> {
     MapProcessor { processor, f }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use crate::combinators::function::mono_generator_function;
+    use crate::{BufferProcessor, VecAudioBuffer};
+
+    #[test]
+    fn test_map_processor() {
+        let input_p = mono_generator_function(|_| 1.0);
+        let mut output = map_processor(BufferProcessor(input_p), |_, frame| {
+            frame[0] = 2.0;
+        });
+        let mut ctx = AudioContext::default();
+        let mut output_buffer = VecAudioBuffer::new_with(vec![0.0; 6], 2, 3);
+        output.process(&mut ctx, &mut output_buffer);
+        assert_eq!(
+            output_buffer.slice(),
+            [
+                2.0, 0.5, // 1
+                2.0, 0.5, // 2
+                2.0, 0.5, // 3
+            ]
+        );
+    }
+}
