@@ -56,7 +56,8 @@ pub trait AudioBuffer {
     /// This is the faster way to process
     fn slice_mut(&mut self) -> &mut [Self::SampleType];
 
-    /// Shortcut for `.slice().chunks(num_channels)`
+    /// Shortcut for `.slice().chunks(num_channels)`. Default implementation assumes the buffer is
+    /// interleaved.
     fn frames(&self) -> Chunks<'_, Self::SampleType> {
         self.slice().chunks(self.num_channels())
     }
@@ -115,5 +116,300 @@ pub trait AudioBuffer {
     /// This performs no bounds checks. Make sure indexes are in range.
     unsafe fn set_unchecked(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.set(channel, sample, value)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    struct MockAudioBuffer {
+        data: Vec<f32>,
+        num_channels: usize,
+    }
+
+    impl AudioBuffer for MockAudioBuffer {
+        type SampleType = f32;
+
+        fn num_channels(&self) -> usize {
+            self.num_channels
+        }
+
+        fn num_samples(&self) -> usize {
+            self.data.len() / self.num_channels
+        }
+
+        fn slice(&self) -> &[Self::SampleType] {
+            &self.data
+        }
+
+        fn slice_mut(&mut self) -> &mut [Self::SampleType] {
+            &mut self.data
+        }
+
+        fn get(&self, channel: usize, sample: usize) -> &Self::SampleType {
+            &self.data[channel + sample * self.num_channels]
+        }
+
+        fn get_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
+            &mut self.data[channel + sample * self.num_channels]
+        }
+
+        fn set(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
+            self.data[channel + sample * self.num_channels] = value;
+        }
+    }
+
+    #[test]
+    fn test_num_channels() {
+        let mock_audio_buffer = MockAudioBuffer {
+            data: vec![0.0; 4 * 2],
+            num_channels: 2,
+        };
+        assert_eq!(mock_audio_buffer.num_channels(), 2);
+    }
+
+    #[test]
+    fn test_num_samples() {
+        let mock_audio_buffer = MockAudioBuffer {
+            data: vec![0.0; 4 * 2],
+            num_channels: 2,
+        };
+        assert_eq!(mock_audio_buffer.num_samples(), 4);
+    }
+
+    #[test]
+    fn test_slice() {
+        let mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        assert_eq!(mock_audio_buffer.num_samples(), 4);
+        assert_eq!(
+            mock_audio_buffer.slice(),
+            [
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ]
+        );
+    }
+
+    #[test]
+    fn test_slice_mut() {
+        let mut mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        assert_eq!(
+            mock_audio_buffer.slice_mut(),
+            [
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ]
+        );
+        for sample in mock_audio_buffer.slice_mut() {
+            *sample *= 2.0;
+        }
+        assert_eq!(
+            mock_audio_buffer.data,
+            [
+                0.0, 8.0, // 1
+                2.0, 10.0, // 2
+                4.0, 12.0, // 3
+                6.0, 14.0, // 4
+            ]
+        );
+    }
+
+    #[test]
+    fn test_frames() {
+        let mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        assert_eq!(mock_audio_buffer.num_samples(), 4);
+        assert_eq!(
+            mock_audio_buffer
+                .frames()
+                .map(|f| f.to_vec())
+                .collect::<Vec<_>>(),
+            [
+                vec![0.0, 4.0],
+                vec![1.0, 5.0],
+                vec![2.0, 6.0],
+                vec![3.0, 7.0],
+            ]
+        );
+    }
+
+    #[test]
+    fn test_frames_mut() {
+        let mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        assert_eq!(mock_audio_buffer.num_samples(), 4);
+        assert_eq!(
+            mock_audio_buffer
+                .frames()
+                .map(|f| f.to_vec())
+                .collect::<Vec<_>>(),
+            [
+                vec![0.0, 4.0],
+                vec![1.0, 5.0],
+                vec![2.0, 6.0],
+                vec![3.0, 7.0],
+            ]
+        );
+    }
+
+    #[test]
+    fn test_get() {
+        let mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        assert_eq!(*mock_audio_buffer.get(0, 1), 1.0);
+    }
+
+    #[test]
+    fn test_get_mut() {
+        let mut mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        let sample = mock_audio_buffer.get_mut(0, 1);
+        *sample = 2.0;
+        assert_eq!(
+            mock_audio_buffer.data,
+            [
+                0.0, 4.0, // 1
+                2.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ]
+        );
+    }
+
+    #[test]
+    fn test_get_unchecked() {
+        let mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        unsafe {
+            assert_eq!(*mock_audio_buffer.get_unchecked(0, 1), 1.0);
+        }
+    }
+
+    #[test]
+    fn test_get_mut_unchecked() {
+        let mut mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        let sample = unsafe { mock_audio_buffer.get_unchecked_mut(0, 1) };
+        *sample = 2.0;
+        assert_eq!(
+            mock_audio_buffer.data,
+            [
+                0.0, 4.0, // 1
+                2.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ]
+        );
+    }
+
+    #[test]
+    fn test_set() {
+        let mut mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        mock_audio_buffer.set(0, 1, 2.0);
+        assert_eq!(
+            mock_audio_buffer.data,
+            [
+                0.0, 4.0, // 1
+                2.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ]
+        );
+    }
+
+    #[test]
+    fn test_set_unchecked() {
+        let mut mock_audio_buffer = MockAudioBuffer {
+            data: vec![
+                0.0, 4.0, // 1
+                1.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ],
+            num_channels: 2,
+        };
+        unsafe {
+            mock_audio_buffer.set_unchecked(0, 1, 2.0);
+        }
+        assert_eq!(
+            mock_audio_buffer.data,
+            [
+                0.0, 4.0, // 1
+                2.0, 5.0, // 2
+                2.0, 6.0, // 3
+                3.0, 7.0, // 4
+            ]
+        );
     }
 }
