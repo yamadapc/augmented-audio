@@ -61,7 +61,7 @@ audio-processor-standalone-osc = { path = "../../../augmented/application/audio-
 audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" , version = "1.0.0" }
 audio-processor-traits = { version = "3.2.0", path = "../../../augmented/audio/audio-processor-traits" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
-audio-processor-file = { version = "2.3.0", path = "../../../augmented/audio/audio-processor-file" }
+audio-processor-file = { version = "2.3.0", path = "../../../augmented/audio/audio-processor-file", features = ["samplerate"] }
 augmented-midi = { path = "../../../augmented/data/augmented-midi" , version = "1.4.0" }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator" , version = "1.2.1" }
 augmented-audio-metrics = { path = "../../../augmented/ops/augmented-metrics" , version = "1.5.0" }

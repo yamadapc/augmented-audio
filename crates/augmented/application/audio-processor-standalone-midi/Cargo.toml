@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [features]
-default = []
+default = ["vst"]
 actix = ["dep:actix"]
 vst = ["dep:vst"]
 

@@ -53,7 +53,7 @@ impl MidiEventHandler for NoopMidiEventHandler {
 }
 
 /// `rust-vst` compatibility for the MidiMessageLike trait
-#[cfg(feature = "vst_support")]
+#[cfg(feature = "vst")]
 pub mod vst {
     use ::vst::api::{Event, EventType, MidiEvent};
 

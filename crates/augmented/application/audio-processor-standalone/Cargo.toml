@@ -9,7 +9,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 readme = "README.md"
 
 [features]
-default = ["midi"]
+default = ["midi", "vst"]
 gui = ["audio-processor-standalone-gui"]
 clap = []
 vst = ["dep:vst", "audio-processor-traits/vst", "audio-processor-standalone-midi/vst"]
