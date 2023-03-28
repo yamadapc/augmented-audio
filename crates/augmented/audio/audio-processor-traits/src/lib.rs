@@ -1,47 +1,3 @@
-// Augmented Audio: Audio libraries and applications
-// Copyright (c) 2022 Pedro Tacla Yamada
-//
-// The MIT License (MIT)
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-//! Provides abstractions for implementing:
-//!
-//! * Audio processing nodes
-//! * MIDI processing nodes
-//! * Audio buffers
-//!
-//! An audio processor implemented with these traits may work with multiple sample types, audio
-//! buffer types and audio processing back-ends.
-//!
-//! Start looking at [AudioProcessor], then have a look at [AudioBuffer] and [MidiEventHandler].
-//!
-//! # Running the audio processors as CLIs, GUIs, VSTs or CPAL threads
-//! See [`audio_processor_standalone`]
-//!
-//! # Running a graph of audio processors
-//! See [`audio_processor_graph`]
-//!
-//! # AudioProcessor implementations
-//! See: <https://github.com/yamadapc/augmented-audio/>
-//!
-use std::marker::PhantomData;
-
 pub use num;
 pub use num::Float;
 pub use num::Zero;
@@ -50,6 +6,7 @@ pub use atomic_float::{AtomicF32, AtomicF64};
 pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
 pub use context::AudioContext;
 pub use midi::{MidiEventHandler, MidiMessageLike, NoopMidiEventHandler};
+pub use noop_processors::*;
 pub use settings::*;
 pub use simple_processor::{BufferProcessor, SimpleAudioProcessor};
 
@@ -67,6 +24,7 @@ pub mod parameters;
 /// Simpler audio processor trait, ingesting sample by sample
 pub mod simple_processor;
 
+mod noop_processors;
 mod settings;
 
 /// Represents an audio processing node.
@@ -128,54 +86,5 @@ where
 
     fn process_obj(&mut self, context: &mut AudioContext, data: &mut BufferType) {
         <Processor as AudioProcessor>::process(self, context, data);
-    }
-}
-
-/// An audio-processor which doesn't do any work.
-pub struct NoopAudioProcessor<SampleType>(PhantomData<SampleType>);
-
-impl<SampleType> Default for NoopAudioProcessor<SampleType> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<SampleType> NoopAudioProcessor<SampleType> {
-    pub fn new() -> Self {
-        NoopAudioProcessor(PhantomData::default())
-    }
-}
-
-impl<SampleType: Send + Copy> SimpleAudioProcessor for NoopAudioProcessor<SampleType> {
-    type SampleType = SampleType;
-    fn s_process_frame(&mut self, _context: &mut AudioContext, _frame: &mut [SampleType]) {}
-}
-
-/// An audio-processor which mutes all channels.
-pub struct SilenceAudioProcessor<SampleType>(PhantomData<SampleType>);
-
-impl<SampleType> SilenceAudioProcessor<SampleType> {
-    pub fn new() -> Self {
-        SilenceAudioProcessor(PhantomData)
-    }
-}
-
-impl<SampleType> Default for SilenceAudioProcessor<SampleType> {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl<SampleType: Float + Send> AudioProcessor for SilenceAudioProcessor<SampleType> {
-    type SampleType = SampleType;
-
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        output: &mut BufferType,
-    ) {
-        for sample in output.slice_mut() {
-            *sample = SampleType::zero();
-        }
     }
 }
