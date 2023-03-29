@@ -39,3 +39,15 @@ impl From<AudioProcessorSettings> for AudioContext {
         Self { settings: value }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_context() {
+        let settings = AudioProcessorSettings::default();
+        let context = AudioContext::from(settings.clone());
+        assert_eq!(context.settings(), &settings);
+    }
+}

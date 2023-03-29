@@ -1,0 +1,48 @@
+use ::vst::api::{Event, EventType, MidiEvent};
+
+use super::*;
+
+/// Cast the VST `Events` struct onto a `MidiMessageLike` slice you can pass into processors
+pub fn midi_slice_from_events(events: &::vst::api::Events) -> &[*mut Event] {
+    unsafe {
+        std::slice::from_raw_parts(
+            &events.events[0] as *const *mut _,
+            events.num_events as usize,
+        )
+    }
+}
+
+impl MidiMessageLike for *mut Event {
+    fn is_midi(&self) -> bool {
+        unsafe { matches!((**self).event_type, EventType::Midi) }
+    }
+
+    fn bytes(&self) -> Option<&[u8]> {
+        unsafe {
+            if matches!((**self).event_type, EventType::Midi) {
+                let midi_event = *self as *const MidiEvent;
+                Some(&(*midi_event).midi_data)
+            } else {
+                None
+            }
+        }
+    }
+}
+
+impl MidiMessageLike for *const Event {
+    fn is_midi(&self) -> bool {
+        unsafe { matches!((**self).event_type, EventType::Midi) }
+    }
+
+    fn bytes(&self) -> Option<&[u8]> {
+        unsafe {
+            match (**self).event_type {
+                EventType::Midi => {
+                    let midi_event = *self as *const MidiEvent;
+                    Some(&(*midi_event).midi_data)
+                }
+                _ => None,
+            }
+        }
+    }
+}

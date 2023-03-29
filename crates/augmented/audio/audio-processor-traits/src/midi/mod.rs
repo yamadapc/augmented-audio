@@ -20,6 +20,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+/// `rust-vst` compatibility for the MidiMessageLike trait
+#[cfg(feature = "vst")]
+pub mod vst;
+
 /// Represents an "Event" type for audio processors. Due to how events are forwarded to processors,
 /// the list of events received might contain non-MIDI events.
 pub trait MidiMessageLike {
@@ -52,55 +57,24 @@ impl MidiEventHandler for NoopMidiEventHandler {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, _midi_messages: &[Message]) {}
 }
 
-/// `rust-vst` compatibility for the MidiMessageLike trait
-#[cfg(feature = "vst")]
-pub mod vst {
-    use ::vst::api::{Event, EventType, MidiEvent};
-
+#[cfg(test)]
+mod test {
     use super::*;
 
-    /// Cast the VST `Events` struct onto a `MidiMessageLike` slice you can pass into processors
-    pub fn midi_slice_from_events(events: &::vst::api::Events) -> &[*mut Event] {
-        unsafe {
-            std::slice::from_raw_parts(
-                &events.events[0] as *const *mut _,
-                events.num_events as usize,
-            )
-        }
-    }
-
-    impl MidiMessageLike for *mut Event {
+    struct Message {}
+    impl MidiMessageLike for Message {
         fn is_midi(&self) -> bool {
-            unsafe { matches!((**self).event_type, EventType::Midi) }
+            false
         }
 
         fn bytes(&self) -> Option<&[u8]> {
-            unsafe {
-                if matches!((**self).event_type, EventType::Midi) {
-                    let midi_event = *self as *const MidiEvent;
-                    Some(&(*midi_event).midi_data)
-                } else {
-                    None
-                }
-            }
+            None
         }
     }
 
-    impl MidiMessageLike for *const Event {
-        fn is_midi(&self) -> bool {
-            unsafe { matches!((**self).event_type, EventType::Midi) }
-        }
-
-        fn bytes(&self) -> Option<&[u8]> {
-            unsafe {
-                match (**self).event_type {
-                    EventType::Midi => {
-                        let midi_event = *self as *const MidiEvent;
-                        Some(&(*midi_event).midi_data)
-                    }
-                    _ => None,
-                }
-            }
-        }
+    #[test]
+    fn test_noop_midi_event_handler() {
+        let mut handler = super::NoopMidiEventHandler::new();
+        handler.process_midi_events::<Message>(&[]);
     }
 }

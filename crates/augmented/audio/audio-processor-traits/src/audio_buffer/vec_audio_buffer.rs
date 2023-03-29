@@ -157,6 +157,126 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_new_with() {
+        let vec = VecAudioBuffer::new_with(vec![1.0, 2.0, 3.0, 4.0], 2, 2);
+        assert_eq!(vec.num_channels(), 2);
+        assert_eq!(vec.num_samples(), 2);
+        assert_eq!(vec.get(0, 0), &1.0);
+        assert_eq!(vec.get(1, 0), &2.0);
+        assert_eq!(vec.get(0, 1), &3.0);
+        assert_eq!(vec.get(1, 1), &4.0);
+    }
+
+    #[test]
+    fn test_empty_with() {
+        let vec = VecAudioBuffer::empty_with(2, 2, 0.0);
+        assert_eq!(vec.num_channels(), 2);
+        assert_eq!(vec.num_samples(), 2);
+        assert_eq!(vec.get(0, 0), &0.0);
+        assert_eq!(vec.get(1, 0), &0.0);
+        assert_eq!(vec.get(0, 1), &0.0);
+        assert_eq!(vec.get(1, 1), &0.0);
+    }
+
+    #[test]
+    fn test_from_vec() {
+        let vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(vec.num_channels(), 1);
+        assert_eq!(vec.num_samples(), 4);
+        assert_eq!(vec.get(0, 0), &1.0);
+        assert_eq!(vec.get(0, 1), &2.0);
+        assert_eq!(vec.get(0, 2), &3.0);
+        assert_eq!(vec.get(0, 3), &4.0);
+    }
+
+    #[test]
+    fn test_slice() {
+        let vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(vec.slice(), &[1.0, 2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn test_slice_mut() {
+        let mut vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(vec.slice_mut(), &mut [1.0, 2.0, 3.0, 4.0]);
+    }
+
+    #[test]
+    fn test_get() {
+        let vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(vec.get(0, 0), &1.0);
+    }
+
+    #[test]
+    fn test_get_mut() {
+        let mut vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(vec.get_mut(0, 0), &mut 1.0);
+    }
+
+    #[test]
+    fn test_set() {
+        let mut vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        vec.set(0, 0, 5.0);
+        assert_eq!(vec.get(0, 0), &5.0);
+    }
+
+    #[test]
+    fn test_get_unchecked() {
+        let vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(unsafe { vec.get_unchecked(0, 0) }, &1.0);
+    }
+
+    #[test]
+    fn test_get_unchecked_mut() {
+        let mut vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(unsafe { vec.get_unchecked_mut(0, 0) }, &mut 1.0);
+    }
+
+    #[test]
+    fn test_set_unchecked() {
+        let mut vec = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
+        unsafe { vec.set_unchecked(0, 0, 5.0) };
+        assert_eq!(vec.get(0, 0), &5.0);
+    }
+
+    #[test]
+    fn test_new_owned() {
+        let vec = VecAudioBuffer::<f32>::new();
+        assert_eq!(vec.num_channels(), 0);
+        assert_eq!(vec.num_samples(), 0);
+    }
+
+    #[test]
+    fn test_resize() {
+        let mut vec = VecAudioBuffer::new();
+        vec.resize(2, 1000, 0.0);
+        assert_eq!(vec.num_channels(), 2);
+        assert_eq!(vec.num_samples(), 1000);
+        assert_eq!(vec.get(0, 0), &0.0);
+        assert_eq!(vec.get(1, 0), &0.0);
+        assert_eq!(vec.get(0, 999), &0.0);
+        assert_eq!(vec.get(1, 999), &0.0);
+    }
+
+    #[test]
+    fn test_new_with_size() {
+        let vec = VecAudioBuffer::new_with_size(2, 1000, 0.0);
+        assert_eq!(vec.num_channels(), 2);
+        assert_eq!(vec.num_samples(), 1000);
+        assert_eq!(vec.get(0, 0), &0.0);
+        assert_eq!(vec.get(1, 0), &0.0);
+        assert_eq!(vec.get(0, 999), &0.0);
+        assert_eq!(vec.get(1, 999), &0.0);
+    }
+
+    #[test]
+    fn test_interleaved() {
+        let mut vec = VecAudioBuffer::new();
+        vec.resize(2, 1000, 0.0);
+        assert_eq!(vec.interleaved().slice(), &mut [0.0; 2000]);
+    }
+
+    #[test]
     fn test_vec_is_send() {
         let mut vec = VecAudioBuffer::new();
         vec.resize(2, 1000, 0.0);
