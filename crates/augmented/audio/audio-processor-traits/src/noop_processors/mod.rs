@@ -62,8 +62,9 @@ mod test {
     #[test]
     fn test_noop_processor() {
         let mut output = BufferProcessor(NoopAudioProcessor::<f32>::default());
-        output.prepare(Default::default(), Default::default());
         let mut ctx = AudioContext::default();
+        let settings = ctx.settings().clone();
+        output.prepare(&mut ctx, settings);
 
         let mut output_buffer = VecAudioBuffer::new_with(
             vec![
@@ -88,8 +89,9 @@ mod test {
     #[test]
     fn test_silence_processor() {
         let mut output = SilenceAudioProcessor::<f32>::default();
-        output.prepare(Default::default(), Default::default());
         let mut ctx = AudioContext::default();
+        let settings = ctx.settings().clone();
+        output.prepare(&mut ctx, settings);
         let mut output_buffer = VecAudioBuffer::new_with(
             vec![
                 1.0, 2.0, // 1

@@ -73,8 +73,15 @@ mod test {
     }
 
     #[test]
+    fn test_sanity_message() {
+        let message = Message {};
+        assert_eq!(message.is_midi(), false);
+        assert_eq!(message.bytes(), None);
+    }
+
+    #[test]
     fn test_noop_midi_event_handler() {
-        let mut handler = super::NoopMidiEventHandler::new();
+        let mut handler = super::NoopMidiEventHandler::default();
         handler.process_midi_events::<Message>(&[]);
     }
 }

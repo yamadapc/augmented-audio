@@ -148,9 +148,28 @@ impl ParameterSpec {
 mod test {
     use std::convert::TryFrom;
 
+    use super::*;
+
+    #[test]
+    fn test_empty_handle_name() {
+        let handle = AudioProcessorEmptyHandle;
+        assert_eq!(handle.name(), "AudioProcessorHandle::name can be set at the processor handle with a name for the handle");
+    }
+
+    #[test]
+    fn test_empty_handle_parameter_count() {
+        let handle = AudioProcessorEmptyHandle;
+        assert_eq!(handle.parameter_count(), 0);
+    }
+
+    #[test]
+    fn test_empty_handle_get_parameter() {
+        let handle = AudioProcessorEmptyHandle;
+        assert_eq!(handle.get_parameter(0), None);
+    }
+
     #[test]
     fn test_parameter_value() {
-        use super::ParameterValue;
         let v = ParameterValue::Float { value: 0.5 };
         assert_eq!(v, 0.5.into());
         assert_eq!(f32::try_from(v).unwrap(), 0.5);
@@ -158,7 +177,6 @@ mod test {
 
     #[test]
     fn test_parameter_type() {
-        use super::{FloatType, ParameterType};
         let ty = ParameterType::Float(FloatType {
             range: (0.0, 1.0),
             step: None,
@@ -168,7 +186,6 @@ mod test {
 
     #[test]
     fn test_parameter_spec() {
-        use super::{FloatType, ParameterSpec, ParameterType};
         let spec = ParameterSpec::new(
             "test".to_string(),
             ParameterType::Float(FloatType {
@@ -182,7 +199,6 @@ mod test {
 
     #[test]
     fn test_parameter_value_from_f32() {
-        use super::ParameterValue;
         let v = ParameterValue::Float { value: 0.5 };
         assert_eq!(v, 0.5.into());
     }
