@@ -29,9 +29,7 @@
 //! [`SimpleAudioProcessor`] onto a buffered [`AudioProcessor`] instance.
 
 use crate::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
-use crate::{AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike};
-use num::traits::FloatConst;
-use num::Float;
+use crate::{AudioContext, MidiEventHandler, MidiMessageLike};
 use std::ops::{Deref, DerefMut};
 
 pub trait MonoAudioProcessor {

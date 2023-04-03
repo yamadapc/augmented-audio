@@ -64,9 +64,7 @@ mod test {
         let mut ctx = AudioContext::default();
         output.prepare(&mut ctx);
 
-        let mut right_channel = [1.0, 1.0, 1.0];
-        let mut left_channel = [2.0, 2.0, 2.0];
-        let buffer = [right_channel, left_channel];
+        let buffer = [[1.0, 1.0, 1.0], [2.0, 2.0, 2.0]];
         let mut buffer = AudioBuffer::from(buffer.iter().cloned());
         output.process(&mut ctx, &mut buffer);
         assert_eq!(
@@ -80,10 +78,7 @@ mod test {
         let mut output = SilenceAudioProcessor::<f32>::default();
         let mut ctx = AudioContext::default();
         output.prepare(&mut ctx);
-        let mut right_channel = [1.0, 1.0, 1.0];
-        let mut left_channel = [2.0, 2.0, 2.0];
-        let buffer = [right_channel, left_channel];
-        let mut buffer = AudioBuffer::from(buffer.iter().cloned());
+        let mut buffer = AudioBuffer::from([[1.0, 1.0, 1.0], [2.0, 2.0, 2.0]].iter().cloned());
 
         output.process(&mut ctx, &mut buffer);
         assert_eq!(

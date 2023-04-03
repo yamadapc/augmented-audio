@@ -40,8 +40,7 @@ impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
         let mut buffers = vec![vec![SampleType::zero(); samples.len()]; channels];
         copy_from_interleaved(samples, buffers.as_mut_slice());
 
-        let mut buffer = Self::new(buffers);
-        buffer
+        Self::new(buffers)
     }
 }
 
