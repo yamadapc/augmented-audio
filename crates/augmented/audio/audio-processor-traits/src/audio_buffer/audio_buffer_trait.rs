@@ -49,11 +49,13 @@ pub trait AudioBuffer {
     /// Get a slice to the internal data. Will not work with VST adapter
     ///
     /// This is the faster way to process
+    #[deprecated]
     fn slice(&self) -> &[Self::SampleType];
 
     /// Get a mutable slice to the internal data. Will not work with VST adapter
     ///
     /// This is the faster way to process
+    #[deprecated]
     fn slice_mut(&mut self) -> &mut [Self::SampleType];
 
     /// Shortcut for `.slice().chunks(num_channels)`. Default implementation assumes the buffer is
@@ -92,6 +94,7 @@ pub trait AudioBuffer {
     ///
     /// # Safety
     /// This performs no bounds checks. Make sure indexes are in range.
+    #[deprecated]
     unsafe fn get_unchecked(&self, channel: usize, sample: usize) -> &Self::SampleType {
         self.get(channel, sample)
     }
@@ -104,6 +107,7 @@ pub trait AudioBuffer {
     ///
     /// # Safety
     /// This performs no bounds checks. Make sure indexes are in range.
+    #[deprecated]
     unsafe fn get_unchecked_mut(&mut self, channel: usize, sample: usize) -> &mut Self::SampleType {
         self.get_mut(channel, sample)
     }
@@ -114,6 +118,7 @@ pub trait AudioBuffer {
     ///
     /// # Safety
     /// This performs no bounds checks. Make sure indexes are in range.
+    #[deprecated]
     unsafe fn set_unchecked(&mut self, channel: usize, sample: usize, value: Self::SampleType) {
         self.set(channel, sample, value)
     }
