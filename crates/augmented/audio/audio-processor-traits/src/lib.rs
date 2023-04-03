@@ -3,7 +3,7 @@ pub use num::Float;
 pub use num::Zero;
 
 pub use atomic_float::{AtomicF32, AtomicF64};
-pub use audio_buffer::{AudioBuffer, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
+pub use audio_buffer::AudioBuffer;
 pub use context::AudioContext;
 pub use midi::{MidiEventHandler, MidiMessageLike, NoopMidiEventHandler};
 pub use noop_processors::*;
@@ -36,5 +36,5 @@ pub trait AudioProcessor {
     fn prepare(&mut self, _context: &mut AudioContext) {}
 
     /// Process a block of samples by mutating the input `AudioBuffer`
-    fn process(&mut self, _context: &mut AudioContext, data: &mut [&mut [Self::SampleType]]);
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>);
 }

@@ -21,7 +21,8 @@ impl<SampleType> NoopAudioProcessor<SampleType> {
 
 impl<SampleType: Send + Copy> AudioProcessor for NoopAudioProcessor<SampleType> {
     type SampleType = SampleType;
-    fn process(&mut self, _context: &mut AudioContext, _frame: &mut [&mut [SampleType]]) {}
+    fn process(&mut self, _context: &mut AudioContext, _frame: &mut AudioBuffer<Self::SampleType>) {
+    }
 }
 
 /// An audio-processor which mutes all channels.
@@ -42,9 +43,9 @@ impl<SampleType> Default for SilenceAudioProcessor<SampleType> {
 impl<SampleType: Float + Send + Sized> AudioProcessor for SilenceAudioProcessor<SampleType> {
     type SampleType = SampleType;
 
-    fn process(&mut self, _context: &mut AudioContext, output: &mut [&mut [Self::SampleType]]) {
-        for channel in output {
-            for sample in &mut **channel {
+    fn process(&mut self, _context: &mut AudioContext, output: &mut AudioBuffer<SampleType>) {
+        for channel in output.channels_mut() {
+            for sample in channel {
                 *sample = SampleType::zero();
             }
         }
@@ -53,7 +54,7 @@ impl<SampleType: Float + Send + Sized> AudioProcessor for SilenceAudioProcessor<
 
 #[cfg(test)]
 mod test {
-    use crate::{AudioProcessor, BufferProcessor, VecAudioBuffer};
+    use crate::{AudioProcessor, BufferProcessor};
 
     use super::*;
 
@@ -65,9 +66,13 @@ mod test {
 
         let mut right_channel = [1.0, 1.0, 1.0];
         let mut left_channel = [2.0, 2.0, 2.0];
-        let mut output_buffer = [right_channel.as_mut(), left_channel.as_mut()];
-        output.process(&mut ctx, output_buffer.as_mut());
-        assert_eq!(output_buffer, [[1.0, 1.0, 1.0], [2.0, 2.0, 2.0],]);
+        let buffer = [right_channel, left_channel];
+        let mut buffer = AudioBuffer::from(buffer.iter().cloned());
+        output.process(&mut ctx, &mut buffer);
+        assert_eq!(
+            buffer.channels(),
+            &vec![vec![1.0, 1.0, 1.0], vec![2.0, 2.0, 2.0],]
+        );
     }
 
     #[test]
@@ -77,9 +82,13 @@ mod test {
         output.prepare(&mut ctx);
         let mut right_channel = [1.0, 1.0, 1.0];
         let mut left_channel = [2.0, 2.0, 2.0];
-        let mut output_buffer = [right_channel.as_mut(), left_channel.as_mut()];
+        let buffer = [right_channel, left_channel];
+        let mut buffer = AudioBuffer::from(buffer.iter().cloned());
 
-        output.process(&mut ctx, output_buffer.as_mut());
-        assert_eq!(output_buffer, [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0],]);
+        output.process(&mut ctx, &mut buffer);
+        assert_eq!(
+            buffer.channels(),
+            &vec![vec![0.0, 0.0, 0.0], vec![0.0, 0.0, 0.0],]
+        );
     }
 }

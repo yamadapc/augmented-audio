@@ -21,15 +21,65 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use audio_buffer_trait::*;
-pub use interleaved_buffers::*;
-pub use owned_audio_buffer_trait::*;
+// pub use audio_buffer_trait::*;
+// pub use interleaved_buffers::*;
+// pub use owned_audio_buffer_trait::*;
 pub use util::*;
 
-mod audio_buffer_trait;
-mod interleaved_buffers;
-mod owned_audio_buffer_trait;
+// mod audio_buffer_trait;
+// mod interleaved_buffers;
+// mod owned_audio_buffer_trait;
 mod util;
+
+pub struct AudioBuffer<SampleType> {
+    channels: Vec<Vec<SampleType>>,
+}
+
+impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
+    pub fn from_interleaved(channels: usize, samples: &[SampleType]) -> Self {
+        let mut buffers = vec![vec![SampleType::zero(); samples.len()]; channels];
+        copy_from_interleaved(samples, buffers.as_mut_slice());
+
+        let mut buffer = Self::new(buffers);
+        buffer
+    }
+}
+
+impl<SampleType> AudioBuffer<SampleType> {
+    pub fn new(channels: Vec<Vec<SampleType>>) -> Self {
+        Self { channels }
+    }
+
+    pub fn channel(&self, channel: usize) -> &[SampleType] {
+        &self.channels[channel]
+    }
+
+    pub fn channel_mut(&mut self, channel: usize) -> &mut [SampleType] {
+        &mut self.channels[channel]
+    }
+
+    pub fn channels(&mut self) -> &Vec<Vec<SampleType>> {
+        &self.channels
+    }
+
+    pub fn channels_mut(&mut self) -> &mut Vec<Vec<SampleType>> {
+        &mut self.channels
+    }
+
+    pub fn slice_mut(&mut self) -> impl Iterator<Item = &mut SampleType> {
+        self.channels.iter_mut().flat_map(|c| c.iter_mut())
+    }
+}
+
+impl<SampleType, I, J> From<I> for AudioBuffer<SampleType>
+where
+    I: Iterator<Item = J>,
+    Vec<SampleType>: From<J>,
+{
+    fn from(value: I) -> Self {
+        AudioBuffer::new(value.map(Vec::from).collect())
+    }
+}
 
 #[cfg(feature = "vst")]
 pub mod vst;
@@ -37,7 +87,7 @@ pub mod vst;
 /// Copy from an interleaved buffer into a target non-interleaved buffer.
 pub fn copy_from_interleaved<SampleType: Copy>(
     source: &[SampleType],
-    target: &mut [impl AsMut<[SampleType]>],
+    target: &mut [Vec<SampleType>],
 ) {
     if target.is_empty() {
         return;
@@ -46,7 +96,7 @@ pub fn copy_from_interleaved<SampleType: Copy>(
     let num_channels = target.len();
     for (sample_idx, frame) in source.chunks(num_channels).enumerate() {
         for (channel_idx, sample) in frame.iter().enumerate() {
-            target[channel_idx].as_mut()[sample_idx] = *sample;
+            target[channel_idx][sample_idx] = *sample;
         }
     }
 }
