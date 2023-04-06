@@ -44,9 +44,20 @@ impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
     }
 }
 
+impl<SampleType: num::Zero + Clone> AudioBuffer<SampleType> {
+    pub fn resize(&mut self, channels: usize, samples: usize) {
+        self.channels
+            .resize_with(channels, || vec![SampleType::zero(); samples]);
+    }
+}
+
 impl<SampleType> AudioBuffer<SampleType> {
     pub fn new(channels: Vec<Vec<SampleType>>) -> Self {
         Self { channels }
+    }
+
+    pub fn empty() -> Self {
+        Self::new(vec![])
     }
 
     pub fn channel(&self, channel: usize) -> &[SampleType] {

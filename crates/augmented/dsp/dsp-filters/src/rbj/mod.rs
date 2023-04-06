@@ -33,7 +33,7 @@ use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
-use audio_processor_traits::{AudioContext, AudioProcessorSettings};
+use audio_processor_traits::AudioContext;
 use generic_handle::GenericHandle;
 
 use crate::state::FilterState;
@@ -51,24 +51,27 @@ pub mod generic_handle;
 /// [`AudioProcessor::prepare`] and [`AudioProcessor::process`] methods.
 ///
 /// ```
-/// use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-/// use audio_processor_traits::{AudioProcessor, BufferProcessor, AudioProcessorSettings, AudioContext};
+/// use audio_processor_traits::{AudioBuffer, AudioProcessor, BufferProcessor, AudioProcessorSettings, AudioContext};
+/// use audio_processor_traits::simple_processor::MultiChannel;
 /// use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 ///
-/// let mut audio_buffer = VecAudioBuffer::new();
-/// audio_buffer.resize(2, 1 * 44100, 0.0);
+/// let mut audio_buffer = AudioBuffer::empty();
+/// audio_buffer.resize(2, 1 * 44100);
 /// let settings = AudioProcessorSettings {
 ///     sample_rate: 44100.0,
 ///     ..AudioProcessorSettings::default()
 /// };
 /// let mut context = AudioContext::from(settings.clone());
 ///
-/// let mut filter_processor: FilterProcessor<f32> = FilterProcessor::new(FilterType::LowPass);
-/// filter_processor.set_cutoff(880.0);
-/// filter_processor.set_q(1.0);
+/// let build_filter = || {
+///     let mut filter_processor: FilterProcessor<f32> = FilterProcessor::new(FilterType::LowPass);
+///     filter_processor.set_cutoff(880.0);
+///     filter_processor.set_q(1.0);
+///     filter_processor
+/// };
 ///
-/// let mut filter_processor = BufferProcessor(filter_processor);
-/// filter_processor.prepare(&mut context, settings);
+/// let mut filter_processor = MultiChannel::new(build_filter);
+/// filter_processor.prepare(&mut context);
 /// filter_processor.process(&mut context, &mut audio_buffer);
 /// ```
 pub struct FilterProcessor<
@@ -213,8 +216,8 @@ where
 {
     type SampleType = SampleType;
 
-    fn m_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.sample_rate = SampleType::from(settings.sample_rate()).unwrap();
+    fn m_prepare(&mut self, context: &mut AudioContext) {
+        self.sample_rate = SampleType::from(context.settings.sample_rate()).unwrap();
         self.setup();
     }
 
@@ -235,7 +238,7 @@ where
 mod test {
     use audio_processor_testing_helpers::charts::*;
 
-    use audio_processor_traits::simple_processor::BufferProcessor;
+    use audio_processor_traits::simple_processor::MultiChannel;
 
     use super::*;
 
@@ -254,9 +257,11 @@ mod test {
         ];
 
         for (filter_name, filter_type) in filters {
-            let mut processor = FilterProcessor::new(filter_type);
-            processor.set_cutoff(880.0);
-            let mut processor = BufferProcessor(processor);
+            let mut processor = MultiChannel::new(move || {
+                let mut processor = FilterProcessor::new(filter_type);
+                processor.set_cutoff(880.0);
+                processor
+            });
             generate_frequency_response_plot(
                 &format!("{}{}", env!("CARGO_MANIFEST_DIR"), "/src/rbj/mod.rs"),
                 &format!("{}-880hz-frequency-response", filter_name),

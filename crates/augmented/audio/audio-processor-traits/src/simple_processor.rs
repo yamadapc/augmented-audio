@@ -29,7 +29,7 @@
 //! [`SimpleAudioProcessor`] onto a buffered [`AudioProcessor`] instance.
 
 use crate::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
-use crate::{AudioContext, MidiEventHandler, MidiMessageLike};
+use crate::{AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike};
 use std::ops::{Deref, DerefMut};
 
 pub trait MonoAudioProcessor {
@@ -42,6 +42,41 @@ pub trait MonoAudioProcessor {
         sample: Self::SampleType,
     ) -> Self::SampleType {
         sample
+    }
+}
+
+pub struct MultiChannel<Processor: MonoAudioProcessor> {
+    processors: Vec<Processor>,
+    factory: Box<dyn Fn() -> Processor>,
+}
+
+impl<Processor: MonoAudioProcessor> MultiChannel<Processor> {
+    pub fn new(factory: impl Fn() -> Processor + 'static) -> MultiChannel<Processor> {
+        Self {
+            processors: vec![],
+            factory: Box::new(factory),
+        }
+    }
+}
+
+impl<Processor: MonoAudioProcessor> AudioProcessor for MultiChannel<Processor> {
+    type SampleType = Processor::SampleType;
+
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.processors = (0..context.settings.input_channels)
+            .map(|_| (self.factory)())
+            .collect();
+        for processor in &mut self.processors {
+            processor.m_prepare(context);
+        }
+    }
+
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+        for (channel, processor) in data.channels_mut().iter_mut().zip(&mut self.processors) {
+            for sample in channel {
+                *sample = processor.m_process(context, *sample);
+            }
+        }
     }
 }
 

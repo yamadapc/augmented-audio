@@ -23,10 +23,10 @@
 
 use num::Float;
 
-use super::{AudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
+use super::AudioBuffer;
 
 pub struct VSTBufferHandler<SampleType> {
-    buffer: VecAudioBuffer<SampleType>,
+    buffer: AudioBuffer<SampleType>,
 }
 
 impl<SampleType: Float> Default for VSTBufferHandler<SampleType> {
@@ -38,26 +38,26 @@ impl<SampleType: Float> Default for VSTBufferHandler<SampleType> {
 impl<SampleType: Float> VSTBufferHandler<SampleType> {
     pub fn new() -> Self {
         Self {
-            buffer: VecAudioBuffer::new(),
+            buffer: AudioBuffer::empty(),
         }
     }
 
     pub fn set_block_size(&mut self, block_size: usize) {
-        self.buffer.resize(2, block_size, SampleType::zero());
+        self.buffer.resize(2, block_size);
     }
 
     pub fn with_buffer<F>(&mut self, buffer: &mut vst::buffer::AudioBuffer<SampleType>, f: F)
     where
-        F: FnOnce(&mut VecAudioBuffer<SampleType>),
+        F: FnOnce(&mut AudioBuffer<SampleType>),
     {
         let num_samples = buffer.samples();
         let (inputs, mut outputs) = buffer.split();
-        self.buffer.resize(2, num_samples, SampleType::zero());
+        self.buffer.resize(2, num_samples);
         {
-            let buffer_slice = self.buffer.slice_mut();
             for (channel, input) in inputs.into_iter().take(2).enumerate() {
+                let buffer_slice = self.buffer.channel_mut(channel);
                 for (index, sample) in input.iter().enumerate() {
-                    buffer_slice[index * 2 + channel] = *sample;
+                    buffer_slice[index] = *sample;
                 }
             }
         }
@@ -65,10 +65,10 @@ impl<SampleType: Float> VSTBufferHandler<SampleType> {
         f(&mut self.buffer);
 
         {
-            let buffer_slice = self.buffer.slice();
             for (channel, output) in outputs.into_iter().take(2).enumerate() {
+                let buffer_slice = self.buffer.channel(channel);
                 for (index, sample) in output.iter_mut().enumerate() {
-                    *sample = buffer_slice[index * 2 + channel];
+                    *sample = buffer_slice[index];
                 }
             }
         }
