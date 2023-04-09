@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{AudioContext, Float, SimpleAudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, Float};
 use std::marker::PhantomData;
 use std::ops::AddAssign;
 
@@ -45,25 +45,27 @@ impl<SampleType> StereoToMonoProcessor<SampleType> {
     }
 }
 
-impl<SampleType> SimpleAudioProcessor for StereoToMonoProcessor<SampleType>
+impl<SampleType> AudioProcessor for StereoToMonoProcessor<SampleType>
 where
     SampleType: Float + Sync + Send + AddAssign,
 {
     type SampleType = SampleType;
 
-    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
-        if frame.is_empty() {
+    fn process(&mut self, _context: &mut AudioContext, buffer: &mut AudioBuffer<SampleType>) {
+        if buffer.is_empty() {
             return;
         }
 
-        let mut sum: SampleType = SampleType::zero();
+        for sample_num in 0..buffer.num_samples() {
+            let mut sum: SampleType = SampleType::zero();
 
-        for sample in frame.iter_mut() {
-            sum += *sample;
-            *sample = SampleType::zero();
+            for channel_num in 0..buffer.num_channels() {
+                sum += *buffer.get(channel_num, sample_num);
+                buffer.set(channel_num, sample_num, SampleType::zero());
+            }
+
+            buffer.set(0, sample_num, sum);
         }
-
-        frame[0] = sum;
     }
 }
 

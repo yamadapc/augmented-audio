@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+use std::ops::AddAssign;
 // pub use audio_buffer_trait::*;
 // pub use interleaved_buffers::*;
 // pub use owned_audio_buffer_trait::*;
@@ -31,6 +32,7 @@ pub use util::*;
 // mod owned_audio_buffer_trait;
 mod util;
 
+#[derive(Clone, Default)]
 pub struct AudioBuffer<SampleType> {
     channels: Vec<Vec<SampleType>>,
 }
@@ -41,6 +43,12 @@ impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
         copy_from_interleaved(samples, buffers.as_mut_slice());
 
         Self::new(buffers)
+    }
+
+    pub fn copy_from(&mut self, source: &Self) {
+        for (target, source) in self.channels.iter_mut().zip(source.channels.iter()) {
+            target.copy_from_slice(source);
+        }
     }
 
     pub fn copy_from_interleaved(&mut self, source: &[SampleType]) {
@@ -66,8 +74,16 @@ impl<SampleType: Clone> AudioBuffer<SampleType> {
 
 impl<SampleType: num::Zero + Clone> AudioBuffer<SampleType> {
     pub fn resize(&mut self, channels: usize, samples: usize) {
-        self.channels
-            .resize_with(channels, || vec![SampleType::zero(); samples]);
+        if self.num_channels() != channels {
+            self.channels
+                .resize_with(channels, || vec![SampleType::zero(); samples]);
+        }
+
+        if self.num_samples() != samples {
+            for channel in &mut self.channels {
+                channel.resize(samples, SampleType::zero());
+            }
+        }
     }
 }
 
@@ -118,6 +134,20 @@ impl<SampleType> AudioBuffer<SampleType> {
 
     pub fn set(&mut self, channel: usize, sample: usize, value: SampleType) {
         self.channels[channel][sample] = value;
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.channels.is_empty() || self.channels[0].is_empty()
+    }
+}
+
+impl<SampleType: Clone + AddAssign> AudioBuffer<SampleType> {
+    pub fn add(&mut self, other: &Self) {
+        for (channel, other_channel) in self.channels.iter_mut().zip(other.channels.iter()) {
+            for (sample, other_sample) in channel.iter_mut().zip(other_channel.iter()) {
+                *sample += other_sample.clone();
+            }
+        }
     }
 }
 

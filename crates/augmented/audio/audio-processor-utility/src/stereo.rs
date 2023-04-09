@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{AudioContext, Float, SimpleAudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, Float};
 use std::marker::PhantomData;
 
 /// An `AudioProcessor` which will use a "source channel" as the output for all channels.
@@ -57,17 +57,19 @@ impl<SampleType> MonoToStereoProcessor<SampleType> {
     }
 }
 
-impl<SampleType> SimpleAudioProcessor for MonoToStereoProcessor<SampleType>
+impl<SampleType> AudioProcessor for MonoToStereoProcessor<SampleType>
 where
     SampleType: Float + Sync + Send,
 {
     type SampleType = SampleType;
 
-    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
-        let source_sample = frame[self.source_channel];
+    fn process(&mut self, _context: &mut AudioContext, buffer: &mut AudioBuffer<SampleType>) {
+        for sample_num in 0..buffer.num_samples() {
+            let source_sample = *buffer.get(self.source_channel, sample_num);
 
-        for sample in frame.iter_mut() {
-            *sample = source_sample;
+            for channel_num in 0..buffer.num_channels() {
+                buffer.set(channel_num, sample_num, source_sample);
+            }
         }
     }
 }

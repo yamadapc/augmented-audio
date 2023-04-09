@@ -29,8 +29,8 @@
 use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Consumer;
 
-use audio_processor_traits::audio_buffer::copy_from_interleaved;
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
+use augmented_midi::nom::ToUsize;
 
 use crate::StandaloneProcessor;
 
@@ -72,6 +72,15 @@ pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
         num_output_channels,
         output_config.sample_rate.0
     );
+    let mut audio_buffer = AudioBuffer::empty();
+    audio_buffer.resize(
+        num_output_channels,
+        match output_config.buffer_size {
+            cpal::BufferSize::Default => 1024,
+            cpal::BufferSize::Fixed(size) => size.to_usize(),
+        },
+    );
+
     let output_stream = output_device
         .build_output_stream(
             &output_config,
@@ -85,6 +94,7 @@ pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
                     num_output_channels,
                     consumer: &mut input_consumer,
                     data,
+                    audio_buffer: &mut audio_buffer,
                 });
             },
             |err| {
@@ -125,6 +135,7 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
         audio_buffer,
     } = context;
 
+    audio_buffer.resize(num_output_channels, data.len() / num_output_channels);
     audio_buffer.copy_from_interleaved(data);
     let on_under_run = || {
         // log::info!("INPUT UNDER-RUN");
@@ -154,9 +165,7 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
     #[cfg(feature = "midi")]
     super::midi::flush_midi_events(midi_context, processor);
 
-    processor
-        .processor()
-        .process(audio_context, &mut audio_buffer);
+    processor.processor().process(audio_context, audio_buffer);
 
     audio_buffer.copy_into_interleaved(data);
 }

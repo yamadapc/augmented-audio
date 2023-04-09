@@ -26,8 +26,6 @@ use std::time::Instant;
 use symphonia::core::probe::ProbeResult;
 
 use audio_garbage_collector::{Handle, Shared};
-#[cfg(feature = "samplerate")]
-use audio_processor_traits::OwnedAudioBuffer;
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 use file_io::AudioFileError;
 
@@ -52,7 +50,7 @@ impl InMemoryAudioFile {
     pub fn read_into_vec_audio_buffer(
         &mut self,
         settings: &AudioProcessorSettings,
-    ) -> Result<audio_processor_traits::VecAudioBuffer<f32>, AudioFileError> {
+    ) -> Result<AudioBuffer<f32>, AudioFileError> {
         use rayon::prelude::*;
 
         let output_rate = settings.sample_rate();
@@ -64,8 +62,8 @@ impl InMemoryAudioFile {
             })
             .collect();
 
-        let mut output_buffer = audio_processor_traits::VecAudioBuffer::new();
-        output_buffer.resize(settings.output_channels(), converted_channels[0].len(), 0.0);
+        let mut output_buffer = AudioBuffer::empty();
+        output_buffer.resize(settings.output_channels(), converted_channels[0].len());
         for (channel_index, channel) in converted_channels.iter().enumerate() {
             for (sample_index, sample) in channel.iter().enumerate() {
                 output_buffer.set(channel_index, sample_index, *sample);

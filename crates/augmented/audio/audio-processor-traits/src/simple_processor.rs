@@ -29,7 +29,7 @@
 //! [`SimpleAudioProcessor`] onto a buffered [`AudioProcessor`] instance.
 
 use crate::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
-use crate::{AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike};
+use crate::{AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike, Zero};
 use std::ops::{AddAssign, Deref, DerefMut};
 
 pub trait MonoAudioProcessor {
@@ -42,6 +42,42 @@ pub trait MonoAudioProcessor {
         sample: Self::SampleType,
     ) -> Self::SampleType {
         sample
+    }
+}
+
+pub struct MonoCopyProcessor<Processor: MonoAudioProcessor> {
+    processor: Processor,
+}
+
+impl<Processor: MonoAudioProcessor> MonoCopyProcessor<Processor> {
+    pub fn new(processor: Processor) -> MonoCopyProcessor<Processor> {
+        Self { processor }
+    }
+}
+
+impl<Processor: MonoAudioProcessor> AudioProcessor for MonoCopyProcessor<Processor>
+where
+    Processor::SampleType: Zero + AddAssign,
+{
+    type SampleType = Processor::SampleType;
+
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.processor.m_prepare(context);
+    }
+
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+        for sample_num in 0..data.num_samples() {
+            let mut mono_input = Self::SampleType::zero();
+            for channel_num in 0..data.num_channels() {
+                mono_input += *data.get(channel_num, sample_num);
+            }
+
+            let output = self.processor.m_process(context, mono_input);
+
+            for channel_num in 0..data.num_channels() {
+                data.set(channel_num, sample_num, output);
+            }
+        }
     }
 }
 

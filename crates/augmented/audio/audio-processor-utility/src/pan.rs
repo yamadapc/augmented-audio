@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::{AudioBuffer, AudioProcessor};
 use audio_processor_traits::{AudioContext, Float};
 
 /// An `AudioProcessor` that applies panning on its input.
@@ -58,32 +58,34 @@ impl<SampleType: Float> PanProcessor<SampleType> {
     }
 }
 
-impl<SampleType> SimpleAudioProcessor for PanProcessor<SampleType>
+impl<SampleType> AudioProcessor for PanProcessor<SampleType>
 where
     SampleType: Float + Sync + Send,
 {
     type SampleType = SampleType;
 
-    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [SampleType]) {
-        let zero = SampleType::zero();
-        let one = SampleType::one();
-        let panning = self.panning;
+    fn process(&mut self, _context: &mut AudioContext, buffer: &mut AudioBuffer<SampleType>) {
+        for sample_num in 0..buffer.num_samples() {
+            let zero = SampleType::zero();
+            let one = SampleType::one();
+            let panning = self.panning;
 
-        let left_input = frame[0];
-        let right_input = frame[1];
+            let left_input = *buffer.get(0, sample_num);
+            let right_input = *buffer.get(0, sample_num);
 
-        if panning > zero {
-            let left_output = left_input * (one - panning);
-            let right_output = right_input + left_input * panning;
+            if panning > zero {
+                let left_output = left_input * (one - panning);
+                let right_output = right_input + left_input * panning;
 
-            frame[0] = left_output;
-            frame[1] = right_output;
-        } else if panning < zero {
-            let left_output = left_input + right_input * (-panning);
-            let right_output = right_input * (one + panning);
+                buffer.set(0, sample_num, left_output);
+                buffer.set(1, sample_num, right_output);
+            } else if panning < zero {
+                let left_output = left_input + right_input * (-panning);
+                let right_output = right_input * (one + panning);
 
-            frame[0] = left_output;
-            frame[1] = right_output;
+                buffer.set(0, sample_num, left_output);
+                buffer.set(1, sample_num, right_output);
+            }
         }
     }
 }
