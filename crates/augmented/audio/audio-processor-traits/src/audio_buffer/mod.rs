@@ -42,6 +42,14 @@ impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
 
         Self::new(buffers)
     }
+
+    pub fn copy_from_interleaved(&mut self, source: &[SampleType]) {
+        copy_from_interleaved(source, &mut self.channels);
+    }
+
+    pub fn copy_into_interleaved(&self, target: &mut [SampleType]) {
+        copy_into_interleaved(&self.channels, target);
+    }
 }
 
 impl<SampleType: Clone> AudioBuffer<SampleType> {
@@ -143,6 +151,22 @@ pub fn copy_from_interleaved<SampleType: Copy>(
     }
 }
 
+pub fn copy_into_interleaved<SampleType: Copy>(
+    source: &[Vec<SampleType>],
+    target: &mut [SampleType],
+) {
+    if source.is_empty() {
+        return;
+    }
+
+    let num_channels = source.len();
+    for (sample_idx, frame) in target.chunks_mut(num_channels).enumerate() {
+        for (channel_idx, sample) in frame.iter_mut().enumerate() {
+            *sample = source[channel_idx][sample_idx];
+        }
+    }
+}
+
 pub fn to_interleaved<SampleType: Copy + num::Zero>(
     source: &[SampleType],
     num_channels: usize,
@@ -177,5 +201,13 @@ mod test {
         let source = vec![1.0, 2.0, 3.0, 4.0];
         let result = to_interleaved(&source, 2);
         assert_eq!(result, vec![vec![1.0, 3.0], vec![2.0, 4.0]]);
+    }
+
+    #[test]
+    fn test_copy_into_interleaved() {
+        let source = vec![vec![1.0, 3.0], vec![2.0, 4.0]];
+        let mut target = vec![0.0, 0.0, 0.0, 0.0];
+        copy_into_interleaved(&source, &mut target);
+        assert_eq!(target, vec![1.0, 2.0, 3.0, 4.0]);
     }
 }

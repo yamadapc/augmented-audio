@@ -29,6 +29,7 @@
 use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Consumer;
 
+use audio_processor_traits::audio_buffer::copy_from_interleaved;
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 
 use crate::StandaloneProcessor;
@@ -105,6 +106,7 @@ struct OutputStreamFrameContext<'a, SP: StandaloneProcessor> {
     num_output_channels: usize,
     consumer: &'a mut Consumer<f32>,
     data: &'a mut [f32],
+    audio_buffer: &'a mut AudioBuffer<f32>,
 }
 
 /// Tick one frame of the output stream.
@@ -120,8 +122,10 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
         num_output_channels,
         consumer,
         data,
+        audio_buffer,
     } = context;
-    let mut audio_buffer = AudioBuffer::from_interleaved(num_output_channels, data);
+
+    audio_buffer.copy_from_interleaved(data);
     let on_under_run = || {
         // log::info!("INPUT UNDER-RUN");
     };
@@ -153,6 +157,8 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
     processor
         .processor()
         .process(audio_context, &mut audio_buffer);
+
+    audio_buffer.copy_into_interleaved(data);
 }
 
 #[cfg(test)]

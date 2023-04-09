@@ -319,7 +319,6 @@ impl AudioProcessor for AudioFileProcessor {
 #[cfg(test)]
 mod test {
     use audio_garbage_collector::GarbageCollector;
-    use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 
     use super::*;
 
@@ -349,14 +348,16 @@ mod test {
             Default::default(),
         );
         let mut context = AudioContext::default();
-        audio_file_processor.prepare(&mut context, Default::default());
+        audio_file_processor.prepare(&mut context);
 
         audio_file_processor.stop();
-        let mut sample_buffer = VecAudioBuffer::new();
-        sample_buffer.resize(2, 44100, 0.0);
+        let mut sample_buffer = AudioBuffer::empty();
+        sample_buffer.resize(2, 44100);
         audio_file_processor.process(&mut context, &mut sample_buffer);
 
-        assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) < f32::EPSILON);
+        assert!(
+            audio_processor_testing_helpers::rms_level(sample_buffer.channel(0)) < f32::EPSILON
+        );
     }
 
     /**
@@ -372,13 +373,15 @@ mod test {
             Default::default(),
         );
         let mut context = AudioContext::default();
-        audio_file_processor.prepare(&mut context, Default::default());
+        audio_file_processor.prepare(&mut context);
 
-        let mut sample_buffer = VecAudioBuffer::new();
-        sample_buffer.resize(2, 44100, 0.0);
+        let mut sample_buffer = AudioBuffer::empty();
+        sample_buffer.resize(2, 44100);
         audio_file_processor.play();
         audio_file_processor.process(&mut context, &mut sample_buffer);
 
-        assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) > f32::EPSILON);
+        assert!(
+            audio_processor_testing_helpers::rms_level(sample_buffer.channel(0)) > f32::EPSILON
+        );
     }
 }
