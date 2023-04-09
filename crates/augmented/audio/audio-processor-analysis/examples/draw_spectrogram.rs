@@ -22,11 +22,12 @@
 // THE SOFTWARE.
 use audio_processor_file::AudioFileProcessor;
 use audio_processor_traits::{
-    audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, simple_processor,
-    AudioContext, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
+    audio_buffer, simple_processor, AudioBuffer, AudioContext, AudioProcessor,
+    AudioProcessorSettings,
 };
 
 use audio_processor_analysis::fft_processor::FftProcessor;
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
 
 fn main() {
     wisual_logger::init_from_env();
@@ -48,13 +49,13 @@ fn main() {
     let mut input =
         AudioFileProcessor::from_path(audio_garbage_collector::handle(), settings, input_file_path)
             .unwrap();
-    input.prepare(&mut context, settings);
+    input.prepare(&mut context);
 
     let mut fft_processor = FftProcessor::default();
-    fft_processor.s_prepare(&mut context, settings);
+    fft_processor.m_prepare(&mut context);
 
-    let mut buffer = VecAudioBuffer::new();
-    buffer.resize(1, fft_processor.size(), 0.0);
+    let mut buffer = AudioBuffer::empty();
+    buffer.resize(1, fft_processor.size());
 
     let mut frames = vec![];
     let num_chunks = input.buffer()[0].len() / fft_processor.size();

@@ -44,6 +44,18 @@ impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
     }
 }
 
+impl<SampleType: Clone> AudioBuffer<SampleType> {
+    pub fn resize_with(
+        &mut self,
+        channels: usize,
+        samples: usize,
+        mut value: impl FnMut() -> SampleType,
+    ) {
+        self.channels
+            .resize_with(channels, || vec![value(); samples]);
+    }
+}
+
 impl<SampleType: num::Zero + Clone> AudioBuffer<SampleType> {
     pub fn resize(&mut self, channels: usize, samples: usize) {
         self.channels
@@ -94,6 +106,10 @@ impl<SampleType> AudioBuffer<SampleType> {
 
     pub fn get(&self, channel: usize, sample: usize) -> &SampleType {
         &self.channels[channel][sample]
+    }
+
+    pub fn set(&mut self, channel: usize, sample: usize, value: SampleType) {
+        self.channels[channel][sample] = value;
     }
 }
 

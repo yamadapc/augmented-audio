@@ -28,10 +28,9 @@ use piet_common::Device;
 
 use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
 use audio_processor_file::AudioFileProcessor;
-use audio_processor_traits::simple_processor::{MonoAudioProcessor, SimpleAudioProcessor};
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
 use audio_processor_traits::{
-    audio_buffer, audio_buffer::OwnedAudioBuffer, audio_buffer::VecAudioBuffer, AudioBuffer,
-    AudioContext, AudioProcessor, AudioProcessorSettings,
+    audio_buffer, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
 };
 
 fn main() {
@@ -50,24 +49,25 @@ fn main() {
     )
     .unwrap();
     let mut context = AudioContext::from(settings);
-    input.prepare(&mut context, settings);
+    input.prepare(&mut context);
 
     let mut envelope_processor =
         EnvelopeFollowerProcessor::new(Duration::from_millis(10), Duration::from_millis(2));
-    envelope_processor.s_prepare(&mut context, settings);
+    envelope_processor.m_prepare(&mut context);
 
-    let mut buffer = VecAudioBuffer::new();
+    let mut buffer = AudioBuffer::empty();
 
-    buffer.resize(1, settings.block_size(), 0.0);
+    buffer.resize(1, settings.block_size());
     let mut frames = vec![];
     let num_chunks = input.buffer()[0].len() / settings.block_size();
     log::info!("Processing num_chunks={}", num_chunks);
     for _chunk_idx in 0..num_chunks {
         audio_buffer::clear(&mut buffer);
         input.process(&mut context, &mut buffer);
-        for frame in buffer.frames_mut() {
-            envelope_processor.m_process(&mut context, frame[0]);
-            frames.push((frame[0], envelope_processor.handle().state()));
+        for sample_num in 0..buffer.num_samples() {
+            let input = *buffer.get(0, sample_num);
+            envelope_processor.m_process(&mut context, input);
+            frames.push((input, envelope_processor.handle().state()));
         }
     }
 

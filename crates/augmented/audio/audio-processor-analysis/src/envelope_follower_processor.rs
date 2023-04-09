@@ -37,7 +37,7 @@
 //! handle.set_attack(Duration::from_secs_f32(0.4));
 //!
 //! let mut context = AudioContext::from(AudioProcessorSettings::default());
-//! envelope_follower.m_prepare(&mut context, AudioProcessorSettings::default());
+//! envelope_follower.m_prepare(&mut context);
 //! envelope_follower.m_process(&mut context, 0.0);
 //! ```
 
@@ -101,7 +101,7 @@ impl EnvelopeFollowerHandle {
 ///
 /// // Envelope follower implements `MonoAudioProcessor
 /// let mut context = AudioContext::from(AudioProcessorSettings::default());
-/// envelope_follower.m_prepare(&mut context, Default::default());
+/// envelope_follower.m_prepare(&mut context);
 /// envelope_follower.m_process(&mut context, 1.0);
 /// ```
 pub struct EnvelopeFollowerProcessor {
@@ -147,8 +147,8 @@ impl EnvelopeFollowerProcessor {
 impl MonoAudioProcessor for EnvelopeFollowerProcessor {
     type SampleType = f32;
 
-    fn m_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
-        let sample_rate = settings.sample_rate;
+    fn m_prepare(&mut self, context: &mut AudioContext) {
+        let sample_rate = context.settings.sample_rate;
         self.handle.sample_rate.set(sample_rate);
         self.handle.attack_multiplier.set(calculate_multiplier(
             sample_rate,
@@ -191,7 +191,6 @@ mod test {
     use audio_processor_file::AudioFileProcessor;
     use audio_processor_testing_helpers::charts::draw_vec_chart;
     use audio_processor_testing_helpers::relative_path;
-    use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
     use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings};
 
     use super::*;
@@ -209,13 +208,13 @@ mod test {
             &input_file_path,
         )
         .unwrap();
-        input.prepare(&mut context, settings);
+        input.prepare(&mut context);
 
         let mut envelope_follower = EnvelopeFollowerProcessor::default();
-        envelope_follower.m_prepare(&mut context, settings);
+        envelope_follower.m_prepare(&mut context);
 
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(1, settings.block_size(), 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(1, settings.block_size());
         let num_chunks = (input.num_samples() / 8) / settings.block_size();
 
         let mut envelope_readings = vec![];
@@ -225,8 +224,8 @@ mod test {
             }
 
             input.process(&mut context, &mut buffer);
-            for frame in buffer.frames_mut() {
-                let sample = frame[0];
+            for sample_num in 0..buffer.num_samples() {
+                let sample = *buffer.get(0, sample_num);
                 envelope_follower.m_process(&mut context, sample);
                 envelope_readings.push(envelope_follower.handle.envelope_state.get());
             }

@@ -224,9 +224,8 @@ mod test {
         charts::draw_vec_chart, oscillator_buffer, relative_path, sine_generator,
     };
 
-    use audio_processor_traits::audio_buffer::VecAudioBuffer;
     use audio_processor_traits::simple_processor::process_buffer;
-    use audio_processor_traits::AudioProcessorSettings;
+    use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
     use super::*;
 
@@ -243,8 +242,7 @@ mod test {
         println!("Generating signal");
         let signal = oscillator_buffer(44100.0, 440.0, Duration::from_millis(1000), sine_generator);
         let mut context = AudioContext::from(AudioProcessorSettings::new(44100.0, 1, 1, 512));
-        let signal_len = signal.len();
-        let mut signal = VecAudioBuffer::new_with(signal, 1, signal_len);
+        let mut signal = AudioBuffer::from_interleaved(1, &signal);
 
         println!("Processing");
         let mut fft_processor = FftProcessor::default();

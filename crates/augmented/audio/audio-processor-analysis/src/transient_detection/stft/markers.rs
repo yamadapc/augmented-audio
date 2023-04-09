@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{AudioProcessorSettings, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
 use super::{find_transients, IterativeTransientDetectionParams};
 
@@ -38,7 +38,7 @@ pub fn build_markers(
 ) -> Vec<AudioFileMarker> {
     let transients = find_transients(
         params,
-        &mut InterleavedAudioBuffer::new(1, audio_file_buffer),
+        &mut AudioBuffer::from_interleaved(1, audio_file_buffer),
     );
     let mut peak_detector = crate::peak_detector::PeakDetector::default();
     let attack_mult = crate::peak_detector::calculate_multiplier(settings.sample_rate, 0.1);
