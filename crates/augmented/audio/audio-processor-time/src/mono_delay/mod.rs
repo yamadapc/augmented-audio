@@ -29,7 +29,7 @@ use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
-use audio_processor_traits::{AtomicF32, AudioContext, AudioProcessorSettings, Float};
+use audio_processor_traits::{AtomicF32, AudioContext, Float};
 use augmented_atomics::AtomicValue;
 use generic_handle::GenericHandle;
 
@@ -178,7 +178,8 @@ where
 impl<Sample: Float + From<f32>> MonoAudioProcessor for MonoDelayProcessor<Sample> {
     type SampleType = Sample;
 
-    fn m_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn m_prepare(&mut self, context: &mut AudioContext) {
+        let settings = context.settings;
         let buffer_size = (self.max_delay_time.as_secs_f32() * settings.sample_rate()) as usize;
 
         self.handle

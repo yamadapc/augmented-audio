@@ -68,7 +68,7 @@ impl<SampleType> AudioBuffer<SampleType> {
         &mut self.channels[channel]
     }
 
-    pub fn channels(&mut self) -> &Vec<Vec<SampleType>> {
+    pub fn channels(&self) -> &Vec<Vec<SampleType>> {
         &self.channels
     }
 
@@ -78,6 +78,22 @@ impl<SampleType> AudioBuffer<SampleType> {
 
     pub fn slice_mut(&mut self) -> impl Iterator<Item = &mut SampleType> {
         self.channels.iter_mut().flat_map(|c| c.iter_mut())
+    }
+
+    pub fn num_channels(&self) -> usize {
+        self.channels.len()
+    }
+
+    pub fn num_samples(&self) -> usize {
+        if self.channels.is_empty() {
+            0
+        } else {
+            self.channels[0].len()
+        }
+    }
+
+    pub fn get(&self, channel: usize, sample: usize) -> &SampleType {
+        &self.channels[channel][sample]
     }
 }
 

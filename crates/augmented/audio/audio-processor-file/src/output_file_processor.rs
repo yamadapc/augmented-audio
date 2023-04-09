@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use std::{fs, io};
 
-use audio_processor_traits::AudioProcessorSettings;
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
 pub struct OutputFileSettings {
     audio_file_path: String,
@@ -70,12 +70,16 @@ impl OutputAudioFileProcessor {
         );
     }
 
-    pub fn process(&mut self, data: &mut [f32]) {
+    pub fn process(&mut self, data: &mut AudioBuffer<f32>) -> hound::Result<()> {
         if let Some(writer) = self.writer.as_mut() {
-            for sample in data {
-                let _ = writer.write_sample(*sample);
-                // TODO - Handle errors here
+            for sample_num in 0..data.num_samples() {
+                for channel_num in 0..data.num_channels() {
+                    let sample = *data.get(channel_num, sample_num);
+                    writer.write_sample(sample)?;
+                }
             }
         }
+
+        Ok(())
     }
 }

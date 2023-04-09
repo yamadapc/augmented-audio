@@ -22,9 +22,7 @@
 // THE SOFTWARE.
 
 use audio_garbage_collector::Handle;
-use audio_processor_traits::{
-    audio_buffer::VecAudioBuffer, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
-};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 #[cfg(feature = "midi")]
 use audio_processor_traits::{MidiEventHandler, MidiMessageLike};
 #[cfg(feature = "midi")]
@@ -92,7 +90,7 @@ where
         audio_file_settings,
         audio_processor_settings,
     );
-    audio_file_processor.prepare(&mut context, audio_processor_settings);
+    audio_file_processor.prepare(&mut context);
     let audio_file_buffer = audio_file_processor.buffer();
     let audio_file_total_samples = audio_file_buffer[0].len();
 
@@ -107,20 +105,23 @@ where
     // Set-up output buffer
     let block_size = audio_processor_settings.block_size();
     let total_blocks = audio_file_total_samples / block_size;
-    let mut buffer = Vec::new();
-    buffer.resize(block_size * audio_processor_settings.input_channels(), 0.0);
-    let mut buffer = VecAudioBuffer::new_with(buffer, 2, buffer_size);
+    let mut buffer = AudioBuffer::empty();
+    buffer.resize(audio_processor_settings.input_channels(), block_size);
 
     log::info!("Setting-up audio processor");
-    app.processor()
-        .prepare(&mut context, audio_processor_settings);
+    app.processor().prepare(&mut context);
 
     #[cfg(feature = "midi")]
     let midi_input_blocks = midi_input_file.map(|midi_input_file| {
         build_midi_input_blocks(&audio_processor_settings, total_blocks, midi_input_file)
     });
 
-    log::info!("Rendering. total_blocks={}", total_blocks);
+    log::info!(
+        "Rendering total_blocks={} block_size={} audio_file_total_samples={}",
+        total_blocks,
+        block_size,
+        audio_file_total_samples
+    );
     for block_num in 0..total_blocks {
         for sample in buffer.slice_mut() {
             *sample = 0.0;
@@ -142,7 +143,10 @@ where
         std::mem::forget(block_num); // suppress unused error
 
         app.processor().process(&mut context, &mut buffer);
-        output_file_processor.process(buffer.slice_mut());
+
+        output_file_processor
+            .process(&mut buffer)
+            .expect("Failed to write to WAV file");
     }
 }
 

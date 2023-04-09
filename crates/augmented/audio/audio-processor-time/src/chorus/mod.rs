@@ -21,9 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
-use audio_processor_traits::{
-    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
-};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use augmented_oscillator::Oscillator;
 
 use crate::MonoDelayProcessor;
@@ -45,27 +43,28 @@ impl Default for ChorusProcessor {
 impl AudioProcessor for ChorusProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.mono_delay_processor
-            .resize_with(settings.output_channels(), MonoDelayProcessor::default);
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.mono_delay_processor.resize_with(
+            context.settings.output_channels(),
+            MonoDelayProcessor::default,
+        );
         for processor in &mut self.mono_delay_processor {
-            processor.s_prepare(context, settings);
+            processor.m_prepare(context);
             processor.handle().set_feedback(0.0);
             processor.handle().set_delay_time_secs(0.01);
         }
 
-        self.oscillator.set_sample_rate(settings.sample_rate());
+        self.oscillator
+            .set_sample_rate(context.settings.sample_rate());
         self.oscillator.set_frequency(3.0);
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
-        for frame in data.frames_mut() {
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+        for frame_num in 0..data.num_samples() {
             let time = self.oscillator.next_sample();
-            for (sample, delay) in frame.iter_mut().zip(&mut self.mono_delay_processor) {
+
+            for (channel_num, delay) in self.mono_delay_processor.iter_mut().enumerate() {
+                let sample = &mut data.channels_mut()[channel_num][frame_num];
                 delay.handle().set_delay_time_secs(0.02 + time * 0.001);
                 *sample = *sample + 0.4 * delay.m_process(context, *sample)
             }

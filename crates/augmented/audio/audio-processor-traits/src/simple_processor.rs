@@ -47,11 +47,11 @@ pub trait MonoAudioProcessor {
 
 pub struct MultiChannel<Processor: MonoAudioProcessor> {
     processors: Vec<Processor>,
-    factory: Box<dyn Fn() -> Processor>,
+    factory: Box<dyn Fn() -> Processor + Send>,
 }
 
 impl<Processor: MonoAudioProcessor> MultiChannel<Processor> {
-    pub fn new(factory: impl Fn() -> Processor + 'static) -> MultiChannel<Processor> {
+    pub fn new(factory: impl Fn() -> Processor + 'static + Send) -> MultiChannel<Processor> {
         Self {
             processors: vec![],
             factory: Box::new(factory),
@@ -77,6 +77,14 @@ impl<Processor: MonoAudioProcessor> AudioProcessor for MultiChannel<Processor> {
                 *sample = processor.m_process(context, *sample);
             }
         }
+    }
+}
+
+impl<Processor: AudioProcessorHandleProvider + MonoAudioProcessor> AudioProcessorHandleProvider
+    for MultiChannel<Processor>
+{
+    fn generic_handle(&self) -> AudioProcessorHandleRef {
+        self.processors[0].generic_handle()
     }
 }
 

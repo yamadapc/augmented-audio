@@ -96,7 +96,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
     let mut context = AudioContext::from(settings);
 
     log::info!("Preparing processor {:?}", settings);
-    app.processor().prepare(&mut context, settings);
+    app.processor().prepare(&mut context);
 
     log::info!("Sending back configuration");
     configuration_tx

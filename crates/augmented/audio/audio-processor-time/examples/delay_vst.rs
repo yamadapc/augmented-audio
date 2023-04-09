@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_time::MonoDelayProcessor;
-use audio_processor_traits::BufferProcessor;
-
-audio_processor_standalone::standalone_vst!(BufferProcessor<MonoDelayProcessor<f32>>);
+// use audio_processor_time::MonoDelayProcessor;
+// use audio_processor_traits::simple_processor::MultiChannel;
+//
+// audio_processor_standalone::standalone_vst!(MultiChannel<MonoDelayProcessor<f32>>);

@@ -219,7 +219,8 @@ impl AudioProcessor for AudioFileProcessor {
     ///
     /// Note: Currently this will load the audio file on the audio-thread.
     /// It'd be an interesting exercise to perform this on a background thread.
-    fn prepare(&mut self, _context: &mut AudioContext, audio_settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let audio_settings = context.settings;
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
 
@@ -244,9 +245,9 @@ impl AudioProcessor for AudioFileProcessor {
             for (i, buffer) in converted_stream.enumerate() {
                 self.buffer.resize(buffer.num_channels(), vec![]);
 
-                for frame in buffer.frames() {
-                    for (target_buffer, sample) in self.buffer.iter_mut().zip(frame) {
-                        target_buffer.push(*sample);
+                for (channel, source) in self.buffer.iter_mut().zip(buffer.channels()) {
+                    for sample in source {
+                        channel.push(*sample)
                     }
                 }
 
@@ -277,11 +278,7 @@ impl AudioProcessor for AudioFileProcessor {
         }
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = f32>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         let is_playing = self.handle.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
@@ -292,11 +289,11 @@ impl AudioProcessor for AudioFileProcessor {
         let start_cursor = self.handle.audio_file_cursor.load(Ordering::Relaxed);
         let mut audio_file_cursor = start_cursor;
 
-        for frame in data.frames_mut() {
-            for (channel_index, sample) in frame.iter_mut().enumerate() {
+        for sample_num in 0..data.num_samples() {
+            for channel_index in 0..data.num_channels() {
                 let audio_input = self.buffer[channel_index][audio_file_cursor];
                 let value = audio_input;
-                *sample += value;
+                data.channel_mut(channel_index)[sample_num] += value;
             }
 
             audio_file_cursor += 1;

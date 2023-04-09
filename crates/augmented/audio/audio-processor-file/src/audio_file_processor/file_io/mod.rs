@@ -24,7 +24,7 @@
 use std::fs::File;
 use std::path::Path;
 
-use audio_processor_traits::{AudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
+use audio_processor_traits::AudioBuffer;
 use symphonia::core::audio::Signal;
 use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef};
 use symphonia::core::codecs::Decoder;
@@ -244,7 +244,7 @@ impl<'a> ConvertedFileContentsStream<'a> {
 }
 
 impl<'a> Iterator for ConvertedFileContentsStream<'a> {
-    type Item = VecAudioBuffer<f32>;
+    type Item = AudioBuffer<f32>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let channels = self.audio_file_stream.next()?;
@@ -256,15 +256,7 @@ impl<'a> Iterator for ConvertedFileContentsStream<'a> {
         assert_eq!(channels[0].len(), BLOCK_SIZE);
         let chunk_result = sample_rate_converter::process(decoder, &channels).unwrap();
 
-        let mut interleaved_result = VecAudioBuffer::new();
-        interleaved_result.resize(chunk_result.len(), chunk_result[0].len(), 0.0);
-        for sample in 0..chunk_result[0].len() {
-            for channel in 0..chunk_result.len() {
-                interleaved_result.set(channel, sample, chunk_result[channel][sample]);
-            }
-        }
-
-        Some(interleaved_result)
+        Some(AudioBuffer::new(chunk_result))
     }
 }
 

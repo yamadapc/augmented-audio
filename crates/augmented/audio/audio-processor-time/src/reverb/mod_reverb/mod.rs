@@ -32,9 +32,7 @@ use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
-use audio_processor_traits::{
-    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
-};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 use augmented_oscillator::Oscillator;
 use generic_handle::GenericHandle;
@@ -111,37 +109,34 @@ impl Default for ModReverbProcessor {
 impl AudioProcessor for ModReverbProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
         let mut max_delay_time = 0.5 / (self.diffusers.len() as f32).powf(2.0);
         for diffuser in self.diffusers.iter_mut() {
             diffuser.max_delay_time = Duration::from_secs_f32(max_delay_time);
-            diffuser.prepare(context, settings);
+            diffuser.prepare(context);
             max_delay_time *= 2.0;
         }
 
         for delay in &mut self.delay {
-            delay.s_prepare(context, settings);
+            delay.m_prepare(context);
             delay.handle().set_delay_time_secs(0.2);
         }
 
         self.diffuser_modulator
-            .set_sample_rate(settings.sample_rate());
+            .set_sample_rate(context.settings.sample_rate());
         self.diffuser_modulator.set_frequency(1.0);
-        self.delay_modulator.set_sample_rate(settings.sample_rate());
+        self.delay_modulator
+            .set_sample_rate(context.settings.sample_rate());
         self.delay_modulator.set_frequency(0.3);
 
         for filter in &mut self.filter {
-            filter.s_prepare(context, settings);
+            filter.m_prepare(context);
             filter.set_q(1.0);
             filter.set_cutoff(800.0);
         }
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         // Last delay line feedback / volume
         let delay_feedback = 0.9;
         let delay_volume = 0.5;
@@ -153,7 +148,7 @@ impl AudioProcessor for ModReverbProcessor {
         let diffuser_modulated_amount = 0.0;
 
         // For each frame
-        for frame in data.frames_mut() {
+        for sample_num in 0..data.num_samples() {
             // Modulate diffusion delay times
             let diffuser_modulation = self.diffuser_modulator.next_sample(); // -1.0..1.0
             let diffuser_modulation = 1.0 + diffuser_modulation * diffuser_modulated_amount;
@@ -168,13 +163,11 @@ impl AudioProcessor for ModReverbProcessor {
                 delay.handle().set_delay_time_secs(delay_duration);
             }
 
-            let left = frame[0];
-            let right = frame[1];
+            let left = data.channel(0)[sample_num];
+            let right = data.channel(1)[sample_num];
 
             // Generate a 8 channel input signal
-            let mut frame8 = [
-                frame[0], frame[1], frame[0], frame[1], frame[0], frame[1], frame[0], frame[1],
-            ];
+            let mut frame8 = [left, right, left, right, left, right, left, right];
 
             // Run it through a diffusion step
             for diffuser in &mut self.diffusers {
@@ -207,8 +200,8 @@ impl AudioProcessor for ModReverbProcessor {
             reverb_output[0] = self.filter[0].m_process(context, reverb_output[0]);
             reverb_output[1] = self.filter[1].m_process(context, reverb_output[1]);
 
-            frame[0] = reverb_output[0] + left * (1.0 - reverb_volume);
-            frame[1] = reverb_output[1] + right * (1.0 - reverb_volume);
+            data.channel_mut(0)[sample_num] = reverb_output[0] + left * (1.0 - reverb_volume);
+            data.channel_mut(1)[sample_num] = reverb_output[1] + right * (1.0 - reverb_volume);
         }
     }
 }
@@ -256,7 +249,7 @@ where
         }
     }
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
         let max_delay = self.max_delay_time.as_secs_f32();
         let mut slots: Vec<f32> = (0..self.mono_delay_processors.len())
             .map(|i| 0.003 + i as f32 * (max_delay / (self.mono_delay_processors.len() as f32)))
@@ -267,7 +260,7 @@ where
             .iter_mut()
             .zip(&mut self.delay_times)
         {
-            d.s_prepare(context, settings);
+            d.m_prepare(context);
             let index = self.rng.gen_range(0..slots.len());
             *delay_time = slots[index];
             slots.remove(index);
@@ -294,6 +287,7 @@ where
 #[cfg(test)]
 mod test {
     use assert_no_alloc::assert_no_alloc;
+    use audio_processor_traits::AudioProcessorSettings;
 
     use super::*;
 
@@ -304,7 +298,7 @@ mod test {
         settings.input_channels = 8;
         settings.output_channels = 8;
         let mut context = AudioContext::from(settings);
-        diffuser.prepare(&mut context, settings);
+        diffuser.prepare(&mut context);
 
         let mut frame = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
         assert_no_alloc(|| {

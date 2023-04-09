@@ -29,7 +29,7 @@
 use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Consumer;
 
-use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 
 use crate::StandaloneProcessor;
 
@@ -121,23 +121,24 @@ fn output_stream_with_context<SP: StandaloneProcessor>(context: OutputStreamFram
         consumer,
         data,
     } = context;
-    let mut audio_buffer = InterleavedAudioBuffer::new(num_output_channels, data);
+    let mut audio_buffer = AudioBuffer::from_interleaved(num_output_channels, data);
     let on_under_run = || {
         // log::info!("INPUT UNDER-RUN");
     };
 
-    for frame in audio_buffer.frames_mut() {
+    for sample_num in 0..audio_buffer.num_samples() {
         if num_input_channels == num_output_channels {
-            for sample in frame {
+            for channel_num in 0..audio_buffer.num_channels() {
                 if let Some(input_sample) = consumer.pop() {
-                    *sample = input_sample;
+                    audio_buffer.channel_mut(channel_num)[sample_num] = input_sample;
                 } else {
                     on_under_run();
                 }
             }
         } else if let Some(input_sample) = consumer.pop() {
             // This only works if num_input_channels == 1
-            for sample in frame {
+            for sample in 0..audio_buffer.num_channels() {
+                let sample = &mut audio_buffer.channel_mut(sample)[sample_num];
                 *sample = input_sample
             }
         } else {
