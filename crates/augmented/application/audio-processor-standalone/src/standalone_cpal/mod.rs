@@ -116,7 +116,7 @@ impl IOConfiguration {
         IOConfiguration {
             name: device.name().unwrap(),
             sample_rate: config.sample_rate,
-            buffer_size: config.buffer_size.clone(),
+            buffer_size: config.buffer_size,
             num_channels: config.channels,
         }
     }
