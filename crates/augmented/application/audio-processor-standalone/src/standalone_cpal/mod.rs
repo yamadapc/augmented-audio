@@ -33,11 +33,10 @@ use crate::standalone_processor::{
     StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
 };
 
-pub use self::mock_cpal::virtual_host::{VirtualHost, VirtualHostDevice, VirtualHostStream};
-pub use self::options::AudioIOMode;
-
 #[cfg(feature = "midi")]
 use self::midi::{initialize_midi_host, MidiReference};
+pub use self::mock_cpal::virtual_host::{VirtualHost, VirtualHostDevice, VirtualHostStream};
+pub use self::options::AudioIOMode;
 
 mod audio_thread;
 mod error;
@@ -221,6 +220,10 @@ pub fn standalone_start_with<
     let handle = std::thread::Builder::new()
         .name(String::from("audio_thread"))
         .spawn(move || {
+            std::panic::set_hook(Box::new(|panic_info| {
+                log::error!("Audio-thread panicked: {:?}", panic_info);
+            }));
+
             let result = audio_thread::audio_thread_main(
                 host,
                 host_name,
@@ -237,7 +240,9 @@ pub fn standalone_start_with<
         })
         .unwrap();
 
-    let configuration = configuration_rx.recv().unwrap();
+    let configuration = configuration_rx
+        .recv()
+        .expect("Failed to receive cpal configuration message");
     log::info!("Received configuration:\n    {:#?}\n", configuration);
 
     StandaloneHandles {

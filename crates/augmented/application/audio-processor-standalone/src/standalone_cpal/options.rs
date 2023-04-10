@@ -103,6 +103,10 @@ fn configure_device<Host: HostTrait>(
     sample_rate: usize,
 ) -> Result<(Host::Device, StreamConfig), ConfigureDeviceError> {
     let device_name = device_name(options, mode);
+    log::debug!(
+        "Device name option provided = device_name={:?}",
+        device_name
+    );
     let device = device_name
         .and_then(|device_name| {
             let mut devices = list_devices(host, mode).map(Some).unwrap_or(None)?;
@@ -110,10 +114,15 @@ fn configure_device<Host: HostTrait>(
         })
         .map(Ok)
         .unwrap_or_else(|| {
+            log::debug!("No name provided, using default device");
             default_device(host, mode)
                 .map(Ok)
                 .unwrap_or_else(|| Err(ConfigureDeviceError::MissingDevice(device_name.cloned())))
         })?;
+
+    log::debug!("Found device device_name={:?}", device.name()?);
+
+    log::debug!("Listing supported configs");
     let supported_configs = supported_configs(&device, mode)?;
     let mut supports_stereo = false;
     for config in supported_configs {
@@ -123,6 +132,7 @@ fn configure_device<Host: HostTrait>(
         }
     }
 
+    log::debug!("Negotiating default configuration");
     let config = default_config(&device, mode)?;
     let mut config: StreamConfig = config.into();
     config.channels = if supports_stereo { 2 } else { 1 };
@@ -143,6 +153,7 @@ pub fn configure_input_device<Host: HostTrait>(
     buffer_size: usize,
     sample_rate: usize,
 ) -> Result<(Host::Device, StreamConfig), ConfigureDeviceError> {
+    log::debug!("Negotiating input configuration");
     let (input_device, input_config) =
         configure_device(host, options, AudioIOMode::Input, buffer_size, sample_rate)?;
     log::info!(
@@ -160,6 +171,7 @@ pub fn configure_output_device<Host: HostTrait>(
     buffer_size: usize,
     sample_rate: usize,
 ) -> Result<(Host::Device, StreamConfig), ConfigureDeviceError> {
+    log::debug!("Negotiating output configuration");
     let (output_device, output_config) = configure_device(
         &host,
         options,

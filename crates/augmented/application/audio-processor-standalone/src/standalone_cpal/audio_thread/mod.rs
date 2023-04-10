@@ -26,9 +26,9 @@ use std::sync::mpsc::{Receiver, Sender};
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use cpal::StreamConfig;
 
-use crate::standalone_cpal::output_handling::BuildOutputStreamParams;
 use audio_processor_traits::{AudioContext, AudioProcessor, AudioProcessorSettings};
 
+use crate::standalone_cpal::output_handling::BuildOutputStreamParams;
 use crate::StandaloneProcessor;
 
 #[cfg(feature = "midi")]
@@ -107,7 +107,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
                 .map(|(input_device, config)| IOConfiguration::new(input_device, config)),
             output_configuration: IOConfiguration::new(&output_device, &output_config),
         })
-        .unwrap();
+        .expect("Failed to send configuration message");
 
     let cpal_streams: AudioThreadCPalStreams<Host::Device> = AudioThreadCPalStreams {
         output_config,
