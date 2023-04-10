@@ -248,6 +248,7 @@ fn create_stream_inner(
                 input_stream_callback(&mut producer, data)
             },
             error_callback,
+            None,
         )?;
         Some(input_stream)
     } else {
@@ -272,6 +273,7 @@ fn create_stream_inner(
             );
         },
         error_callback,
+        None,
     )?;
 
     Ok((input_stream, output_stream))

@@ -42,6 +42,7 @@ pub fn build_input_stream<Device: DeviceTrait>(
             |err| {
                 log::error!("Input error: {:?}", err);
             },
+            None,
         )
         .map_err(AudioThreadError::BuildInputStreamError)?;
     Ok(input_stream)

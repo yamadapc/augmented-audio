@@ -1,4 +1,5 @@
 import 'dart:ffi';
+import 'dart:io' as io;
 
 import 'package:flutter/cupertino.dart';
 import 'package:metronome/bridge_generated.dart';
@@ -15,7 +16,13 @@ import 'package:metronome/ui/tabs/history/history_page_tab.dart';
 import 'package:metronome/ui/tabs/main_tab.dart';
 
 Metronome buildMetronome() {
-  final metronome = MetronomeImpl(DynamicLibrary.executable());
+  const name = "metronome";
+  final metronome = MetronomeImpl(
+    io.Platform.isIOS || io.Platform.isMacOS
+        ? DynamicLibrary.executable()
+        : DynamicLibrary.open("lib$name.so"),
+  );
+
   metronome.initialize();
   return metronome;
 }

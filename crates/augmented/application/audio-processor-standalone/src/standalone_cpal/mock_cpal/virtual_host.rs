@@ -37,6 +37,7 @@ use cpal::{
     SampleRate, StreamConfig, StreamError, SupportedBufferSize, SupportedStreamConfig,
     SupportedStreamConfigRange, SupportedStreamConfigsError,
 };
+use std::time::Duration;
 
 use crate::standalone_cpal::mock_cpal::vec_iterator::VecIterator;
 
@@ -150,6 +151,7 @@ impl DeviceTrait for VirtualHostDevice {
         _sample_format: SampleFormat,
         _data_callback: D,
         _error_callback: E,
+        _timeout: Option<Duration>,
     ) -> Result<Self::Stream, BuildStreamError>
     where
         D: FnMut(&Data, &InputCallbackInfo) + Send + 'static,
@@ -164,6 +166,7 @@ impl DeviceTrait for VirtualHostDevice {
         _sample_format: SampleFormat,
         _data_callback: D,
         _error_callback: E,
+        _timeout: Option<Duration>,
     ) -> Result<Self::Stream, BuildStreamError>
     where
         D: FnMut(&mut Data, &OutputCallbackInfo) + Send + 'static,

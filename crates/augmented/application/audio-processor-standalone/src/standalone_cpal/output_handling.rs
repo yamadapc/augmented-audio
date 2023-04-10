@@ -99,6 +99,7 @@ pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
             |err| {
                 log::error!("Playback error: {:?}", err);
             },
+            None,
         )
         .map_err(AudioThreadError::BuildOutputStreamError)?;
 
