@@ -167,8 +167,8 @@ version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db8fee663d06c4e303404ef5f40488a53e062f89ba8bfed81f42325aafad1527"
 dependencies = [
-    "libc",
-    "pkg-config",
+ "libc",
+ "pkg-config",
 ]
 
 [[package]]
@@ -183,10 +183,10 @@ version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3fa490e751f3878eb9accb9f18988eca52c2337ce000a8bf31ef50d4c723ca9e"
 dependencies = [
-    "android_log-sys",
-    "env_logger 0.10.0",
-    "log",
-    "once_cell",
+ "android_log-sys",
+ "env_logger 0.10.0",
+ "log",
+ "once_cell",
 ]
 
 [[package]]
@@ -195,7 +195,7 @@ version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "819e7219dbd41043ac279b19830f2efc897156490d7fd6ea916720117ee66311"
 dependencies = [
-    "libc",
+ "libc",
 ]
 
 [[package]]
@@ -4783,19 +4783,21 @@ dependencies = [
 name = "metronome"
 version = "0.1.0"
 dependencies = [
-    "android_logger",
-    "anyhow",
-    "audio-garbage-collector",
-    "audio-processor-file",
-    "audio-processor-metronome",
-    "audio-processor-standalone",
-    "audio-processor-traits",
-    "cbindgen",
-    "flutter_rust_bridge",
-    "flutter_rust_bridge_codegen",
-    "lazy_static",
+ "android_logger",
+ "anyhow",
+ "audio-garbage-collector",
+ "audio-processor-file",
+ "audio-processor-metronome",
+ "audio-processor-standalone",
+ "audio-processor-traits",
+ "cbindgen",
+ "flutter_rust_bridge",
+ "flutter_rust_bridge_codegen",
+ "jni 0.20.0",
+ "lazy_static",
  "log",
  "macos-bundle-resources",
+ "ndk-context",
  "ringbuf",
  "urlencoding",
  "wasm-bindgen",

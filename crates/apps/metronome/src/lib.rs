@@ -23,3 +23,30 @@ pub use bridge_generated::*;
 
 mod api;
 mod bridge_generated;
+
+#[cfg(target_os = "android")]
+pub use android_init::*;
+
+#[cfg(target_os = "android")]
+mod android_init {
+    use std::ffi::c_void;
+
+    #[no_mangle]
+    pub extern "C" fn JNI_OnLoad(
+        vm: jni::JavaVM,
+        res: *mut std::os::raw::c_void,
+    ) -> jni::sys::jint {
+        android_logger::init_once(
+            android_logger::Config::default()
+                .with_max_level(log::LevelFilter::Trace)
+                .with_tag("metronome"),
+        );
+        log::info!("JNI_OnLoad called");
+        let _env = vm.get_env().unwrap();
+        let vm = vm.get_java_vm_pointer() as *mut c_void;
+        unsafe {
+            ndk_context::initialize_android_context(vm, res);
+        }
+        jni::JNIVersion::V6.into()
+    }
+}
