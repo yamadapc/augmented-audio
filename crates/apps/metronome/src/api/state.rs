@@ -72,12 +72,13 @@ lazy_static! {
 
 pub fn initialize() {
     wisual_logger::init_from_env();
-    let mut state = STATE.lock().unwrap();
+    log::info!("Initializing metronome native API");
+    let mut state = STATE.lock().expect("initialize: Failed to lock state");
     *state = Some(State::new());
 }
 
 pub fn deinitialize() {
-    let mut handles = STATE.lock().unwrap();
+    let mut handles = STATE.lock().expect("deinitialize: Failed to lock state");
     *handles = None;
 }
 

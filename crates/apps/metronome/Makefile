@@ -47,9 +47,11 @@ build-libs-ios: FORCE
 	cp ../../../target/aarch64-apple-ios-sim/release/libmetronome.a ./public/lib/-iphonesimulator/libmetronome.a
 
 setup-ndk:
-	mkdir NDK
-	${NDK_HOME}/build/tools/make_standalone_toolchain.py --api 26 --arch arm64 --install-dir NDK/arm64
-	${NDK_HOME}/build/tools/make_standalone_toolchain.py --api 26 --arch arm --install-dir NDK/arm
-	${NDK_HOME}/build/tools/make_standalone_toolchain.py --api 26 --arch x86 --install-dir NDK/x86
+	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so ./android/app/src/main/jniLibs/arm64-v8a/
+	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so ./android/app/src/main/jniLibs/armeabi-v7a/
+	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so ./android/app/src/main/jniLibs/x86_64/
+	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so ./android/app/src/main/jniLibs/x86/
+
+
 
 FORCE:
