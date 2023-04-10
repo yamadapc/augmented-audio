@@ -27,7 +27,7 @@
 //! * [Digital Dynamic Range Compressor Design — A Tutorial and Analysis](https://www.eecs.qmul.ac.uk/~josh/documents/2012/GiannoulisMassbergReiss-dynamicrangecompression-JAES2012.pdf)
 
 use audio_garbage_collector::{make_shared, Shared};
-use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use augmented_audio_volume::db_to_amplitude;
 use handle::CompressorHandle;
 
@@ -36,7 +36,6 @@ type FloatT = augmented_audio_volume::Float;
 mod handle {
     #[cfg(not(feature = "f64"))]
     use audio_processor_traits::AtomicF32 as AtomicFloat;
-
     #[cfg(feature = "f64")]
     use audio_processor_traits::AtomicF64 as AtomicFloat;
 
@@ -154,35 +153,29 @@ impl CompressorProcessor {
 impl AudioProcessor for CompressorProcessor {
     type SampleType = FloatT;
 
-    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.handle.set_sample_rate(settings.sample_rate());
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.handle
+            .set_sample_rate(context.settings.sample_rate() as FloatT);
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
-        for frame in data.frames_mut() {
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+        for sample_num in 0..data.num_samples() {
+            let input = data.get_mono(sample_num);
             self.peak_detector_state.accept_frame(
                 self.handle.attack_mult(),
                 self.handle.release_mult(),
-                frame,
+                input,
             );
 
-            self.apply_gain(frame);
+            let gain = self.compute_gain();
+            for channel in data.channels_mut() {
+                channel[sample_num] *= gain;
+            }
         }
     }
 }
 
 impl CompressorProcessor {
-    fn apply_gain(&mut self, frame: &mut [FloatT]) {
-        let gain = self.compute_gain();
-        for sample in frame {
-            *sample *= gain;
-        }
-    }
-
     fn compute_gain(&self) -> FloatT {
         let level = self.peak_detector_state.value;
         let ratio = self.handle.ratio();
@@ -214,9 +207,8 @@ impl Default for PeakDetector {
 }
 
 impl PeakDetector {
-    fn accept_frame(&mut self, attack_mult: FloatT, release_mult: FloatT, frame: &[FloatT]) {
-        let frame_len = frame.len() as FloatT;
-        let new: FloatT = frame.iter().map(|f| FloatT::abs(*f)).sum::<FloatT>() / frame_len;
+    fn accept_frame(&mut self, attack_mult: FloatT, release_mult: FloatT, new: FloatT) {
+        let new = new.abs();
         let curr_slope = if self.value > new {
             release_mult
         } else {
@@ -234,9 +226,7 @@ mod test {
     use audio_processor_testing_helpers::relative_path;
 
     use audio_processor_file::AudioFileProcessor;
-    use audio_processor_traits::{
-        audio_buffer, InterleavedAudioBuffer, OwnedAudioBuffer, VecAudioBuffer,
-    };
+    use audio_processor_traits::{audio_buffer, AudioProcessorSettings};
     use augmented_audio_volume::amplitude_to_db;
 
     use super::*;
@@ -244,7 +234,7 @@ mod test {
     #[test]
     fn test_peak_detector() {
         let mut peak = PeakDetector::default();
-        peak.accept_frame(0.01, 0.02, &[1.0, 1.0]);
+        peak.accept_frame(0.01, 0.02, 1.0);
         assert!(peak.value > 0.0);
     }
 
@@ -273,15 +263,16 @@ mod test {
         let mut input_vec = vec![];
         let mut output_vec = vec![];
         {
-            let mut buffer = VecAudioBuffer::new();
-            buffer.resize(2, settings.block_size(), 0.0);
+            let mut buffer = AudioBuffer::empty();
+            buffer.resize(2, settings.block_size());
             let num_chunks = (input.num_samples() / 8) / settings.block_size();
             for _chunk in 0..num_chunks {
                 audio_buffer::clear(&mut buffer);
                 input.process(&mut context, &mut buffer);
-                for frame in buffer.frames() {
-                    input_vec.push(average(frame));
-                    processor.accept_frame(attack_multi, release_mult, frame);
+                for sample_num in 0..buffer.num_samples() {
+                    let input = buffer.get_mono(sample_num);
+                    input_vec.push(input);
+                    processor.accept_frame(attack_multi, release_mult, input);
                     output_vec.push(processor.value * 2.0);
                 }
             }
@@ -301,7 +292,7 @@ mod test {
         let mut context = AudioContext::from(settings);
         let mut input = setup_input_processor(settings);
         let mut processor = CompressorProcessor::new();
-        processor.prepare(&mut context, settings);
+        processor.prepare(&mut context);
         processor.handle.set_ratio(30.0);
         processor.handle.set_threshold(-10.0);
         processor.handle.set_attack_ms(1.0);
@@ -316,21 +307,22 @@ mod test {
         let mut gain_vec = vec![];
 
         {
-            let mut buffer = VecAudioBuffer::new();
-            buffer.resize(1, settings.block_size(), 0.0);
+            let mut buffer = AudioBuffer::empty();
+            buffer.resize(1, settings.block_size());
             let num_chunks = (input.num_samples() / 8) / settings.block_size();
             for _chunk in 0..num_chunks {
                 audio_buffer::clear(&mut buffer);
                 input.process(&mut context, &mut buffer);
-                for frame in buffer.frames() {
-                    input_vec.push(average(frame))
+                for sample_num in 0..buffer.num_samples() {
+                    let input = buffer.get_mono(sample_num);
+                    input_vec.push(input)
                 }
 
                 for sample in buffer.slice_mut() {
-                    let mut buf = [*sample];
-                    let mut one_sample = InterleavedAudioBuffer::new(1, &mut buf);
+                    let buf = vec![vec![*sample]];
+                    let mut one_sample = AudioBuffer::new(buf);
                     processor.process(&mut context, &mut one_sample);
-                    *sample = buf[0];
+                    *sample = *one_sample.get(0, 0);
                     output_vec.push(*sample);
                     gain_vec.push(processor.compute_gain());
                 }
@@ -342,11 +334,6 @@ mod test {
         draw_vec_chart(&output_path, "Output", output_vec);
     }
 
-    fn average(frame: &[FloatT]) -> FloatT {
-        let num_samples = frame.len() as FloatT;
-        frame.iter().copied().sum::<FloatT>() / num_samples
-    }
-
     fn setup_input_processor(settings: AudioProcessorSettings) -> AudioFileProcessor {
         let input_file_path = relative_path!("../../../../input-files/C3-loop.mp3");
         let mut input = AudioFileProcessor::from_path(
@@ -356,7 +343,7 @@ mod test {
         )
         .unwrap();
         let mut context = AudioContext::from(settings);
-        input.prepare(&mut context, settings);
+        input.prepare(&mut context);
         input
     }
 }

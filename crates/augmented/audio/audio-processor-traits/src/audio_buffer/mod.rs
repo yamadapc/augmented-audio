@@ -21,7 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::ops::AddAssign;
+use std::ops::{AddAssign, Div};
+
+use num::Zero;
+
 // pub use audio_buffer_trait::*;
 // pub use interleaved_buffers::*;
 // pub use owned_audio_buffer_trait::*;
@@ -138,6 +141,18 @@ impl<SampleType> AudioBuffer<SampleType> {
 
     pub fn is_empty(&self) -> bool {
         self.channels.is_empty() || self.channels[0].is_empty()
+    }
+}
+
+impl<SampleType: Copy + Zero + Div<Output = SampleType> + AddAssign + From<f32>>
+    AudioBuffer<SampleType>
+{
+    pub fn get_mono(&self, sample: usize) -> SampleType {
+        let mut sum = SampleType::zero();
+        for channel in &self.channels {
+            sum += channel[sample];
+        }
+        sum / SampleType::from(self.channels.len() as f32)
     }
 }
 
