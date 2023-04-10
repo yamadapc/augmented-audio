@@ -68,7 +68,7 @@ impl Handler<SetupGraphMessage> for AudioGraphManager {
         // TODO: This is wrong. The graph should negotiate settings with the audio-thread.
         let settings = AudioThread::default_settings().unwrap();
         let mut context = AudioContext::from(settings);
-        audio_graph_processor.prepare(&mut context, settings);
+        audio_graph_processor.prepare(&mut context);
 
         self.input_idx = Some(audio_graph_processor.input());
         self.output_idx = Some(audio_graph_processor.output());

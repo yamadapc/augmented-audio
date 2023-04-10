@@ -29,7 +29,7 @@ use audio_processor_graph::AudioProcessorGraph;
 use audio_processor_standalone_midi::audio_thread::MidiAudioThreadHandler;
 use audio_processor_standalone_midi::host::MidiMessageQueue;
 
-use audio_processor_traits::{AudioBuffer, AudioContext, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioContext};
 use audio_processor_traits::{AudioProcessor, AudioProcessorSettings, SilenceAudioProcessor};
 use error::AudioThreadError;
 use options::AudioThreadOptions;
@@ -254,6 +254,8 @@ fn create_stream_inner(
         None
     };
 
+    let mut audio_buffer = AudioBuffer::empty();
+    audio_buffer.resize(num_channels, buffer_size as usize);
     let has_input = input_stream.is_some();
     log::info!("OUTPUT has_input={}", has_input);
     let output_stream = output_device.build_output_stream(
@@ -262,10 +264,10 @@ fn create_stream_inner(
             output_stream_callback(
                 &processor,
                 &midi_message_queue,
-                num_channels,
                 &mut midi_message_handler,
                 &mut consumer,
                 has_input,
+                &mut audio_buffer,
                 data,
             );
         },
@@ -278,10 +280,10 @@ fn create_stream_inner(
 fn output_stream_callback(
     processor: &Shared<SharedCell<ProcessorCell<AudioThreadProcessor>>>,
     midi_message_queue: &MidiMessageQueue,
-    num_channels: usize,
     midi_message_handler: &mut MidiAudioThreadHandler,
     consumer: &mut Consumer<f32>,
     has_input: bool,
+    audio_buffer: &mut AudioBuffer<f32>,
     data: &mut [f32],
 ) {
     if has_input {
@@ -294,7 +296,7 @@ fn output_stream_callback(
 
     midi_message_handler.collect_midi_messages(midi_message_queue);
 
-    let mut audio_buffer = InterleavedAudioBuffer::new(num_channels, data);
+    audio_buffer.copy_from_interleaved(data);
 
     if !has_input {
         for sample in audio_buffer.slice_mut() {
@@ -308,14 +310,14 @@ fn output_stream_callback(
     match unsafe { &mut (*processor_ptr) } {
         AudioThreadProcessor::Active(processor) => {
             processor.process_midi(midi_message_handler.buffer());
-            processor.process(&mut context, &mut audio_buffer)
+            processor.process(&mut context, audio_buffer)
         }
         AudioThreadProcessor::Silence(processor) => {
-            (*processor).process(&mut context, &mut audio_buffer)
+            (*processor).process(&mut context, audio_buffer)
         }
         AudioThreadProcessor::Graph(graph) => {
             // graph.process_midi(midi_message_handler.buffer());
-            graph.process(&mut context, &mut audio_buffer);
+            graph.process(&mut context, audio_buffer);
         }
     }
 

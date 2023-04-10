@@ -190,7 +190,8 @@ impl<PluginInstanceT: Plugin> TestHostProcessorImpl<PluginInstanceT> {
 impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginInstanceT> {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, audio_settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let audio_settings = context.settings;
         log::info!("Prepared TestHostProcessor id={}", self.id);
         self.plugin_instance
             .set_block_size(audio_settings.block_size() as i64);
@@ -199,17 +200,13 @@ impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginIns
         self.audio_settings = audio_settings;
         self.buffer_handler.prepare(&audio_settings);
         if let Some(audio_file_processor) = &mut self.maybe_audio_file_processor {
-            audio_file_processor.prepare(context, audio_settings);
+            audio_file_processor.prepare(context);
         }
-        self.volume_meter_processor.prepare(context, audio_settings);
-        self.running_rms_processor.prepare(context, audio_settings);
+        self.volume_meter_processor.prepare(context);
+        self.running_rms_processor.prepare(context);
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        output: &mut BufferType,
-    ) {
+    fn process(&mut self, context: &mut AudioContext, output: &mut AudioBuffer<Self::SampleType>) {
         let num_channels = self.audio_settings.input_channels();
 
         // Mono the input source
@@ -231,8 +228,9 @@ impl<PluginInstanceT: Plugin> AudioProcessor for TestHostProcessorImpl<PluginIns
         flush_vst_output(num_channels, &mut audio_buffer, output);
 
         let volume = self.handle.volume.get();
-        for frame in output.frames_mut() {
-            for sample in frame {
+        for sample_index in 0..output.num_samples() {
+            for channel_index in 0..output.num_channels() {
+                let sample = output.get_mut(channel_index, sample_index);
                 *sample *= volume;
             }
         }
@@ -251,26 +249,23 @@ impl<PluginInstanceT: Plugin> Drop for TestHostProcessorImpl<PluginInstanceT> {
 
 /// Flush VST output in `audio_buffer` into `output`
 #[allow(clippy::needless_range_loop)]
-pub fn flush_vst_output<BufferType: AudioBuffer<SampleType = f32>>(
+pub fn flush_vst_output(
     _num_channels: usize,
     audio_buffer: &mut vst::buffer::AudioBuffer<f32>,
-    output: &mut BufferType,
+    output: &mut AudioBuffer<f32>,
 ) {
     let (_, plugin_output) = audio_buffer.split();
     for channel in 0..output.num_channels() {
         let plugin_channel = plugin_output.get(channel);
-        for (frame, plugin_frame) in output.frames_mut().zip(plugin_channel) {
-            frame[channel] = *plugin_frame;
+        for sample_index in 0..output.num_samples() {
+            output.set(channel, sample_index, plugin_channel[sample_index]);
         }
     }
 }
 
 impl<P: Plugin> TestHostProcessorImpl<P> {}
 
-fn mono_input_source<BufferType: AudioBuffer<SampleType = f32>>(
-    mono_input: Option<usize>,
-    output: &mut BufferType,
-) {
+fn mono_input_source(mono_input: Option<usize>, output: &mut AudioBuffer<f32>) {
     if let Some(mono_input_channel) = mono_input {
         if mono_input_channel >= output.num_channels() {
             return;
@@ -301,7 +296,6 @@ mod test {
     use vst::plugin::Plugin;
 
     use audio_processor_standalone_midi::host::MidiMessageWrapper;
-    use audio_processor_traits::{OwnedAudioBuffer, VecAudioBuffer};
 
     use crate::processors::shared_processor::SharedProcessor;
 
@@ -369,7 +363,7 @@ mod test {
         settings.sample_rate = 1000.0;
         settings.block_size = 64;
         let mut context = AudioContext::from(settings);
-        host.prepare(&mut context, settings);
+        host.prepare(&mut context);
     }
 
     #[test]
@@ -400,9 +394,9 @@ mod test {
         let outputs: *mut *mut f32 = &mut [chan1, chan2] as *mut _;
         let mut source_buffer =
             unsafe { vst::buffer::AudioBuffer::from_raw(2, 2, inputs, outputs, 3) };
-        let mut dest_buffer = VecAudioBuffer::new();
+        let mut dest_buffer = AudioBuffer::empty();
 
-        dest_buffer.resize(2, 3, 0.0);
+        dest_buffer.resize(2, 3);
         flush_vst_output(2, &mut source_buffer, &mut dest_buffer);
 
         assert_f_eq!(*dest_buffer.get(0, 0), 10.0);
@@ -415,7 +409,8 @@ mod test {
 
     #[test]
     fn test_mono_input_source() {
-        let mut buffer = VecAudioBuffer::empty_with(2, 3, 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(2, 3);
         buffer.set(0, 0, 1.0);
         buffer.set(1, 0, 10.0);
         buffer.set(0, 1, 2.0);
