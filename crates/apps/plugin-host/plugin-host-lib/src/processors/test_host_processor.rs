@@ -31,7 +31,7 @@ use audio_garbage_collector::{Handle, Shared};
 use audio_processor_standalone_midi::host::MidiMessageEntry;
 use audio_processor_standalone_midi::vst::MidiVSTConverter;
 use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, BufferProcessor,
+    AtomicF32, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
 };
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
@@ -62,7 +62,7 @@ pub struct TestHostProcessorImpl<PluginInstanceT: Plugin + 'static> {
     buffer_handler: CpalVstBufferHandler,
     maybe_audio_file_processor: Option<AudioFileProcessor>,
     volume_meter_processor: VolumeMeterProcessor,
-    running_rms_processor: BufferProcessor<RunningRMSProcessor>,
+    running_rms_processor: RunningRMSProcessor,
     midi_converter: MidiVSTConverter,
     mono_input: Option<usize>,
 }
@@ -94,12 +94,10 @@ impl<PluginInstanceT: Plugin> TestHostProcessorImpl<PluginInstanceT> {
         ProcessorHandleRegistry::current()
             .register("test-host-processor", host_processor_handle.clone());
 
-        let running_rms_processor = BufferProcessor(RunningRMSProcessor::new_with_duration(
-            handle,
-            Duration::from_millis(300),
-        ));
+        let running_rms_processor =
+            RunningRMSProcessor::new_with_duration(handle, Duration::from_millis(300));
         ProcessorHandleRegistry::current()
-            .register("rms-processor", running_rms_processor.0.handle().clone());
+            .register("rms-processor", running_rms_processor.handle().clone());
 
         let maybe_audio_file_processor = maybe_audio_file_settings.map(|audio_file_settings| {
             AudioFileProcessor::new(handle, audio_file_settings, audio_settings)
@@ -171,7 +169,7 @@ impl<PluginInstanceT: Plugin> TestHostProcessorImpl<PluginInstanceT> {
     }
 
     pub fn running_rms_processor_handle(&self) -> &Shared<RunningRMSProcessorHandle> {
-        self.running_rms_processor.0.handle()
+        self.running_rms_processor.handle()
     }
 
     pub fn set_volume(&self, volume: f32) {

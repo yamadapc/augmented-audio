@@ -185,14 +185,10 @@ mod test {
         impl AudioProcessor for MockProcessor {
             type SampleType = f32;
 
-            fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-                &mut self,
-                _context: &mut AudioContext,
-                data: &mut BufferType,
-            ) {
-                for i in data.slice_mut() {
-                    self.inputs.push(*i);
-                    *i *= 2.0;
+            fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<f32>) {
+                for sample in data.channel_mut(0) {
+                    self.inputs.push(*sample);
+                    *sample *= 2.0;
                 }
             }
         }
@@ -208,6 +204,8 @@ mod test {
         }
 
         let mut data = [0.0; 10];
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(1, 10);
         let context = OutputStreamFrameContext {
             processor: &mut processor,
             consumer: &mut consumer,
@@ -217,6 +215,7 @@ mod test {
             midi_context: None,
             data: &mut data,
             audio_context: &mut Default::default(),
+            audio_buffer: &mut buffer,
         };
         output_stream_with_context(context);
 

@@ -93,24 +93,22 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
-    use audio_processor_traits::simple_processor::process_buffer;
     use audio_processor_traits::AudioBuffer;
-
-    use audio_processor_traits::InterleavedAudioBuffer;
 
     use super::*;
 
     #[test]
     fn test_pan_noop() {
         let mut pan = PanProcessor::default();
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        process_buffer(&mut context, &mut pan, &mut input);
+        pan.process(&mut context, &mut input);
 
-        for frame in input.frames() {
-            for sample in frame.iter() {
+        for sample_num in 0..input.num_samples() {
+            for channel_num in 0..input.num_channels() {
+                let sample = input.get(channel_num, sample_num);
                 assert_f_eq!(*sample, 1.);
             }
         }
@@ -119,11 +117,11 @@ mod test {
     #[test]
     fn test_hard_pan_to_left() {
         let mut pan = PanProcessor::new(-1.0);
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        process_buffer(&mut context, &mut pan, &mut input);
+        pan.process(&mut context, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let left = *input.get(0, sample_index);
@@ -136,11 +134,11 @@ mod test {
     #[test]
     fn test_hard_pan_to_right() {
         let mut pan = PanProcessor::new(1.0);
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        process_buffer(&mut context, &mut pan, &mut input);
+        pan.process(&mut context, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let left = *input.get(0, sample_index);

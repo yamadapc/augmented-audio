@@ -21,16 +21,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //! Provides what is in some cases a simpler form of expressing signal processing.
-//!
-//! The [`SimpleAudioProcessor`] is essentially a function of `f32` to `f32` (or a
-//! function that takes a multi-channel `frame` of `f32`s and mutates it.
-//!
-//! Additionally, [`process_buffer`] and [`BufferProcessor`] are exposed to "lift" a
-//! [`SimpleAudioProcessor`] onto a buffered [`AudioProcessor`] instance.
 
 use crate::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
 use crate::{AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike, Zero};
-use std::ops::{AddAssign, Deref, DerefMut, DivAssign};
+use std::ops::{AddAssign, DivAssign};
 
 pub trait MonoAudioProcessor {
     type SampleType: Copy;
@@ -83,6 +77,14 @@ where
     }
 }
 
+impl<Processor: MidiEventHandler + MonoAudioProcessor> MidiEventHandler
+    for MonoCopyProcessor<Processor>
+{
+    fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
+        self.processor.process_midi_events(midi_messages)
+    }
+}
+
 pub struct MultiChannel<Processor: MonoAudioProcessor> {
     processors: Vec<Processor>,
     factory: Box<dyn Fn() -> Processor + Send>,
@@ -129,42 +131,6 @@ impl<Processor: AudioProcessorHandleProvider + MonoAudioProcessor> AudioProcesso
 {
     fn generic_handle(&self) -> AudioProcessorHandleRef {
         self.processors[0].generic_handle()
-    }
-}
-
-/// Wrapper over `SimpleAudioProcessor` to provide an `AudioProcessor` impl.
-#[derive(Clone, Default, Debug)]
-pub struct BufferProcessor<Processor>(pub Processor);
-
-impl<Processor> DerefMut for BufferProcessor<Processor> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
-
-impl<Processor> Deref for BufferProcessor<Processor> {
-    type Target = Processor;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl<Processor> AudioProcessorHandleProvider for BufferProcessor<Processor>
-where
-    Processor: AudioProcessorHandleProvider,
-{
-    fn generic_handle(&self) -> AudioProcessorHandleRef {
-        self.0.generic_handle()
-    }
-}
-
-impl<Processor> MidiEventHandler for BufferProcessor<Processor>
-where
-    Processor: MidiEventHandler,
-{
-    fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
-        self.0.process_midi_events(midi_messages)
     }
 }
 

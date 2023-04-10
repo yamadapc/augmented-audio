@@ -77,18 +77,18 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
-    use audio_processor_traits::{simple_processor, AudioBuffer, InterleavedAudioBuffer};
+    use audio_processor_traits::AudioBuffer;
 
     use super::*;
 
     #[test]
     fn test_mono_to_stereo_handles_mono_input() {
         let mut mono = MonoToStereoProcessor::new(1);
-        let mut samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
+        mono.process(&mut context, &mut input);
 
         for sample_index in 0..input.num_samples() {
             for channel_index in 0..input.num_channels() {
@@ -102,11 +102,11 @@ mod test {
     fn test_mono_to_stereo_can_have_the_source_changed() {
         let mut mono = MonoToStereoProcessor::new(1);
         mono.set_source_channel(0);
-        let mut samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
+        mono.process(&mut context, &mut input);
 
         for sample_index in 0..input.num_samples() {
             for channel_index in 0..input.num_channels() {

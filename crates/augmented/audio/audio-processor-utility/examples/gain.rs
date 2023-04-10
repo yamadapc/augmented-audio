@@ -1,3 +1,4 @@
+use audio_processor_traits::simple_processor::MultiChannel;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -20,11 +21,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::BufferProcessor;
 use audio_processor_utility::gain::GainProcessor;
 
 fn main() {
-    let gain = GainProcessor::default();
-    gain.set_gain(0.5);
-    audio_processor_standalone::audio_processor_main(BufferProcessor(gain));
+    let gain = MultiChannel::new(|| {
+        let g = GainProcessor::default();
+        g.set_gain(0.5);
+        g
+    });
+    audio_processor_standalone::audio_processor_main(gain);
 }

@@ -54,13 +54,13 @@ impl<SampleType: Float + Send + Sized> AudioProcessor for SilenceAudioProcessor<
 
 #[cfg(test)]
 mod test {
-    use crate::{AudioProcessor, BufferProcessor};
+    use crate::AudioProcessor;
 
     use super::*;
 
     #[test]
     fn test_noop_processor() {
-        let mut output = BufferProcessor(NoopAudioProcessor::<f32>::default());
+        let mut output = NoopAudioProcessor::<f32>::default();
         let mut ctx = AudioContext::default();
         output.prepare(&mut ctx);
 

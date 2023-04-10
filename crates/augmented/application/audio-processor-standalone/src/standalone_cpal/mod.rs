@@ -303,14 +303,14 @@ macro_rules! generic_standalone_run {
 
 #[cfg(test)]
 mod test {
-    use audio_processor_traits::{BufferProcessor, NoopAudioProcessor};
+    use audio_processor_traits::NoopAudioProcessor;
 
     use super::*;
 
     #[test]
     fn test_standalone_start_and_stop_processor() {
         let _ = wisual_logger::try_init_from_env();
-        let processor = BufferProcessor(NoopAudioProcessor::default());
+        let processor = NoopAudioProcessor::default();
         let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
         let handles = standalone_start_for_test(processor);
         drop(handles);

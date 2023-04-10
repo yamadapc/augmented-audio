@@ -8,7 +8,6 @@ pub use context::AudioContext;
 pub use midi::{MidiEventHandler, MidiMessageLike, NoopMidiEventHandler};
 pub use noop_processors::*;
 pub use settings::*;
-pub use simple_processor::BufferProcessor;
 
 /// Atomic F32 implementation with `num` trait implementations
 pub mod atomic_float;

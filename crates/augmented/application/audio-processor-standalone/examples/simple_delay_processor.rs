@@ -56,11 +56,7 @@ impl SimpleDelayProcessor {
 impl AudioProcessor for SimpleDelayProcessor {
     type SampleType = f32;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         // Mono input stage
         for sample_index in 0..data.num_samples() {
             data.set(0, sample_index, *data.get(1, sample_index));

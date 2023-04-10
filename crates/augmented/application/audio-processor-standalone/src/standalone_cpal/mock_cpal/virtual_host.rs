@@ -188,7 +188,7 @@ impl StreamTrait for VirtualHostStream {
 
 #[cfg(test)]
 mod test {
-    use audio_processor_traits::{BufferProcessor, NoopAudioProcessor};
+    use audio_processor_traits::NoopAudioProcessor;
 
     use crate::{standalone_start_with, StandaloneAudioOnlyProcessor, StandaloneStartOptions};
 
@@ -207,11 +207,11 @@ mod test {
     #[test]
     fn test_run_virtual_host_with_standalone_run() {
         let host = VirtualHost::default();
-        let processor = BufferProcessor(NoopAudioProcessor::default());
+        let processor = NoopAudioProcessor::default();
         let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
 
         let _handles = standalone_start_with::<
-            StandaloneAudioOnlyProcessor<BufferProcessor<NoopAudioProcessor<f32>>>,
+            StandaloneAudioOnlyProcessor<NoopAudioProcessor<f32>>,
             VirtualHost,
         >(
             processor,

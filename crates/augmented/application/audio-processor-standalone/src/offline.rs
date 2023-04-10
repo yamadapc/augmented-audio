@@ -1,4 +1,3 @@
-// Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
 // The MIT License (MIT)
@@ -281,7 +280,7 @@ fn get_delta_time_ticks(
 mod test {
     use audio_processor_testing_helpers::relative_path;
 
-    use audio_processor_traits::{AudioProcessorSettings, BufferProcessor, NoopAudioProcessor};
+    use audio_processor_traits::{AudioProcessorSettings, NoopAudioProcessor};
     use augmented_midi::{
         MIDIFile, MIDIFileChunk, MIDIFileDivision, MIDIFileFormat, MIDIFileHeader, MIDITrackEvent,
         MIDITrackInner,
@@ -297,10 +296,7 @@ mod test {
         let input_path = relative_path!("../../../../input-files/1sec-sine.mp3");
         let output_path = relative_path!("./test-output/offline-render-test-output.wav");
         let options = OfflineRenderOptions {
-            app: StandaloneAudioOnlyProcessor::new(
-                BufferProcessor(NoopAudioProcessor::new()),
-                Default::default(),
-            ),
+            app: StandaloneAudioOnlyProcessor::new(NoopAudioProcessor::new(), Default::default()),
             handle: Some(audio_garbage_collector::handle()),
             input_path: &input_path,
             output_path: &output_path,

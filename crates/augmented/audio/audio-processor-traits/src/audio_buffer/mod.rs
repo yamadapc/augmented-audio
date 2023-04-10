@@ -42,7 +42,7 @@ pub struct AudioBuffer<SampleType> {
 
 impl<SampleType: Clone + Default> AudioBuffer<SampleType> {
     pub fn from_interleaved(channels: usize, samples: &[SampleType]) -> Self {
-        let mut buffers = vec![vec![SampleType::default(); samples.len()]; channels];
+        let mut buffers = vec![vec![SampleType::default(); samples.len() / channels]; channels];
         copy_from_interleaved(samples, buffers.as_mut_slice());
 
         Self::new(buffers)
@@ -230,6 +230,31 @@ pub fn to_interleaved<SampleType: Copy + num::Zero>(
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_from_interleaved() {
+        let source = vec![1.0, 2.0, 3.0, 4.0];
+        let target = AudioBuffer::from_interleaved(2, &source);
+        assert_eq!(target.channels, vec![vec![1.0, 3.0], vec![2.0, 4.0]]);
+    }
+
+    #[test]
+    fn test_audio_buffer_copy_from_interleaved() {
+        let source = vec![1.0, 2.0, 3.0, 4.0];
+        let mut target = AudioBuffer::empty();
+        target.resize(2, 2);
+        target.copy_from_interleaved(&source);
+    }
+
+    #[test]
+    fn test_audio_buffer_copy_into_interleaved() {
+        let source = vec![vec![1.0, 3.0], vec![2.0, 4.0]];
+        let buffer = AudioBuffer::new(source);
+
+        let mut target = vec![0.0; 4];
+        buffer.copy_into_interleaved(&mut target);
+        assert_eq!(target, vec![1.0, 2.0, 3.0, 4.0]);
+    }
 
     #[test]
     fn test_copy_from_interleaved_empty() {

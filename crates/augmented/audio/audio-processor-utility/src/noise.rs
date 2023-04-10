@@ -52,11 +52,12 @@ use audio_processor_traits::{AudioContext, Float};
 ///
 /// ```
 /// use audio_processor_traits::simple_processor::process_buffer;
-/// use audio_processor_traits::{AudioContext, AudioProcessorSettings, VecAudioBuffer};
+/// use audio_processor_traits::{AudioContext, AudioProcessorSettings, AudioBuffer};
 /// use audio_processor_utility::noise::WhiteNoiseProcessor;
 ///
 /// let mut context = AudioContext::from(AudioProcessorSettings::default());
-/// let mut buffer = VecAudioBuffer::empty_with(2, 1000, 0.0);
+/// let mut buffer = AudioBuffer::empty();
+/// buffer.resize(2, 1000);
 /// let mut  processor = WhiteNoiseProcessor::<f32>::default();
 /// process_buffer(&mut context, &mut processor, &mut buffer);
 /// ```
@@ -65,10 +66,10 @@ use audio_processor_traits::{AudioContext, Float};
 ///
 /// ```
 /// use audio_processor_standalone::StandaloneAudioOnlyProcessor;
-/// use audio_processor_traits::BufferProcessor;
+/// use audio_processor_traits::simple_processor::MonoCopyProcessor;
 /// use audio_processor_utility::noise::WhiteNoiseProcessor;
 ///
-/// let processor = BufferProcessor(WhiteNoiseProcessor::<f32>::default());
+/// let processor = MonoCopyProcessor::new(WhiteNoiseProcessor::<f32>::default());
 /// let _standalone = StandaloneAudioOnlyProcessor::new(processor, Default::default());
 /// // now call standalone_start
 /// ```

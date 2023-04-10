@@ -20,10 +20,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::BufferProcessor;
 use audio_processor_utility::mono::StereoToMonoProcessor;
 
 fn main() {
     let mono = StereoToMonoProcessor::default();
-    audio_processor_standalone::audio_processor_main(BufferProcessor(mono));
+    audio_processor_standalone::audio_processor_main(mono);
 }

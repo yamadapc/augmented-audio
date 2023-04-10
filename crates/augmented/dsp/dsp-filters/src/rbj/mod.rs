@@ -51,7 +51,7 @@ pub mod generic_handle;
 /// [`AudioProcessor::prepare`] and [`AudioProcessor::process`] methods.
 ///
 /// ```
-/// use audio_processor_traits::{AudioBuffer, AudioProcessor, BufferProcessor, AudioProcessorSettings, AudioContext};
+/// use audio_processor_traits::{AudioBuffer, AudioProcessor, AudioProcessorSettings, AudioContext};
 /// use audio_processor_traits::simple_processor::MultiChannel;
 /// use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 ///

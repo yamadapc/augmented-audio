@@ -99,22 +99,21 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
-    use audio_processor_traits::simple_processor;
-    use audio_processor_traits::InterleavedAudioBuffer;
+    use audio_processor_traits::{simple_processor, AudioBuffer};
 
     use super::*;
 
     #[test]
     fn test_gain_does_its_thing() {
         let mut gain = GainProcessor::new(0.8);
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(1, &mut samples);
+        let input = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(1, &input);
 
         let mut context = AudioContext::default();
         simple_processor::process_buffer(&mut context, &mut gain, &mut input);
 
-        for sample in samples {
-            assert_f_eq!(sample, 0.8);
+        for sample in input.channel(0) {
+            assert_f_eq!(*sample, 0.8);
         }
     }
 
@@ -122,14 +121,14 @@ mod test {
     fn test_gain_can_be_changed() {
         let mut gain = GainProcessor::default();
         gain.set_gain(0.8);
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(1, &mut samples);
+        let input = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(1, &input);
 
         let mut context = AudioContext::default();
         simple_processor::process_buffer(&mut context, &mut gain, &mut input);
 
-        for sample in samples {
-            assert_f_eq!(sample, 0.8);
+        for sample in input.channel(0) {
+            assert_f_eq!(*sample, 0.8);
         }
     }
 }
