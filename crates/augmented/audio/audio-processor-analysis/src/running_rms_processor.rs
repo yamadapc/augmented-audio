@@ -46,6 +46,10 @@ impl RunningRMSProcessorHandle {
         }
     }
 
+    fn cursor(&self) -> usize {
+        self.cursor.load(Ordering::Relaxed)
+    }
+
     /// Create a new RMS window with size & replace the old one with it.
     fn resize(&self, gc_handle: &Handle, num_channels: usize, num_samples: usize) {
         self.cursor.store(0, Ordering::Relaxed);
@@ -138,7 +142,7 @@ impl AudioProcessor for RunningRMSProcessor {
         for sample_index in 0..buffer.num_samples() {
             let running_sums = self.handle.running_sums.get();
             let window = self.handle.window.get();
-            let mut cursor = self.handle.cursor.load(Ordering::Relaxed);
+            let mut cursor = self.handle.cursor();
 
             for channel_index in 0..buffer.num_channels() {
                 let value_slot = window.get(channel_index, cursor);
@@ -165,8 +169,65 @@ impl AudioProcessor for RunningRMSProcessor {
 #[cfg(test)]
 mod test {
     use audio_garbage_collector::GarbageCollector;
+    use audio_processor_testing_helpers::assert_f_eq;
 
     use super::*;
+
+    #[test]
+    fn test_create_handle() {
+        let gc = GarbageCollector::default();
+        let handle = RunningRMSProcessorHandle::new(gc.handle());
+
+        assert_f_eq!(handle.calculate_rms(0), 0.0);
+    }
+
+    #[test]
+    fn test_resize() {
+        let gc = GarbageCollector::default();
+        let handle = RunningRMSProcessorHandle::new(gc.handle());
+
+        handle.resize(gc.handle(), 2, 1000);
+        assert_eq!(handle.window.get().num_channels(), 2);
+        assert_eq!(handle.window.get().num_samples(), 1000);
+        assert_f_eq!(handle.calculate_rms(0), 0.0);
+        assert_f_eq!(handle.calculate_rms(1), 0.0);
+        assert_eq!(handle.cursor(), 0)
+    }
+
+    #[test]
+    fn test_create_running_rms_processor() {
+        let gc = GarbageCollector::default();
+        let mut processor =
+            RunningRMSProcessor::new_with_duration(gc.handle(), Duration::from_millis(10));
+
+        let mut context = AudioContext::default();
+        context.settings.sample_rate = 44100.0;
+        processor.prepare(&mut context);
+
+        assert_eq!(processor.duration_samples, 441);
+        assert_eq!(processor.duration, Duration::from_millis(10));
+        assert_eq!(
+            processor.handle.duration_micros.load(Ordering::Relaxed),
+            10_000
+        );
+    }
+
+    #[test]
+    fn test_create_running_rms_processor_from_handle() {
+        let gc = GarbageCollector::default();
+        let handle = RunningRMSProcessorHandle::new(gc.handle());
+        handle.resize(gc.handle(), 2, 1000);
+        let handle = Shared::new(gc.handle(), handle);
+        let processor = RunningRMSProcessor::from_handle(handle.clone());
+
+        assert_eq!(processor.duration_samples, 0);
+        assert_eq!(processor.duration, Duration::from_micros(0));
+        assert_eq!(processor.handle.duration_micros.load(Ordering::Relaxed), 0);
+        assert_eq!(
+            &*processor.handle().clone() as *const RunningRMSProcessorHandle,
+            &*handle as *const RunningRMSProcessorHandle
+        )
+    }
 
     #[test]
     fn test_audio_process_running() {
