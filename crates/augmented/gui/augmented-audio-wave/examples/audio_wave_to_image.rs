@@ -30,12 +30,10 @@ use skia_safe::{
 };
 
 use audio_processor_file::AudioFileProcessor;
-use audio_processor_traits::{
-    AudioBuffer, AudioContext, AudioProcessor, OwnedAudioBuffer, VecAudioBuffer,
-};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use augmented_audio_wave::spawn_audio_drawer;
 
-fn read_test_buffer() -> VecAudioBuffer<f32> {
+fn read_test_buffer() -> AudioBuffer<f32> {
     let input = audio_processor_testing_helpers::relative_path!("../../../../input-files/bass.mp3");
     let input = std::path::Path::new(&input).canonicalize().unwrap();
 
@@ -47,11 +45,11 @@ fn read_test_buffer() -> VecAudioBuffer<f32> {
     .unwrap();
 
     let mut context = AudioContext::default();
-    input_file.prepare(&mut context, Default::default());
+    input_file.prepare(&mut context);
     let input_file = input_file.buffer();
 
-    let mut buffer = VecAudioBuffer::new();
-    buffer.resize(input_file.len(), input_file[0].len(), 0.0);
+    let mut buffer = AudioBuffer::empty();
+    buffer.resize(input_file.len(), input_file[0].len());
     for (c, channel) in input_file.iter().enumerate() {
         for (s, sample) in channel.iter().enumerate() {
             buffer.set(c, s, *sample);

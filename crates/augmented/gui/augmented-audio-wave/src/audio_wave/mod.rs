@@ -22,13 +22,14 @@
 // THE SOFTWARE.
 
 use std::sync::mpsc::RecvError;
-// use std::time::Duration;
 
 use skia_safe::{scalar, Canvas, Color4f, Paint, Path, M44};
 
 // use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
 // use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, SimpleAudioProcessor};
 use audio_processor_traits::AudioBuffer;
+
+// use std::time::Duration;
 
 struct AudioWaveFrame {
     path: Path,
@@ -96,9 +97,7 @@ impl PathRendererHandle {
     }
 }
 
-pub fn spawn_audio_drawer(
-    mut samples: impl AudioBuffer<SampleType = f32> + Send + 'static,
-) -> PathRendererHandle {
+pub fn spawn_audio_drawer(mut samples: AudioBuffer<f32>) -> PathRendererHandle {
     let (tx, rx) = std::sync::mpsc::channel();
     let (closed_tx, closed_rx) = std::sync::mpsc::channel();
 
@@ -106,8 +105,8 @@ pub fn spawn_audio_drawer(
     // How many samples to draw per path "page"
     let frame_size: usize = samples.num_samples() / 100;
     let mut max_sample = 0.0;
-    for frame in samples.frames_mut() {
-        let sample = (frame[0] + frame[1]) / 2.0;
+    for sample_num in 0..samples.num_samples() {
+        let sample = samples.get_mono(sample_num);
         let sample = sample.abs();
         if sample > max_sample {
             max_sample = sample;
@@ -161,33 +160,32 @@ impl DrawState {
     }
 }
 
-struct DrawAudioParams<'a, B: AudioBuffer<SampleType = f32>> {
-    samples: &'a mut B,
+struct DrawAudioParams<'a> {
+    samples: &'a mut AudioBuffer<f32>,
     max_sample: f32,
     bounds: (usize, usize),
     state: DrawState,
 }
 
-fn draw_audio<B: AudioBuffer<SampleType = f32>>(
+fn draw_audio<'a>(
     DrawAudioParams {
         samples,
         max_sample,
         bounds: (start, end),
         mut state,
-    }: DrawAudioParams<B>,
+    }: DrawAudioParams<'a>,
 ) -> (DrawState, Path) {
     let mut path = Path::new();
 
     let num_samples = samples.num_samples();
 
     path.move_to((state.previous_point.0, 0.5));
-    for (i, frame) in samples
-        .frames_mut()
+    for (i, sample_num) in (0..samples.num_samples())
         .enumerate()
         .skip(start)
         .take(end - start)
     {
-        let sample = (frame[0] + frame[1]) / 2.0;
+        let sample = samples.get_mono(sample_num);
         let y = 0.5 + (sample / max_sample) * 0.5;
 
         let x = i as f32 / num_samples as f32;
