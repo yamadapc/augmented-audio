@@ -132,7 +132,7 @@ fn get_example_file_buffer(settings: AudioProcessorSettings) -> Vec<f32> {
         // &relative_path!("../../../../input-files/synthetizer-loop.mp3"),
     )
     .unwrap();
-    processor.prepare(&mut context, settings);
+    processor.prepare(&mut context);
     let channels = processor.buffer().clone();
     let mut output = vec![];
     for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {

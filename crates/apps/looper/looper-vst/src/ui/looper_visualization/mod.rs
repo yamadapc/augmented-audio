@@ -31,7 +31,7 @@ use iced::{
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::Colors;
-use audio_processor_traits::{AtomicF32, AudioBuffer, VecAudioBuffer};
+use audio_processor_traits::{AtomicF32, AudioBuffer};
 use looper_processor::{AtomicRefCell, LoopShufflerProcessorHandle, LooperProcessorHandle};
 
 #[derive(Debug, Clone)]
@@ -75,7 +75,7 @@ impl LooperVisualizationDrawModelImpl {
         seq_playhead.unwrap_or_else(|| LooperProcessorHandle::playhead(&self.handle))
     }
 
-    fn loop_iterator(&self) -> Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>> {
+    fn loop_iterator(&self) -> Shared<AtomicRefCell<AudioBuffer<AtomicF32>>> {
         LooperProcessorHandle::looper_clip(&self.handle)
     }
 }
@@ -140,17 +140,18 @@ fn draw_audio_chart(
     frame: &mut Frame,
     num_samples: f32,
     is_recording: bool,
-    samples_iterator: &VecAudioBuffer<AtomicF32>,
+    samples_iterator: &AudioBuffer<AtomicF32>,
 ) {
     if samples_iterator.num_channels() == 0 {
         return;
     }
     let mut path = iced::widget::canvas::path::Builder::new();
     let step = (samples_iterator.num_samples() / frame.width() as usize).max(1);
-    for (index, samples_frame) in samples_iterator.frames().enumerate().step_by(step) {
-        let item = samples_frame[0].get() + samples_frame[1].get();
+    for sample_index in (0..samples_iterator.num_samples()).step_by(step) {
+        let item = samples_iterator.get(0, sample_index).get()
+            + samples_iterator.get(1, sample_index).get();
 
-        let f_index = index as f32;
+        let f_index = sample_index as f32;
         let x = ((f_index + 1.0) / num_samples) * frame.width();
         let y = item * frame.height() / 2.0 + frame.height() / 2.0;
 
