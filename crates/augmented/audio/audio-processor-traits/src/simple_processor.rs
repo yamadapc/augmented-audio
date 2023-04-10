@@ -45,6 +45,7 @@ pub trait MonoAudioProcessor {
     }
 }
 
+#[derive(Default)]
 pub struct MonoCopyProcessor<Processor: MonoAudioProcessor> {
     processor: Processor,
 }

@@ -161,7 +161,7 @@ impl<P: MetronomePlayhead> AudioProcessor for MetronomeProcessor<P> {
     fn prepare(&mut self, context: &mut AudioContext) {
         let settings = context.settings;
         self.playhead.prepare(&settings, self.handle.tempo.get());
-        self.state.metronome_sound.prepare(context, settings);
+        self.state.metronome_sound.prepare(context);
     }
 
     fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {

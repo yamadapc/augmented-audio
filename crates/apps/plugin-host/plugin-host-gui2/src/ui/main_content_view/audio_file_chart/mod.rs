@@ -1,11 +1,3 @@
-use iced::{
-    widget::{
-        canvas::{Cursor, Geometry, Program},
-        Canvas,
-    },
-    Element, Rectangle,
-};
-
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -28,7 +20,16 @@ use iced::{
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
+
+use audio_processor_traits::AudioBuffer;
+use iced::{
+    widget::{
+        canvas::{Cursor, Geometry, Program},
+        Canvas,
+    },
+    Element, Rectangle,
+};
+
 use augmented::gui::iced_baseview::renderer::Theme;
 
 pub enum Message {
@@ -38,13 +39,13 @@ pub enum Message {
 
 pub struct AudioFileModel {
     #[allow(dead_code)]
-    audio_file: VecAudioBuffer<f32>,
+    audio_file: AudioBuffer<f32>,
 }
 
 impl AudioFileModel {
     pub fn empty() -> Self {
         Self {
-            audio_file: VecAudioBuffer::new(),
+            audio_file: AudioBuffer::empty(),
         }
     }
 }

@@ -20,7 +20,7 @@ use audio_processor_metronome::{
     DefaultMetronomePlayhead, MetronomeProcessor, MetronomeProcessorHandle, MetronomeSound,
     MetronomeSoundType,
 };
-use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use std::collections::HashMap;
 use std::hash::Hash;
 
@@ -164,18 +164,14 @@ impl AppAudioProcessor {
 impl AudioProcessor for AppAudioProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.metronome.prepare(context, settings);
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.metronome.prepare(context);
         for sound in self.sounds.values_mut() {
-            sound.prepare(context, settings);
+            sound.prepare(context);
         }
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         self.drain_message_queue();
 
         self.metronome.process(context, data);
