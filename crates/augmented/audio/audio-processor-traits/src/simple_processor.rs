@@ -30,7 +30,7 @@
 
 use crate::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
 use crate::{AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike, Zero};
-use std::ops::{AddAssign, Deref, DerefMut};
+use std::ops::{AddAssign, Deref, DerefMut, DivAssign};
 
 pub trait MonoAudioProcessor {
     type SampleType: Copy;
@@ -57,7 +57,7 @@ impl<Processor: MonoAudioProcessor> MonoCopyProcessor<Processor> {
 
 impl<Processor: MonoAudioProcessor> AudioProcessor for MonoCopyProcessor<Processor>
 where
-    Processor::SampleType: Zero + AddAssign,
+    Processor::SampleType: Zero + AddAssign + DivAssign + From<f32>,
 {
     type SampleType = Processor::SampleType;
 
@@ -71,6 +71,7 @@ where
             for channel_num in 0..data.num_channels() {
                 mono_input += *data.get(channel_num, sample_num);
             }
+            mono_input /= Self::SampleType::from(data.num_channels() as f32);
 
             let output = self.processor.m_process(context, mono_input);
 

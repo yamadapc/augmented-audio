@@ -30,7 +30,6 @@ use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Consumer;
 
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
-use augmented_midi::nom::ToUsize;
 
 use crate::StandaloneProcessor;
 
@@ -77,7 +76,7 @@ pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
         num_output_channels,
         match output_config.buffer_size {
             cpal::BufferSize::Default => 1024,
-            cpal::BufferSize::Fixed(size) => size.to_usize(),
+            cpal::BufferSize::Fixed(size) => size as usize,
         },
     );
 

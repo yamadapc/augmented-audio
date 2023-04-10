@@ -98,11 +98,7 @@ pub struct MetronomeSoundFile {
 
 impl MetronomeSound for MetronomeSoundFile {
     fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        audio_processor_traits::AudioProcessor::prepare(
-            &mut self.file_processor,
-            context,
-            settings,
-        );
+        audio_processor_traits::AudioProcessor::prepare(&mut self.file_processor, context);
         self.envelope.set_sample_rate(settings.sample_rate());
         // Files have a different envelope to develop the sample a bit more
         self.envelope.set_decay(Duration::from_millis(50));
