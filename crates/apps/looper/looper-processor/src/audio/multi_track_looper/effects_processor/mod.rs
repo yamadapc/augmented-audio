@@ -31,13 +31,13 @@ use audio_processor_graph::{AudioProcessorGraph, AudioProcessorGraphHandle, Node
 use audio_processor_time::FreeverbProcessor;
 use audio_processor_time::MonoDelayProcessor;
 use audio_processor_traits::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
+use audio_processor_traits::simple_processor::MonoCopyProcessor;
 use audio_processor_traits::{
     simple_processor, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
-    SliceAudioProcessor,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 
-type SomeEffectProcessor = Box<dyn SliceAudioProcessor + Send + 'static>;
+type SomeEffectProcessor = Box<dyn AudioProcessor<SampleType = f32> + Send + 'static>;
 type SomeHandle = AudioProcessorHandleRef;
 
 #[repr(C)]
@@ -72,26 +72,22 @@ impl EffectsProcessorHandle {
                 EffectTypeReverb => {
                     let processor = FreeverbProcessor::default();
                     let handle = processor.generic_handle();
-                    (
-                        Box::new(simple_processor::BufferProcessor(processor)),
-                        handle,
-                    )
+                    (Box::new(processor), handle)
                 }
                 EffectTypeDelay => {
                     let mono_delay_processor = MonoDelayProcessor::default();
                     let handle = mono_delay_processor.generic_handle();
                     (
-                        Box::new(simple_processor::BufferProcessor(mono_delay_processor)),
+                        Box::new(simple_processor::MonoCopyProcessor::new(
+                            mono_delay_processor,
+                        )),
                         handle,
                     )
                 }
                 EffectTypeFilter => {
                     let processor = FilterProcessor::new(FilterType::LowPass);
                     let handle = processor.generic_handle();
-                    (
-                        Box::new(simple_processor::BufferProcessor(processor)),
-                        handle,
-                    )
+                    (Box::new(MonoCopyProcessor::new(processor)), handle)
                 }
                 EffectTypeBitCrusher => {
                     let processor = BitCrusherProcessor::default();
@@ -107,8 +103,8 @@ impl EffectsProcessorHandle {
 
         let settings = *self.settings.get().deref();
         let mut context = AudioContext::from(settings);
-        processor.prepare_slice(&mut context, settings);
-        let node_idx = self.graph_handle.add_node(NodeType::Buffer(processor));
+        processor.prepare(&mut context);
+        let node_idx = self.graph_handle.add_node(NodeType::Simple(processor));
         let state = EffectNodeState {
             handle,
             node_index: node_idx,
@@ -182,17 +178,13 @@ impl EffectsProcessor {
 impl AudioProcessor for EffectsProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
         log::debug!("Preparing EffectsProcessor");
-        self.graph.prepare(context, settings);
-        self.handle.settings.set(make_shared(settings));
+        self.graph.prepare(context);
+        self.handle.settings.set(make_shared(context.settings));
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<f32>) {
         self.graph.process(context, data)
     }
 }

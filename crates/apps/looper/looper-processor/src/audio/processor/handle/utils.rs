@@ -20,8 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{AtomicF32, AudioBuffer, VecAudioBuffer};
+use audio_processor_traits::{AtomicF32, AudioBuffer};
 
 use super::scratch_pad;
 
@@ -31,10 +30,10 @@ pub struct CopyLoopClipParams<'a> {
     pub length: usize,
 }
 
-pub fn copy_looped_clip(params: CopyLoopClipParams, result_buffer: &mut VecAudioBuffer<AtomicF32>) {
+pub fn copy_looped_clip(params: CopyLoopClipParams, result_buffer: &mut AudioBuffer<AtomicF32>) {
     let buffer = params.scratch_pad.buffer();
 
-    result_buffer.resize(buffer.num_channels(), params.length, AtomicF32::new(0.0));
+    result_buffer.resize_with(buffer.num_channels(), params.length, || AtomicF32::new(0.0));
 
     for channel in 0..buffer.num_channels() {
         for i in 0..params.length {
@@ -45,9 +44,9 @@ pub fn copy_looped_clip(params: CopyLoopClipParams, result_buffer: &mut VecAudio
     }
 }
 
-pub fn empty_buffer(channels: usize, samples: usize) -> VecAudioBuffer<AtomicF32> {
-    let mut b = VecAudioBuffer::new();
-    b.resize(channels, samples, AtomicF32::new(0.0));
+pub fn empty_buffer(channels: usize, samples: usize) -> AudioBuffer<AtomicF32> {
+    let mut b = AudioBuffer::empty();
+    b.resize_with(channels, samples, || AtomicF32::new(0.0));
     b
 }
 
@@ -60,7 +59,7 @@ mod test {
         let buffer = empty_buffer(2, 10);
         assert_eq!(buffer.num_channels(), 2);
         assert_eq!(buffer.num_samples(), 10);
-        for sample in buffer.slice() {
+        for sample in buffer.channel(0) {
             assert_eq!(sample.get(), 0.0)
         }
     }

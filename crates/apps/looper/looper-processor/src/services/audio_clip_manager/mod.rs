@@ -30,7 +30,7 @@ use bytesize::ByteSize;
 use audio_garbage_collector::make_shared;
 use audio_processor_file::file_io::AudioFileError;
 use audio_processor_file::OutputAudioFileProcessor;
-use audio_processor_traits::{AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
 use crate::audio::processor::handle::{looper_clip_copy_to_vec_buffer, LooperClipRef};
 
@@ -41,11 +41,11 @@ pub struct AudioClipModel {
     id: AudioClipId,
     #[allow(unused)]
     path: PathBuf,
-    contents: VecAudioBuffer<f32>,
+    contents: AudioBuffer<f32>,
 }
 
 impl AudioClipModel {
-    pub fn contents(&self) -> &impl AudioBuffer<SampleType = f32> {
+    pub fn contents(&self) -> &AudioBuffer<f32> {
         &self.contents
     }
 }
@@ -74,10 +74,11 @@ impl AudioClipManager {
             byte_size,
             duration
         );
-        let sum: f32 = audio_file
-            .frames()
-            .map(|frame| frame.iter().map(|f| f.abs()).sum::<f32>())
-            .sum();
+        let mut sum: f32 = 0.0;
+        for sample_index in 0..audio_file.num_samples() {
+            let mono_sample = audio_file.get_mono(sample_index);
+            sum += mono_sample.abs();
+        }
         let rms = sum / audio_file.num_samples() as f32;
         log::info!("RMS level rms={}", rms);
 
@@ -117,14 +118,15 @@ pub fn write_looper_clip(settings: AudioProcessorSettings, clip_path: &Path, cli
     output_processor.prepare(settings);
 
     let mut clip_buffer = looper_clip_copy_to_vec_buffer(clip);
-    output_processor.process(clip_buffer.slice_mut());
+    if let Err(err) = output_processor.process(&mut clip_buffer) {
+        log::error!("Failed to write file: {}", err);
+    }
 }
 
-fn estimate_file_size<Buffer: AudioBuffer>(audio_file: &Buffer) -> ByteSize {
+fn estimate_file_size<SampleType>(audio_file: &AudioBuffer<SampleType>) -> ByteSize {
     ByteSize::b(
-        (audio_file.num_channels()
-            * audio_file.num_samples()
-            * std::mem::size_of::<Buffer::SampleType>()) as u64,
+        (audio_file.num_channels() * audio_file.num_samples() * std::mem::size_of::<SampleType>())
+            as u64,
     )
 }
 
@@ -155,7 +157,7 @@ mod test {
 
         let test_file_path = PathBuf::from(relative_path!("../../../../input-files/bass.wav"));
         let clip = manager.load_at_path(&test_file_path).unwrap();
-        let level = rms_level(clip.contents().slice());
+        let level = rms_level(clip.contents().channel(0));
         assert!(level > 0.1);
     }
 
@@ -166,7 +168,8 @@ mod test {
 
         let project_manager = ActorSystem::start(ProjectManager::new(data_path.path().into()));
 
-        let mut input_buffer = VecAudioBuffer::empty_with(2, 5, 0.0);
+        let mut input_buffer = AudioBuffer::empty();
+        input_buffer.resize(2, 5);
         for channel in 0..2 {
             input_buffer.set(channel, 0, 0.1);
             input_buffer.set(channel, 1, 0.2);
@@ -215,7 +218,7 @@ mod test {
         let buffer = looper_clip_copy_to_vec_buffer(&buffer);
         assert_eq!(buffer.num_samples(), input_buffer.num_samples());
         assert_eq!(buffer.num_channels(), input_buffer.num_channels());
-        assert_eq!(buffer.slice(), input_buffer.slice());
+        assert_eq!(buffer, input_buffer);
         assert_eq!(voice.looper().state(), LooperState::Paused);
 
         // ======================================================================
@@ -225,14 +228,15 @@ mod test {
             ..Default::default()
         };
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         // Test playback works
         looper.handle().voices()[0].looper().play();
-        let mut buffer = VecAudioBuffer::empty_with(2, buffer.num_samples(), 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(2, input_buffer.num_samples());
         looper.process(&mut context, &mut buffer);
         assert_eq!(buffer.num_samples(), input_buffer.num_samples());
         assert_eq!(buffer.num_channels(), input_buffer.num_channels());
-        assert_eq!(buffer.slice(), input_buffer.slice());
+        assert_eq!(buffer, input_buffer);
     }
 }

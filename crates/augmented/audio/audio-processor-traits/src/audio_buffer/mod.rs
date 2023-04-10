@@ -35,23 +35,17 @@ pub use util::*;
 // mod owned_audio_buffer_trait;
 mod util;
 
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq, PartialOrd, Ord, Eq)]
 pub struct AudioBuffer<SampleType> {
     channels: Vec<Vec<SampleType>>,
 }
 
-impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
+impl<SampleType: Clone + Default> AudioBuffer<SampleType> {
     pub fn from_interleaved(channels: usize, samples: &[SampleType]) -> Self {
-        let mut buffers = vec![vec![SampleType::zero(); samples.len()]; channels];
+        let mut buffers = vec![vec![SampleType::default(); samples.len()]; channels];
         copy_from_interleaved(samples, buffers.as_mut_slice());
 
         Self::new(buffers)
-    }
-
-    pub fn copy_from(&mut self, source: &Self) {
-        for (target, source) in self.channels.iter_mut().zip(source.channels.iter()) {
-            target.copy_from_slice(source);
-        }
     }
 
     pub fn copy_from_interleaved(&mut self, source: &[SampleType]) {
@@ -60,6 +54,14 @@ impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
 
     pub fn copy_into_interleaved(&self, target: &mut [SampleType]) {
         copy_into_interleaved(&self.channels, target);
+    }
+}
+
+impl<SampleType: Copy + num::Zero> AudioBuffer<SampleType> {
+    pub fn copy_from(&mut self, source: &Self) {
+        for (target, source) in self.channels.iter_mut().zip(source.channels.iter()) {
+            target.copy_from_slice(source);
+        }
     }
 }
 
@@ -135,6 +137,10 @@ impl<SampleType> AudioBuffer<SampleType> {
         &self.channels[channel][sample]
     }
 
+    pub fn get_mut(&mut self, channel: usize, sample: usize) -> &mut SampleType {
+        &mut self.channels[channel][sample]
+    }
+
     pub fn set(&mut self, channel: usize, sample: usize, value: SampleType) {
         self.channels[channel][sample] = value;
     }
@@ -180,7 +186,7 @@ where
 pub mod vst;
 
 /// Copy from an interleaved buffer into a target non-interleaved buffer.
-pub fn copy_from_interleaved<SampleType: Copy>(
+pub fn copy_from_interleaved<SampleType: Clone>(
     source: &[SampleType],
     target: &mut [Vec<SampleType>],
 ) {
@@ -191,12 +197,12 @@ pub fn copy_from_interleaved<SampleType: Copy>(
     let num_channels = target.len();
     for (sample_idx, frame) in source.chunks(num_channels).enumerate() {
         for (channel_idx, sample) in frame.iter().enumerate() {
-            target[channel_idx][sample_idx] = *sample;
+            target[channel_idx][sample_idx] = sample.clone();
         }
     }
 }
 
-pub fn copy_into_interleaved<SampleType: Copy>(
+pub fn copy_into_interleaved<SampleType: Clone>(
     source: &[Vec<SampleType>],
     target: &mut [SampleType],
 ) {
@@ -207,7 +213,7 @@ pub fn copy_into_interleaved<SampleType: Copy>(
     let num_channels = source.len();
     for (sample_idx, frame) in target.chunks_mut(num_channels).enumerate() {
         for (channel_idx, sample) in frame.iter_mut().enumerate() {
-            *sample = source[channel_idx][sample_idx];
+            *sample = source[channel_idx][sample_idx].clone();
         }
     }
 }

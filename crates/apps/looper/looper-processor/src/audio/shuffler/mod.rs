@@ -32,11 +32,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use basedrop::{Shared, SharedCell};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
-use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{
-    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, SimpleAudioProcessor,
-    VecAudioBuffer,
-};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 
 use crate::LooperProcessorHandle;
 
@@ -59,7 +55,7 @@ pub struct LoopShufflerOutput {
 }
 
 pub struct LoopShufflerProcessorHandle {
-    looped_clip: SharedCell<VecAudioBuffer<f32>>,
+    looped_clip: SharedCell<AudioBuffer<f32>>,
     looper_handle: Shared<LooperProcessorHandle>,
     params: SharedCell<Option<LoopShufflerParams>>,
     playhead: AtomicUsize,
@@ -67,7 +63,7 @@ pub struct LoopShufflerProcessorHandle {
 }
 
 impl LoopShufflerProcessorHandle {
-    fn set_clip(&self, clip: VecAudioBuffer<f32>) {
+    fn set_clip(&self, clip: AudioBuffer<f32>) {
         self.looped_clip.set(make_shared(clip));
     }
 
@@ -89,11 +85,12 @@ impl LoopShufflerProcessorHandle {
         let clip = clip.deref().borrow();
         let num_samples = clip.num_samples();
 
-        let mut own_buffer = VecAudioBuffer::new();
-        own_buffer.resize(clip.num_channels(), num_samples, 0.0);
+        let mut own_buffer = AudioBuffer::empty();
+        own_buffer.resize(clip.num_channels(), num_samples);
 
-        for (sample_index, frame) in own_buffer.frames_mut().enumerate() {
-            for (channel_index, sample) in frame.iter_mut().enumerate() {
+        for sample_index in 0..own_buffer.num_samples() {
+            for channel_index in 0..own_buffer.num_channels() {
+                let sample = own_buffer.get_mut(channel_index, sample_index);
                 let sample_index = sample_index % num_samples;
                 let output = clip.get(channel_index, sample_index);
                 *sample = output.get();
@@ -121,7 +118,7 @@ impl LoopShufflerProcessor {
         Self {
             cursor: 0,
             handle: make_shared(LoopShufflerProcessorHandle {
-                looped_clip: make_shared_cell(VecAudioBuffer::new()),
+                looped_clip: make_shared_cell(AudioBuffer::empty()),
                 looper_handle,
                 params: make_shared_cell(None),
                 playhead: AtomicUsize::new(0),
@@ -142,55 +139,40 @@ impl LoopShufflerProcessor {
 impl AudioProcessor for LoopShufflerProcessor {
     type SampleType = f32;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
-        for frame in data.frames_mut() {
-            self.s_process_frame(context, frame);
-        }
-    }
-}
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+        for sample_index in 0..data.num_samples() {
+            if let Some(LoopShufflerOutput {
+                sequence,
+                sequence_step_size,
+            }) = self.handle.sequencer_output.get().deref()
+            {
+                let clip = self.handle.looped_clip.get();
+                let num_samples = clip.deref().num_samples();
+                let clip = clip.deref();
 
-impl SimpleAudioProcessor for LoopShufflerProcessor {
-    type SampleType = f32;
+                if num_samples == 0 || *sequence_step_size == 0 {
+                    return;
+                }
 
-    fn s_prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.prepare(context, settings);
-    }
+                let cursor = self.cursor % num_samples;
+                let sequence_step_index = (cursor / sequence_step_size) % sequence.len();
+                let VirtualLoopSection { start, .. } = &sequence[sequence_step_index];
+                let overflow = cursor % sequence_step_size;
+                let index = (start + overflow) % num_samples;
+                let start_volume = (overflow as f32 / 80.0).min(1.0);
+                let end_volume = ((sequence_step_size - overflow) as f32 / 80.0).min(1.0);
 
-    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
-        if let Some(LoopShufflerOutput {
-            sequence,
-            sequence_step_size,
-        }) = self.handle.sequencer_output.get().deref()
-        {
-            let clip = self.handle.looped_clip.get();
-            let num_samples = clip.deref().num_samples();
-            let clip = clip.deref();
+                for channel_index in 0..data.num_channels() {
+                    let output_sample = clip.get(channel_index, index);
+                    let sample = data.get_mut(channel_index, sample_index);
+                    *sample = *output_sample * start_volume * end_volume;
+                }
 
-            if num_samples == 0 || *sequence_step_size == 0 {
-                return;
-            }
-
-            let cursor = self.cursor % num_samples;
-            let sequence_step_index = (cursor / sequence_step_size) % sequence.len();
-            let VirtualLoopSection { start, .. } = &sequence[sequence_step_index];
-            let overflow = cursor % sequence_step_size;
-            let index = (start + overflow) % num_samples;
-            let start_volume = (overflow as f32 / 80.0).min(1.0);
-            let end_volume = ((sequence_step_size - overflow) as f32 / 80.0).min(1.0);
-
-            for (channel, sample) in frame.iter_mut().enumerate() {
-                let output_sample = clip.get(channel, index);
-                *sample = *output_sample * start_volume * end_volume;
-            }
-
-            self.handle.playhead.store(index, Ordering::Relaxed);
-            self.cursor += 1;
-            if self.cursor >= num_samples {
-                self.cursor = 0;
+                self.handle.playhead.store(index, Ordering::Relaxed);
+                self.cursor += 1;
+                if self.cursor >= num_samples {
+                    self.cursor = 0;
+                }
             }
         }
     }
@@ -246,14 +228,11 @@ mod test {
     fn test_shuffler_processor_is_silent_when_empty() {
         let handle = make_shared(LooperProcessorHandle::default());
         let mut processor = LoopShufflerProcessor::new(handle);
-        let mut buffer = VecAudioBuffer::empty_with(1, 10, 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(1, 10);
         let mut context = AudioContext::default();
-        audio_processor_traits::simple_processor::process_buffer(
-            &mut context,
-            &mut processor,
-            &mut buffer,
-        );
-        assert_eq!(buffer.slice(), &[0.0; 10]);
+        processor.process(&mut context, &mut buffer);
+        assert_eq!(buffer.channel(0), &[0.0; 10]);
     }
 
     #[test]

@@ -23,9 +23,6 @@
 use actix::Addr;
 use basedrop::Shared;
 
-use actix_system_threads::ActorSystem;
-use audio_processor_traits::AudioBuffer;
-
 use crate::audio::multi_track_looper::looper_voice::LooperVoice;
 use crate::audio::multi_track_looper::parameters::{build_default_parameters, ParameterId};
 use crate::audio::multi_track_looper::ParametersMap;
@@ -34,6 +31,7 @@ use crate::services::audio_clip_manager::{AudioClipManager, AudioClipModelRef, L
 use crate::services::project_manager::model::{LooperVoicePersist, Project};
 use crate::services::project_manager::{LoadLatestProjectMessage, ProjectManager};
 use crate::MultiTrackLooperHandle;
+use actix_system_threads::ActorSystem;
 
 pub struct LoadContext {
     pub handle: Shared<MultiTrackLooperHandle>,

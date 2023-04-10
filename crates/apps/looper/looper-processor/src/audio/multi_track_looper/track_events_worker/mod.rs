@@ -26,7 +26,7 @@ use basedrop::Shared;
 
 use atomic_queue::Queue;
 use audio_garbage_collector::make_shared;
-use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 use augmented_atomics::AtomicF32;
 
 use crate::LooperId;
@@ -35,7 +35,7 @@ pub enum TrackEventsMessage {
     StoppedRecording {
         looper_id: LooperId,
         settings: Shared<AudioProcessorSettings>,
-        looper_clip: Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
+        looper_clip: Shared<AtomicRefCell<AudioBuffer<AtomicF32>>>,
     },
     ClearedBuffer {
         looper_id: LooperId,
@@ -73,7 +73,7 @@ impl TrackEventsBus {
         &self,
         looper_id: LooperId,
         settings: Shared<AudioProcessorSettings>,
-        looper_clip: Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
+        looper_clip: Shared<AtomicRefCell<AudioBuffer<AtomicF32>>>,
     ) {
         let _ = self.tx.push(TrackEventsMessage::StoppedRecording {
             looper_id,

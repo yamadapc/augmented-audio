@@ -30,7 +30,7 @@ use num::ToPrimitive;
 use audio_garbage_collector::{make_shared, make_shared_cell, Shared};
 use audio_processor_analysis::running_rms_processor::RunningRMSProcessorHandle;
 use audio_processor_metronome::MetronomeProcessorHandle;
-use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 use augmented_atomics::{AtomicF32, AtomicValue};
 
 use crate::audio::multi_track_looper::midi_store::MidiStoreHandle;
@@ -456,7 +456,7 @@ impl MultiTrackLooperHandle {
     pub fn get_looper_buffer(
         &self,
         looper_id: LooperId,
-    ) -> Option<Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>> {
+    ) -> Option<Shared<AtomicRefCell<AudioBuffer<AtomicF32>>>> {
         self.voices
             .get(looper_id.0)
             .map(|voice| voice.looper().looper_clip())

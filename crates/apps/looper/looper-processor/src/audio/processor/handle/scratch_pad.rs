@@ -22,15 +22,15 @@
 // THE SOFTWARE.
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use audio_processor_traits::{AtomicF32, AudioBuffer, VecAudioBuffer};
+use audio_processor_traits::{AtomicF32, AudioBuffer};
 
 pub struct ScratchPad {
-    buffer: VecAudioBuffer<AtomicF32>,
+    buffer: AudioBuffer<AtomicF32>,
     cursor: AtomicUsize,
 }
 
 impl ScratchPad {
-    pub fn new(buffer: VecAudioBuffer<AtomicF32>) -> Self {
+    pub fn new(buffer: AudioBuffer<AtomicF32>) -> Self {
         ScratchPad {
             buffer,
             cursor: AtomicUsize::new(0),
@@ -63,29 +63,29 @@ impl ScratchPad {
         self.buffer.num_samples()
     }
 
-    pub fn buffer(&self) -> &VecAudioBuffer<AtomicF32> {
+    pub fn buffer(&self) -> &AudioBuffer<AtomicF32> {
         &self.buffer
     }
 }
 
 #[cfg(test)]
 mod test {
-    use audio_processor_traits::{AudioBuffer, OwnedAudioBuffer, VecAudioBuffer};
+    use audio_processor_traits::AudioBuffer;
     use augmented_atomics::AtomicF32;
 
     use super::*;
 
     #[test]
     fn test_scratch_pad_new() {
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(2, 10, AtomicF32::new(0.0));
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize_with(2, 10, || AtomicF32::new(0.0));
         let _scratch_pad = ScratchPad::new(buffer);
     }
 
     #[test]
     fn test_after_process_will_increment_cursor() {
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(2, 10, AtomicF32::new(0.0));
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize_with(2, 10, || AtomicF32::new(0.0));
         let scratch_pad = ScratchPad::new(buffer);
         assert_eq!(scratch_pad.cursor(), 0);
         scratch_pad.after_process();
@@ -98,8 +98,8 @@ mod test {
 
     #[test]
     fn test_set_will_update_the_buffer_at_the_current_cursor() {
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(2, 10, AtomicF32::new(0.0));
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize_with(2, 10, || AtomicF32::new(0.0));
         let scratch_pad = ScratchPad::new(buffer);
         scratch_pad.set(0, 10.0);
         assert_eq!(scratch_pad.buffer().get(0, 0).get(), 10.0);
@@ -110,8 +110,8 @@ mod test {
 
     #[test]
     fn test_scratch_max_len_is_the_storage_size() {
-        let mut buffer = VecAudioBuffer::new();
-        buffer.resize(2, 10, AtomicF32::new(0.0));
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize_with(2, 10, || AtomicF32::new(0.0));
         let scratch_pad = ScratchPad::new(buffer);
         assert_eq!(scratch_pad.max_len(), 10);
     }

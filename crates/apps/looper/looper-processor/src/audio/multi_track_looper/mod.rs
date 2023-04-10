@@ -34,8 +34,7 @@ use audio_processor_analysis::running_rms_processor::RunningRMSProcessor;
 use audio_processor_graph::{AudioProcessorGraph, NodeType};
 use audio_processor_metronome::MetronomeProcessor;
 use audio_processor_traits::{
-    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
-    MidiMessageLike,
+    AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike,
 };
 use augmented_atomics::AtomicValue;
 use augmented_oscillator::Oscillator;
@@ -269,7 +268,7 @@ impl MultiTrackLooper {
         metronome: MetronomeProcessor<TimeInfoMetronomePlayhead>,
     ) -> AudioProcessorGraph {
         let mut graph = AudioProcessorGraph::default();
-        let metronome_idx = graph.add_node(NodeType::Buffer(Box::new(metronome)));
+        let metronome_idx = graph.add_node(NodeType::Simple(Box::new(metronome)));
         let input_meter_node_idx = graph.add_node(NodeType::Simple(Box::new(input_meter)));
         graph
             .add_connection(graph.input(), input_meter_node_idx)
@@ -288,10 +287,10 @@ impl MultiTrackLooper {
             effects_processor,
         } in processors
         {
-            let looper_idx = graph.add_node(NodeType::Buffer(Box::new(looper)));
-            let pitch_shifter_idx = graph.add_node(NodeType::Buffer(Box::new(pitch_shifter)));
-            let envelope_idx = graph.add_node(NodeType::Buffer(Box::new(envelope)));
-            let effects_idx = graph.add_node(NodeType::Buffer(Box::new(effects_processor)));
+            let looper_idx = graph.add_node(NodeType::Simple(Box::new(looper)));
+            let pitch_shifter_idx = graph.add_node(NodeType::Simple(Box::new(pitch_shifter)));
+            let envelope_idx = graph.add_node(NodeType::Simple(Box::new(envelope)));
+            let effects_idx = graph.add_node(NodeType::Simple(Box::new(effects_processor)));
 
             graph
                 .add_connection(graph.input(), looper_idx)
@@ -544,8 +543,9 @@ impl MultiTrackLooper {
 impl AudioProcessor for MultiTrackLooper {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.graph.prepare(context, settings);
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let settings = context.settings;
+        self.graph.prepare(context);
         self.handle.metrics_handle().prepare(settings);
         self.handle.set_settings(make_shared(settings));
 
@@ -555,11 +555,7 @@ impl AudioProcessor for MultiTrackLooper {
         }
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         assert_no_alloc(|| {
             self.metrics.on_process_start();
 
@@ -600,7 +596,7 @@ mod test {
     use basedrop::Owned;
 
     use audio_processor_standalone_midi::host::{MidiMessageEntry, MidiMessageWrapper};
-    use audio_processor_traits::{InterleavedAudioBuffer, VecAudioBuffer};
+    use audio_processor_traits::AudioProcessorSettings;
 
     use crate::audio::midi_map::MidiControllerNumber;
     use crate::audio::multi_track_looper::parameters::EntityId;
@@ -718,16 +714,20 @@ mod test {
         let mut looper = MultiTrackLooper::new(Default::default(), 8);
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 100.0;
-        let mut buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
+        let input_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(1.0));
 
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
-        let num_frames = buffer.len() / settings.block_size();
+        looper.prepare(&mut context);
+        let num_frames = input_buffer.len() / settings.block_size();
+
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(1, settings.block_size());
+
         log::info!("Processing num_frames={}", num_frames);
         for frame in 0..num_frames {
             let start_index = frame * settings.block_size();
             let end_index = start_index + settings.block_size();
-            let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer[start_index..end_index]);
+            buffer.copy_from_interleaved(&input_buffer[start_index..end_index]);
             looper.process(&mut context, &mut buffer);
         }
     }
@@ -738,11 +738,14 @@ mod test {
         let mut processor = MultiTrackLooper::default();
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 100.0;
+        settings.input_channels = 1;
+        settings.output_channels = 1;
         let mut context = AudioContext::from(settings);
-        processor.prepare(&mut context, settings);
-        let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
+        processor.prepare(&mut context);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize_with(1, 4, || 0.0);
         processor.process(&mut context, &mut buffer);
-        assert_eq!(buffer.slice(), [0.0, 0.0, 0.0, 0.0])
+        assert_eq!(buffer.channel(0), [0.0, 0.0, 0.0, 0.0])
     }
 
     #[test]
@@ -750,19 +753,22 @@ mod test {
         let mut processor = MultiTrackLooper::new(Default::default(), 1);
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 100.0;
+        settings.input_channels = 1;
+        settings.output_channels = 1;
         let mut context = AudioContext::from(settings);
-        processor.prepare(&mut context, settings);
+        processor.prepare(&mut context);
 
         let looper = processor.handle().voices()[0].looper().clone();
-        let mut looper_buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
-        looper.set_looper_buffer(&looper_buffer.interleaved());
+        let looper_buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
+        looper.set_looper_buffer(&looper_buffer);
         looper.play();
 
         assert_eq!(looper.state(), LooperState::Playing);
-        let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize_with(1, 4, || 0.0);
         processor.process(&mut context, &mut buffer);
         assert_eq!(looper.state(), LooperState::Playing);
-        assert_eq!(buffer.slice(), [1.0, 2.0, 3.0, 4.0])
+        assert_eq!(buffer.channel(0), [1.0, 2.0, 3.0, 4.0])
     }
 
     #[test]
@@ -770,13 +776,15 @@ mod test {
         let mut processor = MultiTrackLooper::default();
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 100.0;
+        settings.input_channels = 1;
+        settings.output_channels = 1;
         let mut context = AudioContext::from(settings);
-        processor.prepare(&mut context, settings);
+        processor.prepare(&mut context);
         processor
             .handle()
             .set_source_parameter(LooperId(0), SourceParameter::Start, 0.5);
         let looper = processor.handle().voices()[0].looper();
-        looper.set_looper_buffer(&VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]).interleaved());
+        looper.set_looper_buffer(&AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]));
         looper.play();
         let value = processor
             .handle()
@@ -784,21 +792,24 @@ mod test {
             .unwrap()
             .as_float();
         assert_eq!(value, 0.5);
-        let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize_with(1, 4, || 0.0);
         let mut context = AudioContext::from(settings);
         processor.process(&mut context, &mut buffer);
-        assert_eq!(buffer.slice(), [3.0, 4.0, 3.0, 4.0])
+        assert_eq!(buffer.channel(0), [3.0, 4.0, 3.0, 4.0])
     }
 
     #[test]
     fn test_record_into_single_looper() {
         let mut processor = MultiTrackLooper::default();
-        let settings = AudioProcessorSettings {
+        let mut settings = AudioProcessorSettings {
             sample_rate: 10.0, // 10 samples per sec
             ..AudioProcessorSettings::default()
         };
+        settings.input_channels = 1;
+        settings.output_channels = 1;
         let mut context = AudioContext::from(settings);
-        processor.prepare(&mut context, settings);
+        processor.prepare(&mut context);
         // "4 seconds" of audio;
         let num_samples = 40;
 
@@ -813,12 +824,13 @@ mod test {
         processor
             .handle()
             .toggle_recording(LooperId(0), LooperHandleThread::OtherThread);
-        let mut buffer = VecAudioBuffer::empty_with(1, num_samples, 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize_with(1, num_samples, || 0.0);
         processor.process(&mut context, &mut buffer);
 
         assert_eq!(
             buffer
-                .slice()
+                .channel(0)
                 .iter()
                 .map(|f| (f * 10000.0).round() as usize)
                 .collect::<Vec<usize>>(),
@@ -849,12 +861,14 @@ mod test {
     #[test]
     fn test_record_into_two_synced_loopers() {
         let mut processor = MultiTrackLooper::default();
-        let settings = AudioProcessorSettings {
+        let mut settings = AudioProcessorSettings {
             sample_rate: 10.0, // 10 samples per sec
             ..AudioProcessorSettings::default()
         };
+        settings.input_channels = 1;
+        settings.output_channels = 1;
         let mut context = AudioContext::from(settings);
-        processor.prepare(&mut context, settings);
+        processor.prepare(&mut context);
         // "4 seconds" of audio; this is going to be 2 bars at 120 bpm
         // each beat is 5 samples, each bar is 20 samples
         let num_samples = 40;
@@ -872,7 +886,8 @@ mod test {
             .toggle_recording(LooperId(0), LooperHandleThread::OtherThread);
 
         // Advance by 10 samples
-        let mut buffer = VecAudioBuffer::empty_with(1, 10, 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(1, 10);
         processor.process(&mut context, &mut buffer);
 
         // Trigger recording second looper
@@ -890,7 +905,8 @@ mod test {
                 processor.handle().get_looper_state(LooperId(1)),
                 LooperState::RecordingScheduled
             );
-            let mut buffer = VecAudioBuffer::empty_with(1, 1, 0.0);
+            let mut buffer = AudioBuffer::empty();
+            buffer.resize(1, 1);
             processor.process(&mut context, &mut buffer);
         }
 
@@ -912,7 +928,8 @@ mod test {
                 processor.handle().get_looper_state(LooperId(1)),
                 LooperState::PlayingScheduled
             );
-            let mut buffer = VecAudioBuffer::empty_with(1, 1, 0.0);
+            let mut buffer = AudioBuffer::empty();
+            buffer.resize(1, 1);
             buffer.set(0, 0, i as f32);
             processor.process(&mut context, &mut buffer);
         }
@@ -924,11 +941,12 @@ mod test {
 
         // Test output; mute looper 0
         processor.handle().set_volume(LooperId(0), 0.0);
-        let mut buffer = VecAudioBuffer::empty_with(1, 40, 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(1, 40);
         processor.process(&mut context, &mut buffer);
         assert_eq!(
             &buffer
-                .slice()
+                .channel(0)
                 .iter()
                 .map(|f| (f * 10.0) as usize)
                 // TODO - This is broken; the clip should be 40 samples long
@@ -943,8 +961,9 @@ mod test {
         );
     }
 
-    fn range_buffer(num_samples: usize) -> VecAudioBuffer<f32> {
-        let mut buffer = VecAudioBuffer::empty_with(1, num_samples, 0.0);
+    fn range_buffer(num_samples: usize) -> AudioBuffer<f32> {
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(1, num_samples);
         for i in 0..num_samples {
             buffer.set(0, i, i as f32);
         }
@@ -992,15 +1011,17 @@ mod test {
     fn test_map_lfo_to_pitch_modulation() {
         let mut settings = AudioProcessorSettings::default();
         settings.sample_rate = 100.0;
+        settings.input_channels = 1;
+        settings.output_channels = 1;
         let mut context = AudioContext::from(settings);
         let mut looper = MultiTrackLooper::new(Default::default(), 1);
         let looper_voice = looper.handle.voices()[0].looper().clone();
 
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(10.0));
-        let mut buffer = VecAudioBuffer::from(buffer);
-        looper_voice.set_looper_buffer(&buffer.interleaved());
+        let buffer = AudioBuffer::from_interleaved(1, &buffer);
+        looper_voice.set_looper_buffer(&buffer);
         looper_voice.play();
 
         let pitch_parameter = ParameterId::ParameterIdSource(SourceParameter::Pitch);
@@ -1009,7 +1030,8 @@ mod test {
             .add_lfo_mapping(LooperId(0), 0, pitch_parameter, 1.0);
 
         let num_blocks = buffer.num_samples() as usize / settings.block_size();
-        let mut output = VecAudioBuffer::empty_with(1, settings.block_size(), 0.0);
+        let mut output = AudioBuffer::empty();
+        output.resize(1, settings.block_size());
         for _i in 0..num_blocks {
             looper.process(&mut context, &mut output);
         }
