@@ -139,7 +139,7 @@ where
             }
         }
         #[cfg(not(feature = "midi"))]
-        std::mem::forget(block_num); // suppress unused error
+        let _ = block_num; // suppress unused error
 
         app.processor().process(&mut context, &mut buffer);
 

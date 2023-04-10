@@ -47,7 +47,7 @@ mod samplerate_impl {
 
     pub fn process<T: AsRef<[f32]>>(
         decoder: &mut Decoder,
-        block: &Vec<T>,
+        block: &[T],
     ) -> Result<Vec<Vec<f32>>, DecoderError> {
         let num_channels = block.len();
         let num_samples = block[0].as_ref().len();
@@ -102,7 +102,7 @@ pub mod rubato_impl {
 
     pub fn process<T: AsRef<[f32]>>(
         decoder: &mut Decoder,
-        block: &Vec<T>,
+        block: &[T],
     ) -> Result<Vec<Vec<f32>>, DecoderError> {
         decoder.process(block, None)
     }

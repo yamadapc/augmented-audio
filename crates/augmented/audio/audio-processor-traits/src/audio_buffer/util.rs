@@ -26,7 +26,7 @@ use crate::AudioBuffer;
 /// Set all samples of an AudioBuffer to a constant
 pub fn set_all<SampleType>(buf: &mut AudioBuffer<SampleType>, value: SampleType)
 where
-    SampleType: Clone + Copy,
+    SampleType: Clone,
 {
     for sample in buf.slice_mut() {
         *sample = value.clone();

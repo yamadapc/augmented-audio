@@ -184,7 +184,7 @@ impl<'a> Iterator for FileFramesStream<'a> {
     type Item = Vec<Vec<f32>>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        while let Some(block) = self.audio_file_stream.next() {
+        for block in self.audio_file_stream.by_ref() {
             let channels = block.spec().channels.count();
             self.rate = block.spec().rate;
             self.buffer.resize(channels, Vec::new());
@@ -202,7 +202,7 @@ impl<'a> Iterator for FileFramesStream<'a> {
             }
         }
 
-        if self.buffer[0].len() > 0 {
+        if !self.buffer[0].is_empty() {
             let mut result = Vec::new();
             for channel in 0..self.buffer.len() {
                 let mut channel_buffer: Vec<f32> = self.buffer[channel].drain(..).collect();
