@@ -94,6 +94,12 @@ impl<Processor: MonoAudioProcessor> MultiChannel<Processor> {
             factory: Box::new(factory),
         }
     }
+
+    pub fn for_each(&mut self, mut f: impl FnMut(&mut Processor)) {
+        for processor in &mut self.processors {
+            f(processor);
+        }
+    }
 }
 
 impl<Processor: MonoAudioProcessor> AudioProcessor for MultiChannel<Processor> {
