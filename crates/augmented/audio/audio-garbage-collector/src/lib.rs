@@ -212,7 +212,7 @@ mod test {
     fn test_get_global_gc() {
         let gc = current();
         assert!(gc.blocking_collect());
-        assert!(gc.blocking_alloc_count() >= 0)
+        let _ = gc.blocking_alloc_count();
     }
 
     #[test]
@@ -226,7 +226,7 @@ mod test {
         c.set(make_shared(22));
         assert_eq!(*c.get(), 22);
         drop(c);
-        assert!(current().blocking_alloc_count() >= 0);
+        let _ = current().blocking_alloc_count();
         current().blocking_collect();
     }
 

@@ -276,6 +276,24 @@
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/vendor/macos_ui/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/vendor/macos_ui/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/vendor/macos_ui/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/flutter_timezone/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/flutter_timezone/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/flutter_timezone/build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/flutter_timezone/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/flutter_timezone/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/flutter_timezone/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/path_provider_foundation/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/path_provider_foundation/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/path_provider_foundation/build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/path_provider_foundation/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/path_provider_foundation/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/ios/.symlinks/plugins/path_provider_foundation/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/example/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />

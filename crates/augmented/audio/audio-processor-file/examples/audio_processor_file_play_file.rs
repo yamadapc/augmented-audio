@@ -63,6 +63,7 @@ fn run_audio(mut processor: impl AudioProcessor<SampleType = f32> + Send + 'stat
                 processor.process(&mut context, &mut buffer);
             },
             |err| log::error!("CPAL stream error: {}", err),
+            None,
         )
         .unwrap();
     std::thread::park();
