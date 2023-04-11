@@ -7,9 +7,10 @@ import 'package:mobx/mobx.dart';
 
 class MetronomeSceneBack extends GSprite {
   MetronomeStateModel model;
+  Color strokeColor;
   Dispose? subscription;
 
-  MetronomeSceneBack(this.model);
+  MetronomeSceneBack(this.model, this.strokeColor);
 
   @override
   void addedToStage() {
@@ -49,8 +50,7 @@ class MetronomeSceneBack extends GSprite {
 
       if (isTick) {
         final Paint strokePaint = Paint();
-        strokePaint.color =
-            CupertinoColors.white.withOpacity(1.0 * playheadMod1);
+        strokePaint.color = strokeColor.withOpacity(1.0 * playheadMod1);
         final rect =
             Rect.fromCircle(center: offset, radius: rectWidth / 2.0 - 3);
         final rrect =

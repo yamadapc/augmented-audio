@@ -17,7 +17,7 @@ class VolumeControl extends StatelessWidget {
     return Observer(
       builder: (_) => Column(
         children: [
-          Text("Volume"),
+          const Text("Volume"),
           SizedBox(
             width: double.infinity,
             child: PlatformSlider(

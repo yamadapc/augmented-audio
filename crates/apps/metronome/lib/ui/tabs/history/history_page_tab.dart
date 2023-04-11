@@ -4,10 +4,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/history_state_controller.dart';
 import 'package:metronome/modules/state/history_state_model.dart';
+import 'package:metronome/ui/controls/platform/platform_segmented_control.dart';
 import 'package:metronome/ui/tabs/history/history_chart.dart';
 import 'package:metronome/ui/tabs/history/history_list_item.dart';
-
-import '../../controls/platform/platform_segmented_control.dart';
 
 class HistoryPageTab extends StatefulWidget {
   final HistoryStateController stateController;

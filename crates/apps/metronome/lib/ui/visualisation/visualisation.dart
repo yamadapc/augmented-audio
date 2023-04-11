@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
+import 'package:metronome/ui/app.dart';
 import 'package:metronome/ui/visualisation/scene.dart';
 
 class ElapsedBeatsVisualisation extends StatelessWidget {
@@ -117,7 +118,12 @@ class Visualisation extends StatelessWidget {
                   autoUpdateRender: false,
                   painterWillChange: false,
                 ),
-                back: MetronomeSceneBack(model),
+                back: MetronomeSceneBack(
+                  model,
+                  brightness.value == Brightness.light
+                      ? CupertinoColors.systemGrey5
+                      : CupertinoColors.white,
+                ),
               ),
             ),
           ),
