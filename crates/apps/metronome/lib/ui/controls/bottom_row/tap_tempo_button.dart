@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:metronome/modules/state/tap_tempo_controller.dart';
+import 'package:metronome/ui/constants.dart';
 
 class TapTempoButton extends StatelessWidget {
   const TapTempoButton({
@@ -17,9 +19,9 @@ class TapTempoButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 70,
-      child: CupertinoButton(
+      child: PlatformElevatedButton(
         color: CupertinoColors.activeBlue.withOpacity(0.8),
-        padding: const EdgeInsets.all(14),
+        padding: buttonPadding,
         onPressed: () {
           tapTempoController.onPress();
         },

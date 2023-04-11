@@ -1,10 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:macos_ui/macos_ui.dart';
 import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/ui/constants.dart';
 
 class SoundSelector extends StatelessWidget {
   final MetronomeStateController stateController;
@@ -54,17 +57,44 @@ class SoundSelectorMobile extends StatelessWidget {
               (element) => element.tag == stateController.model.sound,
             )
             .name;
-        return SizedBox(
-          width: double.infinity,
-          child: CupertinoButton(
-            color: CupertinoColors.activeBlue.withOpacity(0.8),
-            child: Text(
-              "Change sound ($selectedSoundName)",
-              style: const TextStyle(color: CupertinoColors.white),
+        return PlatformWidget(
+          material: (_, __) => ButtonTheme(
+            alignedDropdown: true,
+            child: DropdownButton<MetronomeSound>(
+              isExpanded: true,
+              hint: const Text("Select sound"),
+              value: sounds.firstWhere(
+                (element) => element.tag == stateController.model.sound,
+              ),
+              // dropdownColor: CupertinoColors.activeBlue.withOpacity(0.8),
+              items: sounds
+                  .map(
+                    (e) => DropdownMenuItem(
+                      value: e,
+                      child: Padding(
+                        padding: buttonPadding,
+                        child: Text(e.name),
+                      ),
+                    ),
+                  )
+                  .toList(),
+              onChanged: (MetronomeSound? e) =>
+                  stateController.setSound(e!.tag),
             ),
-            onPressed: () {
-              _showDialog(context);
-            },
+          ),
+          cupertino: (_, __) => SizedBox(
+            width: double.infinity,
+            child: PlatformElevatedButton(
+              color: CupertinoColors.activeBlue.withOpacity(0.8),
+              padding: buttonPadding,
+              child: Text(
+                "Change sound ($selectedSoundName)",
+                style: const TextStyle(color: CupertinoColors.white),
+              ),
+              onPressed: () {
+                _showDialog(context);
+              },
+            ),
           ),
         );
       },
@@ -72,7 +102,7 @@ class SoundSelectorMobile extends StatelessWidget {
   }
 
   void _showDialog(BuildContext context) {
-    showCupertinoModalPopup(
+    showPlatformModalSheet(
       context: context,
       builder: (ctx) => Container(
         color: CupertinoColors.secondarySystemBackground.resolveFrom(context),

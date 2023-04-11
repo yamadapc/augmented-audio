@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
@@ -20,7 +22,7 @@ class ElapsedBeatsVisualisation extends StatelessWidget {
       height: 30,
       decoration: BoxDecoration(
         border: Border.all(color: CupertinoColors.secondarySystemFill),
-        borderRadius: BorderRadius.circular(6.0),
+        borderRadius: BorderRadius.circular(Platform.isAndroid ? 1000 : 6.0),
         color: CupertinoColors.secondarySystemBackground
             .resolveFrom(context)
             .withOpacity(0.7),
@@ -62,7 +64,7 @@ class ElapsedTimeVisualisation extends StatelessWidget {
       height: 30,
       decoration: BoxDecoration(
         border: Border.all(color: CupertinoColors.secondarySystemFill),
-        borderRadius: BorderRadius.circular(6.0),
+        borderRadius: BorderRadius.circular(Platform.isAndroid ? 10000 : 6.0),
         color: CupertinoColors.secondarySystemBackground
             .resolveFrom(context)
             .withOpacity(0.7),

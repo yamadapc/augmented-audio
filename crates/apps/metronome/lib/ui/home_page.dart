@@ -2,7 +2,8 @@ import 'dart:ffi';
 import 'dart:io' as io;
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/logger.dart';
 import 'package:metronome/modules/context/app_context.dart';
@@ -127,20 +128,19 @@ class HomePageContents extends StatelessWidget {
       return const Center(child: Text("Loading..."));
     }
 
-    return CupertinoTabScaffold(
-      tabBar: CupertinoTabBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.play_arrow_solid),
-            label: "Metronome",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.book),
-            label: "History",
-          )
-        ],
-      ),
-      tabBuilder: (context, index) {
+    return PlatformTabScaffold(
+      tabController: PlatformTabController(),
+      items: [
+        BottomNavigationBarItem(
+          icon: Icon(PlatformIcons(context).playArrowSolid),
+          label: "Metronome",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(PlatformIcons(context).book),
+          label: "History",
+        ),
+      ],
+      bodyBuilder: (context, index) {
         if (index == 0) {
           return MainPageTab(
             key: const Key("MainPageTab"),

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:graphx/graphx.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
@@ -36,7 +38,7 @@ class MetronomeSceneBack extends GSprite {
     var left = (width - (rectWidth + padding) * beatsPerBar) / 2.0;
     final top = height / 2.0;
 
-    final borderRadius = rectWidth * 0.2;
+    final borderRadius = Platform.isAndroid ? rectWidth : rectWidth * 0.2;
 
     for (var i = 0; i < beatsPerBar; i++) {
       final isTick = playheadValue % beatsPerBar >= i &&

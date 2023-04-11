@@ -20,6 +20,7 @@ dependencies:
     sdk: flutter
   flutter_local_notifications: ^13.0.0
   flutter_mobx: ^2.0.6+5
+  flutter_platform_widgets: ^3.2.1
   flutter_timezone: ^1.0.4
   flutter_rust_bridge: ^1.62.0
   graphx: ^1.0.12

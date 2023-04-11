@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 
 class VolumeControl extends StatelessWidget {
@@ -16,10 +17,10 @@ class VolumeControl extends StatelessWidget {
     return Observer(
       builder: (_) => Column(
         children: [
-          const Text("Volume"),
+          Text("Volume"),
           SizedBox(
             width: double.infinity,
-            child: CupertinoSlider(
+            child: PlatformSlider(
               value: model.volume,
               onChanged: (value) {
                 stateController.setVolume(value);

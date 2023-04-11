@@ -411,6 +411,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.6+5"
+  flutter_platform_widgets:
+    dependency: "direct main"
+    description:
+      name: flutter_platform_widgets
+      sha256: "54c0addd1651d031f4714b000a34e3763a36ff6a972aa8d8fdf6167f1b9b6648"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.2.1"
   flutter_rust_bridge:
     dependency: "direct main"
     description:
@@ -1173,4 +1181,4 @@ packages:
     version: "2.1.0"
 sdks:
   dart: ">=2.19.0 <3.0.0"
-  flutter: ">=3.3.0"
+  flutter: ">=3.7.0"

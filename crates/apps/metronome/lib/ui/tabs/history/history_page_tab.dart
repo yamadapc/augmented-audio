@@ -1,13 +1,13 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/history_state_controller.dart';
 import 'package:metronome/modules/state/history_state_model.dart';
-import 'package:metronome/ui/controls/beats_per_bar_control.dart';
 import 'package:metronome/ui/tabs/history/history_chart.dart';
 import 'package:metronome/ui/tabs/history/history_list_item.dart';
+
+import '../../controls/platform/platform_segmented_control.dart';
 
 class HistoryPageTab extends StatefulWidget {
   final HistoryStateController stateController;
@@ -102,13 +102,20 @@ class HistoryResolutionControl extends StatelessWidget {
       builder: (context) => Container(
         width: double.infinity,
         padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
-        child: CupertinoSegmentedControl(
-          groupValue: historyStateController.model.historyResolution,
-          children: {
-            HistoryResolution.weeks: segmentedControlText("Weeks"),
-            HistoryResolution.days: segmentedControlText("Days"),
+        child: PlatformSegmentedControl(
+          value: historyStateController.model.historyResolution,
+          options: const [
+            HistoryResolution.weeks,
+            HistoryResolution.days,
+          ],
+          optionLabelBuilder: (HistoryResolution value) {
+            switch (value) {
+              case HistoryResolution.weeks:
+                return "Weeks";
+              case HistoryResolution.days:
+                return "Days";
+            }
           },
-          padding: EdgeInsets.zero,
           onValueChanged: (HistoryResolution value) {
             historyStateController.model.historyResolution = value;
           },

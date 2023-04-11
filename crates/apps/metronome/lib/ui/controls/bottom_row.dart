@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/ui/constants.dart';
 import 'package:metronome/ui/controls/bottom_row/tap_tempo_button.dart';
 
 class BottomRow extends StatelessWidget {
@@ -15,8 +17,9 @@ class BottomRow extends StatelessWidget {
     return Row(
       children: [
         Expanded(
-          child: CupertinoButton(
+          child: PlatformElevatedButton(
             key: const Key("PlayButton"),
+            padding: buttonPadding,
             color: CupertinoColors.activeBlue,
             onPressed: () {
               stateController.toggleIsPlaying();
