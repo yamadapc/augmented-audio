@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io' as io;
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:metronome/bridge_generated.dart';
@@ -14,8 +15,9 @@ import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
 import 'package:metronome/ui/tabs/history/history_page_tab.dart';
 import 'package:metronome/ui/tabs/main_tab.dart';
+import 'package:path_provider/path_provider.dart';
 
-Metronome buildMetronome() {
+Future<Metronome> buildMetronome() async {
   const name = "metronome";
   final metronome = MetronomeImpl(
     io.Platform.isIOS || io.Platform.isMacOS
@@ -23,7 +25,14 @@ Metronome buildMetronome() {
         : DynamicLibrary.open("lib$name.so"),
   );
 
-  metronome.initialize();
+  final Directory applicationDocumentsDirectory =
+      await getApplicationDocumentsDirectory();
+  final options = InitializeOptions(
+    assetsFilePath: io.Platform.isAndroid
+        ? "${applicationDocumentsDirectory.parent.path}/files"
+        : null,
+  );
+  metronome.initialize(options: options);
   return metronome;
 }
 
@@ -40,7 +49,7 @@ class _HomePageState extends State<HomePage> {
   final HistoryStateModel historyStateModel = HistoryStateModel();
   final MetronomeStateModel metronomeStateModel = MetronomeStateModel();
 
-  late Metronome metronome;
+  Metronome? metronome;
   MetronomeStateController? metronomeStateController;
   HistoryStateController? historyStateController;
 
@@ -50,13 +59,14 @@ class _HomePageState extends State<HomePage> {
     final trace = performance.newTrace("init-sequence");
     trace.start();
 
-    logger.i("Initializing metronome bridge");
-    metronome = buildMetronome();
+    Future<void> runInitSequence() async {
+      logger.i("Initializing metronome bridge");
+      final metronome = await buildMetronome();
+      this.metronome = metronome;
+      logger.i("Initializing database");
+      final database = await buildDatabase();
 
-    final databasePromise = buildDatabase();
-    databasePromise.then((database) {
-      logger.i("Setting-up controllers");
-
+      logger.i("Initializing controllers");
       historyStateController =
           HistoryStateController(database.sessionDao, historyStateModel);
       final historyController = HistoryStartStopHandler(
@@ -65,6 +75,7 @@ class _HomePageState extends State<HomePage> {
         historyStateController!,
       );
 
+      logger.i("Finishing init sequence");
       setState(() {
         metronomeStateController = MetronomeStateController(
           metronomeStateModel,
@@ -76,7 +87,9 @@ class _HomePageState extends State<HomePage> {
 
         trace.stop();
       });
-    }).catchError((err) {
+    }
+
+    runInitSequence().catchError((err) {
       logger.e("ERROR: $err");
     });
 
@@ -85,7 +98,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void deactivate() {
-    metronome.deinitialize();
+    metronome?.deinitialize();
     super.deactivate();
   }
 

@@ -11,7 +11,7 @@ import 'package:uuid/uuid.dart';
 import 'dart:ffi' as ffi;
 
 abstract class Metronome {
-  Future<int> initialize({dynamic hint});
+  Future<int> initialize({required InitializeOptions options, dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kInitializeConstMeta;
 
@@ -44,6 +44,14 @@ abstract class Metronome {
   FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta;
 }
 
+class InitializeOptions {
+  final String? assetsFilePath;
+
+  const InitializeOptions({
+    this.assetsFilePath,
+  });
+}
+
 enum MetronomeSoundTypeTag {
   Sine,
   Tube,
@@ -60,12 +68,13 @@ class MetronomeImpl implements Metronome {
   factory MetronomeImpl.wasm(FutureOr<WasmModule> module) =>
       MetronomeImpl(module as ExternalLibrary);
   MetronomeImpl.raw(this._platform);
-  Future<int> initialize({dynamic hint}) {
+  Future<int> initialize({required InitializeOptions options, dynamic hint}) {
+    var arg0 = _platform.api2wire_box_autoadd_initialize_options(options);
     return _platform.executeNormal(FlutterRustBridgeTask(
-      callFfi: (port_) => _platform.inner.wire_initialize(port_),
+      callFfi: (port_) => _platform.inner.wire_initialize(port_, arg0),
       parseSuccessData: _wire2api_i32,
       constMeta: kInitializeConstMeta,
-      argValues: [],
+      argValues: [options],
       hint: hint,
     ));
   }
@@ -73,7 +82,7 @@ class MetronomeImpl implements Metronome {
   FlutterRustBridgeTaskConstMeta get kInitializeConstMeta =>
       const FlutterRustBridgeTaskConstMeta(
         debugName: "initialize",
-        argNames: [],
+        argNames: ["options"],
       );
 
   Future<int> deinitialize({dynamic hint}) {
@@ -228,6 +237,12 @@ int api2wire_i32(int raw) {
 int api2wire_metronome_sound_type_tag(MetronomeSoundTypeTag raw) {
   return api2wire_i32(raw.index);
 }
+
+@protected
+int api2wire_u8(int raw) {
+  return raw;
+}
+
 // Section: finalizer
 
 class MetronomePlatform extends FlutterRustBridgeBase<MetronomeWire> {
@@ -235,9 +250,43 @@ class MetronomePlatform extends FlutterRustBridgeBase<MetronomeWire> {
 
 // Section: api2wire
 
+  @protected
+  ffi.Pointer<wire_uint_8_list> api2wire_String(String raw) {
+    return api2wire_uint_8_list(utf8.encoder.convert(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_InitializeOptions> api2wire_box_autoadd_initialize_options(
+      InitializeOptions raw) {
+    final ptr = inner.new_box_autoadd_initialize_options_0();
+    _api_fill_to_wire_initialize_options(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_uint_8_list> api2wire_opt_String(String? raw) {
+    return raw == null ? ffi.nullptr : api2wire_String(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_uint_8_list> api2wire_uint_8_list(Uint8List raw) {
+    final ans = inner.new_uint_8_list_0(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
 // Section: finalizer
 
 // Section: api_fill_to_wire
+
+  void _api_fill_to_wire_box_autoadd_initialize_options(
+      InitializeOptions apiObj, ffi.Pointer<wire_InitializeOptions> wireObj) {
+    _api_fill_to_wire_initialize_options(apiObj, wireObj.ref);
+  }
+
+  void _api_fill_to_wire_initialize_options(
+      InitializeOptions apiObj, wire_InitializeOptions wireObj) {
+    wireObj.assets_file_path = api2wire_opt_String(apiObj.assetsFilePath);
+  }
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -338,17 +387,20 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
 
   void wire_initialize(
     int port_,
+    ffi.Pointer<wire_InitializeOptions> options,
   ) {
     return _wire_initialize(
       port_,
+      options,
     );
   }
 
-  late final _wire_initializePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_initialize');
-  late final _wire_initialize =
-      _wire_initializePtr.asFunction<void Function(int)>();
+  late final _wire_initializePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64,
+              ffi.Pointer<wire_InitializeOptions>)>>('wire_initialize');
+  late final _wire_initialize = _wire_initializePtr
+      .asFunction<void Function(int, ffi.Pointer<wire_InitializeOptions>)>();
 
   void wire_deinitialize(
     int port_,
@@ -458,6 +510,32 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
   late final _wire_get_playhead =
       _wire_get_playheadPtr.asFunction<void Function(int)>();
 
+  ffi.Pointer<wire_InitializeOptions> new_box_autoadd_initialize_options_0() {
+    return _new_box_autoadd_initialize_options_0();
+  }
+
+  late final _new_box_autoadd_initialize_options_0Ptr = _lookup<
+          ffi.NativeFunction<ffi.Pointer<wire_InitializeOptions> Function()>>(
+      'new_box_autoadd_initialize_options_0');
+  late final _new_box_autoadd_initialize_options_0 =
+      _new_box_autoadd_initialize_options_0Ptr
+          .asFunction<ffi.Pointer<wire_InitializeOptions> Function()>();
+
+  ffi.Pointer<wire_uint_8_list> new_uint_8_list_0(
+    int len,
+  ) {
+    return _new_uint_8_list_0(
+      len,
+    );
+  }
+
+  late final _new_uint_8_list_0Ptr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<wire_uint_8_list> Function(
+              ffi.Int32)>>('new_uint_8_list_0');
+  late final _new_uint_8_list_0 = _new_uint_8_list_0Ptr
+      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
+
   void free_WireSyncReturn(
     WireSyncReturn ptr,
   ) {
@@ -471,9 +549,36 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
           'free_WireSyncReturn');
   late final _free_WireSyncReturn =
       _free_WireSyncReturnPtr.asFunction<void Function(WireSyncReturn)>();
+
+  int JNI_OnLoad(
+    int vm,
+    ffi.Pointer<ffi.Void> res,
+  ) {
+    return _JNI_OnLoad(
+      vm,
+      res,
+    );
+  }
+
+  late final _JNI_OnLoadPtr = _lookup<
+          ffi.NativeFunction<ffi.Int Function(ffi.Int, ffi.Pointer<ffi.Void>)>>(
+      'JNI_OnLoad');
+  late final _JNI_OnLoad =
+      _JNI_OnLoadPtr.asFunction<int Function(int, ffi.Pointer<ffi.Void>)>();
 }
 
 class _Dart_Handle extends ffi.Opaque {}
+
+class wire_uint_8_list extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+class wire_InitializeOptions extends ffi.Struct {
+  external ffi.Pointer<wire_uint_8_list> assets_file_path;
+}
 
 typedef DartPostCObjectFnType = ffi.Pointer<
     ffi.NativeFunction<

@@ -21,14 +21,20 @@ use std::sync::Arc;
 
 // Section: wire functions
 
-fn wire_initialize_impl(port_: MessagePort) {
+fn wire_initialize_impl(
+    port_: MessagePort,
+    options: impl Wire2Api<InitializeOptions> + UnwindSafe,
+) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap(
         WrapInfo {
             debug_name: "initialize",
             port: Some(port_),
             mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| initialize(),
+        move || {
+            let api_options = options.wire2api();
+            move |task_callback| initialize(api_options)
+        },
     )
 }
 fn wire_deinitialize_impl(port_: MessagePort) {
@@ -141,11 +147,13 @@ where
         (!self.is_null()).then(|| self.wire2api())
     }
 }
+
 impl Wire2Api<bool> for bool {
     fn wire2api(self) -> bool {
         self
     }
 }
+
 impl Wire2Api<f32> for f32 {
     fn wire2api(self) -> f32 {
         self
@@ -156,6 +164,7 @@ impl Wire2Api<i32> for i32 {
         self
     }
 }
+
 impl Wire2Api<MetronomeSoundTypeTag> for i32 {
     fn wire2api(self) -> MetronomeSoundTypeTag {
         match self {
@@ -167,6 +176,13 @@ impl Wire2Api<MetronomeSoundTypeTag> for i32 {
         }
     }
 }
+
+impl Wire2Api<u8> for u8 {
+    fn wire2api(self) -> u8 {
+        self
+    }
+}
+
 // Section: impl IntoDart
 
 // Section: executor

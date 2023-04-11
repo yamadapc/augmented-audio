@@ -1,3 +1,7 @@
+use std::collections::HashMap;
+use std::hash::Hash;
+use std::path::PathBuf;
+
 // = copyright ====================================================================
 // Simple Metronome: macOS Metronome app
 // Copyright (C) 2022  Pedro Tacla Yamada
@@ -21,31 +25,34 @@ use audio_processor_metronome::{
     MetronomeSoundType,
 };
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
-use std::collections::HashMap;
-use std::hash::Hash;
 
 struct LoadedSound {
     sound: MetronomeSoundType,
     file_path: String,
 }
 
-fn load_sounds() -> Option<Vec<LoadedSound>> {
-    let sounds_path =
-        macos_bundle_resources::get_path("com.beijaflor.metronome", "sounds", None, None)?;
-    let sounds_path = sounds_path.to_str()?;
-    let sounds_path = urlencoding::decode(sounds_path).ok()?.into_owned();
-    let sounds_path = sounds_path.replace("file://", "");
-    log::info!("Found sounds path: {:?}", sounds_path);
+fn load_sounds(assets_path: Option<String>) -> Option<Vec<LoadedSound>> {
+    let sounds_path = assets_path.or_else(|| {
+        let sounds_path =
+            macos_bundle_resources::get_path("com.beijaflor.metronome", "sounds", None, None)?;
+        let sounds_path = sounds_path.to_str()?;
+        let sounds_path = urlencoding::decode(sounds_path).ok()?.into_owned();
+        Some(sounds_path.replace("file://", ""))
+    })?;
+    log::info!("Found sounds path sounds_path={:?}", sounds_path);
     let settings = audio_processor_traits::AudioProcessorSettings::default();
 
     let file_sounds: Vec<LoadedSound> = {
-        let sound_file_paths = std::fs::read_dir(sounds_path).ok()?;
+        let sound_file_paths: Vec<PathBuf> = std::fs::read_dir(sounds_path)
+            .ok()?
+            .filter_map(|file_path| file_path.ok())
+            .map(|file_path| file_path.path())
+            .collect();
         log::info!("Found sounds: {:?}", sound_file_paths);
 
         let sounds = sound_file_paths
-            .filter_map(|p| p.ok())
-            .filter_map(|file_path| {
-                let path = file_path.path();
+            .iter()
+            .filter_map(|path| {
                 let file_path = path.to_str()?;
                 let processor = audio_processor_file::AudioFileProcessor::from_path(
                     audio_garbage_collector::handle(),
@@ -94,9 +101,15 @@ pub struct AppAudioProcessor {
     tag: MetronomeSoundTypeTag,
 }
 
-pub fn build_app_processor() -> (ringbuf::Producer<AppAudioThreadMessage>, AppAudioProcessor) {
+pub struct BuildAppProcessorOptions {
+    pub assets_file_path: Option<String>,
+}
+
+pub fn build_app_processor(
+    options: BuildAppProcessorOptions,
+) -> (ringbuf::Producer<AppAudioThreadMessage>, AppAudioProcessor) {
     // Load sounds
-    let sounds = load_sounds().unwrap_or_default();
+    let sounds = load_sounds(options.assets_file_path).unwrap_or_default();
     log::info!(
         "Loaded sounds {:?}",
         sounds
@@ -107,7 +120,7 @@ pub fn build_app_processor() -> (ringbuf::Producer<AppAudioThreadMessage>, AppAu
 
     let mut sounds_map: HashMap<MetronomeSoundTypeTag, MetronomeSoundType> = HashMap::default();
     let mut known_sounds: HashMap<String, MetronomeSoundTypeTag> = [
-        ("tube-click.wav", MetronomeSoundTypeTag::Tube),
+        ("tube_click.wav", MetronomeSoundTypeTag::Tube),
         ("snap.wav", MetronomeSoundTypeTag::Snap),
         ("glass.wav", MetronomeSoundTypeTag::Glass),
     ]

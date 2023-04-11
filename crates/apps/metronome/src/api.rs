@@ -17,6 +17,7 @@
 // = /copyright ===================================================================
 //! This module contains the public API exposed to flutter
 
+use std::sync::atomic::AtomicBool;
 use std::sync::atomic::Ordering;
 use std::time::Duration;
 
@@ -24,9 +25,10 @@ use anyhow::Result;
 use flutter_rust_bridge::StreamSink;
 use lazy_static::lazy_static;
 
+pub use crate::api::state::InitializeOptions;
+
 pub use self::processor::MetronomeSoundTypeTag;
 use self::state::{with_state, with_state0};
-use std::sync::atomic::AtomicBool;
 
 mod processor;
 mod state;
@@ -35,9 +37,9 @@ lazy_static! {
     pub static ref IS_RUNNING: AtomicBool = AtomicBool::new(false);
 }
 
-pub fn initialize() -> Result<i32> {
+pub fn initialize(options: InitializeOptions) -> Result<i32> {
     IS_RUNNING.store(true, Ordering::Relaxed);
-    state::initialize();
+    state::initialize(options);
     Ok(0)
 }
 
@@ -109,18 +111,18 @@ mod test {
 
     #[test]
     fn test_initialize() {
-        initialize().unwrap();
+        initialize(Default::default()).unwrap();
     }
 
     #[test]
     fn test_deinitialize() {
-        initialize().unwrap();
+        initialize(Default::default()).unwrap();
         deinitialize().unwrap();
     }
 
     #[test]
     fn test_set_is_playing() {
-        initialize().unwrap();
+        initialize(Default::default()).unwrap();
         let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
         set_is_playing(true).unwrap();
         assert_eq!(handle.is_playing(), true);
@@ -130,7 +132,7 @@ mod test {
 
     #[test]
     fn test_set_beats_per_bar() {
-        initialize().unwrap();
+        initialize(Default::default()).unwrap();
         let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
         set_beats_per_bar(5).unwrap();
         assert_eq!(handle.beats_per_bar(), 5);
@@ -140,7 +142,7 @@ mod test {
 
     #[test]
     fn test_set_volume() {
-        initialize().unwrap();
+        initialize(Default::default()).unwrap();
         let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
         set_volume(0.44).unwrap();
         assert_eq!(handle.volume(), 0.44);

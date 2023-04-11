@@ -38,8 +38,9 @@ mod android_init {
     ) -> jni::sys::jint {
         android_logger::init_once(
             android_logger::Config::default()
-                .with_max_level(log::LevelFilter::Trace)
-                .with_tag("metronome"),
+                .with_max_level(log::LevelFilter::Info)
+                .with_tag("metronome")
+                .with_tag("native"),
         );
         log::info!("JNI_OnLoad called");
         let _env = vm.get_env().unwrap();

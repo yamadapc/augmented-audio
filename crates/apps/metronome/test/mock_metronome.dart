@@ -21,7 +21,7 @@ class MockMetronomeLib implements Metronome {
   }
 
   @override
-  Future<int> initialize({dynamic hint}) {
+  Future<int> initialize({required InitializeOptions options, dynamic hint}) {
     return Future.value(0);
   }
 

@@ -31,9 +31,14 @@ use audio_processor_metronome::MetronomeProcessorHandle;
 use audio_processor_standalone::standalone_processor::StandaloneOptions;
 use audio_processor_standalone::{StandaloneAudioOnlyProcessor, StandaloneHandles};
 
-use crate::api::processor::{build_app_processor, AppAudioThreadMessage};
+use crate::api::processor::{build_app_processor, AppAudioThreadMessage, BuildAppProcessorOptions};
 
 type StandaloneMetronomeHandle = StandaloneHandles;
+
+#[derive(Default, Debug)]
+pub struct InitializeOptions {
+    pub assets_file_path: Option<String>,
+}
 
 pub struct State {
     _handles: StandaloneMetronomeHandle,
@@ -47,8 +52,11 @@ pub struct State {
 unsafe impl Send for State {}
 
 impl State {
-    pub fn new() -> Self {
-        let (app_processor_messages, app_processor) = build_app_processor();
+    pub fn new(options: InitializeOptions) -> Self {
+        let (app_processor_messages, app_processor) =
+            build_app_processor(BuildAppProcessorOptions {
+                assets_file_path: options.assets_file_path,
+            });
         let processor_handle = app_processor.metronome_handle().clone();
         let app = StandaloneAudioOnlyProcessor::new(
             app_processor,
@@ -71,19 +79,23 @@ lazy_static! {
     pub static ref STATE: Mutex<Option<State>> = Mutex::new(None);
 }
 
-pub fn initialize() {
+fn init_logger() {
     #[cfg(target_os = "android")]
     android_logger::init_once(
         android_logger::Config::default()
-            .with_max_level(log::LevelFilter::Trace)
-            .with_tag("metronome"),
+            .with_max_level(log::LevelFilter::Info)
+            .with_tag("metronome")
+            .with_tag("native"),
     );
-
     #[cfg(not(target_os = "android"))]
     wisual_logger::init_from_env();
-    log::info!("Initializing metronome native API");
+}
+
+pub fn initialize(options: InitializeOptions) {
+    init_logger();
+    log::info!("Initializing metronome native API options={:?}", options);
     let mut state = STATE.lock().expect("initialize: Failed to lock state");
-    *state = Some(State::new());
+    *state = Some(State::new(options));
 }
 
 pub fn deinitialize() {
@@ -122,13 +134,13 @@ mod test {
     #[test]
     fn test_create_new_state() {
         let _lock = TEST_LOCK.lock().unwrap();
-        let _state = State::new();
+        let _state = State::new(Default::default());
     }
 
     #[test]
     fn test_initialize_global_state() {
         let _lock = TEST_LOCK.lock().unwrap();
-        initialize();
+        initialize(Default::default());
         let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
         assert_eq!(handle.position_beats(), 0.0);
     }
@@ -136,7 +148,7 @@ mod test {
     #[test]
     fn test_with_state0() {
         let _lock = TEST_LOCK.lock().unwrap();
-        initialize();
+        initialize(Default::default());
         let mut was_called = false;
         with_state(|state| {
             let handle = state.processor_handle.clone();
@@ -151,7 +163,7 @@ mod test {
     #[test]
     fn test_deinitialize() {
         let _lock = TEST_LOCK.lock().unwrap();
-        initialize();
+        initialize(Default::default());
         deinitialize();
     }
 }

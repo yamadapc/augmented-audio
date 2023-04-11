@@ -13,7 +13,10 @@ Observable<Brightness?> brightness =
 class App extends StatefulWidget {
   final Analytics analytics;
 
-  const App({Key? key, required this.analytics}) : super(key: key);
+  const App({
+    Key? key,
+    required this.analytics,
+  }) : super(key: key);
 
   @override
   State<App> createState() => _AppState();
