@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+audio-processor-testing-helpers = { version = "2.3.0", path = "../../testing/audio-processor-testing-helpers" }
 chrono = "0.4.24"
-serde = { version = "1.0.160", features = ["derive"] }
 clap = { version = "4.2.1", features = ["derive"] }
 dasp = { version = "0.11.0", features = ["all"] }
 env_logger = "0.10.0"
@@ -15,6 +15,8 @@ num-complex = "0.4.3"
 num-traits = "0.2.15"
 rayon = "1.7.0"
 rustfft = "6.1.0"
+tempdir = "0.3.7"
+serde = { version = "1.0.160", features = ["derive"] }
 tera = "1.18.1"
 tokio = { version = "1.27.0", features = ["full"] }
 warp = "0.3.4"

@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::BufReader;
 use std::iter::repeat;
+use std::path::Path;
 use std::time::Duration;
 
 use clap::Parser;
@@ -51,6 +52,7 @@ impl From<WavSpec> for Spec {
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct AudioMetadata {
     path: String,
+    filename: String,
     duration_samples: u32,
     duration_seconds: f32,
     spec: Spec,
@@ -90,6 +92,12 @@ async fn main() {
         .iter()
         .map(|(path, reader)| AudioMetadata {
             path: path.clone(),
+            filename: Path::new(path)
+                .file_name()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string(),
             duration_samples: reader.duration() as u32,
             duration_seconds: Duration::from_millis(
                 (reader.duration() / reader.spec().sample_rate * 1000 as u32) as u64,
@@ -112,6 +120,11 @@ async fn main() {
         .collect::<Vec<(String, Vec<[f32; 2]>)>>();
     log::debug!("Read files.");
 
+    let image_paths = files
+        .iter()
+        .map(|(name, file)| draw_audio_file(name, file))
+        .collect::<Vec<_>>();
+
     let mut similarities = Vec::new();
 
     for (i, (name1, file1)) in files.iter().enumerate() {
@@ -133,10 +146,35 @@ async fn main() {
         metadatas,
     });
 
+    let images_dir = tempdir::TempDir::new("audio-compare").expect("Failed to create temp dir");
+    std::fs::create_dir_all(format!("{}/images", images_dir.path().display()))
+        .expect("Failed to create images dir");
+    image_paths.iter().for_each(|image| {
+        let image_name = Path::new(image).file_name().unwrap().to_str().unwrap();
+        let target = format!("{}/images/{}", images_dir.path().display(), image_name);
+        log::info!("Moving image {} to {}", image, target);
+        std::fs::rename(image, target).expect("Failed to move image file")
+    });
+
+    let images_dir_route = warp::path("images")
+        .and(warp::fs::dir(images_dir.path().join("images")))
+        .with(warp::log("images"));
     let home_route = warp::get()
         .and(warp::path::end())
-        .map(move || handle_get_home(&compare_results));
-    warp::serve(home_route).run(([127, 0, 0, 1], 3030)).await
+        .map(move || handle_get_home(&compare_results))
+        .with(warp::log("home"));
+    warp::serve(home_route.or(images_dir_route))
+        .run(([127, 0, 0, 1], 3030))
+        .await
+}
+
+fn draw_audio_file(name: &str, file: &[[f32; 2]]) -> String {
+    audio_processor_testing_helpers::charts::draw_vec_chart(
+        &name,
+        "audio",
+        file.iter().map(|[l, r]| l + r).collect::<Vec<_>>(),
+    );
+    format!("{}--{}.png", name, "audio")
 }
 
 fn handle_get_home(results: &CompareResults) -> warp::reply::Html<String> {
@@ -166,6 +204,11 @@ table td {
   padding: 2px 4px;
   box-sizing: border-box;
 }
+
+table td img {
+  max-width: 200px;
+  max-height: 200px;
+}
         </style>
     </head>
     <body>
@@ -179,6 +222,7 @@ table td {
                       <th>Sample rate</th>
                       <th>Channels</th>
                       <th>Bits per sample</th>
+                      <th>Image</th>
                  </tr>
                 </thead>
                 <tbody>
@@ -189,6 +233,9 @@ table td {
                             <td>{{ metadata.spec.sample_rate }}Hz</td>
                             <td>{{ metadata.spec.channels }}</td>
                             <td>{{ metadata.spec.bits_per_sample }}</td>
+                            <td>
+                                <img src="/images/{{ metadata.filename }}--audio.png" />
+                            </td>
                       </tr>
                  {% endfor %}
              </tbody>

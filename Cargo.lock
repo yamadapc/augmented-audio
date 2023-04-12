@@ -420,6 +420,7 @@ dependencies = [
 name = "audio-compare"
 version = "0.1.0"
 dependencies = [
+ "audio-processor-testing-helpers",
  "chrono",
  "clap 4.2.1",
  "dasp",
@@ -431,6 +432,7 @@ dependencies = [
  "rayon",
  "rustfft",
  "serde",
+ "tempdir",
  "tera",
  "tokio",
  "warp",
