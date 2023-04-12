@@ -1,0 +1,20 @@
+[package]
+name = "audio-compare"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = "0.4.24"
+serde = { version = "1.0.160", features = ["derive"] }
+clap = { version = "4.2.1", features = ["derive"] }
+dasp = { version = "0.11.0", features = ["all"] }
+env_logger = "0.10.0"
+hound = "3.5.0"
+log = "0.4"
+num-complex = "0.4.3"
+num-traits = "0.2.15"
+rayon = "1.7.0"
+rustfft = "6.1.0"
+tera = "1.18.1"
+tokio = { version = "1.27.0", features = ["full"] }
+warp = "0.3.4"

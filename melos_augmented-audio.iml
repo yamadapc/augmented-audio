@@ -114,6 +114,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/apps/looper/looper-processor/examples" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-processor-analysis/draw_spectrogram_window/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/vendor/xcb-util/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/augmented/development/audio-compare/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/spikes/example-druid-audio-viz/target" />
@@ -294,6 +295,7 @@
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/crates/apps/metronome/macos/Flutter/ephemeral/.symlinks/plugins/flutter_timezone/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/crates/augmented/development/audio-compare/target" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Dart SDK" level="project" />

@@ -55,6 +55,7 @@ members = [
     "crates/augmented/data/augmented-playhead",
     "crates/augmented/data/circular-data-structures",
     "crates/augmented/development/augmented-dev-cli",
+    "crates/augmented/development/audio-compare",
     "crates/augmented/development/bundler",
     "crates/augmented/dsp/convert-sample-rate",
     "crates/augmented/dsp/dsp-filters",
