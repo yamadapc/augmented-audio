@@ -92,9 +92,9 @@ async fn main() {
                 similarities.push(AudioSimilarityResult {
                     file1: name1.clone(),
                     file2: name2.clone(),
-                    cross_correlation_similarity,
-                    spectral_similarity,
-                    delta_magnitude,
+                    cross_correlation_similarity: cross_correlation_similarity.max(0.0),
+                    spectral_similarity: spectral_similarity.max(0.0),
+                    delta_magnitude: delta_magnitude.max(0.0),
                 });
             }
         }

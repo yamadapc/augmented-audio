@@ -333,6 +333,17 @@ mod test {
         (garbage_collector, audio_file_settings)
     }
 
+    #[test]
+    fn test_in_memory_audio_file_can_be_created_from_probe() {
+        let path = format!(
+            "{}{}",
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../../../input-files/1sec-sine.mp3"
+        );
+        let probe_result = file_io::default_read_audio_file(&path).unwrap();
+        let _audio_file = InMemoryAudioFile::new(probe_result);
+    }
+
     /**
      * Test a stopped audio processor is silent
      */

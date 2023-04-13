@@ -54,6 +54,7 @@ table td {
   border: 1px solid rgba(0,0,0,0.3);
   padding: 2px 4px;
   box-sizing: border-box;
+  white-space: nowrap;
 }
 
 table td img {
@@ -108,9 +109,9 @@ table td img {
                     <tr>
                         <td>{{ similarity.file1 }}</td>
                         <td>{{ similarity.file2 }}</td>
-                        <td>{{ similarity.cross_correlation_similarity | round(method="floor", precision=4) }}</td>
-                        <td>{{ similarity.spectral_similarity | round(method="floor", precision=4) }}</td>
-                        <td>{{ similarity.delta_magnitude | round(method="floor", precision=4) }}</td>
+                        <td>{{ similarity.cross_correlation_similarity | round(precision=4) }}</td>
+                        <td>{{ similarity.spectral_similarity | round(precision=4) }}</td>
+                        <td>{{ similarity.delta_magnitude | round(precision=4) }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -123,7 +124,7 @@ table td img {
     );
 
     warp::reply::html(result.unwrap_or_else(|err| {
-        log::error!("Failed to compile template: {}", err);
-        format!("Failed to compile template: {}", err)
+        log::error!("Failed to compile template: {:#?}", err);
+        format!("Failed to compile template: {:#?}", err)
     }))
 }
