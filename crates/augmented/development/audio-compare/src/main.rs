@@ -80,18 +80,21 @@ async fn main() {
                 let cross_correlation_similarity =
                     compute_cross_correlation_similarity(file1, file2);
                 let spectral_similarity = compute_spectral_similarity(file1, file2);
+                let delta_magnitude = compute_delta_magnitude(file1, file2);
                 log::info!(
-                    "Similarity between file1={} file2={} cross_correlation_similarity={} spectral_similarity={}",
+                    "Similarity between file1={} file2={} cross_correlation_similarity={} spectral_similarity={} delta_magnitude={}",
                     name1,
                     name2,
                     cross_correlation_similarity,
                     spectral_similarity,
+                    delta_magnitude
                 );
                 similarities.push(AudioSimilarityResult {
                     file1: name1.clone(),
                     file2: name2.clone(),
                     cross_correlation_similarity,
                     spectral_similarity,
+                    delta_magnitude,
                 });
             }
         }
@@ -125,6 +128,33 @@ fn read_file(reader: WavReader<BufReader<File>>) -> impl Signal<Frame = [f32; 2]
             .into_samples::<f32>()
             .map(|sample| sample.expect("Failed to read file")),
     )
+}
+
+fn compute_delta_magnitude(signal1: &[[f32; 2]], signal2: &[[f32; 2]]) -> f32 {
+    let left1: Vec<f32> = signal1.iter().map(|frame| frame[0]).collect();
+    let left2: Vec<f32> = signal2.iter().map(|frame| frame[0]).collect();
+    let right1: Vec<f32> = signal1.iter().map(|frame| frame[1]).collect();
+    let right2: Vec<f32> = signal2.iter().map(|frame| frame[1]).collect();
+
+    let delta_magnitudes: f32 = [(left1, left2), (right1, right2)]
+        .par_iter()
+        .map(|(s1, s2)| -> f32 {
+            // let norm: f32 =
+            //     s1.iter().map(|x| x.abs()).sum::<f32>() + s2.iter().map(|x| x.abs()).sum::<f32>();
+            let delta_sum = compute_delta_magnitude_mono(s1, s2);
+            delta_sum / (s1.len().max(s2.len()) as f32)
+        })
+        .sum();
+
+    delta_magnitudes
+}
+
+fn compute_delta_magnitude_mono(signal1: &[f32], signal2: &[f32]) -> f32 {
+    let mut delta_magnitude = 0.0;
+    for (s1, s2) in signal1.iter().zip(signal2.iter()) {
+        delta_magnitude += (s1 - s2).abs();
+    }
+    delta_magnitude
 }
 
 fn compute_cross_correlation_similarity(signal1: &[[f32; 2]], signal2: &[[f32; 2]]) -> f32 {
@@ -254,4 +284,81 @@ fn compute_spectral_similarity_mono(signal1: &[f32], signal2: &[f32]) -> f32 {
     let norm2 = magnitude2.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
 
     dot_product / (norm1 * norm2)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_cross_correlation_similarity_of_same_signal() {
+        let signal1 = vec![[1.0, 1.0], [1.0, 1.0], [1.0, 1.0], [1.0, 1.0]];
+        let signal2 = vec![[1.0, 1.0], [1.0, 1.0], [1.0, 1.0], [1.0, 1.0]];
+        let similarity = compute_cross_correlation_similarity(&signal1, &signal2);
+        assert_eq!(similarity, 1.0);
+    }
+
+    #[test]
+    fn test_identical_signals() {
+        let signal1 = vec![0.5, 0.2, 0.8, 0.3];
+        let signal2 = signal1.clone();
+        let similarity = compute_cross_correlation_similarity_mono(&signal1, &signal2);
+        assert!(
+            (similarity - 1.0).abs() < 1e-6,
+            "Similarity for identical signals should be 1.0"
+        );
+    }
+
+    #[test]
+    fn test_noisy_and_unrelated_signals() {
+        let signal1 = vec![1.0, -1.0, 1.0, -1.0];
+        let signal2 = vec![2.0, 2.0, -1.0, -1.0];
+        let similarity_unrelated = compute_cross_correlation_similarity_mono(&signal1, &signal2);
+
+        let noise = vec![0.1, -0.1, 0.1, -0.1];
+        let signal1_noisy: Vec<f32> = signal1
+            .iter()
+            .zip(noise.iter())
+            .map(|(s, n)| s + n)
+            .collect();
+        let similarity_noisy = compute_cross_correlation_similarity_mono(&signal1, &signal1_noisy);
+
+        assert!(
+            similarity_unrelated < similarity_noisy,
+            "Similarity for unrelated signals should be less than similarity for related signals with noise"
+        );
+    }
+
+    #[test]
+    fn test_shifted_signals() {
+        let signal1 = vec![0.5, 0.2, 0.8, 0.3, 0.0, 0.0];
+        let signal2 = vec![0.0, 0.0, 0.5, 0.2, 0.8, 0.3];
+        let similarity = compute_cross_correlation_similarity_mono(&signal1, &signal2);
+        assert!(
+            (similarity - 1.0).abs() < 1e-6,
+            "Similarity for shifted signals should be 1.0"
+        );
+    }
+
+    #[test]
+    fn test_spectral_similarity_identical_signals() {
+        let signal1 = vec![0.5, 0.2, 0.8, 0.3];
+        let signal2 = signal1.clone();
+        let similarity = compute_spectral_similarity_mono(&signal1, &signal2);
+        assert!(
+            (similarity - 1.0).abs() < 1e-6,
+            "Spectral similarity for identical signals should be 1.0"
+        );
+    }
+
+    #[test]
+    fn test_spectral_similarity_shifted_signals() {
+        let signal1 = vec![0.5, 0.2, 0.8, 0.3, 0.0, 0.0];
+        let signal2 = vec![0.0, 0.0, 0.5, 0.2, 0.8, 0.3];
+        let similarity = compute_spectral_similarity_mono(&signal1, &signal2);
+        assert!(
+            (similarity - 1.0).abs() < 1e-6,
+            "Spectral similarity for shifted signals should be 1.0"
+        );
+    }
 }

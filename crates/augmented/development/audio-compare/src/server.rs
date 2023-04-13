@@ -11,8 +11,8 @@ pub async fn start_server(image_paths: Vec<String>, compare_results: Arc<Compare
     image_paths.iter().for_each(|image| {
         let image_name = Path::new(image).file_name().unwrap().to_str().unwrap();
         let target = format!("{}/images/{}", images_dir.path().display(), image_name);
-        log::info!("Moving image {} to {}", image, target);
-        std::fs::rename(image, target).expect("Failed to move image file")
+        log::info!("Copying image {} to {}", image, target);
+        std::fs::copy(image, target).expect("Failed to move image file");
     });
 
     let images_dir_route = warp::path("images")
@@ -45,6 +45,7 @@ body {
 
 table {
   border-spacing: 0;
+  width: 100%;
 }
 
 table th,
@@ -99,6 +100,7 @@ table td img {
                     <th>File 2</th>
                     <th>Cross-correlation Similarity</th>
                     <th>Spectral similarity</th>
+                    <th>Delta magnitude</th>
                 </tr>
             </thead>
             <tbody>
@@ -106,8 +108,9 @@ table td img {
                     <tr>
                         <td>{{ similarity.file1 }}</td>
                         <td>{{ similarity.file2 }}</td>
-                        <td>{{ similarity.cross_correlation_similarity }}</td>
-                        <td>{{ similarity.spectral_similarity }}</td>
+                        <td>{{ similarity.cross_correlation_similarity | round(method="floor", precision=4) }}</td>
+                        <td>{{ similarity.spectral_similarity | round(method="floor", precision=4) }}</td>
+                        <td>{{ similarity.delta_magnitude | round(method="floor", precision=4) }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

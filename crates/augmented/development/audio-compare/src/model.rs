@@ -51,6 +51,7 @@ pub struct AudioSimilarityResult {
     pub file2: String,
     pub cross_correlation_similarity: f32,
     pub spectral_similarity: f32,
+    pub delta_magnitude: f32,
 }
 
 #[derive(Serialize, Deserialize)]
