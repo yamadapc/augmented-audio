@@ -24,7 +24,6 @@
 use std::fs::File;
 use std::path::Path;
 
-use audio_processor_traits::AudioBuffer;
 use symphonia::core::audio::Signal;
 use symphonia::core::audio::{AudioBuffer as SymphoniaAudioBuffer, AudioBufferRef};
 use symphonia::core::codecs::Decoder;
@@ -33,24 +32,18 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::meta::MetadataOptions;
 use symphonia::core::probe::{Hint, ProbeResult};
 use symphonia::default::get_probe;
-use thiserror::Error;
 
-use crate::file_io::sample_rate_converter::BLOCK_SIZE;
+use audio_processor_traits::AudioBuffer;
 use augmented_audio_metrics as metrics;
 
-mod sample_rate_converter;
+use crate::file_io::sample_rate_converter::BLOCK_SIZE;
 
-#[derive(Error, Debug)]
-pub enum AudioFileError {
-    #[error("Failed to decode input file")]
-    DecodeError(#[from] symphonia::core::errors::Error),
-    #[error("Failed to read input file")]
-    FileReadError(#[from] std::io::Error),
-    #[error("Failed to open read stream")]
-    OpenStreamError,
-    #[error("File has no buffers")]
-    EmptyFileError,
-}
+pub use self::audio_file_error::AudioFileError;
+
+mod audio_file_error;
+mod sample_rate_converter;
+#[cfg(test)]
+mod test;
 
 /// Opens an audio file with default options & trying to guess the format
 pub fn default_read_audio_file(input_audio_path: &str) -> Result<ProbeResult, AudioFileError> {

@@ -539,6 +539,7 @@ dependencies = [
  "symphonia",
  "symphonia-bundle-mp3",
  "symphonia-format-wav",
+ "tempdir",
  "thiserror",
  "wisual-logger",
 ]

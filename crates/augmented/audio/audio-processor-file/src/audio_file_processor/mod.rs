@@ -27,7 +27,7 @@ use symphonia::core::probe::ProbeResult;
 
 use audio_garbage_collector::{Handle, Shared};
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
-use file_io::AudioFileError;
+use file_io::{AudioFileError, FileContentsStream};
 
 pub mod file_io;
 
@@ -229,8 +229,7 @@ impl AudioProcessor for AudioFileProcessor {
         log::info!("Reading audio file onto memory");
 
         let mut run = || -> Result<(), file_io::AudioFileError> {
-            let input_stream =
-                file_io::FileContentsStream::new(&mut self.audio_file_settings.audio_file)?;
+            let input_stream = FileContentsStream::new(&mut self.audio_file_settings.audio_file)?;
             let converted_stream = file_io::convert_audio_file_stream_sample_rate(
                 input_stream,
                 audio_settings.sample_rate(),
