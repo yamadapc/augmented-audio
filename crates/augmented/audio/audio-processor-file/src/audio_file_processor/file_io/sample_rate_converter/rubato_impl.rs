@@ -23,7 +23,7 @@
 
 use rubato::Resampler;
 
-pub const BLOCK_SIZE: usize = 1024;
+use super::BLOCK_SIZE;
 
 pub type Decoder = rubato::FftFixedIn<f32>;
 pub type DecoderError = rubato::ResampleError;

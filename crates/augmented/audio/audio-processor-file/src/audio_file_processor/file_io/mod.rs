@@ -166,15 +166,29 @@ pub fn convert_audio_buffer_sample_type(audio_buffer: AudioBufferRef) -> Symphon
     destination
 }
 
-struct FileFramesStream<'a> {
-    audio_file_stream: FileContentsStream<'a>,
+struct FileFramesStream<BufferIterator> {
+    audio_file_stream: BufferIterator,
     buffer: Vec<Vec<f32>>,
     rate: u32,
     buffer_size: usize,
 }
 
-impl<'a> Iterator for FileFramesStream<'a> {
-    type Item = Vec<Vec<f32>>;
+impl<BufferIterator> FileFramesStream<BufferIterator> {
+    fn new(audio_file_stream: BufferIterator, buffer_size: usize) -> Self {
+        Self {
+            audio_file_stream,
+            buffer: Vec::new(),
+            rate: 0,
+            buffer_size,
+        }
+    }
+}
+
+impl<BufferIterator> Iterator for FileFramesStream<BufferIterator>
+where
+    BufferIterator: Iterator<Item = SymphoniaAudioBuffer<f32>>,
+{
+    type Item = (Vec<Vec<f32>>, usize);
 
     fn next(&mut self) -> Option<Self::Item> {
         for block in self.audio_file_stream.by_ref() {
@@ -188,30 +202,42 @@ impl<'a> Iterator for FileFramesStream<'a> {
             if self.buffer[0].len() >= self.buffer_size {
                 let mut result = Vec::new();
                 for channel in 0..self.buffer.len() {
-                    let channel_buffer = self.buffer[channel].drain(0..self.buffer_size).collect();
+                    let channel_buffer: Vec<f32> =
+                        self.buffer[channel].drain(0..self.buffer_size).collect();
+
+                    assert_eq!(channel_buffer.len(), self.buffer_size);
                     result.push(channel_buffer);
                 }
-                return Some(result);
+
+                return Some((result, self.buffer_size));
             }
         }
 
         if !self.buffer[0].is_empty() {
             let mut result = Vec::new();
+            // On the trailing end of the buffer, this might be smaller than block-size. We need to
+            // output a full block, but also let the consumer know this last block is special.
+            let mut remaining_length = 0;
             for channel in 0..self.buffer.len() {
-                let mut channel_buffer: Vec<f32> = self.buffer[channel].drain(..).collect();
+                remaining_length = self.buffer_size.min(self.buffer[channel].len());
+                let mut channel_buffer: Vec<f32> =
+                    self.buffer[channel].drain(0..remaining_length).collect();
                 channel_buffer.resize(self.buffer_size, 0.0);
                 result.push(channel_buffer);
             }
-            return Some(result);
+
+            assert!(remaining_length > 0);
+            assert!(remaining_length <= self.buffer_size);
+            assert!(remaining_length <= result[0].len());
+            return Some((result, remaining_length));
         }
         None
     }
 }
 
 pub struct ConvertedFileContentsStream<'a> {
-    audio_file_stream: FileFramesStream<'a>,
+    audio_file_stream: FileFramesStream<FileContentsStream<'a>>,
     output_rate: f32,
-
     decoder: Option<sample_rate_converter::Decoder>,
 }
 
@@ -240,22 +266,23 @@ impl<'a> Iterator for ConvertedFileContentsStream<'a> {
     type Item = AudioBuffer<f32>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let channels = self.audio_file_stream.next()?;
+        let (channels, chunk_size) = self.audio_file_stream.next()?;
         let rate = self.audio_file_stream.rate;
 
-        let decoder = self.get_decoder(rate, channels.len()).unwrap();
+        let decoder = self.get_decoder(rate, channels.len())?;
 
         assert_eq!(channels.len(), 2);
         assert_eq!(channels[0].len(), BLOCK_SIZE);
-        let chunk_result = sample_rate_converter::process(decoder, &channels).unwrap();
+        // Resize channels so that the trailing smaller block is resized
+        let mut chunk_result = sample_rate_converter::process(decoder, &channels).ok()?;
+        let expected_chunk_size = (chunk_size as f32 * self.output_rate / rate as f32) as usize;
+        if chunk_size != BLOCK_SIZE {
+            for channel in chunk_result.iter_mut() {
+                channel.resize(expected_chunk_size, 0.0);
+            }
+        }
 
         Some(AudioBuffer::new(chunk_result))
-    }
-}
-
-impl<'a> ExactSizeIterator for ConvertedFileContentsStream<'a> {
-    fn len(&self) -> usize {
-        self.audio_file_stream.audio_file_stream.len()
     }
 }
 
@@ -264,12 +291,7 @@ pub fn convert_audio_file_stream_sample_rate(
     output_rate: f32,
 ) -> ConvertedFileContentsStream {
     ConvertedFileContentsStream {
-        audio_file_stream: FileFramesStream {
-            audio_file_stream,
-            buffer: Vec::new(),
-            rate: 0,
-            buffer_size: BLOCK_SIZE,
-        },
+        audio_file_stream: FileFramesStream::new(audio_file_stream, BLOCK_SIZE),
         output_rate,
         decoder: None,
     }
@@ -306,7 +328,7 @@ pub fn convert_audio_file_sample_rate(
     channel
 }
 
-/// buffers must be non-empty
+/// buffers must be non-empty and stereo
 fn concat_buffers(buffers: Vec<SymphoniaAudioBuffer<f32>>) -> SymphoniaAudioBuffer<f32> {
     let duration = buffers
         .iter()

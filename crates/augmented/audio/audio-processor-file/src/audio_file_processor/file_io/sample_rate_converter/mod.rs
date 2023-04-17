@@ -21,6 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+pub const BLOCK_SIZE: usize = 1024;
+
 #[cfg(all(feature = "rubato", not(feature = "samplerate")))]
 pub use rubato_impl::*;
 #[cfg(feature = "samplerate")]
