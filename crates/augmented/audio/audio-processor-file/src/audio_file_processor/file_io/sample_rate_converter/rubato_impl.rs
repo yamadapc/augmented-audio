@@ -21,8 +21,31 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use interleaved_audio_buffer::*;
-pub use vec_audio_buffer::*;
+use rubato::Resampler;
 
-mod interleaved_audio_buffer;
-mod vec_audio_buffer;
+pub const BLOCK_SIZE: usize = 1024;
+
+pub type Decoder = rubato::FftFixedIn<f32>;
+pub type DecoderError = rubato::ResampleError;
+pub type DecoderCreateError = rubato::ResamplerConstructionError;
+
+pub fn make_decoder(
+    input_rate: u32,
+    output_rate: u32,
+    channels: usize,
+) -> Result<Decoder, DecoderCreateError> {
+    Decoder::new(
+        input_rate as usize,
+        output_rate as usize,
+        BLOCK_SIZE,
+        2,
+        channels,
+    )
+}
+
+pub fn process<T: AsRef<[f32]>>(
+    decoder: &mut Decoder,
+    block: &[T],
+) -> Result<Vec<Vec<f32>>, DecoderError> {
+    decoder.process(block, None)
+}

@@ -21,8 +21,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use interleaved_audio_buffer::*;
-pub use vec_audio_buffer::*;
+#[cfg(all(feature = "rubato", not(feature = "samplerate")))]
+pub use rubato_impl::*;
+#[cfg(feature = "samplerate")]
+pub use samplerate_impl::*;
 
-mod interleaved_audio_buffer;
-mod vec_audio_buffer;
+#[cfg(feature = "rubato")]
+#[allow(unused)]
+pub mod rubato_impl;
+#[cfg(feature = "samplerate")]
+mod samplerate_impl;
