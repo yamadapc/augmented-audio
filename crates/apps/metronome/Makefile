@@ -24,6 +24,7 @@ build-bindings: FORCE
 		--c-output ios/Runner/bridge_generated.h # \
 		# --llvm-path /usr/local/opt/llvm
 	cp ios/Runner/bridge_generated.h macos/Runner/bridge_generated.h
+	sed -i '' '/jint JNI_OnLoad(JavaVM vm, void \*res);/d' ios/Runner/bridge_generated.h macos/Runner/bridge_generated.h
 
 build-libs: FORCE
 	cargo lipo --release --package metronome --targets=x86_64-apple-darwin
