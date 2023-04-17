@@ -31,7 +31,7 @@ use tempdir::TempDir;
 
 use super::*;
 
-fn create_test_file(tempdir: &TempDir) -> PathBuf {
+fn create_test_file_with_samples(tempdir: &TempDir, num_samples: i32) -> PathBuf {
     let file_path = tempdir.path().join("test_default_read_audio_file.wav");
     let mut writer = hound::WavWriter::create(
         &file_path,
@@ -43,7 +43,6 @@ fn create_test_file(tempdir: &TempDir) -> PathBuf {
         },
     )
     .unwrap();
-    let num_samples = 44100 * 5;
     for sample in 0..num_samples {
         let time = sample as f32 / 44100.0;
         let value = (time * 440.0 * 2.0 * std::f32::consts::PI).sin();
@@ -52,6 +51,11 @@ fn create_test_file(tempdir: &TempDir) -> PathBuf {
     }
     writer.finalize().unwrap();
     file_path
+}
+
+fn create_test_file(tempdir: &TempDir) -> PathBuf {
+    let num_samples = 44100 * 5;
+    create_test_file_with_samples(tempdir, num_samples)
 }
 
 #[test]

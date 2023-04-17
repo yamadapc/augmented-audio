@@ -245,6 +245,13 @@ impl AudioProcessor for AudioFileProcessor {
                 }
             }
 
+            // With block size 1024, rubato will introduce 256 samples of latency that need to be
+            // skipped.
+            #[cfg(feature = "rubato")]
+            for channel in self.buffer.iter_mut() {
+                *channel = channel.iter().skip(256).cloned().collect();
+            }
+
             Ok(())
         };
 

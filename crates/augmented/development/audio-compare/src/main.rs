@@ -25,16 +25,17 @@ use std::fs::File;
 use std::io::BufReader;
 use std::iter::repeat;
 use std::path::Path;
+use std::sync::Arc;
 use std::time::Duration;
 
 use clap::Parser;
 use dasp::Signal;
-use hound::WavReader;
+use hound::{SampleFormat, WavReader, WavSpec};
 use num_complex::Complex;
 use rayon::prelude::*;
 use rustfft::FftPlanner;
 
-use crate::model::{Args, AudioMetadata, AudioSimilarityResult, CompareResults};
+use crate::model::{Args, AudioMetadata, AudioSimilarityResult, Commands, CompareResults};
 use crate::server::start_server;
 
 mod logger;
@@ -46,9 +47,130 @@ async fn main() {
     let _ = logger::try_init_from_env();
 
     let args = Args::parse();
-    log::debug!("Opening files {:#?}", args.targets);
-    let readers = args
-        .targets
+    match args.command {
+        Commands::Run {
+            targets,
+            run_server,
+        } => exec_run(targets, run_server).await,
+        Commands::GenerateInputFiles { output_path } => {
+            exec_generate_input_files(&output_path).await
+        }
+        Commands::Test {
+            delta_similarity_threshold,
+            spectral_correlation_similarity_threshold,
+            cross_correlation_similarity_threshold,
+            new_test_file,
+            snapshot_file,
+        } => {
+            let (_, result) = run_compare(vec![snapshot_file, new_test_file]);
+            log::info!("Received results {:#?}", result);
+            let similarity = &result.similarities[0];
+            let test_cases = [
+                (
+                    cross_correlation_similarity_threshold,
+                    similarity.cross_correlation_similarity,
+                    "Cross correlation",
+                ),
+                (
+                    spectral_correlation_similarity_threshold,
+                    similarity.spectral_similarity,
+                    "Spectral correlation",
+                ),
+                (
+                    delta_similarity_threshold,
+                    1.0 - similarity.delta_magnitude,
+                    "Delta similarity",
+                ),
+            ];
+            let mut has_failed = false;
+            for (threshold, value, label) in test_cases {
+                if value > threshold {
+                    log::info!("{} - OK - value={} threshold={}", label, value, threshold);
+                } else {
+                    has_failed = true;
+                    log::error!(
+                        "{} - FAILURE - value={} threshold={}",
+                        label,
+                        value,
+                        threshold
+                    );
+                }
+            }
+            if has_failed {
+                std::process::exit(1);
+            }
+        }
+    }
+}
+
+async fn exec_generate_input_files(output_path: &str) {
+    let output_path = Path::new(output_path);
+    let create_file = |name, contents: Vec<[f32; 2]>| {
+        let mut writer = hound::WavWriter::create(
+            output_path.join(name),
+            WavSpec {
+                channels: 2,
+                sample_rate: 44100,
+                bits_per_sample: 32,
+                sample_format: SampleFormat::Float,
+            },
+        )
+        .unwrap();
+        for frame in contents {
+            writer.write_sample(frame[0]).unwrap();
+            writer.write_sample(frame[1]).unwrap();
+        }
+        writer.finalize().unwrap();
+    };
+
+    let mut pulse = vec![];
+    pulse.resize(44100, [0.0; 2]);
+    pulse[0][0] = 1.0;
+    pulse[0][1] = 1.0;
+    create_file("pulse.wav", pulse);
+
+    let mut sine = vec![];
+    sine.resize(44100, [0.0; 2]);
+    for (index, frame) in sine.iter_mut().enumerate() {
+        let time = index as f32 / 44100.0;
+        let value = (time * 440.0 * 2.0 * std::f32::consts::PI).sin();
+        frame[0] = value;
+        frame[1] = value;
+    }
+    create_file("sine.wav", sine);
+
+    let mut sine_pulse = vec![];
+    let envelope = augmented_adsr_envelope::Envelope::new();
+    envelope.set_sample_rate(44100.0);
+    sine_pulse.resize(44100 * 4, [0.0; 2]);
+    envelope.note_on();
+    envelope.set_attack(Duration::from_millis(1));
+    let note_duration = 5000;
+    for (index, frame) in sine_pulse.iter_mut().enumerate() {
+        let envelope_value = envelope.volume();
+        let time = index as f32 / 44100.0;
+        let value = (time * 440.0 * 2.0 * std::f32::consts::PI).sin();
+        frame[0] = value * envelope_value;
+        frame[1] = value * envelope_value;
+        envelope.tick();
+        if index == note_duration {
+            envelope.note_off();
+        }
+    }
+    create_file("sine_pulse.wav", sine_pulse);
+}
+
+async fn exec_run(targets: Vec<String>, run_server: bool) {
+    let (image_paths, compare_results) = run_compare(targets);
+
+    if run_server {
+        start_server(image_paths, compare_results).await
+    }
+}
+
+fn run_compare(targets: Vec<String>) -> (Vec<String>, Arc<CompareResults>) {
+    log::debug!("Opening files {:#?}", targets);
+    let readers = targets
         .iter()
         .map(|path| {
             (
@@ -104,6 +226,19 @@ async fn main() {
                     compute_cross_correlation_similarity(file1, file2);
                 let spectral_similarity = compute_spectral_similarity(file1, file2);
                 let delta_magnitude = compute_delta_magnitude(file1, file2);
+                let deltas: Vec<f32> = file1
+                    .iter()
+                    .zip(file2.iter())
+                    .map(|(frame1, frame2)| (frame1[0] - frame2[0]).abs())
+                    .take(10000)
+                    .collect();
+
+                audio_processor_testing_helpers::charts::draw_vec_chart(
+                    &format!("{}-{}-{}", name1, i, j),
+                    "audio",
+                    deltas,
+                );
+
                 log::info!(
                     "Similarity between file1={} file2={} cross_correlation_similarity={} spectral_similarity={} delta_magnitude={}",
                     name1,
@@ -127,15 +262,17 @@ async fn main() {
         similarities,
         metadatas,
     });
-
-    start_server(image_paths, compare_results).await
+    (image_paths, compare_results)
 }
 
 fn draw_audio_file(name: &str, file: &[[f32; 2]]) -> String {
     audio_processor_testing_helpers::charts::draw_vec_chart(
         &name,
         "audio",
-        file.iter().map(|[l, r]| l + r).collect::<Vec<_>>(),
+        file.iter()
+            .map(|[l, r]| l + r)
+            .take(10000)
+            .collect::<Vec<_>>(),
     );
     format!("{}--{}.png", name, "audio")
 }
@@ -192,10 +329,15 @@ fn compute_cross_correlation_similarity(signal1: &[[f32; 2]], signal2: &[[f32; 2
         .map(|(s1, s2)| compute_cross_correlation_similarity_mono(s1, s2))
         .sum();
 
+    println!("{}", similarity_sum);
+
     similarity_sum / 2.0
 }
 
 fn compute_cross_correlation_similarity_mono(signal1: &[f32], signal2: &[f32]) -> f32 {
+    if signal1 == signal2 {
+        return 1.0;
+    }
     let len1 = signal1.len();
     let len2 = signal2.len();
 
@@ -243,12 +385,14 @@ fn compute_cross_correlation_similarity_mono(signal1: &[f32], signal2: &[f32]) -
         .max_by(|a, b| a.partial_cmp(b).unwrap())
         .unwrap();
 
-    log::debug!("Max cross correlation: {}", max_cross_corr);
-    log::debug!("Norms: {} {}", norm1, norm2);
-    max_cross_corr / (norm1 * norm2)
+    let norm = (norm1 * norm2).max(f32::EPSILON);
+    max_cross_corr / norm
 }
 
 fn compute_spectral_similarity(signal1: &[[f32; 2]], signal2: &[[f32; 2]]) -> f32 {
+    if signal1 == signal2 {
+        return 1.0;
+    }
     let left1: Vec<f32> = signal1.iter().map(|frame| frame[0]).collect();
     let left2: Vec<f32> = signal2.iter().map(|frame| frame[0]).collect();
 
@@ -264,6 +408,9 @@ fn compute_spectral_similarity(signal1: &[[f32; 2]], signal2: &[[f32; 2]]) -> f3
 }
 
 fn compute_spectral_similarity_mono(signal1: &[f32], signal2: &[f32]) -> f32 {
+    if signal1 == signal2 {
+        return 1.0;
+    }
     let len1 = signal1.len();
     let len2 = signal2.len();
 
@@ -306,12 +453,20 @@ fn compute_spectral_similarity_mono(signal1: &[f32], signal2: &[f32]) -> f32 {
     let norm1 = magnitude1.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
     let norm2 = magnitude2.iter().map(|x| x.powi(2)).sum::<f32>().sqrt();
 
-    dot_product / (norm1 * norm2)
+    dot_product / (norm1 * norm2).max(f32::EPSILON)
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_cross_correlation_similarity_of_null_signal() {
+        let signal1 = vec![[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]];
+        let signal2 = vec![[0.0, 0.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]];
+        let similarity = compute_cross_correlation_similarity(&signal1, &signal2);
+        assert_eq!(similarity, 1.0);
+    }
 
     #[test]
     fn test_cross_correlation_similarity_of_same_signal() {

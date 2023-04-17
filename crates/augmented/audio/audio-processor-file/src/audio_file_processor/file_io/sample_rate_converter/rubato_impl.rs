@@ -49,3 +49,23 @@ pub fn process<T: AsRef<[f32]>>(
 ) -> Result<Vec<Vec<f32>>, DecoderError> {
     decoder.process(block, None)
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_pulse() {
+        let mut block1 = vec![];
+        block1.resize(1, [0.0; 1024]);
+        block1[0][0] = 1.0;
+        let mut decoder = make_decoder(44100, 44100, 1).unwrap();
+        let result = process(&mut decoder, &block1).unwrap();
+        let (index, _) = result[0]
+            .iter()
+            .enumerate()
+            .find(|(_, x)| (*x).abs() > 0.2)
+            .unwrap();
+        assert_eq!(index, 256);
+    }
+}

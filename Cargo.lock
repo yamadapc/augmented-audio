@@ -421,6 +421,7 @@ name = "audio-compare"
 version = "0.1.0"
 dependencies = [
  "audio-processor-testing-helpers",
+ "augmented-adsr-envelope",
  "chrono",
  "clap 4.2.1",
  "dasp",

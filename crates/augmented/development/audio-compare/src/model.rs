@@ -21,14 +21,40 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use hound::WavSpec;
 use serde::{Deserialize, Serialize};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-    pub targets: Vec<String>,
+    #[command(subcommand)]
+    pub command: Commands,
+}
+
+#[derive(Subcommand, Debug)]
+pub enum Commands {
+    Test {
+        #[arg(long, short)]
+        new_test_file: String,
+        #[arg(long, short)]
+        snapshot_file: String,
+        #[arg(long, short)]
+        cross_correlation_similarity_threshold: f32,
+        #[arg(long, short)]
+        spectral_correlation_similarity_threshold: f32,
+        #[arg(long, short)]
+        delta_similarity_threshold: f32,
+    },
+    Run {
+        targets: Vec<String>,
+        #[arg(long, short)]
+        run_server: bool,
+    },
+    GenerateInputFiles {
+        #[arg(long, short)]
+        output_path: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq)]
@@ -77,7 +103,7 @@ pub struct AudioSimilarityResult {
     pub delta_magnitude: f32,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct CompareResults {
     pub similarities: Vec<AudioSimilarityResult>,
     pub metadatas: Vec<AudioMetadata>,

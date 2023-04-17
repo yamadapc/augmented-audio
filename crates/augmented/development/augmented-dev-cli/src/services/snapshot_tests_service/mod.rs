@@ -22,7 +22,7 @@
 // THE SOFTWARE.
 use crate::manifests::CargoToml;
 use crate::services::ListCratesService;
-use cmd_lib::{run_cmd, run_fun, spawn};
+use cmd_lib::{run_cmd, spawn};
 
 pub fn run_snapshot_tests(_path: &str, manifest: CargoToml, update_snapshots: bool) {
     let crate_name = manifest.package.name;
@@ -57,24 +57,23 @@ fn run_example_snapshot_tests(crate_name: &str, example: &str, update_snapshots:
             .expect("Failed to run example");
     }
 
-    let md5_commit =
-        run_fun!(md5 -q test/snapshots/${crate_name}/${example}.wav).unwrap_or_else(|_| "".into());
-    let md5_test = run_fun!(md5 -q test/snapshots/${crate_name}/${example}.tmp.wav)
-        .unwrap_or_else(|_| "".into());
+    let test_file_path = format!("test/snapshots/{crate_name}/{example}.tmp.wav");
+    let snapshot_file_path = format!("test/snapshots/{crate_name}/{example}.wav");
+    let test_failed = !run_cmd!(
+        cargo run --release --package audio-compare -- test
+            --new-test-file ${test_file_path}
+            --snapshot-file ${snapshot_file_path}
+            --cross-correlation-similarity-threshold "0.99999"
+            --spectral-correlation-similarity-threshold "0.99999"
+            --delta-similarity-threshold "0.9"
+    )
+    .is_ok();
 
     if update_snapshots {
-        if md5_test != md5_commit {
-            log::warn!("Updating snapshot {}/{}", crate_name, example,);
-            run_cmd!(mv test/snapshots/${crate_name}/${example}.tmp.wav test/snapshots/${crate_name}/${example}.wav).unwrap();
-        }
-    } else if md5_test != md5_commit {
-        log::error!(
-            "Test failed for {}/{}\n   Expected: {:?} Received: {:?}",
-            crate_name,
-            example,
-            md5_commit,
-            md5_test
-        );
+        log::warn!("Updating snapshot {}/{}", crate_name, example,);
+        run_cmd!(mv test/snapshots/${crate_name}/${example}.tmp.wav test/snapshots/${crate_name}/${example}.wav).unwrap();
+    } else if test_failed {
+        log::error!("Test failed for {}/{}", crate_name, example,);
         std::process::exit(1);
     } else {
         run_cmd!(rm test/snapshots/${crate_name}/${example}.tmp.wav).unwrap();
