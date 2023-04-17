@@ -26,10 +26,8 @@ use std::time::Instant;
 use symphonia::core::probe::ProbeResult;
 
 use audio_garbage_collector::{Handle, Shared};
-#[cfg(feature = "samplerate")]
-use audio_processor_traits::OwnedAudioBuffer;
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
-use file_io::AudioFileError;
+use file_io::{AudioFileError, FileContentsStream};
 
 pub mod file_io;
 
@@ -52,7 +50,7 @@ impl InMemoryAudioFile {
     pub fn read_into_vec_audio_buffer(
         &mut self,
         settings: &AudioProcessorSettings,
-    ) -> Result<audio_processor_traits::VecAudioBuffer<f32>, AudioFileError> {
+    ) -> Result<AudioBuffer<f32>, AudioFileError> {
         use rayon::prelude::*;
 
         let output_rate = settings.sample_rate();
@@ -64,8 +62,8 @@ impl InMemoryAudioFile {
             })
             .collect();
 
-        let mut output_buffer = audio_processor_traits::VecAudioBuffer::new();
-        output_buffer.resize(settings.output_channels(), converted_channels[0].len(), 0.0);
+        let mut output_buffer = AudioBuffer::empty();
+        output_buffer.resize(settings.output_channels(), converted_channels[0].len());
         for (channel_index, channel) in converted_channels.iter().enumerate() {
             for (sample_index, sample) in channel.iter().enumerate() {
                 output_buffer.set(channel_index, sample_index, *sample);
@@ -219,7 +217,8 @@ impl AudioProcessor for AudioFileProcessor {
     ///
     /// Note: Currently this will load the audio file on the audio-thread.
     /// It'd be an interesting exercise to perform this on a background thread.
-    fn prepare(&mut self, _context: &mut AudioContext, audio_settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let audio_settings = context.settings;
         log::info!("Preparing for audio file playback");
         self.audio_settings = audio_settings;
 
@@ -230,38 +229,27 @@ impl AudioProcessor for AudioFileProcessor {
         log::info!("Reading audio file onto memory");
 
         let mut run = || -> Result<(), file_io::AudioFileError> {
-            let input_stream =
-                file_io::FileContentsStream::new(&mut self.audio_file_settings.audio_file)?;
+            let input_stream = FileContentsStream::new(&mut self.audio_file_settings.audio_file)?;
             let converted_stream = file_io::convert_audio_file_stream_sample_rate(
                 input_stream,
                 audio_settings.sample_rate(),
             );
 
-            let start = Instant::now();
-            let mut samples_read = 0;
-            let total_frames = converted_stream.len();
-
-            for (i, buffer) in converted_stream.enumerate() {
+            for buffer in converted_stream {
                 self.buffer.resize(buffer.num_channels(), vec![]);
 
-                for frame in buffer.frames() {
-                    for (target_buffer, sample) in self.buffer.iter_mut().zip(frame) {
-                        target_buffer.push(*sample);
+                for (channel, source) in self.buffer.iter_mut().zip(buffer.channels()) {
+                    for sample in source {
+                        channel.push(*sample)
                     }
                 }
+            }
 
-                samples_read += buffer.num_samples();
-                if i % 80 == 0 {
-                    let rate = samples_read as f32 / start.elapsed().as_secs_f32();
-                    let eta = (total_frames - samples_read) as f32 / rate;
-                    log::info!(
-                        "progress {:.1}% - elapsed: {:.1}s - rate: {:.0} samples/s - eta: {:.1}s",
-                        (samples_read as f32 / total_frames as f32) * 100.0,
-                        start.elapsed().as_secs_f32(),
-                        rate,
-                        eta,
-                    );
-                }
+            // With block size 1024, rubato will introduce 256 samples of latency that need to be
+            // skipped.
+            #[cfg(feature = "rubato")]
+            for channel in self.buffer.iter_mut() {
+                *channel = channel.iter().skip(256).cloned().collect();
             }
 
             Ok(())
@@ -277,11 +265,7 @@ impl AudioProcessor for AudioFileProcessor {
         }
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = f32>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         let is_playing = self.handle.is_playing.load(Ordering::Relaxed);
 
         if !is_playing {
@@ -292,11 +276,11 @@ impl AudioProcessor for AudioFileProcessor {
         let start_cursor = self.handle.audio_file_cursor.load(Ordering::Relaxed);
         let mut audio_file_cursor = start_cursor;
 
-        for frame in data.frames_mut() {
-            for (channel_index, sample) in frame.iter_mut().enumerate() {
+        for sample_num in 0..data.num_samples() {
+            for channel_index in 0..data.num_channels() {
                 let audio_input = self.buffer[channel_index][audio_file_cursor];
                 let value = audio_input;
-                *sample += value;
+                data.channel_mut(channel_index)[sample_num] += value;
             }
 
             audio_file_cursor += 1;
@@ -322,7 +306,6 @@ impl AudioProcessor for AudioFileProcessor {
 #[cfg(test)]
 mod test {
     use audio_garbage_collector::GarbageCollector;
-    use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 
     use super::*;
 
@@ -339,6 +322,17 @@ mod test {
         (garbage_collector, audio_file_settings)
     }
 
+    #[test]
+    fn test_in_memory_audio_file_can_be_created_from_probe() {
+        let path = format!(
+            "{}{}",
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../../../input-files/1sec-sine.mp3"
+        );
+        let probe_result = file_io::default_read_audio_file(&path).unwrap();
+        let _audio_file = InMemoryAudioFile::new(probe_result);
+    }
+
     /**
      * Test a stopped audio processor is silent
      */
@@ -352,14 +346,16 @@ mod test {
             Default::default(),
         );
         let mut context = AudioContext::default();
-        audio_file_processor.prepare(&mut context, Default::default());
+        audio_file_processor.prepare(&mut context);
 
         audio_file_processor.stop();
-        let mut sample_buffer = VecAudioBuffer::new();
-        sample_buffer.resize(2, 44100, 0.0);
+        let mut sample_buffer = AudioBuffer::empty();
+        sample_buffer.resize(2, 44100);
         audio_file_processor.process(&mut context, &mut sample_buffer);
 
-        assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) < f32::EPSILON);
+        assert!(
+            audio_processor_testing_helpers::rms_level(sample_buffer.channel(0)) < f32::EPSILON
+        );
     }
 
     /**
@@ -375,13 +371,15 @@ mod test {
             Default::default(),
         );
         let mut context = AudioContext::default();
-        audio_file_processor.prepare(&mut context, Default::default());
+        audio_file_processor.prepare(&mut context);
 
-        let mut sample_buffer = VecAudioBuffer::new();
-        sample_buffer.resize(2, 44100, 0.0);
+        let mut sample_buffer = AudioBuffer::empty();
+        sample_buffer.resize(2, 44100);
         audio_file_processor.play();
         audio_file_processor.process(&mut context, &mut sample_buffer);
 
-        assert!(audio_processor_testing_helpers::rms_level(sample_buffer.slice()) > f32::EPSILON);
+        assert!(
+            audio_processor_testing_helpers::rms_level(sample_buffer.channel(0)) > f32::EPSILON
+        );
     }
 }

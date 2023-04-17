@@ -134,7 +134,7 @@ mod looper_buffer {
     use atomic_refcell::AtomicRefCell;
     use basedrop::Shared;
 
-    use audio_processor_traits::{AudioBuffer, VecAudioBuffer};
+    use audio_processor_traits::AudioBuffer;
     use augmented_atomics::AtomicF32;
 
     use crate::c_api::into_ptr;
@@ -142,7 +142,7 @@ mod looper_buffer {
 
     pub enum LooperBuffer {
         Some {
-            inner: Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>,
+            inner: Shared<AtomicRefCell<AudioBuffer<AtomicF32>>>,
         },
         None,
     }

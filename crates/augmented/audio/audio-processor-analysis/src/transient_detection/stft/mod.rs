@@ -22,7 +22,8 @@
 // THE SOFTWARE.
 use rustfft::num_complex::Complex;
 
-use audio_processor_traits::{AudioBuffer, AudioContext, SimpleAudioProcessor};
+use audio_processor_traits::simple_processor::MonoAudioProcessor;
+use audio_processor_traits::{AudioBuffer, AudioContext};
 use dynamic_thresholds::{DynamicThresholds, DynamicThresholdsParams};
 use power_change::{PowerOfChangeFrames, PowerOfChangeParams};
 
@@ -158,9 +159,9 @@ impl Default for IterativeTransientDetectionParams {
 ///   input FFT result
 /// * There may now be extra filtering / smoothing steps to extract data or audio, but the output
 ///   should be the transient signal
-pub fn find_transients<BufferType: AudioBuffer<SampleType = f32>>(
+pub fn find_transients(
     params: IterativeTransientDetectionParams,
-    data: &mut BufferType,
+    data: &mut AudioBuffer<f32>,
 ) -> Vec<f32> {
     let IterativeTransientDetectionParams {
         fft_size,
@@ -261,10 +262,10 @@ fn count_changed_bins_per_frame(
 }
 
 /// Perform inverse FFT over spectrogram frames
-fn generate_output_frames<BufferType: AudioBuffer<SampleType = f32>>(
+fn generate_output_frames(
     fft_size: usize,
     fft_overlap_ratio: f32,
-    data: &mut BufferType,
+    data: &mut AudioBuffer<f32>,
     fft_frames: &[Vec<Complex<f32>>],
     transient_magnitude_frames: &mut [Vec<f32>],
 ) -> Vec<f32> {
@@ -337,10 +338,10 @@ fn get_magnitudes(fft_frames: &[Vec<Complex<f32>>]) -> Vec<Vec<f32>> {
         .collect()
 }
 
-fn get_fft_frames<BufferType: AudioBuffer<SampleType = f32>>(
+fn get_fft_frames(
     fft_size: usize,
     fft_overlap_ratio: f32,
-    data: &mut BufferType,
+    data: &mut AudioBuffer<f32>,
 ) -> Vec<Vec<Complex<f32>>> {
     let mut fft = FftProcessor::new(FftProcessorOptions {
         size: fft_size,
@@ -353,8 +354,18 @@ fn get_fft_frames<BufferType: AudioBuffer<SampleType = f32>>(
     let mut fft_frames = vec![];
 
     let mut context = AudioContext::default();
-    for frame in data.frames_mut() {
-        fft.s_process_frame(&mut context, frame);
+    for sample_num in 0..data.num_samples() {
+        let mut input_sample = 0.0;
+        for channel in 0..data.num_channels() {
+            input_sample += data.get(channel, sample_num);
+        }
+
+        let output_sample = fft.m_process(&mut context, input_sample);
+
+        for channel in 0..data.num_channels() {
+            data.set(channel, sample_num, output_sample);
+        }
+
         if fft.has_changed() {
             fft_frames.push(fft.buffer().clone());
         }
@@ -368,14 +379,12 @@ mod test {
     use audio_processor_testing_helpers::relative_path;
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
-    use audio_processor_traits::{
-        AudioProcessor, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
-    };
+    use audio_processor_traits::{AudioProcessor, AudioProcessorSettings};
 
     use super::*;
 
     /// Read an input file for testing
-    fn read_input_file(input_file_path: &str) -> impl AudioBuffer<SampleType = f32> {
+    fn read_input_file(input_file_path: &str) -> AudioBuffer<f32> {
         log::info!("Reading input file input_file={}", input_file_path);
         let settings = AudioProcessorSettings::default();
         let mut input = AudioFileProcessor::from_path(
@@ -386,13 +395,13 @@ mod test {
         .unwrap();
         let mut context = AudioContext::from(settings);
 
-        input.prepare(&mut context, settings);
+        input.prepare(&mut context);
         let input_buffer = input.buffer();
-        let mut buffer = VecAudioBuffer::new();
+        let mut buffer = AudioBuffer::empty();
 
         // We read at most 10s of audio & mono it.
         let max_len = (settings.sample_rate() * 10.0) as usize;
-        buffer.resize(1, input_buffer[0].len().min(max_len), 0.0);
+        buffer.resize(1, input_buffer[0].len().min(max_len));
         for channel in input_buffer.iter() {
             for (sample_index, sample) in channel.iter().enumerate().take(max_len) {
                 buffer.set(0, sample_index, *sample + buffer.get(0, sample_index));
@@ -413,7 +422,7 @@ mod test {
         let input_path = relative_path!("./hiphop-drum-loop.mp3");
         let transients_file_path = format!("{}.transients.wav", input_path);
         let mut input = read_input_file(&input_path);
-        let frames: Vec<f32> = input.frames().map(|frame| frame[0]).collect();
+        let frames: Vec<f32> = input.channel(0).iter().cloned().collect();
         let max_input = frames
             .iter()
             .map(|f| f.abs())
@@ -442,7 +451,10 @@ mod test {
             OutputAudioFileProcessor::from_path(settings, &transients_file_path);
         output_processor.prepare(settings);
         // match input signal
-        let mut transients: Vec<f32> = transients.iter().map(|f| f * max_input).collect();
-        output_processor.process(&mut transients);
+        let transients: Vec<f32> = transients.iter().map(|f| f * max_input).collect();
+        let mut buffer = AudioBuffer::from_interleaved(1, &transients);
+        output_processor
+            .process(&mut buffer)
+            .expect("Failed to write transients to file");
     }
 }

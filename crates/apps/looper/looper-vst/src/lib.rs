@@ -84,13 +84,13 @@ impl Plugin for LoopiPlugin {
     fn set_sample_rate(&mut self, rate: f32) {
         self.settings.set_sample_rate(rate);
         let mut context = AudioContext::from(self.settings);
-        self.processor.prepare(&mut context, self.settings);
+        self.processor.prepare(&mut context);
     }
 
     fn set_block_size(&mut self, size: i64) {
         self.settings.set_block_size(size as usize);
         let mut context = AudioContext::from(self.settings);
-        self.processor.prepare(&mut context, self.settings);
+        self.processor.prepare(&mut context);
         self.buffer_handler.set_block_size(size as usize);
     }
 

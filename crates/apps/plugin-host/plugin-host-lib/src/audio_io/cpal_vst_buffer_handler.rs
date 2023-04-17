@@ -62,7 +62,7 @@ impl CpalVstBufferHandler {
     }
 
     /// Process cpal input samples
-    pub fn process<BufferType: AudioBuffer<SampleType = f32>>(&mut self, data: &BufferType) {
+    pub fn process(&mut self, data: &AudioBuffer<f32>) {
         for (channel, input_buffer_channel) in (0..data.num_channels()).zip(&mut self.input_buffer)
         {
             // The buffers have been pre-allocated to have at least num samples, however if the
@@ -70,8 +70,8 @@ impl CpalVstBufferHandler {
             input_buffer_channel.resize(data.num_samples(), 0.0);
             self.output_buffer[channel].resize(data.num_samples(), 0.0);
 
-            for (sample, output) in data.frames().zip(input_buffer_channel) {
-                *output = sample[channel];
+            for sample_index in 0..data.num_samples() {
+                input_buffer_channel[sample_index] = *data.get(channel, sample_index);
             }
         }
     }
@@ -96,7 +96,6 @@ impl CpalVstBufferHandler {
 #[cfg(test)]
 mod test {
     use super::*;
-    use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 
     #[test]
     fn test_the_buffer_handler_can_be_created() {
@@ -138,8 +137,8 @@ mod test {
 
     #[test]
     fn test_process_will_push_input_samples_onto_the_vst_buffer() {
-        let mut input_buffer = VecAudioBuffer::new();
-        input_buffer.resize(2, 1000, 1.0);
+        let mut input_buffer = AudioBuffer::empty();
+        input_buffer.resize_with(2, 1000, || 1.0);
         let settings = AudioProcessorSettings::new(1000.0, 2, 2, 1000);
         let mut handle = CpalVstBufferHandler::new(settings);
         handle.process(&mut input_buffer);

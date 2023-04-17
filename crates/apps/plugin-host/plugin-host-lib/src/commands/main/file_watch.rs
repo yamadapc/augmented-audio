@@ -69,7 +69,10 @@ pub fn run_file_watch_loop(
                         plugin_path: Path::new(plugin_path).into(),
                     });
                 }
-                Err(err) => log::error!("File watch error: {}", err),
+                Err(_) => {
+                    log::info!("File watcher closed");
+                    return Ok(());
+                }
             }
         }
     };

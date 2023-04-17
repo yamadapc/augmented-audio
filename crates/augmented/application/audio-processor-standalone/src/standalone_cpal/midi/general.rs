@@ -100,7 +100,7 @@ mod test {
     use atomic_queue::Queue;
     use audio_garbage_collector::make_shared;
     use audio_processor_standalone_midi::host::{MidiMessageEntry, MidiMessageWrapper};
-    use audio_processor_traits::{BufferProcessor, MidiMessageLike, NoopAudioProcessor};
+    use audio_processor_traits::{MidiMessageLike, NoopAudioProcessor};
 
     use crate::standalone_processor::StandaloneOptions;
 
@@ -135,7 +135,7 @@ mod test {
     }
 
     struct MockStandaloneProcessor {
-        processor: BufferProcessor<NoopAudioProcessor<f32>>,
+        processor: NoopAudioProcessor<f32>,
         midi: MockMidiEventHandler,
         options: StandaloneOptions,
     }
@@ -143,7 +143,7 @@ mod test {
     impl MockStandaloneProcessor {
         fn new() -> Self {
             Self {
-                processor: BufferProcessor(NoopAudioProcessor::new()),
+                processor: NoopAudioProcessor::new(),
                 midi: MockMidiEventHandler::new(),
                 options: StandaloneOptions::default(),
             }
@@ -151,7 +151,7 @@ mod test {
     }
 
     impl StandaloneProcessor for MockStandaloneProcessor {
-        type Processor = BufferProcessor<NoopAudioProcessor<f32>>;
+        type Processor = NoopAudioProcessor<f32>;
         type Midi = MockMidiEventHandler;
 
         fn processor(&mut self) -> &mut Self::Processor {

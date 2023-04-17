@@ -22,10 +22,8 @@
 // THE SOFTWARE.
 use std::sync::Arc;
 
-use vst::buffer::AudioBuffer;
-
 use audio_parameter_store::ParameterStore;
-use audio_processor_traits::{AudioContext, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use augmented_oscillator::Oscillator;
 
 use crate::constants::{DEPTH_PARAMETER_ID, PHASE_PARAMETER_ID, RATE_PARAMETER_ID};
@@ -39,15 +37,11 @@ pub struct Processor {
 impl AudioProcessor for Processor {
     type SampleType = f32;
 
-    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.set_sample_rate(settings.sample_rate());
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.set_sample_rate(context.settings.sample_rate());
     }
 
-    fn process<BufferType: audio_processor_traits::AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        buffer: &mut BufferType,
-    ) {
+    fn process(&mut self, _context: &mut AudioContext, buffer: &mut AudioBuffer<Self::SampleType>) {
         let rate = self.parameters.value(RATE_PARAMETER_ID);
         let depth = self.parameters.value(DEPTH_PARAMETER_ID) / 100.0;
         let phase_offset = self.parameters.value(PHASE_PARAMETER_ID) / 360.0;
@@ -105,7 +99,7 @@ impl Processor {
         self.oscillator_right.set_sample_rate(rate);
     }
 
-    pub fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
+    pub fn process(&mut self, buffer: &mut vst::buffer::AudioBuffer<f32>) {
         let rate = self.parameters.value(RATE_PARAMETER_ID);
         let depth = self.parameters.value(DEPTH_PARAMETER_ID) / 100.0;
         let phase_offset = self.parameters.value(PHASE_PARAMETER_ID) / 360.0;

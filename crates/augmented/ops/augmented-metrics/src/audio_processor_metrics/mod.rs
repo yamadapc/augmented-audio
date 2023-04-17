@@ -52,17 +52,12 @@
 //!
 //!     fn prepare(
 //!         &mut self,
-//!         _context: &mut AudioContext,
-//!         settings: AudioProcessorSettings
+//!         context: &mut AudioContext
 //!     ) {
-//!         self.metrics.prepare(settings);
+//!         self.metrics.prepare(context.settings);
 //!     }
 //!
-//!     fn process<BufferType: AudioBuffer<SampleType=Self::SampleType>>(
-//!         &mut self,
-//!         _context: &mut AudioContext,
-//!         data: &mut BufferType
-//!     ) {
+//!     fn process(&mut self, _context: &mut AudioContext, _data: &mut AudioBuffer<Self::SampleType>) {
 //!         self.metrics.on_process_start();
 //!
 //!         // do audio-processing work

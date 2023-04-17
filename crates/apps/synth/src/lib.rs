@@ -23,9 +23,10 @@
 use num::FromPrimitive;
 use rimd::Status;
 
+use audio_processor_traits::simple_processor::MultiChannel;
 use audio_processor_traits::{
-    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, BufferProcessor,
-    MidiEventHandler, MidiMessageLike,
+    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
+    MidiMessageLike,
 };
 use augmented_dsp_filters::rbj::{FilterProcessor, FilterType};
 use voice::Voice;
@@ -35,7 +36,7 @@ mod voice;
 pub struct Synthesizer {
     current_voice: usize,
     voices: [Voice; 4],
-    filter: BufferProcessor<FilterProcessor<f32>>,
+    filter: MultiChannel<FilterProcessor<f32>>,
 }
 
 impl Default for Synthesizer {
@@ -55,7 +56,7 @@ impl Synthesizer {
                 Voice::new(sample_rate),
                 Voice::new(sample_rate),
             ],
-            filter: BufferProcessor(FilterProcessor::new(FilterType::LowPass)),
+            filter: MultiChannel::new(|| FilterProcessor::new(FilterType::LowPass)),
         }
     }
 }
@@ -63,18 +64,14 @@ impl Synthesizer {
 impl AudioProcessor for Synthesizer {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
         for voice in &mut self.voices {
-            voice.prepare(context, settings);
+            voice.prepare(context);
         }
-        self.filter.prepare(context, settings);
+        self.filter.prepare(context);
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         // Silence the input
         for sample in data.slice_mut() {
             *sample = 0.0;
@@ -116,12 +113,14 @@ impl Synthesizer {
             }
             Status::ControlChange => {
                 if bytes[1] == 21 {
-                    self.filter
-                        .0
-                        .set_cutoff(22000.0 * (bytes[2] as f32 / 127.0));
+                    self.filter.for_each(|filter| {
+                        filter.set_cutoff(22000.0 * (bytes[2] as f32 / 127.0));
+                    })
                 }
                 if bytes[1] == 22 {
-                    self.filter.0.set_q(1.0 + (bytes[2] as f32 / 127.0));
+                    self.filter.for_each(|filter| {
+                        filter.set_cutoff(22000.0 * (bytes[2] as f32 / 127.0));
+                    })
                 }
             }
             _ => {}

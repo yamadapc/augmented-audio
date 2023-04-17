@@ -24,13 +24,13 @@ use std::time::Duration;
 use enum_dispatch::enum_dispatch;
 
 use audio_processor_file::AudioFileProcessor;
-use audio_processor_traits::{AudioContext, AudioProcessorSettings};
+use audio_processor_traits::AudioContext;
 use augmented_adsr_envelope::Envelope;
 use augmented_oscillator::Oscillator;
 
 #[enum_dispatch(MetronomeSoundType)]
 pub trait MetronomeSound {
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings);
+    fn prepare(&mut self, context: &mut AudioContext);
     fn set_accent_beat(&mut self, is_accent: bool);
     fn trigger(&mut self);
     fn process(&mut self) -> f32;
@@ -66,9 +66,11 @@ impl MetronomeSoundSine {
 }
 
 impl MetronomeSound for MetronomeSoundSine {
-    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.envelope.set_sample_rate(settings.sample_rate());
-        self.oscillator.set_sample_rate(settings.sample_rate())
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.envelope
+            .set_sample_rate(context.settings.sample_rate());
+        self.oscillator
+            .set_sample_rate(context.settings.sample_rate())
     }
 
     fn set_accent_beat(&mut self, is_accent: bool) {
@@ -97,13 +99,10 @@ pub struct MetronomeSoundFile {
 }
 
 impl MetronomeSound for MetronomeSoundFile {
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        audio_processor_traits::AudioProcessor::prepare(
-            &mut self.file_processor,
-            context,
-            settings,
-        );
-        self.envelope.set_sample_rate(settings.sample_rate());
+    fn prepare(&mut self, context: &mut AudioContext) {
+        audio_processor_traits::AudioProcessor::prepare(&mut self.file_processor, context);
+        self.envelope
+            .set_sample_rate(context.settings.sample_rate());
         // Files have a different envelope to develop the sample a bit more
         self.envelope.set_decay(Duration::from_millis(50));
         self.file_processor.handle().stop();

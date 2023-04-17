@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:graphx/graphx.dart';
 import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
@@ -62,7 +63,7 @@ class _TempoControlState extends State<TempoControl> {
           const Text("Tempo"),
           Row(
             children: [
-              CupertinoButton(
+              PlatformTextButton(
                 child: const Text("-10"),
                 onPressed: () {
                   widget.stateController
@@ -75,8 +76,9 @@ class _TempoControlState extends State<TempoControl> {
                 },
               ),
               Expanded(
-                child: CupertinoTextField.borderless(
+                child: PlatformTextField(
                   autocorrect: false,
+                  makeCupertinoDecorationNull: true,
                   keyboardType: TextInputType.number,
                   focusNode: _inputFocusNode,
                   onSubmitted: (value) {
@@ -91,7 +93,7 @@ class _TempoControlState extends State<TempoControl> {
                   onEditingComplete: onTempoTextEditingComplete,
                 ),
               ),
-              CupertinoButton(
+              PlatformTextButton(
                 child: const Text("+10"),
                 onPressed: () {
                   widget.stateController
@@ -107,7 +109,7 @@ class _TempoControlState extends State<TempoControl> {
           ),
           SizedBox(
             width: double.infinity,
-            child: CupertinoSlider(
+            child: PlatformSlider(
               value: Math.min(Math.max(1, model.tempo), 350),
               onChanged: (value) {
                 widget.stateController.setTempo(value);

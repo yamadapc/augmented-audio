@@ -33,7 +33,7 @@ use skia_safe::{
 };
 
 use atomic_queue::Queue;
-use audio_processor_traits::{AudioBuffer, VecAudioBuffer};
+use audio_processor_traits::AudioBuffer;
 use augmented_audio_wave::spawn_audio_drawer;
 
 use crate::{
@@ -191,16 +191,12 @@ impl<AWPP: AudioWavePlayheadProvider> AudioWaveRenderingControllerImpl<AWPP> {
                     ..
                 } => {
                     let looper_clip = looper_clip.borrow();
-                    let looper_clip_copy: Vec<f32> = looper_clip
-                        .slice()
+                    let looper_clip_copy: Vec<Vec<f32>> = looper_clip
+                        .channels()
                         .iter()
-                        .map(|sample| sample.get())
+                        .map(|sample| sample.iter().map(|s| s.get()).collect())
                         .collect();
-                    let looper_clip_copy = VecAudioBuffer::new_with(
-                        looper_clip_copy,
-                        looper_clip.num_channels(),
-                        looper_clip.num_samples(),
-                    );
+                    let looper_clip_copy = AudioBuffer::new(looper_clip_copy);
                     self.drawers
                         .insert(looper_id, spawn_audio_drawer(looper_clip_copy));
                 }

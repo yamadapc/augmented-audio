@@ -21,26 +21,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 //! Provides what is in some cases a simpler form of expressing signal processing.
-//!
-//! The [`SimpleAudioProcessor`] is essentially a function of `f32` to `f32` (or a
-//! function that takes a multi-channel `frame` of `f32`s and mutates it.
-//!
-//! Additionally, [`process_buffer`] and [`BufferProcessor`] are exposed to "lift" a
-//! [`SimpleAudioProcessor`] onto a buffered [`AudioProcessor`] instance.
 
 use crate::parameters::{AudioProcessorHandleProvider, AudioProcessorHandleRef};
-use crate::{
-    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
-    MidiMessageLike,
-};
-use num::traits::FloatConst;
-use num::Float;
-use std::ops::Deref;
+use crate::{AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike, Zero};
+use std::ops::{AddAssign, DivAssign};
 
 pub trait MonoAudioProcessor {
     type SampleType: Copy;
 
-    fn m_prepare(&mut self, _context: &mut AudioContext, _settings: AudioProcessorSettings) {}
+    fn m_prepare(&mut self, _context: &mut AudioContext) {}
     fn m_process(
         &mut self,
         _context: &mut AudioContext,
@@ -50,104 +39,119 @@ pub trait MonoAudioProcessor {
     }
 }
 
-impl<M, ST> SimpleAudioProcessor for M
-where
-    M: MonoAudioProcessor<SampleType = ST>,
-    ST: Copy + std::iter::Sum<ST> + Float + FloatConst,
-{
-    type SampleType = M::SampleType;
+#[derive(Default)]
+pub struct MonoCopyProcessor<Processor: MonoAudioProcessor> {
+    processor: Processor,
+}
 
-    fn s_prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.m_prepare(context, settings);
+impl<Processor: MonoAudioProcessor> MonoCopyProcessor<Processor> {
+    pub fn new(processor: Processor) -> MonoCopyProcessor<Processor> {
+        Self { processor }
+    }
+}
+
+impl<Processor: MonoAudioProcessor> AudioProcessor for MonoCopyProcessor<Processor>
+where
+    Processor::SampleType: Zero + AddAssign + DivAssign + From<f32>,
+{
+    type SampleType = Processor::SampleType;
+
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.processor.m_prepare(context);
     }
 
-    fn s_process_frame(&mut self, context: &mut AudioContext, frame: &mut [Self::SampleType]) {
-        let sum = frame.iter().cloned().sum();
-        let output =
-            self.m_process(context, sum) / ST::from(frame.len()).unwrap_or_else(|| ST::one());
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+        for sample_num in 0..data.num_samples() {
+            let mut mono_input = Self::SampleType::zero();
+            for channel_num in 0..data.num_channels() {
+                mono_input += *data.get(channel_num, sample_num);
+            }
+            mono_input /= Self::SampleType::from(data.num_channels() as f32);
 
-        for sample in frame.iter_mut() {
-            *sample = output;
+            let output = self.processor.m_process(context, mono_input);
+
+            for channel_num in 0..data.num_channels() {
+                data.set(channel_num, sample_num, output);
+            }
         }
     }
 }
 
-/// Represents an audio processing node.
-///
-/// Implementors should define the SampleType the node will work over.
-pub trait SimpleAudioProcessor {
-    type SampleType: Copy;
-
-    /// Prepare for playback based on current audio settings
-    fn s_prepare(&mut self, _context: &mut AudioContext, _settings: AudioProcessorSettings) {}
-
-    /// Process a multi-channel frame.
-    fn s_process_frame(&mut self, _context: &mut AudioContext, _frame: &mut [Self::SampleType]) {}
-}
-
-/// Wrapper over `SimpleAudioProcessor` to provide an `AudioProcessor` impl.
-#[derive(Clone, Default, Debug)]
-pub struct BufferProcessor<Processor>(pub Processor);
-
-/// Process a buffer of samples with a `SimpleAudioProcessor`
-#[inline]
-pub fn process_buffer<Processor, BufferType>(
-    context: &mut AudioContext,
-    processor: &mut Processor,
-    data: &mut BufferType,
-) where
-    Processor: SimpleAudioProcessor,
-    <Processor as SimpleAudioProcessor>::SampleType: Copy,
-    BufferType: AudioBuffer<SampleType = Processor::SampleType>,
-{
-    for frame in data.frames_mut() {
-        processor.s_process_frame(context, frame);
-    }
-}
-
-impl<Processor> Deref for BufferProcessor<Processor> {
-    type Target = Processor;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl<Processor> AudioProcessorHandleProvider for BufferProcessor<Processor>
-where
-    Processor: AudioProcessorHandleProvider,
-{
-    fn generic_handle(&self) -> AudioProcessorHandleRef {
-        self.0.generic_handle()
-    }
-}
-
-impl<Processor> AudioProcessor for BufferProcessor<Processor>
-where
-    Processor: SimpleAudioProcessor,
-    <Processor as SimpleAudioProcessor>::SampleType: Copy,
-{
-    type SampleType = <Processor as SimpleAudioProcessor>::SampleType;
-
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.0.s_prepare(context, settings);
-    }
-
-    #[inline]
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
-        process_buffer(context, &mut self.0, data)
-    }
-}
-
-impl<Processor> MidiEventHandler for BufferProcessor<Processor>
-where
-    Processor: MidiEventHandler,
+impl<Processor: MidiEventHandler + MonoAudioProcessor> MidiEventHandler
+    for MonoCopyProcessor<Processor>
 {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
-        self.0.process_midi_events(midi_messages)
+        self.processor.process_midi_events(midi_messages)
+    }
+}
+
+pub struct MultiChannel<Processor: MonoAudioProcessor> {
+    processors: Vec<Processor>,
+    factory: Box<dyn Fn() -> Processor + Send>,
+}
+
+impl<Processor: MonoAudioProcessor> MultiChannel<Processor> {
+    pub fn new(factory: impl Fn() -> Processor + 'static + Send) -> MultiChannel<Processor> {
+        Self {
+            processors: vec![],
+            factory: Box::new(factory),
+        }
+    }
+
+    pub fn for_each(&mut self, mut f: impl FnMut(&mut Processor)) {
+        for processor in &mut self.processors {
+            f(processor);
+        }
+    }
+}
+
+impl<Processor: MonoAudioProcessor> AudioProcessor for MultiChannel<Processor> {
+    type SampleType = Processor::SampleType;
+
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.processors = (0..context.settings.input_channels)
+            .map(|_| (self.factory)())
+            .collect();
+        for processor in &mut self.processors {
+            processor.m_prepare(context);
+        }
+    }
+
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+        for (channel, processor) in data.channels_mut().iter_mut().zip(&mut self.processors) {
+            for sample in channel {
+                *sample = processor.m_process(context, *sample);
+            }
+        }
+    }
+}
+
+impl<Processor: AudioProcessorHandleProvider + MonoAudioProcessor> AudioProcessorHandleProvider
+    for MultiChannel<Processor>
+{
+    fn generic_handle(&self) -> AudioProcessorHandleRef {
+        self.processors[0].generic_handle()
+    }
+}
+
+pub fn process_buffer<Processor, SampleType>(
+    context: &mut AudioContext,
+    processor: &mut Processor,
+    signal: &mut AudioBuffer<SampleType>,
+) where
+    Processor: MonoAudioProcessor<SampleType = SampleType>,
+    SampleType: Copy + AddAssign + num::Zero,
+{
+    for sample_num in 0..signal.num_samples() {
+        let mut mono_input = SampleType::zero();
+        for channel_num in 0..signal.num_channels() {
+            mono_input += *signal.get(channel_num, sample_num);
+        }
+
+        let output = processor.m_process(context, mono_input);
+
+        for channel_num in 0..signal.num_channels() {
+            signal.set(channel_num, sample_num, output);
+        }
     }
 }

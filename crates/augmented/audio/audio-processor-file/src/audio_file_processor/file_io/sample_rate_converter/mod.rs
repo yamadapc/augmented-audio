@@ -20,14 +20,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-#![allow(unknown_lints)]
-#![allow(clippy::all)]
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-// These lints ignore unsafe undefined behaviour
-#![allow(deref_nullptr)]
-#![allow(improper_ctypes)]
-#![allow(unaligned_references)]
 
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+pub const BLOCK_SIZE: usize = 1024;
+
+#[cfg(all(feature = "rubato", not(feature = "samplerate")))]
+pub use rubato_impl::*;
+#[cfg(feature = "samplerate")]
+pub use samplerate_impl::*;
+
+#[cfg(feature = "rubato")]
+#[allow(unused)]
+pub mod rubato_impl;
+#[cfg(feature = "samplerate")]
+mod samplerate_impl;

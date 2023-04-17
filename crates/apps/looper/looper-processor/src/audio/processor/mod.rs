@@ -24,8 +24,7 @@ use basedrop::Shared;
 
 use audio_garbage_collector::make_shared;
 use audio_processor_traits::{
-    AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings, MidiEventHandler,
-    MidiMessageLike,
+    AudioBuffer, AudioContext, AudioProcessor, MidiEventHandler, MidiMessageLike,
 };
 use handle::LooperHandle;
 
@@ -87,20 +86,18 @@ impl LooperProcessor {
 impl AudioProcessor for LooperProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.handle.prepare(settings);
-        self.sequencer.prepare(context, settings);
+    fn prepare(&mut self, context: &mut AudioContext) {
+        self.handle.prepare(context.settings);
+        self.sequencer.prepare(context);
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         let handle = &*self.handle;
-        for frame in data.frames_mut() {
-            for (channel, sample) in frame.iter_mut().enumerate() {
-                *sample = handle.process(channel, *sample);
+        for sample_num in 0..data.num_samples() {
+            for channel_num in 0..data.num_channels() {
+                let input = data.get(channel_num, sample_num);
+                let output = handle.process(channel_num, *input);
+                data.set(channel_num, sample_num, output);
             }
             handle.after_process();
         }
@@ -126,8 +123,7 @@ mod test {
     use itertools::Itertools;
 
     use audio_processor_traits::{
-        audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
-        OwnedAudioBuffer, VecAudioBuffer,
+        audio_buffer, AudioBuffer, AudioProcessor, AudioProcessorSettings,
     };
     use handle::{LooperState, QuantizeMode};
 
@@ -149,10 +145,10 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
+        let mut test_buffer = AudioBuffer::from_interleaved(1, &test_buffer_vec);
 
         looper.handle.start_recording();
         looper.process(&mut context, &mut test_buffer);
@@ -163,7 +159,7 @@ mod test {
 
         let looper_clip = looper.handle.looper_clip();
         let looper_clip = looper_clip.borrow();
-        let looper_clip = looper_clip.slice().iter().map(|f| f.get()).collect_vec();
+        let looper_clip = looper_clip.channel(0).iter().map(|f| f.get()).collect_vec();
         assert_eq!(test_buffer_vec, looper_clip);
     }
 
@@ -172,15 +168,15 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec.clone());
-        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+        let test_buffer = AudioBuffer::from_interleaved(1, &test_buffer_vec);
+        looper.handle.set_looper_buffer(&test_buffer);
 
         let looper_clip = looper.handle.looper_clip();
         let looper_clip = looper_clip.borrow();
-        let looper_clip = looper_clip.slice().iter().map(|f| f.get()).collect_vec();
+        let looper_clip = looper_clip.channel(0).iter().map(|f| f.get()).collect_vec();
         assert_eq!(test_buffer_vec, looper_clip);
     }
 
@@ -189,19 +185,19 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
-        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+        let test_buffer = AudioBuffer::from_interleaved(1, &test_buffer_vec);
+        looper.handle.set_looper_buffer(&test_buffer);
         looper.handle.set_start_offset(0.25);
         looper.handle.play();
 
-        let mut output_buffer = VecAudioBuffer::new();
-        output_buffer.resize(1, 8, 0.0);
+        let mut output_buffer = AudioBuffer::empty();
+        output_buffer.resize(1, 8);
         looper.process(&mut context, &mut output_buffer);
 
-        let output = output_buffer.slice().to_vec();
+        let output = output_buffer.channel(0).to_vec();
         assert_eq!(output, vec![2.0, 3.0, 4.0, 2.0, 3.0, 4.0, 2.0, 3.0]);
     }
 
@@ -210,19 +206,19 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
-        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+        let test_buffer = AudioBuffer::from_interleaved(1, &test_buffer_vec);
+        looper.handle.set_looper_buffer(&test_buffer);
         looper.handle.set_end_offset(0.75);
         looper.handle.play();
 
-        let mut output_buffer = VecAudioBuffer::new();
-        output_buffer.resize(1, 8, 0.0);
+        let mut output_buffer = AudioBuffer::empty();
+        output_buffer.resize(1, 8);
         looper.process(&mut context, &mut output_buffer);
 
-        let output = output_buffer.slice().to_vec();
+        let output = output_buffer.channel(0).to_vec();
         assert_eq!(output, vec![1.0, 2.0, 3.0, 1.0, 2.0, 3.0, 1.0, 2.0]);
     }
 
@@ -231,19 +227,19 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
-        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+        let test_buffer = AudioBuffer::from_interleaved(1, &test_buffer_vec);
+        looper.handle.set_looper_buffer(&test_buffer);
         looper.handle.set_fade_start(0.25);
         looper.handle.play();
 
-        let mut output_buffer = VecAudioBuffer::new();
-        output_buffer.resize(1, 8, 0.0);
+        let mut output_buffer = AudioBuffer::empty();
+        output_buffer.resize(1, 8);
         looper.process(&mut context, &mut output_buffer);
 
-        let output = output_buffer.slice().to_vec();
+        let output = output_buffer.channel(0).to_vec();
         assert_eq!(output, vec![0.0, 2.0, 3.0, 4.0, 0.0, 2.0, 3.0, 4.0]);
     }
 
@@ -252,18 +248,18 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
-        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+        let test_buffer = AudioBuffer::from_interleaved(1, &test_buffer_vec);
+        looper.handle.set_looper_buffer(&test_buffer);
         looper.handle.play();
 
-        let mut output_buffer = VecAudioBuffer::new();
-        output_buffer.resize(1, 8, 0.0);
+        let mut output_buffer = AudioBuffer::empty();
+        output_buffer.resize(1, 8);
         looper.process(&mut context, &mut output_buffer);
 
-        let output = output_buffer.slice().to_vec();
+        let output = output_buffer.channel(0).to_vec();
         assert_eq!(output, vec![1.0, 2.0, 3.0, 4.0, 1.0, 2.0, 3.0, 4.0]);
     }
 
@@ -272,17 +268,17 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let test_buffer_vec = vec![1.0, 2.0, 3.0, 4.0];
-        let mut test_buffer = VecAudioBuffer::from(test_buffer_vec);
-        looper.handle.set_looper_buffer(&test_buffer.interleaved());
+        let test_buffer = AudioBuffer::from_interleaved(1, &test_buffer_vec);
+        looper.handle.set_looper_buffer(&test_buffer);
 
-        let mut output_buffer = VecAudioBuffer::new();
-        output_buffer.resize(1, 8, 0.0);
+        let mut output_buffer = AudioBuffer::empty();
+        output_buffer.resize(1, 8);
         looper.process(&mut context, &mut output_buffer);
 
-        let output = output_buffer.slice().to_vec();
+        let output = output_buffer.channel(0).to_vec();
         assert_eq!(output, vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]);
     }
 
@@ -292,16 +288,16 @@ mod test {
         let settings = test_settings();
 
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let mut silence_buffer = Vec::new();
         // Produce 0.1 second empty buffer
         silence_buffer.resize((0.1 * settings.sample_rate()) as usize, 0.0);
 
-        let mut audio_buffer = silence_buffer.clone();
-        let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
+        let audio_buffer = silence_buffer.clone();
+        let mut audio_buffer = AudioBuffer::from_interleaved(1, &audio_buffer);
         looper.process(&mut context, &mut audio_buffer);
-        assert_eq!(rms_level(audio_buffer.slice()), 0.0);
+        assert_eq!(rms_level(audio_buffer.channel(0)), 0.0);
     }
 
     #[test]
@@ -310,14 +306,14 @@ mod test {
         looper.handle.set_dry_volume(1.0);
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
-        let mut audio_buffer = sine_buffer.clone();
-        let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
+        let audio_buffer = sine_buffer.clone();
+        let mut audio_buffer = AudioBuffer::from_interleaved(1, &audio_buffer);
         looper.process(&mut context, &mut audio_buffer);
 
-        test_level_equivalence(&sine_buffer, audio_buffer.slice(), 1, 1, 0.001);
+        test_level_equivalence(&sine_buffer, audio_buffer.channel(0), 1, 1, 0.001);
     }
 
     #[test]
@@ -326,25 +322,25 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let sine_buffer = sine_buffer(settings.sample_rate(), 440.0, Duration::from_secs_f32(0.1));
         assert_ne!(sine_buffer.len(), 0);
         assert_ne!(rms_level(&sine_buffer), 0.0);
 
-        let mut audio_buffer = sine_buffer;
-        let mut audio_buffer = InterleavedAudioBuffer::new(1, &mut audio_buffer);
+        let audio_buffer = sine_buffer;
+        let mut audio_buffer = AudioBuffer::from_interleaved(1, &audio_buffer);
         looper.handle().set_dry_volume(0.0);
         looper.process(&mut context, &mut audio_buffer);
 
-        assert_eq!(rms_level(audio_buffer.slice()), 0.0);
+        assert_eq!(rms_level(audio_buffer.channel(0)), 0.0);
     }
 
     fn test_looper_record_and_playback(looper: &mut LooperProcessor) {
-        let mut sample_buffer: Vec<f32> = (0..10).map(|i| i as f32).collect();
+        let sample_buffer: Vec<f32> = (0..10).map(|i| i as f32).collect();
 
-        let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
-        let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
+        let input_buffer = AudioBuffer::from_interleaved(1, &sample_buffer);
+        let mut sample_buffer = input_buffer.clone();
 
         looper.handle.start_recording();
         let mut context = AudioContext::default();
@@ -355,18 +351,18 @@ mod test {
 
         // While recording, the output is MUTED
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
-        let initial_output = sample_buffer.slice().to_vec();
+        let initial_output = sample_buffer.channel(0).to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "While recording the looper wasn't silent"
         );
 
-        let mut output_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
-        let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
+        let output_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
+        let mut output_buffer = AudioBuffer::from_interleaved(1, &output_buffer);
 
         looper.process(&mut context, &mut output_buffer);
-        let output_vec = output_buffer.slice().to_vec();
-        let sample_vec = input_buffer.slice().to_vec();
+        let output_vec = output_buffer.channel(0).to_vec();
+        let sample_vec = input_buffer.channel(0).to_vec();
 
         assert_eq!(
             output_vec, sample_vec,
@@ -376,8 +372,8 @@ mod test {
         audio_buffer::clear(&mut output_buffer);
 
         looper.process(&mut context, &mut output_buffer);
-        let output_vec = output_buffer.slice().to_vec();
-        let sample_vec = input_buffer.slice().to_vec();
+        let output_vec = output_buffer.channel(0).to_vec();
+        let sample_vec = input_buffer.channel(0).to_vec();
         assert_eq!(
             output_vec, sample_vec,
             "The looper didn't playback its recording twice"
@@ -387,16 +383,16 @@ mod test {
         looper.handle.pause();
         looper.process(&mut context, &mut sample_buffer);
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
-        let initial_output = sample_buffer.slice().to_vec();
+        let initial_output = sample_buffer.channel(0).to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "The looper wasn't silent after stopped"
         );
     }
 
-    fn make_silent_buffer(num_samples: usize) -> VecAudioBuffer<f32> {
+    fn make_silent_buffer(num_samples: usize) -> AudioBuffer<f32> {
         let silent_buffer: Vec<f32> = (0..num_samples).map(|_i| 0.0).collect();
-        VecAudioBuffer::new_with(silent_buffer, 1, num_samples)
+        AudioBuffer::from_interleaved(1, &silent_buffer)
     }
 
     fn test_looper_is_silent(settings: &AudioProcessorSettings, looper: &mut LooperProcessor) {
@@ -419,7 +415,7 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         test_looper_record_and_playback(&mut looper);
         looper.handle.clear();
@@ -431,12 +427,12 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = test_settings();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         // Record and test output is good
         {
-            let mut buffer: Vec<f32> = (0..10).map(|_i| 1.0).collect();
-            let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
+            let buffer: Vec<f32> = (0..10).map(|_i| 1.0).collect();
+            let mut buffer = AudioBuffer::from_interleaved(1, &buffer);
             looper.handle.start_recording();
             assert_no_alloc(|| {
                 looper.process(&mut context, &mut buffer);
@@ -445,20 +441,20 @@ mod test {
                 .handle
                 .stop_recording(LooperHandleThread::OtherThread);
 
-            let mut buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
-            let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
+            let buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
+            let mut buffer = AudioBuffer::from_interleaved(1, &buffer);
             assert_no_alloc(|| {
                 looper.process(&mut context, &mut buffer);
             });
-            let output_vec = buffer.slice().to_vec();
+            let output_vec = buffer.channel(0).to_vec();
             let sample_vec: Vec<f32> = (0..10).map(|_i| 1.0).collect();
             assert_eq!(output_vec, sample_vec, "Recording didn't work");
         }
 
         // Run overdubbing
         {
-            let mut buffer: Vec<f32> = (0..10).map(|_i| 1.0).collect();
-            let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
+            let buffer: Vec<f32> = (0..10).map(|_i| 1.0).collect();
+            let mut buffer = AudioBuffer::from_interleaved(1, &buffer);
             looper.handle.start_recording();
             assert_no_alloc(|| {
                 looper.process(&mut context, &mut buffer);
@@ -469,13 +465,13 @@ mod test {
         }
 
         // Test output is summed
-        let mut buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
-        let mut buffer = InterleavedAudioBuffer::new(1, &mut buffer);
+        let buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
+        let mut buffer = AudioBuffer::from_interleaved(1, &buffer);
 
         assert_no_alloc(|| {
             looper.process(&mut context, &mut buffer);
         });
-        let output_vec = buffer.slice().to_vec();
+        let output_vec = buffer.channel(0).to_vec();
         let sample_vec: Vec<f32> = (0..10).map(|_i| 2.0).collect();
         assert_eq!(output_vec, sample_vec, "Overdub didn't work");
     }
@@ -486,21 +482,21 @@ mod test {
         let mut looper = LooperProcessor::default();
         let settings = AudioProcessorSettings::new(10.0, 1, 1, 512);
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
 
         let num_samples = (MAX_LOOP_LENGTH_SECS * settings.sample_rate) as usize - 30;
-        let mut sample_buffer: Vec<f32> = (0..num_samples).map(|i| i as f32).collect();
-        let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
+        let sample_buffer: Vec<f32> = (0..num_samples).map(|i| i as f32).collect();
+        let mut sample_buffer = AudioBuffer::from_interleaved(1, &sample_buffer);
         assert_no_alloc(|| {
             looper.process(&mut context, &mut sample_buffer);
         });
 
         test_looper_is_silent(&settings, &mut looper);
 
-        let mut sample_buffer: Vec<f32> = (0..10).map(|i| i as f32).collect();
+        let sample_buffer: Vec<f32> = (0..10).map(|i| i as f32).collect();
 
-        let input_buffer = VecAudioBuffer::new_with(sample_buffer.clone(), 1, sample_buffer.len());
-        let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
+        let input_buffer = AudioBuffer::from_interleaved(1, &sample_buffer);
+        let mut sample_buffer = AudioBuffer::from_interleaved(1, &sample_buffer);
 
         looper.handle.start_recording();
         assert_no_alloc(|| {
@@ -512,20 +508,20 @@ mod test {
 
         // While recording, the output is MUTED
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
-        let initial_output = sample_buffer.slice().to_vec();
+        let initial_output = sample_buffer.channel(0).to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "While recording the looper wasn't silent"
         );
 
-        let mut output_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
-        let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
+        let output_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
+        let mut output_buffer = AudioBuffer::from_interleaved(1, &output_buffer);
 
         assert_no_alloc(|| {
             looper.process(&mut context, &mut output_buffer);
         });
-        let output_vec = output_buffer.slice().to_vec();
-        let sample_vec = input_buffer.slice().to_vec();
+        let output_vec = output_buffer.channel(0).to_vec();
+        let sample_vec = input_buffer.channel(0).to_vec();
         assert_eq!(
             output_vec, sample_vec,
             "After recording the looper didn't playback - or played back a different input"
@@ -536,8 +532,8 @@ mod test {
         assert_no_alloc(|| {
             looper.process(&mut context, &mut output_buffer);
         });
-        let output_vec = output_buffer.slice().to_vec();
-        let sample_vec = input_buffer.slice().to_vec();
+        let output_vec = output_buffer.channel(0).to_vec();
+        let sample_vec = input_buffer.channel(0).to_vec();
         assert_eq!(
             output_vec, sample_vec,
             "The looper didn't playback its recording twice"
@@ -549,7 +545,7 @@ mod test {
             looper.process(&mut context, &mut sample_buffer);
         });
         let empty_buffer: Vec<f32> = (0..10).map(|_i| 0.0).collect();
-        let initial_output = sample_buffer.slice().to_vec();
+        let initial_output = sample_buffer.channel(0).to_vec();
         assert_eq!(
             empty_buffer, initial_output,
             "The looper wasn't silent after stopped"
@@ -565,7 +561,7 @@ mod test {
         let settings = AudioProcessorSettings::new(100.0, 1, 1, 512);
         let mut looper = LooperProcessor::default();
         let mut context = AudioContext::from(settings);
-        looper.prepare(&mut context, settings);
+        looper.prepare(&mut context);
         looper.handle.set_tick_time(true);
 
         // Setup tempo & quantization
@@ -579,8 +575,8 @@ mod test {
         assert_f_eq!(position_beats, 0.0);
 
         {
-            let mut sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
-            let mut sample_buffer = InterleavedAudioBuffer::new(1, &mut sample_buffer);
+            let sample_buffer: Vec<f32> = (0..100).map(|i| i as f32).collect();
+            let mut sample_buffer = AudioBuffer::from_interleaved(1, &sample_buffer);
             // We process 1s of audio; which is 1 beat
             assert_no_alloc(|| {
                 looper.process(&mut context, &mut sample_buffer);
@@ -600,8 +596,8 @@ mod test {
         assert_eq!(looper.handle.state(), LooperState::Recording);
 
         // We record some audio in
-        let mut recorded_buffer: Vec<f32> = (0..400).map(|i| i as f32).collect();
-        let mut recorded_buffer = InterleavedAudioBuffer::new(1, &mut recorded_buffer);
+        let recorded_buffer: Vec<f32> = (0..400).map(|i| i as f32).collect();
+        let mut recorded_buffer = AudioBuffer::from_interleaved(1, &recorded_buffer);
         assert_no_alloc(|| {
             looper.process(&mut context, &mut recorded_buffer);
         });
@@ -613,14 +609,14 @@ mod test {
         assert_eq!(looper.handle.state(), LooperState::Playing);
 
         // We expect audio to be played back now
-        let mut output_buffer: Vec<f32> = (0..200).map(|_i| 0.0).collect();
-        let mut output_buffer = InterleavedAudioBuffer::new(1, &mut output_buffer);
+        let output_buffer: Vec<f32> = (0..200).map(|_i| 0.0).collect();
+        let mut output_buffer = AudioBuffer::from_interleaved(1, &output_buffer);
         assert_no_alloc(|| {
             looper.process(&mut context, &mut output_buffer);
         });
         assert_eq!(looper.handle.state(), LooperState::Playing);
 
-        let output_vec = output_buffer.slice().to_vec();
+        let output_vec = output_buffer.channel(0).to_vec();
         assert_eq!(
             output_vec,
             (0..200).map(|i| i as f32).collect::<Vec<f32>>(),

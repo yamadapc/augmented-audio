@@ -362,7 +362,7 @@ fn get_example_buffer(example_path: &CStr) -> anyhow::Result<ExampleBuffer> {
         settings,
         &example_path,
     )?;
-    processor.prepare(&mut context, settings);
+    processor.prepare(&mut context);
     let channels = processor.buffer().clone();
     let mut output = vec![];
     for (s1, s2) in channels[0].iter().zip(channels[1].clone()) {

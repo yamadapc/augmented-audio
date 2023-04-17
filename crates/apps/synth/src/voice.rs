@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use augmented_adsr_envelope::Envelope;
 use augmented_oscillator::Oscillator;
 
@@ -75,19 +75,16 @@ impl Voice {
 impl AudioProcessor for Voice {
     type SampleType = f32;
 
-    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let settings = context.settings;
         for oscillator in &mut self.oscillators {
             oscillator.set_sample_rate(settings.sample_rate());
         }
         self.envelope.set_sample_rate(settings.sample_rate());
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
-        for frame in data.frames_mut() {
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+        for sample_index in 0..data.num_samples() {
             let mut oscillator_value = 0.0;
             for oscillator in &self.oscillators {
                 oscillator_value += oscillator.get();
@@ -96,7 +93,8 @@ impl AudioProcessor for Voice {
             let envelope_volume = self.envelope.volume();
             let output = self.volume * oscillator_value * envelope_volume;
 
-            for sample in frame.iter_mut() {
+            for channel_index in 0..data.num_channels() {
+                let sample = data.get_mut(channel_index, sample_index);
                 *sample += output;
             }
 

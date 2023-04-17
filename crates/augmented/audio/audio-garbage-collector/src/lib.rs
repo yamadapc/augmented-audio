@@ -33,6 +33,8 @@
 //! adds some small overhead.
 
 use std::sync::{Arc, Mutex};
+#[cfg(not(target_arch = "wasm32"))]
+use std::thread;
 use std::time::Duration;
 
 use basedrop::Collector;
@@ -40,8 +42,6 @@ pub use basedrop::{Handle, Owned, Shared, SharedCell};
 use lazy_static::lazy_static;
 use thiserror::Error;
 
-#[cfg(not(target_arch = "wasm32"))]
-use std::thread;
 #[cfg(target_arch = "wasm32")]
 use wasm_thread as thread;
 
@@ -207,6 +207,34 @@ mod test {
     use basedrop::*;
 
     use super::*;
+
+    #[test]
+    fn test_get_global_gc() {
+        let gc = current();
+        assert!(gc.blocking_collect());
+        let _ = gc.blocking_alloc_count();
+    }
+
+    #[test]
+    fn test_make_shared() {
+        let _ = make_shared(10);
+    }
+
+    #[test]
+    fn test_make_shared_cell() {
+        let c = make_shared_cell(10);
+        c.set(make_shared(22));
+        assert_eq!(*c.get(), 22);
+        drop(c);
+        let _ = current().blocking_alloc_count();
+        current().blocking_collect();
+    }
+
+    #[test]
+    fn test_default_garbage_collector() {
+        let mut gc = GarbageCollector::default();
+        gc.stop().unwrap();
+    }
 
     #[test]
     fn test_create_stop_collector() {

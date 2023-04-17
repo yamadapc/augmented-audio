@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 
 struct MonoRightProcessor;
@@ -27,13 +28,9 @@ struct MonoRightProcessor;
 impl AudioProcessor for MonoRightProcessor {
     type SampleType = f32;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
-        for frame in data.frames_mut() {
-            frame[0] = frame[1];
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<f32>) {
+        for sample_index in 0..data.num_samples() {
+            data.set(0, sample_index, *data.get(1, sample_index));
         }
     }
 }

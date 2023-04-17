@@ -29,6 +29,7 @@ use crate::denormal_prevention;
 use crate::state::{DirectFormIState, FilterState};
 
 /// Type of a filter
+#[derive(Clone, Copy)]
 pub enum FilterType {
     LowPass,
     HighPass,
@@ -336,19 +337,14 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
     /// [`FilterProcessor`] for multi-channel usage).
     ///
     /// A channel must be provided. The buffer will be modified in-place.
-    pub fn process_channel<Buffer: AudioBuffer<SampleType = Sample>>(
-        &mut self,
-        buffer: &mut Buffer,
-        channel_index: usize,
-    ) {
-        for frame in buffer.frames_mut() {
-            let input = frame[channel_index];
+    pub fn process_channel(&mut self, buffer: &mut AudioBuffer<Sample>, channel_index: usize) {
+        for sample in buffer.channel_mut(channel_index) {
             let output = self.state.process1(
                 &self.coefficients,
-                input,
+                *sample,
                 self.denormal_prevention.alternating_current(),
             );
-            frame[channel_index] = output;
+            *sample = output;
         }
     }
 }

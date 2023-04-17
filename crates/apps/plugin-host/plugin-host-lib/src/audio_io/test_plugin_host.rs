@@ -216,7 +216,7 @@ impl TestPluginHost {
             self.mono_input,
         );
         let mut context = AudioContext::from(*audio_settings);
-        test_host_processor.prepare(&mut context, *audio_settings);
+        test_host_processor.prepare(&mut context);
 
         if self.processor.is_none() && self.start_paused {
             test_host_processor.pause();

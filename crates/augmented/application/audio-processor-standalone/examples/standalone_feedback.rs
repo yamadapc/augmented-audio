@@ -27,12 +27,7 @@ struct FeedbackProcessor;
 impl AudioProcessor for FeedbackProcessor {
     type SampleType = f32;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        _data: &mut BufferType,
-    ) {
-    }
+    fn process(&mut self, _context: &mut AudioContext, _data: &mut AudioBuffer<Self::SampleType>) {}
 }
 
 fn main() {

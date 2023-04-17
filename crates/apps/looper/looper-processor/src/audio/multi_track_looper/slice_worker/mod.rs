@@ -34,9 +34,7 @@ use audio_processor_analysis::transient_detection::stft::markers::{
     build_markers, AudioFileMarker,
 };
 use audio_processor_analysis::transient_detection::stft::IterativeTransientDetectionParams;
-use audio_processor_traits::{
-    AudioBuffer, AudioProcessorSettings, OwnedAudioBuffer, VecAudioBuffer,
-};
+use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
 use crate::audio::processor::handle::LooperClipRef;
 
@@ -97,12 +95,14 @@ impl SliceProcessorThread {
         let buffer = buffer.borrow();
         let buffer = buffer.deref();
 
-        let mut work_buffer = VecAudioBuffer::new();
-        work_buffer.resize(1, buffer.num_samples(), 0.0);
-        for (loop_frame, work_sample) in buffer.frames().zip(work_buffer.slice_mut()) {
-            for loop_sample in loop_frame {
-                *work_sample += loop_sample.get();
+        let mut work_buffer = AudioBuffer::empty();
+        work_buffer.resize(1, buffer.num_samples());
+        for sample_num in 0..buffer.num_samples() {
+            let mut input = 0.0;
+            for channel_num in 0..buffer.num_channels() {
+                input += buffer.get(channel_num, sample_num).get();
             }
+            work_buffer.set(0, sample_num, input);
         }
 
         // Run transient detection
@@ -114,7 +114,7 @@ impl SliceProcessorThread {
             iteration_count: 10,
             ..IterativeTransientDetectionParams::default()
         };
-        let result = build_markers(&job.settings, work_buffer.slice_mut(), params, 0.05);
+        let result = build_markers(&job.settings, work_buffer.channel_mut(0), params, 0.05);
         let marker_count = result.len();
         let result = SliceResult {
             result: make_shared(result),
@@ -215,8 +215,9 @@ mod test {
         let worker = SliceWorker::new();
         worker.start();
 
-        let buffer = VecAudioBuffer::from(
-            vec![1.0, 0.0, 1.0, 0.0]
+        let buffer = AudioBuffer::from_interleaved(
+            1,
+            &vec![1.0, 0.0, 1.0, 0.0]
                 .iter()
                 .map(|f| AtomicF32::from(*f))
                 .collect_vec(),

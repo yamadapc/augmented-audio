@@ -37,6 +37,7 @@ use cpal::{
     SampleRate, StreamConfig, StreamError, SupportedBufferSize, SupportedStreamConfig,
     SupportedStreamConfigRange, SupportedStreamConfigsError,
 };
+use std::time::Duration;
 
 use crate::standalone_cpal::mock_cpal::vec_iterator::VecIterator;
 
@@ -150,6 +151,7 @@ impl DeviceTrait for VirtualHostDevice {
         _sample_format: SampleFormat,
         _data_callback: D,
         _error_callback: E,
+        _timeout: Option<Duration>,
     ) -> Result<Self::Stream, BuildStreamError>
     where
         D: FnMut(&Data, &InputCallbackInfo) + Send + 'static,
@@ -164,6 +166,7 @@ impl DeviceTrait for VirtualHostDevice {
         _sample_format: SampleFormat,
         _data_callback: D,
         _error_callback: E,
+        _timeout: Option<Duration>,
     ) -> Result<Self::Stream, BuildStreamError>
     where
         D: FnMut(&mut Data, &OutputCallbackInfo) + Send + 'static,
@@ -188,7 +191,7 @@ impl StreamTrait for VirtualHostStream {
 
 #[cfg(test)]
 mod test {
-    use audio_processor_traits::{BufferProcessor, NoopAudioProcessor};
+    use audio_processor_traits::NoopAudioProcessor;
 
     use crate::{standalone_start_with, StandaloneAudioOnlyProcessor, StandaloneStartOptions};
 
@@ -207,11 +210,11 @@ mod test {
     #[test]
     fn test_run_virtual_host_with_standalone_run() {
         let host = VirtualHost::default();
-        let processor = BufferProcessor(NoopAudioProcessor::default());
+        let processor = NoopAudioProcessor::default();
         let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
 
         let _handles = standalone_start_with::<
-            StandaloneAudioOnlyProcessor<BufferProcessor<NoopAudioProcessor<f32>>>,
+            StandaloneAudioOnlyProcessor<NoopAudioProcessor<f32>>,
             VirtualHost,
         >(
             processor,

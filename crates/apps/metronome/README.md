@@ -111,5 +111,12 @@ State management is done using dart `mobx`. SQL is handled using `sqflite` and t
 
 Both `mobx`, `floor` and the rust to dart require code-gen processes to be ran.
 
+## Building for android
+
+* Make sure Android SDK/Android Studio is set-up
+* Set `ANDROID_HOME` environment variable to point to the Android SDK and `NDK_HOME` to point to the NDK
+* Install `cargo-ndk` using `cargo install cargo-ndk`
+* Make sure the `ANDROID_NDK` gradle property is set on `~/.gradle/gradle.properties`
+
 ## License
 This subdirectory is licensed under AGPLv3 for now.

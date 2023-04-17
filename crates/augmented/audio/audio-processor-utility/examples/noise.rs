@@ -1,3 +1,4 @@
+use audio_processor_traits::simple_processor::MonoCopyProcessor;
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -20,10 +21,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::BufferProcessor;
 use audio_processor_utility::noise::WhiteNoiseProcessor;
 
 fn main() {
     let mono = WhiteNoiseProcessor::default();
-    audio_processor_standalone::audio_processor_main(BufferProcessor(mono));
+    audio_processor_standalone::audio_processor_main(MonoCopyProcessor::new(mono));
 }

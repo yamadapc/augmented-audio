@@ -1,8 +1,31 @@
+// Augmented Audio: Audio libraries and applications
+// Copyright (c) 2022 Pedro Tacla Yamada
+//
+// The MIT License (MIT)
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
 use std::marker::PhantomData;
 
 use num::Float;
 
-use crate::{AudioBuffer, AudioContext, AudioProcessor, SimpleAudioProcessor};
+use crate::{AudioBuffer, AudioContext, AudioProcessor};
 
 /// An audio-processor which doesn't do any work.
 pub struct NoopAudioProcessor<SampleType>(PhantomData<SampleType>);
@@ -19,9 +42,10 @@ impl<SampleType> NoopAudioProcessor<SampleType> {
     }
 }
 
-impl<SampleType: Send + Copy> SimpleAudioProcessor for NoopAudioProcessor<SampleType> {
+impl<SampleType: Send + Copy> AudioProcessor for NoopAudioProcessor<SampleType> {
     type SampleType = SampleType;
-    fn s_process_frame(&mut self, _context: &mut AudioContext, _frame: &mut [SampleType]) {}
+    fn process(&mut self, _context: &mut AudioContext, _frame: &mut AudioBuffer<Self::SampleType>) {
+    }
 }
 
 /// An audio-processor which mutes all channels.
@@ -39,50 +63,36 @@ impl<SampleType> Default for SilenceAudioProcessor<SampleType> {
     }
 }
 
-impl<SampleType: Float + Send> AudioProcessor for SilenceAudioProcessor<SampleType> {
+impl<SampleType: Float + Send + Sized> AudioProcessor for SilenceAudioProcessor<SampleType> {
     type SampleType = SampleType;
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        output: &mut BufferType,
-    ) {
-        for sample in output.slice_mut() {
-            *sample = SampleType::zero();
+    fn process(&mut self, _context: &mut AudioContext, output: &mut AudioBuffer<SampleType>) {
+        for channel in output.channels_mut() {
+            for sample in channel {
+                *sample = SampleType::zero();
+            }
         }
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{AudioProcessor, BufferProcessor, VecAudioBuffer};
+    use crate::AudioProcessor;
 
     use super::*;
 
     #[test]
     fn test_noop_processor() {
-        let mut output = BufferProcessor(NoopAudioProcessor::<f32>::default());
+        let mut output = NoopAudioProcessor::<f32>::default();
         let mut ctx = AudioContext::default();
-        let settings = ctx.settings().clone();
-        output.prepare(&mut ctx, settings);
+        output.prepare(&mut ctx);
 
-        let mut output_buffer = VecAudioBuffer::new_with(
-            vec![
-                1.0, 2.0, // 1
-                1.0, 2.0, // 2
-                1.0, 2.0, // 3
-            ],
-            2,
-            3,
-        );
-        output.process(&mut ctx, &mut output_buffer);
+        let buffer = [[1.0, 1.0, 1.0], [2.0, 2.0, 2.0]];
+        let mut buffer = AudioBuffer::from(buffer.iter().cloned());
+        output.process(&mut ctx, &mut buffer);
         assert_eq!(
-            output_buffer.slice(),
-            [
-                1.0, 2.0, // 1
-                1.0, 2.0, // 2
-                1.0, 2.0, // 3
-            ]
+            buffer.channels(),
+            &vec![vec![1.0, 1.0, 1.0], vec![2.0, 2.0, 2.0],]
         );
     }
 
@@ -90,25 +100,13 @@ mod test {
     fn test_silence_processor() {
         let mut output = SilenceAudioProcessor::<f32>::default();
         let mut ctx = AudioContext::default();
-        let settings = ctx.settings().clone();
-        output.prepare(&mut ctx, settings);
-        let mut output_buffer = VecAudioBuffer::new_with(
-            vec![
-                1.0, 2.0, // 1
-                1.0, 2.0, // 2
-                1.0, 2.0, // 3
-            ],
-            2,
-            3,
-        );
-        output.process(&mut ctx, &mut output_buffer);
+        output.prepare(&mut ctx);
+        let mut buffer = AudioBuffer::from([[1.0, 1.0, 1.0], [2.0, 2.0, 2.0]].iter().cloned());
+
+        output.process(&mut ctx, &mut buffer);
         assert_eq!(
-            output_buffer.slice(),
-            [
-                0.0, 0.0, // 1
-                0.0, 0.0, // 2
-                0.0, 0.0, // 3
-            ]
+            buffer.channels(),
+            &vec![vec![0.0, 0.0, 0.0], vec![0.0, 0.0, 0.0],]
         );
     }
 }

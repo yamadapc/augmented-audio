@@ -34,7 +34,6 @@ use iced::{
 
 use audio_garbage_collector::Shared;
 use audio_processor_iced_design_system::colors::{darken_color, Colors};
-use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
 use audio_processor_traits::AudioBuffer;
 use augmented::gui::iced_baseview::renderer::Theme;
 use plugin_host_lib::processors::running_rms_processor::RunningRMSProcessorHandle;
@@ -43,15 +42,15 @@ pub type Message = ();
 
 pub struct AudioChart {
     handle: Shared<RunningRMSProcessorHandle>,
-    rms_buffer: VecAudioBuffer<f32>,
+    rms_buffer: AudioBuffer<f32>,
     last_update: usize,
     cursor: usize,
 }
 
 impl AudioChart {
     pub fn new(handle: Shared<RunningRMSProcessorHandle>) -> Self {
-        let mut rms_buffer = VecAudioBuffer::new();
-        rms_buffer.resize(1, 500, 0.0);
+        let mut rms_buffer = AudioBuffer::empty();
+        rms_buffer.resize(1, 500);
         Self {
             // frame: RefCell::new(Frame::new(Size::new(100., 100.))),
             handle,
@@ -85,15 +84,15 @@ impl AudioChart {
 }
 
 // TODO - Use a view model here rather than a raw buffer
-pub struct AudioChartView<'a, Buffer: AudioBuffer> {
+pub struct AudioChartView<'a> {
     // frame: &'a mut RefCell<Frame>,
-    audio_buffer: &'a Buffer,
+    audio_buffer: &'a AudioBuffer<f32>,
     position: usize,
 }
 
-impl<'a, Buffer: AudioBuffer<SampleType = f32>> AudioChartView<'a, Buffer> {
+impl<'a> AudioChartView<'a> {
     pub fn new(
-        /* frame: &'a mut RefCell<Frame>, */ audio_buffer: &'a Buffer,
+        /* frame: &'a mut RefCell<Frame>, */ audio_buffer: &'a AudioBuffer<f32>,
         position: usize,
     ) -> Self {
         Self {
@@ -111,7 +110,7 @@ impl<'a, Buffer: AudioBuffer<SampleType = f32>> AudioChartView<'a, Buffer> {
     }
 }
 
-impl<'a, Buffer: AudioBuffer<SampleType = f32>> Program<Message> for AudioChartView<'a, Buffer> {
+impl<'a> Program<Message> for AudioChartView<'a> {
     type State = ();
 
     fn draw(

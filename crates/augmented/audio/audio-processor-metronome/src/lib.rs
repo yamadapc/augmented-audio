@@ -31,9 +31,7 @@
 use std::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 
 use audio_garbage_collector::{make_shared, Shared};
-use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
-};
+use audio_processor_traits::{AtomicF32, AudioBuffer, AudioContext, AudioProcessor};
 
 use self::constants::{build_envelope, DEFAULT_SAMPLE_RATE, DEFAULT_TEMPO};
 pub use self::playhead::{DefaultMetronomePlayhead, MetronomePlayhead};
@@ -160,16 +158,13 @@ impl<P: MetronomePlayhead> MetronomeProcessor<P> {
 impl<P: MetronomePlayhead> AudioProcessor for MetronomeProcessor<P> {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let settings = context.settings;
         self.playhead.prepare(&settings, self.handle.tempo.get());
-        self.state.metronome_sound.prepare(context, settings);
+        self.state.metronome_sound.prepare(context);
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         if !self.handle.is_playing.load(Ordering::Relaxed) {
             self.playhead.reset();
             self.handle.position_beats.set(0.0);
@@ -182,15 +177,18 @@ impl<P: MetronomePlayhead> AudioProcessor for MetronomeProcessor<P> {
 
         self.playhead.set_tempo(self.handle.tempo.get());
 
-        for frame in data.frames_mut() {
-            self.process_frame(frame);
+        for sample_num in 0..data.num_samples() {
+            let output = self.process_frame();
+            for channel_num in 0..data.num_channels() {
+                data.set(channel_num, sample_num, output);
+            }
         }
     }
 }
 
 /// Private methods
 impl<P: MetronomePlayhead> MetronomeProcessor<P> {
-    fn process_frame(&mut self, frame: &mut [f32]) {
+    fn process_frame(&mut self) -> f32 {
         self.playhead.accept_samples(1);
 
         let position = self.playhead.position_beats() as f32;
@@ -199,12 +197,9 @@ impl<P: MetronomePlayhead> MetronomeProcessor<P> {
         self.trigger_click(position);
 
         let out = self.state.metronome_sound.process() * self.handle.volume.get();
-
-        for sample in frame {
-            *sample = out;
-        }
-
         self.state.last_position = position;
+
+        out
     }
 
     /// Triggers the envelope when beat changes and sets the oscillator frequency when on the

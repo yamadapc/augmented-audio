@@ -60,13 +60,11 @@
 //!
 //! impl AudioProcessor for GainProcessor {
 //!     type SampleType = f32;
-//!     fn process<BufferType: AudioBuffer<SampleType=Self::SampleType>>(
-//!         &mut self,
-//!         _context: &mut AudioContext,
-//!         data: &mut BufferType
-//!     ) {
-//!         for sample in data.slice_mut() {
-//!            *sample = *sample * 0.4;
+//!     fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
+//!         for channel in data.channels_mut() {
+//!            for sample in channel {
+//!              *sample = *sample * 0.4;
+//!            }
 //!         }
 //!     }
 //! }

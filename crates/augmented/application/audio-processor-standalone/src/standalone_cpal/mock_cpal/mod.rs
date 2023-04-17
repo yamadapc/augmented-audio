@@ -90,6 +90,7 @@ mod mockall_mocks {
                 sample_format: cpal::SampleFormat,
                 data_callback: D,
                 error_callback: E,
+                _timeout: Option<std::time::Duration>,
             ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::Stream, cpal::BuildStreamError>
             where
                 D: FnMut(&cpal::Data, &cpal::InputCallbackInfo) + Send + 'static,
@@ -101,6 +102,7 @@ mod mockall_mocks {
                 sample_format: cpal::SampleFormat,
                 data_callback: D,
                 error_callback: E,
+                _timeout: Option<std::time::Duration>,
             ) -> Result<<MockDevice as cpal::traits::DeviceTrait>::Stream, cpal::BuildStreamError>
             where
                 D: FnMut(&mut cpal::Data, &cpal::OutputCallbackInfo) + Send + 'static,

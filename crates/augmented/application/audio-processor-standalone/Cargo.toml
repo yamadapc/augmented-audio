@@ -31,7 +31,7 @@ augmented-midi = { path = "../../data/augmented-midi", version = "1.4.0", option
 
 # Audio
 basedrop = "^0.1.2"
-cpal = { version = "0.14.0" }
+cpal = { version = "0.15.2", features = ["oboe-shared-stdcxx"] }
 ringbuf = "^0.2.5"
 vst = { version = "0.3", path = "../../../vendor/vst", optional = true }
 

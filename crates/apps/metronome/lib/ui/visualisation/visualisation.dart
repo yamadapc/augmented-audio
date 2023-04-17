@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:graphx/graphx.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
+import 'package:metronome/ui/app.dart';
 import 'package:metronome/ui/visualisation/scene.dart';
 
 class ElapsedBeatsVisualisation extends StatelessWidget {
@@ -20,7 +23,7 @@ class ElapsedBeatsVisualisation extends StatelessWidget {
       height: 30,
       decoration: BoxDecoration(
         border: Border.all(color: CupertinoColors.secondarySystemFill),
-        borderRadius: BorderRadius.circular(6.0),
+        borderRadius: BorderRadius.circular(Platform.isAndroid ? 1000 : 6.0),
         color: CupertinoColors.secondarySystemBackground
             .resolveFrom(context)
             .withOpacity(0.7),
@@ -62,7 +65,7 @@ class ElapsedTimeVisualisation extends StatelessWidget {
       height: 30,
       decoration: BoxDecoration(
         border: Border.all(color: CupertinoColors.secondarySystemFill),
-        borderRadius: BorderRadius.circular(6.0),
+        borderRadius: BorderRadius.circular(Platform.isAndroid ? 10000 : 6.0),
         color: CupertinoColors.secondarySystemBackground
             .resolveFrom(context)
             .withOpacity(0.7),
@@ -115,7 +118,12 @@ class Visualisation extends StatelessWidget {
                   autoUpdateRender: false,
                   painterWillChange: false,
                 ),
-                back: MetronomeSceneBack(model),
+                back: MetronomeSceneBack(
+                  model,
+                  brightness.value == Brightness.light
+                      ? CupertinoColors.systemGrey5
+                      : CupertinoColors.white,
+                ),
               ),
             ),
           ),

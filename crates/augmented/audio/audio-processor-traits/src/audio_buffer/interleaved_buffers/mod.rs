@@ -21,10 +21,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-pub use function::*;
-pub use map::*;
-pub use mix::*;
+pub use interleaved_audio_buffer::*;
+pub use vec_audio_buffer::*;
 
-mod function;
-mod map;
-mod mix;
+mod interleaved_audio_buffer;
+mod vec_audio_buffer;

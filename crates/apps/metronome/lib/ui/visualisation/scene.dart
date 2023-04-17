@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:graphx/graphx.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
@@ -5,9 +7,10 @@ import 'package:mobx/mobx.dart';
 
 class MetronomeSceneBack extends GSprite {
   MetronomeStateModel model;
+  Color strokeColor;
   Dispose? subscription;
 
-  MetronomeSceneBack(this.model);
+  MetronomeSceneBack(this.model, this.strokeColor);
 
   @override
   void addedToStage() {
@@ -36,7 +39,7 @@ class MetronomeSceneBack extends GSprite {
     var left = (width - (rectWidth + padding) * beatsPerBar) / 2.0;
     final top = height / 2.0;
 
-    final borderRadius = rectWidth * 0.2;
+    final borderRadius = Platform.isAndroid ? rectWidth : rectWidth * 0.2;
 
     for (var i = 0; i < beatsPerBar; i++) {
       final isTick = playheadValue % beatsPerBar >= i &&
@@ -47,8 +50,7 @@ class MetronomeSceneBack extends GSprite {
 
       if (isTick) {
         final Paint strokePaint = Paint();
-        strokePaint.color =
-            CupertinoColors.white.withOpacity(1.0 * playheadMod1);
+        strokePaint.color = strokeColor.withOpacity(1.0 * playheadMod1);
         final rect =
             Rect.fromCircle(center: offset, radius: rectWidth / 2.0 - 3);
         final rrect =

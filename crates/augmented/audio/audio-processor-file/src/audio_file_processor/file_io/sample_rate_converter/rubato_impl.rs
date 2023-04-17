@@ -21,26 +21,51 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::ops::AddAssign;
+use rubato::Resampler;
 
-use num::{Float, Zero};
+use super::BLOCK_SIZE;
 
-use crate::AudioProcessor;
+pub type Decoder = rubato::FftFixedIn<f32>;
+pub type DecoderError = rubato::ResampleError;
+pub type DecoderCreateError = rubato::ResamplerConstructionError;
 
-use super::map::map_processor;
+pub fn make_decoder(
+    input_rate: u32,
+    output_rate: u32,
+    channels: usize,
+) -> Result<Decoder, DecoderCreateError> {
+    Decoder::new(
+        input_rate as usize,
+        output_rate as usize,
+        BLOCK_SIZE,
+        2,
+        channels,
+    )
+}
 
-pub fn mono<P>(processor: P) -> impl AudioProcessor<SampleType = P::SampleType>
-where
-    P: AudioProcessor,
-    P::SampleType: Float + AddAssign,
-{
-    map_processor(processor, |_ctx, frame| {
-        let mut sum = P::SampleType::zero();
-        for sample in frame.iter() {
-            sum += *sample;
-        }
-        for sample in frame.iter_mut() {
-            *sample = sum;
-        }
-    })
+pub fn process<T: AsRef<[f32]>>(
+    decoder: &mut Decoder,
+    block: &[T],
+) -> Result<Vec<Vec<f32>>, DecoderError> {
+    decoder.process(block, None)
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_pulse() {
+        let mut block1 = vec![];
+        block1.resize(1, [0.0; 1024]);
+        block1[0][0] = 1.0;
+        let mut decoder = make_decoder(44100, 44100, 1).unwrap();
+        let result = process(&mut decoder, &block1).unwrap();
+        let (index, _) = result[0]
+            .iter()
+            .enumerate()
+            .find(|(_, x)| (*x).abs() > 0.2)
+            .unwrap();
+        assert_eq!(index, 256);
+    }
 }

@@ -24,9 +24,8 @@
 use crate::AudioBuffer;
 
 /// Set all samples of an AudioBuffer to a constant
-pub fn set_all<Buffer, SampleType>(buf: &mut Buffer, value: SampleType)
+pub fn set_all<SampleType>(buf: &mut AudioBuffer<SampleType>, value: SampleType)
 where
-    Buffer: AudioBuffer<SampleType = SampleType>,
     SampleType: Clone,
 {
     for sample in buf.slice_mut() {
@@ -35,10 +34,9 @@ where
 }
 
 /// Set all samples of an AudioBuffer to Zero::zero
-pub fn clear<Buffer, SampleType>(buf: &mut Buffer)
+pub fn clear<SampleType>(buf: &mut AudioBuffer<SampleType>)
 where
-    Buffer: AudioBuffer<SampleType = SampleType>,
-    SampleType: num::Zero,
+    SampleType: num::Zero + Copy,
 {
     for sample in buf.slice_mut() {
         *sample = SampleType::zero();
@@ -47,21 +45,19 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::VecAudioBuffer;
-
     use super::*;
 
     #[test]
     fn test_set_all() {
-        let mut buffer = VecAudioBuffer::new_with(vec![1.0, 2.0, 3.0, 4.0], 1, 4);
+        let mut buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
         set_all(&mut buffer, 4.0);
-        assert_eq!(buffer.slice(), &[4.0, 4.0, 4.0, 4.0]);
+        assert_eq!(buffer.channel(0), &[4.0, 4.0, 4.0, 4.0]);
     }
 
     #[test]
     fn test_clear() {
-        let mut buffer = VecAudioBuffer::new_with(vec![1.0, 2.0, 3.0, 4.0], 1, 4);
+        let mut buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
         clear(&mut buffer);
-        assert_eq!(buffer.slice(), &[0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(buffer.channel(0), &[0.0, 0.0, 0.0, 0.0]);
     }
 }

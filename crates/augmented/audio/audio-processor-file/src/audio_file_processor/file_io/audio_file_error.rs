@@ -21,17 +21,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use audio_processor_traits::combinators::mono_generator_function;
-use audio_processor_traits::BufferProcessor;
-use std::f32::consts::PI;
+use thiserror::Error;
 
-fn main() {
-    let mut phase: f32 = 0.0;
-    let processor = mono_generator_function(move |ctx| {
-        let step = (1.0 / ctx.settings().sample_rate()) * 440.0;
-        phase += step * 2.0 * PI;
-        phase.sin()
-    });
-
-    audio_processor_standalone::audio_processor_main(BufferProcessor(processor));
+#[derive(Error, Debug)]
+pub enum AudioFileError {
+    #[error("Failed to decode input file")]
+    DecodeError(#[from] symphonia::core::errors::Error),
+    #[error("Failed to read input file")]
+    FileReadError(#[from] std::io::Error),
+    #[error("Failed to open read stream")]
+    OpenStreamError,
+    #[error("File has no buffers")]
+    EmptyFileError,
 }

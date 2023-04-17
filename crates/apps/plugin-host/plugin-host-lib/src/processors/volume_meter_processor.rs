@@ -24,7 +24,7 @@ use vst::util::AtomicFloat;
 
 use crate::audio_io::processor_handle_registry::ProcessorHandleRegistry;
 use audio_garbage_collector::{Handle, Shared};
-use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use circular_data_structures::CircularVec;
 use std::time::Duration;
 
@@ -87,7 +87,8 @@ impl VolumeMeterProcessor {
 impl AudioProcessor for VolumeMeterProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let settings = context.settings;
         let duration_samples =
             (self.buffer_duration.as_secs_f32() * settings.sample_rate()) as usize;
         self.buffer_duration_samples = duration_samples;
@@ -95,11 +96,7 @@ impl AudioProcessor for VolumeMeterProcessor {
         self.right_buffer.resize(duration_samples, 0.0);
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        _context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, _context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         for frame_index in 0..data.num_samples() {
             let old_left_value = self.left_buffer[self.current_index];
             let old_right_value = self.right_buffer[self.current_index];

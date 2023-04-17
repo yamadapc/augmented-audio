@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::simple_processor::SimpleAudioProcessor;
+use audio_processor_traits::{AudioBuffer, AudioProcessor};
 use audio_processor_traits::{AudioContext, Float};
 
 /// An `AudioProcessor` that applies panning on its input.
@@ -58,32 +58,34 @@ impl<SampleType: Float> PanProcessor<SampleType> {
     }
 }
 
-impl<SampleType> SimpleAudioProcessor for PanProcessor<SampleType>
+impl<SampleType> AudioProcessor for PanProcessor<SampleType>
 where
     SampleType: Float + Sync + Send,
 {
     type SampleType = SampleType;
 
-    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [SampleType]) {
-        let zero = SampleType::zero();
-        let one = SampleType::one();
-        let panning = self.panning;
+    fn process(&mut self, _context: &mut AudioContext, buffer: &mut AudioBuffer<SampleType>) {
+        for sample_num in 0..buffer.num_samples() {
+            let zero = SampleType::zero();
+            let one = SampleType::one();
+            let panning = self.panning;
 
-        let left_input = frame[0];
-        let right_input = frame[1];
+            let left_input = *buffer.get(0, sample_num);
+            let right_input = *buffer.get(0, sample_num);
 
-        if panning > zero {
-            let left_output = left_input * (one - panning);
-            let right_output = right_input + left_input * panning;
+            if panning > zero {
+                let left_output = left_input * (one - panning);
+                let right_output = right_input + left_input * panning;
 
-            frame[0] = left_output;
-            frame[1] = right_output;
-        } else if panning < zero {
-            let left_output = left_input + right_input * (-panning);
-            let right_output = right_input * (one + panning);
+                buffer.set(0, sample_num, left_output);
+                buffer.set(1, sample_num, right_output);
+            } else if panning < zero {
+                let left_output = left_input + right_input * (-panning);
+                let right_output = right_input * (one + panning);
 
-            frame[0] = left_output;
-            frame[1] = right_output;
+                buffer.set(0, sample_num, left_output);
+                buffer.set(1, sample_num, right_output);
+            }
         }
     }
 }
@@ -91,24 +93,22 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
-    use audio_processor_traits::simple_processor::process_buffer;
     use audio_processor_traits::AudioBuffer;
-
-    use audio_processor_traits::InterleavedAudioBuffer;
 
     use super::*;
 
     #[test]
     fn test_pan_noop() {
         let mut pan = PanProcessor::default();
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        process_buffer(&mut context, &mut pan, &mut input);
+        pan.process(&mut context, &mut input);
 
-        for frame in input.frames() {
-            for sample in frame.iter() {
+        for sample_num in 0..input.num_samples() {
+            for channel_num in 0..input.num_channels() {
+                let sample = input.get(channel_num, sample_num);
                 assert_f_eq!(*sample, 1.);
             }
         }
@@ -117,11 +117,11 @@ mod test {
     #[test]
     fn test_hard_pan_to_left() {
         let mut pan = PanProcessor::new(-1.0);
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        process_buffer(&mut context, &mut pan, &mut input);
+        pan.process(&mut context, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let left = *input.get(0, sample_index);
@@ -134,11 +134,11 @@ mod test {
     #[test]
     fn test_hard_pan_to_right() {
         let mut pan = PanProcessor::new(1.0);
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        process_buffer(&mut context, &mut pan, &mut input);
+        pan.process(&mut context, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let left = *input.get(0, sample_index);

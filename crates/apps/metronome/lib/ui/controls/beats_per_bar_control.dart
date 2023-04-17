@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/ui/controls/platform/platform_segmented_control.dart';
 
 class BeatsPerBarControl extends StatelessWidget {
   const BeatsPerBarControl({
@@ -16,22 +17,14 @@ class BeatsPerBarControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Observer(
-      builder: (_) => CupertinoSegmentedControl(
-        groupValue: stateController.model.beatsPerBar,
-        children: {
-          1: segmentedControlText("None"),
-          2: segmentedControlText("2/4"),
-          3: segmentedControlText("3/4"),
-          4: segmentedControlText("4/4"),
-          5: segmentedControlText("5/4"),
-          6: segmentedControlText("6/4"),
-          7: segmentedControlText("7/4"),
+      builder: (_) => PlatformSegmentedControl(
+        value: stateController.model.beatsPerBar,
+        options: const [1, 2, 3, 4, 5, 6, 7],
+        optionLabelBuilder: (int value) {
+          return value == 1 ? "None" : "$value/4";
         },
-        // ignore: use_named_constants
-        padding: const EdgeInsets.all(0.0),
         onValueChanged: (int value) {
           stateController.setBeatsPerBar(value);
-
           final analytics = AppContext.of(context).analytics;
           analytics.logEvent(name: "BeatsPerBarControl__onValueChanged");
         },

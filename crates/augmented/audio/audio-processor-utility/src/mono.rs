@@ -20,7 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use audio_processor_traits::{AudioContext, Float, SimpleAudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, Float};
 use std::marker::PhantomData;
 use std::ops::AddAssign;
 
@@ -45,43 +45,45 @@ impl<SampleType> StereoToMonoProcessor<SampleType> {
     }
 }
 
-impl<SampleType> SimpleAudioProcessor for StereoToMonoProcessor<SampleType>
+impl<SampleType> AudioProcessor for StereoToMonoProcessor<SampleType>
 where
     SampleType: Float + Sync + Send + AddAssign,
 {
     type SampleType = SampleType;
 
-    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
-        if frame.is_empty() {
+    fn process(&mut self, _context: &mut AudioContext, buffer: &mut AudioBuffer<SampleType>) {
+        if buffer.is_empty() {
             return;
         }
 
-        let mut sum: SampleType = SampleType::zero();
+        for sample_num in 0..buffer.num_samples() {
+            let mut sum: SampleType = SampleType::zero();
 
-        for sample in frame.iter_mut() {
-            sum += *sample;
-            *sample = SampleType::zero();
+            for channel_num in 0..buffer.num_channels() {
+                sum += *buffer.get(channel_num, sample_num);
+                buffer.set(channel_num, sample_num, SampleType::zero());
+            }
+
+            buffer.set(0, sample_num, sum);
         }
-
-        frame[0] = sum;
     }
 }
 
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::assert_f_eq;
-    use audio_processor_traits::{simple_processor, AudioBuffer, InterleavedAudioBuffer};
+    use audio_processor_traits::AudioBuffer;
 
     use super::*;
 
     #[test]
     fn test_stereo_to_mono_processor_sums_channels() {
         let mut mono = StereoToMonoProcessor::new();
-        let mut samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
-        let mut input = InterleavedAudioBuffer::new(2, &mut samples);
+        let samples = [1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1, 1., 0.1];
+        let mut input = AudioBuffer::from_interleaved(2, &samples);
         let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
+        mono.process(&mut context, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let sample = *input.get(0, sample_index);
@@ -92,11 +94,11 @@ mod test {
     #[test]
     fn test_stereo_to_mono_can_handle_mono_input() {
         let mut mono = StereoToMonoProcessor::new();
-        let mut samples = [1., 1., 1., 1., 1., 1.];
-        let mut input = InterleavedAudioBuffer::new(1, &mut samples);
+        let samples = [1., 1., 1., 1., 1., 1.];
+        let mut input = AudioBuffer::from_interleaved(1, &samples);
         let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
+        mono.process(&mut context, &mut input);
 
         for sample_index in 0..input.num_samples() {
             let sample = *input.get(0, sample_index);
@@ -107,10 +109,10 @@ mod test {
     #[test]
     fn test_stereo_to_mono_can_handle_empty_input() {
         let mut mono = StereoToMonoProcessor::new();
-        let mut samples: [f32; 0] = [];
-        let mut input = InterleavedAudioBuffer::new(1, &mut samples);
+        let samples: [f32; 0] = [];
+        let mut input = AudioBuffer::from_interleaved(1, &samples);
         let mut context = AudioContext::default();
 
-        simple_processor::process_buffer(&mut context, &mut mono, &mut input);
+        mono.process(&mut context, &mut input);
     }
 }

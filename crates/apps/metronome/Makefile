@@ -24,6 +24,7 @@ build-bindings: FORCE
 		--c-output ios/Runner/bridge_generated.h # \
 		# --llvm-path /usr/local/opt/llvm
 	cp ios/Runner/bridge_generated.h macos/Runner/bridge_generated.h
+	sed -i '' '/jint JNI_OnLoad(JavaVM vm, void \*res);/d' ios/Runner/bridge_generated.h macos/Runner/bridge_generated.h
 
 build-libs: FORCE
 	cargo lipo --release --package metronome --targets=x86_64-apple-darwin
@@ -45,5 +46,16 @@ build-libs-ios: FORCE
 	mkdir -p public/lib/-iphoneos
 	cp ../../../target/aarch64-apple-ios/release/libmetronome.a ./public/lib/-iphoneos/libmetronome.a
 	cp ../../../target/aarch64-apple-ios-sim/release/libmetronome.a ./public/lib/-iphonesimulator/libmetronome.a
+
+build-test-android: FORCE
+	cargo ndk -t armeabi-v7a -t arm64-v8a -o android/app/src/main/jniLibs build
+
+setup-ndk:
+	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so ./android/app/src/main/jniLibs/arm64-v8a/
+	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so ./android/app/src/main/jniLibs/armeabi-v7a/
+	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/x86_64-linux-android/libc++_shared.so ./android/app/src/main/jniLibs/x86_64/
+	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/i686-linux-android/libc++_shared.so ./android/app/src/main/jniLibs/x86/
+
+
 
 FORCE:

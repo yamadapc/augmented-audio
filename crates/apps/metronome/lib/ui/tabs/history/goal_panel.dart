@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_10y.dart';
 import 'package:timezone/timezone.dart';
 
@@ -24,8 +24,7 @@ class GoalPanel extends StatelessWidget {
       child: const Text("Set-up practice goal"),
       onPressed: () async {
         initializeTimeZones();
-        final String timeZoneName =
-            await FlutterNativeTimezone.getLocalTimezone();
+        final String timeZoneName = await FlutterTimezone.getLocalTimezone();
         final Location location = getLocation(timeZoneName);
         flutterLocalNotificationsPlugin.zonedSchedule(
           0,

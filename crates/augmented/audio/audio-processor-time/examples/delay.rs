@@ -22,9 +22,9 @@
 // THE SOFTWARE.
 use audio_processor_standalone::generic_standalone_run;
 use audio_processor_time::MonoDelayProcessor;
-use audio_processor_traits::BufferProcessor;
+use audio_processor_traits::simple_processor::MultiChannel;
 
 fn main() {
-    let delay = BufferProcessor(MonoDelayProcessor::default());
+    let delay = MultiChannel::new(|| MonoDelayProcessor::default());
     generic_standalone_run!(delay);
 }

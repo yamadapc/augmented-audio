@@ -37,10 +37,7 @@ use audio_processor_analysis::fft_processor::{FftDirection, FftProcessor, FftPro
 use audio_processor_analysis::window_functions::{make_hann_vec, WindowFunctionType};
 use audio_processor_traits::num::Complex;
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
-use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings,
-    SimpleAudioProcessor, Zero,
-};
+use audio_processor_traits::{AtomicF32, AudioBuffer, AudioContext, AudioProcessor, Zero};
 
 #[cfg(all(test, debug_assertions))]
 mod test_allocator;
@@ -361,20 +358,17 @@ impl Default for MultiChannelPitchShifterProcessor {
 impl AudioProcessor for MultiChannelPitchShifterProcessor {
     type SampleType = f32;
 
-    fn prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let settings = context.settings;
         self.processors.resize_with(settings.output_channels(), || {
             PitchShifterProcessor::default()
         });
         for processor in &mut self.processors {
-            processor.s_prepare(context, settings);
+            processor.m_prepare(context);
         }
     }
 
-    fn process<BufferType: AudioBuffer<SampleType = Self::SampleType>>(
-        &mut self,
-        context: &mut AudioContext,
-        data: &mut BufferType,
-    ) {
+    fn process(&mut self, context: &mut AudioContext, data: &mut AudioBuffer<Self::SampleType>) {
         let ratio = self.handle.ratio.get();
         for processor in &mut self.processors {
             processor.set_ratio(ratio);
@@ -384,10 +378,12 @@ impl AudioProcessor for MultiChannelPitchShifterProcessor {
             return;
         }
 
-        for frame in data.frames_mut() {
-            for (i, sample) in frame.iter_mut().enumerate() {
-                let processor = &mut self.processors[i];
-                *sample = processor.m_process(context, *sample);
+        for sample_num in 0..data.num_samples() {
+            for channel_num in 0..data.num_channels() {
+                let processor = &mut self.processors[channel_num];
+                let input = *data.get(channel_num, sample_num);
+                let output = processor.m_process(context, input);
+                data.set(channel_num, sample_num, output);
             }
         }
     }
@@ -407,9 +403,9 @@ fn princ_arg(phase: f32) -> f32 {
 impl MonoAudioProcessor for PitchShifterProcessor {
     type SampleType = f32;
 
-    fn m_prepare(&mut self, context: &mut AudioContext, settings: AudioProcessorSettings) {
-        self.fft_processor.s_prepare(context, settings);
-        self.inverse_fft_processor.s_prepare(context, settings);
+    fn m_prepare(&mut self, context: &mut AudioContext) {
+        self.fft_processor.m_prepare(context);
+        self.inverse_fft_processor.m_prepare(context);
     }
 
     #[inline]
@@ -434,14 +430,13 @@ mod test {
     use audio_processor_testing_helpers::{relative_path, rms_level};
 
     use audio_processor_file::{AudioFileProcessor, OutputAudioFileProcessor};
-    use audio_processor_traits::{
-        AudioBuffer, AudioProcessorSettings, BufferProcessor, OwnedAudioBuffer, VecAudioBuffer,
-    };
+    use audio_processor_traits::simple_processor::MultiChannel;
+    use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
 
     use super::*;
 
     /// Read an input file for testing
-    fn read_input_file(input_file_path: &str) -> impl AudioBuffer<SampleType = f32> {
+    fn read_input_file(input_file_path: &str) -> AudioBuffer<f32> {
         let settings = AudioProcessorSettings::default();
         let mut context = AudioContext::from(settings);
         let mut input = AudioFileProcessor::from_path(
@@ -450,13 +445,13 @@ mod test {
             input_file_path,
         )
         .unwrap();
-        input.prepare(&mut context, settings);
+        input.prepare(&mut context);
         let input_buffer = input.buffer();
-        let mut buffer = VecAudioBuffer::new();
+        let mut buffer = AudioBuffer::empty();
 
         // We read at most 10s of audio & mono it.
         let max_len = (settings.sample_rate() * 10.0) as usize;
-        buffer.resize(1, input_buffer[0].len().min(max_len), 0.0);
+        buffer.resize(1, input_buffer[0].len().min(max_len));
         let channel = &input_buffer[0];
         for (sample_index, sample) in channel.iter().enumerate().take(max_len) {
             buffer.set(0, sample_index, *sample + buffer.get(0, sample_index));
@@ -471,17 +466,17 @@ mod test {
         // let input_path = relative_path!("../../../confirmation.mp3");
         let _transients_file_path = format!("{}.transients.wav", input_path);
         let mut input = read_input_file(&input_path);
-        let input_rms = rms_level(input.slice());
+        let input_rms = rms_level(input.channel(0));
 
-        let mut pitch_shifter = BufferProcessor(PitchShifterProcessor::default());
+        let mut pitch_shifter = MultiChannel::new(|| PitchShifterProcessor::default());
         let mut context = AudioContext::default();
-        pitch_shifter.prepare(&mut context, AudioProcessorSettings::default());
+        pitch_shifter.prepare(&mut context);
 
         assert_no_alloc(|| {
             pitch_shifter.process(&mut context, &mut input);
         });
 
-        let output_rms = rms_level(input.slice());
+        let output_rms = rms_level(input.channel(0));
         let diff = (input_rms - output_rms).abs();
         println!("diff={} input={} output={}", diff, input_rms, output_rms);
         // assert!(diff.abs() < 0.1);
@@ -489,13 +484,17 @@ mod test {
         let output_path = relative_path!("./test_pitch_shift_12steps.wav");
         let mut output_file_processor =
             OutputAudioFileProcessor::from_path(AudioProcessorSettings::default(), &output_path);
+
+        let mut stereo: AudioBuffer<f32> = AudioBuffer::empty();
+        stereo.resize(2, input.num_samples());
+        for sample_num in 0..input.num_samples() {
+            stereo.set(0, sample_num, *input.get(0, sample_num));
+            stereo.set(1, sample_num, *input.get(0, sample_num));
+        }
+
         output_file_processor.prepare(AudioProcessorSettings::default());
-        let mut samples: Vec<f32> = input
-            .slice()
-            .iter()
-            .cloned()
-            .flat_map(|sample| [sample, sample])
-            .collect();
-        output_file_processor.process(&mut samples);
+        output_file_processor
+            .process(&mut stereo)
+            .expect("Failed to write samples to wave file");
     }
 }

@@ -25,14 +25,11 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use audio_garbage_collector::{Handle, Shared, SharedCell};
-use audio_processor_traits::audio_buffer::{OwnedAudioBuffer, VecAudioBuffer};
-use audio_processor_traits::{
-    AtomicF32, AudioBuffer, AudioContext, AudioProcessorSettings, SimpleAudioProcessor,
-};
+use audio_processor_traits::{AtomicF32, AudioBuffer, AudioContext, AudioProcessor};
 
 /// A shared "processor handle" to `RunningRMSProcessor`
 pub struct RunningRMSProcessorHandle {
-    window: SharedCell<VecAudioBuffer<AtomicF32>>,
+    window: SharedCell<AudioBuffer<AtomicF32>>,
     running_sums: SharedCell<Vec<AtomicF32>>,
     cursor: AtomicUsize,
     duration_micros: AtomicUsize,
@@ -42,19 +39,23 @@ impl RunningRMSProcessorHandle {
     /// Create a new handle with empty buffers
     fn new(gc_handle: &Handle) -> Self {
         RunningRMSProcessorHandle {
-            window: SharedCell::new(Shared::new(gc_handle, VecAudioBuffer::new())),
+            window: SharedCell::new(Shared::new(gc_handle, AudioBuffer::empty())),
             running_sums: SharedCell::new(Shared::new(gc_handle, Vec::new())),
             cursor: AtomicUsize::new(0),
             duration_micros: AtomicUsize::new(0),
         }
     }
 
+    fn cursor(&self) -> usize {
+        self.cursor.load(Ordering::Relaxed)
+    }
+
     /// Create a new RMS window with size & replace the old one with it.
     fn resize(&self, gc_handle: &Handle, num_channels: usize, num_samples: usize) {
         self.cursor.store(0, Ordering::Relaxed);
 
-        let mut window = VecAudioBuffer::new();
-        window.resize(num_channels, num_samples, AtomicF32::from(0.0));
+        let mut window = AudioBuffer::empty();
+        window.resize_with(num_channels, num_samples, || AtomicF32::new(0.0));
         self.window.replace(Shared::new(gc_handle, window));
 
         let mut running_sums = Vec::new();
@@ -120,10 +121,11 @@ impl RunningRMSProcessor {
     }
 }
 
-impl SimpleAudioProcessor for RunningRMSProcessor {
+impl AudioProcessor for RunningRMSProcessor {
     type SampleType = f32;
 
-    fn s_prepare(&mut self, _context: &mut AudioContext, settings: AudioProcessorSettings) {
+    fn prepare(&mut self, context: &mut AudioContext) {
+        let settings = context.settings;
         self.duration_samples = (settings.sample_rate() * self.duration.as_secs_f32()) as usize;
         self.handle.resize(
             &self.gc_handle,
@@ -132,52 +134,112 @@ impl SimpleAudioProcessor for RunningRMSProcessor {
         );
     }
 
-    fn s_process_frame(&mut self, _context: &mut AudioContext, frame: &mut [Self::SampleType]) {
+    fn process(&mut self, _context: &mut AudioContext, buffer: &mut AudioBuffer<Self::SampleType>) {
         if self.duration_samples == 0 {
             return;
         }
 
-        let running_sums = self.handle.running_sums.get();
-        let window = self.handle.window.get();
-        let mut cursor = self.handle.cursor.load(Ordering::Relaxed);
-        for (channel_index, sample) in frame.iter().enumerate() {
-            let value_slot = window.get(channel_index, cursor);
-            let previous_value = value_slot.get();
+        for sample_index in 0..buffer.num_samples() {
+            let running_sums = self.handle.running_sums.get();
+            let window = self.handle.window.get();
+            let mut cursor = self.handle.cursor();
 
-            let new_value = *sample * *sample; // using square rather than abs is around 1% faster
-            value_slot.set(new_value);
+            for channel_index in 0..buffer.num_channels() {
+                let value_slot = window.get(channel_index, cursor);
+                let previous_value = value_slot.get();
 
-            let running_sum_slot = &running_sums[channel_index];
-            let running_sum = running_sum_slot.get() + new_value - previous_value;
-            running_sum_slot.set(running_sum);
+                let sample = *buffer.get(channel_index, sample_index);
+                let new_value = sample * sample; // using square rather than abs is around 1% faster
+                value_slot.set(new_value);
+
+                let running_sum_slot = &running_sums[channel_index];
+                let running_sum = running_sum_slot.get() + new_value - previous_value;
+                running_sum_slot.set(running_sum);
+            }
+
+            cursor += 1;
+            if cursor >= self.duration_samples {
+                cursor = 0;
+            }
+            self.handle.cursor.store(cursor, Ordering::Relaxed);
         }
-
-        cursor += 1;
-        if cursor >= self.duration_samples {
-            cursor = 0;
-        }
-        self.handle.cursor.store(cursor, Ordering::Relaxed);
     }
 }
 
 #[cfg(test)]
 mod test {
     use audio_garbage_collector::GarbageCollector;
-    use audio_processor_traits::simple_processor::process_buffer;
+    use audio_processor_testing_helpers::assert_f_eq;
 
     use super::*;
+
+    #[test]
+    fn test_create_handle() {
+        let gc = GarbageCollector::default();
+        let handle = RunningRMSProcessorHandle::new(gc.handle());
+
+        assert_f_eq!(handle.calculate_rms(0), 0.0);
+    }
+
+    #[test]
+    fn test_resize() {
+        let gc = GarbageCollector::default();
+        let handle = RunningRMSProcessorHandle::new(gc.handle());
+
+        handle.resize(gc.handle(), 2, 1000);
+        assert_eq!(handle.window.get().num_channels(), 2);
+        assert_eq!(handle.window.get().num_samples(), 1000);
+        assert_f_eq!(handle.calculate_rms(0), 0.0);
+        assert_f_eq!(handle.calculate_rms(1), 0.0);
+        assert_eq!(handle.cursor(), 0)
+    }
+
+    #[test]
+    fn test_create_running_rms_processor() {
+        let gc = GarbageCollector::default();
+        let mut processor =
+            RunningRMSProcessor::new_with_duration(gc.handle(), Duration::from_millis(10));
+
+        let mut context = AudioContext::default();
+        context.settings.sample_rate = 44100.0;
+        processor.prepare(&mut context);
+
+        assert_eq!(processor.duration_samples, 441);
+        assert_eq!(processor.duration, Duration::from_millis(10));
+        assert_eq!(
+            processor.handle.duration_micros.load(Ordering::Relaxed),
+            10_000
+        );
+    }
+
+    #[test]
+    fn test_create_running_rms_processor_from_handle() {
+        let gc = GarbageCollector::default();
+        let handle = RunningRMSProcessorHandle::new(gc.handle());
+        handle.resize(gc.handle(), 2, 1000);
+        let handle = Shared::new(gc.handle(), handle);
+        let processor = RunningRMSProcessor::from_handle(handle.clone());
+
+        assert_eq!(processor.duration_samples, 0);
+        assert_eq!(processor.duration, Duration::from_micros(0));
+        assert_eq!(processor.handle.duration_micros.load(Ordering::Relaxed), 0);
+        assert_eq!(
+            &*processor.handle().clone() as *const RunningRMSProcessorHandle,
+            &*handle as *const RunningRMSProcessorHandle
+        )
+    }
 
     #[test]
     fn test_audio_process_running() {
         let gc = GarbageCollector::default();
         let mut processor =
             RunningRMSProcessor::new_with_duration(gc.handle(), Duration::from_millis(10));
-        let mut test_buffer = VecAudioBuffer::new();
+        let mut test_buffer = AudioBuffer::empty();
 
-        test_buffer.resize(2, 1000, 1.0);
+        test_buffer.resize_with(2, 1000, || 1.0);
         let mut context = AudioContext::default();
-        processor.s_prepare(&mut context, AudioProcessorSettings::default());
-        process_buffer(&mut context, &mut processor, &mut test_buffer);
+        processor.prepare(&mut context);
+        processor.process(&mut context, &mut test_buffer);
         let rms = processor.handle.calculate_rms(0);
         assert!(rms > 0.0);
     }

@@ -31,8 +31,7 @@ use basedrop::{Shared, SharedCell};
 use num_derive::{FromPrimitive, ToPrimitive};
 
 use audio_garbage_collector::{make_shared, make_shared_cell};
-use audio_processor_traits::audio_buffer::OwnedAudioBuffer;
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings, VecAudioBuffer};
+use audio_processor_traits::{AtomicF32, AudioBuffer, AudioProcessorSettings};
 use augmented_atomics::{AtomicEnum, AtomicValue};
 pub use quantize_mode::{QuantizeMode, QuantizeOptions};
 use utils::CopyLoopClipParams;
@@ -90,18 +89,22 @@ pub struct LooperOptions {
     pub host_callback: Option<HostCallback>,
 }
 
-pub type LooperClip = SharedCell<AtomicRefCell<VecAudioBuffer<AtomicF32>>>;
-pub type LooperClipRef = Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>>;
+pub type LooperClip = SharedCell<AtomicRefCell<AudioBuffer<AtomicF32>>>;
+pub type LooperClipRef = Shared<AtomicRefCell<AudioBuffer<AtomicF32>>>;
 
-pub fn looper_clip_copy_to_vec_buffer(buffer: &LooperClipRef) -> VecAudioBuffer<f32> {
+pub fn looper_clip_copy_to_vec_buffer(buffer: &LooperClipRef) -> AudioBuffer<f32> {
     let buffer = buffer.borrow();
     let buffer = buffer.deref();
 
-    let mut work_buffer = VecAudioBuffer::new();
-    work_buffer.resize(buffer.num_channels(), buffer.num_samples(), 0.0);
-    for (loop_frame, work_frame) in buffer.frames().zip(work_buffer.frames_mut()) {
-        for (loop_sample, work_sample) in loop_frame.iter().zip(work_frame.iter_mut()) {
-            *work_sample = loop_sample.get()
+    let mut work_buffer = AudioBuffer::empty();
+    work_buffer.resize(buffer.num_channels(), buffer.num_samples());
+    for sample_num in 0..buffer.num_samples() {
+        for channel_num in 0..buffer.num_channels() {
+            work_buffer.set(
+                channel_num,
+                sample_num,
+                buffer.get(channel_num, sample_num).get(),
+            );
         }
     }
     work_buffer
@@ -194,9 +197,9 @@ impl LooperHandle {
             state: AtomicEnum::new(LooperState::Empty),
             start_cursor: AtomicUsize::new(0),
             length: AtomicUsize::new(0),
-            scratch_pad: AtomicRefCell::new(ScratchPad::new(VecAudioBuffer::new())),
-            looper_clip: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
-            looper_clip1: make_shared_cell(AtomicRefCell::new(VecAudioBuffer::new())),
+            scratch_pad: AtomicRefCell::new(ScratchPad::new(AudioBuffer::empty())),
+            looper_clip: make_shared_cell(AtomicRefCell::new(AudioBuffer::empty())),
+            looper_clip1: make_shared_cell(AtomicRefCell::new(AudioBuffer::empty())),
             scheduled_playback: AtomicUsize::new(0),
             cursor: AtomicF32::new(0.0),
             time_info_provider,
@@ -290,7 +293,7 @@ impl LooperHandle {
         self.time_info_provider.play();
     }
 
-    pub fn looper_clip(&self) -> Shared<AtomicRefCell<VecAudioBuffer<AtomicF32>>> {
+    pub fn looper_clip(&self) -> Shared<AtomicRefCell<AudioBuffer<AtomicF32>>> {
         self.looper_clip.get()
     }
 
@@ -420,8 +423,10 @@ impl LooperHandle {
         // Clear the looper clip in case playback re-starts
         let clip = self.looper_clip.get();
         let clip = clip.deref().borrow();
-        for sample in clip.slice() {
-            sample.set(0.0);
+        for channel in clip.channels() {
+            for sample in channel {
+                sample.set(0.0);
+            }
         }
         self.length.store(0, Ordering::Relaxed);
     }
@@ -473,7 +478,7 @@ impl LooperHandle {
             } else {
                 let scratch_pad = self.scratch_pad.borrow();
 
-                let mut new_buffer = VecAudioBuffer::new();
+                let mut new_buffer = AudioBuffer::empty();
                 utils::copy_looped_clip(
                     CopyLoopClipParams {
                         scratch_pad: &scratch_pad,
@@ -549,16 +554,16 @@ impl LooperHandle {
 impl LooperHandle {
     /// Override the looper memory buffer.
     /// Not real-time safe, must be called out of the audio-thread.
-    pub fn set_looper_buffer(&self, buffer: &impl AudioBuffer<SampleType = f32>) {
-        let mut new_buffer: VecAudioBuffer<AtomicF32> = VecAudioBuffer::new();
-        new_buffer.resize(
-            buffer.num_channels(),
-            buffer.num_samples(),
-            AtomicF32::new(0.0),
-        );
-        for (source_frame, dest_frame) in buffer.frames().zip(new_buffer.frames_mut()) {
-            for (source_sample, dest_sample) in source_frame.iter().zip(dest_frame) {
-                dest_sample.set(*source_sample);
+    pub fn set_looper_buffer(&self, buffer: &AudioBuffer<f32>) {
+        let mut new_buffer: AudioBuffer<AtomicF32> = AudioBuffer::empty();
+        new_buffer.resize_with(buffer.num_channels(), buffer.num_samples(), || {
+            AtomicF32::new(0.0)
+        });
+        for sample_num in 0..buffer.num_samples() {
+            for channel_num in 0..buffer.num_channels() {
+                new_buffer
+                    .get(channel_num, sample_num)
+                    .set(*buffer.get(channel_num, sample_num));
             }
         }
 
@@ -787,7 +792,7 @@ mod test {
         use audio_processor_testing_helpers::assert_f_eq;
 
         use audio_garbage_collector::make_shared;
-        use audio_processor_traits::{AudioProcessorSettings, VecAudioBuffer};
+        use audio_processor_traits::{AudioBuffer, AudioProcessorSettings};
         use augmented_atomics::AtomicValue;
 
         use crate::audio::processor::handle::LooperState;
@@ -852,7 +857,9 @@ mod test {
         fn test_start_recording_when_paused() {
             let looper = LooperProcessorHandle::default();
             looper.prepare(test_settings());
-            looper.set_looper_buffer(&VecAudioBuffer::empty_with(1, 100, 0.0));
+            let mut buffer = AudioBuffer::empty();
+            buffer.resize(1, 100);
+            looper.set_looper_buffer(&buffer);
             assert_eq!(looper.state(), LooperState::Paused);
 
             looper.start_recording();
@@ -863,7 +870,9 @@ mod test {
         fn test_start_recording_when_playing() {
             let looper = LooperProcessorHandle::default();
             looper.prepare(test_settings());
-            looper.set_looper_buffer(&VecAudioBuffer::empty_with(1, 100, 0.0));
+            let mut buffer = AudioBuffer::empty();
+            buffer.resize(1, 100);
+            looper.set_looper_buffer(&buffer);
             assert_eq!(looper.state(), LooperState::Paused);
             looper.play();
             assert_eq!(looper.state(), LooperState::Playing);
@@ -950,8 +959,8 @@ mod test {
     #[test]
     fn test_get_fade_volumes_when_theres_no_fade_set_return_1() {
         let handle = LooperHandle::default();
-        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
-        handle.set_looper_buffer(&buffer.interleaved());
+        let buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer);
         assert_f_eq!(handle.get_fade_in_volume(0.0), 1.0);
         assert_f_eq!(handle.get_fade_out_volume(0.0), 1.0);
         assert_f_eq!(handle.get_fade_in_volume(2.0), 1.0);
@@ -961,8 +970,8 @@ mod test {
     #[test]
     fn test_set_buffer_sets_internal_buffer() {
         let handle = LooperHandle::default();
-        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
-        handle.set_looper_buffer(&buffer.interleaved());
+        let buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer);
         let looper_clip_ref = handle.looper_clip();
         let buffer = looper_clip_ref.borrow();
         assert_f_eq!(buffer.get(0, 0).get(), 1.0);
@@ -974,8 +983,8 @@ mod test {
     #[test]
     fn test_set_buffer_sets_internal_buffer_when_handle_is_indirect() {
         let handle = make_shared(LooperHandle::default());
-        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
-        handle.set_looper_buffer(&buffer.interleaved());
+        let buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer);
         let looper_clip_ref = handle.looper_clip();
         let buffer = looper_clip_ref.borrow();
         assert_f_eq!(buffer.get(0, 0).get(), 1.0);
@@ -988,28 +997,29 @@ mod test {
     fn test_play_after_set_buffer() {
         let mut processor = LooperProcessor::default();
         let handle = processor.handle().clone();
-        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
-        handle.set_looper_buffer(&buffer.interleaved());
+        let buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer);
         handle.play();
 
-        let mut buffer = VecAudioBuffer::empty_with(1, 4, 0.0);
+        let mut buffer = AudioBuffer::empty();
+        buffer.resize(1, 4);
         let settings = AudioProcessorSettings {
             output_channels: 1,
             block_size: 4,
             ..Default::default()
         };
         let mut context = AudioContext::from(settings);
-        processor.prepare(&mut context, settings);
+        processor.prepare(&mut context);
 
         processor.process(&mut context, &mut buffer);
-        assert_eq!(buffer.slice(), &[1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(buffer.channel(0), &[1.0, 2.0, 3.0, 4.0]);
     }
 
     #[test]
     fn test_get_fade_in_volume_when_theres_fade_in() {
         let handle = LooperHandle::default();
-        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
-        handle.set_looper_buffer(&buffer.interleaved());
+        let buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer);
         handle.set_fade_start(0.5);
         assert_f_eq!(handle.get_fade_in_volume(0.0), 0.0);
         assert_f_eq!(handle.get_fade_in_volume(1.0), 0.5);
@@ -1020,8 +1030,8 @@ mod test {
     #[test]
     fn test_get_fade_out_volume_when_theres_fade_out() {
         let handle = LooperHandle::default();
-        let mut buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
-        handle.set_looper_buffer(&buffer.interleaved());
+        let buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
+        handle.set_looper_buffer(&buffer);
         handle.set_fade_end(0.5);
         assert_f_eq!(handle.get_fade_out_volume(0.0), 1.0);
         assert_f_eq!(handle.get_fade_out_volume(1.0), 1.0);
@@ -1034,8 +1044,8 @@ mod test {
         let handle = LooperHandle::default();
         handle.prepare(AudioProcessorSettings::default());
         handle.start_recording();
-        let buffer = VecAudioBuffer::from(vec![1.0, 2.0, 3.0, 4.0]);
-        for sample in buffer.slice() {
+        let buffer = AudioBuffer::from_interleaved(1, &[1.0, 2.0, 3.0, 4.0]);
+        for sample in buffer.channel(0) {
             handle.process(0, *sample);
             handle.after_process();
         }

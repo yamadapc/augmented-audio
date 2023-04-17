@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use audio_processor_testing_helpers::relative_path;
-use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, InterleavedAudioBuffer};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use cpal::traits::{DeviceTrait, HostTrait};
 use cpal::{BufferSize, SampleRate, StreamConfig};
 
@@ -40,7 +40,7 @@ fn main() {
     )
     .unwrap();
     let mut context = AudioContext::default();
-    processor.prepare(&mut context, Default::default());
+    processor.prepare(&mut context);
     run_audio(processor);
 }
 
@@ -48,6 +48,8 @@ fn run_audio(mut processor: impl AudioProcessor<SampleType = f32> + Send + 'stat
     let host = cpal::default_host();
     let output_device = host.default_output_device().unwrap();
     let mut context = AudioContext::default();
+    let mut buffer = AudioBuffer::empty();
+    buffer.resize(2, 1024);
     let _handle = output_device
         .build_output_stream(
             &StreamConfig {
@@ -56,13 +58,12 @@ fn run_audio(mut processor: impl AudioProcessor<SampleType = f32> + Send + 'stat
                 sample_rate: SampleRate(44100),
             },
             move |data, _info| {
-                let mut buffer = InterleavedAudioBuffer::new(2, data);
-                for sample in buffer.slice_mut() {
-                    *sample = 0.0;
-                }
+                buffer.resize(2, data.len() / 2);
+                buffer.copy_from_interleaved(data);
                 processor.process(&mut context, &mut buffer);
             },
             |err| log::error!("CPAL stream error: {}", err),
+            None,
         )
         .unwrap();
     std::thread::park();

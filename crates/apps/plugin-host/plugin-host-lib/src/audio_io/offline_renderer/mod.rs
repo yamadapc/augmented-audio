@@ -25,9 +25,7 @@ use std::time::{Duration, Instant};
 use thiserror::Error;
 use vst::plugin::Plugin;
 
-use audio_processor_traits::{
-    AudioContext, AudioProcessor, AudioProcessorSettings, InterleavedAudioBuffer,
-};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, AudioProcessorSettings};
 
 use crate::audio_io::cpal_vst_buffer_handler::CpalVstBufferHandler;
 use crate::audio_io::AudioHostPluginLoadError;
@@ -83,7 +81,7 @@ impl OfflineRenderer {
         plugin.set_sample_rate(self.audio_settings.sample_rate());
         plugin.set_block_size(self.audio_settings.block_size() as i64);
         let mut context = AudioContext::from(self.audio_settings);
-        audio_file_processor.prepare(&mut context, self.audio_settings);
+        audio_file_processor.prepare(&mut context);
         output_file_processor.prepare(self.audio_settings);
 
         let audio_file_buffer = audio_file_processor.buffer();
@@ -120,8 +118,8 @@ impl OfflineRenderer {
             audio_input_conversion_time += start.elapsed();
 
             let start = Instant::now();
-            let mut interleaved_buffer = InterleavedAudioBuffer::new(num_channels, &mut buffer);
-            buffer_handler.process(&interleaved_buffer);
+            let mut buffer = AudioBuffer::from_interleaved(num_channels, &buffer);
+            buffer_handler.process(&mut buffer);
             let audio_buffer_start = Instant::now();
             let mut audio_plugin_buffer = buffer_handler.get_audio_buffer();
             audio_buffer_create_time += audio_buffer_start.elapsed();
@@ -133,16 +131,14 @@ impl OfflineRenderer {
 
             let start = Instant::now();
             let flush_start = Instant::now();
-            flush_vst_output(
-                num_channels,
-                &mut audio_plugin_buffer,
-                &mut interleaved_buffer,
-            );
+            flush_vst_output(num_channels, &mut audio_plugin_buffer, &mut buffer);
             plugin_flush_time += flush_start.elapsed();
             plugin_conversions_time += start.elapsed();
 
             let start = Instant::now();
-            output_file_processor.process(&mut buffer);
+            output_file_processor
+                .process(&mut buffer)
+                .expect("Failed to write to file");
             audio_output_time += start.elapsed();
         }
         let total_runtime = start.elapsed().as_millis();

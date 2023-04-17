@@ -24,14 +24,9 @@
 use crate::AudioProcessorSettings;
 
 #[derive(Default)]
+#[non_exhaustive]
 pub struct AudioContext {
-    settings: AudioProcessorSettings,
-}
-
-impl AudioContext {
-    pub fn settings(&self) -> &AudioProcessorSettings {
-        &self.settings
-    }
+    pub settings: AudioProcessorSettings,
 }
 
 impl From<AudioProcessorSettings> for AudioContext {
@@ -48,6 +43,6 @@ mod tests {
     fn test_context() {
         let settings = AudioProcessorSettings::default();
         let context = AudioContext::from(settings.clone());
-        assert_eq!(context.settings(), &settings);
+        assert_eq!(context.settings, settings);
     }
 }
