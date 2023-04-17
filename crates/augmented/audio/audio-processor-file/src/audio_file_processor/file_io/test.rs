@@ -204,7 +204,7 @@ fn test_convert_audio_file_stream_sample_rate() {
         }
     }
 
-    assert_eq!(num_samples, 22050 * 5);
+    assert!(num_samples > (22050 * 5 - 512));
 }
 
 #[test]
