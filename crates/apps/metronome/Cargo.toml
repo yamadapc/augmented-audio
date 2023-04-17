@@ -32,7 +32,7 @@ wasm_thread = { version = "0.2.0", features = ["es_modules"] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 android_logger = "0.13.1"
-jni = "0.20"
+jni = "0.21.1"
 ndk-context = "0.1.1"
 
 [build-dependencies]

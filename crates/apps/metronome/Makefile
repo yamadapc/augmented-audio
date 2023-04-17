@@ -47,6 +47,9 @@ build-libs-ios: FORCE
 	cp ../../../target/aarch64-apple-ios/release/libmetronome.a ./public/lib/-iphoneos/libmetronome.a
 	cp ../../../target/aarch64-apple-ios-sim/release/libmetronome.a ./public/lib/-iphonesimulator/libmetronome.a
 
+build-test-android: FORCE
+	cargo ndk -t armeabi-v7a -t arm64-v8a -o android/app/src/main/jniLibs build
+
 setup-ndk:
 	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/aarch64-linux-android/libc++_shared.so ./android/app/src/main/jniLibs/arm64-v8a/
 	cp ${NDK_HOME}/toolchains/llvm/prebuilt/darwin-x86_64/sysroot/usr/lib/arm-linux-androideabi/libc++_shared.so ./android/app/src/main/jniLibs/armeabi-v7a/
