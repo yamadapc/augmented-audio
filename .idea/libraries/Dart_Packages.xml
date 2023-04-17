@@ -415,8 +415,7 @@
         <entry key="flutter_rust_bridge">
           <value>
             <list>
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_rust_bridge-1.72.2/lib" />
-              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_rust_bridge-1.72.1/lib" />
+              <option value="$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_rust_bridge-1.75.0/lib" />
             </list>
           </value>
         </entry>
@@ -1184,8 +1183,7 @@
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_mobx-2.0.6+5/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_platform_widgets-3.2.1/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.9/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_rust_bridge-1.72.1/lib" />
-      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_rust_bridge-1.72.2/lib" />
+      <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_rust_bridge-1.75.0/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_svg-1.1.6/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/flutter_timezone-1.0.4/lib" />
       <root url="file://$USER_HOME$/.pub-cache/hosted/pub.dev/frontend_server_client-3.2.0/lib" />
