@@ -9,7 +9,7 @@ crate-type = ["lib", "cdylib"]
 
 [dependencies]
 actix = "^0.13.0"
-flutter_rust_bridge = "^1.62.0"
+flutter_rust_bridge = "1.75.0"
 anyhow = "1.0.52"
 log = "^0.4.14"
 uuid = { version = "1.0", features = ["v4"] }
@@ -29,4 +29,4 @@ wisual-logger = { version = "0.1", path = "../../augmented/ops/wisual-logger" }
 
 [build-dependencies]
 cbindgen = "0.24.3"
-flutter_rust_bridge_codegen = "^1.62.0"
+flutter_rust_bridge_codegen = "^1.75.0"
