@@ -500,6 +500,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "audio-processor-attack-decay"
+version = "0.1.0"
+dependencies = [
+ "audio-processor-analysis",
+ "audio-processor-standalone",
+ "audio-processor-traits",
+ "rustfft",
+]
+
+[[package]]
 name = "audio-processor-bitcrusher"
 version = "1.0.0"
 dependencies = [
