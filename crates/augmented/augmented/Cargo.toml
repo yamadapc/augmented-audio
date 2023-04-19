@@ -51,7 +51,7 @@ circular-data-structures = { path = "../data/circular-data-structures" }
 smooth-value = { path = "../data/smooth-value" }
 
 # dsp
-augmented-convert-sample-rate = { path = "../dsp/convert-sample-rate" , version = "1.4.0" }
+augmented-convert-sample-rate = { path = "../dsp/convert-sample-rate" , version = "1.5.0" }
 augmented-dsp-filters = { version = "2.0.0", path = "../dsp/dsp-filters" }
 
 # gui
