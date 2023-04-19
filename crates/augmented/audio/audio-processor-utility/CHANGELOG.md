@@ -1,3 +1,12 @@
+## v2.0.0
+
+* [`f261f322f55e`](https://github.com/yamadapc/augmented-audio/commits/f261f322f55e) audio-processor-standalone@3.0.0 (Minor)
+* [`efece0f93544`](https://github.com/yamadapc/augmented-audio/commits/efece0f93544) audio-processor-testing-helpers@2.4.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`31a79c30fab4`](https://github.com/yamadapc/augmented-audio/commits/31a79c30fab4) Fix unit-tests and issues (Minor)
+* [`3fb9588a86d4`](https://github.com/yamadapc/augmented-audio/commits/3fb9588a86d4) Other fixes for utility, traits and file :major: (Major)
+
 ## v1.0.0
 
 * [`c0704867cd5`](https://github.com/yamadapc/augmented-audio/commits/c0704867cd5) Fix utility documentation tests (Minor)
