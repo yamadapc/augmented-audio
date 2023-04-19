@@ -46,7 +46,7 @@ cpal = { version = "0.15.2" }
 
 # data
 atomic-queue = { path = "../data/atomic-queue" , version = "1.0.1" }
-augmented-audio-volume = { path = "../data/audio-volume" , version = "0.5.0" }
+augmented-audio-volume = { path = "../data/audio-volume" , version = "0.6.0" }
 circular-data-structures = { path = "../data/circular-data-structures" }
 smooth-value = { path = "../data/smooth-value" }
 
