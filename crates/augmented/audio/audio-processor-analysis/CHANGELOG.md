@@ -1,3 +1,15 @@
+## v2.0.0
+
+* [`8d726bb34b98`](https://github.com/yamadapc/augmented-audio/commits/8d726bb34b98) audio-processor-file@3.0.0 (Minor)
+* [`efece0f93544`](https://github.com/yamadapc/augmented-audio/commits/efece0f93544) audio-processor-testing-helpers@2.4.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`fafe9799d138`](https://github.com/yamadapc/augmented-audio/commits/fafe9799d138) Fix minor warnings (Minor)
+* [`28ad4c229625`](https://github.com/yamadapc/augmented-audio/commits/28ad4c229625) Add more unit-tests for analysis crate (Minor)
+* [`31a79c30fab4`](https://github.com/yamadapc/augmented-audio/commits/31a79c30fab4) Fix unit-tests and issues (Minor)
+* [`f941e8f46d01`](https://github.com/yamadapc/augmented-audio/commits/f941e8f46d01) Bump analysis crate :major: (Major)
+* [`ef9be8a9214c`](https://github.com/yamadapc/augmented-audio/commits/ef9be8a9214c) Fix default features for compilation (Minor)
+
 ## v1.0.0
 
 * [`f105ae502e6`](https://github.com/yamadapc/augmented-audio/commits/f105ae502e6) Fix documentation tests (Minor)
