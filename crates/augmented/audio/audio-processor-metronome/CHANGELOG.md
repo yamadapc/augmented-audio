@@ -1,3 +1,15 @@
+## v3.0.0
+
+* [`352578203367`](https://github.com/yamadapc/augmented-audio/commits/352578203367) augmented-playhead@0.6.0 (Minor)
+* [`f261f322f55e`](https://github.com/yamadapc/augmented-audio/commits/f261f322f55e) audio-processor-standalone@3.0.0 (Minor)
+* [`8d726bb34b98`](https://github.com/yamadapc/augmented-audio/commits/8d726bb34b98) audio-processor-file@3.0.0 (Minor)
+* [`efece0f93544`](https://github.com/yamadapc/augmented-audio/commits/efece0f93544) audio-processor-testing-helpers@2.4.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`b31bd0c432e9`](https://github.com/yamadapc/augmented-audio/commits/b31bd0c432e9) Bump other crates like plugin host :major: (Major)
+* [`dac22f5589d5`](https://github.com/yamadapc/augmented-audio/commits/dac22f5589d5) Fix metronome with new traits :major: (Major)
+* [`b88cfb99aaa8`](https://github.com/yamadapc/augmented-audio/commits/b88cfb99aaa8) Change default sample rate conversion (Minor)
+
 ## v2.0.0
 
 * [`5bdd1b85a0d`](https://github.com/yamadapc/augmented-audio/commits/5bdd1b85a0d) augmented-playhead@0.5.0 (Minor)
