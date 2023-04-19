@@ -1,3 +1,7 @@
+## v0.8.0
+
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+
 ## v0.7.0
 
 * [`144c173e61b`](https://github.com/yamadapc/augmented-audio/commits/144c173e61b) audio-processor-iced-design-system@1.0.0 (Minor)

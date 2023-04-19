@@ -40,4 +40,4 @@ augmented-dsp-filters = { version = "2.0.0", path = "../../dsp/dsp-filters" }
 
 [dev-dependencies]
 audio-processor-standalone = { version = "2.0.0", path = "../../application/audio-processor-standalone", features = ["gui"] }
-audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" , version = "0.7.0" }
+audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" , version = "0.8.0" }
