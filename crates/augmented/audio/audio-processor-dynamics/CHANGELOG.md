@@ -1,3 +1,15 @@
+## v2.0.0
+
+* [`81889f251b03`](https://github.com/yamadapc/augmented-audio/commits/81889f251b03) augmented-audio-volume@0.6.0 (Minor)
+* [`f261f322f55e`](https://github.com/yamadapc/augmented-audio/commits/f261f322f55e) audio-processor-standalone@3.0.0 (Minor)
+* [`8d726bb34b98`](https://github.com/yamadapc/augmented-audio/commits/8d726bb34b98) audio-processor-file@3.0.0 (Minor)
+* [`efece0f93544`](https://github.com/yamadapc/augmented-audio/commits/efece0f93544) audio-processor-testing-helpers@2.4.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`31a79c30fab4`](https://github.com/yamadapc/augmented-audio/commits/31a79c30fab4) Fix unit-tests and issues (Minor)
+* [`f9e735c3424c`](https://github.com/yamadapc/augmented-audio/commits/f9e735c3424c) Update dynamics package :major: (Major)
+* [`ef9be8a9214c`](https://github.com/yamadapc/augmented-audio/commits/ef9be8a9214c) Fix default features for compilation (Minor)
+
 ## v1.0.0
 
 * [`9026ecfb569`](https://github.com/yamadapc/augmented-audio/commits/9026ecfb569) augmented-audio-volume@0.5.0 (Minor)
