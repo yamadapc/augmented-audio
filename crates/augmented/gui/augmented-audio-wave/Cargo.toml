@@ -16,7 +16,7 @@ skia-safe = { version = "0.54.0" }
 skia-safe = { version = "0.54.0", features = ["metal"] }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { version = "2.3.0", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "2.4.0", path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-file = { version = "2.3.0", path = "../../audio/audio-processor-file" }
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 foreign-types-shared = "0.1"

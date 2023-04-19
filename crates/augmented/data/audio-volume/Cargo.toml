@@ -15,7 +15,7 @@ f64 = []
 f32 = []
 
 [dev-dependencies]
-audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "2.3.0" }
+audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "2.4.0" }
 
 [package.metadata.augmented]
 private = false

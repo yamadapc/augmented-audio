@@ -1,3 +1,8 @@
+## v2.4.0
+
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`8bb0d3cdde41`](https://github.com/yamadapc/augmented-audio/commits/8bb0d3cdde41) Get filters crate to compile and test (Minor)
+
 ## v2.3.0
 
 * [`1c17846f2cc`](https://github.com/yamadapc/augmented-audio/commits/1c17846f2cc) audio-processor-traits@3.2.0 (Minor)
