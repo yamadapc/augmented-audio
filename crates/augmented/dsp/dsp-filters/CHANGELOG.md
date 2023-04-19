@@ -1,3 +1,10 @@
+## v2.1.0
+
+* [`efece0f93544`](https://github.com/yamadapc/augmented-audio/commits/efece0f93544) audio-processor-testing-helpers@2.4.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`31a79c30fab4`](https://github.com/yamadapc/augmented-audio/commits/31a79c30fab4) Fix unit-tests and issues (Minor)
+* [`8bb0d3cdde41`](https://github.com/yamadapc/augmented-audio/commits/8bb0d3cdde41) Get filters crate to compile and test (Minor)
+
 ## v2.0.0
 
 * [`b849e5c735f`](https://github.com/yamadapc/augmented-audio/commits/b849e5c735f) Fix dsp-filters documentation tests (Minor)
