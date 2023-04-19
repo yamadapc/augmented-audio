@@ -1,3 +1,12 @@
+## v1.1.0
+
+* [`41c2384b9f14`](https://github.com/yamadapc/augmented-audio/commits/41c2384b9f14) augmented-dsp-filters@2.1.0 (Minor)
+* [`f261f322f55e`](https://github.com/yamadapc/augmented-audio/commits/f261f322f55e) audio-processor-standalone@3.0.0 (Minor)
+* [`7ef39e962420`](https://github.com/yamadapc/augmented-audio/commits/7ef39e962420) audio-processor-standalone-gui@0.8.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`46e71da4fe24`](https://github.com/yamadapc/augmented-audio/commits/46e71da4fe24) Move on with refactoring (Minor)
+
 ## v1.0.0
 
 * [`21a295f44e8`](https://github.com/yamadapc/augmented-audio/commits/21a295f44e8) augmented-dsp-filters@2.0.0 (Minor)
