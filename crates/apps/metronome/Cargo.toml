@@ -22,7 +22,7 @@ audio-processor-metronome = { path = "../../augmented/audio/audio-processor-metr
 audio-processor-standalone = { path = "../../augmented/application/audio-processor-standalone" , version = "2.0.0", default-features = false }
 audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collector", version = "1.2.0" }
 audio-processor-file = { path = "../../augmented/audio/audio-processor-file", version = "2.3.0" }
-audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits", version = "3.2.0" }
+audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits", version = "4.0.0" }
 macos-bundle-resources = { path = "../../augmented/gui/macos-bundle-resources" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]

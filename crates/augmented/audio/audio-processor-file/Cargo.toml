@@ -31,7 +31,7 @@ augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-
 
 # Augmented
 audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-collector" , version = "1.2.0" }
-audio-processor-traits = { version = "3.2.0", path = "../../../augmented/audio/audio-processor-traits", default-features = false }
+audio-processor-traits = { version = "4.0.0", path = "../../../augmented/audio/audio-processor-traits", default-features = false }
 augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.5.0" }
 
 cpal = { version = "0.15.2", features = ["oboe-shared-stdcxx"] }
