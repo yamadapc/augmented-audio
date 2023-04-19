@@ -1,5 +1,6 @@
 use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
 use audio_processor_analysis::fft_processor::{FftProcessor, FftProcessorOptions};
+use audio_processor_analysis::window_functions::WindowFunctionType;
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
 use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use rustfft::num_complex::Complex;
@@ -31,6 +32,7 @@ impl AudioProcessor for AttackDecayProcessor {
                 size: 8192,
                 direction: FftDirection::Forward,
                 overlap_ratio: 0.75,
+                window_function: WindowFunctionType::BlackmanHarris,
                 ..FftProcessorOptions::default()
             });
             fft.m_prepare(context);
@@ -81,14 +83,9 @@ impl AttackDecayProcessor {
 
         for (bin_index, value) in input_fft.iter_mut().enumerate() {
             let envelope = &mut self.envelope_followers[fft_index][bin_index];
-            envelope.m_process(context, value.norm());
-            *value = Complex::from_polar(
-                envelope.handle().state().min(1.0) * value.norm(),
-                value.arg(),
-            );
-        }
-        for i in fft_size_i / 2..fft_size_i {
-            input_fft[i] = Complex::from(0.0);
+            let norm = value.norm();
+            envelope.m_process(context, norm);
+            *value = Complex::from_polar(envelope.handle().state().min(1.0) * norm, value.arg());
         }
         self.inverse_fft[fft_index].process(input_fft);
 
