@@ -1,3 +1,28 @@
+## v3.0.0
+
+* [`cc315fb268fa`](https://github.com/yamadapc/augmented-audio/commits/cc315fb268fa) Bump standalone midi (Minor)
+* [`4cd677eeee69`](https://github.com/yamadapc/augmented-audio/commits/4cd677eeee69) Update standalone midi version (Minor)
+* [`7ef39e962420`](https://github.com/yamadapc/augmented-audio/commits/7ef39e962420) audio-processor-standalone-gui@0.8.0 (Minor)
+* [`cd6055e5d518`](https://github.com/yamadapc/augmented-audio/commits/cd6055e5d518) augmented-midi@1.5.0 (Minor)
+* [`8d726bb34b98`](https://github.com/yamadapc/augmented-audio/commits/8d726bb34b98) audio-processor-file@3.0.0 (Minor)
+* [`efece0f93544`](https://github.com/yamadapc/augmented-audio/commits/efece0f93544) audio-processor-testing-helpers@2.4.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`75c30897f122`](https://github.com/yamadapc/augmented-audio/commits/75c30897f122) Update with external avfaudio-sys (Minor)
+* [`e0cf364183e9`](https://github.com/yamadapc/augmented-audio/commits/e0cf364183e9) Fix issues with NaN (Minor)
+* [`e59e05d67459`](https://github.com/yamadapc/augmented-audio/commits/e59e05d67459) Improve logging/error-handling (Minor)
+* [`06154925d7f3`](https://github.com/yamadapc/augmented-audio/commits/06154925d7f3) Fix warnings (Minor)
+* [`188693930cee`](https://github.com/yamadapc/augmented-audio/commits/188693930cee) Bump to cpal@0.15.2 (Minor)
+* [`82205083bd1b`](https://github.com/yamadapc/augmented-audio/commits/82205083bd1b) Fix clippy errors (Minor)
+* [`31a79c30fab4`](https://github.com/yamadapc/augmented-audio/commits/31a79c30fab4) Fix unit-tests and issues (Minor)
+* [`dac22f5589d5`](https://github.com/yamadapc/augmented-audio/commits/dac22f5589d5) Fix metronome with new traits :major: (Major)
+* [`3fb9588a86d4`](https://github.com/yamadapc/augmented-audio/commits/3fb9588a86d4) Other fixes for utility, traits and file :major: (Major)
+* [`babead77eaff`](https://github.com/yamadapc/augmented-audio/commits/babead77eaff) Bump processor file :major: (Major)
+* [`46e71da4fe24`](https://github.com/yamadapc/augmented-audio/commits/46e71da4fe24) Move on with refactoring (Minor)
+* [`672684f6cbb3`](https://github.com/yamadapc/augmented-audio/commits/672684f6cbb3) Update wav outputs and module maps (Minor)
+* [`ef9be8a9214c`](https://github.com/yamadapc/augmented-audio/commits/ef9be8a9214c) Fix default features for compilation (Minor)
+* [`b88cfb99aaa8`](https://github.com/yamadapc/augmented-audio/commits/b88cfb99aaa8) Change default sample rate conversion (Minor)
+
 ## v2.0.0
 
 * [`ed78a407ba5`](https://github.com/yamadapc/augmented-audio/commits/ed78a407ba5) Bump midi everywhere :minor: (Minor)
