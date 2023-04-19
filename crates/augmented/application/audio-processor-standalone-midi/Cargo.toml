@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone-midi"
-version = "1.6.0"
+version = "1.7.0"
 edition = "2018"
 description = "Stand-alone MIDI hosting for a VST host or an `audio-processor-traits` implementor"
 license = "MIT"
@@ -21,7 +21,7 @@ vst = { version = "0.3", path = "../../../vendor/vst", optional = true }
 
 # augmented
 atomic-queue = { version = "1.0.1", path = "../../data/atomic-queue" }
-audio-processor-traits = { version = "4.0.0", path = "../../audio/audio-processor-traits" }
+audio-processor-traits = { version = "4.0.0", path = "../../audio/audio-processor-traits", features = ["vst"] }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.2.0" }
 
 actix = { version = "0.13.0", optional = true }
