@@ -547,7 +547,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-graph"
-version = "1.0.0"
+version = "2.0.0"
 dependencies = [
  "assert_no_alloc",
  "audio-garbage-collector",
