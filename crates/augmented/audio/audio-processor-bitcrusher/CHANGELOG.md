@@ -1,3 +1,12 @@
+## v2.0.0
+
+* [`f261f322f55e`](https://github.com/yamadapc/augmented-audio/commits/f261f322f55e) audio-processor-standalone@3.0.0 (Minor)
+* [`7ef39e962420`](https://github.com/yamadapc/augmented-audio/commits/7ef39e962420) audio-processor-standalone-gui@0.8.0 (Minor)
+* [`efece0f93544`](https://github.com/yamadapc/augmented-audio/commits/efece0f93544) audio-processor-testing-helpers@2.4.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`23de0aaaf804`](https://github.com/yamadapc/augmented-audio/commits/23de0aaaf804) Update bitcrusher :major: (Major)
+
 ## v1.0.0
 
 * [`188c3a81bf4`](https://github.com/yamadapc/augmented-audio/commits/188c3a81bf4) audio-processor-standalone@2.0.0 (Minor)
