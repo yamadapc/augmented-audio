@@ -57,7 +57,7 @@ audio-garbage-collector = { path = "../../../augmented/audio/audio-garbage-colle
 audio-parameter-store = { path = "../../../augmented/audio/audio-parameter-store" }
 audio-processor-traits = { version = "4.0.0", path = "../../../augmented/audio/audio-processor-traits", features = ["vst"] }
 audio-plugin-logger = { path = "../../../augmented/ops/audio-plugin-logger" }
-audio-processor-file = { version = "2.3.0", path = "../../../augmented/audio/audio-processor-file" }
+audio-processor-file = { version = "3.0.0", path = "../../../augmented/audio/audio-processor-file" }
 looper-processor = { path = "../looper-processor" }
 
 tokio = "1.17.0"

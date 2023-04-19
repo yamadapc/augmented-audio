@@ -1,3 +1,25 @@
+## v3.0.0
+
+* [`a9fffb999402`](https://github.com/yamadapc/augmented-audio/commits/a9fffb999402) augmented-audio-metrics@1.6.0 (Minor)
+* [`c92af13bb2dc`](https://github.com/yamadapc/augmented-audio/commits/c92af13bb2dc) augmented-convert-sample-rate@1.5.0 (Minor)
+* [`efece0f93544`](https://github.com/yamadapc/augmented-audio/commits/efece0f93544) audio-processor-testing-helpers@2.4.0 (Minor)
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`d047cfc3b3f5`](https://github.com/yamadapc/augmented-audio/commits/d047cfc3b3f5) Add tolerance to conversion tests (Minor)
+* [`e854058c6842`](https://github.com/yamadapc/augmented-audio/commits/e854058c6842) Build audio-compare and update snapshots (Minor)
+* [`63f9a258937f`](https://github.com/yamadapc/augmented-audio/commits/63f9a258937f) Fix audio file issues (Minor)
+* [`a4d5cd74f0b6`](https://github.com/yamadapc/augmented-audio/commits/a4d5cd74f0b6) Add missing preambles (Minor)
+* [`47edc58aa147`](https://github.com/yamadapc/augmented-audio/commits/47edc58aa147) Update with more unit-test refactoring (Minor)
+* [`e0cf364183e9`](https://github.com/yamadapc/augmented-audio/commits/e0cf364183e9) Fix issues with NaN (Minor)
+* [`fafe9799d138`](https://github.com/yamadapc/augmented-audio/commits/fafe9799d138) Fix minor warnings (Minor)
+* [`188693930cee`](https://github.com/yamadapc/augmented-audio/commits/188693930cee) Bump to cpal@0.15.2 (Minor)
+* [`82205083bd1b`](https://github.com/yamadapc/augmented-audio/commits/82205083bd1b) Fix clippy errors (Minor)
+* [`3fb9588a86d4`](https://github.com/yamadapc/augmented-audio/commits/3fb9588a86d4) Other fixes for utility, traits and file :major: (Major)
+* [`babead77eaff`](https://github.com/yamadapc/augmented-audio/commits/babead77eaff) Bump processor file :major: (Major)
+* [`46e71da4fe24`](https://github.com/yamadapc/augmented-audio/commits/46e71da4fe24) Move on with refactoring (Minor)
+* [`b88cfb99aaa8`](https://github.com/yamadapc/augmented-audio/commits/b88cfb99aaa8) Change default sample rate conversion (Minor)
+* [`8116d73e1535`](https://github.com/yamadapc/augmented-audio/commits/8116d73e1535) Fix playback example (Minor)
+
 ## v2.3.0
 
 * [`4b40ac2a838`](https://github.com/yamadapc/augmented-audio/commits/4b40ac2a838) augmented-convert-sample-rate@1.4.0 (Minor)
