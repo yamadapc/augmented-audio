@@ -7,7 +7,7 @@ edition = "2021"
 lazy_static = "1.4"
 basedrop = "0.1"
 atomic-queue = { version = "1.0", path = "../../data/atomic-queue" }
-audio-garbage-collector = { version = "1.1.1", path = "../audio-garbage-collector" }
+audio-garbage-collector = { version = "1.2.0", path = "../audio-garbage-collector" }
 augmented-longbackoff = { version = "0.1", path = "../augmented-longbackoff" }
 log = "0.4"
 

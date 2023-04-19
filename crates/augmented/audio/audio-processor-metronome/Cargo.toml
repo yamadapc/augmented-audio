@@ -9,7 +9,7 @@ edition = "2021"
 augmented_oscillator = { path = "../oscillator" , version = "1.2.1" }
 audio-processor-traits = { path = "../audio-processor-traits" , version = "3.2.0" }
 audio-processor-standalone = { path = "../../application/audio-processor-standalone" , version = "2.0.0", default-features = false }
-audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.1.1" }
+audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.2.0" }
 augmented-playhead = { path = "../../data/augmented-playhead" , version = "0.5.0" }
 augmented-adsr-envelope = { path = "../adsr-envelope" , version = "0.4.0" }
 audio-processor-file = { path = "../audio-processor-file", version = "2.3.0" }
