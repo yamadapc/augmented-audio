@@ -1,3 +1,9 @@
+## v1.6.0
+
+* [`c94e8bfdcfc2`](https://github.com/yamadapc/augmented-audio/commits/c94e8bfdcfc2) audio-processor-traits@4.0.0 (Minor)
+* [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
+* [`31a79c30fab4`](https://github.com/yamadapc/augmented-audio/commits/31a79c30fab4) Fix unit-tests and issues (Minor)
+
 ## v1.5.0
 
 * [``](https://github.com/yamadapc/augmented-audio/commits/) Initial release (Minor)
