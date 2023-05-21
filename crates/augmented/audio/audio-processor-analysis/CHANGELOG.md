@@ -1,3 +1,7 @@
+## v2.0.1
+
+* Add utility methods to get scratch buffer and fft processor
+
 ## v2.0.0
 
 * [`8d726bb34b98`](https://github.com/yamadapc/augmented-audio/commits/8d726bb34b98) audio-processor-file@3.0.0 (Minor)
