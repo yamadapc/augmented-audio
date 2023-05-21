@@ -39,12 +39,12 @@
 
 use std::sync::Arc;
 
-use audio_processor_traits::AudioContext;
 use rustfft::num_complex::Complex;
 pub use rustfft::FftDirection;
 use rustfft::{Fft, FftPlanner};
 
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
+use audio_processor_traits::AudioContext;
 
 use crate::window_functions::{make_window_vec, WindowFunctionType};
 
@@ -145,9 +145,19 @@ impl FftProcessor {
         &self.fft_buffer
     }
 
+    /// Get a reference to the rustfft instance
+    pub fn fft(&self) -> &Arc<dyn Fft<f32>> {
+        &self.fft
+    }
+
     /// Get a mutable reference to the FFT bins buffer
     pub fn buffer_mut(&mut self) -> &mut Vec<Complex<f32>> {
         &mut self.fft_buffer
+    }
+
+    /// Get a mutable reference to the scratch buffer
+    pub fn scratch_mut(&mut self) -> &mut Vec<Complex<f32>> {
+        &mut self.scratch
     }
 
     /// Get the hop size of this processor. This is the number of samples between each FFT.
