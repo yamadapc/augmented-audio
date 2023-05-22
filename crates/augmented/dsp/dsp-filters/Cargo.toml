@@ -12,7 +12,7 @@ num = "^0.4.0"
 audio-processor-traits = { version = "4.1.0", path = "../../audio/audio-processor-traits" }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { version = "2.4.0", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "2.5.0", path = "../../testing/audio-processor-testing-helpers" }
 
 [package.metadata.augmented]
 private = false

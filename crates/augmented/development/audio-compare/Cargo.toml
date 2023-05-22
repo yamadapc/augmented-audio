@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 augmented-adsr-envelope = { version = "0.4.0", path = "../../audio/adsr-envelope" }
-audio-processor-testing-helpers = { version = "2.4.0", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "2.5.0", path = "../../testing/audio-processor-testing-helpers" }
 chrono = "0.4.24"
 clap = { version = "4.2.1", features = ["derive"] }
 dasp = { version = "0.11.0", features = ["all"] }
