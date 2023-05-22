@@ -22,7 +22,7 @@ audio-garbage-collector = { path = "../../augmented/audio/audio-garbage-collecto
 audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits" , version = "4.1.0" }
 audio-processor-time = { path = "../../augmented/audio/audio-processor-time" , version = "1.1.0" }
 augmented-dsp-filters = { path = "../../augmented/dsp/dsp-filters" , version = "2.1.0" }
-audio-processor-utility = { path = "../../augmented/audio/audio-processor-utility" , version = "2.0.0" }
+audio-processor-utility = { path = "../../augmented/audio/audio-processor-utility" , version = "2.1.0" }
 audio-processor-graph = { path = "../../augmented/audio/audio-processor-graph" , version = "2.0.0" }
 plugin-host-lib = { path = "../plugin-host/plugin-host-lib" }
 wisual-logger = { version = "0.1", path = "../../augmented/ops/wisual-logger" }
