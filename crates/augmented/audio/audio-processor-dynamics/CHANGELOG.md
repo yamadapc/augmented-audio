@@ -1,3 +1,11 @@
+## v2.1.0
+
+* [`c2aa43071070`](https://github.com/yamadapc/augmented-audio/commits/c2aa43071070) augmented-audio-volume@0.7.0 (Minor)
+* [`106dae1b42df`](https://github.com/yamadapc/augmented-audio/commits/106dae1b42df) audio-processor-standalone@3.1.0 (Minor)
+* [`7f3630907021`](https://github.com/yamadapc/augmented-audio/commits/7f3630907021) audio-processor-file@3.1.0 (Minor)
+* [`fc8bb5f0f3ae`](https://github.com/yamadapc/augmented-audio/commits/fc8bb5f0f3ae) audio-processor-testing-helpers@2.5.0 (Minor)
+* [`854943db8452`](https://github.com/yamadapc/augmented-audio/commits/854943db8452) audio-processor-traits@4.1.0 (Minor)
+
 ## v2.0.0
 
 * [`81889f251b03`](https://github.com/yamadapc/augmented-audio/commits/81889f251b03) augmented-audio-volume@0.6.0 (Minor)
