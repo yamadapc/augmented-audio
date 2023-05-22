@@ -35,7 +35,7 @@ cpal = { version = "0.15.2", features = ["oboe-shared-stdcxx"] }
 ringbuf = "^0.2.5"
 vst = { version = "0.3", path = "../../../vendor/vst", optional = true }
 
-audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", optional = true , version = "0.8.0" }
+audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", optional = true , version = "0.9.0" }
 
 [target.'cfg(not(target_os = "ios"))'.dependencies]
 audio-processor-standalone-midi = { version = "1.6.0", path = "../audio-processor-standalone-midi", optional = true }
