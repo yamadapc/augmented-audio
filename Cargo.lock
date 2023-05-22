@@ -484,7 +484,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-analysis"
-version = "2.0.0"
+version = "2.0.1"
 dependencies = [
  "audio-garbage-collector",
  "audio-processor-file",

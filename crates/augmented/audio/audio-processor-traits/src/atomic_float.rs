@@ -20,4 +20,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-pub use augmented_atomics::{AtomicF32, AtomicF64};
+pub use augmented_atomics::{
+    AtomicEnum, AtomicF32, AtomicF64, AtomicFloatRepresentable, AtomicOption, AtomicValue,
+};

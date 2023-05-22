@@ -41,10 +41,11 @@ use std::sync::Arc;
 
 use rustfft::num_complex::Complex;
 pub use rustfft::FftDirection;
-use rustfft::{Fft, FftPlanner};
+use rustfft::{Fft, FftNum, FftPlanner};
 
+use audio_processor_traits::num::{FromPrimitive, Num};
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
-use audio_processor_traits::AudioContext;
+use audio_processor_traits::{AudioContext, Float};
 
 use crate::window_functions::{make_window_vec, WindowFunctionType};
 
@@ -66,29 +67,32 @@ impl Default for FftProcessorOptions {
     }
 }
 
+/// Default f32 FFT processor
+pub type FftProcessor = FftProcessorImpl<f32>;
+
 /// An FFT processor with overlap and windowing.
 ///
 /// This processor will collect samples onto a circular buffer and perform FFTs whenever hop size is
 /// reached.
-pub struct FftProcessor {
-    input_buffer: Vec<f32>,
-    fft_buffer: Vec<Complex<f32>>,
-    scratch: Vec<Complex<f32>>,
+pub struct FftProcessorImpl<ST> {
+    input_buffer: Vec<ST>,
+    fft_buffer: Vec<Complex<ST>>,
+    scratch: Vec<Complex<ST>>,
     cursor: usize,
-    window: Vec<f32>,
+    window: Vec<ST>,
     step_len: usize,
     size: usize,
-    fft: Arc<dyn Fft<f32>>,
+    fft: Arc<dyn Fft<ST>>,
     has_changed: bool,
 }
 
-impl Default for FftProcessor {
+impl<ST: FftNum + std::iter::Sum + Float> Default for FftProcessorImpl<ST> {
     fn default() -> Self {
         Self::new(Default::default())
     }
 }
 
-impl FftProcessor {
+impl<ST: FftNum + std::iter::Sum + Float> FftProcessorImpl<ST> {
     /// Constructs a new `FftProcessor`
     ///
     /// * size: Size of the FFT
@@ -107,13 +111,13 @@ impl FftProcessor {
         let fft = planner.plan_fft(size, direction);
 
         let mut input_buffer = Vec::with_capacity(size);
-        input_buffer.resize(size, 0.0);
+        input_buffer.resize(size, ST::zero());
         let mut fft_buffer = Vec::with_capacity(size);
-        fft_buffer.resize(size, 0.0.into());
+        fft_buffer.resize(size, ST::zero().into());
 
         let scratch_size = fft.get_inplace_scratch_len();
         let mut scratch = Vec::with_capacity(scratch_size);
-        scratch.resize(scratch_size, 0.0.into());
+        scratch.resize(scratch_size, ST::zero().into());
 
         let window = make_window_vec(size, window_function);
         let step_len = Self::calculate_hop_size(size, overlap_ratio);
@@ -141,22 +145,22 @@ impl FftProcessor {
     }
 
     /// Get a reference to the FFT bins buffer
-    pub fn buffer(&self) -> &Vec<Complex<f32>> {
+    pub fn buffer(&self) -> &Vec<Complex<ST>> {
         &self.fft_buffer
     }
 
     /// Get a reference to the rustfft instance
-    pub fn fft(&self) -> &Arc<dyn Fft<f32>> {
+    pub fn fft(&self) -> &Arc<dyn Fft<ST>> {
         &self.fft
     }
 
     /// Get a mutable reference to the FFT bins buffer
-    pub fn buffer_mut(&mut self) -> &mut Vec<Complex<f32>> {
+    pub fn buffer_mut(&mut self) -> &mut Vec<Complex<ST>> {
         &mut self.fft_buffer
     }
 
     /// Get a mutable reference to the scratch buffer
-    pub fn scratch_mut(&mut self) -> &mut Vec<Complex<f32>> {
+    pub fn scratch_mut(&mut self) -> &mut Vec<Complex<ST>> {
         &mut self.scratch
     }
 
@@ -166,7 +170,7 @@ impl FftProcessor {
     }
 
     /// Manually process an external FFT buffer in-place.
-    pub fn process_fft_buffer(&mut self, samples: &mut [Complex<f32>]) {
+    pub fn process_fft_buffer(&mut self, samples: &mut [Complex<ST>]) {
         self.fft.process_with_scratch(samples, &mut self.scratch);
     }
 
@@ -176,7 +180,7 @@ impl FftProcessor {
     }
 
     /// Returns the sum of the power of the current input buffer window.
-    pub fn input_buffer_sum(&self) -> f32 {
+    pub fn input_buffer_sum(&self) -> ST {
         self.input_buffer.iter().map(|f| f.abs()).sum()
     }
 
@@ -189,7 +193,7 @@ impl FftProcessor {
 
             let magnitude = sample * self.window[i];
             assert!(!magnitude.is_nan());
-            let complex = Complex::new(magnitude, 0.0);
+            let complex = Complex::new(magnitude, ST::zero());
             assert!(!complex.re.is_nan());
             assert!(!complex.im.is_nan());
 
@@ -201,8 +205,8 @@ impl FftProcessor {
     }
 }
 
-impl MonoAudioProcessor for FftProcessor {
-    type SampleType = f32;
+impl<ST: FftNum + Float + std::iter::Sum> MonoAudioProcessor for FftProcessorImpl<ST> {
+    type SampleType = ST;
 
     #[inline]
     fn m_process(
@@ -241,9 +245,9 @@ mod test {
 
     #[test]
     fn test_hop_size_is_correct() {
-        let hop_size = FftProcessor::calculate_hop_size(2048, 0.75);
+        let hop_size = FftProcessorImpl::calculate_hop_size(2048, 0.75);
         assert_eq!(hop_size, 512);
-        let hop_size = FftProcessor::calculate_hop_size(2048, 0.875);
+        let hop_size = FftProcessorImpl::calculate_hop_size(2048, 0.875);
         assert_eq!(hop_size, 256);
     }
 
@@ -255,7 +259,7 @@ mod test {
         let mut signal = AudioBuffer::from_interleaved(1, &signal);
 
         println!("Processing");
-        let mut fft_processor = FftProcessor::default();
+        let mut fft_processor = FftProcessorImpl::default();
         process_buffer(&mut context, &mut fft_processor, &mut signal);
 
         println!("Drawing chart");

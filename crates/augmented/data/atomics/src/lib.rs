@@ -80,6 +80,10 @@ std_atomic_impl!(AtomicI32, i32);
 std_atomic_impl!(AtomicI64, i64);
 std_atomic_impl!(AtomicBool, bool);
 
+pub trait AtomicFloatRepresentable: Sized {
+    type AtomicType: AtomicValue<Inner = Self> + From<Self>;
+}
+
 macro_rules! atomic_float {
     ($name: ident, $backing: ident, $inner: ident) => {
         /// Simple atomic floating point variable with relaxed ordering.
@@ -185,6 +189,10 @@ macro_rules! atomic_float {
             fn set(&self, value: Self::Inner) {
                 $name::set(self, value)
             }
+        }
+
+        impl AtomicFloatRepresentable for $inner {
+            type AtomicType = $name;
         }
     };
 }

@@ -29,11 +29,11 @@
 //! ```
 //! use std::time::Duration;
 //! use audio_garbage_collector::Shared;
-//! use audio_processor_analysis::envelope_follower_processor::{EnvelopeFollowerHandle, EnvelopeFollowerProcessor};
+//! use audio_processor_analysis::envelope_follower_processor::{EnvelopeFollowerHandleImpl, EnvelopeFollowerProcessorImpl};
 //! use audio_processor_traits::{AudioContext, AudioProcessorSettings, simple_processor::MonoAudioProcessor};
 //!
-//! let mut envelope_follower = EnvelopeFollowerProcessor::default();
-//! let handle: Shared<EnvelopeFollowerHandle> = envelope_follower.handle().clone();
+//! let mut envelope_follower = EnvelopeFollowerProcessorImpl::default();
+//! let handle: Shared<EnvelopeFollowerHandleImpl> = envelope_follower.handle().clone();
 //! handle.set_attack(Duration::from_secs_f32(0.4));
 //!
 //! let mut context = AudioContext::from(AudioProcessorSettings::default());
@@ -42,36 +42,44 @@
 //! ```
 
 use audio_garbage_collector::{make_shared, Shared};
+use audio_processor_traits::atomic_float::{AtomicFloatRepresentable, AtomicValue};
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
-use audio_processor_traits::{AtomicF32, AudioContext, AudioProcessorSettings};
+use audio_processor_traits::{AudioContext, AudioProcessorSettings, Float};
 use std::time::Duration;
 
-fn calculate_multiplier(sample_rate: f32, duration_ms: f32) -> f32 {
-    let attack_secs = duration_ms * 0.001;
+fn calculate_multiplier<F: Float>(sample_rate: F, duration_ms: F) -> F {
+    let attack_secs = duration_ms * F::from(0.001).unwrap();
     let attack_samples = sample_rate * attack_secs;
-    (-1.0 / attack_samples).exp2()
+    (F::from(-1.0).unwrap() / attack_samples).exp2()
 }
 
-/// Handle for [`EnvelopeFollowerProcessor`] use this to interact with the processor parameters from
+/// Envelope follower processor (f32)
+pub type EnvelopeFollowerProcessor = EnvelopeFollowerProcessorImpl<f32>;
+
+/// Envelope follower handle (f32)
+pub type EnvelopeFollowerHandle = EnvelopeFollowerHandleImpl<f32>;
+
+/// Handle for [`EnvelopeFollowerProcessorImpl`] use this to interact with the processor parameters from
 /// any thread.
-pub struct EnvelopeFollowerHandle {
-    envelope_state: AtomicF32,
-    attack_multiplier: AtomicF32,
-    release_multiplier: AtomicF32,
-    attack_duration_ms: AtomicF32,
-    release_duration_ms: AtomicF32,
-    sample_rate: AtomicF32,
+pub struct EnvelopeFollowerHandleImpl<ST: AtomicFloatRepresentable> {
+    envelope_state: ST::AtomicType,
+    attack_multiplier: ST::AtomicType,
+    release_multiplier: ST::AtomicType,
+    attack_duration_ms: ST::AtomicType,
+    release_duration_ms: ST::AtomicType,
+    sample_rate: ST::AtomicType,
+    _marker: std::marker::PhantomData<ST>,
 }
 
-impl EnvelopeFollowerHandle {
+impl<ST: Float + AtomicFloatRepresentable> EnvelopeFollowerHandleImpl<ST> {
     /// Get the current envelope value
-    pub fn state(&self) -> f32 {
-        self.envelope_state.get()
+    pub fn state(&self) -> ST {
+        ST::from(self.envelope_state.get()).unwrap()
     }
 
     /// Set the attack as a `Duration`
     pub fn set_attack(&self, duration: Duration) {
-        let duration_ms = duration.as_millis() as f32;
+        let duration_ms = ST::from(duration.as_millis()).unwrap();
         self.attack_duration_ms.set(duration_ms);
         self.attack_multiplier
             .set(calculate_multiplier(self.sample_rate.get(), duration_ms));
@@ -79,7 +87,7 @@ impl EnvelopeFollowerHandle {
 
     /// Set the release as a `Duration`
     pub fn set_release(&self, duration: Duration) {
-        let duration_ms = duration.as_millis() as f32;
+        let duration_ms = ST::from(duration.as_millis()).unwrap();
         self.release_duration_ms.set(duration_ms);
         self.release_multiplier
             .set(calculate_multiplier(self.sample_rate.get(), duration_ms));
@@ -93,10 +101,10 @@ impl EnvelopeFollowerHandle {
 ///
 /// # Example
 /// ```rust
-/// use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessor;
+/// use audio_processor_analysis::envelope_follower_processor::EnvelopeFollowerProcessorImpl;
 /// use audio_processor_traits::{AudioContext, AudioProcessorSettings, simple_processor::MonoAudioProcessor};
 ///
-/// let mut  envelope_follower = EnvelopeFollowerProcessor::default();
+/// let mut  envelope_follower = EnvelopeFollowerProcessorImpl::default();
 /// let _handle = envelope_follower.handle(); // can send to another thread
 ///
 /// // Envelope follower implements `MonoAudioProcessor
@@ -104,51 +112,70 @@ impl EnvelopeFollowerHandle {
 /// envelope_follower.m_prepare(&mut context);
 /// envelope_follower.m_process(&mut context, 1.0);
 /// ```
-pub struct EnvelopeFollowerProcessor {
-    handle: Shared<EnvelopeFollowerHandle>,
+pub struct EnvelopeFollowerProcessorImpl<ST: AtomicFloatRepresentable> {
+    handle: Shared<EnvelopeFollowerHandleImpl<ST>>,
 }
 
-impl Default for EnvelopeFollowerProcessor {
+impl<ST> Default for EnvelopeFollowerProcessorImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float + Send + 'static,
+    ST::AtomicType: Send + 'static,
+{
     fn default() -> Self {
         Self::new(Duration::from_millis(10), Duration::from_millis(10))
     }
 }
 
-impl EnvelopeFollowerProcessor {
-    /// Create a new `EnvelopeFollowerProcessor` with this attack and release times.
+impl<ST> EnvelopeFollowerProcessorImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float + Send + 'static,
+    ST::AtomicType: Send + 'static,
+{
+    /// Create a new `EnvelopeFollowerProcessorImpl` with this attack and release times.
     pub fn new(attack_duration: Duration, release_duration: Duration) -> Self {
-        let sample_rate = AudioProcessorSettings::default().sample_rate;
-        EnvelopeFollowerProcessor {
-            handle: make_shared(EnvelopeFollowerHandle {
-                envelope_state: 0.0.into(),
-                attack_multiplier: calculate_multiplier(
-                    sample_rate,
-                    attack_duration.as_millis() as f32,
-                )
-                .into(),
-                release_multiplier: calculate_multiplier(
-                    sample_rate,
-                    release_duration.as_millis() as f32,
-                )
-                .into(),
-                attack_duration_ms: (attack_duration.as_millis() as f32).into(),
-                release_duration_ms: (release_duration.as_millis() as f32).into(),
-                sample_rate: sample_rate.into(),
+        let sample_rate = AudioProcessorSettings::default().sample_rate as f64;
+        EnvelopeFollowerProcessorImpl {
+            handle: make_shared(EnvelopeFollowerHandleImpl {
+                envelope_state: ST::AtomicType::from(ST::zero()),
+                attack_multiplier: ST::AtomicType::from(
+                    ST::from(calculate_multiplier(
+                        sample_rate,
+                        attack_duration.as_millis() as f64,
+                    ))
+                    .unwrap(),
+                ),
+                release_multiplier: ST::AtomicType::from(
+                    ST::from(calculate_multiplier(
+                        sample_rate,
+                        release_duration.as_millis() as f64,
+                    ))
+                    .unwrap(),
+                ),
+                attack_duration_ms: (ST::AtomicType::from(
+                    ST::from(attack_duration.as_millis() as f64).unwrap(),
+                )),
+                release_duration_ms: ST::AtomicType::from(
+                    ST::from(release_duration.as_millis() as f64).unwrap(),
+                ),
+                sample_rate: ST::AtomicType::from(ST::from(sample_rate).unwrap()),
+                _marker: Default::default(),
             }),
         }
     }
 
     /// Get a reference to the `basedrop::Shared` state handle of this processor
-    pub fn handle(&self) -> &Shared<EnvelopeFollowerHandle> {
+    pub fn handle(&self) -> &Shared<EnvelopeFollowerHandleImpl<ST>> {
         &self.handle
     }
 }
 
-impl MonoAudioProcessor for EnvelopeFollowerProcessor {
-    type SampleType = f32;
+impl<ST: AtomicFloatRepresentable + Copy + Float> MonoAudioProcessor
+    for EnvelopeFollowerProcessorImpl<ST>
+{
+    type SampleType = ST;
 
     fn m_prepare(&mut self, context: &mut AudioContext) {
-        let sample_rate = context.settings.sample_rate;
+        let sample_rate = ST::from(context.settings.sample_rate as f64).unwrap();
         self.handle.sample_rate.set(sample_rate);
         self.handle.attack_multiplier.set(calculate_multiplier(
             sample_rate,
@@ -168,18 +195,19 @@ impl MonoAudioProcessor for EnvelopeFollowerProcessor {
         let value = sample.abs();
 
         let handle = &self.handle;
-        let envelope = handle.envelope_state.get();
-        let attack = handle.attack_multiplier.get();
-        let release = handle.release_multiplier.get();
+        let envelope = ST::from(handle.envelope_state.get()).unwrap();
+        let attack = ST::from(handle.attack_multiplier.get()).unwrap();
+        let release = ST::from(handle.release_multiplier.get()).unwrap();
 
+        let one = ST::from(1.0).unwrap();
         if value > envelope {
             handle
                 .envelope_state
-                .set((1.0 - attack) * value + attack * envelope);
+                .set((one - attack) * value + attack * envelope);
         } else {
             handle
                 .envelope_state
-                .set((1.0 - release) * value + release * envelope);
+                .set((one - release) * value + release * envelope);
         }
 
         sample
@@ -210,7 +238,7 @@ mod test {
         .unwrap();
         input.prepare(&mut context);
 
-        let mut envelope_follower = EnvelopeFollowerProcessor::default();
+        let mut envelope_follower = EnvelopeFollowerProcessorImpl::default();
         envelope_follower.m_prepare(&mut context);
 
         let mut buffer = AudioBuffer::empty();
