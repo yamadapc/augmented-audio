@@ -805,7 +805,7 @@ dependencies = [
 
 [[package]]
 name = "augmented-adsr-envelope"
-version = "0.4.0"
+version = "0.5.0"
 dependencies = [
  "augmented-atomics",
  "num-derive",
