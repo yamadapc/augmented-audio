@@ -1,3 +1,7 @@
+## v1.9.0
+
+* [`854943db8452`](https://github.com/yamadapc/augmented-audio/commits/854943db8452) audio-processor-traits@4.1.0 (Minor)
+
 ## v1.8.0
 
 * [``](https://github.com/yamadapc/augmented-audio/commits/) Initial release (Minor)
