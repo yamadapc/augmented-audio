@@ -43,7 +43,6 @@ use rustfft::num_complex::Complex;
 pub use rustfft::FftDirection;
 use rustfft::{Fft, FftNum, FftPlanner};
 
-use audio_processor_traits::num::{FromPrimitive, Num};
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
 use audio_processor_traits::{AudioContext, Float};
 
@@ -245,9 +244,9 @@ mod test {
 
     #[test]
     fn test_hop_size_is_correct() {
-        let hop_size = FftProcessorImpl::calculate_hop_size(2048, 0.75);
+        let hop_size = FftProcessor::calculate_hop_size(2048, 0.75);
         assert_eq!(hop_size, 512);
-        let hop_size = FftProcessorImpl::calculate_hop_size(2048, 0.875);
+        let hop_size = FftProcessor::calculate_hop_size(2048, 0.875);
         assert_eq!(hop_size, 256);
     }
 
@@ -259,7 +258,7 @@ mod test {
         let mut signal = AudioBuffer::from_interleaved(1, &signal);
 
         println!("Processing");
-        let mut fft_processor = FftProcessorImpl::default();
+        let mut fft_processor = FftProcessor::default();
         process_buffer(&mut context, &mut fft_processor, &mut signal);
 
         println!("Drawing chart");

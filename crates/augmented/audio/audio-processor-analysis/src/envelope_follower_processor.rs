@@ -29,11 +29,11 @@
 //! ```
 //! use std::time::Duration;
 //! use audio_garbage_collector::Shared;
-//! use audio_processor_analysis::envelope_follower_processor::{EnvelopeFollowerHandleImpl, EnvelopeFollowerProcessorImpl};
+//! use audio_processor_analysis::envelope_follower_processor::{EnvelopeFollowerHandle, EnvelopeFollowerProcessor};
 //! use audio_processor_traits::{AudioContext, AudioProcessorSettings, simple_processor::MonoAudioProcessor};
 //!
-//! let mut envelope_follower = EnvelopeFollowerProcessorImpl::default();
-//! let handle: Shared<EnvelopeFollowerHandleImpl> = envelope_follower.handle().clone();
+//! let mut envelope_follower = EnvelopeFollowerProcessor::default();
+//! let handle: Shared<EnvelopeFollowerHandle> = envelope_follower.handle().clone();
 //! handle.set_attack(Duration::from_secs_f32(0.4));
 //!
 //! let mut context = AudioContext::from(AudioProcessorSettings::default());
@@ -238,7 +238,7 @@ mod test {
         .unwrap();
         input.prepare(&mut context);
 
-        let mut envelope_follower = EnvelopeFollowerProcessorImpl::default();
+        let mut envelope_follower = EnvelopeFollowerProcessor::default();
         envelope_follower.m_prepare(&mut context);
 
         let mut buffer = AudioBuffer::empty();
