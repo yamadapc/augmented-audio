@@ -1,6 +1,6 @@
 [package]
 name = "augmented-playhead"
-version = "0.6.0"
+version = "0.7.0"
 edition = "2021"
 description = "Implements some extra types and utilities over atomics for building audio-thread / GUI synchronization"
 license = "MIT"
