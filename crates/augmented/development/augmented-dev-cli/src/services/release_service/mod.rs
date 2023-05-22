@@ -211,6 +211,17 @@ fn bump_dependency(
                     &bump_package_name,
                     bump_package_version.to_string()
                 );
+                let current_version = if subdep.is_str() {
+                    Version::parse(subdep.as_str().unwrap()).unwrap()
+                } else {
+                    Version::parse(subdep["version"].as_str().unwrap()).unwrap()
+                };
+                if current_version.major == bump_package_version.major
+                    && current_version.minor == bump_package_version.minor
+                {
+                    log::warn!("Skipping due to matching major/minor version");
+                    return;
+                }
 
                 if subdep.is_str() {
                     deps[&*bump_package_name] = value_from_version(bump_package_version);
