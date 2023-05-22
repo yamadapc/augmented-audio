@@ -20,22 +20,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 use audio_garbage_collector::Shared;
+use audio_processor_traits::atomic_float::AtomicFloatRepresentable;
 use audio_processor_traits::parameters::{
     AudioProcessorHandle, FloatType, ParameterSpec, ParameterType, ParameterValue,
 };
+use audio_processor_traits::Float;
 
-use super::BitCrusherHandle;
+use crate::BitCrusherHandleImpl;
 
-pub struct BitCrusherHandleRef(Shared<BitCrusherHandle>);
+pub struct BitCrusherHandleRef<ST: AtomicFloatRepresentable + Float = f32>(
+    Shared<BitCrusherHandleImpl<ST>>,
+);
 
-impl BitCrusherHandleRef {
-    pub fn new(inner: Shared<BitCrusherHandle>) -> Self {
+impl<ST> BitCrusherHandleRef<ST>
+where
+    ST: AtomicFloatRepresentable + Float,
+{
+    pub fn new(inner: Shared<BitCrusherHandleImpl<ST>>) -> Self {
         BitCrusherHandleRef(inner)
     }
 }
 
-impl AudioProcessorHandle for BitCrusherHandleRef {
+impl<ST> AudioProcessorHandle for BitCrusherHandleRef<ST>
+where
+    ST: AtomicFloatRepresentable + Float,
+    ST: From<f32>,
+    f32: From<ST>,
+    ST::AtomicType: Send + Sync,
+{
     fn name(&self) -> String {
         "Bit-crusher".to_string()
     }

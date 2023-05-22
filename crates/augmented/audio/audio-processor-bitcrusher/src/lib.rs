@@ -29,62 +29,94 @@
 //! handle is implemented to generate generic GUIs.
 
 use audio_garbage_collector::{make_shared, Shared};
+use audio_processor_traits::atomic_float::{AtomicFloatRepresentable, AtomicValue};
 use audio_processor_traits::parameters::{
     make_handle_ref, AudioProcessorHandleProvider, AudioProcessorHandleRef,
 };
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioContext, AudioProcessor};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, Float};
 pub use generic_handle::BitCrusherHandleRef;
 
 mod generic_handle;
 
-pub struct BitCrusherHandle {
-    sample_rate: AtomicF32,
-    bit_rate: AtomicF32,
+pub type BitCrusherHandle = BitCrusherHandleImpl<f32>;
+
+pub struct BitCrusherHandleImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float,
+{
+    sample_rate: ST::AtomicType,
+    bit_rate: ST::AtomicType,
 }
 
-impl BitCrusherHandle {
+impl<ST> BitCrusherHandleImpl<ST>
+where
+    ST: Float + AtomicFloatRepresentable,
+    ST: From<f32>,
+    f32: From<ST>,
+{
     pub fn sample_rate(&self) -> f32 {
-        self.sample_rate.get()
+        self.sample_rate.get().into()
     }
 
     pub fn bit_rate(&self) -> f32 {
-        self.bit_rate.get()
+        self.bit_rate.get().into()
     }
 
     pub fn set_sample_rate(&self, sample_rate: f32) {
-        self.sample_rate.set(sample_rate);
+        self.sample_rate.set(sample_rate.into());
     }
 
     pub fn set_bit_rate(&self, bit_rate: f32) {
-        self.bit_rate.set(bit_rate);
+        self.bit_rate.set(bit_rate.into());
     }
 }
 
-impl Default for BitCrusherHandle {
+impl<ST> Default for BitCrusherHandleImpl<ST>
+where
+    ST: Float + AtomicFloatRepresentable,
+    ST: From<f32>,
+{
     fn default() -> Self {
         Self {
-            sample_rate: AtomicF32::new(44100.0),
-            bit_rate: AtomicF32::new(44100.0),
+            sample_rate: ST::AtomicType::from(44100.0.into()),
+            bit_rate: ST::AtomicType::from(44100.0.into()),
         }
     }
 }
 
-pub struct BitCrusherProcessor {
-    handle: Shared<BitCrusherHandle>,
+pub type BitCrusherProcessor = BitCrusherProcessorImpl<f32>;
+
+pub struct BitCrusherProcessorImpl<ST = f32>
+where
+    ST: AtomicFloatRepresentable + Float,
+{
+    handle: Shared<BitCrusherHandleImpl<ST>>,
 }
 
-impl AudioProcessorHandleProvider for BitCrusherProcessor {
+impl<ST> AudioProcessorHandleProvider for BitCrusherProcessorImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float + 'static,
+    ST::AtomicType: Send + Sync,
+    ST: From<f32>,
+    f32: From<ST>,
+{
     fn generic_handle(&self) -> AudioProcessorHandleRef {
-        make_handle_ref(BitCrusherHandleRef::new(self.handle.clone()))
+        make_handle_ref(BitCrusherHandleRef::<ST>::new(self.handle.clone()))
     }
 }
 
-impl BitCrusherProcessor {
-    pub fn new(handle: Shared<BitCrusherHandle>) -> Self {
-        BitCrusherProcessor { handle }
+impl<ST> BitCrusherProcessorImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float + 'static,
+    ST::AtomicType: Send + Sync,
+    ST: From<f32>,
+    f32: From<ST>,
+{
+    pub fn new(handle: Shared<BitCrusherHandleImpl<ST>>) -> Self {
+        BitCrusherProcessorImpl { handle }
     }
 
-    pub fn handle(&self) -> &Shared<BitCrusherHandle> {
+    pub fn handle(&self) -> &Shared<BitCrusherHandleImpl<ST>> {
         &self.handle
     }
 
@@ -93,14 +125,26 @@ impl BitCrusherProcessor {
     }
 }
 
-impl Default for BitCrusherProcessor {
+impl<ST> Default for BitCrusherProcessorImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float + 'static,
+    ST::AtomicType: Send + Sync,
+    ST: From<f32>,
+    f32: From<ST>,
+{
     fn default() -> Self {
-        Self::new(make_shared(BitCrusherHandle::default()))
+        Self::new(make_shared(BitCrusherHandleImpl::default()))
     }
 }
 
-impl AudioProcessor for BitCrusherProcessor {
-    type SampleType = f32;
+impl<ST> AudioProcessor for BitCrusherProcessorImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float + 'static,
+    ST::AtomicType: Send + Sync,
+    ST: From<f32>,
+    f32: From<ST>,
+{
+    type SampleType = ST;
 
     fn prepare(&mut self, context: &mut AudioContext) {
         let settings = context.settings;
