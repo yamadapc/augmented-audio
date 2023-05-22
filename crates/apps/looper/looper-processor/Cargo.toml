@@ -52,7 +52,7 @@ audio-processor-metronome = { path = "../../../augmented/audio/audio-processor-m
 augmented-longbackoff = { path = "../../../augmented/audio/augmented-longbackoff", version = "0.1" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "1.0.1" }
 augmented-adsr-envelope = { version = "0.4.0", path = "../../../augmented/audio/adsr-envelope" }
-augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.1.2" }
+augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.2.0" }
 augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.6.0" }
 audio-garbage-collector = { version = "1.2.0", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "3.0.0", path = "../../../augmented/application/audio-processor-standalone" }

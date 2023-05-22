@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-augmented-atomics = { path = "../../data/atomics" , version = "0.1.2" }
+augmented-atomics = { path = "../../data/atomics" , version = "0.2.0" }
 num-traits = "0.2.14"
 num-derive = "0.3.3"
 
