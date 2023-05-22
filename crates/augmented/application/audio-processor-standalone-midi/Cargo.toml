@@ -21,7 +21,7 @@ vst = { version = "0.3", path = "../../../vendor/vst", optional = true }
 
 # augmented
 atomic-queue = { version = "1.0.1", path = "../../data/atomic-queue" }
-audio-processor-traits = { version = "4.0.0", path = "../../audio/audio-processor-traits", features = ["vst"] }
+audio-processor-traits = { version = "4.1.0", path = "../../audio/audio-processor-traits", features = ["vst"] }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.2.0" }
 
 actix = { version = "0.13.0", optional = true }

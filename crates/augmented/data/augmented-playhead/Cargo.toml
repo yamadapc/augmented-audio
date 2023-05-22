@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-audio-processor-traits = { path = "../../audio/audio-processor-traits", version = "4.0.0" }
+audio-processor-traits = { path = "../../audio/audio-processor-traits", version = "4.1.0" }
 augmented-atomics = { path = "../atomics" , version = "0.2.0" }
 
 [dev-dependencies]

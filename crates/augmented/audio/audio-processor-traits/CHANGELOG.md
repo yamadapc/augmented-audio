@@ -1,3 +1,9 @@
+## v4.1.0
+
+* [`4b6b95b203fa`](https://github.com/yamadapc/augmented-audio/commits/4b6b95b203fa) augmented_oscillator@1.3.0 (Minor)
+* [`b92591f9b764`](https://github.com/yamadapc/augmented-audio/commits/b92591f9b764) augmented-atomics@0.2.0 (Minor)
+* [`af1fb7f98d92`](https://github.com/yamadapc/augmented-audio/commits/af1fb7f98d92) Make FFT/envelope follower implementations generic over floating point types :patch (Minor)
+
 ## v4.0.0
 
 * [`1d6c549959a6`](https://github.com/yamadapc/augmented-audio/commits/1d6c549959a6) audio-garbage-collector@1.2.0 (Minor)
