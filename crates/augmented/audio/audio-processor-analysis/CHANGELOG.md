@@ -1,3 +1,13 @@
+## v2.1.0
+
+* [`2225a3f25807`](https://github.com/yamadapc/augmented-audio/commits/2225a3f25807) Update unit-test artifacts (Minor)
+* [`5ada23e688f3`](https://github.com/yamadapc/augmented-audio/commits/5ada23e688f3) Fix FFT proc. unit-tests (Minor)
+* [`7f3630907021`](https://github.com/yamadapc/augmented-audio/commits/7f3630907021) audio-processor-file@3.1.0 (Minor)
+* [`fc8bb5f0f3ae`](https://github.com/yamadapc/augmented-audio/commits/fc8bb5f0f3ae) audio-processor-testing-helpers@2.5.0 (Minor)
+* [`854943db8452`](https://github.com/yamadapc/augmented-audio/commits/854943db8452) audio-processor-traits@4.1.0 (Minor)
+* [`e9f5749d5434`](https://github.com/yamadapc/augmented-audio/commits/e9f5749d5434) Revert changelog change :patch (Minor)
+* [`af1fb7f98d92`](https://github.com/yamadapc/augmented-audio/commits/af1fb7f98d92) Make FFT/envelope follower implementations generic over floating point types :patch (Minor)
+
 ## v2.0.1
 
 * Add utility methods to get scratch buffer and fft processor
