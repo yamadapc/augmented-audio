@@ -43,6 +43,7 @@ use rustfft::num_complex::Complex;
 pub use rustfft::FftDirection;
 use rustfft::{Fft, FftNum, FftPlanner};
 
+use audio_processor_traits::num::traits::FloatConst;
 use audio_processor_traits::simple_processor::MonoAudioProcessor;
 use audio_processor_traits::{AudioContext, Float};
 
@@ -85,13 +86,13 @@ pub struct FftProcessorImpl<ST> {
     has_changed: bool,
 }
 
-impl<ST: FftNum + std::iter::Sum + Float> Default for FftProcessorImpl<ST> {
+impl<ST: FftNum + std::iter::Sum + Float + FloatConst> Default for FftProcessorImpl<ST> {
     fn default() -> Self {
         Self::new(Default::default())
     }
 }
 
-impl<ST: FftNum + std::iter::Sum + Float> FftProcessorImpl<ST> {
+impl<ST: FftNum + std::iter::Sum + Float + FloatConst> FftProcessorImpl<ST> {
     /// Constructs a new `FftProcessor`
     ///
     /// * size: Size of the FFT
@@ -204,7 +205,7 @@ impl<ST: FftNum + std::iter::Sum + Float> FftProcessorImpl<ST> {
     }
 }
 
-impl<ST: FftNum + Float + std::iter::Sum> MonoAudioProcessor for FftProcessorImpl<ST> {
+impl<ST: FftNum + Float + std::iter::Sum + FloatConst> MonoAudioProcessor for FftProcessorImpl<ST> {
     type SampleType = ST;
 
     #[inline]

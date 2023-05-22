@@ -493,6 +493,7 @@ dependencies = [
  "clap 2.34.0",
  "image 0.24.5",
  "log",
+ "numeric_literals",
  "piet",
  "piet-common",
  "rustfft",
@@ -5750,6 +5751,16 @@ checksum = "dcbff9bc912032c62bf65ef1d5aea88983b420f4f839db1e9b0c281a25c9c799"
 dependencies = [
  "proc-macro-crate",
  "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
+name = "numeric_literals"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "095aa67b0b9f2081746998f4f17106bdb51d56dc8c211afca5531b92b83bf98a"
+dependencies = [
  "quote",
  "syn 1.0.109",
 ]

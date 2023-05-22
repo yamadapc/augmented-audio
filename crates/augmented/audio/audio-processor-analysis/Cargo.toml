@@ -15,10 +15,12 @@ audio-garbage-collector = { path = "../audio-garbage-collector" , version = "1.2
 audio-processor-traits = { version = "4.1.0", path = "../audio-processor-traits" }
 rustfft = "6.0.1"
 log = "0.4.14"
-piet = { version = "0.5.0", optional = true }
-piet-common = { version = "0.5.0", features = ["png"], optional = true }
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers", version = "2.5.0", optional = true }
 audio-processor-file = { path = "../audio-processor-file", version = "3.1.0", optional = true }
+numeric_literals = "0.2.0"
+
+piet = { version = "0.5.0", optional = true }
+piet-common = { version = "0.5.0", features = ["png"], optional = true }
 
 [dev-dependencies]
 wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
