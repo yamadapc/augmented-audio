@@ -1,7 +1,3 @@
-## v2.0.2
-
-* Make FFT/envelope follower implementations generic over floating point types
-
 ## v2.0.1
 
 * Add utility methods to get scratch buffer and fft processor
