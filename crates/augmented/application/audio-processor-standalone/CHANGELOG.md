@@ -1,3 +1,11 @@
+## v3.1.0
+
+* [`01f081d1e8f6`](https://github.com/yamadapc/augmented-audio/commits/01f081d1e8f6) audio-processor-standalone-gui@0.9.0 (Minor)
+* [`9a4f2498b3a4`](https://github.com/yamadapc/augmented-audio/commits/9a4f2498b3a4) augmented-midi@1.6.0 (Minor)
+* [`7f3630907021`](https://github.com/yamadapc/augmented-audio/commits/7f3630907021) audio-processor-file@3.1.0 (Minor)
+* [`fc8bb5f0f3ae`](https://github.com/yamadapc/augmented-audio/commits/fc8bb5f0f3ae) audio-processor-testing-helpers@2.5.0 (Minor)
+* [`854943db8452`](https://github.com/yamadapc/augmented-audio/commits/854943db8452) audio-processor-traits@4.1.0 (Minor)
+
 ## v3.0.0
 
 * [`cc315fb268fa`](https://github.com/yamadapc/augmented-audio/commits/cc315fb268fa) Bump standalone midi (Minor)

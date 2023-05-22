@@ -19,5 +19,5 @@ assert_no_alloc = "1.1"
 rand = { version = "0.8", features = ["small_rng"] }
 
 [dev-dependencies]
-audio-processor-standalone = { version = "3.0.0", path = "../../application/audio-processor-standalone" }
+audio-processor-standalone = { version = "3.1.0", path = "../../application/audio-processor-standalone" }
 audio-processor-testing-helpers = { version = "2.5.0", path = "../../testing/audio-processor-testing-helpers" }
