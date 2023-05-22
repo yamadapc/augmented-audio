@@ -1,3 +1,5 @@
+use rustfft::num_traits::Float;
+
 // Augmented Audio: Audio libraries and applications
 // Copyright (c) 2022 Pedro Tacla Yamada
 //
@@ -20,32 +22,39 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-type FloatT = f32;
 
-pub fn calculate_multiplier(sample_rate: FloatT, duration_ms: FloatT) -> FloatT {
+#[numeric_literals::replace_float_literals(F::from(literal).unwrap())]
+pub fn calculate_multiplier<F>(sample_rate: F, duration_ms: F) -> F
+where
+    F: Float,
+{
     let attack_secs = duration_ms * 0.001;
     let attack_samples = sample_rate * attack_secs;
-    FloatT::exp2(-1.0 / attack_samples)
+    F::exp2(-1.0 / attack_samples)
 }
 
-pub struct PeakDetector {
-    value: FloatT,
+pub type PeakDetector = PeakDetectorImpl<f32>;
+
+pub struct PeakDetectorImpl<F> {
+    value: F,
 }
 
-impl Default for PeakDetector {
+impl<F: Float> Default for PeakDetectorImpl<F> {
+    #[numeric_literals::replace_float_literals(F::from(literal).unwrap())]
     fn default() -> Self {
         Self { value: 0.0 }
     }
 }
 
-impl PeakDetector {
-    pub fn value(&self) -> FloatT {
+impl<F: Float + std::iter::Sum> PeakDetectorImpl<F> {
+    pub fn value(&self) -> F {
         self.value
     }
 
-    pub fn accept_frame(&mut self, attack_mult: FloatT, release_mult: FloatT, frame: &[FloatT]) {
-        let frame_len = frame.len() as FloatT;
-        let new: FloatT = frame.iter().map(|f| FloatT::abs(*f)).sum::<FloatT>() / frame_len;
+    #[numeric_literals::replace_float_literals(F::from(literal).unwrap())]
+    pub fn accept_frame(&mut self, attack_mult: F, release_mult: F, frame: &[F]) {
+        let frame_len = F::from(frame.len()).unwrap();
+        let new: F = frame.iter().map(|f| F::abs(*f)).sum::<F>() / frame_len;
         let curr_slope = if self.value > new {
             release_mult
         } else {

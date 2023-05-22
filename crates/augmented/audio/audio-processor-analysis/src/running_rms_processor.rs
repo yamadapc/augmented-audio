@@ -25,20 +25,27 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
 use audio_garbage_collector::{Handle, Shared, SharedCell};
-use audio_processor_traits::{AtomicF32, AudioBuffer, AudioContext, AudioProcessor};
+use audio_processor_traits::atomic_float::{AtomicFloatRepresentable, AtomicValue};
+use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor, Float};
+
+pub type RunningRMSProcessorHandle = RunningRMSProcessorHandleImpl<f32>;
 
 /// A shared "processor handle" to `RunningRMSProcessor`
-pub struct RunningRMSProcessorHandle {
-    window: SharedCell<AudioBuffer<AtomicF32>>,
-    running_sums: SharedCell<Vec<AtomicF32>>,
+pub struct RunningRMSProcessorHandleImpl<ST: AtomicFloatRepresentable> {
+    window: SharedCell<AudioBuffer<ST::AtomicType>>,
+    running_sums: SharedCell<Vec<ST::AtomicType>>,
     cursor: AtomicUsize,
     duration_micros: AtomicUsize,
 }
 
-impl RunningRMSProcessorHandle {
+impl<ST> RunningRMSProcessorHandleImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float,
+    ST::AtomicType: Send + Sync + Clone + 'static,
+{
     /// Create a new handle with empty buffers
     fn new(gc_handle: &Handle) -> Self {
-        RunningRMSProcessorHandle {
+        RunningRMSProcessorHandleImpl {
             window: SharedCell::new(Shared::new(gc_handle, AudioBuffer::empty())),
             running_sums: SharedCell::new(Shared::new(gc_handle, Vec::new())),
             cursor: AtomicUsize::new(0),
@@ -51,30 +58,35 @@ impl RunningRMSProcessorHandle {
     }
 
     /// Create a new RMS window with size & replace the old one with it.
+    #[numeric_literals::replace_float_literals(ST::from(literal).unwrap())]
     fn resize(&self, gc_handle: &Handle, num_channels: usize, num_samples: usize) {
         self.cursor.store(0, Ordering::Relaxed);
 
         let mut window = AudioBuffer::empty();
-        window.resize_with(num_channels, num_samples, || AtomicF32::new(0.0));
+        window.resize_with(num_channels, num_samples, || ST::AtomicType::from(0.0));
         self.window.replace(Shared::new(gc_handle, window));
 
         let mut running_sums = Vec::new();
-        running_sums.resize(num_channels, AtomicF32::from(0.0));
+        running_sums.resize(num_channels, ST::AtomicType::from(0.0));
         self.running_sums
             .replace(Shared::new(gc_handle, running_sums));
     }
 
     /// Calculate the RMS of the current window based on its running sum and size
-    pub fn calculate_rms(&self, channel: usize) -> f32 {
+    #[numeric_literals::replace_float_literals(ST::from(literal).unwrap())]
+    pub fn calculate_rms(&self, channel: usize) -> ST {
         let running_sums = self.running_sums.get();
         if channel >= running_sums.len() {
             return 0.0;
         }
 
         let sum = running_sums[channel].get().max(0.0);
-        (sum / self.window.get().num_samples() as f32).sqrt()
+        let num_samples = ST::from(self.window.get().num_samples()).unwrap();
+        (sum / num_samples).sqrt()
     }
 }
+
+pub type RunningRMSProcessor = RunningRMSProcessorImpl<f32>;
 
 /// An `AudioProcessor` which slides a window & calculates a running Squared sum of the input.
 ///
@@ -82,23 +94,27 @@ impl RunningRMSProcessorHandle {
 /// RMS in real-time.
 ///
 /// When the internal window's buffer needs to be resized, it's replaced via an atomic pointer swap.
-pub struct RunningRMSProcessor {
-    handle: Shared<RunningRMSProcessorHandle>,
+pub struct RunningRMSProcessorImpl<ST: AtomicFloatRepresentable + Float> {
+    handle: Shared<RunningRMSProcessorHandleImpl<ST>>,
     duration_samples: usize,
     duration: Duration,
     gc_handle: Handle,
 }
 
-impl RunningRMSProcessor {
+impl<ST> RunningRMSProcessorImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float + 'static,
+    ST::AtomicType: Send + Sync + Clone + 'static,
+{
     /// Create a `RunningRMSProcessor` which will calculate RMS based on a certain `duration` of
     /// samples.
     pub fn new_with_duration(gc_handle: &Handle, duration: Duration) -> Self {
-        let handle = Shared::new(gc_handle, RunningRMSProcessorHandle::new(gc_handle));
+        let handle = Shared::new(gc_handle, RunningRMSProcessorHandleImpl::new(gc_handle));
         handle
             .duration_micros
             .store(duration.as_micros() as usize, Ordering::Relaxed);
 
-        RunningRMSProcessor {
+        RunningRMSProcessorImpl {
             handle,
             duration_samples: 0,
             duration,
@@ -106,7 +122,7 @@ impl RunningRMSProcessor {
         }
     }
 
-    pub fn from_handle(handle: Shared<RunningRMSProcessorHandle>) -> Self {
+    pub fn from_handle(handle: Shared<RunningRMSProcessorHandleImpl<ST>>) -> Self {
         let duration = Duration::from_micros(handle.duration_micros.load(Ordering::Relaxed) as u64);
         Self {
             gc_handle: audio_garbage_collector::handle().clone(),
@@ -116,13 +132,17 @@ impl RunningRMSProcessor {
         }
     }
 
-    pub fn handle(&self) -> &Shared<RunningRMSProcessorHandle> {
+    pub fn handle(&self) -> &Shared<RunningRMSProcessorHandleImpl<ST>> {
         &self.handle
     }
 }
 
-impl AudioProcessor for RunningRMSProcessor {
-    type SampleType = f32;
+impl<ST> AudioProcessor for RunningRMSProcessorImpl<ST>
+where
+    ST: AtomicFloatRepresentable + Float + 'static,
+    ST::AtomicType: Send + Sync + Clone + 'static,
+{
+    type SampleType = ST;
 
     fn prepare(&mut self, context: &mut AudioContext) {
         let settings = context.settings;
