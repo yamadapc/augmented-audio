@@ -159,6 +159,10 @@ impl<ST: FftNum + std::iter::Sum + Float + FloatConst> FftProcessorImpl<ST> {
         &mut self.fft_buffer
     }
 
+    pub fn input_mut(&mut self) -> &mut [ST] {
+        &mut self.input_buffer
+    }
+
     /// Get a mutable reference to the scratch buffer
     pub fn scratch_mut(&mut self) -> &mut Vec<Complex<ST>> {
         &mut self.scratch
@@ -216,6 +220,10 @@ impl<ST: FftNum + Float + std::iter::Sum + FloatConst> MonoAudioProcessor for Ff
     ) -> Self::SampleType {
         self.has_changed = false;
         self.input_buffer[self.cursor] = sample;
+        self.cursor = self.cursor + 1;
+        if self.cursor >= self.size {
+            self.cursor = 0;
+        }
 
         if self.cursor % self.step_len == 0 {
             // Offset FFT so it's reading from the input buffer at the start of this window
@@ -224,14 +232,13 @@ impl<ST: FftNum + Float + std::iter::Sum + FloatConst> MonoAudioProcessor for Ff
             self.has_changed = true;
         }
 
-        self.cursor = (self.cursor + 1) % self.size;
-
         sample
     }
 }
 
 #[cfg(test)]
 mod test {
+    use std::cmp::Ordering;
     use std::time::Duration;
 
     use audio_processor_testing_helpers::{
@@ -249,6 +256,85 @@ mod test {
         assert_eq!(hop_size, 512);
         let hop_size = FftProcessor::calculate_hop_size(2048, 0.875);
         assert_eq!(hop_size, 256);
+    }
+
+    #[test]
+    fn test_create_fft() {
+        let mut fft_processor = FftProcessor::new(FftProcessorOptions::default());
+        assert_eq!(fft_processor.size(), FftProcessorOptions::default().size);
+        assert_eq!(
+            fft_processor.buffer().len(),
+            FftProcessorOptions::default().size
+        );
+        assert_eq!(
+            fft_processor.scratch_mut().len(),
+            FftProcessorOptions::default().size
+        );
+        // By default there is no overlap
+        assert_eq!(
+            fft_processor.step_len(),
+            FftProcessorOptions::default().size
+        );
+    }
+
+    #[test]
+    fn test_create_fft_with_4x_overlap() {
+        let mut fft_processor = FftProcessor::new(FftProcessorOptions {
+            overlap_ratio: 0.75,
+            ..FftProcessorOptions::default()
+        });
+        assert_eq!(fft_processor.size(), FftProcessorOptions::default().size);
+        assert_eq!(
+            fft_processor.buffer().len(),
+            FftProcessorOptions::default().size
+        );
+        assert_eq!(
+            fft_processor.scratch_mut().len(),
+            FftProcessorOptions::default().size
+        );
+        assert_eq!(
+            fft_processor.step_len(),
+            FftProcessorOptions::default().size / 4
+        );
+    }
+
+    #[test]
+    fn test_perform_fft_over_silence() {
+        let mut fft_processor = FftProcessor::default();
+        let input_buffer = vec![0.0; fft_processor.size()];
+        fft_processor.input_mut().copy_from_slice(&input_buffer);
+        fft_processor.perform_fft(0);
+
+        let result = fft_processor.buffer();
+        assert_eq!(result.len(), fft_processor.size());
+        assert_eq!(result.iter().map(|c| c.norm()).sum::<f32>(), 0.0);
+    }
+
+    #[test]
+    fn test_perform_fft_over_sine() {
+        let mut fft_processor = FftProcessor::default();
+        let mut input_buffer = vec![0.0; fft_processor.size()];
+        let frequency = 441.0;
+        let sample_rate = 44100.0;
+        for i in 0..input_buffer.len() {
+            let sine = (2.0 * std::f32::consts::PI * frequency * i as f32 / sample_rate).sin();
+            input_buffer[i] = sine;
+        }
+        fft_processor.input_mut().copy_from_slice(&input_buffer);
+        fft_processor.perform_fft(0);
+
+        let result = fft_processor.buffer();
+        assert_eq!(result.len(), fft_processor.size());
+        let (maximum_index, _) = result
+            .iter()
+            .take(fft_processor.size() / 2)
+            .enumerate()
+            .max_by(|(_, c1), (_, c2)| c1.norm().partial_cmp(&c2.norm()).unwrap_or(Ordering::Equal))
+            .unwrap();
+        assert_eq!(
+            maximum_index,
+            (440.0 / sample_rate * fft_processor.size() as f32) as usize + 1
+        );
     }
 
     #[test]

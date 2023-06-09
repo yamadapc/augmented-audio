@@ -77,6 +77,11 @@ impl<ST: Float + AtomicFloatRepresentable> EnvelopeFollowerHandleImpl<ST> {
         ST::from(self.envelope_state.get()).unwrap()
     }
 
+    /// Set the current envelope value
+    pub fn set_state(&self, state: ST) {
+        self.envelope_state.set(state);
+    }
+
     /// Set the attack as a `Duration`
     pub fn set_attack(&self, duration: Duration) {
         let duration_ms = ST::from(duration.as_millis()).unwrap();
