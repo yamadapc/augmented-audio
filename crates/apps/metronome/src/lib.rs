@@ -24,6 +24,14 @@ pub use bridge_generated::*;
 mod api;
 mod bridge_generated;
 
+#[no_mangle]
+pub extern "C" fn metronome_will_terminate() {
+    log::info!("Shutdown sequence started");
+    if let Err(err) = api::deinitialize() {
+        log::error!("Failed to deinitialize: {:?}", err);
+    }
+}
+
 #[cfg(target_os = "android")]
 pub use android_init::*;
 

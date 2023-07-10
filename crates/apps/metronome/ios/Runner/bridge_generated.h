@@ -20,6 +20,8 @@ typedef struct wire_InitializeOptions {
 
 typedef struct DartCObject *WireSyncReturn;
 
+void metronome_will_terminate(void);
+
 void store_dart_post_cobject(DartPostCObjectFnType ptr);
 
 Dart_Handle get_dart_object(uintptr_t ptr);

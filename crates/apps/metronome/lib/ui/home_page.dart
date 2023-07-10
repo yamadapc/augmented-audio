@@ -46,7 +46,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final HistoryStateModel historyStateModel = HistoryStateModel();
   final MetronomeStateModel metronomeStateModel = MetronomeStateModel();
 
@@ -99,7 +99,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void deactivate() {
-    metronome?.deinitialize();
     super.deactivate();
   }
 

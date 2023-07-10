@@ -18,6 +18,7 @@
 //! This module contains the public API exposed to flutter
 
 use std::sync::Mutex;
+use std::thread::JoinHandle;
 use std::time::Duration;
 
 use anyhow::Result;
@@ -34,6 +35,7 @@ mod state;
 
 lazy_static! {
     pub static ref IS_RUNNING: Mutex<bool> = Mutex::new(false);
+    pub static ref STREAMING_THREAD: Mutex<Option<JoinHandle<()>>> = Mutex::new(None);
 }
 
 pub fn initialize(options: InitializeOptions) -> Result<i32> {
@@ -46,11 +48,31 @@ pub fn initialize(options: InitializeOptions) -> Result<i32> {
 }
 
 pub fn deinitialize() -> Result<i32> {
-    let mut is_running = IS_RUNNING
-        .lock()
-        .map_err(|_| anyhow::format_err!("Running Lock is poisoned"))?;
-    (*is_running) = false;
+    log::info!("Signaling playhead thread should stop");
+    {
+        let mut is_running = IS_RUNNING
+            .lock()
+            .map_err(|_| anyhow::format_err!("Running Lock is poisoned"))?;
+        (*is_running) = false;
+    }
+    {
+        log::info!("Waiting for playhead thread to stop");
+        let maybe_thread = {
+            let mut streaming_thread = STREAMING_THREAD
+                .lock()
+                .map_err(|_| anyhow::format_err!("Streaming thread lock is poisoned"))?;
+            streaming_thread.take()
+        };
+        if let Some(streaming_thread) = maybe_thread {
+            streaming_thread
+                .join()
+                .map_err(|err| anyhow::format_err!("Failed to join streaming thread: {:?}", err))?;
+        }
+    }
+
+    log::info!("Deinitializing state");
     state::deinitialize();
+    log::info!("Shutdown sequence complete");
     Ok(0)
 }
 
@@ -94,7 +116,7 @@ pub fn set_sound(value: MetronomeSoundTypeTag) -> Result<i32> {
 pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
     with_state(|state| {
         let handle = state.processor_handle.clone();
-        std::thread::spawn(move || {
+        let join_handle = std::thread::spawn(move || {
             log::info!("Starting streaming of playhead");
 
             let run = || -> anyhow::Result<()> {
@@ -117,6 +139,10 @@ pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
             }
             log::info!("Stream closed, stopping streaming of play-head");
         });
+        let mut thread_handle = STREAMING_THREAD
+            .lock()
+            .map_err(|err| anyhow::format_err!("Streaming thread lock is poisoned: {:?}", err))?;
+        *thread_handle = Some(join_handle);
         Ok(0)
     })
 }

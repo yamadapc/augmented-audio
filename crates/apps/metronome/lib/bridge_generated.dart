@@ -315,6 +315,16 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
           lookup)
       : _lookup = lookup;
 
+  void metronome_will_terminate() {
+    return _metronome_will_terminate();
+  }
+
+  late final _metronome_will_terminatePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
+          'metronome_will_terminate');
+  late final _metronome_will_terminate =
+      _metronome_will_terminatePtr.asFunction<void Function()>();
+
   void store_dart_post_cobject(
     DartPostCObjectFnType ptr,
   ) {
