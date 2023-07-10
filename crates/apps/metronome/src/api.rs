@@ -17,8 +17,7 @@
 // = /copyright ===================================================================
 //! This module contains the public API exposed to flutter
 
-use std::sync::atomic::AtomicBool;
-use std::sync::atomic::Ordering;
+use std::sync::Mutex;
 use std::time::Duration;
 
 use anyhow::Result;
@@ -34,17 +33,23 @@ mod processor;
 mod state;
 
 lazy_static! {
-    pub static ref IS_RUNNING: AtomicBool = AtomicBool::new(false);
+    pub static ref IS_RUNNING: Mutex<bool> = Mutex::new(false);
 }
 
 pub fn initialize(options: InitializeOptions) -> Result<i32> {
-    IS_RUNNING.store(true, Ordering::Relaxed);
+    let mut is_running = IS_RUNNING
+        .lock()
+        .map_err(|_| anyhow::format_err!("Running Lock is poisoned"))?;
+    *is_running = true;
     state::initialize(options);
     Ok(0)
 }
 
 pub fn deinitialize() -> Result<i32> {
-    IS_RUNNING.store(false, Ordering::Relaxed);
+    let mut is_running = IS_RUNNING
+        .lock()
+        .map_err(|_| anyhow::format_err!("Running Lock is poisoned"))?;
+    (*is_running) = false;
     state::deinitialize();
     Ok(0)
 }
@@ -92,14 +97,25 @@ pub fn get_playhead(sink: StreamSink<f32>) -> Result<i32> {
         std::thread::spawn(move || {
             log::info!("Starting streaming of playhead");
 
-            let get_is_running = || IS_RUNNING.load(Ordering::Relaxed);
-            let mut is_running: bool = get_is_running();
+            let run = || -> anyhow::Result<()> {
+                loop {
+                    let is_running = IS_RUNNING
+                        .lock()
+                        .map_err(|_| anyhow::format_err!("Running Lock is poisoned"))?;
+                    if !*is_running {
+                        break;
+                    }
+                    sink.add(handle.position_beats());
+                    std::thread::sleep(Duration::from_millis(50));
+                }
 
-            while is_running && sink.add(handle.position_beats()) {
-                std::thread::sleep(Duration::from_millis(50));
-                is_running = get_is_running();
+                Ok(())
+            };
+
+            if let Err(err) = run() {
+                log::error!("Failure listening to play-head: {:?}", err);
             }
-            log::info!("Stream closed, stopping streaming of playhead");
+            log::info!("Stream closed, stopping streaming of play-head");
         });
         Ok(0)
     })
