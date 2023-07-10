@@ -24,7 +24,7 @@ import 'package:flutter/cupertino.dart';
 class InputDoneView extends StatelessWidget {
   final FocusNode? targetFocusNode;
 
-  const InputDoneView({Key? key, this.targetFocusNode}) : super(key: key);
+  const InputDoneView({super.key, this.targetFocusNode});
 
   @override
   Widget build(BuildContext context) {

@@ -11,8 +11,7 @@ import 'package:metronome/ui/tabs/history/history_list_item.dart';
 class HistoryPageTab extends StatefulWidget {
   final HistoryStateController stateController;
 
-  const HistoryPageTab({Key? key, required this.stateController})
-      : super(key: key);
+  const HistoryPageTab({super.key, required this.stateController});
 
   @override
   State<HistoryPageTab> createState() => _HistoryPageTabState();
@@ -91,9 +90,9 @@ class HistoryResolutionControl extends StatelessWidget {
   final HistoryStateController historyStateController;
 
   const HistoryResolutionControl({
-    Key? key,
+    super.key,
     required this.historyStateController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

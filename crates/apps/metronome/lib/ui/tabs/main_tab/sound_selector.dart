@@ -13,9 +13,9 @@ class SoundSelector extends StatelessWidget {
   final MetronomeStateController stateController;
 
   const SoundSelector({
-    Key? key,
+    super.key,
     required this.stateController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +45,7 @@ const sounds = [
 class SoundSelectorMobile extends StatelessWidget {
   final MetronomeStateController stateController;
 
-  const SoundSelectorMobile({Key? key, required this.stateController})
-      : super(key: key);
+  const SoundSelectorMobile({super.key, required this.stateController});
 
   @override
   Widget build(BuildContext context) {
@@ -157,9 +156,9 @@ class SoundSelectorMacOS extends StatelessWidget {
   final MetronomeStateController stateController;
 
   const SoundSelectorMacOS({
-    Key? key,
+    super.key,
     required this.stateController,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

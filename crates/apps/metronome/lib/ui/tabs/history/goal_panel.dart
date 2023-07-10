@@ -8,7 +8,7 @@ class GoalPanel extends StatelessWidget {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  GoalPanel({Key? key}) : super(key: key) {
+  GoalPanel({super.key}) {
     flutterLocalNotificationsPlugin.initialize(
       const InitializationSettings(
         macOS: DarwinInitializationSettings(),
@@ -42,7 +42,6 @@ class GoalPanel extends StatelessWidget {
               badgeNumber: 0,
             ),
           ),
-          androidAllowWhileIdle: false,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
         );

@@ -5,9 +5,9 @@ import 'package:metronome/modules/state/metronome_state_controller.dart';
 
 class VolumeControl extends StatelessWidget {
   const VolumeControl({
-    Key? key,
+    super.key,
     required this.stateController,
-  }) : super(key: key);
+  });
 
   final MetronomeStateController stateController;
 

@@ -32,7 +32,7 @@ String formatDuration(Duration duration) {
 class HistoryListItem extends StatelessWidget {
   final AggregatedSession session;
 
-  const HistoryListItem({Key? key, required this.session}) : super(key: key);
+  const HistoryListItem({super.key, required this.session});
 
   @override
   Widget build(BuildContext context) {

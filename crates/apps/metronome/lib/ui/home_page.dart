@@ -38,7 +38,7 @@ Future<Metronome> buildMetronome() async {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+  const HomePage({super.key, required this.title});
 
   final String title;
 
@@ -114,10 +114,10 @@ class _HomePageState extends State<HomePage> {
 
 class HomePageContents extends StatelessWidget {
   const HomePageContents({
-    Key? key,
+    super.key,
     required this.metronomeStateController,
     required this.historyStateController,
-  }) : super(key: key);
+  });
 
   final MetronomeStateController? metronomeStateController;
   final HistoryStateController? historyStateController;

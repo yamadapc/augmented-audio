@@ -16,7 +16,7 @@ class MetronomeSceneBack extends GSprite {
   void addedToStage() {
     subscription = reaction((_) => model.playhead + model.beatsPerBar, (_) {
       stage!.scene.requestRender();
-    });
+    }).call;
   }
 
   @override

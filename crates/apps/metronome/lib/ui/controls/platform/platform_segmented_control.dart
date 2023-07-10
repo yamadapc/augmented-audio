@@ -11,12 +11,12 @@ class PlatformSegmentedControl<T extends Object> extends StatelessWidget {
   final void Function(T) onValueChanged;
 
   const PlatformSegmentedControl({
-    Key? key,
+    super.key,
     required this.value,
     required this.options,
     required this.optionLabelBuilder,
     required this.onValueChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

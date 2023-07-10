@@ -9,9 +9,9 @@ import 'package:metronome/ui/visualisation/scene.dart';
 
 class ElapsedBeatsVisualisation extends StatelessWidget {
   const ElapsedBeatsVisualisation({
-    Key? key,
+    super.key,
     required this.model,
-  }) : super(key: key);
+  });
 
   final MetronomeStateModel model;
 
@@ -51,9 +51,9 @@ class ElapsedBeatsVisualisation extends StatelessWidget {
 
 class ElapsedTimeVisualisation extends StatelessWidget {
   const ElapsedTimeVisualisation({
-    Key? key,
+    super.key,
     required this.model,
-  }) : super(key: key);
+  });
 
   final MetronomeStateModel model;
 
@@ -94,9 +94,9 @@ class ElapsedTimeVisualisation extends StatelessWidget {
 
 class Visualisation extends StatelessWidget {
   const Visualisation({
-    Key? key,
+    super.key,
     required this.model,
-  }) : super(key: key);
+  });
 
   final MetronomeStateModel model;
 

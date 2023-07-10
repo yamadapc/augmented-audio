@@ -5,10 +5,10 @@ class AppContext extends InheritedWidget {
   final Analytics analytics;
 
   const AppContext({
-    Key? key,
+    super.key,
     required this.analytics,
-    required Widget child,
-  }) : super(key: key, child: child);
+    required super.child,
+  });
 
   static AppContext of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<AppContext>()!;
