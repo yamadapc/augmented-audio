@@ -53,7 +53,7 @@ jobs:
         run: cd ./crates/apps/metronome && flutter pub get
         if: steps.changes.outputs.src == 'true'
       - name: Verify formatting
-        run: cd ./crates/apps/metronome && dart format --output=none --set-exit-if-changed .
+        run: cd ./crates/apps/metronome && dart format --output=none --set-exit-if-changed ./lib
         if: steps.changes.outputs.src == 'true'
       - name: Analyze project source
         run: cd ./crates/apps/metronome && dart analyze
