@@ -17,13 +17,7 @@
 // = /copyright ===================================================================
 //! This module contains the public API exposed to flutter
 
-use std::sync::Mutex;
-use std::thread::JoinHandle;
-use std::time::Duration;
-
 use anyhow::Result;
-use flutter_rust_bridge::StreamSink;
-use lazy_static::lazy_static;
 
 pub use crate::api::state::InitializeOptions;
 
