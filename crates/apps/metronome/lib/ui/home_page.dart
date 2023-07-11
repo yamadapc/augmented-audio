@@ -38,7 +38,7 @@ Future<Metronome> buildMetronome() async {
 }
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key, required this.title}) : super(key: key);
+  const HomePage({super.key, required this.title});
 
   final String title;
 
@@ -46,7 +46,7 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final HistoryStateModel historyStateModel = HistoryStateModel();
   final MetronomeStateModel metronomeStateModel = MetronomeStateModel();
 
@@ -99,7 +99,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void deactivate() {
-    metronome?.deinitialize();
     super.deactivate();
   }
 
@@ -114,10 +113,10 @@ class _HomePageState extends State<HomePage> {
 
 class HomePageContents extends StatelessWidget {
   const HomePageContents({
-    Key? key,
+    super.key,
     required this.metronomeStateController,
     required this.historyStateController,
-  }) : super(key: key);
+  });
 
   final MetronomeStateController? metronomeStateController;
   final HistoryStateController? historyStateController;

@@ -6,7 +6,8 @@ build_and_test: FORCE
 
 	make build-dart-codegen
 	flutter test
-	dart format --fix .
+	dart format --fix ./lib
+	dart format --fix ./test
 
 lint:
 	flutter analyze

@@ -8,9 +8,9 @@ import 'package:metronome/ui/controls/platform/platform_segmented_control.dart';
 
 class BeatsPerBarControl extends StatelessWidget {
   const BeatsPerBarControl({
-    Key? key,
+    super.key,
     required this.stateController,
-  }) : super(key: key);
+  });
 
   final MetronomeStateController stateController;
 

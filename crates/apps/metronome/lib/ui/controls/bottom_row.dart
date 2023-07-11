@@ -9,7 +9,7 @@ import 'package:metronome/ui/controls/bottom_row/tap_tempo_button.dart';
 class BottomRow extends StatelessWidget {
   final MetronomeStateController stateController;
 
-  const BottomRow({Key? key, required this.stateController}) : super(key: key);
+  const BottomRow({super.key, required this.stateController});
 
   @override
   Widget build(BuildContext context) {

@@ -7,10 +7,10 @@ import 'package:metronome/ui/constants.dart';
 
 class TapTempoButton extends StatelessWidget {
   const TapTempoButton({
-    Key? key,
+    super.key,
     required this.tapTempoController,
     required this.stateController,
-  }) : super(key: key);
+  });
 
   final TapTempoController tapTempoController;
   final MetronomeStateController stateController;

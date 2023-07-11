@@ -1,6 +1,8 @@
 /// This file provides a very lousy facade for performance metrics
 /// instrumentation following more or less the same API as firebase performance
 /// traces which aren't available on macOS yet.
+library;
+
 import 'package:clock/clock.dart';
 import 'package:metronome/logger.dart';
 

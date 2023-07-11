@@ -8,6 +8,10 @@ class AppDelegate: FlutterAppDelegate {
     print("Initialized \(result)")
   }
 
+  override func applicationWillTerminate(_ notification: Notification) {
+    metronome_will_terminate()
+  }
+
   override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
     return true
   }

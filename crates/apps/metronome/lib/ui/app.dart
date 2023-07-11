@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -9,15 +11,15 @@ import 'package:metronome/ui/home_page.dart';
 import 'package:mobx/mobx.dart';
 
 Observable<Brightness?> brightness =
-    Observable(WidgetsBinding.instance.window.platformBrightness);
+    Observable(PlatformDispatcher.instance.platformBrightness);
 
 class App extends StatefulWidget {
   final Analytics analytics;
 
   const App({
-    Key? key,
+    super.key,
     required this.analytics,
-  }) : super(key: key);
+  });
 
   @override
   State<App> createState() => _AppState();
@@ -40,7 +42,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   @override
   void didChangePlatformBrightness() {
     runInAction(() {
-      brightness.value = WidgetsBinding.instance.window.platformBrightness;
+      brightness.value = PlatformDispatcher.instance.platformBrightness;
     });
   }
 

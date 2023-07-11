@@ -10,9 +10,9 @@ import 'package:mobx/mobx.dart';
 
 class TempoControl extends StatefulWidget {
   const TempoControl({
-    Key? key,
+    super.key,
     required this.stateController,
-  }) : super(key: key);
+  });
 
   final MetronomeStateController stateController;
 

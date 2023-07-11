@@ -12,7 +12,7 @@ crate-type = ["staticlib", "lib", "cdylib"]
 [dependencies]
 anyhow = "1.0.52"
 log = "^0.4.14"
-flutter_rust_bridge = "1.75.0"
+flutter_rust_bridge = "1.78.0"
 lazy_static = "1.4.0"
 urlencoding = "2.1.2"
 ringbuf = "0.2.8"
@@ -37,7 +37,7 @@ ndk-context = "0.1.1"
 
 [build-dependencies]
 cbindgen = "0.24.3"
-flutter_rust_bridge_codegen = "1.75.0"
+flutter_rust_bridge_codegen = "1.78.0"
 
 [package.metadata.augmented]
 private = true

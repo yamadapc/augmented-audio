@@ -6,8 +6,7 @@ import 'package:metronome/modules/state/history_state_model.dart';
 class HistoryChart extends StatelessWidget {
   final HistoryStateModel historyStateModel;
 
-  const HistoryChart({Key? key, required this.historyStateModel})
-      : super(key: key);
+  const HistoryChart({super.key, required this.historyStateModel});
 
   @override
   Widget build(BuildContext context) {
