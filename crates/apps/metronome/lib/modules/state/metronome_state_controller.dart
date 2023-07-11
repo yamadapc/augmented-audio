@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_positional_boolean_parameters
 
+import 'dart:async';
+
 import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/modules/analytics/analytics.dart';
 import 'package:metronome/modules/history/history_controller.dart';
@@ -21,6 +23,8 @@ class MetronomeStateController {
   late final TapTempoController tapTempoController;
   final Analytics analytics;
 
+  Timer? timeout;
+
   MetronomeStateController(
     this.model,
     this.metronome,
@@ -31,9 +35,13 @@ class MetronomeStateController {
   }
 
   void setup() {
-    metronome.getPlayhead().forEach((element) {
-      model.setPlayhead(element);
-    });
+    timeout = Timer.periodic(
+      const Duration(milliseconds: 100),
+      (timer) async {
+        final p = await metronome.getPlayhead();
+        model.setPlayhead(p);
+      },
+    );
 
     SharedPreferences.getInstance().then((sharedPreferences) {
       final tempo = sharedPreferences.getDouble(PreferenceKey.tempo) ?? 120.0;
@@ -44,6 +52,10 @@ class MetronomeStateController {
       setVolume(volume);
       setBeatsPerBar(beatsPerBar);
     });
+  }
+
+  void stop() {
+    timeout?.cancel();
   }
 
   void setTempo(double value) {

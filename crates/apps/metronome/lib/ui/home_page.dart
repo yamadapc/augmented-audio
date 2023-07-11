@@ -99,6 +99,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void deactivate() {
+    metronomeStateController?.stop();
     super.deactivate();
   }
 

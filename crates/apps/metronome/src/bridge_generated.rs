@@ -120,9 +120,9 @@ fn wire_get_playhead_impl(port_: MessagePort) {
         WrapInfo {
             debug_name: "get_playhead",
             port: Some(port_),
-            mode: FfiCallMode::Stream,
+            mode: FfiCallMode::Normal,
         },
-        move || move |task_callback| get_playhead(task_callback.stream_sink()),
+        move || move |task_callback| get_playhead(),
     )
 }
 // Section: wrapper structs

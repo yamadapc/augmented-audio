@@ -39,7 +39,7 @@ abstract class Metronome {
 
   FlutterRustBridgeTaskConstMeta get kSetSoundConstMeta;
 
-  Stream<double> getPlayhead({dynamic hint});
+  Future<double> getPlayhead({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta;
 }
@@ -186,8 +186,8 @@ class MetronomeImpl implements Metronome {
         argNames: ["value"],
       );
 
-  Stream<double> getPlayhead({dynamic hint}) {
-    return _platform.executeStream(FlutterRustBridgeTask(
+  Future<double> getPlayhead({dynamic hint}) {
+    return _platform.executeNormal(FlutterRustBridgeTask(
       callFfi: (port_) => _platform.inner.wire_get_playhead(port_),
       parseSuccessData: _wire2api_f32,
       constMeta: kGetPlayheadConstMeta,
