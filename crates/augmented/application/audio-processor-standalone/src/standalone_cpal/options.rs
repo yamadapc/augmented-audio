@@ -28,7 +28,7 @@
 use cpal::{
     traits::{DeviceTrait, HostTrait},
     BufferSize, DefaultStreamConfigError, DeviceNameError, DevicesError, SampleRate, StreamConfig,
-    SupportedStreamConfig, SupportedStreamConfigsError,
+    SupportedBufferSize, SupportedStreamConfig, SupportedStreamConfigsError,
 };
 
 use crate::standalone_processor::StandaloneOptions;
@@ -125,10 +125,22 @@ fn configure_device<Host: HostTrait>(
     log::debug!("Listing supported configs");
     let supported_configs = supported_configs(&device, mode)?;
     let mut supports_stereo = false;
+    let mut supports_buffer_size = false;
+    let mut supports_sample_rate = false;
     for config in supported_configs {
         log::debug!("  Supported config: {:?}", config);
         if config.channels() > 1 {
             supports_stereo = true;
+        }
+        if let SupportedBufferSize::Range { min, max } = config.buffer_size() {
+            let buffer_size = buffer_size as u32;
+            if buffer_size >= *min && buffer_size <= *max {
+                supports_buffer_size = true;
+            }
+        }
+        let sample_rate = sample_rate as u32;
+        if config.min_sample_rate().0 >= sample_rate && config.max_sample_rate().0 <= sample_rate {
+            supports_sample_rate = true;
         }
     }
 
@@ -136,8 +148,16 @@ fn configure_device<Host: HostTrait>(
     let config = default_config(&device, mode)?;
     let mut config: StreamConfig = config.into();
     config.channels = if supports_stereo { 2 } else { 1 };
-    config.sample_rate = SampleRate(sample_rate as u32);
-    config.buffer_size = BufferSize::Fixed(buffer_size as u32);
+    config.sample_rate = if supports_sample_rate {
+        SampleRate(sample_rate as u32)
+    } else {
+        config.sample_rate
+    };
+    config.buffer_size = if supports_buffer_size {
+        BufferSize::Fixed(buffer_size as u32)
+    } else {
+        config.buffer_size
+    };
 
     #[cfg(target_os = "ios")]
     {
