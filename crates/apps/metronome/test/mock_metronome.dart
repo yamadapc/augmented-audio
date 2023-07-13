@@ -16,8 +16,8 @@ class MockMetronomeLib implements Metronome {
   }
 
   @override
-  Stream<double> getPlayhead({dynamic hint}) {
-    return const Stream.empty();
+  Future<double> getPlayhead({dynamic hint}) {
+    return Future.value(0);
   }
 
   @override
