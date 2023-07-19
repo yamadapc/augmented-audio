@@ -42,6 +42,18 @@ abstract class Metronome {
   Future<double> getPlayhead({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta;
+
+  Stream<EngineError> streamErrors({dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kStreamErrorsConstMeta;
+}
+
+class EngineError {
+  final String message;
+
+  const EngineError({
+    required this.message,
+  });
 }
 
 class InitializeOptions {
@@ -202,10 +214,39 @@ class MetronomeImpl implements Metronome {
         argNames: [],
       );
 
+  Stream<EngineError> streamErrors({dynamic hint}) {
+    return _platform.executeStream(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_stream_errors(port_),
+      parseSuccessData: _wire2api_engine_error,
+      constMeta: kStreamErrorsConstMeta,
+      argValues: [],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kStreamErrorsConstMeta =>
+      const FlutterRustBridgeTaskConstMeta(
+        debugName: "stream_errors",
+        argNames: [],
+      );
+
   void dispose() {
     _platform.dispose();
   }
 // Section: wire2api
+
+  String _wire2api_String(dynamic raw) {
+    return raw as String;
+  }
+
+  EngineError _wire2api_engine_error(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return EngineError(
+      message: _wire2api_String(arr[0]),
+    );
+  }
 
   double _wire2api_f32(dynamic raw) {
     return raw as double;
@@ -213,6 +254,14 @@ class MetronomeImpl implements Metronome {
 
   int _wire2api_i32(dynamic raw) {
     return raw as int;
+  }
+
+  int _wire2api_u8(dynamic raw) {
+    return raw as int;
+  }
+
+  Uint8List _wire2api_uint_8_list(dynamic raw) {
+    return raw as Uint8List;
   }
 }
 
@@ -519,6 +568,20 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
           'wire_get_playhead');
   late final _wire_get_playhead =
       _wire_get_playheadPtr.asFunction<void Function(int)>();
+
+  void wire_stream_errors(
+    int port_,
+  ) {
+    return _wire_stream_errors(
+      port_,
+    );
+  }
+
+  late final _wire_stream_errorsPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+          'wire_stream_errors');
+  late final _wire_stream_errors =
+      _wire_stream_errorsPtr.asFunction<void Function(int)>();
 
   ffi.Pointer<wire_InitializeOptions> new_box_autoadd_initialize_options_0() {
     return _new_box_autoadd_initialize_options_0();

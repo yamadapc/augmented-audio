@@ -81,6 +81,17 @@ class MockMetronomeLib implements Metronome {
   Future<int> setSound({required MetronomeSoundTypeTag value, dynamic hint}) {
     return Future.value(0);
   }
+
+  @override
+  Stream<EngineError> streamErrors({hint}) {
+    // TODO: implement streamErrors
+    throw UnimplementedError();
+  }
+
+  @override
+  // TODO: implement kStreamErrorsConstMeta
+  FlutterRustBridgeTaskConstMeta get kStreamErrorsConstMeta =>
+      throw UnimplementedError();
 }
 
 Future<MockEnvironment> buildTestEnvironment() async {

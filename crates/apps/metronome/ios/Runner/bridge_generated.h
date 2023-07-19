@@ -48,6 +48,8 @@ void wire_set_sound(int64_t port_, int32_t value);
 
 void wire_get_playhead(int64_t port_);
 
+void wire_stream_errors(int64_t port_);
+
 struct wire_InitializeOptions *new_box_autoadd_initialize_options_0(void);
 
 struct wire_uint_8_list *new_uint_8_list_0(int32_t len);
@@ -65,6 +67,7 @@ static int64_t dummy_method_to_enforce_bundling(void) {
     dummy_var ^= ((int64_t) (void*) wire_set_beats_per_bar);
     dummy_var ^= ((int64_t) (void*) wire_set_sound);
     dummy_var ^= ((int64_t) (void*) wire_get_playhead);
+    dummy_var ^= ((int64_t) (void*) wire_stream_errors);
     dummy_var ^= ((int64_t) (void*) new_box_autoadd_initialize_options_0);
     dummy_var ^= ((int64_t) (void*) new_uint_8_list_0);
     dummy_var ^= ((int64_t) (void*) free_WireSyncReturn);

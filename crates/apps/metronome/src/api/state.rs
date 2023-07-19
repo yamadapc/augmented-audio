@@ -41,7 +41,7 @@ pub struct InitializeOptions {
 }
 
 pub struct State {
-    _handles: StandaloneMetronomeHandle,
+    pub handles: StandaloneMetronomeHandle,
     pub app_processor_messages: ringbuf::Producer<AppAudioThreadMessage>,
     pub processor_handle: Shared<MetronomeProcessorHandle>,
 }
@@ -70,7 +70,7 @@ impl State {
         Self {
             app_processor_messages,
             processor_handle,
-            _handles: handles,
+            handles: handles,
         }
     }
 }

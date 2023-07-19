@@ -18,6 +18,7 @@
 //! This module contains the public API exposed to flutter
 
 use anyhow::Result;
+use flutter_rust_bridge::StreamSink;
 
 pub use crate::api::state::InitializeOptions;
 
@@ -83,9 +84,44 @@ pub fn get_playhead() -> Result<f32> {
     })
 }
 
+#[derive(Debug)]
+#[repr(C)]
+pub struct EngineError {
+    pub message: String,
+}
+
+pub fn stream_errors(stream: StreamSink<EngineError>) {
+    loop {
+        let rx = with_state(|state| {
+            state
+                .handles
+                .errors_rx()
+                .recv()
+                .map_err(anyhow::Error::from)
+        });
+
+        if let Ok(error) = rx {
+            if !stream.add(EngineError {
+                message: error.to_string(),
+            }) {
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
+    use lazy_static::lazy_static;
+    use std::sync::Mutex;
+
     use super::*;
+
+    lazy_static! {
+        static ref TEST_LOCK: Mutex<()> = Mutex::new(());
+    }
 
     #[test]
     fn test_initialize() {
@@ -94,12 +130,14 @@ mod test {
 
     #[test]
     fn test_deinitialize() {
+        let _lock = TEST_LOCK.lock().unwrap();
         initialize(Default::default()).unwrap();
         deinitialize().unwrap();
     }
 
     #[test]
     fn test_set_is_playing() {
+        let _lock = TEST_LOCK.lock().unwrap();
         initialize(Default::default()).unwrap();
         let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
         set_is_playing(true).unwrap();
@@ -110,6 +148,7 @@ mod test {
 
     #[test]
     fn test_set_beats_per_bar() {
+        let _lock = TEST_LOCK.lock().unwrap();
         initialize(Default::default()).unwrap();
         let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
         set_beats_per_bar(5).unwrap();
@@ -120,6 +159,7 @@ mod test {
 
     #[test]
     fn test_set_volume() {
+        let _lock = TEST_LOCK.lock().unwrap();
         initialize(Default::default()).unwrap();
         let handle = with_state(|state| Ok(state.processor_handle.clone())).unwrap();
         set_volume(0.44).unwrap();

@@ -125,6 +125,16 @@ fn wire_get_playhead_impl(port_: MessagePort) {
         move || move |task_callback| get_playhead(),
     )
 }
+fn wire_stream_errors_impl(port_: MessagePort) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap(
+        WrapInfo {
+            debug_name: "stream_errors",
+            port: Some(port_),
+            mode: FfiCallMode::Stream,
+        },
+        move || move |task_callback| Ok(stream_errors(task_callback.stream_sink())),
+    )
+}
 // Section: wrapper structs
 
 // Section: static checks
@@ -184,6 +194,13 @@ impl Wire2Api<u8> for u8 {
 }
 
 // Section: impl IntoDart
+
+impl support::IntoDart for EngineError {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.message.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for EngineError {}
 
 // Section: executor
 
