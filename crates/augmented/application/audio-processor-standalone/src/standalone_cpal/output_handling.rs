@@ -26,6 +26,8 @@
 //!
 //! It will also forward MIDI events that happened between frames.
 
+use std::sync::mpsc::Sender;
+
 use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Consumer;
 
@@ -52,6 +54,7 @@ pub struct BuildOutputStreamParams<SP: StandaloneProcessor, D: DeviceTrait> {
 /// Build the output callback stream with CPAL and return it.
 pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
     params: BuildOutputStreamParams<SP, Device>,
+    errors_tx: Sender<AudioThreadError>,
 ) -> Result<Device::Stream, AudioThreadError> {
     let BuildOutputStreamParams {
         mut app,
@@ -96,8 +99,9 @@ pub fn build_output_stream<SP: StandaloneProcessor, Device: DeviceTrait>(
                     audio_buffer: &mut audio_buffer,
                 });
             },
-            |err| {
+            move |err| {
                 log::error!("Playback error: {:?}", err);
+                let _ = errors_tx.send(AudioThreadError::OutputStreamError(err));
             },
             None,
         )
