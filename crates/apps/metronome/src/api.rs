@@ -17,6 +17,8 @@
 // = /copyright ===================================================================
 //! This module contains the public API exposed to flutter
 
+use std::sync::mpsc::TryRecvError;
+
 use anyhow::Result;
 use flutter_rust_bridge::StreamSink;
 
@@ -92,22 +94,21 @@ pub struct EngineError {
 
 pub fn stream_errors(stream: StreamSink<EngineError>) {
     loop {
-        let rx = with_state(|state| {
-            state
-                .handles
-                .errors_rx()
-                .recv()
-                .map_err(anyhow::Error::from)
-        });
+        let rx = with_state(|state| Ok(state.handles.errors_rx().try_recv()));
 
-        if let Ok(error) = rx {
-            if !stream.add(EngineError {
-                message: error.to_string(),
-            }) {
-                break;
+        match rx {
+            Ok(Ok(error)) => {
+                if !stream.add(EngineError {
+                    message: error.to_string(),
+                }) {
+                    break;
+                }
             }
-        } else {
-            break;
+            Ok(Err(TryRecvError::Empty)) => {
+                std::thread::sleep(std::time::Duration::from_millis(100))
+            }
+            Ok(Err(TryRecvError::Disconnected)) => break,
+            _ => break,
         }
     }
 }

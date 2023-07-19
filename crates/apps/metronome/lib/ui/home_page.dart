@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:macos_ui/macos_ui.dart';
 import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/logger.dart';
 import 'package:metronome/modules/context/app_context.dart';
@@ -54,6 +55,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   MetronomeStateController? metronomeStateController;
   HistoryStateController? historyStateController;
 
+  void onError(dynamic err) {
+    logger.e("ERROR: $err");
+    showMacosAlertDialog(
+      context: context,
+      builder: (context) => Center(child: Text("ERROR: $err")),
+    );
+  }
+
   @override
   void initState() {
     final performance = getMetrics();
@@ -88,10 +97,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
         trace.stop();
       });
+
+      metronome.streamErrors().listen((error) {
+        onError(error);
+      });
     }
 
     runInitSequence().catchError((err) {
-      logger.e("ERROR: $err");
+      onError(err);
     });
 
     super.initState();
