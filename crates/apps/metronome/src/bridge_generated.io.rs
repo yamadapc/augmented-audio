@@ -41,6 +41,11 @@ pub extern "C" fn wire_get_playhead(port_: i64) {
     wire_get_playhead_impl(port_)
 }
 
+#[no_mangle]
+pub extern "C" fn wire_stream_errors(port_: i64) {
+    wire_stream_errors_impl(port_)
+}
+
 // Section: allocate functions
 
 #[no_mangle]

@@ -33,7 +33,11 @@ pub enum AudioThreadError {
     #[error("Failed to configure output stream: {0}")]
     BuildOutputStreamError(cpal::BuildStreamError),
     #[error("Failed to start input stream: {0}")]
-    InputStreamError(cpal::PlayStreamError),
+    InputPlayStreamError(cpal::PlayStreamError),
     #[error("Failed to start output stream: {0}")]
-    OutputStreamError(cpal::PlayStreamError),
+    OutputPlayStreamError(cpal::PlayStreamError),
+    #[error("Failed to build input stream: {0}")]
+    InputStreamError(cpal::StreamError),
+    #[error("Failed to build output stream: {0}")]
+    OutputStreamError(cpal::StreamError),
 }

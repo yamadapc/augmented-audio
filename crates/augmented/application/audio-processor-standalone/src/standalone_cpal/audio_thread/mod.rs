@@ -45,6 +45,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
     #[cfg(feature = "midi")] midi_context: Option<MidiContext>,
     configuration_tx: Sender<ResolvedStandaloneConfiguration>,
     stop_signal_rx: Receiver<()>,
+    errors_tx: Sender<AudioThreadError>,
 ) -> Result<(), AudioThreadError> {
     log::info!("Using host={}", host_name);
     let buffer_size = 512;
@@ -125,7 +126,7 @@ pub fn audio_thread_main<SP: StandaloneProcessor, Host: HostTrait>(
         midi_context,
     };
 
-    let streams = audio_thread_run_processor(run_params, app);
+    let streams = audio_thread_run_processor(run_params, app, errors_tx)?;
 
     let _ = stop_signal_rx.recv();
 
@@ -163,7 +164,8 @@ struct AudioThreadRunParams<D: DeviceTrait> {
 fn audio_thread_run_processor<D: DeviceTrait>(
     params: AudioThreadRunParams<D>,
     app: impl StandaloneProcessor,
-) -> Option<(Option<D::Stream>, D::Stream)> {
+    errors_tx: Sender<AudioThreadError>,
+) -> Result<(Option<D::Stream>, D::Stream), AudioThreadError> {
     log::info!(
         "Starting audio streams\n    params.io_hints={:#?}\n",
         params.io_hints
@@ -186,29 +188,41 @@ fn audio_thread_run_processor<D: DeviceTrait>(
         output_device,
     } = cpal_streams;
 
-    let build_streams = move || -> Result<(Option<D::Stream>, D::Stream), AudioThreadError> {
-        let buffer = ringbuf::RingBuffer::new(buffer_size * 10);
-        let (producer, consumer) = buffer.split();
-        let input_stream = input_tuple
-            .map(|(input_device, input_config)| {
-                input_handling::build_input_stream(input_device, input_config, producer)
-            })
-            // "invert" Option<Result<...>> to Result<Option<...>, ...>
-            .map_or(Ok(None), |v| v.map(Some))?;
-        let audio_context = AudioContext::default();
-        let output_stream = output_handling::build_output_stream(BuildOutputStreamParams {
-            app,
-            #[cfg(feature = "midi")]
-            midi_context,
-            audio_context,
-            num_output_channels,
-            num_input_channels,
-            input_consumer: consumer,
-            output_device,
-            output_config,
-        })?;
+    let build_streams = {
+        let errors_tx = errors_tx.clone();
 
-        Ok((input_stream, output_stream))
+        move || -> Result<(Option<D::Stream>, D::Stream), AudioThreadError> {
+            let buffer = ringbuf::RingBuffer::new(buffer_size * 10);
+            let (producer, consumer) = buffer.split();
+            let input_stream = input_tuple
+                .map(|(input_device, input_config)| {
+                    input_handling::build_input_stream(
+                        input_device,
+                        input_config,
+                        producer,
+                        errors_tx.clone(),
+                    )
+                })
+                // "invert" Option<Result<...>> to Result<Option<...>, ...>
+                .map_or(Ok(None), |v| v.map(Some))?;
+            let audio_context = AudioContext::default();
+            let output_stream = output_handling::build_output_stream(
+                BuildOutputStreamParams {
+                    app,
+                    #[cfg(feature = "midi")]
+                    midi_context,
+                    audio_context,
+                    num_output_channels,
+                    num_input_channels,
+                    input_consumer: consumer,
+                    output_device,
+                    output_config,
+                },
+                errors_tx,
+            )?;
+
+            Ok((input_stream, output_stream))
+        }
     };
 
     match build_streams() {
@@ -218,12 +232,12 @@ fn audio_thread_run_processor<D: DeviceTrait>(
                 if let Some(input_stream) = &input_stream {
                     input_stream
                         .play()
-                        .map_err(AudioThreadError::InputStreamError)?;
+                        .map_err(AudioThreadError::InputPlayStreamError)?;
                 }
 
                 output_stream
                     .play()
-                    .map_err(AudioThreadError::OutputStreamError)?;
+                    .map_err(AudioThreadError::OutputPlayStreamError)?;
 
                 Ok((input_stream, output_stream))
             };
@@ -231,17 +245,17 @@ fn audio_thread_run_processor<D: DeviceTrait>(
             match play() {
                 Ok(streams) => {
                     log::info!("Audio streams started");
-                    Some(streams)
+                    Ok(streams)
                 }
                 Err(err) => {
                     log::error!("Audio-thread failed to start with {}", err);
-                    None
+                    Err(err)
                 }
             }
         }
         Err(err) => {
             log::error!("Audio-thread failed to start with {}", err);
-            None
+            Err(err)
         }
     }
 }

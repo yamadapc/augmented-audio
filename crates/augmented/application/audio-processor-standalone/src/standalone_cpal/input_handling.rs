@@ -23,6 +23,8 @@
 
 //! Input handling should push samples onto a ring-buffer.
 
+use std::sync::mpsc::Sender;
+
 use cpal::{traits::DeviceTrait, StreamConfig};
 use ringbuf::Producer;
 
@@ -32,6 +34,7 @@ pub fn build_input_stream<Device: DeviceTrait>(
     input_device: Device,
     input_config: StreamConfig,
     mut producer: Producer<f32>,
+    errors_tx: Sender<AudioThreadError>,
 ) -> Result<Device::Stream, AudioThreadError> {
     let input_stream = input_device
         .build_input_stream(
@@ -39,8 +42,9 @@ pub fn build_input_stream<Device: DeviceTrait>(
             move |data: &[f32], _input_info: &cpal::InputCallbackInfo| {
                 input_stream_callback(&mut producer, data)
             },
-            |err| {
+            move |err| {
                 log::error!("Input error: {:?}", err);
+                let _ = errors_tx.send(AudioThreadError::InputStreamError(err));
             },
             None,
         )

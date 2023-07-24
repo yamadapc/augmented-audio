@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::sync::mpsc::{channel, Sender};
+use std::sync::mpsc::{channel, Receiver, Sender};
 
 use basedrop::Handle;
 use cpal::traits::DeviceTrait;
@@ -33,6 +33,7 @@ use crate::standalone_processor::{
     StandaloneAudioOnlyProcessor, StandaloneProcessor, StandaloneProcessorImpl,
 };
 
+use self::error::AudioThreadError;
 #[cfg(feature = "midi")]
 use self::midi::{initialize_midi_host, MidiReference};
 pub use self::mock_cpal::virtual_host::{VirtualHost, VirtualHostDevice, VirtualHostStream};
@@ -143,6 +144,7 @@ pub struct StandaloneHandles {
     // Handles contain a join handle with the thread, this might be used in the future.
     handle: Option<std::thread::JoinHandle<()>>,
     stop_signal_tx: Sender<()>,
+    errors_rx: Receiver<AudioThreadError>,
     #[cfg(feature = "midi")]
     #[allow(unused)]
     midi_reference: MidiReference,
@@ -161,6 +163,10 @@ impl Drop for StandaloneHandles {
 impl StandaloneHandles {
     pub fn configuration(&self) -> &ResolvedStandaloneConfiguration {
         &self.configuration
+    }
+
+    pub fn errors_rx(&self) -> &Receiver<AudioThreadError> {
+        &self.errors_rx
     }
 }
 
@@ -213,6 +219,7 @@ pub fn standalone_start_with<
     #[cfg(not(feature = "midi"))]
     std::mem::forget(handle); // suppress unused error
 
+    let (errors_tx, errors_rx) = channel();
     let (configuration_tx, configuration_rx) = channel();
     let (stop_signal_tx, stop_signal_rx) = channel();
     // On iOS start takes over the calling thread, so this needs to be spawned in order for this
@@ -232,10 +239,12 @@ pub fn standalone_start_with<
                 midi_context,
                 configuration_tx,
                 stop_signal_rx,
+                errors_tx.clone(),
             );
 
             if let Err(err) = result {
                 log::error!("Audio-thread failed with {}", err);
+                let _ = errors_tx.send(err);
             }
         })
         .unwrap();
@@ -249,6 +258,7 @@ pub fn standalone_start_with<
         configuration,
         handle: Some(handle),
         stop_signal_tx,
+        errors_rx,
         #[cfg(feature = "midi")]
         midi_reference,
     }
