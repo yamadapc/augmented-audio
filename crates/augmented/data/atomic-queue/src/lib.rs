@@ -89,7 +89,7 @@ pub struct Queue<T> {
 }
 
 unsafe impl<T: Send> Send for Queue<T> {}
-unsafe impl<T> Sync for Queue<T> {}
+unsafe impl<T: Send> Sync for Queue<T> {}
 
 /// Alias for `Queue::new`, creates a new bounded `MPMC` queue with the given capacity.
 ///
