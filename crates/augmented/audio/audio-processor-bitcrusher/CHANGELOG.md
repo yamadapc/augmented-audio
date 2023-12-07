@@ -1,3 +1,7 @@
+## v2.2.0
+
+* [`e659bdc9af1`](https://github.com/yamadapc/augmented-audio/commits/e659bdc9af1) audio-processor-standalone@3.2.0 (Minor)
+
 ## v2.1.1
 
 * [`85fc8fbc45d6`](https://github.com/yamadapc/augmented-audio/commits/85fc8fbc45d6) Make bitcrusher processor generic :patch: (Patch)

@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-bitcrusher"
-version = "2.1.1"
+version = "2.2.0"
 edition = "2021"
 license = "MIT"
 description = "Implements a simple bitcrusher based on sample-and-hold."
