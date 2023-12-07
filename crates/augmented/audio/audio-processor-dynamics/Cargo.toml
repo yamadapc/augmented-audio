@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-dynamics"
-version = "2.1.0"
+version = "2.2.0"
 description = "Implements a compressor"
 edition = "2021"
 license = "MIT"
