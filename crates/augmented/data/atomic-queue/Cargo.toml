@@ -4,7 +4,7 @@ description = "Simple bounded lock-free queue for use in Audio applications, por
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
-version = "1.0.1"
+version = "2.0.0"
 edition = "2018"
 
 [dependencies]
