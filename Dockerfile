@@ -35,7 +35,6 @@ RUN apt-get install --fix-missing -y \
     lame \
     libgtk-3-dev
 
-RUN . $HOME/.cargo/env && cargo install --version 0.15.2 uniffi_bindgen
 RUN . $HOME/.cargo/env && cargo install cargo-nextest
 RUN . $HOME/.cargo/env && cargo install cargo-tarpaulin
 

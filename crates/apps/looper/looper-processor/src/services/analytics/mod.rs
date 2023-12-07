@@ -124,7 +124,7 @@ impl Handler<GetAnalyticsEnabled> for AnalyticsService {
 }
 
 #[derive(Message)]
-#[rtype("()")]
+#[rtype(result = "()")]
 pub struct SendAnalyticsEvent(pub ServiceAnalyticsEvent);
 
 impl Handler<SendAnalyticsEvent> for AnalyticsService {
@@ -167,7 +167,7 @@ impl Handler<SendAnalyticsEvent> for AnalyticsService {
 }
 
 #[derive(Message)]
-#[rtype("()")]
+#[rtype(result = "()")]
 pub struct SetAnalyticsEnabled(pub bool);
 
 impl Handler<SetAnalyticsEnabled> for AnalyticsService {
