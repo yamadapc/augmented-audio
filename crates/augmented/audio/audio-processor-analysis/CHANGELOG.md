@@ -1,3 +1,10 @@
+## v2.2.0
+
+* [`acc59ea9798`](https://github.com/yamadapc/augmented-audio/commits/acc59ea9798) Update artifacts (Minor)
+* [`c4af4ad8a6b`](https://github.com/yamadapc/augmented-audio/commits/c4af4ad8a6b) Minor fft fixes (Minor)
+* [`4dde99e517d`](https://github.com/yamadapc/augmented-audio/commits/4dde99e517d) Make more of analysis crate generic :patch: (Patch)
+* [`8c429cae419`](https://github.com/yamadapc/augmented-audio/commits/8c429cae419) Improve generics implementation :patch: (Patch)
+
 ## v2.1.0
 
 * [`2225a3f25807`](https://github.com/yamadapc/augmented-audio/commits/2225a3f25807) Update unit-test artifacts (Minor)
