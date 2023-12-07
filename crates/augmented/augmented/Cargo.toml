@@ -24,7 +24,7 @@ glow = [
 
 [dependencies]
 # application
-audio-processor-standalone = { version = "3.1.0", path = "../application/audio-processor-standalone" }
+audio-processor-standalone = { version = "3.2.0", path = "../application/audio-processor-standalone" }
 audio-processor-standalone-midi = { path = "../application/audio-processor-standalone-midi" , version = "1.9.0" }
 
 # audio

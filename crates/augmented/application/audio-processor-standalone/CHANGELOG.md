@@ -1,3 +1,9 @@
+## v3.2.0
+
+* [`d900ca01251`](https://github.com/yamadapc/augmented-audio/commits/d900ca01251) atomic-queue@2.0.0 (Minor)
+* [`514d0ff34af`](https://github.com/yamadapc/augmented-audio/commits/514d0ff34af) Expose async errors (Minor)
+* [`1850359f4b0`](https://github.com/yamadapc/augmented-audio/commits/1850359f4b0) Improve handling of unsupported configuration (Minor)
+
 ## v3.1.0
 
 * [`01f081d1e8f6`](https://github.com/yamadapc/augmented-audio/commits/01f081d1e8f6) audio-processor-standalone-gui@0.9.0 (Minor)
