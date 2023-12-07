@@ -33,8 +33,7 @@ use augmented_atomics::AtomicValue;
 pub use crate::audio::multi_track_looper::metrics::audio_processor_metrics::AudioProcessorMetricsStats;
 use crate::audio::multi_track_looper::parameters::ParameterValue;
 use crate::audio::multi_track_looper::parameters::{
-    CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, ParameterId, SourceParameter,
-    TempoControl,
+    CQuantizeMode, EnvelopeParameter, LFOParameter, LooperId, SourceParameter, TempoControl,
 };
 pub use crate::engine::LooperEngine;
 use crate::TimeInfoProvider;
