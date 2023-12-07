@@ -1,7 +1,7 @@
 build_and_test: FORCE
-	make build-bindings
 	make build-libs
 	make build-libs-ios
+	make build-bindings
 	cargo test
 
 	make build-dart-codegen
@@ -19,11 +19,6 @@ watch-dart-codegen: FORCE
 	flutter packages pub run build_runner watch
 
 build-bindings: FORCE
-	flutter_rust_bridge_codegen  \
-		--rust-input src/api.rs \
-		--dart-output lib/bridge_generated.dart \
-		--c-output ios/Runner/bridge_generated.h # \
-		# --llvm-path /usr/local/opt/llvm
 	cp ios/Runner/bridge_generated.h macos/Runner/bridge_generated.h
 	sed -i '' '/jint JNI_OnLoad(JavaVM vm, void \*res);/d' ios/Runner/bridge_generated.h macos/Runner/bridge_generated.h
 

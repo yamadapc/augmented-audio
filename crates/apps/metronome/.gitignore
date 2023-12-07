@@ -56,3 +56,4 @@ app.*.map.json
 */fastlane/report.xml
 *.dSYM.zip
 *.ipa
+failures

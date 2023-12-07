@@ -93,6 +93,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   set onKeyEvent(_i3.FocusOnKeyEventCallback? _onKeyEvent) =>
       super.noSuchMethod(
@@ -102,12 +103,14 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool get skipTraversal => (super.noSuchMethod(
         Invocation.getter(#skipTraversal),
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   set skipTraversal(bool? value) => super.noSuchMethod(
         Invocation.setter(
@@ -116,12 +119,14 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool get canRequestFocus => (super.noSuchMethod(
         Invocation.getter(#canRequestFocus),
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   set canRequestFocus(bool? value) => super.noSuchMethod(
         Invocation.setter(
@@ -130,12 +135,14 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool get descendantsAreFocusable => (super.noSuchMethod(
         Invocation.getter(#descendantsAreFocusable),
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   set descendantsAreFocusable(bool? value) => super.noSuchMethod(
         Invocation.setter(
@@ -144,12 +151,14 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool get descendantsAreTraversable => (super.noSuchMethod(
         Invocation.getter(#descendantsAreTraversable),
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   set descendantsAreTraversable(bool? value) => super.noSuchMethod(
         Invocation.setter(
@@ -158,18 +167,21 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   Iterable<_i3.FocusNode> get children => (super.noSuchMethod(
         Invocation.getter(#children),
         returnValue: <_i3.FocusNode>[],
         returnValueForMissingStub: <_i3.FocusNode>[],
       ) as Iterable<_i3.FocusNode>);
+
   @override
   Iterable<_i3.FocusNode> get traversalChildren => (super.noSuchMethod(
         Invocation.getter(#traversalChildren),
         returnValue: <_i3.FocusNode>[],
         returnValueForMissingStub: <_i3.FocusNode>[],
       ) as Iterable<_i3.FocusNode>);
+
   @override
   set debugLabel(String? value) => super.noSuchMethod(
         Invocation.setter(
@@ -178,42 +190,49 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   Iterable<_i3.FocusNode> get descendants => (super.noSuchMethod(
         Invocation.getter(#descendants),
         returnValue: <_i3.FocusNode>[],
         returnValueForMissingStub: <_i3.FocusNode>[],
       ) as Iterable<_i3.FocusNode>);
+
   @override
   Iterable<_i3.FocusNode> get traversalDescendants => (super.noSuchMethod(
         Invocation.getter(#traversalDescendants),
         returnValue: <_i3.FocusNode>[],
         returnValueForMissingStub: <_i3.FocusNode>[],
       ) as Iterable<_i3.FocusNode>);
+
   @override
   Iterable<_i3.FocusNode> get ancestors => (super.noSuchMethod(
         Invocation.getter(#ancestors),
         returnValue: <_i3.FocusNode>[],
         returnValueForMissingStub: <_i3.FocusNode>[],
       ) as Iterable<_i3.FocusNode>);
+
   @override
   bool get hasFocus => (super.noSuchMethod(
         Invocation.getter(#hasFocus),
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   bool get hasPrimaryFocus => (super.noSuchMethod(
         Invocation.getter(#hasPrimaryFocus),
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   _i3.FocusHighlightMode get highlightMode => (super.noSuchMethod(
         Invocation.getter(#highlightMode),
         returnValue: _i3.FocusHighlightMode.touch,
         returnValueForMissingStub: _i3.FocusHighlightMode.touch,
       ) as _i3.FocusHighlightMode);
+
   @override
   _i2.Size get size => (super.noSuchMethod(
         Invocation.getter(#size),
@@ -226,6 +245,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
           Invocation.getter(#size),
         ),
       ) as _i2.Size);
+
   @override
   _i2.Offset get offset => (super.noSuchMethod(
         Invocation.getter(#offset),
@@ -238,6 +258,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
           Invocation.getter(#offset),
         ),
       ) as _i2.Offset);
+
   @override
   _i2.Rect get rect => (super.noSuchMethod(
         Invocation.getter(#rect),
@@ -250,12 +271,14 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
           Invocation.getter(#rect),
         ),
       ) as _i2.Rect);
+
   @override
   bool get hasListeners => (super.noSuchMethod(
         Invocation.getter(#hasListeners),
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   void unfocus(
           {_i3.UnfocusDisposition? disposition =
@@ -268,6 +291,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool consumeKeyboardToken() => (super.noSuchMethod(
         Invocation.method(
@@ -277,6 +301,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   _i3.FocusAttachment attach(
     _i5.BuildContext? context, {
@@ -315,6 +340,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
           ),
         ),
       ) as _i3.FocusAttachment);
+
   @override
   void dispose() => super.noSuchMethod(
         Invocation.method(
@@ -323,6 +349,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void requestFocus([_i3.FocusNode? node]) => super.noSuchMethod(
         Invocation.method(
@@ -331,6 +358,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   bool nextFocus() => (super.noSuchMethod(
         Invocation.method(
@@ -340,6 +368,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   bool previousFocus() => (super.noSuchMethod(
         Invocation.method(
@@ -349,6 +378,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   bool focusInDirection(_i6.TraversalDirection? direction) =>
       (super.noSuchMethod(
@@ -359,6 +389,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         returnValue: false,
         returnValueForMissingStub: false,
       ) as bool);
+
   @override
   void debugFillProperties(_i4.DiagnosticPropertiesBuilder? properties) =>
       super.noSuchMethod(
@@ -368,6 +399,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   List<_i4.DiagnosticsNode> debugDescribeChildren() => (super.noSuchMethod(
         Invocation.method(
@@ -377,6 +409,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         returnValue: <_i4.DiagnosticsNode>[],
         returnValueForMissingStub: <_i4.DiagnosticsNode>[],
       ) as List<_i4.DiagnosticsNode>);
+
   @override
   String toStringShort() => (super.noSuchMethod(
         Invocation.method(
@@ -386,9 +419,11 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         returnValue: '',
         returnValueForMissingStub: '',
       ) as String);
+
   @override
   String toString({_i4.DiagnosticLevel? minLevel = _i4.DiagnosticLevel.info}) =>
       super.toString();
+
   @override
   String toStringShallow({
     String? joiner = r', ',
@@ -406,6 +441,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         returnValue: '',
         returnValueForMissingStub: '',
       ) as String);
+
   @override
   String toStringDeep({
     String? prefixLineOne = r'',
@@ -425,6 +461,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         returnValue: '',
         returnValueForMissingStub: '',
       ) as String);
+
   @override
   _i4.DiagnosticsNode toDiagnosticsNode({
     String? name,
@@ -462,6 +499,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
           ),
         ),
       ) as _i4.DiagnosticsNode);
+
   @override
   void addListener(_i2.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
@@ -470,6 +508,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void removeListener(_i2.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
@@ -478,6 +517,7 @@ class MockFocusNode extends _i1.Mock implements _i3.FocusNode {
         ),
         returnValueForMissingStub: null,
       );
+
   @override
   void notifyListeners() => super.noSuchMethod(
         Invocation.method(
