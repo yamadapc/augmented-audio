@@ -97,7 +97,6 @@ impl EffectsProcessorHandle {
                 }
             };
 
-            let handle = handle;
             (effect, handle)
         };
 

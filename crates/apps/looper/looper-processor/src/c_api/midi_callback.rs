@@ -63,7 +63,6 @@ pub unsafe extern "C" fn looper_engine__register_midi_callback(
     });
 
     let midi_store = &engine.midi_store();
-    let midi_store = midi_store;
     let midi_actor_is_running = make_shared(AtomicBool::new(true));
     let mut midi_actor =
         MidiStoreActor::new(midi_store.queue().clone(), midi_actor_is_running, callback);
