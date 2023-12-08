@@ -1,5 +1,6 @@
 accepted = [
     "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
     "MIT",
     "MIT-0",
     "Zlib",
