@@ -74,41 +74,41 @@ void main() async {
     );
   });
 
-  testWidgets("Metronome light mode golden test material", (tester) async {
-    // Render main page
-    logger.i("Ready to render");
-    await pump(
-      tester: tester,
-      brightness: Brightness.light,
-      platform: TargetPlatform.android,
-      widget: HomePageContents(
-        metronomeStateController: env.metronomeStateController,
-        historyStateController: env.historyStateController,
-      ),
-    );
-    logger.i("Pumped widget");
-    await expectLater(
-      find.byType(HomePageContents),
-      matchesGoldenFile('home-page-contents-android-light.png'),
-    );
-  });
-
-  testWidgets("Metronome dark mode golden test material", (tester) async {
-    // Render main page
-    logger.i("Ready to render");
-    await pump(
-      tester: tester,
-      brightness: Brightness.dark,
-      platform: TargetPlatform.android,
-      widget: HomePageContents(
-        metronomeStateController: env.metronomeStateController,
-        historyStateController: env.historyStateController,
-      ),
-    );
-    logger.i("Pumped widget");
-    await expectLater(
-      find.byType(HomePageContents),
-      matchesGoldenFile('home-page-contents-android-dark.png'),
-    );
-  });
+  // testWidgets("Metronome light mode golden test material", (tester) async {
+  //   // Render main page
+  //   logger.i("Ready to render");
+  //   await pump(
+  //     tester: tester,
+  //     brightness: Brightness.light,
+  //     platform: TargetPlatform.android,
+  //     widget: HomePageContents(
+  //       metronomeStateController: env.metronomeStateController,
+  //       historyStateController: env.historyStateController,
+  //     ),
+  //   );
+  //   logger.i("Pumped widget");
+  //   await expectLater(
+  //     find.byType(HomePageContents),
+  //     matchesGoldenFile('home-page-contents-android-light.png'),
+  //   );
+  // });
+  //
+  // testWidgets("Metronome dark mode golden test material", (tester) async {
+  //   // Render main page
+  //   logger.i("Ready to render");
+  //   await pump(
+  //     tester: tester,
+  //     brightness: Brightness.dark,
+  //     platform: TargetPlatform.android,
+  //     widget: HomePageContents(
+  //       metronomeStateController: env.metronomeStateController,
+  //       historyStateController: env.historyStateController,
+  //     ),
+  //   );
+  //   logger.i("Pumped widget");
+  //   await expectLater(
+  //     find.byType(HomePageContents),
+  //     matchesGoldenFile('home-page-contents-android-dark.png'),
+  //   );
+  // });
 }

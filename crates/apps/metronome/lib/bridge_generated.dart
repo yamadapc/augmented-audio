@@ -73,12 +73,10 @@ enum MetronomeSoundTypeTag {
 
 class MetronomeImpl implements Metronome {
   final MetronomePlatform _platform;
-  factory MetronomeImpl(ExternalLibrary dylib) =>
-      MetronomeImpl.raw(MetronomePlatform(dylib));
+  factory MetronomeImpl(ExternalLibrary dylib) => MetronomeImpl.raw(MetronomePlatform(dylib));
 
   /// Only valid on web/WASM platforms.
-  factory MetronomeImpl.wasm(FutureOr<WasmModule> module) =>
-      MetronomeImpl(module as ExternalLibrary);
+  factory MetronomeImpl.wasm(FutureOr<WasmModule> module) => MetronomeImpl(module as ExternalLibrary);
   MetronomeImpl.raw(this._platform);
   Future<int> initialize({required InitializeOptions options, dynamic hint}) {
     var arg0 = _platform.api2wire_box_autoadd_initialize_options(options);
@@ -87,15 +85,18 @@ class MetronomeImpl implements Metronome {
       parseSuccessData: _wire2api_i32,
       parseErrorData: _wire2api_FrbAnyhowException,
       constMeta: kInitializeConstMeta,
-      argValues: [options],
+      argValues: [
+        options
+      ],
       hint: hint,
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kInitializeConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kInitializeConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "initialize",
-        argNames: ["options"],
+        argNames: [
+          "options"
+        ],
       );
 
   Future<int> deinitialize({dynamic hint}) {
@@ -109,8 +110,7 @@ class MetronomeImpl implements Metronome {
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kDeinitializeConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kDeinitializeConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "deinitialize",
         argNames: [],
       );
@@ -122,15 +122,18 @@ class MetronomeImpl implements Metronome {
       parseSuccessData: _wire2api_i32,
       parseErrorData: _wire2api_FrbAnyhowException,
       constMeta: kSetIsPlayingConstMeta,
-      argValues: [value],
+      argValues: [
+        value
+      ],
       hint: hint,
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kSetIsPlayingConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kSetIsPlayingConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "set_is_playing",
-        argNames: ["value"],
+        argNames: [
+          "value"
+        ],
       );
 
   Future<int> setTempo({required double value, dynamic hint}) {
@@ -140,15 +143,18 @@ class MetronomeImpl implements Metronome {
       parseSuccessData: _wire2api_i32,
       parseErrorData: _wire2api_FrbAnyhowException,
       constMeta: kSetTempoConstMeta,
-      argValues: [value],
+      argValues: [
+        value
+      ],
       hint: hint,
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kSetTempoConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kSetTempoConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "set_tempo",
-        argNames: ["value"],
+        argNames: [
+          "value"
+        ],
       );
 
   Future<int> setVolume({required double value, dynamic hint}) {
@@ -158,15 +164,18 @@ class MetronomeImpl implements Metronome {
       parseSuccessData: _wire2api_i32,
       parseErrorData: _wire2api_FrbAnyhowException,
       constMeta: kSetVolumeConstMeta,
-      argValues: [value],
+      argValues: [
+        value
+      ],
       hint: hint,
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kSetVolumeConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kSetVolumeConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "set_volume",
-        argNames: ["value"],
+        argNames: [
+          "value"
+        ],
       );
 
   Future<int> setBeatsPerBar({required int value, dynamic hint}) {
@@ -176,15 +185,18 @@ class MetronomeImpl implements Metronome {
       parseSuccessData: _wire2api_i32,
       parseErrorData: _wire2api_FrbAnyhowException,
       constMeta: kSetBeatsPerBarConstMeta,
-      argValues: [value],
+      argValues: [
+        value
+      ],
       hint: hint,
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kSetBeatsPerBarConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kSetBeatsPerBarConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "set_beats_per_bar",
-        argNames: ["value"],
+        argNames: [
+          "value"
+        ],
       );
 
   Future<int> setSound({required MetronomeSoundTypeTag value, dynamic hint}) {
@@ -194,15 +206,18 @@ class MetronomeImpl implements Metronome {
       parseSuccessData: _wire2api_i32,
       parseErrorData: _wire2api_FrbAnyhowException,
       constMeta: kSetSoundConstMeta,
-      argValues: [value],
+      argValues: [
+        value
+      ],
       hint: hint,
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kSetSoundConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kSetSoundConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "set_sound",
-        argNames: ["value"],
+        argNames: [
+          "value"
+        ],
       );
 
   Future<double> getPlayhead({dynamic hint}) {
@@ -216,8 +231,7 @@ class MetronomeImpl implements Metronome {
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kGetPlayheadConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "get_playhead",
         argNames: [],
       );
@@ -233,8 +247,7 @@ class MetronomeImpl implements Metronome {
     ));
   }
 
-  FlutterRustBridgeTaskConstMeta get kStreamErrorsConstMeta =>
-      const FlutterRustBridgeTaskConstMeta(
+  FlutterRustBridgeTaskConstMeta get kStreamErrorsConstMeta => const FlutterRustBridgeTaskConstMeta(
         debugName: "stream_errors",
         argNames: [],
       );
@@ -254,8 +267,7 @@ class MetronomeImpl implements Metronome {
 
   EngineError _wire2api_engine_error(dynamic raw) {
     final arr = raw as List<dynamic>;
-    if (arr.length != 1)
-      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    if (arr.length != 1) throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
     return EngineError(
       message: _wire2api_String(arr[0]),
     );
@@ -318,8 +330,7 @@ class MetronomePlatform extends FlutterRustBridgeBase<MetronomeWire> {
   }
 
   @protected
-  ffi.Pointer<wire_InitializeOptions> api2wire_box_autoadd_initialize_options(
-      InitializeOptions raw) {
+  ffi.Pointer<wire_InitializeOptions> api2wire_box_autoadd_initialize_options(InitializeOptions raw) {
     final ptr = inner.new_box_autoadd_initialize_options_0();
     _api_fill_to_wire_initialize_options(raw, ptr.ref);
     return ptr;
@@ -340,13 +351,11 @@ class MetronomePlatform extends FlutterRustBridgeBase<MetronomeWire> {
 
 // Section: api_fill_to_wire
 
-  void _api_fill_to_wire_box_autoadd_initialize_options(
-      InitializeOptions apiObj, ffi.Pointer<wire_InitializeOptions> wireObj) {
+  void _api_fill_to_wire_box_autoadd_initialize_options(InitializeOptions apiObj, ffi.Pointer<wire_InitializeOptions> wireObj) {
     _api_fill_to_wire_initialize_options(apiObj, wireObj.ref);
   }
 
-  void _api_fill_to_wire_initialize_options(
-      InitializeOptions apiObj, wire_InitializeOptions wireObj) {
+  void _api_fill_to_wire_initialize_options(InitializeOptions apiObj, wire_InitializeOptions wireObj) {
     wireObj.assets_file_path = api2wire_opt_String(apiObj.assetsFilePath);
   }
 }
@@ -364,28 +373,20 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
   late final dartApi = DartApiDl(init_frb_dart_api_dl);
 
   /// Holds the symbol lookup function.
-  final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-      _lookup;
+  final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
-  MetronomeWire(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
+  MetronomeWire(ffi.DynamicLibrary dynamicLibrary) : _lookup = dynamicLibrary.lookup;
 
   /// The symbols are looked up with [lookup].
-  MetronomeWire.fromLookup(
-      ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-          lookup)
-      : _lookup = lookup;
+  MetronomeWire.fromLookup(ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) lookup) : _lookup = lookup;
 
   void metronome_will_terminate() {
     return _metronome_will_terminate();
   }
 
-  late final _metronome_will_terminatePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function()>>(
-          'metronome_will_terminate');
-  late final _metronome_will_terminate =
-      _metronome_will_terminatePtr.asFunction<void Function()>();
+  late final _metronome_will_terminatePtr = _lookup<ffi.NativeFunction<ffi.Void Function()>>('metronome_will_terminate');
+  late final _metronome_will_terminate = _metronome_will_terminatePtr.asFunction<void Function()>();
 
   void store_dart_post_cobject(
     DartPostCObjectFnType ptr,
@@ -395,11 +396,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _store_dart_post_cobjectPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(DartPostCObjectFnType)>>(
-          'store_dart_post_cobject');
-  late final _store_dart_post_cobject = _store_dart_post_cobjectPtr
-      .asFunction<void Function(DartPostCObjectFnType)>();
+  late final _store_dart_post_cobjectPtr = _lookup<ffi.NativeFunction<ffi.Void Function(DartPostCObjectFnType)>>('store_dart_post_cobject');
+  late final _store_dart_post_cobject = _store_dart_post_cobjectPtr.asFunction<void Function(DartPostCObjectFnType)>();
 
   Object get_dart_object(
     int ptr,
@@ -409,11 +407,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _get_dart_objectPtr =
-      _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.UintPtr)>>(
-          'get_dart_object');
-  late final _get_dart_object =
-      _get_dart_objectPtr.asFunction<Object Function(int)>();
+  late final _get_dart_objectPtr = _lookup<ffi.NativeFunction<ffi.Handle Function(ffi.UintPtr)>>('get_dart_object');
+  late final _get_dart_object = _get_dart_objectPtr.asFunction<Object Function(int)>();
 
   void drop_dart_object(
     int ptr,
@@ -423,11 +418,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _drop_dart_objectPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.UintPtr)>>(
-          'drop_dart_object');
-  late final _drop_dart_object =
-      _drop_dart_objectPtr.asFunction<void Function(int)>();
+  late final _drop_dart_objectPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.UintPtr)>>('drop_dart_object');
+  late final _drop_dart_object = _drop_dart_objectPtr.asFunction<void Function(int)>();
 
   int new_dart_opaque(
     Object handle,
@@ -437,11 +429,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _new_dart_opaquePtr =
-      _lookup<ffi.NativeFunction<ffi.UintPtr Function(ffi.Handle)>>(
-          'new_dart_opaque');
-  late final _new_dart_opaque =
-      _new_dart_opaquePtr.asFunction<int Function(Object)>();
+  late final _new_dart_opaquePtr = _lookup<ffi.NativeFunction<ffi.UintPtr Function(ffi.Handle)>>('new_dart_opaque');
+  late final _new_dart_opaque = _new_dart_opaquePtr.asFunction<int Function(Object)>();
 
   int init_frb_dart_api_dl(
     ffi.Pointer<ffi.Void> obj,
@@ -451,11 +440,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _init_frb_dart_api_dlPtr =
-      _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.Pointer<ffi.Void>)>>(
-          'init_frb_dart_api_dl');
-  late final _init_frb_dart_api_dl = _init_frb_dart_api_dlPtr
-      .asFunction<int Function(ffi.Pointer<ffi.Void>)>();
+  late final _init_frb_dart_api_dlPtr = _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.Pointer<ffi.Void>)>>('init_frb_dart_api_dl');
+  late final _init_frb_dart_api_dl = _init_frb_dart_api_dlPtr.asFunction<int Function(ffi.Pointer<ffi.Void>)>();
 
   void wire_initialize(
     int port_,
@@ -467,12 +453,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_initializePtr = _lookup<
-      ffi.NativeFunction<
-          ffi.Void Function(ffi.Int64,
-              ffi.Pointer<wire_InitializeOptions>)>>('wire_initialize');
-  late final _wire_initialize = _wire_initializePtr
-      .asFunction<void Function(int, ffi.Pointer<wire_InitializeOptions>)>();
+  late final _wire_initializePtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Pointer<wire_InitializeOptions>)>>('wire_initialize');
+  late final _wire_initialize = _wire_initializePtr.asFunction<void Function(int, ffi.Pointer<wire_InitializeOptions>)>();
 
   void wire_deinitialize(
     int port_,
@@ -482,11 +464,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_deinitializePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_deinitialize');
-  late final _wire_deinitialize =
-      _wire_deinitializePtr.asFunction<void Function(int)>();
+  late final _wire_deinitializePtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_deinitialize');
+  late final _wire_deinitialize = _wire_deinitializePtr.asFunction<void Function(int)>();
 
   void wire_set_is_playing(
     int port_,
@@ -498,11 +477,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_set_is_playingPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Bool)>>(
-          'wire_set_is_playing');
-  late final _wire_set_is_playing =
-      _wire_set_is_playingPtr.asFunction<void Function(int, bool)>();
+  late final _wire_set_is_playingPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Bool)>>('wire_set_is_playing');
+  late final _wire_set_is_playing = _wire_set_is_playingPtr.asFunction<void Function(int, bool)>();
 
   void wire_set_tempo(
     int port_,
@@ -514,11 +490,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_set_tempoPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Float)>>(
-          'wire_set_tempo');
-  late final _wire_set_tempo =
-      _wire_set_tempoPtr.asFunction<void Function(int, double)>();
+  late final _wire_set_tempoPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Float)>>('wire_set_tempo');
+  late final _wire_set_tempo = _wire_set_tempoPtr.asFunction<void Function(int, double)>();
 
   void wire_set_volume(
     int port_,
@@ -530,11 +503,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_set_volumePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Float)>>(
-          'wire_set_volume');
-  late final _wire_set_volume =
-      _wire_set_volumePtr.asFunction<void Function(int, double)>();
+  late final _wire_set_volumePtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Float)>>('wire_set_volume');
+  late final _wire_set_volume = _wire_set_volumePtr.asFunction<void Function(int, double)>();
 
   void wire_set_beats_per_bar(
     int port_,
@@ -546,11 +516,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_set_beats_per_barPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
-          'wire_set_beats_per_bar');
-  late final _wire_set_beats_per_bar =
-      _wire_set_beats_per_barPtr.asFunction<void Function(int, int)>();
+  late final _wire_set_beats_per_barPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>('wire_set_beats_per_bar');
+  late final _wire_set_beats_per_bar = _wire_set_beats_per_barPtr.asFunction<void Function(int, int)>();
 
   void wire_set_sound(
     int port_,
@@ -562,11 +529,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_set_soundPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>(
-          'wire_set_sound');
-  late final _wire_set_sound =
-      _wire_set_soundPtr.asFunction<void Function(int, int)>();
+  late final _wire_set_soundPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Int32)>>('wire_set_sound');
+  late final _wire_set_sound = _wire_set_soundPtr.asFunction<void Function(int, int)>();
 
   void wire_get_playhead(
     int port_,
@@ -576,11 +540,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_get_playheadPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_get_playhead');
-  late final _wire_get_playhead =
-      _wire_get_playheadPtr.asFunction<void Function(int)>();
+  late final _wire_get_playheadPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_get_playhead');
+  late final _wire_get_playhead = _wire_get_playheadPtr.asFunction<void Function(int)>();
 
   void wire_stream_errors(
     int port_,
@@ -590,22 +551,15 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _wire_stream_errorsPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
-          'wire_stream_errors');
-  late final _wire_stream_errors =
-      _wire_stream_errorsPtr.asFunction<void Function(int)>();
+  late final _wire_stream_errorsPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_stream_errors');
+  late final _wire_stream_errors = _wire_stream_errorsPtr.asFunction<void Function(int)>();
 
   ffi.Pointer<wire_InitializeOptions> new_box_autoadd_initialize_options_0() {
     return _new_box_autoadd_initialize_options_0();
   }
 
-  late final _new_box_autoadd_initialize_options_0Ptr = _lookup<
-          ffi.NativeFunction<ffi.Pointer<wire_InitializeOptions> Function()>>(
-      'new_box_autoadd_initialize_options_0');
-  late final _new_box_autoadd_initialize_options_0 =
-      _new_box_autoadd_initialize_options_0Ptr
-          .asFunction<ffi.Pointer<wire_InitializeOptions> Function()>();
+  late final _new_box_autoadd_initialize_options_0Ptr = _lookup<ffi.NativeFunction<ffi.Pointer<wire_InitializeOptions> Function()>>('new_box_autoadd_initialize_options_0');
+  late final _new_box_autoadd_initialize_options_0 = _new_box_autoadd_initialize_options_0Ptr.asFunction<ffi.Pointer<wire_InitializeOptions> Function()>();
 
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_0(
     int len,
@@ -615,12 +569,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _new_uint_8_list_0Ptr = _lookup<
-          ffi
-          .NativeFunction<ffi.Pointer<wire_uint_8_list> Function(ffi.Int32)>>(
-      'new_uint_8_list_0');
-  late final _new_uint_8_list_0 = _new_uint_8_list_0Ptr
-      .asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
+  late final _new_uint_8_list_0Ptr = _lookup<ffi.NativeFunction<ffi.Pointer<wire_uint_8_list> Function(ffi.Int32)>>('new_uint_8_list_0');
+  late final _new_uint_8_list_0 = _new_uint_8_list_0Ptr.asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
 
   void free_WireSyncReturn(
     WireSyncReturn ptr,
@@ -630,11 +580,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _free_WireSyncReturnPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(WireSyncReturn)>>(
-          'free_WireSyncReturn');
-  late final _free_WireSyncReturn =
-      _free_WireSyncReturnPtr.asFunction<void Function(WireSyncReturn)>();
+  late final _free_WireSyncReturnPtr = _lookup<ffi.NativeFunction<ffi.Void Function(WireSyncReturn)>>('free_WireSyncReturn');
+  late final _free_WireSyncReturn = _free_WireSyncReturnPtr.asFunction<void Function(WireSyncReturn)>();
 
   int JNI_OnLoad(
     int vm,
@@ -646,11 +593,8 @@ class MetronomeWire implements FlutterRustBridgeWireBase {
     );
   }
 
-  late final _JNI_OnLoadPtr = _lookup<
-          ffi.NativeFunction<ffi.Int Function(ffi.Int, ffi.Pointer<ffi.Void>)>>(
-      'JNI_OnLoad');
-  late final _JNI_OnLoad =
-      _JNI_OnLoadPtr.asFunction<int Function(int, ffi.Pointer<ffi.Void>)>();
+  late final _JNI_OnLoadPtr = _lookup<ffi.NativeFunction<ffi.Int Function(ffi.Int, ffi.Pointer<ffi.Void>)>>('JNI_OnLoad');
+  late final _JNI_OnLoad = _JNI_OnLoadPtr.asFunction<int Function(int, ffi.Pointer<ffi.Void>)>();
 }
 
 final class _Dart_Handle extends ffi.Opaque {}
@@ -666,7 +610,5 @@ final class wire_InitializeOptions extends ffi.Struct {
   external ffi.Pointer<wire_uint_8_list> assets_file_path;
 }
 
-typedef DartPostCObjectFnType = ffi.Pointer<
-    ffi.NativeFunction<
-        ffi.Bool Function(DartPort port_id, ffi.Pointer<ffi.Void> message)>>;
+typedef DartPostCObjectFnType = ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(DartPort port_id, ffi.Pointer<ffi.Void> message)>>;
 typedef DartPort = ffi.Int64;
