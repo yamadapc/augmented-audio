@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone-midi"
-version = "1.10.0"
+version = "1.11.0"
 edition = "2018"
 description = "Stand-alone MIDI hosting for a VST host or an `audio-processor-traits` implementor"
 license = "MIT"
