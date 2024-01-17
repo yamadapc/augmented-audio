@@ -9,7 +9,7 @@ repository = "https://github.com/yamadapc/augmented-audio"
 license = "MIT"
 
 [dependencies]
-augmented-midi = { version = "1.6.0", path = "../../augmented/data/augmented-midi" }
+augmented-midi = { version = "1.7.0", path = "../../augmented/data/augmented-midi" }
 midir = "0.8"
 thiserror = "^1.0.25"
 wisual-logger = "^0.1.2"
