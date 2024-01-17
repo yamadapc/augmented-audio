@@ -36,7 +36,7 @@ audio-processor-traits = { path = "../audio/audio-processor-traits" , version = 
 audio-processor-utility = { path = "../audio/audio-processor-utility" , version = "2.3.0" }
 audio-processor-analysis = { path = "../audio/audio-processor-analysis" , version = "2.3.0" }
 audio-processor-bitcrusher = { path = "../audio/audio-processor-bitcrusher" , version = "2.3.0" }
-audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" , version = "2.2.0" }
+audio-processor-dynamics = { path = "../audio/audio-processor-dynamics" , version = "2.3.0" }
 audio-processor-time = { path = "../audio/audio-processor-time" , version = "1.4.0" }
 audio-processor-file = { path = "../audio/audio-processor-file" , version = "3.2.0" }
 audio-processor-metronome = { path = "../audio/audio-processor-metronome" , version = "3.2.0" }
