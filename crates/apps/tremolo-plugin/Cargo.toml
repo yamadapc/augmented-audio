@@ -29,7 +29,7 @@ audio-garbage-collector = { version = "1.2.0", path = "../../augmented/audio/aud
 augmented_oscillator = { path = "../../augmented/audio/oscillator", version = "1.4.0" }
 wisual-logger = { version = "^0.1", path = "../../augmented/ops/wisual-logger" }
 generic-parameters-editor = { path = "../../augmented/gui/generic-parameters-editor" }
-audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits", version = "4.1.0" }
+audio-processor-traits = { path = "../../augmented/audio/audio-processor-traits", version = "4.2.0" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cacao = "0.3"

@@ -1,3 +1,7 @@
+## v4.2.0
+
+* [`7b7d2611`](https://github.com/yamadapc/augmented-audio/commits/7b7d2611) augmented_oscillator@1.4.0 (Minor)
+
 ## v4.1.0
 
 * [`4b6b95b203fa`](https://github.com/yamadapc/augmented-audio/commits/4b6b95b203fa) augmented_oscillator@1.3.0 (Minor)
