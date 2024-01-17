@@ -54,7 +54,7 @@ mockall = "0.11.1"
 
 [dev-dependencies]
 criterion = { version = "0.4", features = ["html_reports"] }
-audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "2.5.0" }
+audio-processor-testing-helpers = { path = "../../../augmented/testing/audio-processor-testing-helpers" , version = "2.6.0" }
 tempdir = "0.3.7"
 
 [[bench]]

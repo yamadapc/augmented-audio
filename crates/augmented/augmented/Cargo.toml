@@ -70,7 +70,7 @@ audio-plugin-logger = { path = "../ops/audio-plugin-logger" }
 wisual-logger = { version = "0.1", path = "../ops/wisual-logger" }
 
 # testing
-audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" , version = "2.5.0" }
+audio-processor-testing-helpers = { path = "../testing/audio-processor-testing-helpers" , version = "2.6.0" }
 
 # plug-ins
 vst = { version = "0.3", path = "../../vendor/vst" }

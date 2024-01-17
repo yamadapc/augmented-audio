@@ -1,3 +1,8 @@
+## v2.6.0
+
+* [`67a393ae`](https://github.com/yamadapc/augmented-audio/commits/67a393ae) audio-processor-traits@4.2.0 (Minor)
+* [`7b7d2611`](https://github.com/yamadapc/augmented-audio/commits/7b7d2611) augmented_oscillator@1.4.0 (Minor)
+
 ## v2.5.0
 
 * [`854943db8452`](https://github.com/yamadapc/augmented-audio/commits/854943db8452) audio-processor-traits@4.1.0 (Minor)

@@ -20,7 +20,7 @@ augmented-audio-volume = { path = "../../data/audio-volume" , version = "0.7.0" 
 
 [dev-dependencies]
 audio-processor-file = { version = "3.1.0", path = "../audio-processor-file" }
-audio-processor-testing-helpers = { version = "2.5.0", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "2.6.0", path = "../../testing/audio-processor-testing-helpers" }
 audio-processor-standalone = { version = "3.2.0", path = "../../application/audio-processor-standalone" }
 
 [package.metadata.augmented]
