@@ -8,7 +8,7 @@ homepage = "https://github.com/yamadapc/augmented-audio"
 repository = "https://github.com/yamadapc/augmented-audio"
 
 [dependencies]
-atomic-queue = { path = "../../data/atomic-queue" , version = "2.0.0" }
+atomic-queue = { path = "../../data/atomic-queue" , version = "2.1.0" }
 circular-data-structures = { path = "../../data/circular-data-structures" }
 
 [dev-dependencies]
