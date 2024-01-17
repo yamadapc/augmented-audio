@@ -686,7 +686,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-standalone-gui"
-version = "0.9.0"
+version = "0.10.0"
 dependencies = [
  "audio-processor-iced-design-system",
  "audio-processor-traits",
