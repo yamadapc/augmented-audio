@@ -1,3 +1,9 @@
+## v2.3.0
+
+* [`7e2a850a`](https://github.com/yamadapc/augmented-audio/commits/7e2a850a) audio-processor-testing-helpers@2.6.0 (Minor)
+* [`67a393ae`](https://github.com/yamadapc/augmented-audio/commits/67a393ae) audio-processor-traits@4.2.0 (Minor)
+* [`d1762448`](https://github.com/yamadapc/augmented-audio/commits/d1762448) Try to migrate to use lfs for more files (Minor)
+
 ## v2.2.0
 
 * [`fc8bb5f0f3ae`](https://github.com/yamadapc/augmented-audio/commits/fc8bb5f0f3ae) audio-processor-testing-helpers@2.5.0 (Minor)

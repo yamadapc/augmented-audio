@@ -36,7 +36,7 @@ rand = { version = "0.8.5", features = ["small_rng"] }
 nalgebra = "0.31.0"
 augmented_oscillator = { version = "1.4.0", path = "../oscillator" }
 augmented-atomics = { version = "0.2.0", path = "../../data/atomics" }
-augmented-dsp-filters = { version = "2.2.0", path = "../../dsp/dsp-filters" }
+augmented-dsp-filters = { version = "2.3.0", path = "../../dsp/dsp-filters" }
 
 [dev-dependencies]
 audio-processor-standalone = { version = "3.3.0", path = "../../application/audio-processor-standalone", features = ["gui"] }
