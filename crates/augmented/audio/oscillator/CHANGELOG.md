@@ -1,3 +1,7 @@
+## v1.4.0
+
+* [`d1762448`](https://github.com/yamadapc/augmented-audio/commits/d1762448) Try to migrate to use lfs for more files (Minor)
+
 ## v1.3.0
 
 * [`b92591f9b764`](https://github.com/yamadapc/augmented-audio/commits/b92591f9b764) augmented-atomics@0.2.0 (Minor)
