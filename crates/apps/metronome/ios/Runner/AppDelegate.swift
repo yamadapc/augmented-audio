@@ -6,7 +6,11 @@ func configureAudioSession() {
   let audioSession = AVAudioSession.sharedInstance()
   do {
     // Set the audio session category and mode.
-    try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+    try audioSession.setCategory(
+      .playback,
+      mode: .default,
+      options: [.mixWithOthers, .allowBluetooth, .allowAirPlay]
+    )
   } catch {
     print("Failed to set the audio session configuration")
   }
