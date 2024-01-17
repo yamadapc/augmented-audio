@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-utility"
-version = "2.2.0"
+version = "2.3.0"
 description = "Utility AudioProcessor implementations (pan, gain, mono, noise)"
 edition = "2018"
 license = "MIT"
