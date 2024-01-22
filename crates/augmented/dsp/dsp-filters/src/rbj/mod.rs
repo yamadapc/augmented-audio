@@ -138,6 +138,12 @@ where
         self.setup();
     }
 
+    /// Change the bandwidth
+    pub fn set_band_width(&mut self, band_width: SampleType) {
+        self.q = band_width;
+        self.setup();
+    }
+
     /// Change the center-frequency
     pub fn set_center_frequency(&mut self, center_frequency: SampleType) {
         self.cutoff = center_frequency;
@@ -200,6 +206,21 @@ where
                     self.slope,
                 );
             }
+            FilterType::AllPass => {
+                self.filter.setup_all_pass(
+                    self.sample_rate, 
+                    self.cutoff, 
+                    self.q
+                );
+            }
+            FilterType::PeakEq => {
+                self.filter.setup_peaking_eq(
+                    self.sample_rate,
+                    self.cutoff, 
+                    self.gain_db, 
+                    self.q
+                );
+            }
         }
     }
 }
@@ -254,6 +275,8 @@ mod test {
             ("band-stop", BandStop),
             ("low-shelf", LowShelf),
             ("high-shelf", HighShelf),
+            ("peaking-eq", PeakEq),
+            ("all-pass", AllPass),
         ];
 
         for (filter_name, filter_type) in filters {
