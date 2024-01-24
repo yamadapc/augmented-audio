@@ -38,7 +38,9 @@ pub enum FilterType {
     BandStop,
     LowShelf,
     HighShelf,
-    // TODO: BandShelf, AllPass,
+    AllPass,
+    PeakEq,
+    // TODO: BandShelf
 }
 
 /// Calculate low-pass coefficients
@@ -214,6 +216,58 @@ pub fn setup_high_shelf<Sample: Float + FloatConst + Pow<Sample, Output = Sample
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
+/// Calculate all-pass coefficients
+pub fn setup_all_pass<Sample: Float + FloatConst>(
+    coefficients: &mut BiquadCoefficients<Sample>,
+    sample_rate: Sample,
+    center_frequency: Sample,
+    q: Sample,
+) {
+    let one: Sample = Sample::from(1.0).unwrap();
+    let two: Sample = Sample::from(2.0).unwrap();
+
+    let w0: Sample = two * Sample::PI() * center_frequency / sample_rate;
+    let cs: Sample = w0.cos();
+    let sn: Sample = w0.sin();
+    let al: Sample = sn / (two * q);
+    let b0: Sample = one - al;
+    let b1: Sample = -two * cs;
+    let b2: Sample = one + al;
+    let a0: Sample = one + al;
+    let a1: Sample = -two * cs;
+    let a2: Sample = one - al;
+
+    coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
+}
+
+// Calculate peaking-eq coefficients
+pub fn setup_peaking_eq<Sample: Float + FloatConst + Pow<Sample, Output = Sample>>(
+    coefficients: &mut BiquadCoefficients<Sample>,
+    sample_rate: Sample,
+    center_frequency: Sample,
+    gain_db: Sample,
+    band_width: Sample,
+){
+    let gain: Sample = Sample::from(10.0)
+        .unwrap()
+        .pow(gain_db / Sample::from(40.0).unwrap());
+    let one: Sample = Sample::from(1.0).unwrap();
+    let two: Sample = Sample::from(2.0).unwrap();
+
+    let w0: Sample = two * Sample::PI() * center_frequency / sample_rate;
+    let cs: Sample = w0.cos();
+    let sn: Sample = w0.sin();
+    let al: Sample = sn * Sample::from(two.ln() * band_width * w0 / (two * sn)).unwrap().sinh();
+    let b0: Sample = one + al * gain;
+    let b1: Sample = -two * cs;
+    let b2: Sample = one - al * gain;
+    let a0: Sample = one + al / gain;
+    let a1: Sample = -two * cs;
+    let a2: Sample = one - al / gain;
+
+    coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
+}
+
 /// Holds the state and coefficients for a filter.
 pub struct Filter<Sample: Float> {
     pub coefficients: BiquadCoefficients<Sample>,
@@ -330,6 +384,38 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
             cutoff_frequency,
             gain_db,
             shelf_slope,
+        );
+    }
+    
+    /// Set-up the filter as all-pass with a certain center-frequency and Q
+    pub fn setup_all_pass(
+        &mut self,
+        sample_rate: Sample,
+        center_frequency: Sample,
+        q: Sample,
+    ) {
+        setup_all_pass(
+            &mut self.coefficients,
+            sample_rate, 
+            center_frequency, 
+            q
+        );
+    }
+
+    /// Setup the filter as peaking-eq with a center frequency, gain and band-width
+    pub fn setup_peaking_eq(
+        &mut self,
+        sample_rate: Sample,
+        center_frequency: Sample,
+        gain_db: Sample,
+        band_width: Sample,
+    ) {
+        setup_peaking_eq(
+            &mut self.coefficients, 
+            sample_rate, 
+            center_frequency, 
+            gain_db, 
+            band_width
         );
     }
 
