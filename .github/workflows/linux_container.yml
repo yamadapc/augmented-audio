@@ -36,6 +36,7 @@ jobs:
         with:
           version: "v0.4.0"
 
+      - uses: subosito/flutter-action@v1
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux3"
@@ -117,6 +118,7 @@ jobs:
         lfs: true
 
     - run: echo "/root/.cargo/bin" >> $GITHUB_PATH
+    - uses: subosito/flutter-action@v1
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.2
       with:
