@@ -386,7 +386,8 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
             shelf_slope,
         );
     }
-
+    
+    /// Set-up the filter as all-pass with a certain center-frequency and Q
     pub fn setup_all_pass(
         &mut self,
         sample_rate: Sample,
@@ -401,6 +402,7 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
         );
     }
 
+    /// Setup the filter as peaking-eq with a center frequency, gain and band-width
     pub fn setup_peaking_eq(
         &mut self,
         sample_rate: Sample,
