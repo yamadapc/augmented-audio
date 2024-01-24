@@ -1,3 +1,9 @@
+## v2.4.0
+
+* [`32513f4b`](https://github.com/yamadapc/augmented-audio/commits/32513f4b) Update with band-shelf rename (Minor)
+* [`3f0bd2be`](https://github.com/yamadapc/augmented-audio/commits/3f0bd2be) Added method comment (Minor)
+* [`61f50a81`](https://github.com/yamadapc/augmented-audio/commits/61f50a81) Added Peaking-EQ and Allpass filters (Minor)
+
 ## v2.3.0
 
 * [`7e2a850a`](https://github.com/yamadapc/augmented-audio/commits/7e2a850a) audio-processor-testing-helpers@2.6.0 (Minor)
