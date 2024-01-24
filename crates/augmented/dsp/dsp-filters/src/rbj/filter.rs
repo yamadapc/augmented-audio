@@ -39,8 +39,7 @@ pub enum FilterType {
     LowShelf,
     HighShelf,
     AllPass,
-    PeakEq,
-    // TODO: BandShelf
+    BandShelf,
 }
 
 /// Calculate low-pass coefficients
@@ -240,14 +239,14 @@ pub fn setup_all_pass<Sample: Float + FloatConst>(
     coefficients.set_coefficients(a0, a1, a2, b0, b1, b2);
 }
 
-// Calculate peaking-eq coefficients
-pub fn setup_peaking_eq<Sample: Float + FloatConst + Pow<Sample, Output = Sample>>(
+// Calculate band-shelf coefficients
+pub fn setup_band_shelf<Sample: Float + FloatConst + Pow<Sample, Output = Sample>>(
     coefficients: &mut BiquadCoefficients<Sample>,
     sample_rate: Sample,
     center_frequency: Sample,
     gain_db: Sample,
     band_width: Sample,
-){
+) {
     let gain: Sample = Sample::from(10.0)
         .unwrap()
         .pow(gain_db / Sample::from(40.0).unwrap());
@@ -257,7 +256,10 @@ pub fn setup_peaking_eq<Sample: Float + FloatConst + Pow<Sample, Output = Sample
     let w0: Sample = two * Sample::PI() * center_frequency / sample_rate;
     let cs: Sample = w0.cos();
     let sn: Sample = w0.sin();
-    let al: Sample = sn * Sample::from(two.ln() * band_width * w0 / (two * sn)).unwrap().sinh();
+    let al: Sample = sn
+        * Sample::from(two.ln() * band_width * w0 / (two * sn))
+            .unwrap()
+            .sinh();
     let b0: Sample = one + al * gain;
     let b1: Sample = -two * cs;
     let b2: Sample = one - al * gain;
@@ -386,36 +388,26 @@ impl<Sample: Pow<Sample, Output = Sample> + Debug + Float + FloatConst> Filter<S
             shelf_slope,
         );
     }
-    
+
     /// Set-up the filter as all-pass with a certain center-frequency and Q
-    pub fn setup_all_pass(
-        &mut self,
-        sample_rate: Sample,
-        center_frequency: Sample,
-        q: Sample,
-    ) {
-        setup_all_pass(
-            &mut self.coefficients,
-            sample_rate, 
-            center_frequency, 
-            q
-        );
+    pub fn setup_all_pass(&mut self, sample_rate: Sample, center_frequency: Sample, q: Sample) {
+        setup_all_pass(&mut self.coefficients, sample_rate, center_frequency, q);
     }
 
-    /// Setup the filter as peaking-eq with a center frequency, gain and band-width
-    pub fn setup_peaking_eq(
+    /// Setup the filter as a band-shelf with a center frequency, gain and band-width
+    pub fn setup_band_shelf(
         &mut self,
         sample_rate: Sample,
         center_frequency: Sample,
         gain_db: Sample,
         band_width: Sample,
     ) {
-        setup_peaking_eq(
-            &mut self.coefficients, 
-            sample_rate, 
-            center_frequency, 
-            gain_db, 
-            band_width
+        setup_band_shelf(
+            &mut self.coefficients,
+            sample_rate,
+            center_frequency,
+            gain_db,
+            band_width,
         );
     }
 
