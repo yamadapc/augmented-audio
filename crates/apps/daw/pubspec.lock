@@ -176,6 +176,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.18.0"
+  colorize:
+    dependency: transitive
+    description:
+      name: colorize
+      sha256: "584746cd6ba1cba0633b6720f494fe6f9601c4170f0666c1579d2aa2a61071ba"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
   convert:
     dependency: transitive
     description:
@@ -305,10 +313,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_rust_bridge
-      sha256: "7c5e94d037ccb0de7b5f7de3ff2491548d292b5aad01b01f5a5703f8aac9389b"
+      sha256: befa7633a40d5895df989d9795f796478e0708aed93f64b9156997bc5a0b3ae6
       url: "https://pub.dev"
     source: hosted
-    version: "1.82.4"
+    version: "1.75.0"
   flutter_svg:
     dependency: transitive
     description:
@@ -587,10 +595,10 @@ packages:
     dependency: transitive
     description:
       name: puppeteer
-      sha256: "59e723cc5b69537159a7c34efd645dc08a6a1ac4647d7d7823606802c0f93cdb"
+      sha256: dd49117259867d0ce0de33ddd95628fb70cff94581a6432c08272447b8dd1d27
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "2.24.0"
   quiver:
     dependency: transitive
     description:
@@ -652,14 +660,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
-  sprintf:
-    dependency: transitive
-    description:
-      name: sprintf
-      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
-      url: "https://pub.dev"
-    source: hosted
-    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -736,10 +736,10 @@ packages:
     dependency: transitive
     description:
       name: uuid
-      sha256: df5a4d8f22ee4ccd77f8839ac7cb274ebc11ef9adcce8b92be14b797fe889921
+      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.1"
+    version: "3.0.7"
   vector_math:
     dependency: transitive
     description:
