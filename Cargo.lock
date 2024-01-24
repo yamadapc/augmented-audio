@@ -1095,7 +1095,7 @@ dependencies = [
  "uuid 0.8.2",
  "winapi 0.3.9",
  "x11",
- "xcb 1.3.0",
+ "xcb",
  "xcb-util",
 ]
 
@@ -6487,7 +6487,7 @@ dependencies = [
  "base64 0.21.5",
  "indexmap 2.1.0",
  "line-wrap",
- "quick-xml 0.31.0",
+ "quick-xml",
  "serde",
  "time",
 ]
@@ -6784,15 +6784,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f6d64c71eb498fe9eae14ce4ec935c555749aef511cca85b5568910d6e48001"
 dependencies = [
  "bytemuck",
-]
-
-[[package]]
-name = "quick-xml"
-version = "0.30.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eff6510e86862b57b210fd8cbe8ed3f0d7d600b9c2863cd4549a2e033c66e956"
-dependencies = [
- "memchr",
 ]
 
 [[package]]
@@ -8696,7 +8687,7 @@ version = "1.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97fee6b57c6a41524a810daee9286c02d7752c4253064d0b05472833a438f675"
 dependencies = [
- "cfg-if 0.1.10",
+ "cfg-if 1.0.0",
  "rand 0.8.5",
  "static_assertions",
 ]
@@ -9970,17 +9961,6 @@ checksum = "62056f63138b39116f82a540c983cc11f1c90cd70b3d492a70c25eaa50bd22a6"
 dependencies = [
  "libc",
  "log",
-]
-
-[[package]]
-name = "xcb"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d27b37e69b8c05bfadcd968eb1a4fe27c9c52565b727f88512f43b89567e262"
-dependencies = [
- "bitflags 1.3.2",
- "libc",
- "quick-xml 0.30.0",
  "x11",
 ]
 
@@ -9991,7 +9971,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43893e47f27bf7d81d489feef3a0e34a457e90bc314b7e74ad9bb3980e4c1c48"
 dependencies = [
  "libc",
- "xcb 0.9.0",
+ "xcb",
 ]
 
 [[package]]
