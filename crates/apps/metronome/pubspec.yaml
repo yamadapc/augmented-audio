@@ -21,7 +21,7 @@ dependencies:
   flutter_local_notifications: ^15.1.0+1
   flutter_mobx: ^2.0.6+5
   flutter_platform_widgets: ^6.0.2
-  flutter_rust_bridge: ^1.78.0
+  flutter_rust_bridge: 1.82.4
   flutter_timezone: ^1.0.4
   graphx: ^1.0.12
   intl: ^0.17.0
