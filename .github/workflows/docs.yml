@@ -28,7 +28,7 @@ jobs:
         with:
           shared-key: "rust-cache-macos-docs"
       - name: Build documentation
-        run: cargo doc
+        run: cargo doc --no-deps
         env:
           SCCACHE_GHA_ENABLED: true
           RUSTC_WRAPPER: sccache
