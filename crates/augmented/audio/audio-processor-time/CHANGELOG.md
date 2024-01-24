@@ -1,3 +1,7 @@
+## v1.5.0
+
+* [`df4b2845`](https://github.com/yamadapc/augmented-audio/commits/df4b2845) augmented-dsp-filters@2.4.0 (Minor)
+
 ## v1.4.0
 
 * [`4e347de1`](https://github.com/yamadapc/augmented-audio/commits/4e347de1) augmented-dsp-filters@2.3.0 (Minor)
