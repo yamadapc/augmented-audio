@@ -2,6 +2,7 @@
 name = "augmented-audio-wave"
 version = "0.1.0-alpha.1"
 edition = "2021"
+license = "MIT"
 
 [dependencies]
 audio-processor-traits = { version = "4.2.0", path = "../../audio/audio-processor-traits" }
