@@ -31,6 +31,10 @@ image = "0.24.3"
 clap = "2.34.0"
 piet = "0.5.0"
 piet-common = { version = "0.5.0", features = ["png"] }
+augmented_oscillator = { version = "1.0.0-alpha.6", path = "../oscillator" }
+
+plotters = "0.3.1"
+plotters-svg = "0.3.1"
 
 [package.metadata.augmented]
 private = false
