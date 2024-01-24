@@ -58,7 +58,7 @@ audio-garbage-collector = { version = "1.2.0", path = "../../../augmented/audio/
 audio-processor-standalone = { version = "3.3.0", path = "../../../augmented/application/audio-processor-standalone" }
 audio-processor-standalone-midi = { path = "../../../augmented/application/audio-processor-standalone-midi", version = "1.11.0", features = ["actix"] }
 audio-processor-standalone-osc = { path = "../../../augmented/application/audio-processor-standalone-osc" }
-audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" , version = "2.3.0" }
+audio-processor-graph = { path = "../../../augmented/audio/audio-processor-graph" , version = "2.4.0" }
 audio-processor-traits = { version = "4.2.0", path = "../../../augmented/audio/audio-processor-traits" }
 wisual-logger = { version = "0.1", path = "../../../augmented/ops/wisual-logger" }
 audio-processor-file = { version = "3.2.0", path = "../../../augmented/audio/audio-processor-file", features = ["samplerate"] }

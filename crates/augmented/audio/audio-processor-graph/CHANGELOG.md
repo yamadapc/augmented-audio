@@ -1,3 +1,8 @@
+## v2.4.0
+
+* [`289ad3c1`](https://github.com/yamadapc/augmented-audio/commits/289ad3c1) audio-processor-time@1.5.0 (Minor)
+* [`df4b2845`](https://github.com/yamadapc/augmented-audio/commits/df4b2845) augmented-dsp-filters@2.4.0 (Minor)
+
 ## v2.3.0
 
 * [`4b6802e6`](https://github.com/yamadapc/augmented-audio/commits/4b6802e6) audio-processor-time@1.4.0 (Minor)
