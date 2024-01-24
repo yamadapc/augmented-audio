@@ -23,6 +23,7 @@ jobs:
         uses: mozilla-actions/sccache-action@v0.0.2
         with:
           version: "v0.4.0"
+      - uses: subosito/flutter-action@v1
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos-docs"
