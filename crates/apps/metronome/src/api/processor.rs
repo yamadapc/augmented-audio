@@ -1,7 +1,3 @@
-use std::collections::HashMap;
-use std::hash::Hash;
-use std::path::PathBuf;
-
 // = copyright ====================================================================
 // Simple Metronome: macOS Metronome app
 // Copyright (C) 2022  Pedro Tacla Yamada
@@ -19,6 +15,10 @@ use std::path::PathBuf;
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // = /copyright ===================================================================
+use std::collections::HashMap;
+use std::hash::Hash;
+use std::path::PathBuf;
+
 use audio_garbage_collector::Shared;
 use audio_processor_metronome::{
     DefaultMetronomePlayhead, MetronomeProcessor, MetronomeProcessorHandle, MetronomeSound,
