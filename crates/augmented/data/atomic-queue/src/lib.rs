@@ -310,6 +310,32 @@ mod test {
     }
 
     #[test]
+    fn test_queue_drops_items() {
+        struct Item {
+            drop_count: Arc<AtomicUsize>,
+        }
+        impl Drop for Item {
+            fn drop(&mut self) {
+                self.drop_count.fetch_add(1, Ordering::Relaxed);
+            }
+        }
+        let drop_count = Arc::new(AtomicUsize::new(0));
+        let queue: Queue<Item> = Queue::new(10);
+        queue.push(Item {
+            drop_count: drop_count.clone(),
+        });
+        queue.push(Item {
+            drop_count: drop_count.clone(),
+        });
+        queue.push(Item {
+            drop_count: drop_count.clone(),
+        });
+        drop(queue);
+
+        assert_eq!(drop_count.load(Ordering::Relaxed), 3);
+    }
+
+    #[test]
     fn test_push_element_to_queue_increments_length() {
         let queue = Queue::<MockPtr>::new(10);
         assert_eq!(queue.len(), 0);
