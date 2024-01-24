@@ -7,12 +7,12 @@ class TrackEffectsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return const SizedBox(
       width: double.infinity,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: IntrinsicWidth(
-          child: Row(children: const [
+          child: Row(children: [
             SizedBox(width: 300, child: AudioEffectView()),
             SizedBox(width: 300, child: AudioEffectView()),
             SizedBox(width: 300, child: AudioEffectView()),

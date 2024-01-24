@@ -141,8 +141,8 @@ class PanelTabsHeaderView extends StatelessWidget {
         child: IconButton(
           alignment: Alignment.center,
           padding: const EdgeInsets.all(0),
-          icon: Stack(
-            children: const [
+          icon: const Stack(
+            children: [
               Positioned(
                 left: 8,
                 bottom: 5,
