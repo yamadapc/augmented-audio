@@ -46,6 +46,8 @@ jobs:
       - name: Test with coverage
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+          COVERAGE_BOT_URL: ${{ secrets.COVERAGE_BOT_URL }}
+          COVERAGE_BOT_TOKEN: ${{ secrets.COVERAGE_BOT_TOKEN }}
         run: |
           cargo tarpaulin --skip-clean --workspace \
               --features story \
