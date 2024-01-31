@@ -99,7 +99,7 @@ jobs:
               --exclude webview-holder \
               --exclude visualisation_ \
               --exclude macos-bundle-resources
-          curl -H "Authorization: Bearer $COVERAGE_BOT_TOKEN" -F 'data=@./tarpaulin-report/lcov.info' -F "commit=$(git rev-parse HEAD)" $COVERAGE_BOT_URL
+          curl -H "Authorization: Bearer $COVERAGE_BOT_TOKEN" -F 'data=@./tarpaulin-report/lcov.info' -F "commit=$(git rev-parse HEAD)" -F "pwd=$(pwd)" $COVERAGE_BOT_URL
 
       - name: Upload tarpaulin report
         uses: actions/upload-artifact@v2
