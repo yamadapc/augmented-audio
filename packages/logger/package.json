@@ -1,8 +1,12 @@
 {
   "name": "@wisual/logger",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "sideEffects": false,
   "main": "lib/index.js",
+  "files": [
+    "lib/**/*",
+    "src/**/*"
+  ],
   "license": "MIT",
   "homepage": "https://github.com/yamadapc/augmented-audio/",
   "repository": "https://github.com/yamadapc/augmented-audio/",
