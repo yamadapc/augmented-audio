@@ -434,7 +434,7 @@ checksum = "c59bdb34bc650a32731b31bd8f0829cc15d24a708ee31559e0bb34f2bc320cba"
 
 [[package]]
 name = "atomic-queue"
-version = "2.1.0"
+version = "2.2.0"
 dependencies = [
  "criterion",
  "log",

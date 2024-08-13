@@ -41,7 +41,7 @@ audio-processor-standalone-gui = { path = "../audio-processor-standalone-gui", o
 audio-processor-standalone-midi = { version = "1.6.0", path = "../audio-processor-standalone-midi", optional = true }
 
 [dev-dependencies]
-atomic-queue = { version = "2.1.0", path = "../../data/atomic-queue" }
+atomic-queue = { version = "2.2.0", path = "../../data/atomic-queue" }
 audio-processor-testing-helpers = { version = "2.6.0", path = "../../testing/audio-processor-testing-helpers" }
 mockall = "0.11.1"
 

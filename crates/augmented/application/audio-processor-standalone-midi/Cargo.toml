@@ -20,7 +20,7 @@ log = "^0.4.14"
 vst = { version = "0.3", path = "../../../vendor/vst", optional = true }
 
 # augmented
-atomic-queue = { version = "2.1.0", path = "../../data/atomic-queue" }
+atomic-queue = { version = "2.2.0", path = "../../data/atomic-queue" }
 audio-processor-traits = { version = "4.2.0", path = "../../audio/audio-processor-traits", features = ["vst"] }
 audio-garbage-collector = { path = "../../audio/audio-garbage-collector" , version = "1.2.0" }
 
