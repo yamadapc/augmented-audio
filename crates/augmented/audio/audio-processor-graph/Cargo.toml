@@ -19,7 +19,7 @@ augmented_oscillator = { path = "../oscillator" , version = "1.4.0" }
 [dev-dependencies]
 audio-processor-testing-helpers = { path = "../../testing/audio-processor-testing-helpers" , version = "2.6.0" }
 audio-processor-utility = { path = "../audio-processor-utility" , version = "2.4.0" }
-audio-processor-time = { path = "../audio-processor-time" , version = "1.5.0" }
+audio-processor-time = { path = "../audio-processor-time" , version = "1.6.0" }
 augmented-dsp-filters = { path = "../../dsp/dsp-filters" , version = "2.4.0" }
 audio-processor-standalone = { path = "../../application/audio-processor-standalone", version = "3.4.0" }
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }

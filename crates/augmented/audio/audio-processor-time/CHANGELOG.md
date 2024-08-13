@@ -1,3 +1,7 @@
+## v1.6.0
+
+* [`6a7d0db3`](https://github.com/yamadapc/augmented-audio/commits/6a7d0db3) audio-processor-standalone@3.4.0 (Minor)
+
 ## v1.5.0
 
 * [`df4b2845`](https://github.com/yamadapc/augmented-audio/commits/df4b2845) augmented-dsp-filters@2.4.0 (Minor)
