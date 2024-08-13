@@ -1,3 +1,8 @@
+## v2.4.0
+
+* [`6a7d0db3`](https://github.com/yamadapc/augmented-audio/commits/6a7d0db3) audio-processor-standalone@3.4.0 (Minor)
+* [`ba6df390`](https://github.com/yamadapc/augmented-audio/commits/ba6df390) Fix public methods for audio-processor-utility (Minor)
+
 ## v2.3.0
 
 * [`b485cffc`](https://github.com/yamadapc/augmented-audio/commits/b485cffc) audio-processor-standalone@3.3.0 (Minor)
