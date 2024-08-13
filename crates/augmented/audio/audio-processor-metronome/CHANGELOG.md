@@ -1,3 +1,7 @@
+## v3.4.0
+
+* [`6a7d0db3`](https://github.com/yamadapc/augmented-audio/commits/6a7d0db3) audio-processor-standalone@3.4.0 (Minor)
+
 ## v3.3.0
 
 * [`e15cfe90`](https://github.com/yamadapc/augmented-audio/commits/e15cfe90) augmented-playhead@0.8.0 (Minor)
