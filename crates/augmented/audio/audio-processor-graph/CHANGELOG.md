@@ -1,3 +1,9 @@
+## v2.5.0
+
+* [`9ed0e499`](https://github.com/yamadapc/augmented-audio/commits/9ed0e499) audio-processor-time@1.6.0 (Minor)
+* [`6d623a42`](https://github.com/yamadapc/augmented-audio/commits/6d623a42) audio-processor-utility@2.4.0 (Minor)
+* [`6a7d0db3`](https://github.com/yamadapc/augmented-audio/commits/6a7d0db3) audio-processor-standalone@3.4.0 (Minor)
+
 ## v2.4.0
 
 * [`289ad3c1`](https://github.com/yamadapc/augmented-audio/commits/289ad3c1) audio-processor-time@1.5.0 (Minor)
