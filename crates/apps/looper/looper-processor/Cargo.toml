@@ -70,7 +70,7 @@ ringbuf = "0.2"
 
 # FX
 audio-processor-pitch-shifter = { path = "../../../augmented/audio/audio-processor-pitch-shifter" }
-audio-processor-bitcrusher = { path = "../../../augmented/audio/audio-processor-bitcrusher" , version = "2.3.0" }
+audio-processor-bitcrusher = { path = "../../../augmented/audio/audio-processor-bitcrusher" , version = "2.4.0" }
 audio-processor-time = { path = "../../../augmented/audio/audio-processor-time", version = "1.6.0" }
 audio-processor-dynamics = { path = "../../../augmented/audio/audio-processor-dynamics", version = "2.3.0" }
 audio-processor-analysis = { path = "../../../augmented/audio/audio-processor-analysis", version = "2.3.0" }
