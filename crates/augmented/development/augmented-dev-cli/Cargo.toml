@@ -24,6 +24,7 @@ cmd_lib = "1.3"
 
 urlencoding = "2.1"
 plist = "1.1"
+time = "0.3.36"
 crates_io_api = "0.8"
 daggy = "0.8"
 semver = "1.0"
