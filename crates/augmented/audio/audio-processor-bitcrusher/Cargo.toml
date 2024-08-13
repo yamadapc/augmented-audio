@@ -17,7 +17,7 @@ audio-processor-traits = { version = "4.2.0", path = "../audio-processor-traits"
 audio-garbage-collector = { version = "1.2.0", path = "../audio-garbage-collector" }
 
 [dev-dependencies]
-audio-processor-standalone = { version = "3.3.0", path = "../../application/audio-processor-standalone", features = ["gui"] }
+audio-processor-standalone = { version = "3.4.0", path = "../../application/audio-processor-standalone", features = ["gui"] }
 audio-processor-standalone-gui = { path = "../../application/audio-processor-standalone-gui" , version = "0.10.0" }
 audio-processor-testing-helpers = { version = "2.6.0", path = "../../testing/audio-processor-testing-helpers" }
 
