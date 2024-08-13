@@ -1,3 +1,7 @@
+## v1.12.0
+
+* [`00d60996`](https://github.com/yamadapc/augmented-audio/commits/00d60996) atomic-queue@2.2.0 (Minor)
+
 ## v1.11.0
 
 * [`6d7cf349`](https://github.com/yamadapc/augmented-audio/commits/6d7cf349) atomic-queue@2.1.0 (Minor)
