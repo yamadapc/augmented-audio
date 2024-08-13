@@ -32,7 +32,7 @@ pub struct GainProcessorHandle {
 }
 
 impl GainProcessorHandle {
-    fn new(gain: impl Into<f32>) -> Self {
+    pub fn new(gain: impl Into<f32>) -> Self {
         Self {
             gain: AtomicF32::new(gain.into()),
         }
@@ -82,6 +82,10 @@ impl<SampleType> GainProcessor<SampleType> {
     /// Get the gain
     pub fn gain(&self) -> f32 {
         self.handle.gain()
+    }
+
+    pub fn handle(&self) -> &Shared<GainProcessorHandle> {
+        &self.handle
     }
 }
 
