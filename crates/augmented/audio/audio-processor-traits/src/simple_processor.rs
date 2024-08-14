@@ -48,6 +48,14 @@ impl<Processor: MonoAudioProcessor> MonoCopyProcessor<Processor> {
     pub fn new(processor: Processor) -> MonoCopyProcessor<Processor> {
         Self { processor }
     }
+
+    pub fn processor(&self) -> &Processor {
+        &self.processor
+    }
+
+    pub fn processor_mut(&mut self) -> &mut Processor {
+        &mut self.processor
+    }
 }
 
 impl<Processor: MonoAudioProcessor> AudioProcessor for MonoCopyProcessor<Processor>
