@@ -82,10 +82,10 @@ class MetronomeStateController {
 
     if (value) {
       historyController.onStart();
-      Wakelock.enable();
+      WakelockPlus.enable();
     } else {
       historyController.onEnd();
-      Wakelock.disable();
+      WakelockPlus.disable();
     }
   }
 

@@ -28,6 +28,7 @@ Future<void> buildMetronome() async {
   //       ? DynamicLibrary.executable()
   //       : DynamicLibrary.open("lib$name.so"),
   // );
+  await RustLib.init();
 
   final Directory applicationDocumentsDirectory =
       await getApplicationDocumentsDirectory();
