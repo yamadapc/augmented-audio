@@ -21,7 +21,7 @@ dependencies:
   flutter_local_notifications: ^15.1.0+1
   flutter_mobx: ^2.0.6+5
   flutter_platform_widgets: ^6.0.2
-  flutter_rust_bridge: 1.82.4
+  flutter_rust_bridge: 2.3.0
   flutter_timezone: ^1.0.4
   graphx: ^1.0.12
   intl: ^0.17.0
@@ -31,6 +31,8 @@ dependencies:
   mobx: ^2.1.4
   mockito: ^5.3.2
   path_provider: ^2.0.14
+  rust_lib_metronome:
+    path: rust_builder
   shared_preferences: ^2.0.15
   sqflite: ^2.2.6
   timezone: ^0.9.1
