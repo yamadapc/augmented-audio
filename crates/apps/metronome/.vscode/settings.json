@@ -1,6 +1,7 @@
 {
     "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
     "cSpell.words": [
-        "Playhead"
+        "Playhead",
+        "Wakelock"
     ]
 }

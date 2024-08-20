@@ -6,8 +6,7 @@ import 'package:metronome/modules/analytics/analytics.dart';
 import 'package:metronome/modules/history/history_controller.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
 import 'package:metronome/modules/state/tap_tempo_controller.dart';
-import 'package:metronome/src/rust/api.dart';
-import 'package:metronome/src/rust/frb_generated.dart';
+import 'package:metronome/src/rust/api.dart' as api;
 import 'package:metronome/src/rust/internal/processor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -38,7 +37,7 @@ class MetronomeStateController {
     timeout = Timer.periodic(
       const Duration(milliseconds: 100),
       (timer) async {
-        final p = await getPlayhead();
+        final p = await api.getPlayhead();
         model.setPlayhead(p);
       },
     );
@@ -59,7 +58,7 @@ class MetronomeStateController {
   }
 
   void setTempo(double value) {
-    setTempo(value);
+    api.setTempo(value: value);
     model.setTempo(value);
 
     SharedPreferences.getInstance().then((sharedPreferences) async {
@@ -68,7 +67,7 @@ class MetronomeStateController {
   }
 
   void setVolume(double value) {
-    setVolume(value);
+    api.setVolume(value: value);
     model.setVolume(value);
 
     SharedPreferences.getInstance().then((sharedPreferences) async {
@@ -77,7 +76,7 @@ class MetronomeStateController {
   }
 
   void setIsPlaying(bool value) {
-    setIsPlaying(value);
+    api.setIsPlaying(value: value);
     model.setIsPlaying(value);
 
     if (value) {
@@ -96,7 +95,7 @@ class MetronomeStateController {
 
   void setBeatsPerBar(int value) {
     model.setBeatsPerBar(value);
-    setBeatsPerBar(value);
+    api.setBeatsPerBar(value: value);
 
     SharedPreferences.getInstance().then((sharedPreferences) async {
       await sharedPreferences.setInt(PreferenceKey.beatsPerBar, value);
@@ -105,7 +104,7 @@ class MetronomeStateController {
 
   void setSound(MetronomeSoundTypeTag sound) {
     model.setSound(sound);
-    setSound(sound);
+    api.setSound(value: sound);
   }
 
   void increaseTempo({double? increment}) {
