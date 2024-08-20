@@ -1,4 +1,4 @@
-import 'package:charts_flutter/flutter.dart';
+import 'package:community_charts_flutter/flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:metronome/modules/state/history_state_model.dart';

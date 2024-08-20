@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
+import 'package:metronome/src/rust/internal/processor.dart';
 import 'package:metronome/ui/constants.dart';
 
 class SoundSelector extends StatelessWidget {
@@ -36,10 +36,10 @@ class MetronomeSound {
 }
 
 const sounds = [
-  MetronomeSound(name: "Sine", tag: MetronomeSoundTypeTag.Sine),
-  MetronomeSound(name: "Tube", tag: MetronomeSoundTypeTag.Tube),
-  MetronomeSound(name: "Snap", tag: MetronomeSoundTypeTag.Snap),
-  MetronomeSound(name: "Glass", tag: MetronomeSoundTypeTag.Glass),
+  MetronomeSound(name: "Sine", tag: MetronomeSoundTypeTag.sine),
+  MetronomeSound(name: "Tube", tag: MetronomeSoundTypeTag.tube),
+  MetronomeSound(name: "Snap", tag: MetronomeSoundTypeTag.snap),
+  MetronomeSound(name: "Glass", tag: MetronomeSoundTypeTag.glass),
 ];
 
 class SoundSelectorMobile extends StatelessWidget {

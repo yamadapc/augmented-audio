@@ -1,5 +1,5 @@
 [package]
-name = "rust_lib_metronome"
+name = "metronome"
 version = "0.1.0"
 edition = "2021"
 homepage = "https://github.com/yamadapc/augmented-audio"

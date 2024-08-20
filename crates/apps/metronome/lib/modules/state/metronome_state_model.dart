@@ -1,7 +1,7 @@
 // ignore_for_file: use_setters_to_change_properties, avoid_positional_boolean_parameters
 
-import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/modules/state/session_state.dart';
+import 'package:metronome/src/rust/internal/processor.dart';
 import 'package:mobx/mobx.dart';
 
 part 'metronome_state_model.g.dart';
@@ -26,7 +26,7 @@ abstract class _MetronomeStateModel with Store {
   int beatsPerBar = 4;
 
   @observable
-  MetronomeSoundTypeTag sound = MetronomeSoundTypeTag.Sine;
+  MetronomeSoundTypeTag sound = MetronomeSoundTypeTag.sine;
 
   @observable
   SessionState sessionState = SessionState();

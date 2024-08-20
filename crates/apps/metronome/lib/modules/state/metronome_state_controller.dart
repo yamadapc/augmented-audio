@@ -2,13 +2,15 @@
 
 import 'dart:async';
 
-import 'package:rust_lib_metronome/lib.dart';
 import 'package:metronome/modules/analytics/analytics.dart';
 import 'package:metronome/modules/history/history_controller.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
 import 'package:metronome/modules/state/tap_tempo_controller.dart';
+import 'package:metronome/src/rust/api.dart';
+import 'package:metronome/src/rust/frb_generated.dart';
+import 'package:metronome/src/rust/internal/processor.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class PreferenceKey {
   static const String tempo = "tempo";
@@ -18,7 +20,6 @@ class PreferenceKey {
 
 class MetronomeStateController {
   final MetronomeStateModel model;
-  final Metronome metronome;
   final HistoryStartStopHandler historyController;
   late final TapTempoController tapTempoController;
   final Analytics analytics;
@@ -27,7 +28,6 @@ class MetronomeStateController {
 
   MetronomeStateController(
     this.model,
-    this.metronome,
     this.historyController,
     this.analytics,
   ) {
@@ -38,7 +38,7 @@ class MetronomeStateController {
     timeout = Timer.periodic(
       const Duration(milliseconds: 100),
       (timer) async {
-        final p = await metronome.getPlayhead();
+        final p = await getPlayhead();
         model.setPlayhead(p);
       },
     );
@@ -59,7 +59,7 @@ class MetronomeStateController {
   }
 
   void setTempo(double value) {
-    metronome.setTempo(value: value);
+    setTempo(value);
     model.setTempo(value);
 
     SharedPreferences.getInstance().then((sharedPreferences) async {
@@ -68,7 +68,7 @@ class MetronomeStateController {
   }
 
   void setVolume(double value) {
-    metronome.setVolume(value: value);
+    setVolume(value);
     model.setVolume(value);
 
     SharedPreferences.getInstance().then((sharedPreferences) async {
@@ -77,7 +77,7 @@ class MetronomeStateController {
   }
 
   void setIsPlaying(bool value) {
-    metronome.setIsPlaying(value: value);
+    setIsPlaying(value);
     model.setIsPlaying(value);
 
     if (value) {
@@ -96,7 +96,7 @@ class MetronomeStateController {
 
   void setBeatsPerBar(int value) {
     model.setBeatsPerBar(value);
-    metronome.setBeatsPerBar(value: value);
+    setBeatsPerBar(value);
 
     SharedPreferences.getInstance().then((sharedPreferences) async {
       await sharedPreferences.setInt(PreferenceKey.beatsPerBar, value);
@@ -105,7 +105,7 @@ class MetronomeStateController {
 
   void setSound(MetronomeSoundTypeTag sound) {
     model.setSound(sound);
-    metronome.setSound(value: sound);
+    setSound(sound);
   }
 
   void increaseTempo({double? increment}) {
