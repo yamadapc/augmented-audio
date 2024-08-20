@@ -1,5 +1,5 @@
 import 'package:flutter_rust_bridge/src/platform_independent.dart';
-import 'package:metronome/bridge_generated.dart';
+import 'package:rust_lib_metronome/lib.dart';
 import 'package:metronome/logger.dart';
 import 'package:metronome/modules/analytics/fake_analytics.dart';
 import 'package:metronome/modules/database.dart';

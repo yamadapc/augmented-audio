@@ -11,7 +11,7 @@ members = [
     "crates/apps/synth",
     "crates/apps/tremolo-plugin",
     "crates/apps/demo-plugin",
-    "crates/apps/metronome",
+    "crates/apps/metronome/rust",
     "crates/apps/daw",
     # Examples
     "crates/examples/host-tempo-plugin",
@@ -74,7 +74,6 @@ members = [
     "crates/augmented/ops/augmented-analytics",
     "crates/augmented/ops/augmented-metrics",
     "crates/augmented/ops/wisual-logger",
-    "dart/augmented_audio_wave_example",
 ]
 
 exclude = [

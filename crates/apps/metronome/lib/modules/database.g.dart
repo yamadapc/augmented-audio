@@ -6,21 +6,32 @@ part of 'database.dart';
 // FloorGenerator
 // **************************************************************************
 
+abstract class $MetronomeDatabaseBuilderContract {
+  /// Adds migrations to the builder.
+  $MetronomeDatabaseBuilderContract addMigrations(List<Migration> migrations);
+
+  /// Adds a database [Callback] to the builder.
+  $MetronomeDatabaseBuilderContract addCallback(Callback callback);
+
+  /// Creates the database and initializes it.
+  Future<MetronomeDatabase> build();
+}
+
 // ignore: avoid_classes_with_only_static_members
 class $FloorMetronomeDatabase {
   /// Creates a database builder for a persistent database.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$MetronomeDatabaseBuilder databaseBuilder(String name) =>
+  static $MetronomeDatabaseBuilderContract databaseBuilder(String name) =>
       _$MetronomeDatabaseBuilder(name);
 
   /// Creates a database builder for an in memory database.
   /// Information stored in an in memory database disappears when the process is killed.
   /// Once a database is built, you should keep a reference to it and re-use it.
-  static _$MetronomeDatabaseBuilder inMemoryDatabaseBuilder() =>
+  static $MetronomeDatabaseBuilderContract inMemoryDatabaseBuilder() =>
       _$MetronomeDatabaseBuilder(null);
 }
 
-class _$MetronomeDatabaseBuilder {
+class _$MetronomeDatabaseBuilder implements $MetronomeDatabaseBuilderContract {
   _$MetronomeDatabaseBuilder(this.name);
 
   final String? name;
@@ -29,19 +40,19 @@ class _$MetronomeDatabaseBuilder {
 
   Callback? _callback;
 
-  /// Adds migrations to the builder.
-  _$MetronomeDatabaseBuilder addMigrations(List<Migration> migrations) {
+  @override
+  $MetronomeDatabaseBuilderContract addMigrations(List<Migration> migrations) {
     _migrations.addAll(migrations);
     return this;
   }
 
-  /// Adds a database [Callback] to the builder.
-  _$MetronomeDatabaseBuilder addCallback(Callback callback) {
+  @override
+  $MetronomeDatabaseBuilderContract addCallback(Callback callback) {
     _callback = callback;
     return this;
   }
 
-  /// Creates the database and initializes it.
+  @override
   Future<MetronomeDatabase> build() async {
     final path = name != null
         ? await sqfliteDatabaseFactory.getDatabasePath(name!)

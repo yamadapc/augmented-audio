@@ -2,7 +2,7 @@
 
 import 'dart:async';
 
-import 'package:metronome/bridge_generated.dart';
+import 'package:rust_lib_metronome/lib.dart';
 import 'package:metronome/modules/analytics/analytics.dart';
 import 'package:metronome/modules/history/history_controller.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';

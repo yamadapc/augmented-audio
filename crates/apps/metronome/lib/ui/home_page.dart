@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:metronome/bridge_generated.dart';
+import 'package:rust_lib_metronome/lib.dart';
 import 'package:metronome/logger.dart';
 import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/database.dart';
