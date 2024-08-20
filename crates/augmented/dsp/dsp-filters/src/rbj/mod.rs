@@ -251,8 +251,7 @@ where
 #[cfg(test)]
 mod test {
     use audio_processor_testing_helpers::charts::*;
-
-    use audio_processor_traits::simple_processor::MultiChannel;
+    use num::complex::ComplexFloat;
 
     use super::*;
 
@@ -273,16 +272,21 @@ mod test {
         ];
 
         for (filter_name, filter_type) in filters {
-            let mut processor = MultiChannel::new(move || {
+            let processor = {
                 let mut processor = FilterProcessor::new(filter_type);
                 processor.set_cutoff(880.0);
                 processor
-            });
-            generate_frequency_response_plot(
-                &format!("{}{}", env!("CARGO_MANIFEST_DIR"), "/src/rbj/mod.rs"),
-                &format!("{}-880hz-frequency-response", filter_name),
-                &mut processor,
-            );
+            };
+            let filename = format!("{}{}", env!("CARGO_MANIFEST_DIR"), "/src/rbj/mod.rs");
+            let plot_name = format!("{}-880hz-frequency-response", filter_name);
+            let mut data = vec![];
+            let mut freq = 0.0;
+            while freq < 44100.0 {
+                let response = processor.filter.coefficients.response(freq / 44100.0);
+                data.push(response.abs() as f32);
+                freq += 100.0;
+            }
+            draw_vec_chart(&filename, &plot_name, data);
         }
     }
 }

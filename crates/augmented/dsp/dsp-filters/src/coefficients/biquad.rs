@@ -20,7 +20,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use num::Float;
+
+use num::{Complex, Float};
+use std::f64::consts::PI;
 
 pub struct BiquadCoefficients<Sample: Float> {
     pub(crate) a0: Sample,
@@ -44,7 +46,41 @@ impl<Sample: Float> Default for BiquadCoefficients<Sample> {
     }
 }
 
+fn add_mul<T: Float>(c: Complex<T>, v: T, c1: Complex<T>) -> Complex<T> {
+    Complex::new(c.re + v * c1.re, c.im + v * c1.im)
+}
+
 impl<Sample: Float> BiquadCoefficients<Sample> {
+    /// Calculate the filter response to a given frequency. Useful for drawing frequency response
+    /// charts.
+    ///
+    /// Takes in a normalized_frequency between 0 and 1.
+    pub fn response(&self, normalized_frequency: Sample) -> Complex<f64> {
+        let w: f64 = 2.0 * PI * normalized_frequency.to_f64().unwrap();
+        let czn1 = Complex::from_polar(1., -w);
+        let czn2 = Complex::from_polar(1., -2.0 * w);
+        let mut ch = Complex::new(1.0, 0.0);
+        let mut cbot = Complex::new(1.0, 0.0);
+
+        let a0: f64 = self.a0.to_f64().unwrap();
+        let b0: f64 = self.b0.to_f64().unwrap();
+        let b1: f64 = self.b1.to_f64().unwrap();
+        let b2: f64 = self.b2.to_f64().unwrap();
+        let a1: f64 = self.a1.to_f64().unwrap();
+        let a2: f64 = self.a2.to_f64().unwrap();
+
+        let mut ct = Complex::new(b0 / a0, 0.0);
+        let mut cb = Complex::new(1.0, 0.0);
+        ct = add_mul(ct, b1 / a0, czn1);
+        ct = add_mul(ct, b2 / a0, czn2);
+        cb = add_mul(cb, a1 / a0, czn1);
+        cb = add_mul(cb, a2 / a0, czn2);
+        ch *= ct;
+        cbot *= cb;
+
+        ch / cbot
+    }
+
     pub fn set_coefficients(
         &mut self,
         a0: Sample,
