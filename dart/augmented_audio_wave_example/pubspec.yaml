@@ -37,10 +37,12 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
   ffi: ^2.0.1
-  flutter_rust_bridge: ^1.82.4
+  flutter_rust_bridge: 2.3.0
+  rust_lib_augmented_audio_wave_example:
+    path: rust_builder
 
 dev_dependencies:
-  ffigen: ^8.0.0
+  ffigen: ^13.0.0
   flutter_test:
     sdk: flutter
 
@@ -50,6 +52,8 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  integration_test:
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
