@@ -12,7 +12,6 @@ members = [
     "crates/apps/tremolo-plugin",
     "crates/apps/demo-plugin",
     "crates/apps/metronome/rust",
-    "crates/apps/daw",
     # Examples
     "crates/examples/host-tempo-plugin",
     # Repository scripts
