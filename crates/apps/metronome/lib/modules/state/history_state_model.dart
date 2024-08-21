@@ -148,7 +148,7 @@ class HistoryChartModel {
           return formattedDate;
         },
         measureFn: (HistoryChartPoint entry, _) => entry.value,
-      )
+      ),
     ];
   }
 

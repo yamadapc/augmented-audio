@@ -3,14 +3,15 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
-import 'api.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi' as ffi;
-import 'frb_generated.dart';
-import 'internal/processor.dart';
-import 'internal/state.dart';
+
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
+import 'package:metronome/src/rust/api.dart';
+import 'package:metronome/src/rust/frb_generated.dart';
+import 'package:metronome/src/rust/internal/processor.dart';
+import 'package:metronome/src/rust/internal/state.dart';
 
 abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   RustLibApiImplPlatform({
@@ -25,7 +26,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RustStreamSink<EngineError> dco_decode_StreamSink_engine_error_Sse(
-      dynamic raw);
+      dynamic raw,);
 
   @protected
   String dco_decode_String(dynamic raw);
@@ -68,7 +69,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RustStreamSink<EngineError> sse_decode_StreamSink_engine_error_Sse(
-      SseDeserializer deserializer);
+      SseDeserializer deserializer,);
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
@@ -78,7 +79,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   InitializeOptions sse_decode_box_autoadd_initialize_options(
-      SseDeserializer deserializer);
+      SseDeserializer deserializer,);
 
   @protected
   EngineError sse_decode_engine_error(SseDeserializer deserializer);
@@ -97,7 +98,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MetronomeSoundTypeTag sse_decode_metronome_sound_type_tag(
-      SseDeserializer deserializer);
+      SseDeserializer deserializer,);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -110,11 +111,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_AnyhowException(
-      AnyhowException self, SseSerializer serializer);
+      AnyhowException self, SseSerializer serializer,);
 
   @protected
   void sse_encode_StreamSink_engine_error_Sse(
-      RustStreamSink<EngineError> self, SseSerializer serializer);
+      RustStreamSink<EngineError> self, SseSerializer serializer,);
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -124,7 +125,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_initialize_options(
-      InitializeOptions self, SseSerializer serializer);
+      InitializeOptions self, SseSerializer serializer,);
 
   @protected
   void sse_encode_engine_error(EngineError self, SseSerializer serializer);
@@ -137,15 +138,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_initialize_options(
-      InitializeOptions self, SseSerializer serializer);
+      InitializeOptions self, SseSerializer serializer,);
 
   @protected
   void sse_encode_list_prim_u_8_strict(
-      Uint8List self, SseSerializer serializer);
+      Uint8List self, SseSerializer serializer,);
 
   @protected
   void sse_encode_metronome_sound_type_tag(
-      MetronomeSoundTypeTag self, SseSerializer serializer);
+      MetronomeSoundTypeTag self, SseSerializer serializer,);
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
@@ -160,14 +161,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 // Section: wire_class
 
 class RustLibWire implements BaseWire {
+
+  /// The symbols are looked up in [dynamicLibrary].
+  RustLibWire(ffi.DynamicLibrary dynamicLibrary)
+      : _lookup = dynamicLibrary.lookup;
   factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
       RustLibWire(lib.ffiDynamicLibrary);
 
   /// Holds the symbol lookup function.
   final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
       _lookup;
-
-  /// The symbols are looked up in [dynamicLibrary].
-  RustLibWire(ffi.DynamicLibrary dynamicLibrary)
-      : _lookup = dynamicLibrary.lookup;
 }

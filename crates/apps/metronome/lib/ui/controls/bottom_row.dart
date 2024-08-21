@@ -39,7 +39,7 @@ class BottomRow extends StatelessWidget {
         TapTempoButton(
           tapTempoController: stateController.tapTempoController,
           stateController: stateController,
-        )
+        ),
       ],
     );
   }

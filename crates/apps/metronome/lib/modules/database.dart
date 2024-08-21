@@ -81,7 +81,7 @@ final migrations = [
   addBeatsPerBar,
   addAggregatedSession,
   addDailyPracticeTime,
-  addStartAggregatedSessionTime
+  addStartAggregatedSessionTime,
 ];
 
 Future<MetronomeDatabase> buildInMemoryDatabase() {

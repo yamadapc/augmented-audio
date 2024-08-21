@@ -3,10 +3,10 @@
 
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
-import 'frb_generated.dart';
-import 'internal/processor.dart';
-import 'internal/state.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'package:metronome/src/rust/frb_generated.dart';
+import 'package:metronome/src/rust/internal/processor.dart';
+import 'package:metronome/src/rust/internal/state.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `fmt`
 
