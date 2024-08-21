@@ -23,7 +23,6 @@
 
 //! Draw charts with `plotters` during unit-testing.
 
-use std::path::Path;
 use std::time::Duration;
 
 use crate::generators::sine_buffer;
