@@ -12,7 +12,7 @@ Future<MockEnvironment> buildTestEnvironment() async {
   // Set-up mocked environment
   logger.i("Setting-up mock environment");
   final model = MetronomeStateModel();
-  final metronome = RustLib.initMock();
+  await RustLib.init();
   final database = await buildInMemoryDatabase();
   final sessionDao = database.sessionDao;
   final historyStateModel = HistoryStateModel();
@@ -27,14 +27,12 @@ Future<MockEnvironment> buildTestEnvironment() async {
   );
   final metronomeStateController = MetronomeStateController(
     model,
-    metronome,
     historyStartStopHandler,
     FakeAnalytics(),
   );
 
   return MockEnvironment.create(
     model,
-    metronome,
     database,
     historyStateModel,
     historyStateController,
@@ -45,7 +43,6 @@ Future<MockEnvironment> buildTestEnvironment() async {
 
 class MockEnvironment {
   MetronomeStateModel model;
-  RustLib metronome;
   MetronomeDatabase database;
   HistoryStateModel historyStateModel;
   HistoryStateController historyStateController;
@@ -54,7 +51,6 @@ class MockEnvironment {
 
   MockEnvironment.create(
     this.model,
-    this.metronome,
     this.database,
     this.historyStateModel,
     this.historyStateController,

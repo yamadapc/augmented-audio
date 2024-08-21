@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io' as io;
 import 'dart:io';
 
@@ -22,7 +21,7 @@ import 'package:metronome/ui/tabs/main_tab.dart';
 import 'package:path_provider/path_provider.dart';
 
 Future<void> buildMetronome() async {
-  const name = "metronome";
+  // const name = "metronome";
   // final metronome = RustLib(
   //   io.Platform.isIOS || io.Platform.isMacOS
   //       ? DynamicLibrary.executable()
@@ -72,7 +71,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     Future<void> runInitSequence() async {
       logger.i("Initializing metronome bridge");
-      final metronome = await buildMetronome();
+      await buildMetronome();
       logger.i("Initializing database");
       final database = await buildDatabase();
 
