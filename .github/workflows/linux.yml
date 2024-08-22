@@ -50,6 +50,7 @@ jobs:
           COVERAGE_BOT_TOKEN: ${{ secrets.COVERAGE_BOT_TOKEN }}
         run: |
           cargo tarpaulin --skip-clean --workspace \
+              --engine llvm \
               --features story \
               --coveralls $COVERALLS_TOKEN \
               --out lcov \
