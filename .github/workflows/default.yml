@@ -179,10 +179,13 @@ jobs:
           path: |
             ~/.cargo/bin/
           key: ${{ runner.os }}-cargo-bin
-      - name: Install cargo-lipo
+      - name: Install cargo-lipo and cbindgen
         run: |
           if ! [ -x "$(command -v cargo-lipo)" ]; then
             cargo install cargo-lipo
+          fi
+          if ! [ -x "$(command -v cbindgen)" ]; then
+            cargo install cbindgen
           fi
       - name: Install ARM/x86 toolchains
         run: |
