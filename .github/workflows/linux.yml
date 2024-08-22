@@ -37,6 +37,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux3"
+          cache-all-crates: true
+          cache-on-failure: true
 
       - name: Install dependencies
         run: |
@@ -129,6 +131,8 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-linux3"
+        cache-all-crates: true
+        cache-on-failure: true
 
     - name: Install dependencies
       run: |

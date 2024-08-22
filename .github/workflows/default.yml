@@ -26,6 +26,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos2"
+          cache-all-crates: true
+          cache-on-failure: true
       - uses: subosito/flutter-action@v1
 
       - name: Run sccache-cache
@@ -70,6 +72,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos2"
+          cache-all-crates: true
+          cache-on-failure: true
       - name: Run clippy
         run: ./scripts/clippy.sh
 
@@ -94,6 +98,8 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-macos2"
+        cache-all-crates: true
+        cache-on-failure: true
     - name: Cache cargo binaries
       uses: actions/cache@v2
       with:
@@ -145,6 +151,8 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-macos2"
+        cache-all-crates: true
+        cache-on-failure: true
     - name: Install ARM/x86 toolchains
       run: |
         rustup target add aarch64-apple-darwin
@@ -177,6 +185,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos2"
+          cache-all-crates: true
+          cache-on-failure: true
       - name: Cache cargo binaries
         uses: actions/cache@v2
         with:

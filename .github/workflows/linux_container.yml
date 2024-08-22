@@ -41,6 +41,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux3"
+          cache-all-crates: true
+          cache-on-failure: true
 
       - run: echo "/root/.cargo/bin" >> $GITHUB_PATH
       - name: Test with coverage
@@ -129,6 +131,8 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-linux3"
+        cache-all-crates: true
+        cache-on-failure: true
 
     - name: Build release
       shell: bash
