@@ -90,4 +90,4 @@ jobs:
   
   dart:
     name: Build dart
-    uses: ./.github/actions/dart.yml
+    uses: ./.github/workflows/dart.yml

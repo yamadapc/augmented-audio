@@ -1,6 +1,7 @@
 name: Web-based builds
 
-on: {}
+on:
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always

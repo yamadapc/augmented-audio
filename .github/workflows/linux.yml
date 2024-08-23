@@ -1,6 +1,7 @@
 name: Linux
 
-on: {}
+on:
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always

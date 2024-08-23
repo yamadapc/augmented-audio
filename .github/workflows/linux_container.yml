@@ -1,6 +1,7 @@
 name: Linux in Docker
 
-on: {}
+on:
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always
