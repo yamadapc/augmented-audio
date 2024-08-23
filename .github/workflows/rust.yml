@@ -21,7 +21,6 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/common
         with:
-          lfs: false
           cache_key: ${{ matrix.os }}_build
       - name: Run build
         run: cargo build
@@ -44,10 +43,8 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-          lfs: true
       - uses: ./.github/actions/common
         with:
-          lfs: true
           cache_key: ${{ matrix.os }}_test
       - name: Download build target
         uses: actions/download-artifact@v4
@@ -70,7 +67,6 @@ jobs:
           submodules: recursive
       - uses: ./.github/actions/common
         with:
-          lfs: true
           cache_key: ${{ matrix.os }}_lint
       - name: Download build target
         uses: actions/download-artifact@v4
