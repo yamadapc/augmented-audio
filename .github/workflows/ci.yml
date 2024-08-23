@@ -24,7 +24,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - uses: ./.github/actions/common.yml
+      - uses: ./.github/actions/common
         with:
           lfs: false
           cache_key: ${{ matrix.os }}_build
@@ -52,7 +52,7 @@ jobs:
         with:
           submodules: recursive
           lfs: true
-      - uses: ./.github/actions/common.yml
+      - uses: ./.github/actions/common
         with:
           lfs: true
           cache_key: ${{ matrix.os }}_test
@@ -77,7 +77,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - uses: ./.github/actions/common.yml
+      - uses: ./.github/actions/common
         with:
           lfs: true
           cache_key: ${{ matrix.os }}_lint

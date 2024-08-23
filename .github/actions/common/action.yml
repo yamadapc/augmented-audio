@@ -1,0 +1,38 @@
+name: Common job setup
+description: Install dependencies for running jobs
+
+inputs:
+  cache_key:
+    description: 'A cache key for this step'
+    required: true
+    default: 'shared_cache'
+
+runs:
+  using: composite
+  steps:
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: ${{ inputs.cache_key }}
+        cache-all-crates: true
+        cache-on-failure: true
+    - uses: subosito/flutter-action@v1
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.2
+      with:
+        version: "v0.4.0"
+    - name: Cache cargo binaries
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/bin/
+        key: ${{ runner.os }}-cargo-bin
+    - name: Install LLVM
+      if: ${{ runner.os }} == 'Linux'
+      run: brew install llvm
+    - name: Install dependencies
+      if: ${{ runner.os }} == 'Linux'
+      run: |
+        ./scripts/install-ubuntu-apt-dependencies.sh
+    - uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-tarpaulin,cargo-nextest
