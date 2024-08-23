@@ -1,6 +1,7 @@
 name: Dart
 
-on: {}
+on:
+  workflow_call:
 
 jobs:
   build_metronome:

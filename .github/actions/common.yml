@@ -1,5 +1,3 @@
-### {{ github.job	}}
-
 name: Common job setup
 
 run:
