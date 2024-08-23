@@ -89,4 +89,4 @@ jobs:
         run: ./scripts/clippy.sh
   
   dart:
-    uses: ./dart.yml
+    uses: ./.github/actions/dart.yml
