@@ -1,10 +1,6 @@
 name: Linux
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: {}
 
 env:
   CARGO_TERM_COLOR: always
@@ -47,7 +43,7 @@ jobs:
       - name: Test
         if: true
         run: |
-          cargo test \
+          cargo test --workflow \
               --exclude assert-no-alloc \
               --exclude augmented-ui \
               --exclude audiounit \

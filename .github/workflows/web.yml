@@ -1,10 +1,6 @@
 name: Web-based builds
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: {}
 
 env:
   CARGO_TERM_COLOR: always

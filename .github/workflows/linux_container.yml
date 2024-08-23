@@ -1,10 +1,6 @@
 name: Linux in Docker
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: {}
 
 env:
   CARGO_TERM_COLOR: always
@@ -15,7 +11,6 @@ env:
 
 jobs:
   test-rust:
-    if: false
     name: Run unit-tests on rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -108,7 +103,6 @@ jobs:
           path: ./tarpaulin-report
 
   build-rust:
-    if: false
     name: Build release rust crates ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
