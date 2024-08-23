@@ -8,13 +8,7 @@ on:
 
 jobs:
   rust:
-    strategy:
-      matrix:
-        os: [macos-14, ubuntu-20.04]
-      fail-fast: false
     uses: ./.github/workflows/rust.yml
-    with:
-      os: matrix.os
 
   dart:
     uses: ./.github/workflows/dart.yml
