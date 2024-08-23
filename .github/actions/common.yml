@@ -6,10 +6,6 @@ run:
   setup:
     name: Setup dependencies
     steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: recursive
-          lfs: {{ inputs.lfs }}
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: ${{ inputs.cache_key }}
@@ -38,10 +34,6 @@ run:
           tool: cargo-tarpaulin,cargo-nextest
 
   inputs:
-    lfs:
-      description: 'Enable LFS clone'
-      required: true
-      default: false
     cache_key:
       description: 'A cache key for this step'
       required: true

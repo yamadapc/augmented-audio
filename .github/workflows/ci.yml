@@ -21,7 +21,10 @@ jobs:
           - macos-14
           - ubuntu-20.04
     steps:
-      - uses: ../actions/common.yml
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/common.yml
         with:
           lfs: false
           cache_key: ${{ matrix.os }}_build
@@ -45,7 +48,11 @@ jobs:
           - macos-14
           - ubuntu-20.04
     steps:
-      - uses: ../actions/common.yml
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+          lfs: true
+      - uses: ./.github/actions/common.yml
         with:
           lfs: true
           cache_key: ${{ matrix.os }}_test
@@ -67,7 +74,10 @@ jobs:
           - macos-14
           - ubuntu-20.04
     steps:
-      - uses: ../actions/common.yml
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/common.yml
         with:
           lfs: true
           cache_key: ${{ matrix.os }}_lint
@@ -77,3 +87,6 @@ jobs:
           name: build_target
       - name: Run clippy
         run: ./scripts/clippy.sh
+  
+  dart:
+    uses: ./dart.yml

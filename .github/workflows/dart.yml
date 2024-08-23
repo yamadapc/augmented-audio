@@ -1,10 +1,6 @@
 name: Dart
 
-on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+on: {}
 
 jobs:
   build_metronome:
