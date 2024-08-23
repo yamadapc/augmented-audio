@@ -15,14 +15,14 @@ jobs:
       matrix:
         os: [macos-14, ubuntu-20.04]
       fail-fast: false
-    name: Build rust crates on ${{ inputs.os }}
+    name: Build rust crates on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - uses: ./.github/actions/common
         with:
-          cache_key: ${{ inputs.os }}_build
+          cache_key: ${{ matrix.os }}_build
       - name: Run build
         run: cargo build
       - name: Upload build outputs
@@ -40,14 +40,14 @@ jobs:
       matrix:
         os: [macos-14, ubuntu-20.04]
       fail-fast: false
-    name: Test rust crates on ${{ inputs.os }}
+    name: Test rust crates on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - uses: ./.github/actions/common
         with:
-          cache_key: ${{ inputs.os }}_test
+          cache_key: ${{ matrix.os }}_test
       - name: Download build target
         uses: actions/download-artifact@v4
         with:
@@ -63,14 +63,14 @@ jobs:
       matrix:
         os: [macos-14, ubuntu-20.04]
       fail-fast: false
-    name: Test rust crates on ${{ inputs.os }}
+    name: Test rust crates on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - uses: ./.github/actions/common
         with:
-          cache_key: ${{ inputs.os }}_lint
+          cache_key: ${{ matrix.os }}_lint
       - name: Download build target
         uses: actions/download-artifact@v4
         with:
