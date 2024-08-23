@@ -27,9 +27,11 @@ runs:
           ~/.cargo/bin/
         key: ${{ runner.os }}-cargo-bin
     - name: Install LLVM
-      if: ${{ runner.os }} == 'Linux'
+      shell: bash
+      if: ${{ runner.os }} != 'Linux'
       run: brew install llvm
     - name: Install dependencies
+      shell: bash
       if: ${{ runner.os }} == 'Linux'
       run: |
         ./scripts/install-ubuntu-apt-dependencies.sh
