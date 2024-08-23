@@ -22,6 +22,6 @@
 // THE SOFTWARE.
 pub use skia_safe;
 
-pub use crate::colors::*;
-pub use crate::widget::*;
-pub use crate::*;
+pub use super::colors::*;
+pub use super::widget::*;
+pub use super::*;
