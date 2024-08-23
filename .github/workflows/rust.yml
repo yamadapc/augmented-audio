@@ -2,6 +2,12 @@ name: Rust CI
 
 on:
   workflow_call:
+    inputs:
+      os:
+        type: string
+        description: 'The OS to run on'
+        required: true
+        default: ubuntu-20.04
 
 env:
   CARGO_TERM_COLOR: always
@@ -10,19 +16,15 @@ env:
 
 jobs:
   build-rust:
-    runs-on: ${{ matrix.os }}
-    name: Build rust crates on ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-14, ubuntu-20.04]
-      fail-fast: false
+    runs-on: ${{ inputs.os }}
+    name: Build rust crates on ${{ inputs.os }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - uses: ./.github/actions/common
         with:
-          cache_key: ${{ matrix.os }}_build
+          cache_key: ${{ inputs.os }}_build
       - name: Run build
         run: cargo build
       - name: Upload build outputs
@@ -35,19 +37,15 @@ jobs:
   test-rust:
     needs:
       - build-rust
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-14, ubuntu-20.04]
-      fail-fast: false
-    name: Test rust crates on ${{ matrix.os }}
+    runs-on: ${{ inputs.os }}
+    name: Test rust crates on ${{ inputs.os }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - uses: ./.github/actions/common
         with:
-          cache_key: ${{ matrix.os }}_test
+          cache_key: ${{ inputs.os }}_test
       - name: Download build target
         uses: actions/download-artifact@v4
         with:
@@ -58,19 +56,15 @@ jobs:
   lint-rust:
     needs:
       - build-rust
-    runs-on: ${{ matrix.os }}
-    name: Test rust crates on ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-14, ubuntu-20.04]
-      fail-fast: false
+    runs-on: ${{ inputs.os }}
+    name: Test rust crates on ${{ inputs.os }}
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - uses: ./.github/actions/common
         with:
-          cache_key: ${{ matrix.os }}_lint
+          cache_key: ${{ inputs.os }}_lint
       - name: Download build target
         uses: actions/download-artifact@v4
         with:
