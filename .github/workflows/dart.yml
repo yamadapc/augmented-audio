@@ -19,6 +19,8 @@ jobs:
             src:
               - 'crates/apps/metronome/**'
       - uses: subosito/flutter-action@v1
+        with:
+          cache: true
         if: steps.changes.outputs.src == 'true'
       - name: Install dependencies
         run: cd ./crates/apps/metronome && flutter pub get

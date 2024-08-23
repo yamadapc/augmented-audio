@@ -16,6 +16,8 @@ runs:
         cache-all-crates: true
         cache-on-failure: true
     - uses: subosito/flutter-action@v1
+      with:
+        cache: true
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.2
       with:
