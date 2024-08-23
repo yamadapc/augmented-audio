@@ -14,9 +14,7 @@ jobs:
     name: Build rust crates on ${{ matrix.os }}
     strategy:
       matrix:
-        os:
-          - macos-14
-          - ubuntu-20.04
+        os: [macos-14, ubuntu-20.04]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -38,12 +36,10 @@ jobs:
     needs:
       - build-rust
     runs-on: ${{ matrix.os }}
-    name: Test rust crates on ${{ matrix.os }}
     strategy:
       matrix:
-        os:
-          - macos-14
-          - ubuntu-20.04
+        os: [macos-14, ubuntu-20.04]
+    name: Test rust crates on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -67,9 +63,7 @@ jobs:
     name: Test rust crates on ${{ matrix.os }}
     strategy:
       matrix:
-        os:
-          - macos-14
-          - ubuntu-20.04
+        os: [macos-14, ubuntu-20.04]
     steps:
       - uses: actions/checkout@v2
         with:
