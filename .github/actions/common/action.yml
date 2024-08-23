@@ -28,11 +28,11 @@ runs:
         key: ${{ runner.os }}-cargo-bin
     - name: Install LLVM
       shell: bash
-      if: ${{ runner.os }} == 'macOS'
+      if: runner.os == 'macOS'
       run: brew install llvm
     - name: Install dependencies
       shell: bash
-      if: ${{ runner.os }} == 'Linux'
+      if: runner.os == 'Linux'
       run: |
         ./scripts/install-ubuntu-apt-dependencies.sh
     - uses: taiki-e/install-action@v2
