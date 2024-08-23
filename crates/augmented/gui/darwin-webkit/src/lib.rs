@@ -48,6 +48,18 @@
 #![allow(non_snake_case)]
 
 #[cfg(target_os = "macos")]
+extern crate cocoa;
+#[cfg(target_os = "macos")]
+extern crate core_graphics;
+#[cfg(target_os = "macos")]
+extern crate libc;
+#[cfg(target_os = "macos")]
+#[macro_use]
+extern crate objc;
+#[cfg(target_os = "macos")]
+extern crate block;
+
+#[cfg(target_os = "macos")]
 pub mod foundation;
 #[cfg(target_os = "macos")]
 pub mod helpers;

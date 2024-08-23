@@ -7,6 +7,7 @@ env:
   CARGO_TERM_COLOR: always
   SCCACHE_GHA_ENABLED: true
   RUSTC_WRAPPER: sccache
+  # SKIA_NINJA_COMMAND: ninja
 
 jobs:
   build-rust:
