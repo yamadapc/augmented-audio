@@ -2,12 +2,6 @@ name: Rust CI
 
 on:
   workflow_call:
-    inputs:
-      os:
-        type: string
-        description: 'The OS to run on'
-        required: true
-        default: ubuntu-20.04
 
 env:
   CARGO_TERM_COLOR: always

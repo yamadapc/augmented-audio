@@ -47,13 +47,9 @@
 //! * `darwin_webkit::helpers::DarwinWKWebView::load_html_string`
 #![allow(non_snake_case)]
 
-extern crate cocoa;
-extern crate core_graphics;
-extern crate libc;
-#[macro_use]
-extern crate objc;
-extern crate block;
-
+#[cfg(target_os = "macos")]
 pub mod foundation;
+#[cfg(target_os = "macos")]
 pub mod helpers;
+#[cfg(target_os = "macos")]
 pub mod webkit;
