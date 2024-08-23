@@ -91,3 +91,7 @@ jobs:
   dart:
     name: Build dart
     uses: ./.github/workflows/dart.yml
+
+  web:
+    name: Build web
+    uses: ./.github/workflows/web.yml
