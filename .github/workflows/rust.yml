@@ -29,7 +29,7 @@ jobs:
       - name: Upload build outputs
         uses: actions/upload-artifact@v4
         with:
-          name: build_target
+          name: build_target_${{ matrix.os }}
           path: target
           retention-days: 0
 
@@ -52,7 +52,7 @@ jobs:
       - name: Download build target
         uses: actions/download-artifact@v4
         with:
-          name: build_target
+          name: build_target_${{ matrix.os }}
       - name: Run tests
         run: ./scripts/test.sh
 
@@ -75,6 +75,6 @@ jobs:
       - name: Download build target
         uses: actions/download-artifact@v4
         with:
-          name: build_target
+          name: build_target_${{ matrix.os }}
       - name: Run clippy
         run: ./scripts/clippy.sh
