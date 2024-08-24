@@ -18,9 +18,11 @@ jobs:
           filters: |
             src:
               - 'crates/apps/metronome/**'
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
         with:
+          channel: stable
           cache: true
+          flutter-version: 3.24.0
         if: steps.changes.outputs.src == 'true'
       - name: Install dependencies
         run: cd ./crates/apps/metronome && flutter pub get
