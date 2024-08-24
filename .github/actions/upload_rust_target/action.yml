@@ -1,0 +1,14 @@
+name: Upload target
+description: Upload rust target dir
+
+runs:
+  using: composite
+  steps:
+      - name: Tar build outputs
+        run: tar -cvf target.tar.gz /target
+      - name: Upload build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: build_target_${{ matrix.os }}.tar.gz
+          path: target.tar.gz
+          retention-days: 0
