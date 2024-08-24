@@ -15,9 +15,11 @@ runs:
         shared-key: ${{ inputs.cache_key }}
         cache-all-crates: true
         cache-on-failure: true
-    - uses: subosito/flutter-action@v1
+    - uses: subosito/flutter-action@v2
       with:
+        channel: stable
         cache: true
+        flutter-version: 3.24.0
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.2
       with:
@@ -39,4 +41,4 @@ runs:
         ./scripts/install-ubuntu-apt-dependencies.sh
     - uses: taiki-e/install-action@v2
       with:
-        tool: cargo-tarpaulin,cargo-nextest
+        tool: cargo-tarpaulin,cargo-nextest,cargo-about

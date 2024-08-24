@@ -64,7 +64,7 @@ jobs:
       matrix:
         os: [macos-14, ubuntu-20.04]
       fail-fast: false
-    name: Test rust crates on ${{ matrix.os }}
+    name: Lint rust crates on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -78,3 +78,55 @@ jobs:
           name: build_target_${{ matrix.os }}
       - name: Run clippy
         run: ./scripts/clippy.sh
+
+  build-release-binaries:
+    needs:
+      - build-rust
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-14, ubuntu-20.04]
+      fail-fast: false
+    name: Build release rust binaries ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/common
+        with:
+          cache_key: ${{ matrix.os }}_build_release
+      - name: Download build target
+        uses: actions/download-artifact@v4
+        with:
+          name: build_target_${{ matrix.os }}
+      - name: Build release binaries
+        run: |
+          
+          cargo build --release \
+            --package plugin-host \
+            --package plugin-host-gui2 \
+            --package tas_v2
+
+  validate-licenses:
+    needs:
+      - build-rust
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-14]
+      fail-fast: false
+    name: Validate licenses on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/common
+        with:
+          cache_key: ${{ matrix.os }}_about
+      - name: Download build target
+        uses: actions/download-artifact@v4
+        with:
+          name: build_target_${{ matrix.os }}
+      - name: Validate license information
+        run: |
+          cargo about generate about.hbs
