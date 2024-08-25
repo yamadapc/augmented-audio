@@ -85,6 +85,5 @@ pub fn get(key: &str) -> Option<Value> {
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
 pub fn set(key: &str, value: Value) {
-    cacao::defaults::UserDefaults::default()
-        .insert(key, value.into())
+    cacao::defaults::UserDefaults::default().insert(key, value.into())
 }

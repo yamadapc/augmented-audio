@@ -21,9 +21,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use foreign_types_shared::{ForeignType, ForeignTypeRef};
 use cocoa::{appkit::NSView, base::id};
 use core_graphics_types::geometry::CGSize;
+use foreign_types_shared::{ForeignType, ForeignTypeRef};
 use metal::{Device, MTLPixelFormat, MetalDrawableRef, MetalLayer};
 use objc::{rc::autoreleasepool, runtime::YES};
 use skia_safe::{

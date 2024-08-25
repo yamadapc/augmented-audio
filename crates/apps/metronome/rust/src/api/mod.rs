@@ -94,9 +94,12 @@ pub fn stream_errors(stream: StreamSink<EngineError>) {
 
         match rx {
             Ok(Ok(error)) => {
-                if stream.add(EngineError {
-                    message: error.to_string(),
-                }).is_err() {
+                if stream
+                    .add(EngineError {
+                        message: error.to_string(),
+                    })
+                    .is_err()
+                {
                     break;
                 }
             }

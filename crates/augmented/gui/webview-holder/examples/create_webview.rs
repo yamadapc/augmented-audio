@@ -20,17 +20,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use cocoa::appkit::NSApp;
-use cocoa::base::nil;
-use cocoa::foundation::NSAutoreleasePool;
 
-use webview_holder::WebviewHolder;
-
+#[cfg(target_os = "macos")]
 fn main() {
+    use cocoa::appkit::NSApp;
+    use cocoa::base::nil;
+    use cocoa::foundation::NSAutoreleasePool;
+
+    use webview_holder::WebviewHolder;
+
     unsafe {
         let _pool = NSAutoreleasePool::new(nil);
         let _app = NSApp();
         let holder = WebviewHolder::new((100, 100));
         holder.webview().evaluate_javascript("alert('hello world')");
     }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn main() {
+    todo!()
 }

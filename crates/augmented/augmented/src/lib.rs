@@ -23,7 +23,7 @@
 
 //! This is the `augmented` crate, containing a single entry-point for the Augmented Audio Libraries.
 //! Please see <https://github.com/yamadapc/augmented-audio> for more information.
-//! 
+//!
 //! ## Overview
 //! `augmented` exports utilities and audio processors aimed at making it easier to build audio
 //! applications with rust from a common foundation.  These utilities are experimental and built

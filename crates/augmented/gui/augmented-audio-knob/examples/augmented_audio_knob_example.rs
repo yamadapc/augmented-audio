@@ -23,8 +23,8 @@
 
 #[cfg(target_os = "macos")]
 fn main() {
-    use skia_safe::Color4f;
     use augmented_audio_knob::KnobView;
+    use skia_safe::Color4f;
 
     augmented_audio_gui_basics::sketch(|ctx| {
         let size = ctx.size();
