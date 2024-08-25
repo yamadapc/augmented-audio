@@ -10,23 +10,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Remove unused tools to reclaim disk space
-      shell: bash
-      if: runner.os == 'Linux'
-      run: |
-        sudo rm -rf \
-          /opt/google/chrome \
-          /opt/microsoft/msedge \
-          /opt/microsoft/powershell \
-          /opt/pipx \
-          /usr/lib/mono \
-          /usr/local/julia* \
-          /usr/local/lib/android \
-          /usr/local/lib/node_modules \
-          /usr/local/share/chromium \
-          /usr/local/share/powershell \
-          /usr/share/dotnet \
-          /usr/share/swift
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: ${{ inputs.cache_key }}
@@ -59,3 +42,18 @@ runs:
     - uses: taiki-e/install-action@v2
       with:
         tool: cargo-tarpaulin,cargo-nextest,cargo-about
+    - name: Remove unused tools to reclaim disk space
+      shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        sudo rm -rf \
+          /opt/google/chrome \
+          /opt/microsoft/msedge \
+          /opt/microsoft/powershell \
+          /usr/lib/mono \
+          /usr/local/julia* \
+          /usr/local/lib/android \
+          /usr/local/share/chromium \
+          /usr/local/share/powershell \
+          /usr/share/dotnet \
+          /usr/share/swift
