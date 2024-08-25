@@ -48,7 +48,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-14, ubuntu-20.04]
+        os: [ubuntu-20.04]
       fail-fast: false
     name: Lint rust crates on ${{ matrix.os }}
     steps:
