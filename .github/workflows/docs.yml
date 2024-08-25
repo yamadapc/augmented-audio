@@ -27,6 +27,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-macos-docs"
+          cache-all-crates: true
+          cache-on-failure: true
       - name: Build documentation
         run: cargo doc --no-deps
         env:

@@ -38,7 +38,7 @@ class PlatformSegmentedControl<T extends Object> extends StatelessWidget {
       material: (_, __) => SegmentedButton(
         showSelectedIcon: false,
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(
+          backgroundColor: WidgetStateProperty.all<Color>(
             CupertinoColors.systemBlue.color,
           ),
         ),

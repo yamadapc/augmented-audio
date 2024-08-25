@@ -4,16 +4,19 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+
+[target.'cfg(any(target_os = "linux"))'.dependencies]
+# skia-safe = { version = "0.54.0" }
+
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+# These could work on linux but we don't need them since the crate will noop
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 winit = "0.27.3"
 foreign-types-shared = "0.1"
 taffy = "0.2.2"
 log = "0.4.17"
 
-[target.'cfg(any(target_os = "linux"))'.dependencies]
-skia-safe = { version = "0.54.0" }
-
-[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+# mac specific
 skia-safe = { version = "0.54.0", features = ["metal"] }
 objc = "*"
 metal = "0.24.0"

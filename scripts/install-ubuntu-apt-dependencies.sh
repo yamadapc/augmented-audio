@@ -17,6 +17,7 @@ sudo apt-get install --fix-missing -y \
     libclang-11-dev \
     libgdk3.0-cil-dev \
     libappindicator3-dev \
+    ninja-build \
     libayatana-appindicator3-dev \
     libgtksourceview-3.0-dev \
     libwebkit2gtk-4.0-dev \
@@ -26,6 +27,7 @@ sudo apt-get install --fix-missing -y \
     libxcb-dri2-0-dev \
     libxcb-xfixes0-dev \
     libavahi-client-dev \
+    lld \
     lame \
     libgtk-3-dev
     # nvidia-utils-465 \

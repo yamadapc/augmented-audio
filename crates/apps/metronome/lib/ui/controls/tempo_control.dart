@@ -123,7 +123,7 @@ class _TempoControlState extends State<TempoControl> {
               min: 1,
               max: 350,
             ),
-          )
+          ),
         ],
       ),
     );

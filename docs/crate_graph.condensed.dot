@@ -18,7 +18,6 @@ digraph {
     16 [ label = "[\"macos-bundle-resources\"]" ]
     17 [ label = "[\"darwin-webkit\"]" ]
     18 [ label = "[\"audio-garbage-collector-v2\"]" ]
-    19 [ label = "[\"lame-mp3\"]" ]
     20 [ label = "[\"augmented_oscillator\"]" ]
     21 [ label = "[\"avfaudio-sys\"]" ]
     22 [ label = "[\"audiounit\"]" ]

@@ -1,0 +1,17 @@
+name: CI builds
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  rust:
+    uses: ./.github/workflows/rust.yml
+
+  dart:
+    uses: ./.github/workflows/dart.yml
+
+  web:
+    uses: ./.github/workflows/web.yml

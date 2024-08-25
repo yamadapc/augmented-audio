@@ -1,38 +1,9 @@
 name: Dart
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_call:
 
 jobs:
-  build:
-    name: DAW - Dart - Build & test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: dorny/paths-filter@v2
-        id: changes
-        with:
-          filters: |
-            src:
-              - 'crates/apps/daw/**'
-      - uses: subosito/flutter-action@v1
-        if: steps.changes.outputs.src == 'true'
-      - name: Install dependencies
-        run: cd ./crates/apps/daw && flutter pub get
-        if: steps.changes.outputs.src == 'true'
-      - name: Verify formatting
-        run: cd ./crates/apps/daw && dart format --output=none --set-exit-if-changed .
-        if: steps.changes.outputs.src == 'true'
-      - name: Analyze project source
-        run: cd ./crates/apps/daw && flutter analyze
-        if: steps.changes.outputs.src == 'true'
-      - name: Run tests
-        run: cd ./crates/apps/daw && flutter test
-        if: steps.changes.outputs.src == 'true'
-
   build_metronome:
     name: Metronome - Dart - Build & test
     runs-on: macos-12
@@ -47,7 +18,11 @@ jobs:
           filters: |
             src:
               - 'crates/apps/metronome/**'
-      - uses: subosito/flutter-action@v1
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          flutter-version: 3.24.0
         if: steps.changes.outputs.src == 'true'
       - name: Install dependencies
         run: cd ./crates/apps/metronome && flutter pub get

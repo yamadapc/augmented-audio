@@ -1,10 +1,7 @@
 name: Linux
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always
@@ -37,19 +34,52 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux3"
+          cache-all-crates: true
+          cache-on-failure: true
 
       - name: Install dependencies
         run: |
           ./scripts/install-ubuntu-apt-dependencies.sh
-          ./scripts/install-ubuntu-rust-dependencies.sh
+
+      - name: Test
+        if: true
+        run: |
+          cargo test --workflow \
+              --exclude assert-no-alloc \
+              --exclude augmented-ui \
+              --exclude audiounit \
+              --exclude basedrop \
+              --exclude midir \
+              --exclude gfx \
+              --exclude iced \
+              --exclude iced-baseview \
+              --exclude iced_audio \
+              --exclude libloading \
+              --exclude lyon \
+              --exclude pathfinder \
+              --exclude piet \
+              --exclude plotters \
+              --exclude skribo \
+              --exclude vst \
+              --exclude example-iced-xcode-integration \
+              --exclude avfaudio-sys \
+              --exclude recording_buddy \
+              --exclude augmented-audio-knob \
+              --exclude augmented-audio-gui-basics \
+              --exclude darwin-webkit \
+              --exclude webview-holder \
+              --exclude visualisation_ \
+              --exclude macos-bundle-resources
 
       - name: Test with coverage
+        if: false
         env:
           COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
           COVERAGE_BOT_URL: ${{ secrets.COVERAGE_BOT_URL }}
           COVERAGE_BOT_TOKEN: ${{ secrets.COVERAGE_BOT_TOKEN }}
         run: |
           cargo tarpaulin --skip-clean --workspace \
+              --engine llvm \
               --features story \
               --coveralls $COVERALLS_TOKEN \
               --out lcov \
@@ -128,6 +158,8 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-linux3"
+        cache-all-crates: true
+        cache-on-failure: true
 
     - name: Install dependencies
       run: |

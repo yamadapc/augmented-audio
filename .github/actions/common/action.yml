@@ -1,0 +1,59 @@
+name: Common job setup
+description: Install dependencies for running jobs
+
+inputs:
+  cache_key:
+    description: 'A cache key for this step'
+    required: true
+    default: 'shared_cache'
+
+runs:
+  using: composite
+  steps:
+    - uses: Swatinem/rust-cache@v2
+      with:
+        shared-key: ${{ inputs.cache_key }}
+        cache-all-crates: true
+        cache-on-failure: true
+    - uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        cache: true
+        flutter-version: 3.24.0
+    - name: Run sccache-cache
+      uses: mozilla-actions/sccache-action@v0.0.2
+      with:
+        version: "v0.4.0"
+    - name: Cache cargo binaries
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.cargo/bin/
+        key: ${{ runner.os }}-cargo-bin
+    - name: Install LLVM
+      shell: bash
+      if: runner.os == 'macOS'
+      run: brew install llvm
+    - name: Install dependencies
+      shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        ./scripts/install-ubuntu-apt-dependencies.sh
+    - uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-tarpaulin,cargo-nextest,cargo-about
+    - name: Remove unused tools to reclaim disk space
+      shell: bash
+      if: runner.os == 'Linux'
+      run: |
+        sudo rm -rf \
+          /opt/google/chrome \
+          /opt/microsoft/msedge \
+          /opt/microsoft/powershell \
+          /usr/lib/mono \
+          /usr/local/julia* \
+          /usr/local/lib/android \
+          /usr/local/share/chromium \
+          /usr/local/share/powershell \
+          /usr/share/dotnet \
+          /usr/share/swift

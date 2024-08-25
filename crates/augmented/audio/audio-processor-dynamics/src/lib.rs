@@ -250,6 +250,7 @@ mod test {
         assert!(amp < 2.0);
     }
 
+    #[cfg(target_os = "macos")]
     #[test]
     fn test_peak_detector_output() {
         let output_path = relative_path!("src/peak-detector");

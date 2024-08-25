@@ -1,4 +1,4 @@
-import 'package:charts_flutter/flutter.dart';
+import 'package:community_charts_flutter/community_charts_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:metronome/modules/history/session_entity.dart';
 import 'package:mobx/mobx.dart';
@@ -148,7 +148,7 @@ class HistoryChartModel {
           return formattedDate;
         },
         measureFn: (HistoryChartPoint entry, _) => entry.value,
-      )
+      ),
     ];
   }
 

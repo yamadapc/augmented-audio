@@ -20,12 +20,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+#[cfg(target_os = "macos")]
 extern crate cocoa;
 extern crate darwin_webkit;
 
-use darwin_webkit::helpers::dwk_app::DarwinWKApp;
-
+#[cfg(target_os = "macos")]
 fn main() {
+    use darwin_webkit::helpers::dwk_app::DarwinWKApp;
+
     unsafe {
         let app = DarwinWKApp::new("Simple WebView");
         let webview = app.create_webview();
@@ -35,4 +38,9 @@ fn main() {
         app.set_webview(&webview);
         app.run();
     }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn main() {
+    todo!()
 }

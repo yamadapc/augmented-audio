@@ -23,8 +23,6 @@ wisual-logger = { version = "0.1", path = "../../ops/wisual-logger" }
 log = "0.4.14"
 itertools = "0.10.1"
 assert_no_alloc = { version = "1.1.2", features = ["disable_release"], default-features = false }
-rimd = "0.0.1"
-
 midir = "0.8"
 
 [[bench]]

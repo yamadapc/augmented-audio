@@ -21,51 +21,66 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-use std::time::Duration;
+#[cfg(not(target_os = "macos"))]
+mod implementation {
+    pub fn main() {
+        todo!()
+    }
+}
 
-use foreign_types_shared::ForeignType;
-use metal::Device;
-use skia_safe::gpu::mtl::BackendContext;
-use skia_safe::gpu::{mtl, DirectContext, RecordingContext};
-use skia_safe::{AlphaType, Budgeted, ColorType, ISize, ImageInfo, Size, Surface};
+#[cfg(target_os = "macos")]
+mod implementation {
+
+    use std::time::Duration;
+
+    use foreign_types_shared::ForeignType;
+    use metal::Device;
+    use skia_safe::gpu::mtl::BackendContext;
+    use skia_safe::gpu::{mtl, DirectContext, RecordingContext};
+    use skia_safe::{AlphaType, Budgeted, ColorType, ISize, ImageInfo, Size, Surface};
+
+    pub fn main() {
+        wisual_logger::init_from_env();
+
+        let draw_size = Size::new(500.0, 500.0);
+        let device = Device::system_default().unwrap();
+        let queue = device.new_command_queue();
+        let backend = unsafe {
+            BackendContext::new(
+                device.as_ptr() as mtl::Handle,
+                queue.as_ptr() as mtl::Handle,
+                std::ptr::null(),
+            )
+        };
+        let context = DirectContext::new_metal(&backend, None).unwrap();
+
+        let mut recording_context = RecordingContext::from(context);
+        let surfaces: Vec<Surface> = (0..500)
+            .map(|_i| {
+                Surface::new_render_target(
+                    &mut recording_context,
+                    Budgeted::No,
+                    &ImageInfo::new(
+                        ISize::new(draw_size.width as i32, draw_size.height as i32),
+                        ColorType::BGRA8888,
+                        AlphaType::Premul,
+                        None,
+                    ),
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+                .unwrap()
+            })
+            .collect();
+
+        log::info!("Created 100 surfaces of 500x500 pixels");
+        std::thread::sleep(Duration::from_secs(60));
+        drop(surfaces);
+    }
+}
 
 fn main() {
-    wisual_logger::init_from_env();
-
-    let draw_size = Size::new(500.0, 500.0);
-    let device = Device::system_default().unwrap();
-    let queue = device.new_command_queue();
-    let backend = unsafe {
-        BackendContext::new(
-            device.as_ptr() as mtl::Handle,
-            queue.as_ptr() as mtl::Handle,
-            std::ptr::null(),
-        )
-    };
-    let context = DirectContext::new_metal(&backend, None).unwrap();
-
-    let mut recording_context = RecordingContext::from(context);
-    let surfaces: Vec<Surface> = (0..500)
-        .map(|_i| {
-            Surface::new_render_target(
-                &mut recording_context,
-                Budgeted::No,
-                &ImageInfo::new(
-                    ISize::new(draw_size.width as i32, draw_size.height as i32),
-                    ColorType::BGRA8888,
-                    AlphaType::Premul,
-                    None,
-                ),
-                None,
-                None,
-                None,
-                None,
-            )
-            .unwrap()
-        })
-        .collect();
-
-    log::info!("Created 100 surfaces of 500x500 pixels");
-    std::thread::sleep(Duration::from_secs(60));
-    drop(surfaces);
+    implementation::main();
 }

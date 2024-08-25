@@ -62,7 +62,7 @@ class HistoryListItem extends StatelessWidget {
               Text("$timeSignature - ${session.tempo.floor()}bpm"),
             ],
           ),
-          const Divider()
+          const Divider(),
         ],
       ),
     );

@@ -21,10 +21,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 // use augmented_audio_gui_basics::multitouch::get_multitouch_devices;
-use augmented_audio_gui_basics::prelude::*;
 // use std::time::Duration;
 
+#[cfg(target_os = "macos")]
 fn main() {
+    use augmented_audio_gui_basics::prelude::*;
+
     // let devices = get_multitouch_devices();
     // for mut device in devices {
     //     device.register_contact_frame_callback(|_evt, finger, _, _| {
@@ -40,4 +42,9 @@ fn main() {
         let widget = Rectangle::default();
         render(canvas, size, widget.into());
     })
+}
+
+#[cfg(not(target_os = "macos"))]
+fn main() {
+    todo!()
 }

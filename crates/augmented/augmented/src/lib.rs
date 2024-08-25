@@ -26,12 +26,10 @@
 //!
 //! ## Overview
 //! `augmented` exports utilities and audio processors aimed at making it easier to build audio
-//! applications with rust from a common foundation.
+//! applications with rust from a common foundation.  These utilities are experimental and built
+//! on spare time by one person who isn't an audio developer. [Your feedback is greatly appreciated](https://github.com/yamadapc/augmented-audio/issues/new).
 //!
-//! These utilities are experimental and built on spare time by one person who isn't an audio
-//! developer. [Therefore, your feedback is greatly appreciated](https://github.com/yamadapc/augmented-audio/issues/new).
-//!
-//! `augmented` is modular and all components exist in several small crates you can cherry-pick.
+//! `augmented` is modular and all components exist in several small crates you can pick.
 //!
 //! ## Core concepts
 //! Some concepts are shared between all the crates, for example, the [`audio::processor::AudioProcessor`] and

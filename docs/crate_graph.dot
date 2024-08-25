@@ -184,10 +184,6 @@ style = filled;
 "audio-garbage-collector-v2" -> "circular-data-structures";
 "audio-garbage-collector-v2" -> "atomic-queue";
 }
-subgraph "lame-mp3" {
-label = "lame-mp3";
-style = filled;
-}
 subgraph "audio-processor-bitcrusher" {
 label = "audio-processor-bitcrusher";
 style = filled;

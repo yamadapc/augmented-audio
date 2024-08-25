@@ -1,10 +1,7 @@
 name: Linux in Docker
 
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always
@@ -40,6 +37,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "rust-cache-linux3"
+          cache-all-crates: true
+          cache-on-failure: true
 
       - run: echo "/root/.cargo/bin" >> $GITHUB_PATH
       - name: Test with coverage
@@ -127,6 +126,8 @@ jobs:
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-linux3"
+        cache-all-crates: true
+        cache-on-failure: true
 
     - name: Build release
       shell: bash

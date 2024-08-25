@@ -20,11 +20,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use skia_safe::Color4f;
 
-use augmented_audio_knob::KnobView;
-
+#[cfg(target_os = "macos")]
 fn main() {
+    use augmented_audio_knob::KnobView;
+    use skia_safe::Color4f;
+
     augmented_audio_gui_basics::sketch(|ctx| {
         let size = ctx.size();
         let canvas = ctx.canvas();
@@ -42,4 +43,9 @@ fn main() {
 
         canvas.restore();
     })
+}
+
+#[cfg(not(target_os = "macos"))]
+fn main() {
+    todo!()
 }

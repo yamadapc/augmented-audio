@@ -148,11 +148,11 @@ class _MainPageTabState extends State<MainPageTab> {
                       stateController: widget.stateController,
                     ),
                     const SizedBox(height: 10),
-                    BottomRow(stateController: widget.stateController)
+                    BottomRow(stateController: widget.stateController),
                   ],
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

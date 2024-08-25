@@ -77,9 +77,18 @@ pub fn run_file_watch_loop(
         }
     };
 
+    let mut errors: u32 = 0;
     loop {
         if let Err(err) = inner() {
-            log::error!("Error in file watcher thread: {}", err);
+            errors += 1;
+            errors = errors.min(7);
+
+            let wait_time = std::time::Duration::from_secs(2_u64.pow(errors));
+            log::error!("Error in file watcher thread (sleeping for {wait_time:?}): {err}");
+
+            std::thread::sleep(wait_time);
+        } else {
+            errors = 0;
         }
     }
 }

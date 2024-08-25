@@ -1,7 +1,7 @@
 [package]
 name = "augmented"
 description = "The Augmented Framework for audio applications"
-version = "0.1.0"
+version = "0.0.1-alpha.1"
 edition = "2018"
 license = "MIT"
 homepage = "https://github.com/yamadapc/augmented-audio"

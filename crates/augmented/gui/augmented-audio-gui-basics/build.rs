@@ -21,7 +21,5 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 fn main() {
-    println!(
-        "cargo:rustc-link-search=framework=/System/Library/PrivateFrameworks"
-    );
+    println!("cargo:rustc-link-search=framework=/System/Library/PrivateFrameworks");
 }

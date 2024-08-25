@@ -20,45 +20,53 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+#[cfg(target_os = "macos")]
 extern crate cocoa;
 extern crate criterion;
 extern crate darwin_webkit;
 
-use cocoa::base::id;
-use darwin_webkit::helpers::dwk_app::DarwinWKApp;
-use darwin_webkit::helpers::dwk_webview::DarwinWKWebView;
-use std::sync::mpsc::{channel, Receiver};
-use std::sync::Arc;
-use std::thread;
-use std::time::{Duration, Instant};
+#[cfg(target_os = "macos")]
+mod implementation {
+    pub use cocoa::base::id;
+    pub use darwin_webkit::helpers::dwk_app::DarwinWKApp;
+    pub use darwin_webkit::helpers::dwk_webview::DarwinWKWebView;
+    pub use std::sync::mpsc::{channel, Receiver};
+    pub use std::sync::Arc;
+    pub use std::thread;
+    pub use std::time::{Duration, Instant};
 
-unsafe fn setup_count_bench(webview: Arc<DarwinWKWebView>, n: u64) -> Receiver<()> {
-    println!("Starting webview");
-    let (sender, receiver) = channel();
+    pub unsafe fn setup_count_bench(webview: Arc<DarwinWKWebView>, n: u64) -> Receiver<()> {
+        println!("Starting webview");
+        let (sender, receiver) = channel();
 
-    let mut i = 0;
-    let message_sender = sender;
-    let cb_webview = webview.clone();
-    let callback = Box::into_raw(Box::new(Box::new(move |_: id, _message: id| {
-        i += 1;
-        let value = i;
+        let mut i = 0;
+        let message_sender = sender;
+        let cb_webview = webview.clone();
+        let callback = Box::into_raw(Box::new(Box::new(move |_: id, _message: id| {
+            i += 1;
+            let value = i;
 
-        if value > n {
-            message_sender.send(()).unwrap();
-        } else {
-            let main_cb_webview = cb_webview.clone();
-            dispatch::Queue::main().exec_async(move || {
-                main_cb_webview.evaluate_javascript(format!("onMessage('{}')", value).as_str());
-            });
-        }
-    })));
+            if value > n {
+                message_sender.send(()).unwrap();
+            } else {
+                let main_cb_webview = cb_webview.clone();
+                dispatch::Queue::main().exec_async(move || {
+                    main_cb_webview.evaluate_javascript(format!("onMessage('{}')", value).as_str());
+                });
+            }
+        })));
 
-    webview.add_message_handler("general", callback);
+        webview.add_message_handler("general", callback);
 
-    receiver
+        receiver
+    }
 }
 
+#[cfg(target_os = "macos")]
 fn main() {
+    use implementation::*;
+
     println!("Measuring latency to send and receive messages from a WebView.");
     println!("Will:\n");
     println!("  1. Send a message to JavaScript");
@@ -108,4 +116,9 @@ fn main() {
         app.run();
         main_thread.join().unwrap();
     }
+}
+
+#[cfg(not(target_os = "macos"))]
+fn main() {
+    todo!()
 }

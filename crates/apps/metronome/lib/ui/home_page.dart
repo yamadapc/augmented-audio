@@ -1,11 +1,9 @@
-import 'dart:ffi';
 import 'dart:io' as io;
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:macos_ui/macos_ui.dart';
-import 'package:metronome/bridge_generated.dart';
 import 'package:metronome/logger.dart';
 import 'package:metronome/modules/context/app_context.dart';
 import 'package:metronome/modules/database.dart';
@@ -15,17 +13,21 @@ import 'package:metronome/modules/state/history_state_controller.dart';
 import 'package:metronome/modules/state/history_state_model.dart';
 import 'package:metronome/modules/state/metronome_state_controller.dart';
 import 'package:metronome/modules/state/metronome_state_model.dart';
+import 'package:metronome/src/rust/api.dart';
+import 'package:metronome/src/rust/frb_generated.dart';
+import 'package:metronome/src/rust/internal/state.dart';
 import 'package:metronome/ui/tabs/history/history_page_tab.dart';
 import 'package:metronome/ui/tabs/main_tab.dart';
 import 'package:path_provider/path_provider.dart';
 
-Future<Metronome> buildMetronome() async {
-  const name = "metronome";
-  final metronome = MetronomeImpl(
-    io.Platform.isIOS || io.Platform.isMacOS
-        ? DynamicLibrary.executable()
-        : DynamicLibrary.open("lib$name.so"),
-  );
+Future<void> buildMetronome() async {
+  // const name = "metronome";
+  // final metronome = RustLib(
+  //   io.Platform.isIOS || io.Platform.isMacOS
+  //       ? DynamicLibrary.executable()
+  //       : DynamicLibrary.open("lib$name.so"),
+  // );
+  await RustLib.init();
 
   final Directory applicationDocumentsDirectory =
       await getApplicationDocumentsDirectory();
@@ -34,8 +36,7 @@ Future<Metronome> buildMetronome() async {
         ? "${applicationDocumentsDirectory.parent.path}/files"
         : null,
   );
-  metronome.initialize(options: options);
-  return metronome;
+  initialize(options: options);
 }
 
 class HomePage extends StatefulWidget {
@@ -51,7 +52,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final HistoryStateModel historyStateModel = HistoryStateModel();
   final MetronomeStateModel metronomeStateModel = MetronomeStateModel();
 
-  Metronome? metronome;
   MetronomeStateController? metronomeStateController;
   HistoryStateController? historyStateController;
 
@@ -71,8 +71,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     Future<void> runInitSequence() async {
       logger.i("Initializing metronome bridge");
-      final metronome = await buildMetronome();
-      this.metronome = metronome;
+      await buildMetronome();
       logger.i("Initializing database");
       final database = await buildDatabase();
 
@@ -89,7 +88,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       setState(() {
         metronomeStateController = MetronomeStateController(
           metronomeStateModel,
-          metronome,
           historyController,
           AppContext.of(context).analytics,
         );
@@ -98,7 +96,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         trace.stop();
       });
 
-      metronome.streamErrors().listen((error) {
+      streamErrors().listen((error) {
         onError(error);
       });
     }

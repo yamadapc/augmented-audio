@@ -38,7 +38,6 @@ The augmented audio libraries are separated onto categories:
   * [**audio-processor-utility** - Utility AudioProcessor implementations (pan, gain, mono, noise)](audio/audio-processor-utility)
   * [**audiounit**](audio/audiounit)
   * [**avfaudio-sys**](audio/avfaudio-sys)
-  * [**lame-mp3**](audio/lame-mp3)
   * [**augmented_oscillator** - Very simple implementation of an oscillator.](audio/oscillator)
 * [**data** - Data-structures](data)
   * [**atomic-queue** - Simple bounded lock-free queue for use in Audio applications, ported from https://github.com/max0x7ba/atomic_queue.](data/atomic-queue)

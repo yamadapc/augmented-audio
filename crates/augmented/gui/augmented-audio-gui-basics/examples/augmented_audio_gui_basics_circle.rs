@@ -20,9 +20,11 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use skia_safe::{Color4f, Paint, Point};
 
+#[cfg(target_os = "macos")]
 fn main() {
+    use skia_safe::{Color4f, Paint, Point};
+
     augmented_audio_gui_basics::sketch(|ctx| {
         let size = ctx.size();
         let canvas = ctx.canvas();
@@ -33,4 +35,9 @@ fn main() {
         let center = Point::new(size.width / 2.0, size.height / 2.0);
         canvas.draw_circle(center, 100.0, &paint);
     })
+}
+
+#[cfg(target_os = "linux")]
+fn main() {
+    todo!()
 }

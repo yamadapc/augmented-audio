@@ -11,8 +11,7 @@ members = [
     "crates/apps/synth",
     "crates/apps/tremolo-plugin",
     "crates/apps/demo-plugin",
-    "crates/apps/metronome",
-    "crates/apps/daw",
+    "crates/apps/metronome/rust",
     # Examples
     "crates/examples/host-tempo-plugin",
     # Repository scripts
@@ -45,7 +44,6 @@ members = [
     "crates/augmented/audio/audio-thread-logger",
     "crates/augmented/audio/augmented-longbackoff",
     "crates/augmented/audio/augmented-streams",
-    "crates/augmented/audio/lame-mp3",
     "crates/augmented/audio/oscillator",
     "crates/augmented/data/atomic-queue",
     "crates/augmented/data/atomics",
@@ -74,7 +72,6 @@ members = [
     "crates/augmented/ops/augmented-analytics",
     "crates/augmented/ops/augmented-metrics",
     "crates/augmented/ops/wisual-logger",
-    "dart/augmented_audio_wave_example",
 ]
 
 exclude = [

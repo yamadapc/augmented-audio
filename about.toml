@@ -31,3 +31,6 @@ accepted = ["GPL-3.0"]
 
 [metronome]
 accepted = ["AGPL-3.0"]
+
+[rust_lib_metronome]
+accepted = ["AGPL-3.0"]

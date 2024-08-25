@@ -23,7 +23,6 @@
 
 //! Draw charts with `plotters` during unit-testing.
 
-use std::path::Path;
 use std::time::Duration;
 
 use crate::generators::sine_buffer;
@@ -125,7 +124,7 @@ pub fn generate_frequency_response_plot<Processor>(
         .collect();
     let chart_model = build_frequency_response_chart_model(responses);
 
-    let filename = Path::new(filename);
+    let filename = std::path::Path::new(filename);
     let chart_filename = filename.with_file_name(format!(
         "{}--{}.svg",
         filename.file_name().unwrap().to_str().unwrap(),
@@ -165,7 +164,7 @@ pub fn draw_vec_chart(filename: &str, plot_name: &str, vec: Vec<f32>) {
 /// Draw multiple vectors as line charts.
 pub fn draw_multi_vec_charts(filename: &str, plot_name: &str, vecs: MultiSeries) {
     let (_, vec) = &vecs[0];
-    let filename = Path::new(filename);
+    let filename = std::path::Path::new(filename);
     let chart_filename = filename.with_file_name(format!(
         "{}--{}.png",
         filename.file_name().unwrap().to_str().unwrap(),

@@ -115,6 +115,7 @@
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/audio/audio-processor-analysis/draw_spectrogram_window/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/vendor/xcb-util/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/crates/augmented/development/audio-compare/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/crates/apps/metronome/rust/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/crates/augmented/data/augmented-midi/midir" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
       <excludeFolder url="file://$MODULE_DIR$/crates/spikes/example-druid-audio-viz/target" />
