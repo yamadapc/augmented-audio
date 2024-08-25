@@ -21,7 +21,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "./scripts/install-ubuntu-dependencies.sh"
+	"postCreateCommand": "./scripts/install-ubuntu-dependencies.sh && sudo apt install git-lfs"
 
 	// Configure tool-specific properties.
 	// "customizations": {},

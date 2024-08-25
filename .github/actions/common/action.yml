@@ -10,6 +10,23 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Remove unused tools to reclaim disk space
+      shell: bash
+      run: |
+        sudo rm -rf \
+          "$AGENT_TOOLSDIRECTORY" \
+          /opt/google/chrome \
+          /opt/microsoft/msedge \
+          /opt/microsoft/powershell \
+          /opt/pipx \
+          /usr/lib/mono \
+          /usr/local/julia* \
+          /usr/local/lib/android \
+          /usr/local/lib/node_modules \
+          /usr/local/share/chromium \
+          /usr/local/share/powershell \
+          /usr/share/dotnet \
+          /usr/share/swift
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: ${{ inputs.cache_key }}
