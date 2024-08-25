@@ -12,6 +12,7 @@ runs:
   steps:
     - name: Remove unused tools to reclaim disk space
       shell: bash
+      if: runner.os == 'Linux'
       run: |
         sudo rm -rf \
           "$AGENT_TOOLSDIRECTORY" \
