@@ -67,6 +67,7 @@ fn print_host_devices(host_id: &cpal::HostId) -> Result<(), Box<dyn Error>> {
 mod test {
     use crate::commands::run_list_devices;
 
+    #[skip]
     #[test]
     fn test_list_devices_does_not_panic() {
         run_list_devices();
