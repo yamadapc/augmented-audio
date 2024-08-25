@@ -11,4 +11,5 @@ runs:
           path: target.tar.gz
     
       - name: Untar build outputs
+        shell: bash
         run: tar -xvzf target.tar.gz
