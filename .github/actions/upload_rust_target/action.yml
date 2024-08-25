@@ -6,7 +6,7 @@ runs:
   steps:
       - name: Tar build outputs
         shell: bash
-        run: tar -cvf target.tar.gz /target
+        run: tar -cvf target.tar.gz target
       - name: Upload build outputs
         uses: actions/upload-artifact@v4
         with:
