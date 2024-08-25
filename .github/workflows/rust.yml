@@ -26,11 +26,8 @@ jobs:
           cache_key: ${{ matrix.os }}_build
       - name: Run build
         run: cargo build
-      - uses: ./.github/actions/upload_rust_target
 
   test-rust:
-    needs:
-      - build-rust
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -44,13 +41,10 @@ jobs:
       - uses: ./.github/actions/common
         with:
           cache_key: ${{ matrix.os }}_test
-      - uses: ./.github/actions/download_rust_target
       - name: Run tests
         run: ./scripts/test.sh
 
   lint-rust:
-    needs:
-      - build-rust
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -64,13 +58,10 @@ jobs:
       - uses: ./.github/actions/common
         with:
           cache_key: ${{ matrix.os }}_lint
-      - uses: ./.github/actions/download_rust_target
       - name: Run clippy
         run: ./scripts/clippy.sh
 
   build-release-binaries:
-    needs:
-      - build-rust
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -84,7 +75,6 @@ jobs:
       - uses: ./.github/actions/common
         with:
           cache_key: ${{ matrix.os }}_build_release
-      - uses: ./.github/actions/download_rust_target
       - name: Build release binaries
         run: |
           cargo build --release \
@@ -93,8 +83,6 @@ jobs:
             --package tas_v2
 
   validate-licenses:
-    needs:
-      - build-rust
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -108,7 +96,6 @@ jobs:
       - uses: ./.github/actions/common
         with:
           cache_key: ${{ matrix.os }}_about
-      - uses: ./.github/actions/download_rust_target
       - name: Validate license information
         run: |
           cargo about generate about.hbs
