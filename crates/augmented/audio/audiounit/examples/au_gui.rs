@@ -41,7 +41,7 @@ mod implementation {
     }
 
     #[derive(Default)]
-    struct AuGuiApp {
+    pub struct AuGuiApp {
         window: Window,
     }
 
@@ -70,10 +70,10 @@ mod implementation {
 
 #[cfg(target_os = "macos")]
 fn main() {
-    implementation::App::new("com.augmented.augui", AuGuiApp::default()).run()
+    cacao::appkit::App::new("com.augmented.augui", implementation::AuGuiApp::default()).run()
 }
 
 #[cfg(not(target_os = "macos"))]
 fn main() {
     todo!("This example does not work on Linux")
- }
+}
