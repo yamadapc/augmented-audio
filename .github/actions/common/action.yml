@@ -15,7 +15,6 @@ runs:
       if: runner.os == 'Linux'
       run: |
         sudo rm -rf \
-          "$AGENT_TOOLSDIRECTORY" \
           /opt/google/chrome \
           /opt/microsoft/msedge \
           /opt/microsoft/powershell \
