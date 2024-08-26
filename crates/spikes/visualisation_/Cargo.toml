@@ -7,7 +7,7 @@ edition = "2021"
 audio-processor-standalone = { version = "3.5.0", path = "../../augmented/application/audio-processor-standalone" }
 audio-processor-traits = { version = "4.3.0", path = "../../augmented/audio/audio-processor-traits" }
 audio-garbage-collector = { version = "1.2.0", path = "../../augmented/audio/audio-garbage-collector" }
-audio-processor-analysis = { version = "2.3.0", path = "../../augmented/audio/audio-processor-analysis" }
+audio-processor-analysis = { version = "2.4.0", path = "../../augmented/audio/audio-processor-analysis" }
 audio-processor-file = { version = "3.3.0", path = "../../augmented/audio/audio-processor-file" }
 augmented-atomics = { version = "0.2.0", path = "../../augmented/data/atomics" }
 atomic_refcell = "0.1.8"
