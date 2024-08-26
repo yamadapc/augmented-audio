@@ -1,3 +1,9 @@
+## v2.7.0
+
+* [`bacb947e`](https://github.com/yamadapc/augmented-audio/commits/bacb947e) audio-processor-traits@4.3.0 (Minor)
+* [`e9e31f60`](https://github.com/yamadapc/augmented-audio/commits/e9e31f60) Fix testing helpers compilation (Minor)
+* [`2ab59da6`](https://github.com/yamadapc/augmented-audio/commits/2ab59da6) Fix test failure (Minor)
+
 ## v2.6.0
 
 * [`67a393ae`](https://github.com/yamadapc/augmented-audio/commits/67a393ae) audio-processor-traits@4.2.0 (Minor)

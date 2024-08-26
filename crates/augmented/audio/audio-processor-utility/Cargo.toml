@@ -20,4 +20,4 @@ rand = { version = "0.8", features = ["small_rng"] }
 
 [dev-dependencies]
 audio-processor-standalone = { version = "3.4.0", path = "../../application/audio-processor-standalone" }
-audio-processor-testing-helpers = { version = "2.6.0", path = "../../testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "2.7.0", path = "../../testing/audio-processor-testing-helpers" }

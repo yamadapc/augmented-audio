@@ -37,7 +37,7 @@ augmented-audio-metrics = { path = "../../ops/augmented-metrics" , version = "1.
 cpal = { version = "0.15.2", features = ["oboe-shared-stdcxx"] }
 
 [dev-dependencies]
-audio-processor-testing-helpers = { version = "2.6.0", path = "../../../augmented/testing/audio-processor-testing-helpers" }
+audio-processor-testing-helpers = { version = "2.7.0", path = "../../../augmented/testing/audio-processor-testing-helpers" }
 wisual-logger = { version = "0.1.4", path = "../../ops/wisual-logger" }
 tempdir = "0.3.7"
 
