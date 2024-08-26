@@ -1,3 +1,11 @@
+## v3.5.0
+
+* [`a81a2edf`](https://github.com/yamadapc/augmented-audio/commits/a81a2edf) audio-processor-standalone-gui@0.11.0 (Minor)
+* [`94829fe3`](https://github.com/yamadapc/augmented-audio/commits/94829fe3) augmented-midi@1.8.0 (Minor)
+* [`422a69d8`](https://github.com/yamadapc/augmented-audio/commits/422a69d8) audio-processor-file@3.3.0 (Minor)
+* [`dd783c96`](https://github.com/yamadapc/augmented-audio/commits/dd783c96) audio-processor-testing-helpers@2.7.0 (Minor)
+* [`bacb947e`](https://github.com/yamadapc/augmented-audio/commits/bacb947e) audio-processor-traits@4.3.0 (Minor)
+
 ## v3.4.0
 
 * [`00d60996`](https://github.com/yamadapc/augmented-audio/commits/00d60996) atomic-queue@2.2.0 (Minor)
