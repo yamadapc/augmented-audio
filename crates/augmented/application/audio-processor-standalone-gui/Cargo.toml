@@ -1,6 +1,6 @@
 [package]
 name = "audio-processor-standalone-gui"
-version = "0.10.0"
+version = "0.11.0"
 description = "Provides generic `iced` GUI for implementations of `audio_processor_traits::parameters::AudioProcessorHandle`"
 edition = "2021"
 license = "MIT"
