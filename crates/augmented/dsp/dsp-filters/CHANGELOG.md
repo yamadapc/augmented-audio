@@ -1,3 +1,9 @@
+## v2.5.0
+
+* [`dd783c96`](https://github.com/yamadapc/augmented-audio/commits/dd783c96) audio-processor-testing-helpers@2.7.0 (Minor)
+* [`bacb947e`](https://github.com/yamadapc/augmented-audio/commits/bacb947e) audio-processor-traits@4.3.0 (Minor)
+* [`2cea36bd`](https://github.com/yamadapc/augmented-audio/commits/2cea36bd) Start to add way to calculate response (Minor)
+
 ## v2.4.0
 
 * [`32513f4b`](https://github.com/yamadapc/augmented-audio/commits/32513f4b) Update with band-shelf rename (Minor)
