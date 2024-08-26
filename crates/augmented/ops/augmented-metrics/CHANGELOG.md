@@ -1,3 +1,7 @@
+## v1.9.0
+
+* [`bacb947e`](https://github.com/yamadapc/augmented-audio/commits/bacb947e) audio-processor-traits@4.3.0 (Minor)
+
 ## v1.8.0
 
 * [`67a393ae`](https://github.com/yamadapc/augmented-audio/commits/67a393ae) audio-processor-traits@4.2.0 (Minor)
