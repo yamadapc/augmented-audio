@@ -1,3 +1,12 @@
+## v2.5.0
+
+* [`21c15053`](https://github.com/yamadapc/augmented-audio/commits/21c15053) augmented-audio-volume@0.9.0 (Minor)
+* [`59d09487`](https://github.com/yamadapc/augmented-audio/commits/59d09487) audio-processor-standalone@3.5.0 (Minor)
+* [`422a69d8`](https://github.com/yamadapc/augmented-audio/commits/422a69d8) audio-processor-file@3.3.0 (Minor)
+* [`dd783c96`](https://github.com/yamadapc/augmented-audio/commits/dd783c96) audio-processor-testing-helpers@2.7.0 (Minor)
+* [`bacb947e`](https://github.com/yamadapc/augmented-audio/commits/bacb947e) audio-processor-traits@4.3.0 (Minor)
+* [`a5352f06`](https://github.com/yamadapc/augmented-audio/commits/a5352f06) Disable plot on linux (Minor)
+
 ## v2.4.0
 
 * [`6a7d0db3`](https://github.com/yamadapc/augmented-audio/commits/6a7d0db3) audio-processor-standalone@3.4.0 (Minor)
