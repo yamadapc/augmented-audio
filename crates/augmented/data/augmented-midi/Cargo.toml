@@ -13,7 +13,7 @@ exclude = [
 ]
 
 [dependencies]
-audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "4.2.0" }
+audio-processor-traits = { path = "../../audio/audio-processor-traits" , version = "4.3.0" }
 nom = "7.1.0"
 cookie-factory = "0.3"
 

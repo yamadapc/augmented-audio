@@ -747,7 +747,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-traits"
-version = "4.2.0"
+version = "4.3.0"
 dependencies = [
  "audio-garbage-collector",
  "augmented-atomics",

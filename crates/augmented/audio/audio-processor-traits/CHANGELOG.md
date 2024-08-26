@@ -1,3 +1,7 @@
+## v4.3.0
+
+* [`5962ecdd`](https://github.com/yamadapc/augmented-audio/commits/5962ecdd) Add getters for inner processor (Minor)
+
 ## v4.2.0
 
 * [`7b7d2611`](https://github.com/yamadapc/augmented-audio/commits/7b7d2611) augmented_oscillator@1.4.0 (Minor)
