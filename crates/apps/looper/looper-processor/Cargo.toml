@@ -48,7 +48,7 @@ chrono = "0.4"
 
 # Audio
 cpal = "0.15.2"
-audio-processor-metronome = { path = "../../../augmented/audio/audio-processor-metronome" , version = "3.4.0" }
+audio-processor-metronome = { path = "../../../augmented/audio/audio-processor-metronome" , version = "3.5.0" }
 augmented-longbackoff = { path = "../../../augmented/audio/augmented-longbackoff", version = "0.1" }
 atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "2.2.0" }
 augmented-adsr-envelope = { version = "0.5.0", path = "../../../augmented/audio/adsr-envelope" }
