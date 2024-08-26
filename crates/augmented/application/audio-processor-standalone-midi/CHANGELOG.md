@@ -1,3 +1,7 @@
+## v1.13.0
+
+* [`bacb947e`](https://github.com/yamadapc/augmented-audio/commits/bacb947e) audio-processor-traits@4.3.0 (Minor)
+
 ## v1.12.0
 
 * [`00d60996`](https://github.com/yamadapc/augmented-audio/commits/00d60996) atomic-queue@2.2.0 (Minor)
