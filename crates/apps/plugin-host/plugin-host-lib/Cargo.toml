@@ -47,7 +47,7 @@ audio-processor-file = { path = "../../../augmented/audio/audio-processor-file" 
 audio-processor-standalone-midi = { version = "1.12.0", path = "../../../augmented/application/audio-processor-standalone-midi", features = ["actix"] }
 audio-processor-traits = { version = "4.3.0", path = "../../../augmented/audio/audio-processor-traits" }
 circular-data-structures = { path = "../../../augmented/data/circular-data-structures" }
-augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.7.0" }
+augmented-convert-sample-rate = { path = "../../../augmented/dsp/convert-sample-rate" , version = "1.8.0" }
 augmented_oscillator = { path = "../../../augmented/audio/oscillator", version = "1.4.0" }
 actix-system-threads = { path = "../../../augmented/application/actix-system-threads" }
 mockall = "0.11.1"
