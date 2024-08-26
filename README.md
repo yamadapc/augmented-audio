@@ -2,7 +2,7 @@
 
 <h1 align="center">Augmented Audio Libraries</h1>
 
-[![CI builds]([https://github.com/yamadapc/augmented-audio/actions/workflows/ci.yml/badge.svg](https://github.com/yamadapc/augmented-audio/actions/workflows/ci.yml/badge.svg))](https://github.com/yamadapc/augmented-audio/actions/workflows/ci.yml)
+![CI builds](https://github.com/yamadapc/augmented-audio/actions/workflows/ci.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/yamadapc/augmented-audio/badge.svg?branch=master)](https://coveralls.io/github/yamadapc/augmented-audio?branch=master) [**Note about test coverage**](docs/TEST_COVERAGE.md)
 
 - - -
