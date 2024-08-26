@@ -731,7 +731,7 @@ dependencies = [
 
 [[package]]
 name = "audio-processor-time"
-version = "1.6.0"
+version = "1.7.0"
 dependencies = [
  "assert_no_alloc",
  "audio-garbage-collector",
