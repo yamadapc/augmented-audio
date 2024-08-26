@@ -53,7 +53,7 @@ augmented-longbackoff = { path = "../../../augmented/audio/augmented-longbackoff
 atomic-queue = { path = "../../../augmented/data/atomic-queue" , version = "2.2.0" }
 augmented-adsr-envelope = { version = "0.5.0", path = "../../../augmented/audio/adsr-envelope" }
 augmented-atomics = { path = "../../../augmented/data/atomics", version = "0.2.0" }
-augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.8.0" }
+augmented-playhead = { path = "../../../augmented/data/augmented-playhead", version = "0.9.0" }
 audio-garbage-collector = { version = "1.2.0", path = "../../../augmented/audio/audio-garbage-collector" }
 audio-processor-standalone = { version = "3.5.0", path = "../../../augmented/application/audio-processor-standalone" }
 audio-processor-standalone-midi = { path = "../../../augmented/application/audio-processor-standalone-midi", version = "1.13.0", features = ["actix"] }
