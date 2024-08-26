@@ -1,3 +1,8 @@
+## v1.8.0
+
+* [`bacb947e`](https://github.com/yamadapc/augmented-audio/commits/bacb947e) audio-processor-traits@4.3.0 (Minor)
+* [`9acfef94`](https://github.com/yamadapc/augmented-audio/commits/9acfef94) Disable docker builds (Minor)
+
 ## v1.7.0
 
 * [`67a393ae`](https://github.com/yamadapc/augmented-audio/commits/67a393ae) audio-processor-traits@4.2.0 (Minor)
