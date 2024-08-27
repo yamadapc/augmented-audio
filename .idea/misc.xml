@@ -7,4 +7,5 @@
       <file path="$PROJECT_DIR$/crates/augmented/data/augmented-midi/midir" />
     </excludeRoots>
   </component>
+  <component name="ProjectRootManager" version="2" project-jdk-name="Pipenv (rust-audio-software)" project-jdk-type="Python SDK" />
 </project>

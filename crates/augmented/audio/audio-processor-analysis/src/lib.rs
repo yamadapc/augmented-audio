@@ -83,3 +83,6 @@ pub mod transient_detection;
 
 /// Many window functions
 pub mod window_functions;
+
+/// Pitch-detection
+pub mod pitch_detection;
