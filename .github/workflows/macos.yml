@@ -33,7 +33,7 @@ jobs:
           version: "v0.4.0"
 
       - name: Cache cargo binaries
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -102,7 +102,7 @@ jobs:
           cache-all-crates: true
           cache-on-failure: true
       - name: Cache cargo binaries
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -193,7 +193,7 @@ jobs:
           cache-all-crates: true
           cache-on-failure: true
       - name: Cache cargo binaries
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -218,7 +218,7 @@ jobs:
         run: |
           cd ./crates/apps/looper/looper-processor
           make
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         name: "Cache: Swift Package Manager"
         with:
           path: ~/Library/Developer/Xcode/DerivedData/Sequencer-*/SourcePackages/
