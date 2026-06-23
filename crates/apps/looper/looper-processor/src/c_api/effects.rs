@@ -72,7 +72,7 @@ pub unsafe extern "C" fn effect_parameters__get(
     parameters: *mut CEffectParameterList,
     index: usize,
 ) -> *mut EffectParameterModel {
-    (*(*parameters).inner)[index]
+    (&*(*parameters).inner)[index]
 }
 
 /// Free this parameters list and all its children
@@ -151,7 +151,7 @@ pub unsafe extern "C" fn effect_definitions__get(
     list: *mut CEffectDefinitionsList,
     index: usize,
 ) -> *mut EffectDefinition {
-    (*(*list).inner)[index]
+    (&*(*list).inner)[index]
 }
 
 /// Get the count of effect definitions in this list

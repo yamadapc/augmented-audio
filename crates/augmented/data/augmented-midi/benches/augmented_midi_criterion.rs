@@ -21,7 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 use augmented_midi::{parse_midi_file, ParserState};
-use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 fn criterion_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("augmented_midi");
@@ -37,7 +37,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     });
 
     group.bench_function(
-        "augmented_midi::parse_midi_event - owned buffer (more similar to rimd)",
+        "augmented_midi::parse_midi_event - owned buffer",
         |b| {
             let input_buffer = [0x9_8, 0x3C, 0x44];
             let mut parser_state = ParserState::default();
@@ -64,44 +64,6 @@ fn criterion_benchmark(c: &mut Criterion) {
             });
         },
     );
-
-    {
-        group.bench_function(
-            "rimd::MidiMessage::from_bytes - considering input allocation",
-            |b| {
-                b.iter(|| {
-                    let input_buffer = vec![0x9_8, 0x3C, 0x44];
-                    let mut output = rimd::MidiMessage::from_bytes(input_buffer);
-                    black_box(&mut output);
-                });
-            },
-        );
-
-        group.bench_function(
-            "rimd::MidiMessage::from_bytes - ignoring input allocation",
-            |b| {
-                b.iter_batched(
-                    || vec![0x9_8, 0x3C, 0x44],
-                    |input_buffer| {
-                        let mut output = rimd::MidiMessage::from_bytes(input_buffer);
-                        black_box(&mut output);
-                    },
-                    BatchSize::SmallInput,
-                );
-            },
-        );
-
-        group.bench_with_input("rimd::SMF::from_reader", &input_file, |b, input_file| {
-            b.iter_batched(
-                || std::io::Cursor::new(input_file),
-                |mut cursor| {
-                    let result = rimd::SMF::from_reader(&mut cursor).unwrap();
-                    black_box(result);
-                },
-                BatchSize::SmallInput,
-            );
-        });
-    }
 }
 
 criterion_group!(benches, criterion_benchmark,);
