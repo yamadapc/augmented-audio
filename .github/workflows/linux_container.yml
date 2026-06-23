@@ -5,8 +5,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  SCCACHE_GHA_ENABLED: true
-  RUSTC_WRAPPER: sccache
+  SCCACHE_GHA_ENABLED: "false"
   RUSTUP_HOME: /root/.rustup
   CARGO_HOME: /root/.cargo
 
@@ -29,7 +28,7 @@ jobs:
           lfs: true
 
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
 
@@ -116,13 +115,13 @@ jobs:
         submodules: recursive
         lfs: true
 
-    - run: echo "/root/.cargo/bin" >> $GITHUB_PATH
-    - uses: subosito/flutter-action@v1
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.2
+      uses: mozilla-actions/sccache-action@v0.0.10
       with:
         version: "v0.4.0"
 
+    - run: echo "/root/.cargo/bin" >> $GITHUB_PATH
+    - uses: subosito/flutter-action@v1
     - uses: Swatinem/rust-cache@v2
       with:
         shared-key: "rust-cache-linux3"

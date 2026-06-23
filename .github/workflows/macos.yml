@@ -5,8 +5,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  SCCACHE_GHA_ENABLED: true
-  RUSTC_WRAPPER: sccache
+  SCCACHE_GHA_ENABLED: "false"
 
 jobs:
   test-rust:
@@ -28,7 +27,7 @@ jobs:
       - uses: subosito/flutter-action@v1
 
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
 
@@ -65,7 +64,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v1
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
       - uses: Swatinem/rust-cache@v2
@@ -91,8 +90,9 @@ jobs:
           lfs: true
 
       - uses: subosito/flutter-action@v1
+
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
 
@@ -146,10 +146,7 @@ jobs:
         with:
           submodules: recursive
           lfs: true
-      - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
-        with:
-          version: "v0.4.0"
+
       - uses: subosito/flutter-action@v1
       - uses: Swatinem/rust-cache@v2
         with:
@@ -184,7 +181,7 @@ jobs:
           submodules: recursive
           lfs: true
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
       - uses: Swatinem/rust-cache@v2
