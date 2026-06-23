@@ -18,6 +18,8 @@ accepted = [
     "LGPL-3.0",
     "0BSD",
     "Unicode-DFS-2016",
+    "SSLeay-standalone",
+    "OpenSSL-standalone",
 ]
 ignore-dev-dependencies = true
 
