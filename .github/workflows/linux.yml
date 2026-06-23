@@ -132,7 +132,7 @@ jobs:
           curl -H "Authorization: Bearer $COVERAGE_BOT_TOKEN" -F 'data=@./tarpaulin-report/lcov.info' -F "commit=$(git rev-parse HEAD)" -F "pwd=$(pwd)" $COVERAGE_BOT_URL
 
       - name: Upload tarpaulin report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: tarpaulin-report
           path: ./tarpaulin-report
@@ -183,17 +183,17 @@ jobs:
         ./scripts/dev.sh test-snapshots
 
     - name: Upload plugin-host binary
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ runner.os }}-plugin-host
         path: ./target/release/plugin-host
     - name: Upload plugin-host-gui2 binary
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ runner.os }}-plugin-host-gui2
         path: ./target/release/plugin-host-gui2
     - name: Upload tremolo-plugin dylib
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ runner.os }}-libtas_v2-dylib
         path: ./target/release/libtas_v2.dylib
