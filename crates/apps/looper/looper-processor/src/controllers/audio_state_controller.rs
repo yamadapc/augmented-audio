@@ -118,18 +118,17 @@ fn setup_audio_state(options: StandaloneOptions, processor: MultiTrackLooper) ->
     let handles = audio_processor_standalone::standalone_start_for_env!(standalone_processor);
     let options = StandaloneOptions {
         accepts_input: true,
+        produces_output: true,
         input_device: handles
             .configuration()
             .input_configuration()
             .as_ref()
             .map(|config| config.name().to_string()),
-        output_device: Some(
-            handles
-                .configuration()
-                .output_configuration()
-                .name()
-                .to_string(),
-        ),
+        output_device: handles
+            .configuration()
+            .output_configuration()
+            .as_ref()
+            .map(|config| config.name().to_string()),
         handle: None,
     };
 

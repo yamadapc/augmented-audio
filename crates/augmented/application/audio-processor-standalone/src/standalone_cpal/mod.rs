@@ -86,7 +86,7 @@ pub fn audio_processor_start<Processor: AudioProcessor<SampleType = f32> + Send 
 pub struct ResolvedStandaloneConfiguration {
     host: String,
     input_configuration: Option<IOConfiguration>,
-    output_configuration: IOConfiguration,
+    output_configuration: Option<IOConfiguration>,
 }
 
 impl ResolvedStandaloneConfiguration {
@@ -98,7 +98,7 @@ impl ResolvedStandaloneConfiguration {
         &self.input_configuration
     }
 
-    pub fn output_configuration(&self) -> &IOConfiguration {
+    pub fn output_configuration(&self) -> &Option<IOConfiguration> {
         &self.output_configuration
     }
 }
@@ -328,6 +328,25 @@ mod test {
         let processor = NoopAudioProcessor::default();
         let processor = StandaloneAudioOnlyProcessor::new(processor, Default::default());
         let handles = standalone_start_for_test(processor);
+        drop(handles);
+    }
+
+    #[test]
+    fn test_standalone_start_without_output() {
+        let _ = wisual_logger::try_init_from_env();
+        let processor = NoopAudioProcessor::default();
+        let processor = StandaloneAudioOnlyProcessor::new(
+            processor,
+            crate::StandaloneOptions {
+                produces_output: false,
+                ..Default::default()
+            },
+        );
+        let handles = standalone_start_for_test(processor);
+
+        assert!(handles.configuration().input_configuration().is_some());
+        assert!(handles.configuration().output_configuration().is_none());
+
         drop(handles);
     }
 }

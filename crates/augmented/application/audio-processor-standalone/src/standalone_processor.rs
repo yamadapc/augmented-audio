@@ -51,6 +51,8 @@ pub trait StandaloneProcessor: Send + 'static {
 pub struct StandaloneOptions {
     /// If true a callback will be created for an input device
     pub accepts_input: bool,
+    /// If true the processor output will be sent to the output device
+    pub produces_output: bool,
     /// If set starting this processor will attempt to find this device and use it
     pub input_device: Option<String>,
     /// If set starting this processor will attempt to find this device and use it
@@ -66,6 +68,7 @@ impl Default for StandaloneOptions {
     fn default() -> Self {
         StandaloneOptions {
             accepts_input: true,
+            produces_output: true,
             input_device: None,
             output_device: None,
             handle: None,
