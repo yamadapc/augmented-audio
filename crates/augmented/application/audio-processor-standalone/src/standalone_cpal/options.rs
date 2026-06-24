@@ -186,19 +186,14 @@ pub fn configure_input_device<Host: HostTrait>(
 }
 
 pub fn configure_output_device<Host: HostTrait>(
-    host: Host,
+    host: &Host,
     options: &StandaloneOptions,
     buffer_size: usize,
     sample_rate: usize,
 ) -> Result<(Host::Device, StreamConfig), ConfigureDeviceError> {
     log::debug!("Negotiating output configuration");
-    let (output_device, output_config) = configure_device(
-        &host,
-        options,
-        AudioIOMode::Output,
-        buffer_size,
-        sample_rate,
-    )?;
+    let (output_device, output_config) =
+        configure_device(host, options, AudioIOMode::Output, buffer_size, sample_rate)?;
     log::info!(
         "Using output name={} sample_rate={} buffer_size={:?}",
         output_device.name()?,

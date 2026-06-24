@@ -20,8 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-use num::FromPrimitive;
-use rimd::Status;
+use augmented_midi::{CONTROL_CHANGE_MASK, NOTE_OFF_MASK, NOTE_ON_MASK};
 
 use audio_processor_traits::simple_processor::MultiChannel;
 use audio_processor_traits::{
@@ -90,28 +89,24 @@ impl MidiEventHandler for Synthesizer {
     fn process_midi_events<Message: MidiMessageLike>(&mut self, midi_messages: &[Message]) {
         for message in midi_messages {
             let maybe_bytes = message.bytes();
-            // TODO Write a better MIDI parser
-            // (rimd allocates on parse, so we can't parse the whole message; only the status byte)
-            let maybe_status = maybe_bytes.and_then(|b| rimd::Status::from_u8(b[0]));
-            if let Some((status, bytes)) = maybe_status.zip(maybe_bytes) {
-                self.handle_midi_message(status, bytes);
+            if let Some(bytes) = maybe_bytes {
+                self.handle_midi_message(bytes);
             }
         }
     }
 }
 
 impl Synthesizer {
-    fn handle_midi_message(&mut self, status: rimd::Status, bytes: &[u8]) {
-        match status {
-            Status::NoteOn => {
-                println!("Note on {}/{}", bytes[1], bytes[2]);
+    fn handle_midi_message(&mut self, bytes: &[u8]) {
+        match bytes[0] & 0xF0 {
+            NOTE_ON_MASK => {
                 self.note(false, bytes);
             }
-            Status::NoteOff => {
+            NOTE_OFF_MASK => {
                 // println!("Note off {}", bytes[1]);
                 self.note(true, bytes);
             }
-            Status::ControlChange => {
+            CONTROL_CHANGE_MASK => {
                 if bytes[1] == 21 {
                     self.filter.for_each(|filter| {
                         filter.set_cutoff(22000.0 * (bytes[2] as f32 / 127.0));

@@ -5,8 +5,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  SCCACHE_GHA_ENABLED: true
-  RUSTC_WRAPPER: sccache
+  SCCACHE_GHA_ENABLED: "false"
 
 jobs:
   test-rust:
@@ -28,12 +27,12 @@ jobs:
       - uses: subosito/flutter-action@v1
 
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
 
       - name: Cache cargo binaries
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -65,7 +64,7 @@ jobs:
           submodules: recursive
       - uses: subosito/flutter-action@v1
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
       - uses: Swatinem/rust-cache@v2
@@ -91,8 +90,9 @@ jobs:
           lfs: true
 
       - uses: subosito/flutter-action@v1
+
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
 
@@ -102,7 +102,7 @@ jobs:
           cache-all-crates: true
           cache-on-failure: true
       - name: Cache cargo binaries
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -114,17 +114,17 @@ jobs:
         run: cargo build --release --verbose --workspace --exclude augmented-ui --exclude midir
 
       - name: Upload plugin-host binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-plugin-host
           path: ./target/release/plugin-host
       - name: Upload plugin-host-gui2 binary
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-plugin-host-gui2
           path: ./target/release/plugin-host-gui2
       - name: Upload tremolo-plugin dylib
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-libtas_v2-dylib
           path: ./target/release/libtas_v2.dylib
@@ -146,10 +146,7 @@ jobs:
         with:
           submodules: recursive
           lfs: true
-      - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
-        with:
-          version: "v0.4.0"
+
       - uses: subosito/flutter-action@v1
       - uses: Swatinem/rust-cache@v2
         with:
@@ -166,7 +163,7 @@ jobs:
         run: |
           ./scripts/dev.sh test-snapshots
       - name: Upload snapshot test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ runner.os }}-snapshot-tests
           path: ./test
@@ -184,7 +181,7 @@ jobs:
           submodules: recursive
           lfs: true
       - name: Run sccache-cache
-        uses: mozilla-actions/sccache-action@v0.0.2
+        uses: mozilla-actions/sccache-action@v0.0.10
         with:
           version: "v0.4.0"
       - uses: Swatinem/rust-cache@v2
@@ -193,7 +190,7 @@ jobs:
           cache-all-crates: true
           cache-on-failure: true
       - name: Cache cargo binaries
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -218,7 +215,7 @@ jobs:
         run: |
           cd ./crates/apps/looper/looper-processor
           make
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         name: "Cache: Swift Package Manager"
         with:
           path: ~/Library/Developer/Xcode/DerivedData/Sequencer-*/SourcePackages/

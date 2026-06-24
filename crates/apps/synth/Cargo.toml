@@ -13,11 +13,9 @@ augmented-adsr-envelope = { path = "../../augmented/audio/adsr-envelope" , versi
 augmented_oscillator = { version = "1.4.0", path = "../../augmented/audio/oscillator" }
 audio-processor-standalone = { version = "3.5.0", path = "../../augmented/application/audio-processor-standalone" }
 num = "^0.4.0"
-rimd = "^0.0.1"
 log = "^0.4.14"
 wisual-logger = { version = "^0.1", path = "../../augmented/ops/wisual-logger" }
+augmented-midi = { path = "../../augmented/data/augmented-midi" }
 augmented-dsp-filters = { version = "2.5.0", path = "../../augmented/dsp/dsp-filters" }
-pitch_calc = "^0.12.0"
-
 [package.metadata.augmented]
 private = true

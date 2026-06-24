@@ -24,6 +24,12 @@ use audio_processor_traits::{AudioBuffer, AudioContext, AudioProcessor};
 use augmented_adsr_envelope::Envelope;
 use augmented_oscillator::Oscillator;
 
+/// Convert a MIDI note number to frequency in Hz.
+/// MIDI note 69 = A4 = 440 Hz, each step is one semitone.
+fn midi_to_hz(note: f32) -> f32 {
+    440.0 * 2.0_f32.powf((note - 69.0) / 12.0)
+}
+
 pub struct Voice {
     oscillators: [Oscillator<f32>; 3],
     envelope: Envelope,
@@ -60,9 +66,9 @@ impl Voice {
 
     pub fn note_on(&mut self, note: u8, _velocity: u8) {
         self.current_note = Some(note);
-        self.oscillators[0].set_frequency(pitch_calc::hz_from_step(note as f32));
-        self.oscillators[1].set_frequency(pitch_calc::hz_from_step(note as f32) * 1.005);
-        self.oscillators[2].set_frequency(pitch_calc::hz_from_step(note as f32) * 0.995);
+        self.oscillators[0].set_frequency(midi_to_hz(note as f32));
+        self.oscillators[1].set_frequency(midi_to_hz(note as f32) * 1.005);
+        self.oscillators[2].set_frequency(midi_to_hz(note as f32) * 0.995);
         self.envelope.note_on();
     }
 

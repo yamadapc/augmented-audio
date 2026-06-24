@@ -28,7 +28,7 @@ jobs:
           node-version: '18.9.0'
         if: steps.changes.outputs.src == 'true'
       - name: restore caches
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         if: steps.changes.outputs.src == 'true'
         with:
           path: |
@@ -45,7 +45,7 @@ jobs:
         run: yarn run build
         if: steps.changes.outputs.src == 'true'
       - name: Upload tremolo-plugin-frontend build
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         if: steps.changes.outputs.src == 'true'
         with:
           name: tremolo-plugin-frontend
