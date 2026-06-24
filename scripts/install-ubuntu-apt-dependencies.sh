@@ -13,14 +13,14 @@ sudo apt-get install --fix-missing -y \
     libpango1.0-dev \
     libatk1.0-dev \
     libgdk-pixbuf2.0-dev \
-    libsoup2.4-dev \
-    libclang-11-dev \
+    libsoup-3.0-dev \
+    libclang-dev \
     libgdk3.0-cil-dev \
     libappindicator3-dev \
     ninja-build \
     libayatana-appindicator3-dev \
     libgtksourceview-3.0-dev \
-    libwebkit2gtk-4.0-dev \
+    libwebkit2gtk-4.1-dev \
     libx11-xcb-dev \
     libxcb-icccm4-dev \
     libxcb-shape0-dev \
