@@ -6,7 +6,7 @@ on:
 jobs:
   build_metronome:
     name: Metronome - Dart - Build & test
-    runs-on: macos-12
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v2
         with:

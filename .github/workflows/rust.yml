@@ -13,7 +13,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-14, ubuntu-20.04]
+        os: [macos-26, ubuntu-24.04]
       fail-fast: false
     name: Build rust crates on ${{ matrix.os }}
     steps:
@@ -30,7 +30,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-14, ubuntu-20.04]
+        os: [macos-26, ubuntu-24.04]
       fail-fast: false
     name: Test rust crates on ${{ matrix.os }}
     steps:
@@ -48,7 +48,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04]
+        os: [ubuntu-24.04]
       fail-fast: false
     name: Lint rust crates on ${{ matrix.os }}
     steps:
@@ -65,7 +65,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-14, ubuntu-20.04]
+        os: [macos-26, ubuntu-24.04]
       fail-fast: false
     name: Build release rust binaries ${{ matrix.os }}
     steps:
@@ -86,7 +86,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-14]
+        os: [macos-26]
       fail-fast: false
     name: Validate licenses on ${{ matrix.os }}
     steps:
