@@ -16,7 +16,6 @@ sudo apt-get install --fix-missing -y \
     libsoup-3.0-dev \
     libclang-dev \
     libgdk3.0-cil-dev \
-    libappindicator3-dev \
     ninja-build \
     libayatana-appindicator3-dev \
     libgtksourceview-3.0-dev \
